@@ -51,7 +51,6 @@ onnx.ModelFactory = class {
                 }
             }
         };
-        const graphs = new Set();
         const queue = [ model.graph ];
         while (queue.length > 0) {
             const graph = queue.shift();
@@ -92,7 +91,6 @@ onnx.ModelFactory = class {
                     }
                 }
             }
-            graphs.add(graph);
         }
         const weights = new Map();
         const keys = Array.from(locations);
@@ -103,13 +101,13 @@ onnx.ModelFactory = class {
                 weights.set(keys[i], streams[i]);
             }
         }
-        return new onnx.Model(metadata, format, model, Array.from(graphs), weights);
+        return new onnx.Model(metadata, format, model, model.graph, weights);
     }
 };
 
 onnx.Model = class {
 
-    constructor(metadata, format, model, graphs, locations) {
+    constructor(metadata, format, model, graph, locations) {
         this._graphs = [];
         this._format = format;
         this._producer = model.producer_name && model.producer_name.length > 0 ? model.producer_name + (model.producer_version && model.producer_version.length > 0 ? ' ' + model.producer_version : '') : null;
@@ -178,15 +176,12 @@ onnx.Model = class {
             }
             imageFormat = [ imageMetadata['Image.BitmapPixelFormat'], imageMetadata['Image.ColorSpaceGamma'], imageMetadata['Image.NominalPixelRange'] ].filter((item) => item);
         }
-        metadata = new onnx.GraphMetadata(metadata, imports);
+        metadata = new onnx.ModelMetadata(metadata, imports);
         const context = new onnx.ModelContext(metadata, locations, imageFormat);
         for (const func of model.functions || []) {
             context.metadata.add(new onnx.Function(context, func));
         }
-        this._graphs = [];
-        for (const graph of graphs) {
-            this._graphs.push(context.graph(graph));
-        }
+        this._graphs = [ new onnx.Graph(context, graph) ];
     }
 
     get format() {
@@ -232,19 +227,7 @@ onnx.Graph = class {
         this._outputs = [];
         this._name = graph.name || null;
         this._description = graph.doc_string || '';
-        context = new onnx.GraphContext(context, graph.node);
-        if (Array.isArray(graph.initializer)) {
-            for (const initializer of graph.initializer) {
-                const tensor = context.tensor(initializer.name);
-                tensor.initializer = new onnx.Tensor(context, initializer, 'Initializer');
-            }
-        }
-        if (Array.isArray(graph.sparse_initializer)) {
-            for (const sparse_initializer of graph.sparse_initializer) {
-                const tensor = context.tensor(sparse_initializer.values.name);
-                tensor.initializer = new onnx.Tensor(context, sparse_initializer, 'Initializer');
-            }
-        }
+        context = new onnx.GraphContext(context, graph);
         if (Array.isArray(graph.quantization_annotation)) {
             for (const tensor_annotation of graph.quantization_annotation) {
                 const tensor = context.tensor(tensor_annotation.tensor_name);
@@ -911,7 +894,7 @@ onnx.Function = class {
         this._attributes = func.attribute.map((attribtue) => {
             return { name: attribtue };
         });
-        context = new onnx.GraphContext(context, func.node);
+        context = new onnx.GraphContext(context, func);
         func.input = func.input.map((input) => context.tensor(input));
         func.output = func.output.map((output) => context.tensor(output));
         context.push(func.node, func.input, func.output);
@@ -963,7 +946,7 @@ onnx.Function = class {
     }
 };
 
-onnx.GraphMetadata = class {
+onnx.ModelMetadata = class {
 
     constructor(metadata, imports) {
         this._metadata = metadata;
@@ -1159,7 +1142,6 @@ onnx.ModelContext = class {
         this._metadata = metadata;
         this._locations = locations;
         this._imageFormat = imageFormat;
-        this._graphs = new Map();
     }
 
     get metadata() {
@@ -1188,28 +1170,39 @@ onnx.ModelContext = class {
         return null;
     }
 
-    graph(value) {
-        if (!this._graphs.has(value)) {
-            this._graphs.set(value, new onnx.Graph(this, value));
-        }
-        return this._graphs.get(value);
+    initializer(/* name */) {
+        return null;
     }
 };
 
 onnx.GraphContext = class {
 
-    constructor(context, nodes) {
+    constructor(context, graph) {
         this._context = context;
         this._dataTypes = new Map(Object.entries(onnx.DataType).map(([name, value]) => [ value, name.toLowerCase() ]));
         this._dataTypes.set(onnx.DataType.UNDEFINED, 'undefined');
         this._dataTypes.set(onnx.DataType.BOOL, 'boolean');
         this._dataTypes.set(onnx.DataType.FLOAT, 'float32');
         this._dataTypes.set(onnx.DataType.DOUBLE, 'float64');
+        this._graphs = new Map();
+        this._initializers = new Map();
         this._tensors = new Map();
         this._values = new Map();
         this._groups = new Map();
         this._nodes = [];
-        for (const node of nodes) {
+        if (Array.isArray(graph.initializer)) {
+            for (const initializer of graph.initializer) {
+                const tensor = new onnx.Tensor(this, initializer, 'Initializer');
+                this._initializers.set(initializer.name, tensor);
+            }
+        }
+        if (Array.isArray(graph.sparse_initializer)) {
+            for (const sparse_initializer of graph.sparse_initializer) {
+                const tensor = new onnx.Tensor(this, sparse_initializer, 'Initializer');
+                this._initializers.set(sparse_initializer.values.name, tensor);
+            }
+        }
+        for (const node of graph.node) {
             node.input = node.input.map((name) => this.tensor(name));
             node.output = node.output.map((name) => this.tensor(name));
             node.param = {};
@@ -1250,13 +1243,23 @@ onnx.GraphContext = class {
         return this._context.metadata;
     }
 
-    graph(name) {
-        return this._context.graph(name);
+    graph(value) {
+        if (!this._graphs.has(value)) {
+            this._graphs.set(value, new onnx.Graph(this, value));
+        }
+        return this._graphs.get(value);
+    }
+
+    initializer(name) {
+        if (this._initializers.has(name)) {
+            return this._initializers.get(name);
+        }
+        return this._context.initializer(name);
     }
 
     tensor(name) {
         if (!this._tensors.has(name)) {
-            this._tensors.set(name, { name: name });
+            this._tensors.set(name, { name: name, initializer: this.initializer(name) });
         }
         return this._tensors.get(name);
     }
@@ -1409,9 +1412,10 @@ onnx.GraphContext = class {
             for (let i = 0; i < node.input.length;) {
                 const input = schema && schema.inputs && i < schema.inputs.length ? schema.inputs[i] : { name: i.toString() };
                 const count = input.list ? node.input.length - i : 1;
-                const list = node.input.slice(i, i + count).filter((arg) => arg.name !== '' || arg.initializer);
-                const args = list.map((input) => this.value(input.name));
-                inputs.push(new onnx.Argument(input.name, args));
+                const list = node.input.slice(i, i + count).filter((value) => value.name !== '' || value.initializer);
+                const values = list.map((input) => this.value(input.name));
+                const argument = new onnx.Argument(input.name, values);
+                inputs.push(argument);
                 i += count;
             }
             const outputs = [];
@@ -1419,9 +1423,9 @@ onnx.GraphContext = class {
             for (let i = 0; i < node.output.length;) {
                 const output = schema && schema.outputs && i < schema.outputs.length ? schema.outputs[i] : { name: i.toString() };
                 const count = output.list ? node.output.length - i : 1;
-                const list = node.output.slice(i, i + count).filter((arg) => arg.name !== '' || arg.initializer);
-                const args = list.map((output) => this.value(output.name));
-                outputs.push(new onnx.Argument(output.name, args));
+                const list = node.output.slice(i, i + count).filter((value) => value.name !== '' || value.initializer);
+                const values = list.map((output) => this.value(output.name));
+                outputs.push(new onnx.Argument(output.name, values));
                 i += count;
             }
             node = new onnx.Node(this, node.op_type, node.domain, node.name, node.doc_string, node.attribute, inputs, outputs);
