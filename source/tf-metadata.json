@@ -24473,6 +24473,33 @@
     ]
   },
   {
+    "name": "ListSnapshotChunksDataset",
+    "attributes": [
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "snapshot_path",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
     "name": "LoadAllTPUEmbeddingParameters",
     "summary": "An op that loads optimization parameters into embedding memory.",
     "description": "An op that loads optimization parameters into embedding memory. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct embedding\ntable configuration. For example, this op is used to install parameters that are\nloaded from a checkpoint before a training loop is executed.  For Adagrad,\nauxiliary1 should be the accumulators. For SGD, all of the auxiliary* values\nshould be empty. For FTRL, auxiliary1 should be the accumulators and auxiliary2\nshould be the linear terms. For ADAM, auxiliary1 should be the momenta and\nauxiliary2 should be the velocities.",
