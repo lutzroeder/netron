@@ -5170,15 +5170,12 @@ view.ModelFactoryService = class {
         this.register('./pytorch', [ '.pt', '.pth', '.ptl', '.pt1', '.pyt', '.pyth', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel', '.torchscript', '.pytorch', '.ot', '.params', '.trt', '.ff', '.ptmf', '.jit', '.pte' ], [ '.model' ]);
         this.register('./onnx', [ '.onnx', '.onn', '.pb', '.onnxtxt', '.pbtxt', '.prototxt', '.txt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx', 'onnxmodel', 'ngf', 'json' ]);
         this.register('./mxnet', [ '.json', '.params' ], [ '.mar']);
-        this.register('./coreml', [ '.mlmodel', '.bin', 'manifest.json', 'metadata.json', 'featuredescriptions.json', '.pb' ], [ '.mlpackage' ]);
+        this.register('./coreml', [ '.mlmodel', '.bin', 'manifest.json', 'metadata.json', 'featuredescriptions.json', '.pb', '.pbtxt' ], [ '.mlpackage' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt', '.txt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
         this.register('./torch', [ '.t7', '.net' ]);
         this.register('./tflite', [ '.tflite', '.lite', '.tfl', '.bin', '.pb', '.tmfile', '.h5', '.model', '.json', '.txt', '.dat' ]);
-        this.register('./circle', [ '.circle' ]);
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.txt', '.pt', '.json', '.index', '.ckpt', '.graphdef', '.pbmm', /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/, /^events.out.tfevents./ ], [ '.zip' ]);
-        this.register('./mediapipe', [ '.pbtxt' ]);
-        this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
         this.register('./tensorrt', [ '.trt', '.trtmodel', '.engine', '.model', '.txt', '.uff', '.pb', '.tmfile', '.onnx', '.pth', '.dnn', '.plan', '.pt', '.dat' ]);
         this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt', '.pb', 'model.weights.npz' ], [ '.zip' ]);
         this.register('./numpy', [ '.npz', '.npy', '.pkl', '.pickle', '.model', '.model2', '.mge', '.joblib' ]);
@@ -5188,10 +5185,11 @@ view.ModelFactoryService = class {
         this.register('./megengine', [ '.tm', '.mge' ]);
         this.register('./pickle', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z', '.pdstates', '.mge' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
+        this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
         this.register('./paddle', [ '.pdmodel', '.pdiparams', '.pdparams', '.pdopt', '.paddle', '__model__', '.__model__', '.pbtxt', '.txt', '.tar', '.tar.gz', '.nb' ]);
         this.register('./bigdl', [ '.model', '.bigdl' ]);
         this.register('./darknet', [ '.cfg', '.model', '.txt', '.weights' ]);
-        this.register('./weka', [ '.model' ]);
+        this.register('./mediapipe', [ '.pbtxt' ]);
         this.register('./rknn', [ '.rknn', '.nb', '.onnx', '.json' ]);
         this.register('./dlc', [ '.dlc', 'model', '.params' ]);
         this.register('./armnn', [ '.armnn', '.json' ]);
@@ -5201,6 +5199,7 @@ view.ModelFactoryService = class {
         this.register('./tengine', ['.tmfile']);
         this.register('./mslite', [ '.ms']);
         this.register('./barracuda', [ '.nn' ]);
+        this.register('./circle', [ '.circle' ]);
         this.register('./dnn', [ '.dnn' ]);
         this.register('./xmodel', [ '.xmodel' ]);
         this.register('./kmodel', [ '.kmodel' ]);
@@ -5215,7 +5214,6 @@ view.ModelFactoryService = class {
         this.register('./nnabla', [ '.nntxt' ], [ '.nnp' ]);
         this.register('./hickle', [ '.h5', '.hkl' ]);
         this.register('./nnef', [ '.nnef', '.dat' ]);
-        this.register('./cambricon', [ '.cambricon' ]);
         this.register('./onednn', [ '.json']);
         this.register('./mlir', [ '.mlir']);
         this.register('./sentencepiece', [ '.model' ]);
@@ -5223,6 +5221,8 @@ view.ModelFactoryService = class {
         this.register('./nnc', [ '.nnc' ]);
         this.register('./safetensors', [ '.safetensors' ]);
         this.register('./modular', [ '.maxviz' ]);
+        this.register('./cambricon', [ '.cambricon' ]);
+        this.register('./weka', [ '.model' ]);
     }
 
     register(id, factories, containers) {

@@ -1101,8 +1101,16 @@
   {
     "type":     "coreml",
     "target":   "Exermote.mlmodel",
-    "source":   "https://raw.githubusercontent.com/Lausbert/Exermote/master/ExermoteInference/ExermoteCoreML/ExermoteCoreML/Model/Exermote.mlmodel",
-    "format":   "Core ML v1"
+    "source":   "https://github.com/lutzroeder/netron/files/13663126/Exermote.mlmodel.zip[Exermote.mlmodel]",
+    "format":   "Core ML v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
+  },
+  {
+    "type":     "coreml",
+    "target":   "Exermote.pbtxt",
+    "source":   "https://github.com/lutzroeder/netron/files/13663128/Exermote.pbtxt.zip[Exermote.pbtxt]",
+    "format":   "Core ML v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":     "coreml",
@@ -1325,6 +1333,13 @@
     "target":   "FrameGRUModel.mlpackage.zip",
     "source":   "https://github.com/lutzroeder/netron/files/13643385/FrameGRUModel.mlpackage.zip",
     "format":   "Core ML Package v4",
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
+  },
+  {
+    "type":     "coreml",
+    "target":   "FrameGRUModel.pbtxt.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/13663034/FrameGRUModel.pbtxt.zip",
+    "format":   "Core ML v4",
     "link":     "https://github.com/lutzroeder/netron/issues/193"
   },
   {
