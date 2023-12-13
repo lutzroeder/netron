@@ -756,7 +756,6 @@ view.View = class {
 
     async renderGraph(model, graph, options) {
         this._graph = null;
-
         const canvas = this._element('canvas');
         while (canvas.lastChild) {
             canvas.removeChild(canvas.lastChild);
@@ -765,14 +764,12 @@ view.View = class {
             return;
         }
         this._zoom = 1;
-
         const groups = graph.groups;
         const nodes = graph.nodes;
         this._host.event('graph_view', {
             graph_node_count: nodes.length,
             graph_skip: 0
         });
-
         const layout = {};
         layout.nodesep = 20;
         layout.ranksep = 20;
@@ -784,10 +781,8 @@ view.View = class {
         if (nodes.length > 3000) {
             layout.ranker = 'longest-path';
         }
-
         const viewGraph = new view.Graph(this, model, options, groups, layout);
         viewGraph.add(graph);
-
         // Workaround for Safari background drag/zoom issue:
         // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
         const background = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -795,17 +790,14 @@ view.View = class {
         background.setAttribute('fill', 'none');
         background.setAttribute('pointer-events', 'all');
         canvas.appendChild(background);
-
         const origin = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
         origin.setAttribute('id', 'origin');
         canvas.appendChild(origin);
-
         viewGraph.build(this._host.document, origin);
         await this._timeout(20);
         viewGraph.measure();
         viewGraph.layout();
         viewGraph.update();
-
         const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
         if (elements.length === 0) {
             const nodeElements = Array.from(canvas.getElementsByClassName('graph-node') || []);
@@ -827,10 +819,8 @@ view.View = class {
         canvas.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
         canvas.setAttribute('width', width);
         canvas.setAttribute('height', height);
-
         this._zoom = 1;
         this._updateZoom(this._zoom);
-
         const container = this._element('graph');
         if (elements && elements.length > 0) {
             // Center view based on input elements
@@ -5772,30 +5762,29 @@ view.Metadata = class {
 
     static async open(context, name) {
         view.Metadata._metadata = view.Metadata._metadata || new Map();
-        if (view.Metadata._metadata.has(name)) {
-            return view.Metadata._metadata.get(name);
+        const metadata = view.Metadata._metadata;
+        if (!metadata.has(name)) {
+            try {
+                const content = await context.request(name);
+                const types = JSON.parse(content);
+                metadata.set(name, new view.Metadata(types));
+            } catch (error) {
+                metadata.set(name, new view.Metadata(null));
+            }
         }
-        try {
-            const json = await context.request(name);
-            const data = JSON.parse(json);
-            const library = new view.Metadata(data);
-            view.Metadata._metadata.set(name, library);
-            return library;
-        } catch (error) {
-            const library = new view.Metadata(null);
-            view.Metadata._metadata.set(name, library);
-            return library;
-        }
+        return metadata.get(name);
     }
 
-    constructor(data) {
+    constructor(types) {
         this._types = new Map();
         this._attributes = new Map();
         this._inputs = new Map();
-        for (const entry of data || []) {
-            this._types.set(entry.name, entry);
-            if (entry.identifier !== undefined) {
-                this._types.set(entry.identifier, entry);
+        if (Array.isArray(types)) {
+            for (const type of types) {
+                this._types.set(type.name, type);
+                if (type.identifier !== undefined) {
+                    this._types.set(type.identifier, type);
+                }
             }
         }
     }
