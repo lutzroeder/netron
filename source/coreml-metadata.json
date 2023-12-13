@@ -139,6 +139,15 @@
     ]
   },
   {
+    "name": "gather",
+    "category": "Transform",
+    "description": "Gather layer that gathers elements from the first input, along a specified axis, at indices specified in the second input.",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "gelu",
     "category": "Activation",
     "description": "Gaussian error linear unit activation.",
