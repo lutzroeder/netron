@@ -3188,7 +3188,7 @@ view.FindSidebar = class extends view.Control {
             const term = unquote[1] || unquote[2];
             terms = [ term ];
             match = (name) => {
-                return term == name;
+                return term === name;
             };
         } else {
             terms = searchText.trim().toLowerCase().split(' ').map((term) => term.trim()).filter((term) => term.length > 0);
@@ -3197,46 +3197,43 @@ view.FindSidebar = class extends view.Control {
             };
         }
         const edges = new Set();
-        const arg = (argument) => {
+        const matchValue = (value) => {
             if (terms.length === 0) {
                 return true;
             }
-            let match = false;
-            for (const term of terms) {
-                if (argument.name && argument.name.toLowerCase().indexOf(term) !== -1) {
-                    match = true;
-                    break;
-                }
-                if (argument.type) {
-                    if (argument.type.dataType && term === argument.type.dataType.toLowerCase()) {
-                        match = true;
-                        break;
+            if (value.name && match(value.name.split('\n').shift())) {
+                return true;
+            }
+            if (value.location && match(value.location)) {
+                return true;
+            }
+            if (value.type) {
+                for (const term of terms) {
+                    if (value.type.dataType && term === value.type.dataType.toLowerCase()) {
+                        return true;
                     }
-                    if (argument.type.shape) {
-                        if (term === argument.type.shape.toString().toLowerCase()) {
-                            match = true;
-                            break;
+                    if (value.type.shape) {
+                        if (term === value.type.shape.toString().toLowerCase()) {
+                            return true;
                         }
-                        if (argument.type.shape && Array.isArray(argument.type.shape.dimensions)) {
-                            const dimensions = argument.type.shape.dimensions.map((dimension) => dimension ? dimension.toString().toLowerCase() : '');
+                        if (value.type.shape && Array.isArray(value.type.shape.dimensions)) {
+                            const dimensions = value.type.shape.dimensions.map((dimension) => dimension ? dimension.toString().toLowerCase() : '');
                             if (term === dimensions.join(',')) {
-                                match = true;
-                                break;
+                                return true;
                             }
                             if (dimensions.some((dimension) => term === dimension)) {
-                                match = true;
-                                break;
+                                return true;
                             }
                         }
                     }
                 }
             }
-            return match;
+            return false;
         };
-        const edge = (argument) => {
-            if (argument.name && !edges.has(argument.name) && arg(argument)) {
-                add(argument, '\u2192 ' + argument.name.split('\n').shift()); // split custom argument id
-                edges.add(argument.name);
+        const edge = (value) => {
+            if (value.name && !edges.has(value.name) && matchValue(value)) {
+                add(value, '\u2192 ' + value.name.split('\n').shift()); // split custom argument id
+                edges.add(value.name);
             }
         };
         for (const input of this._graph.inputs) {
@@ -3257,11 +3254,12 @@ view.FindSidebar = class extends view.Control {
             }
             const name = node.name;
             const type = node.type.name;
-            if ((name && match(name)) || (type && match(type))) {
+            const location = node.location;
+            if ((name && match(name)) || (type && match(type)) || (location && match(location))) {
                 add(node, '\u25A2 ' + (name || '[' + type + ']'));
             }
             for (const value of initializers) {
-                if (value.name && !edges.has(value.name) && arg(value)) {
+                if (value.name && !edges.has(value.name) && matchValue(value)) {
                     add(node, '\u25A0 ' + value.name.split('\n').shift()); // split custom argument id
                 }
             }
