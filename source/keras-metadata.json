@@ -772,7 +772,7 @@
       },
       {
         "default": "channels_last",
-        "description": "string, either `\"channels_last\"` or `\"channels_first\"`.\n        The ordering of the dimensions in the inputs. `\"channels_last\"`\n        corresponds to inputs with shape\n        `(batch_size, channels, height, width)`\n        while `\"channels_first\"` corresponds to inputs with shape\n        `(batch_size, channels, height, width)`. It defaults to the\n        `image_data_format` value found in your Keras config file at\n        `~/.keras/keras.json`. If you never set it, then it will be\n        `\"channels_last\"`.",
+        "description": "string, either `\"channels_last\"` or `\"channels_first\"`.\n        The ordering of the dimensions in the inputs. `\"channels_last\"`\n        corresponds to inputs with shape\n        `(batch_size, height, width, channels)`\n        while `\"channels_first\"` corresponds to inputs with shape\n        `(batch_size, channels, height, width)`. It defaults to the\n        `image_data_format` value found in your Keras config file at\n        `~/.keras/keras.json`. If you never set it, then it will be\n        `\"channels_last\"`.",
         "name": "data_format"
       },
       {
@@ -1023,7 +1023,7 @@
         "name": "padding"
       },
       {
-        "description": "string, either `\"channels_last\"` or `\"channels_first\"`.\n        The ordering of the dimensions in the inputs. `\"channels_last\"`\n        corresponds to inputs with shape\n        `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n        while `\"channels_first\"` corresponds to inputs with shape\n        `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`.\n        It defaults to the `image_data_format` value found in your Keras\n        config file at `~/.keras/keras.json`. If you never set it, then it\n        will be `\"channels_last\"`.",
+        "description": "string, either `\"channels_last\"` or `\"channels_first\"`.\n        The ordering of the dimensions in the inputs. `\"channels_last\"`\n        corresponds to inputs with shape\n        `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n        while `\"channels_first\"` corresponds to inputs with shape\n        `(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n        It defaults to the `image_data_format` value found in your Keras\n        config file at `~/.keras/keras.json`. If you never set it, then it\n        will be `\"channels_last\"`.",
         "name": "data_format"
       },
       {
@@ -1278,7 +1278,7 @@
       },
       {
         "default": "channels_last",
-        "description": "string, either `\"channels_last\"` or `\"channels_first\"`.\n        The ordering of the dimensions in the inputs. `\"channels_last\"`\n        corresponds to inputs with shape\n        `(batch_size, channels, height, width)`\n        while `\"channels_first\"` corresponds to inputs with shape\n        `(batch_size, channels, height, width)`. It defaults to the\n        `image_data_format` value found in your Keras config file at\n        `~/.keras/keras.json`. If you never set it, then it will be\n        `\"channels_last\"`.",
+        "description": "string, either `\"channels_last\"` or `\"channels_first\"`.\n        The ordering of the dimensions in the inputs. `\"channels_last\"`\n        corresponds to inputs with shape\n        `(batch_size, height, width, channels)`\n        while `\"channels_first\"` corresponds to inputs with shape\n        `(batch_size, channels, height, width)`. It defaults to the\n        `image_data_format` value found in your Keras config file at\n        `~/.keras/keras.json`. If you never set it, then it will be\n        `\"channels_last\"`.",
         "name": "data_format"
       },
       {
@@ -3720,7 +3720,7 @@
       },
       {
         "default": "channels_last",
-        "description": "string, either `\"channels_last\"` or `\"channels_first\"`.\n        The ordering of the dimensions in the inputs. `\"channels_last\"`\n        corresponds to inputs with shape `(batch, steps, features)`\n        while `\"channels_first\"` corresponds to inputs with shape\n        `(batch, features, steps)`. It defaults to the `image_data_format`\n        value found in your Keras config file at `~/.keras/keras.json`.\n        If you never set it, then it will be `\"channels_last\"`.",
+        "description": "string, either `\"channels_last\"` or `\"channels_first\"`.\n        The ordering of the dimensions in the inputs. `\"channels_last\"`\n        corresponds to inputs with shape `(batch, height, width, channels)`\n        while `\"channels_first\"` corresponds to inputs with shape\n        `(batch, channels, height, width)`. It defaults to the\n        `image_data_format` value found in your Keras config file\n        at `~/.keras/keras.json`.\n        If you never set it, then it will be `\"channels_last\"`.",
         "name": "data_format"
       },
       {
