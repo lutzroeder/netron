@@ -272,7 +272,7 @@ pytorch.Value = class {
 
 pytorch.Node = class {
 
-    constructor(metadata, group, item, initializers, values) {
+    constructor(metadata, group, item, initializers, values, stack) {
         this.group = group || '';
         this.name = item.name || '';
         this.nodes = [];
@@ -312,7 +312,14 @@ pytorch.Node = class {
             if (Array.isArray(value) && value.length > 0 && value.every((obj) => obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__module__.startsWith('torch.nn'))) {
                 value = '?';
             }
-            return new pytorch.Attribute(name, type, value, visible);
+            return new pytorch.Attribute(name, value, type, visible);
+        };
+        const isObject = (obj) => {
+            if (obj && typeof obj === 'object') {
+                const proto = Object.getPrototypeOf(obj);
+                return proto === Object.prototype || proto === null;
+            }
+            return false;
         };
         if (!item.module && !item.node) {
             this.type = type(metadata, item.type);
@@ -326,6 +333,7 @@ pytorch.Node = class {
             const parameters = new Map();
             const entries = [];
             const attributes = new Map();
+            stack = stack || new Set();
             for (const [name, value] of Object.entries(obj)) {
                 if (name === '__class__') {
                     continue;
@@ -375,14 +383,14 @@ pytorch.Node = class {
                 const type = this.type.identifier;
                 if (pytorch.Utility.isTensor(value)) {
                     const tensor = new pytorch.Tensor('', value);
-                    return createAttribute({ type: 'tensor' }, name, tensor);
+                    return new pytorch.Attribute(name, tensor, 'tensor');
                 } else if (Array.isArray(value) && value.every((value) => pytorch.Utility.isTensor(value))) {
                     const tensors = value.map((value) => new pytorch.Tensor('', value));
-                    return createAttribute({ type: 'tensor[]' }, name, tensors);
+                    return new pytorch.Attribute(name, tensors, 'tensor[]');
                 } else if (Array.isArray(value) && value.every((value) => typeof value === 'string')) {
-                    return createAttribute({ type: 'string[]' }, name, value);
+                    return new pytorch.Attribute(name, value, 'string[]');
                 } else if (Array.isArray(value) && value.every((value) => typeof value === 'number')) {
-                    return createAttribute(null, name, value);
+                    return new pytorch.Attribute(name, value);
                 } else if (name === '_modules' && value && value.__class__ && value.__class__.__module__ === 'collections' && value.__class__.__name__ === 'OrderedDict' &&
                     value instanceof Map && Array.from(value).every(([, value]) => value.__class__)) {
                     const values = Array.from(value).map(([name, value]) => {
@@ -393,14 +401,27 @@ pytorch.Node = class {
                         };
                         return new pytorch.Node(metadata, group, item);
                     });
-                    return createAttribute({ type: 'object[]' }, name, values);
-                } else if (value && value.__class__) {
+                    return new pytorch.Attribute(name, values, 'object[]');
+                } else if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj && (obj.__class__ || obj === Object(obj)))) {
+                    const values = value.filter((value) => !stack.has(value));
+                    const nodes = values.map((value) => {
+                        stack.add(value);
+                        const item = {
+                            type: value.__class__ ? value.__class__.__module__ + '.' + value.__class__.__name__ : 'builtins.object',
+                            obj: value
+                        };
+                        const node = new pytorch.Node(metadata, group, item, initializers, values, stack);
+                        stack.delete(value);
+                        return node;
+                    });
+                    return new pytorch.Attribute(name, nodes, 'object[]');
+                } else if (value && value.__class__ || isObject(value)) {
                     const item = {
-                        type: value.__class__.__module__ + '.' + value.__class__.__name__,
+                        type: value.__class__ ? value.__class__.__module__ + '.' + value.__class__.__name__ : 'builtins.object',
                         obj: value
                     };
-                    const node = new pytorch.Node(metadata, group, item);
-                    return createAttribute({ type: 'object' }, name, node);
+                    const node = new pytorch.Node(metadata, group, item, initializers, values, stack);
+                    return new pytorch.Attribute(name, node, 'object');
                 }
                 return createAttribute(metadata.attribute(type, name), name, value);
             });
@@ -577,7 +598,7 @@ pytorch.Node = class {
 
 pytorch.Attribute = class {
 
-    constructor(name, type, value, visible) {
+    constructor(name, value, type, visible) {
         this.name = name;
         this.value = value;
         if (type) {
