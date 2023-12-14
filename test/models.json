@@ -1337,13 +1337,6 @@
   },
   {
     "type":     "coreml",
-    "target":   "FrameGRUModel.pbtxt.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/13663034/FrameGRUModel.pbtxt.zip",
-    "format":   "Core ML v4",
-    "link":     "https://github.com/lutzroeder/netron/issues/193"
-  },
-  {
-    "type":     "coreml",
     "target":   "GoogLeNetPlaces.mlmodel",
     "source":   "https://docs-assets.developer.apple.com/coreml/models/GoogLeNetPlaces.mlmodel"
   },
