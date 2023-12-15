@@ -1640,7 +1640,7 @@ python.Execution = class {
         math.inf = Infinity;
         const numpy = this.register('numpy');
         const pickle = this.register('pickle');
-        this.register('sklearn');
+        const sklearn = this.register('sklearn');
         const torch = this.register('torch');
         const torchvision = this.register('torchvision');
         this.register('torch.storage');
@@ -2505,6 +2505,10 @@ python.Execution = class {
         this.registerType('pathlib.Path', class {});
         this.registerType('pathlib.PosixPath', class {});
         this.registerType('pathlib.WindowsPath', class {});
+        this.registerType('sklearn._loss.link.BaseLink', class {});
+        this.registerType('sklearn._loss.link.MultinomialLogit', class extends sklearn._loss.link.BaseLink {});
+        this.registerType('sklearn._loss.loss.BaseLoss', class {});
+        this.registerType('sklearn._loss.loss.HalfMultinomialLoss', class extends sklearn._loss.loss.BaseLoss {});
         this.registerType('sklearn.base.BaseEstimator', class {});
         this.registerType('sklearn.base.TransformerMixin', class {});
         this.registerType('sklearn.calibration._CalibratedClassifier', class {});
@@ -2620,6 +2624,7 @@ python.Execution = class {
         this.registerType('sklearn.linear_model._coordinate_descent.Lasso', class {});
         this.registerType('sklearn.linear_model._least_angle.LassoLarsCV', class {});
         this.registerType('sklearn.linear_model._logistic.LogisticRegression', class {});
+        this.registerType('sklearn.linear_model._quantile.QuantileRegressor', class {});
         this.registerType('sklearn.linear_model._ridge.Ridge', class {});
         this.registerType('sklearn.linear_model._ridge.RidgeClassifier', class {});
         this.registerType('sklearn.linear_model._sgd_fast.Hinge', class {});
