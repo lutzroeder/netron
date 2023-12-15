@@ -5902,6 +5902,15 @@
     "target":   "simple.safetensors",
     "source":   "https://github.com/lutzroeder/netron/files/11943528/simple.safetensors.zip[simple.safetensors]",
     "format":   "Safetensors",
+    "assert":   [ "model.graphs[0].nodes[0].inputs[0].name == 'uint64'" ],
+    "link":     "https://github.com/lutzroeder/netron/issues/1113"
+  },
+  {
+    "type":     "safetensors",
+    "target":   "model.safetensors.index.json,model.safetensors",
+    "source":   "https://github.com/lutzroeder/netron/files/13689293/model.safetensors.index.json.zip[model.safetensors.index.json,model.safetensors]",
+    "format":   "Safetensors",
+    "assert":   [ "model.graphs[0].nodes[0].inputs[0].name == 'float32'" ],
     "link":     "https://github.com/lutzroeder/netron/issues/1113"
   },
   {
