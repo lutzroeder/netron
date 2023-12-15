@@ -343,19 +343,12 @@ coreml.Attribute = class {
 
 coreml.Tensor = class {
 
-    constructor(type, data, quantization, category) {
-        this._type = type;
-        this._data = data;
+    constructor(type, values, quantization, category) {
+        this.type = type;
+        this.encoding = type.dataType === 'float32' ? '|' : '<';
+        this.values = values;
+        this.category = category;
         this._quantization = quantization;
-        this._category = category;
-    }
-
-    get category() {
-        return this._category;
-    }
-
-    get type() {
-        return this._type;
     }
 
     get quantization() {
@@ -373,32 +366,13 @@ coreml.Tensor = class {
         }
         return null;
     }
-
-    get encoding() {
-        switch (this._type.dataType) {
-            case 'float32': return '|';
-            default: return '<';
-        }
-    }
-
-    get values() {
-        return this._data;
-    }
 };
 
 coreml.TensorType = class {
 
     constructor(dataType, shape) {
-        this._dataType = dataType;
-        this._shape = shape || new coreml.TensorShape([]);
-    }
-
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
+        this.dataType = dataType;
+        this.shape = shape || new coreml.TensorShape([]);
     }
 
     equals(obj) {
@@ -406,42 +380,32 @@ coreml.TensorType = class {
     }
 
     toString() {
-        return this.dataType + this._shape.toString();
+        return this.dataType + this.shape.toString();
     }
 };
 
 coreml.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions.map((dim) => typeof dim === 'string' || Number.isInteger(dim) ? dim : dim.toNumber());
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = dimensions.map((dim) => typeof dim === 'string' || Number.isInteger(dim) ? dim : dim.toNumber());
     }
 
     equals(obj) {
-        return obj && Array.isArray(obj.dimensions) && Array.isArray(this._dimensions) &&
-            this._dimensions.length === obj.dimensions.length &&
-            obj.dimensions.every((value, index) => this._dimensions[index] === value);
+        return obj && Array.isArray(obj.dimensions) && Array.isArray(this.dimensions) &&
+            this.dimensions.length === obj.dimensions.length &&
+            obj.dimensions.every((value, index) => this.dimensions[index] === value);
     }
 
     toString() {
-        if (!this._dimensions || this._dimensions.length == 0) {
-            return '';
-        }
-        return '[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+        return Array.isArray(this.dimensions) && this.dimensions.length > 0 ?
+            '[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']' : '';
     }
 };
 
 coreml.ListType = class {
 
     constructor(elementType) {
-        this._elementType = elementType;
-    }
-
-    get elementType() {
-        return this._elementType;
+        this.elementType = elementType;
     }
 
     equals(obj) {
@@ -449,42 +413,30 @@ coreml.ListType = class {
     }
 
     toString() {
-        return 'list<' + this._elementType.toString() + '>';
+        return 'list<' + this.elementType.toString() + '>';
     }
 };
 
 coreml.MapType = class {
 
     constructor(keyType, valueType) {
-        this._keyType = keyType;
-        this._valueType = valueType;
-    }
-
-    get keyType() {
-        return this._keyType;
-    }
-
-    get valueType() {
-        return this._valueType;
+        this.keyType = keyType;
+        this.valueType = valueType;
     }
 
     toString() {
-        return 'map<' + this._keyType + ',' + this._valueType.toString() + '>';
+        return 'map<' + this.keyType + ',' + this.valueType.toString() + '>';
     }
 };
 
 coreml.SequenceType = class {
 
     constructor(type) {
-        this._type = type;
-    }
-
-    get type() {
-        return this._type;
+        this.type = type;
     }
 
     toString() {
-        return 'sequence<' + this._type + '>';
+        return 'sequence<' + this.type + '>';
     }
 };
 
