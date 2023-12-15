@@ -2648,7 +2648,7 @@ view.ValueView = class extends view.Control {
         if (initializer) {
             this._element.classList.add('sidebar-item-value-dark');
         }
-        if (type || initializer || quantization || location || name === undefined) {
+        if (type || initializer || quantization || location || name !== undefined) {
             this._expander = this.createElement('div', 'sidebar-item-value-expander');
             this._expander.innerText = '+';
             this._expander.addEventListener('click', () => {
