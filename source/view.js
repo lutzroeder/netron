@@ -832,8 +832,8 @@ view.View = class {
                 xs.push(rect.left + (rect.width / 2));
                 ys.push(rect.top + (rect.height / 2));
             }
-            let x = xs[0];
-            const y = ys[0];
+            let [x] = xs;
+            const [y] = ys;
             if (ys.every((y) => y === ys[0])) {
                 x = xs.reduce((a, b) => a + b, 0) / xs.length;
             }
@@ -4170,7 +4170,7 @@ markdown.Generator = class {
                 let content = match[3] || '';
                 const matchIndent = match[0].match(/^(\s+)(?:```)/);
                 if (matchIndent !== null) {
-                    const indent = matchIndent[1];
+                    const [, indent] = matchIndent;
                     content = content.split('\n').map((node) => {
                         const match = node.match(/^\s+/);
                         return (match !== null && match[0].length >= indent.length) ? node.slice(indent.length) : node;
@@ -4224,12 +4224,12 @@ markdown.Generator = class {
             }
             match = this._listRegExp.exec(source);
             if (match) {
-                let raw = match[0];
-                const bull = match[2];
+                const [value, , bull] = match;
                 const ordered = bull.length > 1;
                 const parent = bull[bull.length - 1] === ')';
+                let raw = value;
                 const list = { type: 'list', raw: raw, ordered: ordered, start: ordered ? +bull.slice(0, -1) : '', loose: false, items: [] };
-                const itemMatch = match[0].match(this._itemRegExp);
+                const itemMatch = value.match(this._itemRegExp);
                 let next = false;
                 const length = itemMatch.length;
                 for (let i = 0; i < length; i++) {
@@ -4395,7 +4395,7 @@ markdown.Generator = class {
             match = this._linkRegExp.exec(source);
             if (match) {
                 let index = -1;
-                const ref = match[2];
+                const [, , ref] = match;
                 if (ref.indexOf(')') !== -1) {
                     let level = 0;
                     for (let i = 0; i < ref.length; i++) {
@@ -4508,8 +4508,8 @@ markdown.Generator = class {
             }
             match = this._delRegExp.exec(source);
             if (match) {
-                source = source.substring(match[0].length);
-                const text = match[1];
+                const [value, text] = match;
+                source = source.substring(value.length);
                 tokens.push({ type: 'del', text: text, tokens: this._tokenizeInline(text, links, inLink, inRawBlock, '') });
                 continue;
             }
@@ -4525,16 +4525,17 @@ markdown.Generator = class {
                 match = this._urlRegExp.exec(source);
                 if (match) {
                     const email = match[2] === '@';
+                    let [value] = match;
                     if (!email) {
                         let prevCapZero;
                         do {
-                            prevCapZero = match[0];
-                            match[0] = this._backpedalRegExp.exec(match[0])[0];
-                        } while (prevCapZero !== match[0]);
+                            prevCapZero = value;
+                            [value] = this._backpedalRegExp.exec(value);
+                        } while (prevCapZero !== value);
                     }
-                    const text = this._escape(match[0]);
+                    const text = this._escape(value);
                     const href = email ? ('mailto:' + text) : (match[1] === 'www.' ? 'http://' + text : text);
-                    source = source.substring(match[0].length);
+                    source = source.substring(value.length);
                     tokens.push({ type: 'link', text: text, href: href, tokens: [ { type: 'text', text: text } ] });
                     continue;
                 }

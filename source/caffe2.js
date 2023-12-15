@@ -21,8 +21,8 @@ caffe2.ModelFactory = class {
                     const stream = context.stream;
                     if (stream.length > 3) {
                         const buffer = stream.peek(Math.min(stream.length, 67));
-                        if (buffer[0] == 0x0A) {
-                            const size = buffer[1];
+                        const [signature, size] = buffer;
+                        if (signature == 0x0A) {
                             if (size < 64 &&
                                 buffer.length > 2 + size + 1 &&
                                 buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) &&
@@ -30,7 +30,7 @@ caffe2.ModelFactory = class {
                                 return 'caffe2.pb';
                             }
                         }
-                        if (buffer[0] == 0x12) {
+                        if (signature == 0x12) {
                             return 'caffe2.pb';
                         }
                     }
@@ -244,7 +244,9 @@ caffe2.Graph = class {
             ]);
             for (const op of init.op) {
                 if (op.output && op.output.length == 1) {
+                    /* eslint-disable prefer-destructuring */
                     const name = op.output[0];
+                    /* eslint-enable prefer-destructuring */
                     const tensor = {};
                     for (const arg of op.arg) {
                         tensor[arg.name] = arg;

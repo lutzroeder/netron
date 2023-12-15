@@ -781,7 +781,7 @@ dagre.layout = (graph, layout) => {
                 const e = label.edgeObj;
                 g.setEdge(e.v, e.w, edgeLabel, e.name);
                 while (label.dummy) {
-                    const w = g.successors(v)[0];
+                    const [w] = g.successors(v);
                     g.removeNode(v);
                     edgeLabel.points.push({ x: label.x, y: label.y });
                     if (label.dummy === 'edge-label') {
@@ -870,7 +870,7 @@ dagre.layout = (graph, layout) => {
                         pathV = path[pathIdx];
                     }
                     g.setParent(v, pathV);
-                    v = g.successors(v)[0];
+                    [v] = g.successors(v);
                 }
             }
         };
@@ -1624,7 +1624,7 @@ dagre.layout = (graph, layout) => {
             const findType1Conflicts = (g, layering) => {
                 const conflicts = {};
                 if (layering.length > 0) {
-                    let prev = layering[0];
+                    let [prev] = layering;
                     for (let k = 1; k < layering.length; k++) {
                         const layer = layering[k];
                         // last visited node in the previous layer that is incident on an inner segment.
@@ -1675,7 +1675,7 @@ dagre.layout = (graph, layout) => {
                     }
                 };
                 if (layering.length > 0) {
-                    let north = layering[0];
+                    let [north] = layering;
                     for (let i = 1; i < layering.length; i++) {
                         const south = layering[i];
                         let prevNorthPos = -1;
@@ -1943,7 +1943,7 @@ dagre.layout = (graph, layout) => {
                     p1 = wNode;
                     p2 = vNode;
                 } else {
-                    p1 = edge.points[0];
+                    [p1] = edge.points;
                     p2 = edge.points[edge.points.length - 1];
                 }
                 edge.points.unshift(intersectRect(vNode, p1));

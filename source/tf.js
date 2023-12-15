@@ -2014,7 +2014,9 @@ tf.Context = class {
                 if (node.attr && node.attr.dtype && node.attr._output_shapes && node.attr._output_shapes.list && node.attr._output_shapes.list.shape) {
                     const tensor = new tf.proto.tensorflow.TensorProto();
                     tensor.dtype = node.attr.dtype.type;
+                    /* eslint-disable prefer-destructuring */
                     tensor.tensor_shape = node.attr._output_shapes.list.shape[0];
+                    /* eslint-enable prefer-destructuring */
                     const name = node.name;
                     const initializer = map_resource(name, node.input[0].from,  new tf.Tensor(tensor, name, 'Resource Variable'));
                     if (initializer) {
@@ -2400,26 +2402,25 @@ tf.JsonReader = class {
 
     static decodeAttrValueListValue(json) {
         const message = new tf.proto.tensorflow.AttrValue.ListValue();
-        const properties = Object.keys(json);
-        if (properties.length > 0) {
-            const keys = properties.filter((key) => Array.isArray(json[key]) && json[key].length > 0);
-            if (keys.length !== 1) {
-                throw new tf.Error("Unsupported JSON tensorflow.AttrValue.ListValue '" + JSON.stringify(keys) + "'.");
+        const entries = Object.entries(json);
+        if (entries.length > 0) {
+            const entry = entries.find(([, value]) => Array.isArray(value) && value.length > 0);
+            if (!entry) {
+                throw new tf.Error("Unsupported JSON tensorflow.AttrValue.ListValue '" + JSON.stringify(entries.map(([key]) => key)) + "'.");
             }
-            const key = keys[0];
-            const list = json[key];
+            const [key, value] = entry;
             switch (key) {
                 case 'i':
-                    message[key] = list.map((value) => parseInt(value, 10));
+                    message[key] = value.map((value) => parseInt(value, 10));
                     break;
                 case 's':
-                    message[key] = list.map((value) => typeof value === 'string' ? atob(value) : tf.Utility.decodeText(Uint8Array.from(value)));
+                    message[key] = value.map((value) => typeof value === 'string' ? atob(value) : tf.Utility.decodeText(Uint8Array.from(value)));
                     break;
                 case 'type':
-                    message[key] = list.map((value) => tf.proto.tensorflow.DataType[value]);
+                    message[key] = value.map((value) => tf.proto.tensorflow.DataType[value]);
                     break;
                 case 'shape':
-                    message[key] = list.map((shape) => tf.JsonReader.decodeTensorShapeProto(shape));
+                    message[key] = value.map((shape) => tf.JsonReader.decodeTensorShapeProto(shape));
                     break;
                 default:
                     throw new tf.Error("Unsupported JSON 'tensorflow.AttrValue.ListValue." + key + "'.");

@@ -1683,6 +1683,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 const [/* pack_version */, tensors, opt_tensors] = state;
                 const packed_config_tensor = new pytorch.Tensor('', tensors[0], true);
                 const packed_config = packed_config_tensor.decode();
+                /* eslint-disable prefer-destructuring */
                 this.weight = tensors[1];
                 this.bias = opt_tensors[0];
                 this.stride = [ packed_config[1], packed_config[2] ];
@@ -1690,6 +1691,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 this.dilation = [ packed_config[5], packed_config[6] ];
                 this.output_padding = [ packed_config[7], packed_config[8] ];
                 this.groups = packed_config[9];
+                /* eslint-enable prefer-destructuring */
             }
         });
         this.registerType('__torch__.torch.classes.quantized.Conv3dPackedParamsBase', class {
@@ -1700,6 +1702,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 const [/* pack_version */, tensors, opt_tensors] = state;
                 const packed_config_tensor = new pytorch.Tensor('', tensors[0], true);
                 const packed_config = packed_config_tensor.decode();
+                /* eslint-disable prefer-destructuring */
                 this.weight = tensors[1];
                 this.bias = opt_tensors[0];
                 this.stride = [ packed_config[1], packed_config[2] ];
@@ -1707,6 +1710,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 this.dilation = [ packed_config[5], packed_config[6] ];
                 this.output_padding = [ packed_config[7], packed_config[8] ];
                 this.groups = packed_config[9];
+                /* eslint-enable prefer-destructuring */
             }
         });
         this.registerType('__torch__.torch.classes.quantized.LinearPackedParamsBase', class {
@@ -2181,7 +2185,8 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                                     if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
                                         const shape = input.size();
                                         if (Array.isArray(normalized_shape) && normalized_shape.length === 1) {
-                                            shape[shape.length - 1] = normalized_shape[0];
+                                            const [value] = normalized_shape;
+                                            shape[shape.length - 1] = value;
                                         }
                                         output.resize_(shape);
                                     }
@@ -2242,7 +2247,9 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                                         const d0 = dim0 >= 0 ? dim0 : size.length + dim0;
                                         const d1 = dim1 >= 0 ? dim1 : size.length + dim1;
                                         const value = size[dim0];
+                                        /* eslint-disable prefer-destructuring */
                                         size[d0] = size[1];
+                                        /* eslint-enable prefer-destructuring */
                                         size[d1] = value;
                                         output.resize_(size);
                                     }

@@ -332,7 +332,7 @@ dl4j.Node = class {
             delete value['@class'];
             result.__type__ = type;
         } else {
-            let key = Object.keys(value)[0];
+            let [key] = Object.keys(value);
             result = value[key];
             if (key.length > 0) {
                 key = key[0].toUpperCase() + key.substring(1);
@@ -453,7 +453,7 @@ dl4j.NDArray = class {
         for (let i = 0; i < shapeInfo.length; i++) {
             shapeInfo[i] = reader.int32();
         }
-        const rank = shapeInfo[0];
+        const [rank] = shapeInfo;
         const shapeInfoLength = rank * 2 + 4;
         this.shape = shapeInfo.slice(1, 1 + rank);
         this.strides = shapeInfo.slice(1 + rank, 1 + (rank * 2));
@@ -467,9 +467,9 @@ dl4j.NDArray = class {
         if (!dataTypes.has(headerData[2])) {
             throw new dl4j.Error("Unsupported header data type '" + headerShape[2] + "'.");
         }
-        const dataType = dataTypes.get(headerData[2]);
-        this.dataType = dataType[0];
-        const size = headerData[1] * dataType[1];
+        const [dataType, itemSize] = dataTypes.get(headerData[2]);
+        this.dataType = dataType;
+        const size = headerData[1] * itemSize;
         if ((reader.position + size) <= reader.length) {
             this.data = reader.read(size);
         }

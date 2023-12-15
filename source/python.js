@@ -673,7 +673,7 @@ python.Parser = class {
 
             if (tuple === true && stack.length == 1 && this._tokenizer.eat(',')) {
                 if (stack[0].type === 'tuple') {
-                    node = stack[0];
+                    [node] = stack;
                 } else {
                     node = this._node('tuple');
                     node.value = [ stack.pop() ];
@@ -3060,7 +3060,9 @@ python.Execution = class {
                             let number = 0;
                             switch (data.length) {
                                 case 0: number = 0; break;
+                                /* eslint-disable prefer-destructuring */
                                 case 1: number = data[0]; break;
+                                /* eslint-enable prefer-destructuring */
                                 case 2: number = data[1] << 8 | data[0]; break;
                                 case 3: number = data[2] << 16 | data[1] << 8 | data[0]; break;
                                 case 4: number = data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0]; break;
@@ -3910,7 +3912,7 @@ python.Execution = class {
             const array_size = (value) => {
                 if (value.every((item) => Array.isArray(item))) {
                     const dims = value.map((item) => array_size(item));
-                    const dim = dims[0];
+                    const [dim] = dims;
                     for (let i = 1; i < dims.length; i++) {
                         if (dim.length === dims[i].length) {
                             if (!dims[i].every((value, i) => value === dim[i])) {
@@ -5502,10 +5504,10 @@ python.Execution = class {
         this.registerType('torch.storage._TypedStorage', class {
             constructor() {
                 if (arguments.length >= 2 && Number.isInteger(arguments[0]) && arguments[1] instanceof torch.dtype) {
-                    this._size = arguments[0];
-                    this._dtype = arguments[1];
                     if (arguments[3] instanceof torch.device) {
-                        this._device = arguments[3];
+                        [this._size, this._dtype, , this._device] = arguments;
+                    } else {
+                        [this._size, this._dtype] = arguments;
                     }
                 } else {
                     throw new python.Error("Unsupported _TypedStorage arguments '" + JSON.stringify(arguments) + "'.");

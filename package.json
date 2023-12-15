@@ -86,7 +86,7 @@
             "no-var": "error",
             "object-curly-spacing": [ "error", "always" ],
             "prefer-const": [ "error" ],
-            "prefer-destructuring": [ "error", { "array": false } ],
+            "prefer-destructuring": [ "error", { "array": true } ],
             "require-atomic-updates": "error",
             "semi": [ "error", "always" ],
             "space-before-blocks": "error",

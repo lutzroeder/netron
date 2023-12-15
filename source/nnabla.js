@@ -61,7 +61,7 @@ nnabla.Model = class {
 nnabla.Graph = class {
 
     constructor (metadata, model) {
-        const executor = model.executor[0]; // TODO: Multiple executors?
+        const [executor] = model.executor; // TODO: Multiple executors?
         const network_name = executor.network_name;
         const network = model.network.find((item) => item.name === network_name);
         const dataTypes = new Map(network.variable.map((item) => {

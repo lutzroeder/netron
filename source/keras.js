@@ -633,11 +633,13 @@ keras.Graph = class {
                             const transform = (value) => {
                                 if (value.every((item) => is_constant(item))) {
                                     for (let i = 0; i < value.length; i++) {
+                                        /* eslint-disable prefer-destructuring */
                                         value[i] = value[i][2];
+                                        /* eslint-enable prefer-destructuring */
                                     }
                                 } else if (value.every((item) => Array.isArray(item))) {
                                     const dims = value.map((item) => transform(item));
-                                    const dim = dims[0];
+                                    const [dim] = dims;
                                     for (let i = 1; i < dims.length; i++) {
                                         if (dim.length === dims[i].length) {
                                             if (!dims[i].every((value, i) => value ===dim[i])) {
@@ -748,7 +750,9 @@ keras.Graph = class {
                                     layer.inputs = [];
                                     layer.outputs = [];
                                     layer.args = {};
+                                    /* eslint-disable prefer-destructuring */
                                     layer.inbound_node = layer.inbound_nodes[0];
+                                    /* eslint-enable prefer-destructuring */
                                     nodes.set(layer.name + '[' + first_index + ']', layer);
                                 } else {
                                     let config = {};
@@ -814,7 +818,7 @@ keras.Graph = class {
                             if (Array.isArray(config.output_layers)) {
                                 for (let i = 0; i < config.output_layers.length; i++) {
                                     const output_data = config.output_layers[i];
-                                    const name = output_data[0];
+                                    const [name] = output_data;
                                     const key = read_connection(output_data);
                                     const value = values.map(key);
                                     const argument = new keras.Argument(name, true, [ value ]);

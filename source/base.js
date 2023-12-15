@@ -485,7 +485,7 @@ if (!DataView.prototype.getFloat16) {
 if (!DataView.prototype.setFloat16) {
     DataView.prototype.setFloat16 = function(byteOffset, value, littleEndian) {
         DataView.__float16_float[0] = value;
-        value = DataView.__float16_int[0];
+        [value] = DataView.__float16_int;
         const s = (value >>> 16) & 0x8000;
         const e = (value >>> 23) & 0xff;
         const f = value & 0x7fffff;

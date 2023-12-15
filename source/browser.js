@@ -157,7 +157,7 @@ host.BrowserHost = class {
         const search = this.window.location.search;
         const params = new URLSearchParams(search + (hash ? '&' + hash : ''));
         if (this._meta.file && this._meta.identifier) {
-            const url = this._meta.file[0];
+            const [url] = this._meta.file;
             if (this._view.accept(url)) {
                 this._openModel(this._url(url), null);
                 this._document.title = this._meta.identifier;

@@ -519,7 +519,9 @@ openvino.Node = class {
                     }
                     case 'Convolution:weights':
                     case 'Deconvolution:weights': {
+                        /* eslint-disable prefer-destructuring */
                         const c = this.inputs[0].value[0].type.shape.dimensions[1];
+                        /* eslint-enable prefer-destructuring */
                         const group = parseInt(layer.data.group || '1', 10);
                         const kernel = layer.data['kernel-x'] !== undefined && layer.data['kernel-y'] !== undefined ?
                             [ parseInt(layer.data['kernel-x'], 10), parseInt(layer.data['kernel-y'], 10) ] :
@@ -529,7 +531,9 @@ openvino.Node = class {
                         break;
                     }
                     case 'LSTMCell:weights': {
+                        /* eslint-disable prefer-destructuring */
                         const input_size = inputs[0].type.shape.dimensions[1];
+                        /* eslint-enable prefer-destructuring */
                         const hidden_size = parseInt(layer.data.hidden_size, 10);
                         data = weight('W', precision, [ 4 * hidden_size, input_size ], data);
                         data = weight('R', precision, [ 4 * hidden_size, hidden_size ], data);
@@ -541,7 +545,9 @@ openvino.Node = class {
                         break;
                     }
                     case 'GRUCell:weights': {
+                        /* eslint-disable prefer-destructuring */
                         const input_size = inputs[0].type.shape.dimensions[1];
+                        /* eslint-enable prefer-destructuring */
                         const hidden_size = parseInt(layer.data.hidden_size, 10);
                         data = weight('W', precision, [ 3 * hidden_size, input_size ], data);
                         data = weight('R', precision, [ 3 * hidden_size, hidden_size ], data);

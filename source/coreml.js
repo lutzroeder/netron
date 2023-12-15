@@ -1171,7 +1171,9 @@ coreml.Context = class {
                 currentOutput = preprocessingInput + ':' + preprocessorIndex.toString();
                 const preprocessor = preprocessing.preprocessor;
                 const node = this.node(group, preprocessor, null, '', preprocessing[preprocessor], [ input ], [ currentOutput ]);
+                /* eslint-disable prefer-destructuring */
                 preprocessorOutput = node.outputs[0].value[0];
+                /* eslint-enable prefer-destructuring */
                 preprocessorIndex++;
             }
             for (const node of inputNodes) {
@@ -1221,7 +1223,7 @@ coreml.Context = class {
                             throw new coreml.Error("Unsupported tensor value '" + tensor.value + "'.");
                     }
                     if (type.shape.dimensions.length === 0) {
-                        values = values[0];
+                        [values] = values;
                     }
                     return values;
                 }
@@ -1296,7 +1298,9 @@ coreml.Context = class {
         for (const op of operations) {
             if (op.type === 'const' && op.inputs.length === 0 &&
                 op.outputs.length === 1 && op.outputs[0].value.length === 1) {
+                /* eslint-disable prefer-destructuring */
                 const value = op.outputs[0].value[0];
+                /* eslint-enable prefer-destructuring */
                 if (op.attributes && op.attributes.val) {
                     const type = value.type;
                     const data = op.attributes.val;

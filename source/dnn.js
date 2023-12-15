@@ -85,9 +85,10 @@ dnn.Graph = class {
                 this.inputs.push(argument);
             }
         }
-        if (this.inputs.length === 0 &&  model.input_shape && model.input_shape.length === 4 &&
-            model.node.length > 0 && model.node[0].input.length > 0) {
+        if (this.inputs.length === 0 &&  model.input_shape && model.input_shape.length === 4 && model.node.length > 0 && model.node[0].input.length > 0) {
+            /* eslint-disable prefer-destructuring */
             const name = model.node[0].input[0];
+            /* eslint-enable prefer-destructuring */
             const shape = model.input_shape;
             const type = new dnn.TensorType('float32', new dnn.TensorShape([ shape[1], shape[3], shape[2], shape[0] ]));
             const argument = new dnn.Argument(name, [ values.map(name, type) ]);
