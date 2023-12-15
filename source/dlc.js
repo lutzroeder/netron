@@ -439,9 +439,12 @@ dlc.Container = class {
         }
         const dataType = (value) => {
             switch (value) {
+                case 0x0008: return 'int8';
+                case 0x0016: return 'int16';
                 case 0x0032: return 'int32';
                 case 0x0108: return 'int8';
                 case 0x0132: return 'int32';
+                case 0x0216: return 'float16';
                 case 0x0232: return 'float32';
                 case 0x0308: return 'qint8';
                 case 0x0332: return 'qint32';
