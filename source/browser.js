@@ -124,26 +124,10 @@ host.BrowserHost = class {
                     return obj;
                 });
             };
-            const required = [
-                'TextDecoder', 'TextEncoder',
-                'URLSearchParams',
-                'HTMLCanvasElement.prototype.toBlob',
-                'Promise', 'Symbol.asyncIterator'
-            ];
-            const optional = [
-                'fetch',
-                'DataView.prototype.getBigInt64',
-                'Worker',
-            ];
-            const available = filter(required);
-            const capabilities = available.concat(filter(optional));
+            const capabilities = filter([ 'fetch', 'DataView.prototype.getBigInt64', 'Worker' ]);
             this.event('browser_open', {
                 browser_capabilities: capabilities.map((capability) => capability.split('.').pop()).join(',')
             });
-            if (required.length > available.length) {
-                this.window.exports.terminate('Your browser is not supported.');
-                return new Promise(() => {});
-            }
             return Promise.resolve();
         };
         await age();
