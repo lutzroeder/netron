@@ -22204,7 +22204,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Input dtype. Must be one of the following: `uint8`, `int32`, `int64`, `float16`, `float32`, `float64`."
+        "description": "Input dtype. Must be one of the following: `uint8`, `int32`, `int64`, `float16`, `bfloat16`, `float32`, `float64`."
       },
       {
         "name": "interpolation",
@@ -22251,7 +22251,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Input dtype. Must be one of the following: `uint8`, `int32`, `int64`, `float16`, `float32`, `float64`."
+        "description": "Input dtype. Must be one of the following: `uint8`, `int32`, `int64`, `float16`, `bfloat16`, `float32`, `float64`."
       },
       {
         "name": "interpolation",
