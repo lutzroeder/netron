@@ -342,7 +342,7 @@ onnx.Value = class {
 
     get quantization() {
         if (this._annotation) {
-            return Object.keys(this._annotation).map((key) => key + ': ' + this._annotation[key]).join(', ');
+            return Object.entries(this._annotation).map(([key, value]) => key + ': ' + value).join(', ');
         }
         return null;
     }
