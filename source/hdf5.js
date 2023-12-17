@@ -1285,7 +1285,7 @@ hdf5.GroupInfo = class {
                 }
                 if ((flags & 0x02) != 0) {
                     this.estimatedEntriesNumber = reader.uint16();
-                    this.estimatedLinkNameLengthEntires = reader.uint16();
+                    this.estimatedLinkNameLengthEntries = reader.uint16();
                 }
                 break;
             }
