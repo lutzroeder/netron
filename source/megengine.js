@@ -620,8 +620,8 @@ megengine.Utility = class {
         if (type) {
             megengine.Utility._enums = megengine.Utility._enums || new Map();
             if (!megengine.Utility._enums.has(name)) {
-                const map = new Map(Object.keys(type).map((key) => [ type[key], key ]));
-                megengine.Utility._enums.set(name, map);
+                const entries = new Map(Object.entries(type).map(([key, value]) => [ value, key ]));
+                megengine.Utility._enums.set(name, entries);
             }
             const map = megengine.Utility._enums.get(name);
             if (map.has(value)) {
