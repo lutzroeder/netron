@@ -384,8 +384,8 @@ host.BrowserHost = class {
             };
             request.open('GET', url, true);
             if (headers) {
-                for (const name of Object.keys(headers)) {
-                    request.setRequestHeader(name, headers[name]);
+                for (const [name, value] of Object.entries(headers)) {
+                    request.setRequestHeader(name, value);
                 }
             }
             request.send();
@@ -460,12 +460,11 @@ host.BrowserHost = class {
                 this.error('Error while loading Gist.', json.message);
                 return;
             }
-            const key = Object.keys(json.files).find((key) => this._view.accept(json.files[key].filename));
-            if (!key) {
+            const file = Object.values(json.files).find((file) => this._view.accept(file.filename));
+            if (!file) {
                 this.error('Error while loading Gist.', 'Gist does not contain a model file.');
                 return;
             }
-            const file = json.files[key];
             const identifier = file.filename;
             const encoder = new TextEncoder();
             const buffer = encoder.encode(file.content);
