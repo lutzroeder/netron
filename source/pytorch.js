@@ -415,7 +415,7 @@ pytorch.Node = class {
                         return node;
                     });
                     return new pytorch.Attribute(name, nodes, 'object[]');
-                } else if (value && value.__class__ || isObject(value)) {
+                } else if (value && (value.__class__ || isObject(value))) {
                     const item = {
                         type: value.__class__ ? value.__class__.__module__ + '.' + value.__class__.__name__ : 'builtins.object',
                         obj: value
@@ -3669,7 +3669,7 @@ pytorch.Utility = class {
                 map.set(name, value);
             }
         } else if (Object(obj) === obj && Object.entries(obj).every(([, value]) => pytorch.Utility.isTensor(value))) {
-            map.set('', new Map(Object.keys(obj).map((key) => [ key, obj[key] ])));
+            map.set('', new Map(Object.entries(obj).map(([key, value]) => [ key, value ])));
         } else {
             const value = flatten(obj);
             if (value) {
