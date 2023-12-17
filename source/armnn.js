@@ -298,12 +298,12 @@ armnn.Utility = class {
         if (type) {
             armnn.Utility._enums = armnn.Utility._enums || new Map();
             if (!armnn.Utility._enums.has(name)) {
-                const map = new Map(Object.keys(type).map((key) => [ type[key], key ]));
-                armnn.Utility._enums.set(name, map);
+                const entries = new Map(Object.entries(type).map(([key, value]) => [ value, key ]));
+                armnn.Utility._enums.set(name, entries);
             }
-            const map = armnn.Utility._enums.get(name);
-            if (map.has(value)) {
-                return map.get(value);
+            const entries = armnn.Utility._enums.get(name);
+            if (entries.has(value)) {
+                return entries.get(value);
             }
         }
         return value;
