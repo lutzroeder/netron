@@ -1050,7 +1050,7 @@ base.Telemetry = class {
                     params.engagement_time_msec = this._engagement_time_msec;
                     this._engagement_time_msec = 0;
                 }
-                const build = (entires) => entires.map(([name, value]) => name + '=' + encodeURIComponent(value)).join('&');
+                const build = (entries) => entries.map(([name, value]) => name + '=' + encodeURIComponent(value)).join('&');
                 this._cache = this._cache || build(Array.from(this._config));
                 const key = (name, value) => this._schema.get(name) || ('number' === typeof value && !isNaN(value) ? 'epn.' : 'ep.') + name;
                 const body = build(Object.entries(params).map(([name, value]) => [ key(name, value), value ]));
