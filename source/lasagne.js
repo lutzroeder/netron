@@ -34,23 +34,31 @@ lasagne.Graph = class {
         this.inputs = [];
         this.outputs = [];
         const values = new Map();
-        values.map = (name, type, initializer) => {
+        values.map = (name, type, tensor) => {
             if (!values.has(name)) {
-                values.set(name, new lasagne.Value(name, type));
+                values.set(name, new lasagne.Value(name, type, tensor));
+            } else if (tensor) {
+                throw new lasagne.Error("Duplicate value '" + name + "'.");
+            } else if (type && !type.equals(values.get(name).type)) {
+                throw new lasagne.Error("Duplicate value '" + name + "'.");
             }
-            const value = values.get(name);
-            if (!value.type && type) {
-                value.type = type;
-            }
-            if (!value.initializer && initializer) {
-                value.initializer = initializer;
-            }
-            return value;
+            return values.get(name);
         };
         for (const [name] of model.layers) {
             const layer = model.layers_[name];
+            if (layer.input_layer && layer.input_layer.name) {
+                const input_layer = layer.input_layer;
+                const dataType = input_layer.input_var ? input_layer.input_var.type.dtype : '?';
+                const shape = layer.input_shape ? new lasagne.TensorShape(layer.input_shape) : null;
+                const type = shape ? new lasagne.TensorType(dataType, shape) : null;
+                values.map(input_layer.name, type);
+            }
+        }
+        for (const [name] of model.layers) {
+            const layer = model.layers_[name];
             if (layer && layer.__class__ && layer.__class__.__module__ === 'lasagne.layers.input' && layer.__class__.__name__ === 'InputLayer') {
-                const type = new lasagne.TensorType(layer.input_var.type.dtype, new lasagne.TensorShape(layer.shape));
+                const shape = new lasagne.TensorShape(layer.shape);
+                const type = new lasagne.TensorType(layer.input_var.type.dtype, shape);
                 const argument = new lasagne.Argument(layer.name, [ values.map(layer.name, type) ]);
                 this.inputs.push(argument);
                 continue;
@@ -78,32 +86,9 @@ lasagne.Value = class {
         if (typeof name !== 'string') {
             throw new lasagne.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
-        this._name= name;
-        this._type = type || null;
-        this._initializer = initializer || null;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return this._type;
-    }
-
-    set type(value) {
-        this._type = value;
-    }
-
-    get initializer() {
-        return this._initializer;
-    }
-
-    set initializer(value) {
-        this._initializer = value;
+        this.name= name;
+        this.type = type ? type : initializer ? initializer.type : null;
+        this.initializer = initializer;
     }
 };
 
@@ -117,21 +102,20 @@ lasagne.Node = class {
         this.outputs = [];
         this.attributes = [];
         const params = new Map();
-        for (const key of Object.keys(layer)) {
+        for (const [key, value] of Object.entries(layer)) {
             if (key === 'name' || key === 'params' || key === 'input_layer' || key === 'input_shape') {
                 continue;
             }
-            const value = layer[key];
             if (value && value.__class__ && value.__class__.__module__ === 'theano.tensor.sharedvar' && value.__class__.__name__ === 'TensorSharedVariable') {
                 params.set(value.name, key);
                 continue;
             }
-            this.attributes.push(new lasagne.Attribute(null, key, value));
+            const attribute = new lasagne.Attribute(null, key, value);
+            this.attributes.push(attribute);
         }
         if (layer.input_layer && layer.input_layer.name) {
-            const input_layer = layer.input_layer;
-            const type = layer.input_shape ? new lasagne.TensorType('?', new lasagne.TensorShape(layer.input_shape)) : undefined;
-            const argument = new lasagne.Argument('input', [ values.map(input_layer.name, type) ]);
+            const value = values.map(layer.input_layer.name);
+            const argument = new lasagne.Argument('input', [ value ]);
             this.inputs.push(argument);
         }
         if (layer.params) {
@@ -166,6 +150,10 @@ lasagne.TensorType = class {
         this.shape = shape;
     }
 
+    equals(obj) {
+        return obj && this.dataType === obj.dataType && this.shape && this.shape.equals(obj.shape);
+    }
+
     toString() {
         return this.dataType + this.shape.toString();
     }
@@ -175,6 +163,12 @@ lasagne.TensorShape = class {
 
     constructor(dimensions) {
         this.dimensions = dimensions;
+    }
+
+    equals(obj) {
+        return obj && Array.isArray(obj.dimensions) && Array.isArray(this.dimensions) &&
+            this.dimensions.length === obj.dimensions.length &&
+            obj.dimensions.every((value, index) => this.dimensions[index] === value);
     }
 
     toString() {
