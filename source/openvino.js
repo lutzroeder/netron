@@ -262,8 +262,7 @@ openvino.Graph = class {
                 }
             }
             if (back_edges) {
-                for (const to of Object.keys(back_edges)) {
-                    const from = back_edges[to];
+                for (const from of Object.values(back_edges)) {
                     if (constants.has(from)) {
                         constants.get(from).counter++;
                     }
