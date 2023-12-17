@@ -648,8 +648,8 @@ dlc.Utility = class {
                 dlc.Utility[version] = dlc.Utility[version] || new Map();
                 const enums = dlc.Utility[version];
                 if (!enums.has(name)) {
-                    const map = new Map(Object.keys(type).map((key) => [ type[key], key ]));
-                    enums.set(name, map);
+                    const entries = new Map(Object.entries(type).map(([key, value]) => [ value, key ]));
+                    enums.set(name, entries);
                 }
                 const values = enums.get(name);
                 if (values.has(value)) {
