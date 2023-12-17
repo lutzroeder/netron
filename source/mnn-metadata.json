@@ -35,6 +35,7 @@
     "name": "BinaryOp",
     "operator": 7,
     "attributes": [
+      { "name": "activationType", "type": "FusedActivation" },
       { "name": "opType", "type": "BinaryOpOperation" },
       { "name": "T", "type": "DataType" }
     ]

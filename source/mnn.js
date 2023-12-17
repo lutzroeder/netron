@@ -200,16 +200,13 @@ mnn.Node = class {
             }
             while (parameters.length > 0) {
                 const parameter = parameters.shift();
-                for (const key of Object.keys(parameter)) {
-                    if (Object.prototype.hasOwnProperty.call(parameter, key)) {
-                        const value = parameter[key];
-                        if (Object.keys(mnn.schema).find((key) => mnn.schema[key].prototype && value instanceof mnn.schema[key])) {
-                            parameters.push(value);
-                            continue;
-                        }
-                        const schema = metadata.attribute(this.type, key);
-                        this.attributes.push(new mnn.Attribute(schema, key, value));
+                for (const [key, value] of Object.entries(parameter)) {
+                    if (Object.keys(mnn.schema).find((key) => mnn.schema[key].prototype && value instanceof mnn.schema[key])) {
+                        parameters.push(value);
+                        continue;
                     }
+                    const attribute = new mnn.Attribute(metadata.attribute(type, key), key, value);
+                    this.attributes.push(attribute);
                 }
             }
         }
@@ -231,17 +228,15 @@ mnn.Attribute = class {
         this.value = ArrayBuffer.isView(value) ? Array.from(value) : value;
         this.name = name;
         this.visible = visible ? true : false;
-        if (metadata) {
-            if (metadata.type) {
-                this.type = metadata.type;
-                switch (this.type) {
-                    case 'DataType':
-                        this.value = mnn.Utility.dataType(this.value);
-                        break;
-                    default:
-                        this.value = mnn.Utility.enum(this.type, this.value);
-                        break;
-                }
+        if (metadata && metadata.type) {
+            this.type = metadata.type;
+            switch (this.type) {
+                case 'DataType':
+                    this.value = mnn.Utility.dataType(this.value);
+                    break;
+                default:
+                    this.value = mnn.Utility.enum(this.type, this.value);
+                    break;
             }
         }
     }
@@ -258,24 +253,9 @@ mnn.Argument = class {
 mnn.Value = class {
 
     constructor(name, type, initializer) {
-        this._name = name;
-        this._type = type || null;
-        this._initializer = initializer || null;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return this._type;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name = name;
+        this.type = type ? type : initializer ? initializer.type : null;
+        this.initializer = initializer || null;
     }
 };
 
@@ -284,28 +264,18 @@ mnn.Tensor = class {
     constructor(category, type, data) {
         this.category = category;
         this.type = type;
-        switch (this.type.dataType) {
+        switch (type.dataType) {
             case 'int32':
             case 'float32':
                 this.encoding = '|';
+                this.values = data ? data.slice(0) : null;
                 break;
             case 'float16':
                 this.encoding = '<';
+                this.values = data ? data.slice(0) : null;
                 break;
             default:
-                throw new mnn.Error("Unsupported data type '" + this._type.dataType + "'.");
-        }
-        this._values = data ? data.slice(0) : null;
-    }
-
-    get values() {
-        switch (this.type.dataType) {
-            case 'int32':
-            case 'float32':
-            case 'float16':
-                return this._values;
-            default:
-                throw new mnn.Error("Unsupported data type '" + this._type.dataType + "'.");
+                throw new mnn.Error("Unsupported data type '" + type.dataType + "'.");
         }
     }
 };
@@ -395,7 +365,8 @@ mnn.Utility = class {
     }
 
     static createTensor(param, category) {
-        const type = new mnn.TensorType(param.dataType, new mnn.TensorShape(param.dims), param.dataFormat);
+        const shape = new mnn.TensorShape(param.dims);
+        const type = new mnn.TensorType(param.dataType, shape, param.dataFormat);
         let data = null;
         switch (type.dataType) {
             case 'uint8': data = param.uint8s; break;
