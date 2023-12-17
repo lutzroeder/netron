@@ -135,8 +135,7 @@ bigdl.Node = class {
                 ]));
             }
         }
-        for (const key of Object.keys(module.attr)) {
-            const value = module.attr[key];
+        for (const [key, value] of Object.entries(module.attr)) {
             if (key === 'module_numerics' || key === 'module_tags') {
                 continue;
             }
