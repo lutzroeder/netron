@@ -19,23 +19,16 @@ hickle.ModelFactory = class {
 hickle.Model = class {
 
     constructor(group) {
-        this._graphs = [ new hickle.Graph(group) ];
-    }
-
-    get format() {
-        return 'Hickle Weights';
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.format = 'Hickle Weights';
+        this.graphs = [ new hickle.Graph(group) ];
     }
 };
 
 hickle.Graph = class {
 
     constructor(group) {
-        this._inputs = [];
-        this._outputs = [];
+        this.inputs = [];
+        this.outputs = [];
         const deserialize = (group) => {
             if (group && group.attributes.has('type')) {
                 const type = group.attributes.get('type');
@@ -82,35 +75,15 @@ hickle.Graph = class {
                 layers.get(layer).push({ name: parameter, value: tensor });
             }
         }
-        this._nodes = Array.from(layers).map(([name, value]) => new hickle.Node(name, value));
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
+        this.nodes = Array.from(layers).map(([name, value]) => new hickle.Node(name, value));
     }
 };
 
 hickle.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -120,132 +93,67 @@ hickle.Value = class {
         if (typeof name !== 'string') {
             throw new hickle.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
-        this._name= name;
-        this._type = type || null;
-        this._initializer = initializer || null;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return this._type;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name= name;
+        this.type = type ? type : initializer ? initializer.type : null;
+        this.initializer = initializer || null;
     }
 };
 
 hickle.Node = class {
 
     constructor(name, parameters) {
-        this._type = { name: 'Weights' };
-        this._name = name;
-        this._inputs = parameters.map((parameter) => {
+        this.type = { name: 'Weights' };
+        this.name = name;
+        this.inputs = parameters.map((parameter) => {
             return new hickle.Argument(parameter.name, [
                 new hickle.Value(parameter.value.name, null, parameter.value)
             ]);
         });
-        this._outputs = [];
-        this._attributes = [];
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get attributes() {
-        return this._attributes;
+        this.outputs = [];
+        this.attributes = [];
     }
 };
 
 hickle.Tensor = class {
 
     constructor(name, shape, type, littleEndian, data) {
-        this._name = name;
-        this._type = new hickle.TensorType(type, new hickle.TensorShape(shape));
-        this._littleEndian = littleEndian;
+        this.name = name;
+        this.type = new hickle.TensorType(type, new hickle.TensorShape(shape));
+        this.encoding = littleEndian ? '<' : '>';
         this._data = data;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get encoding() {
-        return this._littleEndian ? '<' : '>';
-    }
-
-    get quantization() {
-        if (this._quantization && (this._quantization.scale !== 0 || this._quantization.min !== 0)) {
-            const scale = this._quantization.scale || 0;
-            const min = this._quantization.min || 0;
-            return scale.toString() + ' * ' + (min == 0 ? 'q' : ('(q - ' + min.toString() + ')'));
-        }
-        return null;
     }
 
     get values() {
         if (Array.isArray(this._data) || this._data === null) {
             return null;
         }
-        return this._data instanceof Uint8Array ? this._data : this._data.peek();
+        if (this._data instanceof Uint8Array) {
+            return this._data;
+        }
+        return this._data.peek();
     }
 };
 
 hickle.TensorType = class {
 
     constructor(dataType, shape) {
-        this._dataType = dataType;
-        this._shape = shape;
-    }
-
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
+        this.dataType = dataType;
+        this.shape = shape;
     }
 
     toString() {
-        return this._dataType + this._shape.toString();
+        return this.dataType + this.shape.toString();
     }
 };
 
 hickle.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = dimensions;
     }
 
     toString() {
-        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+        return this.dimensions ? ('[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
 };
 
