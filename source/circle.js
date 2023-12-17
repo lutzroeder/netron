@@ -635,7 +635,7 @@ circle.Utility = class {
 
     static dataType(type) {
         if (!circle.Utility._tensorTypeMap) {
-            circle.Utility._tensorTypeMap = new Map(Object.keys(circle.schema.TensorType).map((key) => [ circle.schema.TensorType[key], key.toLowerCase() ]));
+            circle.Utility._tensorTypeMap = new Map(Object.entries(circle.schema.TensorType).map(([key, value]) => [ value, key.toLowerCase() ]));
             circle.Utility._tensorTypeMap.set(6, 'boolean');
         }
         return circle.Utility._tensorTypeMap.has(type) ? circle.Utility._tensorTypeMap.get(type) : '?';
@@ -646,8 +646,8 @@ circle.Utility = class {
         if (type) {
             circle.Utility._enums = circle.Utility._enums || new Map();
             if (!circle.Utility._enums.has(name)) {
-                const map = new Map(Object.keys(type).map((key) => [ type[key], key ]));
-                circle.Utility._enums.set(name, map);
+                const entries = new Map(Object.entries(type).map(([key, value]) => [ value, key ]));
+                circle.Utility._enums.set(name, entries);
             }
             const map = circle.Utility._enums.get(name);
             if (map.has(value)) {
