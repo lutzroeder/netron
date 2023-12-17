@@ -4156,9 +4156,9 @@ python.Execution = class {
         this.registerType('torch.nn.modules.linear.NonDynamicallyQuantizableLinear', class extends torch.nn.modules.linear.Linear {});
         this.registerType('torch.nn.modules.loss._Loss', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.loss._WeightedLoss', class extends torch.nn.modules.loss._Loss {});
-        this.registerType('torch.nn.modules.loss.BCELoss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.BCELoss', class extends torch.nn.modules.loss._WeightedLoss {});
         this.registerType('torch.nn.modules.loss.BCEWithLogitsLoss', class extends torch.nn.modules.loss._Loss {});
-        this.registerType('torch.nn.modules.loss.CrossEntropyLoss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.CrossEntropyLoss', class extends torch.nn.modules.loss._WeightedLoss {});
         this.registerType('torch.nn.modules.loss.CosineEmbeddingLoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.CTCLoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.GaussianNLLLoss', class extends torch.nn.modules.loss._Loss {});
@@ -4299,7 +4299,8 @@ python.Execution = class {
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook', class {});
         this.registerType('torch.nn.utils.weight_norm.WeightNorm', class {});
         this.registerType('torch.torch_version.TorchVersion', class extends String {});
-        this.registerType('torch.optim.adam.Adam', class {});
+        this.registerType('torch.optim.optimizer.Optimizer', class {});
+        this.registerType('torch.optim.adam.Adam', class extends torch.optim.optimizer.Optimizer {});
         this.registerType('torch.optim.adamw.AdamW', class {});
         this.registerType('torch.optim.adagrad.Adagrad', class {});
         this.registerType('torch.optim.adadelta.Adadelta', class {});
@@ -5341,7 +5342,7 @@ python.Execution = class {
             throw new python.Error("'torch.nn.functional.tanh' not implemented.");
         });
         this.registerFunction('torch.values', function(dict) {
-            return Object.keys(dict).map((key) => dict[key]);
+            return Object.values(dict);
         });
         this.registerFunction('torch.warn', function() {
         });
