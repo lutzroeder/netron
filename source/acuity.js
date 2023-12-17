@@ -43,13 +43,12 @@ acuity.Graph = class {
             }
             return values.get(name);
         };
-        for (const layerName of Object.keys(model.Layers)) {
-            const layer = model.Layers[layerName];
+        for (const [name, layer] of Object.entries(model.Layers)) {
             layer.inputs = layer.inputs.map((input) => {
                 return value(input);
             });
             layer.outputs = layer.outputs.map((port) => {
-                const output = value("@" + layerName + ":" + port);
+                const output = value("@" + name + ":" + port);
                 let shape = null;
                 if (layer.op.toLowerCase() == 'input' ||
                     layer.op.toLowerCase() == 'variable') {
@@ -73,23 +72,23 @@ acuity.Graph = class {
             const value = new acuity.Value(name, type, null, null);
             values.set(name, value);
         }
-        for (const layerName of Object.keys(model.Layers)) {
-            const layer = model.Layers[layerName];
+        for (const [name, layer] of Object.entries(model.Layers)) {
             switch (layer.op.toLowerCase()) {
                 case 'input': {
-                    this.inputs.push(new acuity.Argument(layerName, [
-                        values.get(layer.outputs[0].name)
-                    ]));
+                    const value = values.get(layer.outputs[0].name);
+                    const argument = new acuity.Argument(name, [ value ]);
+                    this.inputs.push(argument);
                     break;
                 }
                 case 'output': {
-                    this.outputs.push(new acuity.Argument(layerName, [
-                        values.get(layer.inputs[0].name)
-                    ]));
+                    const value = values.get(layer.inputs[0].name);
+                    const argument = new acuity.Argument(name, [ value ]);
+                    this.outputs.push(argument);
                     break;
                 }
                 default: {
-                    this.nodes.push(new acuity.Node(metadata, layerName, layer, values));
+                    const node = new acuity.Node(metadata, name, layer, values);
+                    this.nodes.push(node);
                     break;
                 }
             }
@@ -100,15 +99,16 @@ acuity.Graph = class {
 acuity.Node = class {
 
     constructor(metadata, name, layer, values) {
+        const op = layer.op;
         this.name = name;
-        this.type = metadata.type(layer.op) || { name: layer.op };
+        this.type = metadata.type(op) || { name: op };
         this.inputs = [];
         this.outputs = [];
         this.attributes = [];
         if (this.type) {
             if (layer.parameters) {
-                for (const key of Object.keys(layer.parameters)) {
-                    const attribute = new acuity.Attribute(metadata.attribute(this.type.name, key), key, layer.parameters[key]);
+                for (const [name, value] of Object.entries(layer.parameters)) {
+                    const attribute = new acuity.Attribute(metadata.attribute(op, name), name, value);
                     this.attributes.push(attribute);
                 }
             }
@@ -215,8 +215,7 @@ acuity.Inference = class {
     static infer(layers) {
         const outputs = new Map();
         const outputLayers = [];
-        for (const layerName of Object.keys(layers)) {
-            const layer = layers[layerName];
+        for (const [, layer] of Object.entries(layers)) {
             if (layer.op.toLowerCase() == 'output') {
                 outputLayers.push(layer);
             }
