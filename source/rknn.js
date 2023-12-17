@@ -338,12 +338,10 @@ rknn.Node = class {
                     i += count;
                 }
                 if (node.nn) {
-                    const nn = node.nn;
-                    for (const key of Object.keys(nn)) {
-                        const params = nn[key];
-                        for (const name of Object.keys(params)) {
-                            const value = params[name];
-                            this._attributes.push(new rknn.Attribute(name, value));
+                    for (const params of Object.values(node.nn)) {
+                        for (const [name, value] of Object.entries(params)) {
+                            const attribute = new rknn.Attribute(name, value);
+                            this._attributes.push(attribute);
                         }
                     }
                 }
