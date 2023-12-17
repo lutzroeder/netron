@@ -651,7 +651,7 @@ tflite.Utility = class {
 
     static dataType(type) {
         if (!tflite.Utility._tensorTypeMap) {
-            tflite.Utility._tensorTypeMap = new Map(Object.keys(tflite.schema.TensorType).map((key) => [ tflite.schema.TensorType[key], key.toLowerCase() ]));
+            tflite.Utility._tensorTypeMap = new Map(Object.entries(tflite.schema.TensorType).map(([key, value]) => [ value, key.toLowerCase() ]));
             tflite.Utility._tensorTypeMap.set(6, 'boolean');
         }
         return tflite.Utility._tensorTypeMap.has(type) ? tflite.Utility._tensorTypeMap.get(type) : '?';
@@ -662,8 +662,8 @@ tflite.Utility = class {
         if (type) {
             tflite.Utility._enums = tflite.Utility._enums || new Map();
             if (!tflite.Utility._enums.has(name)) {
-                const map = new Map(Object.keys(type).map((key) => [ type[key], key ]));
-                tflite.Utility._enums.set(name, map);
+                const entries = new Map(Object.entries(type).map(([key, value]) => [ value, key ]));
+                tflite.Utility._enums.set(name, entries);
             }
             const map = tflite.Utility._enums.get(name);
             if (map.has(value)) {
