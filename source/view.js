@@ -3193,7 +3193,7 @@ view.FindSidebar = class extends view.Control {
         } else {
             terms = searchText.trim().toLowerCase().split(' ').map((term) => term.trim()).filter((term) => term.length > 0);
             match = (name) => {
-                return terms.every((term) => name.toLowerCase().indexOf(term) !== -1);
+                return terms.every((term) => name && name.toLowerCase().indexOf(term) !== -1);
             };
         }
         const edges = new Set();
