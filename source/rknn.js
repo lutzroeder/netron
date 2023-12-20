@@ -546,9 +546,10 @@ rknn.Container = class extends Map {
                             break;
                         case 0x0002:
                         case 0x1002:
-                        case 0x1003:
                         case 0x0003:
+                        case 0x1003:
                         case 0x0004:
+                        case 0x1004:
                         case 0x0005:
                         case 0x0006:
                             if (data_size > 0) {
