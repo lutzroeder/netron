@@ -5337,13 +5337,6 @@
   },
   {
     "type":     "pytorch",
-    "target":   "semantic_lstm_vehicle_model.pt",
-    "source":   "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/semantic_lstm_vehicle_model.pt",
-    "format":   "TorchScript v1.1",
-    "link":     "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":     "pytorch",
     "target":   "SiamFC_50_model.pth",
     "source":   "https://raw.githubusercontent.com/HengLan/SiamFC-PyTorch/master/Train/model/SiamFC_50_model.pth",
     "format":   "PyTorch v0.1.10",
