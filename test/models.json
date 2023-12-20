@@ -3743,13 +3743,6 @@
   },
   {
     "type":     "onnx",
-    "target":   "emotion-ferplus-8.onnx",
-    "source":   "https://github.com/onnx/models/raw/main/vision/body_analysis/emotion_ferplus/model/emotion-ferplus-8.onnx",
-    "format":   "ONNX v3",
-    "link":     "https://github.com/onnx/models/tree/main/vision/body_analysis/emotion_ferplus"
-  },
-  {
-    "type":     "onnx",
     "target":   "end2end_tfc_w1a1_oqnt_streamlined.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/4885362/end2end_tfc_w1a1_oqnt_streamlined.zip[end2end_tfc_w1a1_oqnt_streamlined.onnx]",
     "format":   "ONNX v4",
@@ -4110,14 +4103,6 @@
     "source":   "https://gist.github.com/zhreshold/bcda4716699ac97ea44f791c24310193/raw/b385b1b242dc89a35dd808235b885ed8a19aedc1/super_resolution.onnx",
     "format":   "ONNX",
     "link":     "https://gist.github.com/zhreshold/bcda4716699ac97ea44f791c24310193"
-  },
-  {
-    "type":     "onnx",
-    "target":   "super-resolution-10.onnx",
-    "source":   "https://media.githubusercontent.com/media/onnx/models/main/vision/super_resolution/sub_pixel_cnn_2016/model/super-resolution-10.onnx",
-    "format":   "ONNX v4",
-    "producer": "pytorch 1.1",
-    "link":     "https://github.com/onnx/models/tree/main/vision/super_resolution/sub_pixel_cnn_2016"
   },
   {
     "type":     "onnx",
