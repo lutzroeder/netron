@@ -5,6 +5,12 @@ import * as path from 'path';
 import * as url from 'url';
 import * as worker_threads from 'worker_threads';
 
+const clearLine = () => {
+    if (process.stdout.clearLine) {
+        process.stdout.clearLine();
+    }
+};
+
 const write = (message) => {
     if (process.stdout.write) {
         process.stdout.write(message);
@@ -85,6 +91,18 @@ class Table {
     }
 }
 
+const exit = (error) => {
+    if (error) {
+        /* eslint-disable no-console */
+        console.error(error.name + ': ' + error.message);
+        if (error.cause) {
+            console.error('  ' + error.cause.name + ': ' + error.cause.message);
+        }
+        /* eslint-enable no-console */
+    }
+    process.exit(error ? 1 : 0);
+};
+
 const main = async () => {
     try {
         let patterns = process.argv.length > 2 ? process.argv.slice(2) : [];
@@ -102,12 +120,18 @@ const main = async () => {
         }
         const queue = new Queue(targets, patterns);
         const measures = new Table([ 'name', 'download', 'load', 'validate', 'render' ]);
-        await measures.log(path.join(dirname, '..', 'dist', 'test', 'measures.csv'));
-        const mode = '';
-        // const mode = 'threads';
+        // await measures.log(path.join(dirname, '..', 'dist', 'test', 'measures.csv'));
+        const mode = 'threads'; // ''
         switch (mode) {
             case 'threads': {
                 const workers = new Set();
+                workers.update = function() {
+                    clearLine();
+                    const list = Array.from(workers).filter((worker) => worker.status).map((worker) => worker.status);
+                    if (list.length > 0) {
+                        write('  ' + list.join('-') + '\r');
+                    }
+                };
                 const cpus = Math.min(6, os.cpus().length - 2);
                 for (let i = 0; i < cpus; i++) {
                     const worker = new worker_threads.Worker('./test/worker.js');
@@ -119,19 +143,61 @@ const main = async () => {
                             this.terminate();
                             workers.delete(this);
                             if (workers.size === 0) {
-                                process.exit(1);
+                                exit();
                             }
                         }
                     };
+                    worker.on('error', (error) => exit(error));
                     worker.on('message', async (message) => {
-                        await measures.add(message.measures);
-                        if (message.__error__) {
-                            write(message.error);
-                            process.exit(1);
-                        } else {
-                            // write(message.name);
+                        switch (message.type) {
+                            case 'status': {
+                                switch (message.name) {
+                                    case 'name': {
+                                        clearLine();
+                                        write(message.target + '\n');
+                                        break;
+                                    }
+                                    case 'progress': {
+                                        if (message.value == Infinity) {
+                                            worker.status = undefined;
+                                        } else if (message.unit === '%') {
+                                            worker.status = ('  ' + Math.floor(100 * message.value)).slice(-3) + '% ';
+                                        } else {
+                                            worker.status = ' ' + message.value + ' ';
+                                        }
+                                        workers.update();
+                                        break;
+                                    }
+                                    case 'decompress': {
+                                        worker.status = '  ^  ';
+                                        workers.update();
+                                        break;
+                                    }
+                                    case 'write': {
+                                        worker.status = '  *  ';
+                                        workers.update();
+                                        break;
+                                    }
+                                    default: {
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                            case 'error': {
+                                write('\n' + message.name + '\n');
+                                exit(message.error);
+                                break;
+                            }
+                            case 'complete': {
+                                await measures.add(message.measures);
+                                worker.next();
+                                break;
+                            }
+                            default: {
+                                throw new Error("Unsupported message type '" + message.type + "'.");
+                            }
                         }
-                        worker.next();
                     });
                     workers.add(worker);
                     worker.next();
@@ -143,6 +209,38 @@ const main = async () => {
                 const __host__ = await worker.Target.start();
                 for (let item = queue.next(); item; item = queue.next()) {
                     const target = new worker.Target(__host__, item);
+                    target.on('status', (_, message) => {
+                        switch (message.name) {
+                            case 'name': {
+                                clearLine();
+                                write(message.target + '\n');
+                                break;
+                            }
+                            case 'progress': {
+                                if (message.value === Infinity) {
+                                    clearLine();
+                                } else if (message.unit === '%') {
+                                    write(' ' + ('  ' + Math.floor(100 * message.value)).slice(-3) + '%\r');
+                                } else {
+                                    write(' ' + message.value + ' bytes\r');
+                                }
+                                break;
+                            }
+                            case 'decompress': {
+                                clearLine();
+                                write('  decompress\r');
+                                break;
+                            }
+                            case 'write': {
+                                clearLine();
+                                write('  write\r');
+                                break;
+                            }
+                            default: {
+                                throw new Error("Unsupported status message '" + message.name + "'.");
+                            }
+                        }
+                    });
                     /* eslint-disable no-await-in-loop */
                     await target.execute();
                     await measures.add(target.measures);
@@ -152,13 +250,7 @@ const main = async () => {
             }
         }
     } catch (error) {
-        /* eslint-disable no-console */
-        console.error(error.name + ': ' + error.message);
-        if (error.cause) {
-            console.error('  ' + error.cause.name + ': ' + error.cause.message);
-        }
-        /* eslint-enable no-console */
-        process.exit(1);
+        exit(error);
     }
 };
 

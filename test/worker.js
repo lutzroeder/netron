@@ -9,18 +9,6 @@ import * as view from '../source/view.js';
 import * as zip from '../source/zip.js';
 import * as tar from '../source/tar.js';
 
-const clearLine = () => {
-    if (process.stdout.clearLine) {
-        process.stdout.clearLine();
-    }
-};
-
-const write = (message) => {
-    if (process.stdout.write) {
-        process.stdout.write(message);
-    }
-};
-
 const access = async (path) => {
     try {
         await fs.access(path);
@@ -285,53 +273,30 @@ global.Window = class {
     }
 };
 
-const request = async (url, init) => {
-    const response = await fetch(url, init);
-    if (!response.ok) {
-        throw new Error(response.status.toString());
-    }
-    if (response.body) {
-        const reader = response.body.getReader();
-        const length = response.headers.has('Content-Length') ? Number(response.headers.get('Content-Length')) : -1;
-        let position = 0;
-        const stream = new ReadableStream({
-            start(controller) {
-                const read = async () => {
-                    try {
-                        const result = await reader.read();
-                        if (result.done) {
-                            clearLine();
-                            controller.close();
-                        } else {
-                            position += result.value.length;
-                            if (length >= 0) {
-                                const label = url.length > 70 ? url.substring(0, 66) + '...' : url;
-                                write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
-                            } else {
-                                write('  ' + position + ' bytes\r');
-                            }
-                            controller.enqueue(result.value);
-                            read();
-                        }
-                    } catch (error) {
-                        controller.error(error);
-                    }
-                };
-                read();
-            }
-        });
-        return new Response(stream, {
-            status: response.status,
-            statusText: response.statusText,
-            headers: response.headers
-        });
-    }
-    return response;
-};
+class EventTarget {
 
-export class Target {
+    constructor() {
+        this._events = {};
+    }
+
+    on(event, callback) {
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
+    }
+
+    emit(event, data) {
+        if (this._events && this._events[event]) {
+            for (const callback of this._events[event]) {
+                callback(this, data);
+            }
+        }
+    }
+}
+
+export class Target extends EventTarget {
 
     constructor(host, item) {
+        super();
         Object.assign(this, item);
         this.host = host;
         const target = item.target.split(',');
@@ -349,6 +314,10 @@ export class Target {
         return new host.TestHost();
     }
 
+    status(message) {
+        this.emit('status', message);
+    }
+
     async execute() {
         const time = async (method) => {
             const start = process.hrtime.bigint();
@@ -364,8 +333,7 @@ export class Target {
                 throw err;
             }
         };
-        write(this.name + '\n');
-        clearLine();
+        this.status({ name: 'name', target: this.name });
         await time(this.download);
         try {
             await time(this.load);
@@ -381,6 +349,51 @@ export class Target {
                 throw error;
             }
         }
+    }
+
+    async request(url, init) {
+        const response = await fetch(url, init);
+        if (!response.ok) {
+            throw new Error(response.status.toString());
+        }
+        if (response.body) {
+            const reader = response.body.getReader();
+            const length = response.headers.has('Content-Length') ? Number(response.headers.get('Content-Length')) : -1;
+            let position = 0;
+            const target = this;
+            const stream = new ReadableStream({
+                start(controller) {
+                    const read = async () => {
+                        try {
+                            const result = await reader.read();
+                            if (result.done) {
+                                target.status({ name: 'progress', value: Infinity });
+                                controller.close();
+                            } else {
+                                position += result.value.length;
+                                if (length >= 0) {
+                                    const percent = position / length;
+                                    target.status({ name: 'progress', target: url, value: percent, unit: '%' });
+                                } else {
+                                    target.status({ name: 'progress', target: url, value: position, unit: 'bytes' });
+                                }
+                                controller.enqueue(result.value);
+                                read();
+                            }
+                        } catch (error) {
+                            controller.error(error);
+                        }
+                    };
+                    read();
+                }
+            });
+            return new Response(stream, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: response.headers
+            });
+        }
+        return response;
     }
 
     async download(targets, sources) {
@@ -415,16 +428,14 @@ export class Target {
             const dir = path.dirname(this.folder + '/' + target);
             return fs.mkdir(dir, { recursive: true });
         }));
-        const response = await request(source);
+        const response = await this.request(source);
         const buffer = await response.arrayBuffer();
         const data = new Uint8Array(buffer);
         if (sourceFiles.length > 0) {
-            clearLine();
-            write('  decompress...\r');
+            this.status({ name: 'decompress' });
             const archive = decompress(data);
-            clearLine();
             for (const name of sourceFiles) {
-                write('  write ' + name + '\r');
+                this.status({ name: 'write', target: name });
                 if (name !== '.') {
                     const stream = archive.entries.get(name);
                     if (!stream) {
@@ -443,15 +454,12 @@ export class Target {
                     await fs.mkdir(dir, { recursive: true });
                     /* eslint-enable no-await-in-loop */
                 }
-                clearLine();
             }
         } else {
             const target = targets.shift();
-            clearLine();
-            write('  write ' + target + '\r');
+            this.status({ name: 'write', target: target });
             await fs.writeFile(this.folder + '/' + target, data, null);
         }
-        clearLine();
         if (targets.length > 0 && sources.length > 0) {
             await this.download(targets, sources);
         }
@@ -658,16 +666,32 @@ export class Target {
 const main = async () => {
     const __host__ = await Target.start();
     worker_threads.parentPort.on('message', async (message) => {
-        const data = {};
+        const response = {};
         try {
             const target = new Target(__host__, message);
-            data.name = target.name;
+            response.name = target.name;
+            target.on('status', (_, message) => {
+                message.type = 'status';
+                worker_threads.parentPort.postMessage(message);
+            });
             await target.execute();
-            data.measures = target.measures;
+            response.measures = target.measures;
+            response.type = 'complete';
         } catch (error) {
-            data.error = error.message;
+            response.error = {
+                name: error.name,
+                message: error.message
+            };
+            const cause = error.cause;
+            if (cause) {
+                response.error.cause = {
+                    name: cause.name,
+                    message: cause.message
+                };
+            }
+            response.type = 'error';
         }
-        worker_threads.parentPort.postMessage(data);
+        worker_threads.parentPort.postMessage(response);
     });
 };
 
