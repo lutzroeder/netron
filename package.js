@@ -18,7 +18,8 @@ const read = (match) => {
 let configuration = null;
 
 const dirname = (...args) => {
-    const dir = path.dirname(url.fileURLToPath(import.meta.url));
+    const file = url.fileURLToPath(import.meta.url);
+    const dir = path.dirname(file);
     return path.join(dir, ...args);
 };
 
