@@ -5,9 +5,9 @@ import * as process from 'process';
 import * as url from 'url';
 import * as worker_threads from 'worker_threads';
 import * as base from '../source/base.js';
-import * as view from '../source/view.js';
 import * as zip from '../source/zip.js';
 import * as tar from '../source/tar.js';
+import * as view from '../source/view.js';
 
 const access = async (path) => {
     try {
@@ -16,6 +16,12 @@ const access = async (path) => {
     } catch (error) {
         return false;
     }
+};
+
+const dirname = (...args) => {
+    const file = url.fileURLToPath(import.meta.url);
+    const dir = path.dirname(file);
+    return path.join(dir, ...args);
 };
 
 const decompress = (buffer) => {
@@ -41,8 +47,7 @@ host.TestHost = class {
     constructor() {
         this._window = global.window;
         this._document = this._window.document;
-        const dirname = path.dirname(url.fileURLToPath(import.meta.url));
-        this._sourceDir = path.join(dirname, '..', 'source');
+        this._sourceDir = dirname('..', 'source');
     }
 
     get window() {
@@ -273,45 +278,36 @@ global.Window = class {
     }
 };
 
-class EventTarget {
+export class Target {
 
-    constructor() {
-        this._events = {};
-    }
-
-    on(event, callback) {
-        this._events[event] = this._events[event] || [];
-        this._events[event].push(callback);
-    }
-
-    emit(event, data) {
-        if (this._events && this._events[event]) {
-            for (const callback of this._events[event]) {
-                callback(this, data);
-            }
-        }
-    }
-}
-
-export class Target extends EventTarget {
-
-    constructor(host, item) {
-        super();
+    constructor(item) {
         Object.assign(this, item);
-        this.host = host;
+        this.events = {};
         const target = item.target.split(',');
         this.target = item.type ? target : target.map((target) => path.resolve(process.cwd(), target));
         this.action = new Set((this.action || '').split(';'));
-        const dirname = path.dirname(url.fileURLToPath(import.meta.url));
-        this.folder = item.type ? path.normalize(path.join(dirname, '..', 'third_party' , 'test', item.type)) : '';
+        this.folder = item.type ? path.normalize(dirname('..', 'third_party' , 'test', item.type)) : '';
         this.name = this.type ? this.type + '/' + this.target[0] : this.target[0];
         this.measures = new Map([ [ 'name', this.name ] ]);
+    }
+
+    on(event, callback) {
+        this.events[event] = this.events[event] || [];
+        this.events[event].push(callback);
+    }
+
+    emit(event, data) {
+        if (this.events && this.events[event]) {
+            for (const callback of this.events[event]) {
+                callback(this, data);
+            }
+        }
     }
 
     static async start() {
         global.window = new Window();
         await zip.Archive.import();
-        return new host.TestHost();
+        Target.host = await new host.TestHost();
     }
 
     status(message) {
@@ -319,6 +315,9 @@ export class Target extends EventTarget {
     }
 
     async execute() {
+        if (!Target.host) {
+            await Target.start();
+        }
         const time = async (method) => {
             const start = process.hrtime.bigint();
             let err = null;
@@ -358,33 +357,35 @@ export class Target extends EventTarget {
         }
         if (response.body) {
             const reader = response.body.getReader();
-            const length = response.headers.has('Content-Length') ? Number(response.headers.get('Content-Length')) : -1;
+            const length = response.headers.has('Content-Length') ? parseInt(response.headers.get('Content-Length'), 10) : -1;
             let position = 0;
             const target = this;
             const stream = new ReadableStream({
-                start(controller) {
+                async start(controller) {
                     const read = async () => {
                         try {
                             const result = await reader.read();
                             if (result.done) {
-                                target.status({ name: 'progress', value: Infinity });
+                                target.status({ name: 'download' });
                                 controller.close();
                             } else {
                                 position += result.value.length;
                                 if (length >= 0) {
                                     const percent = position / length;
-                                    target.status({ name: 'progress', target: url, value: percent, unit: '%' });
+                                    target.status({ name: 'download', target: url, percent: percent });
                                 } else {
-                                    target.status({ name: 'progress', target: url, value: position, unit: 'bytes' });
+                                    target.status({ name: 'download', target: url, position: position });
                                 }
                                 controller.enqueue(result.value);
-                                read();
+                                return await read();
                             }
                         } catch (error) {
                             controller.error(error);
+                            throw error;
                         }
+                        return null;
                     };
-                    read();
+                    return read();
                 }
             });
             return new Response(stream, {
@@ -474,7 +475,7 @@ export class Target extends EventTarget {
             const buffer = await fs.readFile(target, null);
             const reader = new base.BinaryStream(buffer);
             const dirname = path.dirname(target);
-            context = new host.TestHost.Context(this.host, dirname, identifier, reader, new Map());
+            context = new host.TestHost.Context(Target.host, dirname, identifier, reader, new Map());
         } else if (stat.isDirectory()) {
             const entries = new Map();
             const file = async (pathname) => {
@@ -497,9 +498,9 @@ export class Target extends EventTarget {
                 await Promise.all(promises);
             };
             await walk(target);
-            context = new host.TestHost.Context(this.host, target, identifier, null, entries);
+            context = new host.TestHost.Context(Target.host, target, identifier, null, entries);
         }
-        const modelFactoryService = new view.ModelFactoryService(this.host);
+        const modelFactoryService = new view.ModelFactoryService(Target.host);
         this.model = await modelFactoryService.open(context);
     }
 
@@ -656,28 +657,28 @@ export class Target extends EventTarget {
     }
 
     async render() {
-        const current = new view.View(this.host);
+        const current = new view.View(Target.host);
         current.options.attributes = true;
         current.options.initializers = true;
         await current.renderGraph(this.model, this.model.graphs[0], current.options);
     }
 }
 
-const main = async () => {
-    const __host__ = await Target.start();
+const main = () => {
     worker_threads.parentPort.on('message', async (message) => {
         const response = {};
         try {
-            const target = new Target(__host__, message);
-            response.name = target.name;
+            const target = new Target(message);
+            response.type = 'complete';
+            response.target = target.name;
             target.on('status', (_, message) => {
-                message.type = 'status';
+                message = Object.assign({ type: 'status' }, message);
                 worker_threads.parentPort.postMessage(message);
             });
             await target.execute();
             response.measures = target.measures;
-            response.type = 'complete';
         } catch (error) {
+            response.type = 'error';
             response.error = {
                 name: error.name,
                 message: error.message
@@ -689,7 +690,6 @@ const main = async () => {
                     message: cause.message
                 };
             }
-            response.type = 'error';
         }
         worker_threads.parentPort.postMessage(response);
     });
