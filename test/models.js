@@ -185,14 +185,23 @@ class Worker {
             /* eslint-disable no-await-in-loop */
             await new Promise((resolve) => {
                 this.resolve = resolve;
-                this.worker.on('message', this.events.message);
-                this.worker.on('error', this.events.error);
+                this.attach();
                 this.worker.postMessage(task);
             });
             /* eslint-enable no-await-in-loop */
         }
         this.logger.delete(this.identifier);
         await this.worker.terminate();
+    }
+
+    attach() {
+        this.worker.on('message', this.events.message);
+        this.worker.on('error', this.events.error);
+    }
+
+    detach() {
+        this.worker.off('message', this.events.message);
+        this.worker.off('error', this.events.error);
     }
 
     async message(message) {
@@ -208,8 +217,7 @@ class Worker {
             }
             case 'complete': {
                 await this.measures.add(message.measures);
-                this.worker.off('message', this.events.message);
-                this.worker.off('error', this.events.error);
+                this.detach();
                 this.resolve();
                 delete this.resolve;
                 break;
@@ -221,8 +229,8 @@ class Worker {
     }
 
     error(error) {
-        this.worker.off('message', this.events.message);
-        this.worker.off('error', this.events.error);
+        this.detach();
+        delete this.resolve;
         exit(error);
     }
 }
@@ -235,7 +243,7 @@ const main = async () => {
         const patterns = paths ? [] : args;
         const targets = paths ? args.map((path) => ({ target: path })) : await configuration();
         const queue = new Queue(targets, patterns);
-        const threads = Math.min(12, Math.round(0.7 * os.cpus().length)); // 1 = single thread no workers
+        const threads = undefined;
         const logger = new Logger(threads);
         const measures = new Table([ 'name', 'download', 'load', 'validate', 'render' ]);
         // await measures.log(dirname('..', 'dist', 'test', 'measures.csv'));
@@ -250,7 +258,8 @@ const main = async () => {
                 /* eslint-enable no-await-in-loop */
             }
         } else {
-            const identifiers = [...new Array(threads).keys()].map((value) => value.toString());
+            const cores = Math.min(12, Math.round(0.7 * os.cpus().length));
+            const identifiers = [...new Array(cores).keys()].map((value) => value.toString());
             const workers = identifiers.map((identifier) => new Worker(identifier, queue, logger, measures));
             const promises = workers.map((worker) => worker.start());
             await Promise.all(promises);
