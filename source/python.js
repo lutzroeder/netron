@@ -3991,6 +3991,9 @@ python.Execution = class {
         this.registerFunction('sklearn.metrics._dist_metrics.newObj', function() {
             throw new python.Error("'sklearn.metrics._dist_metrics.newObj' not implemented.");
         });
+        this.registerFunction('sklearn.metrics._regression.mean_absolute_error', function() {
+            throw new python.Error("'sklearn.metrics._regression.mean_absolute_error' not implemented.");
+        });
         this.registerFunction('sklearn.metrics._regression.mean_squared_error', function() {
             throw new python.Error("'sklearn.metrics._regression.mean_squared_error' not implemented.");
         });
@@ -4005,7 +4008,6 @@ python.Execution = class {
         this.registerFunction('theano.scalar.basic.same_out', function() {
             throw new python.Error("'theano.scalar.basic.same_out' not implemented.");
         });
-
         this.registerFunction('theano.scalar.basic.same_out_nocomplex', function() {
             throw new python.Error("'theano.scalar.basic.same_out_nocomplex' not implemented.");
         });
