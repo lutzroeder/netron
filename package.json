@@ -97,6 +97,11 @@
             "protobuf": "readonly"
         }
     },
+    "nyc": {
+        "reporter": [ "lcov" ],
+        "report-dir": "dist/nyc/coverage",
+        "temp-dir": "dist/nyc/.nyc_output"
+    },
     "build": {
         "appId": "com.lutzroeder.netron",
         "productName": "Netron",

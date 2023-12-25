@@ -562,14 +562,12 @@ const pull = async () => {
 };
 
 const coverage = async () => {
-    await rm('.nyc_output');
-    await rm('coverage');
     await rm('dist', 'nyc');
     await mkdir('dist', 'nyc');
     await exec('cp package.json dist/nyc');
     await exec('cp -R source dist/nyc');
     await exec('nyc instrument --compact false source dist/nyc/source');
-    await exec('nyc --reporter=lcov --instrument npx electron ./dist/nyc');
+    await exec('nyc --instrument npx electron ./dist/nyc');
 };
 
 const analyze = async () => {
