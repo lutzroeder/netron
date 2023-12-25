@@ -13165,7 +13165,6 @@
   },
   {
     "name": "aten::triu.out",
-    "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "diagonal", "type": "int64", "default": 0 }
@@ -13176,7 +13175,6 @@
   },
   {
     "name": "aten::triu_",
-    "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "diagonal", "type": "int64", "default": 0 }
