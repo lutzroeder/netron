@@ -192,7 +192,7 @@
   },
   {
     "name": "sklearn.calibration.CalibratedClassifierCV",
-    "description": "Probability calibration with isotonic regression or logistic regression.\n\nThis class uses cross-validation to both estimate the parameters of a\nclassifier and subsequently calibrate a classifier. With default\n`ensemble=True`, for each cv split it\nfits a copy of the base estimator to the training subset, and calibrates it\nusing the testing subset. For prediction, predicted probabilities are\naveraged across these individual calibrated classifiers. When\n`ensemble=False`, cross-validation is used to obtain unbiased predictions,\nvia :func:`~sklearn.model_selection.cross_val_predict`, which are then\nused for calibration. For prediction, the base estimator, trained using all\nthe data, is used. This is the method implemented when `probabilities=True`\nfor :mod:`sklearn.svm` estimators.\n\nAlready fitted classifiers can be calibrated via the parameter\n`cv=\"prefit\"`. In this case, no cross-validation is used and all provided\ndata is used for calibration. The user has to take care manually that data\nfor model fitting and calibration are disjoint.\n\nThe calibration is based on the :term:`decision_function` method of the\n`estimator` if it exists, else on :term:`predict_proba`.\n\nRead more in the :ref:`User Guide <calibration>`.\n",
+    "description": "Probability calibration with isotonic regression or logistic regression.\n\nThis class uses cross-validation to both estimate the parameters of a\nclassifier and subsequently calibrate a classifier. With default\n`ensemble=True`, for each cv split it\nfits a copy of the base estimator to the training subset, and calibrates it\nusing the testing subset. For prediction, predicted probabilities are\naveraged across these individual calibrated classifiers. When\n`ensemble=False`, cross-validation is used to obtain unbiased predictions,\nvia :func:`~sklearn.model_selection.cross_val_predict`, which are then\nused for calibration. For prediction, the base estimator, trained using all\nthe data, is used. This is the prediction method implemented when\n`probabilities=True` for :class:`~sklearn.svm.SVC` and :class:`~sklearn.svm.NuSVC`\nestimators (see :ref:`User Guide <scores_probabilities>` for details).\n\nAlready fitted classifiers can be calibrated via the parameter\n`cv=\"prefit\"`. In this case, no cross-validation is used and all provided\ndata is used for calibration. The user has to take care manually that data\nfor model fitting and calibration are disjoint.\n\nThe calibration is based on the :term:`decision_function` method of the\n`estimator` if it exists, else on :term:`predict_proba`.\n\nRead more in the :ref:`User Guide <calibration>`.\n",
     "attributes": [
       {
         "default": null,
@@ -753,7 +753,7 @@
   },
   {
     "name": "sklearn.feature_extraction.text.CountVectorizer",
-    "description": "Convert a collection of text documents to a matrix of token counts.\n\nThis implementation produces a sparse representation of the counts using\nscipy.sparse.csr_matrix.\n\nIf you do not provide an a-priori dictionary and you do not use an analyzer\nthat does some kind of feature selection then the number of features will\nbe equal to the vocabulary size found by analyzing the data.\n\nFor an efficiency comparision of the different feature extractors, see\n:ref:`sphx_glr_auto_examples_text_plot_hashing_vs_dict_vectorizer.py`.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
+    "description": "Convert a collection of text documents to a matrix of token counts.\n\nThis implementation produces a sparse representation of the counts using\nscipy.sparse.csr_matrix.\n\nIf you do not provide an a-priori dictionary and you do not use an analyzer\nthat does some kind of feature selection then the number of features will\nbe equal to the vocabulary size found by analyzing the data.\n\nFor an efficiency comparison of the different feature extractors, see\n:ref:`sphx_glr_auto_examples_text_plot_hashing_vs_dict_vectorizer.py`.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
     "attributes": [
       {
         "default": "content",
@@ -854,7 +854,7 @@
   },
   {
     "name": "sklearn.feature_extraction.text.TfidfVectorizer",
-    "description": "Convert a collection of raw documents to a matrix of TF-IDF features.\n\nEquivalent to :class:`CountVectorizer` followed by\n:class:`TfidfTransformer`.\n\nFor an example of usage, see\n:ref:`sphx_glr_auto_examples_text_plot_document_classification_20newsgroups.py`.\n\nFor an efficiency comparision of the different feature extractors, see\n:ref:`sphx_glr_auto_examples_text_plot_hashing_vs_dict_vectorizer.py`.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
+    "description": "Convert a collection of raw documents to a matrix of TF-IDF features.\n\nEquivalent to :class:`CountVectorizer` followed by\n:class:`TfidfTransformer`.\n\nFor an example of usage, see\n:ref:`sphx_glr_auto_examples_text_plot_document_classification_20newsgroups.py`.\n\nFor an efficiency comparison of the different feature extractors, see\n:ref:`sphx_glr_auto_examples_text_plot_hashing_vs_dict_vectorizer.py`.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
     "attributes": [
       {
         "default": "content",
@@ -1042,7 +1042,7 @@
     "attributes": [
       {
         "default": "l2",
-        "description": "Specify the norm of the penalty:\n\n- `None`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n\n.. deprecated:: 1.2\nThe 'none' option was deprecated in version 1.2, and will be removed\nin 1.4. Use `None` instead.\n",
+        "description": "Specify the norm of the penalty:\n\n- `None`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n",
         "name": "penalty"
       },
       {
@@ -1256,7 +1256,7 @@
     "attributes": [
       {
         "default": "l2",
-        "description": "Specify the norm of the penalty:\n\n- `None`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n\n.. deprecated:: 1.2\nThe 'none' option was deprecated in version 1.2, and will be removed\nin 1.4. Use `None` instead.\n",
+        "description": "Specify the norm of the penalty:\n\n- `None`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n",
         "name": "penalty",
         "optional": true
       },
@@ -1453,9 +1453,9 @@
       },
       {
         "name": "force_alpha",
-        "description": "If False and alpha is less than 1e-10, it will set alpha to\n1e-10. If True, alpha will remain unchanged. This may cause\nnumerical errors if alpha is too close to 0.\n\n.. versionadded:: 1.2\n.. deprecated:: 1.2\nThe default value of `force_alpha` will change to `True` in v1.4.\n",
+        "description": "If False and alpha is less than 1e-10, it will set alpha to\n1e-10. If True, alpha will remain unchanged. This may cause\nnumerical errors if alpha is too close to 0.\n\n.. versionadded:: 1.2\n.. versionchanged:: 1.4\nThe default value of `force_alpha` changed to `True`.\n",
         "type": "boolean",
-        "default": false
+        "default": true
       }
     ]
   },
@@ -1492,9 +1492,9 @@
       },
       {
         "name": "force_alpha",
-        "description": "If False and alpha is less than 1e-10, it will set alpha to\n1e-10. If True, alpha will remain unchanged. This may cause\nnumerical errors if alpha is too close to 0.\n\n.. versionadded:: 1.2\n.. deprecated:: 1.2\nThe default value of `force_alpha` will change to `True` in v1.4.\n",
+        "description": "If False and alpha is less than 1e-10, it will set alpha to\n1e-10. If True, alpha will remain unchanged. This may cause\nnumerical errors if alpha is too close to 0.\n\n.. versionadded:: 1.2\n.. versionchanged:: 1.4\nThe default value of `force_alpha` changed to `True`.\n",
         "type": "boolean",
-        "default": false
+        "default": true
       }
     ]
   },
@@ -1524,9 +1524,9 @@
       },
       {
         "name": "force_alpha",
-        "description": "If False and alpha is less than 1e-10, it will set alpha to\n1e-10. If True, alpha will remain unchanged. This may cause\nnumerical errors if alpha is too close to 0.\n\n.. versionadded:: 1.2\n.. deprecated:: 1.2\nThe default value of `force_alpha` will change to `True` in v1.4.\n",
+        "description": "If False and alpha is less than 1e-10, it will set alpha to\n1e-10. If True, alpha will remain unchanged. This may cause\nnumerical errors if alpha is too close to 0.\n\n.. versionadded:: 1.2\n.. versionchanged:: 1.4\nThe default value of `force_alpha` changed to `True`.\n",
         "type": "boolean",
-        "default": false
+        "default": true
       }
     ]
   },
@@ -1562,7 +1562,7 @@
       },
       {
         "default": 2.0,
-        "description": "Power parameter for the Minkowski metric. When p = 1, this is\nequivalent to using manhattan_distance (l1), and euclidean_distance\n(l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.\n",
+        "description": "Power parameter for the Minkowski metric. When p = 1, this is equivalent\nto using manhattan_distance (l1), and euclidean_distance (l2) for p = 2.\nFor arbitrary p, minkowski_distance (l_p) is used. This parameter is expected\nto be positive.\n",
         "name": "p",
         "optional": true,
         "type": "int32"
@@ -1625,7 +1625,7 @@
       },
       {
         "default": "minkowski",
-        "description": "Metric to use for distance computation. Default is \"minkowski\", which\nresults in the standard Euclidean distance when p = 2. See the\ndocumentation of `scipy.spatial.distance\n<https://docs.scipy.org/doc/scipy/reference/spatial.distance.html>`_ and\nthe metrics listed in\n:class:`~sklearn.metrics.pairwise.distance_metrics` for valid metric\nvalues.\n\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`, in which\ncase only \"nonzero\" elements may be considered neighbors.\n\nIf metric is a callable function, it takes two arrays representing 1D\nvectors as inputs and must return one value indicating the distance\nbetween those vectors. This works for Scipy's metrics, but is less\nefficient than passing the metric name as a string.\n",
+        "description": "Metric to use for distance computation. Default is \"minkowski\", which\nresults in the standard Euclidean distance when p = 2. See the\ndocumentation of `scipy.spatial.distance\n<https://docs.scipy.org/doc/scipy/reference/spatial.distance.html>`_ and\nthe metrics listed in\n:class:`~sklearn.metrics.pairwise.distance_metrics` for valid metric\nvalues.\n\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`, in which\ncase only \"nonzero\" elements may be considered neighbors.\n\nIf metric is a callable function, it takes two arrays representing 1D\nvectors as inputs and must return one value indicating the distance\nbetween those vectors. This works for Scipy's metrics, but is less\nefficient than passing the metric name as a string.\n\nIf metric is a DistanceMetric object, it will be passed directly to\nthe underlying computation routines.\n",
         "name": "metric"
       },
       {
@@ -1835,7 +1835,7 @@
   },
   {
     "name": "sklearn.preprocessing._encoders.OneHotEncoder",
-    "description": "\nEncode categorical features as a one-hot numeric array.\n\nThe input to this transformer should be an array-like of integers or\nstrings, denoting the values taken on by categorical (discrete) features.\nThe features are encoded using a one-hot (aka 'one-of-K' or 'dummy')\nencoding scheme. This creates a binary column for each category and\nreturns a sparse matrix or dense array (depending on the ``sparse_output``\nparameter)\n\nBy default, the encoder derives the categories based on the unique values\nin each feature. Alternatively, you can also specify the `categories`\nmanually.\n\nThis encoding is needed for feeding categorical data to many scikit-learn\nestimators, notably linear models and SVMs with the standard kernels.\n\nNote: a one-hot encoding of y labels should use a LabelBinarizer\ninstead.\n\nRead more in the :ref:`User Guide <preprocessing_categorical_features>`.\nFor a comparison of different encoders, refer to:\n:ref:`sphx_glr_auto_examples_preprocessing_plot_target_encoder.py`.\n",
+    "description": "\nEncode categorical features as a one-hot numeric array.\n\nThe input to this transformer should be an array-like of integers or\nstrings, denoting the values taken on by categorical (discrete) features.\nThe features are encoded using a one-hot (aka 'one-of-K' or 'dummy')\nencoding scheme. This creates a binary column for each category and\nreturns a sparse matrix or dense array (depending on the ``sparse_output``\nparameter).\n\nBy default, the encoder derives the categories based on the unique values\nin each feature. Alternatively, you can also specify the `categories`\nmanually.\n\nThis encoding is needed for feeding categorical data to many scikit-learn\nestimators, notably linear models and SVMs with the standard kernels.\n\nNote: a one-hot encoding of y labels should use a LabelBinarizer\ninstead.\n\nRead more in the :ref:`User Guide <preprocessing_categorical_features>`.\nFor a comparison of different encoders, refer to:\n:ref:`sphx_glr_auto_examples_preprocessing_plot_target_encoder.py`.\n",
     "attributes": [
       {
         "description": "Categories (unique values) per feature:\n\n- 'auto' : Determine categories automatically from the training data.\n- list : ``categories[i]`` holds the categories expected in the ith\ncolumn. The passed categories should not mix strings and numeric\nvalues within a single feature, and should be sorted in case of\nnumeric values.\n\nThe used categories can be found in the ``categories_`` attribute.\n\n.. versionadded:: 0.20\n",
@@ -1877,7 +1877,7 @@
       {
         "name": "sparse_output",
         "default": true,
-        "description": "Will return sparse matrix if set True else will return an array.\n\n.. versionadded:: 1.2\n`sparse` was renamed to `sparse_output`\n"
+        "description": "When ``True``, it returns a :class:`scipy.sparse.csr_matrix`,\ni.e. a sparse matrix in \"Compressed Sparse Row\" (CSR) format.\n\n.. versionadded:: 1.2\n`sparse` was renamed to `sparse_output`\n"
       },
       {
         "name": "feature_name_combiner",
