@@ -258,7 +258,7 @@ const main = async () => {
                 /* eslint-enable no-await-in-loop */
             }
         } else {
-            const cores = Math.min(12, Math.round(0.7 * os.cpus().length));
+            const cores = Math.min(10, Math.round(0.7 * os.cpus().length));
             const identifiers = [...new Array(cores).keys()].map((value) => value.toString());
             const workers = identifiers.map((identifier) => new Worker(identifier, queue, logger, measures));
             const promises = workers.map((worker) => worker.start());
