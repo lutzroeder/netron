@@ -2313,8 +2313,12 @@ view.NodeSidebar = class extends view.ObjectSidebar {
                     this.emit('show-documentation', null);
                 });
             }
-            if (node.type.module) {
-                this.addProperty('module', node.type.module);
+            const module = node.type.module;
+            const version = node.type.version;
+            const status = node.type.status;
+            if (module || version || status) {
+                const list = [ module, version ? 'v' + version : '', status ];
+                this.addProperty('module', list.filter((value) => value).join(' '));
             }
         }
         if (node.name) {
@@ -3073,11 +3077,6 @@ view.DocumentationSidebar = class extends view.Control {
                 for (const reference of type.references) {
                     this._append(references, 'li', reference.description);
                 }
-            }
-            if (type.version || type.support_level) {
-                this._append(element, 'h2', 'Support');
-                const module = type.module || 'ai.onnx';
-                this._append(element, 'dl', 'In <tt>' + module + '</tt> since version <tt>' + type.version + '</tt> at support level <tt>' + type.support_level + '</tt>.');
             }
             if (this._host.type === 'Electron') {
                 element.addEventListener('click', (e) => {
