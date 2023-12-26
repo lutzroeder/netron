@@ -190,7 +190,8 @@ def _metadata():
         json_schema['name'] = schema.name
         json_schema['module'] = schema.domain if schema.domain else 'ai.onnx'
         json_schema['version'] = schema.since_version
-        json_schema['support_level'] = _generate_json_support_level_name(schema.support_level)
+        if schema.support_level != onnx.defs.OpSchema.SupportType.COMMON:
+            json_schema['status'] = schema.support_level.name.lower()
         json_schema['description'] = _format_description(schema.doc.lstrip())
         if schema.attributes:
             _update_attributes(json_schema, schema)
