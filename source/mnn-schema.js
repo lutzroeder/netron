@@ -213,6 +213,7 @@ $root.MNN.QuantizedFloatParam = class QuantizedFloatParam {
         $.clampMin = reader.int8_(position, 20, -128);
         $.clampMax = reader.int8_(position, 22, 127);
         $.winogradAttr = reader.typedArray(position, 24, Int32Array);
+        $.outputDataType = reader.int32_(position, 26, 6);
         return $;
     }
 };
@@ -447,30 +448,6 @@ $root.MNN.Scale = class Scale {
         $.scaleData = reader.typedArray(position, 6, Float32Array);
         $.biasData = reader.typedArray(position, 8, Float32Array);
         $.external = reader.int64s_(position, 10);
-        return $;
-    }
-};
-
-$root.MNN.QuantizeLinear = class QuantizeLinear {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.QuantizeLinear();
-        $.scaleSize = reader.int32_(position, 4, 0);
-        $.scaleAxis = reader.int32_(position, 6, 0);
-        $.scaleData = reader.typedArray(position, 8, Float32Array);
-        $.zeroPointData = reader.typedArray(position, 10, Int8Array);
-        return $;
-    }
-};
-
-$root.MNN.DequantizeLinear = class DequantizeLinear {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.DequantizeLinear();
-        $.scaleSize = reader.int32_(position, 4, 0);
-        $.scaleAxis = reader.int32_(position, 6, 0);
-        $.scaleData = reader.typedArray(position, 8, Float32Array);
-        $.zeroPointData = reader.typedArray(position, 10, Int8Array);
         return $;
     }
 };
@@ -1662,8 +1639,6 @@ $root.MNN.OpType = {
     GatherElements: 152,
     Svd: 153,
     Histogram: 154,
-    QuantizeLinear: 155,
-    DequantizeLinear: 156,
     Plugin: 256,
     Select: 257,
     ZerosLike: 258,
@@ -1877,8 +1852,6 @@ $root.MNN.OpParameter = class {
             case 92: return $root.MNN.LoopParam.decode(reader, position);
             case 93: return $root.MNN.ImageProcessParam.decode(reader, position);
             case 94: return $root.MNN.CumSum.decode(reader, position);
-            case 95: return $root.MNN.QuantizeLinear.decode(reader, position);
-            case 96: return $root.MNN.DequantizeLinear.decode(reader, position);
             default: return undefined;
         }
     }
