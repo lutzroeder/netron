@@ -2235,11 +2235,12 @@ python.Execution = class {
         this.registerType('megengine.quantization.fake_quant.FakeQuantize', class {});
         this.registerType('megengine.quantization.utils.QParams', class {});
         this.registerType('megengine.quantization.utils.QuantMode', class {});
-        this.registerType('megengine.quantization.observer.PassiveObserver', class {});
-        this.registerType('megengine.quantization.observer.MinMaxObserver', class {});
         this.registerType('megengine.quantization.observer.ExponentialMovingAverageObserver', class {});
-        this.registerType('megengine.quantization.observer.SyncMinMaxObserver', class {});
+        this.registerType('megengine.quantization.observer.HistogramObserver', class {});
+        this.registerType('megengine.quantization.observer.MinMaxObserver', class {});
+        this.registerType('megengine.quantization.observer.PassiveObserver', class {});
         this.registerType('megengine.quantization.observer.SyncExponentialMovingAverageObserver', class {});
+        this.registerType('megengine.quantization.observer.SyncMinMaxObserver', class {});
         this.registerType('megengine.traced_module.expr.Apply', class {});
         this.registerType('megengine.traced_module.expr.CallFunction', class {});
         this.registerType('megengine.traced_module.expr.CallMethod', class {});
@@ -4049,6 +4050,7 @@ python.Execution = class {
         torch.nn.Module = torch.nn.modules.module.Module;
         torch.nn.modules.Module = torch.nn.modules.module.Module;
         this.registerType('torch.ao.quantization.fake_quantize.FakeQuantize', class {});
+        this.registerType('torch.ao.quantization.fake_quantize.FusedMovingAvgObsFakeQuantize', class {});
         this.registerType('torch.ao.quantization.observer._PartialWrapper', class {});
         this.registerType('torch.ao.quantization.observer.HistogramObserver', class {});
         this.registerType('torch.ao.quantization.observer.MovingAverageMinMaxObserver', class {});
