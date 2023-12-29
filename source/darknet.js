@@ -17,19 +17,14 @@ darknet.ModelFactory = class {
         }
         try {
             const reader = text.Reader.open(context.stream, 65536);
-            for (;;) {
-                const line = reader.read();
-                if (line === undefined) {
-                    break;
-                }
+            for (let line = reader.read(); line !== undefined; line = reader.read()) {
                 const content = line.trim();
-                if (content.length === 0 || content.startsWith('#')) {
-                    continue;
+                if (content.length > 0 && !content.startsWith('#')) {
+                    if (content.startsWith('[') && content.endsWith(']')) {
+                        return { name: 'darknet.model', value: context.stream };
+                    }
+                    return undefined;
                 }
-                if (content.startsWith('[') && content.endsWith(']')) {
-                    return { name: 'darknet.model', value: context.stream };
-                }
-                return undefined;
             }
         } catch (err) {
             // continue regardless of error
@@ -48,20 +43,19 @@ darknet.ModelFactory = class {
                 const weights = target.value;
                 const name = basename + '.cfg';
                 const content = await context.fetch(name);
-                const buffer = content.stream.peek();
-                return new darknet.Model(metadata, buffer, weights);
+                const reader = new darknet.Reader(content.stream, content.identifier);
+                return new darknet.Model(metadata, reader, weights);
             }
             case 'darknet.model': {
-                const stream = target.value;
                 try {
                     const name = basename + '.weights';
                     const content = await context.fetch(name);
                     const weights = darknet.Weights.open(content.stream);
-                    const buffer = stream.peek();
-                    return new darknet.Model(metadata, buffer, weights);
+                    const reader = new darknet.Reader(context.stream, context.identifier);
+                    return new darknet.Model(metadata, reader, weights);
                 } catch (error) {
-                    const buffer = stream.peek();
-                    return new darknet.Model(metadata, buffer, null);
+                    const reader = new darknet.Reader(context.stream, context.identifier);
+                    return new darknet.Model(metadata, reader, null);
                 }
             }
             default: {
@@ -73,8 +67,8 @@ darknet.ModelFactory = class {
 
 darknet.Model = class {
 
-    constructor(metadata, cfg, weights) {
-        this._graphs = [ new darknet.Graph(metadata, cfg, weights) ];
+    constructor(metadata, reader, weights) {
+        this._graphs = [ new darknet.Graph(metadata, reader, weights) ];
     }
 
     get format() {
@@ -88,55 +82,12 @@ darknet.Model = class {
 
 darknet.Graph = class {
 
-    constructor(metadata, cfg, weights) {
+    constructor(metadata, reader, weights) {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-
-        // read_cfg
-        const sections = [];
-        let section = null;
-        const reader = text.Reader.open(cfg);
-        let lineNumber = 0;
-        for (;;) {
-            lineNumber++;
-            const content = reader.read();
-            if (content === undefined) {
-                break;
-            }
-            const line = content.replace(/\s/g, '');
-            if (line.length > 0) {
-                switch (line[0]) {
-                    case '#':
-                    case ';':
-                        break;
-                    case '[': {
-                        const type = line[line.length - 1] === ']' ? line.substring(1, line.length - 1) : line.substring(1);
-                        section = {
-                            line: lineNumber,
-                            type: type,
-                            options: {}
-                        };
-                        sections.push(section);
-                        break;
-                    }
-                    default: {
-                        if (!section || line[0] < 0x20 || line[0] > 0x7E) {
-                            throw new darknet.Error("Invalid cfg '" + content.replace(/[^\x20-\x7E]+/g, '?').trim() + "' at line " + lineNumber.toString() + ".");
-                        }
-                        const index = line.indexOf('=');
-                        if (index < 0) {
-                            throw new darknet.Error("Invalid cfg '" + content.replace(/[^\x20-\x7E]+/g, '?').trim() + "' at line " + lineNumber.toString() + ".");
-                        }
-                        const key = line.substring(0, index);
-                        const value = line.substring(index + 1);
-                        section.options[key] = value;
-                        break;
-                    }
-                }
-            }
-        }
         const params = {};
+        const sections = reader.read();
         const globals = new Map();
         const net = sections.shift();
         const option_find_int = (options, key, defaultValue) => {
@@ -1046,6 +997,65 @@ darknet.TensorShape = class {
             return '[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']';
         }
         return '';
+    }
+};
+
+darknet.Reader = class {
+
+    constructor(stream, identifier) {
+        this.stream = stream;
+        this.identifier = identifier;
+    }
+
+    read() {
+        // read_cfg
+        const sections = [];
+        let section = null;
+        const reader = text.Reader.open(this.stream);
+        let lineNumber = 0;
+        const setup = /^setup.*\.cfg$/.test(this.identifier);
+        for (let content = reader.read(); content !== undefined; content = reader.read()) {
+            lineNumber++;
+            const line = content.replace(/\s/g, '');
+            if (line.length > 0) {
+                switch (line[0]) {
+                    case '#':
+                    case ';':
+                        break;
+                    case '[': {
+                        const type = line[line.length - 1] === ']' ? line.substring(1, line.length - 1) : line.substring(1);
+                        if (setup) {
+                            if (type === 'metadata' || type === 'global' || type === 'wheel' ||
+                                type === 'isort' || type === 'flake8' || type === 'build_ext' ||
+                                type.startsWith('bdist_') || type.startsWith('tool:') || type.startsWith('coverage:')) {
+                                throw new darknet.Error('Invalid file content. File contains Python setup configuration data.');
+                            }
+                        }
+                        section = {
+                            line: lineNumber,
+                            type: type,
+                            options: {}
+                        };
+                        sections.push(section);
+                        break;
+                    }
+                    default: {
+                        if (!section || line[0] < 0x20 || line[0] > 0x7E) {
+                            throw new darknet.Error("Invalid cfg '" + content.replace(/[^\x20-\x7E]+/g, '?').trim() + "' at line " + lineNumber.toString() + ".");
+                        }
+                        const index = line.indexOf('=');
+                        if (index < 0) {
+                            throw new darknet.Error("Invalid cfg '" + content.replace(/[^\x20-\x7E]+/g, '?').trim() + "' at line " + lineNumber.toString() + ".");
+                        }
+                        const key = line.substring(0, index);
+                        const value = line.substring(index + 1);
+                        section.options[key] = value;
+                        break;
+                    }
+                }
+            }
+        }
+        return sections;
     }
 };
 
