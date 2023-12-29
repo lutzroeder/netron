@@ -1407,11 +1407,11 @@ onnx.GraphContext = class {
         });
         for (let node of nodes) {
             const domain = node.domain || 'ai.onnx';
-            const schema = this._context.metadata.type(node.op_type, domain);
+            const type = this._context.metadata.type(node.op_type, domain);
             const inputs = [];
             node.input = node.input || [];
             for (let i = 0; i < node.input.length;) {
-                const input = schema && schema.inputs && i < schema.inputs.length ? schema.inputs[i] : { name: i.toString() };
+                const input = type && type.inputs && i < type.inputs.length ? type.inputs[i] : { name: i.toString() };
                 const count = input.list ? node.input.length - i : 1;
                 const list = node.input.slice(i, i + count).filter((value) => value.name !== '' || value.initializer);
                 const values = list.map((input) => this.value(input.name));
@@ -1422,11 +1422,12 @@ onnx.GraphContext = class {
             const outputs = [];
             node.output = node.output || [];
             for (let i = 0; i < node.output.length;) {
-                const output = schema && schema.outputs && i < schema.outputs.length ? schema.outputs[i] : { name: i.toString() };
+                const output = type && type.outputs && i < type.outputs.length ? type.outputs[i] : { name: i.toString() };
                 const count = output.list ? node.output.length - i : 1;
                 const list = node.output.slice(i, i + count).filter((value) => value.name !== '' || value.initializer);
                 const values = list.map((output) => this.value(output.name));
-                outputs.push(new onnx.Argument(output.name, values));
+                const argument = new onnx.Argument(output.name, values);
+                outputs.push(argument);
                 i += count;
             }
             node = new onnx.Node(this, node.op_type, node.domain, node.name, node.doc_string, node.attribute, inputs, outputs);
