@@ -285,10 +285,9 @@ export class Target {
     constructor(item) {
         Object.assign(this, item);
         this.events = {};
-        const target = item.target.split(',');
-        this.target = item.type ? target : target.map((target) => path.resolve(process.cwd(), target));
+        this.target = item.target.split(',');
         this.action = new Set((this.action || '').split(';'));
-        this.folder = item.type ? path.normalize(dirname('..', 'third_party' , 'test', item.type)) : '';
+        this.folder = item.type ? path.normalize(dirname('..', 'third_party' , 'test', item.type)) : process.cwd();
         this.name = this.type ? this.type + '/' + this.target[0] : this.target[0];
         this.measures = new Map([ [ 'name', this.name ] ]);
     }
@@ -404,7 +403,7 @@ export class Target {
     async download(targets, sources) {
         targets = targets || Array.from(this.target);
         sources = sources || this.source;
-        const files = targets.map((file) => path.join(this.folder, file));
+        const files = targets.map((file) => path.resolve(this.folder, file));
         const exists = await Promise.all(files.map((file) => access(file)));
         if (exists.every((value) => value)) {
             return;
@@ -469,7 +468,7 @@ export class Target {
     }
 
     async load() {
-        const target = path.join(this.folder, this.target[0]);
+        const target = path.resolve(this.folder, this.target[0]);
         const identifier = path.basename(target);
         const stat = await fs.stat(target);
         let context = null;

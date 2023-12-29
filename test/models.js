@@ -101,35 +101,25 @@ class Logger {
     }
 }
 
-class Queue {
+class Queue extends Array {
 
     constructor(targets, patterns) {
-        this.targets = targets.reverse();
-        this.patterns = patterns;
-    }
-
-    next() {
-        while (this.targets.length > 0) {
-            const target = this.targets.pop();
-            if (this.patterns.length === 0) {
-                return target;
-            }
-            const parts = target.target.split(',');
-            const files = target.type ? parts : parts.map((file) => path.resolve(process.cwd(), file));
-            const type = target.type;
-            for (const pattern of this.patterns) {
-                for (const file of files) {
-                    const name = type + '/' + file;
-                    const match = pattern.indexOf('*') !== -1 ?
-                        new RegExp('^' + pattern.replace('*', '.*') + '$').test(name) :
-                        name.startsWith(pattern);
-                    if (match) {
-                        return target;
+        if (patterns.length > 0) {
+            patterns = patterns.map((pattern) => {
+                const wildcard = pattern.indexOf('*') !== -1;
+                return new RegExp('^' + (wildcard ? pattern.replace(/\*/g, '.*') + '$' : pattern));
+            });
+            targets = targets.filter((target) => {
+                for (const file of target.target.split(',')) {
+                    const value = target.type ? target.type + '/' + file : file;
+                    if (patterns.some((pattern) => pattern.test(value))) {
+                        return true;
                     }
                 }
-            }
+                return false;
+            });
         }
-        return null;
+        super(...targets.reverse());
     }
 }
 
@@ -180,7 +170,7 @@ class Worker {
     }
 
     async start() {
-        for (let task = this.queue.next(); task; task = this.queue.next()) {
+        for (let task = this.queue.pop(); task; task = this.queue.pop()) {
             this.logger.update(this.identifier, null);
             /* eslint-disable no-await-in-loop */
             await new Promise((resolve) => {
@@ -211,7 +201,7 @@ class Worker {
                 break;
             }
             case 'error': {
-                write('\n' + message.name + '\n');
+                write('\n' + message.target + '\n');
                 exit(message.error);
                 break;
             }
@@ -258,7 +248,7 @@ const main = async () => {
                 /* eslint-enable no-await-in-loop */
             }
         } else {
-            const cores = Math.min(10, Math.round(0.7 * os.cpus().length));
+            const cores = Math.min(10, Math.round(0.7 * os.cpus().length), queue.length);
             const identifiers = [...new Array(cores).keys()].map((value) => value.toString());
             const workers = identifiers.map((identifier) => new Worker(identifier, queue, logger, measures));
             const promises = workers.map((worker) => worker.start());
