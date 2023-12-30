@@ -5218,7 +5218,7 @@ view.ModelFactoryService = class {
         this.register('./sentencepiece', [ '.model' ]);
         this.register('./hailo', [ '.hn', '.har', '.metadata.json' ]);
         this.register('./nnc', [ '.nnc' ]);
-        this.register('./safetensors', [ '.safetensors', '.json' ]);
+        this.register('./safetensors', [ '.safetensors', '.safetensors.index.json' ]);
         this.register('./modular', [ '.maxviz' ]);
         this.register('./cambricon', [ '.cambricon' ]);
         this.register('./weka', [ '.model' ]);

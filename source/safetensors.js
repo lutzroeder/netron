@@ -11,12 +11,10 @@ safetensors.ModelFactory = class {
             return { name: 'safetensors', value: container };
         }
         const obj = context.peek('json');
-        if (obj.weight_map) {
+        if (obj && obj.weight_map) {
             const entries = Object.entries(obj.weight_map);
-            if (entries.every(([, value]) => typeof value === 'string' && value.endsWith('.safetensors'))) {
-                if (entries.length > 0) {
-                    return { name: 'safetensors.json', value: entries };
-                }
+            if (entries.length > 0 && entries.every(([, value]) => typeof value === 'string' && value.endsWith('.safetensors'))) {
+                return { name: 'safetensors.json', value: entries };
             }
         }
         return '';
@@ -30,9 +28,9 @@ safetensors.ModelFactory = class {
                 return new safetensors.Model(container.entries);
             }
             case 'safetensors.json': {
-                target = new Map(target.value);
-                const keys = new Set(target.keys());
-                const files = Array.from(new Set(target.values()));
+                const weight_map = new Map(target.value);
+                const keys = new Set(weight_map.keys());
+                const files = Array.from(new Set(weight_map.values()));
                 const contexts = await Promise.all(files.map((name) => context.fetch(name)));
                 const containers = contexts.map((context) => safetensors.Container.open(context));
                 await Promise.all(containers.map((container) => container.read()));
