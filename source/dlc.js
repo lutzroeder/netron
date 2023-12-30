@@ -13,7 +13,7 @@ dlc.ModelFactory = class {
     async open(context, target) {
         await context.require('./dlc-schema');
         dlc.schema = flatbuffers.get('dlc').dlc;
-        await target.read(context);
+        await target.read();
         const metadata = await context.metadata('dlc-metadata.json');
         return new dlc.Model(metadata, target);
     }
@@ -261,46 +261,40 @@ dlc.Container = class {
         const entries = context.peek('zip');
         if (entries instanceof Map) {
             if (entries.has('model') || entries.has('model.params')) {
-                return new dlc.Container(entries.get('model'), entries.get('model.params'), entries.get('dlc.metadata'));
+                return new dlc.Container(context, entries.get('model'), entries.get('model.params'), entries.get('dlc.metadata'));
             }
         }
         const stream = context.stream;
         switch (dlc.Container._signature(stream).split('.').pop()) {
             case 'NETD':
-                return new dlc.Container(stream, undefined, undefined);
+                return new dlc.Container(context, stream, undefined, undefined);
             case 'NETP':
-                return new dlc.Container(undefined, stream, undefined);
+                return new dlc.Container(context, undefined, stream, undefined);
             case 'NR64':
-                return new dlc.Container(undefined, stream, undefined);
+                return new dlc.Container(context, undefined, stream, undefined);
             default:
                 return null;
         }
     }
 
-    constructor(model, params, metadata) {
+    constructor(context, model, params, metadata) {
+        this._context = context;
         this._model = model;
         this._params = params;
         this._metadata = metadata;
     }
 
-    async read(context) {
-        const request = async (context, name) => {
-            try {
-                context = await context.fetch(name);
-                return context.stream;
-            } catch (error) {
-                return null;
-            }
-        };
+    async read() {
         if (this._model === undefined) {
-            this._model = await request(context, 'model');
+            this._model = await this._fetch('model');
         }
         if (this._params === undefined) {
-            this._params = await request(context, 'model.params');
+            this._params = await this._fetch('model.params');
         }
         if (this._metadata === undefined) {
-            this._metadata = await request(context, 'dlc.metadata');
+            this._metadata = await this._fetch('dlc.metadata');
         }
+        delete this._context;
         this.graphs = [];
         this.metadata = new Map();
         if (this._model) {
@@ -608,6 +602,14 @@ dlc.Container = class {
         }
     }
 
+    async _fetch(name) {
+        try {
+            const context = await this._context.fetch(name);
+            return context.stream;
+        } catch (error) {
+            return null;
+        }
+    }
 
     static _signature(stream) {
         if (stream) {
