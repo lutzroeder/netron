@@ -22,9 +22,9 @@ hailo.Model = class {
         this.graphs = [ new hailo.Graph(metadata, configuration, container.weights) ];
         this.name = configuration && configuration.name || "";
         this.format = container.format + (container.metadata && container.metadata.sdk_version ? ' v' + container.metadata.sdk_version : '');
-        this.metadata = [];
+        this.metadata = new Map();
         if (container.metadata && container.metadata.state) {
-            this.metadata.push({ name: 'state', value: container.metadata.state });
+            this.metadata.set('state', container.metadata.state);
         }
     }
 };

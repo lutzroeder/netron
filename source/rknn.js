@@ -56,8 +56,8 @@ rknn.Model = class {
                 this._runtime = model.runtime;
                 this._name = model.name || '';
                 this._graphs = model.graphs.map((graph) => new rknn.Graph(metadata, type, '', graph, null));
-                this._metadata = [];
-                this._metadata.push({ name: 'source', value: model.source });
+                this._metadata = new Map();
+                this._metadata.set('source', model.source);
                 break;
             }
             case 'openvx': {

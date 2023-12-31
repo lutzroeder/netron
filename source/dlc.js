@@ -23,7 +23,7 @@ dlc.Model = class {
 
     constructor(metadata, target) {
         this.format = target.format;
-        this.metadata = [];
+        this.metadata = new Map();
         if (target.metadata.size > 0) {
             const version = target.metadata.get('model-version');
             if (version) {
@@ -34,10 +34,7 @@ dlc.Model = class {
                 const source = converter.split(' ').shift().trim();
                 if (source.length > 0) {
                     const version = target.metadata.get('converter-version');
-                    this.metadata.push({
-                        name: 'source',
-                        value: version ? source + ' v' + version : source
-                    });
+                    this.metadata.set('source', version ? source + ' v' + version : source);
                 }
             }
         }

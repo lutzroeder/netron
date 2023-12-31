@@ -13,48 +13,37 @@ tengine.ModelFactory = class {
 
     async open(context, target) {
         const metadata = await tengine.Metadata.open(context);
-        return new tengine.Model(metadata, target);
+        const reader = target;
+        reader.read();
+        return new tengine.Model(metadata, reader);
     }
 };
 
 tengine.Model = class {
 
     constructor(metadata, reader) {
-        this._version = reader.version;
-        this._metadata = [
-            { name: 'source', value: reader.source }
-        ];
-        this._graphs = reader.graphs.map((graph) => new tengine.Graph(metadata, graph));
-    }
-
-    get format() {
-        return "Tengine v" + this._version;
-    }
-
-    get metadata() {
-        return this._metadata;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.format = "Tengine v" + reader.version;
+        this.metadata = new Map();
+        this.metadata.set('source', reader.source);
+        this.graphs = reader.graphs.map((graph) => new tengine.Graph(metadata, graph));
     }
 };
 
 tengine.Graph = class {
 
     constructor(metadata, graph) {
-        this._name = graph.id.toString();
-        this._inputs = [];
-        this._outputs = [];
-        this._nodes = [];
+        this.name = graph.id.toString();
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
         const tensors = graph.tensors.map((tensor) => new tengine.Value(tensor));
         for (const input of graph.inputs) {
             const node = graph.nodes[input];
-            this._inputs.push(new tengine.Argument(node.name, node.outputs.map((output) => tensors[output])));
+            this.inputs.push(new tengine.Argument(node.name, node.outputs.map((output) => tensors[output])));
         }
         for (const output of graph.outputs) {
             const node = graph.nodes[output];
-            this._outputs.push(new tengine.Argument(node.name, node.outputs.map((output) => tensors[output])));
+            this.outputs.push(new tengine.Argument(node.name, node.outputs.map((output) => tensors[output])));
         }
         for (const node of graph.nodes) {
             switch (node.type) {
@@ -62,244 +51,140 @@ tengine.Graph = class {
                 case 'Const':
                     break;
                 default:
-                    this._nodes.push(new tengine.Node(metadata, node, tensors));
+                    this.nodes.push(new tengine.Node(metadata, node, tensors));
                     break;
             }
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
     }
 };
 
 tengine.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
 tengine.Value = class {
 
     constructor(tensor) {
-        this._name = tensor.name;
-        this._type = new tengine.TensorType(tensor.dataType, new tengine.TensorShape(tensor.dims));
-        this._initializer = (tensor.type === 2) ? new tengine.Tensor(this._type, tensor.buffer) : null;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return this._type;
-    }
-
-    get quantization() {
-        return null;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name = tensor.name;
+        this.type = new tengine.TensorType(tensor.dataType, new tengine.TensorShape(tensor.dims));
+        this.initializer = (tensor.type === 2) ? new tengine.Tensor(this.type, tensor.buffer) : null;
     }
 };
-
 
 tengine.Node = class {
 
     constructor(metadata, node, tensors) {
-        this._name = node.name;
+        this.name = node.name;
         const type = node.type;
         const version = node.version;
-        this._inputs = [];
-        this._outputs = [];
-        this._attributes = [];
-        this._type = metadata.type(type, version) || { name: type };
-
+        this.inputs = [];
+        this.outputs = [];
+        this.attributes = [];
+        this.type = metadata.type(type, version) || { name: type };
         for (let i = 0; i < node.params.length; i++) {
-            const metadata = (this._type && this._type.attributes && i < this._type.attributes.length) ? this._type.attributes[i] : null;
+            const metadata = (this.type && this.type.attributes && i < this.type.attributes.length) ? this.type.attributes[i] : null;
             const name = metadata ? metadata.name : i.toString();
-            this._attributes.push(new tengine.Attribute(metadata, name, node.params[i]));
+            this.attributes.push(new tengine.Attribute(metadata, name, node.params[i]));
         }
-
         const inputs = node.inputs;
         let inputIndex = 0;
-        if (this._type && this._type.inputs) {
-            for (const inputDef of this._type.inputs) {
+        if (this.type && this.type.inputs) {
+            for (const inputDef of this.type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => tensors[id]);
-                    this._inputs.push(new tengine.Argument(inputDef.name, inputArguments));
+                    this.inputs.push(new tengine.Argument(inputDef.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
         } else {
-            this._inputs.push(...inputs.slice(inputIndex).map((id, index) => {
+            this.inputs.push(...inputs.slice(inputIndex).map((id, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
                 return new tengine.Argument(inputName, [ tensors[id] ]);
             }));
         }
-
         const outputs = node.outputs;
         let outputIndex = 0;
-        if (this._type && this._type.outputs) {
-            for (const outputDef of this._type.outputs) {
+        if (this.type && this.type.outputs) {
+            for (const outputDef of this.type.outputs) {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => tensors[id]);
-                    this._outputs.push(new tengine.Argument(outputDef.name, outputArguments));
+                    this.outputs.push(new tengine.Argument(outputDef.name, outputArguments));
                     outputIndex += outputCount;
                 }
             }
         } else {
-            this._outputs.push(...outputs.slice(outputIndex).map((id, index) => {
+            this.outputs.push(...outputs.slice(outputIndex).map((id, index) => {
                 const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
                 return new tengine.Argument(outputName, [ tensors[id] ]);
             }));
         }
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
     }
 };
 
 tengine.Attribute = class {
 
     constructor(metadata, key, value) {
-        this._type = '';
-        this._name = key;
-        this._value = value;
+        this.type = '';
+        this.name = key;
+        this.value = value;
         if (metadata) {
-            this._name = metadata.name;
+            this.name = metadata.name;
             if (metadata.type) {
-                this._type = metadata.type;
+                this.type = metadata.type;
             }
             if (metadata.visible === false) {
-                this._visible = false;
+                this.visible = false;
             } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
-                if (this._value == metadata.default || (this._value && this._value.toString() == metadata.default.toString())) {
-                    this._visible = false;
+                if (this.value == metadata.default || (this.value && this.value.toString() == metadata.default.toString())) {
+                    this.visible = false;
                 }
             }
         }
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    get visible() {
-        return this._visible == false ? false : true;
     }
 };
 
 tengine.Tensor = class {
 
-    constructor(type, data) {
-        this._type = type;
-        this._data = data;
+    constructor(type, values) {
+        this.type = type;
+        this.values = values;
     }
-
-    get type() {
-        return this._type;
-    }
-
-    get values() {
-        return this._data;
-    }
-
 };
 
 tengine.TensorType = class {
 
     constructor(dataType, shape) {
         switch (dataType) {
-            case 0: this._dataType = 'float32'; break;
-            case 1: this._dataType = 'float16'; break;
-            case 2: this._dataType = 'int8'; break;
-            case 3: this._dataType = 'uint8'; break;
-            case 4: this._dataType = 'int32'; break;
-            case 5: this._dataType = 'int16'; break;
+            case 0: this.dataType = 'float32'; break;
+            case 1: this.dataType = 'float16'; break;
+            case 2: this.dataType = 'int8'; break;
+            case 3: this.dataType = 'uint8'; break;
+            case 4: this.dataType = 'int32'; break;
+            case 5: this.dataType = 'int16'; break;
             default: throw new tengine.Error("Unsupported data type'" + dataType + "'.");
         }
-        this._shape = shape;
-    }
-
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
+        this.shape = shape;
     }
 
     toString() {
-        return this._dataType + this._shape.toString();
+        return this.dataType + this.shape.toString();
     }
 };
 
 tengine.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = dimensions;
     }
 
     toString() {
-        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']') : '';
+        return this.dimensions ? ('[' + this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']') : '';
     }
 };
 
@@ -370,7 +255,7 @@ tengine.Reader = class {
         // https://github.com/OAID/Tengine/blob/tengine-lite/source/serializer/tmfile/tm2_format.h
     }
 
-    _read() {
+    read() {
         if (this._stream) {
             const types = new Map();
             const register = (index, version, name, params) => {
@@ -498,7 +383,6 @@ tengine.Reader = class {
             register(101, 0, 'L2Normalization', []);
             register(102, 0, 'PackModel', ['i','i']);
             register(103, 0, 'Num', []);
-
             const buffer = this._stream.peek();
             const reader = new tengine.BinaryReader(buffer);
             this._majorVersion = reader.uint16();
@@ -537,7 +421,6 @@ tengine.Reader = class {
                 subgraph.nodes = [];
                 subgraph.tensors = [];
                 this._graphs.push(subgraph);
-
                 // nodes
                 for (const nodeOffset of nodeOffsets) {
                     reader.seek(nodeOffset);
@@ -549,16 +432,13 @@ tengine.Reader = class {
                     node.name = reader.string();
                     const attributeOffsets = reader.uint32s();
                     node.dynamicShape = reader.boolean();
-
                     reader.seek(typeOffset);
                     node.version = reader.int32();
                     const index = reader.int32();
                     const paramsOffset = reader.uint32();
-
                     const schema = operator(index, node.version);
                     node.type = schema ? schema.name : index.toString();
                     const paramTypes = schema ? schema.params : [];
-
                     node.params = [];
                     if (paramsOffset) {
                         reader.seek(paramsOffset);
@@ -593,11 +473,9 @@ tengine.Reader = class {
                             }
                         }
                     }
-
                     if (node.type === 'Slice') {
                         node.params[6] = (this._originalFormat == 5) ? node.params[6] : 0;
                     }
-
                     node.attributes = attributeOffsets.map((attributeOffset) => {
                         reader.seek(attributeOffset);
                         const name = reader.string();
@@ -605,10 +483,8 @@ tengine.Reader = class {
                         const type = reader.int32();
                         return { name: name, value: value, type: type };
                     });
-
                     subgraph.nodes.push(node);
                 }
-
                 // buffers
                 const buffers = bufferOffsets.map((bufferOffset) => {
                     reader.seek(bufferOffset);
@@ -620,7 +496,6 @@ tengine.Reader = class {
                     }
                     return null;
                 });
-
                 // tensors
                 subgraph.tensors = tensorOffsets.map((tensorOffset) => {
                     reader.seek(tensorOffset);
@@ -643,7 +518,6 @@ tengine.Reader = class {
                     }
                     return tensor;
                 });
-
                 for (const node of subgraph.nodes) {
                     if (node.type === 'Convolution') {
                         switch (subgraph.graphLayout) {
@@ -668,12 +542,10 @@ tengine.Reader = class {
     }
 
     get version() {
-        this._read();
         return this._majorVersion + '.' + this._minorVersion;
     }
 
     get source() {
-        this._read();
         switch (this._originalFormat) {
             case 0: return '';
             case 1: return 'Tengine';
@@ -694,7 +566,6 @@ tengine.Reader = class {
     }
 
     get graphs() {
-        this._read();
         return this._graphs;
     }
 };

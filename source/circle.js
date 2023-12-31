@@ -73,7 +73,7 @@ circle.Model = class {
         this._format = 'Circle';
         this._format = this._format + ' v' + model.version.toString();
         this._description = model.description || '';
-        this._metadata = [];
+        this._metadata = new Map();
         const builtinOperators = new Map();
         const upperCase = new Set([ '2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM' ]);
         for (const key of Object.keys(circle.schema.BuiltinOperator)) {
@@ -114,10 +114,10 @@ circle.Model = class {
                                 this._description = this._description ? [ this._description, modelMetadata.description].join(' ') : modelMetadata.description;
                             }
                             if (modelMetadata.author) {
-                                this._metadata.push({ name: 'author', value: modelMetadata.author });
+                                this._metadata.set('author', modelMetadata.author);
                             }
                             if (modelMetadata.license) {
-                                this._metadata.push({ name: 'license', value: modelMetadata.license });
+                                this._metadata.set('license', modelMetadata.license);
                             }
                         }
                         break;

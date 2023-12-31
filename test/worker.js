@@ -515,6 +515,9 @@ export class Target {
         if (this.runtime && this.model.runtime != this.runtime) {
             throw new Error("Invalid runtime '" + this.model.runtime + "'.");
         }
+        if (this.model.metadata && !(this.model.metadata instanceof Map)) {
+            throw new Error("Invalid metadata.'");
+        }
         if (this.assert) {
             for (const assert of this.assert) {
                 const parts = assert.split('==').map((item) => item.trim());

@@ -191,7 +191,7 @@ coreml.Model = class {
 
     constructor(metadata, format, model, weights) {
         this.format = (format || 'Core ML') + ' v' + model.specificationVersion.toString();
-        this.metadata = [];
+        this.metadata = new Map();
         const context = new coreml.Context(metadata, model, weights);
         const graph = new coreml.Graph(context);
         this.graphs = [ graph ];
@@ -204,10 +204,10 @@ coreml.Model = class {
                 this.description = properties.shortDescription;
             }
             if (properties.author) {
-                this.metadata.push({ name: 'author', value: properties.author });
+                this.metadata.set('author', properties.author);
             }
             if (properties.license) {
-                this.metadata.push({ name: 'license', value: properties.license });
+                this.metadata.set('license', properties.license);
             }
             if (metadata.userDefined && Object.keys(properties.userDefined).length > 0) {
                 /* empty */

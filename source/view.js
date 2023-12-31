@@ -2959,8 +2959,8 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             this.addProperty('runtime', model.runtime);
         }
         if (model.metadata) {
-            for (const entry of model.metadata) {
-                this.addProperty(entry.name, entry.value);
+            for (const [name, value] of Array.from(model.metadata)) {
+                this.addProperty(name, value);
             }
         }
         const graphs = Array.isArray(model.graphs) ? model.graphs : [];
