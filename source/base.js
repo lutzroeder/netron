@@ -930,6 +930,82 @@ base.BinaryReader = class {
     }
 };
 
+base.StreamReader = class {
+
+    constructor(stream) {
+        this._stream = stream;
+        this._buffer = new Uint8Array(8);
+        this._view = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
+    }
+
+    get position() {
+        return this._stream.position;
+    }
+
+    seek(position) {
+        this._stream.seek(position);
+    }
+
+    skip(position) {
+        this._stream.skip(position);
+    }
+
+    stream(length) {
+        return this._stream.stream(length);
+    }
+
+    read(length) {
+        return this._stream.read(length);
+    }
+
+    byte() {
+        return this._stream.byte();
+    }
+
+    int16() {
+        const buffer = this._stream.read(2);
+        this._buffer.set(buffer, 0);
+        return this._view.getInt16(0, true);
+    }
+
+    int32() {
+        const buffer = this._stream.read(4);
+        this._buffer.set(buffer, 0);
+        return this._view.getInt32(0, true);
+    }
+
+    uint16() {
+        const buffer = this._stream.read(2);
+        this._buffer.set(buffer, 0);
+        return this._view.getUint16(0, true);
+    }
+
+    uint32() {
+        const buffer = this._stream.read(4);
+        this._buffer.set(buffer, 0);
+        return this._view.getUint32(0, true);
+    }
+
+    uint64() {
+        const low = this.uint32();
+        const high = this.uint32();
+        if (high === 0) {
+            return low;
+        }
+        const value = (high * 4294967296) + low;
+        if (Number.isSafeInteger(value)) {
+            return value;
+        }
+        throw new Error("Unsigned 64-bit value exceeds safe integer.");
+    }
+
+    float32() {
+        const buffer = this._stream.read(4);
+        this._buffer.set(buffer, 0);
+        return this._view.getFloat32(0, true);
+    }
+};
+
 base.Telemetry = class {
 
     constructor(window) {
@@ -1114,5 +1190,6 @@ export const Complex64 = base.Complex64;
 export const Complex128 = base.Complex128;
 export const BinaryStream = base.BinaryStream;
 export const BinaryReader = base.BinaryReader;
+export const StreamReader = base.StreamReader;
 export const Telemetry = base.Telemetry;
 export const Metadata = base.Metadata;

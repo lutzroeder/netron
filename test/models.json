@@ -2011,6 +2011,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/334"
   },
   {
+    "type":     "ggml",
+    "target":   "mixtral-8x7b-v0.1.Q4_K_M.gguf",
+    "source":   "https://github.com/lutzroeder/netron/files/13802180/mixtral-8x7b-v0.1.Q4_K_M.gguf.zip[mixtral-8x7b-v0.1.Q4_K_M.gguf]",
+    "format":   "GGUF v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
     "type":     "hailo",
     "target":   "fcn_hailo_pp_v2.har",
     "source":   "https://github.com/lutzroeder/netron/files/13482814/fcn_hailo_pp_v2.har.zip[fcn_hailo_pp_v2.har]",
