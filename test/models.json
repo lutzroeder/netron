@@ -3799,6 +3799,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "gpt2-dynamo.onnx.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/13802626/gpt2-dynamo.onnx.zip",
+    "format":   "ONNX v8",
+    "link":     "https://github.com/lutzroeder/netron/issues/1208"
+  },
+  {
+    "type":     "onnx",
     "target":   "input_0.pb",
     "source":   "https://github.com/lutzroeder/netron/files/11067440/input_0.pb.zip[input_0.pb]",
     "format":   "ONNX Tensor",
