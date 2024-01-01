@@ -114,6 +114,7 @@
             { "ext": "cmf",         "name": "CNTK Model"               },
             { "ext": "dlc",         "name": "DLC Model"                },
             { "ext": "dnn",         "name": "CNTK Model"               },
+            { "ext": "gguf",        "name": "GGUF Model"               },
             { "ext": "h5",          "name": "Keras Model"              },
             { "ext": "har",         "name": "Hailo Model"              },
             { "ext": "hd5",         "name": "Keras Model"              },

@@ -1164,6 +1164,7 @@ base.Metadata = class {
             'model', 'json', 'xml', 'cfg', 'bin',
             'ort',
             'dnn', 'cmf',
+            'gguf',
             'hd5', 'hdf5', 'keras',
             'tfl', 'circle', 'lite',
             'mlnet', 'mar', 'maxviz', 'meta', 'nn', 'ngf', 'hn', 'har',
