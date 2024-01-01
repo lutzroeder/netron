@@ -27,25 +27,42 @@ ggml.Model = class {
             }
             return layers.get(key);
         };
-        for (const [name, tensor] of target.tensors) {
-            const [key, param] = name.match(/^(.*)\.(.*?)$/).slice(1);
-            const layer = layers.map(key);
-            layer.weights.set(param, tensor);
-        }
         this.metadata = new Map();
-        const architecture = target.metadata.get('general.architecture');
+        const metadata = new Map();
         for (const [name, value] of target.metadata) {
+            switch (name) {
+                case 'general.name': this.name = value; break;
+                case 'general.architecture': this.runtime = value; break;
+                case 'general.description': this.description = value; break;
+                case 'general.author': this.metadata.set('author', value); break;
+                case 'general.license': this.metadata.set('license', value); break;
+                case 'general.file_type':
+                case 'general.quantization_version':
+                    break;
+                default:
+                    metadata.set(name, value);
+                    break;
+            }
+        }
+        for (const [name, value] of metadata) {
             if (name.startsWith('tokenizer.')) {
                 const [key, param] = name.match(/^(.*)\.(.*?)$/).slice(1);
                 const layer = layers.map(key);
+                layer.type = 'Tokenizer';
                 layer.metadata.set(param, value);
-            } else if (architecture && name.startsWith(architecture + '.')) {
-                const [key, param] = name.match(/([^[.]*)\.(.*)/).slice(1);
-                const layer = layers.map(key);
-                layer.metadata.set(param, value);
-            } else if (name !== 'general.name' && name !== 'general.architecture') {
+            } else if (this.runtime && name.startsWith(this.runtime + '.')) {
+                const layer = layers.map('');
+                layer.type = 'Parameters';
+                layer.metadata.set(name, value);
+            } else {
                 this.metadata.set(name, value);
             }
+        }
+        for (const [name, tensor] of target.tensors) {
+            const [key, param] = name.match(/^(.*)\.(.*?)$/).slice(1);
+            const layer = layers.map(key);
+            layer.type = 'Weights';
+            layer.weights.set(param, tensor);
         }
         this.graphs = [ new ggml.Graph(target.metadata, layers) ];
     }
@@ -54,8 +71,6 @@ ggml.Model = class {
 ggml.Graph = class {
 
     constructor(metadata, layers) {
-        this.name = metadata.get('general.name');
-        this.type = metadata.get('general.architecture');
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];
@@ -87,7 +102,7 @@ ggml.Value = class {
 ggml.Node = class {
 
     constructor(name, layer) {
-        this.type = { name: 'Layer' };
+        this.type = { name: layer.type };
         this.name = name;
         this.inputs = [];
         this.outputs = [];
@@ -98,6 +113,18 @@ ggml.Node = class {
             const argument = new ggml.Argument(name, [ value ]);
             this.inputs.push(argument);
         }
+        for (const [name, value] of layer.metadata) {
+            const attribute = new ggml.Attribute(name, value);
+            this.attributes.push(attribute);
+        }
+    }
+};
+
+ggml.Attribute = class {
+
+    constructor(name, value) {
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -163,20 +190,23 @@ gguf.Reader = class {
         this._stream = stream;
         const QK_K = 256;
         gguf.Reader.GGML_QUANT_SIZES = gguf.Reader.GGML_QUANT_SIZES || new Map([
-            [ ggml.QuantizationType.F32,  [1, 4] ],
-            [ ggml.QuantizationType.F16,  [1, 2] ],
-            [ ggml.QuantizationType.Q4_0, [32, 2 + 16] ],
-            [ ggml.QuantizationType.Q4_1, [32, 2 + 2 + 16] ],
-            [ ggml.QuantizationType.Q5_0, [32, 2 + 4 + 16] ],
-            [ ggml.QuantizationType.Q5_1, [32, 2 + 2 + 4 + 16] ],
-            [ ggml.QuantizationType.Q8_0, [32, 2 + 32] ],
-            [ ggml.QuantizationType.Q8_1, [32, 4 + 4 + 32] ],
-            [ ggml.QuantizationType.Q2_K, [256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4)] ],
-            [ ggml.QuantizationType.Q3_K, [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12] ],
-            [ ggml.QuantizationType.Q4_K, [256, 2 + 2 + Math.floor(QK_K / 2) + 12] ],
-            [ ggml.QuantizationType.Q5_K, [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 8) + 12] ],
-            [ ggml.QuantizationType.Q6_K, [256, 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 4) + Math.floor(QK_K / 16)] ],
-            [ ggml.QuantizationType.Q8_K, [256, 4 + QK_K + Math.floor(QK_K / 8)] ]
+            [ ggml.QuantizationType.F32,  [ 1, 4, 'float32' ] ],
+            [ ggml.QuantizationType.F16,  [ 1, 2, 'float16' ] ],
+            [ ggml.QuantizationType.Q4_0, [ 32, 2 + 16, '' ] ],
+            [ ggml.QuantizationType.Q4_1, [ 32, 2 + 2 + 16, '' ] ],
+            [ ggml.QuantizationType.Q5_0, [ 32, 2 + 4 + 16, '' ] ],
+            [ ggml.QuantizationType.Q5_1, [ 32, 2 + 2 + 4 + 16, '' ] ],
+            [ ggml.QuantizationType.Q8_0, [ 32, 2 + 32, ''] ],
+            [ ggml.QuantizationType.Q8_1, [ 32, 4 + 4 + 32, ''] ],
+            [ ggml.QuantizationType.Q2_K, [ 256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4), '' ] ],
+            [ ggml.QuantizationType.Q3_K, [ 256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12, '' ] ],
+            [ ggml.QuantizationType.Q4_K, [ 256, 2 + 2 + Math.floor(QK_K / 2) + 12, '' ] ],
+            [ ggml.QuantizationType.Q5_K, [ 256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 8) + 12, '' ] ],
+            [ ggml.QuantizationType.Q6_K, [ 256, 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '' ] ],
+            [ ggml.QuantizationType.Q8_K, [ 256, 4 + QK_K + Math.floor(QK_K / 8), '' ] ],
+            [ ggml.QuantizationType.I8,   [ 1, 4, 'int8' ] ],
+            [ ggml.QuantizationType.I16,  [ 1, 2, 'int16' ] ],
+            [ ggml.QuantizationType.I32,  [ 1, 4, 'int32' ] ]
         ]);
     }
 
@@ -198,17 +228,6 @@ gguf.Reader = class {
             }
             for (let i = 0; i < context.header.n_tensors; i++) {
                 const tensor = reader.tensor();
-                switch (tensor.type) {
-                    case ggml.QuantizationType.F32:
-                        tensor.dtype = 'float32';
-                        break;
-                    case ggml.QuantizationType.F16:
-                        tensor.dtype = 'float16';
-                        break;
-                    default:
-                        tensor.dtype = '?';
-                        break;
-                }
                 this.tensors.set(tensor.name, tensor);
             }
             context.alignment = this.metadata.get('general.alignment') || 32;
@@ -220,9 +239,13 @@ gguf.Reader = class {
             if (context.offset < this._stream.length) {
                 for (const tensor of this.tensors.values()) {
                     reader.seek(context.offset + tensor.offset);
-                    const [block_size, type_size] = gguf.Reader.GGML_QUANT_SIZES.get(tensor.type);
+                    if (!gguf.Reader.GGML_QUANT_SIZES.has(tensor.type)) {
+                        throw new ggml.Error("Unsupported tensor quantization type '" + tensor.type.toString() + "'.");
+                    }
+                    const [block_size, type_size, dtype] = gguf.Reader.GGML_QUANT_SIZES.get(tensor.type);
                     const n_elems = tensor.ne.reduce((a, b) => a * b, 1);
                     const n_bytes = Math.floor(n_elems * type_size / block_size);
+                    tensor.dtype = dtype || '?';
                     tensor.data = reader.stream(n_bytes);
                 }
             }
@@ -327,7 +350,10 @@ ggml.QuantizationType = {
     Q4_K: 12,
     Q5_K: 13,
     Q6_K: 14,
-    Q8_K: 15
+    Q8_K: 15,
+    I8: 16,
+    I16: 17,
+    I32: 18,
 };
 
 ggml.Utility = class {
