@@ -1,10 +1,9 @@
 
 import * as base from './base.js';
 
-const ggml = {};
 const gguf = {};
 
-ggml.ModelFactory = class {
+gguf.ModelFactory = class {
 
     match(context) {
         return gguf.Reader.open(context.stream);
@@ -12,11 +11,11 @@ ggml.ModelFactory = class {
 
     async open(context, target) {
         target.read();
-        return new ggml.Model(target);
+        return new gguf.Model(target);
     }
 };
 
-ggml.Model = class {
+gguf.Model = class {
 
     constructor(target) {
         this.format = target.format;
@@ -63,11 +62,11 @@ ggml.Model = class {
         if (tokenizer.metadata.size > 0) {
             graph.layers.push(tokenizer);
         }
-        this.graphs = [ new ggml.Graph(graph) ];
+        this.graphs = [ new gguf.Graph(graph) ];
     }
 };
 
-ggml.Graph = class {
+gguf.Graph = class {
 
     constructor(graph) {
         this.name = graph.type;
@@ -75,13 +74,13 @@ ggml.Graph = class {
         this.inputs = [];
         this.outputs = [];
         for (const layer of graph.layers) {
-            const node = new ggml.Node(layer);
+            const node = new gguf.Node(layer);
             this.nodes.push(node);
         }
     }
 };
 
-ggml.Argument = class {
+gguf.Argument = class {
 
     constructor(name, value) {
         this.name = name;
@@ -89,7 +88,7 @@ ggml.Argument = class {
     }
 };
 
-ggml.Value = class {
+gguf.Value = class {
 
     constructor(name, tensor) {
         this.name = name;
@@ -99,32 +98,32 @@ ggml.Value = class {
     }
 };
 
-ggml.Node = class {
+gguf.Node = class {
 
     constructor(layer) {
-        this.type = Array.isArray(layer.layers) && layer.layers.length > 0 ? new ggml.Graph(layer) : { name: layer.type };
+        this.type = Array.isArray(layer.layers) && layer.layers.length > 0 ? new gguf.Graph(layer) : { name: layer.type };
         this.name = layer.name || '';
         this.inputs = [];
         this.outputs = [];
         this.attributes = [];
         if (layer.weights) {
             for (const [name, weight] of layer.weights) {
-                const tensor = new ggml.Tensor(weight);
-                const value = new ggml.Value(weight.name, tensor);
-                const argument = new ggml.Argument(name, [ value ]);
+                const tensor = new gguf.Tensor(weight);
+                const value = new gguf.Value(weight.name, tensor);
+                const argument = new gguf.Argument(name, [ value ]);
                 this.inputs.push(argument);
             }
         }
         if (layer.metadata) {
             for (const [name, value] of layer.metadata) {
-                const attribute = new ggml.Attribute(name, value);
+                const attribute = new gguf.Attribute(name, value);
                 this.attributes.push(attribute);
             }
         }
     }
 };
 
-ggml.Attribute = class {
+gguf.Attribute = class {
 
     constructor(name, value) {
         this.name = name;
@@ -132,7 +131,7 @@ ggml.Attribute = class {
     }
 };
 
-ggml.TensorType = class {
+gguf.TensorType = class {
 
     constructor(dataType, shape) {
         this.dataType = dataType;
@@ -144,7 +143,7 @@ ggml.TensorType = class {
     }
 };
 
-ggml.TensorShape = class {
+gguf.TensorShape = class {
 
     constructor(dimensions) {
         this.dimensions = dimensions;
@@ -155,13 +154,13 @@ ggml.TensorShape = class {
     }
 };
 
-ggml.Tensor = class {
+gguf.Tensor = class {
 
     constructor(tensor) {
-        const shape = new ggml.TensorShape(tensor.ne);
-        this.type = new ggml.TensorType(tensor.dtype, shape);
-        if (tensor.type !== ggml.QuantizationType.F32 && tensor.type !== ggml.QuantizationType.F16) {
-            this.quantization = ggml.Utility.enum(ggml.QuantizationType, tensor.type);
+        const shape = new gguf.TensorShape(tensor.ne);
+        this.type = new gguf.TensorType(tensor.dtype, shape);
+        if (tensor.type !== gguf.QuantizationType.F32 && tensor.type !== gguf.QuantizationType.F16) {
+            this.quantization = gguf.Utility.enum(gguf.QuantizationType, tensor.type);
         }
         if (tensor.dtype === 'float32' || tensor.dtype === 'float16') {
             this.encoding = '<';
@@ -194,23 +193,23 @@ gguf.Reader = class {
         this._stream = stream;
         const QK_K = 256;
         gguf.Reader.GGML_QUANT_SIZES = gguf.Reader.GGML_QUANT_SIZES || new Map([
-            [ ggml.QuantizationType.F32,  [ 1, 4, 'float32' ] ],
-            [ ggml.QuantizationType.F16,  [ 1, 2, 'float16' ] ],
-            [ ggml.QuantizationType.Q4_0, [ 32, 2 + 16, '' ] ],
-            [ ggml.QuantizationType.Q4_1, [ 32, 2 + 2 + 16, '' ] ],
-            [ ggml.QuantizationType.Q5_0, [ 32, 2 + 4 + 16, '' ] ],
-            [ ggml.QuantizationType.Q5_1, [ 32, 2 + 2 + 4 + 16, '' ] ],
-            [ ggml.QuantizationType.Q8_0, [ 32, 2 + 32, ''] ],
-            [ ggml.QuantizationType.Q8_1, [ 32, 4 + 4 + 32, ''] ],
-            [ ggml.QuantizationType.Q2_K, [ 256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4), '' ] ],
-            [ ggml.QuantizationType.Q3_K, [ 256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12, '' ] ],
-            [ ggml.QuantizationType.Q4_K, [ 256, 2 + 2 + Math.floor(QK_K / 2) + 12, '' ] ],
-            [ ggml.QuantizationType.Q5_K, [ 256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 8) + 12, '' ] ],
-            [ ggml.QuantizationType.Q6_K, [ 256, 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '' ] ],
-            [ ggml.QuantizationType.Q8_K, [ 256, 4 + QK_K + Math.floor(QK_K / 8), '' ] ],
-            [ ggml.QuantizationType.I8,   [ 1, 4, 'int8' ] ],
-            [ ggml.QuantizationType.I16,  [ 1, 2, 'int16' ] ],
-            [ ggml.QuantizationType.I32,  [ 1, 4, 'int32' ] ]
+            [ gguf.QuantizationType.F32,  [ 1, 4, 'float32' ] ],
+            [ gguf.QuantizationType.F16,  [ 1, 2, 'float16' ] ],
+            [ gguf.QuantizationType.Q4_0, [ 32, 2 + 16, '' ] ],
+            [ gguf.QuantizationType.Q4_1, [ 32, 2 + 2 + 16, '' ] ],
+            [ gguf.QuantizationType.Q5_0, [ 32, 2 + 4 + 16, '' ] ],
+            [ gguf.QuantizationType.Q5_1, [ 32, 2 + 2 + 4 + 16, '' ] ],
+            [ gguf.QuantizationType.Q8_0, [ 32, 2 + 32, ''] ],
+            [ gguf.QuantizationType.Q8_1, [ 32, 4 + 4 + 32, ''] ],
+            [ gguf.QuantizationType.Q2_K, [ 256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4), '' ] ],
+            [ gguf.QuantizationType.Q3_K, [ 256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12, '' ] ],
+            [ gguf.QuantizationType.Q4_K, [ 256, 2 + 2 + Math.floor(QK_K / 2) + 12, '' ] ],
+            [ gguf.QuantizationType.Q5_K, [ 256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 8) + 12, '' ] ],
+            [ gguf.QuantizationType.Q6_K, [ 256, 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '' ] ],
+            [ gguf.QuantizationType.Q8_K, [ 256, 4 + QK_K + Math.floor(QK_K / 8), '' ] ],
+            [ gguf.QuantizationType.I8,   [ 1, 4, 'int8' ] ],
+            [ gguf.QuantizationType.I16,  [ 1, 2, 'int16' ] ],
+            [ gguf.QuantizationType.I32,  [ 1, 4, 'int32' ] ]
         ]);
     }
 
@@ -244,7 +243,7 @@ gguf.Reader = class {
                 for (const tensor of this.tensors.values()) {
                     reader.seek(context.offset + tensor.offset);
                     if (!gguf.Reader.GGML_QUANT_SIZES.has(tensor.type)) {
-                        throw new ggml.Error("Unsupported tensor quantization type '" + tensor.type.toString() + "'.");
+                        throw new gguf.Error("Unsupported tensor quantization type '" + tensor.type.toString() + "'.");
                     }
                     const [block_size, type_size, dtype] = gguf.Reader.GGML_QUANT_SIZES.get(tensor.type);
                     const n_elems = tensor.ne.reduce((a, b) => a * b, 1);
@@ -298,7 +297,7 @@ gguf.StreamReader = class extends base.StreamReader {
                 return value;
             }
             default: {
-                throw new ggml.Error("Unsupported GGUF type '" + type + "'.");
+                throw new gguf.Error("Unsupported GGUF type '" + type + "'.");
             }
         }
     }
@@ -340,7 +339,7 @@ gguf.Type = {
     FLOAT64: 12,
 };
 
-ggml.QuantizationType = {
+gguf.QuantizationType = {
     F32: 0,
     F16: 1,
     Q4_0: 2,
@@ -360,15 +359,15 @@ ggml.QuantizationType = {
     I32: 18,
 };
 
-ggml.Utility = class {
+gguf.Utility = class {
 
     static enum(type, value) {
-        ggml.Utility._enums = ggml.Utility._enums || new Map();
-        if (!ggml.Utility._enums.has(type)) {
+        gguf.Utility._enums = gguf.Utility._enums || new Map();
+        if (!gguf.Utility._enums.has(type)) {
             const entries = new Map(Object.entries(type).map(([key, value]) => [ value, key ]));
-            ggml.Utility._enums.set(type, entries);
+            gguf.Utility._enums.set(type, entries);
         }
-        const entires = ggml.Utility._enums.get(type);
+        const entires = gguf.Utility._enums.get(type);
         if (entires.has(value)) {
             return entires.get(value);
         }
@@ -376,7 +375,7 @@ ggml.Utility = class {
     }
 };
 
-ggml.Error = class extends Error {
+gguf.Error = class extends Error {
 
     constructor(message) {
         super(message);
@@ -384,4 +383,4 @@ ggml.Error = class extends Error {
     }
 };
 
-export const ModelFactory = ggml.ModelFactory;
+export const ModelFactory = gguf.ModelFactory;

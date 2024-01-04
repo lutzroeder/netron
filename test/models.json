@@ -2011,7 +2011,7 @@
     "link":     "https://github.com/lutzroeder/netron/issues/334"
   },
   {
-    "type":     "ggml",
+    "type":     "gguf",
     "target":   "mixtral-8x7b-v0.1.Q4_K_M.gguf",
     "source":   "https://github.com/lutzroeder/netron/files/13802180/mixtral-8x7b-v0.1.Q4_K_M.gguf.zip[mixtral-8x7b-v0.1.Q4_K_M.gguf]",
     "format":   "GGUF v3",

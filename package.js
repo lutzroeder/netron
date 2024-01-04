@@ -519,7 +519,7 @@ const update = async () => {
         'coreml',
         'dlc',
         'dnn',
-        'ggml',
+        'gguf',
         'keras',
         'mnn',
         'mslite',
