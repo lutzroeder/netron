@@ -2018,6 +2018,20 @@
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
+    "type":     "gguf",
+    "target":   "phi-2.Q2_K.gguf",
+    "source":   "https://github.com/lutzroeder/netron/files/13825087/phi-2.Q2_K.gguf.zip[phi-2.Q2_K.gguf]",
+    "format":   "GGUF v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
+    "target":   "vicuna-33b.Q2_K.gguf",
+    "source":   "https://github.com/lutzroeder/netron/files/13825089/vicuna-33b.Q2_K.gguf.zip[vicuna-33b.Q2_K.gguf]",
+    "format":   "GGUF v2",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
     "type":     "hailo",
     "target":   "fcn_hailo_pp_v2.har",
     "source":   "https://github.com/lutzroeder/netron/files/13482814/fcn_hailo_pp_v2.har.zip[fcn_hailo_pp_v2.har]",
