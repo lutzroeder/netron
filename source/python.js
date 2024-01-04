@@ -2760,7 +2760,8 @@ python.Execution = class {
                 const reader = this._reader;
                 const marker = [];
                 let stack = [];
-                const memo = new Map();
+                const memo = {};
+                let size = 0;
                 while (reader.position < reader.length) {
                     const opcode = reader.byte();
                     // console.log((reader.position - 1).toString() + ' ' + Object.entries(OpCode).find(([, value]) => value === opcode)[0]);
@@ -2796,12 +2797,13 @@ python.Execution = class {
                         }
                         case 112 : { // PUT 'p'
                             const index = parseInt(reader.line(), 10);
-                            memo.set(index, stack[stack.length - 1]);
+                            memo[index] = stack[stack.length - 1];
+                            size++;
                             break;
                         }
                         case 103: { // GET 'g'
                             const index = parseInt(reader.line(), 10);
-                            stack.push(memo.get(index));
+                            stack.push(memo[index]);
                             break;
                         }
                         case 48: // POP '0'
@@ -2844,7 +2846,7 @@ python.Execution = class {
                             break;
                         }
                         case 104: // BINGET 'h'
-                            stack.push(memo.get(reader.byte()));
+                            stack.push(memo[reader.byte()]);
                             break;
                         case 105: { // INST 'i'
                             const module = reader.line();
@@ -2859,13 +2861,15 @@ python.Execution = class {
                             break;
                         }
                         case 106: // LONG_BINGET 'j'
-                            stack.push(memo.get(reader.uint32()));
+                            stack.push(memo[reader.uint32()]);
                             break;
                         case 113: // BINPUT 'q'
-                            memo.set(reader.byte(), stack[stack.length - 1]);
+                            memo[reader.byte()] = stack[stack.length - 1];
+                            size++;
                             break;
                         case 114: // LONG_BINPUT 'r'
-                            memo.set(reader.uint32(), stack[stack.length - 1]);
+                            memo[reader.uint32()] = stack[stack.length - 1];
+                            size++;
                             break;
                         case 74: // BININT 'J'
                             stack.push(reader.int32());
@@ -3083,7 +3087,7 @@ python.Execution = class {
                             stack.push(reader.read(reader.uint32()));
                             break;
                         case 148: // MEMOIZE '\x94' (Protocol 4)
-                            memo.set(memo.size, stack[stack.length - 1]);
+                            memo[size++] = stack[stack.length - 1];
                             break;
                         case 149: // FRAME '\x95' (Protocol 4)
                             reader.read(8);
