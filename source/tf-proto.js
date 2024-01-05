@@ -7079,6 +7079,9 @@ $root.tensorflow.ConfigProto.Experimental = class Experimental {
                 case 30:
                     message.target_gpu = reader.bool();
                     break;
+                case 31:
+                    message.stream_merge_threshold = reader.int32();
+                    break;
                 case 21:
                     message.disable_functional_ops_lowering = reader.bool();
                     break;
@@ -7171,6 +7174,9 @@ $root.tensorflow.ConfigProto.Experimental = class Experimental {
                 case "target_gpu":
                     message.target_gpu = reader.bool();
                     break;
+                case "stream_merge_threshold":
+                    message.stream_merge_threshold = reader.int32();
+                    break;
                 case "disable_functional_ops_lowering":
                     message.disable_functional_ops_lowering = reader.bool();
                     break;
@@ -7216,6 +7222,7 @@ $root.tensorflow.ConfigProto.Experimental.prototype.enable_multi_host = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.backend_server_port = 0;
 $root.tensorflow.ConfigProto.Experimental.prototype.target_tpu = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.target_gpu = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.stream_merge_threshold = 0;
 $root.tensorflow.ConfigProto.Experimental.prototype.disable_functional_ops_lowering = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.xla_prefer_single_graph_cluster = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.coordination_config = null;
