@@ -29,9 +29,9 @@ const access = async (path) => {
 
 const exit = (error) => {
     /* eslint-disable no-console */
-    console.error(error.name + ': ' + error.message);
+    console.error(`${error.name}: ${error.message}`);
     if (error.cause) {
-        console.error('  ' + error.cause.name + ': ' + error.cause.message);
+        console.error(`  ${error.cause.name}: ${error.cause.message}`);
     }
     /* eslint-enable no-console */
     process.exit(1);
@@ -62,13 +62,13 @@ class Logger {
             switch (message.name) {
                 case 'name':
                     clearLine();
-                    write(message.target + '\n');
+                    write(`${message.target}\n`);
                     value = '';
                     break;
                 case 'download':
                     value = message.percent !== undefined ?
-                        ('  ' + Math.floor(100 * message.percent)).slice(-3) + '% ' :
-                        ' ' + message.position + (this.threads === 1 ? ' bytes' : '') + ' ';
+                        `${(`  ${Math.floor(100 * message.percent)}`).slice(-3)}% ` :
+                        ` ${message.position}${this.threads === 1 ? ' bytes' : ''} `;
                     break;
                 case 'decompress':
                     value = this.threads === 1 ? 'decompress' : '  ^  ';
@@ -77,7 +77,7 @@ class Logger {
                     value = this.threads === 1 ? 'write' : '  *  ';
                     break;
                 default:
-                    throw new Error("Unsupported status message '" + status.name + "'.");
+                    throw new Error(`Unsupported status message '${status.name}'.`);
             }
         }
         if (!this.entries.has(identifier) || this.entries.get(identifier) !== value) {
@@ -96,7 +96,7 @@ class Logger {
         const values = Array.from(this.entries.values());
         if (!values.every((value) => !value)) {
             const list = values.map((value) => value || '     ');
-            write('  ' + (list.length > 0 ? list.join('-') : '') + '\r');
+            write(`  ${list.length > 0 ? list.join('-') : ''}\r`);
         }
     }
 }
@@ -107,11 +107,11 @@ class Queue extends Array {
         if (patterns.length > 0) {
             patterns = patterns.map((pattern) => {
                 const wildcard = pattern.indexOf('*') !== -1;
-                return new RegExp('^' + (wildcard ? pattern.replace(/\*/g, '.*') + '$' : pattern));
+                return new RegExp(`^${wildcard ? `${pattern.replace(/\*/g, '.*')}$` : pattern}`);
             });
             targets = targets.filter((target) => {
                 for (const file of target.target.split(',')) {
-                    const value = target.type ? target.type + '/' + file : file;
+                    const value = target.type ? `${target.type}/${file}` : file;
                     if (patterns.some((pattern) => pattern.test(value))) {
                         return true;
                     }
@@ -127,17 +127,17 @@ class Table {
 
     constructor(schema) {
         this.schema = schema;
-        const line = Array.from(this.schema).join(',') + '\n';
+        const line = `${Array.from(this.schema).join(',')}\n`;
         this.content = [ line ];
     }
 
     async add(row) {
         row = new Map(row);
-        const line = Array.from(this.schema).map((key) => {
+        const line = `${Array.from(this.schema).map((key) => {
             const value = row.has(key) ? row.get(key) : '';
             row.delete(key);
             return value;
-        }).join(',') + '\n';
+        }).join(',')}\n`;
         if (row.size > 0) {
             throw new Error();
         }
@@ -201,7 +201,7 @@ class Worker {
                 break;
             }
             case 'error': {
-                write('\n' + message.target + '\n');
+                write(`\n${message.target}\n`);
                 exit(message.error);
                 break;
             }
@@ -213,7 +213,7 @@ class Worker {
                 break;
             }
             default: {
-                throw new Error("Unsupported message type '" + message.type + "'.");
+                throw new Error(`Unsupported message type '${message.type}'.`);
             }
         }
     }

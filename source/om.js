@@ -39,7 +39,7 @@ om.Graph = class {
         switch (context.signature) {
             case 'IMOD': this.name = graph.name; break;
             case 'PICO': this.name = graph.id.toString(); break;
-            default: throw new om.Error('Unsupported DaVinci OM ' + context.signature + ' signature.');
+            default: throw new om.Error(`Unsupported DaVinci OM ${context.signature} signature.`);
         }
         this.nodes = [];
         this.inputs = [];
@@ -50,7 +50,7 @@ om.Graph = class {
                 values.set(name, new om.Value(name, type || null, tensor || null));
             } else if ((type && !type.equals(values.get(name).type)) ||
                        (tensor && tensor !== values.get(name).initializer)) {
-                throw new om.Error("Duplicate value '" + name + "'.");
+                throw new om.Error(`Duplicate value '${name}'.`);
             }
             return values.get(name);
         };
@@ -103,7 +103,7 @@ om.Node = class {
                 if (input === '') {
                     continue;
                 }
-                const name = this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i].name : 'input' + (index === 0 ? '' : index.toString());
+                const name = this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i].name : `input${index === 0 ? '' : index}`;
                 index++;
                 const end = this.type.inputs && i < this.type.inputs.length && this.type.inputs[i].type && this.type.inputs[i].type === 'Tensor[]' ? op.input.length : i + 1;
                 const list = [];
@@ -131,9 +131,9 @@ om.Node = class {
         }
         if (op.output_desc) {
             for (let i = 0; i < op.output_desc.length; i++) {
-                const identifier = this.name + ':' + i.toString();
+                const identifier = `${this.name}:${i}`;
                 const type = om.Utility.tensorType(op.output_desc[i]);
-                const name = this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i].name : 'output' + (i === 0 ? '' : i.toString());
+                const name = this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i].name : `output${i === 0 ? '' : i}`;
                 const value = values.map(identifier, type);
                 const argument = new om.Argument(name, [ value ]);
                 this.outputs.push(argument);
@@ -251,7 +251,7 @@ om.Attribute = class {
                 break;
             }
             default: {
-                throw new om.Error("Unsupported attribute type '" + JSON.stringify(value).substring(0, 32) + "'.");
+                throw new om.Error(`Unsupported attribute type '${JSON.stringify(value).substring(0, 32)}'.`);
             }
         }
     }
@@ -269,7 +269,7 @@ om.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new om.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new om.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer ? initializer.type : type;
@@ -326,7 +326,7 @@ om.TensorShape = class {
 
     toString() {
         if (this.dimensions && Array.isArray(this.dimensions) && this.dimensions.length > 0) {
-            return '[' + this.dimensions.map((dim) => dim ? dim.toString() : '?').join(',') + ']';
+            return `[${this.dimensions.map((dim) => dim ? dim.toString() : '?').join(',')}]`;
         }
         return '';
     }
@@ -461,7 +461,7 @@ om.Container = class {
                     this.model = om.proto.ModelDef.decode(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw new om.Error('File format is not ge.proto.ModelDef (' + message.replace(/\.$/, '') + ').');
+                    throw new om.Error(`File format is not ge.proto.ModelDef (${message.replace(/\.$/, '')}).`);
                 }
                 break;
             }
@@ -481,7 +481,7 @@ om.Container = class {
                 break;
             }
             default: {
-                throw new om.Error('Unsupported DaVinci OM ' + this.signature + ' signature.');
+                throw new om.Error(`Unsupported DaVinci OM ${this.signature} signature.`);
             }
         }
     }
@@ -497,7 +497,7 @@ om.Utility = class {
             'stringref', 'dual', 'variant', 'bfloat16', 'int4', 'uint1', 'int2', 'uint2'
         ];
         if (value >= om.Utility._types.length) {
-            throw new om.Error("Unsupported dtype '" + value + "'.");
+            throw new om.Error(`Unsupported dtype '${value}'.`);
         }
         return om.Utility._types[value];
     }
@@ -710,7 +710,7 @@ svp.AttrDef = class {
         switch (type) {
             case 's': this.s = item; break;
             case 'i': this.i = item; break;
-            default: throw new svp.Error("Unsupported attribute type '" + type + "'.");
+            default: throw new svp.Error(`Unsupported attribute type '${type}'.`);
         }
     }
 
@@ -736,7 +736,7 @@ svp.BinaryReader = class extends base.BinaryReader {
             case 4: value = this.read(this.int8()); break;
             case 5: value = this.read(this.uint16()); break;
             case 6: value = this.read(this.uint32()); break;
-            default: throw new svp.Error("Unsupported value identifier '" + tag + "'.");
+            default: throw new svp.Error(`Unsupported value identifier '${tag}'.`);
         }
         return type ? this._cast(value, type, tag) : value;
     }
@@ -765,7 +765,7 @@ svp.BinaryReader = class extends base.BinaryReader {
                     svp.BinaryReader._decoder = svp.BinaryReader._decoder || new TextDecoder('utf-8');
                     return svp.BinaryReader._decoder.decode(value).replace(/\0.*$/g, '');
                 }
-                throw new om.Error("Invalid 'string' tag '" + tag.toString(16) + "'.");
+                throw new om.Error(`Invalid 'string' tag '${tag.toString(16)}'.`);
             }
             case 'uint32[]': {
                 const reader = new base.BinaryReader(value);

@@ -26,7 +26,7 @@ bigdl.ModelFactory = class {
             module = bigdl.proto.BigDLModule.decode(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new bigdl.Error('File format is not bigdl.BigDLModule (' + message.replace(/\.$/, '') + ').');
+            throw new bigdl.Error(`File format is not bigdl.BigDLModule (${message.replace(/\.$/, '')}).`);
         }
         const metadata = await context.metadata('bigdl-metadata.json');
         return new bigdl.Model(metadata, module);
@@ -37,7 +37,7 @@ bigdl.Model = class {
 
     constructor(metadata, module) {
         const version = module && module.version ? module.version : '';
-        this.format = 'BigDL' + (version ? ' v' + version : '');
+        this.format = `BigDL${version ? ` v${version}` : ''}`;
         this.graphs = [ new bigdl.Graph(metadata, module) ];
     }
 };
@@ -94,7 +94,7 @@ bigdl.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new bigdl.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new bigdl.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = type ? type : initializer ? initializer.type : null;
@@ -219,7 +219,7 @@ bigdl.Attribute = class {
                         break;
                     }
                     default: {
-                        throw new bigdl.Error("Unsupported attribute array data type '" + value.arrayValue.datatype + "'.");
+                        throw new bigdl.Error(`Unsupported attribute array data type '${value.arrayValue.datatype}'.`);
                     }
                 }
                 break;
@@ -228,12 +228,12 @@ bigdl.Attribute = class {
                 switch (value.dataFormatValue) {
                     case 0: this.value = 'NCHW'; break;
                     case 1: this.value = 'NHWC'; break;
-                    default: throw new bigdl.Error("Unsupported data format '" + value.dataFormatValue + "'.");
+                    default: throw new bigdl.Error(`Unsupported data format '${value.dataFormatValue}'.`);
                 }
                 break;
             }
             default: {
-                throw new bigdl.Error("Unsupported attribute data type '" + value.dataType + "'.");
+                throw new bigdl.Error(`Unsupported attribute data type '${value.dataType}'.`);
             }
         }
     }
@@ -271,7 +271,7 @@ bigdl.TensorType = class {
         switch (dataType) {
             case bigdl.proto.DataType.FLOAT: this.dataType = 'float32'; break;
             case bigdl.proto.DataType.DOUBLE: this.dataType = 'float64'; break;
-            default: throw new bigdl.Error("Unsupported tensor type '" + dataType + "'.");
+            default: throw new bigdl.Error(`Unsupported tensor type '${dataType}'.`);
         }
         this.shape = shape;
     }
@@ -286,12 +286,12 @@ bigdl.TensorShape = class {
     constructor(dimensions) {
         this.dimensions = dimensions;
         if (!dimensions.every((dimension) => Number.isInteger(dimension))) {
-            throw new bigdl.Error("Invalid tensor shape '" + JSON.stringify(dimensions) + "'.");
+            throw new bigdl.Error(`Invalid tensor shape '${JSON.stringify(dimensions)}'.`);
         }
     }
 
     toString() {
-        return this.dimensions ? ('[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+        return this.dimensions ? (`[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`) : '';
     }
 };
 

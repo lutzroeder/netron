@@ -21,7 +21,7 @@ hailo.Model = class {
         const configuration = container.configuration;
         this.graphs = [ new hailo.Graph(metadata, configuration, container.weights) ];
         this.name = configuration && configuration.name || "";
-        this.format = container.format + (container.metadata && container.metadata.sdk_version ? ' v' + container.metadata.sdk_version : '');
+        this.format = container.format + (container.metadata && container.metadata.sdk_version ? ` v${container.metadata.sdk_version}` : '');
         this.metadata = new Map();
         if (container.metadata && container.metadata.state) {
             this.metadata.set('state', container.metadata.state);
@@ -43,9 +43,9 @@ hailo.Graph = class {
             if (!values.has(name)) {
                 values.set(name, new hailo.Value(name, type || null, tensor || null));
             } else if (tensor) {
-                throw new hailo.Error("Duplicate value '" + name + "'.");
+                throw new hailo.Error(`Duplicate value '${name}'.`);
             } else if (type && !type.equals(values.get(name).type)) {
-                throw new hailo.Error("Duplicate value '" + name + "'.");
+                throw new hailo.Error(`Duplicate value '${name}'.`);
             }
             return values.get(name);
         };
@@ -94,7 +94,7 @@ hailo.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new hailo.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new hailo.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer ? initializer.type : type;
@@ -222,7 +222,7 @@ hailo.TensorShape = class {
 
     toString() {
         if (this.dimensions && this.dimensions.length > 0) {
-            return '[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+            return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
         }
         return '';
     }
@@ -275,7 +275,7 @@ hailo.Container = class {
         this.format = 'Hailo NN';
         this.weights = new Map();
         if (!this.metadata) {
-            this.metadata = await this._request(this._basename + '.metadata.json', 'json');
+            this.metadata = await this._request(`${this._basename}.metadata.json`, 'json');
         }
         if (this.metadata) {
             this.format = 'Hailo Archive';
@@ -302,7 +302,7 @@ hailo.Container = class {
                     if (match) {
                         const path = match[0].split('/');
                         if (inputs.has(path[2])) {
-                            const layer = path[0] + '/' + path[1];
+                            const layer = `${path[0]}/${path[1]}`;
                             if (!this.weights.has(layer)) {
                                 this.weights.set(layer, new Map());
                             }

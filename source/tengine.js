@@ -22,7 +22,7 @@ tengine.ModelFactory = class {
 tengine.Model = class {
 
     constructor(metadata, reader) {
-        this.format = "Tengine v" + reader.version;
+        this.format = `Tengine v${reader.version}`;
         this.metadata = new Map();
         this.metadata.set('source', reader.source);
         this.graphs = reader.graphs.map((graph) => new tengine.Graph(metadata, graph));
@@ -167,7 +167,7 @@ tengine.TensorType = class {
             case 3: this.dataType = 'uint8'; break;
             case 4: this.dataType = 'int32'; break;
             case 5: this.dataType = 'int16'; break;
-            default: throw new tengine.Error("Unsupported data type'" + dataType + "'.");
+            default: throw new tengine.Error(`Unsupported data type'${dataType}'.`);
         }
         this.shape = shape;
     }
@@ -184,7 +184,7 @@ tengine.TensorShape = class {
     }
 
     toString() {
-        return this.dimensions ? ('[' + this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']') : '';
+        return this.dimensions ? (`[${this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`) : '';
     }
 };
 
@@ -211,7 +211,7 @@ tengine.Metadata = class {
             for (const item of metadata) {
                 if (item.name) {
                     const version = item.version || 0;
-                    const name = item.name + ':' + version.toString();
+                    const name = `${item.name}:${version}`;
                     this._map.set(name, item);
                 }
             }
@@ -221,15 +221,15 @@ tengine.Metadata = class {
     type(name, version) {
         let current = version;
         while (current > 0) {
-            if (this._map.has(name + ':' + current.toString())) {
+            if (this._map.has(`${name}:${current}`)) {
                 break;
             }
             current--;
         }
         if (current >= 0) {
-            const schema = this._map.get(name + ':' + current.toString());
+            const schema = this._map.get(`${name}:${current}`);
             if (current !== version) {
-                this._map.set(name + ':' + version.toString(), schema);
+                this._map.set(`${name}:${version}`, schema);
             }
             return schema;
         }
@@ -259,20 +259,20 @@ tengine.Reader = class {
         if (this._stream) {
             const types = new Map();
             const register = (index, version, name, params) => {
-                types.set(index.toString() + ':' + version.toString(), { name: name, params: params });
+                types.set(`${index}:${version}`, { name: name, params: params });
             };
             const operator = (index, version) => {
                 let current = version;
                 while (current >= 0) {
-                    if (types.has(index.toString() + ':' + current.toString())) {
+                    if (types.has(`${index}:${current}`)) {
                         break;
                     }
                     current--;
                 }
                 if (current >= 0) {
-                    const schema = types.get(index.toString() + ':' + current.toString());
+                    const schema = types.get(`${index}:${current}`);
                     if (current !== version) {
-                        types.set(index.toString() + ':' + version.toString(), schema);
+                        types.set(`${index}:${version}`, schema);
                     }
                     return schema;
                 }
@@ -388,7 +388,7 @@ tengine.Reader = class {
             this._majorVersion = reader.uint16();
             this._minorVersion = reader.uint16();
             if (this._majorVersion !== 2) {
-                throw new tengine.Error("Unsupported format version 'v" + this._majorVersion.toString() + "." + this._minorVersion.toString() + "'.");
+                throw new tengine.Error(`Unsupported format version 'v${this._majorVersion}.${this._minorVersion}'.`);
             }
             this._compileVersion = reader.uint16();
             reader.skip(2); // struct align
@@ -469,7 +469,7 @@ tengine.Reader = class {
                                     node.params.push(reader.anchors(4));
                                     break;
                                 default:
-                                    throw new tengine.Error("Unsupported param type '" + paramType + "' in '" + node.type + "'.");
+                                    throw new tengine.Error(`Unsupported param type '${paramType}' in '${node.type}'.`);
                             }
                         }
                     }
@@ -532,7 +532,7 @@ tengine.Reader = class {
                                 /* eslint-enable prefer-destructuring */
                                 break;
                             default:
-                                throw new tengine.Error("Unsupported 'Convolution' layout '" + subgraph.graphLayout + "'.");
+                                throw new tengine.Error(`Unsupported 'Convolution' layout '${subgraph.graphLayout}'.`);
                         }
                     }
                 }
@@ -542,7 +542,7 @@ tengine.Reader = class {
     }
 
     get version() {
-        return this._majorVersion + '.' + this._minorVersion;
+        return `${this._majorVersion}.${this._minorVersion}`;
     }
 
     get source() {
@@ -555,13 +555,13 @@ tengine.Reader = class {
             case 5: return 'TensorFlow';
             case 6: return 'TensorFlow Lite';
             case 7: return 'Darknet';
-            case 8: return 'DLA v' + this._subFormat;
+            case 8: return `DLA v${this._subFormat}`;
             case 9: return 'ncnn';
             case 10: return 'MegEngine';
             case 11: return 'OneFlow';
             case 12: return 'Horizon';
             case 13: return 'Bitman';
-            default: throw new tengine.Error("Unsupported source '" + this._originalFormat.toString() + "'.");
+            default: throw new tengine.Error(`Unsupported source '${this._originalFormat}'.`);
         }
     }
 

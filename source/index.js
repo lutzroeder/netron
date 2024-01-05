@@ -10,11 +10,11 @@ if (window.location.hostname.endsWith('.github.io')) {
 window.exports = {};
 
 window.exports.require = function(id, callback) {
-    var url = new URL(id + '.js', window.location.href).href;
+    var url = new URL(`${id}.js`, window.location.href).href;
     var scripts = document.head.getElementsByTagName('script');
     for (var i = 0; i < scripts.length; i++) {
         if (url === scripts[i].getAttribute('src')) {
-            throw new Error("Duplicate import of '" + url + "'.");
+            throw new Error(`Duplicate import of '${url}'.`);
         }
     }
     var script = document.createElement('script');
@@ -29,7 +29,7 @@ window.exports.require = function(id, callback) {
     var errorHandler = function(e) {
         script.removeEventListener('load', loadHandler);
         script.removeEventListener('error', errorHandler);
-        callback(null, new Error('The script \'' + e.target.src + '\' failed to load.'));
+        callback(null, new Error(`The script '${e.target.src}' failed to load.`));
     };
     /* eslint-enable no-use-before-define */
     script.addEventListener('load', loadHandler, false);

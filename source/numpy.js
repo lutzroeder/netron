@@ -137,7 +137,7 @@ numpy.ModelFactory = class {
                 break;
             }
             default: {
-                throw new numpy.Error("Unsupported NumPy format '" + target.name + "'.");
+                throw new numpy.Error(`Unsupported NumPy format '${target.name}'.`);
             }
         }
         return new numpy.Model(format, graphs);
@@ -174,7 +174,7 @@ numpy.Value = class {
 
     constructor(name, initializer) {
         if (typeof name !== 'string') {
-            throw new numpy.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new numpy.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer.type;
@@ -246,7 +246,7 @@ numpy.TensorShape = class {
     }
 
     toString() {
-        return this.dimensions && this.dimensions.length > 0 ? '[' + this.dimensions.join(',') + ']' : '';
+        return this.dimensions && this.dimensions.length > 0 ? `[${this.dimensions.join(',')}]` : '';
     }
 };
 
@@ -270,7 +270,7 @@ numpy.Utility = class {
                             continue;
                         } else if (obj instanceof Map && Array.from(obj).every(([, value]) => numpy.Utility.isTensor(value))) {
                             for (const [name, value] of obj) {
-                                weights.set(key + '.' + name, value);
+                                weights.set(`${key}.${name}`, value);
                             }
                             continue;
                         } else if (key === '_metadata') {
@@ -291,10 +291,10 @@ numpy.Utility = class {
                         }
                         if (value && !Array.isArray(value) && Object.entries(value).every(([, value]) => numpy.Utility.isTensor(value))) {
                             if (value && value.__class__ && value.__class__.__module__ && value.__class__.__name__) {
-                                weights.set(name + '.__class__', value.__class__.__module__ + '.' + value.__class__.__name__);
+                                weights.set(`${name}.__class__`, `${value.__class__.__module__}.${value.__class__.__name__}`);
                             }
                             for (const [name, obj] of Object.entries(value)) {
-                                weights.set(name + '.' + name, obj);
+                                weights.set(`${name}.${name}`, obj);
                             }
                             continue;
                         }
@@ -319,7 +319,7 @@ numpy.Utility = class {
                         continue;
                     } else if (obj instanceof Map && Array.from(obj).every(([, value]) => numpy.Utility.isTensor(value))) {
                         for (const [name, value] of obj) {
-                            weights.set(i.toString() + '.' + name, value);
+                            weights.set(`${i}.${name}`, value);
                         }
                         continue;
                     }

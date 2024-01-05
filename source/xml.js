@@ -26,7 +26,7 @@ xml.TextReader = class {
         this._callback = callback;
         this._entities = new Map([ [ 'quot', '"' ], [ 'amp', '&' ], [ 'apos', "'" ], [ 'lt', '<' ],  [ 'gt', '>' ] ]);
         this._nameStartCharRegExp = /[:A-Z_a-z\xC0-\xD6\xD8-\xF6\xF8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/;
-        this._nameCharRegExp = new RegExp("[-.0-9\\xB7" + this._nameStartCharRegExp.source.slice(1, -1) + "]");
+        this._nameCharRegExp = new RegExp(`[-.0-9\\xB7${this._nameStartCharRegExp.source.slice(1, -1)}]`);
         xml.Utility.nameStartCharRegExp = this._nameStartCharRegExp;
     }
 
@@ -111,9 +111,9 @@ xml.TextReader = class {
                                 this._parameterEntities = false;
                                 const values = node.entities.filter((entity) => entity.value).map((entity) => entity.value);
                                 for (const entity of node.entities.filter((entity) => entity.notationName)) {
-                                    const reference = '&' + entity.localName + ';';
+                                    const reference = `&${entity.localName};`;
                                     if (values.some((value) => value.indexOf(reference) >= 0)) {
-                                        this._error("Entity references unparsed entity '" + entity.localName + "'");
+                                        this._error(`Entity references unparsed entity '${entity.localName}'`);
                                     }
                                 }
                                 if (internalSubset) {
@@ -134,9 +134,9 @@ xml.TextReader = class {
                             this._whitespace(0);
                             this._expect('>');
                             const node = this._pop();
-                            const nodeName = node.prefix ? node.prefix + ':' + node.localName : node.localName;
+                            const nodeName = node.prefix ? `${node.prefix}:${node.localName}` : node.localName;
                             if (name !== nodeName) {
-                                this._error("Opening tag <" + nodeName + "> and ending tag </" + name + "> mismatch", this._start);
+                                this._error(`Opening tag <${nodeName}> and ending tag </${name}> mismatch`, this._start);
                             }
                             break;
                         }
@@ -170,10 +170,10 @@ xml.TextReader = class {
                                     });
                                     whitespace = this._whitespace(0);
                                     if (name === 'xmlns' && (!this._validateNamespace(value) || value === 'http://www.w3.org/2000/xmlns/' || value === 'http://www.w3.org/XML/1998/namespace')) {
-                                        this._error("Invalid namespace '" + value + "'", valuePosition);
+                                        this._error(`Invalid namespace '${value}'`, valuePosition);
                                     }
                                     if (name === 'xml:space' && value !== 'preserve' && value !== 'default') {
-                                        this._error("Unexpected xml:space attribute value '" + value + "'", position);
+                                        this._error(`Unexpected xml:space attribute value '${value}'`, position);
                                     }
                                 }
                             }
@@ -189,10 +189,10 @@ xml.TextReader = class {
                                     this._assert(entry.localName !== '');
                                     if (entry.prefix === 'xmlns' && entry.localName) {
                                         if (!this._validateNamespace(value) || value === 'http://www.w3.org/2000/xmlns/') {
-                                            this._error("Invalid namespace '" + value + "'", entry.valuePosition);
+                                            this._error(`Invalid namespace '${value}'`, entry.valuePosition);
                                         }
                                         if (entry.localName === 'xmlns' || (entry.localName === 'xml' && value !== 'http://www.w3.org/XML/1998/namespace') || (entry.localName !== 'xml' && value === 'http://www.w3.org/XML/1998/namespace')) {
-                                            this._error("Invalid namespace prefix '" + entry.localName + "'", entry.position);
+                                            this._error(`Invalid namespace prefix '${entry.localName}'`, entry.position);
                                         }
                                         if (this._version === 0 && value.length === 0) {
                                             this._error("Invalid namespace declaration'", entry.position);
@@ -212,7 +212,7 @@ xml.TextReader = class {
                             if (namespaceURI !== null) {
                                 this._assert(name === ':' || (!name.endsWith(':') && !name.startsWith(':')));
                                 if (prefix && namespaceURI === '') {
-                                    this._error("Invalid namespace prefix '" + prefix + "'", this._start);
+                                    this._error(`Invalid namespace prefix '${prefix}'`, this._start);
                                 }
                                 element = document.createElementNS(namespaceURI, name);
                             } else {
@@ -237,7 +237,7 @@ xml.TextReader = class {
                                     this._assert(name.indexOf(':') === -1 || attributeType);
                                     attribute = document.createAttribute(name);
                                 }
-                                const key = (attribute.namespaceURI || '') + '|' + attribute.localName;
+                                const key = `${attribute.namespaceURI || ''}|${attribute.localName}`;
                                 this._assert(!keys.has(key));
                                 keys.add(key);
                                 attribute.value = attr.value;
@@ -282,7 +282,7 @@ xml.TextReader = class {
                     const node = this._node();
                     if (node.nodeType === xml.NodeType.Element) {
                         const documentType = document.documentType;
-                        const name = node.prefix ? node.prefix + ':' + node.localName : node.localName;
+                        const name = node.prefix ? `${node.prefix}:${node.localName}` : node.localName;
                         const elementType = documentType ? documentType.elements.getNamedItem(name) : null;
                         this._characterData = elementType ? elementType.characterData : false;
                         this._seek(this._position);
@@ -867,7 +867,7 @@ xml.TextReader = class {
                 }
                 return;
             }
-            this._error("Undefined ENTITY '" + name + "'", position);
+            this._error(`Undefined ENTITY '${name}'`, position);
         }
         this._unexpected();
     }
@@ -894,7 +894,7 @@ xml.TextReader = class {
                 this._pushString(entity.value, name, true);
             }
         } else if (this._context.length !== 0 || !documentType || documentType.parameterEntities.length === 0) {
-            this._error("Undefined ENTITY '" + name + "'", position);
+            this._error(`Undefined ENTITY '${name}'`, position);
         }
         return undefined;
     }
@@ -917,8 +917,8 @@ xml.TextReader = class {
                 if (data.length > 0) {
                     const text = data.join('');
                     const value = parseInt(text, 16);
-                    this._assert(value <= 0x10FFFF, "Invalid value '&#x" + text + ";'", position);
-                    return '&#x' + text + ';';
+                    this._assert(value <= 0x10FFFF, `Invalid value '&#x${text};'`, position);
+                    return `&#x${text};`;
                 }
             } else if (this._match('#')) {
                 const data = [];
@@ -933,14 +933,14 @@ xml.TextReader = class {
                 if (data.length > 0) {
                     const text = data.join('');
                     const value = parseInt(text, 10);
-                    this._assert(value <= 0x10FFFF, "Invalid value '&#" + text + ";'", position);
-                    return '&#' + text + ';';
+                    this._assert(value <= 0x10FFFF, `Invalid value '&#${text};'`, position);
+                    return `&#${text};`;
                 }
             } else {
                 const name = this._name();
                 this._assert(name !== null);
                 this._assert(this._char === ';');
-                return '&' + name + ';';
+                return `&${name};`;
             }
         }
         this._unexpected();
@@ -962,7 +962,7 @@ xml.TextReader = class {
         const data = this._terminal('?>');
         if (name.toLowerCase() === 'xml') {
             this._seek(position);
-            this._assert(name === 'xml', "'" + name + "' must be lower case");
+            this._assert(name === 'xml', `'${name}' must be lower case`);
             this._assert(this._start === this._prolog, "Prolog must start with XML declaration", this._start);
             this._assert(typeof this._data !== 'string', 'Invalid text declaration', this._start);
             const obj = { version: '', encoding: '', standalone: 'no' };
@@ -985,7 +985,7 @@ xml.TextReader = class {
             }
             if (obj.version.length > 0) {
                 const match = /^(\d)\.(\d)$/.exec(obj.version);
-                this._assert(match && match[1] === '1', "Invalid XML version '" + obj.version + "'");
+                this._assert(match && match[1] === '1', `Invalid XML version '${obj.version}'`);
                 const version = Number.parseInt(match[2], 10);
                 if (version > this._version) {
                     /* eslint-disable */
@@ -1039,8 +1039,8 @@ xml.TextReader = class {
 
     _pushContext(decoder, data, base, entity, stop) {
         if (this._context.some((context) => context && context.base === base && context.entity === entity)) {
-            this._assert(!entity, "Recursive entity '" + entity + "'");
-            this._assert(!base, "Recursive base '" + base + "'");
+            this._assert(!entity, `Recursive entity '${entity}'`);
+            this._assert(!base, `Recursive base '${base}'`);
         }
         if (base.length !== 0 || entity.length !== 0) {
             this._context.push(this._state);
@@ -1174,7 +1174,7 @@ xml.TextReader = class {
             this._seek(position);
         }
         if (message) {
-            throw new xml.Error(message + this._location());
+            throw new xml.Error(`${message} ${this._location()}`);
         }
         this._unexpected();
     }
@@ -1191,16 +1191,16 @@ xml.TextReader = class {
             if (c < ' ' || c > '\x7F') {
                 c = c.codePointAt(0);
                 if (c < 0x0100) {
-                    c = '\\x' + ('0' + c.toString(16)).slice(-2);
+                    c = `\\x${(`0${c.toString(16)}`).slice(-2)}`;
                 } else if (c < 0x010000) {
-                    c = '\\u' + ('000' + c.toString(16)).slice(-4);
+                    c = `\\u${(`000${c.toString(16)}`).slice(-4)}`;
                 } else {
-                    c = '\\u' + ('00000' + c.toString(16)).slice(-6);
+                    c = `\\u${(`00000${c.toString(16)}`).slice(-6)}`;
                 }
             }
-            c = "token '" + c + "'";
+            c = `token '${c}'`;
         }
-        this._error('Unexpected ' + c);
+        this._error(`Unexpected ${c}`);
     }
 
     _location() {
@@ -1226,7 +1226,8 @@ xml.TextReader = class {
             }
         }
         while (c !== undefined);
-        return ' at ' + (this._base ? this._base + ':' : '') +  line.toString() + ':' + column.toString() + '.';
+        const file = this._base ? `${this._base}:` : '';
+        return `at ${file}${line}:${column}.`;
     }
 };
 
@@ -1373,7 +1374,7 @@ xml.Element = class extends xml.Node {
         const list = new xml.NodeList();
         let node = this.firstChild;
         while (node) {
-            if (node.nodeType === xml.NodeType.Element && (tagName === '*' || tagName === (node.prefix ? node.prefix + ':' + node.localName : node.localName))) {
+            if (node.nodeType === xml.NodeType.Element && (tagName === '*' || tagName === (node.prefix ? `${node.prefix}:${node.localName}` : node.localName))) {
                 list.push(node);
             }
             node = node.nextSibling;
@@ -1673,7 +1674,7 @@ xml.NamedNodeMap = class extends Array {
     getNamedItem(qualifiedName) {
         for (let i = this.length - 1; i >= 0; i--) {
             const node = this[i];
-            const key = node.prefix ? node.prefix + ':' + node.localName : node.localName;
+            const key = node.prefix ? `${node.prefix}:${node.localName}` : node.localName;
             if (qualifiedName == key) {
                 return node;
             }
@@ -1692,10 +1693,10 @@ xml.NamedNodeMap = class extends Array {
     }
 
     setNamedItem(node) {
-        const qualifiedName = node.prefix ? node.prefix + ':' + node.localName : node.localName;
+        const qualifiedName = node.prefix ? `${node.prefix}:${node.localName}` : node.localName;
         for (let i = this.length - 1; i >= 0; i--) {
             const node = this[i];
-            const key = node.prefix ? node.prefix + ':' + node.localName : node.localName;
+            const key = node.prefix ? `${node.prefix}:${node.localName}` : node.localName;
             if (qualifiedName == key) {
                 const oldNode = this[i];
                 this[i] = node;

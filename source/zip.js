@@ -817,7 +817,7 @@ gzip.Archive = class {
         const compressionMethod = reader.byte();
         if (compressionMethod != 8) {
             stream.seek(position);
-            throw new gzip.Error("Invalid compression method '" + compressionMethod.toString() + "'.");
+            throw new gzip.Error(`Invalid compression method '${compressionMethod}'.`);
         }
         const flags = reader.byte();
         reader.uint32(); // MTIME

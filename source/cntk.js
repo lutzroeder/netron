@@ -32,7 +32,7 @@ cntk.ModelFactory = class {
                     obj = new cntk.ComputationNetwork(buffer);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw new cntk.Error('File format is not CNTK v1 (' + message.replace(/\.$/, '') + ').');
+                    throw new cntk.Error(`File format is not CNTK v1 (${message.replace(/\.$/, '')}).`);
                 }
                 return new cntk.Model(metadata, 1, obj);
             }
@@ -48,12 +48,12 @@ cntk.ModelFactory = class {
                     obj = cntk.ModelFactory._convertDictionary(dictionary);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw new cntk.Error('File format is not cntk.Dictionary (' + message.replace(/\.$/, '') + ').');
+                    throw new cntk.Error(`File format is not cntk.Dictionary (${message.replace(/\.$/, '')}).`);
                 }
                 return new cntk.Model(metadata, 2, obj);
             }
             default: {
-                throw new cntk.Error("Unsupported CNTK format '" + target + "'.");
+                throw new cntk.Error(`Unsupported CNTK format '${target}'.`);
             }
         }
     }
@@ -91,7 +91,7 @@ cntk.ModelFactory = class {
             case cntk.proto.DictionaryValue.Type.NDArrayView:
                 return dictionaryValue.nd_array_view_value;
             default:
-                throw new cntk.Error("Unsupported dictionary value type '" + dictionaryValue.value_type.toString() + "'.");
+                throw new cntk.Error(`Unsupported dictionary value type '${dictionaryValue.value_type}'.`);
         }
     }
 
@@ -107,13 +107,13 @@ cntk.Model = class {
     constructor(metadata, version, obj) {
         switch (version) {
             case 1:
-                this.format = 'CNTK v1' + (obj.version ? ('.' + obj.version.toString()) : '');
+                this.format = `CNTK v1${obj.version ? (`.${obj.version}`) : ''}`;
                 break;
             case 2:
                 this.format = 'CNTK v2';
                 break;
             default:
-                throw new cntk.Error("Unsupported CNTK version '" + version + "'.");
+                throw new cntk.Error(`Unsupported CNTK version '${version}'.`);
         }
         this.graphs = [ new cntk.Graph(metadata, version, obj) ];
     }
@@ -129,7 +129,7 @@ cntk.Graph = class {
         const values = new Map();
         values.map = (name, version, obj) => {
             if (obj && values.has(name)) {
-                throw new cntk.Error("Duplicate value '" + name + "'.");
+                throw new cntk.Error(`Duplicate value '${name}'.`);
             }
             if (!values.has(name)) {
                 switch (version) {
@@ -140,7 +140,7 @@ cntk.Graph = class {
                         values.set(name, new cntk.Value(version, obj ? obj : { uid: name }));
                         break;
                     default:
-                        throw new cntk.Error("Unsupported CNTK version '" + version + "'.");
+                        throw new cntk.Error(`Unsupported CNTK version '${version}'.`);
                 }
             }
             return values.get(name);
@@ -198,7 +198,7 @@ cntk.Graph = class {
                             throw new cntk.Error('Invalid block function composite arguments.');
                         }
                         const inputs = keys.map((key) => new cntk.Argument(key, [ values.map(key, version) ]));
-                        const outputs = [ new cntk.Argument('output', [ values.map(output.uid + '_Output_0', version) ]) ];
+                        const outputs = [ new cntk.Argument('output', [ values.map(`${output.uid}_Output_0`, version) ]) ];
                         const nodes = [];
                         while (list.length > 0) {
                             const name = list.shift();
@@ -227,7 +227,7 @@ cntk.Graph = class {
                 break;
             }
             default: {
-                throw new cntk.Error("Unsupported graph version '" + version + "'.");
+                throw new cntk.Error(`Unsupported graph version '${version}'.`);
             }
         }
     }
@@ -278,7 +278,7 @@ cntk.Value = class {
                 }
                 break;
             default:
-                throw new cntk.Error("Unsupported CNTK version '" + version + "'.");
+                throw new cntk.Error(`Unsupported CNTK version '${version}'.`);
         }
     }
 };
@@ -331,11 +331,11 @@ cntk.Node = class {
                     }
                 }
                 inputs = obj.inputs.map((input) => values.map(input, version));
-                outputs.push(values.map(output + '_Output_0', version));
+                outputs.push(values.map(`${output}_Output_0`, version));
                 break;
             }
             default: {
-                throw new cntk.Error("Unsupported CNTK version '" + version + "'.");
+                throw new cntk.Error(`Unsupported CNTK version '${version}'.`);
             }
         }
         let inputIndex = 0;
@@ -456,7 +456,7 @@ cntk.Tensor = class {
                 break;
             }
             default:
-                throw new cntk.Error("Unsupported CNTK version '" + version + "'.");
+                throw new cntk.Error(`Unsupported CNTK version '${version}'.`);
         }
     }
 };
@@ -472,7 +472,7 @@ cntk.TensorType = class {
                     case 'double': this.dataType = 'float64'; break;
                     case 'half': this.dataType = 'float16'; break;
                     case '': this.dataType = 'float32'; break;
-                    default: throw new cntk.Error("Unsupported tensor data type '" + dataType + "'.");
+                    default: throw new cntk.Error(`Unsupported tensor data type '${dataType}'.`);
                 }
                 this.shape = new cntk.TensorShape(version, shape);
                 break;
@@ -480,12 +480,12 @@ cntk.TensorType = class {
                 dataType = dataType.toNumber();
                 switch (dataType) {
                     case 1: this.dataType = 'float32'; break;
-                    default: throw new cntk.Error("Unsupported tensor data type '" + dataType + "'.");
+                    default: throw new cntk.Error(`Unsupported tensor data type '${dataType}'.`);
                 }
                 this.shape = new cntk.TensorShape(version, shape);
                 break;
             default:
-                throw new cntk.Error("Unsupported CNTK version '" + version + "'.");
+                throw new cntk.Error(`Unsupported CNTK version '${version}'.`);
         }
     }
 
@@ -505,12 +505,12 @@ cntk.TensorShape = class {
                 this.dimensions = shape.shape_dim.map((dimension) => dimension.toNumber());
                 break;
             default:
-                throw new cntk.Error("Unsupported CNTK version '" + version + "'.");
+                throw new cntk.Error(`Unsupported CNTK version '${version}'.`);
         }
     }
 
     toString() {
-        return (this.dimensions && this.dimensions.length) ? ('[' + this.dimensions.join(',') + ']') : '';
+        return (this.dimensions && this.dimensions.length) ? (`[${this.dimensions.join(',')}]`) : '';
     }
 };
 
@@ -562,7 +562,7 @@ cntk.GraphMetadata = class {
 
     add(name, func) {
         if (this._functions.has(name)) {
-            throw new cntk.Error("Duplicate function identifier '" + func.name + "'.");
+            throw new cntk.Error(`Duplicate function identifier '${func.name}'.`);
         }
         this._functions.set(name, func);
     }
@@ -580,12 +580,12 @@ cntk.GraphMetadata = class {
     }
 
     attribute(type, name) {
-        const key = type + ':' + name;
+        const key = `${type}:${name}`;
         if (!this._attributes.has(key)) {
             const metadata = this.type(type);
             if (metadata && metadata.attributes && metadata.attributes.length > 0) {
                 for (const attribute of metadata.attributes) {
-                    this._attributes.set(type + ':' + attribute.name, attribute);
+                    this._attributes.set(`${type}:${attribute.name}`, attribute);
                 }
             }
             if (!this._attributes.has(key)) {
@@ -616,7 +616,7 @@ cntk.ComputationNetwork = class {
         };
         reader.assert = function(text) {
             if (!this.match(text)) {
-                throw new cntk.Error("Invalid '" + text + "' signature.");
+                throw new cntk.Error(`Invalid '${text}' signature.`);
             }
         };
         reader.string = function() {
@@ -663,7 +663,7 @@ cntk.ComputationNetwork = class {
                 case 115: // sparse
                     throw new cntk.Error('Matrix sparse type not implemented.');
                 default:
-                    throw new cntk.Error("Matrix type '" + type.toString() + "' not implemented.");
+                    throw new cntk.Error(`Matrix type '${type}' not implemented.`);
             }
         };
         reader.shape = function(acceptLegacyFormat) {
@@ -971,14 +971,14 @@ cntk.ComputationNetwork = class {
         for (let i = 0; i < numNodes; i++) {
             const precision = this.version >= 7 ? reader.string() : '';
             if (precision != 'float' && precision != 'double' && precision != 'half' && precision != '') {
-                throw new cntk.Error("Invalid precision format '" + precision + "'.");
+                throw new cntk.Error(`Invalid precision format '${precision}'.`);
             }
             const obj = { __type__: reader.string() };
             obj.name = reader.string();
             obj.precision = precision;
             const constructor = op[obj.__type__];
             if (!constructor) {
-                throw new cntk.Error("Unsupported node type '" + obj.__type__ + "'.");
+                throw new cntk.Error(`Unsupported node type '${obj.__type__}'.`);
             }
             constructor.apply(obj, [ reader, this.version ]);
             nodes.push(obj);
@@ -997,7 +997,7 @@ cntk.ComputationNetwork = class {
             if (this.version < 19 && node.__type__ == 'BatchNormalization') {
                 const runSampleCount = {
                     __type__: 'LearnableParameter',
-                    name: nodeName + '.run_sample_count',
+                    name: `${nodeName}.run_sample_count`,
                     precision: node.precision,
                     sampleLayout: shape([ 1 ]), // TODO set value = 0
                     learningRateMultiplier: 0

@@ -39,7 +39,7 @@ hickle.Graph = class {
                             if (group.groups.size == 1) {
                                 return deserialize(group.groups.values().next().value);
                             }
-                            throw new hickle.Error("Invalid Hickle type value '" + type[0] + "'.");
+                            throw new hickle.Error(`Invalid Hickle type value '${type[0]}'.`);
                         }
                         case 'dict': {
                             const dict = new Map();
@@ -53,11 +53,11 @@ hickle.Graph = class {
                             return group.value;
                         }
                         default: {
-                            throw new hickle.Error("Unsupported Hickle type '" + type[0] + "'");
+                            throw new hickle.Error(`Unsupported Hickle type '${type[0]}'`);
                         }
                     }
                 }
-                throw new hickle.Error("Unsupported Hickle type '" + JSON.stringify(type) + "'");
+                throw new hickle.Error(`Unsupported Hickle type '${JSON.stringify(type)}'`);
             }
             throw new hickle.Error('Unsupported Hickle group.');
         };
@@ -91,7 +91,7 @@ hickle.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new hickle.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new hickle.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name= name;
         this.type = type ? type : initializer ? initializer.type : null;
@@ -153,7 +153,7 @@ hickle.TensorShape = class {
     }
 
     toString() {
-        return this.dimensions ? ('[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+        return this.dimensions ? (`[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`) : '';
     }
 };
 

@@ -34,7 +34,7 @@ dlc.Model = class {
                 const source = converter.split(' ').shift().trim();
                 if (source.length > 0) {
                     const version = target.metadata.get('converter-version');
-                    this.metadata.set('source', version ? source + ' v' + version : source);
+                    this.metadata.set('source', version ? `${source} v${version}` : source);
                 }
             }
         }
@@ -127,7 +127,7 @@ dlc.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new dlc.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new dlc.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = type;
@@ -138,7 +138,7 @@ dlc.Value = class {
 dlc.Node = class {
 
     constructor(metadata, version, node, value) {
-        const type = node.type + ':v' + version.toString();
+        const type = `${node.type}:v${version}`;
         this.type = Object.assign({}, metadata.type(type));
         this.type.name = node.type;
         this.name = node.name;
@@ -228,7 +228,7 @@ dlc.TensorShape = class {
 
     toString() {
         if (Array.isArray(this.dimensions) && this.dimensions.length > 0) {
-            return '[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+            return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
         }
         return '';
     }
@@ -246,7 +246,7 @@ dlc.Tensor = class {
             switch (type.dataType) {
                 case 'uint8': this.values = data.bytes; break;
                 case 'float32': this.values = data.floats; break;
-                default: throw new dlc.Error("Unsupported tensor data type '" + type.dataType + "'.");
+                default: throw new dlc.Error(`Unsupported tensor data type '${type.dataType}'.`);
             }
         }
     }
@@ -318,7 +318,7 @@ dlc.Container = class {
                 default: {
                     const buffer = stream.peek(Math.min(stream.length, 16));
                     const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                    throw new dlc.Error("File contains undocumented '" + content + "' data.");
+                    throw new dlc.Error(`File contains undocumented '${content}' data.`);
                 }
             }
         }
@@ -346,7 +346,7 @@ dlc.Container = class {
                 default: {
                     const buffer = stream.peek(Math.min(stream.length, 16));
                     const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                    throw new dlc.Error("File contains undocumented '" + content + "' data.");
+                    throw new dlc.Error(`File contains undocumented '${content}' data.`);
                 }
             }
         }
@@ -378,7 +378,7 @@ dlc.Container = class {
             model = dlc.schema.v3.Model.decode(reader, reader.root);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new dlc.Error('File format is not dlc.v3.NETD (' + message.replace(/\.$/, '') + ').');
+            throw new dlc.Error(`File format is not dlc.v3.NETD (${message.replace(/\.$/, '')}).`);
         }
         model.tensors = [];
         const updateAttribute = (attr) => {
@@ -405,7 +405,7 @@ dlc.Container = class {
                     return list ? [ '', Object.values(obj) ] : [ '', obj ];
                 }
                 default:
-                    throw new dlc.Error("Unsupported attribute type '" + attr.type + "'.");
+                    throw new dlc.Error(`Unsupported attribute type '${attr.type}'.`);
             }
         };
         for (const node of model.nodes) {
@@ -426,7 +426,7 @@ dlc.Container = class {
             model = dlc.schema.v4.Model.decode(reader, reader.root);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new dlc.Error('File format is not dlc.v4.NETD (' + message.replace(/\.$/, '') + ').');
+            throw new dlc.Error(`File format is not dlc.v4.NETD (${message.replace(/\.$/, '')}).`);
         }
         const dataType = (value) => {
             switch (value) {
@@ -442,7 +442,7 @@ dlc.Container = class {
                 case 0x0408: return 'uint8';
                 case 0x0416: return 'uint16';
                 case 0x0508: return 'boolean';
-                default: throw new dlc.Error("Unsupported data type '" + JSON.stringify(value) + "'.");
+                default: throw new dlc.Error(`Unsupported data type '${JSON.stringify(value)}'.`);
             }
         };
         const updateTensor = (tensor) => {
@@ -480,7 +480,7 @@ dlc.Container = class {
                                     attribute.type = 'boolean';
                                     break;
                                 default:
-                                    throw new dlc.Error("Unknown attribute value kind '" + value.kind + "'.");
+                                    throw new dlc.Error(`Unknown attribute value kind '${value.kind}'.`);
                             }
                             break;
                         }
@@ -492,7 +492,7 @@ dlc.Container = class {
                             break;
                         }
                         default: {
-                            throw new dlc.Error("Unknown attribute kind '" + attribute.kind + "'.");
+                            throw new dlc.Error(`Unknown attribute kind '${attribute.kind}'.`);
                         }
                     }
                 }
@@ -512,7 +512,7 @@ dlc.Container = class {
             params = dlc.schema.v3.ModelParameters.decode(reader, reader.root);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new dlc.Error('File format is not dlc.v3.NETP (' + message.replace(/\.$/, '') + ').');
+            throw new dlc.Error(`File format is not dlc.v3.NETP (${message.replace(/\.$/, '')}).`);
         }
         if (!graph) {
             graph = new dlc.schema.v3.ModelParameters();
@@ -534,7 +534,7 @@ dlc.Container = class {
                 case 6: return 'uint8';
                 case 9: return 'float32';
                 default:
-                    throw new dlc.Error("Unsupported data type '" + JSON.stringify(value) + "'.");
+                    throw new dlc.Error(`Unsupported data type '${JSON.stringify(value)}'.`);
             }
         };
         const weights = new Map(params.nodes.map((node) => [ node.name, node.weights ]));
@@ -561,7 +561,7 @@ dlc.Container = class {
                 buffer = nr64.params;
             } catch (error) {
                 const message = error && error.message ? error.message : error.toString();
-                throw new dlc.Error('File format is not dlc.v4.NR64 (' + message.replace(/\.$/, '') + ').');
+                throw new dlc.Error(`File format is not dlc.v4.NR64 (${message.replace(/\.$/, '')}).`);
             }
         }
         let params = null;
@@ -570,7 +570,7 @@ dlc.Container = class {
             params = dlc.schema.v4.ModelParameters.decode(reader, reader.root);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new dlc.Error('File format is not dlc.v4.NETP (' + message.replace(/\.$/, '') + ').');
+            throw new dlc.Error(`File format is not dlc.v4.NETP (${message.replace(/\.$/, '')}).`);
         }
         if (graphs.length === 0) {
             throw new dlc.Error('Model definition not available.');
@@ -614,11 +614,11 @@ dlc.Container = class {
             const match = (signature) => buffer.length >= signature.length && signature.every((value, index) => value === buffer[index]);
             if (match([ 0xD5, 0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 ]) && buffer.length >= 16) {
                 const reader = flatbuffers.BinaryReader.open(buffer.slice(8));
-                return '4.' + reader.identifier;
+                return `4.${reader.identifier}`;
             }
             if (match([ 0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 ]) && buffer.length >= 16) {
                 const reader = flatbuffers.BinaryReader.open(buffer.slice(8));
-                return '3.' + reader.identifier;
+                return `3.${reader.identifier}`;
             }
             if (match([ 0xD5, 0x0A, 0x02, 0x00 ])) {
                 return '2';

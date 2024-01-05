@@ -1477,7 +1477,7 @@ dagre.layout = (graph, layout) => {
                                 switch (vLabel.labelpos) {
                                     case 'l': delta = -vLabel.width / 2; break;
                                     case 'r': delta = vLabel.width / 2; break;
-                                    default: throw new dagre.Error("Unsupported label position '" + vLabel.labelpos + "'.");
+                                    default: throw new dagre.Error(`Unsupported label position '${vLabel.labelpos}'.`);
                                 }
                             }
                             if (delta) {
@@ -1491,7 +1491,7 @@ dagre.layout = (graph, layout) => {
                                 switch (wLabel.labelpos) {
                                     case 'l': delta = wLabel.width / 2; break;
                                     case 'r': delta = -wLabel.width / 2; break;
-                                    default: throw new dagre.Error("Unsupported label position '" + wLabel.labelpos + "'.");
+                                    default: throw new dagre.Error(`Unsupported label position '${wLabel.labelpos}'.`);
                                 }
                             }
                             if (delta) {
@@ -1858,7 +1858,7 @@ dagre.layout = (graph, layout) => {
                     switch (edge.labelpos) {
                         case 'l': edge.x -= edge.width / 2 + edge.labeloffset; break;
                         case 'r': edge.x += edge.width / 2 + edge.labeloffset; break;
-                        default: throw new dagre.Error("Unsupported label position '" + edge.labelpos + "'.");
+                        default: throw new dagre.Error(`Unsupported label position '${edge.labelpos}'.`);
                     }
                 }
             }
@@ -2101,7 +2101,7 @@ dagre.Graph = class {
         if (parent) {
             for (let ancestor = parent; ancestor !== undefined; ancestor = this.parent(ancestor)) {
                 if (ancestor === v) {
-                    throw new Error('Setting ' + parent + ' as parent of ' + v + ' would create a cycle.');
+                    throw new Error(`Setting ${parent} as parent of ${v} would create a cycle.`);
                 }
             }
             this.setNode(parent);
@@ -2203,9 +2203,9 @@ dagre.Graph = class {
 
     _edgeKey(isDirected, v, w, name) {
         if (!isDirected && v > w) {
-            return name ? w + ':' + v + ':' + name : w + ':' + v + ':';
+            return name ? `${w}:${v}:${name}` : `${w}:${v}:`;
         }
-        return name ? v + ':' + w + ':' + name : v + ':' + w + ':';
+        return name ? `${v}:${w}:${name}` : `${v}:${w}:`;
     }
 
     toString() {

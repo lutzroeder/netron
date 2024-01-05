@@ -40,7 +40,7 @@ uff.ModelFactory = class {
                     meta_graph = uff.proto.MetaGraph.decode(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw  new uff.Error('File format is not uff.MetaGraph (' + message.replace(/\.$/, '') + ').');
+                    throw  new uff.Error(`File format is not uff.MetaGraph (${message.replace(/\.$/, '')}).`);
                 }
                 break;
             }
@@ -50,12 +50,12 @@ uff.ModelFactory = class {
                     const reader = protobuf.TextReader.open(stream);
                     meta_graph = uff.proto.MetaGraph.decodeText(reader);
                 } catch (error) {
-                    throw new uff.Error('File text format is not uff.MetaGraph (' + error.message + ').');
+                    throw new uff.Error(`File text format is not uff.MetaGraph (${error.message}).`);
                 }
                 break;
             }
             default: {
-                throw new uff.Error("Unsupported UFF format '" + target + "'.");
+                throw new uff.Error(`Unsupported UFF format '${target}'.`);
             }
         }
         const metadata = await context.metadata('uff-metadata.json');
@@ -67,8 +67,8 @@ uff.Model = class {
 
     constructor(metadata, meta_graph) {
         const version = meta_graph.version;
-        this.format = 'UFF' + (version ? ' v' + version.toString() : '');
-        this.imports = meta_graph.descriptors.map((descriptor) => descriptor.id + ' v' + descriptor.version.toString());
+        this.format = `UFF${version ? ` v${version}` : ''}`;
+        this.imports = meta_graph.descriptors.map((descriptor) => `${descriptor.id} v${descriptor.version}`);
         const references = new Map(meta_graph.referenced_data.map((item) => [ item.key, item.value ]));
         for (const graph of meta_graph.graphs) {
             for (const node of graph.nodes) {
@@ -152,7 +152,7 @@ uff.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new uff.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new uff.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = type || null;
@@ -212,7 +212,7 @@ uff.Attribute = class {
             case 'dtype_list': this.value = value.dtype_list.map((type) => new uff.TensorType(type, null).dataType); this.type = 'uff.DataType[]'; break;
             case 'dim_orders': this.value = value.dim_orders; break;
             case 'dim_orders_list': this.value = value.dim_orders_list.val; break;
-            default: throw new uff.Error("Unsupported attribute '" + name + "' value '" + JSON.stringify(value) + "'.");
+            default: throw new uff.Error(`Unsupported attribute '${name}' value '${JSON.stringify(value)}'.`);
         }
     }
 };
@@ -223,7 +223,7 @@ uff.Tensor = class {
         this.type = new uff.TensorType(dataType, shape);
         switch (values.type) {
             case 'blob': this.values = values.blob; break;
-            default: throw new uff.Error("Unsupported values format '" + JSON.stringify(values.type) + "'.");
+            default: throw new uff.Error(`Unsupported values format '${JSON.stringify(values.type)}'.`);
         }
         if (this.values.length > 8 &&
             this.values[0] === 0x28 && this.values[1] === 0x2e && this.values[2] === 0x2e && this.values[3] === 0x2e &&
@@ -244,7 +244,7 @@ uff.TensorType = class {
             case uff.proto.DataType.DT_FLOAT16: this.dataType = 'float16'; break;
             case uff.proto.DataType.DT_FLOAT32: this.dataType = 'float32'; break;
             case 7: this.dataType = '?'; break;
-            default: throw new uff.Error("Unsupported data type '" + JSON.stringify(dataType) + "'.");
+            default: throw new uff.Error(`Unsupported data type '${JSON.stringify(dataType)}'.`);
         }
         this.shape = shape ? new uff.TensorShape(shape) : null;
     }
@@ -258,14 +258,14 @@ uff.TensorShape = class {
 
     constructor(shape) {
         if (shape.type !== 'i_list') {
-            throw new uff.Error("Unsupported shape format '" + JSON.stringify(shape.type) + "'.");
+            throw new uff.Error(`Unsupported shape format '${JSON.stringify(shape.type)}'.`);
         }
         this.dimensions = shape.i_list.val;
     }
 
     toString() {
         if (this.dimensions && this.dimensions.length > 0) {
-            return '[' + this.dimensions.join(',') + ']';
+            return `[${this.dimensions.join(',')}]`;
         }
         return '';
     }

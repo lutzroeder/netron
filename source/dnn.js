@@ -25,7 +25,7 @@ dnn.ModelFactory = class {
             model = dnn.proto.Model.decode(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new dnn.Error('File format is not dnn.Graph (' + message.replace(/\.$/, '') + ').');
+            throw new dnn.Error(`File format is not dnn.Graph (${message.replace(/\.$/, '')}).`);
         }
         const metadata = await context.metadata('dnn-metadata.json');
         return new dnn.Model(metadata, model);
@@ -36,7 +36,7 @@ dnn.Model = class {
 
     constructor(metadata, model) {
         this.name = model.name || '';
-        this.format = 'SnapML' + (model.version ? ' v' + model.version.toString() : '');
+        this.format = `SnapML${model.version ? ` v${model.version}` : ''}`;
         this.graphs = [ new dnn.Graph(metadata, model) ];
     }
 };
@@ -52,7 +52,7 @@ dnn.Graph = class {
         for (const node of model.node) {
             node.input = node.input.map((input) => scope[input] ? scope[input] : input);
             node.output = node.output.map((output) => {
-                scope[output] = scope[output] ? output + '\n' + index.toString() : output; // custom argument id
+                scope[output] = scope[output] ? `${output}\n${index}` : output; // custom argument id
                 return scope[output];
             });
             index++;
@@ -113,7 +113,7 @@ dnn.Value = class {
 
     constructor(name, type, initializer, quantization) {
         if (typeof name !== 'string') {
-            throw new dnn.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new dnn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = type || null;
@@ -123,7 +123,7 @@ dnn.Value = class {
 
     get quantization() {
         if (this._quantization) {
-            return this._quantization.map((value, index) => index.toString() + ' = ' + value.toString()).join('; ');
+            return this._quantization.map((value, index) => `${index} = ${value}`).join('; ');
         }
         return null;
     }
@@ -247,7 +247,7 @@ dnn.TensorShape = class {
         if (!this.dimensions || this.dimensions.length == 0) {
             return '';
         }
-        return '[' + this.dimensions.join(',') + ']';
+        return `[${this.dimensions.join(',')}]`;
     }
 };
 

@@ -12,7 +12,7 @@ torch.ModelFactory = class {
         const reader = target;
         reader.callback = (name) => {
             if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
-                context.exception(new torch.Error("Unsupported type '" + name + "'."));
+                context.exception(new torch.Error(`Unsupported type '${name}'.`));
             }
             return null;
         };
@@ -53,7 +53,7 @@ torch.Graph = class {
             if (!values.has(name)) {
                 values.set(name, new torch.Value(name, type || null, tensor || null));
             } else if (type || tensor) {
-                throw new torch.Error("Duplicate value '" + name + "'.");
+                throw new torch.Error(`Duplicate value '${name}'.`);
             }
             return values.get(name);
         };
@@ -64,7 +64,7 @@ torch.Graph = class {
             if (groups.length > 0) {
                 this.groups = true;
             }
-            const type = module.__class__ ? module.__class__.__module__ + '.' + module.__class__.__name__ : '';
+            const type = module.__class__ ? `${module.__class__.__module__}.${module.__class__.__name__}` : '';
             switch (type) {
                 case 'nn.Sequential': {
                     groups.push(key);
@@ -114,14 +114,14 @@ torch.Graph = class {
                 case 'nn.ConcatTable': {
                     const prefix = key;
                     if (inputs.length == 0) {
-                        inputs.push(values.map(groups.join('/') + ':' + key + ':in', null, null));
+                        inputs.push(values.map(`${groups.join('/')}:${key}:in`, null, null));
                     }
                     let concatInputs = [];
                     let index = 0;
                     for (const subModule of module.modules) {
                         const streamInputs = inputs.map((input) => input);
                         const streamOutputs = [];
-                        loadModule(metadata, subModule, groups, prefix + '.' + index.toString(), streamInputs, streamOutputs);
+                        loadModule(metadata, subModule, groups, `${prefix}.${index}`, streamInputs, streamOutputs);
                         concatInputs = concatInputs.concat(streamOutputs);
                         index++;
                     }
@@ -164,10 +164,10 @@ torch.Graph = class {
         const outputs = [];
         loadModule(metadata, root, [], '', inputs, outputs);
         this.inputs = this.inputs.concat(inputs.map((input, index) => {
-            return new torch.Argument('input' + (index != 0 ? (index + 1).toString() : ''), [ input ]);
+            return new torch.Argument(`input${index != 0 ? (index + 1).toString() : ''}`, [ input ]);
         }));
         this.outputs = this.outputs.concat(outputs.map((output, index) => {
-            return new torch.Argument('output' + (index != 0 ? (index + 1).toString() : ''), [ output ]);
+            return new torch.Argument(`output${index != 0 ? (index + 1).toString() : ''}`, [ output ]);
         }));
     }
 };
@@ -184,7 +184,7 @@ torch.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new torch.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new torch.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer ? initializer.type : type;
@@ -200,9 +200,9 @@ torch.Node = class {
             this.name = module.name;
             delete module.name;
         } else {
-            this.name = this.group ? (this.group + ':' + name) : name;
+            this.name = this.group ? (`${this.group}:${name}`) : name;
         }
-        const type = module.__class__ ? module.__class__.__module__ + '.' + module.__class__.__name__ : 'nn.Module';
+        const type = module.__class__ ? `${module.__class__.__module__}.${module.__class__.__name__}` : 'nn.Module';
         this.type = metadata.type(type);
         let initializers = [];
         for (const [key, obj] of Object.entries(module)) {
@@ -323,7 +323,7 @@ torch.Node = class {
         }
         this.inputs = [];
         if (inputs.length == 0 && this.name) {
-            inputs.push(values.map(this.name + ':in'));
+            inputs.push(values.map(`${this.name}:in`));
         }
         this.inputs.push(new torch.Argument('input', inputs));
         if (outputs.length == 0 && this.name) {
@@ -349,24 +349,24 @@ torch.Node = class {
     }
 
     _updateSize(module, name) {
-        if (Object.prototype.hasOwnProperty.call(module, name + 'W') &&
-            Object.prototype.hasOwnProperty.call(module, name + 'H')) {
-            module[name] = [ module[name + 'W'], module[name + 'H'] ];
-            delete module[name + 'W'];
-            delete module[name + 'H'];
+        if (Object.prototype.hasOwnProperty.call(module, `${name}W`) &&
+            Object.prototype.hasOwnProperty.call(module, `${name}H`)) {
+            module[name] = [ module[`${name}W`], module[`${name}H`] ];
+            delete module[`${name}W`];
+            delete module[`${name}H`];
         }
     }
 
     _updateBox(module, name) {
-        if (Object.prototype.hasOwnProperty.call(module, name + '_t') &&
-            Object.prototype.hasOwnProperty.call(module, name + '_r') &&
-            Object.prototype.hasOwnProperty.call(module, name + '_b') &&
-            Object.prototype.hasOwnProperty.call(module, name + '_l')) {
-            module[name] = [ module[name + '_t'], module[name + '_r'], module[name + '_b'], module[name + '_l'] ];
-            delete module[name + '_t'];
-            delete module[name + '_r'];
-            delete module[name + '_b'];
-            delete module[name + '_l'];
+        if (Object.prototype.hasOwnProperty.call(module, `${name}_t`) &&
+            Object.prototype.hasOwnProperty.call(module, `${name}_r`) &&
+            Object.prototype.hasOwnProperty.call(module, `${name}_b`) &&
+            Object.prototype.hasOwnProperty.call(module, `${name}_l`)) {
+            module[name] = [ module[`${name}_t`], module[`${name}_r`], module[`${name}_b`], module[`${name}_l`] ];
+            delete module[`${name}_t`];
+            delete module[`${name}_r`];
+            delete module[`${name}_b`];
+            delete module[`${name}_l`];
         }
     }
 };
@@ -439,7 +439,7 @@ torch.TensorShape = class {
             if (this.dimensions.length == 0) {
                 return '';
             }
-            return '[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+            return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
         }
         return '';
     }
@@ -512,7 +512,7 @@ torch.T7Reader = class {
                                 array[i] = reader.float64();
                                 break;
                             default:
-                                throw new torch.Error("Unsupported data type '" + dataType + "'.");
+                                throw new torch.Error(`Unsupported data type '${dataType}'.`);
                         }
                     }
                     this._data = array;
@@ -846,7 +846,7 @@ torch.T7Reader = class {
             case 6: return this.function();
             case 7: return this.function();
             case 8: return this.function();
-            default: throw new torch.Error("File format has invalid type '" + type + "'.");
+            default: throw new torch.Error(`File format has invalid type '${type}'.`);
         }
     }
 
@@ -985,7 +985,7 @@ torch.BinaryReader = class {
     skip(offset) {
         this._position += offset;
         if (this._position > this._buffer.length) {
-            throw new torch.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+            throw new torch.Error(`Expected ${this._position - this._buffer.length} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
     }
 
@@ -1104,7 +1104,7 @@ torch.TextReader = class {
         const token = this._textDecoder.decode(this.line(20));
         const number = Number.parseInt(token, 10);
         if (Number.isNaN(token - number)) {
-            throw new torch.Error("Couldn't parse int64 '" + token + "'.");
+            throw new torch.Error(`Couldn't parse int64 '${token}'.`);
         }
         return number;
     }
@@ -1116,7 +1116,7 @@ torch.TextReader = class {
             for (const token of content.split(' ')) {
                 const number = Number.parseInt(token, 10);
                 if (Number.isNaN(token - number)) {
-                    throw new torch.Error("Couldn't parse int64 '" + token + "'.");
+                    throw new torch.Error(`Couldn't parse int64 '${token}'.`);
                 }
                 array.push(number);
             }
@@ -1144,7 +1144,7 @@ torch.TextReader = class {
         }
         const number = Number.parseFloat(token);
         if (Number.isNaN(token - number)) {
-            throw new torch.Error("Couldn't parse float '" + token + "'.");
+            throw new torch.Error(`Couldn't parse float '${token}'.`);
         }
         return number;
     }
@@ -1164,7 +1164,7 @@ torch.TextReader = class {
 
     storage(size, itemSize, dataType) {
         if (size <= 0) {
-            throw new torch.Error("Unsupported storage size '" + size + "'.");
+            throw new torch.Error(`Unsupported storage size '${size}'.`);
         }
         if (dataType === 'uint8') {
             const start = this._position;

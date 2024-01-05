@@ -66,12 +66,12 @@ caffe2.ModelFactory = class {
                                 message[tag] = this.read();
                                 return;
                             }
-                            throw new Error("Unknown field '" + tag + "'" + this.location());
+                            throw new Error(`Unknown field '${tag}' ${this.location()}`);
                         };
                         predict_net = caffe2.proto.NetDef.decodeText(reader);
                     } catch (error) {
                         const message = error && error.message ? error.message : error.toString();
-                        throw new caffe2.Error('File text format is not caffe2.NetDef (' + message.replace(/\.$/, '') + ').');
+                        throw new caffe2.Error(`File text format is not caffe2.NetDef (${message.replace(/\.$/, '')}).`);
                     }
                     try {
                         caffe2.proto = protobuf.get('caffe2').caffe2;
@@ -117,7 +117,7 @@ caffe2.ModelFactory = class {
                     }
                 }
                 try {
-                    const name = base + '_init.pb';
+                    const name = `${base}_init.pb`;
                     const content = await context.fetch(name);
                     const buffer = content.stream.read();
                     return openText(context.stream.peek(), buffer, false);
@@ -135,7 +135,7 @@ caffe2.ModelFactory = class {
                         predict_net = caffe2.proto.NetDef.decode(reader);
                     } catch (error) {
                         const message = error && error.message ? error.message : error.toString();
-                        throw new caffe2.Error('File format is not caffe2.NetDef (' + message.replace(/\.$/, '') + ').');
+                        throw new caffe2.Error(`File format is not caffe2.NetDef (${message.replace(/\.$/, '')}).`);
                     }
                     try {
                         if (initBuffer) {
@@ -150,7 +150,7 @@ caffe2.ModelFactory = class {
                 };
                 if (base.toLowerCase().endsWith('init_net')) {
                     try {
-                        const name = base.replace(/init_net$/, '') + 'predict_net.' + extension;
+                        const name = `${base.replace(/init_net$/, '')}predict_net.${extension}`;
                         const content = await context.fetch(name);
                         const buffer = content.stream.peek();
                         return openBinary(buffer, context.stream.peek());
@@ -160,7 +160,7 @@ caffe2.ModelFactory = class {
                 }
                 if (base.toLowerCase().endsWith('_init')) {
                     try {
-                        const name = base.replace(/_init$/, '') + '.' + extension;
+                        const name = `${base.replace(/_init$/, '')}.${extension}`;
                         const content = await context.fetch(name);
                         const buffer = content.stream.peek();
                         return openBinary(buffer, context.stream.peek());
@@ -179,7 +179,7 @@ caffe2.ModelFactory = class {
                     }
                 }
                 try {
-                    const file = base + '_init.' + extension;
+                    const file = `${base}_init.${extension}`;
                     const content = await context.fetch(file, null);
                     const buffer = content.stream.peek();
                     return openBinary(context.stream.peek(), buffer);
@@ -188,7 +188,7 @@ caffe2.ModelFactory = class {
                 }
             }
             default: {
-                throw new caffe2.Error("Unsupported Caffe2 format '" + target + "'.");
+                throw new caffe2.Error(`Unsupported Caffe2 format '${target}'.`);
             }
         }
     }
@@ -252,7 +252,7 @@ caffe2.Graph = class {
                         tensor[arg.name] = arg;
                     }
                     if (!dataTypes.has(op.type)) {
-                        throw new caffe2.Error("Unsupported init op '" + op.type + "'.");
+                        throw new caffe2.Error(`Unsupported init op '${op.type}'.`);
                     }
                     tensor.dataType = dataTypes.get(op.type);
                     if (tensor.values && tensor.values.floats && (tensor.values.floats.length !== 1 || tensor.values.floats[0] !== 0)) {
@@ -268,7 +268,7 @@ caffe2.Graph = class {
             op.input = op.input.map((input) => scope[input] ? scope[input] : input);
             op.output = op.output.map((output) => {
                 if (scope[output]) {
-                    const next = output + '\n' + index.toString(); // custom argument id
+                    const next = `${output}\n${index}`; // custom argument id
                     scope[output] = next;
                     return next;
                 }
@@ -282,7 +282,7 @@ caffe2.Graph = class {
             if (!values.has(name)) {
                 values.set(name, new caffe2.Value(name, type || null, tensor || null));
             } else if (type || tensor) {
-                throw new caffe2.Value("Duplicate value '" + name + "'.");
+                throw new caffe2.Value(`Duplicate value '${name}'.`);
             }
             return values.get(name);
         };
@@ -381,7 +381,7 @@ caffe2.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new caffe2.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new caffe2.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this._name = name;
         this._type = type || null;
@@ -569,7 +569,7 @@ caffe2.Tensor = class {
 
     get quantization() {
         if (this._scale != 0 || this._zeroPoint != 0) {
-            return this._scale.toString() + ' * ' + (this._zeroPoint == 0 ? 'q' : ('(q - ' + this._zeroPoint.toString() + ')'));
+            return `${this._scale} * ${this._zeroPoint == 0 ? 'q' : (`(q - ${this._zeroPoint})`)}`;
         }
         return null;
     }
@@ -623,7 +623,7 @@ caffe2.TensorShape = class {
     }
 
     toString() {
-        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+        return this._dimensions ? (`[${this._dimensions.map((dimension) => dimension.toString()).join(',')}]`) : '';
     }
 };
 

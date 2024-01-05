@@ -68,9 +68,9 @@ ncnn.ModelFactory = class {
         switch (target) {
             case 'ncnn.model': {
                 if (identifier.endsWith('.param')) {
-                    bin = context.identifier.substring(0, context.identifier.length - 6) + '.bin';
+                    bin = `${context.identifier.substring(0, context.identifier.length - 6)}.bin`;
                 } else if (identifier.endsWith('.cfg.ncnn')) {
-                    bin = context.identifier.substring(0, context.identifier.length - 9) + '.weights.ncnn';
+                    bin = `${context.identifier.substring(0, context.identifier.length - 9)}.weights.ncnn`;
                 }
                 try {
                     const content = await context.fetch(bin);
@@ -81,7 +81,7 @@ ncnn.ModelFactory = class {
                 }
             }
             case 'ncnn.model.bin': {
-                bin = context.identifier.substring(0, context.identifier.length - 10) + '.bin';
+                bin = `${context.identifier.substring(0, context.identifier.length - 10)}.bin`;
                 try {
                     const content = await context.fetch(bin);
                     const buffer = content.stream.peek();
@@ -93,22 +93,22 @@ ncnn.ModelFactory = class {
             case 'ncnn.weights': {
                 let file = null;
                 if (identifier.endsWith('bin')) {
-                    file = context.identifier.substring(0, context.identifier.length - 4) + '.param';
+                    file = `${context.identifier.substring(0, context.identifier.length - 4)}.param`;
                 } else if (identifier.endsWith('.weights.ncnn')) {
-                    file = context.identifier.substring(0, context.identifier.length - 13) + '.cfg.ncnn';
+                    file = `${context.identifier.substring(0, context.identifier.length - 13)}.cfg.ncnn`;
                 }
                 try {
                     const content = await context.fetch(file);
                     const buffer = content.stream.peek();
                     return openText(buffer, context.stream.peek());
                 } catch (error) {
-                    const content = await context.fetch(file + '.bin');
+                    const content = await context.fetch(`${file}.bin`);
                     const buffer = content.stream.peek();
                     return openBinary(buffer, context.stream.peek());
                 }
             }
             default: {
-                throw new ncnn.Error("Unsupported ncnn format '" + target + "'.");
+                throw new ncnn.Error(`Unsupported ncnn format '${target}'.`);
             }
         }
     }
@@ -146,7 +146,7 @@ ncnn.Graph = class {
             if (!values.has(name)) {
                 values.set(name, new ncnn.Value(name, type || null, tensor || null));
             } else if (tensor || (type && !type.equals(values.get(name).type))) {
-                throw new ncnn.Error("Duplicate value '" + name + "'.");
+                throw new ncnn.Error(`Duplicate value '${name}'.`);
             }
             return values.get(name);
         };
@@ -216,7 +216,7 @@ ncnn.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new ncnn.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new ncnn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this._name = name;
         this._type = type || null;
@@ -693,7 +693,7 @@ ncnn.TensorShape = class {
     }
 
     toString() {
-        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']') : '';
+        return this._dimensions ? (`[${this._dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`) : '';
     }
 };
 
@@ -757,7 +757,7 @@ ncnn.TextParamReader = class {
                 for (const column of columns) {
                     const parts = column.split('=');
                     if (parts.length > 2) {
-                        throw new ncnn.Attribute("Invalid attribute '" + column + "'.");
+                        throw new ncnn.Attribute(`Invalid attribute '${column}'.`);
                     }
                     let key = (parts.length === 2) ? parts[0].trim() : index.toString();
                     let value = (parts.length === 2) ? parts[1].trim() : parts[0].trim();
@@ -868,7 +868,7 @@ ncnn.BlobReader = class {
                             break;
                         case 0x0002C056: // size * sizeof(float) - raw data with extra scaling
                         default:
-                            throw new ncnn.Error("Unsupported weight type '" + type + "'.");
+                            throw new ncnn.Error(`Unsupported weight type '${type}'.`);
                     }
                 } else {
                     this._buffer = null;
@@ -906,7 +906,7 @@ ncnn.BlobReader = class {
                             data = null;
                             break;
                         default:
-                            throw new ncnn.Error("Unsupported weight type '" + dataType + "'.");
+                            throw new ncnn.Error(`Unsupported weight type '${dataType}'.`);
                     }
                 }
             }

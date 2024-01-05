@@ -31,7 +31,7 @@ mslite.ModelFactory = class {
             case 'MSL2':
                 break;
             default:
-                throw new mslite.Error("Unsupported file identifier '" + reader.identifier + "'.");
+                throw new mslite.Error(`Unsupported file identifier '${reader.identifier}'.`);
         }
         let model = null;
         try {
@@ -39,7 +39,7 @@ mslite.ModelFactory = class {
             model = mslite.schema.MetaGraph.create(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new mslite.Error('File format is not mslite.MetaGraph (' + message.replace(/\.$/, '') + ').');
+            throw new mslite.Error(`File format is not mslite.MetaGraph (${message.replace(/\.$/, '')}).`);
         }
         const metadata = await context.metadata('mslite-metadata.json');
         return new mslite.Model(metadata, model);
@@ -52,7 +52,7 @@ mslite.Model = class {
         this.name = model.name || '';
         this.graphs = [];
         const version = model.version ? model.version.match(/^.*(\d\.\d\.\d)$/) : null;
-        this.format = 'MindSpore Lite' + (version ? ' v' + version[1] : '');
+        this.format = `MindSpore Lite${version ? ` v${version[1]}` : ''}`;
         const subgraphs = model.subGraph;
         if (!Array.isArray(subgraphs)) {
             this.graphs.push(new mslite.Graph(metadata, model, model));
@@ -199,14 +199,14 @@ mslite.Value = class {
                     const zeroPoint = param.zeroPoint;
                     let quantization = '';
                     if (scale !== 1) {
-                        quantization += scale.toString() + ' * ';
+                        quantization += `${scale} * `;
                     }
                     if (zeroPoint === 0) {
                         quantization += 'q';
                     } else if (zeroPoint < 0) {
-                        quantization += '(q + ' + -zeroPoint + ')';
+                        quantization += `(q + ${-zeroPoint})`;
                     } else if (zeroPoint > 0) {
-                        quantization += '(q - ' + zeroPoint + ')';
+                        quantization += `(q - ${zeroPoint})`;
                     }
                     list.push(quantization);
                 }
@@ -300,7 +300,7 @@ mslite.TensorType = class {
             case 43: this.dataType = "float32"; break;
             case 44: this.dataType = "float64"; break;
             case 45: this.dataType = "complex64"; break;
-            default: throw new mslite.Error("Unsupported data type '" + dataType.toString() + "'.");
+            default: throw new mslite.Error(`Unsupported data type '${dataType}'.`);
         }
         this.shape = new mslite.TensorShape(Array.from(dimensions));
     }
@@ -318,7 +318,7 @@ mslite.TensorShape = class {
 
     toString() {
         if (this.dimensions && this.dimensions.length > 0) {
-            return '[' + this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']';
+            return `[${this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`;
         }
         return '';
     }

@@ -21,8 +21,8 @@ onednn.Model = class {
 
     constructor(metadata, symbol) {
         const version = symbol.version;
-        this._format = 'oneDNN Graph' + (version ? ' v' + version : '');
-        this._runtime = symbol.engine_kind + ' ' + symbol.fpmath_mode;
+        this._format = `oneDNN Graph${version ? ` v${version}` : ''}`;
+        this._runtime = `${symbol.engine_kind} ${symbol.fpmath_mode}`;
         this._graphs = [ new onednn.Graph(metadata, symbol) ];
     }
 
@@ -70,7 +70,7 @@ onednn.Graph = class {
             if (!values.has(id)) {
                 values.set(id, new onednn.Value(id.toString(), type, tensor));
             } else if ((type && !type.equals(values.get(id).type)) || (tensor && !tensor.equals(values.get(id).initializer))) {
-                throw new onednn.Error("Duplicate value '" + id.toString() + "'.");
+                throw new onednn.Error(`Duplicate value '${id}'.`);
             }
             return values.get(id);
         };
@@ -200,7 +200,7 @@ onednn.Attribute = class {
                 switch (value) {
                     case 1: this._value = true; break;
                     case 0: this._value = false; break;
-                    default: throw new onednn.Error("Unsupported attribute boolean value '" + value + "'.");
+                    default: throw new onednn.Error(`Unsupported attribute boolean value '${value}'.`);
                 }
                 break;
             case 's64':
@@ -257,7 +257,7 @@ onednn.Attribute = class {
                 this._type = 'string';
                 break;
             default: {
-                throw new onednn.Error("Unsupported attribute array data type '" + type + "'.");
+                throw new onednn.Error(`Unsupported attribute array data type '${type}'.`);
             }
         }
     }
@@ -299,7 +299,7 @@ onednn.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new onednn.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new onednn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this._name = name;
         this._type = type || null;
@@ -331,7 +331,7 @@ onednn.TensorType = class {
             case 'bf16': this._dataType = 'bfloat16'; break;
             case 'boolean': this._dataType = 'boolean'; break;
             case 'undef': this._dataType = '?'; break;
-            default: throw new onednn.Error("Unsupported tensor data type '" + dataType.toString() + "'.");
+            default: throw new onednn.Error(`Unsupported tensor data type '${dataType}'.`);
         }
         this._shape = shape;
     }
@@ -371,7 +371,7 @@ onednn.TensorShape = class {
     }
 
     toString() {
-        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']') : '';
+        return this._dimensions ? (`[${this._dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`) : '';
     }
 };
 

@@ -104,7 +104,7 @@ tensorrt.Engine = class {
                 }
                 default: {
                     const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                    throw new tensorrt.Error("Unsupported TensorRT engine signature (" + content.substring(8) + ").");
+                    throw new tensorrt.Error(`Unsupported TensorRT engine signature (${content.substring(8)}).`);
                 }
             }
             // const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');

@@ -81,7 +81,7 @@ coreml.ModelFactory = class {
                 model = coreml.proto.Model.decode(reader);
             } catch (error) {
                 const message = error && error.message ? error.message : error.toString();
-                throw new coreml.Error('File format is not coreml.Model (' + message.replace(/\.$/, '') + ').');
+                throw new coreml.Error(`File format is not coreml.Model (${message.replace(/\.$/, '')}).`);
             }
             const weightPaths = new Set();
             const walkProgram = (program) => {
@@ -122,7 +122,7 @@ coreml.ModelFactory = class {
             if (weightPaths.size > 0) {
                 const folder = path.replace(/\/[^/]*$/, '');
                 const keys = Array.from(weightPaths);
-                const paths = keys.map((path) => path.replace(/^@model_path\//, folder + '/'));
+                const paths = keys.map((path) => path.replace(/^@model_path\//, `${folder}/`));
                 try {
                     const contexts = await Promise.all(paths.map((path) => context.fetch(path)));
                     for (let i = 0; i < keys.length; i++) {
@@ -142,7 +142,7 @@ coreml.ModelFactory = class {
                 model = coreml.proto.Model.decodeText(reader);
             } catch (error) {
                 const message = error && error.message ? error.message : error.toString();
-                throw new coreml.Error('File format is not coreml.Model (' + message.replace(/\.$/, '') + ').');
+                throw new coreml.Error(`File format is not coreml.Model (${message.replace(/\.$/, '')}).`);
             }
             const weights = new Map();
             return new coreml.Model(metadata, null, model, weights);
@@ -152,12 +152,12 @@ coreml.ModelFactory = class {
             if (entries.length !== 1) {
                 throw new coreml.Error('Manifest does not contain Core ML model.');
             }
-            const name = path + 'Data/' + entries[0].path;
+            const name = `${path}Data/${entries[0].path}`;
             const content = await context.fetch(name);
             return openBinary(content.stream, context, name, 'Core ML Package');
         };
         const openManifestStream = async (context, path) => {
-            const name = path + 'Manifest.json';
+            const name = `${path}Manifest.json`;
             const content = await context.fetch(name);
             const obj = content.read('json');
             return openManifest(obj, context, path);
@@ -181,7 +181,7 @@ coreml.ModelFactory = class {
                 return openManifestStream(context, '../../../');
             }
             default: {
-                throw new coreml.Error("Unsupported Core ML format '" + target + "'.");
+                throw new coreml.Error(`Unsupported Core ML format '${target}'.`);
             }
         }
     }
@@ -190,7 +190,7 @@ coreml.ModelFactory = class {
 coreml.Model = class {
 
     constructor(metadata, format, model, weights) {
-        this.format = (format || 'Core ML') + ' v' + model.specificationVersion.toString();
+        this.format = `${format || 'Core ML'} v${model.specificationVersion}`;
         this.metadata = new Map();
         const context = new coreml.Context(metadata, model, weights);
         const graph = new coreml.Graph(context);
@@ -271,7 +271,7 @@ coreml.Value = class {
 
     constructor(name, type, description, initializer) {
         if (typeof name !== 'string') {
-            throw new coreml.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new coreml.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = type ? type : initializer ? initializer.type : null;
@@ -358,7 +358,7 @@ coreml.Tensor = class {
                 this._quantization.lookupTableQuantization.floatValue.length > 0) {
                 const map = [];
                 for (const key of Object.keys(this._quantization.lookupTableQuantization.floatValue)) {
-                    map.push(key.toString() + ' = ' + this._quantization.lookupTableQuantization.floatValue[key].toString());
+                    map.push(`${key} = ${this._quantization.lookupTableQuantization.floatValue[key]}`);
                 }
                 return map.join('; ');
             }
@@ -398,7 +398,7 @@ coreml.TensorShape = class {
 
     toString() {
         return Array.isArray(this.dimensions) && this.dimensions.length > 0 ?
-            '[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']' : '';
+            `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]` : '';
     }
 };
 
@@ -413,7 +413,7 @@ coreml.ListType = class {
     }
 
     toString() {
-        return 'list<' + this.elementType.toString() + '>';
+        return `list<${this.elementType}>`;
     }
 };
 
@@ -425,7 +425,7 @@ coreml.MapType = class {
     }
 
     toString() {
-        return 'map<' + this.keyType + ',' + this.valueType.toString() + '>';
+        return `map<${this.keyType},${this.valueType}>`;
     }
 };
 
@@ -436,7 +436,7 @@ coreml.SequenceType = class {
     }
 
     toString() {
-        return 'sequence<' + this.type + '>';
+        return `sequence<${this.type}>`;
     }
 };
 
@@ -459,7 +459,7 @@ coreml.ImageType = class {
                 this.colorSpace = 'grayscale:float16';
                 break;
             default:
-                throw new coreml.Error("Unsupported image color space '" + colorSpace + "'.");
+                throw new coreml.Error(`Unsupported image color space '${colorSpace}'.`);
         }
     }
 
@@ -468,7 +468,7 @@ coreml.ImageType = class {
     }
 
     toString() {
-        return 'image<' + this.colorSpace + ',' + this.width. toString() + 'x' + this.height.toString() + '>';
+        return `image<${this.colorSpace},${this.width. toString()}x${this.height}>`;
     }
 };
 
@@ -479,7 +479,7 @@ coreml.OptionalType = class {
     }
 
     toString() {
-        return 'optional<' + this.type.toString() + '>';
+        return `optional<${this.type}>`;
     }
 };
 
@@ -536,12 +536,12 @@ coreml.Context = class {
         if (!this.values.has(name)) {
             const value = { counter: 0, name: name, to: [], from: [] };
             this.values.set(name, value);
-            const key = name + '|' + value.counter.toString();
+            const key = `${name}|${value.counter}`;
             this.values.set(key, value);
         } else {
             const value = Object.assign({}, this.values.get(name));
             value.counter++;
-            value.name = name + '|' + value.counter.toString(); // custom argument id
+            value.name = `${name}|${value.counter}`; // custom argument id
             this.values.set(name, value);
             this.values.set(value.name, value);
         }
@@ -600,7 +600,7 @@ coreml.Context = class {
                 } else if (data.rawValue && data.rawValue.length > 0) {
                     if (data.quantization) {
                         values = data.rawValue;
-                        dataType = 'uint' + data.quantization.numberOfBits.toString();
+                        dataType = `uint${data.quantization.numberOfBits}`;
                     } else {
                         shape = [];
                     }
@@ -699,24 +699,24 @@ coreml.Context = class {
                     for (let i = 0; i < count; i++) {
                         const weights = count == 1 ? data.weightParams : data.weightParams[i];
                         const suffix = (i == 0) ? '' : '_rev';
-                        initializer(type, 'inputGateWeightMatrix' + suffix, [h,x], weights.inputGateWeightMatrix);
-                        initializer(type, 'forgetGateWeightMatrix' + suffix, [h,x], weights.forgetGateWeightMatrix);
-                        initializer(type, 'blockInputWeightMatrix' + suffix, [h,x], weights.blockInputWeightMatrix);
-                        initializer(type, 'outputGateWeightMatrix' + suffix, [h,x], weights.outputGateWeightMatrix);
-                        initializer(type, 'inputGateRecursionMatrix' + suffix, [h,h], weights.inputGateRecursionMatrix);
-                        initializer(type, 'forgetGateRecursionMatrix' + suffix, [h,h],weights.forgetGateRecursionMatrix);
-                        initializer(type, 'blockInputRecursionMatrix' + suffix, [h,h], weights.blockInputRecursionMatrix);
-                        initializer(type, 'outputGateRecursionMatrix' + suffix, [h,h], weights.outputGateRecursionMatrix);
+                        initializer(type, `inputGateWeightMatrix${suffix}`, [h,x], weights.inputGateWeightMatrix);
+                        initializer(type, `forgetGateWeightMatrix${suffix}`, [h,x], weights.forgetGateWeightMatrix);
+                        initializer(type, `blockInputWeightMatrix${suffix}`, [h,x], weights.blockInputWeightMatrix);
+                        initializer(type, `outputGateWeightMatrix${suffix}`, [h,x], weights.outputGateWeightMatrix);
+                        initializer(type, `inputGateRecursionMatrix${suffix}`, [h,h], weights.inputGateRecursionMatrix);
+                        initializer(type, `forgetGateRecursionMatrix${suffix}`, [h,h],weights.forgetGateRecursionMatrix);
+                        initializer(type, `blockInputRecursionMatrix${suffix}`, [h,h], weights.blockInputRecursionMatrix);
+                        initializer(type, `outputGateRecursionMatrix${suffix}`, [h,h], weights.outputGateRecursionMatrix);
                         if (data.params.hasBiasVectors) {
-                            initializer(type, 'inputGateBiasVector' + suffix, [h], weights.inputGateBiasVector);
-                            initializer(type, 'forgetGateBiasVector' + suffix, [h], weights.forgetGateBiasVector);
-                            initializer(type, 'blockInputBiasVector' + suffix, [h], weights.blockInputBiasVector);
-                            initializer(type, 'outputGateBiasVector' + suffix, [h], weights.outputGateBiasVector);
+                            initializer(type, `inputGateBiasVector${suffix}`, [h], weights.inputGateBiasVector);
+                            initializer(type, `forgetGateBiasVector${suffix}`, [h], weights.forgetGateBiasVector);
+                            initializer(type, `blockInputBiasVector${suffix}`, [h], weights.blockInputBiasVector);
+                            initializer(type, `outputGateBiasVector${suffix}`, [h], weights.outputGateBiasVector);
                         }
                         if (data.params.hasPeepholeVectors) {
-                            initializer(type, 'inputGatePeepholeVector' + suffix, [h], weights.inputGatePeepholeVector);
-                            initializer(type, 'forgetGatePeepholeVector' + suffix, [h], weights.forgetGatePeepholeVector);
-                            initializer(type, 'outputGatePeepholeVector' + suffix, [h], weights.outputGatePeepholeVector);
+                            initializer(type, `inputGatePeepholeVector${suffix}`, [h], weights.inputGatePeepholeVector);
+                            initializer(type, `forgetGatePeepholeVector${suffix}`, [h], weights.forgetGatePeepholeVector);
+                            initializer(type, `outputGatePeepholeVector${suffix}`, [h], weights.outputGatePeepholeVector);
                         }
                     }
                     return { 'weightParams': true };
@@ -812,19 +812,19 @@ coreml.Context = class {
             }
             case 'pipeline': {
                 for (let i = 0; i < model.pipeline.models.length; i++) {
-                    this.model(model.pipeline.models[i], (group ? (group + '/') : '') + 'pipeline[' + i.toString() + ']', description);
+                    this.model(model.pipeline.models[i], `${group ? (`${group}/`) : ''}pipeline[${i}]`, description);
                 }
                 return 'Pipeline';
             }
             case 'pipelineClassifier': {
                 for (let i = 0; i < model.pipelineClassifier.pipeline.models.length; i++) {
-                    this.model(model.pipelineClassifier.pipeline.models[i], (group ? (group + '/') : '') + 'pipelineClassifier[' + i.toString() + ']', description);
+                    this.model(model.pipelineClassifier.pipeline.models[i], `${group ? (`${group}/`) : ''}pipelineClassifier[${i}]`, description);
                 }
                 return 'Pipeline Classifier';
             }
             case 'pipelineRegressor': {
                 for (let i = 0; i < model.pipelineRegressor.pipeline.models.length; i++) {
-                    this.model(model.pipelineRegressor.pipeline.models[i], (group ? (group + '/') : '') + 'pipelineRegressor[' + i.toString() + ']', description);
+                    this.model(model.pipelineRegressor.pipeline.models[i], `${group ? (`${group}/`) : ''}pipelineRegressor[${i}]`, description);
                 }
                 return 'Pipeline Regressor';
             }
@@ -1055,7 +1055,7 @@ coreml.Context = class {
                 return this.program(model.mlProgram, group);
             }
             default: {
-                throw new coreml.Error("Unsupported model type '" + JSON.stringify(Object.keys(model)) + "'.");
+                throw new coreml.Error(`Unsupported model type '${JSON.stringify(Object.keys(model))}'.`);
             }
         }
     }
@@ -1073,7 +1073,7 @@ coreml.Context = class {
         if ((predictedFeatureName || predictedProbabilitiesName) && labelProbabilityLayerName && classifier.ClassLabels) {
             predictedFeatureName = predictedFeatureName ? predictedFeatureName : '?';
             predictedProbabilitiesName = predictedProbabilitiesName ? predictedProbabilitiesName : '?';
-            const labelProbabilityInput = labelProbabilityLayerName + ':labelProbabilityLayerName';
+            const labelProbabilityInput = `${labelProbabilityLayerName}:labelProbabilityLayerName`;
             const values = new Set();
             for (const node of this.nodes) {
                 for (const output of node.outputs) {
@@ -1120,7 +1120,7 @@ coreml.Context = class {
             let preprocessorIndex = 0;
             for (const preprocessing of preprocessings) {
                 const input = preprocessing.featureName ? preprocessing.featureName : currentOutput;
-                currentOutput = preprocessingInput + ':' + preprocessorIndex.toString();
+                currentOutput = `${preprocessingInput}:${preprocessorIndex}`;
                 const preprocessor = preprocessing.preprocessor;
                 const node = this.node(group, preprocessor, null, '', preprocessing[preprocessor], [ input ], [ currentOutput ]);
                 /* eslint-disable prefer-destructuring */
@@ -1172,7 +1172,7 @@ coreml.Context = class {
                             values = tensor.bytes.values;
                             break;
                         default:
-                            throw new coreml.Error("Unsupported tensor value '" + tensor.value + "'.");
+                            throw new coreml.Error(`Unsupported tensor value '${tensor.value}'.`);
                     }
                     if (type.shape.dimensions.length === 0) {
                         [values] = values;
@@ -1209,14 +1209,14 @@ coreml.Context = class {
                                     break;
                                 }
                                 default:
-                                    throw new coreml.Error("Unsupported blob data type '" + type.dataType + "'.");
+                                    throw new coreml.Error(`Unsupported blob data type '${type.dataType}'.`);
                             }
                         }
                     }
                     return new coreml.Tensor(type, data, null, 'Blob');
                 }
                 default: {
-                    throw new coreml.Error("Unsupported value '" + value.value + "'.");
+                    throw new coreml.Error(`Unsupported value '${value.value}'.`);
                 }
             }
         };
@@ -1302,7 +1302,7 @@ coreml.Context = class {
                 this.values.set(name, value);
             } else if ((value.type && !value.type.equals(this.values.get(name).type)) ||
                        (value.initializer && value.initializer !== this.values.get(name).initializer)) {
-                throw new coreml.Error("Duplicate value '" + name + "'.");
+                throw new coreml.Error(`Duplicate value '${name}'.`);
             }
             return this.values.get(name);
         };
@@ -1320,7 +1320,7 @@ coreml.Context = class {
         }
         for (const op of operations.filter((op) => !op.delete)) {
             op.group = group;
-            op.type = 'program:' + op.type;
+            op.type = `program:${op.type}`;
             const metadata = this.metadata.type(op.type);
             if (metadata && Array.isArray(metadata.inputs)) {
                 const map = new Map(metadata.inputs.map((input, index) => [ input.name, index + 1 ]));
@@ -1382,7 +1382,7 @@ coreml.Utility = class {
                             dataType = 'int32';
                             break;
                         default:
-                            throw new coreml.Error("Unsupported array data type '" + type.multiArrayType.dataType + "'.");
+                            throw new coreml.Error(`Unsupported array data type '${type.multiArrayType.dataType}'.`);
                     }
                     result = new coreml.TensorType(dataType, shape);
                     break;
@@ -1412,7 +1412,7 @@ coreml.Utility = class {
                     break;
                 }
                 default: {
-                    throw new coreml.Error("Unsupported feature type '" + type.Type + "'.");
+                    throw new coreml.Error(`Unsupported feature type '${type.Type}'.`);
                 }
             }
             if (type.isOptional) {
@@ -1431,7 +1431,7 @@ coreml.Utility = class {
         const shape = type.dimensions.map((dim) => dim.constant ? dim.constant.size : '?');
         const dataType = coreml.Utility._dataTypes.get(type.dataType);
         if (!dataType) {
-            throw new coreml.Error("Unsupported data type '" + type.dataType + "'.");
+            throw new coreml.Error(`Unsupported data type '${type.dataType}'.`);
         }
         return new coreml.TensorType(dataType, new coreml.TensorShape(shape));
     }
@@ -1445,7 +1445,7 @@ coreml.Utility = class {
             case 'dictionaryType':
                 return new coreml.MapType(coreml.Utility.valueType(type.dictionaryType.keyType), coreml.Utility.valueType(type.dictionaryType.valueType));
             default:
-                throw new coreml.Error("Unsupported value type '" + type.type + "'.");
+                throw new coreml.Error(`Unsupported value type '${type.type}'.`);
         }
     }
 };

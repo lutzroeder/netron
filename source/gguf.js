@@ -52,7 +52,7 @@ gguf.Model = class {
             if (name.startsWith('tokenizer.')) {
                 const [, param] = name.match(/^(.*)\.(.*?)$/).slice(1);
                 tokenizer.metadata.set(param, value);
-            } else if (architecture && name.startsWith(architecture + '.')) {
+            } else if (architecture && name.startsWith(`${architecture}.`)) {
                 model.metadata.set(name, value);
             } else {
                 this.metadata.set(name, value);
@@ -150,7 +150,7 @@ gguf.TensorShape = class {
     }
 
     toString() {
-        return '[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+        return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
     }
 };
 
@@ -221,7 +221,7 @@ gguf.Reader = class {
         context.header = {};
         context.header.magic = String.fromCharCode.apply(null, reader.read(4));
         context.header.version = reader.uint32();
-        this.format = 'GGUF v' + context.header.version.toString();
+        this.format = `GGUF v${context.header.version}`;
         if (context.header.version >= 2) {
             context.header.n_tensors = reader.uint64();
             context.header.n_kv = reader.uint64();
@@ -243,7 +243,7 @@ gguf.Reader = class {
                 for (const tensor of this.tensors.values()) {
                     reader.seek(context.offset + tensor.offset);
                     if (!gguf.Reader.GGML_QUANT_SIZES.has(tensor.type)) {
-                        throw new gguf.Error("Unsupported tensor quantization type '" + tensor.type.toString() + "'.");
+                        throw new gguf.Error(`Unsupported tensor quantization type '${tensor.type}'.`);
                     }
                     const [block_size, type_size, dtype] = gguf.Reader.GGML_QUANT_SIZES.get(tensor.type);
                     const n_elems = tensor.ne.reduce((a, b) => a * b, 1);
@@ -297,7 +297,7 @@ gguf.StreamReader = class extends base.StreamReader {
                 return value;
             }
             default: {
-                throw new gguf.Error("Unsupported GGUF type '" + type + "'.");
+                throw new gguf.Error(`Unsupported GGUF type '${type}'.`);
             }
         }
     }

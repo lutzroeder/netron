@@ -110,7 +110,7 @@ base.Int64 = class Int64 {
                 const remainder = div.multiply(radix).subtract(this);
                 return div.toString(radix) + (remainder.low >>> 0).toString(radix);
             }
-            return '-' + this.negate().toString(r);
+            return `-${this.negate().toString(r)}`;
         }
         if (this.high === 0) {
             return this.low.toString(radix);
@@ -405,9 +405,9 @@ base.Utility = class {
                 return digits + result;
             }
             while (digits.length < 6) {
-                digits = '0' + digits;
+                digits = `0${digits}`;
             }
-            result = '' + digits + result;
+            result = `${digits}${result}`;
         }
     }
 
@@ -440,7 +440,7 @@ base.Complex64 = class Complex {
     }
 
     toString(/* radix */) {
-        return this.real + ' + ' + this.imaginary + 'i';
+        return `${this.real} + ${this.imaginary}i`;
     }
 };
 
@@ -456,7 +456,7 @@ base.Complex128 = class Complex {
     }
 
     toString(/* radix */) {
-        return this.real + ' + ' + this.imaginary + 'i';
+        return `${this.real} + ${this.imaginary}i`;
     }
 };
 
@@ -644,7 +644,7 @@ DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offse
     offset = offset * bits;
     const available = (this.byteLength << 3) - offset;
     if (bits > available) {
-        throw new RangeError("Invalid bit size '" + bits + "'.");
+        throw new RangeError(`Invalid bit size '${bits}'.`);
     }
     let value = 0;
     let index = 0;
@@ -679,7 +679,7 @@ DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offs
     offset = offset * bits;
     const available = (this.byteLength << 3) - offset;
     if (bits > available) {
-        throw new RangeError("Invalid bit size '" + bits + "'.");
+        throw new RangeError(`Invalid bit size '${bits}'.`);
     }
     let value = 0;
     let index = 0;
@@ -750,14 +750,14 @@ base.BinaryStream = class {
     seek(position) {
         this._position = position >= 0 ? position : this._length + position;
         if (this._position > this._buffer.length) {
-            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+            throw new Error(`Expected ${this._position - this._buffer.length} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
     }
 
     skip(offset) {
         this._position += offset;
         if (this._position > this._buffer.length) {
-            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+            throw new Error(`Expected ${this._position - this._buffer.length} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
     }
 
@@ -809,14 +809,14 @@ base.BinaryReader = class {
     seek(position) {
         this._position = position >= 0 ? position : this._length + position;
         if (this._position > this._length || this._position < 0) {
-            throw new Error('Expected ' + (this._position - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+            throw new Error(`Expected ${this._position - this._length} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
     }
 
     skip(offset) {
         this._position += offset;
         if (this._position > this._length) {
-            throw new Error('Expected ' + (this._position - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+            throw new Error(`Expected ${this._position - this._length} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
     }
 
@@ -1070,13 +1070,13 @@ base.Telemetry = class {
             this._metadata.is_new_to_site = 1;
         }
         this.set('language', ((this._navigator && (this._navigator.language || this._navigator.browserLanguage)) || '').toLowerCase());
-        this.set('screen_resolution', (window.screen ? window.screen.width : 0) + 'x' + (window.screen ? window.screen.height : 0));
+        this.set('screen_resolution', `${window.screen ? window.screen.width : 0}x${window.screen ? window.screen.height : 0}`);
         if (this._navigator && this._navigator.userAgentData && this._navigator.userAgentData.getHighEntropyValues) {
             const values = await this._navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]);
             if (values) {
                 this.set('_user_agent_architecture', values.architecture);
                 this.set('_user_agent_bitness', values.bitness);
-                this.set('_user_agent_full_version_list', Array.isArray(values.fullVersionList) ? values.fullVersionList.map((h) => encodeURIComponent(h.brand || '') + ';' + encodeURIComponent(h.version || '')).join('|') : '');
+                this.set('_user_agent_full_version_list', Array.isArray(values.fullVersionList) ? values.fullVersionList.map((h) => `${encodeURIComponent(h.brand || '')};${encodeURIComponent(h.version || '')}`).join('|') : '');
                 this.set('_user_agent_mobile', values.mobile ? 1 : 0);
                 this.set('_user_agent_model', values.model);
                 this.set('_user_agent_platform', values.platform);
@@ -1126,11 +1126,11 @@ base.Telemetry = class {
                     params.engagement_time_msec = this._engagement_time_msec;
                     this._engagement_time_msec = 0;
                 }
-                const build = (entries) => entries.map(([name, value]) => name + '=' + encodeURIComponent(value)).join('&');
+                const build = (entries) => entries.map(([name, value]) => `${name}=${encodeURIComponent(value)}`).join('&');
                 this._cache = this._cache || build(Array.from(this._config));
                 const key = (name, value) => this._schema.get(name) || ('number' === typeof value && !isNaN(value) ? 'epn.' : 'ep.') + name;
                 const body = build(Object.entries(params).map(([name, value]) => [ key(name, value), value ]));
-                const url = 'https://analytics.google.com/g/collect?' + this._cache;
+                const url = `https://analytics.google.com/g/collect?${this._cache}`;
                 this._navigator.sendBeacon(url, body);
                 this._session[2] = this.get('session_engaged') || '0';
                 this.set('hit_count', this.get('hit_count') + 1);

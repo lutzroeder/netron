@@ -150,7 +150,7 @@ json.TextReader = class {
                         case '__proto__':
                         case 'constructor':
                         case 'prototype':
-                            throw new json.Error("Invalid key '" + key + "'" + this._location());
+                            throw new json.Error(`Invalid key '${key}' ${this._location()}`);
                         default:
                             break;
                     }
@@ -365,11 +365,11 @@ json.TextReader = class {
         } else {
             if (c < ' ' || c > '\x7F') {
                 const name = Object.keys(this._escape).filter((key) => this._escape[key] === c);
-                c = (name.length === 1) ? '\\' + name : '\\u' + ('000' + c.charCodeAt(0).toString(16)).slice(-4);
+                c = (name.length === 1) ? `\\${name}` : `\\u${(`000${c.charCodeAt(0).toString(16)}`).slice(-4)}`;
             }
-            c = "token '" + c + "'";
+            c = `token '${c}'`;
         }
-        throw new json.Error('Unexpected ' + c + this._location());
+        throw new json.Error(`Unexpected ${c} ${this._location()}`);
     }
 
     _location() {
@@ -379,7 +379,7 @@ json.TextReader = class {
         let c;
         do {
             if (this._decoder.position === this._position) {
-                return ' at ' + line.toString() + ':' + column.toString() + '.';
+                return `at ${line}:${column}.`;
             }
             c = this._decoder.decode();
             if (c === '\n') {
@@ -390,7 +390,7 @@ json.TextReader = class {
             }
         }
         while (c !== undefined);
-        return ' at ' + line.toString() + ':' + column.toString() + '.';
+        return `at ${line}:${column}.`;
     }
 };
 
@@ -414,7 +414,7 @@ json.BinaryReader = class {
         const skip = (offset) => {
             position += offset;
             if (position > length) {
-                throw new bson.Error('Expected ' + (position + length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+                throw new bson.Error(`Expected ${position + length} more bytes. The file might be corrupted. Unexpected end of file.`);
             }
         };
         const header = () => {
@@ -476,7 +476,7 @@ json.BinaryReader = class {
                     const size = view.getInt32(start, true);
                     const subtype = buffer[start + 4];
                     if (subtype !== 0x00) {
-                        throw new bson.Error("Unsupported binary subtype '" + subtype + "'.");
+                        throw new bson.Error(`Unsupported binary subtype '${subtype}'.`);
                     }
                     skip(size);
                     value = buffer.subarray(start + 5, position);
@@ -486,7 +486,7 @@ json.BinaryReader = class {
                     skip(1);
                     value = buffer[position - 1];
                     if (value > 1) {
-                        throw new bson.Error("Invalid boolean value '" + value + "'.");
+                        throw new bson.Error(`Invalid boolean value '${value}'.`);
                     }
                     value = value === 1 ? true : false;
                     break;
@@ -513,12 +513,12 @@ json.BinaryReader = class {
                     break;
                 }
                 default: {
-                    throw new bson.Error("Unsupported value type '" + type + "'.");
+                    throw new bson.Error(`Unsupported value type '${type}'.`);
                 }
             }
             if (Array.isArray(obj))  {
                 if (obj.length !== parseInt(key, 10)) {
-                    throw new bson.Error("Invalid array index '" + key + "'.");
+                    throw new bson.Error(`Invalid array index '${key}'.`);
                 }
                 obj.push(value);
             } else {
@@ -526,7 +526,7 @@ json.BinaryReader = class {
                     case '__proto__':
                     case 'constructor':
                     case 'prototype':
-                        throw new bson.Error("Invalid key '" + key + "' at " + position.toString() + "'.");
+                        throw new bson.Error(`Invalid key '${key}' at ${position}'.`);
                     default:
                         break;
                 }
@@ -538,7 +538,7 @@ json.BinaryReader = class {
             }
         }
         if (position !== length) {
-            throw new bson.Error("Unexpected data at '" + position.toString() + "'.");
+            throw new bson.Error(`Unexpected data at '${position}'.`);
         }
         return obj;
     }

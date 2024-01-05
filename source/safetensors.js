@@ -45,7 +45,7 @@ safetensors.ModelFactory = class {
                 return new safetensors.Model(entries);
             }
             default: {
-                throw new safetensors.Error("Unsupported Safetensors format '" + target.name + "'.");
+                throw new safetensors.Error(`Unsupported Safetensors format '${target.name}'.`);
             }
         }
     }
@@ -138,7 +138,7 @@ safetensors.TensorType = class {
             case 'F16':  this.dataType = 'float16'; break;
             case 'F32':  this.dataType = 'float32'; break;
             case 'F64':  this.dataType = 'float64'; break;
-            default: throw new safetensors.Error("Unsupported data type '" + dtype + "'.");
+            default: throw new safetensors.Error(`Unsupported data type '${dtype}'.`);
         }
         this.shape = shape;
     }
@@ -155,7 +155,7 @@ safetensors.TensorShape = class {
     }
 
     toString() {
-        return '[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+        return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
     }
 };
 

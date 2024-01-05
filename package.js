@@ -58,7 +58,8 @@ const rm = async (...args) => {
     const dir = dirname(...args);
     const exists = await access(dir);
     if (exists) {
-        writeLine('rm ' + path.join(...args));
+        const paths = path.join(...args);
+        writeLine(`rm ${paths}`);
         const options = { recursive: true, force: true };
         await fs.rm(dir, options);
     }
@@ -68,7 +69,8 @@ const mkdir = async (...args) => {
     const dir = dirname(...args);
     const exists = await access(dir);
     if (!exists) {
-        writeLine('mkdir ' + path.join(...args));
+        const paths = path.join(...args);
+        writeLine(`mkdir ${paths}`);
         const options = { recursive: true };
         await fs.mkdir(dir, options);
     }
@@ -138,7 +140,7 @@ const request = async (url, init, status) => {
                             controller.close();
                         } else {
                             position += result.value.length;
-                            write('  ' + position + ' bytes\r');
+                            write(`  ${position} bytes\r`);
                             controller.enqueue(result.value);
                             read();
                         }
@@ -159,7 +161,7 @@ const request = async (url, init, status) => {
 };
 
 const download = async (url) => {
-    writeLine('download ' + url);
+    writeLine(`download ${url}`);
     const response = await request(url);
     return response.arrayBuffer().then((buffer) => new Uint8Array(buffer));
 };
@@ -173,34 +175,34 @@ const hash = async (url, algorithm) => {
 
 const fork = async (organization, repository) => {
     const headers = {
-        Authorization: 'Bearer ' + process.env.GITHUB_TOKEN
+        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
     };
-    writeLine('github delete ' + repository);
-    await request('https://api.github.com/repos/' + process.env.GITHUB_USER + '/' + repository, {
+    writeLine(`github delete ${repository}`);
+    await request(`https://api.github.com/repos/${process.env.GITHUB_USER}/${repository}`, {
         method: 'DELETE',
         headers: headers
     }, false);
     await sleep(4000);
-    writeLine('github fork ' + repository);
-    await request('https://api.github.com/repos/' + organization + '/' + repository + '/forks', {
+    writeLine(`github fork ${repository}`);
+    await request(`https://api.github.com/repos/${organization}/${repository}/forks`, {
         method: 'POST',
         headers: headers,
         body: ''
     });
     await sleep(4000);
     await rm('dist', repository);
-    writeLine('github clone ' + repository);
-    await exec('git clone --depth=2 https://x-access-token:' + process.env.GITHUB_TOKEN + '@github.com/' + process.env.GITHUB_USER + '/' + repository + '.git ' + 'dist/' + repository);
+    writeLine(`github clone ${repository}`);
+    await exec(`git clone --depth=2 https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_USER}/${repository}.git ` + `dist/${repository}`);
 };
 
 const pullrequest = async (organization, repository, body) => {
-    writeLine('github push ' + repository);
-    await exec('git -C dist/' + repository + ' push');
+    writeLine(`github push ${repository}`);
+    await exec(`git -C dist/${repository} push`);
     writeLine('github pullrequest homebrew-cask');
     const headers = {
-        Authorization: 'Bearer ' + process.env.GITHUB_TOKEN
+        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
     };
-    await request('https://api.github.com/repos/' + organization + '/' + repository + '/pulls', {
+    await request(`https://api.github.com/repos/${organization}/${repository}/pulls`, {
         method: 'POST',
         headers: headers,
         body: JSON.stringify(body)
@@ -316,8 +318,8 @@ const publish = async (target) => {
             writeLine('publish web');
             await build('web');
             await rm('dist', 'gh-pages');
-            const url = 'https://x-access-token:' + GITHUB_TOKEN + '@github.com/' + GITHUB_USER + '/netron.git';
-            await exec('git clone --depth=1 ' + url + ' --branch gh-pages ./dist/gh-pages 2>&1 > /dev/null');
+            const url = `https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_USER}/netron.git`;
+            await exec(`git clone --depth=1 ${url} --branch gh-pages ./dist/gh-pages 2>&1 > /dev/null`);
             writeLine('cp dist/web dist/gh-pages');
             const source_dir = dirname('dist', 'web');
             const target_dir = dirname('dist', 'gh-pages');
@@ -348,41 +350,41 @@ const publish = async (target) => {
         case 'cask': {
             writeLine('publish cask');
             await fork('Homebrew', 'homebrew-cask');
-            const repository = 'https://github.com/' + configuration.repository;
-            const url = repository + '/releases/download/v#{version}/' + configuration.productName + '-#{version}-mac.zip';
+            const repository = `https://github.com/${configuration.repository}`;
+            const url = `${repository}/releases/download/v#{version}/${configuration.productName}-#{version}-mac.zip`;
             const sha256 = await hash(url.replace(/#{version}/g, configuration.version), 'sha256');
             writeLine('update manifest');
             const dir = await mkdir('dist', 'homebrew-cask', 'Casks', 'n');
             const file = path.join(dir, 'netron.rb');
             await fs.writeFile(file, [
-                'cask "' + configuration.name + '" do',
-                '  version "' + configuration.version + '"',
-                '  sha256 "' + sha256.toLowerCase() + '"',
+                `cask "${configuration.name}" do`,
+                `  version "${configuration.version}"`,
+                `  sha256 "${sha256.toLowerCase()}"`,
                 '',
-                '  url "' + url + '"',
-                '  name "' + configuration.productName + '"',
-                '  desc "' + configuration.description + '"',
-                '  homepage "' + repository + '"',
+                `  url "${url}"`,
+                `  name "${configuration.productName}"`,
+                `  desc "${configuration.description}"`,
+                `  homepage "${repository}"`,
                 '',
                 '  auto_updates true',
                 '',
-                '  app "' + configuration.productName + '.app"',
+                `  app "${configuration.productName}.app"`,
                 '',
                 '  zap trash: [',
-                '    "~/Library/Application Support/' + configuration.productName + '",',
-                '    "~/Library/Preferences/' + configuration.build.appId + '.plist",',
-                '    "~/Library/Saved Application State/' + configuration.build.appId + '.savedState",',
+                `    "~/Library/Application Support/${configuration.productName}",`,
+                `    "~/Library/Preferences/${configuration.build.appId}.plist",`,
+                `    "~/Library/Saved Application State/${configuration.build.appId}.savedState",`,
                 '  ]',
                 'end',
                 ''
             ].join('\n'));
             writeLine('git push homebrew-cask');
             await exec('git -C dist/homebrew-cask add --all');
-            await exec('git -C dist/homebrew-cask commit -m "Update ' + configuration.name + ' to ' + configuration.version + '"');
+            await exec(`git -C dist/homebrew-cask commit -m "Update ${configuration.name} to ${configuration.version}"`);
             await pullrequest('Homebrew', 'homebrew-cask', {
-                title: 'Update ' + configuration.name + ' to ' + configuration.version,
+                title: `Update ${configuration.name} to ${configuration.version}`,
                 body: 'Update version and sha256',
-                head: process.env.GITHUB_USER + ':master',
+                head: `${process.env.GITHUB_USER}:master`,
                 base: 'master'
             });
             await rm('dist', 'homebrew-cask');
@@ -395,30 +397,30 @@ const publish = async (target) => {
             const version = configuration.version;
             const product = configuration.productName;
             const publisher = configuration.author.name;
-            const identifier = publisher.replace(' ', '') + '.' + product;
-            const copyright = 'Copyright (c) ' + publisher;
-            const repository = 'https://github.com/' + configuration.repository;
-            const url = repository + '/releases/download/v' + version + '/' + product + '-Setup-' + version + '.exe';
-            const extensions = configuration.build.fileAssociations.map((entry) => '- ' + entry.ext).sort().join('\n');
-            writeLine('download ' + url);
+            const identifier = `${publisher.replace(' ', '')}.${product}`;
+            const copyright = `Copyright (c) ${publisher}`;
+            const repository = `https://github.com/${configuration.repository}`;
+            const url = `${repository}/releases/download/v${version}/${product}-Setup-${version}.exe`;
+            const extensions = configuration.build.fileAssociations.map((entry) => `- ${entry.ext}`).sort().join('\n');
+            writeLine(`download ${url}`);
             const sha256 = await hash(url, 'sha256');
             const paths = [ 'dist', 'winget-pkgs', 'manifests', publisher[0].toLowerCase(), publisher.replace(' ', ''), product, version ];
             await mkdir(...paths);
             writeLine('update manifest');
             const manifestFile = dirname(...paths, identifier);
-            await fs.writeFile(manifestFile + '.yaml', [
+            await fs.writeFile(`${manifestFile}.yaml`, [
                 '# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.2.0.schema.json',
-                'PackageIdentifier: ' + identifier,
-                'PackageVersion: ' + version,
+                `PackageIdentifier: ${identifier}`,
+                `PackageVersion: ${version}`,
                 'DefaultLocale: en-US',
                 'ManifestType: version',
                 'ManifestVersion: 1.2.0',
                 ''
             ].join('\n'));
-            await fs.writeFile(manifestFile + '.installer.yaml', [
+            await fs.writeFile(`${manifestFile}.installer.yaml`, [
                 '# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.2.0.schema.json',
-                'PackageIdentifier: ' + identifier,
-                'PackageVersion: ' + version,
+                `PackageIdentifier: ${identifier}`,
+                `PackageVersion: ${version}`,
                 'Platform:',
                 '- Windows.Desktop',
                 'InstallModes:',
@@ -428,8 +430,8 @@ const publish = async (target) => {
                 '- Architecture: x86',
                 '  Scope: user',
                 '  InstallerType: nullsoft',
-                '  InstallerUrl: ' + url,
-                '  InstallerSha256: ' + sha256.toUpperCase(),
+                `  InstallerUrl: ${url}`,
+                `  InstallerSha256: ${sha256.toUpperCase()}`,
                 '  InstallerLocale: en-US',
                 '  InstallerSwitches:',
                 '    Custom: /NORESTART',
@@ -437,8 +439,8 @@ const publish = async (target) => {
                 '- Architecture: arm64',
                 '  Scope: user',
                 '  InstallerType: nullsoft',
-                '  InstallerUrl: ' + url,
-                '  InstallerSha256: ' + sha256.toUpperCase(),
+                `  InstallerUrl: ${url}`,
+                `  InstallerSha256: ${sha256.toUpperCase()}`,
                 '  InstallerLocale: en-US',
                 '  InstallerSwitches:',
                 '    Custom: /NORESTART',
@@ -449,23 +451,23 @@ const publish = async (target) => {
                 'ManifestVersion: 1.2.0',
                 ''
             ].join('\n'));
-            await fs.writeFile(manifestFile + '.locale.en-US.yaml', [
+            await fs.writeFile(`${manifestFile}.locale.en-US.yaml`, [
                 '# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.2.0.schema.json',
-                'PackageIdentifier: ' + identifier,
-                'PackageVersion: ' + version,
-                'PackageName: ' + product,
+                `PackageIdentifier: ${identifier}`,
+                `PackageVersion: ${version}`,
+                `PackageName: ${product}`,
                 'PackageLocale: en-US',
-                'PackageUrl: ' + repository,
-                'Publisher: ' + publisher,
-                'PublisherUrl: ' + repository,
-                'PublisherSupportUrl: ' + repository + '/issues',
-                'Author: ' + publisher,
-                'License: ' + configuration.license,
-                'Copyright: ' + copyright,
-                'CopyrightUrl: ' + repository + '/blob/main/LICENSE',
-                'ShortDescription: ' + configuration.description,
-                'Description: ' + configuration.description,
-                'Moniker: ' + name,
+                `PackageUrl: ${repository}`,
+                `Publisher: ${publisher}`,
+                `PublisherUrl: ${repository}`,
+                `PublisherSupportUrl: ${repository}/issues`,
+                `Author: ${publisher}`,
+                `License: ${configuration.license}`,
+                `Copyright: ${copyright}`,
+                `CopyrightUrl: ${repository}/blob/main/LICENSE`,
+                `ShortDescription: ${configuration.description}`,
+                `Description: ${configuration.description}`,
+                `Moniker: ${name}`,
                 'Tags:',
                 '- machine-learning',
                 '- deep-learning',
@@ -476,11 +478,11 @@ const publish = async (target) => {
             ].join('\n'));
             writeLine('git push winget-pkgs');
             await exec('git -C dist/winget-pkgs add --all');
-            await exec('git -C dist/winget-pkgs commit -m "Update ' + configuration.name + ' to ' + configuration.version + '"');
+            await exec(`git -C dist/winget-pkgs commit -m "Update ${configuration.name} to ${configuration.version}"`);
             await pullrequest('microsoft', 'winget-pkgs', {
-                title: 'Update ' + configuration.productName + ' to ' + configuration.version,
+                title: `Update ${configuration.productName} to ${configuration.version}`,
                 body: '',
-                head: process.env.GITHUB_USER + ':master',
+                head: `${process.env.GITHUB_USER}:master`,
                 base: 'master'
             });
             await rm('dist', 'winget-pkgs');
@@ -538,7 +540,7 @@ const update = async () => {
     ];
     for (const target of targets) {
         /* eslint-disable no-await-in-loop */
-        await exec('tools/' + target + ' sync install schema metadata');
+        await exec(`tools/${target} sync install schema metadata`);
         /* eslint-enable no-await-in-loop */
     }
 };
@@ -553,7 +555,7 @@ const pull = async () => {
     }
     const after = await exec('git rev-parse HEAD', 'utf-8');
     if (before.trim() !== after.trim()) {
-        const output = await exec('git diff --name-only ' + before.trim() + ' ' + after.trim(), 'utf-8');
+        const output = await exec(`git diff --name-only ${before.trim()} ${after.trim()}`, 'utf-8');
         const files = new Set(output.split('\n'));
         if (files.has('package.json')) {
             await clean();
@@ -599,8 +601,8 @@ const version = async () => {
     await fs.writeFile(file, content, 'utf-8');
     await load();
     await exec('git add package.json');
-    await exec('git commit -m "Update to ' + configuration.version + '"');
-    await exec('git tag v' + configuration.version);
+    await exec(`git commit -m "Update to ${configuration.version}"`);
+    await exec(`git tag v${configuration.version}`);
     await exec('git push');
     await exec('git push --tags');
 };
@@ -621,7 +623,7 @@ const next = async () => {
             case 'pull': await pull(); break;
             case 'analyze': await analyze(); break;
             case 'coverage': await coverage(); break;
-            default: throw new Error("Unsupported task '" + task + "'.");
+            default: throw new Error(`Unsupported task '${task}'.`);
         }
     } catch (err) {
         if (process.stdout.write) {

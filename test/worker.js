@@ -77,15 +77,15 @@ host.TestHost = class {
     }
 
     async require(id) {
-        const file = path.join(this._sourceDir, id + '.js');
-        return await import('file://' + file);
+        const file = path.join(this._sourceDir, `${id}.js`);
+        return await import(`file://${file}`);
     }
 
     async request(file, encoding, basename) {
         const pathname = path.join(basename || this._sourceDir, file);
         const exists = await access(pathname);
         if (!exists) {
-            throw new Error("The file '" + file + "' does not exist.");
+            throw new Error(`The file '${file}' does not exist.`);
         }
         if (encoding) {
             const buffer = await fs.readFile(pathname, encoding);
@@ -288,7 +288,7 @@ export class Target {
         this.target = item.target.split(',');
         this.action = new Set((this.action || '').split(';'));
         this.folder = item.type ? path.normalize(dirname('..', 'third_party' , 'test', item.type)) : process.cwd();
-        this.name = this.type ? this.type + '/' + this.target[0] : this.target[0];
+        this.name = this.type ? `${this.type}/${this.target[0]}` : this.target[0];
         this.measures = new Map([ [ 'name', this.name ] ]);
     }
 
@@ -390,12 +390,12 @@ export class Target {
             case 301:
             case 302: {
                 location = response.headers.location;
-                const context = location.startsWith('http://') || location.startsWith('https://') ? '' : url.protocol + '//' + url.hostname;
+                const context = location.startsWith('http://') || location.startsWith('https://') ? '' : `${url.protocol}//${url.hostname}`;
                 response.destroy();
                 return this.request(context + location);
             }
             default: {
-                throw new Error(response.statusCode.toString() + ' ' + location);
+                throw new Error(`${response.statusCode} ${location}`);
             }
         }
     }
@@ -429,7 +429,7 @@ export class Target {
             }
         }
         await Promise.all(targets.map((target) => {
-            const dir = path.dirname(this.folder + '/' + target);
+            const dir = path.dirname(`${this.folder}/${target}`);
             return fs.mkdir(dir, { recursive: true });
         }));
         const data = await this.request(source);
@@ -441,7 +441,7 @@ export class Target {
                 if (name !== '.') {
                     const stream = archive.entries.get(name);
                     if (!stream) {
-                        throw new Error("Entry not found '" + name + '. Archive contains entries: ' + JSON.stringify(Array.from(archive.entries.keys())) + " .");
+                        throw new Error(`Entry not found '${name}. Archive contains entries: ${JSON.stringify(Array.from(archive.entries.keys()))} .`);
                     }
                     const target = targets.shift();
                     const buffer = stream.peek();
@@ -460,7 +460,7 @@ export class Target {
         } else {
             const target = targets.shift();
             this.status({ name: 'write', target: target });
-            await fs.writeFile(this.folder + '/' + target, data, null);
+            await fs.writeFile(`${this.folder}/${target}`, data, null);
         }
         if (targets.length > 0 && sources.length > 0) {
             await this.download(targets, sources);
@@ -507,13 +507,13 @@ export class Target {
 
     validate() {
         if (!this.model.format || (this.format && this.format != this.model.format)) {
-            throw new Error("Invalid model format '" + this.model.format + "'.");
+            throw new Error(`Invalid model format '${this.model.format}'.`);
         }
         if (this.producer && this.model.producer != this.producer) {
-            throw new Error("Invalid producer '" + this.model.producer + "'.");
+            throw new Error(`Invalid producer '${this.model.producer}'.`);
         }
         if (this.runtime && this.model.runtime != this.runtime) {
-            throw new Error("Invalid runtime '" + this.model.runtime + "'.");
+            throw new Error(`Invalid runtime '${this.model.runtime}'.`);
         }
         if (this.model.metadata && !(this.model.metadata instanceof Map)) {
             throw new Error("Invalid metadata.'");
@@ -539,10 +539,10 @@ export class Target {
                             continue;
                         }
                     }
-                    throw new Error("Invalid property path: '" + parts[0]);
+                    throw new Error(`Invalid property path: '${parts[0]}`);
                 }
                 if (context !== value) {
-                    throw new Error("Invalid '" + context.toString() + "' != '" + assert + "'.");
+                    throw new Error(`Invalid '${context}' != '${assert}'.`);
                 }
             }
         }
@@ -563,10 +563,10 @@ export class Target {
                     value.initializer.type.toString();
                     const tensor = new view.Tensor(value.initializer);
                     if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
-                        throw new Error("Tensor encoding '" + tensor.encoding + "' is not implemented.");
+                        throw new Error(`Tensor encoding '${tensor.encoding}' is not implemented.`);
                     }
                     if (tensor.layout && (tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo')) {
-                        throw new Error("Tensor layout '" + tensor.layout + "' is not implemented.");
+                        throw new Error(`Tensor layout '${tensor.layout}' is not implemented.`);
                     }
                     if (!tensor.empty) {
                         if (tensor.type && tensor.type.dataType === '?') {
@@ -599,7 +599,7 @@ export class Target {
                     if (!values.has(value.name)) {
                         values.set(value.name, value);
                     } else if (value !== values.get(value.name)) {
-                        throw new Error("Duplicate value '" + value.name + "'.");
+                        throw new Error(`Duplicate value '${value.name}'.`);
                     }
                 }
             };
@@ -620,7 +620,7 @@ export class Target {
             for (const node of graph.nodes) {
                 const type = node.type;
                 if (!type || typeof type.name != 'string') {
-                    throw new Error("Invalid node type '" + JSON.stringify(node.type) + "'.");
+                    throw new Error(`Invalid node type '${JSON.stringify(node.type)}'.`);
                 }
                 view.Documentation.format(type);
                 node.name.toString();
@@ -631,7 +631,7 @@ export class Target {
                     attribute.name.length;
                     let value = new view.Formatter(attribute.value, attribute.type).toString();
                     if (value && value.length > 1000) {
-                        value = value.substring(0, 1000) + '...';
+                        value = `${value.substring(0, 1000)}...`;
                     }
                     /* value = */ value.split('<');
                 }

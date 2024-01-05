@@ -41,7 +41,7 @@ tnn.ModelFactory = class {
         const metadata = await context.metadata('tnn-metadata.json');
         switch (target) {
             case 'tnn.model': {
-                const name = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
+                const name = `${context.identifier.substring(0, context.identifier.length - 9)}.tnnmodel`;
                 try {
                     const content = await context.fetch(name);
                     const buffer = content.stream.peek();
@@ -51,13 +51,13 @@ tnn.ModelFactory = class {
                 }
             }
             case 'tnn.params': {
-                const name = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
+                const name = `${context.identifier.substring(0, context.identifier.length - 9)}.tnnproto`;
                 const content = await context.fetch(name, null);
                 const buffer = content.stream.peek();
                 return new tnn.Model(metadata, buffer, context.stream.peek());
             }
             default: {
-                throw new tnn.Error("Unsupported TNN format '" + target + "'.");
+                throw new tnn.Error(`Unsupported TNN format '${target}'.`);
             }
         }
     }
@@ -89,7 +89,7 @@ tnn.Graph = class {
             if (!values.has(name)) {
                 values.set(name, new tnn.Value(name, type || null, tensor || null));
             } else if (type || tensor) {
-                throw new tnn.Value("Duplicate value '" + name + "'.");
+                throw new tnn.Value(`Duplicate value '${name}'.`);
             }
             return values.get(name);
         };
@@ -119,7 +119,7 @@ tnn.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new tnn.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new tnn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this._name = name;
         this._type = type || null;
@@ -205,7 +205,7 @@ tnn.Node = class {
         const weight = (resource, name, shape) => {
             const initializer = resource[name];
             if (!initializer) {
-                throw new tnn.Error("Layer initializer'" + resource.type + "." + name + "' not found '");
+                throw new tnn.Error(`Layer initializer'${resource.type}.${name}' not found '`);
             }
             const tensor = new tnn.Tensor(new tnn.TensorType(initializer.dataType, new tnn.TensorShape(shape)), initializer.value);
             this.inputs.push(new tnn.Argument(name, [ values.map('', null, tensor) ]));
@@ -357,7 +357,7 @@ tnn.Attribute = class {
                     this.value = this.value.map((v) => parseFloat(v));
                     break;
                 default:
-                    throw new tnn.Error("Unsupported attribute type '" + this.type + "'.");
+                    throw new tnn.Error(`Unsupported attribute type '${this.type}'.`);
             }
             if (metadata && metadata.visible === false) {
                 this.visible = false;
@@ -397,7 +397,7 @@ tnn.TensorShape = class {
     }
 
     toString() {
-        return this.dimensions ? ('[' + this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']') : '';
+        return this.dimensions ? (`[${this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`) : '';
     }
 };
 
@@ -424,7 +424,7 @@ tnn.TextProtoReader = class {
         if (header.length < 3) {
             throw new tnn.Error('Invalid header size.');
         } else if (header.length > 3 && (header[3] !== '4206624770' && header[3] !== '4206624772')) {
-            throw new tnn.Error("Invalid signature '" + header[3] + "'.");
+            throw new tnn.Error(`Invalid signature '${header[3]}'.`);
         }
         this.inputs = split(lines.shift(), ':', true, false).map((input) => {
             const array = split(input, ' ', true, false);
@@ -495,17 +495,17 @@ tnn.LayerResourceReader = class {
             const reader = new base.BinaryReader(buffer);
             const magic_number = reader.uint32();
             if (magic_number !== 0xFABC0002 && magic_number !== 0xFABC0004) {
-                throw new tnn.Error("Invalid blob header signature '" + magic_number.toString() + "'.");
+                throw new tnn.Error(`Invalid blob header signature '${magic_number}'.`);
             }
             this.layerResources = new Array(reader.int32() & 0x1FFFFFFF);
             const raw = (reader) => {
                 const magic_number = reader.uint32();
                 if (magic_number !== 0xFABC0002 && magic_number !== 0xFABC0004) {
-                    throw new tnn.Error("Invalid raw signature '" + magic_number.toString() + "'.");
+                    throw new tnn.Error(`Invalid raw signature '${magic_number}'.`);
                 }
                 const data_type = reader.int32();
                 if (data_type > 4) {
-                    throw new tnn.Error("Unsupported data type '" + data_type + "'.");
+                    throw new tnn.Error(`Unsupported data type '${data_type}'.`);
                 }
                 const length = reader.int32();
                 if (length <= 0) {
@@ -526,7 +526,7 @@ tnn.LayerResourceReader = class {
             const expect = (reader, name) => {
                 const content = reader.string();
                 if (name !== content) {
-                    throw new tnn.Error("Invalid string '" + content + "' instead of '" + name + "'.");
+                    throw new tnn.Error(`Invalid string '${content}' instead of '${name}'.`);
                 }
             };
             for (let i = 0; i < this.layerResources.length; i++) {
@@ -611,7 +611,7 @@ tnn.LayerResourceReader = class {
                         break;
                     }
                     default: {
-                        throw new tnn.Error("Unsupported layer resource type '" + resource.type + "'.");
+                        throw new tnn.Error(`Unsupported layer resource type '${resource.type}'.`);
                     }
                 }
                 this.layerResources[i] = resource;
@@ -625,7 +625,7 @@ tnn.LayerResourceReader = class {
     read(name) {
         const resource = this.layerResources.shift();
         if (resource && resource.name !== name) {
-            throw new tnn.Error("Invalid blob layer name '" + name + "'.");
+            throw new tnn.Error(`Invalid blob layer name '${name}'.`);
         }
         return resource;
     }

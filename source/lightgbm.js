@@ -35,7 +35,7 @@ lightgbm.ModelFactory = class {
                 return new lightgbm.Model(obj, 'LightGBM');
             }
             default: {
-                throw new lightgbm.Error("Unsupported LightGBM format '" + target + "'.");
+                throw new lightgbm.Error(`Unsupported LightGBM format '${target}'.`);
             }
         }
     }
@@ -44,7 +44,7 @@ lightgbm.ModelFactory = class {
 lightgbm.Model = class {
 
     constructor(obj, format) {
-        this.format = format + (obj && obj.version ? ' ' + obj.version : '');
+        this.format = format + (obj && obj.version ? ` ${obj.version}` : '');
         this.graphs = [ new lightgbm.Graph(obj) ];
     }
 };
@@ -84,7 +84,7 @@ lightgbm.Value = class {
 
     constructor(name, quantization) {
         if (typeof name !== 'string') {
-            throw new lightgbm.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new lightgbm.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.quantization = quantization;
@@ -94,7 +94,7 @@ lightgbm.Value = class {
 lightgbm.Node = class {
 
     constructor(obj, values, stack) {
-        const type = obj && obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'builtins.object';
+        const type = obj && obj.__class__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : 'builtins.object';
         this.name = '';
         this.type = { name: type };
         this.inputs = [];

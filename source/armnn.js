@@ -33,7 +33,7 @@ armnn.ModelFactory = class {
                     model = armnn.schema.SerializedGraph.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw new armnn.Error('File format is not armnn.SerializedGraph (' + message.replace(/\.$/, '') + ').');
+                    throw new armnn.Error(`File format is not armnn.SerializedGraph (${message.replace(/\.$/, '')}).`);
                 }
                 break;
             }
@@ -44,12 +44,12 @@ armnn.ModelFactory = class {
                     model = armnn.schema.SerializedGraph.createText(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw new armnn.Error('File text format is not armnn.SerializedGraph (' + message.replace(/\.$/, '') + ').');
+                    throw new armnn.Error(`File text format is not armnn.SerializedGraph (${message.replace(/\.$/, '')}).`);
                 }
                 break;
             }
             default: {
-                throw new armnn.Error("Unsupported Arm NN '" + target + "'.");
+                throw new armnn.Error(`Unsupported Arm NN '${target}'.`);
             }
         }
         const metadata = await context.metadata('armnn-metadata.json');
@@ -76,13 +76,13 @@ armnn.Graph = class {
         for (const layer of graph.layers) {
             const base = armnn.Node.getBase(layer);
             for (const slot of base.inputSlots) {
-                const name = slot.connection.sourceLayerIndex.toString() + ':' + slot.connection.outputSlotIndex.toString();
+                const name = `${slot.connection.sourceLayerIndex}:${slot.connection.outputSlotIndex}`;
                 counts.set(name, counts.has(name) ? counts.get(name) + 1 : 1);
             }
         }
         const values = new Map();
         const value = (layerIndex, slotIndex, tensor) => {
-            const name = layerIndex.toString() + ':' + slotIndex.toString();
+            const name = `${layerIndex}:${slotIndex}`;
             if (!values.has(name)) {
                 const layer = graph.layers[layerIndex];
                 const base = layerIndex < graph.layers.length ? armnn.Node.getBase(layer) : null;
@@ -97,7 +97,7 @@ armnn.Graph = class {
                 /* eslint-disable prefer-destructuring */
                 const slot = base.outputSlots[0];
                 /* eslint-enable prefer-destructuring */
-                const name = base.index.toString() + ':' + slot.index.toString();
+                const name = `${base.index}:${slot.index}`;
                 if (counts.get(name) === 1) {
                     const tensor = new armnn.Tensor(layer.layer.input, 'Constant');
                     value(base.index, slot.index, tensor);
@@ -193,7 +193,7 @@ armnn.Node = class {
     }
 
     static makeKey(layer_id, index) {
-        return layer_id.toString() + "_" + index.toString();
+        return `${layer_id}_${index}`;
     }
 };
 
@@ -221,7 +221,7 @@ armnn.Value = class {
 
     constructor(name, tensorInfo, initializer) {
         if (typeof name !== 'string') {
-            throw new armnn.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new armnn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = new armnn.TensorType(tensorInfo);
@@ -235,7 +235,7 @@ armnn.Value = class {
 
     get quantization() {
         if (this._scale !== undefined && this._zeroPoint !== undefined) {
-            return this._scale.toString() + ' * ' + (this._zeroPoint == 0 ? 'q' : ('(q - ' + this._zeroPoint.toString() + ')'));
+            return `${this._scale} * ${this._zeroPoint == 0 ? 'q' : (`(q - ${this._zeroPoint})`)}`;
         }
         return undefined;
     }
@@ -267,7 +267,7 @@ armnn.TensorType = class {
             case 8: this.dataType = 'qint8'; break; // QAsymmS8
             case 9: this.dataType = 'qint8'; break; // QSymmS8
             default:
-                throw new armnn.Error("Unsupported data type '" + JSON.stringify(dataType) + "'.");
+                throw new armnn.Error(`Unsupported data type '${JSON.stringify(dataType)}'.`);
         }
         this.shape = new armnn.TensorShape(tensorInfo.dimensions);
     }
@@ -287,7 +287,7 @@ armnn.TensorShape = class {
         if (!this.dimensions || this.dimensions.length == 0) {
             return '';
         }
-        return '[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+        return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
     }
 };
 

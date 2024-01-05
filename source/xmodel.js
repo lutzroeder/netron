@@ -23,7 +23,7 @@ xmodel.ModelFactory = class {
             graph = xmodel.proto.Graph.decode(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new xmodel.Error('File format is not serial_v2.Graph (' + message.replace(/\.$/, '') + ').');
+            throw new xmodel.Error(`File format is not serial_v2.Graph (${message.replace(/\.$/, '')}).`);
         }
         return new xmodel.Model(graph);
     }
@@ -94,7 +94,7 @@ xmodel.Value = class {
 
     constructor(name, node, initializer) {
         if (typeof name !== 'string') {
-            throw new xmodel.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new xmodel.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         if (node) {
@@ -192,7 +192,7 @@ xmodel.TensorType = class {
             case 2: this.dataType = 'xint'; break;
             case 4: this.dataType = 'float'; break;
             case 3: this.dataType = 'xuint'; break;
-            default: throw new xmodel.Error("Unsupported data type '" + tensor.data_type + "'.");
+            default: throw new xmodel.Error(`Unsupported data type '${tensor.data_type}'.`);
         }
         this.dataType += tensor.tensor_bit_width.toString();
         this.shape = new xmodel.TensorShape(tensor.tensor_dim);
@@ -206,7 +206,7 @@ xmodel.TensorType = class {
                 attr[key] = value;
                 const denotation = [];
                 if (attr.fix_point !== undefined) {
-                    denotation.push(attr.fix_point.toString() + '.');
+                    denotation.push(`${attr.fix_point}.`);
                 }
                 if (attr.round_mode !== undefined) {
                     denotation.push(attr.round_mode.toString());
@@ -233,7 +233,7 @@ xmodel.TensorShape = class {
         if (!this.dimensions || this.dimensions.length == 0) {
             return '';
         }
-        return '[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+        return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
     }
 };
 
@@ -273,7 +273,7 @@ xmodel.Utility = class {
             case 'string_vec':  return { type: 'string[]', value: value.value };
             case 'bytes': return { type: 'byte[]', value: value.value };
             case 'map_string_2_int32': return { type: 'map<string,int32>', value: value.value };
-            default: throw new xmodel.Error("Unsupported attribute type '" + type + "'.");
+            default: throw new xmodel.Error(`Unsupported attribute type '${type}'.`);
         }
     }
 };
@@ -356,7 +356,7 @@ xmodel.Metadata = class {
                 return attribute;
             });
             for (const attribute of type.attributes) {
-                this._attributes.set(type.name + ':' + attribute.name, attribute);
+                this._attributes.set(`${type.name}:${attribute.name}`, attribute);
             }
             this._types.set(type.name, type);
         }
@@ -370,7 +370,7 @@ xmodel.Metadata = class {
     }
 
     attribute(type, name) {
-        const key = type + ':' + name;
+        const key = `${type}:${name}`;
         return this._attributes.get(key);
     }
 };

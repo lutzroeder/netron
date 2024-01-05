@@ -31,7 +31,7 @@ mlnet.Model = class {
     constructor(metadata, reader) {
         this._format = "ML.NET";
         if (reader.version && reader.version.length > 0) {
-            this._format += ' v' + reader.version;
+            this._format += ` v${reader.version}`;
         }
         this._graphs = [];
         this._graphs.push(new mlnet.Graph(metadata, reader));
@@ -58,7 +58,7 @@ mlnet.Graph = class {
             if (!values.has(name)) {
                 values.set(name, new mlnet.Value(name, type || null));
             } else if (type) {
-                throw new mlnet.Error("Duplicate value '" + name + "'.");
+                throw new mlnet.Error(`Duplicate value '${name}'.`);
             }
             return values.get(name);
         };
@@ -76,7 +76,7 @@ mlnet.Graph = class {
                 for (const output of transformer.outputs) {
                     if (scope[output.name]) {
                         scope[output.name].counter++;
-                        const next = output.name + '\n' + scope[output.name].counter.toString(); // custom argument id
+                        const next = `${output.name}\n${scope[output.name].counter}`; // custom argument id
                         scope[output.name].argument = next;
                         output.name = next;
                     } else {
@@ -159,7 +159,7 @@ mlnet.Value = class {
 
     constructor(name, type) {
         if (typeof name !== 'string') {
-            throw new mlnet.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new mlnet.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this._name = name;
         this._type = type;
@@ -298,13 +298,13 @@ mlnet.TensorType = class {
             if (mlnet.TensorType._map.has(codec.itemType.name)) {
                 this._dataType = mlnet.TensorType._map.get(codec.itemType.name);
             } else {
-                throw new mlnet.Error("Unsupported data type '" + codec.itemType.name + "'.");
+                throw new mlnet.Error(`Unsupported data type '${codec.itemType.name}'.`);
             }
             this._shape = new mlnet.TensorShape(codec.dims);
         } else if (codec.name == 'Key2') {
             this._dataType = 'key2';
         } else {
-            throw new mlnet.Error("Unsupported data type '" + codec.name + "'.");
+            throw new mlnet.Error(`Unsupported data type '${codec.name}'.`);
         }
     }
 
@@ -335,7 +335,7 @@ mlnet.TensorShape = class {
         if (!this._dimensions || this._dimensions.length == 0) {
             return '';
         }
-        return '[' + this._dimensions.join(',') + ']';
+        return `[${this._dimensions.join(',')}]`;
     }
 };
 
@@ -465,7 +465,7 @@ mlnet.ComponentCatalog = class {
 
     create(signature, context) {
         if (!this._map.has(signature)) {
-            throw new mlnet.Error("Unsupported loader signature '" + signature + "'.");
+            throw new mlnet.Error(`Unsupported loader signature '${signature}'.`);
         }
         const type = this._map.get(signature);
         return Reflect.construct(type, [ context ]);
@@ -549,9 +549,9 @@ mlnet.ModelHeader = class {
     }
 
     open(name) {
-        const dir = this._directory.length > 0 ? this._directory + '/' : this._directory;
+        const dir = this._directory.length > 0 ? `${this._directory}/` : this._directory;
         name = dir + name;
-        const key = name + '/Model.key';
+        const key = `${name}/Model.key`;
         const stream = this._entries.get(key) || this._entries.get(key.replace(/\//g, '\\'));
         if (stream) {
             const buffer = stream.peek();
@@ -565,7 +565,7 @@ mlnet.ModelHeader = class {
     }
 
     openBinary(name) {
-        const dir = this._directory.length > 0 ? this._directory + '/' : this._directory;
+        const dir = this._directory.length > 0 ? `${this._directory}/` : this._directory;
         name = dir + name;
         const stream = this._entries.get(name) || this._entries.get(name.replace(/\//g, '\\'));
         if (stream) {
@@ -575,7 +575,7 @@ mlnet.ModelHeader = class {
     }
 
     openText(name) {
-        const dir = this._directory.length > 0 ? this._directory + '/' : this._directory;
+        const dir = this._directory.length > 0 ? `${this._directory}/` : this._directory;
         name = dir + name;
         const stream = this._entries.get(name) || this._entries.get(name.replace(/\//g, '\\'));
         if (stream) {
@@ -606,7 +606,7 @@ mlnet.BinaryReader = class extends base.BinaryReader {
 
     assert(text) {
         if (!this.match(text)) {
-            throw new mlnet.Error("Invalid '" + text.split('\0').join('') + "' signature.");
+            throw new mlnet.Error(`Invalid '${text.split('\0').join('')}' signature.`);
         }
     }
 
@@ -730,7 +730,7 @@ mlnet.TransformerChain = class {
         this.chain = [];
         for (let i = 0; i < length; i++) {
             this.scopes.push(reader.int32()); // 0x01 = Training, 0x02 = Testing, 0x04 = Scoring
-            const dirName = 'Transform_' + ('00' + i).slice(-3);
+            const dirName = `Transform_${(`00${i}`).slice(-3)}`;
             const transformer = context.open(dirName);
             this.chain.push(transformer);
         }
@@ -849,7 +849,7 @@ mlnet.ColumnConcatenatingTransformer = class {
             }
 
             if (n > 1) {
-                throw new mlnet.Error("Unsupported ColumnConcatenatingTransformer name count '" + n.toString() + "'.");
+                throw new mlnet.Error(`Unsupported ColumnConcatenatingTransformer name count '${n}'.`);
             }
 
             this.outputs = [];
@@ -1506,10 +1506,10 @@ mlnet.NormalizingTransformer = class extends mlnet.OneToOneTransformerBase {
             switch (itemKind) {
                 case 9: itemType = 'float32'; break;
                 case 10: itemType = 'float64'; break;
-                default: throw new mlnet.Error("Unsupported NormalizingTransformer item kind '" + itemKind + "'.");
+                default: throw new mlnet.Error(`Unsupported NormalizingTransformer item kind '${itemKind}'.`);
             }
-            const type = itemType + (!isVector ? '' : '[' + shape.map((dim) => dim.toString()).join(',') + ']');
-            const name = 'Normalizer_' + ('00' + i).slice(-3);
+            const type = itemType + (!isVector ? '' : `[${shape.map((dim) => dim.toString()).join(',')}]`);
+            const name = `Normalizer_${(`00${i}`).slice(-3)}`;
             const func = context.open(name);
             this.Options.push({ type: type, func: func });
         }
@@ -1564,7 +1564,7 @@ mlnet.TermMap = class {
                 break;
             }
             default:
-                throw new mlnet.Error("Unsupported term map type '" + mtype.toString() + "'.");
+                throw new mlnet.Error(`Unsupported term map type '${mtype}'.`);
         }
     }
 };
@@ -1636,7 +1636,7 @@ mlnet.CompositeDataLoader = class {
         }
         this.chain = [];
         for (let j = 0; j < cxf; j++) {
-            const name = 'Transform_' + ('00' + j).slice(-3);
+            const name = `Transform_${(`00${j}`).slice(-3)}`;
             const transform = context.open(name);
             this.chain.push(transform);
         }
@@ -1756,7 +1756,7 @@ mlnet.OneVersusAllModelParameters = class extends mlnet.ModelParametersBase {
         const len = reader.int32();
         this.chain = [];
         for (let i = 0; i < len; i++) {
-            const name = 'SubPredictor_' + ('00' + i).slice(-3);
+            const name = `SubPredictor_${(`00${i}`).slice(-3)}`;
             const predictor = context.open(name);
             this.chain.push(predictor);
         }
@@ -1773,7 +1773,7 @@ mlnet.TextFeaturizingEstimator = class {
             this.chain = [];
             /* let loader = */ context.open('Loader');
             for (let i = 0; i < n; i++) {
-                const name = 'Step_' + ('00' + i).slice(-3);
+                const name = `Step_${(`00${i}`).slice(-3)}`;
                 const transformer = context.open(name);
                 this.chain.push(transformer);
                 // debugger;
@@ -2174,7 +2174,7 @@ mlnet.Codec = class {
                 this.count = reader.uint64();
                 break;
             default:
-                throw new mlnet.Error("Unsupported codec '" + this.name + "'.");
+                throw new mlnet.Error(`Unsupported codec '${this.name}'.`);
         }
     }
 
@@ -2197,7 +2197,7 @@ mlnet.Codec = class {
                 }
                 break;
             default:
-                throw new mlnet.Error("Unsupported codec read operation '" + this.name + "'.");
+                throw new mlnet.Error(`Unsupported codec read operation '${this.name}'.`);
         }
         return values;
     }

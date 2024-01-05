@@ -32,7 +32,7 @@ flax.ModelFactory = class {
                     return execution.invoke('numpy.ndarray', [ tuple[0], dtype, tuple[2] ]);
                 }
                 default: {
-                    throw new flax.Error("Unsupported MessagePack extension '" + code + "'.");
+                    throw new flax.Error(`Unsupported MessagePack extension '${code}'.`);
                 }
             }
         };
@@ -99,7 +99,7 @@ flax.Value = class {
 
     constructor(name, initializer) {
         if (typeof name !== 'string') {
-            throw new flax.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new flax.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer ? initializer.type : null;
@@ -159,7 +159,7 @@ flax.TensorShape = class {
 
     toString() {
         return (Array.isArray(this.dimensions) && this.dimensions.length > 0) ?
-            '[' + this.dimensions.join(',') + ']' : '';
+            `[${this.dimensions.join(',')}]` : '';
     }
 };
 

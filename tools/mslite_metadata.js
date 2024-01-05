@@ -14,12 +14,12 @@ const main = async () => {
     const attributes = new Map();
     for (const operator of json) {
         if (operators.has(operator.name)) {
-            throw new Error("Duplicate operator '" + operator.name + "'.");
+            throw new Error(`Duplicate operator '${operator.name}'.`);
         }
         operators.set(operator.name, operator);
         if (operator && operator.attributes) {
             for (const attribute of operator.attributes) {
-                const name = operator.name + ':' + attribute.name;
+                const name = `${operator.name}:${attribute.name}`;
                 attributes.set(name, attribute);
             }
         }
@@ -49,7 +49,7 @@ const main = async () => {
                 operator.outputs = outputs;
             }
             for (const field of table.fields.values()) {
-                const attr_key = op_key + ':' + field.name;
+                const attr_key = `${op_key}:${field.name}`;
                 if (!attributes.has(attr_key)) {
                     const attribute = { name: field.name };
                     attributes.set(attr_key, attribute);
@@ -60,7 +60,7 @@ const main = async () => {
                 let defaultValue = field.defaultValue;
                 if (type instanceof flatc.Enum) {
                     if (!type.keys.has(defaultValue)) {
-                        throw new Error("Invalid '" + type.name + "' default value '" + defaultValue + "'.");
+                        throw new Error(`Invalid '${type.name}' default value '${defaultValue}'.`);
                     }
                     defaultValue = type.keys.get(defaultValue);
                 }

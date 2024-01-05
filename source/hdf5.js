@@ -70,7 +70,7 @@ hdf5.File = class {
                     break;
                 }
                 default:
-                    throw new hdf5.Error('Unsupported Superblock version ' + version + '.');
+                    throw new hdf5.Error(`Unsupported Superblock version ${version}.`);
             }
             delete this.data;
             this._rootGroup.attributes;
@@ -87,7 +87,7 @@ hdf5.Group = class {
         this._dataObjectHeader = objectHeader;
         this._globalHeap = globalHeap;
         this._name = name;
-        this._path = parentPath == '/' ? (parentPath + name) : (parentPath + '/' + name);
+        this._path = parentPath == '/' ? (parentPath + name) : (`${parentPath}/${name}`);
     }
 
     get name() {
@@ -286,7 +286,7 @@ hdf5.Variable = class {
                 return data;
             }
             default: {
-                throw new hdf5.Error("Unsupported data layout class '" + this.layoutClass + "'.");
+                throw new hdf5.Error(`Unsupported data layout class '${this.layoutClass}'.`);
             }
         }
         return null;
@@ -349,7 +349,7 @@ hdf5.Reader = class {
             case 1: return this.uint16();
             case 2: return this.uint32();
             case 3: return this.uint64();
-            default: throw new hdf5.Error("Unsupported uint size '" + size + "'.");
+            default: throw new hdf5.Error(`Unsupported uint size '${size}'.`);
         }
     }
 
@@ -396,7 +396,7 @@ hdf5.Reader = class {
                 return value;
             }
             default: {
-                throw new hdf5.Error('Unsupported offset size \'' + this._offsetSize + '\'.');
+                throw new hdf5.Error(`Unsupported offset size '${this._offsetSize}'.`);
             }
         }
     }
@@ -419,7 +419,7 @@ hdf5.Reader = class {
                 return value;
             }
             default: {
-                throw new hdf5.Error('Unsupported length size \'' + this._lengthSize + '\'.');
+                throw new hdf5.Error(`Unsupported length size '${this._lengthSize}'.`);
             }
         }
     }
@@ -477,7 +477,7 @@ hdf5.BinaryReader = class extends hdf5.Reader {
     skip(offset) {
         this._position += offset;
         if (this._offset + this._position > this._buffer.length) {
-            throw new hdf5.Error('Unexpected end of file. Expected ' + (this._offset + this._position - this._buffer.length) + ' more bytes. The file might be corrupted.');
+            throw new hdf5.Error(`Unexpected end of file. Expected ${this._offset + this._position - this._buffer.length} more bytes. The file might be corrupted.`);
         }
     }
 
@@ -545,7 +545,7 @@ hdf5.StreamReader = class extends hdf5.Reader {
     skip(offset) {
         this._position += offset;
         if (this._position > this._length) {
-            throw new hdf5.Error('Expected ' + (this._position - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+            throw new hdf5.Error(`Expected ${this._position - this._length} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
     }
 
@@ -624,7 +624,7 @@ hdf5.StreamReader = class extends hdf5.Reader {
     take(length) {
         const position = this.position;
         if (position + length > this._length) {
-            throw new Error('Expected ' + (position + length - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+            throw new Error(`Expected ${position + length - this._length} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
         if (!this._buffer || position < this._window || position + length > this._window + this._buffer.length) {
             this._window = position;
@@ -653,7 +653,7 @@ hdf5.SymbolTableNode = class {
                 this.entries.push(entry);
             }
         } else {
-            throw new hdf5.Error('Unsupported symbol table node version \'' + version + '\'.');
+            throw new hdf5.Error(`Unsupported symbol table node version '${version}'.`);
         }
     }
 };
@@ -675,7 +675,7 @@ hdf5.SymbolTableEntry = class {
                 break;
             }
             default:
-                throw new hdf5.Error('Unsupported cache type \'' + cacheType + '\'.');
+                throw new hdf5.Error(`Unsupported cache type '${cacheType}'.`);
         }
         reader.skip(16); // Scratch-pad space
     }
@@ -754,7 +754,7 @@ hdf5.DataObjectHeader = class {
                 break;
             }
             default: {
-                throw new hdf5.Error("Unsupported data object header version '" + version + "'.");
+                throw new hdf5.Error(`Unsupported data object header version '${version}'.`);
             }
         }
     }
@@ -808,7 +808,7 @@ hdf5.DataObjectHeader = class {
                 this.attributeInfo = new hdf5.AttributeInfo(reader.clone());
                 break;
             default:
-                throw new hdf5.Error('Unsupported message type \'' + type + '\'.');
+                throw new hdf5.Error(`Unsupported message type '${type}'.`);
         }
         reader.skip(size);
         return true;
@@ -867,7 +867,7 @@ hdf5.Dataspace = class {
                 }
                 break;
             default:
-                throw new hdf5.Error("Unsupported dataspace message version '" + version + "'.");
+                throw new hdf5.Error(`Unsupported dataspace message version '${version}'.`);
 
         }
     }
@@ -938,7 +938,7 @@ hdf5.LinkInfo = class {
                 break;
             }
             default:
-                throw new hdf5.Error("Unsupported link info message version '" + version + "'.");
+                throw new hdf5.Error(`Unsupported link info message version '${version}'.`);
         }
     }
 };
@@ -983,7 +983,7 @@ hdf5.Datatype = class {
                 break;
             }
             default: {
-                throw new hdf5.Error('Unsupported datatype version \'' + version + '\'.');
+                throw new hdf5.Error(`Unsupported datatype version '${version}'.`);
             }
         }
     }
@@ -998,7 +998,7 @@ hdf5.Datatype = class {
                             case 2: return 'int16';
                             case 4: return 'int32';
                             case 8: return 'int64';
-                            default: throw new hdf5.Error("Unsupported int size '" + this._size + "'.");
+                            default: throw new hdf5.Error(`Unsupported int size '${this._size}'.`);
                         }
                     } else {
                         switch (this._size) {
@@ -1006,7 +1006,7 @@ hdf5.Datatype = class {
                             case 2: return 'uint16';
                             case 4: return 'uint32';
                             case 8: return 'uint64';
-                            default: throw new hdf5.Error("Unsupported uint size '" + this._size + "'.");
+                            default: throw new hdf5.Error(`Unsupported uint size '${this._size}'.`);
                         }
                     }
                 }
@@ -1041,7 +1041,7 @@ hdf5.Datatype = class {
             default:
                 break;
         }
-        throw new hdf5.Error("Unsupported datatype class '" + this._class + "'.");
+        throw new hdf5.Error(`Unsupported datatype class '${this._class}'.`);
     }
 
     get littleEndian() {
@@ -1095,7 +1095,7 @@ hdf5.Datatype = class {
                     globalHeapID: new hdf5.GlobalHeapID(reader)
                 };
             default:
-                throw new hdf5.Error('Unsupported datatype class \'' + this._class + '\'.');
+                throw new hdf5.Error(`Unsupported datatype class '${this._class}'.`);
         }
     }
 
@@ -1128,7 +1128,7 @@ hdf5.Datatype = class {
                 break;
             }
             default:
-                throw new hdf5.Error('Unsupported datatype class \'' + this._class + '\'.');
+                throw new hdf5.Error(`Unsupported datatype class '${this._class}'.`);
         }
         return null;
     }
@@ -1168,7 +1168,7 @@ hdf5.FillValue = class {
                         break;
                     }
                     default:
-                        throw new hdf5.Error('Unsupported fill value version \'' + version + '\'.');
+                        throw new hdf5.Error(`Unsupported fill value version '${version}'.`);
                 }
                 break;
             }
@@ -1197,12 +1197,12 @@ hdf5.Link = class {
                     case 1: // soft link
                         break;
                     default:
-                        throw new hdf5.Error('Unsupported link message type \'' + this.type + '\'.');
+                        throw new hdf5.Error(`Unsupported link message type '${this.type}'.`);
                 }
                 break;
             }
             default:
-                throw new hdf5.Error('Unsupported link message version \'' + version + '\'.');
+                throw new hdf5.Error(`Unsupported link message version '${version}'.`);
         }
     }
 };
@@ -1235,7 +1235,7 @@ hdf5.DataLayout = class {
                         this.datasetElementSize = reader.int32();
                         break;
                     default:
-                        throw new hdf5.Error('Unsupported data layout class \'' + this.layoutClass + '\'.');
+                        throw new hdf5.Error(`Unsupported data layout class '${this.layoutClass}'.`);
                 }
                 break;
             }
@@ -1261,12 +1261,12 @@ hdf5.DataLayout = class {
                         this.datasetElementSize = reader.int32();
                         break;
                     default:
-                        throw new hdf5.Error('Unsupported data layout class \'' + this.layoutClass + '\'.');
+                        throw new hdf5.Error(`Unsupported data layout class '${this.layoutClass}'.`);
                 }
                 break;
             }
             default: {
-                throw new hdf5.Error('Unsupported data layout version \'' + version + '\'.');
+                throw new hdf5.Error(`Unsupported data layout version '${version}'.`);
             }
         }
     }
@@ -1290,7 +1290,7 @@ hdf5.GroupInfo = class {
                 break;
             }
             default:
-                throw new hdf5.Error('Unsupported group info version \'' + version + '\'.');
+                throw new hdf5.Error(`Unsupported group info version '${version}'.`);
         }
     }
 };
@@ -1313,7 +1313,7 @@ hdf5.FilterPipeline = class {
                 break;
             }
             default:
-                throw new hdf5.Error('Unsupported filter pipeline message version \'' + version + '\'.');
+                throw new hdf5.Error(`Unsupported filter pipeline message version '${version}'.`);
         }
     }
 };
@@ -1336,7 +1336,7 @@ hdf5.Filter = class {
                 return archive.entries.get('').peek();
             }
             default: {
-                throw new hdf5.Error("Unsupported filter '" + this.name + "'.");
+                throw new hdf5.Error(`Unsupported filter '${this.name}'.`);
             }
         }
     }
@@ -1378,7 +1378,7 @@ hdf5.Attribute = class {
                 break;
             }
             default:
-                throw new hdf5.Error('Unsupported attribute message version \'' + version + '\'.');
+                throw new hdf5.Error(`Unsupported attribute message version '${version}'.`);
         }
     }
 
@@ -1429,12 +1429,12 @@ hdf5.ObjectModificationTime = class {
                         this.timestamp = reader.uint32();
                         break;
                     default:
-                        throw new hdf5.Error('Unsupported object modification time message version \'' + version + '\'.');
+                        throw new hdf5.Error(`Unsupported object modification time message version '${version}'.`);
                 }
                 break;
             }
             default: {
-                throw new hdf5.Error('Unsupported object modification time message type \'' + type + '\'.');
+                throw new hdf5.Error(`Unsupported object modification time message type '${type}'.`);
             }
         }
     }
@@ -1458,7 +1458,7 @@ hdf5.AttributeInfo = class {
                 break;
             }
             default:
-                throw new hdf5.Error('Unsupported attribute info message version \'' + version + '\'.');
+                throw new hdf5.Error(`Unsupported attribute info message version '${version}'.`);
         }
     }
 };
@@ -1511,7 +1511,7 @@ hdf5.Tree = class {
                 break;
             }
             default: {
-                throw new hdf5.Error('Unsupported B-Tree node type \'' + this.type + '\'.');
+                throw new hdf5.Error(`Unsupported B-Tree node type '${this.type}'.`);
             }
         }
     }
@@ -1534,7 +1534,7 @@ hdf5.Heap = class {
                 break;
             }
             default: {
-                throw new hdf5.Error('Unsupported Local Heap version \'' + version + '\'.');
+                throw new hdf5.Error(`Unsupported Local Heap version '${version}'.`);
             }
         }
     }
@@ -1586,7 +1586,7 @@ hdf5.GlobalHeapCollection = class {
                 break;
             }
             default: {
-                throw new hdf5.Error('Unsupported global heap collection version \'' + version + '\'.');
+                throw new hdf5.Error(`Unsupported global heap collection version '${version}'.`);
             }
         }
     }

@@ -14,12 +14,12 @@ const main = async () => {
     const attributes = new Map();
     for (const operator of json) {
         if (operators.has(operator.name)) {
-            throw new Error("Duplicate operator '" + operator.name + "'.");
+            throw new Error(`Duplicate operator '${operator.name}'.`);
         }
         operators.set(operator.name, operator);
         if (operator && operator.attributes) {
             for (const attribute of operator.attributes) {
-                const name = operator.name + ':' + attribute.name;
+                const name = `${operator.name}:${attribute.name}`;
                 attributes.set(name, attribute);
             }
         }
@@ -32,7 +32,7 @@ const main = async () => {
     for (const op of builtOperator.values.keys()) {
         let op_key = op === 'BATCH_MATMUL' ? 'BATCH_MAT_MUL' : op;
         op_key = op_key.split('_').map((s) => (s.length < 1 || upperCase.has(s)) ? s : s[0] + s.substring(1).toLowerCase()).join('');
-        const table = namespace.find('tflite.' + op_key + 'Options', flatc.Type);
+        const table = namespace.find(`tflite.${op_key}Options`, flatc.Type);
         if (table && table.fields.size > 0) {
             if (!operators.has(op_key)) {
                 const operator = { name: op_key };
@@ -42,7 +42,7 @@ const main = async () => {
             const operator = operators.get(op_key);
             operator.attributes = operator.attributes || [];
             for (const field of table.fields.values()) {
-                const attr_key = op_key + ':' + field.name;
+                const attr_key = `${op_key}:${field.name}`;
                 if (!attributes.has(attr_key)) {
                     const attribute = { name: field.name };
                     attributes.set(attr_key, attribute);
@@ -53,7 +53,7 @@ const main = async () => {
                 let defaultValue = field.defaultValue;
                 if (type instanceof flatc.Enum) {
                     if (!type.keys.has(defaultValue)) {
-                        throw new Error("Invalid '" + type.name + "' default value '" + defaultValue + "'.");
+                        throw new Error(`Invalid '${type.name}' default value '${defaultValue}'.`);
                     }
                     defaultValue = type.keys.get(defaultValue);
                 }

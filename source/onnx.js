@@ -110,7 +110,7 @@ onnx.Model = class {
     constructor(metadata, format, model, graph, locations) {
         this._graphs = [];
         this._format = format;
-        this._producer = model.producer_name && model.producer_name.length > 0 ? model.producer_name + (model.producer_version && model.producer_version.length > 0 ? ' ' + model.producer_version : '') : null;
+        this._producer = model.producer_name && model.producer_name.length > 0 ? model.producer_name + (model.producer_version && model.producer_version.length > 0 ? ` ${model.producer_version}` : '') : null;
         this._domain = model.domain;
         const model_version = model.model_version === undefined || typeof model.model_version === 'number' ? model.model_version : model.model_version.toNumber();
         this._version = model_version ? model_version.toString() : '';
@@ -126,7 +126,7 @@ onnx.Model = class {
                     imports.set(domain, version);
                 }
             }
-            this._imports = Array.from(imports).map(([name, version]) => name + ' v' + version.toString());
+            this._imports = Array.from(imports).map(([name, version]) => `${name} v${version}`);
         }
         if (imports.size == 0) {
             imports.set('ai.onnx', 1);
@@ -151,7 +151,7 @@ onnx.Model = class {
             let license = metadata.get('license');
             const license_url = metadata.get('license_url');
             if (license_url) {
-                license = '<a href=\'' + license_url + '\'>' + (license ? license : license_url) + '</a>';
+                license = `<a href='${license_url}'>${license ? license : license_url}</a>`;
             }
             if (license) {
                 this._metadata.set('license', license);
@@ -295,7 +295,7 @@ onnx.Graph = class {
     }
 
     toString() {
-        return 'graph(' + this.name + ')';
+        return `graph(${this.name})`;
     }
 };
 
@@ -319,7 +319,7 @@ onnx.Value = class {
 
     constructor(name, type, initializer, annotation, description) {
         if (typeof name !== 'string') {
-            throw new onnx.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new onnx.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this._name = name;
         this._type = type || null;
@@ -342,7 +342,7 @@ onnx.Value = class {
 
     get quantization() {
         if (this._annotation) {
-            return Object.entries(this._annotation).map(([key, value]) => key + ': ' + value).join(', ');
+            return Object.entries(this._annotation).map(([key, value]) => `${key}: ${value}`).join(', ');
         }
         return null;
     }
@@ -369,7 +369,7 @@ onnx.Node = class {
         this._outputs = outputs;
         this._attributes = attributes.map((attribute) => new onnx.Attribute(context, op_type, domain, attribute));
         this._chain = [];
-        const identifier = domain ? domain + '.' + op_type : op_type;
+        const identifier = domain ? `${domain}.${op_type}` : op_type;
         if (identifier === 'com.microsoft.FusedConv') {
             const activation = attributes.find((attribute) => attribute.name === 'activation');
             if (activation) {
@@ -487,7 +487,7 @@ onnx.Attribute = class {
                 this._type = 'type[]';
                 break;
             default:
-                throw new onnx.Error("Unsupported attribute type '" + attribute.type + "'.");
+                throw new onnx.Error(`Unsupported attribute type '${attribute.type}'.`);
         }
         const metadata = context.metadata.attribute(op_type, domain, attribute.name);
         if (metadata) {
@@ -534,7 +534,7 @@ onnx.Group = class {
                     this._nodes.push(node);
                 }
             } else {
-                this._nodes.push(new onnx.Group(name === '' ? key : name + '/' + key, value));
+                this._nodes.push(new onnx.Group(name === '' ? key : `${name}/${key}`, value));
             }
         }
         const set = new Set();
@@ -689,7 +689,7 @@ onnx.Tensor = class {
                             }
                             break;
                         default:
-                            throw new onnx.Error("Unsupported tensor data type '" + tensor.data_type + "'.");
+                            throw new onnx.Error(`Unsupported tensor data type '${tensor.data_type}'.`);
                     }
                     if (this._data && (Array.isArray(this._data) || ArrayBuffer.isView(this._data)) && this._data.length === 0) {
                         this._data = undefined;
@@ -806,7 +806,7 @@ onnx.TensorShape = class {
         if (!this._dimensions || this._dimensions.length == 0) {
             return '';
         }
-        return '[' + this._dimensions.map((dim) => dim ? dim.toString() : '?').join(',') + ']';
+        return `[${this._dimensions.map((dim) => dim ? dim.toString() : '?').join(',')}]`;
     }
 };
 
@@ -827,7 +827,7 @@ onnx.SequenceType = class {
 
     toString() {
         const elementType = this._elementType ? this._elementType.toString() : '';
-        return 'sequence<' + elementType + '>';
+        return `sequence<${elementType}>`;
     }
 };
 
@@ -852,7 +852,7 @@ onnx.MapType = class {
     }
 
     toString() {
-        return 'map<' + this._keyType + ',' + this._valueType.toString() + '>';
+        return `map<${this._keyType},${this._valueType}>`;
     }
 };
 
@@ -864,8 +864,8 @@ onnx.OpaqueType = class {
     }
 
     toString() {
-        const name = (this._domain ? (this._domain + '.') : '') + this._name;
-        return 'opaque<' + name + '>';
+        const name = (this._domain ? (`${this._domain}.`) : '') + this._name;
+        return `opaque<${name}>`;
     }
 };
 
@@ -880,7 +880,7 @@ onnx.OptionalType = class {
     }
 
     toString() {
-        return 'optional<' + this._type.toString() + '>';
+        return `optional<${this._type}>`;
     }
 };
 
@@ -963,13 +963,13 @@ onnx.ModelMetadata = class {
         }
         const map = this._functions.get(func.module);
         if (map.has(func.name)) {
-            throw new onnx.Error("Duplicate function identifier '" + func.module + '.' + func.name + "'.");
+            throw new onnx.Error(`Duplicate function identifier '${func.module}.${func.name}'.`);
         }
         map.set(func.name, func);
     }
 
     type(name, domain) {
-        const key = domain + ':' + name;
+        const key = `${domain}:${name}`;
         if (!this._cache.has(key)) {
             let value = this._metadata.type(name, domain, this._imports);
             if (!value) {
@@ -986,13 +986,13 @@ onnx.ModelMetadata = class {
     }
 
     attribute(type, domain, name) {
-        const key = domain + ':' + type + ':' + name;
+        const key = `${domain}:${type}:${name}`;
         if (!this._attributes.has(key)) {
             this._attributes.set(key, null);
             const metadata = this.type(type, domain);
             if (metadata && Array.isArray(metadata.attributes) && metadata.attributes.length > 0) {
                 for (const attribute of metadata.attributes) {
-                    const key = domain + ':' + type + ':' + attribute.name;
+                    const key = `${domain}:${type}:${attribute.name}`;
                     this._attributes.set(key, attribute);
                 }
             }
@@ -1303,7 +1303,7 @@ onnx.GraphContext = class {
                 denotation = 'Tensor';
                 break;
             case 'IMAGE':
-                denotation = 'Image' + (this._context.imageFormat ? '(' + this._context.imageFormat.join(',') + ')' : '');
+                denotation = `Image${this._context.imageFormat ? `(${this._context.imageFormat.join(',')})` : ''}`;
                 break;
             case 'AUDIO':
                 denotation = 'Audio';
@@ -1312,7 +1312,7 @@ onnx.GraphContext = class {
                 denotation = 'Text';
                 break;
             default:
-                throw new onnx.Error("Unsupported tensor type denotation '" + type.denotation + "'.");
+                throw new onnx.Error(`Unsupported tensor type denotation '${type.denotation}'.`);
         }
         if (type.tensor_type) {
             const tensor_type = type.tensor_type;
@@ -1333,7 +1333,7 @@ onnx.GraphContext = class {
         } else if (Object.keys(type).length == 0) {
             return null;
         }
-        throw new onnx.Error("Unsupported tensor type '" + JSON.stringify(type) + "'.");
+        throw new onnx.Error(`Unsupported tensor type '${JSON.stringify(type)}'.`);
     }
 
     createTensorType(dataType, shape, layout, denotation) {
@@ -1353,13 +1353,13 @@ onnx.GraphContext = class {
             } else if (value && typeof value === 'string' && onnx.DataType[value.toUpperCase()] !== undefined) {
                 value = onnx.DataType[value.toUpperCase()];
             } else {
-                throw new onnx.Error("Unsupported data type '" + JSON.stringify(value) + "'.");
+                throw new onnx.Error(`Unsupported data type '${JSON.stringify(value)}'.`);
             }
         }
         if (this._dataTypes.has(value)) {
             return this._dataTypes.get(value);
         }
-        throw new onnx.Error("Unsupported data type '" + JSON.stringify(value) + "'.");
+        throw new onnx.Error(`Unsupported data type '${JSON.stringify(value)}'.`);
     }
 
     createLocation(value) {
@@ -1612,10 +1612,10 @@ onnx.ProtoReader = class {
                 try {
                     const reader = protobuf.TextReader.open(stream);
                     this.model = onnx.proto.ModelProto.decodeText(reader);
-                    this.format = 'ONNX' + (this.model.ir_version ? ' v' + this.model.ir_version.toString() : '');
+                    this.format = `ONNX${this.model.ir_version ? ` v${this.model.ir_version}` : ''}`;
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw new onnx.Error('File text format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
+                    throw new onnx.Error(`File text format is not onnx.ModelProto (${message.replace(/\.$/, '')}).`);
                 }
                 break;
             }
@@ -1642,7 +1642,7 @@ onnx.ProtoReader = class {
                             this.format = 'ONNX Tensor';
                         } catch (error) {
                             const message = error && error.message ? error.message : error.toString();
-                            throw new onnx.Error('File format is not onnx.TensorProto (' + message.replace(/\.$/, '') + ').');
+                            throw new onnx.Error(`File format is not onnx.TensorProto (${message.replace(/\.$/, '')}).`);
                         }
                         break;
                     }
@@ -1655,7 +1655,7 @@ onnx.ProtoReader = class {
                             this.format = 'ONNX';
                         } catch (error) {
                             const message = error && error.message ? error.message : error.toString();
-                            throw new onnx.Error('File format is not onnx.GraphProto (' + message.replace(/\.$/, '') + ').');
+                            throw new onnx.Error(`File format is not onnx.GraphProto (${message.replace(/\.$/, '')}).`);
                         }
                         break;
                     }
@@ -1664,10 +1664,10 @@ onnx.ProtoReader = class {
                         try {
                             const reader = protobuf.BinaryReader.open(stream);
                             this.model = onnx.proto.ModelProto.decode(reader);
-                            this.format = 'ONNX' + (this.model.ir_version ? ' v' + this.model.ir_version.toString() : '');
+                            this.format = `ONNX${this.model.ir_version ? ` v${this.model.ir_version}` : ''}`;
                         } catch (error) {
                             const message = error && error.message ? error.message : error.toString();
-                            throw new onnx.Error('File format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
+                            throw new onnx.Error(`File format is not onnx.ModelProto (${message.replace(/\.$/, '')}).`);
                         }
                         break;
                     }
@@ -1722,7 +1722,7 @@ onnx.OrtReader = class {
             this.model = session.model;
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new onnx.Error('File format is not ort.Model (' + message.replace(/\.$/, '') + ').');
+            throw new onnx.Error(`File format is not ort.Model (${message.replace(/\.$/, '')}).`);
         }
         const tensor_shape = (value) => {
             if (value && value.dim && Array.isArray(value.dim)) {
@@ -1739,7 +1739,7 @@ onnx.OrtReader = class {
                             delete dimension.value.dim_param;
                             break;
                         default:
-                            throw new onnx.Error("Unknown shape dimension '" + JSON.stringify(dimension.value) + "'.");
+                            throw new onnx.Error(`Unknown shape dimension '${JSON.stringify(dimension.value)}'.`);
                     }
                 }
             }
@@ -1797,7 +1797,7 @@ onnx.OrtReader = class {
                     value.map_type = map_type(type);
                     return value;
                 }
-                throw new onnx.Error("Unsupported type value '" + JSON.stringify(value.value));
+                throw new onnx.Error(`Unsupported type value '${JSON.stringify(value.value)}`);
             }
             return null;
         };
@@ -1841,7 +1841,7 @@ onnx.OrtReader = class {
         graph(this.model.graph);
         this.model.graph.doc_string = this.model.graph_doc_string;
         delete this.model.graph_doc_string;
-        this.format = 'ONNX Runtime' + (this.model.ir_version ? ' v' + this.model.ir_version.toString() : '');
+        this.format = `ONNX Runtime${this.model.ir_version ? ` v${this.model.ir_version}` : ''}`;
     }
 };
 
@@ -1926,7 +1926,7 @@ onnx.JsonReader = class {
                 value.sparse_tensor_type = sparse_tensor_type(value.sparseTensorType);
                 delete value.sparseTensorType;
             } else {
-                throw new onnx.Error("Unsupported ONNX JSON type '" + JSON.stringify(Object.keys(value)) + "'.");
+                throw new onnx.Error(`Unsupported ONNX JSON type '${JSON.stringify(Object.keys(value))}'.`);
             }
             return value;
         };
@@ -1957,7 +1957,7 @@ onnx.JsonReader = class {
                 value.int64_data = value.int64Data.map((value) => parseInt(value, 10));
                 delete value.int64Data;
             } else {
-                throw new onnx.Error("Unsupported ONNX JSON tensor data '" + JSON.stringify(value.data_type) + ".");
+                throw new onnx.Error(`Unsupported ONNX JSON tensor data '${JSON.stringify(value.data_type)}.`);
             }
             return value;
         };
@@ -2000,7 +2000,7 @@ onnx.JsonReader = class {
                 value.sparse_tensor = sparse_tensor(value.sparseTensor);
                 delete value.sparseTensor;
             } else {
-                throw new onnx.Error("Unsupported ONNX JSON attribute type '" + JSON.stringify(value.type) + "'.");
+                throw new onnx.Error(`Unsupported ONNX JSON attribute type '${JSON.stringify(value.type)}'.`);
             }
             return value;
         };
@@ -2076,7 +2076,7 @@ onnx.JsonReader = class {
         if (Array.isArray(this.model.functions)) {
             this.model.functions = this.model.functions.map((value) => func(value));
         }
-        this.format = 'ONNX JSON' + (this.model.ir_version ? ' v' + this.model.ir_version.toString() : '');
+        this.format = `ONNX JSON${this.model.ir_version ? ` v${this.model.ir_version}` : ''}`;
     }
 };
 
@@ -2122,13 +2122,13 @@ onnx.TextReader = class {
             this._position = 0;
             this._char = this._decoder.decode();
             this.model = this._parseModel();
-            this.format = 'ONNX Text' + (this.model.ir_version ? ' v' + this.model.ir_version.toString() : '');
+            this.format = `ONNX Text${this.model.ir_version ? ` v${this.model.ir_version}` : ''}`;
             delete this._decoder;
             delete this._position;
             delete this._char;
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new onnx.Error('File format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
+            throw new onnx.Error(`File format is not onnx.ModelProto (${message.replace(/\.$/, '')}).`);
         }
     }
 
@@ -2173,7 +2173,7 @@ onnx.TextReader = class {
                         }
                         break;
                     default:
-                        this._throw("Unknown keyword '" + keyword + "'.");
+                        this._throw(`Unknown keyword '${keyword}'.`);
                         break;
                 }
             } while (this._match(','));
@@ -2283,7 +2283,7 @@ onnx.TextReader = class {
         if (this._match(':')) {
             const type = this._parseIdentifier();
             if (!this._attributeTypes.has(type)) {
-                this._throw("Unexpected attribute type '" + type + "'.");
+                this._throw(`Unexpected attribute type '${type}'.`);
             }
             attribute.type = this._attributeTypes.get(type);
         }
@@ -2400,7 +2400,7 @@ onnx.TextReader = class {
                     attribute.s = value;
                     break;
                 default: {
-                    this._throw("Unexpected value '" + JSON.stringify(value) + "'.");
+                    this._throw(`Unexpected value '${JSON.stringify(value)}'.`);
                 }
             }
         }
@@ -2513,7 +2513,7 @@ onnx.TextReader = class {
                         tensor.string_data.push(this.string());
                         break;
                     default:
-                        return this._throw("Unsupported tensor element type '" + elem_type.toString() + "'.");
+                        return this._throw(`Unsupported tensor element type '${elem_type}'.`);
                 }
             } while (this._match(','));
             this._expect('}');
@@ -2536,7 +2536,7 @@ onnx.TextReader = class {
                         func[keyword] = this._parseString();
                         break;
                     default:
-                        this._throw("Unknown keyword '" + keyword + "'.");
+                        this._throw(`Unknown keyword '${keyword}'.`);
                         break;
                 }
             }
@@ -2762,15 +2762,16 @@ onnx.TextReader = class {
         } else {
             if (c < ' ' || c > '\x7F') {
                 const name = Object.keys(this._escape).filter((key) => this._escape[key] === c);
-                c = (name.length === 1) ? '\\' + name : '\\u' + ('000' + c.charCodeAt(0).toString(16)).slice(-4);
+                c = (name.length === 1) ? `\\${name}` : `\\u${(`000${c.charCodeAt(0).toString(16)}`).slice(-4)}`;
             }
-            c = "token '" + c + "'";
+            c = `token '${c}'`;
         }
-        this._throw('Unexpected ' + c);
+        this._throw(`Unexpected ${c}`);
     }
 
     _throw(message) {
-        throw new onnx.Error(message.replace(/\.$/, '') + this._location());
+        message = message.replace(/\.$/, '');
+        throw new onnx.Error(`${message} ${this._location()}`);
     }
 
     _location() {
@@ -2780,7 +2781,7 @@ onnx.TextReader = class {
         let c;
         do {
             if (this._decoder.position === this._position) {
-                return ' at ' + line.toString() + ':' + column.toString() + '.';
+                return `at ${line}:${column}.`;
             }
             c = this._decoder.decode();
             if (c === '\n') {
@@ -2791,7 +2792,7 @@ onnx.TextReader = class {
             }
         }
         while (c !== undefined);
-        return ' at ' + line.toString() + ':' + column.toString() + '.';
+        return `at ${line}:${column}.`;
     }
 };
 

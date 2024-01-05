@@ -86,10 +86,12 @@
             "object-curly-spacing": [ "error", "always" ],
             "prefer-const": [ "error" ],
             "prefer-destructuring": [ "error", { "array": true } ],
+            "prefer-template": "error",
             "require-atomic-updates": "error",
             "semi": [ "error", "always" ],
             "space-before-blocks": "error",
-            "space-in-parens": "error"
+            "space-in-parens": "error",
+            "template-curly-spacing": "error"
         },
         "globals": {
             "flatbuffers": "readonly",

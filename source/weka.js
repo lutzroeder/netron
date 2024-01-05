@@ -28,7 +28,7 @@ weka.ModelFactory = class {
     async open(context) {
         const reader = new java.io.InputObjectStream(context.stream);
         const obj = reader.read();
-        throw new weka.Error("Unsupported type '" + obj.$class.name + "'.");
+        throw new weka.Error(`Unsupported type '${obj.$class.name}'.`);
     }
 };
 
@@ -59,7 +59,7 @@ java.io.InputObjectStream = class {
         this._reader.skip(2);
         const version = this._reader.uint16();
         if (version !== 0x0005) {
-            throw new java.io.Error("Unsupported version '" + version + "'.");
+            throw new java.io.Error(`Unsupported version '${version}'.`);
         }
     }
 
@@ -81,7 +81,7 @@ java.io.InputObjectStream = class {
                 return this._newString(false);
             }
             default: {
-                throw new java.io.Error("Unsupported code '" + code + "'.");
+                throw new java.io.Error(`Unsupported code '${code}'.`);
             }
         }
     }
@@ -98,7 +98,7 @@ java.io.InputObjectStream = class {
                 this._reader.byte();
                 return null;
             default:
-                throw new java.io.Error("Unsupported code '" + code + "'.");
+                throw new java.io.Error(`Unsupported code '${code}'.`);
         }
     }
 
@@ -131,7 +131,7 @@ java.io.InputObjectStream = class {
             case 0x7D: // TC_PROXYCLASSDESC
                 return null;
             default:
-                throw new java.io.Error("Unsupported code '" + code + "'.");
+                throw new java.io.Error(`Unsupported code '${code}'.`);
         }
     }
 
@@ -206,7 +206,7 @@ java.io.InputObjectStream.BinaryReader = class {
     skip(offset) {
         this._position += offset;
         if (this._position > this._end) {
-            throw new java.io.Error('Expected ' + (this._position - this._end) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+            throw new java.io.Error(`Expected ${this._position - this._end} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
     }
 

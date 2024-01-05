@@ -25,7 +25,7 @@ flux.ModelFactory = class {
             root = reader.read();
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new flux.Error('File format is not Flux BSON (' + message.replace(/\.$/, '') + ').');
+            throw new flux.Error(`File format is not Flux BSON (${message.replace(/\.$/, '')}).`);
         }
         const metadata = context.metadata('flux-metadata.json');
         const backref = (obj, root) => {
@@ -36,7 +36,7 @@ flux.ModelFactory = class {
             } else if (obj === Object(obj)) {
                 if (obj.tag == 'backref' && obj.ref) {
                     if (!root._backrefs[obj.ref - 1]) {
-                        throw new flux.Error("Invalid backref '" + obj.ref + "'.");
+                        throw new flux.Error(`Invalid backref '${obj.ref}'.`);
                     }
                     obj = root._backrefs[obj.ref - 1];
                 }

@@ -25,9 +25,9 @@ host.ElectronHost = class {
         };
         this._window.addEventListener('unload', () => {
             if (typeof __coverage__ !== 'undefined') {
-                const file = path.join('.nyc_output', path.basename(window.location.pathname, '.html')) + '.json';
+                const file = path.join('.nyc_output', path.basename(window.location.pathname, '.html'));
                 /* eslint-disable no-undef */
-                fs.writeFileSync(file, JSON.stringify(__coverage__));
+                fs.writeFileSync(`${file}.json`, JSON.stringify(__coverage__));
                 /* eslint-enable no-undef */
             }
         });
@@ -98,7 +98,7 @@ host.ElectronHost = class {
                 const measurement_id = '848W2NVWVH';
                 const user = this.get('user') || null;
                 const session = this.get('session') || null;
-                await this._telemetry.start('G-' + measurement_id, user && user.indexOf('.') !== -1 ? user : null, session);
+                await this._telemetry.start(`G-${measurement_id}`, user && user.indexOf('.') !== -1 ? user : null, session);
                 this._telemetry.send('page_view', {
                     app_name: this.type,
                     app_version: this.version,
@@ -254,7 +254,7 @@ host.ElectronHost = class {
     }
 
     async require(id) {
-        return import(id + '.js');
+        return import(`${id}.js`);
     }
 
     save(name, extension, defaultPath, callback) {
@@ -283,9 +283,9 @@ host.ElectronHost = class {
 
         let err = null;
         if (!blob) {
-            err = new Error("Export blob is '" + JSON.stringify(blob) + "'.");
+            err = new Error(`Export blob is '${JSON.stringify(blob)}'.`);
         } else if (!(blob instanceof Blob)) {
-            err = new Error("Export blob type is '" + (typeof blob) + "'.");
+            err = new Error(`Export blob type is '${typeof blob}'.`);
         }
 
         if (err) {
@@ -306,11 +306,11 @@ host.ElectronHost = class {
             const pathname = path.join(basename || dirname, file);
             fs.stat(pathname, (err, stat) => {
                 if (err && err.code === 'ENOENT') {
-                    reject(new Error("The file '" + file + "' does not exist."));
+                    reject(new Error(`The file '${file}' does not exist.`));
                 } else if (err) {
                     reject(err);
                 } else if (!stat.isFile()) {
-                    reject(new Error("The path '" + file + "' is not a file."));
+                    reject(new Error(`The path '${file}' is not a file.`));
                 } else if (stat && stat.size < 0x7ffff000) {
                     fs.readFile(pathname, encoding, (err, data) => {
                         if (err) {
@@ -320,7 +320,7 @@ host.ElectronHost = class {
                         }
                     });
                 } else if (encoding) {
-                    reject(new Error("The file '" + file + "' size (" + stat.size.toString() + ") for encoding '" + encoding + "' is greater than 2 GB."));
+                    reject(new Error(`The file '${file}' size (${stat.size.toString()}) for encoding '${encoding}' is greater than 2 GB.`));
                 } else {
                     resolve(new host.ElectronHost.FileStream(pathname, 0, stat.size, stat.mtimeMs));
                 }
@@ -335,21 +335,21 @@ host.ElectronHost = class {
     exception(error, fatal) {
         if (this._telemetry && error) {
             try {
-                const name = error.name ? error.name + ': ' : '';
+                const name = error.name ? `${error.name}: ` : '';
                 const message = error.message ? error.message : JSON.stringify(error);
                 let context = '';
                 let stack = '';
                 if (error.stack) {
                     const format = (file, line, column) => {
-                        return file.split('\\').join('/').split('/').pop() + ':' + line + ':' + column;
+                        return `${file.split('\\').join('/').split('/').pop()}:${line}:${column}`;
                     };
                     const match = error.stack.match(/\n {4}at (.*) \((.*):(\d*):(\d*)\)/);
                     if (match) {
-                        stack = match[1] + ' (' + format(match[2], match[3], match[4]) + ')';
+                        stack = `${match[1]} (${format(match[2], match[3], match[4])})`;
                     } else {
                         const match = error.stack.match(/\n {4}at (.*):(\d*):(\d*)/);
                         if (match) {
-                            stack = '(' + format(match[1], match[2], match[3]) + ')';
+                            stack = `(${format(match[1], match[2], match[3])})`;
                         } else {
                             const match = error.stack.match(/.*\n\s*(.*)\s*/);
                             if (match) {
@@ -409,7 +409,7 @@ host.ElectronHost = class {
             walk(location);
             return new host.ElectronHost.Context(this, location, basename, null, entries);
         }
-        throw new Error("Unsupported path stat '" + JSON.stringify(stat) + "'.");
+        throw new Error(`Unsupported path stat '${JSON.stringify(stat)}'.`);
     }
 
     async _open(location) {
@@ -462,7 +462,7 @@ host.ElectronHost = class {
             }
             const request = protocol.request(location, options, (response) => {
                 if (response.statusCode !== 200) {
-                    const err = new Error("The web request failed with status code " + response.statusCode + " at '" + location + "'.");
+                    const err = new Error(`The web request failed with status code ${response.statusCode} at '${location}'.`);
                     err.type = 'error';
                     err.url = location;
                     err.status = response.statusCode;
@@ -485,7 +485,7 @@ host.ElectronHost = class {
             });
             request.on("timeout", () => {
                 request.destroy();
-                const error = new Error("The web request timed out at '" + location + "'.");
+                const error = new Error(`The web request timed out at '${location}'.`);
                 error.type = 'timeout';
                 error.url = url;
                 reject(error);
@@ -527,7 +527,7 @@ host.ElectronHost = class {
                 const path = label.split(this._environment.separator || '/');
                 for (let i = 0; i < path.length; i++) {
                     const span = this.document.createElement('span');
-                    span.innerHTML = ' ' + path[i] + ' ' + (i !== path.length - 1 ? '<svg class="titlebar-icon" aria-hidden="true"><use xlink:href="#icon-arrow-right"></use></svg>' : '');
+                    span.innerHTML = ` ${path[i]} ${i !== path.length - 1 ? '<svg class="titlebar-icon" aria-hidden="true"><use xlink:href="#icon-arrow-right"></use></svg>' : ''}`;
                     element.appendChild(span);
                 }
             }
@@ -617,7 +617,8 @@ host.ElectronHost.FileStream = class {
     skip(offset) {
         this._position += offset;
         if (this._position > this._length) {
-            throw new Error('Expected ' + (this._position - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+            const offset = this._position - this._length;
+            throw new Error(`Expected ${offset} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
     }
 
@@ -656,7 +657,8 @@ host.ElectronHost.FileStream = class {
 
     _fill(length) {
         if (this._position + length > this._length) {
-            throw new Error('Expected ' + (this._position + length - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+            const offset = this._position + length - this._length;
+            throw new Error(`Expected ${offset} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
         if (!this._buffer || this._position < this._offset || this._position + length > this._offset + this._buffer.length) {
             this._offset = this._position;
@@ -675,7 +677,7 @@ host.ElectronHost.FileStream = class {
         const descriptor = fs.openSync(this._file, 'r');
         const stat = fs.statSync(this._file);
         if (stat.mtimeMs != this._mtime) {
-            throw new Error("File '" + this._file + "' last modified time changed.");
+            throw new Error(`File '${this._file}' last modified time changed.`);
         }
         try {
             fs.readSync(descriptor, buffer, 0, buffer.length, offset + this._start);

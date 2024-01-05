@@ -9,7 +9,7 @@ text.Decoder = class {
         }
         const assert = (encoding, condition) => {
             if (encoding && encoding !== condition) {
-                throw new text.Error("Invalid encoding '" + encoding + "'.");
+                throw new text.Error(`Invalid encoding '${encoding}'.`);
             }
         };
         const buffer = data instanceof Uint8Array ? data : data.peek();

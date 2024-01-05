@@ -29,7 +29,7 @@ barracuda.Model = class {
 
     constructor(metadata, model) {
         const version = model.version.toString();
-        this.format = 'Barracuda v' + version;
+        this.format = `Barracuda v${version}`;
         this.graphs = [ new barracuda.Graph(metadata, model) ];
     }
 };
@@ -47,7 +47,7 @@ barracuda.Graph = class {
                 type = tensor ? tensor.type : type;
                 values.set(name, new barracuda.Value(name, type, tensor));
             } else if (type || tensor) {
-                throw new barracuda.Error("Duplicate value '" + name + "'.");
+                throw new barracuda.Error(`Duplicate value '${name}'.`);
             }
             return values.get(name);
         };
@@ -132,7 +132,7 @@ barracuda.Node = class {
         if (layer.activation !== undefined && (layer.type === 50 || layer.activation !== 0)) {
             const type = barracuda.Activation[layer.activation];
             if (!type) {
-                throw new barracuda.Error("Unsupported activation '" + layer.activation + "'.");
+                throw new barracuda.Error(`Unsupported activation '${layer.activation}'.`);
             }
             const node = new barracuda.Node(metadata, {}, { name: type, category: 'Activation' }, values);
             this.chain = [ node ];
@@ -184,7 +184,7 @@ barracuda.TensorType = class {
     constructor(itemsize, shape) {
         switch (itemsize) {
             case 4: this.dataType = 'float32'; break;
-            default: throw new barracuda.Error("Unsupported data type size '" + itemsize.toString() + "'.");
+            default: throw new barracuda.Error(`Unsupported data type size '${itemsize}'.`);
         }
         this.shape = shape;
     }
@@ -201,7 +201,7 @@ barracuda.TensorShape = class {
     }
 
     toString() {
-        return this.dimensions ? ('[' + this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']') : '';
+        return this.dimensions ? (`[${this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`) : '';
     }
 };
 

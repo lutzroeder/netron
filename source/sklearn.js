@@ -9,7 +9,7 @@ sklearn.ModelFactory = class {
         const obj = context.peek('pkl');
         const validate = (obj, name) => {
             if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__) {
-                const key = obj.__class__.__module__ + '.' + obj.__class__.__name__;
+                const key = `${obj.__class__.__module__}.${obj.__class__.__name__}`;
                 return key.startsWith(name);
             }
             return false;
@@ -26,12 +26,12 @@ sklearn.ModelFactory = class {
                 return format.format;
             }
             if (Array.isArray(obj) && obj.length > 0 && obj.every((item) => validate(item, format.name))) {
-                return format.format + '.list';
+                return `${format.format}.list`;
             }
             if (Object(obj) === obj) {
                 const entries = Object.entries(obj);
                 if (entries.length > 0 && entries.every(([, value]) => validate(value, format.name))) {
-                    return format.format + '.map';
+                    return `${format.format}.map`;
                 }
             }
         }
@@ -61,7 +61,7 @@ sklearn.Model = class {
             case 'scipy':
             case 'hmmlearn': {
                 if (obj._sklearn_version) {
-                    version.push(' v' + obj._sklearn_version.toString());
+                    version.push(` v${obj._sklearn_version}`);
                 }
                 this.graphs.push(new sklearn.Graph(metadata, '', obj));
                 break;
@@ -73,7 +73,7 @@ sklearn.Model = class {
                     const obj = list[i];
                     this.graphs.push(new sklearn.Graph(metadata, i.toString(), obj));
                     if (obj._sklearn_version) {
-                        version.push(' v' + obj._sklearn_version.toString());
+                        version.push(` v${obj._sklearn_version}`);
                     }
                 }
                 break;
@@ -83,13 +83,13 @@ sklearn.Model = class {
                 for (const [name, value] of Object.entries(obj)) {
                     this.graphs.push(new sklearn.Graph(metadata, name, value));
                     if (value._sklearn_version) {
-                        version.push(' v' + value._sklearn_version.toString());
+                        version.push(` v${value._sklearn_version}`);
                     }
                 }
                 break;
             }
             default: {
-                throw new sklearn.Error("Unsupported scikit-learn format '" + target + "'.");
+                throw new sklearn.Error(`Unsupported scikit-learn format '${target}'.`);
             }
         }
         if (version.length > 0 && version.every((value) => value === version[0])) {
@@ -117,7 +117,7 @@ sklearn.Graph = class {
             return (parent === '' ?  name : `${parent}/${name}`);
         };
         const process = (group, name, obj, inputs) => {
-            const type = obj.__class__.__module__ + '.' + obj.__class__.__name__;
+            const type = `${obj.__class__.__module__}.${obj.__class__.__name__}`;
             switch (type) {
                 case 'sklearn.pipeline.Pipeline': {
                     this.groups = true;
@@ -180,7 +180,7 @@ sklearn.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new sklearn.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new sklearn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this._type = type || null;
@@ -200,7 +200,7 @@ sklearn.Node = class {
     constructor(metadata, group, name, obj, inputs, outputs, values, stack) {
         this.group = group || null;
         this.name = name || '';
-        const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'builtins.dict';
+        const type = obj.__class__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : 'builtins.dict';
         this.type = metadata.type(type) || { name: type };
         this.inputs = inputs.map((input) => new sklearn.Argument(input, [ values.map(input) ]));
         this.outputs = outputs.map((output) => new sklearn.Argument(output, [ values.map(output) ]));
@@ -336,7 +336,7 @@ sklearn.TensorShape = class {
     }
 
     toString() {
-        return this.dimensions ? ('[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+        return this.dimensions ? (`[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`) : '';
     }
 };
 

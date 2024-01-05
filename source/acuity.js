@@ -24,7 +24,7 @@ acuity.Model = class {
 
     constructor(metadata, model, data, quantization) {
         this.name = model.MetaData.Name;
-        this.format = 'Acuity ' + 'v' + model.MetaData.AcuityVersion;
+        this.format = `Acuity v${model.MetaData.AcuityVersion}`;
         this.runtime = model.MetaData.Platform;
         this.graphs = [ new acuity.Graph(metadata, model, data, quantization) ];
     }
@@ -48,7 +48,7 @@ acuity.Graph = class {
                 return value(input);
             });
             layer.outputs = layer.outputs.map((port) => {
-                const output = value("@" + name + ":" + port);
+                const output = value(`@${name}:${port}`);
                 let shape = null;
                 if (layer.op.toLowerCase() == 'input' ||
                     layer.op.toLowerCase() == 'variable') {
@@ -116,7 +116,7 @@ acuity.Node = class {
         for (let i = 0; i < layer.inputs.length; i++) {
             const input = layer.inputs[i];
             const value = values.get(input.name);
-            const name = this.type && this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i].name : 'input' + i.toString();
+            const name = this.type && this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i].name : `input${i}`;
             this.inputs.push(new acuity.Argument(name, [ value ]));
         }
 
@@ -132,7 +132,7 @@ acuity.Node = class {
         for (let i = 0; i < layer.outputs.length; i++) {
             const output = layer.outputs[i];
             const value = values.get(output.name);
-            const name = this.type && this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i].name : 'output' + i.toString();
+            const name = this.type && this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i].name : `output${i}`;
             this.outputs.push(new acuity.Argument(name, [ value ]));
         }
     }
@@ -167,7 +167,7 @@ acuity.Value = class {
 
     constructor(name, type, quantization, initializer) {
         if (typeof name !== 'string') {
-            throw new acuity.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new acuity.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = type || null;
@@ -198,7 +198,7 @@ acuity.TensorShape = class {
         if (!Array.isArray(this.dimensions) || this.dimensions.length == 0 || (this.dimensions.length == 1 && this.dimensions[0] == 0)) {
             return '';
         }
-        return '[' + this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']';
+        return `[${this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`;
     }
 };
 

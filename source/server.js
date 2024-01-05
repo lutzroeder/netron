@@ -230,7 +230,7 @@ message.TensorShape = class {
     }
 
     toString() {
-        return '[' + this._dimensions.toString() + ']';
+        return `[${this._dimensions}]`;
     }
 };
 

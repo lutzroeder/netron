@@ -7,7 +7,7 @@ mediapipe.ModelFactory = class {
 
     match(context) {
         const tags = context.tags('pbtxt');
-        if (tags.has('node') && ['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
+        if (tags.has('node') && ['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has(`node.${key}`))) {
             return 'mediapipe.pbtxt';
         }
         return null;
@@ -24,7 +24,7 @@ mediapipe.ModelFactory = class {
             config = new mediapipe.Object(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new mediapipe.Error('File text format is not mediapipe.CalculatorGraphConfig (' + message.replace(/\.$/, '') + ').');
+            throw new mediapipe.Error(`File text format is not mediapipe.CalculatorGraphConfig (${message.replace(/\.$/, '')}).`);
         }
         return new mediapipe.Model(config);
     }
@@ -189,7 +189,7 @@ mediapipe.Value = class {
 
     constructor(name, type) {
         if (typeof name !== 'string') {
-            throw new mediapipe.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new mediapipe.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = type || null;

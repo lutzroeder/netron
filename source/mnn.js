@@ -31,7 +31,7 @@ mnn.ModelFactory = class {
             net = mnn.schema.Net.create(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new mnn.Error('File format is not mnn.Net (' + message.replace(/\.$/, '') + ').');
+            throw new mnn.Error(`File format is not mnn.Net (${message.replace(/\.$/, '')}).`);
         }
         const metadata = await context.metadata('mnn-metadata.json');
         return new mnn.Model(metadata, net);
@@ -50,7 +50,7 @@ mnn.Model = class {
             [ mnn.schema.NetSource.TORCH, 'Torch' ]
         ]);
         if (!sources.has(net.sourceType)) {
-            throw new mnn.Error("Unsupported model source '" + net.sourceType + "'.");
+            throw new mnn.Error(`Unsupported model source '${net.sourceType}'.`);
         }
         this.metadata = new Map();
         this.metadata.set('source', sources.get(net.sourceType));
@@ -67,7 +67,7 @@ mnn.Graph = class {
         this.outputs = [];
         for (let i = 0; i < net.tensorName.length; i++) {
             if (net.tensorName[i] === '') {
-                net.tensorName[i] = '\n' + i.toString();
+                net.tensorName[i] = `\n${i}`;
             }
         }
         const inputs = new Map();
@@ -130,7 +130,7 @@ mnn.Graph = class {
 mnn.Node = class {
 
     constructor(metadata, op, net, values) {
-        const type = mnn.Utility.enum('OpType', op.type) || '(' + op.type.toString() + ')';
+        const type = mnn.Utility.enum('OpType', op.type) || `(${op.type})`;
         this.type = metadata.type(type) || { name: type };
         this.name = op.name || '';
         this.attributes = [];
@@ -275,7 +275,7 @@ mnn.Tensor = class {
                 this.values = data ? data.slice(0) : null;
                 break;
             default:
-                throw new mnn.Error("Unsupported data type '" + type.dataType + "'.");
+                throw new mnn.Error(`Unsupported data type '${type.dataType}'.`);
         }
     }
 };
@@ -291,7 +291,7 @@ mnn.TensorType = class {
                 case mnn.schema.MNN_DATA_FORMAT.NHWC: this.denotation = 'NHWC'; break;
                 case mnn.schema.MNN_DATA_FORMAT.NC4HW4: this.denotation = 'NC4HW4'; break;
                 case mnn.schema.MNN_DATA_FORMAT.NHWC4: this.denotation = 'NHWC4'; break;
-                default: throw new mnn.Error("Unsupported tensor type format '" + format + "'.");
+                default: throw new mnn.Error(`Unsupported tensor type format '${format}'.`);
             }
         }
     }
@@ -309,7 +309,7 @@ mnn.TensorShape = class {
 
     toString() {
         if (this.dimensions && this.dimensions.length > 0) {
-            return '[' + this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']';
+            return `[${this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`;
         }
         return '';
     }
@@ -341,7 +341,7 @@ mnn.Utility = class {
             case mnn.schema.DataType.DT_HALF: return 'float16';
             case mnn.schema.DataType.DT_RESOURCE: return 'resource';
             case mnn.schema.DataType.DT_VARIANT: return 'variant';
-            default: throw new mnn.Error("Unsupported data type '" + JSON.stringify(type) + "'.");
+            default: throw new mnn.Error(`Unsupported data type '${JSON.stringify(type)}'.`);
         }
     }
 
@@ -375,7 +375,7 @@ mnn.Utility = class {
             case 'int64': data = param.int64s; break;
             case 'float16': data = param.uint8s; break;
             case 'float32': data = param.float32s; break;
-            default: throw new mnn.Error("Unsupported blob data type '" + JSON.stringify(type.dataType) + "'.");
+            default: throw new mnn.Error(`Unsupported blob data type '${JSON.stringify(type.dataType)}'.`);
         }
         return new mnn.Tensor(category, type, data);
     }

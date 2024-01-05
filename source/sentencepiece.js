@@ -32,7 +32,7 @@ sentencepiece.ModelFactory = class {
             model = sentencepiece.proto.ModelProto.decode(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new sentencepiece.Error('File format is not sentencepiece.ModelProto (' + message.replace(/\.$/, '') + ').');
+            throw new sentencepiece.Error(`File format is not sentencepiece.ModelProto (${message.replace(/\.$/, '')}).`);
         }
         return new sentencepiece.Model(model);
     }

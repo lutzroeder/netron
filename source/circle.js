@@ -32,7 +32,7 @@ circle.ModelFactory = class {
                     model = circle.schema.Model.createText(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw new circle.Error('File text format is not circle.Model (' + message.replace(/\.$/, '') + ').');
+                    throw new circle.Error(`File text format is not circle.Model (${message.replace(/\.$/, '')}).`);
                 }
                 break;
             }
@@ -43,7 +43,7 @@ circle.ModelFactory = class {
                     model = circle.schema.Model.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw new circle.Error('File format is not circle.Model (' + message.replace(/\.$/, '') + ').');
+                    throw new circle.Error(`File format is not circle.Model (${message.replace(/\.$/, '')}).`);
                 }
                 try {
                     const archive = zip.Archive.open(stream);
@@ -58,7 +58,7 @@ circle.ModelFactory = class {
                 break;
             }
             default: {
-                throw new circle.Error("Unsupported Circle format '" + target + "'.");
+                throw new circle.Error(`Unsupported Circle format '${target}'.`);
             }
         }
         const metadata = await context.metadata('circle-metadata.json');
@@ -71,7 +71,7 @@ circle.Model = class {
     constructor(metadata, model) {
         this._graphs = [];
         this._format = 'Circle';
-        this._format = this._format + ' v' + model.version.toString();
+        this._format = `${this._format} v${model.version}`;
         this._description = model.description || '';
         this._metadata = new Map();
         const builtinOperators = new Map();
@@ -196,7 +196,7 @@ circle.Graph = class {
         for (let i = 0; i < subgraph.operators.length; i++) {
             const node = subgraph.operators[i];
             const index = node.opcode_index;
-            const operator = index < operators.length ? operators[index] : { name: '(' + index.toString() + ')' };
+            const operator = index < operators.length ? operators[index] : { name: `(${index})` };
             this._nodes.push(new circle.Node(metadata, node, operator, i.toString(), args));
         }
         const applyTensorMetadata = (argument, tensorMetadata) => {
@@ -217,12 +217,12 @@ circle.Graph = class {
                             case 0: denotation += '(Unknown)'; break;
                             case 1: denotation += '(RGB)'; break;
                             case 2: denotation += '(Grayscale)'; break;
-                            default: throw circle.Error("Unsupported image color space '" + contentProperties.color_space + "'.");
+                            default: throw circle.Error(`Unsupported image color space '${contentProperties.color_space}'.`);
                         }
                     } else if (contentProperties instanceof circle.schema.BoundingBoxProperties) {
                         denotation = 'BoundingBox';
                     } else if (contentProperties instanceof circle.schema.AudioProperties) {
-                        denotation = 'Audio(' + contentProperties.sample_rate.toString() + ',' + contentProperties.channels.toString() + ')';
+                        denotation = `Audio(${contentProperties.sample_rate},${contentProperties.channels})`;
                     }
                     if (denotation) {
                         argument.type.denotation = denotation;
@@ -358,7 +358,7 @@ circle.Node = class {
                     if (name === 'fused_activation_function' && value !== 0) {
                         const activationFunctionMap = { 1: 'Relu', 2: 'ReluN1To1', 3: 'Relu6', 4: 'Tanh', 5: 'SignBit' };
                         if (!activationFunctionMap[value]) {
-                            throw new circle.Error("Unsupported activation funtion index '" + JSON.stringify(value) + "'.");
+                            throw new circle.Error(`Unsupported activation funtion index '${JSON.stringify(value)}'.`);
                         }
                         const type = activationFunctionMap[value];
                         this._chain = [ new circle.Node(metadata, null, { name: type }, null, []) ];
@@ -468,7 +468,7 @@ circle.Value = class {
 
     constructor(index, tensor, initializer) {
         const name = tensor.name || '';
-        this._name = name + '\n' + index.toString();
+        this._name = `${name}\n${index}`;
         this._location = index.toString();
         this._type = tensor.type !== undefined && tensor.shape !== undefined ? new circle.TensorType(tensor) : null;
         this._initializer = initializer;
@@ -481,13 +481,13 @@ circle.Value = class {
                 const scale = i < quantization.scale.length ? quantization.scale[i] : 0;
                 const zeroPoint = (i < quantization.zero_point.length ? quantization.zero_point[i] : 0).toString();
                 if (scale !== 0 || zeroPoint !== '0') {
-                    value = scale.toString() + ' * ' + (zeroPoint === '0' ? 'q' : ('(q' + (!zeroPoint.startsWith('-') ? ' - ' + zeroPoint : ' + ' + zeroPoint.substring(1)) + ')'));
+                    value = `${scale} * ${zeroPoint === '0' ? 'q' : (`(q${!zeroPoint.startsWith('-') ? ` - ${zeroPoint}` : ` + ${zeroPoint.substring(1)}`})`)}`;
                 }
                 if (i < quantization.min.length) {
-                    value = quantization.min[i].toString() + ' \u2264 ' + value;
+                    value = `${quantization.min[i]} \u2264 ${value}`;
                 }
                 if (i < quantization.max.length) {
-                    value = value + ' \u2264 ' + quantization.max[i].toString();
+                    value = `${value} \u2264 ${quantization.max[i]}`;
                 }
                 list.push(value);
             }
@@ -627,7 +627,7 @@ circle.TensorShape = class {
         if (!this._dimensions || this._dimensions.length == 0) {
             return '';
         }
-        return '[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+        return `[${this._dimensions.map((dimension) => dimension.toString()).join(',')}]`;
     }
 };
 

@@ -116,7 +116,7 @@ app.Application = class {
             name: this._package.productName,
             version: this._package.version,
             date: this._package.date,
-            repository: 'https://github.com/' + this._package.repository,
+            repository: `https://github.com/${this._package.repository}`,
             platform: process.platform,
             separator: path.sep,
             titlebar: true // process.platform === 'darwin'
@@ -258,7 +258,7 @@ app.Application = class {
             case 'close': window.close(); break;
             case 'quit': electron.app.quit(); break;
             case 'reload': this._reload(); break;
-            case 'report-issue': electron.shell.openExternal('https://github.com/' + this._package.repository + '/issues/new'); break;
+            case 'report-issue': electron.shell.openExternal(`https://github.com/${this._package.repository}/issues/new`); break;
             case 'about': this._about(); break;
             default: {
                 const view = this._views.get(window) || this._views.activeView;
@@ -370,7 +370,7 @@ app.Application = class {
                     label: electron.app.name,
                     submenu: [
                         {
-                            label: 'About ' + electron.app.name,
+                            label: `About ${electron.app.name}`,
                             click: () => /* this.execute('about', null) */ this._about()
                         },
                         { type: 'separator' },
@@ -547,7 +547,7 @@ app.Application = class {
             if (!darwin) {
                 helpSubmenu.push({ type: 'separator' });
                 helpSubmenu.push({
-                    label: '&About ' + electron.app.name,
+                    label: `&About ${electron.app.name}`,
                     click: () => this.execute('about', null)
                 });
             }
@@ -621,7 +621,7 @@ app.Application = class {
         if (process.platform !== 'win32') {
             const homeDir = os.homedir();
             if (path.startsWith(homeDir)) {
-                return { path: path, label: '~' + path.substring(homeDir.length) };
+                return { path: path, label: `~${path.substring(homeDir.length)}` };
             }
         }
         return { path: path, label: path };
@@ -723,7 +723,7 @@ app.View = class {
         const pathname = path.join(dirname, 'index.html');
         let content = fs.readFileSync(pathname, 'utf-8');
         content = content.replace(/<\s*script[^>]*>[\s\S]*?(<\s*\/script[^>]*>|$)/ig, '');
-        const data = 'data:text/html;charset=utf-8,' + encodeURIComponent(content);
+        const data = `data:text/html;charset=utf-8,${encodeURIComponent(content)}`;
         const options = {
             baseURLForDataURL: url.pathToFileURL(pathname).toString()
         };
@@ -777,7 +777,7 @@ app.View = class {
                     if (value) {
                         this._path = value;
                         const location = app.Application.location(this._path);
-                        const title = process.platform !== 'darwin' ? location.label + ' - ' + electron.app.name : location.label;
+                        const title = process.platform !== 'darwin' ? `${location.label} - ${electron.app.name}` : location.label;
                         this._window.setTitle(title);
                         this._window.focus();
                     }

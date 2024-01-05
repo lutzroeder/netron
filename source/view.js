@@ -103,13 +103,13 @@ view.View = class {
                     file.add({
                         label: 'Export as &PNG',
                         accelerator: 'CmdOrCtrl+Shift+E',
-                        execute: () => this.export(this._host.document.title + '.png'),
+                        execute: () => this.export(`${this._host.document.title}.png`),
                         enabled: () => this.activeGraph
                     });
                     file.add({
                         label: 'Export as &SVG',
                         accelerator: 'CmdOrCtrl+Alt+E',
-                        execute: () => this.export(this._host.document.title + '.svg'),
+                        execute: () => this.export(`${this._host.document.title}.svg`),
                         enabled: () => this.activeGraph
                     });
                 }
@@ -200,7 +200,7 @@ view.View = class {
                     execute: () => this._host.execute('report-issue')
                 });
                 help.add({
-                    label: '&About ' + this._host.environment('name'),
+                    label: `&About ${this._host.environment('name')}`,
                     execute: () => this._host.execute('about')
                 });
             }
@@ -242,7 +242,7 @@ view.View = class {
     progress(percent) {
         const bar = this._element('progress-bar');
         if (bar) {
-            bar.style.width = percent.toString() + '%';
+            bar.style.width = `${percent}%`;
         }
     }
 
@@ -307,7 +307,7 @@ view.View = class {
                 this._options.mousewheel = this._options.mousewheel === 'scroll' ? 'zoom' : 'scroll';
                 break;
             default:
-                throw new view.Error("Unsupported toogle '" + name + "'.");
+                throw new view.Error(`Unsupported toogle '${name}'.`);
         }
         const options = {};
         for (const [name, value] of Object.entries(this._options)) {
@@ -329,7 +329,7 @@ view.View = class {
                 const recent = recents[i];
                 this._recents.add({
                     label: recent.label,
-                    accelerator: 'CmdOrCtrl+' + (i + 1).toString(),
+                    accelerator: `CmdOrCtrl+${(i + 1)}`,
                     execute: () => this._host.execute('open', recent.path)
                 });
             }
@@ -415,8 +415,8 @@ view.View = class {
         const y = (e ? e.pageY : (container.clientHeight / 2)) + scrollTop;
         const width = zoom * this._width;
         const height = zoom * this._height;
-        canvas.style.width = width + 'px';
-        canvas.style.height = height + 'px';
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
         this._scrollLeft = Math.max(0, ((x * zoom) / this._zoom) - (x - scrollLeft));
         this._scrollTop = Math.max(0, ((y * zoom) / this._zoom) - (y - scrollTop));
         container.scrollLeft = this._scrollLeft;
@@ -607,7 +607,7 @@ view.View = class {
         name = name || err.name;
         const button = await this._host.error(name, message, url === null);
         if (button === 0 && (url || this._host.type == 'Electron')) {
-            this._host.openURL(url || this._host.environment('repository') + '/issues');
+            this._host.openURL(url || `${this._host.environment('repository')}/issues`);
         }
         this.show(screen !== undefined ? screen : 'welcome');
     }
@@ -626,7 +626,7 @@ view.View = class {
                 format.push(model.format);
             }
             if (model.producer) {
-                format.push('(' + model.producer + ')');
+                format.push(`(${model.producer})`);
             }
             if (format.length > 0) {
                 this._host.event('model_open', {
@@ -719,7 +719,7 @@ view.View = class {
                     const name = graph && graph.name ? graph.name : '';
                     if (name.length > 24) {
                         element.setAttribute('title', name);
-                        element.innerHTML = '&hellip;' + name.substring(name.length - 24, name.length);
+                        element.innerHTML = `&hellip;${name.substring(name.length - 24, name.length)}`;
                     } else {
                         element.removeAttribute('title');
                         element.innerHTML = name;
@@ -809,14 +809,14 @@ view.View = class {
         const margin = 100;
         const width = Math.ceil(margin + size.width + margin);
         const height = Math.ceil(margin + size.height + margin);
-        origin.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
+        origin.setAttribute('transform', `translate(${margin}, ${margin}) scale(1)`);
         background.setAttribute('width', width);
         background.setAttribute('height', height);
         this._width = width;
         this._height = height;
         delete this._scrollLeft;
         delete this._scrollRight;
-        canvas.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+        canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
         canvas.setAttribute('width', width);
         canvas.setAttribute('height', height);
         this._zoom = 1;
@@ -854,7 +854,7 @@ view.View = class {
     applyStyleSheet(element, name) {
         let rules = [];
         for (const styleSheet of this._host.document.styleSheets) {
-            if (styleSheet && styleSheet.href && styleSheet.href.endsWith('/' + name)) {
+            if (styleSheet && styleSheet.href && styleSheet.href.endsWith(`/${name}`)) {
                 rules = styleSheet.cssRules;
                 break;
             }
@@ -901,7 +901,7 @@ view.View = class {
             const delta = (Math.min(size.width, size.height) / 2.0) * 0.1;
             const width = Math.ceil(delta + size.width + delta);
             const height = Math.ceil(delta + size.height + delta);
-            origin.setAttribute('transform', 'translate(' + (delta - size.x).toString() + ', ' + (delta - size.y).toString() + ') scale(1)');
+            origin.setAttribute('transform', `translate(${(delta - size.x)}, ${(delta - size.y)}) scale(1)`);
             clone.setAttribute('width', width);
             clone.setAttribute('height', height);
             background.setAttribute('width', width);
@@ -937,7 +937,7 @@ view.View = class {
                         }
                     }, 'image/png');
                 };
-                image.src = 'data:image/svg+xml;base64,' + this._host.window.btoa(unescape(encodeURIComponent(data)));
+                image.src = `data:image/svg+xml;base64,${this._host.window.btoa(unescape(encodeURIComponent(data)))}`;
             }
         }
     }
@@ -1194,7 +1194,7 @@ view.Menu = class {
 
     group(label) {
         const item = new view.Menu.Group(this, label);
-        item.identifier = 'menu-item-' + this.items.length.toString();
+        item.identifier = `menu-item-${this.items.length}`;
         this.items.push(item);
         item.shortcut = this.register(item.accelerator);
         return item;
@@ -1378,7 +1378,7 @@ view.Menu = class {
             if (index !== -1) {
                 if (mnemonic) {
                     item.mnemonic = value[index + 1].toUpperCase();
-                    return value.substring(0, index) + '<u>' + value[index + 1] + '</u>' + value.substring(index + 2);
+                    return `${value.substring(0, index)}<u>${value[index + 1]}</u>${value.substring(index + 2)}`;
                 }
                 return value.substring(0, index) + value.substring(index + 1);
             }
@@ -1522,14 +1522,14 @@ view.Menu.Group = class {
 
     add(value) {
         const item = Object.keys(value).length > 0 ? new view.Menu.Command(value) : new view.Menu.Separator();
-        item.identifier = this.identifier + '-' + this.items.length.toString();
+        item.identifier = `${this.identifier}-${this.items.length}`;
         this.items.push(item);
         item.shortcut = this.parent.register(item, item.accelerator);
     }
 
     group(label) {
         const item = new view.Menu.Group(this, label);
-        item.identifier = this.identifier + '-' + this.items.length.toString();
+        item.identifier = `${this.identifier}-${this.items.length}`;
         this.items.push(item);
         item.shortcut = this.parent.register(item, item.accelerator);
         return item;
@@ -1726,8 +1726,8 @@ view.Graph = class extends grapher.Graph {
                         }
                     }
                     if (groupName) {
-                        createCluster(groupName + '\ngroup');
-                        this.setParent(viewNode.name, groupName + '\ngroup');
+                        createCluster(`${groupName}\ngroup`);
+                        this.setParent(viewNode.name, `${groupName}\ngroup`);
                     }
                 }
             }
@@ -1805,7 +1805,7 @@ view.Node = class extends grapher.Node {
         this.context = context;
         this.value = value;
         view.Node.counter = view.Node.counter || 0;
-        this.id = 'node-' + (value.name ? 'name-' + value.name : 'id-' + (view.Node.counter++).toString());
+        this.id = `node-${value.name ? `name-${value.name}` : `id-${(view.Node.counter++)}`}`;
         this._add(this.value);
     }
 
@@ -1828,10 +1828,10 @@ view.Node = class extends grapher.Node {
         const type = node.type;
         const category = type && type.category ? type.category : '';
         if (category) {
-            styles.push('node-item-type-' + category.toLowerCase());
+            styles.push(`node-item-type-${category.toLowerCase()}`);
         }
         if (typeof type.name !== 'string' || !type.name.split) { // #416
-            const error = new view.Error("Unsupported node type '" + JSON.stringify(type.name) + "'.");
+            const error = new view.Error(`Unsupported node type '${JSON.stringify(type.name)}'.`);
             if (this.context.model && this.context.model.identifier) {
                 error.context = this.context.model.identifier;
             }
@@ -1897,7 +1897,7 @@ view.Node = class extends grapher.Node {
                 let shape = '';
                 let separator = '';
                 if (type && type.shape && type.shape.dimensions && Array.isArray(type.shape.dimensions)) {
-                    shape = '\u3008' + type.shape.dimensions.map((d) => (d !== null && d !== undefined) ? d : '?').join('\u00D7') + '\u3009';
+                    shape = `\u3008${type.shape.dimensions.map((d) => (d !== null && d !== undefined) ? d : '?').join('\u00D7')}\u3009`;
                     if (type.shape.dimensions.length === 0 && value.initializer) {
                         try {
                             const initializer = value.initializer;
@@ -1906,7 +1906,7 @@ view.Node = class extends grapher.Node {
                             if ((encoding === '<' || encoding === '>' || encoding === '|') && !tensor.empty && tensor.type.dataType !== '?') {
                                 shape = tensor.toString();
                                 if (shape && shape.length > 10) {
-                                    shape = shape.substring(0, 10) + '\u2026';
+                                    shape = `${shape.substring(0, 10)}\u2026`;
                                 }
                                 separator = ' = ';
                             }
@@ -1917,7 +1917,7 @@ view.Node = class extends grapher.Node {
                             } catch (error) {
                                 // continue regardless of error
                             }
-                            const error = new view.Error("Failed to render tensor of type '" + type + "' (" + err.message + ").");
+                            const error = new view.Error(`Failed to render tensor of type '${type}' (${err.message}).`);
                             if (this.context.view.model && this.context.view.model.identifier) {
                                 error.context = this.context.view.model.identifier;
                             }
@@ -1934,7 +1934,7 @@ view.Node = class extends grapher.Node {
                 if (attribute.visible !== false) {
                     let value = new view.Formatter(attribute.value, attribute.type).toString();
                     if (value && value.length > 25) {
-                        value = value.substring(0, 25) + '\u2026';
+                        value = `${value.substring(0, 25)}\u2026`;
                     }
                     list.add(attribute.name, value, attribute.type, ' = ');
                 }
@@ -2003,7 +2003,7 @@ view.Input = class extends grapher.Node {
         const header = this.header();
         const title = header.add(null, [ 'graph-item-input' ], name, types);
         title.on('click', () => this.context.view.showModelProperties());
-        this.id = 'input-' + (name ? 'name-' + name : 'id-' + (view.Input.counter++).toString());
+        this.id = `input-${name ? `name-${name}` : `id-${(view.Input.counter++)}`}`;
     }
 
     get class() {
@@ -2091,7 +2091,7 @@ view.Value = class {
                 if (content) {
                     edge.label = content;
                 }
-                edge.id = 'edge-' + this.value.name;
+                edge.id = `edge-${this.value.name}`;
                 if (this._controlDependencies && this._controlDependencies.has(i)) {
                     edge.class = 'edge-path-control-dependency';
                 }
@@ -2317,7 +2317,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             const version = node.type.version;
             const status = node.type.status;
             if (module || version || status) {
-                const list = [ module, version ? 'v' + version : '', status ];
+                const list = [ module, version ? `v${version}` : '', status ];
                 this.addProperty('module', list.filter((value) => value).join(' '));
             }
         }
@@ -2494,10 +2494,10 @@ view.ValueTextView = class extends view.Control {
                 const line = this.createElement('div', className);
                 switch (style) {
                     case 'code':
-                        line.innerHTML = '<code>' + item + '<code>';
+                        line.innerHTML = `<code>${item}<code>`;
                         break;
                     case 'bold':
-                        line.innerHTML = '<b>' + item + '<b>';
+                        line.innerHTML = `<b>${item}<b>`;
                         break;
                     default:
                         line.innerText = item;
@@ -2567,7 +2567,7 @@ view.AttributeView = class extends view.Control {
             default: {
                 let content = new view.Formatter(value, type).toString();
                 if (content && content.length > 1000) {
-                    content = content.substring(0, 1000) + '\u2026';
+                    content = `${content.substring(0, 1000)}\u2026`;
                 }
                 if (content && typeof content === 'string') {
                     content = content.split('<').join('&lt;').split('>').join('&gt;');
@@ -2590,7 +2590,7 @@ view.AttributeView = class extends view.Control {
             const value = this._attribute.value;
             const content = type == 'tensor' && value && value.type ? value.type.toString() : this._attribute.type;
             const typeLine = this.createElement('div', 'sidebar-item-value-line-border');
-            typeLine.innerHTML = 'type: ' + '<code><b>' + content + '</b></code>';
+            typeLine.innerHTML = `type: ` + `<code><b>${content}</b></code>`;
             this._element.appendChild(typeLine);
             const description = this._attribute.description;
             if (description) {
@@ -2668,9 +2668,9 @@ view.ValueView = class extends view.Control {
             this._hasId = true;
             const nameLine = this.createElement('div', 'sidebar-item-value-line');
             if (typeof name !== 'string') {
-                throw new Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+                throw new Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
             }
-            nameLine.innerHTML = '<span class=\'sidebar-item-value-line-content\'>name: <b>' + (name || ' ') + '</b></span>';
+            nameLine.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name || ' '}</b></span>`;
             nameLine.addEventListener('pointerenter', () => this.emit('activate', this._value));
             nameLine.addEventListener('pointerleave', () => this.emit('deactivate', this._value));
             if (!initializer) {
@@ -2718,8 +2718,8 @@ view.ValueView = class extends view.Control {
                 const quantization = this._value.quantization;
                 if (quantization) {
                     const quantizationLine = this.createElement('div', 'sidebar-item-value-line-border');
-                    const content = !Array.isArray(quantization) ? quantization : '<br><br>' + quantization.map((value) => '  ' + value).join('<br>');
-                    quantizationLine.innerHTML = '<span class=\'sidebar-item-value-line-content\'>quantization: ' + '<b>' + content + '</b></span>';
+                    const content = !Array.isArray(quantization) ? quantization : `<br><br>${quantization.map((value) => `  ${value}`).join('<br>')}`;
+                    quantizationLine.innerHTML = `<span class='sidebar-item-value-line-content'>quantization: ` + `<b>${content}</b></span>`;
                     this._element.appendChild(quantizationLine);
                 }
                 const location = this._value.location;
@@ -2752,13 +2752,13 @@ view.ValueView = class extends view.Control {
 
     _bold(name, value) {
         const line = this.createElement('div');
-        line.innerHTML = name + ': ' + '<b>' + value + '</b>';
+        line.innerHTML = `${name}: ` + `<b>${value}</b>`;
         this._add(line);
     }
 
     _code(name, value) {
         const line = this.createElement('div');
-        line.innerHTML = name + ': ' + '<code><b>' + value + '</b></code>';
+        line.innerHTML = `${name}: ` + `<code><b>${value}</b></code>`;
         this._add(line);
     }
 
@@ -2775,9 +2775,9 @@ view.ValueView = class extends view.Control {
                 this._code('stride', tensor.stride.join(','));
             }
             if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
-                contentLine.innerHTML = "Tensor encoding '" + tensor.layout + "' is not implemented.";
+                contentLine.innerHTML = `Tensor encoding '${tensor.layout}' is not implemented.`;
             } else if (tensor.layout && (tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo')) {
-                contentLine.innerHTML = "Tensor layout '" + tensor.layout + "' is not implemented.";
+                contentLine.innerHTML = `Tensor layout '${tensor.layout}' is not implemented.`;
             } else if (tensor.empty) {
                 contentLine.innerHTML = 'Tensor data is empty.';
             } else if (tensor.type && tensor.type.dataType === '?') {
@@ -2826,7 +2826,7 @@ view.NodeView = class extends view.Control {
         if (type) {
             const type = node.type.name;
             const element = this.createElement('div', 'sidebar-item-value-line');
-            element.innerHTML = '<span class=\'sidebar-item-value-line-content\'>node: <b>' + (type || ' ') + '</b></span>';
+            element.innerHTML = `<span class='sidebar-item-value-line-content'>node: <b>${type || ' '}</b></span>`;
             element.addEventListener('pointerenter', () => this.emit('activate', this._node));
             element.addEventListener('pointerleave', () => this.emit('deactivate', this._node));
             element.addEventListener('click', () => this.emit('select', this._node));
@@ -2834,7 +2834,7 @@ view.NodeView = class extends view.Control {
             this._element.appendChild(element);
         } else {
             const element = this.createElement('div', 'sidebar-item-value-line');
-            element.innerHTML = '<span class=\'sidebar-item-value-line-content\'>name: <b>' + (name || ' ') + '</b></span>';
+            element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name || ' '}</b></span>`;
             element.addEventListener('pointerenter', () => this.emit('activate', this._node));
             element.addEventListener('pointerleave', () => this.emit('deactivate', this._node));
             element.addEventListener('click', () => this.emit('select', this._node));
@@ -2853,7 +2853,7 @@ view.NodeView = class extends view.Control {
                 this._expander.innerText = '-';
                 const name = this._node.name;
                 const element = this.createElement('div', 'sidebar-item-value-line-border');
-                element.innerHTML = '<span class=\'sidebar-item-value-line-content\'>name: <b>' + name + '</b></span>';
+                element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name}</b></span>`;
                 element.addEventListener('pointerenter', () => this.emit('activate', this._node));
                 element.addEventListener('pointerleave', () => this.emit('deactivate', this._node));
                 element.addEventListener('click', () => this.emit('select', this._node));
@@ -3035,24 +3035,24 @@ view.DocumentationSidebar = class extends view.Control {
                 this._append(element, 'h2', 'Attributes');
                 const attributes = this._append(element, 'dl');
                 for (const attribute of type.attributes) {
-                    this._append(attributes, 'dt', attribute.name + (attribute.type ? ': <tt>' + attribute.type + '</tt>' : ''));
+                    this._append(attributes, 'dt', attribute.name + (attribute.type ? `: <tt>${attribute.type}</tt>` : ''));
                     this._append(attributes, 'dd', attribute.description);
                 }
                 element.appendChild(attributes);
             }
             if (Array.isArray(type.inputs) && type.inputs.length > 0) {
-                this._append(element, 'h2', 'Inputs' + (type.inputs_range ? ' (' + type.inputs_range + ')' : ''));
+                this._append(element, 'h2', `Inputs${type.inputs_range ? ` (${type.inputs_range})` : ''}`);
                 const inputs = this._append(element, 'dl');
                 for (const input of type.inputs) {
-                    this._append(inputs, 'dt', input.name + (input.type ? ': <tt>' + input.type + '</tt>' : '') + (input.option ? ' (' + input.option + ')' : ''));
+                    this._append(inputs, 'dt', input.name + (input.type ? `: <tt>${input.type}</tt>` : '') + (input.option ? ` (${input.option})` : ''));
                     this._append(inputs, 'dd', input.description);
                 }
             }
             if (Array.isArray(type.outputs) && type.outputs.length > 0) {
-                this._append(element, 'h2', 'Outputs' + (type.outputs_range ? ' (' + type.outputs_range + ')' : ''));
+                this._append(element, 'h2', `Outputs${type.outputs_range ? ` (${type.outputs_range})` : ''}`);
                 const outputs = this._append(element, 'dl');
                 for (const output of type.outputs) {
-                    this._append(outputs, 'dt', output.name + (output.type ? ': <tt>' + output.type + '</tt>' : '') + (output.option ? ' (' + output.option + ')' : ''));
+                    this._append(outputs, 'dt', output.name + (output.type ? `: <tt>${output.type}</tt>` : '') + (output.option ? ` (${output.option})` : ''));
                     this._append(outputs, 'dd', output.description);
                 }
             }
@@ -3060,7 +3060,7 @@ view.DocumentationSidebar = class extends view.Control {
                 this._append(element, 'h2', 'Type Constraints');
                 const type_constraints = this._append(element, 'dl');
                 for (const type_constraint of type.type_constraints) {
-                    this._append(type_constraints, 'dt', type_constraint.type_param_str + ': ' + type_constraint.allowed_type_strs.map((item) => '<tt>' + item + '</tt>').join(', '));
+                    this._append(type_constraints, 'dt', `${type_constraint.type_param_str}: ${type_constraint.allowed_type_strs.map((item) => `<tt>${item}</tt>`).join(', ')}`);
                     this._append(type_constraints, 'dd', type_constraint.description);
                 }
             }
@@ -3232,7 +3232,7 @@ view.FindSidebar = class extends view.Control {
         };
         const edge = (value) => {
             if (value.name && !edges.has(value.name) && matchValue(value)) {
-                add(value, '\u2192 ' + value.name.split('\n').shift()); // split custom argument id
+                add(value, `\u2192 ${value.name.split('\n').shift()}`); // split custom argument id
                 edges.add(value.name);
             }
         };
@@ -3256,11 +3256,11 @@ view.FindSidebar = class extends view.Control {
             const type = node.type.name;
             const location = node.location;
             if ((name && match(name)) || (type && match(type)) || (location && match(location))) {
-                add(node, '\u25A2 ' + (name || '[' + type + ']'));
+                add(node, `\u25A2 ${name || `[${type}]`}`);
             }
             for (const value of initializers) {
                 if (value.name && !edges.has(value.name) && matchValue(value)) {
-                    add(node, '\u25A0 ' + value.name.split('\n').shift()); // split custom argument id
+                    add(node, `\u25A0 ${value.name.split('\n').shift()}`); // split custom argument id
                 }
             }
         }
@@ -3306,7 +3306,7 @@ view.Tensor = class {
                 break;
             }
             default: {
-                throw new view.Error("Unsupported tensor encoding '" + this._encoding + "'.");
+                throw new view.Error(`Unsupported tensor encoding '${this._encoding}'.`);
             }
         }
         switch (this._layout) {
@@ -3363,7 +3363,7 @@ view.Tensor = class {
                     case '|':
                         return !(Array.isArray(this._values) || ArrayBuffer.isView(this._values)) || this._values.length === 0;
                     default:
-                        throw new Error("Unsupported tensor encoding '" + this._encoding + "'.");
+                        throw new Error(`Unsupported tensor encoding '${this._encoding}'.`);
                 }
             }
         }
@@ -3381,7 +3381,7 @@ view.Tensor = class {
                 return this._decodeValues(context, 0, 0);
             }
             default: {
-                throw new Error("Unsupported tensor encoding '" + context.encoding + "'.");
+                throw new Error(`Unsupported tensor encoding '${context.encoding}'.`);
             }
         }
     }
@@ -3400,17 +3400,17 @@ view.Tensor = class {
                 return view.Tensor._stringify(value, '', '    ');
             }
             default: {
-                throw new Error("Unsupported tensor encoding '" + context.encoding + "'.");
+                throw new Error(`Unsupported tensor encoding '${context.encoding}'.`);
             }
         }
     }
 
     _context() {
         if (this._encoding !== '<' && this._encoding !== '>' && this._encoding !== '|') {
-            throw new Error("Tensor encoding '" + this._encoding + "' is not supported.");
+            throw new Error(`Tensor encoding '${this._encoding}' is not supported.`);
         }
         if (this._layout && (this._layout !== 'sparse' && this._layout !== 'sparse.coo')) {
-            throw new Error("Tensor layout '" + this._layout + "' is not supported.");
+            throw new Error(`Tensor layout '${this._layout}' is not supported.`);
         }
         const dataType = this._type.dataType;
         const context = {};
@@ -3484,14 +3484,14 @@ view.Tensor = class {
                             context.bits = parseInt(dataType.substring(3), 10);
                             context.itemsize = 1;
                         } else {
-                            throw new Error("Tensor data type '" + dataType + "' is not implemented.");
+                            throw new Error(`Tensor data type '${dataType}' is not implemented.`);
                         }
                         break;
                     }
                     case '|': {
                         context.data = this._values;
                         if (!view.Tensor.dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object') {
-                            throw new Error("Tensor data type '" + dataType + "' is not implemented.");
+                            throw new Error(`Tensor data type '${dataType}' is not implemented.`);
                         }
                         const size = context.dimensions.reduce((a, v) => a * v, 1);
                         if (size !== this._values.length) {
@@ -3500,7 +3500,7 @@ view.Tensor = class {
                         break;
                     }
                     default: {
-                        throw new view.Tensor("Unsupported tensor encoding '" + this._encoding + "'.");
+                        throw new view.Tensor(`Unsupported tensor encoding '${this._encoding}'.`);
                     }
                 }
             }
@@ -3661,7 +3661,7 @@ view.Tensor = class {
                     }
                     break;
                 default:
-                    throw new Error("Unsupported tensor data type '" + dataType + "'.");
+                    throw new Error(`Unsupported tensor data type '${dataType}'.`);
             }
             context.count += length;
             if (ellipsis) {
@@ -3728,38 +3728,38 @@ view.Tensor = class {
     static _stringify(value, indentation, indent) {
         if (Array.isArray(value)) {
             const result = [];
-            result.push(indentation + '[');
+            result.push(`${indentation}[`);
             const items = value.map((item) => view.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
-            result.push(indentation + ']');
+            result.push(`${indentation}]`);
             return result.join('\n');
         }
         if (value === null) {
-            return indentation + 'null';
+            return `${indentation}null`;
         }
         switch (typeof value) {
             case 'boolean':
                 return indentation + value.toString();
             case 'string':
-                return indentation + '"' + value + '"';
+                return `${indentation}"${value}"`;
             case 'number':
                 if (value == Infinity) {
-                    return indentation + 'Infinity';
+                    return `${indentation}Infinity`;
                 }
                 if (value == -Infinity) {
-                    return indentation + '-Infinity';
+                    return `${indentation}-Infinity`;
                 }
                 if (isNaN(value)) {
-                    return indentation + 'NaN';
+                    return `${indentation}NaN`;
                 }
                 return indentation + value.toString();
             default:
                 if (value && value.toString) {
                     return indentation + value.toString();
                 }
-                return indentation + '(undefined)';
+                return `${indentation}(undefined)`;
         }
     }
 };
@@ -3968,10 +3968,10 @@ view.Formatter = class {
     _format(value, type, quote) {
 
         if (value && value.__class__ && value.__class__.__module__ === 'builtins' && value.__class__.__name__ === 'type') {
-            return value.__module__ + '.' + value.__name__;
+            return `${value.__module__}.${value.__name__}`;
         }
         if (value && value.__class__ && value.__class__.__module__ === 'builtins' && value.__class__.__name__ === 'function') {
-            return value.__module__ + '.' + value.__name__;
+            return `${value.__module__}.${value.__name__}`;
         }
         if (typeof value === 'function') {
             return value();
@@ -3987,7 +3987,7 @@ view.Formatter = class {
                 return value ? value.toString() : '(null)';
             case 'shape[]':
                 if (value && !Array.isArray(value)) {
-                    throw new Error("Invalid shape '" + JSON.stringify(value) + "'.");
+                    throw new Error(`Invalid shape '${JSON.stringify(value)}'.`);
                 }
                 return value ? value.map((item) => item.toString()).join(', ') : '(null)';
             case 'graph':
@@ -4013,7 +4013,7 @@ view.Formatter = class {
                 break;
         }
         if (typeof value === 'string' && (!type || type != 'string')) {
-            return quote ? '"' + value + '"' : value;
+            return quote ? `"${value}"` : value;
         }
         if (Array.isArray(value)) {
             if (value.length == 0) {
@@ -4058,7 +4058,7 @@ view.Formatter = class {
         if (entries.length == 1) {
             list = [ this._format(entries[0][1], null, true) ];
         } else {
-            list = entries.map(([name, value]) => name + ': ' + this._format(value, null, true));
+            list = entries.map(([name, value]) => `${name}: ${this._format(value, null, true)}`);
         }
         let objectType = value.__type__;
         if (!objectType && value.constructor.name && value.constructor.name !== 'Object') {
@@ -4156,7 +4156,7 @@ markdown.Generator = class {
                 source = source.substring(match[0].length);
                 const lastToken = tokens[tokens.length - 1];
                 if (lastToken && lastToken.type === 'paragraph') {
-                    lastToken.text += '\n' + match[0].trimRight();
+                    lastToken.text += `\n${match[0].trimRight()}`;
                 } else {
                     const text = match[0].replace(/^ {4}/gm, '').replace(/\n*$/, '');
                     tokens.push({ type: 'code', text: text });
@@ -4239,7 +4239,7 @@ markdown.Generator = class {
                     item = item.replace(/^ *([*+-]|\d+[.)]) ?/, '');
                     if (~item.indexOf('\n ')) {
                         space -= item.length;
-                        item = item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '');
+                        item = item.replace(new RegExp(`^ {1,${space}}`, 'gm'), '');
                     }
                     if (i !== length - 1) {
                         const [bullet] = this._bulletRegExp.exec(itemMatch[i + 1]);
@@ -4335,13 +4335,13 @@ markdown.Generator = class {
                 source = source.substring(match[0].length);
                 const lastToken = tokens[tokens.length - 1];
                 if (lastToken && lastToken.type === 'text') {
-                    lastToken.text += '\n' + match[0];
+                    lastToken.text += `\n${match[0]}`;
                 } else {
                     tokens.push({ type: 'text', text: match[0] });
                 }
                 continue;
             }
-            throw new Error("Unexpected '" + source.charCodeAt(0) + "'.");
+            throw new Error(`Unexpected '${source.charCodeAt(0)}'.`);
         }
         return tokens;
     }
@@ -4354,7 +4354,7 @@ markdown.Generator = class {
                 const match = this._reflinkSearchRegExp.exec(maskedSource);
                 if (match) {
                     if (links.has(match[0].slice(match[0].lastIndexOf('[') + 1, -1))) {
-                        maskedSource = maskedSource.slice(0, match.index) + '[' + 'a'.repeat(match[0].length - 2) + ']' + maskedSource.slice(this._reflinkSearchRegExp.lastIndex);
+                        maskedSource = `${maskedSource.slice(0, match.index)}[${'a'.repeat(match[0].length - 2)}]${maskedSource.slice(this._reflinkSearchRegExp.lastIndex)}`;
                     }
                     continue;
                 }
@@ -4364,7 +4364,7 @@ markdown.Generator = class {
         while (maskedSource) {
             const match = this._blockSkipRegExp.exec(maskedSource);
             if (match) {
-                maskedSource = maskedSource.slice(0, match.index) + '[' + 'a'.repeat(match[0].length - 2) + ']' + maskedSource.slice(this._blockSkipRegExp.lastIndex);
+                maskedSource = `${maskedSource.slice(0, match.index)}[${'a'.repeat(match[0].length - 2)}]${maskedSource.slice(this._blockSkipRegExp.lastIndex)}`;
                 continue;
             }
             break;
@@ -4517,7 +4517,7 @@ markdown.Generator = class {
             if (match) {
                 source = source.substring(match[0].length);
                 const text = this._escape(match[1]);
-                const href = match[2] === '@' ? 'mailto:' + text : text;
+                const href = match[2] === '@' ? `mailto:${text}` : text;
                 tokens.push({ type: 'link', text: text, href: href, tokens: [ { type: 'text', raw: text, text } ] });
                 continue;
             }
@@ -4534,7 +4534,7 @@ markdown.Generator = class {
                         } while (prevCapZero !== value);
                     }
                     const text = this._escape(value);
-                    const href = email ? ('mailto:' + text) : (match[1] === 'www.' ? 'http://' + text : text);
+                    const href = email ? (`mailto:${text}`) : (match[1] === 'www.' ? `http://${text}` : text);
                     source = source.substring(value.length);
                     tokens.push({ type: 'link', text: text, href: href, tokens: [ { type: 'text', text: text } ] });
                     continue;
@@ -4547,7 +4547,7 @@ markdown.Generator = class {
                 tokens.push({ type: 'text' , text: inRawBlock ? match[0] : this._escape(match[0]) });
                 continue;
             }
-            throw new Error("Unexpected '" + source.charCodeAt(0) + "'.");
+            throw new Error(`Unexpected '${source.charCodeAt(0)}'.`);
         }
         return tokens;
     }
@@ -4598,13 +4598,13 @@ markdown.Generator = class {
                 }
                 case 'heading': {
                     const level = token.depth;
-                    html += '<h' + level + '">' + this._renderInline(token.tokens) + '</h' + level + '>\n';
+                    html += `<h${level}">${this._renderInline(token.tokens)}</h${level}>\n`;
                     continue;
                 }
                 case 'code': {
                     const code = token.text;
                     const [language] = (token.language || '').match(/\S*/);
-                    html += '<pre><code' + (language ? ' class="' + 'language-' + this._encode(language) + '"' : '') + '>' + (token.escaped ? code : this._encode(code)) + '</code></pre>\n';
+                    html += `<pre><code${language ? ` class="` + `language-${this._encode(language)}"` : ''}>${token.escaped ? code : this._encode(code)}</code></pre>\n`;
                     continue;
                 }
                 case 'table': {
@@ -4613,9 +4613,9 @@ markdown.Generator = class {
                     for (let j = 0; j < token.header.length; j++) {
                         const content = this._renderInline(token.tokens.header[j]);
                         const align = token.align[j];
-                        cell += '<th' + (align ? ' align="' + align + '"' : '') + '>' + content + '</th>\n';
+                        cell += `<th${align ? ` align="${align}"` : ''}>${content}</th>\n`;
                     }
-                    header += '<tr>\n' + cell + '</tr>\n';
+                    header += `<tr>\n${cell}</tr>\n`;
                     let body = '';
                     for (let j = 0; j < token.cells.length; j++) {
                         const row = token.tokens.cells[j];
@@ -4623,15 +4623,15 @@ markdown.Generator = class {
                         for (let k = 0; k < row.length; k++) {
                             const content = this._renderInline(row[k]);
                             const align = token.align[k];
-                            cell += '<td' + (align ? ' align="' + align + '"' : '') + '>' + content + '</td>\n';
+                            cell += `<td${align ? ` align="${align}"` : ''}>${content}</td>\n`;
                         }
-                        body += '<tr>\n' + cell + '</tr>\n';
+                        body += `<tr>\n${cell}</tr>\n`;
                     }
-                    html += '<table>\n<thead>\n' + header + '</thead>\n' + (body ? '<tbody>' + body + '</tbody>' : body) + '</table>\n';
+                    html += `<table>\n<thead>\n${header}</thead>\n${body ? `<tbody>${body}</tbody>` : body}</table>\n`;
                     continue;
                 }
                 case 'blockquote': {
-                    html += '<blockquote>\n' + this._render(token.tokens, true) + '</blockquote>\n';
+                    html += `<blockquote>\n${this._render(token.tokens, true)}</blockquote>\n`;
                     continue;
                 }
                 case 'list': {
@@ -4642,12 +4642,12 @@ markdown.Generator = class {
                     for (const item of token.items) {
                         let itemBody = '';
                         if (item.task) {
-                            const checkbox = '<input ' + (item.checked ? 'checked="" ' : '') + 'disabled="" type="checkbox"' + '> ';
+                            const checkbox = `<input ${item.checked ? 'checked="" ' : ''}disabled="" type="checkbox"` + `> `;
                             if (loose) {
                                 if (item.tokens.length > 0 && item.tokens[0].type === 'text') {
-                                    item.tokens[0].text = checkbox + ' ' + item.tokens[0].text;
+                                    item.tokens[0].text = `${checkbox} ${item.tokens[0].text}`;
                                     if (item.tokens[0].tokens && item.tokens[0].tokens.length > 0 && item.tokens[0].tokens[0].type === 'text') {
-                                        item.tokens[0].tokens[0].text = checkbox + ' ' + item.tokens[0].tokens[0].text;
+                                        item.tokens[0].tokens[0].text = `${checkbox} ${item.tokens[0].tokens[0].text}`;
                                     }
                                 } else {
                                     item.tokens.unshift({ type: 'text', text: checkbox });
@@ -4657,10 +4657,10 @@ markdown.Generator = class {
                             }
                         }
                         itemBody += this._render(item.tokens, loose);
-                        body += '<li>' + itemBody + '</li>\n';
+                        body += `<li>${itemBody}</li>\n`;
                     }
                     const type = (ordered ? 'ol' : 'ul');
-                    html += '<' + type + (ordered && start !== 1 ? (' start="' + start + '"') : '') + '>\n' + body + '</' + type + '>\n';
+                    html += `<${type}${ordered && start !== 1 ? (` start="${start}"`) : ''}>\n${body}</${type}>\n`;
                     continue;
                 }
                 case 'html': {
@@ -4668,7 +4668,7 @@ markdown.Generator = class {
                     continue;
                 }
                 case 'paragraph': {
-                    html += '<p>' + this._renderInline(token.tokens) + '</p>\n';
+                    html += `<p>${this._renderInline(token.tokens)}</p>\n`;
                     continue;
                 }
                 case 'text': {
@@ -4676,13 +4676,13 @@ markdown.Generator = class {
                     html += token.tokens ? this._renderInline(token.tokens) : token.text;
                     while (tokens.length > 0 && tokens[0].type === 'text') {
                         const token = tokens.shift();
-                        html += '\n' + (token.tokens ? this._renderInline(token.tokens) : token.text);
+                        html += `\n${token.tokens ? this._renderInline(token.tokens) : token.text}`;
                     }
                     html += top ? '</p>\n' : '';
                     continue;
                 }
                 default: {
-                    throw new Error("Unexpected token type '" + token.type + "'.");
+                    throw new Error(`Unexpected token type '${token.type}'.`);
                 }
             }
         }
@@ -4701,25 +4701,25 @@ markdown.Generator = class {
                 }
                 case 'link': {
                     const text = this._renderInline(token.tokens);
-                    html += '<a href="' + token.href + '"' + (token.title ? ' title="' + token.title + '"' : '') + ' target="_blank">' + text + '</a>';
+                    html += `<a href="${token.href}"${token.title ? ` title="${token.title}"` : ''} target="_blank">${text}</a>`;
                     break;
                 }
                 case 'image': {
-                    html += '<img src="' + token.href + '" alt="' + token.text + '"' + (token.title ? ' title="' + token.title + '"' : '') + '>';
+                    html += `<img src="${token.href}" alt="${token.text}"${token.title ? ` title="${token.title}"` : ''}>`;
                     break;
                 }
                 case 'strong': {
                     const text = this._renderInline(token.tokens);
-                    html += '<strong>' + text + '</strong>';
+                    html += `<strong>${text}</strong>`;
                     break;
                 }
                 case 'em': {
                     const text = this._renderInline(token.tokens);
-                    html += '<em>' + text + '</em>';
+                    html += `<em>${text}</em>`;
                     break;
                 }
                 case 'codespan': {
-                    html += '<code>' + token.text + '</code>';
+                    html += `<code>${token.text}</code>`;
                     break;
                 }
                 case 'br': {
@@ -4728,11 +4728,11 @@ markdown.Generator = class {
                 }
                 case 'del': {
                     const text = this._renderInline(token.tokens);
-                    html += '<del>' + text + '</del>';
+                    html += `<del>${text}</del>`;
                     break;
                 }
                 default: {
-                    throw new Error("Unexpected token type '" + token.type + "'.");
+                    throw new Error(`Unexpected token type '${token.type}'.`);
                 }
             }
         }
@@ -4911,7 +4911,7 @@ view.Context = class {
                                                 return storages.get(key);
                                             }
                                             default: {
-                                                throw new python.Error("Unsupported persistent load type '" + saved_id[0] + "'.");
+                                                throw new python.Error(`Unsupported persistent load type '${saved_id[0]}'.`);
                                             }
                                         }
                                     }
@@ -4925,7 +4925,7 @@ view.Context = class {
                                 }
                                 if (Array.from(types).every((name) => !name.startsWith('__torch__.'))) {
                                     for (const name of types) {
-                                        this.exception(new view.Error("Unknown type name '" + name + "'."));
+                                        this.exception(new view.Error(`Unknown type name '${name}'.`));
                                     }
                                 } else {
                                     this._content.set(type, new view.Error("PyTorch standalone 'data.pkl' format not supported."));
@@ -5006,7 +5006,7 @@ view.Context = class {
                             break;
                         }
                         default: {
-                            throw new view.Error("Unsupported open format type '" + type + "'.");
+                            throw new view.Error(`Unsupported open format type '${type}'.`);
                         }
                     }
                 }
@@ -5091,13 +5091,13 @@ view.Context = class {
                                     const element = document.documentElement;
                                     const namespaceURI = element.namespaceURI;
                                     const localName = element.localName;
-                                    const name = namespaceURI ? namespaceURI + ':' + localName : localName;
+                                    const name = namespaceURI ? `${namespaceURI}:${localName}` : localName;
                                     tags.set(name, element);
                                 }
                                 break;
                             }
                             default: {
-                                throw new view.Error("Unsupported tags format type '" + type + "'.");
+                                throw new view.Error(`Unsupported tags format type '${type}'.`);
                             }
                         }
                     } catch (error) {
@@ -5329,11 +5329,11 @@ view.ModelFactoryService = class {
                 };
                 for (const format of formats) {
                     if (format.tags.every((tag) => match(obj, tag))) {
-                        throw new view.Error('Invalid file content. File contains ' + format.name + '.');
+                        throw new view.Error(`Invalid file content. File contains ${format.name}.`);
                     }
                 }
-                const content = JSON.stringify(obj).substring(0, 100).replace(/\s/, '').substring(0, 48) + '...';
-                throw new view.Error("Unsupported JSON content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "'.");
+                const content = `${JSON.stringify(obj).substring(0, 100).replace(/\s/, '').substring(0, 48)}...`;
+                throw new view.Error(`Unsupported JSON content '${content.length > 64 ? `${content.substring(0, 100)}...` : content}' for extension '.${extension}'.`);
             }
         };
         const pbtxt = () => {
@@ -5360,7 +5360,7 @@ view.ModelFactoryService = class {
             if (tags.size > 0) {
                 for (const format of formats) {
                     if (format.tags.every((tag) => tags.has(tag))) {
-                        const error = new view.Error('Invalid file content. File contains ' + format.name + '.');
+                        const error = new view.Error(`Invalid file content. File contains ${format.name}.`);
                         error.context = context.identifier;
                         throw error;
                     }
@@ -5368,8 +5368,8 @@ view.ModelFactoryService = class {
                 const entries = [];
                 entries.push(...Array.from(tags).filter(([key]) => key.toString().indexOf('.') === -1));
                 entries.push(...Array.from(tags).filter(([key]) => key.toString().indexOf('.') !== -1));
-                const content = entries.map(([key, value]) => value === true ? key : key + ':' + JSON.stringify(value)).join(',');
-                throw new view.Error("Unsupported Protocol Buffers text content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "'.");
+                const content = entries.map(([key, value]) => value === true ? key : `${key}:${JSON.stringify(value)}`).join(',');
+                throw new view.Error(`Unsupported Protocol Buffers text content '${content.length > 64 ? `${content.substring(0, 100)}...` : content}' for extension '.${extension}'.`);
             }
         };
         const pb = () => {
@@ -5406,19 +5406,19 @@ view.ModelFactoryService = class {
                 const tags = context.tags('pb+');
                 for (const format of formats) {
                     if (match(tags, format.tags)) {
-                        const error = new view.Error('Invalid file content. File contains ' + format.name + '.');
+                        const error = new view.Error(`Invalid file content. File contains ${format.name}.`);
                         error.context = context.identifier;
                         throw error;
                     }
                 }
                 const format = (tags) => {
                     const content = Object.entries(tags).map(([key, value]) => {
-                        return key.toString() + ':' + (Object(value) === value ? '{' + format(value) + '}' : value.toString());
+                        return `${key}:${Object(value) === value ? `{${format(value)}}` : value}`;
                     });
                     return content.join(',');
                 };
                 const content = format(tags);
-                throw new view.Error("Unsupported Protocol Buffers content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "'.");
+                throw new view.Error(`Unsupported Protocol Buffers content '${content.length > 64 ? `${content.substring(0, 100)}...` : content}' for extension '.${extension}'.`);
             }
         };
         const flatbuffers = () => {
@@ -5431,7 +5431,7 @@ view.ModelFactoryService = class {
                 ];
                 for (const format of formats) {
                     if (file_identifier === format.identifier) {
-                        throw new view.Error('Invalid file content. File contains ' + format.name + '.');
+                        throw new view.Error(`Invalid file content. File contains ${format.name}.`);
                     }
                 }
             }
@@ -5445,12 +5445,12 @@ view.ModelFactoryService = class {
                 ];
                 for (const format of formats) {
                     if (format.tags.some((tag) => tags.has(tag))) {
-                        const error = new view.Error('Invalid file content. File contains ' + format.name + '.');
+                        const error = new view.Error(`Invalid file content. File contains ${format.name}.`);
                         error.content = context.identifier;
                         throw error;
                     }
                 }
-                throw new view.Error("Unsupported XML content '" + tags.keys().next().value + "'.");
+                throw new view.Error(`Unsupported XML content '${tags.keys().next().value}'.`);
             }
         };
         const hdf5 = () => {
@@ -5464,8 +5464,8 @@ view.ModelFactoryService = class {
                 stream.seek(0);
                 const buffer = stream.peek(Math.min(16, stream.length));
                 const bytes = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                const content = stream.length > 268435456 ? '(' + bytes + ') [' + stream.length.toString() + ']': '(' + bytes + ')';
-                throw new view.Error("Unsupported file content " + content + " for extension '." + extension + "'.");
+                const content = stream.length > 268435456 ? `(${bytes}) [${stream.length}]`: `(${bytes})`;
+                throw new view.Error(`Unsupported file content ${content} for extension '.${extension}'.`);
             }
             throw new view.Error("Unsupported file directory.");
         };
@@ -5489,7 +5489,7 @@ view.ModelFactoryService = class {
                     const id = modules.shift();
                     module = await this._host.require(id);
                     if (!module.ModelFactory) {
-                        throw new view.Error("Failed to load module '" + id + "'.");
+                        throw new view.Error(`Failed to load module '${id}'.`);
                     }
                 } catch (error) {
                     success = true;
@@ -5536,7 +5536,7 @@ view.ModelFactoryService = class {
                 const rotate = (list) => list.length === 0 ? [] : list[0].map((item, index) => list.map(at(index)));
                 const equals = (list) => list.every((item) => item === list[0]);
                 const folder = rotate(map).filter(equals).map(at(0)).join('/');
-                return folder.length === 0 ? folder : folder + '/';
+                return folder.length === 0 ? folder : `${folder}/`;
             };
             const list = Array.from(entries).map(([name, stream]) => {
                 return { name: name, stream: stream };
@@ -5569,7 +5569,7 @@ view.ModelFactoryService = class {
                         const module = await this._host.require(id);
                         /* eslint-enable no-await-in-loop */
                         if (!module.ModelFactory) {
-                            throw new view.ArchiveError("Failed to load module '" + id + "'.", null);
+                            throw new view.ArchiveError(`Failed to load module '${id}'.`, null);
                         }
                         const modelFactory = new module.ModelFactory();
                         if (modelFactory.match(context)) {
@@ -5751,7 +5751,7 @@ view.ModelFactoryService = class {
             const content = String.fromCharCode.apply(null, buffer);
             for (const entry of entries) {
                 if (content.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
-                    throw new view.Error('Invalid file content. File contains ' + entry.name + '.');
+                    throw new view.Error(`Invalid file content. File contains ${entry.name}.`);
                 }
             }
         }
@@ -5797,13 +5797,13 @@ view.Metadata = class {
     }
 
     attribute(type, name) {
-        const key = type + ':' + name;
+        const key = `${type}:${name}`;
         if (!this._attributes.has(key)) {
             this._attributes.set(key, null);
             const metadata = this.type(type);
             if (metadata && Array.isArray(metadata.attributes)) {
                 for (const attribute of metadata.attributes) {
-                    this._attributes.set(type + ':' + attribute.name, attribute);
+                    this._attributes.set(`${type}:${attribute.name}`, attribute);
                 }
             }
         }
@@ -5811,13 +5811,13 @@ view.Metadata = class {
     }
 
     input(type, name) {
-        const key = type + ':' + name;
+        const key = `${type}:${name}`;
         if (!this._inputs.has(key)) {
             this._inputs.set(key, null);
             const metadata = this.type(type);
             if (metadata && Array.isArray(metadata.inputs)) {
                 for (const input of metadata.inputs) {
-                    this._inputs.set(type + ':' + input.name, input);
+                    this._inputs.set(`${type}:${input.name}`, input);
                 }
             }
         }

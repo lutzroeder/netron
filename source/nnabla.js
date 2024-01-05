@@ -27,7 +27,7 @@ nnabla.ModelFactory = class {
                 const model = nnabla.proto.NNablaProtoBuf.decodeText(reader);
                 const open = async (model, version) => {
                     const metadata = await context.metadata('nnabla-metadata.json');
-                    return new nnabla.Model(metadata, model, 'NNabla' + (version ? ' v' + version : ''));
+                    return new nnabla.Model(metadata, model, `NNabla${version ? ` v${version}` : ''}`);
                 };
                 try {
                     const contexts = await Promise.all([
@@ -44,7 +44,7 @@ nnabla.ModelFactory = class {
                 }
             }
             default: {
-                throw new nnabla.Error("Unsupported nnabla format '" + target + "'.");
+                throw new nnabla.Error(`Unsupported nnabla format '${target}'.`);
             }
         }
     }
@@ -184,22 +184,22 @@ nnabla.Node = class {
             case "FusedConvolution": {
                 this.inputs = inputs.slice(0, 3) || [];
                 if (inputs.length > 3) {
-                    this.chain.push(new nnabla.Node(metadata, { name: func.name + "/bn", type: "BatchNormalization" }, [], inputs.slice(3, 7)));
+                    this.chain.push(new nnabla.Node(metadata, { name: `${func.name}/bn`, type: "BatchNormalization" }, [], inputs.slice(3, 7)));
                 }
                 if (inputs.length > 7) {
-                    this.chain.push(new nnabla.Node(metadata, { name: func.name + "/add", type: "Add2" }, [], inputs.slice(7)));
+                    this.chain.push(new nnabla.Node(metadata, { name: `${func.name}/add`, type: "Add2" }, [], inputs.slice(7)));
                 }
                 const type_a = attributes.find((item) => item.name === "nonlinearity").value;
-                this.chain.push(new nnabla.Node(metadata, { name: func.name + "/act", type: get_nonlinearity(type_a) }));
+                this.chain.push(new nnabla.Node(metadata, { name: `${func.name}/act`, type: get_nonlinearity(type_a) }));
                 break;
             }
             case "FusedBatchNormalization": {
                 this.inputs = inputs.slice(0, 5) || [];
                 if (inputs.length > 4) {
-                    this.chain.push(new nnabla.Node(metadata, { name: func.name + "/add", type: "Add2" }, [], inputs.slice(5)));
+                    this.chain.push(new nnabla.Node(metadata, { name: `${func.name}/add`, type: "Add2" }, [], inputs.slice(5)));
                 }
                 const type_b = attributes.find((item) => item.name === "nonlinearity").value;
-                this.chain.push(new nnabla.Node(metadata, { name: func.name + "/act", type: get_nonlinearity(type_b) }));
+                this.chain.push(new nnabla.Node(metadata, { name: `${func.name}/act`, type: get_nonlinearity(type_b) }));
                 break;
             }
             default: {
@@ -245,7 +245,7 @@ nnabla.Tensor = class {
         const dataType = this.type.dataType;
         switch (dataType) {
             case 'float32': return new Float32Array(this._values);
-            default: throw new nnabla.Error("Unsupported data type '" + dataType + "'.");
+            default: throw new nnabla.Error(`Unsupported data type '${dataType}'.`);
         }
     }
 };
@@ -270,7 +270,7 @@ nnabla.TensorShape = class {
     }
 
     toString() {
-        return (this.dimensions && this.dimensions.length) ? ('[' + this.dimensions.join(',') + ']') : '';
+        return (this.dimensions && this.dimensions.length) ? (`[${this.dimensions.join(',')}]`) : '';
     }
 };
 

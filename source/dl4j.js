@@ -42,7 +42,7 @@ dl4j.ModelFactory = class {
                 return new dl4j.Model(metadata, obj, context.stream.peek());
             }
             default: {
-                throw new dl4j.Error("Unsupported Deeplearning4j format '" + target + "'.");
+                throw new dl4j.Error(`Unsupported Deeplearning4j format '${target}'.`);
             }
         }
     }
@@ -72,7 +72,7 @@ dl4j.Graph = class {
             if (!values.has(name)) {
                 values.set(name, new dl4j.Value(name, type || null, tensor || null));
             } else if (type || tensor) {
-                throw new dl4j.Error("Duplicate value '" + name + "'.");
+                throw new dl4j.Error(`Duplicate value '${name}'.`);
             }
             return values.get(name);
         };
@@ -109,7 +109,7 @@ dl4j.Graph = class {
                         layer = { __type__: 'Preprocessor', layerName: name };
                         break;
                     default:
-                        throw new dl4j.Error("Unsupported vertex class '" + vertex['@class'] + "'.");
+                        throw new dl4j.Error(`Unsupported vertex class '${vertex['@class']}'.`);
                 }
                 this.nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, variables, value));
             }
@@ -140,7 +140,7 @@ dl4j.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new dl4j.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new dl4j.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer ? initializer.type : type;
@@ -175,7 +175,7 @@ dl4j.Node = class {
                                 tensor = new dl4j.Tensor(dataType, [ layer.nout ]);
                                 break;
                             default:
-                                throw new dl4j.Error("Unsupported '" + type + "' variable '" + variable + "'.");
+                                throw new dl4j.Error(`Unsupported '${type}' variable '${variable}'.`);
                         }
                         break;
                     case 'SeparableConvolution2D':
@@ -187,7 +187,7 @@ dl4j.Node = class {
                                 tensor = new dl4j.Tensor(dataType, [ layer.nout ]);
                                 break;
                             default:
-                                throw new dl4j.Error("Unsupported '" + type + "' variable '" + variable + "'.");
+                                throw new dl4j.Error(`Unsupported '${type}' variable '${variable}'.`);
                         }
                         break;
                     case 'Output':
@@ -200,14 +200,14 @@ dl4j.Node = class {
                                 tensor = new dl4j.Tensor(dataType, [ layer.nout ]);
                                 break;
                             default:
-                                throw new dl4j.Error("Unsupported '" + this.type + "' variable '" + variable + "'.");
+                                throw new dl4j.Error(`Unsupported '${this.type}' variable '${variable}'.`);
                         }
                         break;
                     case 'BatchNormalization':
                         tensor = new dl4j.Tensor(dataType, [ layer.nin ]);
                         break;
                     default:
-                        throw new dl4j.Error("Unsupported '" + type + "' variable '" + variable + "'.");
+                        throw new dl4j.Error(`Unsupported '${type}' variable '${variable}'.`);
                 }
                 const argument = new dl4j.Argument(variable, [ value('', null, tensor) ]);
                 this.inputs.push(argument);
@@ -317,7 +317,7 @@ dl4j.TensorShape = class {
             if (this.dimensions.length == 0) {
                 return '';
             }
-            return '[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+            return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
         }
         return '';
     }
@@ -341,14 +341,14 @@ dl4j.NDArray = class {
                     length = reader.int64();
                     break;
                 default:
-                    throw new dl4j.Error("Unsupported header alloc '" + alloc + "'.");
+                    throw new dl4j.Error(`Unsupported header alloc '${alloc}'.`);
             }
             const type = reader.string();
             return [ alloc, length, type ];
         };
         const headerShape = readHeader(reader);
         if (headerShape[2] !== 'INT') {
-            throw new dl4j.Error("Unsupported header shape type '" + headerShape[2] + "'.");
+            throw new dl4j.Error(`Unsupported header shape type '${headerShape[2]}'.`);
         }
         const shapeInfo = new Array(headerShape[1]);
         for (let i = 0; i < shapeInfo.length; i++) {
@@ -366,7 +366,7 @@ dl4j.NDArray = class {
             [ 'DOUBLE', [ 'float64', 8 ] ]
         ]);
         if (!dataTypes.has(headerData[2])) {
-            throw new dl4j.Error("Unsupported header data type '" + headerShape[2] + "'.");
+            throw new dl4j.Error(`Unsupported header data type '${headerShape[2]}'.`);
         }
         const [dataType, itemSize] = dataTypes.get(headerData[2]);
         this.dataType = dataType;

@@ -14,7 +14,7 @@ pickle.ModelFactory = class {
         }
         const obj = context.peek('pkl');
         if (obj !== undefined) {
-            const name = obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : '';
+            const name = obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : '';
             if (!name.startsWith('__torch__.')) {
                 return obj;
             }
@@ -31,8 +31,8 @@ pickle.ModelFactory = class {
             throw obj;
         } else if (Array.isArray(obj)) {
             if (obj.length > 0 && obj[0] && obj.every((item) => item && item.__class__ && obj[0].__class__ && item.__class__.__module__ === obj[0].__class__.__module__ && item.__class__.__name__ === obj[0].__class__.__name__)) {
-                const type = obj[0].__class__.__module__ + "." + obj[0].__class__.__name__;
-                context.exception(new pickle.Error("Unsupported Pickle '" + type + "' array object."));
+                const type = `${obj[0].__class__.__module__}.${obj[0].__class__.__name__}`;
+                context.exception(new pickle.Error(`Unsupported Pickle '${type}' array object.`));
             } else if (obj.length > 0) {
                 context.exception(new pickle.Error("Unsupported Pickle array object."));
             }
@@ -40,11 +40,11 @@ pickle.ModelFactory = class {
             const formats = new Map([
                 [ 'cuml.ensemble.randomforestclassifier.RandomForestClassifier', 'cuML' ]
             ]);
-            const type = obj.__class__.__module__ + "." + obj.__class__.__name__;
+            const type = `${obj.__class__.__module__}.${obj.__class__.__name__}`;
             if (formats.has(type)) {
                 format = formats.get(type);
             } else {
-                context.exception(new pickle.Error("Unsupported Pickle type '" + type +  "'."));
+                context.exception(new pickle.Error(`Unsupported Pickle type '${type}'.`));
             }
         } else {
             context.exception(new pickle.Error('Unsupported Pickle object.'));
@@ -87,7 +87,7 @@ pickle.Graph = class {
 pickle.Node = class {
 
     constructor(obj, name, stack) {
-        const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'builtins.object';
+        const type = obj.__class__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : 'builtins.object';
         this.type = { name: type };
         this.name = name || '';
         this.inputs = [];
@@ -199,7 +199,7 @@ pickle.TensorShape = class {
     }
 
     toString() {
-        return this.dimensions ? ('[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+        return this.dimensions ? (`[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`) : '';
     }
 };
 

@@ -72,7 +72,7 @@ modular.Value = class {
 
     constructor(name, value) {
         if (typeof name !== 'string') {
-            throw new modular.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
+            throw new modular.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this._name = name;
         this._value = value;
