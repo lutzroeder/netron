@@ -93,6 +93,10 @@ tf.ModelFactory = class {
                         [7 /* object_graph_def */, []]
                     ];
                     const signatureSavedModel = [[1,0],[2,signatureMetaGraphDef]];
+                    // optimization_guide.proto.PageTopicsOverrideList
+                    if (identifier === 'override_list.pb' && tags.size === 1 && tags.get(1) === 2) {
+                        return undefined;
+                    }
                     if (tags.size === 1 && tags.get(1) === 2) {
                         const tags = context.tags('pb+');
                         // mediapipe.BoxDetectorIndex
