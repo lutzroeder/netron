@@ -4788,7 +4788,7 @@ view.Context = class {
         this._context = context;
         this._tags = new Map();
         this._content = new Map();
-        this._identifier = identifier || context.identifier;
+        this._identifier = typeof identifier === 'string' ? identifier : context.identifier;
         this._stream = stream || context.stream;
     }
 
@@ -4954,11 +4954,14 @@ view.Context = class {
                             try {
                                 const archive = zip.Archive.open(this._stream, 'gzip');
                                 if (archive) {
-                                    const entries = archive.entries;
-                                    this._content.set('gzip', entries);
+                                    let entries = archive.entries;
                                     if (entries.size === 1) {
+                                        const key = entries.keys().next().value;
                                         stream = entries.values().next().value;
+                                        const name = key === '' ? this.identifier.replace(/\.gz$/, '') : key;
+                                        entries = new Map([[ name, stream ]]);
                                     }
+                                    this._content.set('gzip', entries);
                                 }
                             } catch (error) {
                                 this._content.set('gzip', error);
