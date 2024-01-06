@@ -159,57 +159,56 @@ class Table {
 class Worker {
 
     constructor(identifier, queue, logger, measures) {
-        this.worker = new worker_threads.Worker('./test/worker.js');
-        this.identifier = identifier;
-        this.queue = queue;
-        this.logger = logger;
-        this.measures = measures;
-        this.events = {};
-        this.events.message = (message) => this.message(message);
-        this.events.error = (error) => this.error(error);
+        this._identifier = identifier;
+        this._queue = queue;
+        this._logger = logger;
+        this._measures = measures;
     }
 
     async start() {
-        for (let task = this.queue.pop(); task; task = this.queue.pop()) {
-            this.logger.update(this.identifier, null);
+        this._events = {};
+        this._events.message = (message) => this._message(message);
+        this._events.error = (error) => this._error(error);
+        this._worker = new worker_threads.Worker('./test/worker.js');
+        for (let task = this._queue.pop(); task; task = this._queue.pop()) {
+            this._logger.update(this._identifier, null);
             /* eslint-disable no-await-in-loop */
             await new Promise((resolve) => {
-                this.resolve = resolve;
-                this.attach();
-                this.worker.postMessage(task);
+                this._resolve = resolve;
+                this._attach();
+                this._worker.postMessage(task);
             });
             /* eslint-enable no-await-in-loop */
         }
-        this.logger.delete(this.identifier);
-        await this.worker.terminate();
+        this._logger.delete(this._identifier);
+        await this._worker.terminate();
+    }
+    _attach() {
+        this._worker.on('message', this._events.message);
+        this._worker.on('error', this._events.error);
     }
 
-    attach() {
-        this.worker.on('message', this.events.message);
-        this.worker.on('error', this.events.error);
+    _detach() {
+        this._worker.off('message', this._events.message);
+        this._worker.off('error', this._events.error);
     }
 
-    detach() {
-        this.worker.off('message', this.events.message);
-        this.worker.off('error', this.events.error);
-    }
-
-    async message(message) {
+    async _message(message) {
         switch (message.type) {
             case 'status': {
-                this.logger.update(this.identifier, message);
+                this._logger.update(this._identifier, message);
                 break;
             }
             case 'error': {
                 write(`\n${message.target}\n`);
-                exit(message.error);
+                this._error(message.error);
                 break;
             }
             case 'complete': {
-                await this.measures.add(message.measures);
-                this.detach();
-                this.resolve();
-                delete this.resolve;
+                await this._measures.add(message.measures);
+                this._detach();
+                this._resolve();
+                delete this._resolve;
                 break;
             }
             default: {
@@ -218,9 +217,9 @@ class Worker {
         }
     }
 
-    error(error) {
-        this.detach();
-        delete this.resolve;
+    _error(error) {
+        this._detach();
+        delete this._resolve;
         exit(error);
     }
 }
@@ -239,7 +238,7 @@ const main = async () => {
         // await measures.log(dirname('..', 'dist', 'test', 'measures.csv'));
         if (threads === 1) {
             const worker = await import('./worker.js');
-            for (let item = queue.next(); item; item = queue.next()) {
+            for (let item = queue.pop(); item; item = queue.pop()) {
                 const target = new worker.Target(item);
                 target.on('status', (_, message) => logger.update('', message));
                 /* eslint-disable no-await-in-loop */

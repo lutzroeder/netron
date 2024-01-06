@@ -46,10 +46,10 @@ const host = {};
 
 host.TestHost = class {
 
-    constructor() {
-        this._window = global.window;
-        this._document = this._window.document;
-        this._sourceDir = dirname('..', 'source');
+    constructor(window) {
+        this._window = window;
+        this._document = window.document;
+        host.TestHost.source = host.TestHost.source || dirname('..', 'source');
     }
 
     get window() {
@@ -77,12 +77,12 @@ host.TestHost = class {
     }
 
     async require(id) {
-        const file = path.join(this._sourceDir, `${id}.js`);
+        const file = path.join(host.TestHost.source, `${id}.js`);
         return await import(`file://${file}`);
     }
 
     async request(file, encoding, basename) {
-        const pathname = path.join(basename || this._sourceDir, file);
+        const pathname = path.join(basename || host.TestHost.source, file);
         const exists = await access(pathname);
         if (!exists) {
             throw new Error(`The file '${file}' does not exist.`);
@@ -138,43 +138,28 @@ host.TestHost.Context = class {
     }
 };
 
-global.Document = class {
+class CSSStyleDeclaration {
 
     constructor() {
-        this._elements = {};
-        this.documentElement = new HTMLElement();
-        this.body = new HTMLElement();
+        this._properties = new Map();
     }
 
-    createElement(/* name */) {
-        return new HTMLElement();
+    setProperty(name, value) {
+        this._properties.set(name, value);
     }
 
-    createElementNS(/* namespace, name */) {
-        return new HTMLElement();
+    removeProperty(name) {
+        this._properties.delete(name);
     }
+}
 
-    createTextNode(/* text */) {
-        return new HTMLElement();
+class DOMTokenList {
+
+    add(/* token */) {
     }
+}
 
-    getElementById(id) {
-        let element = this._elements[id];
-        if (!element) {
-            element = new HTMLElement();
-            this._elements[id] = element;
-        }
-        return element;
-    }
-
-    addEventListener(/* event, callback */) {
-    }
-
-    removeEventListener(/* event, callback */) {
-    }
-};
-
-global.HTMLElement = class {
+class HTMLElement {
 
     constructor() {
         this._childNodes = [];
@@ -187,8 +172,23 @@ global.HTMLElement = class {
 
     }
 
+    get lastChild() {
+        const index = this._childNodes.length - 1;
+        if (index >= 0) {
+            return this._childNodes[index];
+        }
+        return null;
+    }
+
     appendChild(node) {
         this._childNodes.push(node);
+    }
+
+    removeChild(node) {
+        const index = this._childNodes.lastIndexOf(node);
+        if (index !== -1) {
+            this._childNodes.splice(index, 1);
+        }
     }
 
     setAttribute(name, value) {
@@ -240,30 +240,53 @@ global.HTMLElement = class {
 
     focus() {
     }
-};
+}
 
-global.CSSStyleDeclaration = class {
+class Document {
 
     constructor() {
-        this._properties = new Map();
+        this._elements = {};
+        this._documentElement = new HTMLElement();
+        this._body = new HTMLElement();
     }
 
-    setProperty(name, value) {
-        this._properties.set(name, value);
+    get documentElement() {
+        return this._documentElement;
     }
 
-    removeProperty(name) {
-        this._properties.delete(name);
+    get body() {
+        return this._body;
     }
-};
 
-global.DOMTokenList = class {
-
-    add(/* token */) {
+    createElement(/* name */) {
+        return new HTMLElement();
     }
-};
 
-global.Window = class {
+    createElementNS(/* namespace, name */) {
+        return new HTMLElement();
+    }
+
+    createTextNode(/* text */) {
+        return new HTMLElement();
+    }
+
+    getElementById(id) {
+        let element = this._elements[id];
+        if (!element) {
+            element = new HTMLElement();
+            this._elements[id] = element;
+        }
+        return element;
+    }
+
+    addEventListener(/* event, callback */) {
+    }
+
+    removeEventListener(/* event, callback */) {
+    }
+}
+
+class Window {
 
     constructor() {
         this._document = new Document();
@@ -278,7 +301,7 @@ global.Window = class {
 
     removeEventListener(/* event, callback */) {
     }
-};
+}
 
 export class Target {
 
@@ -305,20 +328,14 @@ export class Target {
         }
     }
 
-    static async start() {
-        global.window = new Window();
-        await zip.Archive.import();
-        Target.host = await new host.TestHost();
-    }
-
     status(message) {
         this.emit('status', message);
     }
 
     async execute() {
-        if (!Target.host) {
-            await Target.start();
-        }
+        await zip.Archive.import();
+        this.window = this.window || new Window();
+        this.host = await new host.TestHost(this.window);
         const time = async (method) => {
             const start = process.hrtime.bigint();
             let err = null;
@@ -334,8 +351,8 @@ export class Target {
             }
         };
         this.status({ name: 'name', target: this.name });
-        await time(this.download);
         try {
+            await time(this.download);
             await time(this.load);
             await time(this.validate);
             if (!this.action.has('skip-render')) {
@@ -476,7 +493,7 @@ export class Target {
             const buffer = await fs.readFile(target, null);
             const reader = new base.BinaryStream(buffer);
             const dirname = path.dirname(target);
-            context = new host.TestHost.Context(Target.host, dirname, identifier, reader, new Map());
+            context = new host.TestHost.Context(this.host, dirname, identifier, reader, new Map());
         } else if (stat.isDirectory()) {
             const entries = new Map();
             const file = async (pathname) => {
@@ -499,9 +516,9 @@ export class Target {
                 await Promise.all(promises);
             };
             await walk(target);
-            context = new host.TestHost.Context(Target.host, target, identifier, null, entries);
+            context = new host.TestHost.Context(this.host, target, identifier, null, entries);
         }
-        const modelFactoryService = new view.ModelFactoryService(Target.host);
+        const modelFactoryService = new view.ModelFactoryService(this.host);
         this.model = await modelFactoryService.open(context);
     }
 
@@ -661,7 +678,7 @@ export class Target {
     }
 
     async render() {
-        const current = new view.View(Target.host);
+        const current = new view.View(this.host);
         current.options.attributes = true;
         current.options.initializers = true;
         await current.renderGraph(this.model, this.model.graphs[0], current.options);
