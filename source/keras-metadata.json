@@ -1680,6 +1680,10 @@
       {
         "description": "Constraint function applied to the bias vector.",
         "name": "bias_constraint"
+      },
+      {
+        "name": "lora_rank",
+        "description": "Optional integer. If set, the layer's forward pass\n        will implement LoRA (Low-Rank Adaptation)\n        with the provided rank. LoRA sets the layer's kernel\n        to non-trainable and replaces it with a delta over the\n        original kernel, obtained via multiplying two lower-rank\n        trainable matrices. This can be useful to reduce the\n        computation cost of fine-tuning large dense layers.\n        You can also enable LoRA on an existing\n        `Dense` layer by calling `layer.enable_lora(rank)`."
       }
     ],
     "inputs": [
@@ -1950,6 +1954,10 @@
       {
         "name": "sparse",
         "description": "If True, calling this layer returns a `tf.SparseTensor`. If False,\n    the layer returns a dense `tf.Tensor`. For an entry with no features in\n    a sparse tensor (entry with value 0), the embedding vector of index 0 is\n    returned by default."
+      },
+      {
+        "name": "lora_rank",
+        "description": "Optional integer. If set, the layer's forward pass\n        will implement LoRA (Low-Rank Adaptation)\n        with the provided rank. LoRA sets the layer's embeddings\n        matrix to non-trainable and replaces it with a delta over the\n        original matrix, obtained via multiplying two lower-rank\n        trainable matrices. This can be useful to reduce the\n        computation cost of fine-tuning large embedding layers.\n        You can also enable LoRA on an existing\n        `Embedding` layer by calling `layer.enable_lora(rank)`."
       }
     ],
     "inputs": [
