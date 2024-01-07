@@ -772,6 +772,10 @@ pytorch.Container = class {
         if (index) {
             return index;
         }
+        const dynamo = pytorch.Container.Dynamo.open(context);
+        if (dynamo) {
+            return dynamo;
+        }
         const executorch = pytorch.Container.ExecuTorch.open(context);
         if (executorch) {
             return executorch;
@@ -1204,6 +1208,55 @@ pytorch.Container.Index = class extends pytorch.Container {
         this._modules = pytorch.Utility.findWeights(entries);
         delete this._context;
         delete this._entries;
+    }
+
+    get format() {
+        return this._format;
+    }
+
+    get modules() {
+        return this._modules;
+    }
+};
+
+pytorch.Container.Dynamo = class extends pytorch.Container {
+
+    static open(context) {
+        const program = context.peek('json');
+        if (program && program.schema_version && program.graph_module) {
+            return new pytorch.Container.Dynamo(context, program);
+        }
+        return null;
+    }
+
+    constructor(context, program) {
+        super();
+        this._context = context;
+        this._program = program;
+    }
+
+    async read() {
+        this._format = 'PyTorch Export';
+        let content = null;
+        try {
+            content = await this._context.fetch('serialized_state_dict.json');
+        } catch (error) {
+            // continue regardless of error
+        }
+        if (content) {
+            const state_dict = content.peek('zip');
+            const reader = new pytorch.jit.StreamReader(state_dict);
+            const execution = new pytorch.Execution();
+            for (const event of this._events) {
+                execution.on(event[0], event[1]);
+            }
+            const torch = execution.__import__('torch');
+            const entries = new Map(reader.getAllRecords().map((key) => [ key, reader.getRecord(key) ]));
+            this._data = torch.load(entries);
+            const deserializer = new torch._export.serde.serialize.GraphModuleDeserializer();
+            deserializer.deserialize(this._program.graph_module /*, symbol_name_to_range */);
+        }
+        throw new pytorch.Error(`'torch.export' not supported.`);
     }
 
     get format() {

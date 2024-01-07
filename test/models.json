@@ -4746,6 +4746,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "exported_program.pt2",
+    "source":   "https://github.com/lutzroeder/netron/files/13851819/exported_program.pt2.zip[exported_program.pt2]",
+    "format":   "PyTorch Export",
+    "error":    "'torch.export' not supported.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "pytorch",
     "target":   "fairseq.lightweightconv.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9145928/fairseq.lightweightconv.pt.zip[fairseq.lightweightconv.pt]",
     "format":   "TorchScript v1.6",

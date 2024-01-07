@@ -4947,7 +4947,6 @@ python.Execution = class {
         });
         this.registerFunction('torch.set_grad_enabled', function(/* value */) {
         });
-
         this.registerFunction('torch.serialization._get_layout', function(name) {
             const value = name.startsWith('torch.') ? torch[name.split('.')[1]] : null;
             return value instanceof torch.layout ? value : null;
@@ -5381,11 +5380,56 @@ python.Execution = class {
         });
         this.registerType('torch.fx.graph.CodeGen', class {});
         this.registerType('torch.fx.graph._Namespace', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.fx.node.Node', class {
+        });
+        torch.fx.Node = torch.fx.node.Node;
+        this.registerType('torch.fx.graph.Graph', class {
+            placeholder(name, type_expr /*, default_value */) {
+                const args = []; // () if default_value is inspect.Signature.empty else (default_value,)
+                return this.create_node('placeholder', name, args, type_expr);
+            }
+            create_node() {
+            }
+        });
+        torch.fx.Graph = torch.fx.graph.Graph;
         this.registerType('torch.fx.graph_module.GraphModule', class extends torch.nn.modules.module.Module {});
         this.registerFunction('torch.fx._symbolic_trace.wrap', function(fn_or_name) {
             return fn_or_name;
         });
         this.registerType('torch.fx._symbolic_trace.Tracer', class {});
+        this.registerType('torch._export.serde.serialize.GraphModuleDeserializer', class {
+            constructor() {
+                this.serialized_name_to_node = new Map();
+                this.serialized_name_to_meta = new Map();
+                this.graph = new torch.fx.Graph();
+                this.module = new torch.nn.Module();
+            }
+            deserialize(serialized_graph_module) {
+                this.deserialize_graph(serialized_graph_module.graph);
+            }
+            deserialize_graph(serialized_graph) {
+                for (const input of serialized_graph.inputs) {
+                    const placeholder_node = this.graph.placeholder(input.as_tensor.name);
+                    this.sync_fx_node(input.as_tensor.name, placeholder_node);
+                }
+                for (const serialized_node of serialized_graph.nodes) {
+                    const target = this.deserialize_operator(serialized_node.target);
+                    this.deserialize_node(serialized_node, target);
+                }
+                const outputs = [];
+                for (const output of serialized_graph.outputs) {
+                    outputs.push(this.deserialize_graph_output(output));
+                }
+            }
+            deserialize_operator() {
+            }
+            deserialize_node() {
+            }
+            deserialize_graph_output() {
+            }
+            sync_fx_node() {
+            }
+        });
         this.registerFunction('torch_utils.persistence._reconstruct_persistent_obj', function(meta) {
             const name = `_imported_module_${Math.floor(Math.random() * 10000)}`;
             const module = execution.invoke('types.ModuleType', [ name ]);
