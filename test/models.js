@@ -1,5 +1,6 @@
 
 import * as fs from 'fs/promises';
+import * as inspector from 'inspector';
 import * as os from 'os';
 import * as path from 'path';
 import * as process from 'process';
@@ -232,7 +233,7 @@ const main = async () => {
         const patterns = paths ? [] : args;
         const targets = paths ? args.map((path) => ({ target: path })) : await configuration();
         const queue = new Queue(targets, patterns);
-        const threads = undefined;
+        const threads = inspector.url() ? 1 : undefined;
         const logger = new Logger(threads);
         const measures = new Table([ 'name', 'download', 'load', 'validate', 'render' ]);
         // await measures.log(dirname('..', 'dist', 'test', 'measures.csv'));
