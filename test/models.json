@@ -5181,7 +5181,7 @@
     "type":     "pytorch",
     "target":   "pyg_model.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10369483/pyg_model.zip[pyg_model.pt]",
-    "error":    "Cannot read properties of undefined (reading 'length')",
+    "error":    "Expected \\'edge_index\\' to be of integer type (got \\'6\\')",
     "link":     "https://github.com/lutzroeder/netron/issues/546"
   },
   {

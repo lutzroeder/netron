@@ -906,7 +906,7 @@ pytorch.Container.data_pkl = class extends pytorch.Container {
             }
             for (const key of [ '', 'model', 'net' ]) {
                 const module = key === '' ? obj : obj[key];
-                if (module && module._modules && pytorch.Utility.isInstance(module._modules,'collections.OrderedDict')) {
+                if (module && module._modules && pytorch.Utility.isInstance(module._modules, 'collections.OrderedDict')) {
                     return new pytorch.Container.data_pkl('module', module);
                 }
             }

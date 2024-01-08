@@ -1625,6 +1625,7 @@ python.Execution = class {
         this.registerType('builtins.builtin_function_or_method', class {});
         const typing = this.register('typing');
         this._typing = typing;
+        const operator = this.register('operator');
         this.register('_codecs');
         this.register('argparse');
         this.register('collections');
@@ -1648,6 +1649,7 @@ python.Execution = class {
         this.register('torch.storage');
         this.register('torch.nn.parameter');
         this.register('torch.ops');
+        this.register('torch._ops');
         this.register('torch.ops.torchvision');
         this.register('torch.ops.torchaudio');
         this.register('torch.ops._caffe2');
@@ -1746,6 +1748,39 @@ python.Execution = class {
         typing.Sequence = Reflect.construct(typing._SpecialGenericAlias, []);
         typing.Tuple = Reflect.construct(typing._TupleType, []);
         typing.Union = Reflect.construct(typing._SpecialForm, []);
+        this.registerFunction('operator.add', function() {
+            throw new python.Error("'operator.add' not implemented.");
+        });
+        this.registerFunction('operator.eq', function() {
+            throw new python.Error("'operator.eq' not implemented.");
+        });
+        this.registerFunction('operator.ge', function() {
+            throw new python.Error("'operator.ge' not implemented.");
+        });
+        this.registerFunction('operator.gt', function() {
+            throw new python.Error("'operator.gt' not implemented.");
+        });
+        this.registerFunction('operator.mul', function() {
+            throw new python.Error("'operator.mul' not implemented.");
+        });
+        this.registerFunction('operator.mod', function() {
+            throw new python.Error("'operator.mod' not implemented.");
+        });
+        this.registerFunction('operator.le', function() {
+            throw new python.Error("'operator.le' not implemented.");
+        });
+        this.registerFunction('operator.lt', function() {
+            throw new python.Error("'operator.lt' not implemented.");
+        });
+        this.registerFunction('operator.ne', function() {
+            throw new python.Error("'operator.ne' not implemented.");
+        });
+        this.registerFunction('operator.floordiv', function() {
+            throw new python.Error("'operator.floordiv' not implemented.");
+        });
+        this.registerFunction('operator.sub', function() {
+            throw new python.Error("'operator.sub' not implemented.");
+        });
         this.registerType('argparse.Namespace', class {
             constructor(args) {
                 this.args = args;
@@ -3430,6 +3465,25 @@ python.Execution = class {
                 }
             }
         });
+        this.registerFunction('builtins.issubclass', function(obj, type) {
+            const name = `${type.__module__}.${type.__name__}`;
+            if (obj.__module__ && obj.__name__) {
+                if (name === `${obj.__module__}.${obj.__name__}`) {
+                    return true;
+                }
+            }
+            if (obj.__bases__) {
+                for (const base of obj.__bases__) {
+                    if (builtins.issubclass(base, type)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        });
+        this.registerFunction('builtins.isinstance', function(obj, type) {
+            return obj.__class__ ? builtins.issubclass(obj.__class__, type) : false;
+        });
         this.registerFunction('builtins.getattr', function(obj, name, defaultValue) {
             if (Object.prototype.hasOwnProperty.call(obj, name)) {
                 return obj[name];
@@ -4814,6 +4868,10 @@ python.Execution = class {
         this.registerFunction('torch._unwrap_optional', function(value) {
             return value; // TODO
         });
+        this.registerFunction('torch.empty_strided', function(/* size, stride, dtype, layout, device, pin_memory, requires_grad */) {
+            return null;
+            // TODO throw new python.Error("'torch.empty_strided' not implemented.");
+        });
         this.registerFunction('torch.add', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
                 return left * right;
@@ -5357,6 +5415,9 @@ python.Execution = class {
         });
         this.registerFunction('torch.warn', function() {
         });
+        this.registerType('torch._ops.OperatorBase', class {});
+        this.registerType('torch._ops.HigherOrderOperator', class extends torch._ops.OperatorBase {});
+        this.registerType('torch._ops.OpOverload', class extends torch._ops.OperatorBase {});
         this.registerFunction('torch.fx.graph_module._deserialize_graph_module', function(/* forward, body */) {
             return execution.invoke('torch.fx.graph_module.GraphModule', []);
         });
@@ -5379,16 +5440,143 @@ python.Execution = class {
             return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [ forward, body ]);
         });
         this.registerType('torch.fx.graph.CodeGen', class {});
-        this.registerType('torch.fx.graph._Namespace', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.fx.graph._Namespace', class {
+            constructor() {
+                this._obj_to_name = new Map();
+                this._unassociated_names = new Set();
+                this._used_names = new Set();
+                this._base_count = {};
+            }
+            create_name(candidate, obj) {
+                if (obj && this._obj_to_name.has(obj)) {
+                    return self._obj_to_name.get(obj);
+                }
+                candidate = candidate || '_unnamed';
+                candidate = /^\d+$/.test(candidate) ? `_${candidate}` : candidate;
+                candidate = candidate.replace(/[^0-9a-zA-Z_]+/, '_');
+                const match = candidate.match(/(.*)_(\d+)$"/);
+                let base = candidate;
+                let num = null;
+                if (match) {
+                    [, base] = match;
+                    num = parseInt(match[2], 10);
+                }
+                candidate = num ? `${base}_${num}` : base;
+                if (!num) {
+                    num = this._base_count[base] || 0;
+                }
+                while (this._used_names.has(candidate) || this._is_illegal_name(candidate, obj)) {
+                    num += 1;
+                    candidate = `${base}_${num}`;
+                }
+                this._used_names.add(candidate);
+                this._base_count[base] = num;
+                if (obj) {
+                    this._obj_to_name[obj] = candidate;
+                } else {
+                    this._unassociated_names.add(candidate);
+                }
+                return candidate;
+            }
+            _is_illegal_name(/* name, obj */) {
+                /*
+                if name in keyword.kwlist:
+                    return True
+                if name in builtins.__dict__:
+                    return obj is not builtins.__dict__[name]
+                if name in _custom_builtins:
+                    return obj is not _custom_builtins[name].obj
+                */
+                return false;
+            }
+            associate_name_with_obj() {
+
+            }
+        });
         this.registerType('torch.fx.node.Node', class {
+            constructor(graph, name, op, target, args, kwargs, return_type) {
+                this.graph = graph;
+                this.name = name;
+                this.op = op;
+                this.target = target;
+                this._input_nodes = new Map();
+                this.users = new Map();
+                this.type = return_type;
+                this._prev = this;
+                this._next = this;
+                this._erased = false;
+                this._repr_fn = null;
+                this.meta = {};
+            }
+            prepend(x) {
+                x._remove_from_list();
+                const p = this._prev;
+                p._next = x;
+                x._prev = p;
+                x._next = this;
+                this._prev = x;
+            }
+            _remove_from_list() {
+                const p = this._prev;
+                const n = this._next;
+                p._next = n;
+                n._prev = p;
+            }
         });
         torch.fx.Node = torch.fx.node.Node;
         this.registerType('torch.fx.graph.Graph', class {
+            constructor() {
+                this._root = new torch.fx.node.Node(self, '', 'root', '', [], {});
+                this._used_names = new Map();
+                this._len = 0;
+                this._graph_namespace = new torch.fx.graph._Namespace();
+                // this._owning_module = owning_module
+                // this._tracer_cls = tracer_cls
+                // this._tracer_extras = tracer_extras
+                // this._codegen = CodeGen()
+                // this._co_fields = {}
+            }
             placeholder(name, type_expr /*, default_value */) {
                 const args = []; // () if default_value is inspect.Signature.empty else (default_value,)
                 return this.create_node('placeholder', name, args, type_expr);
             }
-            create_node() {
+            create_node(op, target, args, kwargs, name, type_expr) {
+                args = args || [];
+                kwargs = kwargs || {};
+                const candidate = name || this._target_to_str(target);
+                name = this._graph_namespace.create_name(candidate, null);
+                const n = new torch.fx.Node(this, name, op, target, args, kwargs, type_expr);
+                this._graph_namespace.associate_name_with_obj(name, n);
+                this._insert(n);
+                this._len += 1;
+                return n;
+            }
+            _insert(n) {
+                this._root.prepend(n);
+            }
+            _target_to_str(target) {
+                if (typeof target === 'string') {
+                    if (target.startsWith('__') && target.endswith('__')) {
+                        target = target.substring(2, target.length - 2);
+                    }
+                } else {
+                    target = target.__name__;
+                }
+                return this._snake_case(target);
+            }
+            _snake_case(s) {
+                const chars = [];
+                let prev_lower = false;
+                for (const c of s) {
+                    const x = c.toLowerCase();
+                    if (prev_lower && x !== c) {
+                        chars.push('_');
+                    } else {
+                        prev_lower = true;
+                    }
+                    chars.push(x);
+                }
+                return chars.join('');
             }
         });
         torch.fx.Graph = torch.fx.graph.Graph;
@@ -5403,11 +5591,34 @@ python.Execution = class {
                 this.serialized_name_to_meta = new Map();
                 this.graph = new torch.fx.Graph();
                 this.module = new torch.nn.Module();
+                this._SYM_INT_OPS = new Set([
+                    operator.mul, operator.add, operator.sub, operator.floordiv, operator.mod,
+                    torch.sym_sqrt, torch.sym_int, torch.sym_ite, torch.sym_max, torch.sym_min, torch.sym_sqrt
+                ]);
+                this._SYM_BOOL_OPS = new Set([
+                    operator.eq, operator.ne, operator.le, operator.ge, operator.lt, operator.gt,
+                    torch.sym_not
+                ]);
             }
             deserialize(serialized_graph_module) {
                 this.deserialize_graph(serialized_graph_module.graph);
             }
             deserialize_graph(serialized_graph) {
+                /*
+                self.constants: Dict[str, torch.Tensor] = {
+                    k: deserialize_torch_artifact(base64.b64decode(v))
+                    for k, v in serialized_graph.constants
+                }*/
+                for (const [name, tensor_value] of Object.entries(serialized_graph.tensor_values)) {
+                    const meta_val = this.deserialize_tensor_meta(tensor_value.meta, self.fake_tensor_mode);
+                    this.serialized_name_to_meta.set(name, meta_val);
+                }
+                for (const [name, sym_int_value] of Object.entries(serialized_graph.sym_int_values)) {
+                    this.serialized_name_to_meta.set(name, this.deserialize_sym_int(sym_int_value));
+                }
+                for (const [name, sym_bool_value] in Object.entries(serialized_graph.sym_bool_values)) {
+                    this.serialized_name_to_meta.set(name, this.deserialize_sym_bool(sym_bool_value));
+                }
                 for (const input of serialized_graph.inputs) {
                     const placeholder_node = this.graph.placeholder(input.as_tensor.name);
                     this.sync_fx_node(input.as_tensor.name, placeholder_node);
@@ -5421,11 +5632,86 @@ python.Execution = class {
                     outputs.push(this.deserialize_graph_output(output));
                 }
             }
-            deserialize_operator() {
+            deserialize_operator(serialized_target) {
+                let target = null;
+                if (serialized_target.startsWith("_operator")) {
+                    target = operator;
+                } else if (serialized_target.startsWith("torch")) {
+                    target = torch;
+                } else {
+                    return serialized_target;
+                }
+                const serialized_target_names = serialized_target.split('.').reverse();
+                serialized_target_names.pop();
+                for (const name of serialized_target_names) {
+                    target = target[name];
+                    if (!target) {
+                        return serialized_target;
+                    }
+                }
+                return target;
             }
-            deserialize_node() {
+            deserialize_node(serialized_node, target) {
+                let name;
+                const args = [];
+                const kwargs = {};
+                let fx_node = null;
+                /*
+                if (this._SYM_BOOL_OPS.has(target) || this._SYM_INT_OPS.has(target)) {
+                    name = serialized_node.outputs[0].value.as_name;
+                    args = self.deserialize_sym_op_inputs(serialized_node.inputs);
+                    fx_node = self.graph.create_node("call_function", target, args, {}, name);
+                    this.deserialize_sym_op_outputs(serialized_node, fx_node);
+                } else if (builtins.isinstance(target, torch._ops.HigherOrderOperator)) {
+                    // assert(len(serialized_node.outputs) == 1 && serialized_node.outputs[0].type in ("as_tensors", "as_tensor")), "Only single tensor output or list of tensor output is supported for higher order operators.")
+                    const [output] = serialized_node.outputs;
+                    name = output.type == 'as_tensor' ? output.value.name : null;
+                    args = serialized_node.inputs.map((input) => this.deserialize_input(input.arg));
+                    fx_node = this.graph.create_node("call_function", target, args, {}, name);
+                    if (output.as_tensor !== null) {
+                        this.sync_fx_node(name, fx_node);
+                    }
+                    if (output.as_tensors !== null) {
+                        this.deserialize_multiple_outputs(serialized_node, fx_node);
+                    }
+                } else if (builtins.isinstance(target, torch._ops.OpOverload)) {
+                    name = this._is_single_tensor_return(target) ? serialized_node.outputs[0].as_tensor.name : null;
+                    [args, kwargs] = this.deserialize_inputs(target, serialized_node);
+                    fx_node = self.graph.create_node("call_function", target, args, kwargs, name);
+                    this.deserialize_outputs(serialized_node, fx_node);
+                } else {
+                    throw new python.Error(`Unsupported target type '${target}'.`);
+                }
+                */
+                fx_node = this.graph.create_node("call_function", target, args, kwargs, name);
+                Object.assign(fx_node.meta, this.deserialize_metadata(serialized_node.metadata));
             }
             deserialize_graph_output() {
+            }
+            deserialize_metadata(metadata) {
+                return metadata; // TODO
+            }
+            deserialize_tensor_meta(tensor_meta) {
+                const sizes = tensor_meta.sizes.map((val) => this.deserialize_sym_int(val));
+                const strides = tensor_meta.strides.map((val) => this.deserialize_sym_int(val));
+                const device = this.deserialize_device(tensor_meta.device);
+                const dtype = null; // TODO _SERIALIZE_TO_TORCH_DTYPE[tensor_meta.dtype],
+                return torch.empty_strided(sizes, strides, device, dtype);
+            }
+            deserialize_sym_int(s) {
+                if (s.as_expr !== undefined && s.as_expr !== null) {
+                    // throw new python.Error();
+                    return s.as_expr; // TODO
+                } else if (s.as_int !== undefined && s.as_int !== null) {
+                    return s.as_int;
+                }
+                throw new python.Error();
+            }
+            deserialize_device(d) {
+                if (d.index !== undefined) {
+                    return new torch.device(d.type, d.index);
+                }
+                return new torch.device(d.type);
             }
             sync_fx_node() {
             }
@@ -6399,9 +6685,6 @@ python.Execution = class {
                 throw new python.Error("Unsupported field expression.");
             }
             case 'call': {
-                if (expression.target.type === 'id' && expression.target.value === 'unchecked_cast' && expression.args.length === 2) {
-                    return this.expression(expression.args[1], context);
-                }
                 if (expression.target.type === '.') {
                     return this.call(expression.target.target, expression.target.member.value, expression.args, context);
                 }
