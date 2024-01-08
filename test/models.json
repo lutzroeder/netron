@@ -4747,7 +4747,7 @@
   {
     "type":     "pytorch",
     "target":   "exported_program.pt2",
-    "source":   "https://github.com/lutzroeder/netron/files/13851819/exported_program.pt2.zip[exported_program.pt2]",
+    "source":   "https://github.com/lutzroeder/netron/files/13855206/exported_program.pt2.zip[exported_program.pt2]",
     "format":   "PyTorch Export",
     "error":    "'torch.export' not supported.",
     "link":     "https://github.com/lutzroeder/netron/issues/1211"
@@ -4799,6 +4799,14 @@
     "target":   "gpt2.pt",
     "source":   "https://github.com/lutzroeder/netron/files/11585383/gpt2.pt.zip[gpt2.pt]",
     "format":   "TorchScript v1.12",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "gpt2.pt2",
+    "source":   "https://github.com/lutzroeder/netron/files/13855267/gpt2.pt2.zip[gpt2.pt2]",
+    "format":   "PyTorch Export",
+    "error":    "'torch.export' not supported.",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5240,55 +5248,6 @@
   },
   {
     "type":     "pytorch",
-    "target":   "resnet18_fbgemm_16fa66dd.pth",
-    "source":   "https://download.pytorch.org/models/quantized/resnet18_fbgemm_16fa66dd.pth",
-    "format":   "PyTorch v0.1.10",
-    "link":     "https://github.com/pytorch/vision/blob/master/torchvision/models/quantization/resnet.py"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "resnet18_large_blocks.pth",
-    "source":   "https://raw.githubusercontent.com/facebookresearch/kill-the-bits/master/src/models/compressed/resnet18_large_blocks.pth",
-    "format":   "PyTorch v0.1.10",
-    "link":     "https://github.com/facebookresearch/kill-the-bits/tree/master/src/models/compressed"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "resnet18_quantized_cifar10.pt.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/7610907/resnet18_quantized_cifar10.pt.zip[resnet18_quantized_cifar10.pt]",
-    "format":   "TorchScript v1.6",
-    "link":     "https://github.com/lutzroeder/netron/issues/842"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "resnet18-5c106cde.pth",
-    "source":   "https://download.pytorch.org/models/resnet18-5c106cde.pth",
-    "format":   "PyTorch v0.1.1",
-    "link":     "https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "resnet34.pt",
-    "source":   "https://github.com/lutzroeder/netron/files/9075629/resnet34.pt.zip",
-    "format":   "PyTorch Package v1.9",
-    "link":     "https://github.com/lutzroeder/netron/issues/928"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "resnet34-333f7ec4.pth",
-    "source":   "https://download.pytorch.org/models/resnet34-333f7ec4.pth",
-    "format":   "PyTorch v0.1.1",
-    "link":     "https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "resnet50_pertensor.pt",
-    "source":   "https://github.com/lutzroeder/netron/files/5212006/resnet50_pertensor.zip[resnet50_pertensor.pt]",
-    "format":   "TorchScript v1.5",
-    "link":     "https://github.com/lutzroeder/netron/issues/546"
-  },
-  {
-    "type":     "pytorch",
     "target":   "resnext50_32x4d_fpn.pth",
     "source":   "https://github.com/lutzroeder/netron/files/8985800/resnext50_32x4d_fpn.pth.zip[resnext50_32x4d_fpn.pth]",
     "format":   "TorchScript v1.7",
@@ -5331,10 +5290,67 @@
   },
   {
     "type":     "pytorch",
+    "target":   "resnet18.pt2",
+    "source":   "https://github.com/lutzroeder/netron/files/13855229/resnet18.pt2.zip[resnet18.pt2]",
+    "format":   "PyTorch Export",
+    "error":    "'torch.export' not supported.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "resnet18_fbgemm_16fa66dd.pth",
+    "source":   "https://download.pytorch.org/models/quantized/resnet18_fbgemm_16fa66dd.pth",
+    "format":   "PyTorch v0.1.10",
+    "link":     "https://github.com/pytorch/vision/blob/master/torchvision/models/quantization/resnet.py"
+  },
+  {
+    "type":     "pytorch",
     "target":   "resnet18_fx_graph_mode_quantized.pth",
     "source":   "https://github.com/lutzroeder/netron/files/6716842/resnet18_fx_graph_mode_quantized.pth.zip[resnet18_fx_graph_mode_quantized.pth]",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/758"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "resnet18_large_blocks.pth",
+    "source":   "https://raw.githubusercontent.com/facebookresearch/kill-the-bits/master/src/models/compressed/resnet18_large_blocks.pth",
+    "format":   "PyTorch v0.1.10",
+    "link":     "https://github.com/facebookresearch/kill-the-bits/tree/master/src/models/compressed"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "resnet18_quantized_cifar10.pt.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/7610907/resnet18_quantized_cifar10.pt.zip[resnet18_quantized_cifar10.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "resnet18-5c106cde.pth",
+    "source":   "https://download.pytorch.org/models/resnet18-5c106cde.pth",
+    "format":   "PyTorch v0.1.1",
+    "link":     "https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "resnet34.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/9075629/resnet34.pt.zip",
+    "format":   "PyTorch Package v1.9",
+    "link":     "https://github.com/lutzroeder/netron/issues/928"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "resnet34-333f7ec4.pth",
+    "source":   "https://download.pytorch.org/models/resnet34-333f7ec4.pth",
+    "format":   "PyTorch v0.1.1",
+    "link":     "https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "resnet50_pertensor.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/5212006/resnet50_pertensor.zip[resnet50_pertensor.pt]",
+    "format":   "TorchScript v1.5",
+    "link":     "https://github.com/lutzroeder/netron/issues/546"
   },
   {
     "type":     "pytorch",
