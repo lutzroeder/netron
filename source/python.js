@@ -2254,11 +2254,14 @@ python.Execution = class {
         this.registerType('megengine.core.ops._internal.param_defs.Convolution.ComputeMode', class {});
         this.registerType('megengine.distributed.group.Group', class {});
         this.registerType('megengine.module.activation.ReLU', class {});
+        this.registerType('megengine.module.activation.Softmax', class {});
         this.registerType('megengine.module.adaptive_pooling.AdaptiveAvgPool2d', class {});
         this.registerType('megengine.module.batchnorm.BatchNorm1d', class {});
         this.registerType('megengine.module.batchnorm.BatchNorm2d', class {});
         this.registerType('megengine.module.conv.Conv2d', class {});
         this.registerType('megengine.module.conv.ConvTranspose2d', class {});
+        this.registerType('megengine.module.conv_bn.ConvBn2d', class {});
+        this.registerType('megengine.module.dropout.Dropout', class {});
         this.registerType('megengine.module.identity.Identity', class {});
         this.registerType('megengine.module.linear.Linear', class {});
         this.registerType('megengine.module.module.Module', class {});
