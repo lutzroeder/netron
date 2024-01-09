@@ -15543,6 +15543,10 @@
     "category": "Activation"
   },
   {
+    "name": "torch.nn.modules.activation.SiLU",
+    "category": "Activation"
+  },
+  {
     "name": "torch.nn.modules.activation.Sigmoid",
     "category": "Activation"
   },
