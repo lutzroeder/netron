@@ -1115,7 +1115,9 @@ onnx.DataType = {
     FLOAT8E4M3FN: 17,
     FLOAT8E4M3FNUZ: 18,
     FLOAT8E5M2: 19,
-    FLOAT8E5M2FNUZ: 20
+    FLOAT8E5M2FNUZ: 20,
+    UINT4: 21,
+    INT4: 22
 };
 
 onnx.AttributeType = {
