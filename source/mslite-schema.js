@@ -71,7 +71,8 @@ $root.mindspore.schema.ActivationType = {
     SIGN: 17,
     SWISH: 18,
     GELU: 19,
-    UNKNOWN: 20
+    FAST_GELU: 20,
+    UNKNOWN: 21
 };
 
 $root.mindspore.schema.ReduceMode = {
@@ -399,6 +400,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 218: return $root.mindspore.schema.Triu.decode(reader, position);
             case 219: return $root.mindspore.schema.Tril.decode(reader, position);
             case 220: return $root.mindspore.schema.AdamWeightDecay.decode(reader, position);
+            case 221: return $root.mindspore.schema.FillV2.decode(reader, position);
             default: return undefined;
         }
     }
@@ -625,6 +627,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'Triu': return $root.mindspore.schema.Triu.decodeText(reader, json);
             case 'Tril': return $root.mindspore.schema.Tril.decodeText(reader, json);
             case 'AdamWeightDecay': return $root.mindspore.schema.AdamWeightDecay.decodeText(reader, json);
+            case 'FillV2': return $root.mindspore.schema.FillV2.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -2121,6 +2124,7 @@ $root.mindspore.schema.LSTM = class LSTM {
         $.dropout = reader.float32_(position, 16, 0);
         $.zoneout_cell = reader.float32_(position, 18, 0);
         $.zoneout_hidden = reader.float32_(position, 20, 0);
+        $.proj_size = reader.int64_(position, 22, 0);
         return $;
     }
 
@@ -2135,6 +2139,7 @@ $root.mindspore.schema.LSTM = class LSTM {
         $.dropout = reader.value(json.dropout, 0);
         $.zoneout_cell = reader.value(json.zoneout_cell, 0);
         $.zoneout_hidden = reader.value(json.zoneout_hidden, 0);
+        $.proj_size = reader.value(json.proj_size, 0);
         return $;
     }
 };
@@ -4350,6 +4355,19 @@ $root.mindspore.schema.AdamWeightDecay = class AdamWeightDecay {
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.AdamWeightDecay();
         $.use_locking = reader.value(json.use_locking, false);
+        return $;
+    }
+};
+
+$root.mindspore.schema.FillV2 = class FillV2 {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.FillV2();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.FillV2();
         return $;
     }
 };
