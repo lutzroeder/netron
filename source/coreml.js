@@ -345,10 +345,17 @@ coreml.Tensor = class {
 
     constructor(type, values, quantization, category) {
         this.type = type;
-        this.encoding = type.dataType === 'float32' ? '|' : '<';
         this.values = values;
         this.category = category;
         this._quantization = quantization;
+        if (type.dataType === 'float32') {
+            this.encoding = '|';
+        } else if ((type.dataType.startsWith('uint') && type.dataType.length === 5) ||
+                   (type.dataType.startsWith('int')  && type.dataType.length === 4)) {
+            this.encoding = '>';
+        } else {
+            this.encoding = '<';
+        }
     }
 
     get quantization() {
@@ -361,6 +368,27 @@ coreml.Tensor = class {
                     map.push(`${key} = ${this._quantization.lookupTableQuantization.floatValue[key]}`);
                 }
                 return map.join('; ');
+            }
+            if (this._quantization.linearQuantization &&
+                Array.isArray(this._quantization.linearQuantization.scale) &&
+                Array.isArray(this._quantization.linearQuantization.bias)) {
+                const q = this._quantization.linearQuantization;
+                const length = Math.max(q.scale.length, q.bias.length);
+                const list = [];
+                for (let i = 0; i < length; i++) {
+                    const scale = i < q.scale.length ? q.scale[i] : 0;
+                    const bias = i < q.bias.length ? q.bias[i] : 0;
+                    if (scale && bias) {
+                        list.push(bias < 0 ? `(${scale} * q) - ${-bias}` : `(${scale} * q) + ${bias}`);
+                    } else if (bias) {
+                        list.push(bias < 0 ? `q - ${-bias}` : `q + ${bias}`);
+                    } else if (scale) {
+                        list.push(`${scale} * q`);
+                    } else {
+                        list.push('?');
+                    }
+                }
+                return list.length === 1 ? list[0] : list;
             }
             return '?';
         }

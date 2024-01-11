@@ -3848,6 +3848,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "int4.int32_data.pb",
+    "source":   "https://github.com/lutzroeder/netron/files/13898075/int4.int32_data.pb.zip[int4.int32_data.pb]",
+    "format":   "ONNX Tensor",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "issue_119.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/10349170/issue_119.onnx.zip[issue_119.onnx]",
     "format":   "ONNX v4",

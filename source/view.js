@@ -3601,7 +3601,7 @@ view.Tensor = class {
                     break;
                 case 'int':
                     for (; offset < size; offset += stride) {
-                        results.push(view.getIntBits(offset, context.bits));
+                        results.push(view.getIntBits(offset, context.bits, this._littleEndian));
                     }
                     break;
                 case 'quint8':
@@ -3629,7 +3629,7 @@ view.Tensor = class {
                     break;
                 case 'uint':
                     for (; offset < max; offset += stride) {
-                        results.push(view.getUintBits(offset, context.bits));
+                        results.push(view.getUintBits(offset, context.bits, this._littleEndian));
                     }
                     break;
                 case 'float16':

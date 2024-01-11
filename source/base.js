@@ -640,23 +640,18 @@ DataView.prototype.setInt64 = DataView.prototype.setInt64 || function(byteOffset
     }
 };
 
-DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offset, bits) {
+DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offset, bits, littleEndian) {
     offset = offset * bits;
-    const available = (this.byteLength << 3) - offset;
-    if (bits > available) {
-        throw new RangeError(`Invalid bit size '${bits}'.`);
+    const position = Math.floor(offset / 8);
+    const remainder = offset % 8;
+    let value = (remainder + bits) <= 8 ?
+        littleEndian ? this.getUint8(position) >> remainder /* TODO */ : this.getUint8(position) >> (8 - remainder - bits) :
+        littleEndian ? this.getUint16(position, true) >> remainder /* TODO */ : this.getUint16(position, false) >> (16 - remainder - bits);
+    value &= (1 << bits) - 1;
+    if (value & (1 << (bits - 1))) {
+        value -= 1 << bits;
     }
-    let value = 0;
-    let index = 0;
-    while (index < bits) {
-        const remainder = offset & 7;
-        const size = Math.min(bits - index, 8 - remainder);
-        value <<= size;
-        value |= (this.getUint8(offset >> 3) >> (8 - size - remainder)) & ~(0xff << size);
-        offset += size;
-        index += size;
-    }
-    return (value < (2 << (bits - 1)) ? value : (2 << bits));
+    return value;
 };
 
 DataView.prototype.getUint64 = DataView.prototype.getUint64 || function(byteOffset, littleEndian) {
@@ -675,23 +670,14 @@ DataView.prototype.setUint64 = DataView.prototype.setUint64 || function(byteOffs
     }
 };
 
-DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offset, bits) {
+DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offset, bits, littleEndian) {
     offset = offset * bits;
-    const available = (this.byteLength << 3) - offset;
-    if (bits > available) {
-        throw new RangeError(`Invalid bit size '${bits}'.`);
-    }
-    let value = 0;
-    let index = 0;
-    while (index < bits) {
-        const remainder = offset & 7;
-        const size = Math.min(bits - index, 8 - remainder);
-        value <<= size;
-        value |= (this.getUint8(offset >> 3) >> (8 - size - remainder)) & ~(0xff << size);
-        offset += size;
-        index += size;
-    }
-    return value;
+    const position = Math.floor(offset / 8);
+    const remainder = offset % 8;
+    const value = (remainder + bits) <= 8 ?
+        littleEndian ? this.getUint8(position) >> remainder /* TODO */ : this.getUint8(position) >> (8 - remainder - bits) :
+        littleEndian ? this.getUint16(position, true) >> remainder /* TODO */ : this.getUint16(position, false) >> (16 - remainder - bits);
+    return value & ((1 << bits) - 1);
 };
 
 DataView.prototype.getComplex64 = DataView.prototype.getComplex64 || function(byteOffset, littleEndian) {

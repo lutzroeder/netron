@@ -688,6 +688,13 @@ onnx.Tensor = class {
                                 this._encoding = '<';
                             }
                             break;
+                        case onnx.DataType.UINT4:
+                        case onnx.DataType.INT4:
+                            if (tensor.int32_data && tensor.int32_data.length > 0) {
+                                this._data = new Uint8Array(Array.from(tensor.int32_data));
+                                this._encoding = '<';
+                            }
+                            break;
                         default:
                             throw new onnx.Error(`Unsupported tensor data type '${tensor.data_type}'.`);
                     }
