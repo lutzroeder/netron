@@ -1986,6 +1986,14 @@ view.Node = class extends grapher.Node {
     activate() {
         this.context.view.showNodeProperties(this.value);
     }
+
+    edge(to) {
+        this._edges = this._edges || new Map();
+        if (!this._edges.has(to)) {
+            this._edges.set(to, new view.Edge(this, to));
+        }
+        return this._edges.get(to);
+    }
 };
 
 view.Input = class extends grapher.Node {
@@ -2020,6 +2028,14 @@ view.Input = class extends grapher.Node {
 
     activate() {
         this.context.view.showModelProperties();
+    }
+
+    edge(to) {
+        this._edges = this._edges || new Map();
+        if (!this._edges.has(to)) {
+            this._edges.set(to, new view.Edge(this, to));
+        }
+        return this._edges.get(to);
     }
 };
 
@@ -2085,15 +2101,16 @@ view.Value = class {
                 if (this.context.options.names) {
                     content = this.value.name.split('\n').shift(); // custom argument id
                 }
-                const edge = new view.Edge(this, this.from, to);
-                edge.v = this.from.name;
-                edge.w = to.name;
-                if (content) {
-                    edge.label = content;
-                }
-                edge.id = `edge-${this.value.name}`;
-                if (this._controlDependencies && this._controlDependencies.has(i)) {
-                    edge.class = 'edge-path-control-dependency';
+                const edge = this.from.edge(to);
+                if (!edge.value) {
+                    edge.value = this;
+                    if (content) {
+                        edge.label = content;
+                    }
+                    edge.id = `edge-${this.value.name}`;
+                    if (this._controlDependencies && this._controlDependencies.has(i)) {
+                        edge.class = 'edge-path-control-dependency';
+                    }
                 }
                 this.context.setEdge(edge);
                 this._edges.push(edge);
@@ -2103,15 +2120,19 @@ view.Value = class {
 
     select() {
         let array = [];
-        for (const edge of this._edges) {
-            array = array.concat(edge.select());
+        if (Array.isArray(this._edges)) {
+            for (const edge of this._edges) {
+                array = array.concat(edge.select());
+            }
         }
         return array;
     }
 
     deselect() {
-        for (const edge of this._edges) {
-            edge.deselect();
+        if (Array.isArray(this._edges)) {
+            for (const edge of this._edges) {
+                edge.deselect();
+            }
         }
     }
 
@@ -2127,9 +2148,10 @@ view.Value = class {
 
 view.Edge = class extends grapher.Edge {
 
-    constructor(value, from, to) {
+    constructor(from, to) {
         super(from, to);
-        this.value = value;
+        this.v = from.name;
+        this.w = to.name;
     }
 
     get minlen() {
