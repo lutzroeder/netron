@@ -229,27 +229,30 @@ gguf.Reader = class {
                 const entry = reader.entry();
                 this.metadata.set(entry.name, entry.value);
             }
-            for (let i = 0; i < context.header.n_tensors; i++) {
-                const tensor = reader.tensor();
-                this.tensors.set(tensor.name, tensor);
-            }
-            context.alignment = this.metadata.get('general.alignment') || 32;
-            const offset_pad = reader.position % context.alignment;
-            if (offset_pad != 0) {
-                reader.skip(context.alignment - offset_pad);
-            }
-            context.offset = reader.position;
-            if (context.offset < this._stream.length) {
-                for (const tensor of this.tensors.values()) {
-                    reader.seek(context.offset + tensor.offset);
-                    if (!gguf.Reader.GGML_QUANT_SIZES.has(tensor.type)) {
-                        throw new gguf.Error(`Unsupported tensor quantization type '${tensor.type}'.`);
+            const tensors = context.header.n_tensors;
+            if (tensors > 0) {
+                for (let i = 0; i < tensors; i++) {
+                    const tensor = reader.tensor();
+                    this.tensors.set(tensor.name, tensor);
+                }
+                context.alignment = this.metadata.get('general.alignment') || 32;
+                const offset_pad = reader.position % context.alignment;
+                if (offset_pad != 0) {
+                    reader.skip(context.alignment - offset_pad);
+                }
+                context.offset = reader.position;
+                if (context.offset < this._stream.length) {
+                    for (const tensor of this.tensors.values()) {
+                        reader.seek(context.offset + tensor.offset);
+                        if (!gguf.Reader.GGML_QUANT_SIZES.has(tensor.type)) {
+                            throw new gguf.Error(`Unsupported tensor quantization type '${tensor.type}'.`);
+                        }
+                        const [block_size, type_size, dtype] = gguf.Reader.GGML_QUANT_SIZES.get(tensor.type);
+                        const n_elems = tensor.ne.reduce((a, b) => a * b, 1);
+                        const n_bytes = Math.floor(n_elems * type_size / block_size);
+                        tensor.dtype = dtype || '?';
+                        tensor.data = reader.stream(n_bytes);
                     }
-                    const [block_size, type_size, dtype] = gguf.Reader.GGML_QUANT_SIZES.get(tensor.type);
-                    const n_elems = tensor.ne.reduce((a, b) => a * b, 1);
-                    const n_bytes = Math.floor(n_elems * type_size / block_size);
-                    tensor.dtype = dtype || '?';
-                    tensor.data = reader.stream(n_bytes);
                 }
             }
         }
