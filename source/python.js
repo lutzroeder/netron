@@ -4382,10 +4382,12 @@ python.Execution = class {
         this.registerType('torch.optim.lr_scheduler.ReduceLROnPlateau', class {});
         this.registerType('torch.optim.lr_scheduler.StepLR', class {});
         this.registerType('torch.optim.optimizer._RequiredParameter', class {});
+        this.registerType('torch.optim.radam.RAdam', class extends torch.optim.optimizer.Optimizer {});
         this.registerType('torch.optim.rmsprop.RMSprop', class {});
         this.registerType('torch.optim.sgd.SGD', class {});
         this.registerType('torch.optim.sparse_adam.SparseAdam', class {});
         this.registerType('torch.optim.swa_utils.SWALR', class {});
+        torch.optim.RAdam = torch.optim.radam.RAdam;
         this.registerType('torch.quantization.fake_quantize.FakeQuantize', class {});
         this.registerType('torch.quantization.observer._PartialWrapper', class {});
         this.registerType('torch.quantization.observer.HistogramObserver', class {});
