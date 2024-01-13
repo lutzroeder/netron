@@ -511,6 +511,12 @@ const lint = async () => {
     await exec('python -m pylint -sn --recursive=y source test publish tools *.py');
 };
 
+const validate = async() => {
+    await lint();
+    writeLine('test');
+    await exec('node test/models.js tag:validation');
+};
+
 const update = async () => {
     const targets = process.argv.length > 3 ? process.argv.slice(3) : [
         'armnn',
@@ -619,6 +625,7 @@ const next = async () => {
             case 'publish': await publish(); break;
             case 'version': await version(); break;
             case 'lint': await lint(); break;
+            case 'validate': await validate(); break;
             case 'update': await update(); break;
             case 'pull': await pull(); break;
             case 'analyze': await analyze(); break;

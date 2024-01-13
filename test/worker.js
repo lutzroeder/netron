@@ -308,10 +308,8 @@ export class Target {
     constructor(item) {
         Object.assign(this, item);
         this.events = {};
-        this.target = item.target.split(',');
-        this.action = new Set((this.action || '').split(';'));
+        this.tags = new Set(this.tags);
         this.folder = item.type ? path.normalize(dirname('..', 'third_party' , 'test', item.type)) : process.cwd();
-        this.name = this.type ? `${this.type}/${this.target[0]}` : this.target[0];
         this.measures = new Map([ [ 'name', this.name ] ]);
     }
 
@@ -355,7 +353,7 @@ export class Target {
             await time(this.download);
             await time(this.load);
             await time(this.validate);
-            if (!this.action.has('skip-render')) {
+            if (!this.tags.has('skip-render')) {
                 await time(this.render);
             }
             if (this.error) {
@@ -418,7 +416,7 @@ export class Target {
     }
 
     async download(targets, sources) {
-        targets = targets || Array.from(this.target);
+        targets = targets || Array.from(this.targets);
         sources = sources || this.source;
         const files = targets.map((file) => path.resolve(this.folder, file));
         const exists = await Promise.all(files.map((file) => access(file)));
@@ -485,7 +483,7 @@ export class Target {
     }
 
     async load() {
-        const target = path.resolve(this.folder, this.target[0]);
+        const target = path.resolve(this.folder, this.targets[0]);
         const identifier = path.basename(target);
         const stat = await fs.stat(target);
         let context = null;

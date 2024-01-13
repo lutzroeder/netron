@@ -35,8 +35,8 @@ jobs:
       - name: Install npm packages 
         run: npm install
 
-      - name: Lint
-        run: npm run lint
+      - name: Validate
+        run: npm run validate
 
       - name: Publish Electron
         shell: bash

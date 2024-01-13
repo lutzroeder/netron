@@ -18,6 +18,7 @@
         "server": "python package.py build start",
         "test": "node test/models.js",
         "lint": "node package.js lint",
+        "validate": "node package.js validate",
         "clean": "node package.js clean",
         "purge": "node package.js purge",
         "install": "node package.js install",

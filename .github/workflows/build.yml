@@ -34,11 +34,8 @@ jobs:
       - name: Install npm packages 
         run: npm install
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Test
-        run: npm test onnx/candy.onnx pytorch/alexnet.ptl tflite/squeezenet.tflite
+      - name: Validate
+        run: npm run validate
 
       - name: Build Python Server
         run: npm run build python

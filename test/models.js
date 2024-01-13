@@ -105,15 +105,31 @@ class Logger {
 class Queue extends Array {
 
     constructor(targets, patterns) {
+        for (const target of targets) {
+            target.targets = target.target.split(',');
+            target.name = target.type ? `${target.type}/${target.targets[0]}` : target.targets[0];
+            target.tags = target.tags? target.tags.split(',') : [];
+        }
         if (patterns.length > 0) {
+            const tags = new Set();
+            patterns = patterns.filter((pattern) => {
+                if (pattern.startsWith('tag:')) {
+                    tags.add(pattern.substring(4));
+                    return false;
+                }
+                return true;
+            });
             patterns = patterns.map((pattern) => {
                 const wildcard = pattern.indexOf('*') !== -1;
                 return new RegExp(`^${wildcard ? `${pattern.replace(/\*/g, '.*')}$` : pattern}`);
             });
             targets = targets.filter((target) => {
-                for (const file of target.target.split(',')) {
+                for (const file of target.targets) {
                     const value = target.type ? `${target.type}/${file}` : file;
                     if (patterns.some((pattern) => pattern.test(value))) {
+                        return true;
+                    }
+                    if (target.tags.some((tag) => tags.has(tag))) {
                         return true;
                     }
                 }
