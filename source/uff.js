@@ -142,9 +142,12 @@ uff.Graph = class {
 
 uff.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type) {
         this.name = name;
         this.value = value;
+        if (type) {
+            this.type = type;
+        }
     }
 };
 
@@ -176,7 +179,8 @@ uff.Node = class {
                         const count = metadata.list ? (node.inputs.length - index) : 1;
                         const values = node.inputs.slice(index, index + count).map((name) => value(name));
                         index += count;
-                        this.inputs.push(new uff.Argument(metadata.name, values));
+                        const argument = new uff.Argument(metadata.name, values);
+                        this.inputs.push(argument);
                     }
                 }
             }
@@ -187,32 +191,26 @@ uff.Node = class {
         }
         this.outputs.push(new uff.Argument('output', [ value(node.id) ]));
         for (const field of node.fields) {
-            const attribute = new uff.Attribute(field.key, field.value);
+            let type = null;
+            switch (field.value.type) {
+                case 's': value = field.value.s; type = 'string'; break;
+                case 's_list': value = field.value.s_list; type = 'string[]'; break;
+                case 'd': value = field.value.d; type = 'float64'; break;
+                case 'd_list': value = field.value.d_list.val; type = 'float64[]'; break;
+                case 'b': value = field.value.b; type = 'boolean'; break;
+                case 'b_list': value = field.value.b_list; type = 'boolean[]'; break;
+                case 'i': value = field.value.i; type = 'int64'; break;
+                case 'i_list': value = field.value.i_list.val; type = 'int64[]'; break;
+                case 'blob': value = field.value.blob; break;
+                case 'ref': value = field.value.ref; type = 'ref'; break;
+                case 'dtype': value = new uff.TensorType(field.value.dtype, null).dataType; type = 'uff.DataType'; break;
+                case 'dtype_list': value = field.value.dtype_list.map((type) => new uff.TensorType(type, null).dataType); type = 'uff.DataType[]'; break;
+                case 'dim_orders': value = field.value.dim_orders; break;
+                case 'dim_orders_list': value = field.value.dim_orders_list.val; break;
+                default: throw new uff.Error(`Unsupported attribute '${field.key}' value '${JSON.stringify(value)}'.`);
+            }
+            const attribute = new uff.Argument(field.key, value, type);
             this.attributes.push(attribute);
-        }
-    }
-};
-
-uff.Attribute = class {
-
-    constructor(name, value) {
-        this.name = name;
-        switch (value.type) {
-            case 's': this.value = value.s; this.type = 'string'; break;
-            case 's_list': this.value = value.s_list; this.type = 'string[]'; break;
-            case 'd': this.value = value.d; this.type = 'float64'; break;
-            case 'd_list': this.value = value.d_list.val; this.type = 'float64[]'; break;
-            case 'b': this.value = value.b; this.type = 'boolean'; break;
-            case 'b_list': this.value = value.b_list; this.type = 'boolean[]'; break;
-            case 'i': this.value = value.i; this.type = 'int64'; break;
-            case 'i_list': this.value = value.i_list.val; this.type = 'int64[]'; break;
-            case 'blob': this.value = value.blob; break;
-            case 'ref': this.value = value.ref; this.type = 'ref'; break;
-            case 'dtype': this.value = new uff.TensorType(value.dtype, null).dataType; this.type = 'uff.DataType'; break;
-            case 'dtype_list': this.value = value.dtype_list.map((type) => new uff.TensorType(type, null).dataType); this.type = 'uff.DataType[]'; break;
-            case 'dim_orders': this.value = value.dim_orders; break;
-            case 'dim_orders_list': this.value = value.dim_orders_list.val; break;
-            default: throw new uff.Error(`Unsupported attribute '${name}' value '${JSON.stringify(value)}'.`);
         }
     }
 };
