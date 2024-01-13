@@ -3514,9 +3514,7 @@ python.Execution = class {
         this.registerFunction('cloudpickle.cloudpickle._builtin_type', function(name) {
             return name;
         });
-        this.registerFunction('collections.Counter', function(/* iterable */) {
-            return { __module__: 'collections', __name__: 'Counter' };
-        });
+        this.registerType('collections.Counter', class {});
         this.registerFunction('collections.defaultdict', function(/* default_factory */) {
             return {};
         });
@@ -5423,6 +5421,13 @@ python.Execution = class {
         this.registerType('torch._ops.OperatorBase', class {});
         this.registerType('torch._ops.HigherOrderOperator', class extends torch._ops.OperatorBase {});
         this.registerType('torch._ops.OpOverload', class extends torch._ops.OperatorBase {});
+        this.registerType('torch.fx.experimental.symbolic_shapes.ShapeEnv', class {
+            constructor() {
+            }
+            create_symintnode(/* sym, hint, source */) {
+                return new torch.SymInt();
+            }
+        });
         this.registerFunction('torch.fx.graph_module._deserialize_graph_module', function(/* forward, body */) {
             return execution.invoke('torch.fx.graph_module.GraphModule', []);
         });
@@ -5606,6 +5611,19 @@ python.Execution = class {
                 ]);
             }
             deserialize(serialized_graph_module) {
+                this.shape_env = new torch.fx.experimental.symbolic_shapes.ShapeEnv(/* assume_static_by_default = True */);
+                /*
+                this.fake_tensor_mode = FakeTensorMode(
+                    allow_fallback_kernels=False,
+                    allow_non_fake_inputs=True,
+                    shape_env=self.shape_env,
+                )
+                */
+                this.symbol_name_to_symbol = new Map();
+                /*
+                this.symbol_name_to_range = {} if symbol_name_to_range is None else symbol_name_to_range
+                this.constants = {} if constants is None else constants
+                */
                 this.deserialize_graph(serialized_graph_module.graph);
             }
             deserialize_graph(serialized_graph) {
@@ -5705,12 +5723,33 @@ python.Execution = class {
             }
             deserialize_sym_int(s) {
                 if (s.as_expr !== undefined && s.as_expr !== null) {
-                    // throw new python.Error();
-                    return s.as_expr; // TODO
+                    let sym;
+                    if (this.symbol_name_to_symbol.has(s.as_expr.expr_str)) {
+                        sym = this.symbol_name_to_symbol.get(s.as_expr.expr_str);
+                    } else {
+                        sym = {};
+                        /* TODO
+                        sym = sympy.sympify(val.expr_str, locals=self.symbol_name_to_symbol)
+                        if isinstance(sym, sympy.Symbol) {
+                            self.symbol_name_to_symbol[val.expr_str] = sym
+                            if vr := self.symbol_name_to_range.get(val.expr_str):
+                                symbolic_shapes._constrain_symbol_range(
+                                    self.shape_env,
+                                    sym,
+                                    compiler_min=vr.lower,  # type: ignore[arg-type]
+                                    compiler_max=vr.upper,  # type: ignore[arg-type]
+                                    runtime_min=vr.lower,  # type: ignore[arg-type]
+                                    runtime_max=vr.upper  # type: ignore[arg-type]
+                                )
+                        }
+                        */
+                    }
+                    const hint = s.as_expr.hint || null;
+                    return this.shape_env.create_symintnode(sym, hint);
                 } else if (s.as_int !== undefined && s.as_int !== null) {
                     return s.as_int;
                 }
-                throw new python.Error();
+                throw new python.Error('SymInt has invalid field type.');
             }
             deserialize_device(d) {
                 if (d.index !== undefined) {
@@ -5718,7 +5757,12 @@ python.Execution = class {
                 }
                 return new torch.device(d.type);
             }
-            sync_fx_node() {
+            sync_fx_node(name, fx_node) {
+                if (this.serialized_name_to_node.has(name)) {
+                    throw new python.Error(`Node ${name} has already been deserialized before.`);
+                }
+                this.serialized_name_to_node.set(name, fx_node);
+                fx_node.meta['val'] = this.serialized_name_to_meta.get(name);
             }
         });
         this.registerFunction('torch_utils.persistence._reconstruct_persistent_obj', function(meta) {
@@ -6141,6 +6185,11 @@ python.Execution = class {
         this.registerType('torch.BFloat16Tensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.FloatTensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.DoubleTensor', class extends torch.Tensor {});
+        this.registerType('torch.SymInt', class {
+            constructor(node) {
+                this.node = node;
+            }
+        });
         this.registerType('torch._C._TensorBase', class {});
         this.registerType('torch._C._VariableFunctionsClass', class {});
         this.register('torch.nn').Module = this.register('torch.nn.modules.module').Module;
