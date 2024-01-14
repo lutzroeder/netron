@@ -118,14 +118,12 @@ dnn.Value = class {
         this.name = name;
         this.type = type || null;
         this.initializer = initializer || null;
-        this._quantization = quantization || null;
-    }
-
-    get quantization() {
-        if (this._quantization) {
-            return this._quantization.map((value, index) => `${index} = ${value}`).join('; ');
+        if (quantization) {
+            this.quantization = {
+                type: 'lookup',
+                value: new Map(quantization.map((value, index) => [ index, value ]))
+            };
         }
-        return null;
     }
 };
 

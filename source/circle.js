@@ -468,61 +468,21 @@ circle.Value = class {
 
     constructor(index, tensor, initializer) {
         const name = tensor.name || '';
-        this._name = `${name}\n${index}`;
-        this._location = index.toString();
-        this._type = tensor.type !== undefined && tensor.shape !== undefined ? new circle.TensorType(tensor) : null;
-        this._initializer = initializer;
+        this.name = `${name}\n${index}`;
+        this.location = index.toString();
+        this.type = tensor.type !== undefined && tensor.shape !== undefined ? new circle.TensorType(tensor) : null;
+        this.initializer = initializer;
         const quantization = tensor.quantization;
-        if (quantization) {
-            const length = Math.max(quantization.scale.length, quantization.zero_point.length, quantization.min.length, quantization.max.length);
-            const list = [];
-            for (let i = 0; i < length; i++) {
-                let value = 'q';
-                const scale = i < quantization.scale.length ? quantization.scale[i] : 0;
-                const zeroPoint = (i < quantization.zero_point.length ? quantization.zero_point[i] : 0).toString();
-                if (scale !== 0 || zeroPoint !== '0') {
-                    value = `${scale} * ${zeroPoint === '0' ? 'q' : (`(q${!zeroPoint.startsWith('-') ? ` - ${zeroPoint}` : ` + ${zeroPoint.substring(1)}`})`)}`;
-                }
-                if (i < quantization.min.length) {
-                    value = `${quantization.min[i]} \u2264 ${value}`;
-                }
-                if (i < quantization.max.length) {
-                    value = `${value} \u2264 ${quantization.max[i]}`;
-                }
-                list.push(value);
-            }
-            if (list.length > 0 && !list.every((value) => value === 'q')) {
-                this._quantization = list;
-            }
+        if (quantization && (quantization.scale.length > 0 || quantization.zero_point.length > 0 || quantization.min.length > 0 || quantization.max.length)) {
+            this.quantization = {
+                type: 'linear',
+                dimension: quantization.quantized_dimension,
+                scale: quantization.scale,
+                offset: quantization.zero_point.map((value) => value.toNumber()),
+                min: quantization.min,
+                max: quantization.max
+            };
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get location() {
-        return this._location;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get quantization() {
-        return this._quantization;
-    }
-
-    set description(value) {
-        this._description = value;
-    }
-
-    get description() {
-        return this._description;
-    }
-
-    get initializer() {
-        return this._initializer;
     }
 };
 

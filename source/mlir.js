@@ -230,48 +230,10 @@ mlir.Value = class {
         if (typeof name !== 'string') {
             throw new mlir.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
-        this._name = name;          // string
-        this._type = type || null;  // mlir.TensorType
-        this._description = description || null;
-        this._initializer = initializer || null;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    set name(value) {
-        this._name = value;
-    }
-
-    get type() {
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return this._type;
-    }
-
-    set type(value) {
-        this._type = value;
-    }
-
-    get description() {
-        return this._description;
-    }
-
-    set description(value) {
-        this._description = value;
-    }
-
-    get quantization() {
-        if (this._initializer) {
-            return this._initializer.quantization;
-        }
-        return null;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name = name;
+        this.type = type ? type : initializer && initializer.type ? initializer.type : null;
+        this.description = description || null;
+        this.initializer = initializer || null;
     }
 };
 

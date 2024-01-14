@@ -4169,10 +4169,10 @@ pytorch.nnapi.Graph = class {
 pytorch.nnapi.Argument = class {
 
     constructor(operand) {
-        this._name = operand.index.toString();
+        this.name = operand.index.toString();
         const shape = new pytorch.TensorShape(operand.dimensions);
         let dataType = operand.data_type.replace('[]', '');
-        let quantizationType = null;
+        let quantization = null;
         switch (dataType) {
             case 'quant8_asymm':
             case 'quant8_symm_per_channel':
@@ -4180,52 +4180,21 @@ pytorch.nnapi.Argument = class {
             case 'quant8_asymm_signed[]':
             case 'quant16_asymm':
             case 'quant16_symm':
-                quantizationType = dataType;
+                quantization = dataType;
                 dataType = dataType.indexOf('16') !== -1 ? 'uint16' : 'uint8';
                 break;
             default:
                 break;
         }
-        this._type = new pytorch.TensorType(dataType, shape);
-        this._initializer = operand.data ? new pytorch.nnapi.Tensor(this._type, operand.data) : null;
-        if (quantizationType || operand.scale !== undefined || operand.zero_point !== undefined) {
-            this._quantization = {};
-            if (quantizationType) {
-                this._quantization.type = quantizationType;
-            }
-            if (operand.scale !== undefined) {
-                this._quantization.scale = operand.scale;
-            }
-            if (operand.zero_point !== undefined) {
-                this._quantization.zeroPoint = operand.zero_point;
-            }
+        this.type = new pytorch.TensorType(dataType, shape);
+        this.initializer = operand.data ? new pytorch.nnapi.Tensor(this.type, operand.data) : null;
+        if (quantization || (operand.scale !== undefined && operand.scale !== 0) || (operand.zero_point !== undefined && operand.zero_point !== 0)) {
+            this.quantization = {
+                type: quantization || 'linear',
+                scale: [ operand.scale ],
+                offset: [ operand.zero_point ]
+            };
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get quantization() {
-        if (this._quantization) {
-            let value = '';
-            if (this._quantization.scale != 0 || this._quantization.zeroPoint != 0) {
-                value = `${this._quantization.scale} * ${this._quantization.zeroPoint == 0 ? 'q' : (`(q - ${this._quantization.zeroPoint})`)}`;
-            }
-            if (this._quantization.type) {
-                return `${this._quantization.type}(${value})`;
-            }
-            return value;
-        }
-        return null;
-    }
-
-    get initializer() {
-        return this._initializer;
     }
 };
 
@@ -4233,15 +4202,16 @@ pytorch.nnapi.Node = class {
 
     constructor(metadata, operation, values) {
         const signature = (operation.inputs || []).map((input) => input.data_type);
-        this._type = metadata.type(operation.index, signature);
-        this._inputs = [];
-        this._outputs = [];
-        this._attributes = [];
-        this._chain = [];
+        this.name = '';
+        this.type = metadata.type(operation.index, signature);
+        this.inputs = [];
+        this.outputs = [];
+        this.attributes = [];
+        this.chain = [];
         if (operation.location !== undefined) {
-            this._location = operation.location.toString();
+            this.location = operation.location.toString();
         }
-        const inputs = this._type.inputs.concat(this._type.attributes);
+        const inputs = this.type.inputs.concat(this.type.attributes);
         if (operation.inputs) {
             for (let i = 0; i < operation.inputs.length; i++) {
                 const name = i < inputs.length ? inputs[i].name : i.toString();
@@ -4249,19 +4219,15 @@ pytorch.nnapi.Node = class {
                 if (operand.dimensions.length > 0) {
                     const value = values.map(operand);
                     const argument = new pytorch.Argument(name, [ value ]);
-                    this._inputs.push(argument);
+                    this.inputs.push(argument);
                 } else if (name === 'activation') {
                     const activation = new Map([ [ 1, 19 ], [ 2, 20 ], [ 3, 21 ] ]).get(operand.value) || 0;
                     if (activation !== 0) {
-                        this._chain.push(new pytorch.nnapi.Node(metadata, { index: activation }));
+                        this.chain.push(new pytorch.nnapi.Node(metadata, { index: activation }));
                     }
                 } else {
-
-                    this._name = name;
-                    this._type = operand.data_type;
-                    this._value = operand.value;
                     const attribute = new pytorch.Argument(name, operand.value, operand.data_type, false);
-                    this._attributes.push(attribute);
+                    this.attributes.push(attribute);
                 }
             }
         }
@@ -4271,33 +4237,9 @@ pytorch.nnapi.Node = class {
                 const operand = operation.outputs[i];
                 const value = values.map(operand);
                 const argument = new pytorch.Argument(name, [ value ]);
-                this._outputs.push(argument);
+                this.outputs.push(argument);
             }
         }
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get location() {
-        return this._location;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-
-    get chain() {
-        return this._chain;
     }
 };
 

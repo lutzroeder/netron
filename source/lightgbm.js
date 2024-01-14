@@ -59,8 +59,8 @@ lightgbm.Graph = class {
         const feature_names = model.feature_names || [];
         for (let i = 0; i < feature_names.length; i++) {
             const name = feature_names[i];
-            const info = model.feature_infos && i < model.feature_infos.length ? model.feature_infos[i] : null;
-            const value = new lightgbm.Value(name, info);
+            // const info = model.feature_infos && i < model.feature_infos.length ? model.feature_infos[i] : null;
+            const value = new lightgbm.Value(name);
             values.push(value);
             if (feature_names.length < 1000) {
                 const argument = new lightgbm.Argument(name, [ value ]);
@@ -82,12 +82,11 @@ lightgbm.Argument = class {
 
 lightgbm.Value = class {
 
-    constructor(name, quantization) {
+    constructor(name) {
         if (typeof name !== 'string') {
             throw new lightgbm.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
-        this.quantization = quantization;
     }
 };
 

@@ -564,13 +564,19 @@ export class Target {
         if (this.model.version || this.model.description || this.model.author || this.model.license) {
             // continue
         }
-        for (const graph of this.model.graphs) {
+        const validateGraph = (graph) => {
             const values = new Map();
             const validateValue = (value) => {
                 value.name.toString();
                 value.name.length;
                 value.description;
-                value.quantization;
+                if (value.quantization) {
+                    if (!this.tags.has('quantization')) {
+                        throw new Error("Invalid 'quantization' tag.");
+                    }
+                    const quantization = new view.Quantization(value.quantization);
+                    quantization.toString();
+                }
                 if (value.type) {
                     value.type.toString();
                 }
@@ -637,6 +643,9 @@ export class Target {
                 if (!type || typeof type.name != 'string') {
                     throw new Error(`Invalid node type '${JSON.stringify(node.type)}'.`);
                 }
+                if (Array.isArray(type.nodes)) {
+                    validateGraph(type);
+                }
                 view.Documentation.format(type);
                 node.name.toString();
                 node.description;
@@ -672,6 +681,9 @@ export class Target {
                 }
                 // new dialog.NodeSidebar(host, node);
             }
+        };
+        for (const graph of this.model.graphs) {
+            validateGraph(graph);
         }
     }
 

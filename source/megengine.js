@@ -473,26 +473,15 @@ megengine.Value = class {
             throw new megengine.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
+        this.type = type ? type : initializer && initializer.type ? initializer.type : null;
         this.initializer = initializer;
-        this._type = type;
-        if (quantization && this._type.dataType.startsWith('q')) {
-            this._scale = quantization.scale;
-            this._zeroPoint = quantization.zeroPoint;
+        if (quantization && ((quantization.scale !== undefined && quantization.scale !== 0) || quantization.zeroPoint !== undefined && quantization.zeroPoint !== 0)) {
+            this.quantization = {
+                type: 'linear',
+                scale: [ quantization.scale ],
+                offset: [ quantization.zeroPoint ]
+            };
         }
-    }
-
-    get type() {
-        if (this.initializer) {
-            return this.initializer.type;
-        }
-        return this._type;
-    }
-
-    get quantization() {
-        if (this._scale !== undefined && this._zeroPoint !== undefined) {
-            return `${this._scale} * ${this._zeroPoint == 0 ? 'q' : `(q - ${this._zeroPoint})`}`;
-        }
-        return undefined;
     }
 };
 

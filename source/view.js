@@ -2739,10 +2739,21 @@ view.ValueView = class extends view.Control {
                 }
                 const quantization = this._value.quantization;
                 if (quantization) {
-                    const quantizationLine = this.createElement('div', 'sidebar-item-value-line-border');
-                    const content = !Array.isArray(quantization) ? quantization : `<br><br>${quantization.map((value) => `  ${value}`).join('<br>')}`;
-                    quantizationLine.innerHTML = `<span class='sidebar-item-value-line-content'>quantization: ` + `<b>${content}</b></span>`;
-                    this._element.appendChild(quantizationLine);
+                    if (typeof quantization.type !== 'string') {
+                        throw new view.Error('Unsupported quantization value.');
+                    }
+                    const line = this.createElement('div', 'sidebar-item-value-line-border');
+                    const content = [
+                        "<span class='sidebar-item-value-line-content'>",
+                        "quantization: ",
+                        `<b>${quantization.type}</b>`,
+                        "</span>",
+                        "<pre style='margin: 4px 0 2px 0'>",
+                        new view.Quantization(quantization).toString(),
+                        "</pre>"
+                    ];
+                    line.innerHTML = content.join('');
+                    this._element.appendChild(line);
                 }
                 const location = this._value.location;
                 if (location !== undefined) {
@@ -3783,6 +3794,62 @@ view.Tensor = class {
                 }
                 return `${indentation}(undefined)`;
         }
+    }
+};
+
+view.Quantization = class {
+
+    constructor(quantization) {
+        Object.assign(this, quantization);
+    }
+
+    toString() {
+        if (this.type === 'linear' || /^quant\d\d?_.*$/.test(this.type)) {
+            const content = [];
+            const scale = this.scale || [];
+            const offset = this.offset || [];
+            const bias = this.bias || [];
+            const max = this.max || [];
+            const min = this.min || [];
+            const length = Math.max(scale.length, offset.length, bias.length, min.length, max.length);
+            const size = length.toString().length;
+            for (let i = 0; i < length; i++) {
+                let s = 'q';
+                let bracket = false;
+                if (i < offset.length && offset[i] !== undefined && offset[i] !== 0) {
+                    const value = offset[i];
+                    s = value < 0 ? `${s} - ${-value}` : `${s} + ${value}`;
+                    bracket = true;
+                }
+                if (i < scale.length && scale[i] !== undefined && scale[i] !== 0) {
+                    const value = scale[i];
+                    s = bracket ? `(${s})` : s;
+                    s = `${value} * ${s}`;
+                    bracket = true;
+                }
+                if (i < bias.length && bias[i] !== undefined && bias[i] !== 0) {
+                    const value = bias[i];
+                    s = bracket ? `(${s})` : s;
+                    s = value < 0 ? `${s} - ${-value}` : `${s} + ${value}`;
+                }
+                if (i < min.length && min[i] !== undefined && min[i] !== 0) {
+                    s = `${min[i]} \u2264 ${s}`;
+                }
+                if (i < max.length && max[i] !== undefined && max[i] !== 0) {
+                    s = `${s} \u2264 ${max[i]}`;
+                }
+                content.push(length > 1 ? `${i.toString().padStart(size, ' ')}: ${s}` : `${s}`);
+            }
+            return content.join('\n');
+        } else if (this.type === 'lookup') {
+            const size = this.value.length.toString().length;
+            return this.value.map((value, index) => `${index.toString().padStart(size, ' ')}: ${value}`).join('\n');
+        } else if (this.type === 'annotation') {
+            return Array.from(this.value).map(([name, value]) => `${name} = ${value}`).join('\n');
+        } else if (/^q\d_[01k]$/.test(this.type)) {
+            return '';
+        }
+        throw new view.Error(`Unknown quantization type '${this.type}'.`);
     }
 };
 
@@ -5869,3 +5936,4 @@ export const ModelFactoryService = view.ModelFactoryService;
 export const Documentation = view.Documentation;
 export const Formatter = view.Formatter;
 export const Tensor = view.Tensor;
+export const Quantization = view.Quantization;

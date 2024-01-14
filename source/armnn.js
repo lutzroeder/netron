@@ -226,18 +226,17 @@ armnn.Value = class {
         this.name = name;
         this.type = new armnn.TensorType(tensorInfo);
         this.initializer = initializer;
-
-        if (this.type.dataType.startsWith('q') && tensorInfo) {
-            this._scale = tensorInfo.quantizationScale;
-            this._zeroPoint = tensorInfo.quantizationOffset;
+        if (tensorInfo.quantizationScale !== 0 ||
+            tensorInfo.quantizationOffset !== 0 ||
+            tensorInfo.quantizationScales.length > 0 ||
+            tensorInfo.quantizationDim !== 0) {
+            this.quantization = {
+                type: 'linear',
+                dimension: tensorInfo.quantizationDim,
+                scale: [ tensorInfo.quantizationScale ],
+                offset: [ tensorInfo.quantizationOffset ]
+            };
         }
-    }
-
-    get quantization() {
-        if (this._scale !== undefined && this._zeroPoint !== undefined) {
-            return `${this._scale} * ${this._zeroPoint == 0 ? 'q' : (`(q - ${this._zeroPoint})`)}`;
-        }
-        return undefined;
     }
 };
 

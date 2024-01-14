@@ -547,47 +547,27 @@ caffe2.Attribute = class {
 caffe2.Tensor = class {
 
     constructor(name, tensor) {
-        this._name = name;
+        this.name = name;
         const shape = tensor.shape && tensor.shape.ints ? tensor.shape.ints : null;
-        this._type = new caffe2.TensorType(tensor.dataType, new caffe2.TensorShape(shape));
-        this._values = tensor.values || null;
-        this._scale = tensor.Y_scale ? tensor.Y_scale.f : 0;
-        this._zeroPoint = tensor.Y_zero_point ? tensor.Y_zero_point.i : 0;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get category() {
-        return 'Initializer';
-    }
-
-    get quantization() {
-        if (this._scale != 0 || this._zeroPoint != 0) {
-            return `${this._scale} * ${this._zeroPoint == 0 ? 'q' : (`(q - ${this._zeroPoint})`)}`;
+        this.type = new caffe2.TensorType(tensor.dataType, new caffe2.TensorShape(shape));
+        this._values = null;
+        this.category = 'Initializer';
+        this.encoding = '|';
+        if (tensor.Y_scale !== undefined || tensor.Y_zero_point !== undefined) {
+            this.quantization = {
+                type: 'linear',
+                scale: [ tensor.Y_scale ? tensor.Y_scale.f : 0 ],
+                offset: [ tensor.Y_zero_point ? tensor.Y_zero_point.i.toNumber() : 0 ]
+            };
         }
-        return null;
-    }
-
-    get encoding() {
-        return '|';
-    }
-
-    get values() {
-        if (!this._values) {
-            return null;
-        }
-        switch (this._type.dataType) {
-            case 'float32': return this._values.floats;
-            case 'boolean': return this._values.ints;
-            case 'int8': return new Int8Array(this._values.s);
-            case 'int32': return this._values.ints;
-            default: return null;
+        if (tensor.values) {
+            switch (this.type.dataType) {
+                case 'float32': this.values = tensor.values.floats; break;
+                case 'boolean': this.values = tensor.values.ints; break;
+                case 'int8': this.values = new Int8Array(tensor.values.s); break;
+                case 'int32': this.values = tensor.values.ints; break;
+                default: break;
+            }
         }
     }
 };

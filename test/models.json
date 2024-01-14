@@ -191,6 +191,7 @@
     "target":   "ssd_mobilenet_v3_small_coco_2019_08_14_q8.armnn",
     "source":   "https://github.com/lutzroeder/netron/files/3839429/samples.zip[ssd_mobilenet_v3_small_coco_2019_08_14_q8.armnn]",
     "format":   "Arm NN",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/515"
   },
   {
@@ -198,6 +199,7 @@
     "target":   "ssd_mobilenet_v3_small_coco_2019_08_14_q8.json",
     "source":   "https://github.com/lutzroeder/netron/files/4945145/ssd_mobilenet_v3_small_coco_2019_08_14_q8.zip[ssd_mobilenet_v3_small_coco_2019_08_14_q8.json]",
     "format":   "Arm NN",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/515"
   },
   {
@@ -205,6 +207,7 @@
     "target":   "ssd_mobilenet_v3_small_coco_2019_08_14_q16.armnn",
     "source":   "https://github.com/lutzroeder/netron/files/3839429/samples.zip[ssd_mobilenet_v3_small_coco_2019_08_14_q16.armnn]",
     "format":   "Arm NN",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/515"
   },
   {
@@ -813,6 +816,7 @@
     "target":   "FBNet-A-int8/model.pbtxt,FBNet-A-int8/model_init.pb",
     "source":   "https://dl.fbaipublicfiles.com/fbnet/models/FBNet_caffe2.zip[FBNet/FBNet-A/int8/model.pbtxt,FBNet/FBNet-A/int8/model_init.pb]",
     "format":   "Caffe2",
+    "tags":     "quantization",
     "link":     "https://github.com/facebookresearch/mobile-vision"
   },
   {
@@ -1096,6 +1100,7 @@
     "target":   "EnvSceneClassification.mlmodel",
     "source":   "https://raw.githubusercontent.com/anujdutt9/iOS-Audio-Classification/cdf5b72dc351a83168369d0afbd0eeba9ecae448/RealTimeSoundClassifier/RealTimeSoundClassifier/EnvSceneClassification.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/anujdutt9/iOS-Audio-Classification"
   },
   {
@@ -1145,6 +1150,7 @@
     "target":   "food_kmeans_1.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_1.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1152,6 +1158,7 @@
     "target":   "food_kmeans_2.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_2.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1159,6 +1166,7 @@
     "target":   "food_kmeans_3.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_3.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1166,6 +1174,7 @@
     "target":   "food_kmeans_4.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_4.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1173,6 +1182,7 @@
     "target":   "food_kmeans_5.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_5.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1180,6 +1190,7 @@
     "target":   "food_kmeans_6.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_6.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1187,6 +1198,7 @@
     "target":   "food_kmeans_7.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_7.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1194,6 +1206,7 @@
     "target":   "food_kmeans_8.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_kmeans_8.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1208,6 +1221,7 @@
     "target":   "food_linear_1.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_1.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1215,6 +1229,7 @@
     "target":   "food_linear_2.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_2.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1222,6 +1237,7 @@
     "target":   "food_linear_3.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_3.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1229,6 +1245,7 @@
     "target":   "food_linear_4.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_4.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1236,6 +1253,7 @@
     "target":   "food_linear_5.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_5.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1243,6 +1261,7 @@
     "target":   "food_linear_6.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_6.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1250,6 +1269,7 @@
     "target":   "food_linear_7.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_7.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1257,6 +1277,7 @@
     "target":   "food_linear_8.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_8.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1271,6 +1292,7 @@
     "target":   "food_linear_lut_1.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_1.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1278,6 +1300,7 @@
     "target":   "food_linear_lut_2.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_2.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1285,6 +1308,7 @@
     "target":   "food_linear_lut_3.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_3.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1292,6 +1316,7 @@
     "target":   "food_linear_lut_4.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_4.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1299,6 +1324,7 @@
     "target":   "food_linear_lut_5.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_5.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1306,6 +1332,7 @@
     "target":   "food_linear_lut_6.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_6.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1313,6 +1340,7 @@
     "target":   "food_linear_lut_7.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_7.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1320,6 +1348,7 @@
     "target":   "food_linear_lut_8.mlmodel",
     "source":   "https://raw.githubusercontent.com/kingreza/quantization/master/food_linear_lut_8.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kingreza/quantization"
   },
   {
@@ -1476,6 +1505,7 @@
     "target":   "ReadTheRoom.mlmodel",
     "source":   "https://raw.githubusercontent.com/CapTechMobile/blogfest-coreml/d8e8c15d33e9591c9e81cb18e5ea4b2fb6972503/ReadTheRoom/ReadTheRoom.mlmodel",
     "format":   "Core ML v4",
+    "tags":     "quantization",
     "link":     "https://github.com/CapTechMobile/blogfest-coreml"
   },
   {
@@ -1517,6 +1547,7 @@
     "target":   "SqueezeNetInt8LUT.mlmodel",
     "source":   "https://docs-assets.developer.apple.com/coreml/models/Image/ImageClassification/SqueezeNet/SqueezeNetInt8LUT.mlmodel",
     "format":   "Core ML v3",
+    "tags":     "quantization",
     "link":     "https://developer.apple.com/machine-learning/models"
   },
   {
@@ -2016,6 +2047,7 @@
     "target":   "mixtral-8x7b-v0.1.Q4_K_M.gguf",
     "source":   "https://github.com/lutzroeder/netron/files/13802180/mixtral-8x7b-v0.1.Q4_K_M.gguf.zip[mixtral-8x7b-v0.1.Q4_K_M.gguf]",
     "format":   "GGUF v3",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
@@ -2023,7 +2055,7 @@
     "target":   "phi-2.Q2_K.gguf",
     "source":   "https://github.com/lutzroeder/netron/files/13825087/phi-2.Q2_K.gguf.zip[phi-2.Q2_K.gguf]",
     "format":   "GGUF v3",
-    "tags":     "validation",
+    "tags":     "validation,quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
@@ -2031,6 +2063,7 @@
     "target":   "vicuna-33b.Q2_K.gguf",
     "source":   "https://github.com/lutzroeder/netron/files/13825089/vicuna-33b.Q2_K.gguf.zip[vicuna-33b.Q2_K.gguf]",
     "format":   "GGUF v2",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
@@ -2677,6 +2710,7 @@
     "target":   "rf_classifier.model",
     "source":   "https://github.com/lutzroeder/netron/files/6329766/rf_classifier.model.zip[rf_classifier.model]",
     "format":   "LightGBM v3",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/669"
   },
   {
@@ -2684,6 +2718,7 @@
     "target":   "simple_example.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/5978325/simple_example.pkl.zip[simple_example.pkl]",
     "format":   "LightGBM Pickle v2",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/669"
   },
   {
@@ -3771,6 +3806,7 @@
     "target":   "end2end_tfc_w1a1_oqnt_streamlined.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/4885362/end2end_tfc_w1a1_oqnt_streamlined.zip[end2end_tfc_w1a1_oqnt_streamlined.onnx]",
     "format":   "ONNX v4",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/532"
   },
   {
@@ -5034,6 +5070,7 @@
     "target":   "mobilenetv2-quant_full-nnapi.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7406443/mobilenetv2-quant_full.zip[mobilenetv2-quant_full/mobilenetv2-quant_full-nnapi.pt]",
     "format":   "TorchScript v1.6",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/644"
   },
   {
@@ -6683,7 +6720,8 @@
     "type":     "tfjs",
     "target":   "age_gender_model/age_gender_model-weights_manifest.json,age_gender_model/age_gender_model-shard1",
     "source":   "https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/age_gender_model/age_gender_model-weights_manifest.json,https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/age_gender_model/age_gender_model-shard1",
-    "format":   "TensorFlow.js Weights"
+    "format":   "TensorFlow.js Weights",
+    "tags":     "quantization"
   },
   {
     "type":     "tfjs",
@@ -6781,6 +6819,7 @@
     "target":   "deeplab_mobilenetv2_513.tflite",
     "source":   "https://raw.githubusercontent.com/pinzhenx/webml-demo/master/examples/deeplab/model/deeplab_mobilenetv2_513.tflite",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/pinzhenx/webml-demo"
   },
   {
@@ -6788,6 +6827,7 @@
     "target":   "deeplab_mobilenetv2_513_dilated.tflite",
     "source":   "https://raw.githubusercontent.com/pinzhenx/webml-demo/master/examples/deeplab/model/deeplab_mobilenetv2_513_dilated.tflite",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/pinzhenx/webml-demo"
   },
   {
@@ -6796,6 +6836,7 @@
     "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.tflite]",
     "format":   "TensorFlow Lite v3",
     "assert":   [ "model.graphs[0].nodes[0].type.name == 'Conv2D'" ],
+    "tags":     "quantization",
     "link":     "https://www.tensorflow.org/lite/guide/hosted_models"
   },
   {
@@ -6803,6 +6844,7 @@
     "target":   "efficientnet-edgetpu-S_quant_edgetpu.tflite",
     "source":   "https://github.com/google-coral/edgetpu/raw/master/test_data/efficientnet-edgetpu-S_quant_edgetpu.tflite",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/499"
   },
   {
@@ -6810,6 +6852,7 @@
     "target":   "efficientnet_lite1_int8_2.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/8309257/efficientnet_lite1_int8_2.tflite.zip[efficientnet_lite1_int8_2.tflite]",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/34"
   },
   {
@@ -6844,6 +6887,7 @@
     "target":   "hed_lite_model_quantize.tflite",
     "source":   "https://raw.githubusercontent.com/pqpo/SmartCropper/master/smartcropperlib/src/main/assets/models/hed_lite_model_quantize.tflite",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/pqpo/SmartCropper"
   },
   {
@@ -6851,6 +6895,7 @@
     "target":   "inception_v3.tflite",
     "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_v3_2018_04_27.tgz[./inception_v3.tflite]",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/34"
   },
   {
@@ -6858,6 +6903,7 @@
     "target":   "keyword_scrambled_8bit.tflite",
     "source":   "https://raw.githubusercontent.com/tensorflow/tflite-micro/master/tensorflow/lite/micro/models/keyword_scrambled_8bit.tflite",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/tensorflow/tflite-micro"
   },
   {
@@ -6865,7 +6911,7 @@
     "target":   "mobilenet_v1_0.75_160_quantized.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/4569400/mobilenet_v1_0.75_160_quantized.zip[mobilenet_v1_0.75_160_quantized.tflite]",
     "format":   "TensorFlow Lite v3",
-    "tags":     "validation",
+    "tags":     "validation,quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/481"
   },
   {
@@ -6873,6 +6919,7 @@
     "target":   "mobilenet_v1_1.0_224.tflite",
     "source":   "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224.tgz[./mobilenet_v1_1.0_224.tflite]",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://www.tensorflow.org/lite/models"
   },
   {
@@ -6880,19 +6927,22 @@
     "target":   "mobilenet_v1_1.0_224_quant.tflite",
     "source":   "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224_quant.tgz[./mobilenet_v1_1.0_224_quant.tflite]",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://www.tensorflow.org/lite/models"
   },
   {
     "type":     "tflite",
     "target":   "mobilenet_v2_0.4_224.tflite",
     "source":   "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.0_224.tgz[./mobilenet_v2_1.0_224.tflite]",
-    "format":   "TensorFlow Lite v3"
+    "format":   "TensorFlow Lite v3",
+    "tags":     "quantization"
   },
   {
     "type":     "tflite",
     "target":   "model_pyramid_0_0_63_31.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/6209444/model_pyramid_0_0_63_31.tflite.zip[model_pyramid_0_0_63_31.tflite]",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/710"
   },
   {
@@ -6900,6 +6950,7 @@
     "target":   "mnasnet_0.5_224.tflite",
     "source":   "http://download.tensorflow.org/models/tflite/mnasnet_0.5_224_09_07_2018.tgz[mnasnet_0.5_224/mnasnet_0.5_224.tflite]",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://www.tensorflow.org/lite/models"
   },
   {
@@ -6907,6 +6958,7 @@
     "target":   "mnasnet_1.3_224.tflite",
     "source":   "http://download.tensorflow.org/models/tflite/mnasnet_1.3_224_09_07_2018.tgz[mnasnet_1.3_224/mnasnet_1.3_224.tflite]",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://www.tensorflow.org/lite/models"
   },
   {
@@ -6914,6 +6966,7 @@
     "target":   "nasnet_mobile.tflite",
     "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/nasnet_mobile_2018_04_27.tgz[./nasnet_mobile.tflite]",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://www.tensorflow.org/lite/models"
   },
   {
@@ -6921,6 +6974,7 @@
     "target":   "netron_issue_256.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/3101992/test.zip[test.tflite]",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/256"
   },
   {
@@ -6935,6 +6989,7 @@
     "target":   "netron_issue_416.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/4089319/netron_issue_416.zip[netron_issue_416.tflite]",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/416"
   },
   {
@@ -6942,6 +6997,7 @@
     "target":   "netron_issue_479.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/4565988/netron_issue_479.zip[netron_issue_479.tflite]",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/479"
   },
   {
@@ -6949,6 +7005,7 @@
     "target":   "pose_estimation_for_mobile.tflite",
     "source":   "https://raw.githubusercontent.com/edvardHua/PoseEstimationForMobile/master/release/cpm_model/model.tflite",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/edvardHua/PoseEstimationForMobile"
   },
   {
@@ -6995,7 +7052,7 @@
     "type":     "tflite",
     "target":   "squeezenet.tflite",
     "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/squeezenet_2018_04_27.tgz[./squeezenet.tflite]",
-    "tags":     "validation",
+    "tags":     "validation,quantization",
     "format":   "TensorFlow Lite v3"
   },
   {
@@ -7008,7 +7065,8 @@
     "type":     "tflite",
     "target":   "speech_hotword_model_rank2_2017_11_14.tflite",
     "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_hotword_model_rank2_2017_11_14.tflite",
-    "format":   "TensorFlow Lite v3"
+    "format":   "TensorFlow Lite v3",
+    "tags":     "quantization"
   },
   {
     "type":     "tflite",
@@ -7034,7 +7092,7 @@
     "target":   "subword-conformer.latest.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/6032934/subword-conformer.zip[subword-conformer.latest.tflite]",
     "format":   "TensorFlow Lite v3",
-    "tags":     "skip-render",
+    "tags":     "skip-render,quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/589"
   },
   {
@@ -7042,6 +7100,7 @@
     "target":   "text_classification.tflite",
     "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/text_classification/text_classification.tflite",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/g3doc/models/text_classification/overview.md"
   },
   {
@@ -7056,6 +7115,7 @@
     "target":   "xorGate.lite",
     "source":   "https://raw.githubusercontent.com/kosslab-kr/Tizen-NN-Runtime/master/Xor/xorGate.lite",
     "format":   "TensorFlow Lite v3",
+    "tags":     "quantization",
     "link":     "https://github.com/kosslab-kr/Tizen-NN-Runtime"
   },
   {

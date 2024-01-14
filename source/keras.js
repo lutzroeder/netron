@@ -899,31 +899,10 @@ keras.Value = class {
         if (typeof name !== 'string') {
             throw new keras.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
-        this._name= name;
-        this._type = type || null;
-        this._initializer = initializer || null;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return this._type;
-    }
-
-    get quantization() {
-        if (this._initializer) {
-            return this._initializer.quantization;
-        }
-        return null;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name= name;
+        this.type = type ? type : initializer && initializer.type ? initializer.type : null;
+        this.quantization = initializer && initializer.quantization ? initializer.quantization : null;
+        this.initializer = initializer || null;
     }
 };
 
@@ -1264,18 +1243,15 @@ keras.Tensor = class {
         this.name = name;
         this.type = new keras.TensorType(type, new keras.TensorShape(shape));
         this.stride = stride;
-        this._quantization = quantization;
         this.encoding = encoding;
         this._data = data;
-    }
-
-    get quantization() {
-        if (this._quantization && (this._quantization.scale !== 0 || this._quantization.min !== 0)) {
-            const scale = this._quantization.scale || 0;
-            const min = this._quantization.min || 0;
-            return `${scale} * ${min == 0 ? 'q' : (`(q - ${min})`)}`;
+        if (quantization && (quantization.scale !== 0 || quantization.min !== 0)) {
+            this.quantization = {
+                type: 'linear',
+                scale: [ quantization.scale ],
+                min: [ quantization.min ]
+            };
         }
-        return null;
     }
 
     get values() {

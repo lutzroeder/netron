@@ -160,9 +160,12 @@ gguf.Tensor = class {
         const shape = new gguf.TensorShape(tensor.ne);
         this.type = new gguf.TensorType(tensor.dtype, shape);
         if (tensor.type !== gguf.QuantizationType.F32 && tensor.type !== gguf.QuantizationType.F16) {
-            this.quantization = gguf.Utility.enum(gguf.QuantizationType, tensor.type);
+            this.quantization = {
+                type: gguf.Utility.enum(gguf.QuantizationType, tensor.type).toLowerCase()
+            };
         }
-        if (tensor.dtype === 'float32' || tensor.dtype === 'float16') {
+        if (tensor.dtype === 'float32' || tensor.dtype === 'float16' ||
+            tensor.dtype === 'int8' || tensor.dtype === 'int16' || tensor.dtype === 'int32') {
             this.encoding = '<';
             this._data = tensor.data;
         }

@@ -356,43 +356,25 @@ coreml.Tensor = class {
         } else {
             this.encoding = '<';
         }
-    }
-
-    get quantization() {
-        if (this._quantization) {
-            if (this._quantization.lookupTableQuantization &&
-                this._quantization.lookupTableQuantization.floatValue &&
-                this._quantization.lookupTableQuantization.floatValue.length > 0) {
-                const map = [];
-                for (const key of Object.keys(this._quantization.lookupTableQuantization.floatValue)) {
-                    map.push(`${key} = ${this._quantization.lookupTableQuantization.floatValue[key]}`);
-                }
-                return map.join('; ');
-            }
-            if (this._quantization.linearQuantization &&
-                Array.isArray(this._quantization.linearQuantization.scale) &&
-                Array.isArray(this._quantization.linearQuantization.bias)) {
-                const q = this._quantization.linearQuantization;
-                const length = Math.max(q.scale.length, q.bias.length);
-                const list = [];
-                for (let i = 0; i < length; i++) {
-                    const scale = i < q.scale.length ? q.scale[i] : 0;
-                    const bias = i < q.bias.length ? q.bias[i] : 0;
-                    if (scale && bias) {
-                        list.push(bias < 0 ? `(${scale} * q) - ${-bias}` : `(${scale} * q) + ${bias}`);
-                    } else if (bias) {
-                        list.push(bias < 0 ? `q - ${-bias}` : `q + ${bias}`);
-                    } else if (scale) {
-                        list.push(`${scale} * q`);
-                    } else {
-                        list.push('?');
-                    }
-                }
-                return list.length === 1 ? list[0] : list;
-            }
-            return '?';
+        if (quantization &&
+            quantization.linearQuantization &&
+            Array.isArray(quantization.linearQuantization.scale) &&
+            Array.isArray(quantization.linearQuantization.bias)) {
+            this.quantization = {
+                type: 'linear',
+                scale: quantization.linearQuantization.scale,
+                bias: quantization.linearQuantization.bias
+            };
         }
-        return null;
+        if (quantization &&
+            quantization.lookupTableQuantization &&
+            quantization.lookupTableQuantization.floatValue &&
+            quantization.lookupTableQuantization.floatValue.length > 0) {
+            this.quantization = {
+                type: 'lookup',
+                value: quantization.lookupTableQuantization.floatValue
+            };
+        }
     }
 };
 

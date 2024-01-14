@@ -231,11 +231,10 @@ onnx.Graph = class {
         if (Array.isArray(graph.quantization_annotation)) {
             for (const tensor_annotation of graph.quantization_annotation) {
                 const tensor = context.tensor(tensor_annotation.tensor_name);
-                const annotation = {};
+                tensor.annotation = new Map();
                 for (const entry of tensor_annotation.quant_parameter_tensor_names) {
-                    annotation[entry.key] = entry.value;
+                    tensor.annotation.set(entry.key, entry.value);
                 }
-                tensor.annotation = annotation;
             }
         }
         if (Array.isArray(graph.value_info)) {
@@ -324,8 +323,8 @@ onnx.Value = class {
         this._name = name;
         this._type = type || null;
         this._initializer = initializer || null;
-        this._annotation = annotation;
         this._description = description || '';
+        this._quantization = annotation ? { type: 'annotation', value: annotation } : null;
     }
 
     get name() {
@@ -341,10 +340,7 @@ onnx.Value = class {
     }
 
     get quantization() {
-        if (this._annotation) {
-            return Object.entries(this._annotation).map(([key, value]) => `${key}: ${value}`).join(', ');
-        }
-        return null;
+        return this._quantization;
     }
 
     get initializer() {
