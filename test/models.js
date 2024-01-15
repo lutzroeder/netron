@@ -53,8 +53,8 @@ const configuration = async () => {
 class Logger {
 
     constructor(threads) {
-        this.threads = threads;
-        this.entries = new Map();
+        this._threads = threads;
+        this._entries = new Map();
     }
 
     update(identifier, message) {
@@ -62,6 +62,7 @@ class Logger {
         if (message) {
             switch (message.name) {
                 case 'name':
+                    delete this._cache;
                     clearLine();
                     write(`${message.target}\n`);
                     value = '';
@@ -69,35 +70,42 @@ class Logger {
                 case 'download':
                     value = message.percent !== undefined ?
                         `${(`  ${Math.floor(100 * message.percent)}`).slice(-3)}% ` :
-                        ` ${message.position}${this.threads === 1 ? ' bytes' : ''} `;
+                        ` ${message.position}${this._threads === 1 ? ' bytes' : ''} `;
                     break;
                 case 'decompress':
-                    value = this.threads === 1 ? 'decompress' : '  ^  ';
+                    value = this._threads === 1 ? 'decompress' : '  ^  ';
                     break;
                 case 'write':
-                    value = this.threads === 1 ? 'write' : '  *  ';
+                    value = this._threads === 1 ? 'write' : '  *  ';
                     break;
                 default:
-                    throw new Error(`Unsupported status message '${status.name}'.`);
+                    throw new Error(`Unsupported status message '${message.name}'.`);
             }
         }
-        if (!this.entries.has(identifier) || this.entries.get(identifier) !== value) {
-            this.entries.set(identifier, value);
-            this.flush();
+        if (!this._entries.has(identifier) || this._entries.get(identifier) !== value) {
+            this._entries.set(identifier, value);
+            this._flush();
         }
     }
 
     delete(identifier) {
-        this.entries.delete(identifier);
-        this.flush();
+        this._entries.delete(identifier);
+        this._flush();
     }
 
     flush() {
-        clearLine();
-        const values = Array.from(this.entries.values());
-        if (!values.every((value) => !value)) {
-            const list = values.map((value) => value || '     ');
-            write(`  ${list.length > 0 ? list.join('-') : ''}\r`);
+        delete this._cache;
+        this._flush();
+    }
+
+    _flush() {
+        const values = Array.from(this._entries.values());
+        const list = values.map((value) => value || '     ');
+        const message = `  ${list.length > 0 ? list.join('-') : ''}\r`;
+        if (this._cache !== message) {
+            this._cache = message;
+            clearLine();
+            write(message);
         }
     }
 }

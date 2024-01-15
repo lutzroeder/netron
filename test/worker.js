@@ -653,11 +653,17 @@ export class Target {
                 for (const attribute of node.attributes) {
                     attribute.name.toString();
                     attribute.name.length;
-                    let value = new view.Formatter(attribute.value, attribute.type).toString();
-                    if (value && value.length > 1000) {
-                        value = `${value.substring(0, 1000)}...`;
+                    const type = attribute.type;
+                    const value = attribute.value;
+                    if ((type === 'graph' || type === 'function') && value && Array.isArray(value.nodes)) {
+                        validateGraph(value);
+                    } else {
+                        let text = new view.Formatter(attribute.value, attribute.type).toString();
+                        if (text && text.length > 1000) {
+                            text = `${text.substring(0, 1000)}...`;
+                        }
+                        /* value = */ text.split('<');
                     }
-                    /* value = */ value.split('<');
                 }
                 for (const input of node.inputs) {
                     input.name.toString();
