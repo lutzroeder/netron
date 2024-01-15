@@ -197,30 +197,19 @@ caffe2.ModelFactory = class {
 caffe2.Model = class {
 
     constructor(metadata, predict_net, init_net) {
-        this._domain = predict_net.domain || null;
+        this.format = 'Caffe2';
+        this.domain = predict_net.domain || null;
         const graph = new caffe2.Graph(metadata, predict_net, init_net);
-        this._graphs = [ graph ];
-    }
-
-    get format() {
-        return 'Caffe2';
-    }
-
-    get domain() {
-        return this._domain;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.graphs = [ graph ];
     }
 };
 
 caffe2.Graph = class {
 
     constructor(metadata, netDef, init) {
-        this._name = netDef.name || '';
-        this._type = netDef.type || '';
-        this._nodes = [];
+        this.name = netDef.name || '';
+        this.type = netDef.type || '';
+        this.nodes = [];
         const initializers = new Set();
         const tensors = new Map();
         for (const name of netDef.external_input) {
@@ -316,7 +305,7 @@ caffe2.Graph = class {
                 lastOutput == op.input[0].split('\n').shift()) {
                 lastNode.chain.push(node);
             } else {
-                this._nodes.push(node);
+                this.nodes.push(node);
                 lastNode = null;
                 lastOutput = null;
                 if (op.output.length == 1) {
@@ -325,55 +314,27 @@ caffe2.Graph = class {
                 }
             }
         }
-        this._inputs = [];
+        this.inputs = [];
         for (const input of netDef.external_input) {
             if (netDef.external_input.length > 1 && initializers.has(input)) {
                 continue;
             }
             const argument = new caffe2.Argument(input, [ values.map(input) ]);
-            this._inputs.push(argument);
+            this.inputs.push(argument);
         }
-        this._outputs = [];
+        this.outputs = [];
         for (const output of netDef.external_output) {
             const argument = new caffe2.Argument(output, [ values.map(output) ]);
-            this._outputs.push(argument);
+            this.outputs.push(argument);
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
     }
 };
 
 caffe2.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -383,164 +344,99 @@ caffe2.Value = class {
         if (typeof name !== 'string') {
             throw new caffe2.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
-        this._name = name;
-        this._type = type || null;
-        this._initializer = initializer || null;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return this._type;
-    }
-
-    get quantization() {
-        if (this._initializer) {
-            return this._initializer.quantization;
-        }
-        return null;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name = name;
+        this.type = type ? type : initializer && initializer.type ? initializer.type : null;
+        this.quantization = initializer && initializer.quantization ? initializer.quantization : null;
+        this.initializer = initializer || null;
     }
 };
 
 caffe2.Node = class {
 
     constructor(metadata, op, values) {
-        this._name = op.name || '';
-        this._device = op.engine || '';
-        this._metadata = metadata;
-        this._chain = [];
-        this._type = metadata.type(op.type);
-        this._attributes = op.arg.map((arg) => new caffe2.Attribute(metadata, this._type.name, arg));
+        this.name = op.name || '';
+        this.device = op.engine || '';
+        this.metadata = metadata;
+        this.chain = [];
+        this.type = metadata.type(op.type);
+        this.attributes = op.arg.map((arg) => new caffe2.Attribute(metadata, this.type.name, arg));
         const inputs = op.input;
         const outputs = op.output;
-        this._inputs = [];
+        this.inputs = [];
         let inputIndex = 0;
-        if (this._type && this._type.inputs) {
-            for (const inputDef of this._type.inputs) {
+        if (this.type && this.type.inputs) {
+            for (const inputDef of this.type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => values.map(id));
-                    this._inputs.push(new caffe2.Argument(inputDef.name, inputArguments));
+                    this.inputs.push(new caffe2.Argument(inputDef.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
         } else {
-            this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
+            this.inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
                 return new caffe2.Argument(inputName, [ values.map(input) ]);
             }));
         }
-        this._outputs = [];
+        this.outputs = [];
         let outputIndex = 0;
-        if (this._type && this._type.outputs) {
-            for (const outputDef of this._type.outputs) {
+        if (this.type && this.type.outputs) {
+            for (const outputDef of this.type.outputs) {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => values.map(id));
-                    this._outputs.push(new caffe2.Argument(outputDef.name, outputArguments));
+                    this.outputs.push(new caffe2.Argument(outputDef.name, outputArguments));
                     outputIndex += outputCount;
                 }
             }
         } else {
-            this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
+            this.outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
                 return new caffe2.Argument(outputName, [ values.map(output) ]);
             }));
         }
-    }
-
-    get name() {
-        return this._name || '';
-    }
-
-    get device() {
-        return this._device || '';
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-
-    get chain() {
-        return this._chain;
     }
 };
 
 caffe2.Attribute = class {
 
     constructor(metadata, type, arg) {
-        this._name = arg.name;
+        this.name = arg.name;
         if (arg.floats && arg.floats.length > 0) {
-            this._value = arg.floats;
+            this.value = arg.floats;
         } else if (arg.ints && arg.ints.length > 0) {
-            this._value = arg.ints;
+            this.value = arg.ints;
         } else if (arg.nets && arg.nets.length > 0) {
-            this._value = arg.nets.map((net) => new caffe2.Graph(metadata, net, null));
-            this._type = 'graph[]';
+            this.value = arg.nets.map((net) => new caffe2.Graph(metadata, net, null));
+            this.type = 'graph[]';
         } else if (arg.n) {
-            this._value = new caffe2.Graph(metadata, arg.n, null);
-            this._type = 'graph';
+            this.value = new caffe2.Graph(metadata, arg.n, null);
+            this.type = 'graph';
         } else if (arg.i != 0) {
-            this._value = arg.i;
+            this.value = arg.i;
         } else {
-            this._value = arg.i;
+            this.value = arg.i;
         }
         metadata = metadata.attribute(type, arg.name);
         if (metadata) {
             if (Object.prototype.hasOwnProperty.call(metadata, 'type')) {
-                this._type = metadata.type;
-                if (this._type == 'boolean') {
-                    this._value = this._value !== 0 && this._value.toString() !== '0' ? true : false;
+                this.type = metadata.type;
+                if (this.type == 'boolean') {
+                    this.value = this.value !== 0 && this.value.toString() !== '0' ? true : false;
                 }
             }
         }
 
         if (metadata) {
             if (metadata.visible === false) {
-                this._visible = false;
+                this.visible = false;
             } else if (metadata.default !== undefined) {
-                if (this._value == metadata.default || (this._value && this._value.toString() == metadata.default.toString())) {
-                    this._visible = false;
+                if (this.value == metadata.default || (this.value && this.value.toString() == metadata.default.toString())) {
+                    this.visible = false;
                 }
             }
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type || null;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    get visible() {
-        return this._visible == false ? false : true;
     }
 };
 
@@ -550,7 +446,7 @@ caffe2.Tensor = class {
         this.name = name;
         const shape = tensor.shape && tensor.shape.ints ? tensor.shape.ints : null;
         this.type = new caffe2.TensorType(tensor.dataType, new caffe2.TensorShape(shape));
-        this._values = null;
+        this.values = null;
         this.category = 'Initializer';
         this.encoding = '|';
         if (tensor.Y_scale !== undefined || tensor.Y_zero_point !== undefined) {
@@ -575,35 +471,24 @@ caffe2.Tensor = class {
 caffe2.TensorType = class {
 
     constructor(dataType, shape) {
-        this._dataType = dataType;
-        this._shape = shape;
+        this.dataType = dataType || '?';
+        this.shape = shape;
     }
 
-    get dataType() {
-        return this._dataType || '?';
-    }
-
-    get shape() {
-        return this._shape;
-    }
 
     toString() {
-        return this.dataType + this._shape.toString();
+        return this.dataType + this.shape.toString();
     }
 };
 
 caffe2.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = dimensions;
     }
 
     toString() {
-        return this._dimensions ? (`[${this._dimensions.map((dimension) => dimension.toString()).join(',')}]`) : '';
+        return this.dimensions ? (`[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`) : '';
     }
 };
 
