@@ -100,12 +100,11 @@ class Logger {
 
     _flush() {
         const values = Array.from(this._entries.values());
-        const list = values.map((value) => value || '     ');
-        const message = `  ${list.length > 0 ? list.join('-') : ''}\r`;
-        if (this._cache !== message) {
-            this._cache = message;
+        const text = values.some((s) => s) ? `  ${values.map((s) => s || '     ').join('-')}\r` : '';
+        if (this._cache !== text) {
+            this._cache = text;
             clearLine();
-            write(message);
+            write(text);
         }
     }
 }
