@@ -15,7 +15,7 @@ venv() {
         msys*) source ${env_dir}/Scripts/activate;;
         *) source ${env_dir}/bin/activate;;
     esac
-    ${python} -m pip install --quiet --upgrade pip
+    ${python} -m pip install --quiet --upgrade pip requests
 }
 
 clean() {
