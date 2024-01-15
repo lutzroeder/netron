@@ -1064,26 +1064,33 @@ pytorch.Container.Zip = class extends pytorch.Container {
     static open(context) {
         const entries = context.peek('zip');
         if (entries instanceof Map && entries.size > 0) {
-            const reader = new pytorch.jit.StreamReader(entries);
-            if (reader.hasRecord('model.json')) {
+            let prefix = 0;
+            const paths = Array.from(entries.keys()).map((path) => path.replace(/\\/g, '/').split('/').reverse());
+            for (let set = new Set(); set && paths.length > 0;) {
+                set = new Set(paths.map((path) => path.length > 1 ? path.pop() : null));
+                set = set.size > 1 || set.keys().next().value === null ? null : set;
+                prefix += set ? set.keys().next().value.length + 1 : 0;
+            }
+            const records = new Map(Array.from(entries).map(([name, value]) => [ name.substring(prefix), value ]));
+            if (records.has('model.json')) {
                 try {
-                    const stream = reader.getRecord('model.json');
+                    const stream = records.get('model.json');
                     const buffer = stream.peek();
                     const decoder = new TextDecoder('utf-8');
                     const content = decoder.decode(buffer);
                     const model = JSON.parse(content);
                     if (model.mainModule) {
-                        return new pytorch.Container.Zip(reader, model);
+                        return new pytorch.Container.Zip(entries, model);
                     }
                 } catch (error) {
                     // continue regardless of error
                 }
             }
-            if (reader.hasRecord('data.pkl')) {
-                return new pytorch.Container.Zip(reader);
+            if (records.has('data.pkl')) {
+                return new pytorch.Container.Zip(entries);
             }
-            if (reader.hasRecord('.data/version')) {
-                return new pytorch.Container.Package(reader);
+            if (records.has('.data/version')) {
+                return new pytorch.Container.Package(entries);
             }
             const tags = context.tags('flatbuffers');
             if (tags.get('file_identifier') === 'PTMF') {
@@ -1093,43 +1100,44 @@ pytorch.Container.Zip = class extends pytorch.Container {
         return null;
     }
 
-    constructor(reader, model) {
+    constructor(entries, model) {
         super();
         // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
-        this._reader = reader;
+        this._entries = entries;
         this._model = model;
     }
 
     async read(metadata) {
-        const torchscript = this._model ? true : this._reader.hasRecord('constants.pkl');
-        if (this._model) {
-            this._producer = this._model && this._model.producerName ? this._model.producerName + (this._model.producerVersion ? ` v${this._model.producerVersion}` : '') : '';
-            this._format = this._reader.hasRecord('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
-        } else {
-            const name = torchscript ? 'TorchScript' : 'PyTorch';
-            const version = this._reader.version();
-            this._format = pytorch.Utility.format(name, version);
-        }
         const execution = new pytorch.jit.Execution(null, metadata);
         for (const event of this._events) {
             execution.on(event[0], event[1]);
         }
         const torch = execution.__import__('torch');
+        const reader = new torch.PyTorchFileReader(this._entries);
+        const torchscript = this._model ? true : reader.has_record('constants.pkl');
+        if (this._model) {
+            this._producer = this._model && this._model.producerName ? this._model.producerName + (this._model.producerVersion ? ` v${this._model.producerVersion}` : '') : '';
+            this._format = reader.has_record('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
+        } else {
+            const name = torchscript ? 'TorchScript' : 'PyTorch';
+            const version = reader.version();
+            this._format = pytorch.Utility.format(name, version);
+        }
         if (torchscript) {
-            const module = torch.jit.load(this._reader);
+            const module = torch.jit.load(reader);
             if (module.data && module.data.forward) {
                 this._modules = new Map([ [ '', module ] ]);
             } else {
                 this._modules = pytorch.Utility.find(module.data);
             }
         } else {
-            const records = this._reader.getAllRecords().map((key) => [ key, this._reader.getRecord(key) ]);
+            const records = reader.get_all_records().map((key) => [ key, reader.get_record(key) ]);
             const entries = new Map(records);
             const module = torch.load(entries);
             this._modules = pytorch.Utility.find(module);
         }
         delete this._model;
-        delete this._reader;
+        delete this._entries;
     }
 
     get format() {
@@ -1175,20 +1183,18 @@ pytorch.Container.Index = class extends pytorch.Container {
             execution.on(event[0], event[1]);
         }
         const torch = execution.__import__('torch');
-        const readers = contexts.map((context) => {
-            const entries = context.peek('zip');
-            return new pytorch.jit.StreamReader(entries);
+        const archives = contexts.map((context) => {
+            return context.peek('zip');
         });
-        const formats = new Set(readers.map((reader) => {
+        const formats = new Set(archives.map((entries) => {
+            const reader = new torch.PyTorchFileReader(entries);
             const version = reader.version();
             return pytorch.Utility.format('PyTorch', version);
         }));
         if (formats.size === 1) {
             this._format = formats.values().next().value;
         }
-        const shards = readers.map((reader) => {
-            const records = reader.getAllRecords().map((key) => [ key, reader.getRecord(key) ]);
-            const entries = new Map(records);
+        const shards = archives.map((entries) => {
             return torch.load(entries);
         });
         const entries = new Map();
@@ -1239,17 +1245,21 @@ pytorch.Container.Dynamo = class extends pytorch.Container {
         }
         if (content) {
             const state_dict = content.peek('zip');
-            const reader = new pytorch.jit.StreamReader(state_dict);
             const execution = new pytorch.Execution();
+            execution.zip = await import('./zip.js');
             for (const event of this._events) {
                 execution.on(event[0], event[1]);
             }
             const torch = execution.__import__('torch');
-            const records = reader.getAllRecords().map((key) => [ key, reader.getRecord(key) ]);
-            const entries = new Map(records);
-            this._data = torch.load(entries);
+            this._data = torch.load(state_dict);
+            const serialized_exported_program = this._program;
             const deserializer = new torch._export.serde.serialize.GraphModuleDeserializer();
-            deserializer.deserialize(this._program.graph_module /*, symbol_name_to_range */);
+            const symbol_name_to_range = new Map(Object.entries(serialized_exported_program.range_constraints));
+            /* TODO
+                k: symbolic_shapes.ValueRanges(_int_to_sympy_int(v.min_val), _int_to_sympy_int(v.max_val))
+                for k, v in serialized_exported_program.range_constraints.items()
+            */
+            deserializer.deserialize(serialized_exported_program.graph_module, symbol_name_to_range);
         }
         throw new pytorch.Error(`'torch.export' not supported.`);
     }
@@ -1278,7 +1288,7 @@ pytorch.Execution = class extends python.Execution {
             }
             load_pickle(module, resource) {
                 const name = `${module.replace(/\./, '/')}/${resource}`;
-                const stream = this.zip_reader.getRecord(name);
+                const stream = this.zip_reader.get_record(name);
                 const loaded_reduces = new Map();
                 this.storage_context = new torch._C.DeserializationStorageContext();
                 const unpickler = new pickle.Unpickler(stream);
@@ -1288,7 +1298,7 @@ pytorch.Execution = class extends python.Execution {
                             const [, storage_type, key, , size] = saved_id;
                             if (!this.storage_context.has_storage(key)) {
                                 const storage = new storage_type(size);
-                                const stream = this.zip_reader.getRecord(`.data/${key}.storage`);
+                                const stream = this.zip_reader.get_record(`.data/${key}.storage`);
                                 const buffer = stream.peek();
                                 storage._set_cdata(buffer);
                                 this.storage_context.add_storage(key, storage);
@@ -2931,8 +2941,8 @@ pytorch.jit.SourceLoader = class {
 
     loadSource(qualifier) {
         const path = `${this._code_prefix}/${qualifier}.py`;
-        if (this._reader.hasRecord(path)) {
-            const data = this._reader.getRecord(path);
+        if (this._reader.has_record(path)) {
+            const data = this._reader.get_record(path);
             return new pytorch.jit.Source(data);
         }
         return null;
@@ -2983,10 +2993,10 @@ pytorch.jit.ScriptModuleDeserializer = class {
     deserialize() {
         const execution = this._compilation_unit.execution;
         const code_prefix = this._code_prefix;
-        for (const name of this._reader.getAllRecords()) {
+        for (const name of this._reader.get_all_records()) {
             if (name.startsWith(code_prefix) && name.endsWith('.py')) {
                 const file = name.substring(code_prefix.length);
-                const stream = this._reader.getRecord(name);
+                const stream = this._reader.get_record(name);
                 const buffer = stream.peek();
                 execution.add(file, buffer);
             }
@@ -2997,7 +3007,7 @@ pytorch.jit.ScriptModuleDeserializer = class {
         execution.builtins.ops = torch.ops;
         execution.builtins.inf = torch.inf;
         execution.builtins.CONSTANTS = {};
-        if (this._reader.hasRecord('model.json')) {
+        if (this._reader.has_record('model.json')) {
             return this.LEGACY_deserialize();
         }
         const constants = this.readArchive('constants');
@@ -3013,7 +3023,7 @@ pytorch.jit.ScriptModuleDeserializer = class {
     LEGACY_deserialize() {
         const execution = this._compilation_unit.execution;
         const torch = execution.import('torch');
-        const stream = this._reader.getRecord('model.json');
+        const stream = this._reader.get_record('model.json');
         const buffer = stream.peek();
         const decoder = new TextDecoder('utf-8');
         const content = decoder.decode(buffer);
@@ -3041,7 +3051,7 @@ pytorch.jit.ScriptModuleDeserializer = class {
             const offset = parseInt(constant.offset, 10) || 0;
             const storage = new storage_type(size);
             const itemsize = storage.dtype.itemsize();
-            const stream = this._reader.getRecord(key);
+            const stream = this._reader.get_record(key);
             const buffer = stream.peek();
             const length = size * itemsize;
             const data = buffer.slice(offset, offset + length);
@@ -3055,8 +3065,8 @@ pytorch.jit.ScriptModuleDeserializer = class {
             execution.builtins.CONSTANTS[`c${i}`] = constants[i];
         }
         const attributes = [];
-        if (this._reader.hasRecord('attributes.pkl')) {
-            const stream = this._reader.getRecord('attributes.pkl');
+        if (this._reader.has_record('attributes.pkl')) {
+            const stream = this._reader.get_record('attributes.pkl');
             const buffer = stream.peek();
             const unpickler = execution.invoke('pickle.Unpickler', [ buffer ]);
             const obj = unpickler.load();
@@ -3117,11 +3127,11 @@ pytorch.jit.ScriptModuleDeserializer = class {
 
     readArchiveAndTensors(archive_name, pickle_prefix, tensor_prefix, type_resolver, obj_loader, device, stream_reader, type_parser, storage_context) {
         const picklename = `${pickle_prefix + archive_name}.pkl`;
-        const stream = stream_reader.getRecord(picklename);
+        const stream = stream_reader.get_record(picklename);
         const buffer = stream.peek();
         const tensor_dir_path = tensor_prefix ? tensor_prefix : `${archive_name}/`;
         const read_record = (name) => {
-            const stream = stream_reader.getRecord(tensor_dir_path + name);
+            const stream = stream_reader.get_record(tensor_dir_path + name);
             return stream.length <= 0x40000 ? stream.peek() : stream;
         };
         const execution = this._compilation_unit.execution;
@@ -3279,63 +3289,26 @@ pytorch.jit.FlatBuffersLoader = class {
     }
 };
 
-pytorch.jit.StreamReader = class {
-
-    constructor(entries) {
-        let prefix = [];
-        const paths = Array.from(entries.keys()).map((path) => path.split('/').reverse());
-        for (;;) {
-            const set = new Set(paths.map((path) => path.length > 1 ? path.pop() : null));
-            if (set.size !== 1 || set.keys().next().value === null) {
-                break;
-            }
-            prefix.push(set.keys().next().value);
-        }
-        prefix = prefix.join('/');
-        prefix = prefix.length > 0 ? `${prefix}/` : prefix;
-        entries = Array.from(entries).map(([name, value]) => [ name.substring(prefix.length), value ]);
-        this._entries = new Map(entries);
-        this._version = '0';
-        const stream = this.getRecord('.data/version') || this.getRecord('version') || null;
-        if (stream) {
-            const decoder = new TextDecoder('utf-8');
-            const buffer = stream.peek();
-            const text = decoder.decode(buffer);
-            this._version = text.split('\n').shift().trim();
-        }
-    }
-
-    hasRecord(name) {
-        return this._entries.has(name);
-    }
-
-    getRecord(name) {
-        return this._entries.get(name);
-    }
-
-    getAllRecords() {
-        return Array.from(this._entries.keys());
-    }
-
-    version() {
-        return this._version;
-    }
-};
-
 pytorch.Container.Package = class extends pytorch.Container {
 
-    constructor(reader) {
+    constructor(entries) {
         super();
-        this._reader = reader;
+        this._entries = entries;
     }
 
     async read() {
-        const version = this._reader.version();
+        const execution = new pytorch.Execution();
+        for (const event of this._events) {
+            execution.on(event[0], event[1]);
+        }
+        const torch = execution.__import__('torch');
+        const reader = new torch.PyTorchFileReader(this._entries);
+        const version = reader.version();
         this._format = pytorch.Utility.format('PyTorch Package', version);
         this._modules = new Map();
-        const records = this._reader.getAllRecords().filter((name) => {
+        const records = reader.get_all_records().filter((name) => {
             if (!name.startsWith('.data/') && !name.endsWith('.py')) {
-                const stream = this._reader.getRecord(name);
+                const stream = reader.get_record(name);
                 if (stream && stream.length > 2) {
                     const signature = stream.peek(2);
                     if (signature[0] === 0x80 && signature[1] < 7) {
@@ -3352,19 +3325,14 @@ pytorch.Container.Package = class extends pytorch.Container {
             return [ module, resource ];
         });
         if (entries.length > 0) {
-            const execution = new pytorch.Execution();
-            for (const event of this._events) {
-                execution.on(event[0], event[1]);
-            }
-            for (const name of this._reader.getAllRecords()) {
+            for (const name of reader.get_all_records()) {
                 if (!name.startsWith('.data/') && name.endsWith('.py')) {
-                    const stream = this._reader.getRecord(name);
+                    const stream = reader.get_record(name);
                     const buffer = stream.peek();
                     execution.add(name, buffer);
                 }
             }
-            const torch = execution.__import__('torch');
-            const importer = new torch.package.PackageImporter(this._reader);
+            const importer = new torch.package.PackageImporter(reader);
             for (const entry of entries) {
                 const module = importer.load_pickle(entry[0], entry[1]);
                 const key = `${entry[0].replace(/\./, '/')}/${entry[1]}`;

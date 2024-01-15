@@ -5057,6 +5057,38 @@ python.Execution = class {
         this.registerFunction('torch.list_with_default', function(size /*, defaults */) {
             return size;
         });
+        this.registerType('torch.PyTorchFileReader', class {
+            constructor(entries) {
+                let prefix = 0;
+                const paths = Array.from(entries.keys()).map((path) => path.replace(/\\/g, '/').split('/').reverse());
+                for (let set = new Set(); set && paths.length > 0;) {
+                    set = new Set(paths.map((path) => path.length > 1 ? path.pop() : null));
+                    set = set.size > 1 || set.keys().next().value === null ? null : set;
+                    prefix += set ? set.keys().next().value.length + 1 : 0;
+                }
+                this._records = new Map(Array.from(entries).map(([name, value]) => [ name.substring(prefix), value ]));
+                this._version = '0';
+                const stream = this.get_record('.data/version') || this.get_record('version') || null;
+                if (stream) {
+                    const decoder = new TextDecoder('utf-8');
+                    const buffer = stream.peek();
+                    const text = decoder.decode(buffer);
+                    this._version = text.split('\n').shift().trim();
+                }
+            }
+            has_record(name) {
+                return this._records.has(name);
+            }
+            get_record(name) {
+                return this._records.get(name);
+            }
+            get_all_records() {
+                return Array.from(this._records.keys());
+            }
+            version() {
+                return this._version;
+            }
+        });
         this.registerFunction('torch.load', function(f) {
             const legacy_load = (entries) => {
                 const deserialized_objects = {};
@@ -5200,6 +5232,9 @@ python.Execution = class {
                 return result;
             };
             if (f instanceof Map) {
+                const reader = new torch.PyTorchFileReader(f);
+                const records = reader.get_all_records().map((name) => [ name, reader.get_record(name) ]);
+                f = new Map(records);
                 if (f.has('pickle')) {
                     return legacy_load(f);
                 }
@@ -5604,7 +5639,7 @@ python.Execution = class {
                     torch.sym_not
                 ]);
             }
-            deserialize(serialized_graph_module) {
+            deserialize(serialized_graph_module, symbol_name_to_range, constants) {
                 this.shape_env = new torch.fx.experimental.symbolic_shapes.ShapeEnv(/* assume_static_by_default = True */);
                 /*
                 this.fake_tensor_mode = FakeTensorMode(
@@ -5614,18 +5649,21 @@ python.Execution = class {
                 )
                 */
                 this.symbol_name_to_symbol = new Map();
-                /*
-                this.symbol_name_to_range = {} if symbol_name_to_range is None else symbol_name_to_range
-                this.constants = {} if constants is None else constants
-                */
+                this.symbol_name_to_range = symbol_name_to_range || new Map();
+                this.constants = constants || new Map();
                 this.deserialize_graph(serialized_graph_module.graph);
             }
             deserialize_graph(serialized_graph) {
-                /*
-                self.constants: Dict[str, torch.Tensor] = {
-                    k: deserialize_torch_artifact(base64.b64decode(v))
-                    for k, v in serialized_graph.constants
-                }*/
+                this.constants = new Map(Object.entries(serialized_graph.constants).map(([k, v]) => {
+                    const str = atob(v);
+                    const buffer = new Uint8Array(str.length);
+                    for (let i = 0; i < str.length; i++) {
+                        buffer[i] = str.charCodeAt(i);
+                    }
+                    const archive = self.zip.Archive.open(buffer);
+                    const value = torch.load(archive.entries);
+                    return [ k, value ];
+                }));
                 for (const [name, tensor_value] of Object.entries(serialized_graph.tensor_values)) {
                     const meta_val = this.deserialize_tensor_meta(tensor_value.meta, self.fake_tensor_mode);
                     this.serialized_name_to_meta.set(name, meta_val);
