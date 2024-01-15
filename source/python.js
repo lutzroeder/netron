@@ -4064,6 +4064,46 @@ python.Execution = class {
         this.registerType('torch.ao.quantization.qconfig.QConfig', class {});
         this.registerType('torch.ao.quantization.stubs.DeQuantStub', class {});
         this.registerType('torch.ao.quantization.stubs.QuantStub', class {});
+        this.registerType('torch.ao.quantization.stubs.QuantWrapper', class {});
+        this.registerFunction('torch.ao.quantization.fx.graph_module._save_packed_weight', function() {
+            throw new python.Error("'torch.ao.quantization.fx.graph_module._save_packed_weight' not implemented.");
+        });
+        this.registerFunction('torch.ao.quantization.fx._lower_to_native_backend._load_packed_weight', function() {
+            throw new python.Error("'torch.ao.quantization.fx._lower_to_native_backend._load_packed_weight' not implemented.");
+        });
+        this.registerFunction('torch.ao.quantization.fx._lower_to_native_backend._save_packed_weight', function() {
+            throw new python.Error("'torch.ao.quantization.fx._lower_to_native_backend._save_packed_weight' not implemented.");
+        });
+        this.registerFunction('torch.ao.quantization.quantization_mappings._get_special_act_post_process', function() {
+            throw new python.Error("'torch.ao.quantization.quantization_mappings._get_special_act_post_process' not implemented.");
+        });
+        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_dynamic_quant_module_mappings', function() {
+            throw new python.Error("'torch.ao.quantization.quantization_mappings.get_default_dynamic_quant_module_mappings' not implemented.");
+        });
+        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_qat_module_mappings', function() {
+            throw new python.Error("'torch.ao.quantization.quantization_mappings.get_default_qat_module_mappings' not implemented.");
+        });
+        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_qconfig_propagation_list', function() {
+            throw new python.Error("'torch.ao.quantization.quantization_mappings.get_default_qconfig_propagation_list' not implemented.");
+        });
+        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_static_quant_module_mappings', function() {
+            throw new python.Error("'torch.ao.quantization.quantization_mappings.get_default_static_quant_module_mappings' not implemented.");
+        });
+        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_static_quant_reference_module_mappings', function() {
+            throw new python.Error("'torch.ao.quantization.quantization_mappings.get_default_static_quant_reference_module_mappings' not implemented.");
+        });
+        this.registerFunction('torch.ao.quantization.quantization_mappings.no_observer_set', function() {
+            throw new python.Error("'torch.ao.quantization.quantization_mappings.no_observer_set' not implemented.");
+        });
+        this.registerFunction('torch.ao.quantization.quantization_mappings._has_special_act_post_process', function() {
+            throw new python.Error("'torch.ao.quantization.quantization_mappings._has_special_act_post_process' not implemented.");
+        });
+        this.registerFunction('torch.ao.quantization.utils.get_qparam_dict', function() {
+            throw new python.Error("'torch.ao.quantization.utils.get_qparam_dict' not implemented.");
+        });
+        this.registerFunction('torch.ao.quantization.utils.has_no_children_ignoring_parametrizations', function() {
+            throw new python.Error("'torch.ao.quantization.utils.has_no_children_ignoring_parametrizations' not implemented.");
+        });
         this.registerType('torch.autograd.variable.Variable', class {});
         this.registerType('torch.backends.cudnn.rnn.Unserializable', class {});
         this.registerType('torch.distributions.bernoulli.Bernoulli', class {});
@@ -4276,6 +4316,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantizable.modules.rnn.LSTM', class {});
         this.registerType('torch.ao.nn.quantized.modules.activation.MultiheadAttention', class extends torch.ao.nn.quantizable.modules.activation.MultiheadAttention {});
         this.registerType('torch.ao.nn.quantized.modules.activation.ReLU6', class extends torch.nn.modules.activation.ReLU {});
+        this.registerType('torch.ao.nn.quantized.modules.activation.LeakyReLU', class extends torch.nn.modules.activation.LeakyReLU {});
         this.registerType('torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.modules.batchnorm._BatchNorm',  class extends torch.nn.modules.batchnorm._BatchNorm {});
         this.registerType('torch.ao.nn.quantized.modules.batchnorm.BatchNorm2d', class extends torch.ao.nn.quantized.modules.batchnorm._BatchNorm {});
@@ -4289,6 +4330,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantized.modules.dropout.Dropout', class extends torch.nn.modules.dropout.Dropout {});
         this.registerType('torch.ao.nn.quantized.modules.functional_modules.FloatFunctional', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.modules.functional_modules.QFunctional', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.functional_modules.FXFloatFunctional', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.modules.linear.Linear', class extends torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule {});
         this.registerType('torch.ao.nn.quantized.modules.linear.LinearPackedParams', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.modules.normalization.LayerNorm', class extends torch.nn.modules.normalization.LayerNorm {});
@@ -4297,10 +4339,16 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.PackedParameter', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.RNNBase', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.GRU', class extends torch.ao.nn.quantized.dynamic.modules.rnn.RNNBase {});
+        this.registerType('torch.ao.nn.quantized.reference.modules.conv.Conv2d', class {});
         this.registerType('torch.ao.nn.quantized.reference.modules.linear.Linear', class {});
+        this.registerType('torch.ao.nn.qat.modules.conv.Conv2d', class {});
         this.registerType('torch.ao.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class extends torch.ao.nn.quantized.modules.conv.Conv2d {});
+        this.registerType('torch.ao.nn.intrinsic.quantized.modules.linear_relu.LinearReLU', class extends torch.ao.nn.quantized.modules.linear.Linear {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused._FusedModule', class extends torch.nn.modules.container.Sequential {});
+        this.registerType('torch.ao.nn.intrinsic.modules.fused.ConvBn2d', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused.ConvReLU2d', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
+        this.registerType('torch.ao.nn.intrinsic.modules.fused.LinearReLU', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
+        this.registerType('torch.ao.nn.intrinsic.modules.fused.ConvBnReLU2d', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
         this.registerType('torch.nn.utils.prune.L1Unstructured', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNorm', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormStateDictHook', class {});
@@ -4338,6 +4386,9 @@ python.Execution = class {
         this.registerType('torch.quantization.qconfig.QConfig', class {});
         this.registerType('torch.quantization.stubs.DeQuantStub', class {});
         this.registerType('torch.quantization.stubs.QuantStub', class {});
+        this.registerFunction('torch.utils.data._utils.collate.default_collate', function() {
+            throw new python.Error("'torch.utils.data._utils.collate.default_collate' not implemented.");
+        });
         this.registerType('torch.utils.data.dataloader._MultiProcessingDataLoaderIter', class {});
         this.registerType('torch.utils.data.dataloader.DataLoader', class {});
         this.registerType('torch.utils.data.dataset.Subset', class {});
