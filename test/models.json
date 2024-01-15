@@ -5769,6 +5769,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "vicuna-7b.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/13935467/vicuna-7b.zip",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "ViT-B-32.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5790183/ViT-B-32.pt.zip[ViT-B-32.pt]",
     "format":   "TorchScript v1.6",
