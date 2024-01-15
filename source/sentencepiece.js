@@ -40,10 +40,53 @@ sentencepiece.ModelFactory = class {
 
 sentencepiece.Model = class {
 
-    constructor() {
+    constructor(model) {
         this.format = 'SentencePiece';
-        this.graphs = [];
-        throw new sentencepiece.Error("Invalid file content. File contains sentencepiece.ModelProto data.");
+        this.graphs = [ new sentencepiece.Graph(model) ];
+    }
+};
+
+sentencepiece.Graph = class {
+
+    constructor(model) {
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
+        for (const [name, value] of Object.entries(model)) {
+            const node = new sentencepiece.Node(name, value);
+            this.nodes.push(node);
+        }
+    }
+};
+
+sentencepiece.Argument = class {
+
+    constructor(name, value) {
+        this.name = name;
+        this.value = value;
+    }
+};
+
+sentencepiece.Node = class {
+
+    constructor(name, obj) {
+        this.name = name;
+        this.inputs = [];
+        this.outputs = [];
+        this.attributes = [];
+        if (Array.isArray(obj)) {
+            const type = new Set(obj.map((value) => value.constructor.name));
+            this.type = { name: `${Array.from(type)[0]}[]` };
+            const attribute = new sentencepiece.Argument(name, obj);
+            this.attributes.push(attribute);
+        } else {
+            this.type = { name: obj.constructor.name };
+            for (const [name, value] of Object.entries(obj)) {
+                const data = ArrayBuffer.isView(value) ? Array.from(value) : value;
+                const attribute = new sentencepiece.Argument(name, data);
+                this.attributes.push(attribute);
+            }
+        }
     }
 };
 
