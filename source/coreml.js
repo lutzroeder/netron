@@ -434,6 +434,10 @@ coreml.MapType = class {
         this.valueType = valueType;
     }
 
+    equals(obj) {
+        return obj instanceof coreml.MapType && this.keyType.equals(obj.keyType) && this.valueType.equals(obj.valueType);
+    }
+
     toString() {
         return `map<${this.keyType},${this.valueType}>`;
     }
@@ -443,6 +447,10 @@ coreml.SequenceType = class {
 
     constructor(type) {
         this.type = type;
+    }
+
+    equals(obj) {
+        return obj instanceof coreml.SequenceType && this.type.equals(obj.type);
     }
 
     toString() {
@@ -486,6 +494,10 @@ coreml.OptionalType = class {
 
     constructor(type) {
         this.type = type;
+    }
+
+    equals(obj) {
+        return obj instanceof coreml.OptionalType && this.type.equals(obj.type);
     }
 
     toString() {
