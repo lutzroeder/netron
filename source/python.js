@@ -4473,6 +4473,14 @@ python.Execution = class {
         this.registerType('torchvision.models.inception.InceptionE', class {});
         this.registerType('torchvision.models.mnasnet._InvertedResidual', class {});
         this.registerType('torchvision.models.mnasnet.MNASNet', class {});
+        this.registerType('torchvision.models.maxvit.MaxVit', class {});
+        this.registerType('torchvision.models.maxvit.MaxVitBlock', class {});
+        this.registerType('torchvision.models.maxvit.MaxVitLayer', class {});
+        this.registerType('torchvision.models.maxvit.MBConv', class {});
+        this.registerType('torchvision.models.maxvit.PartitionAttentionLayer', class {});
+        this.registerType('torchvision.models.maxvit.RelativePositionalMultiHeadAttention', class {});
+        this.registerType('torchvision.models.maxvit.SwapAxes', class {});
+        this.registerType('torchvision.models.maxvit.WindowDepartition', class {});
         this.registerType('torchvision.models.mobilenet.ConvBNReLU', class {});
         this.registerType('torchvision.models.mobilenet.MobileNetV2', class {});
         this.registerType('torchvision.models.mobilenet.InvertedResidual', class {});
