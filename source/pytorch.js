@@ -764,7 +764,7 @@ pytorch.Container = class {
         if (index) {
             return index;
         }
-        const dynamo = pytorch.Container.Dynamo.open(context);
+        const dynamo = pytorch.Container.ExportedProgram.open(context);
         if (dynamo) {
             return dynamo;
         }
@@ -1219,48 +1219,50 @@ pytorch.Container.Index = class extends pytorch.Container {
     }
 };
 
-pytorch.Container.Dynamo = class extends pytorch.Container {
+pytorch.Container.ExportedProgram = class extends pytorch.Container {
 
     static open(context) {
         const program = context.peek('json');
         if (program && program.schema_version && program.graph_module) {
-            return new pytorch.Container.Dynamo(context, program);
+            return new pytorch.Container.ExportedProgram(context, program);
         }
         return null;
     }
 
-    constructor(context, program) {
+    constructor(context, serialized_exported_program) {
         super();
         this._context = context;
-        this._program = program;
+        this._serialized_exported_program = serialized_exported_program;
     }
 
     async read() {
         this._format = 'PyTorch Export';
-        let content = null;
-        try {
-            content = await this._context.fetch('serialized_state_dict.json');
-        } catch (error) {
-            // continue regardless of error
+        const serialized_state_dict = await this._fetch('serialized_state_dict.pt') || await this._fetch('serialized_state_dict.json');
+        const serialized_constants = await this._fetch('serialized_constants.pt') || await this._fetch('serialized_constants.json');
+        const f = new Map();
+        f.set('serialized_exported_program.json', this._serialized_exported_program);
+        f.set('serialized_state_dict.pt', serialized_state_dict);
+        f.set('serialized_constants.pt', serialized_constants);
+        const execution = new pytorch.Execution();
+        for (const event of this._events) {
+            execution.on(event[0], event[1]);
         }
-        if (content) {
-            const state_dict = content.peek('zip');
-            const execution = new pytorch.Execution();
-            execution.zip = await import('./zip.js');
-            for (const event of this._events) {
-                execution.on(event[0], event[1]);
+        const torch = execution.__import__('torch');
+        if (this._serialized_exported_program.graph_module.graph.constants) {
+            const zip = await import('./zip.js');
+            const constants = this._serialized_exported_program.graph_module.graph.constants;
+            for (const key of Object.keys(constants)) {
+                const value = constants[key];
+                const str = atob(value);
+                const buffer = new Uint8Array(str.length);
+                for (let i = 0; i < str.length; i++) {
+                    buffer[i] = str.charCodeAt(i);
+                }
+                const archive = zip.Archive.open(buffer);
+                constants[key] = archive.entries;
             }
-            const torch = execution.__import__('torch');
-            this._data = torch.load(state_dict);
-            const serialized_exported_program = this._program;
-            const deserializer = new torch._export.serde.serialize.GraphModuleDeserializer();
-            const symbol_name_to_range = new Map(Object.entries(serialized_exported_program.range_constraints));
-            /* TODO
-                k: symbolic_shapes.ValueRanges(_int_to_sympy_int(v.min_val), _int_to_sympy_int(v.max_val))
-                for k, v in serialized_exported_program.range_constraints.items()
-            */
-            deserializer.deserialize(serialized_exported_program.graph_module, symbol_name_to_range);
         }
+        /* const exported_program = */ torch._export.load(f);
         throw new pytorch.Error(`'torch.export' not supported.`);
     }
 
@@ -1270,6 +1272,18 @@ pytorch.Container.Dynamo = class extends pytorch.Container {
 
     get modules() {
         return this._modules;
+    }
+
+    async _fetch(name) {
+        try {
+            const context = await this._context.fetch(name);
+            if (context) {
+                return context.peek('zip');
+            }
+        } catch (error) {
+            // continue regardless of error
+        }
+        return null;
     }
 };
 

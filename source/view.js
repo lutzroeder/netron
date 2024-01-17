@@ -5675,6 +5675,18 @@ view.ModelFactoryService = class {
                 if (matches.length === 0) {
                     return null;
                 }
+                // PyTorch
+                if (matches.length === 2 &&
+                    matches.some((context) => context.identifier === 'serialized_exported_program.json') &&
+                    matches.some((context) => context.identifier === 'serialized_state_dict.pt')) {
+                    matches = matches.filter((context) => context.identifier === 'serialized_exported_program.json');
+                }
+                if (matches.length === 3 &&
+                    matches.some((context) => context.identifier === 'serialized_exported_program.json') &&
+                    matches.some((context) => context.identifier === 'serialized_state_dict.pt') &&
+                    matches.some((context) => context.identifier === 'serialized_constants.pt')) {
+                    matches = matches.filter((context) => context.identifier === 'serialized_exported_program.json');
+                }
                 // MXNet
                 if (matches.length === 2 &&
                     matches.some((context) => context.identifier.toLowerCase().endsWith('.params')) &&
