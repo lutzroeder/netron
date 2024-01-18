@@ -40632,7 +40632,7 @@
         "name": "perm",
         "type": "int64[]",
         "required": false,
-        "description": "A list of integers. By default, reverse the dimensions, otherwise permute the axes according to the values given."
+        "description": "A list of integers. By default, reverse the dimensions, otherwise permute the axes according to the values given. Its length must be equal to the rank of the input."
       }
     ],
     "inputs": [
