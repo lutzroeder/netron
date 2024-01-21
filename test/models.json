@@ -3853,8 +3853,8 @@
   },
   {
     "type":     "onnx",
-    "target":   "gpt2-dynamo.onnx.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/13802626/gpt2-dynamo.onnx.zip",
+    "target":   "gpt2_export.onnx.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/14003173/gpt2_export.onnx.zip",
     "format":   "ONNX v8",
     "link":     "https://github.com/lutzroeder/netron/issues/1208"
   },
