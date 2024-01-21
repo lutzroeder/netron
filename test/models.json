@@ -4852,11 +4852,11 @@
   },
   {
     "type":     "pytorch",
-    "target":   "gpt2.pt2",
-    "source":   "https://github.com/lutzroeder/netron/files/13855267/gpt2.pt2.zip[gpt2.pt2]",
+    "target":   "gpt2_export.pt2",
+    "source":   "https://github.com/lutzroeder/netron/files/14003208/gpt2_export.pt2.zip[gpt2_export.pt2]",
     "format":   "PyTorch Export",
     "error":    "'torch.export' not supported.",
-    "link":     "https://github.com/lutzroeder/netron/issues/842"
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
   },
   {
     "type":     "pytorch",
