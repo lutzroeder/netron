@@ -4109,6 +4109,7 @@ python.Execution = class {
         });
         this.registerType('torch.autograd.variable.Variable', class {});
         this.registerType('torch.backends.cudnn.rnn.Unserializable', class {});
+        this.registerType('torch.distributed.algorithms.join._JoinConfig', class {});
         this.registerType('torch.distributions.bernoulli.Bernoulli', class {});
         this.registerType('torch.distributions.categorical.Categorical', class {});
         this.registerType('torch.distributions.constraints._LowerCholesky', class {});
