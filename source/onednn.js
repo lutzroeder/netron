@@ -323,6 +323,8 @@ onednn.TensorType = class {
 
     constructor(dataType, shape) {
         switch (dataType) {
+            case 'f8_e4m3': this._dataType = 'float8e4m3'; break;
+            case 'f8_e5m2': this._dataType = 'float8e5m2'; break;
             case 'f16': this._dataType = 'float16'; break;
             case 'f32': this._dataType = 'float32'; break;
             case 's8': this._dataType = 'int8'; break;
