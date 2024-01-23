@@ -3607,6 +3607,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/1006"
   },
   {
+    "type":     "onednn",
+    "target":   "f8_matmul.json",
+    "source":   "https://github.com/lutzroeder/netron/files/14018737/f8_matmul.json.zip[f8_matmul.json]",
+    "format":   "oneDNN Graph v3.3.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1006"
+  },
+  {
     "type":     "onnx",
     "target":   "arcface-resnet100.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/11943519/arcface-resnet100.onnx.zip",
