@@ -3818,7 +3818,7 @@ view.Quantization = class {
                 let bracket = false;
                 if (i < offset.length && offset[i] !== undefined && offset[i] !== 0) {
                     const value = offset[i];
-                    s = value < 0 ? `${s} - ${-value}` : `${s} + ${value}`;
+                    s = value > 0 ? `${s} - ${value}` : `${s} + ${-value}`;
                     bracket = true;
                 }
                 if (i < scale.length && scale[i] !== undefined && scale[i] !== 0) {
