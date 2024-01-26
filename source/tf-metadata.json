@@ -12586,6 +12586,25 @@
     ]
   },
   {
+    "name": "DatasetFingerprint",
+    "summary": "Returns the fingerprint of `input_dataset`.",
+    "description": "Returns the fingerprint of `input_dataset`.",
+    "inputs": [
+      {
+        "name": "input_dataset",
+        "description": "A variant tensor representing the dataset to return fingerprint for.",
+        "type": 21
+      }
+    ],
+    "outputs": [
+      {
+        "name": "fingerprint",
+        "description": "The fingerprint of `input_dataset` in `uint64`",
+        "type": 23
+      }
+    ]
+  },
+  {
     "name": "DatasetFromGraph",
     "summary": "Creates a dataset from the given `graph_def`.",
     "description": "Creates a dataset from the provided `graph_def`.",
