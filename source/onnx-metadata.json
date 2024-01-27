@@ -17418,7 +17418,7 @@
         "name": "default_tensor",
         "type": "tensor",
         "required": false,
-        "description": "A default tensor."
+        "description": "A default tensor. {\"_Unused\"} if values_* has string type, {-1} if values_* has integral type, and {-0.f} if values_* has float type."
       },
       {
         "name": "keys_floats",
