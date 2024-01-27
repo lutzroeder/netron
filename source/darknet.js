@@ -9,7 +9,7 @@ darknet.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'weights') {
-            const weights = darknet.Weights.open(context.stream);
+            const weights = darknet.Weights.open(context);
             if (weights) {
                 return { name: 'darknet.weights', value: weights };
             }
@@ -50,7 +50,7 @@ darknet.ModelFactory = class {
                 try {
                     const name = `${basename}.weights`;
                     const content = await context.fetch(name);
-                    const weights = darknet.Weights.open(content.stream);
+                    const weights = darknet.Weights.open(content);
                     const reader = new darknet.Reader(context.stream, context.identifier);
                     return new darknet.Model(metadata, reader, weights);
                 } catch (error) {
@@ -1061,32 +1061,32 @@ darknet.Reader = class {
 
 darknet.Weights = class {
 
-    static open(stream) {
-        if (stream && stream.length >= 20) {
-            const buffer = stream.peek(12);
-            const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-            const major = view.getInt32(0, true);
-            const minor = view.getInt32(4, true);
-            view.getInt32(8, true); // revision
+    static open(context) {
+        const reader = context.reader;
+        if (reader && reader.length >= 20) {
+            const major = reader.int32();
+            const minor = reader.int32();
+            reader.int32(); // revision
             const transpose = (major > 1000) || (minor > 1000);
             if (!transpose) {
-                stream.skip(12 + (((major * 10 + minor) >= 2) ? 8 : 4));
-                return new darknet.Weights(stream);
+                reader.skip((major * 10 + minor) >= 2 ? 8 : 4);
+                return new darknet.Weights(reader);
             }
+            reader.seek(0);
         }
         return null;
     }
 
-    constructor(stream) {
-        this._stream = stream;
+    constructor(reader) {
+        this._reader = reader;
     }
 
     read(size) {
-        return this._stream.read(size);
+        return this._reader.read(size);
     }
 
     validate() {
-        if (this._stream.position != this._stream.length) {
+        if (this._reader.position != this._reader.length) {
             throw new darknet.Error('Invalid weights size.');
         }
     }
