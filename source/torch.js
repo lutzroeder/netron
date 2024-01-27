@@ -1,4 +1,6 @@
 
+import * as base from './base.js';
+
 const torch = {};
 
 torch.ModelFactory = class {
@@ -481,10 +483,14 @@ torch.T7Reader = class {
                 this.dataType = dataType;
                 this.itemSize = itemSize;
             }
+            read(reader) {
+                this.size = reader.int64();
+                this.reader = reader.storage(this.size, this.itemSize, this.dataType);
+            }
             data() {
                 if (this.reader) {
                     const reader = this.reader;
-                    reader.reset();
+                    reader.seek(0);
                     const dataType = this.dataType;
                     const size = this.size;
                     const array = new Array(size);
@@ -519,10 +525,6 @@ torch.T7Reader = class {
                     delete this.reader;
                 }
                 return this._data;
-            }
-            read(reader) {
-                this.size = reader.int64();
-                this.reader = reader.storage(this.size, this.itemSize, this.dataType);
             }
         };
         const Tensor = class {
@@ -854,10 +856,6 @@ torch.T7Reader = class {
         return this._reader.boolean();
     }
 
-    bytes(size) {
-        return this._reader.bytes(size);
-    }
-
     int32() {
         return this._reader.int32();
     }
@@ -956,7 +954,7 @@ torch.T7Reader = class {
             return this._memo.get(index);
         }
         const size = this.int32();
-        const dumped = this.bytes(size);
+        const dumped = this._reader.read(size);
         const upvalues = this.read();
         const type = this._types.get('LuaFunction');
         const obj = Reflect.construct(type, [ size, dumped, upvalues ]);
@@ -969,58 +967,21 @@ torch.T7Reader = class {
     }
 };
 
-torch.BinaryReader = class {
+torch.BinaryReader = class extends base.BinaryReader {
 
     constructor(data) {
-        this._buffer = data instanceof Uint8Array ? data : data.peek();
-        this._dataView = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
-        this._position = 0;
+        super(data instanceof Uint8Array ? data : data.peek(), true);
         this._textDecoder = new TextDecoder('ascii');
-    }
-
-    reset() {
-        this._position = 0;
-    }
-
-    skip(offset) {
-        this._position += offset;
-        if (this._position > this._buffer.length) {
-            throw new torch.Error(`Expected ${this._position - this._buffer.length} more bytes. The file might be corrupted. Unexpected end of file.`);
-        }
     }
 
     boolean() {
         return this.int32() == 1;
     }
 
-    bytes(length) {
+    read(length) {
         const position = this._position;
         this.skip(length);
         return this._buffer.subarray(position, this._position);
-    }
-
-    int8() {
-        const position = this._position;
-        this.skip(1);
-        return this._dataView.getInt8(position, true);
-    }
-
-    int16() {
-        const position = this._position;
-        this.skip(2);
-        return this._dataView.getInt16(position, true);
-    }
-
-    int32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getInt32(position, true);
-    }
-
-    int64() {
-        const position = this._position;
-        this.skip(8);
-        return this._dataView.getInt64(position, true).toNumber();
     }
 
     int64s(size) {
@@ -1031,24 +992,15 @@ torch.BinaryReader = class {
         return array;
     }
 
-    float32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getFloat32(position, true);
-    }
-
-    float64() {
-        const position = this._position;
-        this.skip(8);
-        return this._dataView.getFloat64(position, true);
-    }
-
     string() {
-        return this._textDecoder.decode(this.bytes(this.int32()));
+        const size = this.int32();
+        const buffer = this.read(size);
+        return this._textDecoder.decode(buffer);
     }
 
     storage(size, itemSize) {
-        return new torch.BinaryReader(this.bytes(size * itemSize));
+        const buffer = this.read(size * itemSize);
+        return new torch.BinaryReader(buffer);
     }
 };
 
@@ -1062,8 +1014,8 @@ torch.TextReader = class {
         this._separator = separator || 0x0a;
     }
 
-    reset() {
-        this._position = 0;
+    seek(position) {
+        this._position = position;
     }
 
     line(size) {
@@ -1084,7 +1036,7 @@ torch.TextReader = class {
         return this.int32() == 1;
     }
 
-    bytes(size) {
+    read(size) {
         return this.line(size);
     }
 
