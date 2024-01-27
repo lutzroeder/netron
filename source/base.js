@@ -777,8 +777,9 @@ base.BinaryStream = class {
 
 base.BinaryReader = class {
 
-    constructor(data) {
+    constructor(data, littleEndian) {
         this._buffer = data instanceof Uint8Array ? data : data.peek();
+        this._littleEndian = littleEndian !== false;
         this._position = 0;
         this._length = this._buffer.length;
         this._view = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
@@ -842,44 +843,44 @@ base.BinaryReader = class {
     int8() {
         const position = this._position;
         this.skip(1);
-        return this._view.getInt8(position, true);
+        return this._view.getInt8(position, this._littleEndian);
     }
 
     int16() {
         const position = this._position;
         this.skip(2);
-        return this._view.getInt16(position, true);
+        return this._view.getInt16(position, this._littleEndian);
     }
 
     int32() {
         const position = this._position;
         this.skip(4);
-        return this._view.getInt32(position, true);
+        return this._view.getInt32(position, this._littleEndian);
     }
 
     int64() {
         const position = this._position;
         this.skip(8);
-        return this._view.getInt64(position, true).toNumber();
+        return this._view.getInt64(position, this._littleEndian).toNumber();
     }
 
     uint16() {
         const position = this._position;
         this.skip(2);
-        return this._view.getUint16(position, true);
+        return this._view.getUint16(position, this._littleEndian);
     }
 
     uint32() {
         const position = this._position;
         this.skip(4);
-        return this._view.getUint32(position, true);
+        return this._view.getUint32(position, this._littleEndian);
     }
 
     uint64() {
         const position = this._position;
         this.skip(8);
-        const low = this._view.getUint32(position, true);
-        const high = this._view.getUint32(position + 4, true);
+        const low = this._view.getUint32(position, this._littleEndian);
+        const high = this._view.getUint32(position + 4, this._littleEndian);
         if (high === 0) {
             return low;
         }
@@ -893,13 +894,13 @@ base.BinaryReader = class {
     float32() {
         const position = this._position;
         this.skip(4);
-        return this._view.getFloat32(position, true);
+        return this._view.getFloat32(position, this._littleEndian);
     }
 
     float64() {
         const position = this._position;
         this.skip(8);
-        return this._view.getFloat64(position, true);
+        return this._view.getFloat64(position, this._littleEndian);
     }
 
     string() {
@@ -918,14 +919,19 @@ base.BinaryReader = class {
 
 base.StreamReader = class {
 
-    constructor(stream) {
+    constructor(stream, littleEndian) {
         this._stream = stream;
+        this._littleEndian = littleEndian !== false;
         this._buffer = new Uint8Array(8);
         this._view = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
     }
 
     get position() {
         return this._stream.position;
+    }
+
+    get length() {
+        return this._stream.length;
     }
 
     seek(position) {
@@ -951,25 +957,25 @@ base.StreamReader = class {
     int16() {
         const buffer = this._stream.read(2);
         this._buffer.set(buffer, 0);
-        return this._view.getInt16(0, true);
+        return this._view.getInt16(0, this._littleEndian);
     }
 
     int32() {
         const buffer = this._stream.read(4);
         this._buffer.set(buffer, 0);
-        return this._view.getInt32(0, true);
+        return this._view.getInt32(0, this._littleEndian);
     }
 
     uint16() {
         const buffer = this._stream.read(2);
         this._buffer.set(buffer, 0);
-        return this._view.getUint16(0, true);
+        return this._view.getUint16(0, this._littleEndian);
     }
 
     uint32() {
         const buffer = this._stream.read(4);
         this._buffer.set(buffer, 0);
-        return this._view.getUint32(0, true);
+        return this._view.getUint32(0, this._littleEndian);
     }
 
     uint64() {
@@ -988,7 +994,7 @@ base.StreamReader = class {
     float32() {
         const buffer = this._stream.read(4);
         this._buffer.set(buffer, 0);
-        return this._view.getFloat32(0, true);
+        return this._view.getFloat32(0, this._littleEndian);
     }
 };
 

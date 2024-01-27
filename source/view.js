@@ -4889,6 +4889,10 @@ view.Context = class {
         return this._stream;
     }
 
+    get reader() {
+        return new base.StreamReader(this._stream);
+    }
+
     async request(file) {
         return this._context.request(file, 'utf-8', null);
     }
