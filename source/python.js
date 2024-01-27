@@ -2582,6 +2582,9 @@ python.Execution = class {
         this.registerType('sklearn.feature_extraction.text.TfidfTransformer', class {});
         this.registerType('sklearn.feature_extraction.text.TfidfVectorizer', class {});
         this.registerType('sklearn.feature_selection._from_model.SelectFromModel', class {});
+        this.registerFunction('sklearn.feature_selection._univariate_selection.chi2', function() {
+            throw new python.Error("'sklearn.feature_selection._univariate_selection.chi2' not implemented.");
+        });
         this.registerType('sklearn.feature_selection._univariate_selection.GenericUnivariateSelect', class {});
         this.registerType('sklearn.feature_selection._univariate_selection.SelectKBest', class {});
         this.registerType('sklearn.feature_selection._univariate_selection.SelectPercentile', class {});
@@ -2628,6 +2631,7 @@ python.Execution = class {
         this.registerType('sklearn.manifold._t_sne.TSNE', class {});
         this.registerType('sklearn.metrics._dist_metrics.EuclideanDistance', class {});
         this.registerType('sklearn.metrics._dist_metrics.EuclideanDistance64', class {});
+        this.registerType('sklearn.metrics._scorer._PassthroughScorer', class {});
         this.registerType('sklearn.metrics._scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics.scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics._scorer._ThresholdScorer', class {});
@@ -4109,6 +4113,12 @@ python.Execution = class {
         });
         this.registerType('torch.autograd.variable.Variable', class {});
         this.registerType('torch.backends.cudnn.rnn.Unserializable', class {});
+        this.registerFunction('torch.distributed._shard.sharded_tensor.pre_load_state_dict_hook', function() {
+            throw new python.Error("'torch.distributed._shard.sharded_tensor.pre_load_state_dict_hook' not implemented.");
+        });
+        this.registerFunction('torch.distributed._shard.sharded_tensor.state_dict_hook', function() {
+            throw new python.Error("'torch.distributed._shard.sharded_tensor.state_dict_hook' not implemented.");
+        });
         this.registerType('torch.distributed.algorithms.join._JoinConfig', class {});
         this.registerType('torch.distributions.bernoulli.Bernoulli', class {});
         this.registerType('torch.distributions.categorical.Categorical', class {});
@@ -4116,6 +4126,10 @@ python.Execution = class {
         this.registerType('torch.distributions.constraints._Real', class {});
         this.registerType('torch.distributions.multivariate_normal.MultivariateNormal', class {});
         this.registerType('torch.distributions.normal.Normal', class {});
+        this.registerType('torch.distributions.transforms._InverseTransform', class {});
+        this.registerType('torch.distributions.transforms.AffineTransform', class {});
+        this.registerType('torch.distributions.transforms.ComposeTransform', class {});
+        this.registerType('torch.distributions.transforms.ExpTransform', class {});
         this.registerType('torch.distributions.transforms.LowerCholeskyTransform', class {});
         this.registerType('torch.distributions.uniform.Uniform', class {});
         this.registerType('torch.nn.backends.thnn._get_thnn_function_backend', class {});
@@ -4358,6 +4372,9 @@ python.Execution = class {
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormStateDictHook', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook', class {});
         this.registerType('torch.nn.utils.weight_norm.WeightNorm', class {});
+        this.registerFunction('torch.nn.utils.parametrize.type_before_parametrizations', function() {
+            throw python.Error("'torch.nn.utils.parametrize.type_before_parametrizations' not implemented.");
+        });
         this.registerType('torch.torch_version.TorchVersion', class extends String {});
         this.registerType('torch.optim.optimizer.Optimizer', class {});
         this.registerType('torch.optim.adam.Adam', class extends torch.optim.optimizer.Optimizer {});
@@ -4390,6 +4407,8 @@ python.Execution = class {
         this.registerType('torch.quantization.qconfig.QConfig', class {});
         this.registerType('torch.quantization.stubs.DeQuantStub', class {});
         this.registerType('torch.quantization.stubs.QuantStub', class {});
+        this.registerType('torch.utils._pytree.LeafSpec', class {});
+        this.registerType('torch.utils._pytree.TreeSpec', class {});
         this.registerFunction('torch.utils.data._utils.collate.default_collate', function() {
             throw new python.Error("'torch.utils.data._utils.collate.default_collate' not implemented.");
         });
@@ -4439,6 +4458,11 @@ python.Execution = class {
         this.registerType('torchvision.models.detection.faster_rcnn.FastRCNNConvFCHead', class {});
         this.registerType('torchvision.models.detection.faster_rcnn.FastRCNNPredictor', class {});
         this.registerType('torchvision.models.detection.faster_rcnn.TwoMLPHead', class {});
+        this.registerType('torchvision.models.detection.fcos.FCOS', class {});
+        this.registerType('torchvision.models.detection.fcos.FCOSHead', class {});
+        this.registerType('torchvision.models.detection.fcos.FCOSClassificationHead', class {});
+        this.registerType('torchvision.models.detection.fcos.FCOSRegressionHead', class {});
+        this.registerType('torchvision.models.detection._utils.BoxLinearCoder', class {});
         this.registerType('torchvision.models.detection.keypoint_rcnn.KeypointRCNN', class {});
         this.registerType('torchvision.models.detection.keypoint_rcnn.KeypointRCNNHeads', class {});
         this.registerType('torchvision.models.detection.keypoint_rcnn.KeypointRCNNPredictor', class {});
