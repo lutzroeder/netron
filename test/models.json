@@ -3002,8 +3002,8 @@
   },
   {
     "type":     "mlir",
-    "target":   "issue_1043.mlir",
-    "source":   "https://github.com/lutzroeder/netron/files/10672270/issue_1043.mlir.zip[issue_1043.mlir]",
+    "target":   "1043.mlir",
+    "source":   "https://github.com/lutzroeder/netron/files/14074683/1043.mlir.zip[1043.mlir]",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
