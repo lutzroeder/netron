@@ -562,8 +562,8 @@
   },
   {
     "type":     "caffe",
-    "target":   "netron_issue_306.prototxt",
-    "source":   "https://github.com/lutzroeder/netron/files/3440457/netron_issue_306.zip[netron_issue_306.pbtxt]",
+    "target":   "0306.pbtxt",
+    "source":   "https://github.com/lutzroeder/netron/files/14074726/0306.pbtxt.zip[0306.pbtxt]",
     "format":   "Caffe v2",
     "link":     "https://github.com/lutzroeder/netron/issues/306"
   },
