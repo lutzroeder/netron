@@ -1837,8 +1837,11 @@ view.Node = class extends grapher.Node {
             }
             throw error;
         }
-        const content = options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
+        let content = options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
         const tooltip = options.names && (node.name || node.location) ? type.name : (node.name || node.location);
+        if (content.length > 24) {
+            content = `${content.substring(0, 12)}\u2026${content.substring(content.length - 12, content.length)}`;
+        }
         const title = header.add(null, styles, content, tooltip);
         title.on('click', () => {
             this.context.activate(node);
@@ -2340,14 +2343,15 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             const status = node.type.status;
             if (module || version || status) {
                 const list = [ module, version ? `v${version}` : '', status ];
-                this.addProperty('module', list.filter((value) => value).join(' '));
+                const value = list.filter((value) => value).join(' ');
+                this.addProperty('module', value, 'nowrap');
             }
         }
         if (node.name) {
-            this.addProperty('name', node.name);
+            this.addProperty('name', node.name, 'nowrap');
         }
         if (node.location) {
-            this.addProperty('location', node.location);
+            this.addProperty('location', node.location, 'nowrap');
         }
         if (node.description) {
             this.addProperty('description', node.description);
@@ -2520,6 +2524,10 @@ view.ValueTextView = class extends view.Control {
                         break;
                     case 'bold':
                         line.innerHTML = `<b>${item}<b>`;
+                        break;
+                    case 'nowrap':
+                        line.innerText = item;
+                        line.style.whiteSpace = style;
                         break;
                     default:
                         line.innerText = item;
@@ -5576,54 +5584,46 @@ view.ModelFactoryService = class {
         unknown();
     }
 
+    async _require(id) {
+        const module = await this._host.require(id);
+        if (!module || !module.ModelFactory) {
+            throw new view.Error(`Failed to load module '${id}'.`);
+        }
+        return new module.ModelFactory();
+    }
+
     async _openContext(context) {
         const modules = this._filter(context).filter((module) => module && module.length > 0);
         const errors = [];
-        let success = false;
-        const next = async () => {
-            if (modules.length > 0) {
-                let module = null;
+        for (const module of modules) {
+            /* eslint-disable no-await-in-loop */
+            const modelFactory = await this._require(module);
+            /* eslint-enable no-await-in-loop */
+            const target = modelFactory.match(context);
+            if (target) {
                 try {
-                    const id = modules.shift();
-                    module = await this._host.require(id);
-                    if (!module.ModelFactory) {
-                        throw new view.Error(`Failed to load module '${id}'.`);
+                    /* eslint-disable no-await-in-loop */
+                    const model = await modelFactory.open(context, target);
+                    /* eslint-enable no-await-in-loop */
+                    if (!model.identifier) {
+                        model.identifier = context.identifier;
                     }
+                    return model;
                 } catch (error) {
-                    success = true;
-                    modules.splice(0, modules.length);
+                    if (context.stream && context.stream.position !== 0) {
+                        context.stream.seek(0);
+                    }
                     errors.push(error);
                 }
-                if (module) {
-                    try {
-                        const modelFactory = new module.ModelFactory();
-                        const target = modelFactory.match(context);
-                        if (target) {
-                            success = true;
-                            const model = await modelFactory.open(context, target);
-                            if (!model.identifier) {
-                                model.identifier = context.identifier;
-                            }
-                            return model;
-                        }
-                    } catch (error) {
-                        if (context.stream && context.stream.position !== 0) {
-                            context.stream.seek(0);
-                        }
-                        errors.push(error);
-                    }
-                }
-                return await next();
             }
-            if (success) {
-                if (errors.length === 1) {
-                    throw errors[0];
-                }
-                throw new view.Error(errors.map((err) => err.message).join('\n'));
+        }
+        if (errors.length > 0) {
+            if (errors.length === 1) {
+                throw errors[0];
             }
-            return null;
-        };
-        return await next();
+            throw new view.Error(errors.map((err) => err.message).join('\n'));
+        }
+        return null;
     }
 
     async _openEntries(entries) {
@@ -5662,14 +5662,10 @@ view.ModelFactoryService = class {
                     const identifier = entry.name.substring(folder.length);
                     const context = new view.Context(entryContext, identifier, entry.stream);
                     const modules = this._filter(context);
-                    for (const id of modules) {
+                    for (const module of modules) {
                         /* eslint-disable no-await-in-loop */
-                        const module = await this._host.require(id);
+                        const modelFactory = await this._require(module);
                         /* eslint-enable no-await-in-loop */
-                        if (!module.ModelFactory) {
-                            throw new view.ArchiveError(`Failed to load module '${id}'.`, null);
-                        }
-                        const modelFactory = new module.ModelFactory();
                         if (modelFactory.match(context)) {
                             matches.push(context);
                             break;

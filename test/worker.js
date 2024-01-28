@@ -47,17 +47,10 @@ const host = {};
 host.TestHost = class {
 
     constructor(window) {
-        this._window = window;
-        this._document = window.document;
+        this.errors = [];
+        this.window = window;
+        this.document = window.document;
         host.TestHost.source = host.TestHost.source || dirname('..', 'source');
-    }
-
-    get window() {
-        return this._window;
-    }
-
-    get document() {
-        return this._document;
     }
 
     async view(/* view */) {
@@ -98,8 +91,8 @@ host.TestHost = class {
     event(/* name, params */) {
     }
 
-    exception(err /*, fatal */) {
-        throw err;
+    exception(error /*, fatal */) {
+        this.errors.push(error);
     }
 };
 
@@ -349,6 +342,7 @@ export class Target {
             }
         };
         this.status({ name: 'name', target: this.name });
+        const errors = [];
         try {
             await time(this.download);
             await time(this.load);
@@ -356,13 +350,15 @@ export class Target {
             if (!this.tags.has('skip-render')) {
                 await time(this.render);
             }
-            if (this.error) {
-                throw new Error('Expected error.');
-            }
         } catch (error) {
-            if (!this.error || error.message !== this.error) {
-                throw error;
-            }
+            errors.push(error);
+        }
+        errors.push(...this.host.errors);
+        if (errors.length === 0 && this.error) {
+            throw new Error('Expected error.');
+        }
+        if (errors.length > 0 && (!this.error || errors.map((error) => error.message).join('\n') !== this.error)) {
+            throw errors[0];
         }
     }
 

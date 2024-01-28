@@ -4559,7 +4559,7 @@
     "target":   "dill_custom_class.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/13035743/dill_custom_class.pkl.zip[dill_custom_class.pkl]",
     "format":   "Pickle",
-    "error":    "Unknown type name '__builtin__.__main__'.\n'dill._dill._create_type' not implemented.",
+    "error":    "'dill._dill._create_type' not implemented.\nUnknown type name '__builtin__.__main__'.",
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
