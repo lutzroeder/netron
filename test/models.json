@@ -4344,8 +4344,8 @@
   },
   {
     "type":     "openvino",
-    "target":   "0572.xml,0572.bin",
-    "source":   "https://github.com/lutzroeder/netron/files/14076953/0572.zip[0572.xml,0572.bin]",
+    "target":   "0572.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/14076953/0572.zip",
     "format":   "OpenVINO IR",
     "link":     "https://github.com/lutzroeder/netron/issues/572"
   },

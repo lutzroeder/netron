@@ -5762,6 +5762,12 @@ view.ModelFactoryService = class {
                     matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'metadata.json')) {
                     matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'config.json');
                 }
+                // OpenVINO
+                if (matches.length === 2 &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.xml')) &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.bin'))) {
+                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.xml'));
+                }
                 // Hailo
                 if (matches.length >= 2 &&
                     matches.some((context) => context.identifier.toLowerCase().endsWith('.metadata.json'))) {
