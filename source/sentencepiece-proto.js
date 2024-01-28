@@ -155,6 +155,9 @@ $root.sentencepiece.TrainerSpec = class TrainerSpec {
                 case 49:
                     message.train_extremely_large_corpus = reader.bool();
                     break;
+                case 54:
+                    message.seed_sentencepieces_file = reader.string();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -304,6 +307,9 @@ $root.sentencepiece.TrainerSpec = class TrainerSpec {
                 case "train_extremely_large_corpus":
                     message.train_extremely_large_corpus = reader.bool();
                     break;
+                case "seed_sentencepieces_file":
+                    message.seed_sentencepieces_file = reader.string();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -354,6 +360,7 @@ $root.sentencepiece.TrainerSpec.prototype.eos_piece = "</s>";
 $root.sentencepiece.TrainerSpec.prototype.pad_piece = "<pad>";
 $root.sentencepiece.TrainerSpec.prototype.unk_surface = " E28187 ";
 $root.sentencepiece.TrainerSpec.prototype.train_extremely_large_corpus = false;
+$root.sentencepiece.TrainerSpec.prototype.seed_sentencepieces_file = "";
 
 $root.sentencepiece.TrainerSpec.ModelType = {
     "UNIGRAM": 1,
