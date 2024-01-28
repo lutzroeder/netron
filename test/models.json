@@ -4330,6 +4330,27 @@
   },
   {
     "type":     "openvino",
+    "target":   "0372.xml",
+    "source":   "https://github.com/lutzroeder/netron/files/14076937/0372.xml.zip[0372.xml]",
+    "format":   "OpenVINO IR",
+    "link":     "https://github.com/lutzroeder/netron/issues/372"
+  },
+  {
+    "type":     "openvino",
+    "target":   "0484.xml,0484.bin",
+    "source":   "https://github.com/lutzroeder/netron/files/14076942/0484.zip[0484.xml,0484.bin]",
+    "format":   "OpenVINO IR",
+    "link":     "https://github.com/lutzroeder/netron/issues/484"
+  },
+  {
+    "type":     "openvino",
+    "target":   "0572.xml,0572.bin",
+    "source":   "https://github.com/lutzroeder/netron/files/14076953/0572.zip[0572.xml,0572.bin]",
+    "format":   "OpenVINO IR",
+    "link":     "https://github.com/lutzroeder/netron/issues/572"
+  },
+  {
+    "type":     "openvino",
     "target":   "2018_R3_age-gender-recognition-retail-0013.xml,2018_R3_age-gender-recognition-retail-0013.bin",
     "source":   "https://github.com/lutzroeder/netron/files/8983748/2018_R3_age-gender-recognition-retail-0013.zip[2018_R3_age-gender-recognition-retail-0013.xml,2018_R3_age-gender-recognition-retail-0013.bin]",
     "format":   "OpenVINO IR",
@@ -4369,27 +4390,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/6273773/int4-model.zip[int4-model.xml,int4-model.bin]",
     "format":   "OpenVINO IR",
     "link":     "https://github.com/lutzroeder/netron/pull/715"
-  },
-  {
-    "type":     "openvino",
-    "target":   "netron_issue_372.xml",
-    "source":   "https://github.com/lutzroeder/netron/files/4447843/netron_issue_372.zip[netron_issue_372.xml]",
-    "format":   "OpenVINO IR",
-    "link":     "https://github.com/lutzroeder/netron/issues/372"
-  },
-  {
-    "type":     "openvino",
-    "target":   "netron_issue_484.xml,netron_issue_484.bin",
-    "source":   "https://github.com/lutzroeder/netron/files/4569338/netron_issue_484.zip[netron_issue_484.xml,netron_issue_484.bin]",
-    "format":   "OpenVINO IR",
-    "link":     "https://github.com/lutzroeder/netron/issues/484"
-  },
-  {
-    "type":     "openvino",
-    "target":   "netron_issue_572.xml,netron_issue_572.bin",
-    "source":   "https://github.com/lutzroeder/netron/files/5114040/netron_issue_572.zip[netron_issue_572.xml,netron_issue_572.bin]",
-    "format":   "OpenVINO IR",
-    "link":     "https://github.com/lutzroeder/netron/issues/572"
   },
   {
     "type":     "openvino",
