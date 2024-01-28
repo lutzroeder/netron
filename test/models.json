@@ -6283,6 +6283,70 @@
   },
   {
     "type":     "tf",
+    "target":   "0110.pb",
+    "source":   "https://github.com/lutzroeder/netron/files/14074382/0110.pb.zip[0110.pb]",
+    "format":   "TensorFlow Graph",
+    "link":     "https://github.com/lutzroeder/netron/issues/110"
+  },
+  {
+    "type":     "tf",
+    "target":   "0224.pbtxt",
+    "source":   "https://github.com/lutzroeder/netron/files/14074395/0224.pbtxt.zip[0224.pbtxt]",
+    "format":   "TensorFlow Graph",
+    "link":     "https://github.com/lutzroeder/netron/issues/224"
+  },
+  {
+    "type":     "tf",
+    "target":   "0291.pbtxt",
+    "source":   "https://github.com/lutzroeder/netron/files/14074350/0291.pbtxt.zip[0291.pbtxt]",
+    "format":   "TensorFlow Graph",
+    "link":     "https://github.com/lutzroeder/netron/issues/291"
+  },
+  {
+    "type":     "tf",
+    "target":   "0320.pb",
+    "source":   "https://github.com/lutzroeder/netron/files/14074339/0320.zip[0320.pb]",
+    "format":   "TensorFlow Graph",
+    "link":     "https://github.com/lutzroeder/netron/issues/320"
+  },
+  {
+    "type":     "tf",
+    "target":   "0320.pbtxt",
+    "source":   "https://github.com/lutzroeder/netron/files/14074339/0320.zip[0320.pbtxt]",
+    "format":   "TensorFlow Graph",
+    "link":     "https://github.com/lutzroeder/netron/issues/320"
+  },
+  {
+    "type":     "tf",
+    "target":   "0323.pbtxt",
+    "source":   "https://github.com/lutzroeder/netron/files/14074343/0323.pbtxt.zip[0323.pbtxt]",
+    "tags":     "skip-render",
+    "format":   "TensorFlow Graph",
+    "link":     "https://github.com/lutzroeder/netron/issues/323"
+  },
+  {
+    "type":     "tf",
+    "target":   "0342.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/14074331/0342.zip",
+    "format":   "TensorFlow Saved Model v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/342"
+  },
+  {
+    "type":     "tf",
+    "target":   "0405.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/14074348/0405.zip",
+    "format":   "TensorFlow Tensor Bundle v2",
+    "link":     "https://github.com/lutzroeder/netron/issues/405"
+  },
+  {
+    "type":     "tf",
+    "target":   "0847.pbtxt",
+    "source":   "https://github.com/lutzroeder/netron/files/14074345/0847.pbtxt.zip[0847.pbtxt]",
+    "format":   "TensorFlow Graph",
+    "link":     "https://github.com/lutzroeder/netron/issues/847"
+  },
+  {
+    "type":     "tf",
     "target":   "bfloat16.pbtxt",
     "source":   "https://github.com/lutzroeder/netron/files/9540969/bfloat16.pbtxt.zip[bfloat16.pbtxt]",
     "format":   "TensorFlow Graph",
@@ -6564,70 +6628,6 @@
     "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/nasnet_mobile_2018_04_27.tgz[./nasnet_mobile.pb]",
     "format":   "TensorFlow Graph",
     "link":     "https://www.tensorflow.org/lite/models"
-  },
-  {
-    "type":     "tf",
-    "target":   "netron_issue_110.pb",
-    "source":   "https://github.com/lutzroeder/netron/files/2592457/netron_issue_110.pb.zip[netron_issue_110.pb]",
-    "format":   "TensorFlow Graph",
-    "link":     "https://github.com/lutzroeder/netron/issues/110"
-  },
-  {
-    "type":     "tf",
-    "target":   "netron_issue_224.pbtxt",
-    "source":   "https://github.com/lutzroeder/netron/files/2823959/netron_issue_224.zip[netron_issue_224.pbtxt]",
-    "format":   "TensorFlow Graph",
-    "link":     "https://github.com/lutzroeder/netron/issues/224"
-  },
-  {
-    "type":     "tf",
-    "target":   "netron_issue_291.pbtxt",
-    "source":   "https://github.com/lutzroeder/netron/files/3336368/netron_issue_291.zip[netron_issue_291.pbtxt]",
-    "format":   "TensorFlow Graph",
-    "link":     "https://github.com/lutzroeder/netron/issues/291"
-  },
-  {
-    "type":     "tf",
-    "target":   "netron_issue_320.pb",
-    "source":   "https://github.com/lutzroeder/netron/files/3499707/netron_issue_320.zip[netron_issue_320.pb]",
-    "format":   "TensorFlow Graph",
-    "link":     "https://github.com/lutzroeder/netron/issues/320"
-  },
-  {
-    "type":     "tf",
-    "target":   "netron_issue_320.pbtxt",
-    "source":   "https://github.com/lutzroeder/netron/files/3499707/netron_issue_320.zip[netron_issue_320.pbtxt]",
-    "format":   "TensorFlow Graph",
-    "link":     "https://github.com/lutzroeder/netron/issues/320"
-  },
-  {
-    "type":     "tf",
-    "target":   "netron_issue_323.pbtxt",
-    "source":   "https://github.com/lutzroeder/netron/files/3539403/graph.zip[graph.pbtxt]",
-    "tags":     "skip-render",
-    "format":   "TensorFlow Graph",
-    "link":     "https://github.com/lutzroeder/netron/issues/323"
-  },
-  {
-    "type":     "tf",
-    "target":   "netron_issue_342.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/3918584/netron_issue_342.zip",
-    "format":   "TensorFlow Saved Model v1",
-    "link":     "https://github.com/lutzroeder/netron/issues/342"
-  },
-  {
-    "type":     "tf",
-    "target":   "netron_issue_405.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/4017943/netron_issue_405.zip",
-    "format":   "TensorFlow Tensor Bundle v2",
-    "link":     "https://github.com/lutzroeder/netron/issues/405"
-  },
-  {
-    "type":     "tf",
-    "target":   "netron_issue_847.pbtxt",
-    "source":   "https://github.com/lutzroeder/netron/files/7642864/netron_issue_847.pbtxt.zip[netron_issue_847.pbtxt]",
-    "format":   "TensorFlow Graph",
-    "link":     "https://github.com/lutzroeder/netron/issues/847"
   },
   {
     "type":     "tf",
