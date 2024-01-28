@@ -6177,17 +6177,17 @@
   },
   {
     "type":     "tengine",
+    "target":   "0466.tmfile",
+    "source":   "https://github.com/lutzroeder/netron/files/14076924/0466.tmfile.zip[0466.tmfile]",
+    "format":   "Tengine v2.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/466"
+  },
+  {
+    "type":     "tengine",
     "target":   "detect_tflite.tmfile",
     "source":   "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/detect_tflite.tmfile",
     "format":   "Tengine v2.0",
     "link":     "https://github.com/pierricklee/tmfile-sample"
-  },
-  {
-    "type":     "tengine",
-    "target":   "detect_tflite_issue_466.tmfile",
-    "source":   "https://github.com/lutzroeder/netron/files/4479142/detect_tflite_issue_466.zip[detect_tflite_issue_466.tmfile]",
-    "format":   "Tengine v2.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/466"
   },
   {
     "type":     "tengine",
