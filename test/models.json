@@ -6992,31 +6992,31 @@
   },
   {
     "type":     "tflite",
-    "target":   "netron_issue_256.tflite",
-    "source":   "https://github.com/lutzroeder/netron/files/3101992/test.zip[test.tflite]",
+    "target":   "0256.tflite",
+    "source":   "https://github.com/lutzroeder/netron/files/14074688/0256.tflite.zip[0256.tflite]",
     "format":   "TensorFlow Lite v3",
     "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/256"
   },
   {
     "type":     "tflite",
-    "target":   "netron_issue_386.tflite",
-    "source":   "https://github.com/lutzroeder/netron/files/3963415/netron_issue_386.zip[netron_issue_386.tflite]",
+    "target":   "0386.tflite",
+    "source":   "https://github.com/lutzroeder/netron/files/14074694/0386.tflite.zip[0386.tflite]",
     "format":   "TensorFlow Lite v3",
     "link":     "https://github.com/lutzroeder/netron/issues/386"
   },
   {
     "type":     "tflite",
-    "target":   "netron_issue_416.tflite",
-    "source":   "https://github.com/lutzroeder/netron/files/4089319/netron_issue_416.zip[netron_issue_416.tflite]",
+    "target":   "0416.tflite",
+    "source":   "https://github.com/lutzroeder/netron/files/14074719/0416.tflite.zip[0416.tflite]",
     "format":   "TensorFlow Lite v3",
     "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/416"
   },
   {
     "type":     "tflite",
-    "target":   "netron_issue_479.tflite",
-    "source":   "https://github.com/lutzroeder/netron/files/4565988/netron_issue_479.zip[netron_issue_479.tflite]",
+    "target":   "0479.tflite",
+    "source":   "https://github.com/lutzroeder/netron/files/14074721/0479.tflite.zip[0479.tflite]",
     "format":   "TensorFlow Lite v3",
     "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/479"
