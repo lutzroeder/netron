@@ -3297,6 +3297,13 @@
   },
   {
     "type":     "ncnn",
+    "target":   "0397.param",
+    "source":   "https://github.com/lutzroeder/netron/files/14074806/0397.param.zip[0397.param]",
+    "format":   "ncnn",
+    "link":     "https://github.com/lutzroeder/netron/issues/397"
+  },
+  {
+    "type":     "ncnn",
     "target":   "centerface.param,centerface.bin",
     "source":   "https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.param,https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.bin",
     "format":   "ncnn",
@@ -3373,13 +3380,6 @@
     "source":   "https://raw.githubusercontent.com/kyo055/ncnn_yolo2/master/models/det3.bin,https://raw.githubusercontent.com/kyo055/ncnn_yolo2/master/models/det3.param",
     "format":   "ncnn",
     "link":     "https://github.com/kyo055/ncnn_yolo2"
-  },
-  {
-    "type":     "ncnn",
-    "target":   "netron_issue_397.param",
-    "source":   "https://github.com/lutzroeder/netron/files/3981934/det.txt",
-    "format":   "ncnn",
-    "link":     "https://github.com/lutzroeder/netron/issues/397"
   },
   {
     "type":     "ncnn",
