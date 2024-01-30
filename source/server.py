@@ -93,9 +93,10 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                         '<meta name="version" content="' + __version__ + '">'
                     ]
                     base = self.content.base
-                    identifier = self.content.identifier
-                    if base and identifier:
+                    if base:
                         meta.append('<meta name="file" content="/data/' + base + '">')
+                    identifier = self.content.identifier
+                    if identifier:
                         meta.append('<meta name="identifier" content="' + identifier + '">')
                     meta = '\n'.join(meta)
                     content = re.sub(r'<meta name="version" content=".*">', meta, content)

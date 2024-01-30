@@ -140,11 +140,13 @@ host.BrowserHost = class {
         const hash = this.window.location.hash ? this.window.location.hash.replace(/^#/, '') : '';
         const search = this.window.location.search;
         const params = new URLSearchParams(search + (hash ? `&${hash}` : ''));
-        if (this._meta.file && this._meta.identifier) {
+        if (this._meta.file) {
             const [url] = this._meta.file;
             if (this._view.accept(url)) {
                 this._openModel(this._url(url), null);
-                this._document.title = this._meta.identifier;
+                if (this._meta.identifier) {
+                    this._document.title = this._meta.identifier;
+                }
                 return;
             }
         }
