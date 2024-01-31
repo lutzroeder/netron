@@ -561,7 +561,8 @@ megengine.Tensor = class {
 megengine.TensorType = class {
 
     constructor(dataType, shape) {
-        dataType = megengine.Utility.enum(megengine.schema, 'DTypeEnum', dataType).toLowerCase();
+        dataType = megengine.Utility.enum(megengine.schema, 'DTypeEnum', dataType);
+        dataType = typeof dataType === 'string' ? dataType.toLowerCase() : dataType;
         megengine.TensorType._dataTypes = megengine.TensorType._dataTypes || new Map([
             [ 'bool', 'boolean' ],
             [ 'byte', 'uint8' ], [ 'quantizeds4asymm', 'uint8' ], [ 'quantizeds8asymm', 'uint8' ], [ 'uintb4', 'uint8' ],
