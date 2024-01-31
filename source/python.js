@@ -1701,12 +1701,16 @@ python.Execution = class {
             return NaN;
         });
         this.registerFunction('builtins.str', function(value) {
-            if (value) {
-                if (value.__str__) {
-                    return value.__str__();
-                }
+            if (value && value.__str__) {
+                return value.__str__();
             }
             return JSON.stringify(value);
+        });
+        this.registerType('builtins.complex', class {
+            constructor(real, imaginary) {
+                this.real = real;
+                this.imag = imaginary;
+            }
         });
         this.registerType('builtins.NoneType', class {});
         this.registerType('builtins.object', class {});
