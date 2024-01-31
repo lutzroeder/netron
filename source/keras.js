@@ -614,6 +614,8 @@ keras.Graph = class {
                     }
                     break;
                 }
+                case 'YOLOV8Backbone':
+                case 'YOLOV8Detector':
                 case '__Function__':
                 case 'Functional':
                 case 'Model': {
