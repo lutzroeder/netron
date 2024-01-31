@@ -29,10 +29,10 @@ zip.Archive = class {
                     return new zlib.Archive(stream);
                 }
             }
-            if ((!format || format == 'gzip') && buffer.length > 18 && buffer[0] === 0x1f && buffer[1] === 0x8b) { // gzip
+            if ((!format || format === 'gzip') && buffer.length > 18 && buffer[0] === 0x1f && buffer[1] === 0x8b) { // gzip
                 return new gzip.Archive(stream);
             }
-            if (!format || format == 'zip') {
+            if (!format || format === 'zip') {
                 const search = buffer[0] === 0x50 && buffer[1] === 0x4B;
                 const location = stream.position;
                 const seek = (signature, size) => {
