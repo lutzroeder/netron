@@ -256,10 +256,8 @@ dlc.Container = class {
 
     static open(context) {
         const entries = context.peek('zip');
-        if (entries instanceof Map) {
-            if (entries.has('model') || entries.has('model.params')) {
-                return new dlc.Container(context, entries.get('model'), entries.get('model.params'), entries.get('dlc.metadata'));
-            }
+        if (entries instanceof Map && (entries.has('model') || entries.has('model.params'))) {
+            return new dlc.Container(context, entries.get('model'), entries.get('model.params'), entries.get('dlc.metadata'));
         }
         const stream = context.stream;
         switch (dlc.Container._signature(stream).split('.').pop()) {
