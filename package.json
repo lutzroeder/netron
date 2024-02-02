@@ -104,6 +104,9 @@
         "report-dir": "dist/nyc/coverage",
         "temp-dir": "dist/nyc/.nyc_output"
     },
+    "config": {
+        "forge": "publish/forge.config.js"
+    },
     "build": {
         "appId": "com.lutzroeder.netron",
         "productName": "Netron",
