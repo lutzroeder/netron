@@ -145,7 +145,6 @@ def _check_types(types, schemas):
     types.pop('aten::fft')
     types.pop('aten::mul.ScalarT')
     types.pop('aten::classes._nnapi.Compilation')
-    types.pop('aten::quantized_lstm_cell')
     if len(types) > 0:
         raise Exception('\n'.join(list(types.keys()))) # pylint: disable=broad-exception-raised
 
