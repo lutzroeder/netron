@@ -53,7 +53,7 @@ cntk.ModelFactory = class {
                 return new cntk.Model(metadata, 2, obj);
             }
             default: {
-                throw new cntk.Error(`Unsupported CNTK format '${target}'.`);
+                throw new cntk.Error(`Unsupported CNTK format '${target.name}'.`);
             }
         }
     }

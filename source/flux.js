@@ -12,7 +12,7 @@ flux.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         const stream = context.stream;
         if (stream && extension === 'bson') {
-            return 'flux.bson';
+            return { name: 'flux.bson' };
         }
         return null;
     }

@@ -10,7 +10,7 @@ tflite.ModelFactory = class {
     match(context) {
         const tags = context.tags('flatbuffers');
         if (tags.get('file_identifier') === 'TFL3') {
-            return 'tflite.flatbuffers';
+            return { name: 'tflite.flatbuffers' };
         }
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
@@ -21,13 +21,13 @@ tflite.ModelFactory = class {
             if (reader.root === 0x00000018) {
                 const version = reader.uint32_(reader.root, 4, 0);
                 if (version === 3) {
-                    return 'tflite.flatbuffers';
+                    return { name: 'tflite.flatbuffers' };
                 }
             }
         }
         const obj = context.peek('json');
         if (obj && obj.subgraphs && obj.operator_codes) {
-            return 'tflite.flatbuffers.json';
+            return { name: 'tflite.flatbuffers.json' };
         }
         return undefined;
     }
@@ -37,7 +37,7 @@ tflite.ModelFactory = class {
         tflite.schema = flatbuffers.get('tflite').tflite;
         let model = null;
         const attachments = new Map();
-        switch (target) {
+        switch (target.name) {
             case 'tflite.flatbuffers.json': {
                 try {
                     const obj = context.peek('json');
@@ -71,7 +71,7 @@ tflite.ModelFactory = class {
                 break;
             }
             default: {
-                throw new tflite.Error(`Unsupported TensorFlow Lite format '${target}'.`);
+                throw new tflite.Error(`Unsupported TensorFlow Lite format '${target.name}'.`);
             }
         }
         const metadata = await context.metadata('tflite-metadata.json');

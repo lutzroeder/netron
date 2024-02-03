@@ -250,13 +250,14 @@ tengine.Reader = class {
     }
 
     constructor(stream) {
-        this._stream = stream;
+        this.name = 'tengine';
+        this.stream = stream;
         // https://github.com/OAID/Tengine/wiki/The-format-of-tmfile
         // https://github.com/OAID/Tengine/blob/tengine-lite/source/serializer/tmfile/tm2_format.h
     }
 
     read() {
-        if (this._stream) {
+        if (this.stream) {
             const types = new Map();
             const register = (index, version, name, params) => {
                 types.set(`${index}:${version}`, { name: name, params: params });
@@ -383,7 +384,7 @@ tengine.Reader = class {
             register(101, 0, 'L2Normalization', []);
             register(102, 0, 'PackModel', ['i','i']);
             register(103, 0, 'Num', []);
-            const buffer = this._stream.peek();
+            const buffer = this.stream.peek();
             const reader = new tengine.BinaryReader(buffer);
             this._majorVersion = reader.uint16();
             this._minorVersion = reader.uint16();
@@ -395,7 +396,7 @@ tengine.Reader = class {
             reader.seek(reader.uint32()); // root table
             this._originalFormat = reader.int32();
             this._subFormat = reader.int32();
-            this._graphs = [];
+            this.graphs = [];
             const subgraphOffsets = reader.uint32s();
             for (const subgraphOffset of subgraphOffsets) {
                 reader.seek(subgraphOffset);
@@ -420,7 +421,7 @@ tengine.Reader = class {
                 subgraph.name = reader.string();
                 subgraph.nodes = [];
                 subgraph.tensors = [];
-                this._graphs.push(subgraph);
+                this.graphs.push(subgraph);
                 // nodes
                 for (const nodeOffset of nodeOffsets) {
                     reader.seek(nodeOffset);
@@ -537,7 +538,7 @@ tengine.Reader = class {
                     }
                 }
             }
-            delete this._stream;
+            delete this.stream;
         }
     }
 
@@ -563,10 +564,6 @@ tengine.Reader = class {
             case 13: return 'Bitman';
             default: throw new tengine.Error(`Unsupported source '${this._originalFormat}'.`);
         }
-    }
-
-    get graphs() {
-        return this._graphs;
     }
 };
 

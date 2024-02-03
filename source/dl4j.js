@@ -12,22 +12,29 @@ dl4j.ModelFactory = class {
         if (identifier === 'configuration.json') {
             const obj = context.peek('json');
             if (obj && (obj.confs || obj.vertices)) {
-                return 'dl4j.configuration';
+                return { name: 'dl4j.configuration' };
             }
         }
         if (identifier === 'coefficients.bin') {
             const signature = [ 0x00, 0x07, 0x4A, 0x41, 0x56, 0x41, 0x43, 0x50, 0x50 ]; // JAVACPP
             const stream = context.stream;
             if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                return 'dl4j.coefficients';
+                return { name: 'dl4j.coefficients' };
             }
         }
         return undefined;
     }
 
+    filter(target, name) {
+        if (target.name === 'dl4j.configuration' && (name === 'dl4j.coefficients' || name === 'openvino.bin')) {
+            return false;
+        }
+        return true;
+    }
+
     async open(context, target) {
         const metadata = await context.metadata('dl4j-metadata.json');
-        switch (target) {
+        switch (target.name) {
             case 'dl4j.configuration': {
                 const obj = context.peek('json');
                 try {
@@ -44,7 +51,7 @@ dl4j.ModelFactory = class {
                 return new dl4j.Model(metadata, obj, context.stream.peek());
             }
             default: {
-                throw new dl4j.Error(`Unsupported Deeplearning4j format '${target}'.`);
+                throw new dl4j.Error(`Unsupported Deeplearning4j format '${target.name}'.`);
             }
         }
     }

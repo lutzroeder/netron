@@ -11,7 +11,7 @@ mslite.ModelFactory = class {
             const buffer = stream.peek(8);
             const reader = flatbuffers.BinaryReader.open(buffer);
             if (reader.identifier === '' || reader.identifier === 'MSL1' || reader.identifier === 'MSL2') {
-                return 'mslite';
+                return { name: 'mslite' };
             }
         }
         return '';

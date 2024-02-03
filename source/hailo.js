@@ -8,6 +8,16 @@ hailo.ModelFactory = class {
         return hailo.Container.open(context);
     }
 
+    filter(target, name) {
+        if (target.name === 'hailo.metadata' && (name.startsWith('hailo.') || name === 'npz')) {
+            return false;
+        }
+        if (target.name === 'hailo.configuration' && name === 'npz') {
+            return false;
+        }
+        return true;
+    }
+
     async open(context, target) {
         const metadata = await context.metadata('hailo-metadata.json');
         await target.read();
@@ -253,15 +263,16 @@ hailo.Container = class {
     }
 
     constructor(context, basename, configuration, metadata) {
-        this._context = context;
-        this._basename = basename;
+        this.name = metadata ? 'hailo.metadata' : configuration ? 'hailo.configuration' : 'hailo';
+        this.context = context;
+        this.basename = basename;
         this.configuration = configuration;
         this.metadata = metadata;
     }
 
     async _request(name, type) {
         try {
-            const content = await this._context.fetch(name);
+            const content = await this.context.fetch(name);
             if (content) {
                 return content.read(type);
             }
@@ -275,7 +286,7 @@ hailo.Container = class {
         this.format = 'Hailo NN';
         this.weights = new Map();
         if (!this.metadata) {
-            this.metadata = await this._request(`${this._basename}.metadata.json`, 'json');
+            this.metadata = await this._request(`${this.basename}.metadata.json`, 'json');
         }
         if (this.metadata) {
             this.format = 'Hailo Archive';
@@ -290,7 +301,7 @@ hailo.Container = class {
                 case 'compiled_model': extension = '.q.npz'; break;
                 default: extension = '.npz'; break;
             }
-            const entries = await this._request(this._basename + extension, 'npz');
+            const entries = await this._request(this.basename + extension, 'npz');
             if (entries && entries.size > 0) {
                 const inputs = new Set([
                     'kernel', 'bias',
@@ -313,6 +324,8 @@ hailo.Container = class {
                 }
             }
         }
+        delete this.context;
+        delete this.basename;
     }
 };
 

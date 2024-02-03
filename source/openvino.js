@@ -36,13 +36,20 @@ openvino.ModelFactory = class {
             if (identifiers.has(identifier)) {
                 return undefined;
             }
-            return 'openvino.bin';
+            return { name: 'openvino.bin' };
         }
         const tags = context.tags('xml');
         if (tags.has('net')) {
-            return 'openvino.xml';
+            return { name: 'openvino.xml' };
         }
         return undefined;
+    }
+
+    filter(target, name) {
+        if (target.name === 'openvino.xml' && name === 'openvino.bin') {
+            return false;
+        }
+        return true;
     }
 
     async open(context, target) {
@@ -50,7 +57,7 @@ openvino.ModelFactory = class {
         const base = identifier.substring(0, identifier.length - 4);
         let stream = null;
         let bin = null;
-        switch (target) {
+        switch (target.name) {
             case 'openvino.xml': {
                 stream = context.stream;
                 try {
@@ -70,7 +77,7 @@ openvino.ModelFactory = class {
                 break;
             }
             default: {
-                throw new openvino.Error(`Unsupported OpenVINO format '${target}'.`);
+                throw new openvino.Error(`Unsupported OpenVINO format '${target.name}'.`);
             }
         }
         const metadata = await context.metadata('openvino-metadata.json');

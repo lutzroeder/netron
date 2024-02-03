@@ -59,7 +59,7 @@ darknet.ModelFactory = class {
                 }
             }
             default: {
-                throw new darknet.Error(`Unsupported Darknet format '${target}'.`);
+                throw new darknet.Error(`Unsupported Darknet format '${target.name}'.`);
             }
         }
     }

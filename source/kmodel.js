@@ -249,13 +249,14 @@ kmodel.Reader = class {
     }
 
     constructor(stream, version) {
-        this._stream = stream;
+        this.name = 'kmodel';
+        this.stream = stream;
         this.version = version;
         this.modules = [];
     }
 
     read() {
-        if (this._stream) {
+        if (this.stream) {
             if (this.version < 3 || this.version > 5) {
                 throw new kmodel.Error(`Unsupported model version '${this.version}'.`);
             }
@@ -265,7 +266,7 @@ kmodel.Reader = class {
             };
             switch (this.version) {
                 case 3: {
-                    const reader = new kmodel.BinaryReader.v3(this._stream);
+                    const reader = new kmodel.BinaryReader.v3(this.stream);
                     const model_header = reader.kpu_model_header_t();
                     const layers = new Array(model_header.layers_length);
                     const outputs = new Array(model_header.output_count);
@@ -542,7 +543,7 @@ kmodel.Reader = class {
                     break;
                 }
                 case 4: {
-                    const reader = new kmodel.BinaryReader.v4(this._stream);
+                    const reader = new kmodel.BinaryReader.v4(this.stream);
                     const model_header = {
                         flags: reader.uint32(),
                         target: reader.uint32(), // 0=CPU, 1=K210
@@ -909,7 +910,7 @@ kmodel.Reader = class {
                     break;
                 }
                 case 5: {
-                    const reader = new kmodel.BinaryReader.v5(this._stream);
+                    const reader = new kmodel.BinaryReader.v5(this.stream);
                     const model_header = reader.model_header();
                     if (model_header.header_size < 32) {
                         throw new kmodel.Error(`Invalid header size '${model_header.header_size}'.`);
@@ -1011,7 +1012,7 @@ kmodel.Reader = class {
                     throw new kmodel.Error(`Unsupported model version '${this.version}'.`);
                 }
             }
-            delete this._stream;
+            delete this.stream;
         }
     }
 };

@@ -193,7 +193,8 @@ gguf.Reader = class {
     }
 
     constructor(stream) {
-        this._stream = stream;
+        this.name = 'gguf';
+        this.stream = stream;
         const QK_K = 256;
         gguf.Reader.GGML_QUANT_SIZES = gguf.Reader.GGML_QUANT_SIZES || new Map([
             [ gguf.QuantizationType.F32,  [ 1, 4, 'float32' ] ],
@@ -217,7 +218,7 @@ gguf.Reader = class {
     }
 
     read() {
-        const reader = new gguf.StreamReader(this._stream);
+        const reader = new gguf.StreamReader(this.stream);
         this.tensors = new Map();
         this.metadata = new Map();
         const context = {};
@@ -244,7 +245,7 @@ gguf.Reader = class {
                     reader.skip(context.alignment - offset_pad);
                 }
                 context.offset = reader.position;
-                if (context.offset < this._stream.length) {
+                if (context.offset < this.stream.length) {
                     for (const tensor of this.tensors.values()) {
                         reader.seek(context.offset + tensor.offset);
                         if (!gguf.Reader.GGML_QUANT_SIZES.has(tensor.type)) {
@@ -259,8 +260,8 @@ gguf.Reader = class {
                 }
             }
         }
-        this._stream.seek(0);
-        delete this._stream;
+        this.stream.seek(0);
+        delete this.stream;
     }
 };
 

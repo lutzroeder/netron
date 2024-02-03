@@ -18,7 +18,7 @@ ncnn.ModelFactory = class {
                 const buffer = stream.peek(4);
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature == 0x007685DD) {
-                    return 'ncnn.model.bin';
+                    return { name: 'ncnn.model.bin' };
                 }
             }
         }
@@ -28,11 +28,11 @@ ncnn.ModelFactory = class {
                 const signature = reader.read();
                 if (signature !== undefined) {
                     if (signature.trim() === '7767517') {
-                        return 'ncnn.model';
+                        return { name: 'ncnn.model' };
                     }
                     const header = signature.trim().split(' ');
                     if (header.length === 2 && header.every((value) => value >>> 0 === parseFloat(value))) {
-                        return 'ncnn.model';
+                        return { name: 'ncnn.model' };
                     }
                 }
             } catch (err) {
@@ -46,11 +46,18 @@ ncnn.ModelFactory = class {
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature === 0x00000000 || signature === 0x00000001 ||
                     signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
-                    return 'ncnn.weights';
+                    return { name: 'ncnn.weights' };
                 }
             }
         }
         return undefined;
+    }
+
+    filter(target, name) {
+        if ((target.name === 'ncnn.model' || target.name === 'ncnn.model.bin') && name === 'ncnn.weights') {
+            return false;
+        }
+        return true;
     }
 
     async open(context, target) {
@@ -65,7 +72,7 @@ ncnn.ModelFactory = class {
         };
         const identifier = context.identifier.toLowerCase();
         let bin = null;
-        switch (target) {
+        switch (target.name) {
             case 'ncnn.model': {
                 if (identifier.endsWith('.param')) {
                     bin = `${context.identifier.substring(0, context.identifier.length - 6)}.bin`;
@@ -108,7 +115,7 @@ ncnn.ModelFactory = class {
                 }
             }
             default: {
-                throw new ncnn.Error(`Unsupported ncnn format '${target}'.`);
+                throw new ncnn.Error(`Unsupported ncnn format '${target.name}'.`);
             }
         }
     }

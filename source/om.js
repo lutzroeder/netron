@@ -347,6 +347,7 @@ om.Container = class {
     }
 
     constructor(context, signature) {
+        this.name = 'om';
         this._context = context;
         this._signature = signature;
     }

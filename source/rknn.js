@@ -522,6 +522,7 @@ rknn.Container = class extends Map {
 
     constructor(stream, entries) {
         super(entries);
+        this.name = 'rknn';
         this._stream = stream;
     }
 

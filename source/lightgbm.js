@@ -35,7 +35,7 @@ lightgbm.ModelFactory = class {
                 return new lightgbm.Model(obj, 'LightGBM');
             }
             default: {
-                throw new lightgbm.Error(`Unsupported LightGBM format '${target}'.`);
+                throw new lightgbm.Error(`Unsupported LightGBM format '${target.name}'.`);
             }
         }
     }

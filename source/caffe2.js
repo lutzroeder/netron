@@ -27,11 +27,11 @@ caffe2.ModelFactory = class {
                                 buffer.length > 2 + size + 1 &&
                                 buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) &&
                                 buffer[2 + size] == 0x12) {
-                                return 'caffe2.pb';
+                                return { name: 'caffe2.pb' };
                             }
                         }
                         if (signature == 0x12) {
-                            return 'caffe2.pb';
+                            return { name: 'caffe2.pb' };
                         }
                     }
                 }
@@ -40,7 +40,7 @@ caffe2.ModelFactory = class {
         if (extension === 'pbtxt' || extension === 'prototxt') {
             const tags = context.tags('pbtxt');
             if (tags.has('op') && !tags.has('op.attr') && !tags.has('op.graph_op_name') && !tags.has('op.endpoint')) {
-                return 'caffe2.pbtxt';
+                return { name: 'caffe2.pbtxt' };
             }
         }
         return undefined;
@@ -53,7 +53,7 @@ caffe2.ModelFactory = class {
         const parts = identifier.split('.');
         const extension = parts.pop().toLowerCase();
         const base = parts.join('.');
-        switch (target) {
+        switch (target.name) {
             case 'caffe2.pbtxt': {
                 const openText = (predictBuffer, initBuffer, initTextFormat) => {
                     let predict_net = null;
@@ -188,7 +188,7 @@ caffe2.ModelFactory = class {
                 }
             }
             default: {
-                throw new caffe2.Error(`Unsupported Caffe2 format '${target}'.`);
+                throw new caffe2.Error(`Unsupported Caffe2 format '${target.name}'.`);
             }
         }
     }

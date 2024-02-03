@@ -16,13 +16,13 @@ uff.ModelFactory = class {
                 tags.has(3) && tags.get(3) === 2 &&
                 tags.has(4) && tags.get(4) === 2 &&
                 (!tags.has(5) || tags.get(5) === 2)) {
-                return 'uff.pb';
+                return { name: 'uff.pb' };
             }
         }
         if (extension === 'pbtxt' || identifier.toLowerCase().endsWith('.uff.txt')) {
             const tags = context.tags('pbtxt');
             if (tags.has('version') && tags.has('descriptors') && tags.has('graphs')) {
-                return 'uff.pbtxt';
+                return { name: 'uff.pbtxt' };
             }
         }
         return undefined;
@@ -32,7 +32,7 @@ uff.ModelFactory = class {
         await context.require('./uff-proto');
         uff.proto = protobuf.get('uff').uff;
         let meta_graph = null;
-        switch (target) {
+        switch (target.name) {
             case 'uff.pb': {
                 try {
                     const stream = context.stream;
@@ -55,7 +55,7 @@ uff.ModelFactory = class {
                 break;
             }
             default: {
-                throw new uff.Error(`Unsupported UFF format '${target}'.`);
+                throw new uff.Error(`Unsupported UFF format '${target.name}'.`);
             }
         }
         const metadata = await context.metadata('uff-metadata.json');

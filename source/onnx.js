@@ -1603,16 +1603,17 @@ onnx.ProtoReader = class {
     }
 
     constructor(context, encoding, type) {
-        this._context = context;
-        this._encoding = encoding;
-        this._type = type;
+        this.name = 'onnx.proto';
+        this.context = context;
+        this.encoding = encoding;
+        this.type = type;
     }
 
     async read() {
-        await this._context.require('./onnx-proto');
+        await this.context.require('./onnx-proto');
         onnx.proto = protobuf.get('onnx').onnx;
-        const stream = this._context.stream;
-        switch (this._encoding) {
+        const stream = this.context.stream;
+        switch (this.encoding) {
             case 'text': {
                 try {
                     const reader = protobuf.TextReader.open(stream);
@@ -1625,14 +1626,14 @@ onnx.ProtoReader = class {
                 break;
             }
             case 'binary': {
-                switch (this._type) {
+                switch (this.type) {
                     case 'tensor': {
                         // TensorProto
                         // input_0.pb, output_0.pb
                         try {
                             const reader = protobuf.BinaryReader.open(stream);
                             const tensor = onnx.proto.TensorProto.decode(reader);
-                            tensor.name = tensor.name || this._context.identifier;
+                            tensor.name = tensor.name || this.context.identifier;
                             const attribute = new onnx.proto.AttributeProto();
                             attribute.name = 'value';
                             attribute.type = onnx.AttributeType.TENSOR;
@@ -1713,15 +1714,16 @@ onnx.OrtReader = class {
     }
 
     constructor(context) {
-        this._context = context;
+        this.name = 'onnx.ort';
+        this.context = context;
     }
 
     async read() {
-        await this._context.require('./onnx-schema');
+        await this.context.require('./onnx-schema');
         onnx.schema = flatbuffers.get('ort').onnxruntime.fbs;
         try {
-            const stream = this._context.stream;
-            this._graphs = new Set();
+            const stream = this.context.stream;
+            this.graphs = new Set();
             const reader = flatbuffers.BinaryReader.open(stream);
             const session = onnx.schema.InferenceSession.create(reader);
             this.model = session.model;
@@ -1807,11 +1809,11 @@ onnx.OrtReader = class {
             return null;
         };
         const graph = (value) => {
-            if (this._graphs.has(value)) {
+            if (this.graphs.has(value)) {
                 return;
             }
-            this._graphs.add(value);
-            value.name = this._graphs.size.toString();
+            this.graphs.add(value);
+            value.name = this.graphs.size.toString();
             value.node = value.nodes.map((value) => node(value));
             delete value.nodes;
             value.value_info = value.node_args.map((valueInfo) => {
@@ -1861,8 +1863,8 @@ onnx.JsonReader = class {
     }
 
     constructor(obj) {
+        this.name = 'onnx.json';
         this.model = obj;
-        this._attributeTypes = new Map(Object.entries(onnx.AttributeType));
     }
 
     async read() {
@@ -1971,9 +1973,10 @@ onnx.JsonReader = class {
             value.values = tensor(value.values);
             return value;
         };
+        const attributeTypes = new Map(Object.entries(onnx.AttributeType));
         const attribute = (value) => {
-            if (value.type && this._attributeTypes.has(value.type)) {
-                value.type = this._attributeTypes.get(value.type);
+            if (value.type && attributeTypes.has(value.type)) {
+                value.type = attributeTypes.get(value.type);
             }
             if (value.refAttrName) {
                 value.ref_attr_name = value.refAttrName;
@@ -2113,6 +2116,7 @@ onnx.TextReader = class {
     }
 
     constructor(context) {
+        this.name = 'onnx.text';
         this._context = context;
         this._dataTypes = new Map(Object.entries(onnx.DataType).map(([key, value]) => [ key.toLowerCase(), value ]));
         this._attributeTypes = new Map(Object.entries(onnx.AttributeType).map(([key, value]) => [ key.toLowerCase(), value ]));
@@ -2814,6 +2818,10 @@ onnx.PickleReader = class {
             }
         }
         return undefined;
+    }
+
+    constructor() {
+        this.name = 'onnx.pickle';
     }
 
     async read() {

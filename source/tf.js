@@ -22,13 +22,13 @@ tf.ModelFactory = class {
                 return undefined;
             }
             if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
-                return 'tf.pbtxt.SavedModel';
+                return { name: 'tf.pbtxt.SavedModel' };
             }
             if (tags.has('graph_def')) {
-                return 'tf.pbtxt.MetaGraphDef';
+                return { name: 'tf.pbtxt.MetaGraphDef' };
             }
             if (tags.has('node')) {
-                return 'tf.pbtxt.GraphDef';
+                return { name: 'tf.pbtxt.GraphDef' };
             }
         }
         if (extension === 'pb' || extension === 'pbtxt' || extension === 'prototxt' || extension === 'graphdef' || extension === 'meta') {
@@ -111,7 +111,7 @@ tf.ModelFactory = class {
                     if ((!tags.has(1) || tags.get(1) === 0) && tags.get(2) === 2) {
                         const tags = context.tags('pb+');
                         if (match(tags, signatureSavedModel)) {
-                            return 'tf.pb.SavedModel';
+                            return { name: 'tf.pb.SavedModel' };
                         }
                     }
                     if ((!tags.has(1) || tags.get(1) === 2) &&
@@ -120,20 +120,20 @@ tf.ModelFactory = class {
                         (!tags.has(4) || tags.get(4) === 2)) {
                         const tags = context.tags('pb+');
                         if (match(tags, signatureMetaGraphDef)) {
-                            return 'tf.pb.MetaGraphDef';
+                            return { name: 'tf.pb.MetaGraphDef' };
                         }
                     }
                     if (tags.get(1) !== 2) {
                         const tags = context.tags('pb+');
                         if (match(tags, signatureGraphDef)) {
-                            return 'tf.pb.GraphDef';
+                            return { name: 'tf.pb.GraphDef' };
                         }
                     }
                     // tensorflow.FingerprintDef
                     if (identifier === 'fingerprint.pb' &&
                         tags.get(1) === 0 && tags.get(2) === 0 &&
                         tags.get(3) === 0 && tags.get(5) === 0 && tags.get(6) === 2) {
-                        return 'tf.pb.FingerprintDef';
+                        return { name: 'tf.pb.FingerprintDef' };
                     }
                     const decode = (buffer, value) => {
                         const reader = protobuf.BinaryReader.open(buffer);
@@ -158,7 +158,7 @@ tf.ModelFactory = class {
                             const decoder = new TextDecoder('utf-8');
                             const name = decoder.decode(nameBuffer);
                             if (Array.from(name).filter((c) => c <= ' ').length < 256) {
-                                return 'tf.pb.GraphDef';
+                                return { name: 'tf.pb.GraphDef' };
                             }
                         }
                     }
@@ -169,13 +169,13 @@ tf.ModelFactory = class {
                     return undefined;
                 }
                 if (tags.has('node')) {
-                    return 'tf.pbtxt.GraphDef';
+                    return { name: 'tf.pbtxt.GraphDef' };
                 }
                 if (tags.has('graph_def')) {
-                    return 'tf.pbtxt.MetaGraphDef';
+                    return { name: 'tf.pbtxt.MetaGraphDef' };
                 }
                 if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
-                    return 'tf.pbtxt.SavedModel';
+                    return { name: 'tf.pbtxt.SavedModel' };
                 }
             }
         }
@@ -183,7 +183,7 @@ tf.ModelFactory = class {
             for (const type of [ 'json', 'json.gz' ]) {
                 const obj = context.peek(type);
                 if (obj && obj.modelTopology && (obj.format === 'graph-model' || Array.isArray(obj.modelTopology.node))) {
-                    return `tf.${type}`;
+                    return { name: `tf.${type}` };
                 }
             }
         }
@@ -195,17 +195,17 @@ tf.ModelFactory = class {
                 stream.seek(0);
                 const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
                 if (buffer.every((value, index) => value === signature[index])) {
-                    return 'tf.bundle';
+                    return { name: 'tf.bundle' };
                 }
             }
         }
         if (/.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier)) {
-            return 'tf.data';
+            return { name: 'tf.data' };
         }
         if (/^events.out.tfevents./.exec(identifier)) {
             const stream = context.stream;
             if (tf.EventFileReader.open(stream)) {
-                return 'tf.events';
+                return { name: 'tf.events' };
             }
         }
         if (extension === 'pbmm') {
@@ -217,11 +217,18 @@ tf.ModelFactory = class {
                 const reader = new base.BinaryReader(buffer);
                 const offset = reader.uint64();
                 if (offset < stream.length) {
-                    return 'tf.pb.mmap';
+                    return { name: 'tf.pb.mmap' };
                 }
             }
         }
         return undefined;
+    }
+
+    filter(target, name) {
+        if (target.name === 'tf.bundle' && name === 'tf.data') {
+            return false;
+        }
+        return true;
     }
 
     async open(context, target) {
@@ -652,7 +659,7 @@ tf.ModelFactory = class {
             saved_model.meta_graphs.push(meta_graph);
             return openSavedModel(context, saved_model, format, null);
         };
-        switch (target) {
+        switch (target.name) {
             case 'tf.bundle':
                 return openBundle(context);
             case 'tf.data':
@@ -680,7 +687,7 @@ tf.ModelFactory = class {
             case 'tf.pb.mmap':
                 return openMemmapped(context);
             default:
-                throw new tf.Error(`Unsupported TensorFlow format '${target}'.`);
+                throw new tf.Error(`Unsupported TensorFlow format '${target.name}'.`);
         }
     }
 };

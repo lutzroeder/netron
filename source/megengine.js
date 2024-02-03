@@ -19,29 +19,29 @@ megengine.ModelFactory = class {
                 if (position > 0 || size === (stream.length - position - 4)) {
                     const reader = flatbuffers.BinaryReader.open(buffer.slice(4, 12));
                     if (reader.identifier === 'mgv2') {
-                        return 'megengine.mge';
+                        return { name: 'megengine.mge' };
                     }
                 }
             }
             for (const value of [ 'mgb0001', 'mgb0000a', 'MGBS', 'MGBC' ]) {
                 if (tag.startsWith(value)) {
-                    return `megengine.${value}`;
+                    return { name: `megengine.${value}` };
                 }
             }
         }
         const obj = context.peek('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ === 'megengine.traced_module.traced_module' && obj.__class__.__name__ === 'TracedModule') {
-            return 'megengine.tm';
+            return { name: 'megengine.tm' };
         }
         return '';
     }
 
     async open(context, target) {
         const metadata = await context.metadata('megengine-metadata.json');
-        switch (target) {
+        switch (target.name) {
             case 'megengine.tm': {
                 const obj = context.peek('pkl');
-                return new megengine.Model(metadata, obj, target);
+                return new megengine.Model(metadata, obj, target.name);
             }
             case 'megengine.mge': {
                 await context.require('./megengine-schema');
@@ -59,10 +59,10 @@ megengine.ModelFactory = class {
                     const message = error && error.message ? error.message : error.toString();
                     throw new megengine.Error(`File format is not megengine.Model (${message.replace(/\.$/, '')}).`);
                 }
-                return new megengine.Model(metadata, model, target);
+                return new megengine.Model(metadata, model, target.name);
             }
             default: {
-                throw new megengine.Error(`Unsupported MegEngine format '${target.replace(/^megengine\./, '')}'.`);
+                throw new megengine.Error(`Unsupported MegEngine format '${target.name.replace(/^megengine\./, '')}'.`);
             }
         }
     }

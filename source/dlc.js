@@ -273,6 +273,7 @@ dlc.Container = class {
     }
 
     constructor(context, model, params, metadata) {
+        this.name = 'dlc';
         this._context = context;
         this._model = model;
         this._params = params;

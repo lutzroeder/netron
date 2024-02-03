@@ -9,7 +9,7 @@ const mlir = {};
 mlir.ModelFactory = class {
 
     match(/* context */) {
-        return 'mlir';
+        return { name: 'mlir' };
     }
 
     async open(context) {

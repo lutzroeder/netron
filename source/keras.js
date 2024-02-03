@@ -61,6 +61,16 @@ keras.ModelFactory = class {
         return null;
     }
 
+    filter(target, name) {
+        if (target.name === 'keras.metadata.json' && (name === 'keras.config.json' || name === 'keras.model.weights.h5' || name === 'keras.model.weights.npz')) {
+            return false;
+        }
+        if (target.name === 'keras.config.json' && (name === 'keras.model.weights.h5' || name === 'keras.model.weights.npz')) {
+            return false;
+        }
+        return true;
+    }
+
     async open(context, target) {
         const request_json = async (context, name) => {
             try {
@@ -250,7 +260,7 @@ keras.ModelFactory = class {
                 const metadata = target.value;
                 let config = await request_json(context, 'config.json');
                 const name = config ? 'Keras' : 'Keras Weights';
-                const format = name + (metadata.keras_version ? `v${metadata.keras_version}` : '');
+                const format = name + (metadata.keras_version ? ` v${metadata.keras_version}` : '');
                 const weights_store = await request_weights(context);
                 if (!config && (!weights_store || weights_store.size === 0)) {
                     throw new keras.Error("'config.json' or 'model.weights.*' not present.");
@@ -487,7 +497,7 @@ keras.ModelFactory = class {
                 return open_model(format, '', '', model_config, null);
             }
             default: {
-                throw new keras.Error(`Unsupported Keras format '${target}'.`);
+                throw new keras.Error(`Unsupported Keras format '${target.name}'.`);
             }
         }
     }

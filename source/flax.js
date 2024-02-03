@@ -12,7 +12,7 @@ flax.ModelFactory = class {
         if (stream.length > 4) {
             const buffer = stream.peek(1);
             if (buffer[0] === 0xDE || buffer[0] === 0xDF || ((buffer[0] & 0x80) === 0x80)) {
-                return 'msgpack.map';
+                return { name: 'flax.msgpack.map' };
             }
         }
         return null;

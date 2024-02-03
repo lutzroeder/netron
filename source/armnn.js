@@ -49,7 +49,7 @@ armnn.ModelFactory = class {
                 break;
             }
             default: {
-                throw new armnn.Error(`Unsupported Arm NN '${target}'.`);
+                throw new armnn.Error(`Unsupported Arm NN '${target.name}'.`);
             }
         }
         const metadata = await context.metadata('armnn-metadata.json');

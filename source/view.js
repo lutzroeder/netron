@@ -5597,13 +5597,13 @@ view.ModelFactoryService = class {
         const errors = [];
         for (const module of modules) {
             /* eslint-disable no-await-in-loop */
-            const modelFactory = await this._require(module);
+            const factory = await this._require(module);
             /* eslint-enable no-await-in-loop */
-            const target = modelFactory.match(context);
+            const target = factory.match(context);
             if (target) {
                 try {
                     /* eslint-disable no-await-in-loop */
-                    const model = await modelFactory.open(context, target);
+                    const model = await factory.open(context, target);
                     /* eslint-enable no-await-in-loop */
                     if (!model.identifier) {
                         model.identifier = context.identifier;
@@ -5664,10 +5664,22 @@ view.ModelFactoryService = class {
                     const modules = this._filter(context);
                     for (const module of modules) {
                         /* eslint-disable no-await-in-loop */
-                        const modelFactory = await this._require(module);
+                        const factory = await this._require(module);
                         /* eslint-enable no-await-in-loop */
-                        if (modelFactory.match(context)) {
-                            matches.push(context);
+                        const target = factory.match(context);
+                        if (target) {
+                            if (typeof target.name !== 'string') {
+                                throw new view.Error(`Invalid target name '${module}'.`);
+                            }
+                            matches = matches.filter((match) => !factory.filter || factory.filter(target, match.target.name));
+                            if (matches.every((match) => !match.factory.filter || match.factory.filter(match.target, target.name))) {
+                                const match = {
+                                    factory: factory,
+                                    target: { name: target.name },
+                                    context: context
+                                };
+                                matches.push(match);
+                            }
                             break;
                         }
                     }
@@ -5675,105 +5687,12 @@ view.ModelFactoryService = class {
                 if (matches.length === 0) {
                     return null;
                 }
-                // PyTorch
-                if (matches.length === 2 &&
-                    matches.some((context) => context.identifier === 'serialized_exported_program.json') &&
-                    matches.some((context) => context.identifier === 'serialized_state_dict.pt')) {
-                    matches = matches.filter((context) => context.identifier === 'serialized_exported_program.json');
-                }
-                if (matches.length === 3 &&
-                    matches.some((context) => context.identifier === 'serialized_exported_program.json') &&
-                    matches.some((context) => context.identifier === 'serialized_state_dict.pt') &&
-                    matches.some((context) => context.identifier === 'serialized_constants.pt')) {
-                    matches = matches.filter((context) => context.identifier === 'serialized_exported_program.json');
-                }
-                // MXNet
-                if (matches.length === 2 &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.params')) &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('-symbol.json'))) {
-                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.params'));
-                }
-                // TensorFlow.js
-                if (matches.length > 0 &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.bin')) &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.json'))) {
-                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.json'));
-                }
-                // ncnn
-                if (matches.length > 0 &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.bin')) &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.param'))) {
-                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.param'));
-                }
-                // ncnn
-                if (matches.length > 0 &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.bin')) &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.param.bin'))) {
-                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.param.bin'));
-                }
-                // NNEF
-                if (matches.length > 0 &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.nnef')) &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.dat'))) {
-                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.nnef'));
-                }
-                // Paddle
-                if (matches.length > 0 &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.pdmodel')) &&
-                    (matches.some((context) => context.identifier.toLowerCase().endsWith('.pdparams')) ||
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.pdopt')) ||
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.pdiparams')))) {
-                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.pdmodel'));
-                }
-                // Paddle Lite
-                if (matches.length > 0 &&
-                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === '__model__.nb') &&
-                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'param.nb')) {
-                    matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == '__model__.nb');
-                }
-                // TensorFlow Bundle
-                if (matches.length > 1 &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.data-00000-of-00001'))) {
-                    matches = matches.filter((context) => !context.identifier.toLowerCase().endsWith('.data-00000-of-00001'));
-                }
-                // TensorFlow SavedModel
-                if (matches.length === 2 &&
-                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'keras_metadata.pb')) {
-                    matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() !== 'keras_metadata.pb');
-                }
-                // Keras
-                if (matches.length === 3 &&
-                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz') &&
-                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json') &&
-                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'metadata.json')) {
-                    matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz');
-                }
-                if (matches.length === 2 &&
-                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz') &&
-                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json')) {
-                    matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz');
-                }
-                if (matches.length === 2 &&
-                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json') &&
-                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'metadata.json')) {
-                    matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'config.json');
-                }
-                // OpenVINO
-                if (matches.length === 2 &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.xml')) &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.bin'))) {
-                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.xml'));
-                }
-                // Hailo
-                if (matches.length >= 2 &&
-                    matches.some((context) => context.identifier.toLowerCase().endsWith('.metadata.json'))) {
-                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.metadata.json'));
-                }
                 if (matches.length > 1) {
-                    throw new view.ArchiveError('Archive contains multiple model files.');
+                    const content = matches.map((context) => context.target.name).join(',');
+                    throw new view.ArchiveError(`Archive contains multiple model files '${content}'.`);
                 }
                 const match = matches.shift();
-                return match;
+                return match.context;
             };
             const queue = files.slice(0).filter((entry) => entry.name.substring(folder.length).indexOf('/') < 0);
             const context = await filter(queue, entries);

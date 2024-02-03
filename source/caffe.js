@@ -9,7 +9,7 @@ caffe.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'caffemodel') {
-            return 'caffe.pb';
+            return { name: 'caffe.pb' };
         }
         if (identifier == 'saved_model.pbtxt' || identifier == 'saved_model.prototxt' ||
             identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
@@ -18,10 +18,10 @@ caffe.ModelFactory = class {
         }
         const tags = context.tags('pbtxt');
         if (tags.has('layer') || tags.has('layers')) {
-            return 'caffe.pbtxt';
+            return { name: 'caffe.pbtxt' };
         }
         if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
-            return 'caffe.pbtxt.solver';
+            return { name: 'caffe.pbtxt.solver' };
         }
         return undefined;
     }
@@ -87,7 +87,7 @@ caffe.ModelFactory = class {
             }
             return openModel(context, netParameter);
         };
-        switch (target) {
+        switch (target.name) {
             case 'caffe.pbtxt.solver': {
                 const stream = context.stream;
                 const reader = protobuf.TextReader.open(stream);
@@ -129,7 +129,7 @@ caffe.ModelFactory = class {
                 return openModel(context, netParameter);
             }
             default: {
-                throw new caffe.Error(`Unsupported Caffe format '${target}'.`);
+                throw new caffe.Error(`Unsupported Caffe format '${target.name}'.`);
             }
         }
     }

@@ -13,6 +13,16 @@ pytorch.ModelFactory = class {
         return pytorch.Container.open(context);
     }
 
+    filter(target, name) {
+        if (target.name === 'pytorch.export' && name === 'pytorch.zip') {
+            return false;
+        }
+        if (target.name === 'pytorch.index' && name === 'pytorch.zip') {
+            return false;
+        }
+        return true;
+    }
+
     async open(context, target) {
         const metadata = await pytorch.Metadata.open(context);
         target.on('resolve', (_, name) => {
@@ -788,18 +798,18 @@ pytorch.Container.Tar = class extends pytorch.Container {
 
     constructor(entries) {
         super();
-        this._entries = entries;
+        this.name = 'pytorch.tar';
+        this.entries = entries;
     }
 
     async read() {
-        const entries = this._entries;
-        delete this._entries;
         const execution = new pytorch.Execution();
         for (const event of this._events) {
             execution.on(event[0], event[1]);
         }
         const torch = execution.__import__('torch');
-        const obj = torch.load(entries);
+        const obj = torch.load(this.entries);
+        delete this.entries;
         this._modules = pytorch.Utility.findWeights(obj);
         if (!this._modules) {
             throw new pytorch.Error('File does not contain root module or state dictionary.');
@@ -828,12 +838,13 @@ pytorch.Container.Pickle = class extends pytorch.Container {
 
     constructor(stream) {
         super();
-        this._stream = stream;
+        this.name = 'pytorch.pickle';
+        this.stream = stream;
     }
 
     async read() {
-        const data = this._stream.length < 0x7ffff000 ? this._stream.peek() : this._stream;
-        delete this._stream;
+        const data = this.stream.length < 0x7ffff000 ? this.stream.peek() : this.stream;
+        delete this.stream;
         const execution = new pytorch.Execution();
         for (const event of this._events) {
             execution.on(event[0], event[1]);
@@ -889,6 +900,7 @@ pytorch.Container.data_pkl = class extends pytorch.Container {
 
     constructor(type, data) {
         super();
+        this.name = 'pytorch.data_pkl';
         this._type = type;
         this._data = data;
     }
@@ -954,6 +966,7 @@ pytorch.Container.torch_utils = class extends pytorch.Container {
 
     constructor(obj) {
         super();
+        this.name = 'pytorch.torch_utils';
         this._obj = obj;
     }
 
@@ -983,6 +996,7 @@ pytorch.Container.Mobile = class extends pytorch.Container {
 
     constructor(context) {
         super();
+        this.name = 'pytorch.mobile';
         this._context = context;
     }
 
@@ -1027,6 +1041,7 @@ pytorch.Container.ExecuTorch = class extends pytorch.Container {
 
     constructor(context) {
         super();
+        this.name = 'pytorch.executorch';
         this._context = context;
     }
 
@@ -1083,6 +1098,7 @@ pytorch.Container.Zip = class extends pytorch.Container {
 
     constructor(entries, model) {
         super();
+        this.name = 'pytorch.zip';
         // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
         this._entries = entries;
         this._model = model;
@@ -1149,6 +1165,7 @@ pytorch.Container.Index = class extends pytorch.Container {
 
     constructor(context, entries) {
         super();
+        this.name = 'pytorch.index';
         this._context = context;
         this._entries = entries;
         this._format = 'PyTorch';
@@ -1212,6 +1229,7 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
 
     constructor(context, serialized_exported_program) {
         super();
+        this.name = 'pytorch.export';
         this._context = context;
         this._serialized_exported_program = serialized_exported_program;
     }
@@ -3288,6 +3306,7 @@ pytorch.Container.Package = class extends pytorch.Container {
 
     constructor(entries) {
         super();
+        this.name = 'pytorch.package';
         this._entries = entries;
     }
 

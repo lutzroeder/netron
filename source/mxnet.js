@@ -25,6 +25,13 @@ mxnet.ModelFactory = class {
         return undefined;
     }
 
+    filter(target, name) {
+        if (target.name === 'mxnet.json' && name === 'mxnet.params') {
+            return false;
+        }
+        return true;
+    }
+
     async open(context, target) {
         const metadata = await context.metadata('mxnet-metadata.json');
         const basename = (base, identifier, extension, suffix, append) => {
@@ -223,7 +230,7 @@ mxnet.ModelFactory = class {
                 return requestSymbol(manifest);
             }
             default: {
-                throw new mxnet.Error(`Unsupported MXNet format '${target}'.`);
+                throw new mxnet.Error(`Unsupported MXNet format '${target.name}'.`);
             }
         }
     }

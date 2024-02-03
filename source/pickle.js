@@ -16,7 +16,7 @@ pickle.ModelFactory = class {
         if (obj !== undefined) {
             const name = obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : '';
             if (!name.startsWith('__torch__.')) {
-                return obj;
+                return { name: 'pickle', value: obj };
             }
         }
         return null;
@@ -24,7 +24,7 @@ pickle.ModelFactory = class {
 
     async open(context, target) {
         let format = 'Pickle';
-        const obj = target;
+        const obj = target.value;
         if (obj === null || obj === undefined) {
             context.exception(new pickle.Error("Unsupported Pickle null object."));
         } else if (obj instanceof Error) {
