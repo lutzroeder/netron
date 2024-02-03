@@ -361,6 +361,7 @@ $root.executorch_flatbuffer.ScalarType = {
     SHORT: 2,
     INT: 3,
     LONG: 4,
+    Half: 5,
     FLOAT: 6,
     DOUBLE: 7,
     BOOL: 11,
