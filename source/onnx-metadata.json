@@ -8140,6 +8140,10 @@
         "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n)\n\n# 1-D tensor zero point and scale of size equal to axis 1 of the input tensor\nx = np.array(\n    [\n        [\n            [[3, 89], [34, 200], [74, 59]],\n            [[5, 24], [24, 87], [32, 13]],\n            [[245, 99], [4, 142], [121, 102]],\n        ],\n    ],\n    dtype=np.uint8,\n)\nx_scale = np.array([2, 4, 5], dtype=np.float32)\nx_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (\n    x.astype(np.float32) - x_zero_point.reshape(1, 3, 1, 1).astype(np.float32)\n) * x_scale.reshape(1, 3, 1, 1)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_axis\",\n)"
       },
       {
+        "summary": "blocked",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [\n            [[3, 89], [34, 200], [74, 59]],\n            [[5, 24], [24, 87], [32, 13]],\n            [[5, 12], [12, 33], [65, 42]],\n            [[245, 99], [4, 142], [121, 102]],\n        ],\n    ],\n    dtype=np.uint8,\n)\n\nx_scale = np.array(\n    [\n        [\n            [[3.0, 2.0], [4.0, 1.0], [2.0, 2.0]],\n            [[5.0, 2.0], [4.0, 3.0], [5.0, 2.0]],\n        ],\n    ],\n    dtype=np.float32,\n)\nx_zero_point = np.array(\n    [\n        [\n            [[1, 0], [0, 1], [2, 20]],\n            [[3, 2], [4, 3], [15, 2]],\n        ],\n    ],\n    dtype=np.uint8,\n)\n\n# x.shape = (1, 4, 3, 2)\n# x_scale.shape = (1, 2, 3, 2)\nassert x_scale.shape == x_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // x_scale.shape[i] for i in range(len(x.shape))] = (1, 2, 1, 1)\nassert all(\n    x.shape[i] == x_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % x_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // x_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\nx_scale_elementwise = np.repeat(x_scale, repeats=repeats, axis=block_axis)\nx_zero_point_elementwise = np.repeat(\n    x_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = (\n    x.astype(np.float32) - x_zero_point_elementwise.astype(np.float32)\n) * x_scale_elementwise\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_blocked\",\n)"
+      },
+      {
         "summary": "dequantizelinear",
         "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n)\n\n# scalar zero point and scale\nx = np.array([0, 3, 128, 255]).astype(np.uint8)\nx_scale = np.float32(2)\nx_zero_point = np.uint8(128)\ny = np.array([-256, -250, 0, 254], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear\",\n)"
       },
@@ -8236,6 +8240,10 @@
       {
         "summary": "axis",
         "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n)\n\n# 1-D tensor zero point and scale of size equal to axis 1 of the input tensor\nx = np.array(\n    [\n        [\n            [[3, 89], [34, 200], [74, 59]],\n            [[5, 24], [24, 87], [32, 13]],\n            [[245, 99], [4, 142], [121, 102]],\n        ],\n    ],\n    dtype=np.uint8,\n)\nx_scale = np.array([2, 4, 5], dtype=np.float32)\nx_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (\n    x.astype(np.float32) - x_zero_point.reshape(1, 3, 1, 1).astype(np.float32)\n) * x_scale.reshape(1, 3, 1, 1)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_axis\",\n)"
+      },
+      {
+        "summary": "blocked",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [\n            [[3, 89], [34, 200], [74, 59]],\n            [[5, 24], [24, 87], [32, 13]],\n            [[5, 12], [12, 33], [65, 42]],\n            [[245, 99], [4, 142], [121, 102]],\n        ],\n    ],\n    dtype=np.uint8,\n)\n\nx_scale = np.array(\n    [\n        [\n            [[3.0, 2.0], [4.0, 1.0], [2.0, 2.0]],\n            [[5.0, 2.0], [4.0, 3.0], [5.0, 2.0]],\n        ],\n    ],\n    dtype=np.float32,\n)\nx_zero_point = np.array(\n    [\n        [\n            [[1, 0], [0, 1], [2, 20]],\n            [[3, 2], [4, 3], [15, 2]],\n        ],\n    ],\n    dtype=np.uint8,\n)\n\n# x.shape = (1, 4, 3, 2)\n# x_scale.shape = (1, 2, 3, 2)\nassert x_scale.shape == x_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // x_scale.shape[i] for i in range(len(x.shape))] = (1, 2, 1, 1)\nassert all(\n    x.shape[i] == x_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % x_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // x_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\nx_scale_elementwise = np.repeat(x_scale, repeats=repeats, axis=block_axis)\nx_zero_point_elementwise = np.repeat(\n    x_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = (\n    x.astype(np.float32) - x_zero_point_elementwise.astype(np.float32)\n) * x_scale_elementwise\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_blocked\",\n)"
       },
       {
         "summary": "dequantizelinear",
@@ -8349,6 +8357,10 @@
         "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n)\n\n# 1-D tensor zero point and scale of size equal to axis 1 of the input tensor\nx = np.array(\n    [\n        [\n            [[3, 89], [34, 200], [74, 59]],\n            [[5, 24], [24, 87], [32, 13]],\n            [[245, 99], [4, 142], [121, 102]],\n        ],\n    ],\n    dtype=np.uint8,\n)\nx_scale = np.array([2, 4, 5], dtype=np.float32)\nx_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (\n    x.astype(np.float32) - x_zero_point.reshape(1, 3, 1, 1).astype(np.float32)\n) * x_scale.reshape(1, 3, 1, 1)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_axis\",\n)"
       },
       {
+        "summary": "blocked",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [\n            [[3, 89], [34, 200], [74, 59]],\n            [[5, 24], [24, 87], [32, 13]],\n            [[5, 12], [12, 33], [65, 42]],\n            [[245, 99], [4, 142], [121, 102]],\n        ],\n    ],\n    dtype=np.uint8,\n)\n\nx_scale = np.array(\n    [\n        [\n            [[3.0, 2.0], [4.0, 1.0], [2.0, 2.0]],\n            [[5.0, 2.0], [4.0, 3.0], [5.0, 2.0]],\n        ],\n    ],\n    dtype=np.float32,\n)\nx_zero_point = np.array(\n    [\n        [\n            [[1, 0], [0, 1], [2, 20]],\n            [[3, 2], [4, 3], [15, 2]],\n        ],\n    ],\n    dtype=np.uint8,\n)\n\n# x.shape = (1, 4, 3, 2)\n# x_scale.shape = (1, 2, 3, 2)\nassert x_scale.shape == x_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // x_scale.shape[i] for i in range(len(x.shape))] = (1, 2, 1, 1)\nassert all(\n    x.shape[i] == x_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % x_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // x_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\nx_scale_elementwise = np.repeat(x_scale, repeats=repeats, axis=block_axis)\nx_zero_point_elementwise = np.repeat(\n    x_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = (\n    x.astype(np.float32) - x_zero_point_elementwise.astype(np.float32)\n) * x_scale_elementwise\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_blocked\",\n)"
+      },
+      {
         "summary": "dequantizelinear",
         "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n)\n\n# scalar zero point and scale\nx = np.array([0, 3, 128, 255]).astype(np.uint8)\nx_scale = np.float32(2)\nx_zero_point = np.uint8(128)\ny = np.array([-256, -250, 0, 254], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear\",\n)"
       },
@@ -8390,14 +8402,20 @@
     "name": "DequantizeLinear",
     "module": "ai.onnx",
     "version": 21,
-    "description": "The linear dequantization operator. It consumes a quantized tensor, a scale, and a zero point to compute the full precision tensor.\nThe dequantization formula is `y = (x - x_zero_point) * x_scale`. `x_scale` and `x_zero_point` must have same shape, and can be either a scalar\nfor per-tensor / per layer quantization, or a 1-D tensor for per-axis quantization.\n`x_zero_point` and `x` must have same type. `x` and `y` must have same shape. In the case of dequantizing int32,\nthere's no zero point (zero point is supposed to be 0).\n`zero-point` is usually not used in the case of float8e4m3fn, float8e4m3fnuz, float8e5m2, float8e5m2fnuz quantization,\nbut the dequantization formula remains the same for consistency and 'x_scale' still determines the output type.\n",
+    "description": "The linear dequantization operator. It consumes a quantized tensor, a scale, and a zero point to compute the\nfull-precision tensor. The dequantization formula is `y = (x - x_zero_point) * x_scale`. `x_scale` and `x_zero_point`\nmust have the same shape, determining the quantization's granularity: a scalar for per-tensor/per-layer quantization,\na 1-D tensor for per-axis quantization, or have a rank identical to the input for blocked quantization.\nSee QuantizeLinear for details on quantization granularity.\"\n`x_zero_point` and `x` must have the same type. `x` and `y` must have the same shape. In the case of dequantizing\n`int32`, there's no zero point (zero point is supposed to be 0).\n`zero-point` is usually not used in the case of float8e4m3fn, float8e4m3fnuz, float8e5m2, float8e5m2fnuz quantization,\nbut the dequantization formula remains the same for consistency, and `x_scale` still determines the output type.\n",
     "attributes": [
       {
         "name": "axis",
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "(Optional) The axis of the dequantizing dimension of the input tensor. Ignored for per-tensor quantization. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input)."
+        "description": "(Optional) The axis of the dequantizing dimension of the input tensor. Used for per-axis and blocked quantization. Negative value means counting dimensions from the back. Accepted range is `[-r, r-1]` where `r = rank(input)`."
+      },
+      {
+        "name": "block_size",
+        "type": "int64",
+        "required": false,
+        "description": "(Optional) The size of the quantization block (number of times every scale is replicated). Used only for blocked quantization. The block size is a positive integer. Given `x` shape `(D0, ..., Di, ..., Dn)`, `y_scale` shape `(S0, ... Si, ...Sn)` and `axis=i`, the accepted range is `[ceil(Di/Si), ceil(Di/(Si-1))-1]`"
       }
     ],
     "inputs": [
@@ -8409,13 +8427,13 @@
       {
         "name": "x_scale",
         "type": "T2",
-        "description": "Scale for input 'x'. It can be a scalar, which means a per-tensor/layer dequantization, or a 1-D tensor for per-axis dequantization."
+        "description": "Scale for input `x`. For per-tensor/layer dequantization the scale is a scalar, for per per-axis dequantization it is a 1-D Tensor and for blocked dequantization it has the same shape as the input, except for one dimension in which blocking is performed."
       },
       {
         "name": "x_zero_point",
         "type": "T1",
         "option": "optional",
-        "description": "Zero point for input 'x'. Shape must match x_scale. It's optional. Zero point is 0 when it's not specified."
+        "description": "Zero point for input `x`. Shape must match x_scale. It's optional. Zero point is 0 when it's not specified."
       }
     ],
     "min_input": 2,
@@ -8424,7 +8442,7 @@
       {
         "name": "y",
         "type": "T2",
-        "description": "N-D full precision output tensor. It has same shape as input 'x'."
+        "description": "N-D full precision output tensor. It has same shape as input `x`."
       }
     ],
     "min_output": 1,
@@ -8462,6 +8480,10 @@
       {
         "summary": "axis",
         "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n)\n\n# 1-D tensor zero point and scale of size equal to axis 1 of the input tensor\nx = np.array(\n    [\n        [\n            [[3, 89], [34, 200], [74, 59]],\n            [[5, 24], [24, 87], [32, 13]],\n            [[245, 99], [4, 142], [121, 102]],\n        ],\n    ],\n    dtype=np.uint8,\n)\nx_scale = np.array([2, 4, 5], dtype=np.float32)\nx_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (\n    x.astype(np.float32) - x_zero_point.reshape(1, 3, 1, 1).astype(np.float32)\n) * x_scale.reshape(1, 3, 1, 1)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_axis\",\n)"
+      },
+      {
+        "summary": "blocked",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [\n            [[3, 89], [34, 200], [74, 59]],\n            [[5, 24], [24, 87], [32, 13]],\n            [[5, 12], [12, 33], [65, 42]],\n            [[245, 99], [4, 142], [121, 102]],\n        ],\n    ],\n    dtype=np.uint8,\n)\n\nx_scale = np.array(\n    [\n        [\n            [[3.0, 2.0], [4.0, 1.0], [2.0, 2.0]],\n            [[5.0, 2.0], [4.0, 3.0], [5.0, 2.0]],\n        ],\n    ],\n    dtype=np.float32,\n)\nx_zero_point = np.array(\n    [\n        [\n            [[1, 0], [0, 1], [2, 20]],\n            [[3, 2], [4, 3], [15, 2]],\n        ],\n    ],\n    dtype=np.uint8,\n)\n\n# x.shape = (1, 4, 3, 2)\n# x_scale.shape = (1, 2, 3, 2)\nassert x_scale.shape == x_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // x_scale.shape[i] for i in range(len(x.shape))] = (1, 2, 1, 1)\nassert all(\n    x.shape[i] == x_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % x_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // x_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\nx_scale_elementwise = np.repeat(x_scale, repeats=repeats, axis=block_axis)\nx_zero_point_elementwise = np.repeat(\n    x_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = (\n    x.astype(np.float32) - x_zero_point_elementwise.astype(np.float32)\n) * x_scale_elementwise\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_blocked\",\n)"
       },
       {
         "summary": "dequantizelinear",
@@ -26244,6 +26266,10 @@
         "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array(\n    [\n        [\n            [[-162, 10], [-100, 232], [-20, -50]],\n            [[-76, 0], [0, 252], [32, -44]],\n            [[245, -485], [-960, -270], [-375, -470]],\n        ],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array([2, 4, 5], dtype=np.float32)\ny_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (x / y_scale.reshape(1, 3, 1, 1) + y_zero_point.reshape(1, 3, 1, 1)).astype(\n    np.uint8\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_axis\",\n)"
       },
       {
+        "summary": "blocked",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [6.0, 12.0, 50.0, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\ny_zero_point = np.array(\n    [\n        [0, 1],\n        [1, 0],\n        [2, 3],\n    ],\n    dtype=np.uint8,\n)\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\nassert y_scale.shape == y_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\ny_zero_point_elementwise = np.repeat(\n    y_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = np.rint(x / y_scale_elementwise + y_zero_point_elementwise).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked\",\n)"
+      },
+      {
         "summary": "e4m3fn",
         "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e4m3fn\",\n)"
       },
@@ -26339,6 +26365,10 @@
       {
         "summary": "axis",
         "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array(\n    [\n        [\n            [[-162, 10], [-100, 232], [-20, -50]],\n            [[-76, 0], [0, 252], [32, -44]],\n            [[245, -485], [-960, -270], [-375, -470]],\n        ],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array([2, 4, 5], dtype=np.float32)\ny_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (x / y_scale.reshape(1, 3, 1, 1) + y_zero_point.reshape(1, 3, 1, 1)).astype(\n    np.uint8\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_axis\",\n)"
+      },
+      {
+        "summary": "blocked",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [6.0, 12.0, 50.0, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\ny_zero_point = np.array(\n    [\n        [0, 1],\n        [1, 0],\n        [2, 3],\n    ],\n    dtype=np.uint8,\n)\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\nassert y_scale.shape == y_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\ny_zero_point_elementwise = np.repeat(\n    y_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = np.rint(x / y_scale_elementwise + y_zero_point_elementwise).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked\",\n)"
       },
       {
         "summary": "e4m3fn",
@@ -26451,6 +26481,10 @@
         "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array(\n    [\n        [\n            [[-162, 10], [-100, 232], [-20, -50]],\n            [[-76, 0], [0, 252], [32, -44]],\n            [[245, -485], [-960, -270], [-375, -470]],\n        ],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array([2, 4, 5], dtype=np.float32)\ny_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (x / y_scale.reshape(1, 3, 1, 1) + y_zero_point.reshape(1, 3, 1, 1)).astype(\n    np.uint8\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_axis\",\n)"
       },
       {
+        "summary": "blocked",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [6.0, 12.0, 50.0, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\ny_zero_point = np.array(\n    [\n        [0, 1],\n        [1, 0],\n        [2, 3],\n    ],\n    dtype=np.uint8,\n)\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\nassert y_scale.shape == y_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\ny_zero_point_elementwise = np.repeat(\n    y_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = np.rint(x / y_scale_elementwise + y_zero_point_elementwise).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked\",\n)"
+      },
+      {
         "summary": "e4m3fn",
         "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e4m3fn\",\n)"
       },
@@ -26484,14 +26518,20 @@
     "name": "QuantizeLinear",
     "module": "ai.onnx",
     "version": 21,
-    "description": "The linear quantization operator. It consumes a high precision tensor, a scale, and a zero point to compute the low precision / quantized tensor.\nThe scale factor and zero point must have same shape, and can be either a scalar for per-tensor / per layer quantization, or a 1-D tensor for per-axis quantization.\nThe quantization formula is `y = saturate ((x / y_scale) + y_zero_point)`.\nFor saturation, it saturates according to:\nuint8: [0, 255], int8: [-128, 127], uint16: [0, 65535], int16: [-32768, 32767], uint4: [0, 15], int4: [-8, 7]\nFor (x / y_scale), it's rounding to the nearest even. Refer to https://en.wikipedia.org/wiki/Rounding for details.\n'y_zero_point' and 'y' must have same type.\n'y_zero_point' is usually not used for quantization to float8e4m3fn, float8e4m3fnuz, float8e5m2, float8e5m2fnuz,\nbut the quantization formula remains the same for consistency and\nthe type of the attribute 'y_zero_point' still determines the quantization type.\n",
+    "description": "The linear quantization operator consumes a high-precision tensor, a scale, and a zero point to compute the\nlow-precision/quantized tensor. The scale factor and zero point must have the same shape, determining the quantization\ngranularity. The quantization formula is `y = saturate((x / y_scale) + y_zero_point)`.\nFor saturation, it saturates according to:\n`uint8`: `[0, 255]`, `int8`: `[-128, 127]`, `uint16`: `[0, 65535]`, `int16`: `[-32768, 32767]`, `uint4`: `[0, 15]`,\n`int4`: `[-8, 7]`.\nFor `(x / y_scale)`, it rounds to the nearest even. Refer to https://en.wikipedia.org/wiki/Rounding for details.\n`y_zero_point` and `y` must have the same type.\n`y_zero_point` is usually not used for quantization to float8e4m3fn, float8e4m3fnuz, float8e5m2, float8e5m2fnuz, but\nthe quantization formula remains the same for consistency, and the type of the attribute `y_zero_point` still\ndetermines the quantization type.\nThere are three supported quantization granularities, determined by the shape of `y_scale`.\nIn all cases, `y_zero_point` must have the same shape as `y_scale`.\n- Per-tensor (per-layer) quantization: `y_scale` is a scalar.\n- Per-axis quantization: The scale must be a 1-D tensor, with the length of the quantization axis. For an input shape\n `(D0, ..., Di, ..., Dn)` and `axis=i`, `y_scale` is a 1-D tensor of length `Di`.\n- Blocked quantization: The scale's shape is identical to the input's shape, except for one dimension, in which\n  blocking is performed. Given `x` shape `(D0, ..., Di, ..., Dn)`, `axis=i`, and block size `B`: `y_scale` shape is\n  `(D0, ..., ceil(Di/B), ..., Dn)`.\n",
     "attributes": [
       {
         "name": "axis",
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "(Optional) The axis of the quantization dimension of the input tensor. Ignored for per-tensor quantization. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input)."
+        "description": "(Optional) The axis of the dequantizing dimension of the input tensor. Used for per-axis and blocked quantization. Negative value means counting dimensions from the back. Accepted range is `[-r, r-1]` where `r = rank(input)`."
+      },
+      {
+        "name": "block_size",
+        "type": "int64",
+        "required": false,
+        "description": "(Optional) The size of the quantization block (number of times every scale is replicated). Used only for blocked quantization. The block size is a positive integer. Given `x` shape `(D0, ..., Di, ..., Dn)`, `y_scale` shape `(S0, ... Si, ...Sn)` and `axis=i`, the accepted range is `[ceil(Di/Si), ceil(Di/(Si-1))-1]`"
       },
       {
         "name": "saturate",
@@ -26510,13 +26550,13 @@
       {
         "name": "y_scale",
         "type": "T1",
-        "description": "Scale for doing quantization to get 'y'. It can be a scalar, which means per-tensor/layer quantization, or a 1-D Tensor for per-axis quantization."
+        "description": "Scale for doing quantization to get `y`. For per-tensor/layer quantization the scale is a scalar, for per-axis quantization it is a 1-D Tensor and for blocked quantization it has the same shape as the input, except for one dimension in which blocking is performed."
       },
       {
         "name": "y_zero_point",
         "type": "T2",
         "option": "optional",
-        "description": "Zero point for doing quantization to get 'y'. Shape must match y_scale. Default is uint8 with zero point of 0 if it's not specified."
+        "description": "Zero point for doing quantization to get `y`. Shape must match `y_scale`.Default is uint8 with zero point of 0 if it's not specified."
       }
     ],
     "min_input": 2,
@@ -26525,7 +26565,7 @@
       {
         "name": "y",
         "type": "T2",
-        "description": "N-D quantized output tensor. It has same shape as input 'x'."
+        "description": "N-D quantized output tensor. It has same shape as input `x`."
       }
     ],
     "min_output": 1,
@@ -26543,7 +26583,7 @@
         ]
       },
       {
-        "description": "The type of the input 'y_zero_point' and the output 'y'.",
+        "description": "The type of the input `y_zero_point` and the output `y`.",
         "type_param_str": "T2",
         "allowed_type_strs": [
           "tensor(int8)",
@@ -26563,6 +26603,10 @@
       {
         "summary": "axis",
         "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array(\n    [\n        [\n            [[-162, 10], [-100, 232], [-20, -50]],\n            [[-76, 0], [0, 252], [32, -44]],\n            [[245, -485], [-960, -270], [-375, -470]],\n        ],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array([2, 4, 5], dtype=np.float32)\ny_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (x / y_scale.reshape(1, 3, 1, 1) + y_zero_point.reshape(1, 3, 1, 1)).astype(\n    np.uint8\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_axis\",\n)"
+      },
+      {
+        "summary": "blocked",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [6.0, 12.0, 50.0, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\ny_zero_point = np.array(\n    [\n        [0, 1],\n        [1, 0],\n        [2, 3],\n    ],\n    dtype=np.uint8,\n)\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\nassert y_scale.shape == y_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\ny_zero_point_elementwise = np.repeat(\n    y_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = np.rint(x / y_scale_elementwise + y_zero_point_elementwise).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked\",\n)"
       },
       {
         "summary": "e4m3fn",
@@ -40798,6 +40842,150 @@
     "category": "Transform"
   },
   {
+    "name": "TreeEnsemble",
+    "module": "ai.onnx.ml",
+    "version": 5,
+    "description": "Tree Ensemble operator.  Returns the regressed values for each input in a batch.\n    Inputs have dimensions `[N, F]` where `N` is the input batch size and `F` is the number of input features.\n    Outputs have dimensions `[N, num_targets]` where `N` is the batch size and `num_targets` is the number of targets, which is a configurable attribute.\n\n    The encoding of this attribute is split along interior nodes and the leaves of the trees. Notably, attributes with the prefix `nodes_*` are associated with interior nodes, and attributes with the prefix `leaf_*` are associated with leaves.\n    The attributes `nodes_*` must all have the same length and encode a sequence of tuples, as defined by taking all the `nodes_*` fields at a given position.\n\n    All fields prefixed with `leaf_*` represent tree leaves, and similarly define tuples of leaves and must have identical length.\n\n    This operator can be used to implement both the previous `TreeEnsembleRegressor` and `TreeEnsembleClassifier` nodes.\n    The `TreeEnsembleRegressor` node maps directly to this node and requires changing how the nodes are represented.\n    The `TreeEnsembleClassifier` node can be implemented by adding a `ArgMax` node after this node to determine the top class.\n    To encode class labels, a `LabelEncoder` or `GatherND` operator may be used.\n",
+    "attributes": [
+      {
+        "name": "aggregate_function",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "Defines how to aggregate leaf values within a target. <br>One of 'AVERAGE' (0) 'SUM' (1) 'MIN' (2) 'MAX (3) defaults to 'SUM' (1)"
+      },
+      {
+        "name": "leaf_targetids",
+        "type": "int64[]",
+        "required": true,
+        "description": "The index of the target that this leaf contributes to (this must be in range `[0, n_targets)`)."
+      },
+      {
+        "name": "leaf_weights",
+        "type": "tensor",
+        "required": true,
+        "description": "The weight for each leaf."
+      },
+      {
+        "name": "membership_values",
+        "type": "tensor",
+        "required": false,
+        "description": "Members to test membership of for each set membership node. List all of the members to test again in the order that the 'BRANCH_MEMBER' mode appears in `node_modes`, delimited by `NaN`s. Will have the same number of sets of values as nodes with mode 'BRANCH_MEMBER'. This may be omitted if the node doesn't contain any 'BRANCH_MEMBER' nodes."
+      },
+      {
+        "name": "n_targets",
+        "type": "int64",
+        "required": false,
+        "description": "The total number of targets."
+      },
+      {
+        "name": "nodes_falseleafs",
+        "type": "int64[]",
+        "required": true,
+        "description": "1 if false branch is leaf for each node and 0 if an interior node. To represent a tree that is a leaf (only has one node), one can do so by having a single `nodes_*` entry with true and false branches referencing the same `leaf_*` entry"
+      },
+      {
+        "name": "nodes_falsenodeids",
+        "type": "int64[]",
+        "required": true,
+        "description": "If `nodes_falseleafs` is false at an entry, this represents the position of the false branch node. This position can be used to index into a `nodes_*` entry. If `nodes_falseleafs` is false, it is an index into the leaf_* attributes."
+      },
+      {
+        "name": "nodes_featureids",
+        "type": "int64[]",
+        "required": true,
+        "description": "Feature id for each node."
+      },
+      {
+        "name": "nodes_hitrates",
+        "type": "tensor",
+        "required": false,
+        "description": "Popularity of each node, used for performance and may be omitted."
+      },
+      {
+        "name": "nodes_missing_value_tracks_true",
+        "type": "int64[]",
+        "required": false,
+        "description": "For each node, define whether to follow the true branch (if attribute value is 1) or false branch (if attribute value is 0) in the presence of a NaN input feature. This attribute may be left undefined and the default value is false (0) for all nodes."
+      },
+      {
+        "name": "nodes_modes",
+        "type": "tensor",
+        "required": true,
+        "description": "The comparison operation performed by the node. This is encoded as an enumeration of 0 ('BRANCH_LEQ'), 1 ('BRANCH_LT'), 2 ('BRANCH_GTE'), 3 ('BRANCH_GT'), 4 ('BRANCH_EQ'), 5 ('BRANCH_NEQ'), and 6 ('BRANCH_MEMBER'). Note this is a tensor of type uint8."
+      },
+      {
+        "name": "nodes_splits",
+        "type": "tensor",
+        "required": true,
+        "description": "Thresholds to do the splitting on for each node with mode that is not 'BRANCH_MEMBER'."
+      },
+      {
+        "name": "nodes_trueleafs",
+        "type": "int64[]",
+        "required": true,
+        "description": "1 if true branch is leaf for each node and 0 an interior node. To represent a tree that is a leaf (only has one node), one can do so by having a single `nodes_*` entry with true and false branches referencing the same `leaf_*` entry"
+      },
+      {
+        "name": "nodes_truenodeids",
+        "type": "int64[]",
+        "required": true,
+        "description": "If `nodes_trueleafs` is false at an entry, this represents the position of the true branch node. This position can be used to index into a `nodes_*` entry. If `nodes_trueleafs` is false, it is an index into the leaf_* attributes."
+      },
+      {
+        "name": "post_transform",
+        "type": "int64",
+        "required": false,
+        "description": "Indicates the transform to apply to the score. <br>One of 'NONE' (0), 'SOFTMAX' (1), 'LOGISTIC' (2), 'SOFTMAX_ZERO' (3) or 'PROBIT' (4), defaults to 'NONE' (0)"
+      },
+      {
+        "name": "tree_roots",
+        "type": "int64[]",
+        "required": true,
+        "description": "Index into `nodes_*` for the root of each tree. The tree structure is derived from the branching of each node."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input of shape [Batch Size, Number of Features]"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Output of shape [Batch Size, Number of targets]"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "The input type must be a tensor of a numeric type.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(float16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "tree_ensemble_set_membership",
+        "code": "node = onnx.helper.make_node(\n    \"TreeEnsemble\",\n    [\"X\"],\n    [\"Y\"],\n    domain=\"ai.onnx.ml\",\n    n_targets=4,\n    aggregate_function=1,\n    membership_values=make_tensor(\n        \"membership_values\",\n        onnx.TensorProto.FLOAT,\n        (8,),\n        [1.2, 3.7, 8, 9, np.nan, 12, 7, np.nan],\n    ),\n    nodes_missing_value_tracks_true=None,\n    nodes_hitrates=None,\n    post_transform=0,\n    tree_roots=[0],\n    nodes_modes=make_tensor(\n        \"nodes_modes\",\n        onnx.TensorProto.UINT8,\n        (3,),\n        np.array([0, 6, 6], dtype=np.uint8),\n    ),\n    nodes_featureids=[0, 0, 0],\n    nodes_splits=make_tensor(\n        \"nodes_splits\",\n        onnx.TensorProto.FLOAT,\n        (3,),\n        np.array([11, 232344.0, np.nan], dtype=np.float32),\n    ),\n    nodes_trueleafs=[0, 1, 1],\n    nodes_truenodeids=[1, 0, 1],\n    nodes_falseleafs=[1, 0, 1],\n    nodes_falsenodeids=[2, 2, 3],\n    leaf_targetids=[0, 1, 2, 3],\n    leaf_weights=make_tensor(\n        \"leaf_weights\", onnx.TensorProto.FLOAT, (4,), [1, 10, 1000, 100]\n    ),\n)\n\nx = np.array([1.2, 3.4, -0.12, np.nan, 12, 7], np.float32).reshape(-1, 1)\nexpected = np.array(\n    [\n        [1, 0, 0, 0],\n        [0, 0, 0, 100],\n        [0, 0, 0, 100],\n        [0, 0, 1000, 0],\n        [0, 0, 1000, 0],\n        [0, 10, 0, 0],\n    ],\n    dtype=np.float32,\n)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[expected],\n    name=\"test_ai_onnx_ml_tree_ensemble_set_membership\",\n)"
+      },
+      {
+        "summary": "tree_ensemble_single_tree",
+        "code": "node = onnx.helper.make_node(\n    \"TreeEnsemble\",\n    [\"X\"],\n    [\"Y\"],\n    domain=\"ai.onnx.ml\",\n    n_targets=2,\n    membership_values=None,\n    nodes_missing_value_tracks_true=None,\n    nodes_hitrates=None,\n    aggregate_function=1,\n    post_transform=0,\n    tree_roots=[0],\n    nodes_modes=make_tensor(\n        \"nodes_modes\",\n        onnx.TensorProto.UINT8,\n        (3,),\n        np.array([0, 0, 0], dtype=np.uint8),\n    ),\n    nodes_featureids=[0, 0, 0],\n    nodes_splits=make_tensor(\n        \"nodes_splits\",\n        onnx.TensorProto.DOUBLE,\n        (3,),\n        np.array([3.14, 1.2, 4.2], dtype=np.float64),\n    ),\n    nodes_truenodeids=[1, 0, 1],\n    nodes_trueleafs=[0, 1, 1],\n    nodes_falsenodeids=[2, 2, 3],\n    nodes_falseleafs=[0, 1, 1],\n    leaf_targetids=[0, 1, 0, 1],\n    leaf_weights=make_tensor(\n        \"leaf_weights\",\n        onnx.TensorProto.DOUBLE,\n        (4,),\n        np.array([5.23, 12.12, -12.23, 7.21], dtype=np.float64),\n    ),\n)\n\nx = np.array([1.2, 3.4, -0.12, 1.66, 4.14, 1.77], np.float64).reshape(3, 2)\ny = np.array([[5.23, 0], [5.23, 0], [0, 12.12]], dtype=np.float64)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_ai_onnx_ml_tree_ensemble_single_tree\",\n)"
+      }
+    ]
+  },
+  {
     "name": "TreeEnsembleClassifier",
     "module": "ai.onnx.ml",
     "version": 1,
@@ -41130,6 +41318,184 @@
     ]
   },
   {
+    "name": "TreeEnsembleClassifier",
+    "module": "ai.onnx.ml",
+    "version": 5,
+    "description": "This operator is DEPRECATED. Please use TreeEnsemble with provides similar functionality.\n    In order to determine the top class, the ArgMax node can be applied to the output of TreeEnsemble.\n    To encode class labels, use a LabelEncoder operator.\n    Tree Ensemble classifier. Returns the top class for each of N inputs.<br>\n    The attributes named 'nodes_X' form a sequence of tuples, associated by\n    index into the sequences, which must all be of equal length. These tuples\n    define the nodes.<br>\n    Similarly, all fields prefixed with 'class_' are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated class_weights index.<br>\n    One and only one of classlabels_strings or classlabels_int64s\n    will be defined. The class_ids are indices into this list.\n    All fields ending with <i>_as_tensor</i> can be used instead of the\n    same parameter without the suffix if the element type is double and not float.\n",
+    "attributes": [
+      {
+        "name": "base_values",
+        "type": "float32[]",
+        "required": false,
+        "description": "Base values for classification, added to final class score; the size must be the same as the classes or can be left unassigned (assumed 0)"
+      },
+      {
+        "name": "base_values_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Base values for classification, added to final class score; the size must be the same as the classes or can be left unassigned (assumed 0)"
+      },
+      {
+        "name": "class_ids",
+        "type": "int64[]",
+        "required": false,
+        "description": "The index of the class list that each weight is for."
+      },
+      {
+        "name": "class_nodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "node id that this weight is for."
+      },
+      {
+        "name": "class_treeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "The id of the tree that this node is in."
+      },
+      {
+        "name": "class_weights",
+        "type": "float32[]",
+        "required": false,
+        "description": "The weight for the class in class_id."
+      },
+      {
+        "name": "class_weights_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "The weight for the class in class_id."
+      },
+      {
+        "name": "classlabels_int64s",
+        "type": "int64[]",
+        "required": false,
+        "description": "Class labels if using integer labels.<br>One and only one of the 'classlabels_*' attributes must be defined."
+      },
+      {
+        "name": "classlabels_strings",
+        "type": "string[]",
+        "required": false,
+        "description": "Class labels if using string labels.<br>One and only one of the 'classlabels_*' attributes must be defined."
+      },
+      {
+        "name": "nodes_falsenodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Child node if expression is false."
+      },
+      {
+        "name": "nodes_featureids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Feature id for each node."
+      },
+      {
+        "name": "nodes_hitrates",
+        "type": "float32[]",
+        "required": false,
+        "description": "Popularity of each node, used for performance and may be omitted."
+      },
+      {
+        "name": "nodes_hitrates_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Popularity of each node, used for performance and may be omitted."
+      },
+      {
+        "name": "nodes_missing_value_tracks_true",
+        "type": "int64[]",
+        "required": false,
+        "description": "For each node, define what to do in the presence of a missing value: if a value is missing (NaN), use the 'true' or 'false' branch based on the value in this array.<br>This attribute may be left undefined, and the default value is false (0) for all nodes."
+      },
+      {
+        "name": "nodes_modes",
+        "type": "string[]",
+        "required": false,
+        "description": "The node kind, that is, the comparison to make at the node. There is no comparison to make at a leaf node.<br>One of 'BRANCH_LEQ', 'BRANCH_LT', 'BRANCH_GTE', 'BRANCH_GT', 'BRANCH_EQ', 'BRANCH_NEQ', 'LEAF'"
+      },
+      {
+        "name": "nodes_nodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Node id for each node. Ids may restart at zero for each tree, but it not required to."
+      },
+      {
+        "name": "nodes_treeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Tree id for each node."
+      },
+      {
+        "name": "nodes_truenodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Child node if expression is true."
+      },
+      {
+        "name": "nodes_values",
+        "type": "float32[]",
+        "required": false,
+        "description": "Thresholds to do the splitting on for each node."
+      },
+      {
+        "name": "nodes_values_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Thresholds to do the splitting on for each node."
+      },
+      {
+        "name": "post_transform",
+        "type": "string",
+        "required": false,
+        "default": "NONE",
+        "description": "Indicates the transform to apply to the score. <br> One of 'NONE,' 'SOFTMAX,' 'LOGISTIC,' 'SOFTMAX_ZERO,' or 'PROBIT.'"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T1",
+        "description": "Input of shape [N,F]"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T2",
+        "description": "N, Top class for each point"
+      },
+      {
+        "name": "Z",
+        "type": "tensor(float)",
+        "description": "The class score for each class, for each point, a tensor of shape [N,E]."
+      }
+    ],
+    "min_output": 2,
+    "max_output": 2,
+    "type_constraints": [
+      {
+        "description": "The input type must be a tensor of a numeric type.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(int64)",
+          "tensor(int32)"
+        ]
+      },
+      {
+        "description": "The output type will be a tensor of strings or integers, depending on which of the classlabels_* attributes is used.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(string)",
+          "tensor(int64)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "TreeEnsembleRegressor",
     "module": "ai.onnx.ml",
     "version": 1,
@@ -41276,6 +41642,172 @@
     "module": "ai.onnx.ml",
     "version": 3,
     "description": "Tree Ensemble regressor.  Returns the regressed values for each input in N.<br>\n    All args with nodes_ are fields of a tuple of tree nodes, and\n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once\n    for each tree id.<br>\n    All fields prefixed with target_ are tuples of votes at the leaves.<br>\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated target_weights index.<br>\n    All fields ending with <i>_as_tensor</i> can be used instead of the\n    same parameter without the suffix if the element type is double and not float.\n    All trees must have their node ids start at 0 and increment by 1.<br>\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
+    "attributes": [
+      {
+        "name": "aggregate_function",
+        "type": "string",
+        "required": false,
+        "default": "SUM",
+        "description": "Defines how to aggregate leaf values within a target. <br>One of 'AVERAGE,' 'SUM,' 'MIN,' 'MAX.'"
+      },
+      {
+        "name": "base_values",
+        "type": "float32[]",
+        "required": false,
+        "description": "Base values for regression, added to final prediction after applying aggregate_function; the size must be the same as the classes or can be left unassigned (assumed 0)"
+      },
+      {
+        "name": "base_values_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Base values for regression, added to final prediction after applying aggregate_function; the size must be the same as the classes or can be left unassigned (assumed 0)"
+      },
+      {
+        "name": "n_targets",
+        "type": "int64",
+        "required": false,
+        "description": "The total number of targets."
+      },
+      {
+        "name": "nodes_falsenodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Child node if expression is false"
+      },
+      {
+        "name": "nodes_featureids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Feature id for each node."
+      },
+      {
+        "name": "nodes_hitrates",
+        "type": "float32[]",
+        "required": false,
+        "description": "Popularity of each node, used for performance and may be omitted."
+      },
+      {
+        "name": "nodes_hitrates_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Popularity of each node, used for performance and may be omitted."
+      },
+      {
+        "name": "nodes_missing_value_tracks_true",
+        "type": "int64[]",
+        "required": false,
+        "description": "For each node, define what to do in the presence of a NaN: use the 'true' (if the attribute value is 1) or 'false' (if the attribute value is 0) branch based on the value in this array.<br>This attribute may be left undefined and the default value is false (0) for all nodes."
+      },
+      {
+        "name": "nodes_modes",
+        "type": "string[]",
+        "required": false,
+        "description": "The node kind, that is, the comparison to make at the node. There is no comparison to make at a leaf node.<br>One of 'BRANCH_LEQ', 'BRANCH_LT', 'BRANCH_GTE', 'BRANCH_GT', 'BRANCH_EQ', 'BRANCH_NEQ', 'LEAF'"
+      },
+      {
+        "name": "nodes_nodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Node id for each node. Node ids must restart at zero for each tree and increase sequentially."
+      },
+      {
+        "name": "nodes_treeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Tree id for each node."
+      },
+      {
+        "name": "nodes_truenodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Child node if expression is true"
+      },
+      {
+        "name": "nodes_values",
+        "type": "float32[]",
+        "required": false,
+        "description": "Thresholds to do the splitting on for each node."
+      },
+      {
+        "name": "nodes_values_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Thresholds to do the splitting on for each node."
+      },
+      {
+        "name": "post_transform",
+        "type": "string",
+        "required": false,
+        "default": "NONE",
+        "description": "Indicates the transform to apply to the score. <br>One of 'NONE,' 'SOFTMAX,' 'LOGISTIC,' 'SOFTMAX_ZERO,' or 'PROBIT'"
+      },
+      {
+        "name": "target_ids",
+        "type": "int64[]",
+        "required": false,
+        "description": "The index of the target that each weight is for"
+      },
+      {
+        "name": "target_nodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "The node id of each weight"
+      },
+      {
+        "name": "target_treeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "The id of the tree that each node is in."
+      },
+      {
+        "name": "target_weights",
+        "type": "float32[]",
+        "required": false,
+        "description": "The weight for each target"
+      },
+      {
+        "name": "target_weights_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "The weight for each target"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input of shape [N,F]"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "tensor(float)",
+        "description": "N classes"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "The input type must be a tensor of a numeric type.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(int64)",
+          "tensor(int32)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "TreeEnsembleRegressor",
+    "module": "ai.onnx.ml",
+    "version": 5,
+    "description": "This operator is DEPRECATED. Please use TreeEnsemble instead which provides the same\n    functionality.<br>\n    Tree Ensemble regressor.  Returns the regressed values for each input in N.<br>\n    All args with nodes_ are fields of a tuple of tree nodes, and\n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once\n    for each tree id.<br>\n    All fields prefixed with target_ are tuples of votes at the leaves.<br>\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated target_weights index.<br>\n    All fields ending with <i>_as_tensor</i> can be used instead of the\n    same parameter without the suffix if the element type is double and not float.\n    All trees must have their node ids start at 0 and increment by 1.<br>\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
     "attributes": [
       {
         "name": "aggregate_function",
