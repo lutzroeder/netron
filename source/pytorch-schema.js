@@ -1,7 +1,5 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
-const $root = flatbuffers.get('torch');
+const $root = {};
 
 $root.torch = $root.torch || {};
 
@@ -760,3 +758,6 @@ $root.executorch_flatbuffer.Program = class Program {
         return $;
     }
 };
+
+export const torch = $root.torch;
+export const executorch_flatbuffer = $root.executorch_flatbuffer;

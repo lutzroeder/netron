@@ -1,7 +1,5 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
-const $root = flatbuffers.get('ort');
+const $root = {};
 
 $root.onnxruntime = $root.onnxruntime || {};
 
@@ -443,3 +441,5 @@ $root.onnxruntime.fbs.InferenceSession = class InferenceSession {
         return $;
     }
 };
+
+export const onnxruntime = $root.onnxruntime;

@@ -893,12 +893,16 @@ flatc.Generator = class {
         this._root = root;
         this._text = text;
         this._builder = new flatc.Generator.StringBuilder();
-        this._builder.add("");
-        this._builder.add("import * as flatbuffers from './flatbuffers.js';");
-        this._builder.add("");
-        this._builder.add(`const $root = flatbuffers.get('${this._root.name}');`);
+        this._builder.add('');
+        this._builder.add('const $root = {};');
         for (const namespace of this._root.namespaces.values()) {
             this._buildNamespace(namespace);
+        }
+        const namespaces = Array.from(this._root.namespaces.values()).filter((namespace) => namespace.name !== '').map((namespace) => namespace.name);
+        const exports = new Set (namespaces.map((namespace) => namespace.split('.')[0]));
+        this._builder.add('');
+        for (const value of exports) {
+            this._builder.add(`export const ${value} = $root.${value};`);
         }
         this._content = this._builder.toString();
     }

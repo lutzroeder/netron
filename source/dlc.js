@@ -15,8 +15,8 @@ dlc.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./dlc-schema');
-        dlc.schema = flatbuffers.get('dlc').dlc;
+        dlc.schema = await context.require('./dlc-schema');
+        dlc.schema = dlc.schema.dlc;
         await context.target.read();
         const metadata = await context.metadata('dlc-metadata.json');
         return new dlc.Model(metadata, context.target);

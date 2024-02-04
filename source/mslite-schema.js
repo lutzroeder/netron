@@ -1,7 +1,5 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
-const $root = flatbuffers.get('mslite');
+const $root = {};
 
 $root.mindspore = $root.mindspore || {};
 
@@ -4600,3 +4598,5 @@ $root.mindspore.schema.MetaGraph = class MetaGraph {
         return $;
     }
 };
+
+export const mindspore = $root.mindspore;

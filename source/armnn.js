@@ -1,6 +1,4 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
 const armnn = {};
 
 armnn.ModelFactory = class {
@@ -22,14 +20,13 @@ armnn.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./armnn-schema');
-        armnn.schema = flatbuffers.get('armnn').armnnSerializer;
+        armnn.schema = await context.require('./armnn-schema');
+        armnn.schema = armnn.schema.armnnSerializer;
         let model = null;
         switch (context.type) {
             case 'armnn.flatbuffers': {
                 try {
-                    const stream = context.target;
-                    const reader = flatbuffers.BinaryReader.open(stream);
+                    const reader = context.read('flatbuffers.binary');
                     model = armnn.schema.SerializedGraph.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
@@ -39,8 +36,7 @@ armnn.ModelFactory = class {
             }
             case 'armnn.flatbuffers.json': {
                 try {
-                    const obj = context.target;
-                    const reader = flatbuffers.TextReader.open(obj);
+                    const reader = context.read('flatbuffers.text');
                     model = armnn.schema.SerializedGraph.createText(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();

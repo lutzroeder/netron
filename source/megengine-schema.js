@@ -1,7 +1,5 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
-const $root = flatbuffers.get('megengine');
+const $root = {};
 
 $root.mgb = $root.mgb || {};
 
@@ -2435,3 +2433,5 @@ $root.mgb.serialization.fbs.v2.Model = class Model {
         return $;
     }
 };
+
+export const mgb = $root.mgb;

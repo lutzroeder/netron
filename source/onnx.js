@@ -1720,12 +1720,11 @@ onnx.OrtReader = class {
     }
 
     async read() {
-        await this.context.require('./onnx-schema');
-        onnx.schema = flatbuffers.get('ort').onnxruntime.fbs;
+        onnx.schema = await this.context.require('./onnx-schema');
+        onnx.schema = onnx.schema.onnxruntime.fbs;
         try {
-            const stream = this.context.stream;
             this.graphs = new Set();
-            const reader = flatbuffers.BinaryReader.open(stream);
+            const reader = this.context.read('flatbuffers.binary');
             const session = onnx.schema.InferenceSession.create(reader);
             this.model = session.model;
         } catch (error) {

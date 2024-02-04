@@ -66,8 +66,8 @@ paddle.ModelFactory = class {
             case 'paddle.naive':
             case 'paddle.naive.model':
             case 'paddle.naive.param': {
-                await context.require('./paddle-schema');
-                paddle.schema = flatbuffers.get('paddlelite').paddle.lite.fbs.proto;
+                paddle.schema = await context.require('./paddle-schema');
+                paddle.schema = paddle.schema.paddle.lite.fbs.proto;
                 const target = context.target;
                 target.read();
                 return new paddle.Model(metadata, target.format, target.model, target.weights);

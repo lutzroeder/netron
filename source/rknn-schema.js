@@ -1,7 +1,5 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
-const $root = flatbuffers.get('rknn');
+const $root = {};
 
 $root.rknn = $root.rknn || {};
 
@@ -121,3 +119,5 @@ $root.rknn.Type3 = class Type3 {
         return $;
     }
 };
+
+export const rknn = $root.rknn;

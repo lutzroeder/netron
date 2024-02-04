@@ -1,7 +1,5 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
-const $root = flatbuffers.get('dlc');
+const $root = {};
 
 $root.dlc = $root.dlc || {};
 
@@ -287,3 +285,5 @@ $root.dlc.v4.Buffer = class Buffer {
         return $;
     }
 };
+
+export const dlc = $root.dlc;

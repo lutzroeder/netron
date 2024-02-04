@@ -46,8 +46,8 @@ megengine.ModelFactory = class {
                 return new megengine.Model(metadata, obj, context.type);
             }
             case 'megengine.mge': {
-                await context.require('./megengine-schema');
-                megengine.schema = flatbuffers.get('megengine').mgb.serialization.fbs;
+                megengine.schema = await context.require('./megengine-schema');
+                megengine.schema = megengine.schema.mgb.serialization.fbs;
                 let model = null;
                 const stream = context.stream;
                 try {
@@ -55,7 +55,7 @@ megengine.ModelFactory = class {
                     const tag = String.fromCharCode.apply(null, buffer);
                     stream.skip(tag.startsWith('mgbtest0') ? 12 : 0);
                     stream.skip(4);
-                    const reader = flatbuffers.BinaryReader.open(stream);
+                    const reader = context.read('flatbuffers.binary');
                     model = megengine.schema.v2.Model.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();

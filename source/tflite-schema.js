@@ -1,7 +1,5 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
-const $root = flatbuffers.get('tflite');
+const $root = {};
 
 $root.tflite = $root.tflite || {};
 
@@ -3881,3 +3879,5 @@ $root.tflite.ModelMetadata = class ModelMetadata {
         return $;
     }
 };
+
+export const tflite = $root.tflite;

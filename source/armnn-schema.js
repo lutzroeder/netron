@@ -1,7 +1,5 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
-const $root = flatbuffers.get('armnn');
+const $root = {};
 
 $root.armnnSerializer = $root.armnnSerializer || {};
 
@@ -2502,3 +2500,5 @@ $root.armnnSerializer.SerializedGraph = class SerializedGraph {
         return $;
     }
 };
+
+export const armnnSerializer = $root.armnnSerializer;

@@ -1,15 +1,6 @@
 
 const flatbuffers = {};
 
-flatbuffers.get = (name) => {
-    flatbuffers._roots = flatbuffers._roots || new Map();
-    const roots = flatbuffers._roots;
-    if (!roots.has(name)) {
-        roots.set(name, {});
-    }
-    return roots.get(name);
-};
-
 flatbuffers.BinaryReader = class {
 
     static open(data) {
@@ -382,4 +373,3 @@ flatbuffers.Error = class extends Error {
 
 export const BinaryReader = flatbuffers.BinaryReader;
 export const TextReader = flatbuffers.TextReader;
-export const get = flatbuffers.get;

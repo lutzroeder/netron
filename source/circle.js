@@ -22,15 +22,14 @@ circle.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./circle-schema');
-        circle.schema = flatbuffers.get('circle').circle;
+        circle.schema = await context.require('./circle-schema');
+        circle.schema = circle.schema.circle;
         let model = null;
         const attachments = new Map();
         switch (context.type) {
             case 'circle.flatbuffers.json': {
                 try {
-                    const obj = context.target;
-                    const reader = new flatbuffers.TextReader(obj);
+                    const reader = context.read('flatbuffers.text');
                     model = circle.schema.Model.createText(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
@@ -39,15 +38,15 @@ circle.ModelFactory = class {
                 break;
             }
             case 'circle.flatbuffers': {
-                const stream = context.stream;
                 try {
-                    const reader = flatbuffers.BinaryReader.open(stream);
+                    const reader = context.read('flatbuffers.binary');
                     model = circle.schema.Model.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
                     throw new circle.Error(`File format is not circle.Model (${message.replace(/\.$/, '')}).`);
                 }
                 try {
+                    const stream = context.stream;
                     const archive = zip.Archive.open(stream);
                     if (archive) {
                         for (const [name, value] of archive.entries) {

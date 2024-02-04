@@ -1,7 +1,5 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
-const $root = flatbuffers.get('mnn');
+const $root = {};
 
 $root.MNN = $root.MNN || {};
 
@@ -1970,3 +1968,5 @@ $root.MNN.Net = class Net {
         return $;
     }
 };
+
+export const MNN = $root.MNN;

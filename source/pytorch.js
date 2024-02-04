@@ -1000,7 +1000,8 @@ pytorch.Container.Mobile = class extends pytorch.Container {
     }
 
     async read(metadata) {
-        await this.context.require('./pytorch-schema');
+        pytorch.mobile = await this.context.require('./pytorch-schema');
+        pytorch.mobile = pytorch.mobile.torch.jit.mobile;
         this._modules = new Map();
         const execution = new pytorch.jit.Execution(null, metadata);
         for (const event in this._events) {
@@ -1045,10 +1046,9 @@ pytorch.Container.ExecuTorch = class extends pytorch.Container {
     }
 
     async read() {
-        await this.context.require('./pytorch-schema');
-        pytorch.executorch = flatbuffers.get('torch').executorch_flatbuffer;
-        const stream = this.context.stream;
-        const reader = flatbuffers.BinaryReader.open(stream);
+        pytorch.executorch = await this.context.require('./pytorch-schema');
+        pytorch.executorch = pytorch.executorch.executorch_flatbuffer;
+        const reader = this.context.read('flatbuffers.binary');
         /* const program = */ pytorch.executorch.Program.create(reader);
         throw new pytorch.Error('Invalid file content. File contains executorch.Program data.');
     }
@@ -1417,7 +1417,6 @@ pytorch.Execution = class extends python.Execution {
             return new torch.jit._script.RecursiveScriptModule(cpp_module);
         });
         this.registerFunction('torch.jit.jit_module_from_flatbuffer', function(f) {
-            pytorch.mobile = flatbuffers.get('torch').torch.jit.mobile;
             const cu = new torch.jit.CompilationUnit();
             cu.execution = execution;
             const stream = f;

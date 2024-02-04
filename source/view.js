@@ -5141,6 +5141,13 @@ view.Context = class {
                     }
                     throw new view.Error('Invalid BSON content.');
                 }
+                case 'flatbuffers.binary': {
+                    return flatbuffers.BinaryReader.open(this._stream);
+                }
+                case 'flatbuffers.text': {
+                    const obj = this.peek('json');
+                    return flatbuffers.TextReader.open(obj);
+                }
                 default: {
                     break;
                 }

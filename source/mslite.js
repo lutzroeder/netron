@@ -17,9 +17,7 @@ mslite.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./mslite-schema');
-        const stream = context.stream;
-        const reader = flatbuffers.BinaryReader.open(stream);
+        const reader = context.read('flatbuffers.binary');
         switch (reader.identifier) {
             case '': {
                 throw new mslite.Error('MSL0 format is deprecated.');
@@ -32,9 +30,10 @@ mslite.ModelFactory = class {
             default:
                 throw new mslite.Error(`Unsupported file identifier '${reader.identifier}'.`);
         }
+        mslite.schema = await context.require('./mslite-schema');
+        mslite.schema = mslite.schema.mindspore.schema;
         let model = null;
         try {
-            mslite.schema = flatbuffers.get('mslite').mindspore.schema;
             model = mslite.schema.MetaGraph.create(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
@@ -326,17 +325,19 @@ mslite.TensorShape = class {
 mslite.Utility = class {
 
     static enum(name, value) {
-        const type = name && mslite.schema ? mslite.schema[name] : undefined;
-        if (type) {
-            mslite.Utility._enumKeyMap = mslite.Utility._enumKeyMap || new Map();
-            if (!mslite.Utility._enumKeyMap.has(name)) {
-                const entries = new Map(Object.entries(type).map(([key, value]) => [ value, key ]));
-                mslite.Utility._enumKeyMap.set(name, entries);
+        mslite.Utility._enumKeyMap = mslite.Utility._enumKeyMap || new Map();
+        if (!mslite.Utility._enumKeyMap.has(name)) {
+            const type = name && mslite.schema ? mslite.schema[name] : undefined;
+            if (type) {
+                if (!mslite.Utility._enumKeyMap.has(name)) {
+                    const entries = new Map(Object.entries(type).map(([key, value]) => [ value, key ]));
+                    mslite.Utility._enumKeyMap.set(name, entries);
+                }
             }
-            const map = mslite.Utility._enumKeyMap.get(name);
-            if (map.has(value)) {
-                return map.get(value);
-            }
+        }
+        const map = mslite.Utility._enumKeyMap.get(name);
+        if (map && map.has(value)) {
+            return map.get(value);
         }
         return value;
     }

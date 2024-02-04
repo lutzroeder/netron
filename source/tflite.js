@@ -36,15 +36,14 @@ tflite.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./tflite-schema');
-        tflite.schema = flatbuffers.get('tflite').tflite;
+        tflite.schema = await context.require('./tflite-schema');
+        tflite.schema = tflite.schema.tflite;
         let model = null;
         const attachments = new Map();
         switch (context.type) {
             case 'tflite.flatbuffers.json': {
                 try {
-                    const obj = context.target;
-                    const reader = new flatbuffers.TextReader(obj);
+                    const reader = context.read('flatbuffers.text');
                     model = tflite.schema.Model.createText(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
@@ -53,15 +52,15 @@ tflite.ModelFactory = class {
                 break;
             }
             case 'tflite.flatbuffers': {
-                const stream = context.stream;
                 try {
-                    const reader = flatbuffers.BinaryReader.open(stream);
+                    const reader = context.read('flatbuffers.binary');
                     model = tflite.schema.Model.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
                     throw new tflite.Error(`File format is not tflite.Model (${message.replace(/\.$/, '')}).`);
                 }
                 try {
+                    const stream = context.stream;
                     const archive = zip.Archive.open(stream);
                     if (archive) {
                         for (const [name, value] of archive.entries) {

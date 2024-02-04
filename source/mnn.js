@@ -22,12 +22,11 @@ mnn.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./mnn-schema');
+        mnn.schema = await context.require('./mnn-schema');
+        mnn.schema = mnn.schema.MNN;
         let net = null;
         try {
-            mnn.schema = flatbuffers.get('mnn').MNN;
-            const stream = context.stream;
-            const reader = flatbuffers.BinaryReader.open(stream);
+            const reader = context.read('flatbuffers.binary');
             net = mnn.schema.Net.create(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();

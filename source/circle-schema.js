@@ -1,7 +1,5 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
-const $root = flatbuffers.get('circle');
+const $root = {};
 
 $root.circle = $root.circle || {};
 
@@ -3460,3 +3458,5 @@ $root.circle.Model = class Model {
         return $;
     }
 };
+
+export const circle = $root.circle;

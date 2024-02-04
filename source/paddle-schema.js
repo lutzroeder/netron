@@ -1,7 +1,5 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
-const $root = flatbuffers.get('paddlelite');
+const $root = {};
 
 $root.paddle = $root.paddle || {};
 
@@ -534,3 +532,5 @@ $root.paddle.lite.fbs.proto.ParamDesc_.VariableDesc = class {
         }
     }
 };
+
+export const paddle = $root.paddle;
