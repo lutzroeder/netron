@@ -14,7 +14,7 @@ caffe2.ModelFactory = class {
                 Array.from(tags.keys()).every((tag) => tag <= 9) &&
                 Array.from(tags.values()).every((type) => type <= 4)) {
                 if (tags.size === 1 && tags.get(2) === 2 && identifier.endsWith('saved_model.pb')) {
-                    return undefined;
+                    return;
                 }
                 const schema = [[1,2],[2,2],[3,2],[4,0],[5,2],[6,2],[7,2],[8,2],[9,2]];
                 if (schema.every(([key, value]) => !tags.has(key) || tags.get(key) === value)) {
@@ -27,11 +27,13 @@ caffe2.ModelFactory = class {
                                 buffer.length > 2 + size + 1 &&
                                 buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) &&
                                 buffer[2 + size] == 0x12) {
-                                return { name: 'caffe2.pb' };
+                                context.type = 'caffe2.pb';
+                                return;
                             }
                         }
                         if (signature == 0x12) {
-                            return { name: 'caffe2.pb' };
+                            context.type = 'caffe2.pb';
+                            return;
                         }
                     }
                 }
@@ -40,20 +42,20 @@ caffe2.ModelFactory = class {
         if (extension === 'pbtxt' || extension === 'prototxt') {
             const tags = context.tags('pbtxt');
             if (tags.has('op') && !tags.has('op.attr') && !tags.has('op.graph_op_name') && !tags.has('op.endpoint')) {
-                return { name: 'caffe2.pbtxt' };
+                context.type = 'caffe2.pbtxt';
+                return;
             }
         }
-        return undefined;
     }
 
-    async open(context, target) {
+    async open(context) {
         await context.require('./caffe2-proto');
         const metadata = await context.metadata('caffe2-metadata.json');
         const identifier = context.identifier;
         const parts = identifier.split('.');
         const extension = parts.pop().toLowerCase();
         const base = parts.join('.');
-        switch (target.name) {
+        switch (context.type) {
             case 'caffe2.pbtxt': {
                 const openText = (predictBuffer, initBuffer, initTextFormat) => {
                     let predict_net = null;
@@ -188,7 +190,7 @@ caffe2.ModelFactory = class {
                 }
             }
             default: {
-                throw new caffe2.Error(`Unsupported Caffe2 format '${target.name}'.`);
+                throw new caffe2.Error(`Unsupported Caffe2 format '${context.type}'.`);
             }
         }
     }

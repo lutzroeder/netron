@@ -11,9 +11,10 @@ darknet.ModelFactory = class {
         if (extension === 'weights') {
             const weights = darknet.Weights.open(context);
             if (weights) {
-                return { name: 'darknet.weights', value: weights };
+                context.type = 'darknet.weights';
+                context.target = weights;
             }
-            return undefined;
+            return;
         }
         try {
             const reader = text.Reader.open(context.stream, 65536);
@@ -21,26 +22,25 @@ darknet.ModelFactory = class {
                 const content = line.trim();
                 if (content.length > 0 && !content.startsWith('#')) {
                     if (content.startsWith('[') && content.endsWith(']')) {
-                        return { name: 'darknet.model', value: context.stream };
+                        context.type = 'darknet.model';
                     }
-                    return undefined;
+                    return;
                 }
             }
         } catch (err) {
             // continue regardless of error
         }
-        return undefined;
     }
 
-    async open(context, target) {
+    async open(context) {
         const metadata = await context.metadata('darknet-metadata.json');
         const identifier = context.identifier;
         const parts = identifier.split('.');
         parts.pop();
         const basename = parts.join('.');
-        switch (target.name) {
+        switch (context.type) {
             case 'darknet.weights': {
-                const weights = target.value;
+                const weights = context.target;
                 const name = `${basename}.cfg`;
                 const content = await context.fetch(name);
                 const reader = new darknet.Reader(content.stream, content.identifier);
@@ -59,7 +59,7 @@ darknet.ModelFactory = class {
                 }
             }
             default: {
-                throw new darknet.Error(`Unsupported Darknet format '${target.name}'.`);
+                throw new darknet.Error(`Unsupported Darknet format '${context.type}'.`);
             }
         }
     }

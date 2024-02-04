@@ -12,31 +12,33 @@ dl4j.ModelFactory = class {
         if (identifier === 'configuration.json') {
             const obj = context.peek('json');
             if (obj && (obj.confs || obj.vertices)) {
-                return { name: 'dl4j.configuration' };
+                context.type = 'dl4j.configuration';
+                context.target = obj;
+                return;
             }
         }
         if (identifier === 'coefficients.bin') {
             const signature = [ 0x00, 0x07, 0x4A, 0x41, 0x56, 0x41, 0x43, 0x50, 0x50 ]; // JAVACPP
             const stream = context.stream;
             if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                return { name: 'dl4j.coefficients' };
+                context.type = 'dl4j.coefficients';
+                return;
             }
         }
-        return undefined;
     }
 
-    filter(target, name) {
-        if (target.name === 'dl4j.configuration' && (name === 'dl4j.coefficients' || name === 'openvino.bin')) {
+    filter(context, name) {
+        if (context.type === 'dl4j.configuration' && (name === 'dl4j.coefficients' || name === 'openvino.bin')) {
             return false;
         }
         return true;
     }
 
-    async open(context, target) {
+    async open(context) {
         const metadata = await context.metadata('dl4j-metadata.json');
-        switch (target.name) {
+        switch (context.type) {
             case 'dl4j.configuration': {
-                const obj = context.peek('json');
+                const obj = context.target;
                 try {
                     const content = await context.fetch('coefficients.bin');
                     const buffer = content.stream.peek();
@@ -51,7 +53,7 @@ dl4j.ModelFactory = class {
                 return new dl4j.Model(metadata, obj, context.stream.peek());
             }
             default: {
-                throw new dl4j.Error(`Unsupported Deeplearning4j format '${target.name}'.`);
+                throw new dl4j.Error(`Unsupported Deeplearning4j format '${context.type}'.`);
             }
         }
     }

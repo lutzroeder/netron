@@ -6,10 +6,12 @@ const gguf = {};
 gguf.ModelFactory = class {
 
     match(context) {
-        return gguf.Reader.open(context.stream);
+        context.target = gguf.Reader.open(context.stream);
+        context.type = context.target ? context.target.name : null;
     }
 
-    async open(context, target) {
+    async open(context) {
+        const target = context.target;
         target.read();
         return new gguf.Model(target);
     }

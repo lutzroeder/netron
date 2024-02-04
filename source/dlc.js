@@ -7,15 +7,16 @@ const dlc = {};
 dlc.ModelFactory = class {
 
     match(context) {
-        return dlc.Container.open(context);
+        context.target = dlc.Container.open(context);
+        context.type = context.target ? context.target.name : null;
     }
 
-    async open(context, target) {
+    async open(context) {
         await context.require('./dlc-schema');
         dlc.schema = flatbuffers.get('dlc').dlc;
-        await target.read();
+        await context.target.read();
         const metadata = await context.metadata('dlc-metadata.json');
-        return new dlc.Model(metadata, target);
+        return new dlc.Model(metadata, context.target);
     }
 };
 

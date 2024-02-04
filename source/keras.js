@@ -13,38 +13,51 @@ keras.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         const group = context.peek('hdf5');
         if (group && group.attributes && group.attributes.get('CLASS') !== 'hickle') {
+            context.target = group;
             if (identifier === 'model.weights.h5') {
-                return { name: 'keras.model.weights.h5', value: group };
+                context.type = 'keras.model.weights.h5';
+                return;
             }
-            return { name: 'keras.h5', value: group };
+            context.type = 'keras.h5';
+            return;
         }
         const json = context.peek('json');
         if (json) {
             if (json.mxnet_version || (json.nodes && json.arg_nodes && json.heads)) {
-                return null;
+                return;
             }
             if (json.model_config || (json.class_name && json.config)) {
-                return { name: 'keras.config.json', value: json };
+                context.type = 'keras.config.json';
+                context.target = json;
+                return;
             }
             if (identifier === 'metadata.json' && json.keras_version) {
-                return { name: 'keras.metadata.json', value: json };
+                context.type = 'keras.metadata.json';
+                context.target = json;
+                return;
             }
         }
         const container = tfjs.Container.open(context);
         if (container) {
-            return { name: 'tfjs.json', value: container };
+            context.type = 'tfjs.json';
+            context.target = container;
+            return;
         }
         const pickle = context.peek('pkl');
         if (pickle && pickle.__class__ &&
             pickle.__class__.__module__ === 'keras.engine.sequential' &&
             pickle.__class__.__name__ === 'Sequential') {
-            return { name: 'keras.pickle', value: pickle };
+            context.type = 'tfjs.pickle';
+            context.target = pickle;
+            return;
         }
         // model.weights.npz
         const entries = context.peek('npz');
         const regex = /^(__root__|layers\/.+|_layer_checkpoint_dependencies\/.+)\.npy$/;
         if (entries instanceof Map && entries.size > 0 && Array.from(entries).every(([name]) => regex.test(name))) {
-            return { name: 'keras.model.weights.npz', value: entries };
+            context.type = 'keras.model.weights.npz';
+            context.target = entries;
+            return;
         }
         // keras_metadata.pb
         if (extension === 'pb' && context.stream && context.stream.length > 16) {
@@ -54,24 +67,24 @@ keras.ModelFactory = class {
                 const buffer = stream.peek(Math.min(stream.length, 1024));
                 const content = String.fromCharCode.apply(null, buffer);
                 if (/root"/.test(content) && /\{\s*"class_name"\s*:/.test(content)) {
-                    return { name: 'keras.pb.SavedMetadata' };
+                    context.type = 'keras.pb.SavedMetadata';
+                    return;
                 }
             }
         }
-        return null;
     }
 
-    filter(target, name) {
-        if (target.name === 'keras.metadata.json' && (name === 'keras.config.json' || name === 'keras.model.weights.h5' || name === 'keras.model.weights.npz')) {
+    filter(context, name) {
+        if (context.type === 'keras.metadata.json' && (name === 'keras.config.json' || name === 'keras.model.weights.h5' || name === 'keras.model.weights.npz')) {
             return false;
         }
-        if (target.name === 'keras.config.json' && (name === 'keras.model.weights.h5' || name === 'keras.model.weights.npz')) {
+        if (context.type === 'keras.config.json' && (name === 'keras.model.weights.h5' || name === 'keras.model.weights.npz')) {
             return false;
         }
         return true;
     }
 
-    async open(context, target) {
+    async open(context) {
         const request_json = async (context, name) => {
             try {
                 context = await context.fetch(name);
@@ -211,9 +224,9 @@ keras.ModelFactory = class {
             const metadata = await context.metadata('keras-metadata.json');
             return new keras.Model(metadata, format, producer, backend, config, weights);
         };
-        switch (target.name) {
+        switch (context.type) {
             case 'keras.config.json': {
-                const obj = target.value;
+                const obj = context.target;
                 const config = obj.model_config ? obj.model_config : obj;
                 const backend = obj.backend || '';
                 let version = obj.keras_version ? obj.keras_version : null;
@@ -229,7 +242,7 @@ keras.ModelFactory = class {
                 return open_model(format, '', backend, config, null);
             }
             case 'keras.model.weights.h5': {
-                const group = target.value;
+                const group = context.target;
                 const weights_store = read_weights_hdf5(group);
                 const metadata = await request_json(context, 'metadata.json');
                 let config = await request_json(context, 'config.json');
@@ -243,7 +256,7 @@ keras.ModelFactory = class {
                 return open_model(format, '', '', config, null);
             }
             case 'keras.model.weights.npz': {
-                const entries = target.value;
+                const entries = context.target;
                 const weights_store = read_weights_numpy(entries);
                 const metadata = await request_json(context, 'metadata.json');
                 let config = await request_json(context, 'config.json');
@@ -257,7 +270,7 @@ keras.ModelFactory = class {
                 return open_model(format, '', '', config, null);
             }
             case 'keras.metadata.json': {
-                const metadata = target.value;
+                const metadata = context.target;
                 let config = await request_json(context, 'config.json');
                 const name = config ? 'Keras' : 'Keras Weights';
                 const format = name + (metadata.keras_version ? ` v${metadata.keras_version}` : '');
@@ -307,7 +320,7 @@ keras.ModelFactory = class {
                     return null;
                 };
                 const weights = new keras.Weights();
-                const group = target.value;
+                const group = context.target;
                 const root_group = find_root_group(group);
                 const model_config = read_model_config(root_group);
                 if (model_config) {
@@ -447,7 +460,7 @@ keras.ModelFactory = class {
                 return open_model(container.format, container.producer, container.backend, container.config, container.weights);
             }
             case 'keras.pickle': {
-                const obj = target.value;
+                const obj = context.target;
                 const execution = new python.Execution();
                 const decoder = new TextDecoder('utf-8');
                 const format = `Keras Pickle${obj.keras_version ? ` v${decoder.decode(obj.keras_version)}` : ''}`;
@@ -497,7 +510,7 @@ keras.ModelFactory = class {
                 return open_model(format, '', '', model_config, null);
             }
             default: {
-                throw new keras.Error(`Unsupported Keras format '${target.name}'.`);
+                throw new keras.Error(`Unsupported Keras format '${context.type}'.`);
             }
         }
     }

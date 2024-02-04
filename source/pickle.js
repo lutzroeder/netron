@@ -10,21 +10,22 @@ pickle.ModelFactory = class {
         const signature = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
             // Reject PyTorch models with .pkl file extension.
-            return null;
+            return;
         }
         const obj = context.peek('pkl');
         if (obj !== undefined) {
             const name = obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : '';
             if (!name.startsWith('__torch__.')) {
-                return { name: 'pickle', value: obj };
+                context.type = 'pickle';
+                context.target = obj;
+                return;
             }
         }
-        return null;
     }
 
-    async open(context, target) {
+    async open(context) {
         let format = 'Pickle';
-        const obj = target.value;
+        const obj = context.target;
         if (obj === null || obj === undefined) {
             context.exception(new pickle.Error("Unsupported Pickle null object."));
         } else if (obj instanceof Error) {

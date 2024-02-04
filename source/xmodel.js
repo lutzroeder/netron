@@ -8,9 +8,8 @@ xmodel.ModelFactory = class {
     match(context) {
         const tags = context.tags('pb');
         if (tags.get(5) === 2) {
-            return 'xmodel.pb';
+            context.type = 'xmodel.pb';
         }
-        return undefined;
     }
 
     async open(context) {

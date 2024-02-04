@@ -10,25 +10,25 @@ armnn.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         const stream = context.stream;
         if (stream && extension === 'armnn') {
-            return { name: 'armnn.flatbuffers', value: stream };
-        }
-        if (extension === 'json') {
+            context.type = 'armnn.flatbuffers';
+            context.target = stream;
+        } else if (extension === 'json') {
             const obj = context.peek('json');
             if (obj && obj.layers && obj.inputIds && obj.outputIds) {
-                return { name: 'armnn.flatbuffers.json', value: obj };
+                context.type = 'armnn.flatbuffers.json';
+                context.target = obj;
             }
         }
-        return undefined;
     }
 
-    async open(context, target) {
+    async open(context) {
         await context.require('./armnn-schema');
         armnn.schema = flatbuffers.get('armnn').armnnSerializer;
         let model = null;
-        switch (target.name) {
+        switch (context.type) {
             case 'armnn.flatbuffers': {
                 try {
-                    const stream = target.value;
+                    const stream = context.target;
                     const reader = flatbuffers.BinaryReader.open(stream);
                     model = armnn.schema.SerializedGraph.create(reader);
                 } catch (error) {
@@ -39,7 +39,7 @@ armnn.ModelFactory = class {
             }
             case 'armnn.flatbuffers.json': {
                 try {
-                    const obj = target.value;
+                    const obj = context.target;
                     const reader = flatbuffers.TextReader.open(obj);
                     model = armnn.schema.SerializedGraph.createText(reader);
                 } catch (error) {
@@ -49,7 +49,7 @@ armnn.ModelFactory = class {
                 break;
             }
             default: {
-                throw new armnn.Error(`Unsupported Arm NN '${target.name}'.`);
+                throw new armnn.Error(`Unsupported Arm NN '${context.type}'.`);
             }
         }
         const metadata = await context.metadata('armnn-metadata.json');

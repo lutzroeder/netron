@@ -6,10 +6,12 @@ const kmodel = {};
 kmodel.ModelFactory = class {
 
     match(context) {
-        return kmodel.Reader.open(context.stream);
+        context.target = kmodel.Reader.open(context.stream);
+        context.type = context.target ? context.target.name : context.target;
     }
 
-    async open(context, target) {
+    async open(context) {
+        const target = context.target;
         target.read();
         return new kmodel.Model(target);
     }

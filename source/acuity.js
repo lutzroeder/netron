@@ -8,15 +8,16 @@ acuity.ModelFactory = class {
         if (extension === 'json') {
             const obj = context.peek('json');
             if (obj && obj.MetaData && obj.Layers) {
-                return { name: 'acuity', value: obj };
+                context.type = 'acuity';
+                context.target = obj;
             }
         }
         return null;
     }
 
-    async open(context, target) {
+    async open(context) {
         const metadata = await context.metadata('acuity-metadata.json');
-        return new acuity.Model(metadata, target.value);
+        return new acuity.Model(metadata, context.target);
     }
 };
 

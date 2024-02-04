@@ -13,26 +13,27 @@ onnx.ModelFactory = class {
             'saved_model.pb', 'predict_net.pb', 'init_net.pb',
             'predict_net.pbtxt', 'init_net.pbtxt', 'predict_net.prototxt', 'init_net.prototxt'
         ];
-        if (extensions.some((extension) => identifier.endsWith(extension))) {
-            return undefined;
-        }
-        const entries = [
-            onnx.OrtReader,
-            onnx.ProtoReader,
-            onnx.TextReader,
-            onnx.JsonReader,
-            onnx.PickleReader
-        ];
-        for (const entry of entries) {
-            const reader = entry.open(context);
-            if (reader) {
-                return reader;
+        if (!extensions.some((extension) => identifier.endsWith(extension))) {
+            const entries = [
+                onnx.OrtReader,
+                onnx.ProtoReader,
+                onnx.TextReader,
+                onnx.JsonReader,
+                onnx.PickleReader
+            ];
+            for (const entry of entries) {
+                const reader = entry.open(context);
+                if (reader) {
+                    context.type = reader.name;
+                    context.target = reader;
+                    break;
+                }
             }
         }
-        return undefined;
     }
 
-    async open(context, target) {
+    async open(context) {
+        const target = context.target;
         await target.read();
         const model = target.model;
         const format = target.format;

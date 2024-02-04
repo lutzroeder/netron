@@ -12,52 +12,53 @@ openvino.ModelFactory = class {
             const stream = context.stream;
             const signature = [ 0x21, 0xA8, 0xEF, 0xBE, 0xAD, 0xDE ];
             if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                return undefined;
+                return;
             }
             if (stream.length > 4) {
                 const buffer = stream.peek(Math.min(256, stream.length));
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature === 0x00000000 || signature === 0x00000001 ||
                     signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
-                    return undefined;
+                    return;
                 }
                 for (let i = 0; i < buffer.length - 4; i++) {
                     const signature = (buffer[i] | buffer[i + 1] << 8 | buffer[i + 2] << 16 | buffer [i + 3] << 24) >>> 0;
                     if (signature === 0xdeadbeef) {
-                        return undefined;
+                        return;
                     }
                 }
             }
             if (/^.*pytorch_model.*\.bin$/.test(identifier) ||
                 /^.*group.+-shard.+of.+\.bin$/.test(identifier)) {
-                return undefined;
+                return;
             }
             const identifiers = new Set([ 'config.bin', 'model.bin', '__model__.bin', 'weights.bin', 'programs.bin', 'best.bin', 'ncnn.bin' ]);
             if (identifiers.has(identifier)) {
-                return undefined;
+                return;
             }
-            return { name: 'openvino.bin' };
+            context.type = 'openvino.bin';
+            return;
         }
         const tags = context.tags('xml');
         if (tags.has('net')) {
-            return { name: 'openvino.xml' };
+            context.type = 'openvino.xml';
+            return;
         }
-        return undefined;
     }
 
-    filter(target, name) {
-        if (target.name === 'openvino.xml' && name === 'openvino.bin') {
+    filter(context, name) {
+        if (context.type === 'openvino.xml' && name === 'openvino.bin') {
             return false;
         }
         return true;
     }
 
-    async open(context, target) {
+    async open(context) {
         const identifier = context.identifier;
         const base = identifier.substring(0, identifier.length - 4);
         let stream = null;
         let bin = null;
-        switch (target.name) {
+        switch (context.type) {
             case 'openvino.xml': {
                 stream = context.stream;
                 try {
@@ -77,7 +78,7 @@ openvino.ModelFactory = class {
                 break;
             }
             default: {
-                throw new openvino.Error(`Unsupported OpenVINO format '${target.name}'.`);
+                throw new openvino.Error(`Unsupported OpenVINO format '${context.type}'.`);
             }
         }
         const metadata = await context.metadata('openvino-metadata.json');

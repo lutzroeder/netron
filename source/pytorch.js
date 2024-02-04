@@ -10,21 +10,23 @@ const pytorch = {};
 pytorch.ModelFactory = class {
 
     match(context) {
-        return pytorch.Container.open(context);
+        context.target = pytorch.Container.open(context);
+        context.type = context.target ? context.target.name : null;
     }
 
-    filter(target, name) {
-        if (target.name === 'pytorch.export' && name === 'pytorch.zip') {
+    filter(context, name) {
+        if (context.type === 'pytorch.export' && name === 'pytorch.zip') {
             return false;
         }
-        if (target.name === 'pytorch.index' && name === 'pytorch.zip') {
+        if (context.type === 'pytorch.index' && name === 'pytorch.zip') {
             return false;
         }
         return true;
     }
 
-    async open(context, target) {
+    async open(context) {
         const metadata = await pytorch.Metadata.open(context);
+        const target = context.target;
         target.on('resolve', (_, name) => {
             context.exception(new pytorch.Error(`Unknown type name '${name}'.`), false);
         });

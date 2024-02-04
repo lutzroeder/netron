@@ -16,10 +16,9 @@ sentencepiece.ModelFactory = class {
                 model['2'] && model['2']['1'] === 2 && model['2']['2'] === 2 && model['2']['3'] === 0 &&
                 model['2']['4'] === 0 && model['2']['10'] === 5 && model['2']['16'] === 0 &&
                 model['2']['40'] === 0 && model['2']['41'] === 0 && model['2']['42'] === 0 && model['2']['43'] === 0) {
-                return { name: 'sentencepiece' };
+                context.type = 'sentencepiece';
             }
         }
-        return undefined;
     }
 
     async open(context) {

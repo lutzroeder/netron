@@ -10,21 +10,22 @@ circle.ModelFactory = class {
     match(context) {
         const tags = context.tags('flatbuffers');
         if (tags.get('file_identifier') === 'CIR0') {
-            return { name: 'circle.flatbuffers' };
+            context.type = 'circle.flatbuffers';
+            return;
         }
         const obj = context.peek('json');
         if (obj && obj.subgraphs && obj.operator_codes) {
-            return { name: 'circle.flatbuffers.json' };
+            context.type = 'circle.flatbuffers.json';
+            return;
         }
-        return undefined;
     }
 
-    async open(context, target) {
+    async open(context) {
         await context.require('./circle-schema');
         circle.schema = flatbuffers.get('circle').circle;
         let model = null;
         const attachments = new Map();
-        switch (target.name) {
+        switch (context.type) {
             case 'circle.flatbuffers.json': {
                 try {
                     const obj = context.peek('json');
@@ -58,7 +59,7 @@ circle.ModelFactory = class {
                 break;
             }
             default: {
-                throw new circle.Error(`Unsupported Circle format '${target.name}'.`);
+                throw new circle.Error(`Unsupported Circle format '${context.type}'.`);
             }
         }
         const metadata = await context.metadata('circle-metadata.json');

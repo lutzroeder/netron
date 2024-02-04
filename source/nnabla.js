@@ -11,16 +11,15 @@ nnabla.ModelFactory = class {
         if (identifier.endsWith('.nntxt')) {
             const tags = context.tags('pbtxt');
             if (tags.has('network')) {
-                return { name: 'nnabla.pbtxt' };
+                context.type = 'nnabla.pbtxt';
             }
         }
-        return undefined;
     }
 
-    async open(context, target) {
+    async open(context) {
         await context.require('./nnabla-proto');
         nnabla.proto = protobuf.get('nnabla').nnabla;
-        switch (target.name) {
+        switch (context.type) {
             case 'nnabla.pbtxt': {
                 const stream = context.stream;
                 const reader = protobuf.TextReader.open(stream);
@@ -44,7 +43,7 @@ nnabla.ModelFactory = class {
                 }
             }
             default: {
-                throw new nnabla.Error(`Unsupported nnabla format '${target.name}'.`);
+                throw new nnabla.Error(`Unsupported nnabla format '${context.type}'.`);
             }
         }
     }

@@ -7,10 +7,23 @@ tensorrt.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        return tensorrt.Engine.open(stream) || tensorrt.Container.open(stream);
+        const engine = tensorrt.Engine.open(stream);
+        if (engine) {
+            context.target = engine;
+            context.type = 'tensorrt.engine';
+            return;
+        }
+        const container = tensorrt.Container.open(stream);
+        if (container) {
+            context.target = container;
+            context.type = 'tensorrt.container';
+            return;
+        }
     }
 
-    async open(context, target) {
+    async open(context) {
+        const target = context.target;
+        target.read();
         return new tensorrt.Model(null, target);
     }
 };
@@ -71,16 +84,11 @@ tensorrt.Engine = class {
     }
 
     constructor(stream) {
-        this.name = 'tensorrt.engine';
         this.stream = stream;
+        this.format = 'TensorRT Engine';
     }
 
-    get format() {
-        this._read();
-        return 'TensorRT Engine';
-    }
-
-    _read() {
+    read() {
         if (this.stream) {
             const buffer = this.stream.peek(24);
             delete this.stream;
@@ -146,16 +154,11 @@ tensorrt.Container = class {
     }
 
     constructor(stream) {
-        this.name = 'tensorrt.container';
         this.stream = stream;
+        this.format = 'TensorRT FlatBuffers';
     }
 
-    get format() {
-        this._read();
-        return 'TensorRT FlatBuffers';
-    }
-
-    _read() {
+    read() {
         delete this.stream;
         // const buffer = this._stream.peek(Math.min(24, this._stream.length));
         // const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');

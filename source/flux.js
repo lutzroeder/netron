@@ -1,8 +1,6 @@
 
 // Experimental
 
-import * as json from './json.js';
-
 const flux = {};
 
 flux.ModelFactory = class {
@@ -12,17 +10,14 @@ flux.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         const stream = context.stream;
         if (stream && extension === 'bson') {
-            return { name: 'flux.bson' };
+            context.type = 'flux.bson';
         }
-        return null;
     }
 
     async open(context) {
         let root = null;
         try {
-            const stream = context.stream;
-            const reader = json.BinaryReader.open(stream);
-            root = reader.read();
+            root = context.read('bson');
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
             throw new flux.Error(`File format is not Flux BSON (${message.replace(/\.$/, '')}).`);

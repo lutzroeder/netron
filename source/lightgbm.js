@@ -9,23 +9,25 @@ lightgbm.ModelFactory = class {
         const stream = context.stream;
         const signature = [ 0x74, 0x72, 0x65, 0x65, 0x0A ];
         if (stream && stream.length >= signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            return { name: 'lightgbm.text', value: stream };
+            context.type = 'lightgbm.text';
+            return;
         }
         const obj = context.peek('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__module__.startsWith('lightgbm.')) {
-            return { name: 'lightgbm.pickle', value: obj };
+            context.type = 'lightgbm.pickle';
+            context.target = obj;
+            return;
         }
-        return null;
     }
 
-    async open(context, target) {
-        switch (target.name) {
+    async open(context) {
+        switch (context.type) {
             case 'lightgbm.pickle': {
-                const obj = target.value;
+                const obj = context.target;
                 return new lightgbm.Model(obj, 'LightGBM Pickle');
             }
             case 'lightgbm.text': {
-                const stream = target.value;
+                const stream = context.stream;
                 const buffer = stream.peek();
                 const decoder = new TextDecoder('utf-8');
                 const model_str = decoder.decode(buffer);
@@ -35,7 +37,7 @@ lightgbm.ModelFactory = class {
                 return new lightgbm.Model(obj, 'LightGBM');
             }
             default: {
-                throw new lightgbm.Error(`Unsupported LightGBM format '${target.name}'.`);
+                throw new lightgbm.Error(`Unsupported LightGBM format '${context.type}'.`);
             }
         }
     }

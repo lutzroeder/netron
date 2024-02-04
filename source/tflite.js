@@ -10,7 +10,8 @@ tflite.ModelFactory = class {
     match(context) {
         const tags = context.tags('flatbuffers');
         if (tags.get('file_identifier') === 'TFL3') {
-            return { name: 'tflite.flatbuffers' };
+            context.type = 'tflite.flatbuffers';
+            return;
         }
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
@@ -21,23 +22,24 @@ tflite.ModelFactory = class {
             if (reader.root === 0x00000018) {
                 const version = reader.uint32_(reader.root, 4, 0);
                 if (version === 3) {
-                    return { name: 'tflite.flatbuffers' };
+                    context.type = 'tflite.flatbuffers';
+                    return;
                 }
             }
         }
         const obj = context.peek('json');
         if (obj && obj.subgraphs && obj.operator_codes) {
-            return { name: 'tflite.flatbuffers.json' };
+            context.type = 'tflite.flatbuffers.json';
+            return;
         }
-        return undefined;
     }
 
-    async open(context, target) {
+    async open(context) {
         await context.require('./tflite-schema');
         tflite.schema = flatbuffers.get('tflite').tflite;
         let model = null;
         const attachments = new Map();
-        switch (target.name) {
+        switch (context.type) {
             case 'tflite.flatbuffers.json': {
                 try {
                     const obj = context.peek('json');
@@ -71,7 +73,7 @@ tflite.ModelFactory = class {
                 break;
             }
             default: {
-                throw new tflite.Error(`Unsupported TensorFlow Lite format '${target.name}'.`);
+                throw new tflite.Error(`Unsupported TensorFlow Lite format '${context.type}'.`);
             }
         }
         const metadata = await context.metadata('tflite-metadata.json');

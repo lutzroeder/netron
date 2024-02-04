@@ -15,14 +15,13 @@ weka.ModelFactory = class {
                     const reader = new java.io.InputObjectStream(stream);
                     const obj = reader.read();
                     if (obj && obj.$class && obj.$class.name) {
-                        return 'weka';
+                        context.type = 'weka';
                     }
                 }
             }
         } catch (err) {
             // continue regardless of error
         }
-        return undefined;
     }
 
     async open(context) {

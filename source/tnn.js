@@ -19,7 +19,8 @@ tnn.ModelFactory = class {
                     if (line.startsWith('"') && line.endsWith('"')) {
                         const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
                         if (header.length === 3 || (header.length >= 4 && (header[3] === '4206624770' || header[3] == '4206624772'))) {
-                            return { name: 'tnn.model' };
+                            context.type = 'tnn.model';
+                            return;
                         }
                     }
                 }
@@ -30,16 +31,16 @@ tnn.ModelFactory = class {
         if (stream && identifier.endsWith('.tnnmodel')) {
             for (const signature of [ [ 0x02, 0x00, 0xbc, 0xfa ], [ 0x04, 0x00, 0xbc, 0xfa ] ]) {
                 if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                    return { name: 'tnn.params' };
+                    context.type = 'tnn.params';
+                    return;
                 }
             }
         }
-        return '';
     }
 
-    async open(context, target) {
+    async open(context) {
         const metadata = await context.metadata('tnn-metadata.json');
-        switch (target.name) {
+        switch (context.type) {
             case 'tnn.model': {
                 const name = `${context.identifier.substring(0, context.identifier.length - 9)}.tnnmodel`;
                 try {
@@ -57,7 +58,7 @@ tnn.ModelFactory = class {
                 return new tnn.Model(metadata, buffer, context.stream.peek());
             }
             default: {
-                throw new tnn.Error(`Unsupported TNN format '${target.name}'.`);
+                throw new tnn.Error(`Unsupported TNN format '${context.type}'.`);
             }
         }
     }

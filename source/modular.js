@@ -6,13 +6,13 @@ modular.ModelFactory = class {
     match(context) {
         const obj = context.peek('json');
         if (obj && obj.signature == "netron:modular") {
-            return { name: 'modular', value: obj };
+            context.type = 'modular';
+            context.target = obj;
         }
-        return null;
     }
 
-    async open(context, target) {
-        return new modular.Model(target.value);
+    async open(context) {
+        return new modular.Model(context.target);
     }
 };
 

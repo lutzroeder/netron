@@ -9,13 +9,15 @@ const openvx = {};
 rknn.ModelFactory = class {
 
     match(context) {
-        return rknn.Container.open(context);
+        context.target = rknn.Container.open(context);
+        context.type = context.target ? context.target.name : null;
     }
 
-    async open(context, target) {
+    async open(context) {
         await context.require('./rknn-schema');
         rknn.schema = flatbuffers.get('rknn').rknn;
         const metadata = await context.metadata('rknn-metadata.json');
+        const target = context.target;
         target.read();
         if (target.has('json')) {
             const buffer = target.get('json');
@@ -523,13 +525,13 @@ rknn.Container = class extends Map {
     constructor(stream, entries) {
         super(entries);
         this.name = 'rknn';
-        this._stream = stream;
+        this.stream = stream;
     }
 
     read() {
-        if (this._stream) {
-            const stream = this._stream;
-            delete this._stream;
+        if (this.stream) {
+            const stream = this.stream;
+            delete this.stream;
             const signature = rknn.Container.signature(stream);
             switch (signature) {
                 case 'rknn': {

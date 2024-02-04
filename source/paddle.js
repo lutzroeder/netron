@@ -14,55 +14,64 @@ paddle.ModelFactory = class {
         if (identifier === '__model__' || extension === '__model__' || extension === 'paddle' || extension === 'pdmodel') {
             const tags = context.tags('pb');
             if (tags.get(1) === 2) {
-                return { name: 'paddle.pb' };
+                context.type = 'paddle.pb';
+                return;
             }
         }
         if (extension === 'pbtxt' || extension === 'txt') {
             const tags = context.tags('pbtxt');
             if (tags.has('blocks')) {
-                return { name: 'paddle.pbtxt' };
+                context.type = 'paddle.pbtxt';
+                return;
             }
         }
         const stream = context.stream;
         if (stream && stream.length > 16 && stream.peek(16).every((value) => value === 0x00)) {
-            return { name: 'paddle.params' };
+            context.type = 'paddle.params';
+            return;
         }
         const pickle = paddle.Pickle.open(context);
         if (pickle) {
-            return pickle;
+            context.target = pickle;
+            context.type = context.target.name;
+            return;
         }
         const entries = paddle.Entries.open(context);
         if (entries) {
-            return entries;
+            context.target = entries;
+            context.type = context.target.name;
+            return;
         }
         const naive = paddle.NaiveBuffer.open(context);
         if (naive) {
-            return naive;
+            context.target = naive;
+            context.type = context.target.name;
+            return;
         }
-        return undefined;
     }
 
-    filter(target, name) {
-        if (target.name === 'paddle.pb' && name === 'paddle.params') {
+    filter(context, name) {
+        if (context.type === 'paddle.pb' && name === 'paddle.params') {
             return false;
         }
-        if (target.name === 'paddle.naive.model' && name === 'paddle.naive.param') {
+        if (context.type === 'paddle.naive.model' && name === 'paddle.naive.param') {
             return false;
         }
-        if (target.name === 'paddle.pb' && name === 'paddle.pickle') {
+        if (context.type === 'paddle.pb' && name === 'paddle.pickle') {
             return false;
         }
         return true;
     }
 
-    async open(context, target) {
+    async open(context) {
         const metadata = await context.metadata('paddle-metadata.json');
-        switch (target.name) {
+        switch (context.type) {
             case 'paddle.naive':
             case 'paddle.naive.model':
             case 'paddle.naive.param': {
                 await context.require('./paddle-schema');
                 paddle.schema = flatbuffers.get('paddlelite').paddle.lite.fbs.proto;
+                const target = context.target;
                 target.read();
                 return new paddle.Model(metadata, target.format, target.model, target.weights);
             }
@@ -73,9 +82,9 @@ paddle.ModelFactory = class {
                 const parts = identifier.split('.');
                 const extension = parts.pop().toLowerCase();
                 const base = parts.join('.');
-                const openProgram = (stream, target) => {
+                const openProgram = (stream, type) => {
                     const program = {};
-                    switch (target.name) {
+                    switch (context.type) {
                         case 'paddle.pbtxt': {
                             try {
                                 const reader = protobuf.TextReader.open(stream);
@@ -97,7 +106,7 @@ paddle.ModelFactory = class {
                             break;
                         }
                         default: {
-                            throw new paddle.Error(`Unsupported Paddle format '${target.name}'.`);
+                            throw new paddle.Error(`Unsupported Paddle format '${type}'.`);
                         }
                     }
                     const formatVersion = (version) => {
@@ -156,11 +165,13 @@ paddle.ModelFactory = class {
                     }
                     return weights;
                 };
-                switch (target.name) {
+                switch (context.type) {
                     case 'paddle.pickle': {
+                        const target = context.target;
                         return new paddle.Model(metadata, target.format, null, target.weights);
                     }
                     case 'paddle.entries': {
+                        const target = context.target;
                         target.read();
                         return new paddle.Model(metadata, target.format, null, target.weights);
                     }
@@ -193,7 +204,7 @@ paddle.ModelFactory = class {
                             const container = new paddle.Pickle(obj);
                             return container.weights || new Map();
                         };
-                        const program = openProgram(context.stream, target);
+                        const program = openProgram(context.stream, context.type);
                         if (extension === 'pdmodel') {
                             try {
                                 const name = `${base}.pdiparams`;
@@ -243,7 +254,7 @@ paddle.ModelFactory = class {
                         return loadEntries(context, program);
                     }
                     default: {
-                        throw new paddle.Error(`Unsupported PaddlePaddle format '${target.name}'.`);
+                        throw new paddle.Error(`Unsupported PaddlePaddle format '${context.type}'.`);
                     }
                 }
             }

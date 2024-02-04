@@ -23,40 +23,43 @@ sklearn.ModelFactory = class {
         ];
         for (const format of formats) {
             if (validate(obj, format.name)) {
-                return { name: format.format, value: obj };
+                context.type = format.format;
+                context.target = obj;
+                return;
             }
             if (Array.isArray(obj) && obj.length > 0 && obj.every((item) => validate(item, format.name))) {
-                return { name: `${format.format}.list`, value: obj };
+                context.type = `${format.format}.list`;
+                context.target = obj;
+                return;
             }
             if (Object(obj) === obj) {
                 const entries = Object.entries(obj);
                 if (entries.length > 0 && entries.every(([, value]) => validate(value, format.name))) {
-                    return { name: `${format.format}.map`, value: obj };
+                    context.type = `${format.format}.map`;
+                    context.target = obj;
                 }
             }
         }
-        return null;
     }
 
-    async open(context, target) {
+    async open(context) {
         const metadata = await context.metadata('sklearn-metadata.json');
-        return new sklearn.Model(metadata, target);
+        return new sklearn.Model(metadata, context.type, context.target);
     }
 };
 
 sklearn.Model = class {
 
-    constructor(metadata, target) {
+    constructor(metadata, type, obj) {
         const formats = new Map([
             [ 'sklearn', 'scikit-learn' ],
             [ 'scipy', 'SciPy' ],
             [ 'hmmlearn', 'hmmlearn' ]
         ]);
-        this.format = formats.get(target.name.split('.').shift());
+        this.format = formats.get(type.split('.').shift());
         this.graphs = [];
         const version = [];
-        const obj = target.value;
-        switch (target.name) {
+        switch (type) {
             case 'sklearn':
             case 'scipy':
             case 'hmmlearn': {
@@ -89,7 +92,7 @@ sklearn.Model = class {
                 break;
             }
             default: {
-                throw new sklearn.Error(`Unsupported scikit-learn format '${target.name}'.`);
+                throw new sklearn.Error(`Unsupported scikit-learn format '${type}'.`);
             }
         }
         if (version.length > 0 && version.every((value) => value === version[0])) {

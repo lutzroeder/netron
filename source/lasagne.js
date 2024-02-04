@@ -8,14 +8,14 @@ lasagne.ModelFactory = class {
     match(context) {
         const obj = context.peek('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ === 'nolearn.lasagne.base' && obj.__class__.__name__ == 'NeuralNet') {
-            return { name: 'lasagne', value: obj };
+            context.type = 'lasagne';
+            context.target = obj;
         }
-        return null;
     }
 
-    async open(context, target) {
+    async open(context) {
         const metadata = await context.metadata('lasagne-metadata.json');
-        return new lasagne.Model(metadata, target.value);
+        return new lasagne.Model(metadata, context.target);
     }
 };
 

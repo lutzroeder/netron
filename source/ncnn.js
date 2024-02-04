@@ -18,7 +18,8 @@ ncnn.ModelFactory = class {
                 const buffer = stream.peek(4);
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature == 0x007685DD) {
-                    return { name: 'ncnn.model.bin' };
+                    context.type = 'ncnn.model.bin';
+                    return;
                 }
             }
         }
@@ -28,11 +29,13 @@ ncnn.ModelFactory = class {
                 const signature = reader.read();
                 if (signature !== undefined) {
                     if (signature.trim() === '7767517') {
-                        return { name: 'ncnn.model' };
+                        context.type = 'ncnn.model';
+                        return;
                     }
                     const header = signature.trim().split(' ');
                     if (header.length === 2 && header.every((value) => value >>> 0 === parseFloat(value))) {
-                        return { name: 'ncnn.model' };
+                        context.type = 'ncnn.model';
+                        return;
                     }
                 }
             } catch (err) {
@@ -46,21 +49,21 @@ ncnn.ModelFactory = class {
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature === 0x00000000 || signature === 0x00000001 ||
                     signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
-                    return { name: 'ncnn.weights' };
+                    context.type = 'ncnn.weights';
+                    return;
                 }
             }
         }
-        return undefined;
     }
 
-    filter(target, name) {
-        if ((target.name === 'ncnn.model' || target.name === 'ncnn.model.bin') && name === 'ncnn.weights') {
+    filter(context, name) {
+        if ((context.type === 'ncnn.model' || context.type === 'ncnn.model.bin') && name === 'ncnn.weights') {
             return false;
         }
         return true;
     }
 
-    async open(context, target) {
+    async open(context) {
         const metadata = await context.metadata('ncnn-metadata.json');
         const openBinary = (param, bin) => {
             const reader = new ncnn.BinaryParamReader(param);
@@ -72,7 +75,7 @@ ncnn.ModelFactory = class {
         };
         const identifier = context.identifier.toLowerCase();
         let bin = null;
-        switch (target.name) {
+        switch (context.type) {
             case 'ncnn.model': {
                 if (identifier.endsWith('.param')) {
                     bin = `${context.identifier.substring(0, context.identifier.length - 6)}.bin`;
@@ -115,7 +118,7 @@ ncnn.ModelFactory = class {
                 }
             }
             default: {
-                throw new ncnn.Error(`Unsupported ncnn format '${target.name}'.`);
+                throw new ncnn.Error(`Unsupported ncnn format '${context.type}'.`);
             }
         }
     }

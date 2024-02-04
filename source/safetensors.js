@@ -8,27 +8,30 @@ safetensors.ModelFactory = class {
     match(context) {
         const container = safetensors.Container.open(context);
         if (container) {
-            return { name: 'safetensors', value: container };
+            context.type = 'safetensors';
+            context.target = container;
+            return;
         }
         const obj = context.peek('json');
         if (obj && obj.weight_map) {
             const entries = Object.entries(obj.weight_map);
             if (entries.length > 0 && entries.every(([, value]) => typeof value === 'string' && value.endsWith('.safetensors'))) {
-                return { name: 'safetensors.json', value: entries };
+                context.type = 'safetensors.json';
+                context.target = entries;
+                return;
             }
         }
-        return '';
     }
 
-    async open(context, target) {
-        switch (target.name) {
+    async open(context) {
+        switch (context.type) {
             case 'safetensors': {
-                const container = target.value;
+                const container = context.target;
                 await container.read();
                 return new safetensors.Model(container.entries);
             }
             case 'safetensors.json': {
-                const weight_map = new Map(target.value);
+                const weight_map = new Map(context.target);
                 const keys = new Set(weight_map.keys());
                 const files = Array.from(new Set(weight_map.values()));
                 const contexts = await Promise.all(files.map((name) => context.fetch(name)));
@@ -45,7 +48,7 @@ safetensors.ModelFactory = class {
                 return new safetensors.Model(entries);
             }
             default: {
-                throw new safetensors.Error(`Unsupported Safetensors format '${target.name}'.`);
+                throw new safetensors.Error(`Unsupported Safetensors format '${context.type}'.`);
             }
         }
     }

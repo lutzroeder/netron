@@ -26,15 +26,17 @@ coreml.ModelFactory = class {
                     (key >= 2000 && key < 2010) ||
                     (key === 3000);
                 if (!keys.some((key) => match(key))) {
-                    return null;
+                    return;
                 }
             }
-            return { name: 'coreml.pb' };
+            context.type = 'coreml.pb';
+            return;
         }
         if (extension === 'pbtxt') {
             const tags = context.tags('pbtxt');
             if (tags.has('specificationVersion') && tags.has('description')) {
-                return { name: 'coreml.pbtxt' };
+                context.type = 'coreml.pbtxt';
+                return;
             }
         }
         if (identifier === 'manifest.json') {
@@ -42,20 +44,23 @@ coreml.ModelFactory = class {
             if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
                 const entries = Object.keys(obj.itemInfoEntries).map((key) => obj.itemInfoEntries[key]);
                 if (entries.filter((entry) => entry.path.toLowerCase().endsWith('.mlmodel').length === 1)) {
-                    return { name: 'coreml.manifest' };
+                    context.type = 'coreml.manifest';
+                    return;
                 }
             }
         }
         if (identifier === 'metadata.json') {
             const obj = context.peek('json');
             if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
-                return { name: 'coreml.metadata' };
+                context.type = 'coreml.metadata';
+                return;
             }
         }
         if (identifier === 'featuredescriptions.json') {
             const obj = context.peek('json');
             if (obj && (obj.Inputs || obj.Outputs)) {
-                return { name: 'coreml.featuredescriptions' };
+                context.type = 'coreml.featuredescriptions';
+                return;
             }
         }
         if (extension === 'bin' && stream.length > 16) {
@@ -63,14 +68,14 @@ coreml.ModelFactory = class {
             for (let i = 0; i < buffer.length - 4; i++) {
                 const signature = (buffer[i] | buffer[i + 1] << 8 | buffer[i + 2] << 16 | buffer [i + 3] << 24) >>> 0;
                 if (signature === 0xdeadbeef) {
-                    return { name: 'coreml.weights' };
+                    context.type = 'coreml.weights';
+                    return;
                 }
             }
         }
-        return undefined;
     }
 
-    async open(context, target) {
+    async open(context) {
         await context.require('./coreml-proto');
         const metadata = await context.metadata('coreml-metadata.json');
         const openBinary = async (stream, context, path, format) => {
@@ -162,7 +167,7 @@ coreml.ModelFactory = class {
             const obj = content.read('json');
             return openManifest(obj, context, path);
         };
-        switch (target.name) {
+        switch (context.type) {
             case 'coreml.pb': {
                 return openBinary(context.stream, context, context.identifier);
             }
@@ -181,7 +186,7 @@ coreml.ModelFactory = class {
                 return openManifestStream(context, '../../../');
             }
             default: {
-                throw new coreml.Error(`Unsupported Core ML format '${target.name}'.`);
+                throw new coreml.Error(`Unsupported Core ML format '${context.type}'.`);
             }
         }
     }

@@ -5,21 +5,23 @@ const hailo = {};
 hailo.ModelFactory = class {
 
     match(context) {
-        return hailo.Container.open(context);
+        context.target = hailo.Container.open(context);
+        context.type = context.target ? context.target.name : null;
     }
 
-    filter(target, name) {
-        if (target.name === 'hailo.metadata' && (name.startsWith('hailo.') || name === 'npz')) {
+    filter(context, name) {
+        if (context.type === 'hailo.metadata' && (name.startsWith('hailo.') || name === 'npz')) {
             return false;
         }
-        if (target.name === 'hailo.configuration' && name === 'npz') {
+        if (context.type === 'hailo.configuration' && name === 'npz') {
             return false;
         }
         return true;
     }
 
-    async open(context, target) {
+    async open(context) {
         const metadata = await context.metadata('hailo-metadata.json');
+        const target = context.target;
         await target.read();
         return new hailo.Model(metadata, target);
     }

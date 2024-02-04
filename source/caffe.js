@@ -9,24 +9,26 @@ caffe.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'caffemodel') {
-            return { name: 'caffe.pb' };
+            context.type = 'caffe.pb';
+            return;
         }
         if (identifier == 'saved_model.pbtxt' || identifier == 'saved_model.prototxt' ||
             identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
             identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
-            return undefined;
+            return;
         }
         const tags = context.tags('pbtxt');
         if (tags.has('layer') || tags.has('layers')) {
-            return { name: 'caffe.pbtxt' };
+            context.type = 'caffe.pbtxt';
+            return;
         }
         if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
-            return { name: 'caffe.pbtxt.solver' };
+            context.type = 'caffe.pbtxt.solver';
+            return;
         }
-        return undefined;
     }
 
-    async open(context, target) {
+    async open(context) {
         await context.require('./caffe-proto');
         caffe.proto = protobuf.get('caffe').caffe;
         const openModel = async (context, netParameter) => {
@@ -87,7 +89,7 @@ caffe.ModelFactory = class {
             }
             return openModel(context, netParameter);
         };
-        switch (target.name) {
+        switch (context.type) {
             case 'caffe.pbtxt.solver': {
                 const stream = context.stream;
                 const reader = protobuf.TextReader.open(stream);
@@ -129,7 +131,7 @@ caffe.ModelFactory = class {
                 return openModel(context, netParameter);
             }
             default: {
-                throw new caffe.Error(`Unsupported Caffe format '${target.name}'.`);
+                throw new caffe.Error(`Unsupported Caffe format '${context.type}'.`);
             }
         }
     }

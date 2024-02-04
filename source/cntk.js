@@ -11,23 +11,24 @@ cntk.ModelFactory = class {
         // CNTK v1
         const signature = [ 0x42, 0x00, 0x43, 0x00, 0x4e, 0x00, 0x00, 0x00 ];
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            return { name: 'cntk.v1', value: stream };
+            context.type = 'cntk.v1';
+            return;
         }
         // CNTK v2
         const tags = context.tags('pb');
         if (tags.get(1) === 0 && tags.get(2) === 2) {
-            return { name: 'cntk.v2', value: stream };
+            context.type = 'cntk.v2';
+            return;
         }
-        return undefined;
     }
 
-    async open(context, target) {
+    async open(context) {
         const metadata = await context.metadata('cntk-metadata.json');
-        switch (target.name) {
+        switch (context.type) {
             case 'cntk.v1': {
                 let obj = null;
                 try {
-                    const stream = target.value;
+                    const stream = context.stream;
                     const buffer = stream.peek();
                     obj = new cntk.ComputationNetwork(buffer);
                 } catch (error) {
@@ -42,7 +43,7 @@ cntk.ModelFactory = class {
                 try {
                     cntk.proto = protobuf.get('cntk').CNTK.proto;
                     cntk.proto.PoolingType = { 0: 'Max', 1: 'Average' };
-                    const stream = target.value;
+                    const stream = context.stream;
                     const reader = protobuf.BinaryReader.open(stream);
                     const dictionary = cntk.proto.Dictionary.decode(reader);
                     obj = cntk.ModelFactory._convertDictionary(dictionary);
@@ -53,7 +54,7 @@ cntk.ModelFactory = class {
                 return new cntk.Model(metadata, 2, obj);
             }
             default: {
-                throw new cntk.Error(`Unsupported CNTK format '${target.name}'.`);
+                throw new cntk.Error(`Unsupported CNTK format '${context.type}'.`);
             }
         }
     }

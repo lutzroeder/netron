@@ -19,29 +19,31 @@ megengine.ModelFactory = class {
                 if (position > 0 || size === (stream.length - position - 4)) {
                     const reader = flatbuffers.BinaryReader.open(buffer.slice(4, 12));
                     if (reader.identifier === 'mgv2') {
-                        return { name: 'megengine.mge' };
+                        context.type = 'megengine.mge';
+                        return;
                     }
                 }
             }
             for (const value of [ 'mgb0001', 'mgb0000a', 'MGBS', 'MGBC' ]) {
                 if (tag.startsWith(value)) {
-                    return { name: `megengine.${value}` };
+                    context.type = `megengine.${value}`;
+                    return;
                 }
             }
         }
         const obj = context.peek('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ === 'megengine.traced_module.traced_module' && obj.__class__.__name__ === 'TracedModule') {
-            return { name: 'megengine.tm' };
+            context.type = 'megengine.tm';
+            return;
         }
-        return '';
     }
 
-    async open(context, target) {
+    async open(context) {
         const metadata = await context.metadata('megengine-metadata.json');
-        switch (target.name) {
+        switch (context.type) {
             case 'megengine.tm': {
                 const obj = context.peek('pkl');
-                return new megengine.Model(metadata, obj, target.name);
+                return new megengine.Model(metadata, obj, context.type);
             }
             case 'megengine.mge': {
                 await context.require('./megengine-schema');
@@ -59,10 +61,10 @@ megengine.ModelFactory = class {
                     const message = error && error.message ? error.message : error.toString();
                     throw new megengine.Error(`File format is not megengine.Model (${message.replace(/\.$/, '')}).`);
                 }
-                return new megengine.Model(metadata, model, target.name);
+                return new megengine.Model(metadata, model, context.type);
             }
             default: {
-                throw new megengine.Error(`Unsupported MegEngine format '${target.name.replace(/^megengine\./, '')}'.`);
+                throw new megengine.Error(`Unsupported MegEngine format '${context.type.replace(/^megengine\./, '')}'.`);
             }
         }
     }

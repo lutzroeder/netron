@@ -5134,6 +5134,15 @@ view.Context = class {
                     }
                     throw new view.Error('Invalid JSON content.');
                 }
+                case 'bson': {
+                    const reader = json.BinaryReader.open(this._stream);
+                    if (reader) {
+                        const obj = reader.read();
+                        this._content.set('bson', obj);
+                        return obj;
+                    }
+                    throw new view.Error('Invalid BSON content.');
+                }
                 default: {
                     break;
                 }
@@ -5599,11 +5608,11 @@ view.ModelFactoryService = class {
             /* eslint-disable no-await-in-loop */
             const factory = await this._require(module);
             /* eslint-enable no-await-in-loop */
-            const target = factory.match(context);
-            if (target) {
+            factory.match(context);
+            if (context.type) {
                 try {
                     /* eslint-disable no-await-in-loop */
-                    const model = await factory.open(context, target);
+                    const model = await factory.open(context);
                     /* eslint-enable no-await-in-loop */
                     if (!model.identifier) {
                         model.identifier = context.identifier;
@@ -5614,6 +5623,8 @@ view.ModelFactoryService = class {
                         context.stream.seek(0);
                     }
                     errors.push(error);
+                    context.type = null;
+                    context.target = null;
                 }
             }
         }
@@ -5666,19 +5677,13 @@ view.ModelFactoryService = class {
                         /* eslint-disable no-await-in-loop */
                         const factory = await this._require(module);
                         /* eslint-enable no-await-in-loop */
-                        const target = factory.match(context);
-                        if (target) {
-                            if (typeof target.name !== 'string') {
-                                throw new view.Error(`Invalid target name '${module}'.`);
-                            }
-                            matches = matches.filter((match) => !factory.filter || factory.filter(target, match.target.name));
-                            if (matches.every((match) => !match.factory.filter || match.factory.filter(match.target, target.name))) {
-                                const match = {
-                                    factory: factory,
-                                    target: { name: target.name },
-                                    context: context
-                                };
-                                matches.push(match);
+                        factory.match(context);
+                        context.target = null;
+                        if (context.type) {
+                            matches = matches.filter((match) => !factory.filter || factory.filter(context, match.type));
+                            if (matches.every((match) => !match.factory.filter || match.factory.filter(match, context.type))) {
+                                context.factory = factory;
+                                matches.push(context);
                             }
                             break;
                         }
@@ -5688,11 +5693,12 @@ view.ModelFactoryService = class {
                     return null;
                 }
                 if (matches.length > 1) {
-                    const content = matches.map((context) => context.target.name).join(',');
+                    const content = matches.map((context) => context.type).join(',');
                     throw new view.ArchiveError(`Archive contains multiple model files '${content}'.`);
                 }
                 const match = matches.shift();
-                return match.context;
+                match.type = null;
+                return match;
             };
             const queue = files.slice(0).filter((entry) => entry.name.substring(folder.length).indexOf('/') < 0);
             const context = await filter(queue, entries);

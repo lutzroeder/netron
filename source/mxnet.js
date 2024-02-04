@@ -12,27 +12,29 @@ mxnet.ModelFactory = class {
         if (extension === 'json') {
             const obj = context.peek('json');
             if (obj && obj.nodes && obj.arg_nodes && obj.heads) {
-                return { name: 'mxnet.json', value: obj };
+                context.type = 'mxnet.json';
+                context.target = obj;
+                return;
             }
         }
         if (extension === 'params') {
             const stream = context.stream;
             const signature = [ 0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
             if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value == signature[index])) {
-                return { name: 'mxnet.params', value: stream };
+                context.type = 'mxnet.params';
+                return;
             }
         }
-        return undefined;
     }
 
-    filter(target, name) {
-        if (target.name === 'mxnet.json' && name === 'mxnet.params') {
+    filter(context, name) {
+        if (context.type === 'mxnet.json' && name === 'mxnet.params') {
             return false;
         }
         return true;
     }
 
-    async open(context, target) {
+    async open(context) {
         const metadata = await context.metadata('mxnet-metadata.json');
         const basename = (base, identifier, extension, suffix, append) => {
             if (!base) {
@@ -185,11 +187,11 @@ mxnet.ModelFactory = class {
             return new mxnet.Model(metadata, manifest, symbol, parameters);
         };
         const identifier = context.identifier;
-        switch (target.name) {
+        switch (context.type) {
             case 'mxnet.json': {
                 let symbol = null;
                 try {
-                    symbol = target.value;
+                    symbol = context.target;
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
                     throw new mxnet.Error(`Failed to load symbol entry (${message.replace(/\.$/, '')}).`);
@@ -211,7 +213,7 @@ mxnet.ModelFactory = class {
                 return requestParams(manifest);
             }
             case 'mxnet.params': {
-                const stream = target.value;
+                const stream = context.stream;
                 const params = stream.peek();
                 const requestSymbol = async (manifest) => {
                     const name = basename(manifest.symbol, identifier, '.params', null, '-symbol.json');
@@ -230,7 +232,7 @@ mxnet.ModelFactory = class {
                 return requestSymbol(manifest);
             }
             default: {
-                throw new mxnet.Error(`Unsupported MXNet format '${target.name}'.`);
+                throw new mxnet.Error(`Unsupported MXNet format '${context.type}'.`);
             }
         }
     }

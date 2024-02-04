@@ -10,10 +10,12 @@ const svp = {};
 om.ModelFactory = class {
 
     match(context) {
-        return om.Container.open(context);
+        context.target = om.Container.open(context);
+        context.type = context.target ? context.target.name : null;
     }
 
-    async open(context, target) {
+    async open(context) {
+        const target = context.target;
         await target.read();
         const metadata = await context.metadata('om-metadata.json');
         return new om.Model(metadata, target);
