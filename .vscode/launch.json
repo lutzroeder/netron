@@ -28,7 +28,7 @@
         },
         {
             "name": "Browser",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/package.py",
             "args": [ "build", "start" ],
@@ -56,7 +56,7 @@
         },
         {
             "name": "Test Backend",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/test/backend.py",
             "args": [],
@@ -71,7 +71,7 @@
         },
         {
             "name": "Tools Python",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "args": [],
