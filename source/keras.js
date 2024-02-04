@@ -74,11 +74,11 @@ keras.ModelFactory = class {
         }
     }
 
-    filter(context, name) {
-        if (context.type === 'keras.metadata.json' && (name === 'keras.config.json' || name === 'keras.model.weights.h5' || name === 'keras.model.weights.npz')) {
+    filter(context, type) {
+        if (context.type === 'keras.metadata.json' && (type === 'keras.config.json' || type === 'keras.model.weights.h5' || type === 'keras.model.weights.npz')) {
             return false;
         }
-        if (context.type === 'keras.config.json' && (name === 'keras.model.weights.h5' || name === 'keras.model.weights.npz')) {
+        if (context.type === 'keras.config.json' && (type === 'keras.model.weights.h5' || type === 'keras.model.weights.npz')) {
             return false;
         }
         return true;

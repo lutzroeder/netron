@@ -9,8 +9,11 @@ const openvx = {};
 rknn.ModelFactory = class {
 
     match(context) {
-        context.target = rknn.Container.open(context);
-        context.type = context.target ? context.target.name : null;
+        const container = rknn.Container.open(context);
+        if (container) {
+            context.type = 'rknn';
+            context.target = container;
+        }
     }
 
     async open(context) {
@@ -524,14 +527,12 @@ rknn.Container = class extends Map {
 
     constructor(stream, entries) {
         super(entries);
-        this.name = 'rknn';
         this.stream = stream;
     }
 
     read() {
-        if (this.stream) {
-            const stream = this.stream;
-            delete this.stream;
+        const stream = this.stream;
+        if (stream) {
             const signature = rknn.Container.signature(stream);
             switch (signature) {
                 case 'rknn': {
@@ -584,6 +585,7 @@ rknn.Container = class extends Map {
                     break;
                 }
             }
+            delete this.stream;
         }
     }
 

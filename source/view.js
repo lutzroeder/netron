@@ -5137,9 +5137,7 @@ view.Context = class {
                 case 'bson': {
                     const reader = json.BinaryReader.open(this._stream);
                     if (reader) {
-                        const obj = reader.read();
-                        this._content.set('bson', obj);
-                        return obj;
+                        return reader.read();
                     }
                     throw new view.Error('Invalid BSON content.');
                 }
@@ -5619,12 +5617,12 @@ view.ModelFactoryService = class {
                     }
                     return model;
                 } catch (error) {
+                    delete context.type;
+                    delete context.target;
                     if (context.stream && context.stream.position !== 0) {
                         context.stream.seek(0);
                     }
                     errors.push(error);
-                    context.type = null;
-                    context.target = null;
                 }
             }
         }
@@ -5647,38 +5645,24 @@ view.ModelFactoryService = class {
                 const folder = rotate(map).filter(equals).map(at(0)).join('/');
                 return folder.length === 0 ? folder : `${folder}/`;
             };
-            const list = Array.from(entries).map(([name, stream]) => {
-                return { name: name, stream: stream };
-            });
-            const files = list.filter((entry) => {
-                if (entry.name.endsWith('/')) {
-                    return false;
-                }
-                if (entry.name.split('/').pop().startsWith('.')) {
-                    return false;
-                }
-                if (!entry.name.startsWith('./') && entry.name.startsWith('.')) {
-                    return false;
-                }
-                return true;
-            });
-            const folder = rootFolder(files.map((entry) => entry.name));
+            const files = Array.from(entries).filter(([name]) => !(name.endsWith('/') || name.split('/').pop().startsWith('.') || (!name.startsWith('./') && name.startsWith('.'))));
+            const folder = rootFolder(files.map(([name]) => name));
             const filter = async (queue, entries) => {
                 entries = new Map(Array.from(entries)
                     .filter(([path]) => path.startsWith(folder))
                     .map(([path, stream]) => [ path.substring(folder.length), stream ]));
                 const entryContext = new view.EntryContext(this._host, entries);
                 let matches = [];
-                for (const entry of queue) {
-                    const identifier = entry.name.substring(folder.length);
-                    const context = new view.Context(entryContext, identifier, entry.stream);
+                for (const [name, stream] of queue) {
+                    const identifier = name.substring(folder.length);
+                    const context = new view.Context(entryContext, identifier, stream);
                     const modules = this._filter(context);
                     for (const module of modules) {
                         /* eslint-disable no-await-in-loop */
                         const factory = await this._require(module);
                         /* eslint-enable no-await-in-loop */
                         factory.match(context);
-                        context.target = null;
+                        delete context.target;
                         if (context.type) {
                             matches = matches.filter((match) => !factory.filter || factory.filter(context, match.type));
                             if (matches.every((match) => !match.factory.filter || match.factory.filter(match, context.type))) {
@@ -5689,22 +5673,23 @@ view.ModelFactoryService = class {
                         }
                     }
                 }
-                if (matches.length === 0) {
-                    return null;
-                }
                 if (matches.length > 1) {
                     const content = matches.map((context) => context.type).join(',');
                     throw new view.ArchiveError(`Archive contains multiple model files '${content}'.`);
                 }
-                const match = matches.shift();
-                match.type = null;
-                return match;
+                if (matches.length > 0) {
+                    const match = matches.shift();
+                    delete match.type;
+                    delete match.factory;
+                    return match;
+                }
+                return null;
             };
-            const queue = files.slice(0).filter((entry) => entry.name.substring(folder.length).indexOf('/') < 0);
-            const context = await filter(queue, entries);
+            const queue = files.filter(([name]) => name.substring(folder.length).indexOf('/') < 0);
+            let context = await filter(queue, entries);
             if (!context) {
-                const queue = files.slice(0).filter((entry) => entry.name.substring(folder.length).indexOf('/') >= 0);
-                return await filter(queue, entries);
+                const queue = files.filter(([name]) => name.substring(folder.length).indexOf('/') >= 0);
+                context = await filter(queue, entries);
             }
             return context;
         } catch (error) {

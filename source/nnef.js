@@ -27,11 +27,8 @@ nnef.ModelFactory = class {
         }
     }
 
-    filter(context, name) {
-        if (context.type === 'nnef.graph' && name === 'nnef.dat') {
-            return false;
-        }
-        return true;
+    filter(context, type) {
+        return context.type !== 'nnef.graph' || type !== 'nnef.dat';
     }
 
     async open(context) {

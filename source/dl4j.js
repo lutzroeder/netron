@@ -27,11 +27,8 @@ dl4j.ModelFactory = class {
         }
     }
 
-    filter(context, name) {
-        if (context.type === 'dl4j.configuration' && (name === 'dl4j.coefficients' || name === 'openvino.bin')) {
-            return false;
-        }
-        return true;
+    filter(context, type) {
+        return context.type !== 'dl4j.configuration' || (type !== 'dl4j.coefficients' && type !== 'openvino.bin');
     }
 
     async open(context) {

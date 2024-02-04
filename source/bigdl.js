@@ -9,7 +9,8 @@ bigdl.ModelFactory = class {
 
     match(context) {
         const tags = context.tags('pb');
-        if (tags.has(2) && tags.has(7) && tags.has(8) && tags.has(9) && tags.has(10) && tags.has(11) && tags.has(12)) {
+        if (tags.has(2) && tags.has(7) && tags.has(8) &&
+            tags.has(9) && tags.has(10) && tags.has(11) && tags.has(12)) {
             context.type = 'bigdl';
         }
     }

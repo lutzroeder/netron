@@ -239,11 +239,8 @@ tf.ModelFactory = class {
         }
     }
 
-    filter(context, name) {
-        if (context.type === 'tf.bundle' && name === 'tf.data') {
-            return false;
-        }
-        return true;
+    filter(context, type) {
+        return context.type !== 'tf.bundle' || type !== 'tf.data';
     }
 
     async open(context) {

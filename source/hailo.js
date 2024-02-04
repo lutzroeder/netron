@@ -5,15 +5,18 @@ const hailo = {};
 hailo.ModelFactory = class {
 
     match(context) {
-        context.target = hailo.Container.open(context);
-        context.type = context.target ? context.target.name : null;
+        const container = hailo.Container.open(context);
+        if (container) {
+            context.type = container.type;
+            context.target = container;
+        }
     }
 
-    filter(context, name) {
-        if (context.type === 'hailo.metadata' && (name.startsWith('hailo.') || name === 'npz')) {
+    filter(context, type) {
+        if (context.type === 'hailo.metadata' && (type === 'hailo.configuration' || type === 'npz')) {
             return false;
         }
-        if (context.type === 'hailo.configuration' && name === 'npz') {
+        if (context.type === 'hailo.configuration' && type === 'npz') {
             return false;
         }
         return true;
@@ -265,7 +268,7 @@ hailo.Container = class {
     }
 
     constructor(context, basename, configuration, metadata) {
-        this.name = metadata ? 'hailo.metadata' : configuration ? 'hailo.configuration' : 'hailo';
+        this.type = metadata ? 'hailo.metadata' : configuration ? 'hailo.configuration' : 'hailo';
         this.context = context;
         this.basename = basename;
         this.configuration = configuration;
@@ -307,7 +310,8 @@ hailo.Container = class {
             if (entries && entries.size > 0) {
                 const inputs = new Set([
                     'kernel', 'bias',
-                    'input_activation_bits', 'output_activation_bits', 'weight_bits', 'bias_decomposition'
+                    'input_activation_bits', 'output_activation_bits',
+                    'weight_bits', 'bias_decomposition'
                 ]);
                 for (const [name, value] of entries) {
                     const key = name.split('.').slice(0, -1).join('.');

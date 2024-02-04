@@ -7,8 +7,11 @@ const dlc = {};
 dlc.ModelFactory = class {
 
     match(context) {
-        context.target = dlc.Container.open(context);
-        context.type = context.target ? context.target.name : null;
+        const container = dlc.Container.open(context);
+        if (container) {
+            context.type = 'dlc';
+            context.target = container;
+        }
     }
 
     async open(context) {
@@ -274,8 +277,7 @@ dlc.Container = class {
     }
 
     constructor(context, model, params, metadata) {
-        this.name = 'dlc';
-        this._context = context;
+        this.context = context;
         this._model = model;
         this._params = params;
         this._metadata = metadata;
@@ -291,7 +293,7 @@ dlc.Container = class {
         if (this._metadata === undefined) {
             this._metadata = await this._fetch('dlc.metadata');
         }
-        delete this._context;
+        delete this.context;
         this.graphs = [];
         this.metadata = new Map();
         if (this._model) {
@@ -601,7 +603,7 @@ dlc.Container = class {
 
     async _fetch(name) {
         try {
-            const context = await this._context.fetch(name);
+            const context = await this.context.fetch(name);
             return context.stream;
         } catch (error) {
             return null;

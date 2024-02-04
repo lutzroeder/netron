@@ -27,11 +27,8 @@ mxnet.ModelFactory = class {
         }
     }
 
-    filter(context, name) {
-        if (context.type === 'mxnet.json' && name === 'mxnet.params') {
-            return false;
-        }
-        return true;
+    filter(context, type) {
+        return context.type !== 'mxnet.json' || type !== 'mxnet.params';
     }
 
     async open(context) {

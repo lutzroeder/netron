@@ -10,8 +10,11 @@ const svp = {};
 om.ModelFactory = class {
 
     match(context) {
-        context.target = om.Container.open(context);
-        context.type = context.target ? context.target.name : null;
+        const container = om.Container.open(context);
+        if (container) {
+            context.type = 'om';
+            context.target = container;
+        }
     }
 
     async open(context) {
@@ -349,7 +352,6 @@ om.Container = class {
     }
 
     constructor(context, signature) {
-        this.name = 'om';
         this._context = context;
         this._signature = signature;
     }

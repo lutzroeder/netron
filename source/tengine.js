@@ -8,8 +8,11 @@ const tengine = {};
 tengine.ModelFactory = class {
 
     match(context) {
-        context.target = tengine.Reader.open(context.stream);
-        context.type = context.target ? context.target.name : null;
+        const reader = tengine.Reader.open(context.stream);
+        if (reader) {
+            context.type = 'tengine';
+            context.target = reader;
+        }
     }
 
     async open(context) {
@@ -251,296 +254,293 @@ tengine.Reader = class {
     }
 
     constructor(stream) {
-        this.name = 'tengine';
         this.stream = stream;
         // https://github.com/OAID/Tengine/wiki/The-format-of-tmfile
         // https://github.com/OAID/Tengine/blob/tengine-lite/source/serializer/tmfile/tm2_format.h
     }
 
     read() {
-        if (this.stream) {
-            const types = new Map();
-            const register = (index, version, name, params) => {
-                types.set(`${index}:${version}`, { name: name, params: params });
-            };
-            const operator = (index, version) => {
-                let current = version;
-                while (current >= 0) {
-                    if (types.has(`${index}:${current}`)) {
-                        break;
-                    }
-                    current--;
+        const types = new Map();
+        const register = (index, version, name, params) => {
+            types.set(`${index}:${version}`, { name: name, params: params });
+        };
+        const operator = (index, version) => {
+            let current = version;
+            while (current >= 0) {
+                if (types.has(`${index}:${current}`)) {
+                    break;
                 }
-                if (current >= 0) {
-                    const schema = types.get(`${index}:${current}`);
-                    if (current !== version) {
-                        types.set(`${index}:${version}`, schema);
-                    }
-                    return schema;
-                }
-                return null;
-            };
-            register(0, 0, 'Accuracy', []);
-            register(1, 0, 'BatchNormalization', [ 'f', 'f', 'i' ]);
-            register(2, 0, 'BilinearResize', [ 'f', 'f', 'i' ]);
-            register(3, 0, 'Concat', [ 'i' ]);
-            register(4, 0, 'Const', []);
-            register(5, 0, 'Convolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-            register(6, 0, 'Deconvolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-            register(7, 0, 'DetectionOutput', [ 'i', 'i', 'i', 'f', 'f' ]);
-            register(8, 0, 'DropOut', []);
-            register(9, 0, 'Eltwise', [ 'i', 'i' ]);
-            register(10, 0, 'Flatten', [ 'i' ]);
-            register(11, 0, 'FullyConnected', [ 'i' ]);
-            register(12, 0, 'INPUT', []);
-            register(13, 0, 'LRN', [ 'i', 'f', 'f', 'i', 'f' ]);
-            register(14, 0, 'Normalize', [ 'i', 'i' ]);
-            register(15, 0, 'Permute', [ 'i', 'i', 'i', 'i', 'i' ]);
-            register(16, 0, 'Pooling', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-            register(17, 0, 'Prelu', []);
-            register(18, 0, 'PriorBox', [ 'f[]', 'f[]', 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'f', 'f', 'i', 'i' ]);
-            register(19, 0, 'Region', [ 'i', 'i', 'i', 'i', 'f', 'f', 'f[]' ]);
-            register(20, 0, 'ReLU', [ 'f' ]);
-            register(21, 0, 'ReLU6', []);
-            register(22, 0, 'Reorg', [ 'i' ]);
-            register(23, 0, 'Reshape', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
-            // register(23, 0, 'Reshape', [ 'i', 'i', 'i[]' ]);
-            register(24, 0, 'RoiPooling', [ 'i', 'i', 'f' ]);
-            register(25, 0, 'RPN', [ 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'anchors' ]);
-            register(26, 0, 'Scale', [ 'i', 'i', 'i' ]);
-            register(27, 0, 'Slice', [ 'i', 'i[]', 'i[]', 'i[]', 'i', 'i', 'i', 'i', 'i' ]);
-            register(28, 0, 'SoftMax', [ 'i' ]);
-            register(29, 0, 'Split', [ 'i', 'i', 'boolean', 'boolean', 'i[]' ]);
-            register(30, 0, 'DetectionPostProcess', [ 'i', 'i', 'f', 'f', 'i', 'f[]' ]);
-            register(31, 0, 'Gemm', [ 'f', 'f', 'i', 'i' ]);
-            register(32, 0, 'Generic', [ 'i', 'i', 'string' ]);
-            register(33, 0, 'Logistic', []);
-            register(34, 0, 'LSTM', [ 'f', 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-            register(35, 0, 'RNN', [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-            register(36, 0, 'TanH', []);
-            register(37, 0, 'Sigmoid', []);
-            register(38, 0, 'Squeeze', [ 'i', 'i', 'i', 'i' ]);
-            register(39, 0, 'FusedbnScaleRelu', []);
-            register(40, 0, 'Pad', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'f' ]);
-            register(41, 0, 'StridedSlice', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-            register(42, 0, 'ArgMax', [ 'i' ]);
-            register(43, 0, 'ArgMin', [ 'i' ]);
-            register(44, 0, 'TopKV2', [ 'i', 'i' ]);
-            register(45, 0, 'Reduction', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
-            register(46, 0, 'Max', []);
-            register(47, 0, 'Min', []);
-            register(48, 0, 'GRU', [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-            register(49, 0, 'Addn', 'i');
-            register(50, 0, 'SwapAxis', [ 'i', 'i' ]);
-            register(51, 0, 'Upsample', [ 'f' ]);
-            register(52, 0, 'SpaceToBatchND', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
-            register(53, 0, 'BatchToSpaceND', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
-            register(54, 0, 'Resize', [ 'f', 'f', 'i' ]);
-            register(55, 0, 'ShuffleChannel', [ 'i' ]);
-            register(56, 0, 'Crop', [ 'i', 'i', 'i', 'i', 'i', 'i', 'boolean', 'i', 'i' ]);
-            register(57, 0, 'ROIAlign', [ 'i', 'i', 'f' ]);
-            register(58, 0, 'Psroipooling', [ 'i', 'i', 'f', 'i' ]);
-            register(59, 0, 'Unary', [ 'i' ]);
-            register(60, 0, 'Expanddims', [ 'i' ]);
-            register(61, 0, 'Bias', [ 'i' ]);
-            register(62, 0, 'Noop', []);
-            register(63, 0, 'Threshold', [ 'f' ]);
-            register(64, 0, 'Hardsigmoid', [ 'f', 'f' ]);
-            register(65, 0, 'Embed', [ 'f', 'f', 'f', 'f' ]);
-            register(66, 0, 'InstanceNorm', [ 'f' ]);
-            register(67, 0, 'MVN', [ 'i', 'i', 'f' ]);
-            register(68, 0, 'Absval', []);
-            register(69, 0, 'Cast', [ 'i', 'i' ]);
-            register(70, 0, 'HardSwish', [ 'f', 'f' ]);
-            register(71, 0, 'Interp', [ 'i', 'f', 'f', 'i', 'i' ]);
-            register(72, 0, 'SELU', [ 'f', 'f' ]);
-            register(73, 0, 'ELU', [ 'f' ]);
-            register(74, 0, 'BroadMul', []);
-            register(75, 0, 'Logical', [ 'i' ]);
-            register(76, 0, 'Gather', [ 'i', 'i' ]);
-            register(77, 0, 'Transpose', [ 'i[]' ]);
-            register(78, 0, 'Comparison', [ 'i' ]);
-            register(79, 0, 'SpaceToDepth', [ 'i' ]);
-            register(80, 0, 'DepthToSpace', [ 'i' ]);
-            register(81, 0, 'Reverse', []);
-            register(82, 0, 'SparseToDense', [ 'i','i','i' ]);
-            register(83, 0, 'Ceil', []);
-            register(84, 0, 'SquaredDifference', []);
-            register(85, 0, 'Round', []);
-            register(86, 0, 'ZerosLike', []);
-            register(87, 0, 'Clip', [ 'f','f' ]);
-            register(88, 0, 'Unsqueeze', [ 'i[]' ]);
-            register(89, 0, 'ReduceL2', [ 'i','i' ]);
-            register(90, 0, 'Mean', []);
-            register(91, 0, 'MatMul', []);
-            register(92, 0, 'Expand', ['i[]']);
-            register(93, 0, 'Scatter', ['i','boolean']);
-            register(94, 0, 'Shape', []);
-            register(95, 0, 'Where', []);
-            register(96, 0, 'Tile', ['i','i']);
-            register(97, 0, 'Mish', []);
-            register(98, 0, 'L2Pool', []);
-            register(99, 0, 'LogSoftmax', []);
-            register(100, 0, 'ReLU1', []);
-            register(101, 0, 'L2Normalization', []);
-            register(102, 0, 'PackModel', ['i','i']);
-            register(103, 0, 'Num', []);
-            const buffer = this.stream.peek();
-            const reader = new tengine.BinaryReader(buffer);
-            this._majorVersion = reader.uint16();
-            this._minorVersion = reader.uint16();
-            if (this._majorVersion !== 2) {
-                throw new tengine.Error(`Unsupported format version 'v${this._majorVersion}.${this._minorVersion}'.`);
+                current--;
             }
-            this._compileVersion = reader.uint16();
-            reader.skip(2); // struct align
-            reader.seek(reader.uint32()); // root table
-            this._originalFormat = reader.int32();
-            this._subFormat = reader.int32();
-            this.graphs = [];
-            const subgraphOffsets = reader.uint32s();
-            for (const subgraphOffset of subgraphOffsets) {
-                reader.seek(subgraphOffset);
+            if (current >= 0) {
+                const schema = types.get(`${index}:${current}`);
+                if (current !== version) {
+                    types.set(`${index}:${version}`, schema);
+                }
+                return schema;
+            }
+            return null;
+        };
+        register(0, 0, 'Accuracy', []);
+        register(1, 0, 'BatchNormalization', [ 'f', 'f', 'i' ]);
+        register(2, 0, 'BilinearResize', [ 'f', 'f', 'i' ]);
+        register(3, 0, 'Concat', [ 'i' ]);
+        register(4, 0, 'Const', []);
+        register(5, 0, 'Convolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(6, 0, 'Deconvolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(7, 0, 'DetectionOutput', [ 'i', 'i', 'i', 'f', 'f' ]);
+        register(8, 0, 'DropOut', []);
+        register(9, 0, 'Eltwise', [ 'i', 'i' ]);
+        register(10, 0, 'Flatten', [ 'i' ]);
+        register(11, 0, 'FullyConnected', [ 'i' ]);
+        register(12, 0, 'INPUT', []);
+        register(13, 0, 'LRN', [ 'i', 'f', 'f', 'i', 'f' ]);
+        register(14, 0, 'Normalize', [ 'i', 'i' ]);
+        register(15, 0, 'Permute', [ 'i', 'i', 'i', 'i', 'i' ]);
+        register(16, 0, 'Pooling', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(17, 0, 'Prelu', []);
+        register(18, 0, 'PriorBox', [ 'f[]', 'f[]', 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'f', 'f', 'i', 'i' ]);
+        register(19, 0, 'Region', [ 'i', 'i', 'i', 'i', 'f', 'f', 'f[]' ]);
+        register(20, 0, 'ReLU', [ 'f' ]);
+        register(21, 0, 'ReLU6', []);
+        register(22, 0, 'Reorg', [ 'i' ]);
+        register(23, 0, 'Reshape', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        // register(23, 0, 'Reshape', [ 'i', 'i', 'i[]' ]);
+        register(24, 0, 'RoiPooling', [ 'i', 'i', 'f' ]);
+        register(25, 0, 'RPN', [ 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'anchors' ]);
+        register(26, 0, 'Scale', [ 'i', 'i', 'i' ]);
+        register(27, 0, 'Slice', [ 'i', 'i[]', 'i[]', 'i[]', 'i', 'i', 'i', 'i', 'i' ]);
+        register(28, 0, 'SoftMax', [ 'i' ]);
+        register(29, 0, 'Split', [ 'i', 'i', 'boolean', 'boolean', 'i[]' ]);
+        register(30, 0, 'DetectionPostProcess', [ 'i', 'i', 'f', 'f', 'i', 'f[]' ]);
+        register(31, 0, 'Gemm', [ 'f', 'f', 'i', 'i' ]);
+        register(32, 0, 'Generic', [ 'i', 'i', 'string' ]);
+        register(33, 0, 'Logistic', []);
+        register(34, 0, 'LSTM', [ 'f', 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(35, 0, 'RNN', [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(36, 0, 'TanH', []);
+        register(37, 0, 'Sigmoid', []);
+        register(38, 0, 'Squeeze', [ 'i', 'i', 'i', 'i' ]);
+        register(39, 0, 'FusedbnScaleRelu', []);
+        register(40, 0, 'Pad', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'f' ]);
+        register(41, 0, 'StridedSlice', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(42, 0, 'ArgMax', [ 'i' ]);
+        register(43, 0, 'ArgMin', [ 'i' ]);
+        register(44, 0, 'TopKV2', [ 'i', 'i' ]);
+        register(45, 0, 'Reduction', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(46, 0, 'Max', []);
+        register(47, 0, 'Min', []);
+        register(48, 0, 'GRU', [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(49, 0, 'Addn', 'i');
+        register(50, 0, 'SwapAxis', [ 'i', 'i' ]);
+        register(51, 0, 'Upsample', [ 'f' ]);
+        register(52, 0, 'SpaceToBatchND', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(53, 0, 'BatchToSpaceND', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(54, 0, 'Resize', [ 'f', 'f', 'i' ]);
+        register(55, 0, 'ShuffleChannel', [ 'i' ]);
+        register(56, 0, 'Crop', [ 'i', 'i', 'i', 'i', 'i', 'i', 'boolean', 'i', 'i' ]);
+        register(57, 0, 'ROIAlign', [ 'i', 'i', 'f' ]);
+        register(58, 0, 'Psroipooling', [ 'i', 'i', 'f', 'i' ]);
+        register(59, 0, 'Unary', [ 'i' ]);
+        register(60, 0, 'Expanddims', [ 'i' ]);
+        register(61, 0, 'Bias', [ 'i' ]);
+        register(62, 0, 'Noop', []);
+        register(63, 0, 'Threshold', [ 'f' ]);
+        register(64, 0, 'Hardsigmoid', [ 'f', 'f' ]);
+        register(65, 0, 'Embed', [ 'f', 'f', 'f', 'f' ]);
+        register(66, 0, 'InstanceNorm', [ 'f' ]);
+        register(67, 0, 'MVN', [ 'i', 'i', 'f' ]);
+        register(68, 0, 'Absval', []);
+        register(69, 0, 'Cast', [ 'i', 'i' ]);
+        register(70, 0, 'HardSwish', [ 'f', 'f' ]);
+        register(71, 0, 'Interp', [ 'i', 'f', 'f', 'i', 'i' ]);
+        register(72, 0, 'SELU', [ 'f', 'f' ]);
+        register(73, 0, 'ELU', [ 'f' ]);
+        register(74, 0, 'BroadMul', []);
+        register(75, 0, 'Logical', [ 'i' ]);
+        register(76, 0, 'Gather', [ 'i', 'i' ]);
+        register(77, 0, 'Transpose', [ 'i[]' ]);
+        register(78, 0, 'Comparison', [ 'i' ]);
+        register(79, 0, 'SpaceToDepth', [ 'i' ]);
+        register(80, 0, 'DepthToSpace', [ 'i' ]);
+        register(81, 0, 'Reverse', []);
+        register(82, 0, 'SparseToDense', [ 'i','i','i' ]);
+        register(83, 0, 'Ceil', []);
+        register(84, 0, 'SquaredDifference', []);
+        register(85, 0, 'Round', []);
+        register(86, 0, 'ZerosLike', []);
+        register(87, 0, 'Clip', [ 'f','f' ]);
+        register(88, 0, 'Unsqueeze', [ 'i[]' ]);
+        register(89, 0, 'ReduceL2', [ 'i','i' ]);
+        register(90, 0, 'Mean', []);
+        register(91, 0, 'MatMul', []);
+        register(92, 0, 'Expand', ['i[]']);
+        register(93, 0, 'Scatter', ['i','boolean']);
+        register(94, 0, 'Shape', []);
+        register(95, 0, 'Where', []);
+        register(96, 0, 'Tile', ['i','i']);
+        register(97, 0, 'Mish', []);
+        register(98, 0, 'L2Pool', []);
+        register(99, 0, 'LogSoftmax', []);
+        register(100, 0, 'ReLU1', []);
+        register(101, 0, 'L2Normalization', []);
+        register(102, 0, 'PackModel', ['i','i']);
+        register(103, 0, 'Num', []);
+        const buffer = this.stream.peek();
+        const reader = new tengine.BinaryReader(buffer);
+        this._majorVersion = reader.uint16();
+        this._minorVersion = reader.uint16();
+        if (this._majorVersion !== 2) {
+            throw new tengine.Error(`Unsupported format version 'v${this._majorVersion}.${this._minorVersion}'.`);
+        }
+        this._compileVersion = reader.uint16();
+        reader.skip(2); // struct align
+        reader.seek(reader.uint32()); // root table
+        this._originalFormat = reader.int32();
+        this._subFormat = reader.int32();
+        this.graphs = [];
+        const subgraphOffsets = reader.uint32s();
+        for (const subgraphOffset of subgraphOffsets) {
+            reader.seek(subgraphOffset);
 
-                const subgraph = {};
-                subgraph.id = reader.int32();
-                subgraph.graphLayout = reader.int32();
-                /*
-                if (graphLayout == 0) {
-                    return "NCHW";
-                }
-                if (graphLayout == 1) {
-                    return "NHWC";
-                }
-                */
-                subgraph.originalLayout = reader.int32();
-                subgraph.inputs = reader.uint32s();
-                subgraph.outputs = reader.uint32s();
-                const nodeOffsets = reader.uint32s();
-                const tensorOffsets = reader.uint32s();
-                const bufferOffsets = reader.uint32s();
-                subgraph.name = reader.string();
-                subgraph.nodes = [];
-                subgraph.tensors = [];
-                this.graphs.push(subgraph);
-                // nodes
-                for (const nodeOffset of nodeOffsets) {
-                    reader.seek(nodeOffset);
-                    const node = {};
-                    node.id = reader.int32();
-                    node.inputs = reader.uint32s();
-                    node.outputs = reader.uint32s();
-                    const typeOffset = reader.int32();
-                    node.name = reader.string();
-                    const attributeOffsets = reader.uint32s();
-                    node.dynamicShape = reader.boolean();
-                    reader.seek(typeOffset);
-                    node.version = reader.int32();
-                    const index = reader.int32();
-                    const paramsOffset = reader.uint32();
-                    const schema = operator(index, node.version);
-                    node.type = schema ? schema.name : index.toString();
-                    const paramTypes = schema ? schema.params : [];
-                    node.params = [];
-                    if (paramsOffset) {
-                        reader.seek(paramsOffset);
-                        for (const paramType of paramTypes) {
-                            if (paramType !== 'boolean') {
-                                reader.align(4);
-                            }
-                            switch (paramType) {
-                                case 'i':
-                                    node.params.push(reader.int32());
-                                    break;
-                                case 'f':
-                                    node.params.push(reader.float32());
-                                    break;
-                                case 'i[]':
-                                    node.params.push(reader.int32s());
-                                    break;
-                                case 'f[]':
-                                    node.params.push(reader.float32s());
-                                    break;
-                                case 'boolean':
-                                    node.params.push(reader.boolean());
-                                    break;
-                                case 'string':
-                                    node.params.push(reader.string());
-                                    break;
-                                case 'anchors':
-                                    node.params.push(reader.anchors(4));
-                                    break;
-                                default:
-                                    throw new tengine.Error(`Unsupported param type '${paramType}' in '${node.type}'.`);
-                            }
+            const subgraph = {};
+            subgraph.id = reader.int32();
+            subgraph.graphLayout = reader.int32();
+            /*
+            if (graphLayout == 0) {
+                return "NCHW";
+            }
+            if (graphLayout == 1) {
+                return "NHWC";
+            }
+            */
+            subgraph.originalLayout = reader.int32();
+            subgraph.inputs = reader.uint32s();
+            subgraph.outputs = reader.uint32s();
+            const nodeOffsets = reader.uint32s();
+            const tensorOffsets = reader.uint32s();
+            const bufferOffsets = reader.uint32s();
+            subgraph.name = reader.string();
+            subgraph.nodes = [];
+            subgraph.tensors = [];
+            this.graphs.push(subgraph);
+            // nodes
+            for (const nodeOffset of nodeOffsets) {
+                reader.seek(nodeOffset);
+                const node = {};
+                node.id = reader.int32();
+                node.inputs = reader.uint32s();
+                node.outputs = reader.uint32s();
+                const typeOffset = reader.int32();
+                node.name = reader.string();
+                const attributeOffsets = reader.uint32s();
+                node.dynamicShape = reader.boolean();
+                reader.seek(typeOffset);
+                node.version = reader.int32();
+                const index = reader.int32();
+                const paramsOffset = reader.uint32();
+                const schema = operator(index, node.version);
+                node.type = schema ? schema.name : index.toString();
+                const paramTypes = schema ? schema.params : [];
+                node.params = [];
+                if (paramsOffset) {
+                    reader.seek(paramsOffset);
+                    for (const paramType of paramTypes) {
+                        if (paramType !== 'boolean') {
+                            reader.align(4);
                         }
-                    }
-                    if (node.type === 'Slice') {
-                        node.params[6] = (this._originalFormat == 5) ? node.params[6] : 0;
-                    }
-                    node.attributes = attributeOffsets.map((attributeOffset) => {
-                        reader.seek(attributeOffset);
-                        const name = reader.string();
-                        const value = reader.string();
-                        const type = reader.int32();
-                        return { name: name, value: value, type: type };
-                    });
-                    subgraph.nodes.push(node);
-                }
-                // buffers
-                const buffers = bufferOffsets.map((bufferOffset) => {
-                    reader.seek(bufferOffset);
-                    const size = reader.uint32();
-                    const offset = reader.int32();
-                    if (offset !== 0) {
-                        reader.seek(offset);
-                        return reader.read(size);
-                    }
-                    return null;
-                });
-                // tensors
-                subgraph.tensors = tensorOffsets.map((tensorOffset) => {
-                    reader.seek(tensorOffset);
-                    const tensor = {};
-                    tensor.id = reader.int32();
-                    tensor.buffer = buffers[reader.int32()];
-                    tensor.dims = reader.int32s();
-                    tensor.name = reader.string();
-                    const quantparamsOffset = reader.int32();
-                    tensor.layout = reader.int32();
-                    tensor.type = reader.int32(); // ar = 1, const = 2, input = 3, vdep, unknown
-                    tensor.dataType = reader.int32();
-                    if (quantparamsOffset) {
-                        reader.seek(quantparamsOffset);
-                        tensor.quantparams = {
-                            zeroPoint: reader.int32(),
-                            scale: reader.float32(),
-                            width: reader.int32()
-                        };
-                    }
-                    return tensor;
-                });
-                for (const node of subgraph.nodes) {
-                    if (node.type === 'Convolution') {
-                        switch (subgraph.graphLayout) {
-                            case 0: // NCHW
-                                /* eslint-disable prefer-destructuring */
-                                node.params[6] = subgraph.tensors[node.inputs[1]].dims[1];
-                                /* eslint-enable prefer-destructuring */
+                        switch (paramType) {
+                            case 'i':
+                                node.params.push(reader.int32());
                                 break;
-                            case 1: // NHWC
-                                /* eslint-disable prefer-destructuring */
-                                node.params[6] = subgraph.tensors[node.inputs[1]].dims[3];
-                                /* eslint-enable prefer-destructuring */
+                            case 'f':
+                                node.params.push(reader.float32());
+                                break;
+                            case 'i[]':
+                                node.params.push(reader.int32s());
+                                break;
+                            case 'f[]':
+                                node.params.push(reader.float32s());
+                                break;
+                            case 'boolean':
+                                node.params.push(reader.boolean());
+                                break;
+                            case 'string':
+                                node.params.push(reader.string());
+                                break;
+                            case 'anchors':
+                                node.params.push(reader.anchors(4));
                                 break;
                             default:
-                                throw new tengine.Error(`Unsupported 'Convolution' layout '${subgraph.graphLayout}'.`);
+                                throw new tengine.Error(`Unsupported param type '${paramType}' in '${node.type}'.`);
                         }
                     }
                 }
+                if (node.type === 'Slice') {
+                    node.params[6] = (this._originalFormat == 5) ? node.params[6] : 0;
+                }
+                node.attributes = attributeOffsets.map((attributeOffset) => {
+                    reader.seek(attributeOffset);
+                    const name = reader.string();
+                    const value = reader.string();
+                    const type = reader.int32();
+                    return { name: name, value: value, type: type };
+                });
+                subgraph.nodes.push(node);
             }
-            delete this.stream;
+            // buffers
+            const buffers = bufferOffsets.map((bufferOffset) => {
+                reader.seek(bufferOffset);
+                const size = reader.uint32();
+                const offset = reader.int32();
+                if (offset !== 0) {
+                    reader.seek(offset);
+                    return reader.read(size);
+                }
+                return null;
+            });
+            // tensors
+            subgraph.tensors = tensorOffsets.map((tensorOffset) => {
+                reader.seek(tensorOffset);
+                const tensor = {};
+                tensor.id = reader.int32();
+                tensor.buffer = buffers[reader.int32()];
+                tensor.dims = reader.int32s();
+                tensor.name = reader.string();
+                const quantparamsOffset = reader.int32();
+                tensor.layout = reader.int32();
+                tensor.type = reader.int32(); // ar = 1, const = 2, input = 3, vdep, unknown
+                tensor.dataType = reader.int32();
+                if (quantparamsOffset) {
+                    reader.seek(quantparamsOffset);
+                    tensor.quantparams = {
+                        zeroPoint: reader.int32(),
+                        scale: reader.float32(),
+                        width: reader.int32()
+                    };
+                }
+                return tensor;
+            });
+            for (const node of subgraph.nodes) {
+                if (node.type === 'Convolution') {
+                    switch (subgraph.graphLayout) {
+                        case 0: // NCHW
+                            /* eslint-disable prefer-destructuring */
+                            node.params[6] = subgraph.tensors[node.inputs[1]].dims[1];
+                            /* eslint-enable prefer-destructuring */
+                            break;
+                        case 1: // NHWC
+                            /* eslint-disable prefer-destructuring */
+                            node.params[6] = subgraph.tensors[node.inputs[1]].dims[3];
+                            /* eslint-enable prefer-destructuring */
+                            break;
+                        default:
+                            throw new tengine.Error(`Unsupported 'Convolution' layout '${subgraph.graphLayout}'.`);
+                    }
+                }
+            }
         }
+        delete this.stream;
     }
 
     get version() {

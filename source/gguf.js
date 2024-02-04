@@ -6,8 +6,11 @@ const gguf = {};
 gguf.ModelFactory = class {
 
     match(context) {
-        context.target = gguf.Reader.open(context.stream);
-        context.type = context.target ? context.target.name : null;
+        const reader = gguf.Reader.open(context.stream);
+        if (reader) {
+            context.type = 'gguf';
+            context.target = reader;
+        }
     }
 
     async open(context) {
@@ -195,7 +198,6 @@ gguf.Reader = class {
     }
 
     constructor(stream) {
-        this.name = 'gguf';
         this.stream = stream;
         const QK_K = 256;
         gguf.Reader.GGML_QUANT_SIZES = gguf.Reader.GGML_QUANT_SIZES || new Map([

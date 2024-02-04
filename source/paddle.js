@@ -50,14 +50,11 @@ paddle.ModelFactory = class {
         }
     }
 
-    filter(context, name) {
-        if (context.type === 'paddle.pb' && name === 'paddle.params') {
+    filter(context, type) {
+        if (context.type === 'paddle.pb' && (type === 'paddle.params' || type === 'paddle.pickle')) {
             return false;
         }
-        if (context.type === 'paddle.naive.model' && name === 'paddle.naive.param') {
-            return false;
-        }
-        if (context.type === 'paddle.pb' && name === 'paddle.pickle') {
+        if (context.type === 'paddle.naive.model' && type === 'paddle.naive.param') {
             return false;
         }
         return true;
@@ -701,64 +698,62 @@ paddle.NaiveBuffer = class {
     }
 
     read() {
-        if (this.stream) {
-            const reader = new base.BinaryReader(this.stream);
-            if (this.meta_version >= 2) {
-                reader.skip(2);
+        const reader = new base.BinaryReader(this.stream);
+        if (this.meta_version >= 2) {
+            reader.skip(2);
+        }
+        const decoder = new TextDecoder();
+        const opt_version = reader.read(16);
+        const version = decoder.decode(opt_version.slice(0, opt_version.indexOf(0x00)));
+        this.format = `Paddle Lite${version && version.match(/^v\d+\.\d+.\d+$/) ? ` ${version}` : ''}`;
+        const topo_size = reader.uint64();
+        const openProgramDesc = (buffer) => {
+            const reader = flatbuffers.BinaryReader.open(buffer);
+            return paddle.schema.ProgramDesc.create(reader);
+        };
+        const openParamDesc = (buffer) => {
+            const reader = flatbuffers.BinaryReader.open(buffer);
+            return paddle.schema.ParamDesc.create(reader);
+        };
+        switch (this.meta_version) {
+            case -1: {
+                throw new paddle.Error('Paddle Lite naive buffer format is deprecated.');
             }
-            delete this.stream;
-            const decoder = new TextDecoder();
-            const opt_version = reader.read(16);
-            const version = decoder.decode(opt_version.slice(0, opt_version.indexOf(0x00)));
-            this.format = `Paddle Lite${version && version.match(/^v\d+\.\d+.\d+$/) ? ` ${version}` : ''}`;
-            const topo_size = reader.uint64();
-            const openProgramDesc = (buffer) => {
-                const reader = flatbuffers.BinaryReader.open(buffer);
-                return paddle.schema.ProgramDesc.create(reader);
-            };
-            const openParamDesc = (buffer) => {
-                const reader = flatbuffers.BinaryReader.open(buffer);
-                return paddle.schema.ParamDesc.create(reader);
-            };
-            switch (this.meta_version) {
-                case -1: {
-                    throw new paddle.Error('Paddle Lite naive buffer format is deprecated.');
+            case 0:
+            case 1: {
+                throw new paddle.Error(`Paddle Lite meta format '${this.meta_version}' is deprecated.`);
+            }
+            case 2: {
+                const topo_data = new Uint8Array(topo_size);
+                topo_data.set(reader.read(topo_size), 0);
+                this.model = openProgramDesc(topo_data);
+                reader.uint16(); // version
+                reader.uint16(); // meta_size
+                const header_size = reader.uint16();
+                const params_size = reader.uint16();
+                reader.uint32(); // max_tensor_size
+                reader.skip(header_size - 6);
+                this.weights = new Map();
+                for (let i = 0; i < params_size; i++) {
+                    const total_size = reader.uint32();
+                    const offset = reader.uint32();
+                    const param_bytes = total_size - offset;
+                    const param_data = reader.read(param_bytes);
+                    const desc = openParamDesc(param_data);
+                    const data = desc.variable.data;
+                    const data_type = desc.variable.data_type;
+                    const dim = desc.variable.dim;
+                    const type = paddle.Utility.createTensorType(data_type, dim);
+                    const tensor = new paddle.Tensor(type, data);
+                    this.weights.set(desc.name, tensor);
                 }
-                case 0:
-                case 1: {
-                    throw new paddle.Error(`Paddle Lite meta format '${this.meta_version}' is deprecated.`);
-                }
-                case 2: {
-                    const topo_data = new Uint8Array(topo_size);
-                    topo_data.set(reader.read(topo_size), 0);
-                    this.model = openProgramDesc(topo_data);
-                    reader.uint16(); // version
-                    reader.uint16(); // meta_size
-                    const header_size = reader.uint16();
-                    const params_size = reader.uint16();
-                    reader.uint32(); // max_tensor_size
-                    reader.skip(header_size - 6);
-                    this.weights = new Map();
-                    for (let i = 0; i < params_size; i++) {
-                        const total_size = reader.uint32();
-                        const offset = reader.uint32();
-                        const param_bytes = total_size - offset;
-                        const param_data = reader.read(param_bytes);
-                        const desc = openParamDesc(param_data);
-                        const data = desc.variable.data;
-                        const data_type = desc.variable.data_type;
-                        const dim = desc.variable.dim;
-                        const type = paddle.Utility.createTensorType(data_type, dim);
-                        const tensor = new paddle.Tensor(type, data);
-                        this.weights.set(desc.name, tensor);
-                    }
-                    break;
-                }
-                default: {
-                    throw new paddle.Error(`Unsupported Paddle Lite naive buffer meta format '${this.meta_version}'.`);
-                }
+                break;
+            }
+            default: {
+                throw new paddle.Error(`Unsupported Paddle Lite naive buffer meta format '${this.meta_version}'.`);
             }
         }
+        delete this.stream;
     }
 };
 

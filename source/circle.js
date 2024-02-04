@@ -16,6 +16,7 @@ circle.ModelFactory = class {
         const obj = context.peek('json');
         if (obj && obj.subgraphs && obj.operator_codes) {
             context.type = 'circle.flatbuffers.json';
+            context.target = obj;
             return;
         }
     }
@@ -28,7 +29,7 @@ circle.ModelFactory = class {
         switch (context.type) {
             case 'circle.flatbuffers.json': {
                 try {
-                    const obj = context.peek('json');
+                    const obj = context.target;
                     const reader = new flatbuffers.TextReader(obj);
                     model = circle.schema.Model.createText(reader);
                 } catch (error) {
