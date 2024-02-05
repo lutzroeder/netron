@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 const caffe2 = {};
 
 caffe2.ModelFactory = class {
@@ -49,7 +47,8 @@ caffe2.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./caffe2-proto');
+        caffe2.proto = await context.require('./caffe2-proto');
+        caffe2.proto = caffe2.proto.caffe2;
         const metadata = await context.metadata('caffe2-metadata.json');
         const identifier = context.identifier;
         const parts = identifier.split('.');
@@ -57,12 +56,11 @@ caffe2.ModelFactory = class {
         const base = parts.join('.');
         switch (context.type) {
             case 'caffe2.pbtxt': {
-                const openText = (predictBuffer, initBuffer, initTextFormat) => {
+                const openText = (predictContext, initContext, initTextFormat) => {
                     let predict_net = null;
                     let init_net = null;
                     try {
-                        caffe2.proto = protobuf.get('caffe2').caffe2;
-                        const reader = protobuf.TextReader.open(predictBuffer);
+                        const reader = predictContext.read('protobuf.text');
                         reader.field = function(tag, message) {
                             if (message instanceof caffe2.proto.DeviceOption) {
                                 message[tag] = this.read();
@@ -76,13 +74,12 @@ caffe2.ModelFactory = class {
                         throw new caffe2.Error(`File text format is not caffe2.NetDef (${message.replace(/\.$/, '')}).`);
                     }
                     try {
-                        caffe2.proto = protobuf.get('caffe2').caffe2;
-                        if (initBuffer) {
+                        if (initContext) {
                             if (initTextFormat) {
-                                const reader = protobuf.TextReader.open(initBuffer);
+                                const reader = initContext.read('protobuf.text');
                                 init_net = caffe2.proto.NetDef.decodeText(reader);
                             } else {
-                                const reader = protobuf.BinaryReader.open(initBuffer);
+                                const reader = initContext.read('protobuf.binary');
                                 init_net = caffe2.proto.NetDef.decode(reader);
                             }
                         }
@@ -95,54 +92,48 @@ caffe2.ModelFactory = class {
                     try {
                         const name = identifier.replace('init_net', 'predict_net');
                         const content = await context.fetch(name);
-                        const buffer = content.stream.peek();
-                        return openText(buffer, context.stream.peek(), true);
+                        return openText(content, context, true);
                     } catch (error) {
-                        return openText(context.stream.peek(), null, true);
+                        return openText(context, null, true);
                     }
                 }
                 if (base.toLowerCase().endsWith('predict_net') || base.toLowerCase().startsWith('predict_net')) {
                     try {
                         const name = identifier.replace('predict_net', 'init_net').replace(/\.pbtxt/, '.pb');
                         const content = await context.fetch(name);
-                        const buffer = content.stream.peek();
-                        return openText(context.stream.peek(), buffer, false);
+                        return openText(context, content, false);
                     } catch (error) {
                         try {
                             const name = identifier.replace('predict_net', 'init_net');
                             const content = await context.fetch(name);
-                            const buffer = content.stream.read();
-                            return openText(context.stream.peek(), buffer, true);
+                            return openText(context, content, true);
                         } catch (error) {
-                            return openText(context.stream.peek(), null, true);
+                            return openText(context, null, true);
                         }
                     }
                 }
                 try {
                     const name = `${base}_init.pb`;
                     const content = await context.fetch(name);
-                    const buffer = content.stream.read();
-                    return openText(context.stream.peek(), buffer, false);
+                    return openText(context, content, false);
                 } catch (error) {
-                    return openText(context.stream.peek(), null, false);
+                    return openText(context, null, false);
                 }
             }
             case 'caffe2.pb': {
-                const openBinary = (predictBuffer, initBuffer) => {
+                const openBinary = (predictContext, initContext) => {
                     let predict_net = null;
                     let init_net = null;
                     try {
-                        caffe2.proto = protobuf.get('caffe2').caffe2;
-                        const reader = protobuf.BinaryReader.open(predictBuffer);
+                        const reader = predictContext.read('protobuf.binary');
                         predict_net = caffe2.proto.NetDef.decode(reader);
                     } catch (error) {
                         const message = error && error.message ? error.message : error.toString();
                         throw new caffe2.Error(`File format is not caffe2.NetDef (${message.replace(/\.$/, '')}).`);
                     }
                     try {
-                        if (initBuffer) {
-                            caffe2.proto = protobuf.get('caffe2').caffe2;
-                            const reader = protobuf.BinaryReader.open(initBuffer);
+                        if (initContext) {
+                            const reader = initContext.read('protobuf.binary');
                             init_net = caffe2.proto.NetDef.decode(reader);
                         }
                     } catch (error) {
@@ -154,39 +145,35 @@ caffe2.ModelFactory = class {
                     try {
                         const name = `${base.replace(/init_net$/, '')}predict_net.${extension}`;
                         const content = await context.fetch(name);
-                        const buffer = content.stream.peek();
-                        return openBinary(buffer, context.stream.peek());
+                        return openBinary(content, context);
                     } catch (error) {
-                        return openBinary(context.stream.peek(), null);
+                        return openBinary(context, null);
                     }
                 }
                 if (base.toLowerCase().endsWith('_init')) {
                     try {
                         const name = `${base.replace(/_init$/, '')}.${extension}`;
                         const content = await context.fetch(name);
-                        const buffer = content.stream.peek();
-                        return openBinary(buffer, context.stream.peek());
+                        return openBinary(content, context);
                     } catch (error) {
-                        return openBinary(context.stream.peek(), null);
+                        return openBinary(context, null);
                     }
                 }
                 if (base.toLowerCase().endsWith('predict_net') || base.toLowerCase().startsWith('predict_net')) {
                     try {
                         const name = identifier.replace('predict_net', 'init_net');
                         const content = await context.fetch(name);
-                        const buffer = content.stream.peek();
-                        return openBinary(context.stream.peek(), buffer);
+                        return openBinary(context, content);
                     } catch (error) {
-                        return openBinary(context.stream.peek(), null);
+                        return openBinary(context, null);
                     }
                 }
                 try {
                     const file = `${base}_init.${extension}`;
                     const content = await context.fetch(file, null);
-                    const buffer = content.stream.peek();
-                    return openBinary(context.stream.peek(), buffer);
+                    return openBinary(context, content);
                 } catch (error) {
-                    return openBinary(context.stream.peek(), null);
+                    return openBinary(context, null);
                 }
             }
             default: {

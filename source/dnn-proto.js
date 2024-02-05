@@ -1,7 +1,5 @@
 
-import * as protobuf from './protobuf.js';
-
-const $root = protobuf.get('dnn');
+const $root = {};
 
 $root.dnn = {};
 
@@ -367,3 +365,5 @@ $root.dnn.Tensor.prototype.dim2 = 0;
 $root.dnn.Tensor.prototype.dim3 = 0;
 $root.dnn.Tensor.prototype.data = new Uint8Array([]);
 $root.dnn.Tensor.prototype.quantized_data = new Uint8Array([]);
+
+export const dnn = $root.dnn;

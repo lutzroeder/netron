@@ -1,7 +1,5 @@
 
-import * as protobuf from './protobuf.js';
-
-const $root = protobuf.get('xmodel');
+const $root = {};
 
 $root.serial_v2 = {};
 
@@ -1650,3 +1648,5 @@ $root.serial_v2.MapString2StringVec = class MapString2StringVec {
         return message;
     }
 };
+
+export const serial_v2 = $root.serial_v2;

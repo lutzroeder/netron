@@ -1,7 +1,7 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = protobuf.get('sentencepiece');
+const $root = {};
 
 $root.sentencepiece = {};
 
@@ -670,3 +670,5 @@ $root.sentencepiece.ModelProto.SentencePiece.Type = {
     "BYTE": 6,
     "UNUSED": 5
 };
+
+export const sentencepiece = $root.sentencepiece;

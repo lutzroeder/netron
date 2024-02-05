@@ -1,8 +1,6 @@
 
 // Experimental
 
-import * as protobuf from './protobuf.js';
-
 const bigdl = {};
 
 bigdl.ModelFactory = class {
@@ -16,13 +14,12 @@ bigdl.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./bigdl-proto');
+        bigdl.proto = await context.require('./bigdl-proto');
+        bigdl.proto = bigdl.proto.com.intel.analytics.bigdl.serialization;
         let module = null;
         try {
             // https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto
-            bigdl.proto = protobuf.get('bigdl').com.intel.analytics.bigdl.serialization;
-            const stream = context.stream;
-            const reader = protobuf.BinaryReader.open(stream);
+            const reader = context.read('protobuf.binary');
             module = bigdl.proto.BigDLModule.decode(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();

@@ -1,7 +1,7 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = protobuf.get('onnx');
+const $root = {};
 
 $root.onnx = {};
 
@@ -1753,3 +1753,5 @@ $root.onnx.OperatorSetProto.prototype.ir_build_metadata = "";
 $root.onnx.OperatorSetProto.prototype.domain = "";
 $root.onnx.OperatorSetProto.prototype.opset_version = protobuf.Int64.create(0);
 $root.onnx.OperatorSetProto.prototype.doc_string = "";
+
+export const onnx = $root.onnx;

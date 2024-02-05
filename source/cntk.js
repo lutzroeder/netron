@@ -1,6 +1,5 @@
 
 import * as base from './base.js';
-import * as protobuf from './protobuf.js';
 
 const cntk = {};
 
@@ -38,13 +37,12 @@ cntk.ModelFactory = class {
                 return new cntk.Model(metadata, 1, obj);
             }
             case 'cntk.v2': {
-                await context.require('./cntk-proto');
+                cntk.proto = await context.require('./cntk-proto');
+                cntk.proto = cntk.proto.CNTK.proto;
+                cntk.proto.PoolingType = { 0: 'Max', 1: 'Average' };
                 let obj = null;
                 try {
-                    cntk.proto = protobuf.get('cntk').CNTK.proto;
-                    cntk.proto.PoolingType = { 0: 'Max', 1: 'Average' };
-                    const stream = context.stream;
-                    const reader = protobuf.BinaryReader.open(stream);
+                    const reader = context.read('protobuf.binary');
                     const dictionary = cntk.proto.Dictionary.decode(reader);
                     obj = cntk.ModelFactory._convertDictionary(dictionary);
                 } catch (error) {

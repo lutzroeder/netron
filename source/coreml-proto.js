@@ -1,7 +1,7 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = protobuf.get('coreml');
+const $root = {};
 
 $root.CoreML = {};
 
@@ -18915,3 +18915,5 @@ $root.CoreML.Specification.ClassConfidenceThresholding = class ClassConfidenceTh
         return message;
     }
 };
+
+export const CoreML = $root.CoreML;

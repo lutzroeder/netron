@@ -1,6 +1,5 @@
 
 import * as base from './base.js';
-import * as protobuf from './protobuf.js';
 
 const coreml = {};
 
@@ -76,13 +75,13 @@ coreml.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./coreml-proto');
+        coreml.proto = await context.require('./coreml-proto');
+        coreml.proto = coreml.proto.CoreML.Specification;
         const metadata = await context.metadata('coreml-metadata.json');
-        const openBinary = async (stream, context, path, format) => {
+        const openBinary = async (content, context, path, format) => {
             let model = null;
             try {
-                coreml.proto = protobuf.get('coreml').CoreML.Specification;
-                const reader = protobuf.BinaryReader.open(stream);
+                const reader = content.read('protobuf.binary');
                 model = coreml.proto.Model.decode(reader);
             } catch (error) {
                 const message = error && error.message ? error.message : error.toString();
@@ -139,11 +138,10 @@ coreml.ModelFactory = class {
             }
             return new coreml.Model(metadata, format, model, weights);
         };
-        const openText = async (stream) => {
+        const openText = async (context) => {
             let model = null;
             try {
-                coreml.proto = protobuf.get('coreml').CoreML.Specification;
-                const reader = protobuf.TextReader.open(stream);
+                const reader = context.read('protobuf.text');
                 model = coreml.proto.Model.decodeText(reader);
             } catch (error) {
                 const message = error && error.message ? error.message : error.toString();
@@ -159,7 +157,7 @@ coreml.ModelFactory = class {
             }
             const name = `${path}Data/${entries[0].path}`;
             const content = await context.fetch(name);
-            return openBinary(content.stream, context, name, 'Core ML Package');
+            return openBinary(content, context, name, 'Core ML Package');
         };
         const openManifestStream = async (context, path) => {
             const name = `${path}Manifest.json`;
@@ -169,10 +167,10 @@ coreml.ModelFactory = class {
         };
         switch (context.type) {
             case 'coreml.pb': {
-                return openBinary(context.stream, context, context.identifier);
+                return openBinary(context, context, context.identifier);
             }
             case 'coreml.pbtxt': {
-                return openText(context.stream, context, context.identifier);
+                return openText(context, context, context.identifier);
             }
             case 'coreml.manifest': {
                 const obj = context.peek('json');

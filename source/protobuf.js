@@ -4,15 +4,6 @@ import * as text from './text.js';
 
 const protobuf = {};
 
-protobuf.get = (name) => {
-    protobuf._roots = protobuf._roots || new Map();
-    const roots = protobuf._roots;
-    if (!roots.has(name)) {
-        roots.set(name, {});
-    }
-    return roots.get(name);
-};
-
 protobuf.BinaryReader = class {
 
     static open(data) {
@@ -1329,4 +1320,3 @@ export const BinaryReader = protobuf.BinaryReader;
 export const TextReader = protobuf.TextReader;
 export const Int64 = protobuf.Int64;
 export const Uint64 = protobuf.Uint64;
-export const get = protobuf.get;

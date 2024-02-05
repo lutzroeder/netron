@@ -1,7 +1,7 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = protobuf.get('caffe2');
+const $root = {};
 
 $root.caffe2 = {};
 
@@ -1771,3 +1771,5 @@ $root.caffe2.SerializationOptions = class SerializationOptions {
         return message;
     }
 };
+
+export const caffe2 = $root.caffe2;

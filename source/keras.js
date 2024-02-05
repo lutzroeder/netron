@@ -1,7 +1,6 @@
 
 import * as json from './json.js';
 import * as python from './python.js';
-import * as protobuf from './protobuf.js';
 
 const keras = {};
 const tfjs = {};
@@ -490,11 +489,9 @@ keras.ModelFactory = class {
                 return open_model(format, '', backend, model_config, weights);
             }
             case 'keras.pb.SavedMetadata': {
-                await context.require('./keras-proto');
-                keras.proto = protobuf.get('tf');
+                keras.proto = await context.require('./keras-proto');
                 const format = 'Keras Saved Metadata';
-                const stream = context.stream;
-                const reader = protobuf.BinaryReader.open(stream);
+                const reader = context.read('protobuf.binary');
                 const saved_metadata = keras.proto.third_party.tensorflow.python.keras.protobuf.SavedMetadata.decode(reader);
                 if (!saved_metadata || !Array.isArray(saved_metadata.nodes) ||
                     !saved_metadata.nodes.every((node) => node && typeof node.metadata === 'string' && node.metadata.length > 0)) {

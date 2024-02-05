@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 const xmodel = {};
 
 xmodel.ModelFactory = class {
@@ -13,12 +11,11 @@ xmodel.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./xmodel-proto');
+        xmodel.proto = await context.require('./xmodel-proto');
+        xmodel.proto = xmodel.proto.serial_v2;
         let graph = null;
         try {
-            xmodel.proto = protobuf.get('xmodel').serial_v2;
-            const stream = context.stream;
-            const reader = protobuf.BinaryReader.open(stream);
+            const reader = context.read('protobuf.binary');
             graph = xmodel.proto.Graph.decode(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();

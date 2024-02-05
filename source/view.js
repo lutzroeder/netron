@@ -5148,6 +5148,12 @@ view.Context = class {
                     const obj = this.peek('json');
                     return flatbuffers.TextReader.open(obj);
                 }
+                case 'protobuf.binary': {
+                    return protobuf.BinaryReader.open(this._stream);
+                }
+                case 'protobuf.text': {
+                    return protobuf.TextReader.open(this._stream);
+                }
                 default: {
                     break;
                 }

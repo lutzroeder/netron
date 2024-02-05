@@ -1,7 +1,7 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = protobuf.get('paddle');
+const $root = {};
 
 $root.paddle = {};
 
@@ -1678,3 +1678,5 @@ $root.paddle.framework.proto.ProgramDesc = class ProgramDesc {
 
 $root.paddle.framework.proto.ProgramDesc.prototype.version = null;
 $root.paddle.framework.proto.ProgramDesc.prototype.op_version_map = null;
+
+export const paddle = $root.paddle;

@@ -1129,16 +1129,45 @@ protoc.Generator = class {
         this._root = root;
         this._text = text;
         this._builder = new protoc.Generator.StringBuilder();
-        this._builder.add("");
-        this._builder.add("import * as protobuf from './protobuf.js';");
-        this._builder.add("");
-        this._builder.add(`const $root = protobuf.get('${this._root.alias}');`);
+        if (this._containsLong(this._root)) {
+            this._builder.add('');
+            this._builder.add("import * as protobuf from './protobuf.js';");
+        }
+        this._builder.add('');
+        this._builder.add(`const $root = {};`);
         this._buildContent(this._root);
+        const scopes = Array.from(this._root.children.values()).map((child) => child.fullName);
+        const exports = new Set (scopes.map((scope) => scope.split('.')[1]));
+        this._builder.add('');
+        for (const value of exports) {
+            this._builder.add(`export const ${value} = $root.${value};`);
+        }
         this._content = this._builder.toString();
     }
 
     get content() {
         return this._content;
+    }
+
+    _containsLong(namespace) {
+        for (const child of namespace.children.values()) {
+            if (child instanceof protoc.Type) {
+                for (const field of child.fields.values()) {
+                    if (field.partOf || field.repeated || field instanceof protoc.MapField) {
+                        continue;
+                    }
+                    if (field.type.long) {
+                        return true;
+                    }
+                }
+            }
+            if (child instanceof protoc.Namespace) {
+                if (this._containsLong(child)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     _buildContent(namespace) {
@@ -1148,8 +1177,10 @@ protoc.Generator = class {
                 this._buildEnum(child);
             } else if (child instanceof protoc.Type) {
                 this._buildType(child);
-            } else {
+            } else if (child instanceof protoc.Namespace) {
                 this._buildNamespace(child);
+            } else {
+                throw new protoc.Error('Unsupportd namespace child.');
             }
         }
     }

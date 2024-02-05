@@ -13,12 +13,11 @@ mediapipe.ModelFactory = class {
     }
 
     async open(context) {
-        // await context.require('./mediapipe-proto');
-        mediapipe.proto = protobuf.get('mediapipe');
+        // mediapipe.proto = await context.require('./mediapipe-proto');
+        mediapipe.proto = {};
         let config = null;
         try {
-            const stream = context.stream;
-            const reader = protobuf.TextReader.open(stream);
+            const reader = context.read('protobuf.text');
             // const config = mediapipe.proto.mediapipe.CalculatorGraphConfig.decodeText(reader);
             config = new mediapipe.Object(reader);
         } catch (error) {

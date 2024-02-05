@@ -73,18 +73,18 @@ paddle.ModelFactory = class {
                 return new paddle.Model(metadata, target.format, target.model, target.weights);
             }
             default: {
-                await context.require('./paddle-proto');
-                paddle.proto = protobuf.get('paddle').paddle.framework.proto;
+                paddle.proto = await context.require('./paddle-proto');
+                paddle.proto = paddle.proto.paddle.framework.proto;
                 const identifier = context.identifier;
                 const parts = identifier.split('.');
                 const extension = parts.pop().toLowerCase();
                 const base = parts.join('.');
-                const openProgram = (stream, type) => {
+                const openProgram = (context, type) => {
                     const program = {};
-                    switch (context.type) {
+                    switch (type) {
                         case 'paddle.pbtxt': {
                             try {
-                                const reader = protobuf.TextReader.open(stream);
+                                const reader = context.read('protobuf.text');
                                 program.desc = paddle.proto.ProgramDesc.decodeText(reader);
                             } catch (error) {
                                 const message = error && error.message ? error.message : error.toString();
@@ -94,7 +94,7 @@ paddle.ModelFactory = class {
                         }
                         case 'paddle.pb': {
                             try {
-                                const reader = protobuf.BinaryReader.open(stream);
+                                const reader = context.read('protobuf.binary');
                                 program.desc = paddle.proto.ProgramDesc.decode(reader);
                             } catch (error) {
                                 const message = error && error.message ? error.message : error.toString();
@@ -177,7 +177,7 @@ paddle.ModelFactory = class {
                         const params = loadParams(context.stream);
                         try {
                             const content = await context.fetch(file);
-                            const program = openProgram(content.stream, 'paddle.pb');
+                            const program = openProgram(content, 'paddle.pb');
                             const weights = mapParams(params, program);
                             return new paddle.Model(metadata, program.format, program.desc, weights);
                         } catch (error) {
@@ -201,7 +201,7 @@ paddle.ModelFactory = class {
                             const container = new paddle.Pickle(obj);
                             return container.weights || new Map();
                         };
-                        const program = openProgram(context.stream, context.type);
+                        const program = openProgram(context, context.type);
                         if (extension === 'pdmodel') {
                             try {
                                 const name = `${base}.pdiparams`;

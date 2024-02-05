@@ -1,7 +1,7 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = protobuf.get('caffe');
+const $root = {};
 
 $root.caffe = {};
 
@@ -5355,3 +5355,5 @@ $root.caffe.PReLUParameter = class PReLUParameter {
 
 $root.caffe.PReLUParameter.prototype.filler = null;
 $root.caffe.PReLUParameter.prototype.channel_shared = false;
+
+export const caffe = $root.caffe;

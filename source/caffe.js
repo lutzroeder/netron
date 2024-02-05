@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 const caffe = {};
 
 caffe.ModelFactory = class {
@@ -29,16 +27,16 @@ caffe.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./caffe-proto');
-        caffe.proto = protobuf.get('caffe').caffe;
+        caffe.proto = await context.require('./caffe-proto');
+        caffe.proto = caffe.proto.caffe;
         const openModel = async (context, netParameter) => {
             const metadata = await context.metadata('caffe-metadata.json');
             return new caffe.Model(metadata, netParameter);
         };
-        const openNetParameterText = (context, identifier, buffer) => {
+        const openNetParameterText = (context, identifier, content) => {
             let netParameter = null;
             try {
-                const reader = protobuf.TextReader.open(buffer);
+                const reader = content.read('protobuf.text');
                 reader.field = function(tag, message) {
                     const type = message.constructor.name;
                     if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
@@ -91,8 +89,7 @@ caffe.ModelFactory = class {
         };
         switch (context.type) {
             case 'caffe.pbtxt.solver': {
-                const stream = context.stream;
-                const reader = protobuf.TextReader.open(stream);
+                const reader = context.read('protobuf.text');
                 reader.field = function(tag, message) {
                     if (message instanceof caffe.proto.SolverParameter) {
                         message[tag] = this.read();
@@ -108,21 +105,19 @@ caffe.ModelFactory = class {
                 name = name.split('/').pop();
                 try {
                     const content = await context.fetch(name);
-                    const buffer = content.stream.peek();
-                    return openNetParameterText(context, name, buffer);
+                    return openNetParameterText(context, name, content);
                 } catch (error) {
                     const message = error.message ? error.message : error.toString();
                     throw new caffe.Error(`Failed to load '${name}' (${message.replace(/\.$/, '')}).`);
                 }
             }
             case 'caffe.pbtxt': {
-                return openNetParameterText(context, context.identifier, context.stream.peek());
+                return openNetParameterText(context, context.identifier, context);
             }
             case 'caffe.pb': {
                 let netParameter = null;
                 try {
-                    const stream = context.stream;
-                    const reader = protobuf.BinaryReader.open(stream);
+                    const reader = context.read('protobuf.binary');
                     netParameter = caffe.proto.NetParameter.decode(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();

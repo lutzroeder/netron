@@ -1,7 +1,7 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = protobuf.get('uff');
+const $root = {};
 
 $root.uff = {};
 
@@ -984,3 +984,5 @@ $root.uff.ListDimensionOrders = class ListDimensionOrders {
         return message;
     }
 };
+
+export const uff = $root.uff;

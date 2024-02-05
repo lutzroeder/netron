@@ -1,7 +1,5 @@
 
-import * as protobuf from './protobuf.js';
-
-const $root = protobuf.get('bigdl');
+const $root = {};
 
 $root.com = {};
 
@@ -639,3 +637,6 @@ $root.google.protobuf.Any = class Any {
 
 $root.google.protobuf.Any.prototype.type_url = "";
 $root.google.protobuf.Any.prototype.value = new Uint8Array([]);
+
+export const com = $root.com;
+export const google = $root.google;

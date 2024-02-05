@@ -1,7 +1,7 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = protobuf.get('tf');
+const $root = {};
 
 $root.tensorflow = {};
 
@@ -10020,3 +10020,6 @@ $root.google.protobuf.BoolValue = class BoolValue {
 };
 
 $root.google.protobuf.BoolValue.prototype.value = false;
+
+export const tensorflow = $root.tensorflow;
+export const google = $root.google;

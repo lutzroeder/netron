@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 const sentencepiece = {};
 
 sentencepiece.ModelFactory = class {
@@ -22,12 +20,11 @@ sentencepiece.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./sentencepiece-proto');
+        sentencepiece.proto = await context.require('./sentencepiece-proto');
+        sentencepiece.proto = sentencepiece.proto.sentencepiece;
         let model = null;
         try {
-            sentencepiece.proto = protobuf.get('sentencepiece').sentencepiece;
-            const stream = context.stream;
-            const reader = protobuf.BinaryReader.open(stream);
+            const reader = context.read('protobuf.binary');
             model = sentencepiece.proto.ModelProto.decode(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();

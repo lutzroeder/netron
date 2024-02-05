@@ -1,8 +1,6 @@
 
 // Experimental
 
-import * as protobuf from './protobuf.js';
-
 const dnn = {};
 
 dnn.ModelFactory = class {
@@ -15,12 +13,11 @@ dnn.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./dnn-proto');
+        dnn.proto = await context.require('./dnn-proto');
+        dnn.proto = dnn.proto.dnn;
         let model = null;
         try {
-            dnn.proto = protobuf.get('dnn').dnn;
-            const stream = context.stream;
-            const reader = protobuf.BinaryReader.open(stream);
+            const reader = context.read('protobuf.binary');
             model = dnn.proto.Model.decode(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();

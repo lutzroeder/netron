@@ -1,7 +1,7 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = protobuf.get('nnabla');
+const $root = {};
 
 $root.nnabla = {};
 
@@ -12886,3 +12886,5 @@ $root.nnabla.EinsumParameter = class EinsumParameter {
 };
 
 $root.nnabla.EinsumParameter.prototype.equation = "";
+
+export const nnabla = $root.nnabla;

@@ -1,7 +1,7 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = protobuf.get('om');
+const $root = {};
 
 $root.ge = {};
 
@@ -1063,3 +1063,5 @@ $root.ge.proto.ModelDef = class ModelDef {
 $root.ge.proto.ModelDef.prototype.name = "";
 $root.ge.proto.ModelDef.prototype.version = 0;
 $root.ge.proto.ModelDef.prototype.custom_version = "";
+
+export const ge = $root.ge;

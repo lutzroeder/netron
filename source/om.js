@@ -459,9 +459,9 @@ om.Container = class {
                         }
                     }
                 }
-                await this._context.require('./om-proto');
+                om.proto = await this._context.require('./om-proto');
+                om.proto = om.proto.ge.proto;
                 try {
-                    om.proto = protobuf.get('om').ge.proto;
                     const reader = protobuf.BinaryReader.open(this.model);
                     this.model = om.proto.ModelDef.decode(reader);
                 } catch (error) {

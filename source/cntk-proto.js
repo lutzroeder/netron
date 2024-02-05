@@ -1,7 +1,7 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = protobuf.get('cntk');
+const $root = {};
 
 $root.CNTK = {};
 
@@ -360,3 +360,5 @@ $root.CNTK.proto.DictionaryValue.Type = {
     "Dictionary": 10,
     "NDArrayView": 11
 };
+
+export const CNTK = $root.CNTK;

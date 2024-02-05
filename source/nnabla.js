@@ -1,5 +1,4 @@
 
-import * as protobuf from './protobuf.js';
 import * as text from './text.js';
 
 const nnabla = {};
@@ -17,12 +16,11 @@ nnabla.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./nnabla-proto');
-        nnabla.proto = protobuf.get('nnabla').nnabla;
+        nnabla.proto = await context.require('./nnabla-proto');
+        nnabla.proto = nnabla.proto.nnabla;
         switch (context.type) {
             case 'nnabla.pbtxt': {
-                const stream = context.stream;
-                const reader = protobuf.TextReader.open(stream);
+                const reader = context.read('protobuf.text');
                 const model = nnabla.proto.NNablaProtoBuf.decodeText(reader);
                 const open = async (model, version) => {
                     const metadata = await context.metadata('nnabla-metadata.json');
@@ -34,7 +32,7 @@ nnabla.ModelFactory = class {
                         context.fetch('parameter.protobuf')
                     ]);
                     const version = text.Reader.open(contexts[0].stream).read();
-                    const reader = protobuf.BinaryReader.open(contexts[1].stream);
+                    const reader = contexts[1].read('protobuf.binary');
                     const params = nnabla.proto.NNablaProtoBuf.decode(reader);
                     model.parameter = params.parameter;
                     return await open(model, version);

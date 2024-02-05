@@ -1611,13 +1611,12 @@ onnx.ProtoReader = class {
     }
 
     async read() {
-        await this.context.require('./onnx-proto');
-        onnx.proto = protobuf.get('onnx').onnx;
-        const stream = this.context.stream;
+        onnx.proto = await this.context.require('./onnx-proto');
+        onnx.proto = onnx.proto.onnx;
         switch (this.encoding) {
             case 'text': {
                 try {
-                    const reader = protobuf.TextReader.open(stream);
+                    const reader = this.context.read('protobuf.text');
                     this.model = onnx.proto.ModelProto.decodeText(reader);
                     this.format = `ONNX${this.model.ir_version ? ` v${this.model.ir_version}` : ''}`;
                 } catch (error) {
@@ -1632,7 +1631,7 @@ onnx.ProtoReader = class {
                         // TensorProto
                         // input_0.pb, output_0.pb
                         try {
-                            const reader = protobuf.BinaryReader.open(stream);
+                            const reader = this.context.read('protobuf.binary');
                             const tensor = onnx.proto.TensorProto.decode(reader);
                             tensor.name = tensor.name || this.context.identifier;
                             const attribute = new onnx.proto.AttributeProto();
@@ -1656,7 +1655,7 @@ onnx.ProtoReader = class {
                     case 'graph': {
                         // GraphProto
                         try {
-                            const reader = protobuf.BinaryReader.open(stream);
+                            const reader = this.context.read('protobuf.binary');
                             this.model = new onnx.proto.ModelProto();
                             this.model.graph = onnx.proto.GraphProto.decode(reader);
                             this.format = 'ONNX';
@@ -1669,7 +1668,7 @@ onnx.ProtoReader = class {
                     case 'model': {
                         // ModelProto
                         try {
-                            const reader = protobuf.BinaryReader.open(stream);
+                            const reader = this.context.read('protobuf.binary');
                             this.model = onnx.proto.ModelProto.decode(reader);
                             this.format = `ONNX${this.model.ir_version ? ` v${this.model.ir_version}` : ''}`;
                         } catch (error) {
@@ -2123,8 +2122,8 @@ onnx.TextReader = class {
     }
 
     async read() {
-        await this._context.require('./onnx-proto');
-        onnx.proto = protobuf.get('onnx').onnx;
+        onnx.proto = await this._context.require('./onnx-proto');
+        onnx.proto = onnx.proto.onnx;
         try {
             const stream = this._context.stream;
             this._decoder = text.Decoder.open(stream);

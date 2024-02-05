@@ -1,7 +1,5 @@
 
-import * as protobuf from './protobuf.js';
-
-const $root = protobuf.get('tf');
+const $root = {};
 
 $root.third_party = {};
 
@@ -179,3 +177,5 @@ $root.third_party.tensorflow.python.keras.protobuf.VersionDef = class VersionDef
 
 $root.third_party.tensorflow.python.keras.protobuf.VersionDef.prototype.producer = 0;
 $root.third_party.tensorflow.python.keras.protobuf.VersionDef.prototype.min_consumer = 0;
+
+export const third_party = $root.third_party;

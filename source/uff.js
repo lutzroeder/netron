@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 const uff = {};
 
 uff.ModelFactory = class {
@@ -30,14 +28,13 @@ uff.ModelFactory = class {
     }
 
     async open(context) {
-        await context.require('./uff-proto');
-        uff.proto = protobuf.get('uff').uff;
+        uff.proto = await context.require('./uff-proto');
+        uff.proto = uff.proto.uff;
         let meta_graph = null;
         switch (context.type) {
             case 'uff.pb': {
                 try {
-                    const stream = context.stream;
-                    const reader = protobuf.BinaryReader.open(stream);
+                    const reader = context.read('protobuf.binary');
                     meta_graph = uff.proto.MetaGraph.decode(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
@@ -47,8 +44,7 @@ uff.ModelFactory = class {
             }
             case 'uff.pbtxt': {
                 try {
-                    const stream = context.stream;
-                    const reader = protobuf.TextReader.open(stream);
+                    const reader = context.read('protobuf.text');
                     meta_graph = uff.proto.MetaGraph.decodeText(reader);
                 } catch (error) {
                     throw new uff.Error(`File text format is not uff.MetaGraph (${error.message}).`);
