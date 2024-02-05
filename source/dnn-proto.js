@@ -1,9 +1,7 @@
 
-const $root = {};
+export const dnn = {};
 
-$root.dnn = {};
-
-$root.dnn.Model = class Model {
+dnn.Model = class Model {
 
     constructor() {
         this.input_shape = [];
@@ -14,7 +12,7 @@ $root.dnn.Model = class Model {
     }
 
     static decode(reader, length) {
-        const message = new $root.dnn.Model();
+        const message = new dnn.Model();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -32,13 +30,13 @@ $root.dnn.Model = class Model {
                     message.input_name.push(reader.string());
                     break;
                 case 10:
-                    message.node.push($root.dnn.Node.decode(reader, reader.uint32()));
+                    message.node.push(dnn.Node.decode(reader, reader.uint32()));
                     break;
                 case 12:
-                    message.input.push($root.dnn.Parameter.decode(reader, reader.uint32()));
+                    message.input.push(dnn.Parameter.decode(reader, reader.uint32()));
                     break;
                 case 13:
-                    message.output.push($root.dnn.Parameter.decode(reader, reader.uint32()));
+                    message.output.push(dnn.Parameter.decode(reader, reader.uint32()));
                     break;
                 case 14:
                     message.a014 = reader.double();
@@ -52,17 +50,17 @@ $root.dnn.Model = class Model {
     }
 };
 
-$root.dnn.Model.prototype.name = "";
-$root.dnn.Model.prototype.version = 0;
-$root.dnn.Model.prototype.a014 = 0;
+dnn.Model.prototype.name = "";
+dnn.Model.prototype.version = 0;
+dnn.Model.prototype.a014 = 0;
 
-$root.dnn.Parameter = class Parameter {
+dnn.Parameter = class Parameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.dnn.Parameter();
+        const message = new dnn.Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -71,7 +69,7 @@ $root.dnn.Parameter = class Parameter {
                     message.name = reader.string();
                     break;
                 case 2:
-                    message.shape = $root.dnn.Shape.decode(reader, reader.uint32());
+                    message.shape = dnn.Shape.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -82,16 +80,16 @@ $root.dnn.Parameter = class Parameter {
     }
 };
 
-$root.dnn.Parameter.prototype.name = "";
-$root.dnn.Parameter.prototype.shape = null;
+dnn.Parameter.prototype.name = "";
+dnn.Parameter.prototype.shape = null;
 
-$root.dnn.Shape = class Shape {
+dnn.Shape = class Shape {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.dnn.Shape();
+        const message = new dnn.Shape();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -117,12 +115,12 @@ $root.dnn.Shape = class Shape {
     }
 };
 
-$root.dnn.Shape.prototype.dim0 = 0;
-$root.dnn.Shape.prototype.dim1 = 0;
-$root.dnn.Shape.prototype.dim2 = 0;
-$root.dnn.Shape.prototype.dim3 = 0;
+dnn.Shape.prototype.dim0 = 0;
+dnn.Shape.prototype.dim1 = 0;
+dnn.Shape.prototype.dim2 = 0;
+dnn.Shape.prototype.dim3 = 0;
 
-$root.dnn.Node = class Node {
+dnn.Node = class Node {
 
     constructor() {
         this.input = [];
@@ -130,13 +128,13 @@ $root.dnn.Node = class Node {
     }
 
     static decode(reader, length) {
-        const message = new $root.dnn.Node();
+        const message = new dnn.Node();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.layer = $root.dnn.Layer.decode(reader, reader.uint32());
+                    message.layer = dnn.Layer.decode(reader, reader.uint32());
                     break;
                 case 2:
                     message.input.push(reader.string());
@@ -153,16 +151,16 @@ $root.dnn.Node = class Node {
     }
 };
 
-$root.dnn.Node.prototype.layer = null;
+dnn.Node.prototype.layer = null;
 
-$root.dnn.Layer = class Layer {
+dnn.Layer = class Layer {
 
     constructor() {
         this.weight = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.dnn.Layer();
+        const message = new dnn.Layer();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -198,7 +196,7 @@ $root.dnn.Layer = class Layer {
                     message.intercept = reader.float();
                     break;
                 case 50:
-                    message.weight.push($root.dnn.Tensor.decode(reader, reader.uint32()));
+                    message.weight.push(dnn.Tensor.decode(reader, reader.uint32()));
                     break;
                 case 72:
                     message.operation = reader.int32();
@@ -237,7 +235,7 @@ $root.dnn.Layer = class Layer {
                     message.is_quantized = reader.bool();
                     break;
                 case 104:
-                    message.quantization = $root.dnn.Buffer.decode(reader, reader.uint32());
+                    message.quantization = dnn.Buffer.decode(reader, reader.uint32());
                     break;
                 case 109:
                     message.stride_w = reader.int32();
@@ -266,43 +264,43 @@ $root.dnn.Layer = class Layer {
     }
 };
 
-$root.dnn.Layer.prototype.name = "";
-$root.dnn.Layer.prototype.type = "";
-$root.dnn.Layer.prototype.filters = 0;
-$root.dnn.Layer.prototype.a007 = 0;
-$root.dnn.Layer.prototype.a008 = 0;
-$root.dnn.Layer.prototype.groups = 0;
-$root.dnn.Layer.prototype.a010 = 0;
-$root.dnn.Layer.prototype.a011 = 0;
-$root.dnn.Layer.prototype.slope = 0;
-$root.dnn.Layer.prototype.intercept = 0;
-$root.dnn.Layer.prototype.operation = 0;
-$root.dnn.Layer.prototype.axis = 0;
-$root.dnn.Layer.prototype.a077 = 0;
-$root.dnn.Layer.prototype.scale = 0;
-$root.dnn.Layer.prototype.pad_1 = 0;
-$root.dnn.Layer.prototype.pad_2 = 0;
-$root.dnn.Layer.prototype.pad_3 = 0;
-$root.dnn.Layer.prototype.pad_4 = 0;
-$root.dnn.Layer.prototype.pad_5 = 0;
-$root.dnn.Layer.prototype.a085 = 0;
-$root.dnn.Layer.prototype.a090 = 0;
-$root.dnn.Layer.prototype.is_quantized = false;
-$root.dnn.Layer.prototype.quantization = null;
-$root.dnn.Layer.prototype.stride_w = 0;
-$root.dnn.Layer.prototype.stride_h = 0;
-$root.dnn.Layer.prototype.kernel_w = 0;
-$root.dnn.Layer.prototype.kernel_h = 0;
-$root.dnn.Layer.prototype.a115 = 0;
-$root.dnn.Layer.prototype.a116 = 0;
+dnn.Layer.prototype.name = "";
+dnn.Layer.prototype.type = "";
+dnn.Layer.prototype.filters = 0;
+dnn.Layer.prototype.a007 = 0;
+dnn.Layer.prototype.a008 = 0;
+dnn.Layer.prototype.groups = 0;
+dnn.Layer.prototype.a010 = 0;
+dnn.Layer.prototype.a011 = 0;
+dnn.Layer.prototype.slope = 0;
+dnn.Layer.prototype.intercept = 0;
+dnn.Layer.prototype.operation = 0;
+dnn.Layer.prototype.axis = 0;
+dnn.Layer.prototype.a077 = 0;
+dnn.Layer.prototype.scale = 0;
+dnn.Layer.prototype.pad_1 = 0;
+dnn.Layer.prototype.pad_2 = 0;
+dnn.Layer.prototype.pad_3 = 0;
+dnn.Layer.prototype.pad_4 = 0;
+dnn.Layer.prototype.pad_5 = 0;
+dnn.Layer.prototype.a085 = 0;
+dnn.Layer.prototype.a090 = 0;
+dnn.Layer.prototype.is_quantized = false;
+dnn.Layer.prototype.quantization = null;
+dnn.Layer.prototype.stride_w = 0;
+dnn.Layer.prototype.stride_h = 0;
+dnn.Layer.prototype.kernel_w = 0;
+dnn.Layer.prototype.kernel_h = 0;
+dnn.Layer.prototype.a115 = 0;
+dnn.Layer.prototype.a116 = 0;
 
-$root.dnn.Buffer = class Buffer {
+dnn.Buffer = class Buffer {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.dnn.Buffer();
+        const message = new dnn.Buffer();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -319,15 +317,15 @@ $root.dnn.Buffer = class Buffer {
     }
 };
 
-$root.dnn.Buffer.prototype.data = new Uint8Array([]);
+dnn.Buffer.prototype.data = new Uint8Array([]);
 
-$root.dnn.Tensor = class Tensor {
+dnn.Tensor = class Tensor {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.dnn.Tensor();
+        const message = new dnn.Tensor();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -359,11 +357,9 @@ $root.dnn.Tensor = class Tensor {
     }
 };
 
-$root.dnn.Tensor.prototype.dim0 = 0;
-$root.dnn.Tensor.prototype.dim1 = 0;
-$root.dnn.Tensor.prototype.dim2 = 0;
-$root.dnn.Tensor.prototype.dim3 = 0;
-$root.dnn.Tensor.prototype.data = new Uint8Array([]);
-$root.dnn.Tensor.prototype.quantized_data = new Uint8Array([]);
-
-export const dnn = $root.dnn;
+dnn.Tensor.prototype.dim0 = 0;
+dnn.Tensor.prototype.dim1 = 0;
+dnn.Tensor.prototype.dim2 = 0;
+dnn.Tensor.prototype.dim3 = 0;
+dnn.Tensor.prototype.data = new Uint8Array([]);
+dnn.Tensor.prototype.quantized_data = new Uint8Array([]);

@@ -1,11 +1,9 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = {};
+export const onnx = {};
 
-$root.onnx = {};
-
-$root.onnx.Version = {
+onnx.Version = {
     "_START_VERSION": 0,
     "IR_VERSION_2017_10_10": 1,
     "IR_VERSION_2017_10_30": 2,
@@ -19,7 +17,7 @@ $root.onnx.Version = {
     "IR_VERSION": 10
 };
 
-$root.onnx.AttributeProto = class AttributeProto {
+onnx.AttributeProto = class AttributeProto {
 
     constructor() {
         this.floats = [];
@@ -32,7 +30,7 @@ $root.onnx.AttributeProto = class AttributeProto {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.AttributeProto();
+        const message = new onnx.AttributeProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -59,16 +57,16 @@ $root.onnx.AttributeProto = class AttributeProto {
                     message.s = reader.bytes();
                     break;
                 case 5:
-                    message.t = $root.onnx.TensorProto.decode(reader, reader.uint32());
+                    message.t = onnx.TensorProto.decode(reader, reader.uint32());
                     break;
                 case 6:
-                    message.g = $root.onnx.GraphProto.decode(reader, reader.uint32());
+                    message.g = onnx.GraphProto.decode(reader, reader.uint32());
                     break;
                 case 22:
-                    message.sparse_tensor = $root.onnx.SparseTensorProto.decode(reader, reader.uint32());
+                    message.sparse_tensor = onnx.SparseTensorProto.decode(reader, reader.uint32());
                     break;
                 case 14:
-                    message.tp = $root.onnx.TypeProto.decode(reader, reader.uint32());
+                    message.tp = onnx.TypeProto.decode(reader, reader.uint32());
                     break;
                 case 7:
                     message.floats = reader.floats(message.floats, tag);
@@ -80,16 +78,16 @@ $root.onnx.AttributeProto = class AttributeProto {
                     message.strings.push(reader.bytes());
                     break;
                 case 10:
-                    message.tensors.push($root.onnx.TensorProto.decode(reader, reader.uint32()));
+                    message.tensors.push(onnx.TensorProto.decode(reader, reader.uint32()));
                     break;
                 case 11:
-                    message.graphs.push($root.onnx.GraphProto.decode(reader, reader.uint32()));
+                    message.graphs.push(onnx.GraphProto.decode(reader, reader.uint32()));
                     break;
                 case 23:
-                    message.sparse_tensors.push($root.onnx.SparseTensorProto.decode(reader, reader.uint32()));
+                    message.sparse_tensors.push(onnx.SparseTensorProto.decode(reader, reader.uint32()));
                     break;
                 case 15:
-                    message.type_protos.push($root.onnx.TypeProto.decode(reader, reader.uint32()));
+                    message.type_protos.push(onnx.TypeProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -100,7 +98,7 @@ $root.onnx.AttributeProto = class AttributeProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.AttributeProto();
+        const message = new onnx.AttributeProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -115,7 +113,7 @@ $root.onnx.AttributeProto = class AttributeProto {
                     message.doc_string = reader.string();
                     break;
                 case "type":
-                    message.type = reader.enum($root.onnx.AttributeProto.AttributeType);
+                    message.type = reader.enum(onnx.AttributeProto.AttributeType);
                     break;
                 case "f":
                     message.f = reader.float();
@@ -127,16 +125,16 @@ $root.onnx.AttributeProto = class AttributeProto {
                     message.s = reader.bytes();
                     break;
                 case "t":
-                    message.t = $root.onnx.TensorProto.decodeText(reader);
+                    message.t = onnx.TensorProto.decodeText(reader);
                     break;
                 case "g":
-                    message.g = $root.onnx.GraphProto.decodeText(reader);
+                    message.g = onnx.GraphProto.decodeText(reader);
                     break;
                 case "sparse_tensor":
-                    message.sparse_tensor = $root.onnx.SparseTensorProto.decodeText(reader);
+                    message.sparse_tensor = onnx.SparseTensorProto.decodeText(reader);
                     break;
                 case "tp":
-                    message.tp = $root.onnx.TypeProto.decodeText(reader);
+                    message.tp = onnx.TypeProto.decodeText(reader);
                     break;
                 case "floats":
                     reader.array(message.floats, () => reader.float());
@@ -148,16 +146,16 @@ $root.onnx.AttributeProto = class AttributeProto {
                     reader.array(message.strings, () => reader.bytes());
                     break;
                 case "tensors":
-                    message.tensors.push($root.onnx.TensorProto.decodeText(reader));
+                    message.tensors.push(onnx.TensorProto.decodeText(reader));
                     break;
                 case "graphs":
-                    message.graphs.push($root.onnx.GraphProto.decodeText(reader));
+                    message.graphs.push(onnx.GraphProto.decodeText(reader));
                     break;
                 case "sparse_tensors":
-                    message.sparse_tensors.push($root.onnx.SparseTensorProto.decodeText(reader));
+                    message.sparse_tensors.push(onnx.SparseTensorProto.decodeText(reader));
                     break;
                 case "type_protos":
-                    message.type_protos.push($root.onnx.TypeProto.decodeText(reader));
+                    message.type_protos.push(onnx.TypeProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -168,19 +166,19 @@ $root.onnx.AttributeProto = class AttributeProto {
     }
 };
 
-$root.onnx.AttributeProto.prototype.name = "";
-$root.onnx.AttributeProto.prototype.ref_attr_name = "";
-$root.onnx.AttributeProto.prototype.doc_string = "";
-$root.onnx.AttributeProto.prototype.type = 0;
-$root.onnx.AttributeProto.prototype.f = 0;
-$root.onnx.AttributeProto.prototype.i = protobuf.Int64.create(0);
-$root.onnx.AttributeProto.prototype.s = new Uint8Array([]);
-$root.onnx.AttributeProto.prototype.t = null;
-$root.onnx.AttributeProto.prototype.g = null;
-$root.onnx.AttributeProto.prototype.sparse_tensor = null;
-$root.onnx.AttributeProto.prototype.tp = null;
+onnx.AttributeProto.prototype.name = "";
+onnx.AttributeProto.prototype.ref_attr_name = "";
+onnx.AttributeProto.prototype.doc_string = "";
+onnx.AttributeProto.prototype.type = 0;
+onnx.AttributeProto.prototype.f = 0;
+onnx.AttributeProto.prototype.i = protobuf.Int64.create(0);
+onnx.AttributeProto.prototype.s = new Uint8Array([]);
+onnx.AttributeProto.prototype.t = null;
+onnx.AttributeProto.prototype.g = null;
+onnx.AttributeProto.prototype.sparse_tensor = null;
+onnx.AttributeProto.prototype.tp = null;
 
-$root.onnx.AttributeProto.AttributeType = {
+onnx.AttributeProto.AttributeType = {
     "UNDEFINED": 0,
     "FLOAT": 1,
     "INT": 2,
@@ -198,13 +196,13 @@ $root.onnx.AttributeProto.AttributeType = {
     "TYPE_PROTOS": 14
 };
 
-$root.onnx.ValueInfoProto = class ValueInfoProto {
+onnx.ValueInfoProto = class ValueInfoProto {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.ValueInfoProto();
+        const message = new onnx.ValueInfoProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -213,7 +211,7 @@ $root.onnx.ValueInfoProto = class ValueInfoProto {
                     message.name = reader.string();
                     break;
                 case 2:
-                    message.type = $root.onnx.TypeProto.decode(reader, reader.uint32());
+                    message.type = onnx.TypeProto.decode(reader, reader.uint32());
                     break;
                 case 3:
                     message.doc_string = reader.string();
@@ -227,7 +225,7 @@ $root.onnx.ValueInfoProto = class ValueInfoProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.ValueInfoProto();
+        const message = new onnx.ValueInfoProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -236,7 +234,7 @@ $root.onnx.ValueInfoProto = class ValueInfoProto {
                     message.name = reader.string();
                     break;
                 case "type":
-                    message.type = $root.onnx.TypeProto.decodeText(reader);
+                    message.type = onnx.TypeProto.decodeText(reader);
                     break;
                 case "doc_string":
                     message.doc_string = reader.string();
@@ -250,11 +248,11 @@ $root.onnx.ValueInfoProto = class ValueInfoProto {
     }
 };
 
-$root.onnx.ValueInfoProto.prototype.name = "";
-$root.onnx.ValueInfoProto.prototype.type = null;
-$root.onnx.ValueInfoProto.prototype.doc_string = "";
+onnx.ValueInfoProto.prototype.name = "";
+onnx.ValueInfoProto.prototype.type = null;
+onnx.ValueInfoProto.prototype.doc_string = "";
 
-$root.onnx.NodeProto = class NodeProto {
+onnx.NodeProto = class NodeProto {
 
     constructor() {
         this.input = [];
@@ -263,7 +261,7 @@ $root.onnx.NodeProto = class NodeProto {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.NodeProto();
+        const message = new onnx.NodeProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -284,7 +282,7 @@ $root.onnx.NodeProto = class NodeProto {
                     message.domain = reader.string();
                     break;
                 case 5:
-                    message.attribute.push($root.onnx.AttributeProto.decode(reader, reader.uint32()));
+                    message.attribute.push(onnx.AttributeProto.decode(reader, reader.uint32()));
                     break;
                 case 6:
                     message.doc_string = reader.string();
@@ -298,7 +296,7 @@ $root.onnx.NodeProto = class NodeProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.NodeProto();
+        const message = new onnx.NodeProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -319,7 +317,7 @@ $root.onnx.NodeProto = class NodeProto {
                     message.domain = reader.string();
                     break;
                 case "attribute":
-                    message.attribute.push($root.onnx.AttributeProto.decodeText(reader));
+                    message.attribute.push(onnx.AttributeProto.decodeText(reader));
                     break;
                 case "doc_string":
                     message.doc_string = reader.string();
@@ -333,12 +331,12 @@ $root.onnx.NodeProto = class NodeProto {
     }
 };
 
-$root.onnx.NodeProto.prototype.name = "";
-$root.onnx.NodeProto.prototype.op_type = "";
-$root.onnx.NodeProto.prototype.domain = "";
-$root.onnx.NodeProto.prototype.doc_string = "";
+onnx.NodeProto.prototype.name = "";
+onnx.NodeProto.prototype.op_type = "";
+onnx.NodeProto.prototype.domain = "";
+onnx.NodeProto.prototype.doc_string = "";
 
-$root.onnx.TrainingInfoProto = class TrainingInfoProto {
+onnx.TrainingInfoProto = class TrainingInfoProto {
 
     constructor() {
         this.initialization_binding = [];
@@ -346,22 +344,22 @@ $root.onnx.TrainingInfoProto = class TrainingInfoProto {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.TrainingInfoProto();
+        const message = new onnx.TrainingInfoProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.initialization = $root.onnx.GraphProto.decode(reader, reader.uint32());
+                    message.initialization = onnx.GraphProto.decode(reader, reader.uint32());
                     break;
                 case 2:
-                    message.algorithm = $root.onnx.GraphProto.decode(reader, reader.uint32());
+                    message.algorithm = onnx.GraphProto.decode(reader, reader.uint32());
                     break;
                 case 3:
-                    message.initialization_binding.push($root.onnx.StringStringEntryProto.decode(reader, reader.uint32()));
+                    message.initialization_binding.push(onnx.StringStringEntryProto.decode(reader, reader.uint32()));
                     break;
                 case 4:
-                    message.update_binding.push($root.onnx.StringStringEntryProto.decode(reader, reader.uint32()));
+                    message.update_binding.push(onnx.StringStringEntryProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -372,22 +370,22 @@ $root.onnx.TrainingInfoProto = class TrainingInfoProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.TrainingInfoProto();
+        const message = new onnx.TrainingInfoProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "initialization":
-                    message.initialization = $root.onnx.GraphProto.decodeText(reader);
+                    message.initialization = onnx.GraphProto.decodeText(reader);
                     break;
                 case "algorithm":
-                    message.algorithm = $root.onnx.GraphProto.decodeText(reader);
+                    message.algorithm = onnx.GraphProto.decodeText(reader);
                     break;
                 case "initialization_binding":
-                    message.initialization_binding.push($root.onnx.StringStringEntryProto.decodeText(reader));
+                    message.initialization_binding.push(onnx.StringStringEntryProto.decodeText(reader));
                     break;
                 case "update_binding":
-                    message.update_binding.push($root.onnx.StringStringEntryProto.decodeText(reader));
+                    message.update_binding.push(onnx.StringStringEntryProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -398,10 +396,10 @@ $root.onnx.TrainingInfoProto = class TrainingInfoProto {
     }
 };
 
-$root.onnx.TrainingInfoProto.prototype.initialization = null;
-$root.onnx.TrainingInfoProto.prototype.algorithm = null;
+onnx.TrainingInfoProto.prototype.initialization = null;
+onnx.TrainingInfoProto.prototype.algorithm = null;
 
-$root.onnx.ModelProto = class ModelProto {
+onnx.ModelProto = class ModelProto {
 
     constructor() {
         this.opset_import = [];
@@ -411,7 +409,7 @@ $root.onnx.ModelProto = class ModelProto {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.ModelProto();
+        const message = new onnx.ModelProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -420,7 +418,7 @@ $root.onnx.ModelProto = class ModelProto {
                     message.ir_version = reader.int64();
                     break;
                 case 8:
-                    message.opset_import.push($root.onnx.OperatorSetIdProto.decode(reader, reader.uint32()));
+                    message.opset_import.push(onnx.OperatorSetIdProto.decode(reader, reader.uint32()));
                     break;
                 case 2:
                     message.producer_name = reader.string();
@@ -438,16 +436,16 @@ $root.onnx.ModelProto = class ModelProto {
                     message.doc_string = reader.string();
                     break;
                 case 7:
-                    message.graph = $root.onnx.GraphProto.decode(reader, reader.uint32());
+                    message.graph = onnx.GraphProto.decode(reader, reader.uint32());
                     break;
                 case 14:
-                    message.metadata_props.push($root.onnx.StringStringEntryProto.decode(reader, reader.uint32()));
+                    message.metadata_props.push(onnx.StringStringEntryProto.decode(reader, reader.uint32()));
                     break;
                 case 20:
-                    message.training_info.push($root.onnx.TrainingInfoProto.decode(reader, reader.uint32()));
+                    message.training_info.push(onnx.TrainingInfoProto.decode(reader, reader.uint32()));
                     break;
                 case 25:
-                    message.functions.push($root.onnx.FunctionProto.decode(reader, reader.uint32()));
+                    message.functions.push(onnx.FunctionProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -458,7 +456,7 @@ $root.onnx.ModelProto = class ModelProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.ModelProto();
+        const message = new onnx.ModelProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -467,7 +465,7 @@ $root.onnx.ModelProto = class ModelProto {
                     message.ir_version = reader.int64();
                     break;
                 case "opset_import":
-                    message.opset_import.push($root.onnx.OperatorSetIdProto.decodeText(reader));
+                    message.opset_import.push(onnx.OperatorSetIdProto.decodeText(reader));
                     break;
                 case "producer_name":
                     message.producer_name = reader.string();
@@ -485,16 +483,16 @@ $root.onnx.ModelProto = class ModelProto {
                     message.doc_string = reader.string();
                     break;
                 case "graph":
-                    message.graph = $root.onnx.GraphProto.decodeText(reader);
+                    message.graph = onnx.GraphProto.decodeText(reader);
                     break;
                 case "metadata_props":
-                    message.metadata_props.push($root.onnx.StringStringEntryProto.decodeText(reader));
+                    message.metadata_props.push(onnx.StringStringEntryProto.decodeText(reader));
                     break;
                 case "training_info":
-                    message.training_info.push($root.onnx.TrainingInfoProto.decodeText(reader));
+                    message.training_info.push(onnx.TrainingInfoProto.decodeText(reader));
                     break;
                 case "functions":
-                    message.functions.push($root.onnx.FunctionProto.decodeText(reader));
+                    message.functions.push(onnx.FunctionProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -505,21 +503,21 @@ $root.onnx.ModelProto = class ModelProto {
     }
 };
 
-$root.onnx.ModelProto.prototype.ir_version = protobuf.Int64.create(0);
-$root.onnx.ModelProto.prototype.producer_name = "";
-$root.onnx.ModelProto.prototype.producer_version = "";
-$root.onnx.ModelProto.prototype.domain = "";
-$root.onnx.ModelProto.prototype.model_version = protobuf.Int64.create(0);
-$root.onnx.ModelProto.prototype.doc_string = "";
-$root.onnx.ModelProto.prototype.graph = null;
+onnx.ModelProto.prototype.ir_version = protobuf.Int64.create(0);
+onnx.ModelProto.prototype.producer_name = "";
+onnx.ModelProto.prototype.producer_version = "";
+onnx.ModelProto.prototype.domain = "";
+onnx.ModelProto.prototype.model_version = protobuf.Int64.create(0);
+onnx.ModelProto.prototype.doc_string = "";
+onnx.ModelProto.prototype.graph = null;
 
-$root.onnx.StringStringEntryProto = class StringStringEntryProto {
+onnx.StringStringEntryProto = class StringStringEntryProto {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.StringStringEntryProto();
+        const message = new onnx.StringStringEntryProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -539,7 +537,7 @@ $root.onnx.StringStringEntryProto = class StringStringEntryProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.StringStringEntryProto();
+        const message = new onnx.StringStringEntryProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -559,17 +557,17 @@ $root.onnx.StringStringEntryProto = class StringStringEntryProto {
     }
 };
 
-$root.onnx.StringStringEntryProto.prototype.key = "";
-$root.onnx.StringStringEntryProto.prototype.value = "";
+onnx.StringStringEntryProto.prototype.key = "";
+onnx.StringStringEntryProto.prototype.value = "";
 
-$root.onnx.TensorAnnotation = class TensorAnnotation {
+onnx.TensorAnnotation = class TensorAnnotation {
 
     constructor() {
         this.quant_parameter_tensor_names = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.TensorAnnotation();
+        const message = new onnx.TensorAnnotation();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -578,7 +576,7 @@ $root.onnx.TensorAnnotation = class TensorAnnotation {
                     message.tensor_name = reader.string();
                     break;
                 case 2:
-                    message.quant_parameter_tensor_names.push($root.onnx.StringStringEntryProto.decode(reader, reader.uint32()));
+                    message.quant_parameter_tensor_names.push(onnx.StringStringEntryProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -589,7 +587,7 @@ $root.onnx.TensorAnnotation = class TensorAnnotation {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.TensorAnnotation();
+        const message = new onnx.TensorAnnotation();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -598,7 +596,7 @@ $root.onnx.TensorAnnotation = class TensorAnnotation {
                     message.tensor_name = reader.string();
                     break;
                 case "quant_parameter_tensor_names":
-                    message.quant_parameter_tensor_names.push($root.onnx.StringStringEntryProto.decodeText(reader));
+                    message.quant_parameter_tensor_names.push(onnx.StringStringEntryProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -609,9 +607,9 @@ $root.onnx.TensorAnnotation = class TensorAnnotation {
     }
 };
 
-$root.onnx.TensorAnnotation.prototype.tensor_name = "";
+onnx.TensorAnnotation.prototype.tensor_name = "";
 
-$root.onnx.GraphProto = class GraphProto {
+onnx.GraphProto = class GraphProto {
 
     constructor() {
         this.node = [];
@@ -624,37 +622,37 @@ $root.onnx.GraphProto = class GraphProto {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.GraphProto();
+        const message = new onnx.GraphProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.node.push($root.onnx.NodeProto.decode(reader, reader.uint32()));
+                    message.node.push(onnx.NodeProto.decode(reader, reader.uint32()));
                     break;
                 case 2:
                     message.name = reader.string();
                     break;
                 case 5:
-                    message.initializer.push($root.onnx.TensorProto.decode(reader, reader.uint32()));
+                    message.initializer.push(onnx.TensorProto.decode(reader, reader.uint32()));
                     break;
                 case 15:
-                    message.sparse_initializer.push($root.onnx.SparseTensorProto.decode(reader, reader.uint32()));
+                    message.sparse_initializer.push(onnx.SparseTensorProto.decode(reader, reader.uint32()));
                     break;
                 case 10:
                     message.doc_string = reader.string();
                     break;
                 case 11:
-                    message.input.push($root.onnx.ValueInfoProto.decode(reader, reader.uint32()));
+                    message.input.push(onnx.ValueInfoProto.decode(reader, reader.uint32()));
                     break;
                 case 12:
-                    message.output.push($root.onnx.ValueInfoProto.decode(reader, reader.uint32()));
+                    message.output.push(onnx.ValueInfoProto.decode(reader, reader.uint32()));
                     break;
                 case 13:
-                    message.value_info.push($root.onnx.ValueInfoProto.decode(reader, reader.uint32()));
+                    message.value_info.push(onnx.ValueInfoProto.decode(reader, reader.uint32()));
                     break;
                 case 14:
-                    message.quantization_annotation.push($root.onnx.TensorAnnotation.decode(reader, reader.uint32()));
+                    message.quantization_annotation.push(onnx.TensorAnnotation.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -665,37 +663,37 @@ $root.onnx.GraphProto = class GraphProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.GraphProto();
+        const message = new onnx.GraphProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "node":
-                    message.node.push($root.onnx.NodeProto.decodeText(reader));
+                    message.node.push(onnx.NodeProto.decodeText(reader));
                     break;
                 case "name":
                     message.name = reader.string();
                     break;
                 case "initializer":
-                    message.initializer.push($root.onnx.TensorProto.decodeText(reader));
+                    message.initializer.push(onnx.TensorProto.decodeText(reader));
                     break;
                 case "sparse_initializer":
-                    message.sparse_initializer.push($root.onnx.SparseTensorProto.decodeText(reader));
+                    message.sparse_initializer.push(onnx.SparseTensorProto.decodeText(reader));
                     break;
                 case "doc_string":
                     message.doc_string = reader.string();
                     break;
                 case "input":
-                    message.input.push($root.onnx.ValueInfoProto.decodeText(reader));
+                    message.input.push(onnx.ValueInfoProto.decodeText(reader));
                     break;
                 case "output":
-                    message.output.push($root.onnx.ValueInfoProto.decodeText(reader));
+                    message.output.push(onnx.ValueInfoProto.decodeText(reader));
                     break;
                 case "value_info":
-                    message.value_info.push($root.onnx.ValueInfoProto.decodeText(reader));
+                    message.value_info.push(onnx.ValueInfoProto.decodeText(reader));
                     break;
                 case "quantization_annotation":
-                    message.quantization_annotation.push($root.onnx.TensorAnnotation.decodeText(reader));
+                    message.quantization_annotation.push(onnx.TensorAnnotation.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -706,10 +704,10 @@ $root.onnx.GraphProto = class GraphProto {
     }
 };
 
-$root.onnx.GraphProto.prototype.name = "";
-$root.onnx.GraphProto.prototype.doc_string = "";
+onnx.GraphProto.prototype.name = "";
+onnx.GraphProto.prototype.doc_string = "";
 
-$root.onnx.TensorProto = class TensorProto {
+onnx.TensorProto = class TensorProto {
 
     constructor() {
         this.dims = [];
@@ -723,7 +721,7 @@ $root.onnx.TensorProto = class TensorProto {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.TensorProto();
+        const message = new onnx.TensorProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -735,7 +733,7 @@ $root.onnx.TensorProto = class TensorProto {
                     message.data_type = reader.int32();
                     break;
                 case 3:
-                    message.segment = $root.onnx.TensorProto.Segment.decode(reader, reader.uint32());
+                    message.segment = onnx.TensorProto.Segment.decode(reader, reader.uint32());
                     break;
                 case 4:
                     message.float_data = reader.floats(message.float_data, tag);
@@ -759,7 +757,7 @@ $root.onnx.TensorProto = class TensorProto {
                     message.raw_data = reader.bytes();
                     break;
                 case 13:
-                    message.external_data.push($root.onnx.StringStringEntryProto.decode(reader, reader.uint32()));
+                    message.external_data.push(onnx.StringStringEntryProto.decode(reader, reader.uint32()));
                     break;
                 case 14:
                     message.data_location = reader.int32();
@@ -779,7 +777,7 @@ $root.onnx.TensorProto = class TensorProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.TensorProto();
+        const message = new onnx.TensorProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -791,7 +789,7 @@ $root.onnx.TensorProto = class TensorProto {
                     message.data_type = reader.int32();
                     break;
                 case "segment":
-                    message.segment = $root.onnx.TensorProto.Segment.decodeText(reader);
+                    message.segment = onnx.TensorProto.Segment.decodeText(reader);
                     break;
                 case "float_data":
                     reader.array(message.float_data, () => reader.float());
@@ -815,10 +813,10 @@ $root.onnx.TensorProto = class TensorProto {
                     message.raw_data = reader.bytes();
                     break;
                 case "external_data":
-                    message.external_data.push($root.onnx.StringStringEntryProto.decodeText(reader));
+                    message.external_data.push(onnx.StringStringEntryProto.decodeText(reader));
                     break;
                 case "data_location":
-                    message.data_location = reader.enum($root.onnx.TensorProto.DataLocation);
+                    message.data_location = reader.enum(onnx.TensorProto.DataLocation);
                     break;
                 case "double_data":
                     reader.array(message.double_data, () => reader.double());
@@ -835,14 +833,14 @@ $root.onnx.TensorProto = class TensorProto {
     }
 };
 
-$root.onnx.TensorProto.prototype.data_type = 0;
-$root.onnx.TensorProto.prototype.segment = null;
-$root.onnx.TensorProto.prototype.name = "";
-$root.onnx.TensorProto.prototype.doc_string = "";
-$root.onnx.TensorProto.prototype.raw_data = new Uint8Array([]);
-$root.onnx.TensorProto.prototype.data_location = 0;
+onnx.TensorProto.prototype.data_type = 0;
+onnx.TensorProto.prototype.segment = null;
+onnx.TensorProto.prototype.name = "";
+onnx.TensorProto.prototype.doc_string = "";
+onnx.TensorProto.prototype.raw_data = new Uint8Array([]);
+onnx.TensorProto.prototype.data_location = 0;
 
-$root.onnx.TensorProto.DataType = {
+onnx.TensorProto.DataType = {
     "UNDEFINED": 0,
     "FLOAT": 1,
     "UINT8": 2,
@@ -868,13 +866,13 @@ $root.onnx.TensorProto.DataType = {
     "INT4": 22
 };
 
-$root.onnx.TensorProto.Segment = class Segment {
+onnx.TensorProto.Segment = class Segment {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.TensorProto.Segment();
+        const message = new onnx.TensorProto.Segment();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -894,7 +892,7 @@ $root.onnx.TensorProto.Segment = class Segment {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.TensorProto.Segment();
+        const message = new onnx.TensorProto.Segment();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -914,31 +912,31 @@ $root.onnx.TensorProto.Segment = class Segment {
     }
 };
 
-$root.onnx.TensorProto.Segment.prototype.begin = protobuf.Int64.create(0);
-$root.onnx.TensorProto.Segment.prototype.end = protobuf.Int64.create(0);
+onnx.TensorProto.Segment.prototype.begin = protobuf.Int64.create(0);
+onnx.TensorProto.Segment.prototype.end = protobuf.Int64.create(0);
 
-$root.onnx.TensorProto.DataLocation = {
+onnx.TensorProto.DataLocation = {
     "DEFAULT": 0,
     "EXTERNAL": 1
 };
 
-$root.onnx.SparseTensorProto = class SparseTensorProto {
+onnx.SparseTensorProto = class SparseTensorProto {
 
     constructor() {
         this.dims = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.SparseTensorProto();
+        const message = new onnx.SparseTensorProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.values = $root.onnx.TensorProto.decode(reader, reader.uint32());
+                    message.values = onnx.TensorProto.decode(reader, reader.uint32());
                     break;
                 case 2:
-                    message.indices = $root.onnx.TensorProto.decode(reader, reader.uint32());
+                    message.indices = onnx.TensorProto.decode(reader, reader.uint32());
                     break;
                 case 3:
                     message.dims = reader.array(message.dims, () => reader.int64(), tag);
@@ -952,16 +950,16 @@ $root.onnx.SparseTensorProto = class SparseTensorProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.SparseTensorProto();
+        const message = new onnx.SparseTensorProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "values":
-                    message.values = $root.onnx.TensorProto.decodeText(reader);
+                    message.values = onnx.TensorProto.decodeText(reader);
                     break;
                 case "indices":
-                    message.indices = $root.onnx.TensorProto.decodeText(reader);
+                    message.indices = onnx.TensorProto.decodeText(reader);
                     break;
                 case "dims":
                     reader.array(message.dims, () => reader.int64());
@@ -975,23 +973,23 @@ $root.onnx.SparseTensorProto = class SparseTensorProto {
     }
 };
 
-$root.onnx.SparseTensorProto.prototype.values = null;
-$root.onnx.SparseTensorProto.prototype.indices = null;
+onnx.SparseTensorProto.prototype.values = null;
+onnx.SparseTensorProto.prototype.indices = null;
 
-$root.onnx.TensorShapeProto = class TensorShapeProto {
+onnx.TensorShapeProto = class TensorShapeProto {
 
     constructor() {
         this.dim = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.TensorShapeProto();
+        const message = new onnx.TensorShapeProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.dim.push($root.onnx.TensorShapeProto.Dimension.decode(reader, reader.uint32()));
+                    message.dim.push(onnx.TensorShapeProto.Dimension.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1002,13 +1000,13 @@ $root.onnx.TensorShapeProto = class TensorShapeProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.TensorShapeProto();
+        const message = new onnx.TensorShapeProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "dim":
-                    message.dim.push($root.onnx.TensorShapeProto.Dimension.decodeText(reader));
+                    message.dim.push(onnx.TensorShapeProto.Dimension.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -1019,18 +1017,18 @@ $root.onnx.TensorShapeProto = class TensorShapeProto {
     }
 };
 
-$root.onnx.TensorShapeProto.Dimension = class Dimension {
+onnx.TensorShapeProto.Dimension = class Dimension {
 
     constructor() {
     }
 
     get value() {
-        $root.onnx.TensorShapeProto.Dimension.valueSet = $root.onnx.TensorShapeProto.Dimension.valueSet || new Set([ "dim_value", "dim_param"]);
-        return Object.keys(this).find((key) => $root.onnx.TensorShapeProto.Dimension.valueSet.has(key) && this[key] != null);
+        onnx.TensorShapeProto.Dimension.valueSet = onnx.TensorShapeProto.Dimension.valueSet || new Set([ "dim_value", "dim_param"]);
+        return Object.keys(this).find((key) => onnx.TensorShapeProto.Dimension.valueSet.has(key) && this[key] != null);
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.TensorShapeProto.Dimension();
+        const message = new onnx.TensorShapeProto.Dimension();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1053,7 +1051,7 @@ $root.onnx.TensorShapeProto.Dimension = class Dimension {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.TensorShapeProto.Dimension();
+        const message = new onnx.TensorShapeProto.Dimension();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1076,41 +1074,41 @@ $root.onnx.TensorShapeProto.Dimension = class Dimension {
     }
 };
 
-$root.onnx.TensorShapeProto.Dimension.prototype.denotation = "";
+onnx.TensorShapeProto.Dimension.prototype.denotation = "";
 
-$root.onnx.TypeProto = class TypeProto {
+onnx.TypeProto = class TypeProto {
 
     constructor() {
     }
 
     get value() {
-        $root.onnx.TypeProto.valueSet = $root.onnx.TypeProto.valueSet || new Set([ "tensor_type", "sequence_type", "map_type", "optional_type", "sparse_tensor_type", "opaque_type"]);
-        return Object.keys(this).find((key) => $root.onnx.TypeProto.valueSet.has(key) && this[key] != null);
+        onnx.TypeProto.valueSet = onnx.TypeProto.valueSet || new Set([ "tensor_type", "sequence_type", "map_type", "optional_type", "sparse_tensor_type", "opaque_type"]);
+        return Object.keys(this).find((key) => onnx.TypeProto.valueSet.has(key) && this[key] != null);
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.TypeProto();
+        const message = new onnx.TypeProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.tensor_type = $root.onnx.TypeProto.Tensor.decode(reader, reader.uint32());
+                    message.tensor_type = onnx.TypeProto.Tensor.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    message.sequence_type = $root.onnx.TypeProto.Sequence.decode(reader, reader.uint32());
+                    message.sequence_type = onnx.TypeProto.Sequence.decode(reader, reader.uint32());
                     break;
                 case 5:
-                    message.map_type = $root.onnx.TypeProto.Map.decode(reader, reader.uint32());
+                    message.map_type = onnx.TypeProto.Map.decode(reader, reader.uint32());
                     break;
                 case 9:
-                    message.optional_type = $root.onnx.TypeProto.Optional.decode(reader, reader.uint32());
+                    message.optional_type = onnx.TypeProto.Optional.decode(reader, reader.uint32());
                     break;
                 case 8:
-                    message.sparse_tensor_type = $root.onnx.TypeProto.SparseTensor.decode(reader, reader.uint32());
+                    message.sparse_tensor_type = onnx.TypeProto.SparseTensor.decode(reader, reader.uint32());
                     break;
                 case 7:
-                    message.opaque_type = $root.onnx.TypeProto.Opaque.decode(reader, reader.uint32());
+                    message.opaque_type = onnx.TypeProto.Opaque.decode(reader, reader.uint32());
                     break;
                 case 6:
                     message.denotation = reader.string();
@@ -1124,28 +1122,28 @@ $root.onnx.TypeProto = class TypeProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.TypeProto();
+        const message = new onnx.TypeProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "tensor_type":
-                    message.tensor_type = $root.onnx.TypeProto.Tensor.decodeText(reader);
+                    message.tensor_type = onnx.TypeProto.Tensor.decodeText(reader);
                     break;
                 case "sequence_type":
-                    message.sequence_type = $root.onnx.TypeProto.Sequence.decodeText(reader);
+                    message.sequence_type = onnx.TypeProto.Sequence.decodeText(reader);
                     break;
                 case "map_type":
-                    message.map_type = $root.onnx.TypeProto.Map.decodeText(reader);
+                    message.map_type = onnx.TypeProto.Map.decodeText(reader);
                     break;
                 case "optional_type":
-                    message.optional_type = $root.onnx.TypeProto.Optional.decodeText(reader);
+                    message.optional_type = onnx.TypeProto.Optional.decodeText(reader);
                     break;
                 case "sparse_tensor_type":
-                    message.sparse_tensor_type = $root.onnx.TypeProto.SparseTensor.decodeText(reader);
+                    message.sparse_tensor_type = onnx.TypeProto.SparseTensor.decodeText(reader);
                     break;
                 case "opaque_type":
-                    message.opaque_type = $root.onnx.TypeProto.Opaque.decodeText(reader);
+                    message.opaque_type = onnx.TypeProto.Opaque.decodeText(reader);
                     break;
                 case "denotation":
                     message.denotation = reader.string();
@@ -1159,15 +1157,15 @@ $root.onnx.TypeProto = class TypeProto {
     }
 };
 
-$root.onnx.TypeProto.prototype.denotation = "";
+onnx.TypeProto.prototype.denotation = "";
 
-$root.onnx.TypeProto.Tensor = class Tensor {
+onnx.TypeProto.Tensor = class Tensor {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.TypeProto.Tensor();
+        const message = new onnx.TypeProto.Tensor();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1176,7 +1174,7 @@ $root.onnx.TypeProto.Tensor = class Tensor {
                     message.elem_type = reader.int32();
                     break;
                 case 2:
-                    message.shape = $root.onnx.TensorShapeProto.decode(reader, reader.uint32());
+                    message.shape = onnx.TensorShapeProto.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1187,7 +1185,7 @@ $root.onnx.TypeProto.Tensor = class Tensor {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.TypeProto.Tensor();
+        const message = new onnx.TypeProto.Tensor();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1196,7 +1194,7 @@ $root.onnx.TypeProto.Tensor = class Tensor {
                     message.elem_type = reader.int32();
                     break;
                 case "shape":
-                    message.shape = $root.onnx.TensorShapeProto.decodeText(reader);
+                    message.shape = onnx.TensorShapeProto.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -1207,22 +1205,22 @@ $root.onnx.TypeProto.Tensor = class Tensor {
     }
 };
 
-$root.onnx.TypeProto.Tensor.prototype.elem_type = 0;
-$root.onnx.TypeProto.Tensor.prototype.shape = null;
+onnx.TypeProto.Tensor.prototype.elem_type = 0;
+onnx.TypeProto.Tensor.prototype.shape = null;
 
-$root.onnx.TypeProto.Sequence = class Sequence {
+onnx.TypeProto.Sequence = class Sequence {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.TypeProto.Sequence();
+        const message = new onnx.TypeProto.Sequence();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.elem_type = $root.onnx.TypeProto.decode(reader, reader.uint32());
+                    message.elem_type = onnx.TypeProto.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1233,13 +1231,13 @@ $root.onnx.TypeProto.Sequence = class Sequence {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.TypeProto.Sequence();
+        const message = new onnx.TypeProto.Sequence();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "elem_type":
-                    message.elem_type = $root.onnx.TypeProto.decodeText(reader);
+                    message.elem_type = onnx.TypeProto.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -1250,15 +1248,15 @@ $root.onnx.TypeProto.Sequence = class Sequence {
     }
 };
 
-$root.onnx.TypeProto.Sequence.prototype.elem_type = null;
+onnx.TypeProto.Sequence.prototype.elem_type = null;
 
-$root.onnx.TypeProto.Map = class Map {
+onnx.TypeProto.Map = class Map {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.TypeProto.Map();
+        const message = new onnx.TypeProto.Map();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1267,7 +1265,7 @@ $root.onnx.TypeProto.Map = class Map {
                     message.key_type = reader.int32();
                     break;
                 case 2:
-                    message.value_type = $root.onnx.TypeProto.decode(reader, reader.uint32());
+                    message.value_type = onnx.TypeProto.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1278,7 +1276,7 @@ $root.onnx.TypeProto.Map = class Map {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.TypeProto.Map();
+        const message = new onnx.TypeProto.Map();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1287,7 +1285,7 @@ $root.onnx.TypeProto.Map = class Map {
                     message.key_type = reader.int32();
                     break;
                 case "value_type":
-                    message.value_type = $root.onnx.TypeProto.decodeText(reader);
+                    message.value_type = onnx.TypeProto.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -1298,22 +1296,22 @@ $root.onnx.TypeProto.Map = class Map {
     }
 };
 
-$root.onnx.TypeProto.Map.prototype.key_type = 0;
-$root.onnx.TypeProto.Map.prototype.value_type = null;
+onnx.TypeProto.Map.prototype.key_type = 0;
+onnx.TypeProto.Map.prototype.value_type = null;
 
-$root.onnx.TypeProto.Optional = class Optional {
+onnx.TypeProto.Optional = class Optional {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.TypeProto.Optional();
+        const message = new onnx.TypeProto.Optional();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.elem_type = $root.onnx.TypeProto.decode(reader, reader.uint32());
+                    message.elem_type = onnx.TypeProto.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1324,13 +1322,13 @@ $root.onnx.TypeProto.Optional = class Optional {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.TypeProto.Optional();
+        const message = new onnx.TypeProto.Optional();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "elem_type":
-                    message.elem_type = $root.onnx.TypeProto.decodeText(reader);
+                    message.elem_type = onnx.TypeProto.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -1341,15 +1339,15 @@ $root.onnx.TypeProto.Optional = class Optional {
     }
 };
 
-$root.onnx.TypeProto.Optional.prototype.elem_type = null;
+onnx.TypeProto.Optional.prototype.elem_type = null;
 
-$root.onnx.TypeProto.SparseTensor = class SparseTensor {
+onnx.TypeProto.SparseTensor = class SparseTensor {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.TypeProto.SparseTensor();
+        const message = new onnx.TypeProto.SparseTensor();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1358,7 +1356,7 @@ $root.onnx.TypeProto.SparseTensor = class SparseTensor {
                     message.elem_type = reader.int32();
                     break;
                 case 2:
-                    message.shape = $root.onnx.TensorShapeProto.decode(reader, reader.uint32());
+                    message.shape = onnx.TensorShapeProto.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1369,7 +1367,7 @@ $root.onnx.TypeProto.SparseTensor = class SparseTensor {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.TypeProto.SparseTensor();
+        const message = new onnx.TypeProto.SparseTensor();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1378,7 +1376,7 @@ $root.onnx.TypeProto.SparseTensor = class SparseTensor {
                     message.elem_type = reader.int32();
                     break;
                 case "shape":
-                    message.shape = $root.onnx.TensorShapeProto.decodeText(reader);
+                    message.shape = onnx.TensorShapeProto.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -1389,16 +1387,16 @@ $root.onnx.TypeProto.SparseTensor = class SparseTensor {
     }
 };
 
-$root.onnx.TypeProto.SparseTensor.prototype.elem_type = 0;
-$root.onnx.TypeProto.SparseTensor.prototype.shape = null;
+onnx.TypeProto.SparseTensor.prototype.elem_type = 0;
+onnx.TypeProto.SparseTensor.prototype.shape = null;
 
-$root.onnx.TypeProto.Opaque = class Opaque {
+onnx.TypeProto.Opaque = class Opaque {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.TypeProto.Opaque();
+        const message = new onnx.TypeProto.Opaque();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1418,7 +1416,7 @@ $root.onnx.TypeProto.Opaque = class Opaque {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.TypeProto.Opaque();
+        const message = new onnx.TypeProto.Opaque();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1438,16 +1436,16 @@ $root.onnx.TypeProto.Opaque = class Opaque {
     }
 };
 
-$root.onnx.TypeProto.Opaque.prototype.domain = "";
-$root.onnx.TypeProto.Opaque.prototype.name = "";
+onnx.TypeProto.Opaque.prototype.domain = "";
+onnx.TypeProto.Opaque.prototype.name = "";
 
-$root.onnx.OperatorSetIdProto = class OperatorSetIdProto {
+onnx.OperatorSetIdProto = class OperatorSetIdProto {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.OperatorSetIdProto();
+        const message = new onnx.OperatorSetIdProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1467,7 +1465,7 @@ $root.onnx.OperatorSetIdProto = class OperatorSetIdProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.OperatorSetIdProto();
+        const message = new onnx.OperatorSetIdProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1487,15 +1485,15 @@ $root.onnx.OperatorSetIdProto = class OperatorSetIdProto {
     }
 };
 
-$root.onnx.OperatorSetIdProto.prototype.domain = "";
-$root.onnx.OperatorSetIdProto.prototype.version = protobuf.Int64.create(0);
+onnx.OperatorSetIdProto.prototype.domain = "";
+onnx.OperatorSetIdProto.prototype.version = protobuf.Int64.create(0);
 
-$root.onnx.OperatorStatus = {
+onnx.OperatorStatus = {
     "EXPERIMENTAL": 0,
     "STABLE": 1
 };
 
-$root.onnx.FunctionProto = class FunctionProto {
+onnx.FunctionProto = class FunctionProto {
 
     constructor() {
         this.input = [];
@@ -1507,7 +1505,7 @@ $root.onnx.FunctionProto = class FunctionProto {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.FunctionProto();
+        const message = new onnx.FunctionProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1525,16 +1523,16 @@ $root.onnx.FunctionProto = class FunctionProto {
                     message.attribute.push(reader.string());
                     break;
                 case 11:
-                    message.attribute_proto.push($root.onnx.AttributeProto.decode(reader, reader.uint32()));
+                    message.attribute_proto.push(onnx.AttributeProto.decode(reader, reader.uint32()));
                     break;
                 case 7:
-                    message.node.push($root.onnx.NodeProto.decode(reader, reader.uint32()));
+                    message.node.push(onnx.NodeProto.decode(reader, reader.uint32()));
                     break;
                 case 8:
                     message.doc_string = reader.string();
                     break;
                 case 9:
-                    message.opset_import.push($root.onnx.OperatorSetIdProto.decode(reader, reader.uint32()));
+                    message.opset_import.push(onnx.OperatorSetIdProto.decode(reader, reader.uint32()));
                     break;
                 case 10:
                     message.domain = reader.string();
@@ -1548,7 +1546,7 @@ $root.onnx.FunctionProto = class FunctionProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.FunctionProto();
+        const message = new onnx.FunctionProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1566,16 +1564,16 @@ $root.onnx.FunctionProto = class FunctionProto {
                     reader.array(message.attribute, () => reader.string());
                     break;
                 case "attribute_proto":
-                    message.attribute_proto.push($root.onnx.AttributeProto.decodeText(reader));
+                    message.attribute_proto.push(onnx.AttributeProto.decodeText(reader));
                     break;
                 case "node":
-                    message.node.push($root.onnx.NodeProto.decodeText(reader));
+                    message.node.push(onnx.NodeProto.decodeText(reader));
                     break;
                 case "doc_string":
                     message.doc_string = reader.string();
                     break;
                 case "opset_import":
-                    message.opset_import.push($root.onnx.OperatorSetIdProto.decodeText(reader));
+                    message.opset_import.push(onnx.OperatorSetIdProto.decodeText(reader));
                     break;
                 case "domain":
                     message.domain = reader.string();
@@ -1589,17 +1587,17 @@ $root.onnx.FunctionProto = class FunctionProto {
     }
 };
 
-$root.onnx.FunctionProto.prototype.name = "";
-$root.onnx.FunctionProto.prototype.doc_string = "";
-$root.onnx.FunctionProto.prototype.domain = "";
+onnx.FunctionProto.prototype.name = "";
+onnx.FunctionProto.prototype.doc_string = "";
+onnx.FunctionProto.prototype.domain = "";
 
-$root.onnx.OperatorProto = class OperatorProto {
+onnx.OperatorProto = class OperatorProto {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.OperatorProto();
+        const message = new onnx.OperatorProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1625,7 +1623,7 @@ $root.onnx.OperatorProto = class OperatorProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.OperatorProto();
+        const message = new onnx.OperatorProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1637,7 +1635,7 @@ $root.onnx.OperatorProto = class OperatorProto {
                     message.since_version = reader.int64();
                     break;
                 case "status":
-                    message.status = reader.enum($root.onnx.OperatorStatus);
+                    message.status = reader.enum(onnx.OperatorStatus);
                     break;
                 case "doc_string":
                     message.doc_string = reader.string();
@@ -1651,12 +1649,12 @@ $root.onnx.OperatorProto = class OperatorProto {
     }
 };
 
-$root.onnx.OperatorProto.prototype.op_type = "";
-$root.onnx.OperatorProto.prototype.since_version = protobuf.Int64.create(0);
-$root.onnx.OperatorProto.prototype.status = 0;
-$root.onnx.OperatorProto.prototype.doc_string = "";
+onnx.OperatorProto.prototype.op_type = "";
+onnx.OperatorProto.prototype.since_version = protobuf.Int64.create(0);
+onnx.OperatorProto.prototype.status = 0;
+onnx.OperatorProto.prototype.doc_string = "";
 
-$root.onnx.OperatorSetProto = class OperatorSetProto {
+onnx.OperatorSetProto = class OperatorSetProto {
 
     constructor() {
         this.operator = [];
@@ -1664,7 +1662,7 @@ $root.onnx.OperatorSetProto = class OperatorSetProto {
     }
 
     static decode(reader, length) {
-        const message = new $root.onnx.OperatorSetProto();
+        const message = new onnx.OperatorSetProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1691,10 +1689,10 @@ $root.onnx.OperatorSetProto = class OperatorSetProto {
                     message.doc_string = reader.string();
                     break;
                 case 8:
-                    message.operator.push($root.onnx.OperatorProto.decode(reader, reader.uint32()));
+                    message.operator.push(onnx.OperatorProto.decode(reader, reader.uint32()));
                     break;
                 case 9:
-                    message.functions.push($root.onnx.FunctionProto.decode(reader, reader.uint32()));
+                    message.functions.push(onnx.FunctionProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1705,7 +1703,7 @@ $root.onnx.OperatorSetProto = class OperatorSetProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.onnx.OperatorSetProto();
+        const message = new onnx.OperatorSetProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1732,10 +1730,10 @@ $root.onnx.OperatorSetProto = class OperatorSetProto {
                     message.doc_string = reader.string();
                     break;
                 case "operator":
-                    message.operator.push($root.onnx.OperatorProto.decodeText(reader));
+                    message.operator.push(onnx.OperatorProto.decodeText(reader));
                     break;
                 case "functions":
-                    message.functions.push($root.onnx.FunctionProto.decodeText(reader));
+                    message.functions.push(onnx.FunctionProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -1746,12 +1744,10 @@ $root.onnx.OperatorSetProto = class OperatorSetProto {
     }
 };
 
-$root.onnx.OperatorSetProto.prototype.magic = "";
-$root.onnx.OperatorSetProto.prototype.ir_version = protobuf.Int64.create(0);
-$root.onnx.OperatorSetProto.prototype.ir_version_prerelease = "";
-$root.onnx.OperatorSetProto.prototype.ir_build_metadata = "";
-$root.onnx.OperatorSetProto.prototype.domain = "";
-$root.onnx.OperatorSetProto.prototype.opset_version = protobuf.Int64.create(0);
-$root.onnx.OperatorSetProto.prototype.doc_string = "";
-
-export const onnx = $root.onnx;
+onnx.OperatorSetProto.prototype.magic = "";
+onnx.OperatorSetProto.prototype.ir_version = protobuf.Int64.create(0);
+onnx.OperatorSetProto.prototype.ir_version_prerelease = "";
+onnx.OperatorSetProto.prototype.ir_build_metadata = "";
+onnx.OperatorSetProto.prototype.domain = "";
+onnx.OperatorSetProto.prototype.opset_version = protobuf.Int64.create(0);
+onnx.OperatorSetProto.prototype.doc_string = "";

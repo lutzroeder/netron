@@ -1,11 +1,9 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = {};
+export const sentencepiece = {};
 
-$root.sentencepiece = {};
-
-$root.sentencepiece.TrainerSpec = class TrainerSpec {
+sentencepiece.TrainerSpec = class TrainerSpec {
 
     constructor() {
         this.input = [];
@@ -15,7 +13,7 @@ $root.sentencepiece.TrainerSpec = class TrainerSpec {
     }
 
     static decode(reader, length) {
-        const message = new $root.sentencepiece.TrainerSpec();
+        const message = new sentencepiece.TrainerSpec();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -167,7 +165,7 @@ $root.sentencepiece.TrainerSpec = class TrainerSpec {
     }
 
     static decodeText(reader) {
-        const message = new $root.sentencepiece.TrainerSpec();
+        const message = new sentencepiece.TrainerSpec();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -182,7 +180,7 @@ $root.sentencepiece.TrainerSpec = class TrainerSpec {
                     message.model_prefix = reader.string();
                     break;
                 case "model_type":
-                    message.model_type = reader.enum($root.sentencepiece.TrainerSpec.ModelType);
+                    message.model_type = reader.enum(sentencepiece.TrainerSpec.ModelType);
                     break;
                 case "vocab_size":
                     message.vocab_size = reader.int32();
@@ -319,63 +317,63 @@ $root.sentencepiece.TrainerSpec = class TrainerSpec {
     }
 };
 
-$root.sentencepiece.TrainerSpec.prototype.input_format = "";
-$root.sentencepiece.TrainerSpec.prototype.model_prefix = "";
-$root.sentencepiece.TrainerSpec.prototype.model_type = 1;
-$root.sentencepiece.TrainerSpec.prototype.vocab_size = 8000;
-$root.sentencepiece.TrainerSpec.prototype.self_test_sample_size = 0;
-$root.sentencepiece.TrainerSpec.prototype.enable_differential_privacy = false;
-$root.sentencepiece.TrainerSpec.prototype.differential_privacy_noise_level = 0;
-$root.sentencepiece.TrainerSpec.prototype.differential_privacy_clipping_threshold = protobuf.Uint64.create(0);
-$root.sentencepiece.TrainerSpec.prototype.character_coverage = 0.9995;
-$root.sentencepiece.TrainerSpec.prototype.input_sentence_size = protobuf.Uint64.create(0);
-$root.sentencepiece.TrainerSpec.prototype.shuffle_input_sentence = true;
-$root.sentencepiece.TrainerSpec.prototype.mining_sentence_size = 0;
-$root.sentencepiece.TrainerSpec.prototype.training_sentence_size = 0;
-$root.sentencepiece.TrainerSpec.prototype.seed_sentencepiece_size = 1000000;
-$root.sentencepiece.TrainerSpec.prototype.shrinking_factor = 0.75;
-$root.sentencepiece.TrainerSpec.prototype.max_sentence_length = 4192;
-$root.sentencepiece.TrainerSpec.prototype.num_threads = 16;
-$root.sentencepiece.TrainerSpec.prototype.num_sub_iterations = 2;
-$root.sentencepiece.TrainerSpec.prototype.max_sentencepiece_length = 16;
-$root.sentencepiece.TrainerSpec.prototype.split_by_unicode_script = true;
-$root.sentencepiece.TrainerSpec.prototype.split_by_number = true;
-$root.sentencepiece.TrainerSpec.prototype.split_by_whitespace = true;
-$root.sentencepiece.TrainerSpec.prototype.treat_whitespace_as_suffix = false;
-$root.sentencepiece.TrainerSpec.prototype.allow_whitespace_only_pieces = false;
-$root.sentencepiece.TrainerSpec.prototype.split_digits = false;
-$root.sentencepiece.TrainerSpec.prototype.pretokenization_delimiter = "";
-$root.sentencepiece.TrainerSpec.prototype.required_chars = "";
-$root.sentencepiece.TrainerSpec.prototype.byte_fallback = false;
-$root.sentencepiece.TrainerSpec.prototype.vocabulary_output_piece_score = true;
-$root.sentencepiece.TrainerSpec.prototype.hard_vocab_limit = true;
-$root.sentencepiece.TrainerSpec.prototype.use_all_vocab = false;
-$root.sentencepiece.TrainerSpec.prototype.unk_id = 0;
-$root.sentencepiece.TrainerSpec.prototype.bos_id = 1;
-$root.sentencepiece.TrainerSpec.prototype.eos_id = 2;
-$root.sentencepiece.TrainerSpec.prototype.pad_id = -1;
-$root.sentencepiece.TrainerSpec.prototype.unk_piece = "<unk>";
-$root.sentencepiece.TrainerSpec.prototype.bos_piece = "<s>";
-$root.sentencepiece.TrainerSpec.prototype.eos_piece = "</s>";
-$root.sentencepiece.TrainerSpec.prototype.pad_piece = "<pad>";
-$root.sentencepiece.TrainerSpec.prototype.unk_surface = " E28187 ";
-$root.sentencepiece.TrainerSpec.prototype.train_extremely_large_corpus = false;
-$root.sentencepiece.TrainerSpec.prototype.seed_sentencepieces_file = "";
+sentencepiece.TrainerSpec.prototype.input_format = "";
+sentencepiece.TrainerSpec.prototype.model_prefix = "";
+sentencepiece.TrainerSpec.prototype.model_type = 1;
+sentencepiece.TrainerSpec.prototype.vocab_size = 8000;
+sentencepiece.TrainerSpec.prototype.self_test_sample_size = 0;
+sentencepiece.TrainerSpec.prototype.enable_differential_privacy = false;
+sentencepiece.TrainerSpec.prototype.differential_privacy_noise_level = 0;
+sentencepiece.TrainerSpec.prototype.differential_privacy_clipping_threshold = protobuf.Uint64.create(0);
+sentencepiece.TrainerSpec.prototype.character_coverage = 0.9995;
+sentencepiece.TrainerSpec.prototype.input_sentence_size = protobuf.Uint64.create(0);
+sentencepiece.TrainerSpec.prototype.shuffle_input_sentence = true;
+sentencepiece.TrainerSpec.prototype.mining_sentence_size = 0;
+sentencepiece.TrainerSpec.prototype.training_sentence_size = 0;
+sentencepiece.TrainerSpec.prototype.seed_sentencepiece_size = 1000000;
+sentencepiece.TrainerSpec.prototype.shrinking_factor = 0.75;
+sentencepiece.TrainerSpec.prototype.max_sentence_length = 4192;
+sentencepiece.TrainerSpec.prototype.num_threads = 16;
+sentencepiece.TrainerSpec.prototype.num_sub_iterations = 2;
+sentencepiece.TrainerSpec.prototype.max_sentencepiece_length = 16;
+sentencepiece.TrainerSpec.prototype.split_by_unicode_script = true;
+sentencepiece.TrainerSpec.prototype.split_by_number = true;
+sentencepiece.TrainerSpec.prototype.split_by_whitespace = true;
+sentencepiece.TrainerSpec.prototype.treat_whitespace_as_suffix = false;
+sentencepiece.TrainerSpec.prototype.allow_whitespace_only_pieces = false;
+sentencepiece.TrainerSpec.prototype.split_digits = false;
+sentencepiece.TrainerSpec.prototype.pretokenization_delimiter = "";
+sentencepiece.TrainerSpec.prototype.required_chars = "";
+sentencepiece.TrainerSpec.prototype.byte_fallback = false;
+sentencepiece.TrainerSpec.prototype.vocabulary_output_piece_score = true;
+sentencepiece.TrainerSpec.prototype.hard_vocab_limit = true;
+sentencepiece.TrainerSpec.prototype.use_all_vocab = false;
+sentencepiece.TrainerSpec.prototype.unk_id = 0;
+sentencepiece.TrainerSpec.prototype.bos_id = 1;
+sentencepiece.TrainerSpec.prototype.eos_id = 2;
+sentencepiece.TrainerSpec.prototype.pad_id = -1;
+sentencepiece.TrainerSpec.prototype.unk_piece = "<unk>";
+sentencepiece.TrainerSpec.prototype.bos_piece = "<s>";
+sentencepiece.TrainerSpec.prototype.eos_piece = "</s>";
+sentencepiece.TrainerSpec.prototype.pad_piece = "<pad>";
+sentencepiece.TrainerSpec.prototype.unk_surface = " E28187 ";
+sentencepiece.TrainerSpec.prototype.train_extremely_large_corpus = false;
+sentencepiece.TrainerSpec.prototype.seed_sentencepieces_file = "";
 
-$root.sentencepiece.TrainerSpec.ModelType = {
+sentencepiece.TrainerSpec.ModelType = {
     "UNIGRAM": 1,
     "BPE": 2,
     "WORD": 3,
     "CHAR": 4
 };
 
-$root.sentencepiece.NormalizerSpec = class NormalizerSpec {
+sentencepiece.NormalizerSpec = class NormalizerSpec {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.sentencepiece.NormalizerSpec();
+        const message = new sentencepiece.NormalizerSpec();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -407,7 +405,7 @@ $root.sentencepiece.NormalizerSpec = class NormalizerSpec {
     }
 
     static decodeText(reader) {
-        const message = new $root.sentencepiece.NormalizerSpec();
+        const message = new sentencepiece.NormalizerSpec();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -439,27 +437,27 @@ $root.sentencepiece.NormalizerSpec = class NormalizerSpec {
     }
 };
 
-$root.sentencepiece.NormalizerSpec.prototype.name = "";
-$root.sentencepiece.NormalizerSpec.prototype.precompiled_charsmap = new Uint8Array([]);
-$root.sentencepiece.NormalizerSpec.prototype.add_dummy_prefix = true;
-$root.sentencepiece.NormalizerSpec.prototype.remove_extra_whitespaces = true;
-$root.sentencepiece.NormalizerSpec.prototype.escape_whitespaces = true;
-$root.sentencepiece.NormalizerSpec.prototype.normalization_rule_tsv = "";
+sentencepiece.NormalizerSpec.prototype.name = "";
+sentencepiece.NormalizerSpec.prototype.precompiled_charsmap = new Uint8Array([]);
+sentencepiece.NormalizerSpec.prototype.add_dummy_prefix = true;
+sentencepiece.NormalizerSpec.prototype.remove_extra_whitespaces = true;
+sentencepiece.NormalizerSpec.prototype.escape_whitespaces = true;
+sentencepiece.NormalizerSpec.prototype.normalization_rule_tsv = "";
 
-$root.sentencepiece.SelfTestData = class SelfTestData {
+sentencepiece.SelfTestData = class SelfTestData {
 
     constructor() {
         this.samples = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.sentencepiece.SelfTestData();
+        const message = new sentencepiece.SelfTestData();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.samples.push($root.sentencepiece.SelfTestData.Sample.decode(reader, reader.uint32()));
+                    message.samples.push(sentencepiece.SelfTestData.Sample.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -470,13 +468,13 @@ $root.sentencepiece.SelfTestData = class SelfTestData {
     }
 
     static decodeText(reader) {
-        const message = new $root.sentencepiece.SelfTestData();
+        const message = new sentencepiece.SelfTestData();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "samples":
-                    message.samples.push($root.sentencepiece.SelfTestData.Sample.decodeText(reader));
+                    message.samples.push(sentencepiece.SelfTestData.Sample.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -487,13 +485,13 @@ $root.sentencepiece.SelfTestData = class SelfTestData {
     }
 };
 
-$root.sentencepiece.SelfTestData.Sample = class Sample {
+sentencepiece.SelfTestData.Sample = class Sample {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.sentencepiece.SelfTestData.Sample();
+        const message = new sentencepiece.SelfTestData.Sample();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -513,7 +511,7 @@ $root.sentencepiece.SelfTestData.Sample = class Sample {
     }
 
     static decodeText(reader) {
-        const message = new $root.sentencepiece.SelfTestData.Sample();
+        const message = new sentencepiece.SelfTestData.Sample();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -533,35 +531,35 @@ $root.sentencepiece.SelfTestData.Sample = class Sample {
     }
 };
 
-$root.sentencepiece.SelfTestData.Sample.prototype.input = "";
-$root.sentencepiece.SelfTestData.Sample.prototype.expected = "";
+sentencepiece.SelfTestData.Sample.prototype.input = "";
+sentencepiece.SelfTestData.Sample.prototype.expected = "";
 
-$root.sentencepiece.ModelProto = class ModelProto {
+sentencepiece.ModelProto = class ModelProto {
 
     constructor() {
         this.pieces = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.sentencepiece.ModelProto();
+        const message = new sentencepiece.ModelProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.pieces.push($root.sentencepiece.ModelProto.SentencePiece.decode(reader, reader.uint32()));
+                    message.pieces.push(sentencepiece.ModelProto.SentencePiece.decode(reader, reader.uint32()));
                     break;
                 case 2:
-                    message.trainer_spec = $root.sentencepiece.TrainerSpec.decode(reader, reader.uint32());
+                    message.trainer_spec = sentencepiece.TrainerSpec.decode(reader, reader.uint32());
                     break;
                 case 3:
-                    message.normalizer_spec = $root.sentencepiece.NormalizerSpec.decode(reader, reader.uint32());
+                    message.normalizer_spec = sentencepiece.NormalizerSpec.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    message.self_test_data = $root.sentencepiece.SelfTestData.decode(reader, reader.uint32());
+                    message.self_test_data = sentencepiece.SelfTestData.decode(reader, reader.uint32());
                     break;
                 case 5:
-                    message.denormalizer_spec = $root.sentencepiece.NormalizerSpec.decode(reader, reader.uint32());
+                    message.denormalizer_spec = sentencepiece.NormalizerSpec.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -572,25 +570,25 @@ $root.sentencepiece.ModelProto = class ModelProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.sentencepiece.ModelProto();
+        const message = new sentencepiece.ModelProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "pieces":
-                    message.pieces.push($root.sentencepiece.ModelProto.SentencePiece.decodeText(reader));
+                    message.pieces.push(sentencepiece.ModelProto.SentencePiece.decodeText(reader));
                     break;
                 case "trainer_spec":
-                    message.trainer_spec = $root.sentencepiece.TrainerSpec.decodeText(reader);
+                    message.trainer_spec = sentencepiece.TrainerSpec.decodeText(reader);
                     break;
                 case "normalizer_spec":
-                    message.normalizer_spec = $root.sentencepiece.NormalizerSpec.decodeText(reader);
+                    message.normalizer_spec = sentencepiece.NormalizerSpec.decodeText(reader);
                     break;
                 case "self_test_data":
-                    message.self_test_data = $root.sentencepiece.SelfTestData.decodeText(reader);
+                    message.self_test_data = sentencepiece.SelfTestData.decodeText(reader);
                     break;
                 case "denormalizer_spec":
-                    message.denormalizer_spec = $root.sentencepiece.NormalizerSpec.decodeText(reader);
+                    message.denormalizer_spec = sentencepiece.NormalizerSpec.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -601,18 +599,18 @@ $root.sentencepiece.ModelProto = class ModelProto {
     }
 };
 
-$root.sentencepiece.ModelProto.prototype.trainer_spec = null;
-$root.sentencepiece.ModelProto.prototype.normalizer_spec = null;
-$root.sentencepiece.ModelProto.prototype.self_test_data = null;
-$root.sentencepiece.ModelProto.prototype.denormalizer_spec = null;
+sentencepiece.ModelProto.prototype.trainer_spec = null;
+sentencepiece.ModelProto.prototype.normalizer_spec = null;
+sentencepiece.ModelProto.prototype.self_test_data = null;
+sentencepiece.ModelProto.prototype.denormalizer_spec = null;
 
-$root.sentencepiece.ModelProto.SentencePiece = class SentencePiece {
+sentencepiece.ModelProto.SentencePiece = class SentencePiece {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.sentencepiece.ModelProto.SentencePiece();
+        const message = new sentencepiece.ModelProto.SentencePiece();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -635,7 +633,7 @@ $root.sentencepiece.ModelProto.SentencePiece = class SentencePiece {
     }
 
     static decodeText(reader) {
-        const message = new $root.sentencepiece.ModelProto.SentencePiece();
+        const message = new sentencepiece.ModelProto.SentencePiece();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -647,7 +645,7 @@ $root.sentencepiece.ModelProto.SentencePiece = class SentencePiece {
                     message.score = reader.float();
                     break;
                 case "type":
-                    message.type = reader.enum($root.sentencepiece.ModelProto.SentencePiece.Type);
+                    message.type = reader.enum(sentencepiece.ModelProto.SentencePiece.Type);
                     break;
                 default:
                     reader.field(tag, message);
@@ -658,11 +656,11 @@ $root.sentencepiece.ModelProto.SentencePiece = class SentencePiece {
     }
 };
 
-$root.sentencepiece.ModelProto.SentencePiece.prototype.piece = "";
-$root.sentencepiece.ModelProto.SentencePiece.prototype.score = 0;
-$root.sentencepiece.ModelProto.SentencePiece.prototype.type = 1;
+sentencepiece.ModelProto.SentencePiece.prototype.piece = "";
+sentencepiece.ModelProto.SentencePiece.prototype.score = 0;
+sentencepiece.ModelProto.SentencePiece.prototype.type = 1;
 
-$root.sentencepiece.ModelProto.SentencePiece.Type = {
+sentencepiece.ModelProto.SentencePiece.Type = {
     "NORMAL": 1,
     "UNKNOWN": 2,
     "CONTROL": 3,
@@ -670,5 +668,3 @@ $root.sentencepiece.ModelProto.SentencePiece.Type = {
     "BYTE": 6,
     "UNUSED": 5
 };
-
-export const sentencepiece = $root.sentencepiece;

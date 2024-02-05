@@ -1,13 +1,11 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = {};
+export const ge = {};
 
-$root.ge = {};
+ge.proto = {};
 
-$root.ge.proto = {};
-
-$root.ge.proto.DataType = {
+ge.proto.DataType = {
     "DT_UNDEFINED": 0,
     "DT_FLOAT": 1,
     "DT_FLOAT16": 2,
@@ -42,18 +40,18 @@ $root.ge.proto.DataType = {
     "DT_UINT2": 31
 };
 
-$root.ge.proto.AttrDef = class AttrDef {
+ge.proto.AttrDef = class AttrDef {
 
     constructor() {
     }
 
     get value() {
-        $root.ge.proto.AttrDef.valueSet = $root.ge.proto.AttrDef.valueSet || new Set([ "s", "i", "f", "b", "bt", "list", "func", "td", "t", "g", "list_list_int", "dt", "list_list_float"]);
-        return Object.keys(this).find((key) => $root.ge.proto.AttrDef.valueSet.has(key) && this[key] != null);
+        ge.proto.AttrDef.valueSet = ge.proto.AttrDef.valueSet || new Set([ "s", "i", "f", "b", "bt", "list", "func", "td", "t", "g", "list_list_int", "dt", "list_list_float"]);
+        return Object.keys(this).find((key) => ge.proto.AttrDef.valueSet.has(key) && this[key] != null);
     }
 
     static decode(reader, length) {
-        const message = new $root.ge.proto.AttrDef();
+        const message = new ge.proto.AttrDef();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -74,28 +72,28 @@ $root.ge.proto.AttrDef = class AttrDef {
                     message.bt = reader.bytes();
                     break;
                 case 1:
-                    message.list = $root.ge.proto.AttrDef.ListValue.decode(reader, reader.uint32());
+                    message.list = ge.proto.AttrDef.ListValue.decode(reader, reader.uint32());
                     break;
                 case 10:
-                    message.func = $root.ge.proto.NamedAttrs.decode(reader, reader.uint32());
+                    message.func = ge.proto.NamedAttrs.decode(reader, reader.uint32());
                     break;
                 case 11:
-                    message.td = $root.ge.proto.TensorDescriptor.decode(reader, reader.uint32());
+                    message.td = ge.proto.TensorDescriptor.decode(reader, reader.uint32());
                     break;
                 case 12:
-                    message.t = $root.ge.proto.TensorDef.decode(reader, reader.uint32());
+                    message.t = ge.proto.TensorDef.decode(reader, reader.uint32());
                     break;
                 case 13:
-                    message.g = $root.ge.proto.GraphDef.decode(reader, reader.uint32());
+                    message.g = ge.proto.GraphDef.decode(reader, reader.uint32());
                     break;
                 case 14:
-                    message.list_list_int = $root.ge.proto.AttrDef.ListListInt.decode(reader, reader.uint32());
+                    message.list_list_int = ge.proto.AttrDef.ListListInt.decode(reader, reader.uint32());
                     break;
                 case 15:
                     message.dt = reader.int64();
                     break;
                 case 16:
-                    message.list_list_float = $root.ge.proto.AttrDef.ListListFloat.decode(reader, reader.uint32());
+                    message.list_list_float = ge.proto.AttrDef.ListListFloat.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -106,7 +104,7 @@ $root.ge.proto.AttrDef = class AttrDef {
     }
 
     static decodeText(reader) {
-        const message = new $root.ge.proto.AttrDef();
+        const message = new ge.proto.AttrDef();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -127,28 +125,28 @@ $root.ge.proto.AttrDef = class AttrDef {
                     message.bt = reader.bytes();
                     break;
                 case "list":
-                    message.list = $root.ge.proto.AttrDef.ListValue.decodeText(reader);
+                    message.list = ge.proto.AttrDef.ListValue.decodeText(reader);
                     break;
                 case "func":
-                    message.func = $root.ge.proto.NamedAttrs.decodeText(reader);
+                    message.func = ge.proto.NamedAttrs.decodeText(reader);
                     break;
                 case "td":
-                    message.td = $root.ge.proto.TensorDescriptor.decodeText(reader);
+                    message.td = ge.proto.TensorDescriptor.decodeText(reader);
                     break;
                 case "t":
-                    message.t = $root.ge.proto.TensorDef.decodeText(reader);
+                    message.t = ge.proto.TensorDef.decodeText(reader);
                     break;
                 case "g":
-                    message.g = $root.ge.proto.GraphDef.decodeText(reader);
+                    message.g = ge.proto.GraphDef.decodeText(reader);
                     break;
                 case "list_list_int":
-                    message.list_list_int = $root.ge.proto.AttrDef.ListListInt.decodeText(reader);
+                    message.list_list_int = ge.proto.AttrDef.ListListInt.decodeText(reader);
                     break;
                 case "dt":
                     message.dt = reader.int64();
                     break;
                 case "list_list_float":
-                    message.list_list_float = $root.ge.proto.AttrDef.ListListFloat.decodeText(reader);
+                    message.list_list_float = ge.proto.AttrDef.ListListFloat.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -159,7 +157,7 @@ $root.ge.proto.AttrDef = class AttrDef {
     }
 };
 
-$root.ge.proto.AttrDef.ListValue = class ListValue {
+ge.proto.AttrDef.ListValue = class ListValue {
 
     constructor() {
         this.s = [];
@@ -175,7 +173,7 @@ $root.ge.proto.AttrDef.ListValue = class ListValue {
     }
 
     static decode(reader, length) {
-        const message = new $root.ge.proto.AttrDef.ListValue();
+        const message = new ge.proto.AttrDef.ListValue();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -196,16 +194,16 @@ $root.ge.proto.AttrDef.ListValue = class ListValue {
                     message.bt.push(reader.bytes());
                     break;
                 case 8:
-                    message.td.push($root.ge.proto.TensorDescriptor.decode(reader, reader.uint32()));
+                    message.td.push(ge.proto.TensorDescriptor.decode(reader, reader.uint32()));
                     break;
                 case 9:
-                    message.t.push($root.ge.proto.TensorDef.decode(reader, reader.uint32()));
+                    message.t.push(ge.proto.TensorDef.decode(reader, reader.uint32()));
                     break;
                 case 10:
-                    message.g.push($root.ge.proto.GraphDef.decode(reader, reader.uint32()));
+                    message.g.push(ge.proto.GraphDef.decode(reader, reader.uint32()));
                     break;
                 case 11:
-                    message.na.push($root.ge.proto.NamedAttrs.decode(reader, reader.uint32()));
+                    message.na.push(ge.proto.NamedAttrs.decode(reader, reader.uint32()));
                     break;
                 case 12:
                     message.dt = reader.array(message.dt, () => reader.int64(), tag);
@@ -222,7 +220,7 @@ $root.ge.proto.AttrDef.ListValue = class ListValue {
     }
 
     static decodeText(reader) {
-        const message = new $root.ge.proto.AttrDef.ListValue();
+        const message = new ge.proto.AttrDef.ListValue();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -243,22 +241,22 @@ $root.ge.proto.AttrDef.ListValue = class ListValue {
                     reader.array(message.bt, () => reader.bytes());
                     break;
                 case "td":
-                    message.td.push($root.ge.proto.TensorDescriptor.decodeText(reader));
+                    message.td.push(ge.proto.TensorDescriptor.decodeText(reader));
                     break;
                 case "t":
-                    message.t.push($root.ge.proto.TensorDef.decodeText(reader));
+                    message.t.push(ge.proto.TensorDef.decodeText(reader));
                     break;
                 case "g":
-                    message.g.push($root.ge.proto.GraphDef.decodeText(reader));
+                    message.g.push(ge.proto.GraphDef.decodeText(reader));
                     break;
                 case "na":
-                    message.na.push($root.ge.proto.NamedAttrs.decodeText(reader));
+                    message.na.push(ge.proto.NamedAttrs.decodeText(reader));
                     break;
                 case "dt":
                     reader.array(message.dt, () => reader.int64());
                     break;
                 case "val_type":
-                    message.val_type = reader.enum($root.ge.proto.AttrDef.ListValue.ListValueType);
+                    message.val_type = reader.enum(ge.proto.AttrDef.ListValue.ListValueType);
                     break;
                 default:
                     reader.field(tag, message);
@@ -269,9 +267,9 @@ $root.ge.proto.AttrDef.ListValue = class ListValue {
     }
 };
 
-$root.ge.proto.AttrDef.ListValue.prototype.val_type = 0;
+ge.proto.AttrDef.ListValue.prototype.val_type = 0;
 
-$root.ge.proto.AttrDef.ListValue.ListValueType = {
+ge.proto.AttrDef.ListValue.ListValueType = {
     "VT_LIST_NONE": 0,
     "VT_LIST_STRING": 1,
     "VT_LIST_INT": 2,
@@ -285,20 +283,20 @@ $root.ge.proto.AttrDef.ListValue.ListValueType = {
     "VT_LIST_DATA_TYPE": 10
 };
 
-$root.ge.proto.AttrDef.ListListInt = class ListListInt {
+ge.proto.AttrDef.ListListInt = class ListListInt {
 
     constructor() {
         this.list_list_i = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.ge.proto.AttrDef.ListListInt();
+        const message = new ge.proto.AttrDef.ListListInt();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.list_list_i.push($root.ge.proto.AttrDef.ListListInt.ListInt.decode(reader, reader.uint32()));
+                    message.list_list_i.push(ge.proto.AttrDef.ListListInt.ListInt.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -309,13 +307,13 @@ $root.ge.proto.AttrDef.ListListInt = class ListListInt {
     }
 
     static decodeText(reader) {
-        const message = new $root.ge.proto.AttrDef.ListListInt();
+        const message = new ge.proto.AttrDef.ListListInt();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "list_list_i":
-                    message.list_list_i.push($root.ge.proto.AttrDef.ListListInt.ListInt.decodeText(reader));
+                    message.list_list_i.push(ge.proto.AttrDef.ListListInt.ListInt.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -326,14 +324,14 @@ $root.ge.proto.AttrDef.ListListInt = class ListListInt {
     }
 };
 
-$root.ge.proto.AttrDef.ListListInt.ListInt = class ListInt {
+ge.proto.AttrDef.ListListInt.ListInt = class ListInt {
 
     constructor() {
         this.list_i = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.ge.proto.AttrDef.ListListInt.ListInt();
+        const message = new ge.proto.AttrDef.ListListInt.ListInt();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -350,7 +348,7 @@ $root.ge.proto.AttrDef.ListListInt.ListInt = class ListInt {
     }
 
     static decodeText(reader) {
-        const message = new $root.ge.proto.AttrDef.ListListInt.ListInt();
+        const message = new ge.proto.AttrDef.ListListInt.ListInt();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -367,20 +365,20 @@ $root.ge.proto.AttrDef.ListListInt.ListInt = class ListInt {
     }
 };
 
-$root.ge.proto.AttrDef.ListListFloat = class ListListFloat {
+ge.proto.AttrDef.ListListFloat = class ListListFloat {
 
     constructor() {
         this.list_list_f = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.ge.proto.AttrDef.ListListFloat();
+        const message = new ge.proto.AttrDef.ListListFloat();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.list_list_f.push($root.ge.proto.AttrDef.ListListFloat.ListFloat.decode(reader, reader.uint32()));
+                    message.list_list_f.push(ge.proto.AttrDef.ListListFloat.ListFloat.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -391,13 +389,13 @@ $root.ge.proto.AttrDef.ListListFloat = class ListListFloat {
     }
 
     static decodeText(reader) {
-        const message = new $root.ge.proto.AttrDef.ListListFloat();
+        const message = new ge.proto.AttrDef.ListListFloat();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "list_list_f":
-                    message.list_list_f.push($root.ge.proto.AttrDef.ListListFloat.ListFloat.decodeText(reader));
+                    message.list_list_f.push(ge.proto.AttrDef.ListListFloat.ListFloat.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -408,14 +406,14 @@ $root.ge.proto.AttrDef.ListListFloat = class ListListFloat {
     }
 };
 
-$root.ge.proto.AttrDef.ListListFloat.ListFloat = class ListFloat {
+ge.proto.AttrDef.ListListFloat.ListFloat = class ListFloat {
 
     constructor() {
         this.list_f = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.ge.proto.AttrDef.ListListFloat.ListFloat();
+        const message = new ge.proto.AttrDef.ListListFloat.ListFloat();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -432,7 +430,7 @@ $root.ge.proto.AttrDef.ListListFloat.ListFloat = class ListFloat {
     }
 
     static decodeText(reader) {
-        const message = new $root.ge.proto.AttrDef.ListListFloat.ListFloat();
+        const message = new ge.proto.AttrDef.ListListFloat.ListFloat();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -449,14 +447,14 @@ $root.ge.proto.AttrDef.ListListFloat.ListFloat = class ListFloat {
     }
 };
 
-$root.ge.proto.NamedAttrs = class NamedAttrs {
+ge.proto.NamedAttrs = class NamedAttrs {
 
     constructor() {
         this.attr = {};
     }
 
     static decode(reader, length) {
-        const message = new $root.ge.proto.NamedAttrs();
+        const message = new ge.proto.NamedAttrs();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -465,7 +463,7 @@ $root.ge.proto.NamedAttrs = class NamedAttrs {
                     message.name = reader.string();
                     break;
                 case 2:
-                    reader.entry(message.attr, () => reader.string(), () => $root.ge.proto.AttrDef.decode(reader, reader.uint32()));
+                    reader.entry(message.attr, () => reader.string(), () => ge.proto.AttrDef.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -476,7 +474,7 @@ $root.ge.proto.NamedAttrs = class NamedAttrs {
     }
 
     static decodeText(reader) {
-        const message = new $root.ge.proto.NamedAttrs();
+        const message = new ge.proto.NamedAttrs();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -485,7 +483,7 @@ $root.ge.proto.NamedAttrs = class NamedAttrs {
                     message.name = reader.string();
                     break;
                 case "attr":
-                    reader.entry(message.attr, () => reader.string(), () => $root.ge.proto.AttrDef.decodeText(reader));
+                    reader.entry(message.attr, () => reader.string(), () => ge.proto.AttrDef.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -496,16 +494,16 @@ $root.ge.proto.NamedAttrs = class NamedAttrs {
     }
 };
 
-$root.ge.proto.NamedAttrs.prototype.name = "";
+ge.proto.NamedAttrs.prototype.name = "";
 
-$root.ge.proto.ShapeDef = class ShapeDef {
+ge.proto.ShapeDef = class ShapeDef {
 
     constructor() {
         this.dim = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.ge.proto.ShapeDef();
+        const message = new ge.proto.ShapeDef();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -522,7 +520,7 @@ $root.ge.proto.ShapeDef = class ShapeDef {
     }
 
     static decodeText(reader) {
-        const message = new $root.ge.proto.ShapeDef();
+        const message = new ge.proto.ShapeDef();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -539,14 +537,14 @@ $root.ge.proto.ShapeDef = class ShapeDef {
     }
 };
 
-$root.ge.proto.TensorDescriptor = class TensorDescriptor {
+ge.proto.TensorDescriptor = class TensorDescriptor {
 
     constructor() {
         this.attr = {};
     }
 
     static decode(reader, length) {
-        const message = new $root.ge.proto.TensorDescriptor();
+        const message = new ge.proto.TensorDescriptor();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -558,7 +556,7 @@ $root.ge.proto.TensorDescriptor = class TensorDescriptor {
                     message.dtype = reader.int32();
                     break;
                 case 3:
-                    message.shape = $root.ge.proto.ShapeDef.decode(reader, reader.uint32());
+                    message.shape = ge.proto.ShapeDef.decode(reader, reader.uint32());
                     break;
                 case 4:
                     message.layout = reader.string();
@@ -603,7 +601,7 @@ $root.ge.proto.TensorDescriptor = class TensorDescriptor {
                     message.cmps_tab_offset = reader.int64();
                     break;
                 case 5:
-                    reader.entry(message.attr, () => reader.string(), () => $root.ge.proto.AttrDef.decode(reader, reader.uint32()));
+                    reader.entry(message.attr, () => reader.string(), () => ge.proto.AttrDef.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -614,7 +612,7 @@ $root.ge.proto.TensorDescriptor = class TensorDescriptor {
     }
 
     static decodeText(reader) {
-        const message = new $root.ge.proto.TensorDescriptor();
+        const message = new ge.proto.TensorDescriptor();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -623,10 +621,10 @@ $root.ge.proto.TensorDescriptor = class TensorDescriptor {
                     message.name = reader.string();
                     break;
                 case "dtype":
-                    message.dtype = reader.enum($root.ge.proto.DataType);
+                    message.dtype = reader.enum(ge.proto.DataType);
                     break;
                 case "shape":
-                    message.shape = $root.ge.proto.ShapeDef.decodeText(reader);
+                    message.shape = ge.proto.ShapeDef.decodeText(reader);
                     break;
                 case "layout":
                     message.layout = reader.string();
@@ -671,7 +669,7 @@ $root.ge.proto.TensorDescriptor = class TensorDescriptor {
                     message.cmps_tab_offset = reader.int64();
                     break;
                 case "attr":
-                    reader.entry(message.attr, () => reader.string(), () => $root.ge.proto.AttrDef.decodeText(reader));
+                    reader.entry(message.attr, () => reader.string(), () => ge.proto.AttrDef.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -682,37 +680,37 @@ $root.ge.proto.TensorDescriptor = class TensorDescriptor {
     }
 };
 
-$root.ge.proto.TensorDescriptor.prototype.name = "";
-$root.ge.proto.TensorDescriptor.prototype.dtype = 0;
-$root.ge.proto.TensorDescriptor.prototype.shape = null;
-$root.ge.proto.TensorDescriptor.prototype.layout = "";
-$root.ge.proto.TensorDescriptor.prototype.has_out_attr = false;
-$root.ge.proto.TensorDescriptor.prototype.size = protobuf.Int64.create(0);
-$root.ge.proto.TensorDescriptor.prototype.weight_size = protobuf.Int64.create(0);
-$root.ge.proto.TensorDescriptor.prototype.reuse_input = false;
-$root.ge.proto.TensorDescriptor.prototype.output_tensor = false;
-$root.ge.proto.TensorDescriptor.prototype.device_type = "";
-$root.ge.proto.TensorDescriptor.prototype.input_tensor = false;
-$root.ge.proto.TensorDescriptor.prototype.real_dim_cnt = protobuf.Int64.create(0);
-$root.ge.proto.TensorDescriptor.prototype.reuse_input_index = protobuf.Int64.create(0);
-$root.ge.proto.TensorDescriptor.prototype.data_offset = protobuf.Int64.create(0);
-$root.ge.proto.TensorDescriptor.prototype.cmps_size = protobuf.Int64.create(0);
-$root.ge.proto.TensorDescriptor.prototype.cmps_tab = "";
-$root.ge.proto.TensorDescriptor.prototype.cmps_tab_offset = protobuf.Int64.create(0);
+ge.proto.TensorDescriptor.prototype.name = "";
+ge.proto.TensorDescriptor.prototype.dtype = 0;
+ge.proto.TensorDescriptor.prototype.shape = null;
+ge.proto.TensorDescriptor.prototype.layout = "";
+ge.proto.TensorDescriptor.prototype.has_out_attr = false;
+ge.proto.TensorDescriptor.prototype.size = protobuf.Int64.create(0);
+ge.proto.TensorDescriptor.prototype.weight_size = protobuf.Int64.create(0);
+ge.proto.TensorDescriptor.prototype.reuse_input = false;
+ge.proto.TensorDescriptor.prototype.output_tensor = false;
+ge.proto.TensorDescriptor.prototype.device_type = "";
+ge.proto.TensorDescriptor.prototype.input_tensor = false;
+ge.proto.TensorDescriptor.prototype.real_dim_cnt = protobuf.Int64.create(0);
+ge.proto.TensorDescriptor.prototype.reuse_input_index = protobuf.Int64.create(0);
+ge.proto.TensorDescriptor.prototype.data_offset = protobuf.Int64.create(0);
+ge.proto.TensorDescriptor.prototype.cmps_size = protobuf.Int64.create(0);
+ge.proto.TensorDescriptor.prototype.cmps_tab = "";
+ge.proto.TensorDescriptor.prototype.cmps_tab_offset = protobuf.Int64.create(0);
 
-$root.ge.proto.TensorDef = class TensorDef {
+ge.proto.TensorDef = class TensorDef {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.ge.proto.TensorDef();
+        const message = new ge.proto.TensorDef();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.desc = $root.ge.proto.TensorDescriptor.decode(reader, reader.uint32());
+                    message.desc = ge.proto.TensorDescriptor.decode(reader, reader.uint32());
                     break;
                 case 2:
                     message.data = reader.bytes();
@@ -726,13 +724,13 @@ $root.ge.proto.TensorDef = class TensorDef {
     }
 
     static decodeText(reader) {
-        const message = new $root.ge.proto.TensorDef();
+        const message = new ge.proto.TensorDef();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "desc":
-                    message.desc = $root.ge.proto.TensorDescriptor.decodeText(reader);
+                    message.desc = ge.proto.TensorDescriptor.decodeText(reader);
                     break;
                 case "data":
                     message.data = reader.bytes();
@@ -746,10 +744,10 @@ $root.ge.proto.TensorDef = class TensorDef {
     }
 };
 
-$root.ge.proto.TensorDef.prototype.desc = null;
-$root.ge.proto.TensorDef.prototype.data = new Uint8Array([]);
+ge.proto.TensorDef.prototype.desc = null;
+ge.proto.TensorDef.prototype.data = new Uint8Array([]);
 
-$root.ge.proto.OpDef = class OpDef {
+ge.proto.OpDef = class OpDef {
 
     constructor() {
         this.input = [];
@@ -770,7 +768,7 @@ $root.ge.proto.OpDef = class OpDef {
     }
 
     static decode(reader, length) {
-        const message = new $root.ge.proto.OpDef();
+        const message = new ge.proto.OpDef();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -785,7 +783,7 @@ $root.ge.proto.OpDef = class OpDef {
                     message.input.push(reader.string());
                     break;
                 case 10:
-                    reader.entry(message.attr, () => reader.string(), () => $root.ge.proto.AttrDef.decode(reader, reader.uint32()));
+                    reader.entry(message.attr, () => reader.string(), () => ge.proto.AttrDef.decode(reader, reader.uint32()));
                     break;
                 case 20:
                     message.has_out_attr = reader.bool();
@@ -827,10 +825,10 @@ $root.ge.proto.OpDef = class OpDef {
                     message.is_input_const = reader.array(message.is_input_const, () => reader.bool(), tag);
                     break;
                 case 33:
-                    message.input_desc.push($root.ge.proto.TensorDescriptor.decode(reader, reader.uint32()));
+                    message.input_desc.push(ge.proto.TensorDescriptor.decode(reader, reader.uint32()));
                     break;
                 case 34:
-                    message.output_desc.push($root.ge.proto.TensorDescriptor.decode(reader, reader.uint32()));
+                    message.output_desc.push(ge.proto.TensorDescriptor.decode(reader, reader.uint32()));
                     break;
                 case 35:
                     message.subgraph_name.push(reader.string());
@@ -844,7 +842,7 @@ $root.ge.proto.OpDef = class OpDef {
     }
 
     static decodeText(reader) {
-        const message = new $root.ge.proto.OpDef();
+        const message = new ge.proto.OpDef();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -859,7 +857,7 @@ $root.ge.proto.OpDef = class OpDef {
                     reader.array(message.input, () => reader.string());
                     break;
                 case "attr":
-                    reader.entry(message.attr, () => reader.string(), () => $root.ge.proto.AttrDef.decodeText(reader));
+                    reader.entry(message.attr, () => reader.string(), () => ge.proto.AttrDef.decodeText(reader));
                     break;
                 case "has_out_attr":
                     message.has_out_attr = reader.bool();
@@ -901,10 +899,10 @@ $root.ge.proto.OpDef = class OpDef {
                     reader.array(message.is_input_const, () => reader.bool());
                     break;
                 case "input_desc":
-                    message.input_desc.push($root.ge.proto.TensorDescriptor.decodeText(reader));
+                    message.input_desc.push(ge.proto.TensorDescriptor.decodeText(reader));
                     break;
                 case "output_desc":
-                    message.output_desc.push($root.ge.proto.TensorDescriptor.decodeText(reader));
+                    message.output_desc.push(ge.proto.TensorDescriptor.decodeText(reader));
                     break;
                 case "subgraph_name":
                     reader.array(message.subgraph_name, () => reader.string());
@@ -918,13 +916,13 @@ $root.ge.proto.OpDef = class OpDef {
     }
 };
 
-$root.ge.proto.OpDef.prototype.name = "";
-$root.ge.proto.OpDef.prototype.type = "";
-$root.ge.proto.OpDef.prototype.has_out_attr = false;
-$root.ge.proto.OpDef.prototype.id = protobuf.Int64.create(0);
-$root.ge.proto.OpDef.prototype.stream_id = protobuf.Int64.create(0);
+ge.proto.OpDef.prototype.name = "";
+ge.proto.OpDef.prototype.type = "";
+ge.proto.OpDef.prototype.has_out_attr = false;
+ge.proto.OpDef.prototype.id = protobuf.Int64.create(0);
+ge.proto.OpDef.prototype.stream_id = protobuf.Int64.create(0);
 
-$root.ge.proto.GraphDef = class GraphDef {
+ge.proto.GraphDef = class GraphDef {
 
     constructor() {
         this.input = [];
@@ -934,7 +932,7 @@ $root.ge.proto.GraphDef = class GraphDef {
     }
 
     static decode(reader, length) {
-        const message = new $root.ge.proto.GraphDef();
+        const message = new ge.proto.GraphDef();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -949,10 +947,10 @@ $root.ge.proto.GraphDef = class GraphDef {
                     message.output.push(reader.string());
                     break;
                 case 6:
-                    message.op.push($root.ge.proto.OpDef.decode(reader, reader.uint32()));
+                    message.op.push(ge.proto.OpDef.decode(reader, reader.uint32()));
                     break;
                 case 11:
-                    reader.entry(message.attr, () => reader.string(), () => $root.ge.proto.AttrDef.decode(reader, reader.uint32()));
+                    reader.entry(message.attr, () => reader.string(), () => ge.proto.AttrDef.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -963,7 +961,7 @@ $root.ge.proto.GraphDef = class GraphDef {
     }
 
     static decodeText(reader) {
-        const message = new $root.ge.proto.GraphDef();
+        const message = new ge.proto.GraphDef();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -978,10 +976,10 @@ $root.ge.proto.GraphDef = class GraphDef {
                     reader.array(message.output, () => reader.string());
                     break;
                 case "op":
-                    message.op.push($root.ge.proto.OpDef.decodeText(reader));
+                    message.op.push(ge.proto.OpDef.decodeText(reader));
                     break;
                 case "attr":
-                    reader.entry(message.attr, () => reader.string(), () => $root.ge.proto.AttrDef.decodeText(reader));
+                    reader.entry(message.attr, () => reader.string(), () => ge.proto.AttrDef.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -992,9 +990,9 @@ $root.ge.proto.GraphDef = class GraphDef {
     }
 };
 
-$root.ge.proto.GraphDef.prototype.name = "";
+ge.proto.GraphDef.prototype.name = "";
 
-$root.ge.proto.ModelDef = class ModelDef {
+ge.proto.ModelDef = class ModelDef {
 
     constructor() {
         this.graph = [];
@@ -1002,7 +1000,7 @@ $root.ge.proto.ModelDef = class ModelDef {
     }
 
     static decode(reader, length) {
-        const message = new $root.ge.proto.ModelDef();
+        const message = new ge.proto.ModelDef();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1017,10 +1015,10 @@ $root.ge.proto.ModelDef = class ModelDef {
                     message.custom_version = reader.string();
                     break;
                 case 7:
-                    message.graph.push($root.ge.proto.GraphDef.decode(reader, reader.uint32()));
+                    message.graph.push(ge.proto.GraphDef.decode(reader, reader.uint32()));
                     break;
                 case 11:
-                    reader.entry(message.attr, () => reader.string(), () => $root.ge.proto.AttrDef.decode(reader, reader.uint32()));
+                    reader.entry(message.attr, () => reader.string(), () => ge.proto.AttrDef.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1031,7 +1029,7 @@ $root.ge.proto.ModelDef = class ModelDef {
     }
 
     static decodeText(reader) {
-        const message = new $root.ge.proto.ModelDef();
+        const message = new ge.proto.ModelDef();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1046,10 +1044,10 @@ $root.ge.proto.ModelDef = class ModelDef {
                     message.custom_version = reader.string();
                     break;
                 case "graph":
-                    message.graph.push($root.ge.proto.GraphDef.decodeText(reader));
+                    message.graph.push(ge.proto.GraphDef.decodeText(reader));
                     break;
                 case "attr":
-                    reader.entry(message.attr, () => reader.string(), () => $root.ge.proto.AttrDef.decodeText(reader));
+                    reader.entry(message.attr, () => reader.string(), () => ge.proto.AttrDef.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -1060,8 +1058,6 @@ $root.ge.proto.ModelDef = class ModelDef {
     }
 };
 
-$root.ge.proto.ModelDef.prototype.name = "";
-$root.ge.proto.ModelDef.prototype.version = 0;
-$root.ge.proto.ModelDef.prototype.custom_version = "";
-
-export const ge = $root.ge;
+ge.proto.ModelDef.prototype.name = "";
+ge.proto.ModelDef.prototype.version = 0;
+ge.proto.ModelDef.prototype.custom_version = "";

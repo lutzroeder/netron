@@ -1,18 +1,16 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = {};
+export const nnabla = {};
 
-$root.nnabla = {};
-
-$root.nnabla.Shape = class Shape {
+nnabla.Shape = class Shape {
 
     constructor() {
         this.dim = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Shape();
+        const message = new nnabla.Shape();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -29,7 +27,7 @@ $root.nnabla.Shape = class Shape {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Shape();
+        const message = new nnabla.Shape();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -46,13 +44,13 @@ $root.nnabla.Shape = class Shape {
     }
 };
 
-$root.nnabla.Communicator = class Communicator {
+nnabla.Communicator = class Communicator {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Communicator();
+        const message = new nnabla.Communicator();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -66,7 +64,7 @@ $root.nnabla.Communicator = class Communicator {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Communicator();
+        const message = new nnabla.Communicator();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -80,14 +78,14 @@ $root.nnabla.Communicator = class Communicator {
     }
 };
 
-$root.nnabla.Context = class Context {
+nnabla.Context = class Context {
 
     constructor() {
         this.backends = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Context();
+        const message = new nnabla.Context();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -116,7 +114,7 @@ $root.nnabla.Context = class Context {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Context();
+        const message = new nnabla.Context();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -145,12 +143,12 @@ $root.nnabla.Context = class Context {
     }
 };
 
-$root.nnabla.Context.prototype.array_class = "";
-$root.nnabla.Context.prototype.device_id = "";
-$root.nnabla.Context.prototype.backend = "";
-$root.nnabla.Context.prototype.compute_backend = "";
+nnabla.Context.prototype.array_class = "";
+nnabla.Context.prototype.device_id = "";
+nnabla.Context.prototype.backend = "";
+nnabla.Context.prototype.compute_backend = "";
 
-$root.nnabla.NNablaProtoBuf = class NNablaProtoBuf {
+nnabla.NNablaProtoBuf = class NNablaProtoBuf {
 
     constructor() {
         this.network = [];
@@ -162,7 +160,7 @@ $root.nnabla.NNablaProtoBuf = class NNablaProtoBuf {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.NNablaProtoBuf();
+        const message = new nnabla.NNablaProtoBuf();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -171,28 +169,28 @@ $root.nnabla.NNablaProtoBuf = class NNablaProtoBuf {
                     message.version = reader.string();
                     break;
                 case 2:
-                    message.global_config = $root.nnabla.GlobalConfig.decode(reader, reader.uint32());
+                    message.global_config = nnabla.GlobalConfig.decode(reader, reader.uint32());
                     break;
                 case 10:
-                    message.training_config = $root.nnabla.TrainingConfig.decode(reader, reader.uint32());
+                    message.training_config = nnabla.TrainingConfig.decode(reader, reader.uint32());
                     break;
                 case 100:
-                    message.network.push($root.nnabla.Network.decode(reader, reader.uint32()));
+                    message.network.push(nnabla.Network.decode(reader, reader.uint32()));
                     break;
                 case 200:
-                    message.parameter.push($root.nnabla.Parameter.decode(reader, reader.uint32()));
+                    message.parameter.push(nnabla.Parameter.decode(reader, reader.uint32()));
                     break;
                 case 300:
-                    message.dataset.push($root.nnabla.Dataset.decode(reader, reader.uint32()));
+                    message.dataset.push(nnabla.Dataset.decode(reader, reader.uint32()));
                     break;
                 case 400:
-                    message.optimizer.push($root.nnabla.Optimizer.decode(reader, reader.uint32()));
+                    message.optimizer.push(nnabla.Optimizer.decode(reader, reader.uint32()));
                     break;
                 case 500:
-                    message.monitor.push($root.nnabla.Monitor.decode(reader, reader.uint32()));
+                    message.monitor.push(nnabla.Monitor.decode(reader, reader.uint32()));
                     break;
                 case 600:
-                    message.executor.push($root.nnabla.Executor.decode(reader, reader.uint32()));
+                    message.executor.push(nnabla.Executor.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -203,7 +201,7 @@ $root.nnabla.NNablaProtoBuf = class NNablaProtoBuf {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.NNablaProtoBuf();
+        const message = new nnabla.NNablaProtoBuf();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -212,28 +210,28 @@ $root.nnabla.NNablaProtoBuf = class NNablaProtoBuf {
                     message.version = reader.string();
                     break;
                 case "global_config":
-                    message.global_config = $root.nnabla.GlobalConfig.decodeText(reader);
+                    message.global_config = nnabla.GlobalConfig.decodeText(reader);
                     break;
                 case "training_config":
-                    message.training_config = $root.nnabla.TrainingConfig.decodeText(reader);
+                    message.training_config = nnabla.TrainingConfig.decodeText(reader);
                     break;
                 case "network":
-                    message.network.push($root.nnabla.Network.decodeText(reader));
+                    message.network.push(nnabla.Network.decodeText(reader));
                     break;
                 case "parameter":
-                    message.parameter.push($root.nnabla.Parameter.decodeText(reader));
+                    message.parameter.push(nnabla.Parameter.decodeText(reader));
                     break;
                 case "dataset":
-                    message.dataset.push($root.nnabla.Dataset.decodeText(reader));
+                    message.dataset.push(nnabla.Dataset.decodeText(reader));
                     break;
                 case "optimizer":
-                    message.optimizer.push($root.nnabla.Optimizer.decodeText(reader));
+                    message.optimizer.push(nnabla.Optimizer.decodeText(reader));
                     break;
                 case "monitor":
-                    message.monitor.push($root.nnabla.Monitor.decodeText(reader));
+                    message.monitor.push(nnabla.Monitor.decodeText(reader));
                     break;
                 case "executor":
-                    message.executor.push($root.nnabla.Executor.decodeText(reader));
+                    message.executor.push(nnabla.Executor.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -244,23 +242,23 @@ $root.nnabla.NNablaProtoBuf = class NNablaProtoBuf {
     }
 };
 
-$root.nnabla.NNablaProtoBuf.prototype.version = "";
-$root.nnabla.NNablaProtoBuf.prototype.global_config = null;
-$root.nnabla.NNablaProtoBuf.prototype.training_config = null;
+nnabla.NNablaProtoBuf.prototype.version = "";
+nnabla.NNablaProtoBuf.prototype.global_config = null;
+nnabla.NNablaProtoBuf.prototype.training_config = null;
 
-$root.nnabla.GlobalConfig = class GlobalConfig {
+nnabla.GlobalConfig = class GlobalConfig {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.GlobalConfig();
+        const message = new nnabla.GlobalConfig();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.default_context = $root.nnabla.Context.decode(reader, reader.uint32());
+                    message.default_context = nnabla.Context.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -271,13 +269,13 @@ $root.nnabla.GlobalConfig = class GlobalConfig {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.GlobalConfig();
+        const message = new nnabla.GlobalConfig();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "default_context":
-                    message.default_context = $root.nnabla.Context.decodeText(reader);
+                    message.default_context = nnabla.Context.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -288,15 +286,15 @@ $root.nnabla.GlobalConfig = class GlobalConfig {
     }
 };
 
-$root.nnabla.GlobalConfig.prototype.default_context = null;
+nnabla.GlobalConfig.prototype.default_context = null;
 
-$root.nnabla.TrainingConfig = class TrainingConfig {
+nnabla.TrainingConfig = class TrainingConfig {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.TrainingConfig();
+        const message = new nnabla.TrainingConfig();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -322,7 +320,7 @@ $root.nnabla.TrainingConfig = class TrainingConfig {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.TrainingConfig();
+        const message = new nnabla.TrainingConfig();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -348,12 +346,12 @@ $root.nnabla.TrainingConfig = class TrainingConfig {
     }
 };
 
-$root.nnabla.TrainingConfig.prototype.max_epoch = protobuf.Int64.create(0);
-$root.nnabla.TrainingConfig.prototype.iter_per_epoch = protobuf.Int64.create(0);
-$root.nnabla.TrainingConfig.prototype.save_best = false;
-$root.nnabla.TrainingConfig.prototype.monitor_interval = protobuf.Int64.create(0);
+nnabla.TrainingConfig.prototype.max_epoch = protobuf.Int64.create(0);
+nnabla.TrainingConfig.prototype.iter_per_epoch = protobuf.Int64.create(0);
+nnabla.TrainingConfig.prototype.save_best = false;
+nnabla.TrainingConfig.prototype.monitor_interval = protobuf.Int64.create(0);
 
-$root.nnabla.Network = class Network {
+nnabla.Network = class Network {
 
     constructor() {
         this.repeat_info = [];
@@ -362,7 +360,7 @@ $root.nnabla.Network = class Network {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Network();
+        const message = new nnabla.Network();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -374,13 +372,13 @@ $root.nnabla.Network = class Network {
                     message.batch_size = reader.int64();
                     break;
                 case 11:
-                    message.repeat_info.push($root.nnabla.RepeatInfo.decode(reader, reader.uint32()));
+                    message.repeat_info.push(nnabla.RepeatInfo.decode(reader, reader.uint32()));
                     break;
                 case 100:
-                    message.variable.push($root.nnabla.Variable.decode(reader, reader.uint32()));
+                    message.variable.push(nnabla.Variable.decode(reader, reader.uint32()));
                     break;
                 case 200:
-                    message["function"].push($root.nnabla.Function.decode(reader, reader.uint32()));
+                    message["function"].push(nnabla.Function.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -391,7 +389,7 @@ $root.nnabla.Network = class Network {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Network();
+        const message = new nnabla.Network();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -403,13 +401,13 @@ $root.nnabla.Network = class Network {
                     message.batch_size = reader.int64();
                     break;
                 case "repeat_info":
-                    message.repeat_info.push($root.nnabla.RepeatInfo.decodeText(reader));
+                    message.repeat_info.push(nnabla.RepeatInfo.decodeText(reader));
                     break;
                 case "variable":
-                    message.variable.push($root.nnabla.Variable.decodeText(reader));
+                    message.variable.push(nnabla.Variable.decodeText(reader));
                     break;
                 case "function":
-                    message["function"].push($root.nnabla.Function.decodeText(reader));
+                    message["function"].push(nnabla.Function.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -420,16 +418,16 @@ $root.nnabla.Network = class Network {
     }
 };
 
-$root.nnabla.Network.prototype.name = "";
-$root.nnabla.Network.prototype.batch_size = protobuf.Int64.create(0);
+nnabla.Network.prototype.name = "";
+nnabla.Network.prototype.batch_size = protobuf.Int64.create(0);
 
-$root.nnabla.RepeatInfo = class RepeatInfo {
+nnabla.RepeatInfo = class RepeatInfo {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RepeatInfo();
+        const message = new nnabla.RepeatInfo();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -449,7 +447,7 @@ $root.nnabla.RepeatInfo = class RepeatInfo {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RepeatInfo();
+        const message = new nnabla.RepeatInfo();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -469,16 +467,16 @@ $root.nnabla.RepeatInfo = class RepeatInfo {
     }
 };
 
-$root.nnabla.RepeatInfo.prototype.id = "";
-$root.nnabla.RepeatInfo.prototype.times = protobuf.Int64.create(0);
+nnabla.RepeatInfo.prototype.id = "";
+nnabla.RepeatInfo.prototype.times = protobuf.Int64.create(0);
 
-$root.nnabla.RepeatParameter = class RepeatParameter {
+nnabla.RepeatParameter = class RepeatParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RepeatParameter();
+        const message = new nnabla.RepeatParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -498,7 +496,7 @@ $root.nnabla.RepeatParameter = class RepeatParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RepeatParameter();
+        const message = new nnabla.RepeatParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -518,16 +516,16 @@ $root.nnabla.RepeatParameter = class RepeatParameter {
     }
 };
 
-$root.nnabla.RepeatParameter.prototype.repeat_id = "";
-$root.nnabla.RepeatParameter.prototype.times = protobuf.Int64.create(0);
+nnabla.RepeatParameter.prototype.repeat_id = "";
+nnabla.RepeatParameter.prototype.times = protobuf.Int64.create(0);
 
-$root.nnabla.RecurrentParameter = class RecurrentParameter {
+nnabla.RecurrentParameter = class RecurrentParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RecurrentParameter();
+        const message = new nnabla.RecurrentParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -550,7 +548,7 @@ $root.nnabla.RecurrentParameter = class RecurrentParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RecurrentParameter();
+        const message = new nnabla.RecurrentParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -573,18 +571,18 @@ $root.nnabla.RecurrentParameter = class RecurrentParameter {
     }
 };
 
-$root.nnabla.RecurrentParameter.prototype.repeat_id = "";
-$root.nnabla.RecurrentParameter.prototype.length = protobuf.Int64.create(0);
-$root.nnabla.RecurrentParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.RecurrentParameter.prototype.repeat_id = "";
+nnabla.RecurrentParameter.prototype.length = protobuf.Int64.create(0);
+nnabla.RecurrentParameter.prototype.axis = protobuf.Int64.create(0);
 
-$root.nnabla.Variable = class Variable {
+nnabla.Variable = class Variable {
 
     constructor() {
         this.repeat_id = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Variable();
+        const message = new nnabla.Variable();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -599,10 +597,10 @@ $root.nnabla.Variable = class Variable {
                     message.repeat_id.push(reader.string());
                     break;
                 case 20:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 100:
-                    message.initializer = $root.nnabla.Initializer.decode(reader, reader.uint32());
+                    message.initializer = nnabla.Initializer.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -613,7 +611,7 @@ $root.nnabla.Variable = class Variable {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Variable();
+        const message = new nnabla.Variable();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -628,10 +626,10 @@ $root.nnabla.Variable = class Variable {
                     reader.array(message.repeat_id, () => reader.string());
                     break;
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 case "initializer":
-                    message.initializer = $root.nnabla.Initializer.decodeText(reader);
+                    message.initializer = nnabla.Initializer.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -642,18 +640,18 @@ $root.nnabla.Variable = class Variable {
     }
 };
 
-$root.nnabla.Variable.prototype.name = "";
-$root.nnabla.Variable.prototype.type = "";
-$root.nnabla.Variable.prototype.shape = null;
-$root.nnabla.Variable.prototype.initializer = null;
+nnabla.Variable.prototype.name = "";
+nnabla.Variable.prototype.type = "";
+nnabla.Variable.prototype.shape = null;
+nnabla.Variable.prototype.initializer = null;
 
-$root.nnabla.Initializer = class Initializer {
+nnabla.Initializer = class Initializer {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Initializer();
+        const message = new nnabla.Initializer();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -673,7 +671,7 @@ $root.nnabla.Initializer = class Initializer {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Initializer();
+        const message = new nnabla.Initializer();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -693,17 +691,17 @@ $root.nnabla.Initializer = class Initializer {
     }
 };
 
-$root.nnabla.Initializer.prototype.type = "";
-$root.nnabla.Initializer.prototype.multiplier = 0;
+nnabla.Initializer.prototype.type = "";
+nnabla.Initializer.prototype.multiplier = 0;
 
-$root.nnabla.Parameter = class Parameter {
+nnabla.Parameter = class Parameter {
 
     constructor() {
         this.data = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Parameter();
+        const message = new nnabla.Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -712,7 +710,7 @@ $root.nnabla.Parameter = class Parameter {
                     message.variable_name = reader.string();
                     break;
                 case 20:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 100:
                     message.data = reader.floats(message.data, tag);
@@ -729,7 +727,7 @@ $root.nnabla.Parameter = class Parameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Parameter();
+        const message = new nnabla.Parameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -738,7 +736,7 @@ $root.nnabla.Parameter = class Parameter {
                     message.variable_name = reader.string();
                     break;
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 case "data":
                     reader.array(message.data, () => reader.float());
@@ -755,18 +753,18 @@ $root.nnabla.Parameter = class Parameter {
     }
 };
 
-$root.nnabla.Parameter.prototype.variable_name = "";
-$root.nnabla.Parameter.prototype.shape = null;
-$root.nnabla.Parameter.prototype.need_grad = false;
+nnabla.Parameter.prototype.variable_name = "";
+nnabla.Parameter.prototype.shape = null;
+nnabla.Parameter.prototype.need_grad = false;
 
-$root.nnabla.Dataset = class Dataset {
+nnabla.Dataset = class Dataset {
 
     constructor() {
         this.variable = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Dataset();
+        const message = new nnabla.Dataset();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -810,7 +808,7 @@ $root.nnabla.Dataset = class Dataset {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Dataset();
+        const message = new nnabla.Dataset();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -854,17 +852,17 @@ $root.nnabla.Dataset = class Dataset {
     }
 };
 
-$root.nnabla.Dataset.prototype.name = "";
-$root.nnabla.Dataset.prototype.type = "";
-$root.nnabla.Dataset.prototype.uri = "";
-$root.nnabla.Dataset.prototype.batch_size = protobuf.Int64.create(0);
-$root.nnabla.Dataset.prototype.cache_dir = "";
-$root.nnabla.Dataset.prototype.overwrite_cache = false;
-$root.nnabla.Dataset.prototype.create_cache_explicitly = false;
-$root.nnabla.Dataset.prototype.shuffle = false;
-$root.nnabla.Dataset.prototype.no_image_normalization = false;
+nnabla.Dataset.prototype.name = "";
+nnabla.Dataset.prototype.type = "";
+nnabla.Dataset.prototype.uri = "";
+nnabla.Dataset.prototype.batch_size = protobuf.Int64.create(0);
+nnabla.Dataset.prototype.cache_dir = "";
+nnabla.Dataset.prototype.overwrite_cache = false;
+nnabla.Dataset.prototype.create_cache_explicitly = false;
+nnabla.Dataset.prototype.shuffle = false;
+nnabla.Dataset.prototype.no_image_normalization = false;
 
-$root.nnabla.Optimizer = class Optimizer {
+nnabla.Optimizer = class Optimizer {
 
     constructor() {
         this.dataset_name = [];
@@ -875,7 +873,7 @@ $root.nnabla.Optimizer = class Optimizer {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Optimizer();
+        const message = new nnabla.Optimizer();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -893,22 +891,22 @@ $root.nnabla.Optimizer = class Optimizer {
                     message.dataset_name.push(reader.string());
                     break;
                 case 30:
-                    message.solver = $root.nnabla.Solver.decode(reader, reader.uint32());
+                    message.solver = nnabla.Solver.decode(reader, reader.uint32());
                     break;
                 case 40:
                     message.update_interval = reader.int64();
                     break;
                 case 50:
-                    message.data_variable.push($root.nnabla.DataVariable.decode(reader, reader.uint32()));
+                    message.data_variable.push(nnabla.DataVariable.decode(reader, reader.uint32()));
                     break;
                 case 60:
-                    message.generator_variable.push($root.nnabla.GeneratorVariable.decode(reader, reader.uint32()));
+                    message.generator_variable.push(nnabla.GeneratorVariable.decode(reader, reader.uint32()));
                     break;
                 case 70:
-                    message.loss_variable.push($root.nnabla.LossVariable.decode(reader, reader.uint32()));
+                    message.loss_variable.push(nnabla.LossVariable.decode(reader, reader.uint32()));
                     break;
                 case 80:
-                    message.parameter_variable.push($root.nnabla.ParameterVariable.decode(reader, reader.uint32()));
+                    message.parameter_variable.push(nnabla.ParameterVariable.decode(reader, reader.uint32()));
                     break;
                 case 100:
                     message.start_iter = reader.int64();
@@ -925,7 +923,7 @@ $root.nnabla.Optimizer = class Optimizer {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Optimizer();
+        const message = new nnabla.Optimizer();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -943,22 +941,22 @@ $root.nnabla.Optimizer = class Optimizer {
                     reader.array(message.dataset_name, () => reader.string());
                     break;
                 case "solver":
-                    message.solver = $root.nnabla.Solver.decodeText(reader);
+                    message.solver = nnabla.Solver.decodeText(reader);
                     break;
                 case "update_interval":
                     message.update_interval = reader.int64();
                     break;
                 case "data_variable":
-                    message.data_variable.push($root.nnabla.DataVariable.decodeText(reader));
+                    message.data_variable.push(nnabla.DataVariable.decodeText(reader));
                     break;
                 case "generator_variable":
-                    message.generator_variable.push($root.nnabla.GeneratorVariable.decodeText(reader));
+                    message.generator_variable.push(nnabla.GeneratorVariable.decodeText(reader));
                     break;
                 case "loss_variable":
-                    message.loss_variable.push($root.nnabla.LossVariable.decodeText(reader));
+                    message.loss_variable.push(nnabla.LossVariable.decodeText(reader));
                     break;
                 case "parameter_variable":
-                    message.parameter_variable.push($root.nnabla.ParameterVariable.decodeText(reader));
+                    message.parameter_variable.push(nnabla.ParameterVariable.decodeText(reader));
                     break;
                 case "start_iter":
                     message.start_iter = reader.int64();
@@ -975,28 +973,28 @@ $root.nnabla.Optimizer = class Optimizer {
     }
 };
 
-$root.nnabla.Optimizer.prototype.name = "";
-$root.nnabla.Optimizer.prototype.order = protobuf.Int64.create(0);
-$root.nnabla.Optimizer.prototype.network_name = "";
-$root.nnabla.Optimizer.prototype.solver = null;
-$root.nnabla.Optimizer.prototype.update_interval = protobuf.Int64.create(0);
-$root.nnabla.Optimizer.prototype.start_iter = protobuf.Int64.create(0);
-$root.nnabla.Optimizer.prototype.end_iter = protobuf.Int64.create(0);
+nnabla.Optimizer.prototype.name = "";
+nnabla.Optimizer.prototype.order = protobuf.Int64.create(0);
+nnabla.Optimizer.prototype.network_name = "";
+nnabla.Optimizer.prototype.solver = null;
+nnabla.Optimizer.prototype.update_interval = protobuf.Int64.create(0);
+nnabla.Optimizer.prototype.start_iter = protobuf.Int64.create(0);
+nnabla.Optimizer.prototype.end_iter = protobuf.Int64.create(0);
 
-$root.nnabla.SolverStateParameter = class SolverStateParameter {
+nnabla.SolverStateParameter = class SolverStateParameter {
 
     constructor() {
         this.data = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SolverStateParameter();
+        const message = new nnabla.SolverStateParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 20:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 100:
                     message.data = reader.floats(message.data, tag);
@@ -1010,13 +1008,13 @@ $root.nnabla.SolverStateParameter = class SolverStateParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SolverStateParameter();
+        const message = new nnabla.SolverStateParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 case "data":
                     reader.array(message.data, () => reader.float());
@@ -1030,16 +1028,16 @@ $root.nnabla.SolverStateParameter = class SolverStateParameter {
     }
 };
 
-$root.nnabla.SolverStateParameter.prototype.shape = null;
+nnabla.SolverStateParameter.prototype.shape = null;
 
-$root.nnabla.SolverState = class SolverState {
+nnabla.SolverState = class SolverState {
 
     constructor() {
         this.state_parameter = {};
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SolverState();
+        const message = new nnabla.SolverState();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1048,7 +1046,7 @@ $root.nnabla.SolverState = class SolverState {
                     message.t = reader.uint32();
                     break;
                 case 2:
-                    reader.entry(message.state_parameter, () => reader.string(), () => $root.nnabla.SolverStateParameter.decode(reader, reader.uint32()));
+                    reader.entry(message.state_parameter, () => reader.string(), () => nnabla.SolverStateParameter.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1059,7 +1057,7 @@ $root.nnabla.SolverState = class SolverState {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SolverState();
+        const message = new nnabla.SolverState();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1068,7 +1066,7 @@ $root.nnabla.SolverState = class SolverState {
                     message.t = reader.uint32();
                     break;
                 case "state_parameter":
-                    reader.entry(message.state_parameter, () => reader.string(), () => $root.nnabla.SolverStateParameter.decodeText(reader));
+                    reader.entry(message.state_parameter, () => reader.string(), () => nnabla.SolverStateParameter.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -1079,21 +1077,21 @@ $root.nnabla.SolverState = class SolverState {
     }
 };
 
-$root.nnabla.SolverState.prototype.t = 0;
+nnabla.SolverState.prototype.t = 0;
 
-$root.nnabla.Solver = class Solver {
+nnabla.Solver = class Solver {
 
     constructor() {
         this.states = {};
     }
 
     get parameter() {
-        $root.nnabla.Solver.parameterSet = $root.nnabla.Solver.parameterSet || new Set([ "sgd_param", "sgdw_param", "momentum_param", "lars_param", "nesterov_param", "adadelta_param", "adagrad_param", "adabelief_param", "rmsprop_param", "rmsprop_graves_param", "adam_param", "adamw_param", "adabound_param", "adamax_param", "amsgrad_param", "amsbound_param", "lamb_param", "lion_param"]);
-        return Object.keys(this).find((key) => $root.nnabla.Solver.parameterSet.has(key) && this[key] != null);
+        nnabla.Solver.parameterSet = nnabla.Solver.parameterSet || new Set([ "sgd_param", "sgdw_param", "momentum_param", "lars_param", "nesterov_param", "adadelta_param", "adagrad_param", "adabelief_param", "rmsprop_param", "rmsprop_graves_param", "adam_param", "adamw_param", "adabound_param", "adamax_param", "amsgrad_param", "amsbound_param", "lamb_param", "lion_param"]);
+        return Object.keys(this).find((key) => nnabla.Solver.parameterSet.has(key) && this[key] != null);
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Solver();
+        const message = new nnabla.Solver();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1102,91 +1100,91 @@ $root.nnabla.Solver = class Solver {
                     message.type = reader.string();
                     break;
                 case 10:
-                    message.context = $root.nnabla.Context.decode(reader, reader.uint32());
+                    message.context = nnabla.Context.decode(reader, reader.uint32());
                     break;
                 case 20:
                     message.weight_decay = reader.float();
                     break;
                 case 40:
-                    reader.entry(message.states, () => reader.string(), () => $root.nnabla.SolverState.decode(reader, reader.uint32()));
+                    reader.entry(message.states, () => reader.string(), () => nnabla.SolverState.decode(reader, reader.uint32()));
                     break;
                 case 100:
-                    message.sgd_param = $root.nnabla.SgdParameter.decode(reader, reader.uint32());
+                    message.sgd_param = nnabla.SgdParameter.decode(reader, reader.uint32());
                     break;
                 case 101:
-                    message.sgdw_param = $root.nnabla.SgdWParameter.decode(reader, reader.uint32());
+                    message.sgdw_param = nnabla.SgdWParameter.decode(reader, reader.uint32());
                     break;
                 case 102:
-                    message.momentum_param = $root.nnabla.MomentumParameter.decode(reader, reader.uint32());
+                    message.momentum_param = nnabla.MomentumParameter.decode(reader, reader.uint32());
                     break;
                 case 103:
-                    message.lars_param = $root.nnabla.LarsParameter.decode(reader, reader.uint32());
+                    message.lars_param = nnabla.LarsParameter.decode(reader, reader.uint32());
                     break;
                 case 104:
-                    message.nesterov_param = $root.nnabla.NesterovParameter.decode(reader, reader.uint32());
+                    message.nesterov_param = nnabla.NesterovParameter.decode(reader, reader.uint32());
                     break;
                 case 105:
-                    message.adadelta_param = $root.nnabla.AdadeltaParameter.decode(reader, reader.uint32());
+                    message.adadelta_param = nnabla.AdadeltaParameter.decode(reader, reader.uint32());
                     break;
                 case 106:
-                    message.adagrad_param = $root.nnabla.AdagradParameter.decode(reader, reader.uint32());
+                    message.adagrad_param = nnabla.AdagradParameter.decode(reader, reader.uint32());
                     break;
                 case 107:
-                    message.adabelief_param = $root.nnabla.AdaBeliefParameter.decode(reader, reader.uint32());
+                    message.adabelief_param = nnabla.AdaBeliefParameter.decode(reader, reader.uint32());
                     break;
                 case 108:
-                    message.rmsprop_param = $root.nnabla.RMSpropParameter.decode(reader, reader.uint32());
+                    message.rmsprop_param = nnabla.RMSpropParameter.decode(reader, reader.uint32());
                     break;
                 case 109:
-                    message.rmsprop_graves_param = $root.nnabla.RMSpropGravesParameter.decode(reader, reader.uint32());
+                    message.rmsprop_graves_param = nnabla.RMSpropGravesParameter.decode(reader, reader.uint32());
                     break;
                 case 110:
-                    message.adam_param = $root.nnabla.AdamParameter.decode(reader, reader.uint32());
+                    message.adam_param = nnabla.AdamParameter.decode(reader, reader.uint32());
                     break;
                 case 111:
-                    message.adamw_param = $root.nnabla.AdamWParameter.decode(reader, reader.uint32());
+                    message.adamw_param = nnabla.AdamWParameter.decode(reader, reader.uint32());
                     break;
                 case 112:
-                    message.adabound_param = $root.nnabla.AdaBoundParameter.decode(reader, reader.uint32());
+                    message.adabound_param = nnabla.AdaBoundParameter.decode(reader, reader.uint32());
                     break;
                 case 113:
-                    message.adamax_param = $root.nnabla.AdamaxParameter.decode(reader, reader.uint32());
+                    message.adamax_param = nnabla.AdamaxParameter.decode(reader, reader.uint32());
                     break;
                 case 114:
-                    message.amsgrad_param = $root.nnabla.AMSGRADParameter.decode(reader, reader.uint32());
+                    message.amsgrad_param = nnabla.AMSGRADParameter.decode(reader, reader.uint32());
                     break;
                 case 115:
-                    message.amsbound_param = $root.nnabla.AMSBoundParameter.decode(reader, reader.uint32());
+                    message.amsbound_param = nnabla.AMSBoundParameter.decode(reader, reader.uint32());
                     break;
                 case 116:
-                    message.lamb_param = $root.nnabla.LambParameter.decode(reader, reader.uint32());
+                    message.lamb_param = nnabla.LambParameter.decode(reader, reader.uint32());
                     break;
                 case 117:
-                    message.lion_param = $root.nnabla.LionParameter.decode(reader, reader.uint32());
+                    message.lion_param = nnabla.LionParameter.decode(reader, reader.uint32());
                     break;
                 case 200:
                     message.lr_scheduler_type = reader.string();
                     break;
                 case 210:
-                    message.polynomial_scheduler_param = $root.nnabla.PolynomialSchedulerParameter.decode(reader, reader.uint32());
+                    message.polynomial_scheduler_param = nnabla.PolynomialSchedulerParameter.decode(reader, reader.uint32());
                     break;
                 case 211:
-                    message.cosine_scheduler_param = $root.nnabla.CosineSchedulerParameter.decode(reader, reader.uint32());
+                    message.cosine_scheduler_param = nnabla.CosineSchedulerParameter.decode(reader, reader.uint32());
                     break;
                 case 212:
-                    message.exponential_scheduler_param = $root.nnabla.ExponentialSchedulerParameter.decode(reader, reader.uint32());
+                    message.exponential_scheduler_param = nnabla.ExponentialSchedulerParameter.decode(reader, reader.uint32());
                     break;
                 case 213:
-                    message.step_scheduler_param = $root.nnabla.StepSchedulerParameter.decode(reader, reader.uint32());
+                    message.step_scheduler_param = nnabla.StepSchedulerParameter.decode(reader, reader.uint32());
                     break;
                 case 299:
-                    message.custom_scheduler_param = $root.nnabla.CustomSchedulerParameter.decode(reader, reader.uint32());
+                    message.custom_scheduler_param = nnabla.CustomSchedulerParameter.decode(reader, reader.uint32());
                     break;
                 case 300:
                     message.lr_warmup_scheduler_type = reader.string();
                     break;
                 case 310:
-                    message.linear_warmup_scheduler_param = $root.nnabla.LinearWarmupSchedulerParameter.decode(reader, reader.uint32());
+                    message.linear_warmup_scheduler_param = nnabla.LinearWarmupSchedulerParameter.decode(reader, reader.uint32());
                     break;
                 case 30:
                     message.lr_decay = reader.float();
@@ -1203,7 +1201,7 @@ $root.nnabla.Solver = class Solver {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Solver();
+        const message = new nnabla.Solver();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1212,91 +1210,91 @@ $root.nnabla.Solver = class Solver {
                     message.type = reader.string();
                     break;
                 case "context":
-                    message.context = $root.nnabla.Context.decodeText(reader);
+                    message.context = nnabla.Context.decodeText(reader);
                     break;
                 case "weight_decay":
                     message.weight_decay = reader.float();
                     break;
                 case "states":
-                    reader.entry(message.states, () => reader.string(), () => $root.nnabla.SolverState.decodeText(reader));
+                    reader.entry(message.states, () => reader.string(), () => nnabla.SolverState.decodeText(reader));
                     break;
                 case "sgd_param":
-                    message.sgd_param = $root.nnabla.SgdParameter.decodeText(reader);
+                    message.sgd_param = nnabla.SgdParameter.decodeText(reader);
                     break;
                 case "sgdw_param":
-                    message.sgdw_param = $root.nnabla.SgdWParameter.decodeText(reader);
+                    message.sgdw_param = nnabla.SgdWParameter.decodeText(reader);
                     break;
                 case "momentum_param":
-                    message.momentum_param = $root.nnabla.MomentumParameter.decodeText(reader);
+                    message.momentum_param = nnabla.MomentumParameter.decodeText(reader);
                     break;
                 case "lars_param":
-                    message.lars_param = $root.nnabla.LarsParameter.decodeText(reader);
+                    message.lars_param = nnabla.LarsParameter.decodeText(reader);
                     break;
                 case "nesterov_param":
-                    message.nesterov_param = $root.nnabla.NesterovParameter.decodeText(reader);
+                    message.nesterov_param = nnabla.NesterovParameter.decodeText(reader);
                     break;
                 case "adadelta_param":
-                    message.adadelta_param = $root.nnabla.AdadeltaParameter.decodeText(reader);
+                    message.adadelta_param = nnabla.AdadeltaParameter.decodeText(reader);
                     break;
                 case "adagrad_param":
-                    message.adagrad_param = $root.nnabla.AdagradParameter.decodeText(reader);
+                    message.adagrad_param = nnabla.AdagradParameter.decodeText(reader);
                     break;
                 case "adabelief_param":
-                    message.adabelief_param = $root.nnabla.AdaBeliefParameter.decodeText(reader);
+                    message.adabelief_param = nnabla.AdaBeliefParameter.decodeText(reader);
                     break;
                 case "rmsprop_param":
-                    message.rmsprop_param = $root.nnabla.RMSpropParameter.decodeText(reader);
+                    message.rmsprop_param = nnabla.RMSpropParameter.decodeText(reader);
                     break;
                 case "rmsprop_graves_param":
-                    message.rmsprop_graves_param = $root.nnabla.RMSpropGravesParameter.decodeText(reader);
+                    message.rmsprop_graves_param = nnabla.RMSpropGravesParameter.decodeText(reader);
                     break;
                 case "adam_param":
-                    message.adam_param = $root.nnabla.AdamParameter.decodeText(reader);
+                    message.adam_param = nnabla.AdamParameter.decodeText(reader);
                     break;
                 case "adamw_param":
-                    message.adamw_param = $root.nnabla.AdamWParameter.decodeText(reader);
+                    message.adamw_param = nnabla.AdamWParameter.decodeText(reader);
                     break;
                 case "adabound_param":
-                    message.adabound_param = $root.nnabla.AdaBoundParameter.decodeText(reader);
+                    message.adabound_param = nnabla.AdaBoundParameter.decodeText(reader);
                     break;
                 case "adamax_param":
-                    message.adamax_param = $root.nnabla.AdamaxParameter.decodeText(reader);
+                    message.adamax_param = nnabla.AdamaxParameter.decodeText(reader);
                     break;
                 case "amsgrad_param":
-                    message.amsgrad_param = $root.nnabla.AMSGRADParameter.decodeText(reader);
+                    message.amsgrad_param = nnabla.AMSGRADParameter.decodeText(reader);
                     break;
                 case "amsbound_param":
-                    message.amsbound_param = $root.nnabla.AMSBoundParameter.decodeText(reader);
+                    message.amsbound_param = nnabla.AMSBoundParameter.decodeText(reader);
                     break;
                 case "lamb_param":
-                    message.lamb_param = $root.nnabla.LambParameter.decodeText(reader);
+                    message.lamb_param = nnabla.LambParameter.decodeText(reader);
                     break;
                 case "lion_param":
-                    message.lion_param = $root.nnabla.LionParameter.decodeText(reader);
+                    message.lion_param = nnabla.LionParameter.decodeText(reader);
                     break;
                 case "lr_scheduler_type":
                     message.lr_scheduler_type = reader.string();
                     break;
                 case "polynomial_scheduler_param":
-                    message.polynomial_scheduler_param = $root.nnabla.PolynomialSchedulerParameter.decodeText(reader);
+                    message.polynomial_scheduler_param = nnabla.PolynomialSchedulerParameter.decodeText(reader);
                     break;
                 case "cosine_scheduler_param":
-                    message.cosine_scheduler_param = $root.nnabla.CosineSchedulerParameter.decodeText(reader);
+                    message.cosine_scheduler_param = nnabla.CosineSchedulerParameter.decodeText(reader);
                     break;
                 case "exponential_scheduler_param":
-                    message.exponential_scheduler_param = $root.nnabla.ExponentialSchedulerParameter.decodeText(reader);
+                    message.exponential_scheduler_param = nnabla.ExponentialSchedulerParameter.decodeText(reader);
                     break;
                 case "step_scheduler_param":
-                    message.step_scheduler_param = $root.nnabla.StepSchedulerParameter.decodeText(reader);
+                    message.step_scheduler_param = nnabla.StepSchedulerParameter.decodeText(reader);
                     break;
                 case "custom_scheduler_param":
-                    message.custom_scheduler_param = $root.nnabla.CustomSchedulerParameter.decodeText(reader);
+                    message.custom_scheduler_param = nnabla.CustomSchedulerParameter.decodeText(reader);
                     break;
                 case "lr_warmup_scheduler_type":
                     message.lr_warmup_scheduler_type = reader.string();
                     break;
                 case "linear_warmup_scheduler_param":
-                    message.linear_warmup_scheduler_param = $root.nnabla.LinearWarmupSchedulerParameter.decodeText(reader);
+                    message.linear_warmup_scheduler_param = nnabla.LinearWarmupSchedulerParameter.decodeText(reader);
                     break;
                 case "lr_decay":
                     message.lr_decay = reader.float();
@@ -1313,27 +1311,27 @@ $root.nnabla.Solver = class Solver {
     }
 };
 
-$root.nnabla.Solver.prototype.type = "";
-$root.nnabla.Solver.prototype.context = null;
-$root.nnabla.Solver.prototype.weight_decay = 0;
-$root.nnabla.Solver.prototype.lr_scheduler_type = "";
-$root.nnabla.Solver.prototype.polynomial_scheduler_param = null;
-$root.nnabla.Solver.prototype.cosine_scheduler_param = null;
-$root.nnabla.Solver.prototype.exponential_scheduler_param = null;
-$root.nnabla.Solver.prototype.step_scheduler_param = null;
-$root.nnabla.Solver.prototype.custom_scheduler_param = null;
-$root.nnabla.Solver.prototype.lr_warmup_scheduler_type = "";
-$root.nnabla.Solver.prototype.linear_warmup_scheduler_param = null;
-$root.nnabla.Solver.prototype.lr_decay = 0;
-$root.nnabla.Solver.prototype.lr_decay_interval = protobuf.Int64.create(0);
+nnabla.Solver.prototype.type = "";
+nnabla.Solver.prototype.context = null;
+nnabla.Solver.prototype.weight_decay = 0;
+nnabla.Solver.prototype.lr_scheduler_type = "";
+nnabla.Solver.prototype.polynomial_scheduler_param = null;
+nnabla.Solver.prototype.cosine_scheduler_param = null;
+nnabla.Solver.prototype.exponential_scheduler_param = null;
+nnabla.Solver.prototype.step_scheduler_param = null;
+nnabla.Solver.prototype.custom_scheduler_param = null;
+nnabla.Solver.prototype.lr_warmup_scheduler_type = "";
+nnabla.Solver.prototype.linear_warmup_scheduler_param = null;
+nnabla.Solver.prototype.lr_decay = 0;
+nnabla.Solver.prototype.lr_decay_interval = protobuf.Int64.create(0);
 
-$root.nnabla.SgdParameter = class SgdParameter {
+nnabla.SgdParameter = class SgdParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SgdParameter();
+        const message = new nnabla.SgdParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1350,7 +1348,7 @@ $root.nnabla.SgdParameter = class SgdParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SgdParameter();
+        const message = new nnabla.SgdParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1367,15 +1365,15 @@ $root.nnabla.SgdParameter = class SgdParameter {
     }
 };
 
-$root.nnabla.SgdParameter.prototype.lr = 0;
+nnabla.SgdParameter.prototype.lr = 0;
 
-$root.nnabla.SgdWParameter = class SgdWParameter {
+nnabla.SgdWParameter = class SgdWParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SgdWParameter();
+        const message = new nnabla.SgdWParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1398,7 +1396,7 @@ $root.nnabla.SgdWParameter = class SgdWParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SgdWParameter();
+        const message = new nnabla.SgdWParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1421,17 +1419,17 @@ $root.nnabla.SgdWParameter = class SgdWParameter {
     }
 };
 
-$root.nnabla.SgdWParameter.prototype.lr = 0;
-$root.nnabla.SgdWParameter.prototype.momentum = 0;
-$root.nnabla.SgdWParameter.prototype.wd = 0;
+nnabla.SgdWParameter.prototype.lr = 0;
+nnabla.SgdWParameter.prototype.momentum = 0;
+nnabla.SgdWParameter.prototype.wd = 0;
 
-$root.nnabla.MomentumParameter = class MomentumParameter {
+nnabla.MomentumParameter = class MomentumParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.MomentumParameter();
+        const message = new nnabla.MomentumParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1451,7 +1449,7 @@ $root.nnabla.MomentumParameter = class MomentumParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.MomentumParameter();
+        const message = new nnabla.MomentumParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1471,16 +1469,16 @@ $root.nnabla.MomentumParameter = class MomentumParameter {
     }
 };
 
-$root.nnabla.MomentumParameter.prototype.lr = 0;
-$root.nnabla.MomentumParameter.prototype.momentum = 0;
+nnabla.MomentumParameter.prototype.lr = 0;
+nnabla.MomentumParameter.prototype.momentum = 0;
 
-$root.nnabla.LarsParameter = class LarsParameter {
+nnabla.LarsParameter = class LarsParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LarsParameter();
+        const message = new nnabla.LarsParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1506,7 +1504,7 @@ $root.nnabla.LarsParameter = class LarsParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LarsParameter();
+        const message = new nnabla.LarsParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1532,18 +1530,18 @@ $root.nnabla.LarsParameter = class LarsParameter {
     }
 };
 
-$root.nnabla.LarsParameter.prototype.lr = 0;
-$root.nnabla.LarsParameter.prototype.momentum = 0;
-$root.nnabla.LarsParameter.prototype.coefficient = 0;
-$root.nnabla.LarsParameter.prototype.eps = 0;
+nnabla.LarsParameter.prototype.lr = 0;
+nnabla.LarsParameter.prototype.momentum = 0;
+nnabla.LarsParameter.prototype.coefficient = 0;
+nnabla.LarsParameter.prototype.eps = 0;
 
-$root.nnabla.NesterovParameter = class NesterovParameter {
+nnabla.NesterovParameter = class NesterovParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.NesterovParameter();
+        const message = new nnabla.NesterovParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1563,7 +1561,7 @@ $root.nnabla.NesterovParameter = class NesterovParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.NesterovParameter();
+        const message = new nnabla.NesterovParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1583,16 +1581,16 @@ $root.nnabla.NesterovParameter = class NesterovParameter {
     }
 };
 
-$root.nnabla.NesterovParameter.prototype.lr = 0;
-$root.nnabla.NesterovParameter.prototype.momentum = 0;
+nnabla.NesterovParameter.prototype.lr = 0;
+nnabla.NesterovParameter.prototype.momentum = 0;
 
-$root.nnabla.AdadeltaParameter = class AdadeltaParameter {
+nnabla.AdadeltaParameter = class AdadeltaParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.AdadeltaParameter();
+        const message = new nnabla.AdadeltaParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1615,7 +1613,7 @@ $root.nnabla.AdadeltaParameter = class AdadeltaParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.AdadeltaParameter();
+        const message = new nnabla.AdadeltaParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1638,17 +1636,17 @@ $root.nnabla.AdadeltaParameter = class AdadeltaParameter {
     }
 };
 
-$root.nnabla.AdadeltaParameter.prototype.lr = 0;
-$root.nnabla.AdadeltaParameter.prototype.decay = 0;
-$root.nnabla.AdadeltaParameter.prototype.eps = 0;
+nnabla.AdadeltaParameter.prototype.lr = 0;
+nnabla.AdadeltaParameter.prototype.decay = 0;
+nnabla.AdadeltaParameter.prototype.eps = 0;
 
-$root.nnabla.AdagradParameter = class AdagradParameter {
+nnabla.AdagradParameter = class AdagradParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.AdagradParameter();
+        const message = new nnabla.AdagradParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1668,7 +1666,7 @@ $root.nnabla.AdagradParameter = class AdagradParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.AdagradParameter();
+        const message = new nnabla.AdagradParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1688,16 +1686,16 @@ $root.nnabla.AdagradParameter = class AdagradParameter {
     }
 };
 
-$root.nnabla.AdagradParameter.prototype.lr = 0;
-$root.nnabla.AdagradParameter.prototype.eps = 0;
+nnabla.AdagradParameter.prototype.lr = 0;
+nnabla.AdagradParameter.prototype.eps = 0;
 
-$root.nnabla.AdaBeliefParameter = class AdaBeliefParameter {
+nnabla.AdaBeliefParameter = class AdaBeliefParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.AdaBeliefParameter();
+        const message = new nnabla.AdaBeliefParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1738,7 +1736,7 @@ $root.nnabla.AdaBeliefParameter = class AdaBeliefParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.AdaBeliefParameter();
+        const message = new nnabla.AdaBeliefParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1779,23 +1777,23 @@ $root.nnabla.AdaBeliefParameter = class AdaBeliefParameter {
     }
 };
 
-$root.nnabla.AdaBeliefParameter.prototype.alpha = 0;
-$root.nnabla.AdaBeliefParameter.prototype.beta1 = 0;
-$root.nnabla.AdaBeliefParameter.prototype.beta2 = 0;
-$root.nnabla.AdaBeliefParameter.prototype.eps = 0;
-$root.nnabla.AdaBeliefParameter.prototype.wd = 0;
-$root.nnabla.AdaBeliefParameter.prototype.amsgrad = false;
-$root.nnabla.AdaBeliefParameter.prototype.weight_decouple = false;
-$root.nnabla.AdaBeliefParameter.prototype.fixed_decay = false;
-$root.nnabla.AdaBeliefParameter.prototype.rectify = false;
+nnabla.AdaBeliefParameter.prototype.alpha = 0;
+nnabla.AdaBeliefParameter.prototype.beta1 = 0;
+nnabla.AdaBeliefParameter.prototype.beta2 = 0;
+nnabla.AdaBeliefParameter.prototype.eps = 0;
+nnabla.AdaBeliefParameter.prototype.wd = 0;
+nnabla.AdaBeliefParameter.prototype.amsgrad = false;
+nnabla.AdaBeliefParameter.prototype.weight_decouple = false;
+nnabla.AdaBeliefParameter.prototype.fixed_decay = false;
+nnabla.AdaBeliefParameter.prototype.rectify = false;
 
-$root.nnabla.RMSpropParameter = class RMSpropParameter {
+nnabla.RMSpropParameter = class RMSpropParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RMSpropParameter();
+        const message = new nnabla.RMSpropParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1818,7 +1816,7 @@ $root.nnabla.RMSpropParameter = class RMSpropParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RMSpropParameter();
+        const message = new nnabla.RMSpropParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1841,17 +1839,17 @@ $root.nnabla.RMSpropParameter = class RMSpropParameter {
     }
 };
 
-$root.nnabla.RMSpropParameter.prototype.lr = 0;
-$root.nnabla.RMSpropParameter.prototype.decay = 0;
-$root.nnabla.RMSpropParameter.prototype.eps = 0;
+nnabla.RMSpropParameter.prototype.lr = 0;
+nnabla.RMSpropParameter.prototype.decay = 0;
+nnabla.RMSpropParameter.prototype.eps = 0;
 
-$root.nnabla.RMSpropGravesParameter = class RMSpropGravesParameter {
+nnabla.RMSpropGravesParameter = class RMSpropGravesParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RMSpropGravesParameter();
+        const message = new nnabla.RMSpropGravesParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1877,7 +1875,7 @@ $root.nnabla.RMSpropGravesParameter = class RMSpropGravesParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RMSpropGravesParameter();
+        const message = new nnabla.RMSpropGravesParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1903,18 +1901,18 @@ $root.nnabla.RMSpropGravesParameter = class RMSpropGravesParameter {
     }
 };
 
-$root.nnabla.RMSpropGravesParameter.prototype.lr = 0;
-$root.nnabla.RMSpropGravesParameter.prototype.decay = 0;
-$root.nnabla.RMSpropGravesParameter.prototype.momentum = 0;
-$root.nnabla.RMSpropGravesParameter.prototype.eps = 0;
+nnabla.RMSpropGravesParameter.prototype.lr = 0;
+nnabla.RMSpropGravesParameter.prototype.decay = 0;
+nnabla.RMSpropGravesParameter.prototype.momentum = 0;
+nnabla.RMSpropGravesParameter.prototype.eps = 0;
 
-$root.nnabla.AdamParameter = class AdamParameter {
+nnabla.AdamParameter = class AdamParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.AdamParameter();
+        const message = new nnabla.AdamParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1940,7 +1938,7 @@ $root.nnabla.AdamParameter = class AdamParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.AdamParameter();
+        const message = new nnabla.AdamParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1966,18 +1964,18 @@ $root.nnabla.AdamParameter = class AdamParameter {
     }
 };
 
-$root.nnabla.AdamParameter.prototype.alpha = 0;
-$root.nnabla.AdamParameter.prototype.beta1 = 0;
-$root.nnabla.AdamParameter.prototype.beta2 = 0;
-$root.nnabla.AdamParameter.prototype.eps = 0;
+nnabla.AdamParameter.prototype.alpha = 0;
+nnabla.AdamParameter.prototype.beta1 = 0;
+nnabla.AdamParameter.prototype.beta2 = 0;
+nnabla.AdamParameter.prototype.eps = 0;
 
-$root.nnabla.AdamWParameter = class AdamWParameter {
+nnabla.AdamWParameter = class AdamWParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.AdamWParameter();
+        const message = new nnabla.AdamWParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2006,7 +2004,7 @@ $root.nnabla.AdamWParameter = class AdamWParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.AdamWParameter();
+        const message = new nnabla.AdamWParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2035,19 +2033,19 @@ $root.nnabla.AdamWParameter = class AdamWParameter {
     }
 };
 
-$root.nnabla.AdamWParameter.prototype.alpha = 0;
-$root.nnabla.AdamWParameter.prototype.beta1 = 0;
-$root.nnabla.AdamWParameter.prototype.beta2 = 0;
-$root.nnabla.AdamWParameter.prototype.eps = 0;
-$root.nnabla.AdamWParameter.prototype.wd = 0;
+nnabla.AdamWParameter.prototype.alpha = 0;
+nnabla.AdamWParameter.prototype.beta1 = 0;
+nnabla.AdamWParameter.prototype.beta2 = 0;
+nnabla.AdamWParameter.prototype.eps = 0;
+nnabla.AdamWParameter.prototype.wd = 0;
 
-$root.nnabla.AdaBoundParameter = class AdaBoundParameter {
+nnabla.AdaBoundParameter = class AdaBoundParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.AdaBoundParameter();
+        const message = new nnabla.AdaBoundParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2079,7 +2077,7 @@ $root.nnabla.AdaBoundParameter = class AdaBoundParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.AdaBoundParameter();
+        const message = new nnabla.AdaBoundParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2111,20 +2109,20 @@ $root.nnabla.AdaBoundParameter = class AdaBoundParameter {
     }
 };
 
-$root.nnabla.AdaBoundParameter.prototype.alpha = 0;
-$root.nnabla.AdaBoundParameter.prototype.beta1 = 0;
-$root.nnabla.AdaBoundParameter.prototype.beta2 = 0;
-$root.nnabla.AdaBoundParameter.prototype.eps = 0;
-$root.nnabla.AdaBoundParameter.prototype.final_lr = 0;
-$root.nnabla.AdaBoundParameter.prototype.gamma = 0;
+nnabla.AdaBoundParameter.prototype.alpha = 0;
+nnabla.AdaBoundParameter.prototype.beta1 = 0;
+nnabla.AdaBoundParameter.prototype.beta2 = 0;
+nnabla.AdaBoundParameter.prototype.eps = 0;
+nnabla.AdaBoundParameter.prototype.final_lr = 0;
+nnabla.AdaBoundParameter.prototype.gamma = 0;
 
-$root.nnabla.AdamaxParameter = class AdamaxParameter {
+nnabla.AdamaxParameter = class AdamaxParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.AdamaxParameter();
+        const message = new nnabla.AdamaxParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2150,7 +2148,7 @@ $root.nnabla.AdamaxParameter = class AdamaxParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.AdamaxParameter();
+        const message = new nnabla.AdamaxParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2176,18 +2174,18 @@ $root.nnabla.AdamaxParameter = class AdamaxParameter {
     }
 };
 
-$root.nnabla.AdamaxParameter.prototype.alpha = 0;
-$root.nnabla.AdamaxParameter.prototype.beta1 = 0;
-$root.nnabla.AdamaxParameter.prototype.beta2 = 0;
-$root.nnabla.AdamaxParameter.prototype.eps = 0;
+nnabla.AdamaxParameter.prototype.alpha = 0;
+nnabla.AdamaxParameter.prototype.beta1 = 0;
+nnabla.AdamaxParameter.prototype.beta2 = 0;
+nnabla.AdamaxParameter.prototype.eps = 0;
 
-$root.nnabla.AMSGRADParameter = class AMSGRADParameter {
+nnabla.AMSGRADParameter = class AMSGRADParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.AMSGRADParameter();
+        const message = new nnabla.AMSGRADParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2216,7 +2214,7 @@ $root.nnabla.AMSGRADParameter = class AMSGRADParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.AMSGRADParameter();
+        const message = new nnabla.AMSGRADParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2245,19 +2243,19 @@ $root.nnabla.AMSGRADParameter = class AMSGRADParameter {
     }
 };
 
-$root.nnabla.AMSGRADParameter.prototype.alpha = 0;
-$root.nnabla.AMSGRADParameter.prototype.beta1 = 0;
-$root.nnabla.AMSGRADParameter.prototype.beta2 = 0;
-$root.nnabla.AMSGRADParameter.prototype.eps = 0;
-$root.nnabla.AMSGRADParameter.prototype.bias_correction = false;
+nnabla.AMSGRADParameter.prototype.alpha = 0;
+nnabla.AMSGRADParameter.prototype.beta1 = 0;
+nnabla.AMSGRADParameter.prototype.beta2 = 0;
+nnabla.AMSGRADParameter.prototype.eps = 0;
+nnabla.AMSGRADParameter.prototype.bias_correction = false;
 
-$root.nnabla.AMSBoundParameter = class AMSBoundParameter {
+nnabla.AMSBoundParameter = class AMSBoundParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.AMSBoundParameter();
+        const message = new nnabla.AMSBoundParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2292,7 +2290,7 @@ $root.nnabla.AMSBoundParameter = class AMSBoundParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.AMSBoundParameter();
+        const message = new nnabla.AMSBoundParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2327,21 +2325,21 @@ $root.nnabla.AMSBoundParameter = class AMSBoundParameter {
     }
 };
 
-$root.nnabla.AMSBoundParameter.prototype.alpha = 0;
-$root.nnabla.AMSBoundParameter.prototype.beta1 = 0;
-$root.nnabla.AMSBoundParameter.prototype.beta2 = 0;
-$root.nnabla.AMSBoundParameter.prototype.eps = 0;
-$root.nnabla.AMSBoundParameter.prototype.final_lr = 0;
-$root.nnabla.AMSBoundParameter.prototype.gamma = 0;
-$root.nnabla.AMSBoundParameter.prototype.bias_correction = false;
+nnabla.AMSBoundParameter.prototype.alpha = 0;
+nnabla.AMSBoundParameter.prototype.beta1 = 0;
+nnabla.AMSBoundParameter.prototype.beta2 = 0;
+nnabla.AMSBoundParameter.prototype.eps = 0;
+nnabla.AMSBoundParameter.prototype.final_lr = 0;
+nnabla.AMSBoundParameter.prototype.gamma = 0;
+nnabla.AMSBoundParameter.prototype.bias_correction = false;
 
-$root.nnabla.LambParameter = class LambParameter {
+nnabla.LambParameter = class LambParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LambParameter();
+        const message = new nnabla.LambParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2376,7 +2374,7 @@ $root.nnabla.LambParameter = class LambParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LambParameter();
+        const message = new nnabla.LambParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2411,21 +2409,21 @@ $root.nnabla.LambParameter = class LambParameter {
     }
 };
 
-$root.nnabla.LambParameter.prototype.eta = 0;
-$root.nnabla.LambParameter.prototype.beta1 = 0;
-$root.nnabla.LambParameter.prototype.beta2 = 0;
-$root.nnabla.LambParameter.prototype.gamma_l = 0;
-$root.nnabla.LambParameter.prototype.gamma_u = 0;
-$root.nnabla.LambParameter.prototype.eps = 0;
-$root.nnabla.LambParameter.prototype.bias_correction = false;
+nnabla.LambParameter.prototype.eta = 0;
+nnabla.LambParameter.prototype.beta1 = 0;
+nnabla.LambParameter.prototype.beta2 = 0;
+nnabla.LambParameter.prototype.gamma_l = 0;
+nnabla.LambParameter.prototype.gamma_u = 0;
+nnabla.LambParameter.prototype.eps = 0;
+nnabla.LambParameter.prototype.bias_correction = false;
 
-$root.nnabla.LionParameter = class LionParameter {
+nnabla.LionParameter = class LionParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LionParameter();
+        const message = new nnabla.LionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2448,7 +2446,7 @@ $root.nnabla.LionParameter = class LionParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LionParameter();
+        const message = new nnabla.LionParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2471,17 +2469,17 @@ $root.nnabla.LionParameter = class LionParameter {
     }
 };
 
-$root.nnabla.LionParameter.prototype.lr = 0;
-$root.nnabla.LionParameter.prototype.beta1 = 0;
-$root.nnabla.LionParameter.prototype.beta2 = 0;
+nnabla.LionParameter.prototype.lr = 0;
+nnabla.LionParameter.prototype.beta1 = 0;
+nnabla.LionParameter.prototype.beta2 = 0;
 
-$root.nnabla.PolynomialSchedulerParameter = class PolynomialSchedulerParameter {
+nnabla.PolynomialSchedulerParameter = class PolynomialSchedulerParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.PolynomialSchedulerParameter();
+        const message = new nnabla.PolynomialSchedulerParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2501,7 +2499,7 @@ $root.nnabla.PolynomialSchedulerParameter = class PolynomialSchedulerParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.PolynomialSchedulerParameter();
+        const message = new nnabla.PolynomialSchedulerParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2521,16 +2519,16 @@ $root.nnabla.PolynomialSchedulerParameter = class PolynomialSchedulerParameter {
     }
 };
 
-$root.nnabla.PolynomialSchedulerParameter.prototype.max_iter = 0;
-$root.nnabla.PolynomialSchedulerParameter.prototype.power = 0;
+nnabla.PolynomialSchedulerParameter.prototype.max_iter = 0;
+nnabla.PolynomialSchedulerParameter.prototype.power = 0;
 
-$root.nnabla.CosineSchedulerParameter = class CosineSchedulerParameter {
+nnabla.CosineSchedulerParameter = class CosineSchedulerParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.CosineSchedulerParameter();
+        const message = new nnabla.CosineSchedulerParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2547,7 +2545,7 @@ $root.nnabla.CosineSchedulerParameter = class CosineSchedulerParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.CosineSchedulerParameter();
+        const message = new nnabla.CosineSchedulerParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2564,15 +2562,15 @@ $root.nnabla.CosineSchedulerParameter = class CosineSchedulerParameter {
     }
 };
 
-$root.nnabla.CosineSchedulerParameter.prototype.max_iter = 0;
+nnabla.CosineSchedulerParameter.prototype.max_iter = 0;
 
-$root.nnabla.ExponentialSchedulerParameter = class ExponentialSchedulerParameter {
+nnabla.ExponentialSchedulerParameter = class ExponentialSchedulerParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ExponentialSchedulerParameter();
+        const message = new nnabla.ExponentialSchedulerParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2592,7 +2590,7 @@ $root.nnabla.ExponentialSchedulerParameter = class ExponentialSchedulerParameter
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ExponentialSchedulerParameter();
+        const message = new nnabla.ExponentialSchedulerParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2612,17 +2610,17 @@ $root.nnabla.ExponentialSchedulerParameter = class ExponentialSchedulerParameter
     }
 };
 
-$root.nnabla.ExponentialSchedulerParameter.prototype.gamma = 0;
-$root.nnabla.ExponentialSchedulerParameter.prototype.iter_interval = protobuf.Int64.create(0);
+nnabla.ExponentialSchedulerParameter.prototype.gamma = 0;
+nnabla.ExponentialSchedulerParameter.prototype.iter_interval = protobuf.Int64.create(0);
 
-$root.nnabla.StepSchedulerParameter = class StepSchedulerParameter {
+nnabla.StepSchedulerParameter = class StepSchedulerParameter {
 
     constructor() {
         this.iter_steps = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.StepSchedulerParameter();
+        const message = new nnabla.StepSchedulerParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2642,7 +2640,7 @@ $root.nnabla.StepSchedulerParameter = class StepSchedulerParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.StepSchedulerParameter();
+        const message = new nnabla.StepSchedulerParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2662,9 +2660,9 @@ $root.nnabla.StepSchedulerParameter = class StepSchedulerParameter {
     }
 };
 
-$root.nnabla.StepSchedulerParameter.prototype.gamma = 0;
+nnabla.StepSchedulerParameter.prototype.gamma = 0;
 
-$root.nnabla.CustomSchedulerParameter = class CustomSchedulerParameter {
+nnabla.CustomSchedulerParameter = class CustomSchedulerParameter {
 
     constructor() {
         this.data_variable = [];
@@ -2672,7 +2670,7 @@ $root.nnabla.CustomSchedulerParameter = class CustomSchedulerParameter {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.CustomSchedulerParameter();
+        const message = new nnabla.CustomSchedulerParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2684,10 +2682,10 @@ $root.nnabla.CustomSchedulerParameter = class CustomSchedulerParameter {
                     message.network_name = reader.string();
                     break;
                 case 50:
-                    message.data_variable.push($root.nnabla.DataVariable.decode(reader, reader.uint32()));
+                    message.data_variable.push(nnabla.DataVariable.decode(reader, reader.uint32()));
                     break;
                 case 80:
-                    message.output_variable.push($root.nnabla.OutputVariable.decode(reader, reader.uint32()));
+                    message.output_variable.push(nnabla.OutputVariable.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -2698,7 +2696,7 @@ $root.nnabla.CustomSchedulerParameter = class CustomSchedulerParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.CustomSchedulerParameter();
+        const message = new nnabla.CustomSchedulerParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2710,10 +2708,10 @@ $root.nnabla.CustomSchedulerParameter = class CustomSchedulerParameter {
                     message.network_name = reader.string();
                     break;
                 case "data_variable":
-                    message.data_variable.push($root.nnabla.DataVariable.decodeText(reader));
+                    message.data_variable.push(nnabla.DataVariable.decodeText(reader));
                     break;
                 case "output_variable":
-                    message.output_variable.push($root.nnabla.OutputVariable.decodeText(reader));
+                    message.output_variable.push(nnabla.OutputVariable.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -2724,16 +2722,16 @@ $root.nnabla.CustomSchedulerParameter = class CustomSchedulerParameter {
     }
 };
 
-$root.nnabla.CustomSchedulerParameter.prototype.max_iter = 0;
-$root.nnabla.CustomSchedulerParameter.prototype.network_name = "";
+nnabla.CustomSchedulerParameter.prototype.max_iter = 0;
+nnabla.CustomSchedulerParameter.prototype.network_name = "";
 
-$root.nnabla.LinearWarmupSchedulerParameter = class LinearWarmupSchedulerParameter {
+nnabla.LinearWarmupSchedulerParameter = class LinearWarmupSchedulerParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LinearWarmupSchedulerParameter();
+        const message = new nnabla.LinearWarmupSchedulerParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2750,7 +2748,7 @@ $root.nnabla.LinearWarmupSchedulerParameter = class LinearWarmupSchedulerParamet
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LinearWarmupSchedulerParameter();
+        const message = new nnabla.LinearWarmupSchedulerParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2767,15 +2765,15 @@ $root.nnabla.LinearWarmupSchedulerParameter = class LinearWarmupSchedulerParamet
     }
 };
 
-$root.nnabla.LinearWarmupSchedulerParameter.prototype.warmup_iter = protobuf.Int64.create(0);
+nnabla.LinearWarmupSchedulerParameter.prototype.warmup_iter = protobuf.Int64.create(0);
 
-$root.nnabla.DataVariable = class DataVariable {
+nnabla.DataVariable = class DataVariable {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.DataVariable();
+        const message = new nnabla.DataVariable();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2795,7 +2793,7 @@ $root.nnabla.DataVariable = class DataVariable {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.DataVariable();
+        const message = new nnabla.DataVariable();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2815,16 +2813,16 @@ $root.nnabla.DataVariable = class DataVariable {
     }
 };
 
-$root.nnabla.DataVariable.prototype.variable_name = "";
-$root.nnabla.DataVariable.prototype.data_name = "";
+nnabla.DataVariable.prototype.variable_name = "";
+nnabla.DataVariable.prototype.data_name = "";
 
-$root.nnabla.GeneratorVariable = class GeneratorVariable {
+nnabla.GeneratorVariable = class GeneratorVariable {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.GeneratorVariable();
+        const message = new nnabla.GeneratorVariable();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2847,7 +2845,7 @@ $root.nnabla.GeneratorVariable = class GeneratorVariable {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.GeneratorVariable();
+        const message = new nnabla.GeneratorVariable();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2870,17 +2868,17 @@ $root.nnabla.GeneratorVariable = class GeneratorVariable {
     }
 };
 
-$root.nnabla.GeneratorVariable.prototype.variable_name = "";
-$root.nnabla.GeneratorVariable.prototype.type = "";
-$root.nnabla.GeneratorVariable.prototype.multiplier = 0;
+nnabla.GeneratorVariable.prototype.variable_name = "";
+nnabla.GeneratorVariable.prototype.type = "";
+nnabla.GeneratorVariable.prototype.multiplier = 0;
 
-$root.nnabla.LossVariable = class LossVariable {
+nnabla.LossVariable = class LossVariable {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LossVariable();
+        const message = new nnabla.LossVariable();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2897,7 +2895,7 @@ $root.nnabla.LossVariable = class LossVariable {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LossVariable();
+        const message = new nnabla.LossVariable();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2914,15 +2912,15 @@ $root.nnabla.LossVariable = class LossVariable {
     }
 };
 
-$root.nnabla.LossVariable.prototype.variable_name = "";
+nnabla.LossVariable.prototype.variable_name = "";
 
-$root.nnabla.ParameterVariable = class ParameterVariable {
+nnabla.ParameterVariable = class ParameterVariable {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ParameterVariable();
+        const message = new nnabla.ParameterVariable();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2942,7 +2940,7 @@ $root.nnabla.ParameterVariable = class ParameterVariable {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ParameterVariable();
+        const message = new nnabla.ParameterVariable();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -2962,10 +2960,10 @@ $root.nnabla.ParameterVariable = class ParameterVariable {
     }
 };
 
-$root.nnabla.ParameterVariable.prototype.variable_name = "";
-$root.nnabla.ParameterVariable.prototype.learning_rate_multiplier = 0;
+nnabla.ParameterVariable.prototype.variable_name = "";
+nnabla.ParameterVariable.prototype.learning_rate_multiplier = 0;
 
-$root.nnabla.Monitor = class Monitor {
+nnabla.Monitor = class Monitor {
 
     constructor() {
         this.dataset_name = [];
@@ -2975,7 +2973,7 @@ $root.nnabla.Monitor = class Monitor {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Monitor();
+        const message = new nnabla.Monitor();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -2990,13 +2988,13 @@ $root.nnabla.Monitor = class Monitor {
                     message.dataset_name.push(reader.string());
                     break;
                 case 50:
-                    message.data_variable.push($root.nnabla.DataVariable.decode(reader, reader.uint32()));
+                    message.data_variable.push(nnabla.DataVariable.decode(reader, reader.uint32()));
                     break;
                 case 60:
-                    message.generator_variable.push($root.nnabla.GeneratorVariable.decode(reader, reader.uint32()));
+                    message.generator_variable.push(nnabla.GeneratorVariable.decode(reader, reader.uint32()));
                     break;
                 case 70:
-                    message.monitor_variable.push($root.nnabla.MonitorVariable.decode(reader, reader.uint32()));
+                    message.monitor_variable.push(nnabla.MonitorVariable.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -3007,7 +3005,7 @@ $root.nnabla.Monitor = class Monitor {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Monitor();
+        const message = new nnabla.Monitor();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -3022,13 +3020,13 @@ $root.nnabla.Monitor = class Monitor {
                     reader.array(message.dataset_name, () => reader.string());
                     break;
                 case "data_variable":
-                    message.data_variable.push($root.nnabla.DataVariable.decodeText(reader));
+                    message.data_variable.push(nnabla.DataVariable.decodeText(reader));
                     break;
                 case "generator_variable":
-                    message.generator_variable.push($root.nnabla.GeneratorVariable.decodeText(reader));
+                    message.generator_variable.push(nnabla.GeneratorVariable.decodeText(reader));
                     break;
                 case "monitor_variable":
-                    message.monitor_variable.push($root.nnabla.MonitorVariable.decodeText(reader));
+                    message.monitor_variable.push(nnabla.MonitorVariable.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -3039,16 +3037,16 @@ $root.nnabla.Monitor = class Monitor {
     }
 };
 
-$root.nnabla.Monitor.prototype.name = "";
-$root.nnabla.Monitor.prototype.network_name = "";
+nnabla.Monitor.prototype.name = "";
+nnabla.Monitor.prototype.network_name = "";
 
-$root.nnabla.MonitorVariable = class MonitorVariable {
+nnabla.MonitorVariable = class MonitorVariable {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.MonitorVariable();
+        const message = new nnabla.MonitorVariable();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -3074,7 +3072,7 @@ $root.nnabla.MonitorVariable = class MonitorVariable {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.MonitorVariable();
+        const message = new nnabla.MonitorVariable();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -3100,12 +3098,12 @@ $root.nnabla.MonitorVariable = class MonitorVariable {
     }
 };
 
-$root.nnabla.MonitorVariable.prototype.variable_name = "";
-$root.nnabla.MonitorVariable.prototype.type = "";
-$root.nnabla.MonitorVariable.prototype.data_name = "";
-$root.nnabla.MonitorVariable.prototype.multiplier = 0;
+nnabla.MonitorVariable.prototype.variable_name = "";
+nnabla.MonitorVariable.prototype.type = "";
+nnabla.MonitorVariable.prototype.data_name = "";
+nnabla.MonitorVariable.prototype.multiplier = 0;
 
-$root.nnabla.Executor = class Executor {
+nnabla.Executor = class Executor {
 
     constructor() {
         this.data_variable = [];
@@ -3116,7 +3114,7 @@ $root.nnabla.Executor = class Executor {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Executor();
+        const message = new nnabla.Executor();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -3137,19 +3135,19 @@ $root.nnabla.Executor = class Executor {
                     message.need_back_propagation = reader.bool();
                     break;
                 case 50:
-                    message.data_variable.push($root.nnabla.DataVariable.decode(reader, reader.uint32()));
+                    message.data_variable.push(nnabla.DataVariable.decode(reader, reader.uint32()));
                     break;
                 case 60:
-                    message.generator_variable.push($root.nnabla.GeneratorVariable.decode(reader, reader.uint32()));
+                    message.generator_variable.push(nnabla.GeneratorVariable.decode(reader, reader.uint32()));
                     break;
                 case 70:
-                    message.loss_variable.push($root.nnabla.LossVariable.decode(reader, reader.uint32()));
+                    message.loss_variable.push(nnabla.LossVariable.decode(reader, reader.uint32()));
                     break;
                 case 80:
-                    message.output_variable.push($root.nnabla.OutputVariable.decode(reader, reader.uint32()));
+                    message.output_variable.push(nnabla.OutputVariable.decode(reader, reader.uint32()));
                     break;
                 case 90:
-                    message.parameter_variable.push($root.nnabla.ParameterVariable.decode(reader, reader.uint32()));
+                    message.parameter_variable.push(nnabla.ParameterVariable.decode(reader, reader.uint32()));
                     break;
                 case 101:
                     message.no_image_normalization = reader.bool();
@@ -3163,7 +3161,7 @@ $root.nnabla.Executor = class Executor {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Executor();
+        const message = new nnabla.Executor();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -3184,19 +3182,19 @@ $root.nnabla.Executor = class Executor {
                     message.need_back_propagation = reader.bool();
                     break;
                 case "data_variable":
-                    message.data_variable.push($root.nnabla.DataVariable.decodeText(reader));
+                    message.data_variable.push(nnabla.DataVariable.decodeText(reader));
                     break;
                 case "generator_variable":
-                    message.generator_variable.push($root.nnabla.GeneratorVariable.decodeText(reader));
+                    message.generator_variable.push(nnabla.GeneratorVariable.decodeText(reader));
                     break;
                 case "loss_variable":
-                    message.loss_variable.push($root.nnabla.LossVariable.decodeText(reader));
+                    message.loss_variable.push(nnabla.LossVariable.decodeText(reader));
                     break;
                 case "output_variable":
-                    message.output_variable.push($root.nnabla.OutputVariable.decodeText(reader));
+                    message.output_variable.push(nnabla.OutputVariable.decodeText(reader));
                     break;
                 case "parameter_variable":
-                    message.parameter_variable.push($root.nnabla.ParameterVariable.decodeText(reader));
+                    message.parameter_variable.push(nnabla.ParameterVariable.decodeText(reader));
                     break;
                 case "no_image_normalization":
                     message.no_image_normalization = reader.bool();
@@ -3210,20 +3208,20 @@ $root.nnabla.Executor = class Executor {
     }
 };
 
-$root.nnabla.Executor.prototype.name = "";
-$root.nnabla.Executor.prototype.network_name = "";
-$root.nnabla.Executor.prototype.num_evaluations = protobuf.Int64.create(0);
-$root.nnabla.Executor.prototype.repeat_evaluation_type = "";
-$root.nnabla.Executor.prototype.need_back_propagation = false;
-$root.nnabla.Executor.prototype.no_image_normalization = false;
+nnabla.Executor.prototype.name = "";
+nnabla.Executor.prototype.network_name = "";
+nnabla.Executor.prototype.num_evaluations = protobuf.Int64.create(0);
+nnabla.Executor.prototype.repeat_evaluation_type = "";
+nnabla.Executor.prototype.need_back_propagation = false;
+nnabla.Executor.prototype.no_image_normalization = false;
 
-$root.nnabla.OutputVariable = class OutputVariable {
+nnabla.OutputVariable = class OutputVariable {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.OutputVariable();
+        const message = new nnabla.OutputVariable();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -3246,7 +3244,7 @@ $root.nnabla.OutputVariable = class OutputVariable {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.OutputVariable();
+        const message = new nnabla.OutputVariable();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -3269,11 +3267,11 @@ $root.nnabla.OutputVariable = class OutputVariable {
     }
 };
 
-$root.nnabla.OutputVariable.prototype.variable_name = "";
-$root.nnabla.OutputVariable.prototype.type = "";
-$root.nnabla.OutputVariable.prototype.data_name = "";
+nnabla.OutputVariable.prototype.variable_name = "";
+nnabla.OutputVariable.prototype.type = "";
+nnabla.OutputVariable.prototype.data_name = "";
 
-$root.nnabla.Function = class Function {
+nnabla.Function = class Function {
 
     constructor() {
         this.repeat_id = [];
@@ -3282,12 +3280,12 @@ $root.nnabla.Function = class Function {
     }
 
     get parameter() {
-        $root.nnabla.Function.parameterSet = $root.nnabla.Function.parameterSet || new Set([ "affine_param", "rnn_param", "lstm_param", "gru_param", "convolution_param", "fused_convolution_param", "depthwise_convolution_param", "deconvolution_param", "depthwise_deconvolution_param", "deformable_convolution_param", "max_pooling_param", "average_pooling_param", "sum_pooling_param", "unpooling_param", "roi_align_param", "relu_param", "leaky_relu_param", "softmax_param", "log_softmax_param", "elu_param", "selu_param", "crelu_param", "celu_param", "prelu_param", "softplus_param", "fused_batch_normalization_param", "batch_normalization_param", "group_normalization_param", "instance_normalization_param", "layer_normalization_param", "norm_normalization_param", "sync_batch_normalization_param", "tensor_normalization_param", "weight_normalization_param", "weight_standardization_param", "spectral_norm_param", "mean_subtraction_param", "clip_grad_by_norm_param", "sum_param", "cumsum_param", "mean_param", "max_param", "min_param", "norm_param", "prod_param", "cumprod_param", "add2_param", "bc_add2_param", "sub2_param", "mul2_param", "div2_param", "pow2_param", "add_scalar_param", "mul_scalar_param", "pow_scalar_param", "r_sub_scalar_param", "r_div_scalar_param", "r_pow_scalar_param", "sign_param", "minimum_scalar_param", "maximum_scalar_param", "searchsorted_param", "logical_and_scalar_param", "logical_or_scalar_param", "logical_xor_scalar_param", "equal_scalar_param", "not_equal_scalar_param", "greater_equal_scalar_param", "greater_scalar_param", "less_equal_scalar_param", "less_scalar_param", "reset_nan_param", "reset_inf_param", "constant_param", "arange_param", "linspace_param", "batch_matmul_param", "round_param", "ceil_param", "floor_param", "concatenate_param", "split_param", "stack_param", "slice_param", "pad_param", "transpose_param", "broadcast_param", "broadcast_to_param", "tile_param", "one_hot_param", "flip_param", "shift_param", "sort_param", "reshape_param", "shape_param", "trilu_param", "meshgrid_param", "batch_cholesky_param", "gather_param", "scatter_nd_param", "scatter_add_param", "bool_fill_param", "pack_padded_sequence_param", "pad_packed_sequence_param", "interpolate_param", "onnx_resize_param", "fft_param", "ifft_param", "stft_param", "istft_param", "dropout_param", "top_k_data_param", "top_k_grad_param", "rand_param", "randint_param", "randn_param", "rand_binomial_param", "rand_beta_param", "rand_gamma_param", "random_choice_param", "random_crop_param", "random_flip_param", "random_shift_param", "random_erase_param", "image_augmentation_param", "softmax_cross_entropy_param", "categorical_cross_entropy_param", "huber_loss_param", "epsilon_insensitive_loss_param", "kl_multinomial_param", "affine_grid_param", "warp_by_grid_param", "binary_connect_affine_param", "binary_connect_convolution_param", "binary_weight_affine_param", "binary_weight_convolution_param", "inq_affine_param", "inq_convolution_param", "fixed_point_quantize_param", "min_max_quantize_param", "pow2_quantize_param", "prune_param", "quantize_linear_param", "top_n_error_param", "confusion_matrix_param", "vat_noise_param", "sink_param", "nms_detection2d_param", "onnx_non_max_suppression_param", "max_pooling_backward_param", "patch_correlation_param", "unique_param", "eye_like_param", "mod2_param", "bit_shift_param", "einsum_param"]);
-        return Object.keys(this).find((key) => $root.nnabla.Function.parameterSet.has(key) && this[key] != null);
+        nnabla.Function.parameterSet = nnabla.Function.parameterSet || new Set([ "affine_param", "rnn_param", "lstm_param", "gru_param", "convolution_param", "fused_convolution_param", "depthwise_convolution_param", "deconvolution_param", "depthwise_deconvolution_param", "deformable_convolution_param", "max_pooling_param", "average_pooling_param", "sum_pooling_param", "unpooling_param", "roi_align_param", "relu_param", "leaky_relu_param", "softmax_param", "log_softmax_param", "elu_param", "selu_param", "crelu_param", "celu_param", "prelu_param", "softplus_param", "fused_batch_normalization_param", "batch_normalization_param", "group_normalization_param", "instance_normalization_param", "layer_normalization_param", "norm_normalization_param", "sync_batch_normalization_param", "tensor_normalization_param", "weight_normalization_param", "weight_standardization_param", "spectral_norm_param", "mean_subtraction_param", "clip_grad_by_norm_param", "sum_param", "cumsum_param", "mean_param", "max_param", "min_param", "norm_param", "prod_param", "cumprod_param", "add2_param", "bc_add2_param", "sub2_param", "mul2_param", "div2_param", "pow2_param", "add_scalar_param", "mul_scalar_param", "pow_scalar_param", "r_sub_scalar_param", "r_div_scalar_param", "r_pow_scalar_param", "sign_param", "minimum_scalar_param", "maximum_scalar_param", "searchsorted_param", "logical_and_scalar_param", "logical_or_scalar_param", "logical_xor_scalar_param", "equal_scalar_param", "not_equal_scalar_param", "greater_equal_scalar_param", "greater_scalar_param", "less_equal_scalar_param", "less_scalar_param", "reset_nan_param", "reset_inf_param", "constant_param", "arange_param", "linspace_param", "batch_matmul_param", "round_param", "ceil_param", "floor_param", "concatenate_param", "split_param", "stack_param", "slice_param", "pad_param", "transpose_param", "broadcast_param", "broadcast_to_param", "tile_param", "one_hot_param", "flip_param", "shift_param", "sort_param", "reshape_param", "shape_param", "trilu_param", "meshgrid_param", "batch_cholesky_param", "gather_param", "scatter_nd_param", "scatter_add_param", "bool_fill_param", "pack_padded_sequence_param", "pad_packed_sequence_param", "interpolate_param", "onnx_resize_param", "fft_param", "ifft_param", "stft_param", "istft_param", "dropout_param", "top_k_data_param", "top_k_grad_param", "rand_param", "randint_param", "randn_param", "rand_binomial_param", "rand_beta_param", "rand_gamma_param", "random_choice_param", "random_crop_param", "random_flip_param", "random_shift_param", "random_erase_param", "image_augmentation_param", "softmax_cross_entropy_param", "categorical_cross_entropy_param", "huber_loss_param", "epsilon_insensitive_loss_param", "kl_multinomial_param", "affine_grid_param", "warp_by_grid_param", "binary_connect_affine_param", "binary_connect_convolution_param", "binary_weight_affine_param", "binary_weight_convolution_param", "inq_affine_param", "inq_convolution_param", "fixed_point_quantize_param", "min_max_quantize_param", "pow2_quantize_param", "prune_param", "quantize_linear_param", "top_n_error_param", "confusion_matrix_param", "vat_noise_param", "sink_param", "nms_detection2d_param", "onnx_non_max_suppression_param", "max_pooling_backward_param", "patch_correlation_param", "unique_param", "eye_like_param", "mod2_param", "bit_shift_param", "einsum_param"]);
+        return Object.keys(this).find((key) => nnabla.Function.parameterSet.has(key) && this[key] != null);
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Function();
+        const message = new nnabla.Function();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -3302,7 +3300,7 @@ $root.nnabla.Function = class Function {
                     message.repeat_id.push(reader.string());
                     break;
                 case 10:
-                    message.context = $root.nnabla.Context.decode(reader, reader.uint32());
+                    message.context = nnabla.Context.decode(reader, reader.uint32());
                     break;
                 case 20:
                     message.input.push(reader.string());
@@ -3311,478 +3309,478 @@ $root.nnabla.Function = class Function {
                     message.output.push(reader.string());
                     break;
                 case 1001:
-                    message.affine_param = $root.nnabla.AffineParameter.decode(reader, reader.uint32());
+                    message.affine_param = nnabla.AffineParameter.decode(reader, reader.uint32());
                     break;
                 case 1002:
-                    message.rnn_param = $root.nnabla.RNNParameter.decode(reader, reader.uint32());
+                    message.rnn_param = nnabla.RNNParameter.decode(reader, reader.uint32());
                     break;
                 case 1003:
-                    message.lstm_param = $root.nnabla.LSTMParameter.decode(reader, reader.uint32());
+                    message.lstm_param = nnabla.LSTMParameter.decode(reader, reader.uint32());
                     break;
                 case 1004:
-                    message.gru_param = $root.nnabla.GRUParameter.decode(reader, reader.uint32());
+                    message.gru_param = nnabla.GRUParameter.decode(reader, reader.uint32());
                     break;
                 case 1005:
-                    message.convolution_param = $root.nnabla.ConvolutionParameter.decode(reader, reader.uint32());
+                    message.convolution_param = nnabla.ConvolutionParameter.decode(reader, reader.uint32());
                     break;
                 case 1006:
-                    message.fused_convolution_param = $root.nnabla.FusedConvolutionParameter.decode(reader, reader.uint32());
+                    message.fused_convolution_param = nnabla.FusedConvolutionParameter.decode(reader, reader.uint32());
                     break;
                 case 1007:
-                    message.depthwise_convolution_param = $root.nnabla.DepthwiseConvolutionParameter.decode(reader, reader.uint32());
+                    message.depthwise_convolution_param = nnabla.DepthwiseConvolutionParameter.decode(reader, reader.uint32());
                     break;
                 case 1008:
-                    message.deconvolution_param = $root.nnabla.DeconvolutionParameter.decode(reader, reader.uint32());
+                    message.deconvolution_param = nnabla.DeconvolutionParameter.decode(reader, reader.uint32());
                     break;
                 case 1009:
-                    message.depthwise_deconvolution_param = $root.nnabla.DepthwiseDeconvolutionParameter.decode(reader, reader.uint32());
+                    message.depthwise_deconvolution_param = nnabla.DepthwiseDeconvolutionParameter.decode(reader, reader.uint32());
                     break;
                 case 1010:
-                    message.deformable_convolution_param = $root.nnabla.DeformableConvolutionParameter.decode(reader, reader.uint32());
+                    message.deformable_convolution_param = nnabla.DeformableConvolutionParameter.decode(reader, reader.uint32());
                     break;
                 case 1012:
-                    message.max_pooling_param = $root.nnabla.MaxPoolingParameter.decode(reader, reader.uint32());
+                    message.max_pooling_param = nnabla.MaxPoolingParameter.decode(reader, reader.uint32());
                     break;
                 case 1013:
-                    message.average_pooling_param = $root.nnabla.AveragePoolingParameter.decode(reader, reader.uint32());
+                    message.average_pooling_param = nnabla.AveragePoolingParameter.decode(reader, reader.uint32());
                     break;
                 case 1015:
-                    message.sum_pooling_param = $root.nnabla.SumPoolingParameter.decode(reader, reader.uint32());
+                    message.sum_pooling_param = nnabla.SumPoolingParameter.decode(reader, reader.uint32());
                     break;
                 case 1016:
-                    message.unpooling_param = $root.nnabla.UnpoolingParameter.decode(reader, reader.uint32());
+                    message.unpooling_param = nnabla.UnpoolingParameter.decode(reader, reader.uint32());
                     break;
                 case 1018:
-                    message.roi_align_param = $root.nnabla.RoiAlignParameter.decode(reader, reader.uint32());
+                    message.roi_align_param = nnabla.RoiAlignParameter.decode(reader, reader.uint32());
                     break;
                 case 1022:
-                    message.relu_param = $root.nnabla.ReLUParameter.decode(reader, reader.uint32());
+                    message.relu_param = nnabla.ReLUParameter.decode(reader, reader.uint32());
                     break;
                 case 1023:
-                    message.leaky_relu_param = $root.nnabla.LeakyReLUParameter.decode(reader, reader.uint32());
+                    message.leaky_relu_param = nnabla.LeakyReLUParameter.decode(reader, reader.uint32());
                     break;
                 case 1024:
-                    message.softmax_param = $root.nnabla.SoftmaxParameter.decode(reader, reader.uint32());
+                    message.softmax_param = nnabla.SoftmaxParameter.decode(reader, reader.uint32());
                     break;
                 case 1025:
-                    message.log_softmax_param = $root.nnabla.LogSoftmaxParameter.decode(reader, reader.uint32());
+                    message.log_softmax_param = nnabla.LogSoftmaxParameter.decode(reader, reader.uint32());
                     break;
                 case 1026:
-                    message.elu_param = $root.nnabla.ELUParameter.decode(reader, reader.uint32());
+                    message.elu_param = nnabla.ELUParameter.decode(reader, reader.uint32());
                     break;
                 case 1027:
-                    message.selu_param = $root.nnabla.SELUParameter.decode(reader, reader.uint32());
+                    message.selu_param = nnabla.SELUParameter.decode(reader, reader.uint32());
                     break;
                 case 1028:
-                    message.crelu_param = $root.nnabla.CReLUParameter.decode(reader, reader.uint32());
+                    message.crelu_param = nnabla.CReLUParameter.decode(reader, reader.uint32());
                     break;
                 case 1029:
-                    message.celu_param = $root.nnabla.CELUParameter.decode(reader, reader.uint32());
+                    message.celu_param = nnabla.CELUParameter.decode(reader, reader.uint32());
                     break;
                 case 1030:
-                    message.prelu_param = $root.nnabla.PReLUParameter.decode(reader, reader.uint32());
+                    message.prelu_param = nnabla.PReLUParameter.decode(reader, reader.uint32());
                     break;
                 case 1037:
-                    message.softplus_param = $root.nnabla.SoftPlusParameter.decode(reader, reader.uint32());
+                    message.softplus_param = nnabla.SoftPlusParameter.decode(reader, reader.uint32());
                     break;
                 case 1041:
-                    message.fused_batch_normalization_param = $root.nnabla.FusedBatchNormalizationParameter.decode(reader, reader.uint32());
+                    message.fused_batch_normalization_param = nnabla.FusedBatchNormalizationParameter.decode(reader, reader.uint32());
                     break;
                 case 1042:
-                    message.batch_normalization_param = $root.nnabla.BatchNormalizationParameter.decode(reader, reader.uint32());
+                    message.batch_normalization_param = nnabla.BatchNormalizationParameter.decode(reader, reader.uint32());
                     break;
                 case 1043:
-                    message.group_normalization_param = $root.nnabla.GroupNormalizationParameter.decode(reader, reader.uint32());
+                    message.group_normalization_param = nnabla.GroupNormalizationParameter.decode(reader, reader.uint32());
                     break;
                 case 1044:
-                    message.instance_normalization_param = $root.nnabla.InstanceNormalizationParameter.decode(reader, reader.uint32());
+                    message.instance_normalization_param = nnabla.InstanceNormalizationParameter.decode(reader, reader.uint32());
                     break;
                 case 1045:
-                    message.layer_normalization_param = $root.nnabla.LayerNormalizationParameter.decode(reader, reader.uint32());
+                    message.layer_normalization_param = nnabla.LayerNormalizationParameter.decode(reader, reader.uint32());
                     break;
                 case 1046:
-                    message.norm_normalization_param = $root.nnabla.NormNormalizationParameter.decode(reader, reader.uint32());
+                    message.norm_normalization_param = nnabla.NormNormalizationParameter.decode(reader, reader.uint32());
                     break;
                 case 1047:
-                    message.sync_batch_normalization_param = $root.nnabla.SyncBatchNormalizationParameter.decode(reader, reader.uint32());
+                    message.sync_batch_normalization_param = nnabla.SyncBatchNormalizationParameter.decode(reader, reader.uint32());
                     break;
                 case 1048:
-                    message.tensor_normalization_param = $root.nnabla.TensorNormalizationParameter.decode(reader, reader.uint32());
+                    message.tensor_normalization_param = nnabla.TensorNormalizationParameter.decode(reader, reader.uint32());
                     break;
                 case 1049:
-                    message.weight_normalization_param = $root.nnabla.WeightNormalizationParameter.decode(reader, reader.uint32());
+                    message.weight_normalization_param = nnabla.WeightNormalizationParameter.decode(reader, reader.uint32());
                     break;
                 case 1050:
-                    message.weight_standardization_param = $root.nnabla.WeightStandardizationParameter.decode(reader, reader.uint32());
+                    message.weight_standardization_param = nnabla.WeightStandardizationParameter.decode(reader, reader.uint32());
                     break;
                 case 1051:
-                    message.spectral_norm_param = $root.nnabla.SpectralNormParameter.decode(reader, reader.uint32());
+                    message.spectral_norm_param = nnabla.SpectralNormParameter.decode(reader, reader.uint32());
                     break;
                 case 1052:
-                    message.mean_subtraction_param = $root.nnabla.MeanSubtractionParameter.decode(reader, reader.uint32());
+                    message.mean_subtraction_param = nnabla.MeanSubtractionParameter.decode(reader, reader.uint32());
                     break;
                 case 1054:
-                    message.clip_grad_by_norm_param = $root.nnabla.ClipGradByNormParameter.decode(reader, reader.uint32());
+                    message.clip_grad_by_norm_param = nnabla.ClipGradByNormParameter.decode(reader, reader.uint32());
                     break;
                 case 1055:
-                    message.sum_param = $root.nnabla.SumParameter.decode(reader, reader.uint32());
+                    message.sum_param = nnabla.SumParameter.decode(reader, reader.uint32());
                     break;
                 case 1056:
-                    message.cumsum_param = $root.nnabla.CumSumParameter.decode(reader, reader.uint32());
+                    message.cumsum_param = nnabla.CumSumParameter.decode(reader, reader.uint32());
                     break;
                 case 1057:
-                    message.mean_param = $root.nnabla.MeanParameter.decode(reader, reader.uint32());
+                    message.mean_param = nnabla.MeanParameter.decode(reader, reader.uint32());
                     break;
                 case 1058:
-                    message.max_param = $root.nnabla.MaxParameter.decode(reader, reader.uint32());
+                    message.max_param = nnabla.MaxParameter.decode(reader, reader.uint32());
                     break;
                 case 1059:
-                    message.min_param = $root.nnabla.MinParameter.decode(reader, reader.uint32());
+                    message.min_param = nnabla.MinParameter.decode(reader, reader.uint32());
                     break;
                 case 1060:
-                    message.norm_param = $root.nnabla.NormParameter.decode(reader, reader.uint32());
+                    message.norm_param = nnabla.NormParameter.decode(reader, reader.uint32());
                     break;
                 case 1061:
-                    message.prod_param = $root.nnabla.ProdParameter.decode(reader, reader.uint32());
+                    message.prod_param = nnabla.ProdParameter.decode(reader, reader.uint32());
                     break;
                 case 1062:
-                    message.cumprod_param = $root.nnabla.CumProdParameter.decode(reader, reader.uint32());
+                    message.cumprod_param = nnabla.CumProdParameter.decode(reader, reader.uint32());
                     break;
                 case 1065:
-                    message.add2_param = $root.nnabla.Add2Parameter.decode(reader, reader.uint32());
+                    message.add2_param = nnabla.Add2Parameter.decode(reader, reader.uint32());
                     break;
                 case 1067:
-                    message.bc_add2_param = $root.nnabla.BcAdd2Parameter.decode(reader, reader.uint32());
+                    message.bc_add2_param = nnabla.BcAdd2Parameter.decode(reader, reader.uint32());
                     break;
                 case 1068:
-                    message.sub2_param = $root.nnabla.Sub2Parameter.decode(reader, reader.uint32());
+                    message.sub2_param = nnabla.Sub2Parameter.decode(reader, reader.uint32());
                     break;
                 case 1069:
-                    message.mul2_param = $root.nnabla.Mul2Parameter.decode(reader, reader.uint32());
+                    message.mul2_param = nnabla.Mul2Parameter.decode(reader, reader.uint32());
                     break;
                 case 1071:
-                    message.div2_param = $root.nnabla.Div2Parameter.decode(reader, reader.uint32());
+                    message.div2_param = nnabla.Div2Parameter.decode(reader, reader.uint32());
                     break;
                 case 1072:
-                    message.pow2_param = $root.nnabla.Pow2Parameter.decode(reader, reader.uint32());
+                    message.pow2_param = nnabla.Pow2Parameter.decode(reader, reader.uint32());
                     break;
                 case 1073:
-                    message.add_scalar_param = $root.nnabla.AddScalarParameter.decode(reader, reader.uint32());
+                    message.add_scalar_param = nnabla.AddScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1074:
-                    message.mul_scalar_param = $root.nnabla.MulScalarParameter.decode(reader, reader.uint32());
+                    message.mul_scalar_param = nnabla.MulScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1075:
-                    message.pow_scalar_param = $root.nnabla.PowScalarParameter.decode(reader, reader.uint32());
+                    message.pow_scalar_param = nnabla.PowScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1076:
-                    message.r_sub_scalar_param = $root.nnabla.RSubScalarParameter.decode(reader, reader.uint32());
+                    message.r_sub_scalar_param = nnabla.RSubScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1077:
-                    message.r_div_scalar_param = $root.nnabla.RDivScalarParameter.decode(reader, reader.uint32());
+                    message.r_div_scalar_param = nnabla.RDivScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1078:
-                    message.r_pow_scalar_param = $root.nnabla.RPowScalarParameter.decode(reader, reader.uint32());
+                    message.r_pow_scalar_param = nnabla.RPowScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1079:
-                    message.sign_param = $root.nnabla.SignParameter.decode(reader, reader.uint32());
+                    message.sign_param = nnabla.SignParameter.decode(reader, reader.uint32());
                     break;
                 case 1082:
-                    message.minimum_scalar_param = $root.nnabla.MinimumScalarParameter.decode(reader, reader.uint32());
+                    message.minimum_scalar_param = nnabla.MinimumScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1083:
-                    message.maximum_scalar_param = $root.nnabla.MaximumScalarParameter.decode(reader, reader.uint32());
+                    message.maximum_scalar_param = nnabla.MaximumScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1093:
-                    message.searchsorted_param = $root.nnabla.SearchSortedParameter.decode(reader, reader.uint32());
+                    message.searchsorted_param = nnabla.SearchSortedParameter.decode(reader, reader.uint32());
                     break;
                 case 1094:
-                    message.logical_and_scalar_param = $root.nnabla.LogicalAndScalarParameter.decode(reader, reader.uint32());
+                    message.logical_and_scalar_param = nnabla.LogicalAndScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1095:
-                    message.logical_or_scalar_param = $root.nnabla.LogicalOrScalarParameter.decode(reader, reader.uint32());
+                    message.logical_or_scalar_param = nnabla.LogicalOrScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1096:
-                    message.logical_xor_scalar_param = $root.nnabla.LogicalXorScalarParameter.decode(reader, reader.uint32());
+                    message.logical_xor_scalar_param = nnabla.LogicalXorScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1097:
-                    message.equal_scalar_param = $root.nnabla.EqualScalarParameter.decode(reader, reader.uint32());
+                    message.equal_scalar_param = nnabla.EqualScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1098:
-                    message.not_equal_scalar_param = $root.nnabla.NotEqualScalarParameter.decode(reader, reader.uint32());
+                    message.not_equal_scalar_param = nnabla.NotEqualScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1099:
-                    message.greater_equal_scalar_param = $root.nnabla.GreaterEqualScalarParameter.decode(reader, reader.uint32());
+                    message.greater_equal_scalar_param = nnabla.GreaterEqualScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1100:
-                    message.greater_scalar_param = $root.nnabla.GreaterScalarParameter.decode(reader, reader.uint32());
+                    message.greater_scalar_param = nnabla.GreaterScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1101:
-                    message.less_equal_scalar_param = $root.nnabla.LessEqualScalarParameter.decode(reader, reader.uint32());
+                    message.less_equal_scalar_param = nnabla.LessEqualScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1102:
-                    message.less_scalar_param = $root.nnabla.LessScalarParameter.decode(reader, reader.uint32());
+                    message.less_scalar_param = nnabla.LessScalarParameter.decode(reader, reader.uint32());
                     break;
                 case 1106:
-                    message.reset_nan_param = $root.nnabla.ResetNaNParameter.decode(reader, reader.uint32());
+                    message.reset_nan_param = nnabla.ResetNaNParameter.decode(reader, reader.uint32());
                     break;
                 case 1107:
-                    message.reset_inf_param = $root.nnabla.ResetInfParameter.decode(reader, reader.uint32());
+                    message.reset_inf_param = nnabla.ResetInfParameter.decode(reader, reader.uint32());
                     break;
                 case 1109:
-                    message.constant_param = $root.nnabla.ConstantParameter.decode(reader, reader.uint32());
+                    message.constant_param = nnabla.ConstantParameter.decode(reader, reader.uint32());
                     break;
                 case 1110:
-                    message.arange_param = $root.nnabla.ArangeParameter.decode(reader, reader.uint32());
+                    message.arange_param = nnabla.ArangeParameter.decode(reader, reader.uint32());
                     break;
                 case 1111:
-                    message.linspace_param = $root.nnabla.LinspaceParameter.decode(reader, reader.uint32());
+                    message.linspace_param = nnabla.LinspaceParameter.decode(reader, reader.uint32());
                     break;
                 case 1116:
-                    message.batch_matmul_param = $root.nnabla.BatchMatmulParameter.decode(reader, reader.uint32());
+                    message.batch_matmul_param = nnabla.BatchMatmulParameter.decode(reader, reader.uint32());
                     break;
                 case 1117:
-                    message.round_param = $root.nnabla.RoundParameter.decode(reader, reader.uint32());
+                    message.round_param = nnabla.RoundParameter.decode(reader, reader.uint32());
                     break;
                 case 1118:
-                    message.ceil_param = $root.nnabla.CeilParameter.decode(reader, reader.uint32());
+                    message.ceil_param = nnabla.CeilParameter.decode(reader, reader.uint32());
                     break;
                 case 1119:
-                    message.floor_param = $root.nnabla.FloorParameter.decode(reader, reader.uint32());
+                    message.floor_param = nnabla.FloorParameter.decode(reader, reader.uint32());
                     break;
                 case 1133:
-                    message.concatenate_param = $root.nnabla.ConcatenateParameter.decode(reader, reader.uint32());
+                    message.concatenate_param = nnabla.ConcatenateParameter.decode(reader, reader.uint32());
                     break;
                 case 1134:
-                    message.split_param = $root.nnabla.SplitParameter.decode(reader, reader.uint32());
+                    message.split_param = nnabla.SplitParameter.decode(reader, reader.uint32());
                     break;
                 case 1135:
-                    message.stack_param = $root.nnabla.StackParameter.decode(reader, reader.uint32());
+                    message.stack_param = nnabla.StackParameter.decode(reader, reader.uint32());
                     break;
                 case 1136:
-                    message.slice_param = $root.nnabla.SliceParameter.decode(reader, reader.uint32());
+                    message.slice_param = nnabla.SliceParameter.decode(reader, reader.uint32());
                     break;
                 case 1137:
-                    message.pad_param = $root.nnabla.PadParameter.decode(reader, reader.uint32());
+                    message.pad_param = nnabla.PadParameter.decode(reader, reader.uint32());
                     break;
                 case 1138:
-                    message.transpose_param = $root.nnabla.TransposeParameter.decode(reader, reader.uint32());
+                    message.transpose_param = nnabla.TransposeParameter.decode(reader, reader.uint32());
                     break;
                 case 1139:
-                    message.broadcast_param = $root.nnabla.BroadcastParameter.decode(reader, reader.uint32());
+                    message.broadcast_param = nnabla.BroadcastParameter.decode(reader, reader.uint32());
                     break;
                 case 1140:
-                    message.broadcast_to_param = $root.nnabla.BroadcastToParameter.decode(reader, reader.uint32());
+                    message.broadcast_to_param = nnabla.BroadcastToParameter.decode(reader, reader.uint32());
                     break;
                 case 1141:
-                    message.tile_param = $root.nnabla.TileParameter.decode(reader, reader.uint32());
+                    message.tile_param = nnabla.TileParameter.decode(reader, reader.uint32());
                     break;
                 case 1142:
-                    message.one_hot_param = $root.nnabla.OneHotParameter.decode(reader, reader.uint32());
+                    message.one_hot_param = nnabla.OneHotParameter.decode(reader, reader.uint32());
                     break;
                 case 1143:
-                    message.flip_param = $root.nnabla.FlipParameter.decode(reader, reader.uint32());
+                    message.flip_param = nnabla.FlipParameter.decode(reader, reader.uint32());
                     break;
                 case 1144:
-                    message.shift_param = $root.nnabla.ShiftParameter.decode(reader, reader.uint32());
+                    message.shift_param = nnabla.ShiftParameter.decode(reader, reader.uint32());
                     break;
                 case 1145:
-                    message.sort_param = $root.nnabla.SortParameter.decode(reader, reader.uint32());
+                    message.sort_param = nnabla.SortParameter.decode(reader, reader.uint32());
                     break;
                 case 1146:
-                    message.reshape_param = $root.nnabla.ReshapeParameter.decode(reader, reader.uint32());
+                    message.reshape_param = nnabla.ReshapeParameter.decode(reader, reader.uint32());
                     break;
                 case 1147:
-                    message.shape_param = $root.nnabla.ShapeParameter.decode(reader, reader.uint32());
+                    message.shape_param = nnabla.ShapeParameter.decode(reader, reader.uint32());
                     break;
                 case 1150:
-                    message.trilu_param = $root.nnabla.TriluParameter.decode(reader, reader.uint32());
+                    message.trilu_param = nnabla.TriluParameter.decode(reader, reader.uint32());
                     break;
                 case 1151:
-                    message.meshgrid_param = $root.nnabla.MeshgridParameter.decode(reader, reader.uint32());
+                    message.meshgrid_param = nnabla.MeshgridParameter.decode(reader, reader.uint32());
                     break;
                 case 1155:
-                    message.batch_cholesky_param = $root.nnabla.BatchCholeskyParameter.decode(reader, reader.uint32());
+                    message.batch_cholesky_param = nnabla.BatchCholeskyParameter.decode(reader, reader.uint32());
                     break;
                 case 1157:
-                    message.gather_param = $root.nnabla.GatherParameter.decode(reader, reader.uint32());
+                    message.gather_param = nnabla.GatherParameter.decode(reader, reader.uint32());
                     break;
                 case 1160:
-                    message.scatter_nd_param = $root.nnabla.ScatterNdParameter.decode(reader, reader.uint32());
+                    message.scatter_nd_param = nnabla.ScatterNdParameter.decode(reader, reader.uint32());
                     break;
                 case 1161:
-                    message.scatter_add_param = $root.nnabla.ScatterAddParameter.decode(reader, reader.uint32());
+                    message.scatter_add_param = nnabla.ScatterAddParameter.decode(reader, reader.uint32());
                     break;
                 case 1163:
-                    message.bool_fill_param = $root.nnabla.BoolFillParameter.decode(reader, reader.uint32());
+                    message.bool_fill_param = nnabla.BoolFillParameter.decode(reader, reader.uint32());
                     break;
                 case 1164:
-                    message.pack_padded_sequence_param = $root.nnabla.PackPaddedSequenceParameter.decode(reader, reader.uint32());
+                    message.pack_padded_sequence_param = nnabla.PackPaddedSequenceParameter.decode(reader, reader.uint32());
                     break;
                 case 1165:
-                    message.pad_packed_sequence_param = $root.nnabla.PadPackedSequenceParameter.decode(reader, reader.uint32());
+                    message.pad_packed_sequence_param = nnabla.PadPackedSequenceParameter.decode(reader, reader.uint32());
                     break;
                 case 1167:
-                    message.interpolate_param = $root.nnabla.InterpolateParameter.decode(reader, reader.uint32());
+                    message.interpolate_param = nnabla.InterpolateParameter.decode(reader, reader.uint32());
                     break;
                 case 1168:
-                    message.onnx_resize_param = $root.nnabla.ONNXResizeParameter.decode(reader, reader.uint32());
+                    message.onnx_resize_param = nnabla.ONNXResizeParameter.decode(reader, reader.uint32());
                     break;
                 case 1169:
-                    message.fft_param = $root.nnabla.FFTParameter.decode(reader, reader.uint32());
+                    message.fft_param = nnabla.FFTParameter.decode(reader, reader.uint32());
                     break;
                 case 1170:
-                    message.ifft_param = $root.nnabla.IFFTParameter.decode(reader, reader.uint32());
+                    message.ifft_param = nnabla.IFFTParameter.decode(reader, reader.uint32());
                     break;
                 case 1171:
-                    message.stft_param = $root.nnabla.STFTParameter.decode(reader, reader.uint32());
+                    message.stft_param = nnabla.STFTParameter.decode(reader, reader.uint32());
                     break;
                 case 1172:
-                    message.istft_param = $root.nnabla.ISTFTParameter.decode(reader, reader.uint32());
+                    message.istft_param = nnabla.ISTFTParameter.decode(reader, reader.uint32());
                     break;
                 case 1173:
-                    message.dropout_param = $root.nnabla.DropoutParameter.decode(reader, reader.uint32());
+                    message.dropout_param = nnabla.DropoutParameter.decode(reader, reader.uint32());
                     break;
                 case 1174:
-                    message.top_k_data_param = $root.nnabla.TopKDataParameter.decode(reader, reader.uint32());
+                    message.top_k_data_param = nnabla.TopKDataParameter.decode(reader, reader.uint32());
                     break;
                 case 1175:
-                    message.top_k_grad_param = $root.nnabla.TopKGradParameter.decode(reader, reader.uint32());
+                    message.top_k_grad_param = nnabla.TopKGradParameter.decode(reader, reader.uint32());
                     break;
                 case 1176:
-                    message.rand_param = $root.nnabla.RandParameter.decode(reader, reader.uint32());
+                    message.rand_param = nnabla.RandParameter.decode(reader, reader.uint32());
                     break;
                 case 1177:
-                    message.randint_param = $root.nnabla.RandintParameter.decode(reader, reader.uint32());
+                    message.randint_param = nnabla.RandintParameter.decode(reader, reader.uint32());
                     break;
                 case 1178:
-                    message.randn_param = $root.nnabla.RandnParameter.decode(reader, reader.uint32());
+                    message.randn_param = nnabla.RandnParameter.decode(reader, reader.uint32());
                     break;
                 case 1179:
-                    message.rand_binomial_param = $root.nnabla.RandBinomialParameter.decode(reader, reader.uint32());
+                    message.rand_binomial_param = nnabla.RandBinomialParameter.decode(reader, reader.uint32());
                     break;
                 case 1180:
-                    message.rand_beta_param = $root.nnabla.RandBetaParameter.decode(reader, reader.uint32());
+                    message.rand_beta_param = nnabla.RandBetaParameter.decode(reader, reader.uint32());
                     break;
                 case 1181:
-                    message.rand_gamma_param = $root.nnabla.RandGammaParameter.decode(reader, reader.uint32());
+                    message.rand_gamma_param = nnabla.RandGammaParameter.decode(reader, reader.uint32());
                     break;
                 case 1182:
-                    message.random_choice_param = $root.nnabla.RandomChoiceParameter.decode(reader, reader.uint32());
+                    message.random_choice_param = nnabla.RandomChoiceParameter.decode(reader, reader.uint32());
                     break;
                 case 1183:
-                    message.random_crop_param = $root.nnabla.RandomCropParameter.decode(reader, reader.uint32());
+                    message.random_crop_param = nnabla.RandomCropParameter.decode(reader, reader.uint32());
                     break;
                 case 1184:
-                    message.random_flip_param = $root.nnabla.RandomFlipParameter.decode(reader, reader.uint32());
+                    message.random_flip_param = nnabla.RandomFlipParameter.decode(reader, reader.uint32());
                     break;
                 case 1185:
-                    message.random_shift_param = $root.nnabla.RandomShiftParameter.decode(reader, reader.uint32());
+                    message.random_shift_param = nnabla.RandomShiftParameter.decode(reader, reader.uint32());
                     break;
                 case 1186:
-                    message.random_erase_param = $root.nnabla.RandomEraseParameter.decode(reader, reader.uint32());
+                    message.random_erase_param = nnabla.RandomEraseParameter.decode(reader, reader.uint32());
                     break;
                 case 1187:
-                    message.image_augmentation_param = $root.nnabla.ImageAugmentationParameter.decode(reader, reader.uint32());
+                    message.image_augmentation_param = nnabla.ImageAugmentationParameter.decode(reader, reader.uint32());
                     break;
                 case 1190:
-                    message.softmax_cross_entropy_param = $root.nnabla.SoftmaxCrossEntropyParameter.decode(reader, reader.uint32());
+                    message.softmax_cross_entropy_param = nnabla.SoftmaxCrossEntropyParameter.decode(reader, reader.uint32());
                     break;
                 case 1191:
-                    message.categorical_cross_entropy_param = $root.nnabla.CategoricalCrossEntropyParameter.decode(reader, reader.uint32());
+                    message.categorical_cross_entropy_param = nnabla.CategoricalCrossEntropyParameter.decode(reader, reader.uint32());
                     break;
                 case 1194:
-                    message.huber_loss_param = $root.nnabla.HuberLossParameter.decode(reader, reader.uint32());
+                    message.huber_loss_param = nnabla.HuberLossParameter.decode(reader, reader.uint32());
                     break;
                 case 1195:
-                    message.epsilon_insensitive_loss_param = $root.nnabla.EpsilonInsensitiveLossParameter.decode(reader, reader.uint32());
+                    message.epsilon_insensitive_loss_param = nnabla.EpsilonInsensitiveLossParameter.decode(reader, reader.uint32());
                     break;
                 case 1196:
-                    message.kl_multinomial_param = $root.nnabla.KLMultinomialParameter.decode(reader, reader.uint32());
+                    message.kl_multinomial_param = nnabla.KLMultinomialParameter.decode(reader, reader.uint32());
                     break;
                 case 1197:
-                    message.affine_grid_param = $root.nnabla.AffineGridParameter.decode(reader, reader.uint32());
+                    message.affine_grid_param = nnabla.AffineGridParameter.decode(reader, reader.uint32());
                     break;
                 case 1198:
-                    message.warp_by_grid_param = $root.nnabla.WarpByGridParameter.decode(reader, reader.uint32());
+                    message.warp_by_grid_param = nnabla.WarpByGridParameter.decode(reader, reader.uint32());
                     break;
                 case 1202:
-                    message.binary_connect_affine_param = $root.nnabla.BinaryConnectAffineParameter.decode(reader, reader.uint32());
+                    message.binary_connect_affine_param = nnabla.BinaryConnectAffineParameter.decode(reader, reader.uint32());
                     break;
                 case 1203:
-                    message.binary_connect_convolution_param = $root.nnabla.BinaryConnectConvolutionParameter.decode(reader, reader.uint32());
+                    message.binary_connect_convolution_param = nnabla.BinaryConnectConvolutionParameter.decode(reader, reader.uint32());
                     break;
                 case 1204:
-                    message.binary_weight_affine_param = $root.nnabla.BinaryWeightAffineParameter.decode(reader, reader.uint32());
+                    message.binary_weight_affine_param = nnabla.BinaryWeightAffineParameter.decode(reader, reader.uint32());
                     break;
                 case 1205:
-                    message.binary_weight_convolution_param = $root.nnabla.BinaryWeightConvolutionParameter.decode(reader, reader.uint32());
+                    message.binary_weight_convolution_param = nnabla.BinaryWeightConvolutionParameter.decode(reader, reader.uint32());
                     break;
                 case 1206:
-                    message.inq_affine_param = $root.nnabla.INQAffineParameter.decode(reader, reader.uint32());
+                    message.inq_affine_param = nnabla.INQAffineParameter.decode(reader, reader.uint32());
                     break;
                 case 1207:
-                    message.inq_convolution_param = $root.nnabla.INQConvolutionParameter.decode(reader, reader.uint32());
+                    message.inq_convolution_param = nnabla.INQConvolutionParameter.decode(reader, reader.uint32());
                     break;
                 case 1208:
-                    message.fixed_point_quantize_param = $root.nnabla.FixedPointQuantizeParameter.decode(reader, reader.uint32());
+                    message.fixed_point_quantize_param = nnabla.FixedPointQuantizeParameter.decode(reader, reader.uint32());
                     break;
                 case 1209:
-                    message.min_max_quantize_param = $root.nnabla.MinMaxQuantizeParameter.decode(reader, reader.uint32());
+                    message.min_max_quantize_param = nnabla.MinMaxQuantizeParameter.decode(reader, reader.uint32());
                     break;
                 case 1210:
-                    message.pow2_quantize_param = $root.nnabla.Pow2QuantizeParameter.decode(reader, reader.uint32());
+                    message.pow2_quantize_param = nnabla.Pow2QuantizeParameter.decode(reader, reader.uint32());
                     break;
                 case 1211:
-                    message.prune_param = $root.nnabla.PruneParameter.decode(reader, reader.uint32());
+                    message.prune_param = nnabla.PruneParameter.decode(reader, reader.uint32());
                     break;
                 case 1212:
-                    message.quantize_linear_param = $root.nnabla.QuantizeLinearParameter.decode(reader, reader.uint32());
+                    message.quantize_linear_param = nnabla.QuantizeLinearParameter.decode(reader, reader.uint32());
                     break;
                 case 1214:
-                    message.top_n_error_param = $root.nnabla.TopNErrorParameter.decode(reader, reader.uint32());
+                    message.top_n_error_param = nnabla.TopNErrorParameter.decode(reader, reader.uint32());
                     break;
                 case 1216:
-                    message.confusion_matrix_param = $root.nnabla.ConfusionMatrixParameter.decode(reader, reader.uint32());
+                    message.confusion_matrix_param = nnabla.ConfusionMatrixParameter.decode(reader, reader.uint32());
                     break;
                 case 1217:
-                    message.vat_noise_param = $root.nnabla.VATNoiseParameter.decode(reader, reader.uint32());
+                    message.vat_noise_param = nnabla.VATNoiseParameter.decode(reader, reader.uint32());
                     break;
                 case 1219:
-                    message.sink_param = $root.nnabla.SinkParameter.decode(reader, reader.uint32());
+                    message.sink_param = nnabla.SinkParameter.decode(reader, reader.uint32());
                     break;
                 case 1220:
-                    message.nms_detection2d_param = $root.nnabla.NmsDetection2dParameter.decode(reader, reader.uint32());
+                    message.nms_detection2d_param = nnabla.NmsDetection2dParameter.decode(reader, reader.uint32());
                     break;
                 case 1221:
-                    message.onnx_non_max_suppression_param = $root.nnabla.ONNXNonMaxSuppressionParameter.decode(reader, reader.uint32());
+                    message.onnx_non_max_suppression_param = nnabla.ONNXNonMaxSuppressionParameter.decode(reader, reader.uint32());
                     break;
                 case 1222:
-                    message.max_pooling_backward_param = $root.nnabla.MaxPoolingBackwardParameter.decode(reader, reader.uint32());
+                    message.max_pooling_backward_param = nnabla.MaxPoolingBackwardParameter.decode(reader, reader.uint32());
                     break;
                 case 1223:
-                    message.patch_correlation_param = $root.nnabla.PatchCorrelationParameter.decode(reader, reader.uint32());
+                    message.patch_correlation_param = nnabla.PatchCorrelationParameter.decode(reader, reader.uint32());
                     break;
                 case 1224:
-                    message.unique_param = $root.nnabla.UniqueParameter.decode(reader, reader.uint32());
+                    message.unique_param = nnabla.UniqueParameter.decode(reader, reader.uint32());
                     break;
                 case 1225:
-                    message.eye_like_param = $root.nnabla.EyeLikeParameter.decode(reader, reader.uint32());
+                    message.eye_like_param = nnabla.EyeLikeParameter.decode(reader, reader.uint32());
                     break;
                 case 1226:
-                    message.mod2_param = $root.nnabla.Mod2Parameter.decode(reader, reader.uint32());
+                    message.mod2_param = nnabla.Mod2Parameter.decode(reader, reader.uint32());
                     break;
                 case 1227:
-                    message.bit_shift_param = $root.nnabla.BitShiftParameter.decode(reader, reader.uint32());
+                    message.bit_shift_param = nnabla.BitShiftParameter.decode(reader, reader.uint32());
                     break;
                 case 1228:
-                    message.einsum_param = $root.nnabla.EinsumParameter.decode(reader, reader.uint32());
+                    message.einsum_param = nnabla.EinsumParameter.decode(reader, reader.uint32());
                     break;
                 case 100:
-                    message.repeat_param = $root.nnabla.RepeatParameter.decode(reader, reader.uint32());
+                    message.repeat_param = nnabla.RepeatParameter.decode(reader, reader.uint32());
                     break;
                 case 101:
-                    message.recurrent_param = $root.nnabla.RecurrentParameter.decode(reader, reader.uint32());
+                    message.recurrent_param = nnabla.RecurrentParameter.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -3793,7 +3791,7 @@ $root.nnabla.Function = class Function {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Function();
+        const message = new nnabla.Function();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -3808,7 +3806,7 @@ $root.nnabla.Function = class Function {
                     reader.array(message.repeat_id, () => reader.string());
                     break;
                 case "context":
-                    message.context = $root.nnabla.Context.decodeText(reader);
+                    message.context = nnabla.Context.decodeText(reader);
                     break;
                 case "input":
                     reader.array(message.input, () => reader.string());
@@ -3817,478 +3815,478 @@ $root.nnabla.Function = class Function {
                     reader.array(message.output, () => reader.string());
                     break;
                 case "affine_param":
-                    message.affine_param = $root.nnabla.AffineParameter.decodeText(reader);
+                    message.affine_param = nnabla.AffineParameter.decodeText(reader);
                     break;
                 case "rnn_param":
-                    message.rnn_param = $root.nnabla.RNNParameter.decodeText(reader);
+                    message.rnn_param = nnabla.RNNParameter.decodeText(reader);
                     break;
                 case "lstm_param":
-                    message.lstm_param = $root.nnabla.LSTMParameter.decodeText(reader);
+                    message.lstm_param = nnabla.LSTMParameter.decodeText(reader);
                     break;
                 case "gru_param":
-                    message.gru_param = $root.nnabla.GRUParameter.decodeText(reader);
+                    message.gru_param = nnabla.GRUParameter.decodeText(reader);
                     break;
                 case "convolution_param":
-                    message.convolution_param = $root.nnabla.ConvolutionParameter.decodeText(reader);
+                    message.convolution_param = nnabla.ConvolutionParameter.decodeText(reader);
                     break;
                 case "fused_convolution_param":
-                    message.fused_convolution_param = $root.nnabla.FusedConvolutionParameter.decodeText(reader);
+                    message.fused_convolution_param = nnabla.FusedConvolutionParameter.decodeText(reader);
                     break;
                 case "depthwise_convolution_param":
-                    message.depthwise_convolution_param = $root.nnabla.DepthwiseConvolutionParameter.decodeText(reader);
+                    message.depthwise_convolution_param = nnabla.DepthwiseConvolutionParameter.decodeText(reader);
                     break;
                 case "deconvolution_param":
-                    message.deconvolution_param = $root.nnabla.DeconvolutionParameter.decodeText(reader);
+                    message.deconvolution_param = nnabla.DeconvolutionParameter.decodeText(reader);
                     break;
                 case "depthwise_deconvolution_param":
-                    message.depthwise_deconvolution_param = $root.nnabla.DepthwiseDeconvolutionParameter.decodeText(reader);
+                    message.depthwise_deconvolution_param = nnabla.DepthwiseDeconvolutionParameter.decodeText(reader);
                     break;
                 case "deformable_convolution_param":
-                    message.deformable_convolution_param = $root.nnabla.DeformableConvolutionParameter.decodeText(reader);
+                    message.deformable_convolution_param = nnabla.DeformableConvolutionParameter.decodeText(reader);
                     break;
                 case "max_pooling_param":
-                    message.max_pooling_param = $root.nnabla.MaxPoolingParameter.decodeText(reader);
+                    message.max_pooling_param = nnabla.MaxPoolingParameter.decodeText(reader);
                     break;
                 case "average_pooling_param":
-                    message.average_pooling_param = $root.nnabla.AveragePoolingParameter.decodeText(reader);
+                    message.average_pooling_param = nnabla.AveragePoolingParameter.decodeText(reader);
                     break;
                 case "sum_pooling_param":
-                    message.sum_pooling_param = $root.nnabla.SumPoolingParameter.decodeText(reader);
+                    message.sum_pooling_param = nnabla.SumPoolingParameter.decodeText(reader);
                     break;
                 case "unpooling_param":
-                    message.unpooling_param = $root.nnabla.UnpoolingParameter.decodeText(reader);
+                    message.unpooling_param = nnabla.UnpoolingParameter.decodeText(reader);
                     break;
                 case "roi_align_param":
-                    message.roi_align_param = $root.nnabla.RoiAlignParameter.decodeText(reader);
+                    message.roi_align_param = nnabla.RoiAlignParameter.decodeText(reader);
                     break;
                 case "relu_param":
-                    message.relu_param = $root.nnabla.ReLUParameter.decodeText(reader);
+                    message.relu_param = nnabla.ReLUParameter.decodeText(reader);
                     break;
                 case "leaky_relu_param":
-                    message.leaky_relu_param = $root.nnabla.LeakyReLUParameter.decodeText(reader);
+                    message.leaky_relu_param = nnabla.LeakyReLUParameter.decodeText(reader);
                     break;
                 case "softmax_param":
-                    message.softmax_param = $root.nnabla.SoftmaxParameter.decodeText(reader);
+                    message.softmax_param = nnabla.SoftmaxParameter.decodeText(reader);
                     break;
                 case "log_softmax_param":
-                    message.log_softmax_param = $root.nnabla.LogSoftmaxParameter.decodeText(reader);
+                    message.log_softmax_param = nnabla.LogSoftmaxParameter.decodeText(reader);
                     break;
                 case "elu_param":
-                    message.elu_param = $root.nnabla.ELUParameter.decodeText(reader);
+                    message.elu_param = nnabla.ELUParameter.decodeText(reader);
                     break;
                 case "selu_param":
-                    message.selu_param = $root.nnabla.SELUParameter.decodeText(reader);
+                    message.selu_param = nnabla.SELUParameter.decodeText(reader);
                     break;
                 case "crelu_param":
-                    message.crelu_param = $root.nnabla.CReLUParameter.decodeText(reader);
+                    message.crelu_param = nnabla.CReLUParameter.decodeText(reader);
                     break;
                 case "celu_param":
-                    message.celu_param = $root.nnabla.CELUParameter.decodeText(reader);
+                    message.celu_param = nnabla.CELUParameter.decodeText(reader);
                     break;
                 case "prelu_param":
-                    message.prelu_param = $root.nnabla.PReLUParameter.decodeText(reader);
+                    message.prelu_param = nnabla.PReLUParameter.decodeText(reader);
                     break;
                 case "softplus_param":
-                    message.softplus_param = $root.nnabla.SoftPlusParameter.decodeText(reader);
+                    message.softplus_param = nnabla.SoftPlusParameter.decodeText(reader);
                     break;
                 case "fused_batch_normalization_param":
-                    message.fused_batch_normalization_param = $root.nnabla.FusedBatchNormalizationParameter.decodeText(reader);
+                    message.fused_batch_normalization_param = nnabla.FusedBatchNormalizationParameter.decodeText(reader);
                     break;
                 case "batch_normalization_param":
-                    message.batch_normalization_param = $root.nnabla.BatchNormalizationParameter.decodeText(reader);
+                    message.batch_normalization_param = nnabla.BatchNormalizationParameter.decodeText(reader);
                     break;
                 case "group_normalization_param":
-                    message.group_normalization_param = $root.nnabla.GroupNormalizationParameter.decodeText(reader);
+                    message.group_normalization_param = nnabla.GroupNormalizationParameter.decodeText(reader);
                     break;
                 case "instance_normalization_param":
-                    message.instance_normalization_param = $root.nnabla.InstanceNormalizationParameter.decodeText(reader);
+                    message.instance_normalization_param = nnabla.InstanceNormalizationParameter.decodeText(reader);
                     break;
                 case "layer_normalization_param":
-                    message.layer_normalization_param = $root.nnabla.LayerNormalizationParameter.decodeText(reader);
+                    message.layer_normalization_param = nnabla.LayerNormalizationParameter.decodeText(reader);
                     break;
                 case "norm_normalization_param":
-                    message.norm_normalization_param = $root.nnabla.NormNormalizationParameter.decodeText(reader);
+                    message.norm_normalization_param = nnabla.NormNormalizationParameter.decodeText(reader);
                     break;
                 case "sync_batch_normalization_param":
-                    message.sync_batch_normalization_param = $root.nnabla.SyncBatchNormalizationParameter.decodeText(reader);
+                    message.sync_batch_normalization_param = nnabla.SyncBatchNormalizationParameter.decodeText(reader);
                     break;
                 case "tensor_normalization_param":
-                    message.tensor_normalization_param = $root.nnabla.TensorNormalizationParameter.decodeText(reader);
+                    message.tensor_normalization_param = nnabla.TensorNormalizationParameter.decodeText(reader);
                     break;
                 case "weight_normalization_param":
-                    message.weight_normalization_param = $root.nnabla.WeightNormalizationParameter.decodeText(reader);
+                    message.weight_normalization_param = nnabla.WeightNormalizationParameter.decodeText(reader);
                     break;
                 case "weight_standardization_param":
-                    message.weight_standardization_param = $root.nnabla.WeightStandardizationParameter.decodeText(reader);
+                    message.weight_standardization_param = nnabla.WeightStandardizationParameter.decodeText(reader);
                     break;
                 case "spectral_norm_param":
-                    message.spectral_norm_param = $root.nnabla.SpectralNormParameter.decodeText(reader);
+                    message.spectral_norm_param = nnabla.SpectralNormParameter.decodeText(reader);
                     break;
                 case "mean_subtraction_param":
-                    message.mean_subtraction_param = $root.nnabla.MeanSubtractionParameter.decodeText(reader);
+                    message.mean_subtraction_param = nnabla.MeanSubtractionParameter.decodeText(reader);
                     break;
                 case "clip_grad_by_norm_param":
-                    message.clip_grad_by_norm_param = $root.nnabla.ClipGradByNormParameter.decodeText(reader);
+                    message.clip_grad_by_norm_param = nnabla.ClipGradByNormParameter.decodeText(reader);
                     break;
                 case "sum_param":
-                    message.sum_param = $root.nnabla.SumParameter.decodeText(reader);
+                    message.sum_param = nnabla.SumParameter.decodeText(reader);
                     break;
                 case "cumsum_param":
-                    message.cumsum_param = $root.nnabla.CumSumParameter.decodeText(reader);
+                    message.cumsum_param = nnabla.CumSumParameter.decodeText(reader);
                     break;
                 case "mean_param":
-                    message.mean_param = $root.nnabla.MeanParameter.decodeText(reader);
+                    message.mean_param = nnabla.MeanParameter.decodeText(reader);
                     break;
                 case "max_param":
-                    message.max_param = $root.nnabla.MaxParameter.decodeText(reader);
+                    message.max_param = nnabla.MaxParameter.decodeText(reader);
                     break;
                 case "min_param":
-                    message.min_param = $root.nnabla.MinParameter.decodeText(reader);
+                    message.min_param = nnabla.MinParameter.decodeText(reader);
                     break;
                 case "norm_param":
-                    message.norm_param = $root.nnabla.NormParameter.decodeText(reader);
+                    message.norm_param = nnabla.NormParameter.decodeText(reader);
                     break;
                 case "prod_param":
-                    message.prod_param = $root.nnabla.ProdParameter.decodeText(reader);
+                    message.prod_param = nnabla.ProdParameter.decodeText(reader);
                     break;
                 case "cumprod_param":
-                    message.cumprod_param = $root.nnabla.CumProdParameter.decodeText(reader);
+                    message.cumprod_param = nnabla.CumProdParameter.decodeText(reader);
                     break;
                 case "add2_param":
-                    message.add2_param = $root.nnabla.Add2Parameter.decodeText(reader);
+                    message.add2_param = nnabla.Add2Parameter.decodeText(reader);
                     break;
                 case "bc_add2_param":
-                    message.bc_add2_param = $root.nnabla.BcAdd2Parameter.decodeText(reader);
+                    message.bc_add2_param = nnabla.BcAdd2Parameter.decodeText(reader);
                     break;
                 case "sub2_param":
-                    message.sub2_param = $root.nnabla.Sub2Parameter.decodeText(reader);
+                    message.sub2_param = nnabla.Sub2Parameter.decodeText(reader);
                     break;
                 case "mul2_param":
-                    message.mul2_param = $root.nnabla.Mul2Parameter.decodeText(reader);
+                    message.mul2_param = nnabla.Mul2Parameter.decodeText(reader);
                     break;
                 case "div2_param":
-                    message.div2_param = $root.nnabla.Div2Parameter.decodeText(reader);
+                    message.div2_param = nnabla.Div2Parameter.decodeText(reader);
                     break;
                 case "pow2_param":
-                    message.pow2_param = $root.nnabla.Pow2Parameter.decodeText(reader);
+                    message.pow2_param = nnabla.Pow2Parameter.decodeText(reader);
                     break;
                 case "add_scalar_param":
-                    message.add_scalar_param = $root.nnabla.AddScalarParameter.decodeText(reader);
+                    message.add_scalar_param = nnabla.AddScalarParameter.decodeText(reader);
                     break;
                 case "mul_scalar_param":
-                    message.mul_scalar_param = $root.nnabla.MulScalarParameter.decodeText(reader);
+                    message.mul_scalar_param = nnabla.MulScalarParameter.decodeText(reader);
                     break;
                 case "pow_scalar_param":
-                    message.pow_scalar_param = $root.nnabla.PowScalarParameter.decodeText(reader);
+                    message.pow_scalar_param = nnabla.PowScalarParameter.decodeText(reader);
                     break;
                 case "r_sub_scalar_param":
-                    message.r_sub_scalar_param = $root.nnabla.RSubScalarParameter.decodeText(reader);
+                    message.r_sub_scalar_param = nnabla.RSubScalarParameter.decodeText(reader);
                     break;
                 case "r_div_scalar_param":
-                    message.r_div_scalar_param = $root.nnabla.RDivScalarParameter.decodeText(reader);
+                    message.r_div_scalar_param = nnabla.RDivScalarParameter.decodeText(reader);
                     break;
                 case "r_pow_scalar_param":
-                    message.r_pow_scalar_param = $root.nnabla.RPowScalarParameter.decodeText(reader);
+                    message.r_pow_scalar_param = nnabla.RPowScalarParameter.decodeText(reader);
                     break;
                 case "sign_param":
-                    message.sign_param = $root.nnabla.SignParameter.decodeText(reader);
+                    message.sign_param = nnabla.SignParameter.decodeText(reader);
                     break;
                 case "minimum_scalar_param":
-                    message.minimum_scalar_param = $root.nnabla.MinimumScalarParameter.decodeText(reader);
+                    message.minimum_scalar_param = nnabla.MinimumScalarParameter.decodeText(reader);
                     break;
                 case "maximum_scalar_param":
-                    message.maximum_scalar_param = $root.nnabla.MaximumScalarParameter.decodeText(reader);
+                    message.maximum_scalar_param = nnabla.MaximumScalarParameter.decodeText(reader);
                     break;
                 case "searchsorted_param":
-                    message.searchsorted_param = $root.nnabla.SearchSortedParameter.decodeText(reader);
+                    message.searchsorted_param = nnabla.SearchSortedParameter.decodeText(reader);
                     break;
                 case "logical_and_scalar_param":
-                    message.logical_and_scalar_param = $root.nnabla.LogicalAndScalarParameter.decodeText(reader);
+                    message.logical_and_scalar_param = nnabla.LogicalAndScalarParameter.decodeText(reader);
                     break;
                 case "logical_or_scalar_param":
-                    message.logical_or_scalar_param = $root.nnabla.LogicalOrScalarParameter.decodeText(reader);
+                    message.logical_or_scalar_param = nnabla.LogicalOrScalarParameter.decodeText(reader);
                     break;
                 case "logical_xor_scalar_param":
-                    message.logical_xor_scalar_param = $root.nnabla.LogicalXorScalarParameter.decodeText(reader);
+                    message.logical_xor_scalar_param = nnabla.LogicalXorScalarParameter.decodeText(reader);
                     break;
                 case "equal_scalar_param":
-                    message.equal_scalar_param = $root.nnabla.EqualScalarParameter.decodeText(reader);
+                    message.equal_scalar_param = nnabla.EqualScalarParameter.decodeText(reader);
                     break;
                 case "not_equal_scalar_param":
-                    message.not_equal_scalar_param = $root.nnabla.NotEqualScalarParameter.decodeText(reader);
+                    message.not_equal_scalar_param = nnabla.NotEqualScalarParameter.decodeText(reader);
                     break;
                 case "greater_equal_scalar_param":
-                    message.greater_equal_scalar_param = $root.nnabla.GreaterEqualScalarParameter.decodeText(reader);
+                    message.greater_equal_scalar_param = nnabla.GreaterEqualScalarParameter.decodeText(reader);
                     break;
                 case "greater_scalar_param":
-                    message.greater_scalar_param = $root.nnabla.GreaterScalarParameter.decodeText(reader);
+                    message.greater_scalar_param = nnabla.GreaterScalarParameter.decodeText(reader);
                     break;
                 case "less_equal_scalar_param":
-                    message.less_equal_scalar_param = $root.nnabla.LessEqualScalarParameter.decodeText(reader);
+                    message.less_equal_scalar_param = nnabla.LessEqualScalarParameter.decodeText(reader);
                     break;
                 case "less_scalar_param":
-                    message.less_scalar_param = $root.nnabla.LessScalarParameter.decodeText(reader);
+                    message.less_scalar_param = nnabla.LessScalarParameter.decodeText(reader);
                     break;
                 case "reset_nan_param":
-                    message.reset_nan_param = $root.nnabla.ResetNaNParameter.decodeText(reader);
+                    message.reset_nan_param = nnabla.ResetNaNParameter.decodeText(reader);
                     break;
                 case "reset_inf_param":
-                    message.reset_inf_param = $root.nnabla.ResetInfParameter.decodeText(reader);
+                    message.reset_inf_param = nnabla.ResetInfParameter.decodeText(reader);
                     break;
                 case "constant_param":
-                    message.constant_param = $root.nnabla.ConstantParameter.decodeText(reader);
+                    message.constant_param = nnabla.ConstantParameter.decodeText(reader);
                     break;
                 case "arange_param":
-                    message.arange_param = $root.nnabla.ArangeParameter.decodeText(reader);
+                    message.arange_param = nnabla.ArangeParameter.decodeText(reader);
                     break;
                 case "linspace_param":
-                    message.linspace_param = $root.nnabla.LinspaceParameter.decodeText(reader);
+                    message.linspace_param = nnabla.LinspaceParameter.decodeText(reader);
                     break;
                 case "batch_matmul_param":
-                    message.batch_matmul_param = $root.nnabla.BatchMatmulParameter.decodeText(reader);
+                    message.batch_matmul_param = nnabla.BatchMatmulParameter.decodeText(reader);
                     break;
                 case "round_param":
-                    message.round_param = $root.nnabla.RoundParameter.decodeText(reader);
+                    message.round_param = nnabla.RoundParameter.decodeText(reader);
                     break;
                 case "ceil_param":
-                    message.ceil_param = $root.nnabla.CeilParameter.decodeText(reader);
+                    message.ceil_param = nnabla.CeilParameter.decodeText(reader);
                     break;
                 case "floor_param":
-                    message.floor_param = $root.nnabla.FloorParameter.decodeText(reader);
+                    message.floor_param = nnabla.FloorParameter.decodeText(reader);
                     break;
                 case "concatenate_param":
-                    message.concatenate_param = $root.nnabla.ConcatenateParameter.decodeText(reader);
+                    message.concatenate_param = nnabla.ConcatenateParameter.decodeText(reader);
                     break;
                 case "split_param":
-                    message.split_param = $root.nnabla.SplitParameter.decodeText(reader);
+                    message.split_param = nnabla.SplitParameter.decodeText(reader);
                     break;
                 case "stack_param":
-                    message.stack_param = $root.nnabla.StackParameter.decodeText(reader);
+                    message.stack_param = nnabla.StackParameter.decodeText(reader);
                     break;
                 case "slice_param":
-                    message.slice_param = $root.nnabla.SliceParameter.decodeText(reader);
+                    message.slice_param = nnabla.SliceParameter.decodeText(reader);
                     break;
                 case "pad_param":
-                    message.pad_param = $root.nnabla.PadParameter.decodeText(reader);
+                    message.pad_param = nnabla.PadParameter.decodeText(reader);
                     break;
                 case "transpose_param":
-                    message.transpose_param = $root.nnabla.TransposeParameter.decodeText(reader);
+                    message.transpose_param = nnabla.TransposeParameter.decodeText(reader);
                     break;
                 case "broadcast_param":
-                    message.broadcast_param = $root.nnabla.BroadcastParameter.decodeText(reader);
+                    message.broadcast_param = nnabla.BroadcastParameter.decodeText(reader);
                     break;
                 case "broadcast_to_param":
-                    message.broadcast_to_param = $root.nnabla.BroadcastToParameter.decodeText(reader);
+                    message.broadcast_to_param = nnabla.BroadcastToParameter.decodeText(reader);
                     break;
                 case "tile_param":
-                    message.tile_param = $root.nnabla.TileParameter.decodeText(reader);
+                    message.tile_param = nnabla.TileParameter.decodeText(reader);
                     break;
                 case "one_hot_param":
-                    message.one_hot_param = $root.nnabla.OneHotParameter.decodeText(reader);
+                    message.one_hot_param = nnabla.OneHotParameter.decodeText(reader);
                     break;
                 case "flip_param":
-                    message.flip_param = $root.nnabla.FlipParameter.decodeText(reader);
+                    message.flip_param = nnabla.FlipParameter.decodeText(reader);
                     break;
                 case "shift_param":
-                    message.shift_param = $root.nnabla.ShiftParameter.decodeText(reader);
+                    message.shift_param = nnabla.ShiftParameter.decodeText(reader);
                     break;
                 case "sort_param":
-                    message.sort_param = $root.nnabla.SortParameter.decodeText(reader);
+                    message.sort_param = nnabla.SortParameter.decodeText(reader);
                     break;
                 case "reshape_param":
-                    message.reshape_param = $root.nnabla.ReshapeParameter.decodeText(reader);
+                    message.reshape_param = nnabla.ReshapeParameter.decodeText(reader);
                     break;
                 case "shape_param":
-                    message.shape_param = $root.nnabla.ShapeParameter.decodeText(reader);
+                    message.shape_param = nnabla.ShapeParameter.decodeText(reader);
                     break;
                 case "trilu_param":
-                    message.trilu_param = $root.nnabla.TriluParameter.decodeText(reader);
+                    message.trilu_param = nnabla.TriluParameter.decodeText(reader);
                     break;
                 case "meshgrid_param":
-                    message.meshgrid_param = $root.nnabla.MeshgridParameter.decodeText(reader);
+                    message.meshgrid_param = nnabla.MeshgridParameter.decodeText(reader);
                     break;
                 case "batch_cholesky_param":
-                    message.batch_cholesky_param = $root.nnabla.BatchCholeskyParameter.decodeText(reader);
+                    message.batch_cholesky_param = nnabla.BatchCholeskyParameter.decodeText(reader);
                     break;
                 case "gather_param":
-                    message.gather_param = $root.nnabla.GatherParameter.decodeText(reader);
+                    message.gather_param = nnabla.GatherParameter.decodeText(reader);
                     break;
                 case "scatter_nd_param":
-                    message.scatter_nd_param = $root.nnabla.ScatterNdParameter.decodeText(reader);
+                    message.scatter_nd_param = nnabla.ScatterNdParameter.decodeText(reader);
                     break;
                 case "scatter_add_param":
-                    message.scatter_add_param = $root.nnabla.ScatterAddParameter.decodeText(reader);
+                    message.scatter_add_param = nnabla.ScatterAddParameter.decodeText(reader);
                     break;
                 case "bool_fill_param":
-                    message.bool_fill_param = $root.nnabla.BoolFillParameter.decodeText(reader);
+                    message.bool_fill_param = nnabla.BoolFillParameter.decodeText(reader);
                     break;
                 case "pack_padded_sequence_param":
-                    message.pack_padded_sequence_param = $root.nnabla.PackPaddedSequenceParameter.decodeText(reader);
+                    message.pack_padded_sequence_param = nnabla.PackPaddedSequenceParameter.decodeText(reader);
                     break;
                 case "pad_packed_sequence_param":
-                    message.pad_packed_sequence_param = $root.nnabla.PadPackedSequenceParameter.decodeText(reader);
+                    message.pad_packed_sequence_param = nnabla.PadPackedSequenceParameter.decodeText(reader);
                     break;
                 case "interpolate_param":
-                    message.interpolate_param = $root.nnabla.InterpolateParameter.decodeText(reader);
+                    message.interpolate_param = nnabla.InterpolateParameter.decodeText(reader);
                     break;
                 case "onnx_resize_param":
-                    message.onnx_resize_param = $root.nnabla.ONNXResizeParameter.decodeText(reader);
+                    message.onnx_resize_param = nnabla.ONNXResizeParameter.decodeText(reader);
                     break;
                 case "fft_param":
-                    message.fft_param = $root.nnabla.FFTParameter.decodeText(reader);
+                    message.fft_param = nnabla.FFTParameter.decodeText(reader);
                     break;
                 case "ifft_param":
-                    message.ifft_param = $root.nnabla.IFFTParameter.decodeText(reader);
+                    message.ifft_param = nnabla.IFFTParameter.decodeText(reader);
                     break;
                 case "stft_param":
-                    message.stft_param = $root.nnabla.STFTParameter.decodeText(reader);
+                    message.stft_param = nnabla.STFTParameter.decodeText(reader);
                     break;
                 case "istft_param":
-                    message.istft_param = $root.nnabla.ISTFTParameter.decodeText(reader);
+                    message.istft_param = nnabla.ISTFTParameter.decodeText(reader);
                     break;
                 case "dropout_param":
-                    message.dropout_param = $root.nnabla.DropoutParameter.decodeText(reader);
+                    message.dropout_param = nnabla.DropoutParameter.decodeText(reader);
                     break;
                 case "top_k_data_param":
-                    message.top_k_data_param = $root.nnabla.TopKDataParameter.decodeText(reader);
+                    message.top_k_data_param = nnabla.TopKDataParameter.decodeText(reader);
                     break;
                 case "top_k_grad_param":
-                    message.top_k_grad_param = $root.nnabla.TopKGradParameter.decodeText(reader);
+                    message.top_k_grad_param = nnabla.TopKGradParameter.decodeText(reader);
                     break;
                 case "rand_param":
-                    message.rand_param = $root.nnabla.RandParameter.decodeText(reader);
+                    message.rand_param = nnabla.RandParameter.decodeText(reader);
                     break;
                 case "randint_param":
-                    message.randint_param = $root.nnabla.RandintParameter.decodeText(reader);
+                    message.randint_param = nnabla.RandintParameter.decodeText(reader);
                     break;
                 case "randn_param":
-                    message.randn_param = $root.nnabla.RandnParameter.decodeText(reader);
+                    message.randn_param = nnabla.RandnParameter.decodeText(reader);
                     break;
                 case "rand_binomial_param":
-                    message.rand_binomial_param = $root.nnabla.RandBinomialParameter.decodeText(reader);
+                    message.rand_binomial_param = nnabla.RandBinomialParameter.decodeText(reader);
                     break;
                 case "rand_beta_param":
-                    message.rand_beta_param = $root.nnabla.RandBetaParameter.decodeText(reader);
+                    message.rand_beta_param = nnabla.RandBetaParameter.decodeText(reader);
                     break;
                 case "rand_gamma_param":
-                    message.rand_gamma_param = $root.nnabla.RandGammaParameter.decodeText(reader);
+                    message.rand_gamma_param = nnabla.RandGammaParameter.decodeText(reader);
                     break;
                 case "random_choice_param":
-                    message.random_choice_param = $root.nnabla.RandomChoiceParameter.decodeText(reader);
+                    message.random_choice_param = nnabla.RandomChoiceParameter.decodeText(reader);
                     break;
                 case "random_crop_param":
-                    message.random_crop_param = $root.nnabla.RandomCropParameter.decodeText(reader);
+                    message.random_crop_param = nnabla.RandomCropParameter.decodeText(reader);
                     break;
                 case "random_flip_param":
-                    message.random_flip_param = $root.nnabla.RandomFlipParameter.decodeText(reader);
+                    message.random_flip_param = nnabla.RandomFlipParameter.decodeText(reader);
                     break;
                 case "random_shift_param":
-                    message.random_shift_param = $root.nnabla.RandomShiftParameter.decodeText(reader);
+                    message.random_shift_param = nnabla.RandomShiftParameter.decodeText(reader);
                     break;
                 case "random_erase_param":
-                    message.random_erase_param = $root.nnabla.RandomEraseParameter.decodeText(reader);
+                    message.random_erase_param = nnabla.RandomEraseParameter.decodeText(reader);
                     break;
                 case "image_augmentation_param":
-                    message.image_augmentation_param = $root.nnabla.ImageAugmentationParameter.decodeText(reader);
+                    message.image_augmentation_param = nnabla.ImageAugmentationParameter.decodeText(reader);
                     break;
                 case "softmax_cross_entropy_param":
-                    message.softmax_cross_entropy_param = $root.nnabla.SoftmaxCrossEntropyParameter.decodeText(reader);
+                    message.softmax_cross_entropy_param = nnabla.SoftmaxCrossEntropyParameter.decodeText(reader);
                     break;
                 case "categorical_cross_entropy_param":
-                    message.categorical_cross_entropy_param = $root.nnabla.CategoricalCrossEntropyParameter.decodeText(reader);
+                    message.categorical_cross_entropy_param = nnabla.CategoricalCrossEntropyParameter.decodeText(reader);
                     break;
                 case "huber_loss_param":
-                    message.huber_loss_param = $root.nnabla.HuberLossParameter.decodeText(reader);
+                    message.huber_loss_param = nnabla.HuberLossParameter.decodeText(reader);
                     break;
                 case "epsilon_insensitive_loss_param":
-                    message.epsilon_insensitive_loss_param = $root.nnabla.EpsilonInsensitiveLossParameter.decodeText(reader);
+                    message.epsilon_insensitive_loss_param = nnabla.EpsilonInsensitiveLossParameter.decodeText(reader);
                     break;
                 case "kl_multinomial_param":
-                    message.kl_multinomial_param = $root.nnabla.KLMultinomialParameter.decodeText(reader);
+                    message.kl_multinomial_param = nnabla.KLMultinomialParameter.decodeText(reader);
                     break;
                 case "affine_grid_param":
-                    message.affine_grid_param = $root.nnabla.AffineGridParameter.decodeText(reader);
+                    message.affine_grid_param = nnabla.AffineGridParameter.decodeText(reader);
                     break;
                 case "warp_by_grid_param":
-                    message.warp_by_grid_param = $root.nnabla.WarpByGridParameter.decodeText(reader);
+                    message.warp_by_grid_param = nnabla.WarpByGridParameter.decodeText(reader);
                     break;
                 case "binary_connect_affine_param":
-                    message.binary_connect_affine_param = $root.nnabla.BinaryConnectAffineParameter.decodeText(reader);
+                    message.binary_connect_affine_param = nnabla.BinaryConnectAffineParameter.decodeText(reader);
                     break;
                 case "binary_connect_convolution_param":
-                    message.binary_connect_convolution_param = $root.nnabla.BinaryConnectConvolutionParameter.decodeText(reader);
+                    message.binary_connect_convolution_param = nnabla.BinaryConnectConvolutionParameter.decodeText(reader);
                     break;
                 case "binary_weight_affine_param":
-                    message.binary_weight_affine_param = $root.nnabla.BinaryWeightAffineParameter.decodeText(reader);
+                    message.binary_weight_affine_param = nnabla.BinaryWeightAffineParameter.decodeText(reader);
                     break;
                 case "binary_weight_convolution_param":
-                    message.binary_weight_convolution_param = $root.nnabla.BinaryWeightConvolutionParameter.decodeText(reader);
+                    message.binary_weight_convolution_param = nnabla.BinaryWeightConvolutionParameter.decodeText(reader);
                     break;
                 case "inq_affine_param":
-                    message.inq_affine_param = $root.nnabla.INQAffineParameter.decodeText(reader);
+                    message.inq_affine_param = nnabla.INQAffineParameter.decodeText(reader);
                     break;
                 case "inq_convolution_param":
-                    message.inq_convolution_param = $root.nnabla.INQConvolutionParameter.decodeText(reader);
+                    message.inq_convolution_param = nnabla.INQConvolutionParameter.decodeText(reader);
                     break;
                 case "fixed_point_quantize_param":
-                    message.fixed_point_quantize_param = $root.nnabla.FixedPointQuantizeParameter.decodeText(reader);
+                    message.fixed_point_quantize_param = nnabla.FixedPointQuantizeParameter.decodeText(reader);
                     break;
                 case "min_max_quantize_param":
-                    message.min_max_quantize_param = $root.nnabla.MinMaxQuantizeParameter.decodeText(reader);
+                    message.min_max_quantize_param = nnabla.MinMaxQuantizeParameter.decodeText(reader);
                     break;
                 case "pow2_quantize_param":
-                    message.pow2_quantize_param = $root.nnabla.Pow2QuantizeParameter.decodeText(reader);
+                    message.pow2_quantize_param = nnabla.Pow2QuantizeParameter.decodeText(reader);
                     break;
                 case "prune_param":
-                    message.prune_param = $root.nnabla.PruneParameter.decodeText(reader);
+                    message.prune_param = nnabla.PruneParameter.decodeText(reader);
                     break;
                 case "quantize_linear_param":
-                    message.quantize_linear_param = $root.nnabla.QuantizeLinearParameter.decodeText(reader);
+                    message.quantize_linear_param = nnabla.QuantizeLinearParameter.decodeText(reader);
                     break;
                 case "top_n_error_param":
-                    message.top_n_error_param = $root.nnabla.TopNErrorParameter.decodeText(reader);
+                    message.top_n_error_param = nnabla.TopNErrorParameter.decodeText(reader);
                     break;
                 case "confusion_matrix_param":
-                    message.confusion_matrix_param = $root.nnabla.ConfusionMatrixParameter.decodeText(reader);
+                    message.confusion_matrix_param = nnabla.ConfusionMatrixParameter.decodeText(reader);
                     break;
                 case "vat_noise_param":
-                    message.vat_noise_param = $root.nnabla.VATNoiseParameter.decodeText(reader);
+                    message.vat_noise_param = nnabla.VATNoiseParameter.decodeText(reader);
                     break;
                 case "sink_param":
-                    message.sink_param = $root.nnabla.SinkParameter.decodeText(reader);
+                    message.sink_param = nnabla.SinkParameter.decodeText(reader);
                     break;
                 case "nms_detection2d_param":
-                    message.nms_detection2d_param = $root.nnabla.NmsDetection2dParameter.decodeText(reader);
+                    message.nms_detection2d_param = nnabla.NmsDetection2dParameter.decodeText(reader);
                     break;
                 case "onnx_non_max_suppression_param":
-                    message.onnx_non_max_suppression_param = $root.nnabla.ONNXNonMaxSuppressionParameter.decodeText(reader);
+                    message.onnx_non_max_suppression_param = nnabla.ONNXNonMaxSuppressionParameter.decodeText(reader);
                     break;
                 case "max_pooling_backward_param":
-                    message.max_pooling_backward_param = $root.nnabla.MaxPoolingBackwardParameter.decodeText(reader);
+                    message.max_pooling_backward_param = nnabla.MaxPoolingBackwardParameter.decodeText(reader);
                     break;
                 case "patch_correlation_param":
-                    message.patch_correlation_param = $root.nnabla.PatchCorrelationParameter.decodeText(reader);
+                    message.patch_correlation_param = nnabla.PatchCorrelationParameter.decodeText(reader);
                     break;
                 case "unique_param":
-                    message.unique_param = $root.nnabla.UniqueParameter.decodeText(reader);
+                    message.unique_param = nnabla.UniqueParameter.decodeText(reader);
                     break;
                 case "eye_like_param":
-                    message.eye_like_param = $root.nnabla.EyeLikeParameter.decodeText(reader);
+                    message.eye_like_param = nnabla.EyeLikeParameter.decodeText(reader);
                     break;
                 case "mod2_param":
-                    message.mod2_param = $root.nnabla.Mod2Parameter.decodeText(reader);
+                    message.mod2_param = nnabla.Mod2Parameter.decodeText(reader);
                     break;
                 case "bit_shift_param":
-                    message.bit_shift_param = $root.nnabla.BitShiftParameter.decodeText(reader);
+                    message.bit_shift_param = nnabla.BitShiftParameter.decodeText(reader);
                     break;
                 case "einsum_param":
-                    message.einsum_param = $root.nnabla.EinsumParameter.decodeText(reader);
+                    message.einsum_param = nnabla.EinsumParameter.decodeText(reader);
                     break;
                 case "repeat_param":
-                    message.repeat_param = $root.nnabla.RepeatParameter.decodeText(reader);
+                    message.repeat_param = nnabla.RepeatParameter.decodeText(reader);
                     break;
                 case "recurrent_param":
-                    message.recurrent_param = $root.nnabla.RecurrentParameter.decodeText(reader);
+                    message.recurrent_param = nnabla.RecurrentParameter.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -4299,19 +4297,19 @@ $root.nnabla.Function = class Function {
     }
 };
 
-$root.nnabla.Function.prototype.name = "";
-$root.nnabla.Function.prototype.type = "";
-$root.nnabla.Function.prototype.context = null;
-$root.nnabla.Function.prototype.repeat_param = null;
-$root.nnabla.Function.prototype.recurrent_param = null;
+nnabla.Function.prototype.name = "";
+nnabla.Function.prototype.type = "";
+nnabla.Function.prototype.context = null;
+nnabla.Function.prototype.repeat_param = null;
+nnabla.Function.prototype.recurrent_param = null;
 
-$root.nnabla.AffineParameter = class AffineParameter {
+nnabla.AffineParameter = class AffineParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.AffineParameter();
+        const message = new nnabla.AffineParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -4328,7 +4326,7 @@ $root.nnabla.AffineParameter = class AffineParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.AffineParameter();
+        const message = new nnabla.AffineParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -4345,15 +4343,15 @@ $root.nnabla.AffineParameter = class AffineParameter {
     }
 };
 
-$root.nnabla.AffineParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.AffineParameter.prototype.base_axis = protobuf.Int64.create(0);
 
-$root.nnabla.RNNParameter = class RNNParameter {
+nnabla.RNNParameter = class RNNParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RNNParameter();
+        const message = new nnabla.RNNParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -4382,7 +4380,7 @@ $root.nnabla.RNNParameter = class RNNParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RNNParameter();
+        const message = new nnabla.RNNParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -4411,19 +4409,19 @@ $root.nnabla.RNNParameter = class RNNParameter {
     }
 };
 
-$root.nnabla.RNNParameter.prototype.num_layers = protobuf.Int64.create(0);
-$root.nnabla.RNNParameter.prototype.nonlinearity = "";
-$root.nnabla.RNNParameter.prototype.dropout = 0;
-$root.nnabla.RNNParameter.prototype.bidirectional = false;
-$root.nnabla.RNNParameter.prototype.training = false;
+nnabla.RNNParameter.prototype.num_layers = protobuf.Int64.create(0);
+nnabla.RNNParameter.prototype.nonlinearity = "";
+nnabla.RNNParameter.prototype.dropout = 0;
+nnabla.RNNParameter.prototype.bidirectional = false;
+nnabla.RNNParameter.prototype.training = false;
 
-$root.nnabla.LSTMParameter = class LSTMParameter {
+nnabla.LSTMParameter = class LSTMParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LSTMParameter();
+        const message = new nnabla.LSTMParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -4449,7 +4447,7 @@ $root.nnabla.LSTMParameter = class LSTMParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LSTMParameter();
+        const message = new nnabla.LSTMParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -4475,18 +4473,18 @@ $root.nnabla.LSTMParameter = class LSTMParameter {
     }
 };
 
-$root.nnabla.LSTMParameter.prototype.num_layers = protobuf.Int64.create(0);
-$root.nnabla.LSTMParameter.prototype.dropout = 0;
-$root.nnabla.LSTMParameter.prototype.bidirectional = false;
-$root.nnabla.LSTMParameter.prototype.training = false;
+nnabla.LSTMParameter.prototype.num_layers = protobuf.Int64.create(0);
+nnabla.LSTMParameter.prototype.dropout = 0;
+nnabla.LSTMParameter.prototype.bidirectional = false;
+nnabla.LSTMParameter.prototype.training = false;
 
-$root.nnabla.GRUParameter = class GRUParameter {
+nnabla.GRUParameter = class GRUParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.GRUParameter();
+        const message = new nnabla.GRUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -4512,7 +4510,7 @@ $root.nnabla.GRUParameter = class GRUParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.GRUParameter();
+        const message = new nnabla.GRUParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -4538,18 +4536,18 @@ $root.nnabla.GRUParameter = class GRUParameter {
     }
 };
 
-$root.nnabla.GRUParameter.prototype.num_layers = protobuf.Int64.create(0);
-$root.nnabla.GRUParameter.prototype.dropout = 0;
-$root.nnabla.GRUParameter.prototype.bidirectional = false;
-$root.nnabla.GRUParameter.prototype.training = false;
+nnabla.GRUParameter.prototype.num_layers = protobuf.Int64.create(0);
+nnabla.GRUParameter.prototype.dropout = 0;
+nnabla.GRUParameter.prototype.bidirectional = false;
+nnabla.GRUParameter.prototype.training = false;
 
-$root.nnabla.ConvolutionParameter = class ConvolutionParameter {
+nnabla.ConvolutionParameter = class ConvolutionParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ConvolutionParameter();
+        const message = new nnabla.ConvolutionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -4558,13 +4556,13 @@ $root.nnabla.ConvolutionParameter = class ConvolutionParameter {
                     message.base_axis = reader.int64();
                     break;
                 case 2:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
-                    message.stride = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.stride = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    message.dilation = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.dilation = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.group = reader.int64();
@@ -4581,7 +4579,7 @@ $root.nnabla.ConvolutionParameter = class ConvolutionParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ConvolutionParameter();
+        const message = new nnabla.ConvolutionParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -4590,13 +4588,13 @@ $root.nnabla.ConvolutionParameter = class ConvolutionParameter {
                     message.base_axis = reader.int64();
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "stride":
-                    message.stride = $root.nnabla.Shape.decodeText(reader);
+                    message.stride = nnabla.Shape.decodeText(reader);
                     break;
                 case "dilation":
-                    message.dilation = $root.nnabla.Shape.decodeText(reader);
+                    message.dilation = nnabla.Shape.decodeText(reader);
                     break;
                 case "group":
                     message.group = reader.int64();
@@ -4613,21 +4611,21 @@ $root.nnabla.ConvolutionParameter = class ConvolutionParameter {
     }
 };
 
-$root.nnabla.ConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.ConvolutionParameter.prototype.pad = null;
-$root.nnabla.ConvolutionParameter.prototype.stride = null;
-$root.nnabla.ConvolutionParameter.prototype.dilation = null;
-$root.nnabla.ConvolutionParameter.prototype.group = protobuf.Int64.create(0);
-$root.nnabla.ConvolutionParameter.prototype.channel_last = false;
+nnabla.ConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.ConvolutionParameter.prototype.pad = null;
+nnabla.ConvolutionParameter.prototype.stride = null;
+nnabla.ConvolutionParameter.prototype.dilation = null;
+nnabla.ConvolutionParameter.prototype.group = protobuf.Int64.create(0);
+nnabla.ConvolutionParameter.prototype.channel_last = false;
 
-$root.nnabla.FusedConvolutionParameter = class FusedConvolutionParameter {
+nnabla.FusedConvolutionParameter = class FusedConvolutionParameter {
 
     constructor() {
         this.nonlinearity_args = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.FusedConvolutionParameter();
+        const message = new nnabla.FusedConvolutionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -4636,13 +4634,13 @@ $root.nnabla.FusedConvolutionParameter = class FusedConvolutionParameter {
                     message.base_axis = reader.int64();
                     break;
                 case 2:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
-                    message.stride = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.stride = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    message.dilation = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.dilation = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.group = reader.int64();
@@ -4680,7 +4678,7 @@ $root.nnabla.FusedConvolutionParameter = class FusedConvolutionParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.FusedConvolutionParameter();
+        const message = new nnabla.FusedConvolutionParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -4689,13 +4687,13 @@ $root.nnabla.FusedConvolutionParameter = class FusedConvolutionParameter {
                     message.base_axis = reader.int64();
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "stride":
-                    message.stride = $root.nnabla.Shape.decodeText(reader);
+                    message.stride = nnabla.Shape.decodeText(reader);
                     break;
                 case "dilation":
-                    message.dilation = $root.nnabla.Shape.decodeText(reader);
+                    message.dilation = nnabla.Shape.decodeText(reader);
                     break;
                 case "group":
                     message.group = reader.int64();
@@ -4733,26 +4731,26 @@ $root.nnabla.FusedConvolutionParameter = class FusedConvolutionParameter {
     }
 };
 
-$root.nnabla.FusedConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.FusedConvolutionParameter.prototype.pad = null;
-$root.nnabla.FusedConvolutionParameter.prototype.stride = null;
-$root.nnabla.FusedConvolutionParameter.prototype.dilation = null;
-$root.nnabla.FusedConvolutionParameter.prototype.group = protobuf.Int64.create(0);
-$root.nnabla.FusedConvolutionParameter.prototype.channel_last = false;
-$root.nnabla.FusedConvolutionParameter.prototype.decay_rate = 0;
-$root.nnabla.FusedConvolutionParameter.prototype.eps = 0;
-$root.nnabla.FusedConvolutionParameter.prototype.batch_stat = false;
-$root.nnabla.FusedConvolutionParameter.prototype.nonlinearity = "";
-$root.nnabla.FusedConvolutionParameter.prototype.pad_mode = "";
-$root.nnabla.FusedConvolutionParameter.prototype.constant_value = 0;
+nnabla.FusedConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.FusedConvolutionParameter.prototype.pad = null;
+nnabla.FusedConvolutionParameter.prototype.stride = null;
+nnabla.FusedConvolutionParameter.prototype.dilation = null;
+nnabla.FusedConvolutionParameter.prototype.group = protobuf.Int64.create(0);
+nnabla.FusedConvolutionParameter.prototype.channel_last = false;
+nnabla.FusedConvolutionParameter.prototype.decay_rate = 0;
+nnabla.FusedConvolutionParameter.prototype.eps = 0;
+nnabla.FusedConvolutionParameter.prototype.batch_stat = false;
+nnabla.FusedConvolutionParameter.prototype.nonlinearity = "";
+nnabla.FusedConvolutionParameter.prototype.pad_mode = "";
+nnabla.FusedConvolutionParameter.prototype.constant_value = 0;
 
-$root.nnabla.DepthwiseConvolutionParameter = class DepthwiseConvolutionParameter {
+nnabla.DepthwiseConvolutionParameter = class DepthwiseConvolutionParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.DepthwiseConvolutionParameter();
+        const message = new nnabla.DepthwiseConvolutionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -4761,13 +4759,13 @@ $root.nnabla.DepthwiseConvolutionParameter = class DepthwiseConvolutionParameter
                     message.base_axis = reader.int64();
                     break;
                 case 2:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
-                    message.stride = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.stride = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    message.dilation = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.dilation = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.multiplier = reader.int64();
@@ -4781,7 +4779,7 @@ $root.nnabla.DepthwiseConvolutionParameter = class DepthwiseConvolutionParameter
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.DepthwiseConvolutionParameter();
+        const message = new nnabla.DepthwiseConvolutionParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -4790,13 +4788,13 @@ $root.nnabla.DepthwiseConvolutionParameter = class DepthwiseConvolutionParameter
                     message.base_axis = reader.int64();
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "stride":
-                    message.stride = $root.nnabla.Shape.decodeText(reader);
+                    message.stride = nnabla.Shape.decodeText(reader);
                     break;
                 case "dilation":
-                    message.dilation = $root.nnabla.Shape.decodeText(reader);
+                    message.dilation = nnabla.Shape.decodeText(reader);
                     break;
                 case "multiplier":
                     message.multiplier = reader.int64();
@@ -4810,19 +4808,19 @@ $root.nnabla.DepthwiseConvolutionParameter = class DepthwiseConvolutionParameter
     }
 };
 
-$root.nnabla.DepthwiseConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.DepthwiseConvolutionParameter.prototype.pad = null;
-$root.nnabla.DepthwiseConvolutionParameter.prototype.stride = null;
-$root.nnabla.DepthwiseConvolutionParameter.prototype.dilation = null;
-$root.nnabla.DepthwiseConvolutionParameter.prototype.multiplier = protobuf.Int64.create(0);
+nnabla.DepthwiseConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.DepthwiseConvolutionParameter.prototype.pad = null;
+nnabla.DepthwiseConvolutionParameter.prototype.stride = null;
+nnabla.DepthwiseConvolutionParameter.prototype.dilation = null;
+nnabla.DepthwiseConvolutionParameter.prototype.multiplier = protobuf.Int64.create(0);
 
-$root.nnabla.DeconvolutionParameter = class DeconvolutionParameter {
+nnabla.DeconvolutionParameter = class DeconvolutionParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.DeconvolutionParameter();
+        const message = new nnabla.DeconvolutionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -4831,13 +4829,13 @@ $root.nnabla.DeconvolutionParameter = class DeconvolutionParameter {
                     message.base_axis = reader.int64();
                     break;
                 case 2:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
-                    message.stride = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.stride = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    message.dilation = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.dilation = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.group = reader.int64();
@@ -4846,7 +4844,7 @@ $root.nnabla.DeconvolutionParameter = class DeconvolutionParameter {
                     message.channel_last = reader.bool();
                     break;
                 case 7:
-                    message.output_padding = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.output_padding = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -4857,7 +4855,7 @@ $root.nnabla.DeconvolutionParameter = class DeconvolutionParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.DeconvolutionParameter();
+        const message = new nnabla.DeconvolutionParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -4866,13 +4864,13 @@ $root.nnabla.DeconvolutionParameter = class DeconvolutionParameter {
                     message.base_axis = reader.int64();
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "stride":
-                    message.stride = $root.nnabla.Shape.decodeText(reader);
+                    message.stride = nnabla.Shape.decodeText(reader);
                     break;
                 case "dilation":
-                    message.dilation = $root.nnabla.Shape.decodeText(reader);
+                    message.dilation = nnabla.Shape.decodeText(reader);
                     break;
                 case "group":
                     message.group = reader.int64();
@@ -4881,7 +4879,7 @@ $root.nnabla.DeconvolutionParameter = class DeconvolutionParameter {
                     message.channel_last = reader.bool();
                     break;
                 case "output_padding":
-                    message.output_padding = $root.nnabla.Shape.decodeText(reader);
+                    message.output_padding = nnabla.Shape.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -4892,21 +4890,21 @@ $root.nnabla.DeconvolutionParameter = class DeconvolutionParameter {
     }
 };
 
-$root.nnabla.DeconvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.DeconvolutionParameter.prototype.pad = null;
-$root.nnabla.DeconvolutionParameter.prototype.stride = null;
-$root.nnabla.DeconvolutionParameter.prototype.dilation = null;
-$root.nnabla.DeconvolutionParameter.prototype.group = protobuf.Int64.create(0);
-$root.nnabla.DeconvolutionParameter.prototype.channel_last = false;
-$root.nnabla.DeconvolutionParameter.prototype.output_padding = null;
+nnabla.DeconvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.DeconvolutionParameter.prototype.pad = null;
+nnabla.DeconvolutionParameter.prototype.stride = null;
+nnabla.DeconvolutionParameter.prototype.dilation = null;
+nnabla.DeconvolutionParameter.prototype.group = protobuf.Int64.create(0);
+nnabla.DeconvolutionParameter.prototype.channel_last = false;
+nnabla.DeconvolutionParameter.prototype.output_padding = null;
 
-$root.nnabla.DepthwiseDeconvolutionParameter = class DepthwiseDeconvolutionParameter {
+nnabla.DepthwiseDeconvolutionParameter = class DepthwiseDeconvolutionParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.DepthwiseDeconvolutionParameter();
+        const message = new nnabla.DepthwiseDeconvolutionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -4915,13 +4913,13 @@ $root.nnabla.DepthwiseDeconvolutionParameter = class DepthwiseDeconvolutionParam
                     message.base_axis = reader.int64();
                     break;
                 case 2:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
-                    message.stride = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.stride = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    message.dilation = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.dilation = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.divisor = reader.int64();
@@ -4935,7 +4933,7 @@ $root.nnabla.DepthwiseDeconvolutionParameter = class DepthwiseDeconvolutionParam
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.DepthwiseDeconvolutionParameter();
+        const message = new nnabla.DepthwiseDeconvolutionParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -4944,13 +4942,13 @@ $root.nnabla.DepthwiseDeconvolutionParameter = class DepthwiseDeconvolutionParam
                     message.base_axis = reader.int64();
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "stride":
-                    message.stride = $root.nnabla.Shape.decodeText(reader);
+                    message.stride = nnabla.Shape.decodeText(reader);
                     break;
                 case "dilation":
-                    message.dilation = $root.nnabla.Shape.decodeText(reader);
+                    message.dilation = nnabla.Shape.decodeText(reader);
                     break;
                 case "divisor":
                     message.divisor = reader.int64();
@@ -4964,19 +4962,19 @@ $root.nnabla.DepthwiseDeconvolutionParameter = class DepthwiseDeconvolutionParam
     }
 };
 
-$root.nnabla.DepthwiseDeconvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.DepthwiseDeconvolutionParameter.prototype.pad = null;
-$root.nnabla.DepthwiseDeconvolutionParameter.prototype.stride = null;
-$root.nnabla.DepthwiseDeconvolutionParameter.prototype.dilation = null;
-$root.nnabla.DepthwiseDeconvolutionParameter.prototype.divisor = protobuf.Int64.create(0);
+nnabla.DepthwiseDeconvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.DepthwiseDeconvolutionParameter.prototype.pad = null;
+nnabla.DepthwiseDeconvolutionParameter.prototype.stride = null;
+nnabla.DepthwiseDeconvolutionParameter.prototype.dilation = null;
+nnabla.DepthwiseDeconvolutionParameter.prototype.divisor = protobuf.Int64.create(0);
 
-$root.nnabla.DeformableConvolutionParameter = class DeformableConvolutionParameter {
+nnabla.DeformableConvolutionParameter = class DeformableConvolutionParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.DeformableConvolutionParameter();
+        const message = new nnabla.DeformableConvolutionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -4985,13 +4983,13 @@ $root.nnabla.DeformableConvolutionParameter = class DeformableConvolutionParamet
                     message.base_axis = reader.int64();
                     break;
                 case 2:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
-                    message.stride = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.stride = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    message.dilation = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.dilation = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.group = reader.int64();
@@ -5011,7 +5009,7 @@ $root.nnabla.DeformableConvolutionParameter = class DeformableConvolutionParamet
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.DeformableConvolutionParameter();
+        const message = new nnabla.DeformableConvolutionParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -5020,13 +5018,13 @@ $root.nnabla.DeformableConvolutionParameter = class DeformableConvolutionParamet
                     message.base_axis = reader.int64();
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "stride":
-                    message.stride = $root.nnabla.Shape.decodeText(reader);
+                    message.stride = nnabla.Shape.decodeText(reader);
                     break;
                 case "dilation":
-                    message.dilation = $root.nnabla.Shape.decodeText(reader);
+                    message.dilation = nnabla.Shape.decodeText(reader);
                     break;
                 case "group":
                     message.group = reader.int64();
@@ -5046,36 +5044,36 @@ $root.nnabla.DeformableConvolutionParameter = class DeformableConvolutionParamet
     }
 };
 
-$root.nnabla.DeformableConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.DeformableConvolutionParameter.prototype.pad = null;
-$root.nnabla.DeformableConvolutionParameter.prototype.stride = null;
-$root.nnabla.DeformableConvolutionParameter.prototype.dilation = null;
-$root.nnabla.DeformableConvolutionParameter.prototype.group = protobuf.Int64.create(0);
-$root.nnabla.DeformableConvolutionParameter.prototype.deformable_group = protobuf.Int64.create(0);
-$root.nnabla.DeformableConvolutionParameter.prototype.channel_last = false;
+nnabla.DeformableConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.DeformableConvolutionParameter.prototype.pad = null;
+nnabla.DeformableConvolutionParameter.prototype.stride = null;
+nnabla.DeformableConvolutionParameter.prototype.dilation = null;
+nnabla.DeformableConvolutionParameter.prototype.group = protobuf.Int64.create(0);
+nnabla.DeformableConvolutionParameter.prototype.deformable_group = protobuf.Int64.create(0);
+nnabla.DeformableConvolutionParameter.prototype.channel_last = false;
 
-$root.nnabla.MaxPoolingParameter = class MaxPoolingParameter {
+nnabla.MaxPoolingParameter = class MaxPoolingParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.MaxPoolingParameter();
+        const message = new nnabla.MaxPoolingParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.kernel = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.kernel = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 2:
-                    message.stride = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.stride = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
                     message.ignore_border = reader.bool();
                     break;
                 case 4:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.channel_last = reader.bool();
@@ -5089,22 +5087,22 @@ $root.nnabla.MaxPoolingParameter = class MaxPoolingParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.MaxPoolingParameter();
+        const message = new nnabla.MaxPoolingParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "kernel":
-                    message.kernel = $root.nnabla.Shape.decodeText(reader);
+                    message.kernel = nnabla.Shape.decodeText(reader);
                     break;
                 case "stride":
-                    message.stride = $root.nnabla.Shape.decodeText(reader);
+                    message.stride = nnabla.Shape.decodeText(reader);
                     break;
                 case "ignore_border":
                     message.ignore_border = reader.bool();
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "channel_last":
                     message.channel_last = reader.bool();
@@ -5118,34 +5116,34 @@ $root.nnabla.MaxPoolingParameter = class MaxPoolingParameter {
     }
 };
 
-$root.nnabla.MaxPoolingParameter.prototype.kernel = null;
-$root.nnabla.MaxPoolingParameter.prototype.stride = null;
-$root.nnabla.MaxPoolingParameter.prototype.ignore_border = false;
-$root.nnabla.MaxPoolingParameter.prototype.pad = null;
-$root.nnabla.MaxPoolingParameter.prototype.channel_last = false;
+nnabla.MaxPoolingParameter.prototype.kernel = null;
+nnabla.MaxPoolingParameter.prototype.stride = null;
+nnabla.MaxPoolingParameter.prototype.ignore_border = false;
+nnabla.MaxPoolingParameter.prototype.pad = null;
+nnabla.MaxPoolingParameter.prototype.channel_last = false;
 
-$root.nnabla.AveragePoolingParameter = class AveragePoolingParameter {
+nnabla.AveragePoolingParameter = class AveragePoolingParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.AveragePoolingParameter();
+        const message = new nnabla.AveragePoolingParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.kernel = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.kernel = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 2:
-                    message.stride = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.stride = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
                     message.ignore_border = reader.bool();
                     break;
                 case 4:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.channel_last = reader.bool();
@@ -5162,22 +5160,22 @@ $root.nnabla.AveragePoolingParameter = class AveragePoolingParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.AveragePoolingParameter();
+        const message = new nnabla.AveragePoolingParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "kernel":
-                    message.kernel = $root.nnabla.Shape.decodeText(reader);
+                    message.kernel = nnabla.Shape.decodeText(reader);
                     break;
                 case "stride":
-                    message.stride = $root.nnabla.Shape.decodeText(reader);
+                    message.stride = nnabla.Shape.decodeText(reader);
                     break;
                 case "ignore_border":
                     message.ignore_border = reader.bool();
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "channel_last":
                     message.channel_last = reader.bool();
@@ -5194,35 +5192,35 @@ $root.nnabla.AveragePoolingParameter = class AveragePoolingParameter {
     }
 };
 
-$root.nnabla.AveragePoolingParameter.prototype.kernel = null;
-$root.nnabla.AveragePoolingParameter.prototype.stride = null;
-$root.nnabla.AveragePoolingParameter.prototype.ignore_border = false;
-$root.nnabla.AveragePoolingParameter.prototype.pad = null;
-$root.nnabla.AveragePoolingParameter.prototype.channel_last = false;
-$root.nnabla.AveragePoolingParameter.prototype.including_pad = false;
+nnabla.AveragePoolingParameter.prototype.kernel = null;
+nnabla.AveragePoolingParameter.prototype.stride = null;
+nnabla.AveragePoolingParameter.prototype.ignore_border = false;
+nnabla.AveragePoolingParameter.prototype.pad = null;
+nnabla.AveragePoolingParameter.prototype.channel_last = false;
+nnabla.AveragePoolingParameter.prototype.including_pad = false;
 
-$root.nnabla.SumPoolingParameter = class SumPoolingParameter {
+nnabla.SumPoolingParameter = class SumPoolingParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SumPoolingParameter();
+        const message = new nnabla.SumPoolingParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.kernel = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.kernel = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 2:
-                    message.stride = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.stride = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
                     message.ignore_border = reader.bool();
                     break;
                 case 4:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.channel_last = reader.bool();
@@ -5236,22 +5234,22 @@ $root.nnabla.SumPoolingParameter = class SumPoolingParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SumPoolingParameter();
+        const message = new nnabla.SumPoolingParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "kernel":
-                    message.kernel = $root.nnabla.Shape.decodeText(reader);
+                    message.kernel = nnabla.Shape.decodeText(reader);
                     break;
                 case "stride":
-                    message.stride = $root.nnabla.Shape.decodeText(reader);
+                    message.stride = nnabla.Shape.decodeText(reader);
                     break;
                 case "ignore_border":
                     message.ignore_border = reader.bool();
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "channel_last":
                     message.channel_last = reader.bool();
@@ -5265,25 +5263,25 @@ $root.nnabla.SumPoolingParameter = class SumPoolingParameter {
     }
 };
 
-$root.nnabla.SumPoolingParameter.prototype.kernel = null;
-$root.nnabla.SumPoolingParameter.prototype.stride = null;
-$root.nnabla.SumPoolingParameter.prototype.ignore_border = false;
-$root.nnabla.SumPoolingParameter.prototype.pad = null;
-$root.nnabla.SumPoolingParameter.prototype.channel_last = false;
+nnabla.SumPoolingParameter.prototype.kernel = null;
+nnabla.SumPoolingParameter.prototype.stride = null;
+nnabla.SumPoolingParameter.prototype.ignore_border = false;
+nnabla.SumPoolingParameter.prototype.pad = null;
+nnabla.SumPoolingParameter.prototype.channel_last = false;
 
-$root.nnabla.UnpoolingParameter = class UnpoolingParameter {
+nnabla.UnpoolingParameter = class UnpoolingParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.UnpoolingParameter();
+        const message = new nnabla.UnpoolingParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.kernel = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.kernel = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 2:
                     message.channel_last = reader.bool();
@@ -5297,13 +5295,13 @@ $root.nnabla.UnpoolingParameter = class UnpoolingParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.UnpoolingParameter();
+        const message = new nnabla.UnpoolingParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "kernel":
-                    message.kernel = $root.nnabla.Shape.decodeText(reader);
+                    message.kernel = nnabla.Shape.decodeText(reader);
                     break;
                 case "channel_last":
                     message.channel_last = reader.bool();
@@ -5317,23 +5315,23 @@ $root.nnabla.UnpoolingParameter = class UnpoolingParameter {
     }
 };
 
-$root.nnabla.UnpoolingParameter.prototype.kernel = null;
-$root.nnabla.UnpoolingParameter.prototype.channel_last = false;
+nnabla.UnpoolingParameter.prototype.kernel = null;
+nnabla.UnpoolingParameter.prototype.channel_last = false;
 
-$root.nnabla.RoiAlignParameter = class RoiAlignParameter {
+nnabla.RoiAlignParameter = class RoiAlignParameter {
 
     constructor() {
         this.spatial_scale = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RoiAlignParameter();
+        const message = new nnabla.RoiAlignParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.output_size = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.output_size = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 2:
                     message.spatial_scale = reader.floats(message.spatial_scale, tag);
@@ -5353,13 +5351,13 @@ $root.nnabla.RoiAlignParameter = class RoiAlignParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RoiAlignParameter();
+        const message = new nnabla.RoiAlignParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "output_size":
-                    message.output_size = $root.nnabla.Shape.decodeText(reader);
+                    message.output_size = nnabla.Shape.decodeText(reader);
                     break;
                 case "spatial_scale":
                     reader.array(message.spatial_scale, () => reader.float());
@@ -5379,17 +5377,17 @@ $root.nnabla.RoiAlignParameter = class RoiAlignParameter {
     }
 };
 
-$root.nnabla.RoiAlignParameter.prototype.output_size = null;
-$root.nnabla.RoiAlignParameter.prototype.sampling_ratio = protobuf.Int64.create(0);
-$root.nnabla.RoiAlignParameter.prototype.channel_last = false;
+nnabla.RoiAlignParameter.prototype.output_size = null;
+nnabla.RoiAlignParameter.prototype.sampling_ratio = protobuf.Int64.create(0);
+nnabla.RoiAlignParameter.prototype.channel_last = false;
 
-$root.nnabla.ReLUParameter = class ReLUParameter {
+nnabla.ReLUParameter = class ReLUParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ReLUParameter();
+        const message = new nnabla.ReLUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -5406,7 +5404,7 @@ $root.nnabla.ReLUParameter = class ReLUParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ReLUParameter();
+        const message = new nnabla.ReLUParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -5423,15 +5421,15 @@ $root.nnabla.ReLUParameter = class ReLUParameter {
     }
 };
 
-$root.nnabla.ReLUParameter.prototype.inplace = false;
+nnabla.ReLUParameter.prototype.inplace = false;
 
-$root.nnabla.LeakyReLUParameter = class LeakyReLUParameter {
+nnabla.LeakyReLUParameter = class LeakyReLUParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LeakyReLUParameter();
+        const message = new nnabla.LeakyReLUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -5451,7 +5449,7 @@ $root.nnabla.LeakyReLUParameter = class LeakyReLUParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LeakyReLUParameter();
+        const message = new nnabla.LeakyReLUParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -5471,16 +5469,16 @@ $root.nnabla.LeakyReLUParameter = class LeakyReLUParameter {
     }
 };
 
-$root.nnabla.LeakyReLUParameter.prototype.alpha = 0;
-$root.nnabla.LeakyReLUParameter.prototype.inplace = false;
+nnabla.LeakyReLUParameter.prototype.alpha = 0;
+nnabla.LeakyReLUParameter.prototype.inplace = false;
 
-$root.nnabla.SoftmaxParameter = class SoftmaxParameter {
+nnabla.SoftmaxParameter = class SoftmaxParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SoftmaxParameter();
+        const message = new nnabla.SoftmaxParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -5497,7 +5495,7 @@ $root.nnabla.SoftmaxParameter = class SoftmaxParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SoftmaxParameter();
+        const message = new nnabla.SoftmaxParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -5514,15 +5512,15 @@ $root.nnabla.SoftmaxParameter = class SoftmaxParameter {
     }
 };
 
-$root.nnabla.SoftmaxParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.SoftmaxParameter.prototype.axis = protobuf.Int64.create(0);
 
-$root.nnabla.LogSoftmaxParameter = class LogSoftmaxParameter {
+nnabla.LogSoftmaxParameter = class LogSoftmaxParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LogSoftmaxParameter();
+        const message = new nnabla.LogSoftmaxParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -5539,7 +5537,7 @@ $root.nnabla.LogSoftmaxParameter = class LogSoftmaxParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LogSoftmaxParameter();
+        const message = new nnabla.LogSoftmaxParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -5556,15 +5554,15 @@ $root.nnabla.LogSoftmaxParameter = class LogSoftmaxParameter {
     }
 };
 
-$root.nnabla.LogSoftmaxParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.LogSoftmaxParameter.prototype.axis = protobuf.Int64.create(0);
 
-$root.nnabla.ELUParameter = class ELUParameter {
+nnabla.ELUParameter = class ELUParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ELUParameter();
+        const message = new nnabla.ELUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -5581,7 +5579,7 @@ $root.nnabla.ELUParameter = class ELUParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ELUParameter();
+        const message = new nnabla.ELUParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -5598,15 +5596,15 @@ $root.nnabla.ELUParameter = class ELUParameter {
     }
 };
 
-$root.nnabla.ELUParameter.prototype.alpha = 0;
+nnabla.ELUParameter.prototype.alpha = 0;
 
-$root.nnabla.SELUParameter = class SELUParameter {
+nnabla.SELUParameter = class SELUParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SELUParameter();
+        const message = new nnabla.SELUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -5626,7 +5624,7 @@ $root.nnabla.SELUParameter = class SELUParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SELUParameter();
+        const message = new nnabla.SELUParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -5646,16 +5644,16 @@ $root.nnabla.SELUParameter = class SELUParameter {
     }
 };
 
-$root.nnabla.SELUParameter.prototype.scale = 0;
-$root.nnabla.SELUParameter.prototype.alpha = 0;
+nnabla.SELUParameter.prototype.scale = 0;
+nnabla.SELUParameter.prototype.alpha = 0;
 
-$root.nnabla.CReLUParameter = class CReLUParameter {
+nnabla.CReLUParameter = class CReLUParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.CReLUParameter();
+        const message = new nnabla.CReLUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -5672,7 +5670,7 @@ $root.nnabla.CReLUParameter = class CReLUParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.CReLUParameter();
+        const message = new nnabla.CReLUParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -5689,15 +5687,15 @@ $root.nnabla.CReLUParameter = class CReLUParameter {
     }
 };
 
-$root.nnabla.CReLUParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.CReLUParameter.prototype.axis = protobuf.Int64.create(0);
 
-$root.nnabla.CELUParameter = class CELUParameter {
+nnabla.CELUParameter = class CELUParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.CELUParameter();
+        const message = new nnabla.CELUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -5717,7 +5715,7 @@ $root.nnabla.CELUParameter = class CELUParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.CELUParameter();
+        const message = new nnabla.CELUParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -5737,16 +5735,16 @@ $root.nnabla.CELUParameter = class CELUParameter {
     }
 };
 
-$root.nnabla.CELUParameter.prototype.alpha = 0;
-$root.nnabla.CELUParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.CELUParameter.prototype.alpha = 0;
+nnabla.CELUParameter.prototype.axis = protobuf.Int64.create(0);
 
-$root.nnabla.PReLUParameter = class PReLUParameter {
+nnabla.PReLUParameter = class PReLUParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.PReLUParameter();
+        const message = new nnabla.PReLUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -5763,7 +5761,7 @@ $root.nnabla.PReLUParameter = class PReLUParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.PReLUParameter();
+        const message = new nnabla.PReLUParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -5780,15 +5778,15 @@ $root.nnabla.PReLUParameter = class PReLUParameter {
     }
 };
 
-$root.nnabla.PReLUParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.PReLUParameter.prototype.base_axis = protobuf.Int64.create(0);
 
-$root.nnabla.SoftPlusParameter = class SoftPlusParameter {
+nnabla.SoftPlusParameter = class SoftPlusParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SoftPlusParameter();
+        const message = new nnabla.SoftPlusParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -5805,7 +5803,7 @@ $root.nnabla.SoftPlusParameter = class SoftPlusParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SoftPlusParameter();
+        const message = new nnabla.SoftPlusParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -5822,16 +5820,16 @@ $root.nnabla.SoftPlusParameter = class SoftPlusParameter {
     }
 };
 
-$root.nnabla.SoftPlusParameter.prototype.beta = 0;
+nnabla.SoftPlusParameter.prototype.beta = 0;
 
-$root.nnabla.FusedBatchNormalizationParameter = class FusedBatchNormalizationParameter {
+nnabla.FusedBatchNormalizationParameter = class FusedBatchNormalizationParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.FusedBatchNormalizationParameter();
+        const message = new nnabla.FusedBatchNormalizationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -5860,7 +5858,7 @@ $root.nnabla.FusedBatchNormalizationParameter = class FusedBatchNormalizationPar
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.FusedBatchNormalizationParameter();
+        const message = new nnabla.FusedBatchNormalizationParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -5889,19 +5887,19 @@ $root.nnabla.FusedBatchNormalizationParameter = class FusedBatchNormalizationPar
     }
 };
 
-$root.nnabla.FusedBatchNormalizationParameter.prototype.decay_rate = 0;
-$root.nnabla.FusedBatchNormalizationParameter.prototype.eps = 0;
-$root.nnabla.FusedBatchNormalizationParameter.prototype.batch_stat = false;
-$root.nnabla.FusedBatchNormalizationParameter.prototype.nonlinearity = "";
+nnabla.FusedBatchNormalizationParameter.prototype.decay_rate = 0;
+nnabla.FusedBatchNormalizationParameter.prototype.eps = 0;
+nnabla.FusedBatchNormalizationParameter.prototype.batch_stat = false;
+nnabla.FusedBatchNormalizationParameter.prototype.nonlinearity = "";
 
-$root.nnabla.BatchNormalizationParameter = class BatchNormalizationParameter {
+nnabla.BatchNormalizationParameter = class BatchNormalizationParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.BatchNormalizationParameter();
+        const message = new nnabla.BatchNormalizationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -5933,7 +5931,7 @@ $root.nnabla.BatchNormalizationParameter = class BatchNormalizationParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.BatchNormalizationParameter();
+        const message = new nnabla.BatchNormalizationParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -5965,20 +5963,20 @@ $root.nnabla.BatchNormalizationParameter = class BatchNormalizationParameter {
     }
 };
 
-$root.nnabla.BatchNormalizationParameter.prototype.decay_rate = 0;
-$root.nnabla.BatchNormalizationParameter.prototype.eps = 0;
-$root.nnabla.BatchNormalizationParameter.prototype.batch_stat = false;
-$root.nnabla.BatchNormalizationParameter.prototype.no_scale = false;
-$root.nnabla.BatchNormalizationParameter.prototype.no_bias = false;
+nnabla.BatchNormalizationParameter.prototype.decay_rate = 0;
+nnabla.BatchNormalizationParameter.prototype.eps = 0;
+nnabla.BatchNormalizationParameter.prototype.batch_stat = false;
+nnabla.BatchNormalizationParameter.prototype.no_scale = false;
+nnabla.BatchNormalizationParameter.prototype.no_bias = false;
 
-$root.nnabla.GroupNormalizationParameter = class GroupNormalizationParameter {
+nnabla.GroupNormalizationParameter = class GroupNormalizationParameter {
 
     constructor() {
         this.batch_axis = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.GroupNormalizationParameter();
+        const message = new nnabla.GroupNormalizationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6010,7 +6008,7 @@ $root.nnabla.GroupNormalizationParameter = class GroupNormalizationParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.GroupNormalizationParameter();
+        const message = new nnabla.GroupNormalizationParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6042,20 +6040,20 @@ $root.nnabla.GroupNormalizationParameter = class GroupNormalizationParameter {
     }
 };
 
-$root.nnabla.GroupNormalizationParameter.prototype.num_groups = protobuf.Int64.create(0);
-$root.nnabla.GroupNormalizationParameter.prototype.channel_axis = protobuf.Int64.create(0);
-$root.nnabla.GroupNormalizationParameter.prototype.eps = 0;
-$root.nnabla.GroupNormalizationParameter.prototype.no_scale = false;
-$root.nnabla.GroupNormalizationParameter.prototype.no_bias = false;
+nnabla.GroupNormalizationParameter.prototype.num_groups = protobuf.Int64.create(0);
+nnabla.GroupNormalizationParameter.prototype.channel_axis = protobuf.Int64.create(0);
+nnabla.GroupNormalizationParameter.prototype.eps = 0;
+nnabla.GroupNormalizationParameter.prototype.no_scale = false;
+nnabla.GroupNormalizationParameter.prototype.no_bias = false;
 
-$root.nnabla.InstanceNormalizationParameter = class InstanceNormalizationParameter {
+nnabla.InstanceNormalizationParameter = class InstanceNormalizationParameter {
 
     constructor() {
         this.batch_axis = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.InstanceNormalizationParameter();
+        const message = new nnabla.InstanceNormalizationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6084,7 +6082,7 @@ $root.nnabla.InstanceNormalizationParameter = class InstanceNormalizationParamet
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.InstanceNormalizationParameter();
+        const message = new nnabla.InstanceNormalizationParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6113,19 +6111,19 @@ $root.nnabla.InstanceNormalizationParameter = class InstanceNormalizationParamet
     }
 };
 
-$root.nnabla.InstanceNormalizationParameter.prototype.channel_axis = protobuf.Int64.create(0);
-$root.nnabla.InstanceNormalizationParameter.prototype.eps = 0;
-$root.nnabla.InstanceNormalizationParameter.prototype.no_scale = false;
-$root.nnabla.InstanceNormalizationParameter.prototype.no_bias = false;
+nnabla.InstanceNormalizationParameter.prototype.channel_axis = protobuf.Int64.create(0);
+nnabla.InstanceNormalizationParameter.prototype.eps = 0;
+nnabla.InstanceNormalizationParameter.prototype.no_scale = false;
+nnabla.InstanceNormalizationParameter.prototype.no_bias = false;
 
-$root.nnabla.LayerNormalizationParameter = class LayerNormalizationParameter {
+nnabla.LayerNormalizationParameter = class LayerNormalizationParameter {
 
     constructor() {
         this.batch_axis = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LayerNormalizationParameter();
+        const message = new nnabla.LayerNormalizationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6151,7 +6149,7 @@ $root.nnabla.LayerNormalizationParameter = class LayerNormalizationParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LayerNormalizationParameter();
+        const message = new nnabla.LayerNormalizationParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6177,18 +6175,18 @@ $root.nnabla.LayerNormalizationParameter = class LayerNormalizationParameter {
     }
 };
 
-$root.nnabla.LayerNormalizationParameter.prototype.eps = 0;
-$root.nnabla.LayerNormalizationParameter.prototype.no_scale = false;
-$root.nnabla.LayerNormalizationParameter.prototype.no_bias = false;
+nnabla.LayerNormalizationParameter.prototype.eps = 0;
+nnabla.LayerNormalizationParameter.prototype.no_scale = false;
+nnabla.LayerNormalizationParameter.prototype.no_bias = false;
 
-$root.nnabla.NormNormalizationParameter = class NormNormalizationParameter {
+nnabla.NormNormalizationParameter = class NormNormalizationParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.NormNormalizationParameter();
+        const message = new nnabla.NormNormalizationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6211,7 +6209,7 @@ $root.nnabla.NormNormalizationParameter = class NormNormalizationParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.NormNormalizationParameter();
+        const message = new nnabla.NormNormalizationParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6234,23 +6232,23 @@ $root.nnabla.NormNormalizationParameter = class NormNormalizationParameter {
     }
 };
 
-$root.nnabla.NormNormalizationParameter.prototype.p = 0;
-$root.nnabla.NormNormalizationParameter.prototype.eps = 0;
+nnabla.NormNormalizationParameter.prototype.p = 0;
+nnabla.NormNormalizationParameter.prototype.eps = 0;
 
-$root.nnabla.SyncBatchNormalizationParameter = class SyncBatchNormalizationParameter {
+nnabla.SyncBatchNormalizationParameter = class SyncBatchNormalizationParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SyncBatchNormalizationParameter();
+        const message = new nnabla.SyncBatchNormalizationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.comm = $root.nnabla.Communicator.decode(reader, reader.uint32());
+                    message.comm = nnabla.Communicator.decode(reader, reader.uint32());
                     break;
                 case 2:
                     message.group = reader.string();
@@ -6276,13 +6274,13 @@ $root.nnabla.SyncBatchNormalizationParameter = class SyncBatchNormalizationParam
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SyncBatchNormalizationParameter();
+        const message = new nnabla.SyncBatchNormalizationParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "comm":
-                    message.comm = $root.nnabla.Communicator.decodeText(reader);
+                    message.comm = nnabla.Communicator.decodeText(reader);
                     break;
                 case "group":
                     message.group = reader.string();
@@ -6308,20 +6306,20 @@ $root.nnabla.SyncBatchNormalizationParameter = class SyncBatchNormalizationParam
     }
 };
 
-$root.nnabla.SyncBatchNormalizationParameter.prototype.comm = null;
-$root.nnabla.SyncBatchNormalizationParameter.prototype.group = "";
-$root.nnabla.SyncBatchNormalizationParameter.prototype.decay_rate = 0;
-$root.nnabla.SyncBatchNormalizationParameter.prototype.eps = 0;
-$root.nnabla.SyncBatchNormalizationParameter.prototype.batch_stat = false;
+nnabla.SyncBatchNormalizationParameter.prototype.comm = null;
+nnabla.SyncBatchNormalizationParameter.prototype.group = "";
+nnabla.SyncBatchNormalizationParameter.prototype.decay_rate = 0;
+nnabla.SyncBatchNormalizationParameter.prototype.eps = 0;
+nnabla.SyncBatchNormalizationParameter.prototype.batch_stat = false;
 
-$root.nnabla.TensorNormalizationParameter = class TensorNormalizationParameter {
+nnabla.TensorNormalizationParameter = class TensorNormalizationParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.TensorNormalizationParameter();
+        const message = new nnabla.TensorNormalizationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6347,7 +6345,7 @@ $root.nnabla.TensorNormalizationParameter = class TensorNormalizationParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.TensorNormalizationParameter();
+        const message = new nnabla.TensorNormalizationParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6373,17 +6371,17 @@ $root.nnabla.TensorNormalizationParameter = class TensorNormalizationParameter {
     }
 };
 
-$root.nnabla.TensorNormalizationParameter.prototype.eps = 0;
-$root.nnabla.TensorNormalizationParameter.prototype.no_scale = false;
-$root.nnabla.TensorNormalizationParameter.prototype.no_bias = false;
+nnabla.TensorNormalizationParameter.prototype.eps = 0;
+nnabla.TensorNormalizationParameter.prototype.no_scale = false;
+nnabla.TensorNormalizationParameter.prototype.no_bias = false;
 
-$root.nnabla.WeightNormalizationParameter = class WeightNormalizationParameter {
+nnabla.WeightNormalizationParameter = class WeightNormalizationParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.WeightNormalizationParameter();
+        const message = new nnabla.WeightNormalizationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6403,7 +6401,7 @@ $root.nnabla.WeightNormalizationParameter = class WeightNormalizationParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.WeightNormalizationParameter();
+        const message = new nnabla.WeightNormalizationParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6423,16 +6421,16 @@ $root.nnabla.WeightNormalizationParameter = class WeightNormalizationParameter {
     }
 };
 
-$root.nnabla.WeightNormalizationParameter.prototype.dim = protobuf.Int64.create(0);
-$root.nnabla.WeightNormalizationParameter.prototype.eps = 0;
+nnabla.WeightNormalizationParameter.prototype.dim = protobuf.Int64.create(0);
+nnabla.WeightNormalizationParameter.prototype.eps = 0;
 
-$root.nnabla.WeightStandardizationParameter = class WeightStandardizationParameter {
+nnabla.WeightStandardizationParameter = class WeightStandardizationParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.WeightStandardizationParameter();
+        const message = new nnabla.WeightStandardizationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6452,7 +6450,7 @@ $root.nnabla.WeightStandardizationParameter = class WeightStandardizationParamet
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.WeightStandardizationParameter();
+        const message = new nnabla.WeightStandardizationParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6472,16 +6470,16 @@ $root.nnabla.WeightStandardizationParameter = class WeightStandardizationParamet
     }
 };
 
-$root.nnabla.WeightStandardizationParameter.prototype.channel_axis = protobuf.Int64.create(0);
-$root.nnabla.WeightStandardizationParameter.prototype.eps = 0;
+nnabla.WeightStandardizationParameter.prototype.channel_axis = protobuf.Int64.create(0);
+nnabla.WeightStandardizationParameter.prototype.eps = 0;
 
-$root.nnabla.SpectralNormParameter = class SpectralNormParameter {
+nnabla.SpectralNormParameter = class SpectralNormParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SpectralNormParameter();
+        const message = new nnabla.SpectralNormParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6510,7 +6508,7 @@ $root.nnabla.SpectralNormParameter = class SpectralNormParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SpectralNormParameter();
+        const message = new nnabla.SpectralNormParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6539,19 +6537,19 @@ $root.nnabla.SpectralNormParameter = class SpectralNormParameter {
     }
 };
 
-$root.nnabla.SpectralNormParameter.prototype.dim = protobuf.Int64.create(0);
-$root.nnabla.SpectralNormParameter.prototype.itr = protobuf.Int64.create(0);
-$root.nnabla.SpectralNormParameter.prototype.eps = 0;
-$root.nnabla.SpectralNormParameter.prototype.test = false;
-$root.nnabla.SpectralNormParameter.prototype.output_u = false;
+nnabla.SpectralNormParameter.prototype.dim = protobuf.Int64.create(0);
+nnabla.SpectralNormParameter.prototype.itr = protobuf.Int64.create(0);
+nnabla.SpectralNormParameter.prototype.eps = 0;
+nnabla.SpectralNormParameter.prototype.test = false;
+nnabla.SpectralNormParameter.prototype.output_u = false;
 
-$root.nnabla.MeanSubtractionParameter = class MeanSubtractionParameter {
+nnabla.MeanSubtractionParameter = class MeanSubtractionParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.MeanSubtractionParameter();
+        const message = new nnabla.MeanSubtractionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6571,7 +6569,7 @@ $root.nnabla.MeanSubtractionParameter = class MeanSubtractionParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.MeanSubtractionParameter();
+        const message = new nnabla.MeanSubtractionParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6591,17 +6589,17 @@ $root.nnabla.MeanSubtractionParameter = class MeanSubtractionParameter {
     }
 };
 
-$root.nnabla.MeanSubtractionParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.MeanSubtractionParameter.prototype.update_running_mean = false;
+nnabla.MeanSubtractionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.MeanSubtractionParameter.prototype.update_running_mean = false;
 
-$root.nnabla.ClipGradByNormParameter = class ClipGradByNormParameter {
+nnabla.ClipGradByNormParameter = class ClipGradByNormParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ClipGradByNormParameter();
+        const message = new nnabla.ClipGradByNormParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6621,7 +6619,7 @@ $root.nnabla.ClipGradByNormParameter = class ClipGradByNormParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ClipGradByNormParameter();
+        const message = new nnabla.ClipGradByNormParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6641,16 +6639,16 @@ $root.nnabla.ClipGradByNormParameter = class ClipGradByNormParameter {
     }
 };
 
-$root.nnabla.ClipGradByNormParameter.prototype.clip_norm = 0;
+nnabla.ClipGradByNormParameter.prototype.clip_norm = 0;
 
-$root.nnabla.SumParameter = class SumParameter {
+nnabla.SumParameter = class SumParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SumParameter();
+        const message = new nnabla.SumParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6670,7 +6668,7 @@ $root.nnabla.SumParameter = class SumParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SumParameter();
+        const message = new nnabla.SumParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6690,15 +6688,15 @@ $root.nnabla.SumParameter = class SumParameter {
     }
 };
 
-$root.nnabla.SumParameter.prototype.keep_dims = false;
+nnabla.SumParameter.prototype.keep_dims = false;
 
-$root.nnabla.CumSumParameter = class CumSumParameter {
+nnabla.CumSumParameter = class CumSumParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.CumSumParameter();
+        const message = new nnabla.CumSumParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6721,7 +6719,7 @@ $root.nnabla.CumSumParameter = class CumSumParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.CumSumParameter();
+        const message = new nnabla.CumSumParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6744,18 +6742,18 @@ $root.nnabla.CumSumParameter = class CumSumParameter {
     }
 };
 
-$root.nnabla.CumSumParameter.prototype.axis = protobuf.Int64.create(0);
-$root.nnabla.CumSumParameter.prototype.exclusive = false;
-$root.nnabla.CumSumParameter.prototype.reverse = false;
+nnabla.CumSumParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.CumSumParameter.prototype.exclusive = false;
+nnabla.CumSumParameter.prototype.reverse = false;
 
-$root.nnabla.MeanParameter = class MeanParameter {
+nnabla.MeanParameter = class MeanParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.MeanParameter();
+        const message = new nnabla.MeanParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6775,7 +6773,7 @@ $root.nnabla.MeanParameter = class MeanParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.MeanParameter();
+        const message = new nnabla.MeanParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6795,79 +6793,16 @@ $root.nnabla.MeanParameter = class MeanParameter {
     }
 };
 
-$root.nnabla.MeanParameter.prototype.keep_dims = false;
+nnabla.MeanParameter.prototype.keep_dims = false;
 
-$root.nnabla.MaxParameter = class MaxParameter {
-
-    constructor() {
-        this.axes = [];
-    }
-
-    static decode(reader, length) {
-        const message = new $root.nnabla.MaxParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
-        while (reader.position < end) {
-            const tag = reader.uint32();
-            switch (tag >>> 3) {
-                case 1:
-                    message.axes = reader.array(message.axes, () => reader.int64(), tag);
-                    break;
-                case 2:
-                    message.keep_dims = reader.bool();
-                    break;
-                case 3:
-                    message.with_index = reader.bool();
-                    break;
-                case 4:
-                    message.only_index = reader.bool();
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-            }
-        }
-        return message;
-    }
-
-    static decodeText(reader) {
-        const message = new $root.nnabla.MaxParameter();
-        reader.start();
-        while (!reader.end()) {
-            const tag = reader.tag();
-            switch (tag) {
-                case "axes":
-                    reader.array(message.axes, () => reader.int64());
-                    break;
-                case "keep_dims":
-                    message.keep_dims = reader.bool();
-                    break;
-                case "with_index":
-                    message.with_index = reader.bool();
-                    break;
-                case "only_index":
-                    message.only_index = reader.bool();
-                    break;
-                default:
-                    reader.field(tag, message);
-                    break;
-            }
-        }
-        return message;
-    }
-};
-
-$root.nnabla.MaxParameter.prototype.keep_dims = false;
-$root.nnabla.MaxParameter.prototype.with_index = false;
-$root.nnabla.MaxParameter.prototype.only_index = false;
-
-$root.nnabla.MinParameter = class MinParameter {
+nnabla.MaxParameter = class MaxParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.MinParameter();
+        const message = new nnabla.MaxParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6893,7 +6828,7 @@ $root.nnabla.MinParameter = class MinParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.MinParameter();
+        const message = new nnabla.MaxParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6919,18 +6854,81 @@ $root.nnabla.MinParameter = class MinParameter {
     }
 };
 
-$root.nnabla.MinParameter.prototype.keep_dims = false;
-$root.nnabla.MinParameter.prototype.with_index = false;
-$root.nnabla.MinParameter.prototype.only_index = false;
+nnabla.MaxParameter.prototype.keep_dims = false;
+nnabla.MaxParameter.prototype.with_index = false;
+nnabla.MaxParameter.prototype.only_index = false;
 
-$root.nnabla.NormParameter = class NormParameter {
+nnabla.MinParameter = class MinParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.NormParameter();
+        const message = new nnabla.MinParameter();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.axes = reader.array(message.axes, () => reader.int64(), tag);
+                    break;
+                case 2:
+                    message.keep_dims = reader.bool();
+                    break;
+                case 3:
+                    message.with_index = reader.bool();
+                    break;
+                case 4:
+                    message.only_index = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new nnabla.MinParameter();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "axes":
+                    reader.array(message.axes, () => reader.int64());
+                    break;
+                case "keep_dims":
+                    message.keep_dims = reader.bool();
+                    break;
+                case "with_index":
+                    message.with_index = reader.bool();
+                    break;
+                case "only_index":
+                    message.only_index = reader.bool();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+nnabla.MinParameter.prototype.keep_dims = false;
+nnabla.MinParameter.prototype.with_index = false;
+nnabla.MinParameter.prototype.only_index = false;
+
+nnabla.NormParameter = class NormParameter {
+
+    constructor() {
+        this.axes = [];
+    }
+
+    static decode(reader, length) {
+        const message = new nnabla.NormParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -6953,7 +6951,7 @@ $root.nnabla.NormParameter = class NormParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.NormParameter();
+        const message = new nnabla.NormParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -6976,17 +6974,17 @@ $root.nnabla.NormParameter = class NormParameter {
     }
 };
 
-$root.nnabla.NormParameter.prototype.p = 0;
-$root.nnabla.NormParameter.prototype.keep_dims = false;
+nnabla.NormParameter.prototype.p = 0;
+nnabla.NormParameter.prototype.keep_dims = false;
 
-$root.nnabla.ProdParameter = class ProdParameter {
+nnabla.ProdParameter = class ProdParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ProdParameter();
+        const message = new nnabla.ProdParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7006,7 +7004,7 @@ $root.nnabla.ProdParameter = class ProdParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ProdParameter();
+        const message = new nnabla.ProdParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7026,15 +7024,15 @@ $root.nnabla.ProdParameter = class ProdParameter {
     }
 };
 
-$root.nnabla.ProdParameter.prototype.keep_dims = false;
+nnabla.ProdParameter.prototype.keep_dims = false;
 
-$root.nnabla.CumProdParameter = class CumProdParameter {
+nnabla.CumProdParameter = class CumProdParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.CumProdParameter();
+        const message = new nnabla.CumProdParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7057,7 +7055,7 @@ $root.nnabla.CumProdParameter = class CumProdParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.CumProdParameter();
+        const message = new nnabla.CumProdParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7080,17 +7078,17 @@ $root.nnabla.CumProdParameter = class CumProdParameter {
     }
 };
 
-$root.nnabla.CumProdParameter.prototype.axis = protobuf.Int64.create(0);
-$root.nnabla.CumProdParameter.prototype.exclusive = false;
-$root.nnabla.CumProdParameter.prototype.reverse = false;
+nnabla.CumProdParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.CumProdParameter.prototype.exclusive = false;
+nnabla.CumProdParameter.prototype.reverse = false;
 
-$root.nnabla.Add2Parameter = class Add2Parameter {
+nnabla.Add2Parameter = class Add2Parameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Add2Parameter();
+        const message = new nnabla.Add2Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7107,7 +7105,7 @@ $root.nnabla.Add2Parameter = class Add2Parameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Add2Parameter();
+        const message = new nnabla.Add2Parameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7124,15 +7122,15 @@ $root.nnabla.Add2Parameter = class Add2Parameter {
     }
 };
 
-$root.nnabla.Add2Parameter.prototype.inplace = false;
+nnabla.Add2Parameter.prototype.inplace = false;
 
-$root.nnabla.BcAdd2Parameter = class BcAdd2Parameter {
+nnabla.BcAdd2Parameter = class BcAdd2Parameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.BcAdd2Parameter();
+        const message = new nnabla.BcAdd2Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7149,7 +7147,7 @@ $root.nnabla.BcAdd2Parameter = class BcAdd2Parameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.BcAdd2Parameter();
+        const message = new nnabla.BcAdd2Parameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7166,15 +7164,15 @@ $root.nnabla.BcAdd2Parameter = class BcAdd2Parameter {
     }
 };
 
-$root.nnabla.BcAdd2Parameter.prototype.inplace = false;
+nnabla.BcAdd2Parameter.prototype.inplace = false;
 
-$root.nnabla.Sub2Parameter = class Sub2Parameter {
+nnabla.Sub2Parameter = class Sub2Parameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Sub2Parameter();
+        const message = new nnabla.Sub2Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7191,7 +7189,7 @@ $root.nnabla.Sub2Parameter = class Sub2Parameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Sub2Parameter();
+        const message = new nnabla.Sub2Parameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7208,15 +7206,15 @@ $root.nnabla.Sub2Parameter = class Sub2Parameter {
     }
 };
 
-$root.nnabla.Sub2Parameter.prototype.inplace = false;
+nnabla.Sub2Parameter.prototype.inplace = false;
 
-$root.nnabla.Mul2Parameter = class Mul2Parameter {
+nnabla.Mul2Parameter = class Mul2Parameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Mul2Parameter();
+        const message = new nnabla.Mul2Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7233,7 +7231,7 @@ $root.nnabla.Mul2Parameter = class Mul2Parameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Mul2Parameter();
+        const message = new nnabla.Mul2Parameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7250,15 +7248,15 @@ $root.nnabla.Mul2Parameter = class Mul2Parameter {
     }
 };
 
-$root.nnabla.Mul2Parameter.prototype.inplace = false;
+nnabla.Mul2Parameter.prototype.inplace = false;
 
-$root.nnabla.Div2Parameter = class Div2Parameter {
+nnabla.Div2Parameter = class Div2Parameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Div2Parameter();
+        const message = new nnabla.Div2Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7275,7 +7273,7 @@ $root.nnabla.Div2Parameter = class Div2Parameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Div2Parameter();
+        const message = new nnabla.Div2Parameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7292,15 +7290,15 @@ $root.nnabla.Div2Parameter = class Div2Parameter {
     }
 };
 
-$root.nnabla.Div2Parameter.prototype.inplace = false;
+nnabla.Div2Parameter.prototype.inplace = false;
 
-$root.nnabla.Pow2Parameter = class Pow2Parameter {
+nnabla.Pow2Parameter = class Pow2Parameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Pow2Parameter();
+        const message = new nnabla.Pow2Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7317,7 +7315,7 @@ $root.nnabla.Pow2Parameter = class Pow2Parameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Pow2Parameter();
+        const message = new nnabla.Pow2Parameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7334,15 +7332,15 @@ $root.nnabla.Pow2Parameter = class Pow2Parameter {
     }
 };
 
-$root.nnabla.Pow2Parameter.prototype.inplace = false;
+nnabla.Pow2Parameter.prototype.inplace = false;
 
-$root.nnabla.AddScalarParameter = class AddScalarParameter {
+nnabla.AddScalarParameter = class AddScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.AddScalarParameter();
+        const message = new nnabla.AddScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7362,7 +7360,7 @@ $root.nnabla.AddScalarParameter = class AddScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.AddScalarParameter();
+        const message = new nnabla.AddScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7382,16 +7380,16 @@ $root.nnabla.AddScalarParameter = class AddScalarParameter {
     }
 };
 
-$root.nnabla.AddScalarParameter.prototype.val = 0;
-$root.nnabla.AddScalarParameter.prototype.inplace = false;
+nnabla.AddScalarParameter.prototype.val = 0;
+nnabla.AddScalarParameter.prototype.inplace = false;
 
-$root.nnabla.MulScalarParameter = class MulScalarParameter {
+nnabla.MulScalarParameter = class MulScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.MulScalarParameter();
+        const message = new nnabla.MulScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7411,7 +7409,7 @@ $root.nnabla.MulScalarParameter = class MulScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.MulScalarParameter();
+        const message = new nnabla.MulScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7431,16 +7429,16 @@ $root.nnabla.MulScalarParameter = class MulScalarParameter {
     }
 };
 
-$root.nnabla.MulScalarParameter.prototype.val = 0;
-$root.nnabla.MulScalarParameter.prototype.inplace = false;
+nnabla.MulScalarParameter.prototype.val = 0;
+nnabla.MulScalarParameter.prototype.inplace = false;
 
-$root.nnabla.PowScalarParameter = class PowScalarParameter {
+nnabla.PowScalarParameter = class PowScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.PowScalarParameter();
+        const message = new nnabla.PowScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7460,7 +7458,7 @@ $root.nnabla.PowScalarParameter = class PowScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.PowScalarParameter();
+        const message = new nnabla.PowScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7480,16 +7478,16 @@ $root.nnabla.PowScalarParameter = class PowScalarParameter {
     }
 };
 
-$root.nnabla.PowScalarParameter.prototype.val = 0;
-$root.nnabla.PowScalarParameter.prototype.inplace = false;
+nnabla.PowScalarParameter.prototype.val = 0;
+nnabla.PowScalarParameter.prototype.inplace = false;
 
-$root.nnabla.RSubScalarParameter = class RSubScalarParameter {
+nnabla.RSubScalarParameter = class RSubScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RSubScalarParameter();
+        const message = new nnabla.RSubScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7506,7 +7504,7 @@ $root.nnabla.RSubScalarParameter = class RSubScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RSubScalarParameter();
+        const message = new nnabla.RSubScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7523,15 +7521,15 @@ $root.nnabla.RSubScalarParameter = class RSubScalarParameter {
     }
 };
 
-$root.nnabla.RSubScalarParameter.prototype.val = 0;
+nnabla.RSubScalarParameter.prototype.val = 0;
 
-$root.nnabla.RDivScalarParameter = class RDivScalarParameter {
+nnabla.RDivScalarParameter = class RDivScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RDivScalarParameter();
+        const message = new nnabla.RDivScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7548,7 +7546,7 @@ $root.nnabla.RDivScalarParameter = class RDivScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RDivScalarParameter();
+        const message = new nnabla.RDivScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7565,15 +7563,15 @@ $root.nnabla.RDivScalarParameter = class RDivScalarParameter {
     }
 };
 
-$root.nnabla.RDivScalarParameter.prototype.val = 0;
+nnabla.RDivScalarParameter.prototype.val = 0;
 
-$root.nnabla.RPowScalarParameter = class RPowScalarParameter {
+nnabla.RPowScalarParameter = class RPowScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RPowScalarParameter();
+        const message = new nnabla.RPowScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7590,7 +7588,7 @@ $root.nnabla.RPowScalarParameter = class RPowScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RPowScalarParameter();
+        const message = new nnabla.RPowScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7607,15 +7605,15 @@ $root.nnabla.RPowScalarParameter = class RPowScalarParameter {
     }
 };
 
-$root.nnabla.RPowScalarParameter.prototype.val = 0;
+nnabla.RPowScalarParameter.prototype.val = 0;
 
-$root.nnabla.SignParameter = class SignParameter {
+nnabla.SignParameter = class SignParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SignParameter();
+        const message = new nnabla.SignParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7632,7 +7630,7 @@ $root.nnabla.SignParameter = class SignParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SignParameter();
+        const message = new nnabla.SignParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7649,15 +7647,15 @@ $root.nnabla.SignParameter = class SignParameter {
     }
 };
 
-$root.nnabla.SignParameter.prototype.alpha = 0;
+nnabla.SignParameter.prototype.alpha = 0;
 
-$root.nnabla.MinimumScalarParameter = class MinimumScalarParameter {
+nnabla.MinimumScalarParameter = class MinimumScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.MinimumScalarParameter();
+        const message = new nnabla.MinimumScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7674,7 +7672,7 @@ $root.nnabla.MinimumScalarParameter = class MinimumScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.MinimumScalarParameter();
+        const message = new nnabla.MinimumScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7691,15 +7689,15 @@ $root.nnabla.MinimumScalarParameter = class MinimumScalarParameter {
     }
 };
 
-$root.nnabla.MinimumScalarParameter.prototype.val = 0;
+nnabla.MinimumScalarParameter.prototype.val = 0;
 
-$root.nnabla.MaximumScalarParameter = class MaximumScalarParameter {
+nnabla.MaximumScalarParameter = class MaximumScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.MaximumScalarParameter();
+        const message = new nnabla.MaximumScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7716,7 +7714,7 @@ $root.nnabla.MaximumScalarParameter = class MaximumScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.MaximumScalarParameter();
+        const message = new nnabla.MaximumScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7733,15 +7731,15 @@ $root.nnabla.MaximumScalarParameter = class MaximumScalarParameter {
     }
 };
 
-$root.nnabla.MaximumScalarParameter.prototype.val = 0;
+nnabla.MaximumScalarParameter.prototype.val = 0;
 
-$root.nnabla.SearchSortedParameter = class SearchSortedParameter {
+nnabla.SearchSortedParameter = class SearchSortedParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SearchSortedParameter();
+        const message = new nnabla.SearchSortedParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7758,7 +7756,7 @@ $root.nnabla.SearchSortedParameter = class SearchSortedParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SearchSortedParameter();
+        const message = new nnabla.SearchSortedParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7775,15 +7773,15 @@ $root.nnabla.SearchSortedParameter = class SearchSortedParameter {
     }
 };
 
-$root.nnabla.SearchSortedParameter.prototype.right = false;
+nnabla.SearchSortedParameter.prototype.right = false;
 
-$root.nnabla.LogicalAndScalarParameter = class LogicalAndScalarParameter {
+nnabla.LogicalAndScalarParameter = class LogicalAndScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LogicalAndScalarParameter();
+        const message = new nnabla.LogicalAndScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7800,7 +7798,7 @@ $root.nnabla.LogicalAndScalarParameter = class LogicalAndScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LogicalAndScalarParameter();
+        const message = new nnabla.LogicalAndScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7817,15 +7815,15 @@ $root.nnabla.LogicalAndScalarParameter = class LogicalAndScalarParameter {
     }
 };
 
-$root.nnabla.LogicalAndScalarParameter.prototype.val = false;
+nnabla.LogicalAndScalarParameter.prototype.val = false;
 
-$root.nnabla.LogicalOrScalarParameter = class LogicalOrScalarParameter {
+nnabla.LogicalOrScalarParameter = class LogicalOrScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LogicalOrScalarParameter();
+        const message = new nnabla.LogicalOrScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7842,7 +7840,7 @@ $root.nnabla.LogicalOrScalarParameter = class LogicalOrScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LogicalOrScalarParameter();
+        const message = new nnabla.LogicalOrScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7859,15 +7857,15 @@ $root.nnabla.LogicalOrScalarParameter = class LogicalOrScalarParameter {
     }
 };
 
-$root.nnabla.LogicalOrScalarParameter.prototype.val = false;
+nnabla.LogicalOrScalarParameter.prototype.val = false;
 
-$root.nnabla.LogicalXorScalarParameter = class LogicalXorScalarParameter {
+nnabla.LogicalXorScalarParameter = class LogicalXorScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LogicalXorScalarParameter();
+        const message = new nnabla.LogicalXorScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7884,7 +7882,7 @@ $root.nnabla.LogicalXorScalarParameter = class LogicalXorScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LogicalXorScalarParameter();
+        const message = new nnabla.LogicalXorScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7901,15 +7899,15 @@ $root.nnabla.LogicalXorScalarParameter = class LogicalXorScalarParameter {
     }
 };
 
-$root.nnabla.LogicalXorScalarParameter.prototype.val = false;
+nnabla.LogicalXorScalarParameter.prototype.val = false;
 
-$root.nnabla.EqualScalarParameter = class EqualScalarParameter {
+nnabla.EqualScalarParameter = class EqualScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.EqualScalarParameter();
+        const message = new nnabla.EqualScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7926,7 +7924,7 @@ $root.nnabla.EqualScalarParameter = class EqualScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.EqualScalarParameter();
+        const message = new nnabla.EqualScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7943,15 +7941,15 @@ $root.nnabla.EqualScalarParameter = class EqualScalarParameter {
     }
 };
 
-$root.nnabla.EqualScalarParameter.prototype.val = 0;
+nnabla.EqualScalarParameter.prototype.val = 0;
 
-$root.nnabla.NotEqualScalarParameter = class NotEqualScalarParameter {
+nnabla.NotEqualScalarParameter = class NotEqualScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.NotEqualScalarParameter();
+        const message = new nnabla.NotEqualScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -7968,7 +7966,7 @@ $root.nnabla.NotEqualScalarParameter = class NotEqualScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.NotEqualScalarParameter();
+        const message = new nnabla.NotEqualScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -7985,15 +7983,15 @@ $root.nnabla.NotEqualScalarParameter = class NotEqualScalarParameter {
     }
 };
 
-$root.nnabla.NotEqualScalarParameter.prototype.val = 0;
+nnabla.NotEqualScalarParameter.prototype.val = 0;
 
-$root.nnabla.GreaterEqualScalarParameter = class GreaterEqualScalarParameter {
+nnabla.GreaterEqualScalarParameter = class GreaterEqualScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.GreaterEqualScalarParameter();
+        const message = new nnabla.GreaterEqualScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8010,7 +8008,7 @@ $root.nnabla.GreaterEqualScalarParameter = class GreaterEqualScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.GreaterEqualScalarParameter();
+        const message = new nnabla.GreaterEqualScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8027,15 +8025,15 @@ $root.nnabla.GreaterEqualScalarParameter = class GreaterEqualScalarParameter {
     }
 };
 
-$root.nnabla.GreaterEqualScalarParameter.prototype.val = 0;
+nnabla.GreaterEqualScalarParameter.prototype.val = 0;
 
-$root.nnabla.GreaterScalarParameter = class GreaterScalarParameter {
+nnabla.GreaterScalarParameter = class GreaterScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.GreaterScalarParameter();
+        const message = new nnabla.GreaterScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8052,7 +8050,7 @@ $root.nnabla.GreaterScalarParameter = class GreaterScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.GreaterScalarParameter();
+        const message = new nnabla.GreaterScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8069,15 +8067,15 @@ $root.nnabla.GreaterScalarParameter = class GreaterScalarParameter {
     }
 };
 
-$root.nnabla.GreaterScalarParameter.prototype.val = 0;
+nnabla.GreaterScalarParameter.prototype.val = 0;
 
-$root.nnabla.LessEqualScalarParameter = class LessEqualScalarParameter {
+nnabla.LessEqualScalarParameter = class LessEqualScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LessEqualScalarParameter();
+        const message = new nnabla.LessEqualScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8094,7 +8092,7 @@ $root.nnabla.LessEqualScalarParameter = class LessEqualScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LessEqualScalarParameter();
+        const message = new nnabla.LessEqualScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8111,15 +8109,15 @@ $root.nnabla.LessEqualScalarParameter = class LessEqualScalarParameter {
     }
 };
 
-$root.nnabla.LessEqualScalarParameter.prototype.val = 0;
+nnabla.LessEqualScalarParameter.prototype.val = 0;
 
-$root.nnabla.LessScalarParameter = class LessScalarParameter {
+nnabla.LessScalarParameter = class LessScalarParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LessScalarParameter();
+        const message = new nnabla.LessScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8136,7 +8134,7 @@ $root.nnabla.LessScalarParameter = class LessScalarParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LessScalarParameter();
+        const message = new nnabla.LessScalarParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8153,15 +8151,15 @@ $root.nnabla.LessScalarParameter = class LessScalarParameter {
     }
 };
 
-$root.nnabla.LessScalarParameter.prototype.val = 0;
+nnabla.LessScalarParameter.prototype.val = 0;
 
-$root.nnabla.ResetNaNParameter = class ResetNaNParameter {
+nnabla.ResetNaNParameter = class ResetNaNParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ResetNaNParameter();
+        const message = new nnabla.ResetNaNParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8178,7 +8176,7 @@ $root.nnabla.ResetNaNParameter = class ResetNaNParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ResetNaNParameter();
+        const message = new nnabla.ResetNaNParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8195,15 +8193,15 @@ $root.nnabla.ResetNaNParameter = class ResetNaNParameter {
     }
 };
 
-$root.nnabla.ResetNaNParameter.prototype.val = 0;
+nnabla.ResetNaNParameter.prototype.val = 0;
 
-$root.nnabla.ResetInfParameter = class ResetInfParameter {
+nnabla.ResetInfParameter = class ResetInfParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ResetInfParameter();
+        const message = new nnabla.ResetInfParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8220,7 +8218,7 @@ $root.nnabla.ResetInfParameter = class ResetInfParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ResetInfParameter();
+        const message = new nnabla.ResetInfParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8237,15 +8235,15 @@ $root.nnabla.ResetInfParameter = class ResetInfParameter {
     }
 };
 
-$root.nnabla.ResetInfParameter.prototype.val = 0;
+nnabla.ResetInfParameter.prototype.val = 0;
 
-$root.nnabla.ConstantParameter = class ConstantParameter {
+nnabla.ConstantParameter = class ConstantParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ConstantParameter();
+        const message = new nnabla.ConstantParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8254,7 +8252,7 @@ $root.nnabla.ConstantParameter = class ConstantParameter {
                     message.val = reader.float();
                     break;
                 case 2:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -8265,7 +8263,7 @@ $root.nnabla.ConstantParameter = class ConstantParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ConstantParameter();
+        const message = new nnabla.ConstantParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8274,7 +8272,7 @@ $root.nnabla.ConstantParameter = class ConstantParameter {
                     message.val = reader.float();
                     break;
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -8285,16 +8283,16 @@ $root.nnabla.ConstantParameter = class ConstantParameter {
     }
 };
 
-$root.nnabla.ConstantParameter.prototype.val = 0;
-$root.nnabla.ConstantParameter.prototype.shape = null;
+nnabla.ConstantParameter.prototype.val = 0;
+nnabla.ConstantParameter.prototype.shape = null;
 
-$root.nnabla.ArangeParameter = class ArangeParameter {
+nnabla.ArangeParameter = class ArangeParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ArangeParameter();
+        const message = new nnabla.ArangeParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8317,7 +8315,7 @@ $root.nnabla.ArangeParameter = class ArangeParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ArangeParameter();
+        const message = new nnabla.ArangeParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8340,17 +8338,17 @@ $root.nnabla.ArangeParameter = class ArangeParameter {
     }
 };
 
-$root.nnabla.ArangeParameter.prototype.start = 0;
-$root.nnabla.ArangeParameter.prototype.stop = 0;
-$root.nnabla.ArangeParameter.prototype.step = 0;
+nnabla.ArangeParameter.prototype.start = 0;
+nnabla.ArangeParameter.prototype.stop = 0;
+nnabla.ArangeParameter.prototype.step = 0;
 
-$root.nnabla.LinspaceParameter = class LinspaceParameter {
+nnabla.LinspaceParameter = class LinspaceParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.LinspaceParameter();
+        const message = new nnabla.LinspaceParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8373,7 +8371,7 @@ $root.nnabla.LinspaceParameter = class LinspaceParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.LinspaceParameter();
+        const message = new nnabla.LinspaceParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8396,17 +8394,17 @@ $root.nnabla.LinspaceParameter = class LinspaceParameter {
     }
 };
 
-$root.nnabla.LinspaceParameter.prototype.start = 0;
-$root.nnabla.LinspaceParameter.prototype.stop = 0;
-$root.nnabla.LinspaceParameter.prototype.num = protobuf.Int64.create(0);
+nnabla.LinspaceParameter.prototype.start = 0;
+nnabla.LinspaceParameter.prototype.stop = 0;
+nnabla.LinspaceParameter.prototype.num = protobuf.Int64.create(0);
 
-$root.nnabla.BatchMatmulParameter = class BatchMatmulParameter {
+nnabla.BatchMatmulParameter = class BatchMatmulParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.BatchMatmulParameter();
+        const message = new nnabla.BatchMatmulParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8426,7 +8424,7 @@ $root.nnabla.BatchMatmulParameter = class BatchMatmulParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.BatchMatmulParameter();
+        const message = new nnabla.BatchMatmulParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8446,16 +8444,16 @@ $root.nnabla.BatchMatmulParameter = class BatchMatmulParameter {
     }
 };
 
-$root.nnabla.BatchMatmulParameter.prototype.transpose_a = false;
-$root.nnabla.BatchMatmulParameter.prototype.transpose_b = false;
+nnabla.BatchMatmulParameter.prototype.transpose_a = false;
+nnabla.BatchMatmulParameter.prototype.transpose_b = false;
 
-$root.nnabla.RoundParameter = class RoundParameter {
+nnabla.RoundParameter = class RoundParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RoundParameter();
+        const message = new nnabla.RoundParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8469,7 +8467,7 @@ $root.nnabla.RoundParameter = class RoundParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RoundParameter();
+        const message = new nnabla.RoundParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8483,13 +8481,13 @@ $root.nnabla.RoundParameter = class RoundParameter {
     }
 };
 
-$root.nnabla.CeilParameter = class CeilParameter {
+nnabla.CeilParameter = class CeilParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.CeilParameter();
+        const message = new nnabla.CeilParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8503,7 +8501,7 @@ $root.nnabla.CeilParameter = class CeilParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.CeilParameter();
+        const message = new nnabla.CeilParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8517,13 +8515,13 @@ $root.nnabla.CeilParameter = class CeilParameter {
     }
 };
 
-$root.nnabla.FloorParameter = class FloorParameter {
+nnabla.FloorParameter = class FloorParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.FloorParameter();
+        const message = new nnabla.FloorParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8537,7 +8535,7 @@ $root.nnabla.FloorParameter = class FloorParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.FloorParameter();
+        const message = new nnabla.FloorParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8551,55 +8549,13 @@ $root.nnabla.FloorParameter = class FloorParameter {
     }
 };
 
-$root.nnabla.ConcatenateParameter = class ConcatenateParameter {
+nnabla.ConcatenateParameter = class ConcatenateParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ConcatenateParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
-        while (reader.position < end) {
-            const tag = reader.uint32();
-            switch (tag >>> 3) {
-                case 1:
-                    message.axis = reader.int64();
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-            }
-        }
-        return message;
-    }
-
-    static decodeText(reader) {
-        const message = new $root.nnabla.ConcatenateParameter();
-        reader.start();
-        while (!reader.end()) {
-            const tag = reader.tag();
-            switch (tag) {
-                case "axis":
-                    message.axis = reader.int64();
-                    break;
-                default:
-                    reader.field(tag, message);
-                    break;
-            }
-        }
-        return message;
-    }
-};
-
-$root.nnabla.ConcatenateParameter.prototype.axis = protobuf.Int64.create(0);
-
-$root.nnabla.SplitParameter = class SplitParameter {
-
-    constructor() {
-    }
-
-    static decode(reader, length) {
-        const message = new $root.nnabla.SplitParameter();
+        const message = new nnabla.ConcatenateParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8616,7 +8572,7 @@ $root.nnabla.SplitParameter = class SplitParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SplitParameter();
+        const message = new nnabla.ConcatenateParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8633,15 +8589,15 @@ $root.nnabla.SplitParameter = class SplitParameter {
     }
 };
 
-$root.nnabla.SplitParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.ConcatenateParameter.prototype.axis = protobuf.Int64.create(0);
 
-$root.nnabla.StackParameter = class StackParameter {
+nnabla.SplitParameter = class SplitParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.StackParameter();
+        const message = new nnabla.SplitParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8658,7 +8614,7 @@ $root.nnabla.StackParameter = class StackParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.StackParameter();
+        const message = new nnabla.SplitParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8675,9 +8631,51 @@ $root.nnabla.StackParameter = class StackParameter {
     }
 };
 
-$root.nnabla.StackParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.SplitParameter.prototype.axis = protobuf.Int64.create(0);
 
-$root.nnabla.SliceParameter = class SliceParameter {
+nnabla.StackParameter = class StackParameter {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new nnabla.StackParameter();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.axis = reader.int64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new nnabla.StackParameter();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "axis":
+                    message.axis = reader.int64();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+nnabla.StackParameter.prototype.axis = protobuf.Int64.create(0);
+
+nnabla.SliceParameter = class SliceParameter {
 
     constructor() {
         this.start = [];
@@ -8686,7 +8684,7 @@ $root.nnabla.SliceParameter = class SliceParameter {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SliceParameter();
+        const message = new nnabla.SliceParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8709,7 +8707,7 @@ $root.nnabla.SliceParameter = class SliceParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SliceParameter();
+        const message = new nnabla.SliceParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8732,14 +8730,14 @@ $root.nnabla.SliceParameter = class SliceParameter {
     }
 };
 
-$root.nnabla.PadParameter = class PadParameter {
+nnabla.PadParameter = class PadParameter {
 
     constructor() {
         this.pad_width = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.PadParameter();
+        const message = new nnabla.PadParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8762,7 +8760,7 @@ $root.nnabla.PadParameter = class PadParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.PadParameter();
+        const message = new nnabla.PadParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8785,17 +8783,17 @@ $root.nnabla.PadParameter = class PadParameter {
     }
 };
 
-$root.nnabla.PadParameter.prototype.mode = "";
-$root.nnabla.PadParameter.prototype.constant_value = 0;
+nnabla.PadParameter.prototype.mode = "";
+nnabla.PadParameter.prototype.constant_value = 0;
 
-$root.nnabla.TransposeParameter = class TransposeParameter {
+nnabla.TransposeParameter = class TransposeParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.TransposeParameter();
+        const message = new nnabla.TransposeParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8812,7 +8810,7 @@ $root.nnabla.TransposeParameter = class TransposeParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.TransposeParameter();
+        const message = new nnabla.TransposeParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8829,19 +8827,19 @@ $root.nnabla.TransposeParameter = class TransposeParameter {
     }
 };
 
-$root.nnabla.BroadcastParameter = class BroadcastParameter {
+nnabla.BroadcastParameter = class BroadcastParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.BroadcastParameter();
+        const message = new nnabla.BroadcastParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -8852,13 +8850,13 @@ $root.nnabla.BroadcastParameter = class BroadcastParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.BroadcastParameter();
+        const message = new nnabla.BroadcastParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -8869,15 +8867,15 @@ $root.nnabla.BroadcastParameter = class BroadcastParameter {
     }
 };
 
-$root.nnabla.BroadcastParameter.prototype.shape = null;
+nnabla.BroadcastParameter.prototype.shape = null;
 
-$root.nnabla.BroadcastToParameter = class BroadcastToParameter {
+nnabla.BroadcastToParameter = class BroadcastToParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.BroadcastToParameter();
+        const message = new nnabla.BroadcastToParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8894,7 +8892,7 @@ $root.nnabla.BroadcastToParameter = class BroadcastToParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.BroadcastToParameter();
+        const message = new nnabla.BroadcastToParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8911,16 +8909,16 @@ $root.nnabla.BroadcastToParameter = class BroadcastToParameter {
     }
 };
 
-$root.nnabla.BroadcastToParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.BroadcastToParameter.prototype.axis = protobuf.Int64.create(0);
 
-$root.nnabla.TileParameter = class TileParameter {
+nnabla.TileParameter = class TileParameter {
 
     constructor() {
         this.reps = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.TileParameter();
+        const message = new nnabla.TileParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -8937,7 +8935,7 @@ $root.nnabla.TileParameter = class TileParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.TileParameter();
+        const message = new nnabla.TileParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -8954,19 +8952,19 @@ $root.nnabla.TileParameter = class TileParameter {
     }
 };
 
-$root.nnabla.OneHotParameter = class OneHotParameter {
+nnabla.OneHotParameter = class OneHotParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.OneHotParameter();
+        const message = new nnabla.OneHotParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -8977,13 +8975,13 @@ $root.nnabla.OneHotParameter = class OneHotParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.OneHotParameter();
+        const message = new nnabla.OneHotParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -8994,16 +8992,16 @@ $root.nnabla.OneHotParameter = class OneHotParameter {
     }
 };
 
-$root.nnabla.OneHotParameter.prototype.shape = null;
+nnabla.OneHotParameter.prototype.shape = null;
 
-$root.nnabla.FlipParameter = class FlipParameter {
+nnabla.FlipParameter = class FlipParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.FlipParameter();
+        const message = new nnabla.FlipParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9020,7 +9018,7 @@ $root.nnabla.FlipParameter = class FlipParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.FlipParameter();
+        const message = new nnabla.FlipParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9037,14 +9035,14 @@ $root.nnabla.FlipParameter = class FlipParameter {
     }
 };
 
-$root.nnabla.ShiftParameter = class ShiftParameter {
+nnabla.ShiftParameter = class ShiftParameter {
 
     constructor() {
         this.shifts = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ShiftParameter();
+        const message = new nnabla.ShiftParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9064,7 +9062,7 @@ $root.nnabla.ShiftParameter = class ShiftParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ShiftParameter();
+        const message = new nnabla.ShiftParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9084,15 +9082,15 @@ $root.nnabla.ShiftParameter = class ShiftParameter {
     }
 };
 
-$root.nnabla.ShiftParameter.prototype.border_mode = "";
+nnabla.ShiftParameter.prototype.border_mode = "";
 
-$root.nnabla.SortParameter = class SortParameter {
+nnabla.SortParameter = class SortParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SortParameter();
+        const message = new nnabla.SortParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9118,7 +9116,7 @@ $root.nnabla.SortParameter = class SortParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SortParameter();
+        const message = new nnabla.SortParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9144,24 +9142,24 @@ $root.nnabla.SortParameter = class SortParameter {
     }
 };
 
-$root.nnabla.SortParameter.prototype.axis = protobuf.Int64.create(0);
-$root.nnabla.SortParameter.prototype.reverse = false;
-$root.nnabla.SortParameter.prototype.with_index = false;
-$root.nnabla.SortParameter.prototype.only_index = false;
+nnabla.SortParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.SortParameter.prototype.reverse = false;
+nnabla.SortParameter.prototype.with_index = false;
+nnabla.SortParameter.prototype.only_index = false;
 
-$root.nnabla.ReshapeParameter = class ReshapeParameter {
+nnabla.ReshapeParameter = class ReshapeParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ReshapeParameter();
+        const message = new nnabla.ReshapeParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 2:
                     message.inplace = reader.bool();
@@ -9175,13 +9173,13 @@ $root.nnabla.ReshapeParameter = class ReshapeParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ReshapeParameter();
+        const message = new nnabla.ReshapeParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 case "inplace":
                     message.inplace = reader.bool();
@@ -9195,16 +9193,16 @@ $root.nnabla.ReshapeParameter = class ReshapeParameter {
     }
 };
 
-$root.nnabla.ReshapeParameter.prototype.shape = null;
-$root.nnabla.ReshapeParameter.prototype.inplace = false;
+nnabla.ReshapeParameter.prototype.shape = null;
+nnabla.ReshapeParameter.prototype.inplace = false;
 
-$root.nnabla.ShapeParameter = class ShapeParameter {
+nnabla.ShapeParameter = class ShapeParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ShapeParameter();
+        const message = new nnabla.ShapeParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9224,7 +9222,7 @@ $root.nnabla.ShapeParameter = class ShapeParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ShapeParameter();
+        const message = new nnabla.ShapeParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9244,16 +9242,16 @@ $root.nnabla.ShapeParameter = class ShapeParameter {
     }
 };
 
-$root.nnabla.ShapeParameter.prototype.start = protobuf.Int64.create(0);
-$root.nnabla.ShapeParameter.prototype.end = protobuf.Int64.create(0);
+nnabla.ShapeParameter.prototype.start = protobuf.Int64.create(0);
+nnabla.ShapeParameter.prototype.end = protobuf.Int64.create(0);
 
-$root.nnabla.TriluParameter = class TriluParameter {
+nnabla.TriluParameter = class TriluParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.TriluParameter();
+        const message = new nnabla.TriluParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9273,7 +9271,7 @@ $root.nnabla.TriluParameter = class TriluParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.TriluParameter();
+        const message = new nnabla.TriluParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9293,16 +9291,16 @@ $root.nnabla.TriluParameter = class TriluParameter {
     }
 };
 
-$root.nnabla.TriluParameter.prototype.k = protobuf.Int64.create(0);
-$root.nnabla.TriluParameter.prototype.upper = false;
+nnabla.TriluParameter.prototype.k = protobuf.Int64.create(0);
+nnabla.TriluParameter.prototype.upper = false;
 
-$root.nnabla.MeshgridParameter = class MeshgridParameter {
+nnabla.MeshgridParameter = class MeshgridParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.MeshgridParameter();
+        const message = new nnabla.MeshgridParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9319,7 +9317,7 @@ $root.nnabla.MeshgridParameter = class MeshgridParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.MeshgridParameter();
+        const message = new nnabla.MeshgridParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9336,15 +9334,15 @@ $root.nnabla.MeshgridParameter = class MeshgridParameter {
     }
 };
 
-$root.nnabla.MeshgridParameter.prototype.ij_indexing = false;
+nnabla.MeshgridParameter.prototype.ij_indexing = false;
 
-$root.nnabla.BatchCholeskyParameter = class BatchCholeskyParameter {
+nnabla.BatchCholeskyParameter = class BatchCholeskyParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.BatchCholeskyParameter();
+        const message = new nnabla.BatchCholeskyParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9361,7 +9359,7 @@ $root.nnabla.BatchCholeskyParameter = class BatchCholeskyParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.BatchCholeskyParameter();
+        const message = new nnabla.BatchCholeskyParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9378,15 +9376,15 @@ $root.nnabla.BatchCholeskyParameter = class BatchCholeskyParameter {
     }
 };
 
-$root.nnabla.BatchCholeskyParameter.prototype.upper = false;
+nnabla.BatchCholeskyParameter.prototype.upper = false;
 
-$root.nnabla.GatherParameter = class GatherParameter {
+nnabla.GatherParameter = class GatherParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.GatherParameter();
+        const message = new nnabla.GatherParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9406,7 +9404,7 @@ $root.nnabla.GatherParameter = class GatherParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.GatherParameter();
+        const message = new nnabla.GatherParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9426,17 +9424,17 @@ $root.nnabla.GatherParameter = class GatherParameter {
     }
 };
 
-$root.nnabla.GatherParameter.prototype.axis = protobuf.Int64.create(0);
-$root.nnabla.GatherParameter.prototype.batch_dims = protobuf.Int64.create(0);
+nnabla.GatherParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.GatherParameter.prototype.batch_dims = protobuf.Int64.create(0);
 
-$root.nnabla.ScatterNdParameter = class ScatterNdParameter {
+nnabla.ScatterNdParameter = class ScatterNdParameter {
 
     constructor() {
         this.shape = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ScatterNdParameter();
+        const message = new nnabla.ScatterNdParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9456,7 +9454,7 @@ $root.nnabla.ScatterNdParameter = class ScatterNdParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ScatterNdParameter();
+        const message = new nnabla.ScatterNdParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9476,15 +9474,15 @@ $root.nnabla.ScatterNdParameter = class ScatterNdParameter {
     }
 };
 
-$root.nnabla.ScatterNdParameter.prototype.add = false;
+nnabla.ScatterNdParameter.prototype.add = false;
 
-$root.nnabla.ScatterAddParameter = class ScatterAddParameter {
+nnabla.ScatterAddParameter = class ScatterAddParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ScatterAddParameter();
+        const message = new nnabla.ScatterAddParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9501,7 +9499,7 @@ $root.nnabla.ScatterAddParameter = class ScatterAddParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ScatterAddParameter();
+        const message = new nnabla.ScatterAddParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9518,15 +9516,15 @@ $root.nnabla.ScatterAddParameter = class ScatterAddParameter {
     }
 };
 
-$root.nnabla.ScatterAddParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.ScatterAddParameter.prototype.axis = protobuf.Int64.create(0);
 
-$root.nnabla.BoolFillParameter = class BoolFillParameter {
+nnabla.BoolFillParameter = class BoolFillParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.BoolFillParameter();
+        const message = new nnabla.BoolFillParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9543,7 +9541,7 @@ $root.nnabla.BoolFillParameter = class BoolFillParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.BoolFillParameter();
+        const message = new nnabla.BoolFillParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9560,15 +9558,15 @@ $root.nnabla.BoolFillParameter = class BoolFillParameter {
     }
 };
 
-$root.nnabla.BoolFillParameter.prototype.value = 0;
+nnabla.BoolFillParameter.prototype.value = 0;
 
-$root.nnabla.PackPaddedSequenceParameter = class PackPaddedSequenceParameter {
+nnabla.PackPaddedSequenceParameter = class PackPaddedSequenceParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.PackPaddedSequenceParameter();
+        const message = new nnabla.PackPaddedSequenceParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9585,7 +9583,7 @@ $root.nnabla.PackPaddedSequenceParameter = class PackPaddedSequenceParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.PackPaddedSequenceParameter();
+        const message = new nnabla.PackPaddedSequenceParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9602,15 +9600,15 @@ $root.nnabla.PackPaddedSequenceParameter = class PackPaddedSequenceParameter {
     }
 };
 
-$root.nnabla.PackPaddedSequenceParameter.prototype.batch_first = false;
+nnabla.PackPaddedSequenceParameter.prototype.batch_first = false;
 
-$root.nnabla.PadPackedSequenceParameter = class PadPackedSequenceParameter {
+nnabla.PadPackedSequenceParameter = class PadPackedSequenceParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.PadPackedSequenceParameter();
+        const message = new nnabla.PadPackedSequenceParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9633,7 +9631,7 @@ $root.nnabla.PadPackedSequenceParameter = class PadPackedSequenceParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.PadPackedSequenceParameter();
+        const message = new nnabla.PadPackedSequenceParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9656,18 +9654,18 @@ $root.nnabla.PadPackedSequenceParameter = class PadPackedSequenceParameter {
     }
 };
 
-$root.nnabla.PadPackedSequenceParameter.prototype.batch_first = false;
-$root.nnabla.PadPackedSequenceParameter.prototype.padding_value = 0;
-$root.nnabla.PadPackedSequenceParameter.prototype.total_length = protobuf.Int64.create(0);
+nnabla.PadPackedSequenceParameter.prototype.batch_first = false;
+nnabla.PadPackedSequenceParameter.prototype.padding_value = 0;
+nnabla.PadPackedSequenceParameter.prototype.total_length = protobuf.Int64.create(0);
 
-$root.nnabla.InterpolateParameter = class InterpolateParameter {
+nnabla.InterpolateParameter = class InterpolateParameter {
 
     constructor() {
         this.output_size = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.InterpolateParameter();
+        const message = new nnabla.InterpolateParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9699,7 +9697,7 @@ $root.nnabla.InterpolateParameter = class InterpolateParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.InterpolateParameter();
+        const message = new nnabla.InterpolateParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9731,13 +9729,13 @@ $root.nnabla.InterpolateParameter = class InterpolateParameter {
     }
 };
 
-$root.nnabla.InterpolateParameter.prototype.mode = "";
-$root.nnabla.InterpolateParameter.prototype.align_corners = false;
-$root.nnabla.InterpolateParameter.prototype.half_pixel = false;
-$root.nnabla.InterpolateParameter.prototype.half_pixel_for_nn = false;
-$root.nnabla.InterpolateParameter.prototype.channel_last = false;
+nnabla.InterpolateParameter.prototype.mode = "";
+nnabla.InterpolateParameter.prototype.align_corners = false;
+nnabla.InterpolateParameter.prototype.half_pixel = false;
+nnabla.InterpolateParameter.prototype.half_pixel_for_nn = false;
+nnabla.InterpolateParameter.prototype.channel_last = false;
 
-$root.nnabla.ONNXResizeParameter = class ONNXResizeParameter {
+nnabla.ONNXResizeParameter = class ONNXResizeParameter {
 
     constructor() {
         this.roi = [];
@@ -9746,7 +9744,7 @@ $root.nnabla.ONNXResizeParameter = class ONNXResizeParameter {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ONNXResizeParameter();
+        const message = new nnabla.ONNXResizeParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9787,7 +9785,7 @@ $root.nnabla.ONNXResizeParameter = class ONNXResizeParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ONNXResizeParameter();
+        const message = new nnabla.ONNXResizeParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9828,20 +9826,20 @@ $root.nnabla.ONNXResizeParameter = class ONNXResizeParameter {
     }
 };
 
-$root.nnabla.ONNXResizeParameter.prototype.mode = "";
-$root.nnabla.ONNXResizeParameter.prototype.coordinate_transformation_mode = "";
-$root.nnabla.ONNXResizeParameter.prototype.cubic_coeff_a = 0;
-$root.nnabla.ONNXResizeParameter.prototype.exclude_outside = protobuf.Int64.create(0);
-$root.nnabla.ONNXResizeParameter.prototype.extrapolation_value = 0;
-$root.nnabla.ONNXResizeParameter.prototype.nearest_mode = "";
+nnabla.ONNXResizeParameter.prototype.mode = "";
+nnabla.ONNXResizeParameter.prototype.coordinate_transformation_mode = "";
+nnabla.ONNXResizeParameter.prototype.cubic_coeff_a = 0;
+nnabla.ONNXResizeParameter.prototype.exclude_outside = protobuf.Int64.create(0);
+nnabla.ONNXResizeParameter.prototype.extrapolation_value = 0;
+nnabla.ONNXResizeParameter.prototype.nearest_mode = "";
 
-$root.nnabla.FFTParameter = class FFTParameter {
+nnabla.FFTParameter = class FFTParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.FFTParameter();
+        const message = new nnabla.FFTParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9861,7 +9859,7 @@ $root.nnabla.FFTParameter = class FFTParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.FFTParameter();
+        const message = new nnabla.FFTParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9881,16 +9879,16 @@ $root.nnabla.FFTParameter = class FFTParameter {
     }
 };
 
-$root.nnabla.FFTParameter.prototype.signal_ndim = protobuf.Int64.create(0);
-$root.nnabla.FFTParameter.prototype.normalized = false;
+nnabla.FFTParameter.prototype.signal_ndim = protobuf.Int64.create(0);
+nnabla.FFTParameter.prototype.normalized = false;
 
-$root.nnabla.IFFTParameter = class IFFTParameter {
+nnabla.IFFTParameter = class IFFTParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.IFFTParameter();
+        const message = new nnabla.IFFTParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9910,7 +9908,7 @@ $root.nnabla.IFFTParameter = class IFFTParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.IFFTParameter();
+        const message = new nnabla.IFFTParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -9930,16 +9928,16 @@ $root.nnabla.IFFTParameter = class IFFTParameter {
     }
 };
 
-$root.nnabla.IFFTParameter.prototype.signal_ndim = protobuf.Int64.create(0);
-$root.nnabla.IFFTParameter.prototype.normalized = false;
+nnabla.IFFTParameter.prototype.signal_ndim = protobuf.Int64.create(0);
+nnabla.IFFTParameter.prototype.normalized = false;
 
-$root.nnabla.STFTParameter = class STFTParameter {
+nnabla.STFTParameter = class STFTParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.STFTParameter();
+        const message = new nnabla.STFTParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -9974,7 +9972,7 @@ $root.nnabla.STFTParameter = class STFTParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.STFTParameter();
+        const message = new nnabla.STFTParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -10009,21 +10007,21 @@ $root.nnabla.STFTParameter = class STFTParameter {
     }
 };
 
-$root.nnabla.STFTParameter.prototype.window_size = protobuf.Int64.create(0);
-$root.nnabla.STFTParameter.prototype.stride = protobuf.Int64.create(0);
-$root.nnabla.STFTParameter.prototype.fft_size = protobuf.Int64.create(0);
-$root.nnabla.STFTParameter.prototype.window_type = "";
-$root.nnabla.STFTParameter.prototype.center = false;
-$root.nnabla.STFTParameter.prototype.pad_mode = "";
-$root.nnabla.STFTParameter.prototype.as_istft_backward = false;
+nnabla.STFTParameter.prototype.window_size = protobuf.Int64.create(0);
+nnabla.STFTParameter.prototype.stride = protobuf.Int64.create(0);
+nnabla.STFTParameter.prototype.fft_size = protobuf.Int64.create(0);
+nnabla.STFTParameter.prototype.window_type = "";
+nnabla.STFTParameter.prototype.center = false;
+nnabla.STFTParameter.prototype.pad_mode = "";
+nnabla.STFTParameter.prototype.as_istft_backward = false;
 
-$root.nnabla.ISTFTParameter = class ISTFTParameter {
+nnabla.ISTFTParameter = class ISTFTParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ISTFTParameter();
+        const message = new nnabla.ISTFTParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -10058,7 +10056,7 @@ $root.nnabla.ISTFTParameter = class ISTFTParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ISTFTParameter();
+        const message = new nnabla.ISTFTParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -10093,21 +10091,21 @@ $root.nnabla.ISTFTParameter = class ISTFTParameter {
     }
 };
 
-$root.nnabla.ISTFTParameter.prototype.window_size = protobuf.Int64.create(0);
-$root.nnabla.ISTFTParameter.prototype.stride = protobuf.Int64.create(0);
-$root.nnabla.ISTFTParameter.prototype.fft_size = protobuf.Int64.create(0);
-$root.nnabla.ISTFTParameter.prototype.window_type = "";
-$root.nnabla.ISTFTParameter.prototype.center = false;
-$root.nnabla.ISTFTParameter.prototype.pad_mode = "";
-$root.nnabla.ISTFTParameter.prototype.as_stft_backward = false;
+nnabla.ISTFTParameter.prototype.window_size = protobuf.Int64.create(0);
+nnabla.ISTFTParameter.prototype.stride = protobuf.Int64.create(0);
+nnabla.ISTFTParameter.prototype.fft_size = protobuf.Int64.create(0);
+nnabla.ISTFTParameter.prototype.window_type = "";
+nnabla.ISTFTParameter.prototype.center = false;
+nnabla.ISTFTParameter.prototype.pad_mode = "";
+nnabla.ISTFTParameter.prototype.as_stft_backward = false;
 
-$root.nnabla.DropoutParameter = class DropoutParameter {
+nnabla.DropoutParameter = class DropoutParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.DropoutParameter();
+        const message = new nnabla.DropoutParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -10127,7 +10125,7 @@ $root.nnabla.DropoutParameter = class DropoutParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.DropoutParameter();
+        const message = new nnabla.DropoutParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -10147,16 +10145,16 @@ $root.nnabla.DropoutParameter = class DropoutParameter {
     }
 };
 
-$root.nnabla.DropoutParameter.prototype.p = 0;
-$root.nnabla.DropoutParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.DropoutParameter.prototype.p = 0;
+nnabla.DropoutParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.TopKDataParameter = class TopKDataParameter {
+nnabla.TopKDataParameter = class TopKDataParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.TopKDataParameter();
+        const message = new nnabla.TopKDataParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -10188,7 +10186,7 @@ $root.nnabla.TopKDataParameter = class TopKDataParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.TopKDataParameter();
+        const message = new nnabla.TopKDataParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -10220,20 +10218,20 @@ $root.nnabla.TopKDataParameter = class TopKDataParameter {
     }
 };
 
-$root.nnabla.TopKDataParameter.prototype.k = protobuf.Int64.create(0);
-$root.nnabla.TopKDataParameter.prototype.abs = false;
-$root.nnabla.TopKDataParameter.prototype.reduce = false;
-$root.nnabla.TopKDataParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.TopKDataParameter.prototype.largest = false;
-$root.nnabla.TopKDataParameter.prototype.with_index = false;
+nnabla.TopKDataParameter.prototype.k = protobuf.Int64.create(0);
+nnabla.TopKDataParameter.prototype.abs = false;
+nnabla.TopKDataParameter.prototype.reduce = false;
+nnabla.TopKDataParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.TopKDataParameter.prototype.largest = false;
+nnabla.TopKDataParameter.prototype.with_index = false;
 
-$root.nnabla.TopKGradParameter = class TopKGradParameter {
+nnabla.TopKGradParameter = class TopKGradParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.TopKGradParameter();
+        const message = new nnabla.TopKGradParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -10256,7 +10254,7 @@ $root.nnabla.TopKGradParameter = class TopKGradParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.TopKGradParameter();
+        const message = new nnabla.TopKGradParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -10279,17 +10277,17 @@ $root.nnabla.TopKGradParameter = class TopKGradParameter {
     }
 };
 
-$root.nnabla.TopKGradParameter.prototype.k = protobuf.Int64.create(0);
-$root.nnabla.TopKGradParameter.prototype.abs = false;
-$root.nnabla.TopKGradParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.TopKGradParameter.prototype.k = protobuf.Int64.create(0);
+nnabla.TopKGradParameter.prototype.abs = false;
+nnabla.TopKGradParameter.prototype.base_axis = protobuf.Int64.create(0);
 
-$root.nnabla.RandParameter = class RandParameter {
+nnabla.RandParameter = class RandParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RandParameter();
+        const message = new nnabla.RandParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -10301,7 +10299,7 @@ $root.nnabla.RandParameter = class RandParameter {
                     message.high = reader.float();
                     break;
                 case 3:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
                     message.seed = reader.int64();
@@ -10315,7 +10313,7 @@ $root.nnabla.RandParameter = class RandParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RandParameter();
+        const message = new nnabla.RandParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -10327,7 +10325,7 @@ $root.nnabla.RandParameter = class RandParameter {
                     message.high = reader.float();
                     break;
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 case "seed":
                     message.seed = reader.int64();
@@ -10341,18 +10339,18 @@ $root.nnabla.RandParameter = class RandParameter {
     }
 };
 
-$root.nnabla.RandParameter.prototype.low = 0;
-$root.nnabla.RandParameter.prototype.high = 0;
-$root.nnabla.RandParameter.prototype.shape = null;
-$root.nnabla.RandParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandParameter.prototype.low = 0;
+nnabla.RandParameter.prototype.high = 0;
+nnabla.RandParameter.prototype.shape = null;
+nnabla.RandParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.RandintParameter = class RandintParameter {
+nnabla.RandintParameter = class RandintParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RandintParameter();
+        const message = new nnabla.RandintParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -10364,7 +10362,7 @@ $root.nnabla.RandintParameter = class RandintParameter {
                     message.high = reader.int64();
                     break;
                 case 3:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
                     message.seed = reader.int64();
@@ -10378,7 +10376,7 @@ $root.nnabla.RandintParameter = class RandintParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RandintParameter();
+        const message = new nnabla.RandintParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -10390,7 +10388,7 @@ $root.nnabla.RandintParameter = class RandintParameter {
                     message.high = reader.int64();
                     break;
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 case "seed":
                     message.seed = reader.int64();
@@ -10404,18 +10402,18 @@ $root.nnabla.RandintParameter = class RandintParameter {
     }
 };
 
-$root.nnabla.RandintParameter.prototype.low = protobuf.Int64.create(0);
-$root.nnabla.RandintParameter.prototype.high = protobuf.Int64.create(0);
-$root.nnabla.RandintParameter.prototype.shape = null;
-$root.nnabla.RandintParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandintParameter.prototype.low = protobuf.Int64.create(0);
+nnabla.RandintParameter.prototype.high = protobuf.Int64.create(0);
+nnabla.RandintParameter.prototype.shape = null;
+nnabla.RandintParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.RandnParameter = class RandnParameter {
+nnabla.RandnParameter = class RandnParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RandnParameter();
+        const message = new nnabla.RandnParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -10427,7 +10425,7 @@ $root.nnabla.RandnParameter = class RandnParameter {
                     message.sigma = reader.float();
                     break;
                 case 3:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
                     message.seed = reader.int64();
@@ -10441,7 +10439,7 @@ $root.nnabla.RandnParameter = class RandnParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RandnParameter();
+        const message = new nnabla.RandnParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -10453,7 +10451,7 @@ $root.nnabla.RandnParameter = class RandnParameter {
                     message.sigma = reader.float();
                     break;
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 case "seed":
                     message.seed = reader.int64();
@@ -10467,18 +10465,18 @@ $root.nnabla.RandnParameter = class RandnParameter {
     }
 };
 
-$root.nnabla.RandnParameter.prototype.mu = 0;
-$root.nnabla.RandnParameter.prototype.sigma = 0;
-$root.nnabla.RandnParameter.prototype.shape = null;
-$root.nnabla.RandnParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandnParameter.prototype.mu = 0;
+nnabla.RandnParameter.prototype.sigma = 0;
+nnabla.RandnParameter.prototype.shape = null;
+nnabla.RandnParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.RandBinomialParameter = class RandBinomialParameter {
+nnabla.RandBinomialParameter = class RandBinomialParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RandBinomialParameter();
+        const message = new nnabla.RandBinomialParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -10490,7 +10488,7 @@ $root.nnabla.RandBinomialParameter = class RandBinomialParameter {
                     message.p = reader.float();
                     break;
                 case 3:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
                     message.seed = reader.int64();
@@ -10504,7 +10502,7 @@ $root.nnabla.RandBinomialParameter = class RandBinomialParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RandBinomialParameter();
+        const message = new nnabla.RandBinomialParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -10516,7 +10514,7 @@ $root.nnabla.RandBinomialParameter = class RandBinomialParameter {
                     message.p = reader.float();
                     break;
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 case "seed":
                     message.seed = reader.int64();
@@ -10530,18 +10528,18 @@ $root.nnabla.RandBinomialParameter = class RandBinomialParameter {
     }
 };
 
-$root.nnabla.RandBinomialParameter.prototype.n = protobuf.Int64.create(0);
-$root.nnabla.RandBinomialParameter.prototype.p = 0;
-$root.nnabla.RandBinomialParameter.prototype.shape = null;
-$root.nnabla.RandBinomialParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandBinomialParameter.prototype.n = protobuf.Int64.create(0);
+nnabla.RandBinomialParameter.prototype.p = 0;
+nnabla.RandBinomialParameter.prototype.shape = null;
+nnabla.RandBinomialParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.RandBetaParameter = class RandBetaParameter {
+nnabla.RandBetaParameter = class RandBetaParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RandBetaParameter();
+        const message = new nnabla.RandBetaParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -10553,7 +10551,7 @@ $root.nnabla.RandBetaParameter = class RandBetaParameter {
                     message.beta = reader.float();
                     break;
                 case 3:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
                     message.seed = reader.int64();
@@ -10567,7 +10565,7 @@ $root.nnabla.RandBetaParameter = class RandBetaParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RandBetaParameter();
+        const message = new nnabla.RandBetaParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -10579,7 +10577,7 @@ $root.nnabla.RandBetaParameter = class RandBetaParameter {
                     message.beta = reader.float();
                     break;
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 case "seed":
                     message.seed = reader.int64();
@@ -10593,18 +10591,18 @@ $root.nnabla.RandBetaParameter = class RandBetaParameter {
     }
 };
 
-$root.nnabla.RandBetaParameter.prototype.alpha = 0;
-$root.nnabla.RandBetaParameter.prototype.beta = 0;
-$root.nnabla.RandBetaParameter.prototype.shape = null;
-$root.nnabla.RandBetaParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandBetaParameter.prototype.alpha = 0;
+nnabla.RandBetaParameter.prototype.beta = 0;
+nnabla.RandBetaParameter.prototype.shape = null;
+nnabla.RandBetaParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.RandGammaParameter = class RandGammaParameter {
+nnabla.RandGammaParameter = class RandGammaParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RandGammaParameter();
+        const message = new nnabla.RandGammaParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -10616,7 +10614,7 @@ $root.nnabla.RandGammaParameter = class RandGammaParameter {
                     message.theta = reader.float();
                     break;
                 case 3:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
                     message.seed = reader.int64();
@@ -10630,7 +10628,7 @@ $root.nnabla.RandGammaParameter = class RandGammaParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RandGammaParameter();
+        const message = new nnabla.RandGammaParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -10642,7 +10640,7 @@ $root.nnabla.RandGammaParameter = class RandGammaParameter {
                     message.theta = reader.float();
                     break;
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 case "seed":
                     message.seed = reader.int64();
@@ -10656,24 +10654,24 @@ $root.nnabla.RandGammaParameter = class RandGammaParameter {
     }
 };
 
-$root.nnabla.RandGammaParameter.prototype.k = 0;
-$root.nnabla.RandGammaParameter.prototype.theta = 0;
-$root.nnabla.RandGammaParameter.prototype.shape = null;
-$root.nnabla.RandGammaParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandGammaParameter.prototype.k = 0;
+nnabla.RandGammaParameter.prototype.theta = 0;
+nnabla.RandGammaParameter.prototype.shape = null;
+nnabla.RandGammaParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.RandomChoiceParameter = class RandomChoiceParameter {
+nnabla.RandomChoiceParameter = class RandomChoiceParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RandomChoiceParameter();
+        const message = new nnabla.RandomChoiceParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 2:
                     message.replace = reader.bool();
@@ -10690,13 +10688,13 @@ $root.nnabla.RandomChoiceParameter = class RandomChoiceParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RandomChoiceParameter();
+        const message = new nnabla.RandomChoiceParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 case "replace":
                     message.replace = reader.bool();
@@ -10713,23 +10711,23 @@ $root.nnabla.RandomChoiceParameter = class RandomChoiceParameter {
     }
 };
 
-$root.nnabla.RandomChoiceParameter.prototype.shape = null;
-$root.nnabla.RandomChoiceParameter.prototype.replace = false;
-$root.nnabla.RandomChoiceParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandomChoiceParameter.prototype.shape = null;
+nnabla.RandomChoiceParameter.prototype.replace = false;
+nnabla.RandomChoiceParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.RandomCropParameter = class RandomCropParameter {
+nnabla.RandomCropParameter = class RandomCropParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RandomCropParameter();
+        const message = new nnabla.RandomCropParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 2:
                     message.base_axis = reader.int64();
@@ -10746,13 +10744,13 @@ $root.nnabla.RandomCropParameter = class RandomCropParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RandomCropParameter();
+        const message = new nnabla.RandomCropParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 case "base_axis":
                     message.base_axis = reader.int64();
@@ -10769,18 +10767,18 @@ $root.nnabla.RandomCropParameter = class RandomCropParameter {
     }
 };
 
-$root.nnabla.RandomCropParameter.prototype.shape = null;
-$root.nnabla.RandomCropParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.RandomCropParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandomCropParameter.prototype.shape = null;
+nnabla.RandomCropParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.RandomCropParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.RandomFlipParameter = class RandomFlipParameter {
+nnabla.RandomFlipParameter = class RandomFlipParameter {
 
     constructor() {
         this.axes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RandomFlipParameter();
+        const message = new nnabla.RandomFlipParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -10803,7 +10801,7 @@ $root.nnabla.RandomFlipParameter = class RandomFlipParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RandomFlipParameter();
+        const message = new nnabla.RandomFlipParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -10826,17 +10824,17 @@ $root.nnabla.RandomFlipParameter = class RandomFlipParameter {
     }
 };
 
-$root.nnabla.RandomFlipParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.RandomFlipParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandomFlipParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.RandomFlipParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.RandomShiftParameter = class RandomShiftParameter {
+nnabla.RandomShiftParameter = class RandomShiftParameter {
 
     constructor() {
         this.shifts = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RandomShiftParameter();
+        const message = new nnabla.RandomShiftParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -10865,7 +10863,7 @@ $root.nnabla.RandomShiftParameter = class RandomShiftParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RandomShiftParameter();
+        const message = new nnabla.RandomShiftParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -10894,12 +10892,12 @@ $root.nnabla.RandomShiftParameter = class RandomShiftParameter {
     }
 };
 
-$root.nnabla.RandomShiftParameter.prototype.border_mode = "";
-$root.nnabla.RandomShiftParameter.prototype.constant_value = 0;
-$root.nnabla.RandomShiftParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.RandomShiftParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandomShiftParameter.prototype.border_mode = "";
+nnabla.RandomShiftParameter.prototype.constant_value = 0;
+nnabla.RandomShiftParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.RandomShiftParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.RandomEraseParameter = class RandomEraseParameter {
+nnabla.RandomEraseParameter = class RandomEraseParameter {
 
     constructor() {
         this.area_ratios = [];
@@ -10908,7 +10906,7 @@ $root.nnabla.RandomEraseParameter = class RandomEraseParameter {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.RandomEraseParameter();
+        const message = new nnabla.RandomEraseParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -10955,7 +10953,7 @@ $root.nnabla.RandomEraseParameter = class RandomEraseParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.RandomEraseParameter();
+        const message = new nnabla.RandomEraseParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11002,31 +11000,31 @@ $root.nnabla.RandomEraseParameter = class RandomEraseParameter {
     }
 };
 
-$root.nnabla.RandomEraseParameter.prototype.prob = 0;
-$root.nnabla.RandomEraseParameter.prototype.n = protobuf.Int64.create(0);
-$root.nnabla.RandomEraseParameter.prototype.share = false;
-$root.nnabla.RandomEraseParameter.prototype.inplace = false;
-$root.nnabla.RandomEraseParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.RandomEraseParameter.prototype.seed = protobuf.Int64.create(0);
-$root.nnabla.RandomEraseParameter.prototype.channel_last = false;
-$root.nnabla.RandomEraseParameter.prototype.ste_fine_grained = false;
+nnabla.RandomEraseParameter.prototype.prob = 0;
+nnabla.RandomEraseParameter.prototype.n = protobuf.Int64.create(0);
+nnabla.RandomEraseParameter.prototype.share = false;
+nnabla.RandomEraseParameter.prototype.inplace = false;
+nnabla.RandomEraseParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.RandomEraseParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandomEraseParameter.prototype.channel_last = false;
+nnabla.RandomEraseParameter.prototype.ste_fine_grained = false;
 
-$root.nnabla.ImageAugmentationParameter = class ImageAugmentationParameter {
+nnabla.ImageAugmentationParameter = class ImageAugmentationParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ImageAugmentationParameter();
+        const message = new nnabla.ImageAugmentationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.shape = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shape = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 2:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
                     message.min_scale = reader.float();
@@ -11079,16 +11077,16 @@ $root.nnabla.ImageAugmentationParameter = class ImageAugmentationParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ImageAugmentationParameter();
+        const message = new nnabla.ImageAugmentationParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "shape":
-                    message.shape = $root.nnabla.Shape.decodeText(reader);
+                    message.shape = nnabla.Shape.decodeText(reader);
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "min_scale":
                     message.min_scale = reader.float();
@@ -11141,30 +11139,30 @@ $root.nnabla.ImageAugmentationParameter = class ImageAugmentationParameter {
     }
 };
 
-$root.nnabla.ImageAugmentationParameter.prototype.shape = null;
-$root.nnabla.ImageAugmentationParameter.prototype.pad = null;
-$root.nnabla.ImageAugmentationParameter.prototype.min_scale = 0;
-$root.nnabla.ImageAugmentationParameter.prototype.max_scale = 0;
-$root.nnabla.ImageAugmentationParameter.prototype.angle = 0;
-$root.nnabla.ImageAugmentationParameter.prototype.aspect_ratio = 0;
-$root.nnabla.ImageAugmentationParameter.prototype.distortion = 0;
-$root.nnabla.ImageAugmentationParameter.prototype.flip_lr = false;
-$root.nnabla.ImageAugmentationParameter.prototype.flip_ud = false;
-$root.nnabla.ImageAugmentationParameter.prototype.brightness = 0;
-$root.nnabla.ImageAugmentationParameter.prototype.brightness_each = false;
-$root.nnabla.ImageAugmentationParameter.prototype.contrast = 0;
-$root.nnabla.ImageAugmentationParameter.prototype.contrast_center = 0;
-$root.nnabla.ImageAugmentationParameter.prototype.contrast_each = false;
-$root.nnabla.ImageAugmentationParameter.prototype.noise = 0;
-$root.nnabla.ImageAugmentationParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.ImageAugmentationParameter.prototype.shape = null;
+nnabla.ImageAugmentationParameter.prototype.pad = null;
+nnabla.ImageAugmentationParameter.prototype.min_scale = 0;
+nnabla.ImageAugmentationParameter.prototype.max_scale = 0;
+nnabla.ImageAugmentationParameter.prototype.angle = 0;
+nnabla.ImageAugmentationParameter.prototype.aspect_ratio = 0;
+nnabla.ImageAugmentationParameter.prototype.distortion = 0;
+nnabla.ImageAugmentationParameter.prototype.flip_lr = false;
+nnabla.ImageAugmentationParameter.prototype.flip_ud = false;
+nnabla.ImageAugmentationParameter.prototype.brightness = 0;
+nnabla.ImageAugmentationParameter.prototype.brightness_each = false;
+nnabla.ImageAugmentationParameter.prototype.contrast = 0;
+nnabla.ImageAugmentationParameter.prototype.contrast_center = 0;
+nnabla.ImageAugmentationParameter.prototype.contrast_each = false;
+nnabla.ImageAugmentationParameter.prototype.noise = 0;
+nnabla.ImageAugmentationParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.SoftmaxCrossEntropyParameter = class SoftmaxCrossEntropyParameter {
+nnabla.SoftmaxCrossEntropyParameter = class SoftmaxCrossEntropyParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SoftmaxCrossEntropyParameter();
+        const message = new nnabla.SoftmaxCrossEntropyParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11181,7 +11179,7 @@ $root.nnabla.SoftmaxCrossEntropyParameter = class SoftmaxCrossEntropyParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SoftmaxCrossEntropyParameter();
+        const message = new nnabla.SoftmaxCrossEntropyParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11198,15 +11196,15 @@ $root.nnabla.SoftmaxCrossEntropyParameter = class SoftmaxCrossEntropyParameter {
     }
 };
 
-$root.nnabla.SoftmaxCrossEntropyParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.SoftmaxCrossEntropyParameter.prototype.axis = protobuf.Int64.create(0);
 
-$root.nnabla.CategoricalCrossEntropyParameter = class CategoricalCrossEntropyParameter {
+nnabla.CategoricalCrossEntropyParameter = class CategoricalCrossEntropyParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.CategoricalCrossEntropyParameter();
+        const message = new nnabla.CategoricalCrossEntropyParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11223,7 +11221,7 @@ $root.nnabla.CategoricalCrossEntropyParameter = class CategoricalCrossEntropyPar
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.CategoricalCrossEntropyParameter();
+        const message = new nnabla.CategoricalCrossEntropyParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11240,15 +11238,15 @@ $root.nnabla.CategoricalCrossEntropyParameter = class CategoricalCrossEntropyPar
     }
 };
 
-$root.nnabla.CategoricalCrossEntropyParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.CategoricalCrossEntropyParameter.prototype.axis = protobuf.Int64.create(0);
 
-$root.nnabla.HuberLossParameter = class HuberLossParameter {
+nnabla.HuberLossParameter = class HuberLossParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.HuberLossParameter();
+        const message = new nnabla.HuberLossParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11265,7 +11263,7 @@ $root.nnabla.HuberLossParameter = class HuberLossParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.HuberLossParameter();
+        const message = new nnabla.HuberLossParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11282,15 +11280,15 @@ $root.nnabla.HuberLossParameter = class HuberLossParameter {
     }
 };
 
-$root.nnabla.HuberLossParameter.prototype.delta = 0;
+nnabla.HuberLossParameter.prototype.delta = 0;
 
-$root.nnabla.EpsilonInsensitiveLossParameter = class EpsilonInsensitiveLossParameter {
+nnabla.EpsilonInsensitiveLossParameter = class EpsilonInsensitiveLossParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.EpsilonInsensitiveLossParameter();
+        const message = new nnabla.EpsilonInsensitiveLossParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11307,7 +11305,7 @@ $root.nnabla.EpsilonInsensitiveLossParameter = class EpsilonInsensitiveLossParam
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.EpsilonInsensitiveLossParameter();
+        const message = new nnabla.EpsilonInsensitiveLossParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11324,15 +11322,15 @@ $root.nnabla.EpsilonInsensitiveLossParameter = class EpsilonInsensitiveLossParam
     }
 };
 
-$root.nnabla.EpsilonInsensitiveLossParameter.prototype.epsilon = 0;
+nnabla.EpsilonInsensitiveLossParameter.prototype.epsilon = 0;
 
-$root.nnabla.KLMultinomialParameter = class KLMultinomialParameter {
+nnabla.KLMultinomialParameter = class KLMultinomialParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.KLMultinomialParameter();
+        const message = new nnabla.KLMultinomialParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11349,7 +11347,7 @@ $root.nnabla.KLMultinomialParameter = class KLMultinomialParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.KLMultinomialParameter();
+        const message = new nnabla.KLMultinomialParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11366,16 +11364,16 @@ $root.nnabla.KLMultinomialParameter = class KLMultinomialParameter {
     }
 };
 
-$root.nnabla.KLMultinomialParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.KLMultinomialParameter.prototype.base_axis = protobuf.Int64.create(0);
 
-$root.nnabla.AffineGridParameter = class AffineGridParameter {
+nnabla.AffineGridParameter = class AffineGridParameter {
 
     constructor() {
         this.size = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.AffineGridParameter();
+        const message = new nnabla.AffineGridParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11395,7 +11393,7 @@ $root.nnabla.AffineGridParameter = class AffineGridParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.AffineGridParameter();
+        const message = new nnabla.AffineGridParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11415,15 +11413,15 @@ $root.nnabla.AffineGridParameter = class AffineGridParameter {
     }
 };
 
-$root.nnabla.AffineGridParameter.prototype.align_corners = false;
+nnabla.AffineGridParameter.prototype.align_corners = false;
 
-$root.nnabla.WarpByGridParameter = class WarpByGridParameter {
+nnabla.WarpByGridParameter = class WarpByGridParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.WarpByGridParameter();
+        const message = new nnabla.WarpByGridParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11449,7 +11447,7 @@ $root.nnabla.WarpByGridParameter = class WarpByGridParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.WarpByGridParameter();
+        const message = new nnabla.WarpByGridParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11475,18 +11473,18 @@ $root.nnabla.WarpByGridParameter = class WarpByGridParameter {
     }
 };
 
-$root.nnabla.WarpByGridParameter.prototype.mode = "";
-$root.nnabla.WarpByGridParameter.prototype.padding_mode = "";
-$root.nnabla.WarpByGridParameter.prototype.align_corners = false;
-$root.nnabla.WarpByGridParameter.prototype.channel_last = false;
+nnabla.WarpByGridParameter.prototype.mode = "";
+nnabla.WarpByGridParameter.prototype.padding_mode = "";
+nnabla.WarpByGridParameter.prototype.align_corners = false;
+nnabla.WarpByGridParameter.prototype.channel_last = false;
 
-$root.nnabla.BinaryConnectAffineParameter = class BinaryConnectAffineParameter {
+nnabla.BinaryConnectAffineParameter = class BinaryConnectAffineParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.BinaryConnectAffineParameter();
+        const message = new nnabla.BinaryConnectAffineParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11506,7 +11504,7 @@ $root.nnabla.BinaryConnectAffineParameter = class BinaryConnectAffineParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.BinaryConnectAffineParameter();
+        const message = new nnabla.BinaryConnectAffineParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11526,16 +11524,16 @@ $root.nnabla.BinaryConnectAffineParameter = class BinaryConnectAffineParameter {
     }
 };
 
-$root.nnabla.BinaryConnectAffineParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.BinaryConnectAffineParameter.prototype.quantize_zero_to = 0;
+nnabla.BinaryConnectAffineParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.BinaryConnectAffineParameter.prototype.quantize_zero_to = 0;
 
-$root.nnabla.BinaryConnectConvolutionParameter = class BinaryConnectConvolutionParameter {
+nnabla.BinaryConnectConvolutionParameter = class BinaryConnectConvolutionParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.BinaryConnectConvolutionParameter();
+        const message = new nnabla.BinaryConnectConvolutionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11544,13 +11542,13 @@ $root.nnabla.BinaryConnectConvolutionParameter = class BinaryConnectConvolutionP
                     message.base_axis = reader.int64();
                     break;
                 case 2:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
-                    message.stride = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.stride = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    message.dilation = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.dilation = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.group = reader.int64();
@@ -11567,7 +11565,7 @@ $root.nnabla.BinaryConnectConvolutionParameter = class BinaryConnectConvolutionP
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.BinaryConnectConvolutionParameter();
+        const message = new nnabla.BinaryConnectConvolutionParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11576,13 +11574,13 @@ $root.nnabla.BinaryConnectConvolutionParameter = class BinaryConnectConvolutionP
                     message.base_axis = reader.int64();
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "stride":
-                    message.stride = $root.nnabla.Shape.decodeText(reader);
+                    message.stride = nnabla.Shape.decodeText(reader);
                     break;
                 case "dilation":
-                    message.dilation = $root.nnabla.Shape.decodeText(reader);
+                    message.dilation = nnabla.Shape.decodeText(reader);
                     break;
                 case "group":
                     message.group = reader.int64();
@@ -11599,20 +11597,20 @@ $root.nnabla.BinaryConnectConvolutionParameter = class BinaryConnectConvolutionP
     }
 };
 
-$root.nnabla.BinaryConnectConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.BinaryConnectConvolutionParameter.prototype.pad = null;
-$root.nnabla.BinaryConnectConvolutionParameter.prototype.stride = null;
-$root.nnabla.BinaryConnectConvolutionParameter.prototype.dilation = null;
-$root.nnabla.BinaryConnectConvolutionParameter.prototype.group = protobuf.Int64.create(0);
-$root.nnabla.BinaryConnectConvolutionParameter.prototype.quantize_zero_to = 0;
+nnabla.BinaryConnectConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.BinaryConnectConvolutionParameter.prototype.pad = null;
+nnabla.BinaryConnectConvolutionParameter.prototype.stride = null;
+nnabla.BinaryConnectConvolutionParameter.prototype.dilation = null;
+nnabla.BinaryConnectConvolutionParameter.prototype.group = protobuf.Int64.create(0);
+nnabla.BinaryConnectConvolutionParameter.prototype.quantize_zero_to = 0;
 
-$root.nnabla.BinaryWeightAffineParameter = class BinaryWeightAffineParameter {
+nnabla.BinaryWeightAffineParameter = class BinaryWeightAffineParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.BinaryWeightAffineParameter();
+        const message = new nnabla.BinaryWeightAffineParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11632,7 +11630,7 @@ $root.nnabla.BinaryWeightAffineParameter = class BinaryWeightAffineParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.BinaryWeightAffineParameter();
+        const message = new nnabla.BinaryWeightAffineParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11652,16 +11650,16 @@ $root.nnabla.BinaryWeightAffineParameter = class BinaryWeightAffineParameter {
     }
 };
 
-$root.nnabla.BinaryWeightAffineParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.BinaryWeightAffineParameter.prototype.quantize_zero_to = 0;
+nnabla.BinaryWeightAffineParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.BinaryWeightAffineParameter.prototype.quantize_zero_to = 0;
 
-$root.nnabla.BinaryWeightConvolutionParameter = class BinaryWeightConvolutionParameter {
+nnabla.BinaryWeightConvolutionParameter = class BinaryWeightConvolutionParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.BinaryWeightConvolutionParameter();
+        const message = new nnabla.BinaryWeightConvolutionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11670,13 +11668,13 @@ $root.nnabla.BinaryWeightConvolutionParameter = class BinaryWeightConvolutionPar
                     message.base_axis = reader.int64();
                     break;
                 case 2:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
-                    message.stride = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.stride = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    message.dilation = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.dilation = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.group = reader.int64();
@@ -11693,7 +11691,7 @@ $root.nnabla.BinaryWeightConvolutionParameter = class BinaryWeightConvolutionPar
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.BinaryWeightConvolutionParameter();
+        const message = new nnabla.BinaryWeightConvolutionParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11702,13 +11700,13 @@ $root.nnabla.BinaryWeightConvolutionParameter = class BinaryWeightConvolutionPar
                     message.base_axis = reader.int64();
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "stride":
-                    message.stride = $root.nnabla.Shape.decodeText(reader);
+                    message.stride = nnabla.Shape.decodeText(reader);
                     break;
                 case "dilation":
-                    message.dilation = $root.nnabla.Shape.decodeText(reader);
+                    message.dilation = nnabla.Shape.decodeText(reader);
                     break;
                 case "group":
                     message.group = reader.int64();
@@ -11725,21 +11723,21 @@ $root.nnabla.BinaryWeightConvolutionParameter = class BinaryWeightConvolutionPar
     }
 };
 
-$root.nnabla.BinaryWeightConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.BinaryWeightConvolutionParameter.prototype.pad = null;
-$root.nnabla.BinaryWeightConvolutionParameter.prototype.stride = null;
-$root.nnabla.BinaryWeightConvolutionParameter.prototype.dilation = null;
-$root.nnabla.BinaryWeightConvolutionParameter.prototype.group = protobuf.Int64.create(0);
-$root.nnabla.BinaryWeightConvolutionParameter.prototype.quantize_zero_to = 0;
+nnabla.BinaryWeightConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.BinaryWeightConvolutionParameter.prototype.pad = null;
+nnabla.BinaryWeightConvolutionParameter.prototype.stride = null;
+nnabla.BinaryWeightConvolutionParameter.prototype.dilation = null;
+nnabla.BinaryWeightConvolutionParameter.prototype.group = protobuf.Int64.create(0);
+nnabla.BinaryWeightConvolutionParameter.prototype.quantize_zero_to = 0;
 
-$root.nnabla.INQAffineParameter = class INQAffineParameter {
+nnabla.INQAffineParameter = class INQAffineParameter {
 
     constructor() {
         this.inq_iterations = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.INQAffineParameter();
+        const message = new nnabla.INQAffineParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11768,7 +11766,7 @@ $root.nnabla.INQAffineParameter = class INQAffineParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.INQAffineParameter();
+        const message = new nnabla.INQAffineParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11797,19 +11795,19 @@ $root.nnabla.INQAffineParameter = class INQAffineParameter {
     }
 };
 
-$root.nnabla.INQAffineParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.INQAffineParameter.prototype.num_bits = protobuf.Int64.create(0);
-$root.nnabla.INQAffineParameter.prototype.selection_algorithm = "";
-$root.nnabla.INQAffineParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.INQAffineParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.INQAffineParameter.prototype.num_bits = protobuf.Int64.create(0);
+nnabla.INQAffineParameter.prototype.selection_algorithm = "";
+nnabla.INQAffineParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.INQConvolutionParameter = class INQConvolutionParameter {
+nnabla.INQConvolutionParameter = class INQConvolutionParameter {
 
     constructor() {
         this.inq_iterations = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.INQConvolutionParameter();
+        const message = new nnabla.INQConvolutionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11818,13 +11816,13 @@ $root.nnabla.INQConvolutionParameter = class INQConvolutionParameter {
                     message.base_axis = reader.int64();
                     break;
                 case 2:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
-                    message.stride = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.stride = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    message.dilation = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.dilation = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.group = reader.int64();
@@ -11850,7 +11848,7 @@ $root.nnabla.INQConvolutionParameter = class INQConvolutionParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.INQConvolutionParameter();
+        const message = new nnabla.INQConvolutionParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11859,13 +11857,13 @@ $root.nnabla.INQConvolutionParameter = class INQConvolutionParameter {
                     message.base_axis = reader.int64();
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "stride":
-                    message.stride = $root.nnabla.Shape.decodeText(reader);
+                    message.stride = nnabla.Shape.decodeText(reader);
                     break;
                 case "dilation":
-                    message.dilation = $root.nnabla.Shape.decodeText(reader);
+                    message.dilation = nnabla.Shape.decodeText(reader);
                     break;
                 case "group":
                     message.group = reader.int64();
@@ -11891,22 +11889,22 @@ $root.nnabla.INQConvolutionParameter = class INQConvolutionParameter {
     }
 };
 
-$root.nnabla.INQConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.INQConvolutionParameter.prototype.pad = null;
-$root.nnabla.INQConvolutionParameter.prototype.stride = null;
-$root.nnabla.INQConvolutionParameter.prototype.dilation = null;
-$root.nnabla.INQConvolutionParameter.prototype.group = protobuf.Int64.create(0);
-$root.nnabla.INQConvolutionParameter.prototype.num_bits = protobuf.Int64.create(0);
-$root.nnabla.INQConvolutionParameter.prototype.selection_algorithm = "";
-$root.nnabla.INQConvolutionParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.INQConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.INQConvolutionParameter.prototype.pad = null;
+nnabla.INQConvolutionParameter.prototype.stride = null;
+nnabla.INQConvolutionParameter.prototype.dilation = null;
+nnabla.INQConvolutionParameter.prototype.group = protobuf.Int64.create(0);
+nnabla.INQConvolutionParameter.prototype.num_bits = protobuf.Int64.create(0);
+nnabla.INQConvolutionParameter.prototype.selection_algorithm = "";
+nnabla.INQConvolutionParameter.prototype.seed = protobuf.Int64.create(0);
 
-$root.nnabla.FixedPointQuantizeParameter = class FixedPointQuantizeParameter {
+nnabla.FixedPointQuantizeParameter = class FixedPointQuantizeParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.FixedPointQuantizeParameter();
+        const message = new nnabla.FixedPointQuantizeParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11932,7 +11930,7 @@ $root.nnabla.FixedPointQuantizeParameter = class FixedPointQuantizeParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.FixedPointQuantizeParameter();
+        const message = new nnabla.FixedPointQuantizeParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -11958,18 +11956,18 @@ $root.nnabla.FixedPointQuantizeParameter = class FixedPointQuantizeParameter {
     }
 };
 
-$root.nnabla.FixedPointQuantizeParameter.prototype.sign = false;
-$root.nnabla.FixedPointQuantizeParameter.prototype.n = protobuf.Int64.create(0);
-$root.nnabla.FixedPointQuantizeParameter.prototype.delta = 0;
-$root.nnabla.FixedPointQuantizeParameter.prototype.ste_fine_grained = false;
+nnabla.FixedPointQuantizeParameter.prototype.sign = false;
+nnabla.FixedPointQuantizeParameter.prototype.n = protobuf.Int64.create(0);
+nnabla.FixedPointQuantizeParameter.prototype.delta = 0;
+nnabla.FixedPointQuantizeParameter.prototype.ste_fine_grained = false;
 
-$root.nnabla.MinMaxQuantizeParameter = class MinMaxQuantizeParameter {
+nnabla.MinMaxQuantizeParameter = class MinMaxQuantizeParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.MinMaxQuantizeParameter();
+        const message = new nnabla.MinMaxQuantizeParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -11998,7 +11996,7 @@ $root.nnabla.MinMaxQuantizeParameter = class MinMaxQuantizeParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.MinMaxQuantizeParameter();
+        const message = new nnabla.MinMaxQuantizeParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12027,19 +12025,19 @@ $root.nnabla.MinMaxQuantizeParameter = class MinMaxQuantizeParameter {
     }
 };
 
-$root.nnabla.MinMaxQuantizeParameter.prototype.decay = 0;
-$root.nnabla.MinMaxQuantizeParameter.prototype.x_min_max = false;
-$root.nnabla.MinMaxQuantizeParameter.prototype.ema = false;
-$root.nnabla.MinMaxQuantizeParameter.prototype.ste_fine_grained = false;
-$root.nnabla.MinMaxQuantizeParameter.prototype.eps = 0;
+nnabla.MinMaxQuantizeParameter.prototype.decay = 0;
+nnabla.MinMaxQuantizeParameter.prototype.x_min_max = false;
+nnabla.MinMaxQuantizeParameter.prototype.ema = false;
+nnabla.MinMaxQuantizeParameter.prototype.ste_fine_grained = false;
+nnabla.MinMaxQuantizeParameter.prototype.eps = 0;
 
-$root.nnabla.Pow2QuantizeParameter = class Pow2QuantizeParameter {
+nnabla.Pow2QuantizeParameter = class Pow2QuantizeParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Pow2QuantizeParameter();
+        const message = new nnabla.Pow2QuantizeParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12068,7 +12066,7 @@ $root.nnabla.Pow2QuantizeParameter = class Pow2QuantizeParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Pow2QuantizeParameter();
+        const message = new nnabla.Pow2QuantizeParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12097,19 +12095,19 @@ $root.nnabla.Pow2QuantizeParameter = class Pow2QuantizeParameter {
     }
 };
 
-$root.nnabla.Pow2QuantizeParameter.prototype.sign = false;
-$root.nnabla.Pow2QuantizeParameter.prototype.with_zero = false;
-$root.nnabla.Pow2QuantizeParameter.prototype.n = protobuf.Int64.create(0);
-$root.nnabla.Pow2QuantizeParameter.prototype.m = protobuf.Int64.create(0);
-$root.nnabla.Pow2QuantizeParameter.prototype.ste_fine_grained = false;
+nnabla.Pow2QuantizeParameter.prototype.sign = false;
+nnabla.Pow2QuantizeParameter.prototype.with_zero = false;
+nnabla.Pow2QuantizeParameter.prototype.n = protobuf.Int64.create(0);
+nnabla.Pow2QuantizeParameter.prototype.m = protobuf.Int64.create(0);
+nnabla.Pow2QuantizeParameter.prototype.ste_fine_grained = false;
 
-$root.nnabla.PruneParameter = class PruneParameter {
+nnabla.PruneParameter = class PruneParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.PruneParameter();
+        const message = new nnabla.PruneParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12126,7 +12124,7 @@ $root.nnabla.PruneParameter = class PruneParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.PruneParameter();
+        const message = new nnabla.PruneParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12143,15 +12141,15 @@ $root.nnabla.PruneParameter = class PruneParameter {
     }
 };
 
-$root.nnabla.PruneParameter.prototype.rate = 0;
+nnabla.PruneParameter.prototype.rate = 0;
 
-$root.nnabla.QuantizeLinearParameter = class QuantizeLinearParameter {
+nnabla.QuantizeLinearParameter = class QuantizeLinearParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.QuantizeLinearParameter();
+        const message = new nnabla.QuantizeLinearParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12174,7 +12172,7 @@ $root.nnabla.QuantizeLinearParameter = class QuantizeLinearParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.QuantizeLinearParameter();
+        const message = new nnabla.QuantizeLinearParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12197,17 +12195,17 @@ $root.nnabla.QuantizeLinearParameter = class QuantizeLinearParameter {
     }
 };
 
-$root.nnabla.QuantizeLinearParameter.prototype.round_mode = "";
-$root.nnabla.QuantizeLinearParameter.prototype.narrow_range = false;
-$root.nnabla.QuantizeLinearParameter.prototype.dtype = protobuf.Int64.create(0);
+nnabla.QuantizeLinearParameter.prototype.round_mode = "";
+nnabla.QuantizeLinearParameter.prototype.narrow_range = false;
+nnabla.QuantizeLinearParameter.prototype.dtype = protobuf.Int64.create(0);
 
-$root.nnabla.TopNErrorParameter = class TopNErrorParameter {
+nnabla.TopNErrorParameter = class TopNErrorParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.TopNErrorParameter();
+        const message = new nnabla.TopNErrorParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12227,7 +12225,7 @@ $root.nnabla.TopNErrorParameter = class TopNErrorParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.TopNErrorParameter();
+        const message = new nnabla.TopNErrorParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12247,16 +12245,16 @@ $root.nnabla.TopNErrorParameter = class TopNErrorParameter {
     }
 };
 
-$root.nnabla.TopNErrorParameter.prototype.axis = protobuf.Int64.create(0);
-$root.nnabla.TopNErrorParameter.prototype.n = protobuf.Int64.create(0);
+nnabla.TopNErrorParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.TopNErrorParameter.prototype.n = protobuf.Int64.create(0);
 
-$root.nnabla.ConfusionMatrixParameter = class ConfusionMatrixParameter {
+nnabla.ConfusionMatrixParameter = class ConfusionMatrixParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ConfusionMatrixParameter();
+        const message = new nnabla.ConfusionMatrixParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12273,7 +12271,7 @@ $root.nnabla.ConfusionMatrixParameter = class ConfusionMatrixParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ConfusionMatrixParameter();
+        const message = new nnabla.ConfusionMatrixParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12290,15 +12288,15 @@ $root.nnabla.ConfusionMatrixParameter = class ConfusionMatrixParameter {
     }
 };
 
-$root.nnabla.ConfusionMatrixParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.ConfusionMatrixParameter.prototype.axis = protobuf.Int64.create(0);
 
-$root.nnabla.VATNoiseParameter = class VATNoiseParameter {
+nnabla.VATNoiseParameter = class VATNoiseParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.VATNoiseParameter();
+        const message = new nnabla.VATNoiseParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12318,7 +12316,7 @@ $root.nnabla.VATNoiseParameter = class VATNoiseParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.VATNoiseParameter();
+        const message = new nnabla.VATNoiseParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12338,16 +12336,16 @@ $root.nnabla.VATNoiseParameter = class VATNoiseParameter {
     }
 };
 
-$root.nnabla.VATNoiseParameter.prototype.base_axis = protobuf.Int64.create(0);
-$root.nnabla.VATNoiseParameter.prototype.eps = 0;
+nnabla.VATNoiseParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.VATNoiseParameter.prototype.eps = 0;
 
-$root.nnabla.SinkParameter = class SinkParameter {
+nnabla.SinkParameter = class SinkParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.SinkParameter();
+        const message = new nnabla.SinkParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12364,7 +12362,7 @@ $root.nnabla.SinkParameter = class SinkParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.SinkParameter();
+        const message = new nnabla.SinkParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12381,15 +12379,15 @@ $root.nnabla.SinkParameter = class SinkParameter {
     }
 };
 
-$root.nnabla.SinkParameter.prototype.one_input_grad = false;
+nnabla.SinkParameter.prototype.one_input_grad = false;
 
-$root.nnabla.NmsDetection2dParameter = class NmsDetection2dParameter {
+nnabla.NmsDetection2dParameter = class NmsDetection2dParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.NmsDetection2dParameter();
+        const message = new nnabla.NmsDetection2dParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12412,7 +12410,7 @@ $root.nnabla.NmsDetection2dParameter = class NmsDetection2dParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.NmsDetection2dParameter();
+        const message = new nnabla.NmsDetection2dParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12435,17 +12433,17 @@ $root.nnabla.NmsDetection2dParameter = class NmsDetection2dParameter {
     }
 };
 
-$root.nnabla.NmsDetection2dParameter.prototype.thresh = 0;
-$root.nnabla.NmsDetection2dParameter.prototype.nms = 0;
-$root.nnabla.NmsDetection2dParameter.prototype.nms_per_class = false;
+nnabla.NmsDetection2dParameter.prototype.thresh = 0;
+nnabla.NmsDetection2dParameter.prototype.nms = 0;
+nnabla.NmsDetection2dParameter.prototype.nms_per_class = false;
 
-$root.nnabla.ONNXNonMaxSuppressionParameter = class ONNXNonMaxSuppressionParameter {
+nnabla.ONNXNonMaxSuppressionParameter = class ONNXNonMaxSuppressionParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.ONNXNonMaxSuppressionParameter();
+        const message = new nnabla.ONNXNonMaxSuppressionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12471,7 +12469,7 @@ $root.nnabla.ONNXNonMaxSuppressionParameter = class ONNXNonMaxSuppressionParamet
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.ONNXNonMaxSuppressionParameter();
+        const message = new nnabla.ONNXNonMaxSuppressionParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12497,33 +12495,33 @@ $root.nnabla.ONNXNonMaxSuppressionParameter = class ONNXNonMaxSuppressionParamet
     }
 };
 
-$root.nnabla.ONNXNonMaxSuppressionParameter.prototype.center_point_box = protobuf.Int64.create(0);
-$root.nnabla.ONNXNonMaxSuppressionParameter.prototype.max_output_boxes_per_class = protobuf.Int64.create(0);
-$root.nnabla.ONNXNonMaxSuppressionParameter.prototype.iou_threshold = 0;
-$root.nnabla.ONNXNonMaxSuppressionParameter.prototype.score_threshold = 0;
+nnabla.ONNXNonMaxSuppressionParameter.prototype.center_point_box = protobuf.Int64.create(0);
+nnabla.ONNXNonMaxSuppressionParameter.prototype.max_output_boxes_per_class = protobuf.Int64.create(0);
+nnabla.ONNXNonMaxSuppressionParameter.prototype.iou_threshold = 0;
+nnabla.ONNXNonMaxSuppressionParameter.prototype.score_threshold = 0;
 
-$root.nnabla.MaxPoolingBackwardParameter = class MaxPoolingBackwardParameter {
+nnabla.MaxPoolingBackwardParameter = class MaxPoolingBackwardParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.MaxPoolingBackwardParameter();
+        const message = new nnabla.MaxPoolingBackwardParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.kernel = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.kernel = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 2:
-                    message.stride = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.stride = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
                     message.ignore_border = reader.bool();
                     break;
                 case 4:
-                    message.pad = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.pad = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.channel_last = reader.bool();
@@ -12537,22 +12535,22 @@ $root.nnabla.MaxPoolingBackwardParameter = class MaxPoolingBackwardParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.MaxPoolingBackwardParameter();
+        const message = new nnabla.MaxPoolingBackwardParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "kernel":
-                    message.kernel = $root.nnabla.Shape.decodeText(reader);
+                    message.kernel = nnabla.Shape.decodeText(reader);
                     break;
                 case "stride":
-                    message.stride = $root.nnabla.Shape.decodeText(reader);
+                    message.stride = nnabla.Shape.decodeText(reader);
                     break;
                 case "ignore_border":
                     message.ignore_border = reader.bool();
                     break;
                 case "pad":
-                    message.pad = $root.nnabla.Shape.decodeText(reader);
+                    message.pad = nnabla.Shape.decodeText(reader);
                     break;
                 case "channel_last":
                     message.channel_last = reader.bool();
@@ -12566,37 +12564,37 @@ $root.nnabla.MaxPoolingBackwardParameter = class MaxPoolingBackwardParameter {
     }
 };
 
-$root.nnabla.MaxPoolingBackwardParameter.prototype.kernel = null;
-$root.nnabla.MaxPoolingBackwardParameter.prototype.stride = null;
-$root.nnabla.MaxPoolingBackwardParameter.prototype.ignore_border = false;
-$root.nnabla.MaxPoolingBackwardParameter.prototype.pad = null;
-$root.nnabla.MaxPoolingBackwardParameter.prototype.channel_last = false;
+nnabla.MaxPoolingBackwardParameter.prototype.kernel = null;
+nnabla.MaxPoolingBackwardParameter.prototype.stride = null;
+nnabla.MaxPoolingBackwardParameter.prototype.ignore_border = false;
+nnabla.MaxPoolingBackwardParameter.prototype.pad = null;
+nnabla.MaxPoolingBackwardParameter.prototype.channel_last = false;
 
-$root.nnabla.PatchCorrelationParameter = class PatchCorrelationParameter {
+nnabla.PatchCorrelationParameter = class PatchCorrelationParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.PatchCorrelationParameter();
+        const message = new nnabla.PatchCorrelationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.patch = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.patch = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 2:
-                    message.shift = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shift = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 3:
-                    message.patch_step = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.patch_step = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    message.shift_step = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.shift_step = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 case 5:
-                    message.padding = $root.nnabla.Shape.decode(reader, reader.uint32());
+                    message.padding = nnabla.Shape.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -12607,25 +12605,25 @@ $root.nnabla.PatchCorrelationParameter = class PatchCorrelationParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.PatchCorrelationParameter();
+        const message = new nnabla.PatchCorrelationParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "patch":
-                    message.patch = $root.nnabla.Shape.decodeText(reader);
+                    message.patch = nnabla.Shape.decodeText(reader);
                     break;
                 case "shift":
-                    message.shift = $root.nnabla.Shape.decodeText(reader);
+                    message.shift = nnabla.Shape.decodeText(reader);
                     break;
                 case "patch_step":
-                    message.patch_step = $root.nnabla.Shape.decodeText(reader);
+                    message.patch_step = nnabla.Shape.decodeText(reader);
                     break;
                 case "shift_step":
-                    message.shift_step = $root.nnabla.Shape.decodeText(reader);
+                    message.shift_step = nnabla.Shape.decodeText(reader);
                     break;
                 case "padding":
-                    message.padding = $root.nnabla.Shape.decodeText(reader);
+                    message.padding = nnabla.Shape.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -12636,19 +12634,19 @@ $root.nnabla.PatchCorrelationParameter = class PatchCorrelationParameter {
     }
 };
 
-$root.nnabla.PatchCorrelationParameter.prototype.patch = null;
-$root.nnabla.PatchCorrelationParameter.prototype.shift = null;
-$root.nnabla.PatchCorrelationParameter.prototype.patch_step = null;
-$root.nnabla.PatchCorrelationParameter.prototype.shift_step = null;
-$root.nnabla.PatchCorrelationParameter.prototype.padding = null;
+nnabla.PatchCorrelationParameter.prototype.patch = null;
+nnabla.PatchCorrelationParameter.prototype.shift = null;
+nnabla.PatchCorrelationParameter.prototype.patch_step = null;
+nnabla.PatchCorrelationParameter.prototype.shift_step = null;
+nnabla.PatchCorrelationParameter.prototype.padding = null;
 
-$root.nnabla.UniqueParameter = class UniqueParameter {
+nnabla.UniqueParameter = class UniqueParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.UniqueParameter();
+        const message = new nnabla.UniqueParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12680,7 +12678,7 @@ $root.nnabla.UniqueParameter = class UniqueParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.UniqueParameter();
+        const message = new nnabla.UniqueParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12712,20 +12710,20 @@ $root.nnabla.UniqueParameter = class UniqueParameter {
     }
 };
 
-$root.nnabla.UniqueParameter.prototype.flatten = false;
-$root.nnabla.UniqueParameter.prototype.axis = protobuf.Int64.create(0);
-$root.nnabla.UniqueParameter.prototype.sorted = false;
-$root.nnabla.UniqueParameter.prototype.with_index = false;
-$root.nnabla.UniqueParameter.prototype.with_inverse = false;
-$root.nnabla.UniqueParameter.prototype.with_counts = false;
+nnabla.UniqueParameter.prototype.flatten = false;
+nnabla.UniqueParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.UniqueParameter.prototype.sorted = false;
+nnabla.UniqueParameter.prototype.with_index = false;
+nnabla.UniqueParameter.prototype.with_inverse = false;
+nnabla.UniqueParameter.prototype.with_counts = false;
 
-$root.nnabla.EyeLikeParameter = class EyeLikeParameter {
+nnabla.EyeLikeParameter = class EyeLikeParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.EyeLikeParameter();
+        const message = new nnabla.EyeLikeParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12742,7 +12740,7 @@ $root.nnabla.EyeLikeParameter = class EyeLikeParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.EyeLikeParameter();
+        const message = new nnabla.EyeLikeParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12759,15 +12757,15 @@ $root.nnabla.EyeLikeParameter = class EyeLikeParameter {
     }
 };
 
-$root.nnabla.EyeLikeParameter.prototype.k = protobuf.Int64.create(0);
+nnabla.EyeLikeParameter.prototype.k = protobuf.Int64.create(0);
 
-$root.nnabla.Mod2Parameter = class Mod2Parameter {
+nnabla.Mod2Parameter = class Mod2Parameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.Mod2Parameter();
+        const message = new nnabla.Mod2Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12784,7 +12782,7 @@ $root.nnabla.Mod2Parameter = class Mod2Parameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.Mod2Parameter();
+        const message = new nnabla.Mod2Parameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12801,15 +12799,15 @@ $root.nnabla.Mod2Parameter = class Mod2Parameter {
     }
 };
 
-$root.nnabla.Mod2Parameter.prototype.fmod = false;
+nnabla.Mod2Parameter.prototype.fmod = false;
 
-$root.nnabla.BitShiftParameter = class BitShiftParameter {
+nnabla.BitShiftParameter = class BitShiftParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.BitShiftParameter();
+        const message = new nnabla.BitShiftParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12826,7 +12824,7 @@ $root.nnabla.BitShiftParameter = class BitShiftParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.BitShiftParameter();
+        const message = new nnabla.BitShiftParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12843,15 +12841,15 @@ $root.nnabla.BitShiftParameter = class BitShiftParameter {
     }
 };
 
-$root.nnabla.BitShiftParameter.prototype.direction = "";
+nnabla.BitShiftParameter.prototype.direction = "";
 
-$root.nnabla.EinsumParameter = class EinsumParameter {
+nnabla.EinsumParameter = class EinsumParameter {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.nnabla.EinsumParameter();
+        const message = new nnabla.EinsumParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -12868,7 +12866,7 @@ $root.nnabla.EinsumParameter = class EinsumParameter {
     }
 
     static decodeText(reader) {
-        const message = new $root.nnabla.EinsumParameter();
+        const message = new nnabla.EinsumParameter();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -12885,6 +12883,4 @@ $root.nnabla.EinsumParameter = class EinsumParameter {
     }
 };
 
-$root.nnabla.EinsumParameter.prototype.equation = "";
-
-export const nnabla = $root.nnabla;
+nnabla.EinsumParameter.prototype.equation = "";

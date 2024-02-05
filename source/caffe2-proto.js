@@ -1,11 +1,9 @@
 
 import * as protobuf from './protobuf.js';
 
-const $root = {};
+export const caffe2 = {};
 
-$root.caffe2 = {};
-
-$root.caffe2.TensorProto = class TensorProto {
+caffe2.TensorProto = class TensorProto {
 
     constructor() {
         this.dims = [];
@@ -17,7 +15,7 @@ $root.caffe2.TensorProto = class TensorProto {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.TensorProto();
+        const message = new caffe2.TensorProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -56,10 +54,10 @@ $root.caffe2.TensorProto = class TensorProto {
                     message.name = reader.string();
                     break;
                 case 8:
-                    message.device_detail = $root.caffe2.DeviceOption.decode(reader, reader.uint32());
+                    message.device_detail = caffe2.DeviceOption.decode(reader, reader.uint32());
                     break;
                 case 11:
-                    message.segment = $root.caffe2.TensorProto.Segment.decode(reader, reader.uint32());
+                    message.segment = caffe2.TensorProto.Segment.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -70,7 +68,7 @@ $root.caffe2.TensorProto = class TensorProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.TensorProto();
+        const message = new caffe2.TensorProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -79,7 +77,7 @@ $root.caffe2.TensorProto = class TensorProto {
                     reader.array(message.dims, () => reader.int64());
                     break;
                 case "data_type":
-                    message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
+                    message.data_type = reader.enum(caffe2.TensorProto.DataType);
                     break;
                 case "data_format":
                     message.data_format = reader.uint32();
@@ -109,10 +107,10 @@ $root.caffe2.TensorProto = class TensorProto {
                     message.name = reader.string();
                     break;
                 case "device_detail":
-                    message.device_detail = $root.caffe2.DeviceOption.decodeText(reader);
+                    message.device_detail = caffe2.DeviceOption.decodeText(reader);
                     break;
                 case "segment":
-                    message.segment = $root.caffe2.TensorProto.Segment.decodeText(reader);
+                    message.segment = caffe2.TensorProto.Segment.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -123,15 +121,15 @@ $root.caffe2.TensorProto = class TensorProto {
     }
 };
 
-$root.caffe2.TensorProto.prototype.data_type = 1;
-$root.caffe2.TensorProto.prototype.data_format = 0;
-$root.caffe2.TensorProto.prototype.byte_data = new Uint8Array([]);
-$root.caffe2.TensorProto.prototype.raw_data = new Uint8Array([]);
-$root.caffe2.TensorProto.prototype.name = "";
-$root.caffe2.TensorProto.prototype.device_detail = null;
-$root.caffe2.TensorProto.prototype.segment = null;
+caffe2.TensorProto.prototype.data_type = 1;
+caffe2.TensorProto.prototype.data_format = 0;
+caffe2.TensorProto.prototype.byte_data = new Uint8Array([]);
+caffe2.TensorProto.prototype.raw_data = new Uint8Array([]);
+caffe2.TensorProto.prototype.name = "";
+caffe2.TensorProto.prototype.device_detail = null;
+caffe2.TensorProto.prototype.segment = null;
 
-$root.caffe2.TensorProto.DataType = {
+caffe2.TensorProto.DataType = {
     "UNDEFINED": 0,
     "FLOAT": 1,
     "INT32": 2,
@@ -149,18 +147,18 @@ $root.caffe2.TensorProto.DataType = {
     "REBATCHING_BUFFER": 15
 };
 
-$root.caffe2.TensorProto.SerializationFormat = {
+caffe2.TensorProto.SerializationFormat = {
     "FMT_PROTOBUF": 0,
     "FMT_BFLOAT16": 1
 };
 
-$root.caffe2.TensorProto.Segment = class Segment {
+caffe2.TensorProto.Segment = class Segment {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.TensorProto.Segment();
+        const message = new caffe2.TensorProto.Segment();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -186,7 +184,7 @@ $root.caffe2.TensorProto.Segment = class Segment {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.TensorProto.Segment();
+        const message = new caffe2.TensorProto.Segment();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -212,10 +210,10 @@ $root.caffe2.TensorProto.Segment = class Segment {
     }
 };
 
-$root.caffe2.TensorProto.Segment.prototype.begin = protobuf.Int64.create(0);
-$root.caffe2.TensorProto.Segment.prototype.end = protobuf.Int64.create(0);
+caffe2.TensorProto.Segment.prototype.begin = protobuf.Int64.create(0);
+caffe2.TensorProto.Segment.prototype.end = protobuf.Int64.create(0);
 
-$root.caffe2.QTensorProto = class QTensorProto {
+caffe2.QTensorProto = class QTensorProto {
 
     constructor() {
         this.dims = [];
@@ -225,7 +223,7 @@ $root.caffe2.QTensorProto = class QTensorProto {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.QTensorProto();
+        const message = new caffe2.QTensorProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -287,7 +285,7 @@ $root.caffe2.QTensorProto = class QTensorProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.QTensorProto();
+        const message = new caffe2.QTensorProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -314,7 +312,7 @@ $root.caffe2.QTensorProto = class QTensorProto {
                     message.name = reader.string();
                     break;
                 case "data_type":
-                    message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
+                    message.data_type = reader.enum(caffe2.TensorProto.DataType);
                     break;
                 case "scales":
                     reader.array(message.scales, () => reader.double());
@@ -349,29 +347,29 @@ $root.caffe2.QTensorProto = class QTensorProto {
     }
 };
 
-$root.caffe2.QTensorProto.prototype.precision = 0;
-$root.caffe2.QTensorProto.prototype.scale = 0;
-$root.caffe2.QTensorProto.prototype.bias = 0;
-$root.caffe2.QTensorProto.prototype.is_signed = false;
-$root.caffe2.QTensorProto.prototype.name = "";
-$root.caffe2.QTensorProto.prototype.data_type = 2;
-$root.caffe2.QTensorProto.prototype.axis = 0;
-$root.caffe2.QTensorProto.prototype.is_multiparam = false;
+caffe2.QTensorProto.prototype.precision = 0;
+caffe2.QTensorProto.prototype.scale = 0;
+caffe2.QTensorProto.prototype.bias = 0;
+caffe2.QTensorProto.prototype.is_signed = false;
+caffe2.QTensorProto.prototype.name = "";
+caffe2.QTensorProto.prototype.data_type = 2;
+caffe2.QTensorProto.prototype.axis = 0;
+caffe2.QTensorProto.prototype.is_multiparam = false;
 
-$root.caffe2.TensorProtos = class TensorProtos {
+caffe2.TensorProtos = class TensorProtos {
 
     constructor() {
         this.protos = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.TensorProtos();
+        const message = new caffe2.TensorProtos();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.protos.push($root.caffe2.TensorProto.decode(reader, reader.uint32()));
+                    message.protos.push(caffe2.TensorProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -382,13 +380,13 @@ $root.caffe2.TensorProtos = class TensorProtos {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.TensorProtos();
+        const message = new caffe2.TensorProtos();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "protos":
-                    message.protos.push($root.caffe2.TensorProto.decodeText(reader));
+                    message.protos.push(caffe2.TensorProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -399,7 +397,7 @@ $root.caffe2.TensorProtos = class TensorProtos {
     }
 };
 
-$root.caffe2.TensorShape = class TensorShape {
+caffe2.TensorShape = class TensorShape {
 
     constructor() {
         this.dims = [];
@@ -407,7 +405,7 @@ $root.caffe2.TensorShape = class TensorShape {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.TensorShape();
+        const message = new caffe2.TensorShape();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -436,7 +434,7 @@ $root.caffe2.TensorShape = class TensorShape {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.TensorShape();
+        const message = new caffe2.TensorShape();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -445,7 +443,7 @@ $root.caffe2.TensorShape = class TensorShape {
                     reader.array(message.dims, () => reader.int64());
                     break;
                 case "data_type":
-                    message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
+                    message.data_type = reader.enum(caffe2.TensorProto.DataType);
                     break;
                 case "unknown_dims":
                     reader.array(message.unknown_dims, () => reader.int32());
@@ -465,24 +463,24 @@ $root.caffe2.TensorShape = class TensorShape {
     }
 };
 
-$root.caffe2.TensorShape.prototype.data_type = 1;
-$root.caffe2.TensorShape.prototype.unknown_shape = false;
-$root.caffe2.TensorShape.prototype.name = "";
+caffe2.TensorShape.prototype.data_type = 1;
+caffe2.TensorShape.prototype.unknown_shape = false;
+caffe2.TensorShape.prototype.name = "";
 
-$root.caffe2.TensorShapes = class TensorShapes {
+caffe2.TensorShapes = class TensorShapes {
 
     constructor() {
         this.shapes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.TensorShapes();
+        const message = new caffe2.TensorShapes();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.shapes.push($root.caffe2.TensorShape.decode(reader, reader.uint32()));
+                    message.shapes.push(caffe2.TensorShape.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -493,13 +491,13 @@ $root.caffe2.TensorShapes = class TensorShapes {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.TensorShapes();
+        const message = new caffe2.TensorShapes();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "shapes":
-                    message.shapes.push($root.caffe2.TensorShape.decodeText(reader));
+                    message.shapes.push(caffe2.TensorShape.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -510,20 +508,20 @@ $root.caffe2.TensorShapes = class TensorShapes {
     }
 };
 
-$root.caffe2.TensorBoundShape = class TensorBoundShape {
+caffe2.TensorBoundShape = class TensorBoundShape {
 
     constructor() {
         this.dim_type = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.TensorBoundShape();
+        const message = new caffe2.TensorBoundShape();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.shape = $root.caffe2.TensorShape.decode(reader, reader.uint32());
+                    message.shape = caffe2.TensorShape.decode(reader, reader.uint32());
                     break;
                 case 2:
                     message.dim_type = reader.array(message.dim_type, () => reader.int32(), tag);
@@ -543,16 +541,16 @@ $root.caffe2.TensorBoundShape = class TensorBoundShape {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.TensorBoundShape();
+        const message = new caffe2.TensorBoundShape();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "shape":
-                    message.shape = $root.caffe2.TensorShape.decodeText(reader);
+                    message.shape = caffe2.TensorShape.decodeText(reader);
                     break;
                 case "dim_type":
-                    reader.array(message.dim_type, () => reader.enum($root.caffe2.TensorBoundShape.DimType));
+                    reader.array(message.dim_type, () => reader.enum(caffe2.TensorBoundShape.DimType));
                     break;
                 case "name":
                     message.name = reader.string();
@@ -569,11 +567,11 @@ $root.caffe2.TensorBoundShape = class TensorBoundShape {
     }
 };
 
-$root.caffe2.TensorBoundShape.prototype.shape = null;
-$root.caffe2.TensorBoundShape.prototype.name = "";
-$root.caffe2.TensorBoundShape.prototype.shape_is_final = false;
+caffe2.TensorBoundShape.prototype.shape = null;
+caffe2.TensorBoundShape.prototype.name = "";
+caffe2.TensorBoundShape.prototype.shape_is_final = false;
 
-$root.caffe2.TensorBoundShape.DimType = {
+caffe2.TensorBoundShape.DimType = {
     "UNKNOWN": 0,
     "CONSTANT": 1,
     "BATCH": 2,
@@ -583,20 +581,20 @@ $root.caffe2.TensorBoundShape.DimType = {
     "FEATURE_MAX_DEFAULT": 6
 };
 
-$root.caffe2.TensorBoundShapes = class TensorBoundShapes {
+caffe2.TensorBoundShapes = class TensorBoundShapes {
 
     constructor() {
         this.shapes = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.TensorBoundShapes();
+        const message = new caffe2.TensorBoundShapes();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.shapes.push($root.caffe2.TensorBoundShape.decode(reader, reader.uint32()));
+                    message.shapes.push(caffe2.TensorBoundShape.decode(reader, reader.uint32()));
                     break;
                 case 2:
                     message.max_batch_size = reader.int64();
@@ -613,13 +611,13 @@ $root.caffe2.TensorBoundShapes = class TensorBoundShapes {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.TensorBoundShapes();
+        const message = new caffe2.TensorBoundShapes();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "shapes":
-                    message.shapes.push($root.caffe2.TensorBoundShape.decodeText(reader));
+                    message.shapes.push(caffe2.TensorBoundShape.decodeText(reader));
                     break;
                 case "max_batch_size":
                     message.max_batch_size = reader.int64();
@@ -636,16 +634,16 @@ $root.caffe2.TensorBoundShapes = class TensorBoundShapes {
     }
 };
 
-$root.caffe2.TensorBoundShapes.prototype.max_batch_size = protobuf.Int64.create(0);
-$root.caffe2.TensorBoundShapes.prototype.max_feature_len = protobuf.Int64.create(0);
+caffe2.TensorBoundShapes.prototype.max_batch_size = protobuf.Int64.create(0);
+caffe2.TensorBoundShapes.prototype.max_feature_len = protobuf.Int64.create(0);
 
-$root.caffe2.AOTConfig = class AOTConfig {
+caffe2.AOTConfig = class AOTConfig {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.AOTConfig();
+        const message = new caffe2.AOTConfig();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -683,7 +681,7 @@ $root.caffe2.AOTConfig = class AOTConfig {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.AOTConfig();
+        const message = new caffe2.AOTConfig();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -721,13 +719,13 @@ $root.caffe2.AOTConfig = class AOTConfig {
     }
 };
 
-$root.caffe2.AOTConfig.prototype.max_batch_size = protobuf.Int64.create(0);
-$root.caffe2.AOTConfig.prototype.max_seq_size = protobuf.Int64.create(0);
-$root.caffe2.AOTConfig.prototype.in_batch_broadcast = false;
-$root.caffe2.AOTConfig.prototype.onnxifi_blacklist_ops = "";
-$root.caffe2.AOTConfig.prototype.onnxifi_min_ops = 0;
+caffe2.AOTConfig.prototype.max_batch_size = protobuf.Int64.create(0);
+caffe2.AOTConfig.prototype.max_seq_size = protobuf.Int64.create(0);
+caffe2.AOTConfig.prototype.in_batch_broadcast = false;
+caffe2.AOTConfig.prototype.onnxifi_blacklist_ops = "";
+caffe2.AOTConfig.prototype.onnxifi_min_ops = 0;
 
-$root.caffe2.Argument = class Argument {
+caffe2.Argument = class Argument {
 
     constructor() {
         this.floats = [];
@@ -739,7 +737,7 @@ $root.caffe2.Argument = class Argument {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.Argument();
+        const message = new caffe2.Argument();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -757,10 +755,10 @@ $root.caffe2.Argument = class Argument {
                     message.s = reader.bytes();
                     break;
                 case 10:
-                    message.t = $root.caffe2.TensorProto.decode(reader, reader.uint32());
+                    message.t = caffe2.TensorProto.decode(reader, reader.uint32());
                     break;
                 case 8:
-                    message.n = $root.caffe2.NetDef.decode(reader, reader.uint32());
+                    message.n = caffe2.NetDef.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.floats = reader.floats(message.floats, tag);
@@ -772,13 +770,13 @@ $root.caffe2.Argument = class Argument {
                     message.strings.push(reader.bytes());
                     break;
                 case 11:
-                    message.tensors.push($root.caffe2.TensorProto.decode(reader, reader.uint32()));
+                    message.tensors.push(caffe2.TensorProto.decode(reader, reader.uint32()));
                     break;
                 case 9:
-                    message.nets.push($root.caffe2.NetDef.decode(reader, reader.uint32()));
+                    message.nets.push(caffe2.NetDef.decode(reader, reader.uint32()));
                     break;
                 case 12:
-                    message.qtensors.push($root.caffe2.QTensorProto.decode(reader, reader.uint32()));
+                    message.qtensors.push(caffe2.QTensorProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -789,7 +787,7 @@ $root.caffe2.Argument = class Argument {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.Argument();
+        const message = new caffe2.Argument();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -807,10 +805,10 @@ $root.caffe2.Argument = class Argument {
                     message.s = reader.bytes();
                     break;
                 case "t":
-                    message.t = $root.caffe2.TensorProto.decodeText(reader);
+                    message.t = caffe2.TensorProto.decodeText(reader);
                     break;
                 case "n":
-                    message.n = $root.caffe2.NetDef.decodeText(reader);
+                    message.n = caffe2.NetDef.decodeText(reader);
                     break;
                 case "floats":
                     reader.array(message.floats, () => reader.float());
@@ -822,13 +820,13 @@ $root.caffe2.Argument = class Argument {
                     reader.array(message.strings, () => reader.bytes());
                     break;
                 case "tensors":
-                    message.tensors.push($root.caffe2.TensorProto.decodeText(reader));
+                    message.tensors.push(caffe2.TensorProto.decodeText(reader));
                     break;
                 case "nets":
-                    message.nets.push($root.caffe2.NetDef.decodeText(reader));
+                    message.nets.push(caffe2.NetDef.decodeText(reader));
                     break;
                 case "qtensors":
-                    message.qtensors.push($root.caffe2.QTensorProto.decodeText(reader));
+                    message.qtensors.push(caffe2.QTensorProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -839,14 +837,14 @@ $root.caffe2.Argument = class Argument {
     }
 };
 
-$root.caffe2.Argument.prototype.name = "";
-$root.caffe2.Argument.prototype.f = 0;
-$root.caffe2.Argument.prototype.i = protobuf.Int64.create(0);
-$root.caffe2.Argument.prototype.s = new Uint8Array([]);
-$root.caffe2.Argument.prototype.t = null;
-$root.caffe2.Argument.prototype.n = null;
+caffe2.Argument.prototype.name = "";
+caffe2.Argument.prototype.f = 0;
+caffe2.Argument.prototype.i = protobuf.Int64.create(0);
+caffe2.Argument.prototype.s = new Uint8Array([]);
+caffe2.Argument.prototype.t = null;
+caffe2.Argument.prototype.n = null;
 
-$root.caffe2.DeviceTypeProto = {
+caffe2.DeviceTypeProto = {
     "PROTO_CPU": 0,
     "PROTO_CUDA": 1,
     "PROTO_MKLDNN": 2,
@@ -861,14 +859,14 @@ $root.caffe2.DeviceTypeProto = {
     "PROTO_COMPILE_TIME_MAX_DEVICE_TYPES": 11
 };
 
-$root.caffe2.DeviceOption = class DeviceOption {
+caffe2.DeviceOption = class DeviceOption {
 
     constructor() {
         this.extra_info = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.DeviceOption();
+        const message = new caffe2.DeviceOption();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -900,7 +898,7 @@ $root.caffe2.DeviceOption = class DeviceOption {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.DeviceOption();
+        const message = new caffe2.DeviceOption();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -932,13 +930,13 @@ $root.caffe2.DeviceOption = class DeviceOption {
     }
 };
 
-$root.caffe2.DeviceOption.prototype.device_type = 0;
-$root.caffe2.DeviceOption.prototype.device_id = 0;
-$root.caffe2.DeviceOption.prototype.random_seed = 0;
-$root.caffe2.DeviceOption.prototype.node_name = "";
-$root.caffe2.DeviceOption.prototype.numa_node_id = 0;
+caffe2.DeviceOption.prototype.device_type = 0;
+caffe2.DeviceOption.prototype.device_id = 0;
+caffe2.DeviceOption.prototype.random_seed = 0;
+caffe2.DeviceOption.prototype.node_name = "";
+caffe2.DeviceOption.prototype.numa_node_id = 0;
 
-$root.caffe2.OperatorDef = class OperatorDef {
+caffe2.OperatorDef = class OperatorDef {
 
     constructor() {
         this.input = [];
@@ -948,7 +946,7 @@ $root.caffe2.OperatorDef = class OperatorDef {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.OperatorDef();
+        const message = new caffe2.OperatorDef();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -966,10 +964,10 @@ $root.caffe2.OperatorDef = class OperatorDef {
                     message.type = reader.string();
                     break;
                 case 5:
-                    message.arg.push($root.caffe2.Argument.decode(reader, reader.uint32()));
+                    message.arg.push(caffe2.Argument.decode(reader, reader.uint32()));
                     break;
                 case 6:
-                    message.device_option = $root.caffe2.DeviceOption.decode(reader, reader.uint32());
+                    message.device_option = caffe2.DeviceOption.decode(reader, reader.uint32());
                     break;
                 case 7:
                     message.engine = reader.string();
@@ -998,7 +996,7 @@ $root.caffe2.OperatorDef = class OperatorDef {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.OperatorDef();
+        const message = new caffe2.OperatorDef();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1016,10 +1014,10 @@ $root.caffe2.OperatorDef = class OperatorDef {
                     message.type = reader.string();
                     break;
                 case "arg":
-                    message.arg.push($root.caffe2.Argument.decodeText(reader));
+                    message.arg.push(caffe2.Argument.decodeText(reader));
                     break;
                 case "device_option":
-                    message.device_option = $root.caffe2.DeviceOption.decodeText(reader);
+                    message.device_option = caffe2.DeviceOption.decodeText(reader);
                     break;
                 case "engine":
                     message.engine = reader.string();
@@ -1048,22 +1046,22 @@ $root.caffe2.OperatorDef = class OperatorDef {
     }
 };
 
-$root.caffe2.OperatorDef.prototype.name = "";
-$root.caffe2.OperatorDef.prototype.type = "";
-$root.caffe2.OperatorDef.prototype.device_option = null;
-$root.caffe2.OperatorDef.prototype.engine = "";
-$root.caffe2.OperatorDef.prototype.is_gradient_op = false;
-$root.caffe2.OperatorDef.prototype.debug_info = "";
-$root.caffe2.OperatorDef.prototype.domain = "";
-$root.caffe2.OperatorDef.prototype.op_version = protobuf.Int64.create(0);
+caffe2.OperatorDef.prototype.name = "";
+caffe2.OperatorDef.prototype.type = "";
+caffe2.OperatorDef.prototype.device_option = null;
+caffe2.OperatorDef.prototype.engine = "";
+caffe2.OperatorDef.prototype.is_gradient_op = false;
+caffe2.OperatorDef.prototype.debug_info = "";
+caffe2.OperatorDef.prototype.domain = "";
+caffe2.OperatorDef.prototype.op_version = protobuf.Int64.create(0);
 
-$root.caffe2.MapFieldEntry = class MapFieldEntry {
+caffe2.MapFieldEntry = class MapFieldEntry {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.MapFieldEntry();
+        const message = new caffe2.MapFieldEntry();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1089,7 +1087,7 @@ $root.caffe2.MapFieldEntry = class MapFieldEntry {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.MapFieldEntry();
+        const message = new caffe2.MapFieldEntry();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1115,17 +1113,17 @@ $root.caffe2.MapFieldEntry = class MapFieldEntry {
     }
 };
 
-$root.caffe2.MapFieldEntry.prototype.key = "";
-$root.caffe2.MapFieldEntry.prototype.val = "";
+caffe2.MapFieldEntry.prototype.key = "";
+caffe2.MapFieldEntry.prototype.val = "";
 
-$root.caffe2.BackendOptions = class BackendOptions {
+caffe2.BackendOptions = class BackendOptions {
 
     constructor() {
         this.option = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.BackendOptions();
+        const message = new caffe2.BackendOptions();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1134,7 +1132,7 @@ $root.caffe2.BackendOptions = class BackendOptions {
                     message.backend_name = reader.string();
                     break;
                 case 2:
-                    message.option.push($root.caffe2.MapFieldEntry.decode(reader, reader.uint32()));
+                    message.option.push(caffe2.MapFieldEntry.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1148,7 +1146,7 @@ $root.caffe2.BackendOptions = class BackendOptions {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.BackendOptions();
+        const message = new caffe2.BackendOptions();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1157,7 +1155,7 @@ $root.caffe2.BackendOptions = class BackendOptions {
                     message.backend_name = reader.string();
                     break;
                 case "option":
-                    message.option.push($root.caffe2.MapFieldEntry.decodeText(reader));
+                    message.option.push(caffe2.MapFieldEntry.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -1171,9 +1169,9 @@ $root.caffe2.BackendOptions = class BackendOptions {
     }
 };
 
-$root.caffe2.BackendOptions.prototype.backend_name = "";
+caffe2.BackendOptions.prototype.backend_name = "";
 
-$root.caffe2.PartitionInfo = class PartitionInfo {
+caffe2.PartitionInfo = class PartitionInfo {
 
     constructor() {
         this.device_id = [];
@@ -1181,7 +1179,7 @@ $root.caffe2.PartitionInfo = class PartitionInfo {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.PartitionInfo();
+        const message = new caffe2.PartitionInfo();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1196,7 +1194,7 @@ $root.caffe2.PartitionInfo = class PartitionInfo {
                     message.extra_info = reader.string();
                     break;
                 case 4:
-                    message.backend_options.push($root.caffe2.BackendOptions.decode(reader, reader.uint32()));
+                    message.backend_options.push(caffe2.BackendOptions.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1210,7 +1208,7 @@ $root.caffe2.PartitionInfo = class PartitionInfo {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.PartitionInfo();
+        const message = new caffe2.PartitionInfo();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1225,7 +1223,7 @@ $root.caffe2.PartitionInfo = class PartitionInfo {
                     message.extra_info = reader.string();
                     break;
                 case "backend_options":
-                    message.backend_options.push($root.caffe2.BackendOptions.decodeText(reader));
+                    message.backend_options.push(caffe2.BackendOptions.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -1239,10 +1237,10 @@ $root.caffe2.PartitionInfo = class PartitionInfo {
     }
 };
 
-$root.caffe2.PartitionInfo.prototype.name = "";
-$root.caffe2.PartitionInfo.prototype.extra_info = "";
+caffe2.PartitionInfo.prototype.name = "";
+caffe2.PartitionInfo.prototype.extra_info = "";
 
-$root.caffe2.NetDef = class NetDef {
+caffe2.NetDef = class NetDef {
 
     constructor() {
         this.op = [];
@@ -1253,7 +1251,7 @@ $root.caffe2.NetDef = class NetDef {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.NetDef();
+        const message = new caffe2.NetDef();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1262,7 +1260,7 @@ $root.caffe2.NetDef = class NetDef {
                     message.name = reader.string();
                     break;
                 case 2:
-                    message.op.push($root.caffe2.OperatorDef.decode(reader, reader.uint32()));
+                    message.op.push(caffe2.OperatorDef.decode(reader, reader.uint32()));
                     break;
                 case 3:
                     message.type = reader.string();
@@ -1271,10 +1269,10 @@ $root.caffe2.NetDef = class NetDef {
                     message.num_workers = reader.int32();
                     break;
                 case 5:
-                    message.device_option = $root.caffe2.DeviceOption.decode(reader, reader.uint32());
+                    message.device_option = caffe2.DeviceOption.decode(reader, reader.uint32());
                     break;
                 case 6:
-                    message.arg.push($root.caffe2.Argument.decode(reader, reader.uint32()));
+                    message.arg.push(caffe2.Argument.decode(reader, reader.uint32()));
                     break;
                 case 7:
                     message.external_input.push(reader.string());
@@ -1283,7 +1281,7 @@ $root.caffe2.NetDef = class NetDef {
                     message.external_output.push(reader.string());
                     break;
                 case 9:
-                    message.partition_info.push($root.caffe2.PartitionInfo.decode(reader, reader.uint32()));
+                    message.partition_info.push(caffe2.PartitionInfo.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1294,7 +1292,7 @@ $root.caffe2.NetDef = class NetDef {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.NetDef();
+        const message = new caffe2.NetDef();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1303,7 +1301,7 @@ $root.caffe2.NetDef = class NetDef {
                     message.name = reader.string();
                     break;
                 case "op":
-                    message.op.push($root.caffe2.OperatorDef.decodeText(reader));
+                    message.op.push(caffe2.OperatorDef.decodeText(reader));
                     break;
                 case "type":
                     message.type = reader.string();
@@ -1312,10 +1310,10 @@ $root.caffe2.NetDef = class NetDef {
                     message.num_workers = reader.int32();
                     break;
                 case "device_option":
-                    message.device_option = $root.caffe2.DeviceOption.decodeText(reader);
+                    message.device_option = caffe2.DeviceOption.decodeText(reader);
                     break;
                 case "arg":
-                    message.arg.push($root.caffe2.Argument.decodeText(reader));
+                    message.arg.push(caffe2.Argument.decodeText(reader));
                     break;
                 case "external_input":
                     reader.array(message.external_input, () => reader.string());
@@ -1324,7 +1322,7 @@ $root.caffe2.NetDef = class NetDef {
                     reader.array(message.external_output, () => reader.string());
                     break;
                 case "partition_info":
-                    message.partition_info.push($root.caffe2.PartitionInfo.decodeText(reader));
+                    message.partition_info.push(caffe2.PartitionInfo.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -1335,12 +1333,12 @@ $root.caffe2.NetDef = class NetDef {
     }
 };
 
-$root.caffe2.NetDef.prototype.name = "";
-$root.caffe2.NetDef.prototype.type = "";
-$root.caffe2.NetDef.prototype.num_workers = 0;
-$root.caffe2.NetDef.prototype.device_option = null;
+caffe2.NetDef.prototype.name = "";
+caffe2.NetDef.prototype.type = "";
+caffe2.NetDef.prototype.num_workers = 0;
+caffe2.NetDef.prototype.device_option = null;
 
-$root.caffe2.ExecutionStep = class ExecutionStep {
+caffe2.ExecutionStep = class ExecutionStep {
 
     constructor() {
         this.substep = [];
@@ -1348,7 +1346,7 @@ $root.caffe2.ExecutionStep = class ExecutionStep {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.ExecutionStep();
+        const message = new caffe2.ExecutionStep();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1357,7 +1355,7 @@ $root.caffe2.ExecutionStep = class ExecutionStep {
                     message.name = reader.string();
                     break;
                 case 2:
-                    message.substep.push($root.caffe2.ExecutionStep.decode(reader, reader.uint32()));
+                    message.substep.push(caffe2.ExecutionStep.decode(reader, reader.uint32()));
                     break;
                 case 3:
                     message.network.push(reader.string());
@@ -1401,7 +1399,7 @@ $root.caffe2.ExecutionStep = class ExecutionStep {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.ExecutionStep();
+        const message = new caffe2.ExecutionStep();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1410,7 +1408,7 @@ $root.caffe2.ExecutionStep = class ExecutionStep {
                     message.name = reader.string();
                     break;
                 case "substep":
-                    message.substep.push($root.caffe2.ExecutionStep.decodeText(reader));
+                    message.substep.push(caffe2.ExecutionStep.decodeText(reader));
                     break;
                 case "network":
                     reader.array(message.network, () => reader.string());
@@ -1454,19 +1452,19 @@ $root.caffe2.ExecutionStep = class ExecutionStep {
     }
 };
 
-$root.caffe2.ExecutionStep.prototype.name = "";
-$root.caffe2.ExecutionStep.prototype.num_iter = protobuf.Int64.create(0);
-$root.caffe2.ExecutionStep.prototype.criteria_network = "";
-$root.caffe2.ExecutionStep.prototype.report_net = "";
-$root.caffe2.ExecutionStep.prototype.report_interval = 0;
-$root.caffe2.ExecutionStep.prototype.run_every_ms = protobuf.Int64.create(0);
-$root.caffe2.ExecutionStep.prototype.concurrent_substeps = false;
-$root.caffe2.ExecutionStep.prototype.should_stop_blob = "";
-$root.caffe2.ExecutionStep.prototype.only_once = false;
-$root.caffe2.ExecutionStep.prototype.create_workspace = false;
-$root.caffe2.ExecutionStep.prototype.num_concurrent_instances = 0;
+caffe2.ExecutionStep.prototype.name = "";
+caffe2.ExecutionStep.prototype.num_iter = protobuf.Int64.create(0);
+caffe2.ExecutionStep.prototype.criteria_network = "";
+caffe2.ExecutionStep.prototype.report_net = "";
+caffe2.ExecutionStep.prototype.report_interval = 0;
+caffe2.ExecutionStep.prototype.run_every_ms = protobuf.Int64.create(0);
+caffe2.ExecutionStep.prototype.concurrent_substeps = false;
+caffe2.ExecutionStep.prototype.should_stop_blob = "";
+caffe2.ExecutionStep.prototype.only_once = false;
+caffe2.ExecutionStep.prototype.create_workspace = false;
+caffe2.ExecutionStep.prototype.num_concurrent_instances = 0;
 
-$root.caffe2.PlanDef = class PlanDef {
+caffe2.PlanDef = class PlanDef {
 
     constructor() {
         this.network = [];
@@ -1474,7 +1472,7 @@ $root.caffe2.PlanDef = class PlanDef {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.PlanDef();
+        const message = new caffe2.PlanDef();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1483,10 +1481,10 @@ $root.caffe2.PlanDef = class PlanDef {
                     message.name = reader.string();
                     break;
                 case 2:
-                    message.network.push($root.caffe2.NetDef.decode(reader, reader.uint32()));
+                    message.network.push(caffe2.NetDef.decode(reader, reader.uint32()));
                     break;
                 case 3:
-                    message.execution_step.push($root.caffe2.ExecutionStep.decode(reader, reader.uint32()));
+                    message.execution_step.push(caffe2.ExecutionStep.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1497,7 +1495,7 @@ $root.caffe2.PlanDef = class PlanDef {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.PlanDef();
+        const message = new caffe2.PlanDef();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1506,10 +1504,10 @@ $root.caffe2.PlanDef = class PlanDef {
                     message.name = reader.string();
                     break;
                 case "network":
-                    message.network.push($root.caffe2.NetDef.decodeText(reader));
+                    message.network.push(caffe2.NetDef.decodeText(reader));
                     break;
                 case "execution_step":
-                    message.execution_step.push($root.caffe2.ExecutionStep.decodeText(reader));
+                    message.execution_step.push(caffe2.ExecutionStep.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -1520,15 +1518,15 @@ $root.caffe2.PlanDef = class PlanDef {
     }
 };
 
-$root.caffe2.PlanDef.prototype.name = "";
+caffe2.PlanDef.prototype.name = "";
 
-$root.caffe2.BlobProto = class BlobProto {
+caffe2.BlobProto = class BlobProto {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.BlobProto();
+        const message = new caffe2.BlobProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1540,13 +1538,13 @@ $root.caffe2.BlobProto = class BlobProto {
                     message.type = reader.string();
                     break;
                 case 3:
-                    message.tensor = $root.caffe2.TensorProto.decode(reader, reader.uint32());
+                    message.tensor = caffe2.TensorProto.decode(reader, reader.uint32());
                     break;
                 case 4:
                     message.content = reader.bytes();
                     break;
                 case 5:
-                    message.qtensor = $root.caffe2.QTensorProto.decode(reader, reader.uint32());
+                    message.qtensor = caffe2.QTensorProto.decode(reader, reader.uint32());
                     break;
                 case 6:
                     message.content_num_chunks = reader.int32();
@@ -1563,7 +1561,7 @@ $root.caffe2.BlobProto = class BlobProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.BlobProto();
+        const message = new caffe2.BlobProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1575,13 +1573,13 @@ $root.caffe2.BlobProto = class BlobProto {
                     message.type = reader.string();
                     break;
                 case "tensor":
-                    message.tensor = $root.caffe2.TensorProto.decodeText(reader);
+                    message.tensor = caffe2.TensorProto.decodeText(reader);
                     break;
                 case "content":
                     message.content = reader.bytes();
                     break;
                 case "qtensor":
-                    message.qtensor = $root.caffe2.QTensorProto.decodeText(reader);
+                    message.qtensor = caffe2.QTensorProto.decodeText(reader);
                     break;
                 case "content_num_chunks":
                     message.content_num_chunks = reader.int32();
@@ -1598,21 +1596,21 @@ $root.caffe2.BlobProto = class BlobProto {
     }
 };
 
-$root.caffe2.BlobProto.prototype.name = "";
-$root.caffe2.BlobProto.prototype.type = "";
-$root.caffe2.BlobProto.prototype.tensor = null;
-$root.caffe2.BlobProto.prototype.content = new Uint8Array([]);
-$root.caffe2.BlobProto.prototype.qtensor = null;
-$root.caffe2.BlobProto.prototype.content_num_chunks = 0;
-$root.caffe2.BlobProto.prototype.content_chunk_id = 0;
+caffe2.BlobProto.prototype.name = "";
+caffe2.BlobProto.prototype.type = "";
+caffe2.BlobProto.prototype.tensor = null;
+caffe2.BlobProto.prototype.content = new Uint8Array([]);
+caffe2.BlobProto.prototype.qtensor = null;
+caffe2.BlobProto.prototype.content_num_chunks = 0;
+caffe2.BlobProto.prototype.content_chunk_id = 0;
 
-$root.caffe2.DBReaderProto = class DBReaderProto {
+caffe2.DBReaderProto = class DBReaderProto {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.DBReaderProto();
+        const message = new caffe2.DBReaderProto();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1638,7 +1636,7 @@ $root.caffe2.DBReaderProto = class DBReaderProto {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.DBReaderProto();
+        const message = new caffe2.DBReaderProto();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1664,18 +1662,18 @@ $root.caffe2.DBReaderProto = class DBReaderProto {
     }
 };
 
-$root.caffe2.DBReaderProto.prototype.name = "";
-$root.caffe2.DBReaderProto.prototype.source = "";
-$root.caffe2.DBReaderProto.prototype.db_type = "";
-$root.caffe2.DBReaderProto.prototype.key = "";
+caffe2.DBReaderProto.prototype.name = "";
+caffe2.DBReaderProto.prototype.source = "";
+caffe2.DBReaderProto.prototype.db_type = "";
+caffe2.DBReaderProto.prototype.key = "";
 
-$root.caffe2.BlobSerializationOptions = class BlobSerializationOptions {
+caffe2.BlobSerializationOptions = class BlobSerializationOptions {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.BlobSerializationOptions();
+        const message = new caffe2.BlobSerializationOptions();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1698,7 +1696,7 @@ $root.caffe2.BlobSerializationOptions = class BlobSerializationOptions {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.BlobSerializationOptions();
+        const message = new caffe2.BlobSerializationOptions();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1710,7 +1708,7 @@ $root.caffe2.BlobSerializationOptions = class BlobSerializationOptions {
                     message.chunk_size = reader.int64();
                     break;
                 case "float_format":
-                    message.float_format = reader.enum($root.caffe2.BlobSerializationOptions.FloatFormat);
+                    message.float_format = reader.enum(caffe2.BlobSerializationOptions.FloatFormat);
                     break;
                 default:
                     reader.field(tag, message);
@@ -1721,30 +1719,30 @@ $root.caffe2.BlobSerializationOptions = class BlobSerializationOptions {
     }
 };
 
-$root.caffe2.BlobSerializationOptions.prototype.blob_name_regex = "";
-$root.caffe2.BlobSerializationOptions.prototype.chunk_size = protobuf.Int64.create(0);
-$root.caffe2.BlobSerializationOptions.prototype.float_format = 0;
+caffe2.BlobSerializationOptions.prototype.blob_name_regex = "";
+caffe2.BlobSerializationOptions.prototype.chunk_size = protobuf.Int64.create(0);
+caffe2.BlobSerializationOptions.prototype.float_format = 0;
 
-$root.caffe2.BlobSerializationOptions.FloatFormat = {
+caffe2.BlobSerializationOptions.FloatFormat = {
     "FLOAT_DEFAULT": 0,
     "FLOAT_PROTOBUF": 1,
     "FLOAT_BFLOAT16": 2
 };
 
-$root.caffe2.SerializationOptions = class SerializationOptions {
+caffe2.SerializationOptions = class SerializationOptions {
 
     constructor() {
         this.options = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.caffe2.SerializationOptions();
+        const message = new caffe2.SerializationOptions();
         const end = length !== undefined ? reader.position + length : reader.length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.options.push($root.caffe2.BlobSerializationOptions.decode(reader, reader.uint32()));
+                    message.options.push(caffe2.BlobSerializationOptions.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1755,13 +1753,13 @@ $root.caffe2.SerializationOptions = class SerializationOptions {
     }
 
     static decodeText(reader) {
-        const message = new $root.caffe2.SerializationOptions();
+        const message = new caffe2.SerializationOptions();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
                 case "options":
-                    message.options.push($root.caffe2.BlobSerializationOptions.decodeText(reader));
+                    message.options.push(caffe2.BlobSerializationOptions.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -1771,5 +1769,3 @@ $root.caffe2.SerializationOptions = class SerializationOptions {
         return message;
     }
 };
-
-export const caffe2 = $root.caffe2;
