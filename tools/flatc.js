@@ -893,16 +893,14 @@ flatc.Generator = class {
         this._root = root;
         this._text = text;
         this._builder = new flatc.Generator.StringBuilder();
-        this._builder.add('');
-        this._builder.add('const $root = {};');
-        for (const namespace of this._root.namespaces.values()) {
-            this._buildNamespace(namespace);
-        }
         const namespaces = Array.from(this._root.namespaces.values()).filter((namespace) => namespace.name !== '').map((namespace) => namespace.name);
         const exports = new Set (namespaces.map((namespace) => namespace.split('.')[0]));
-        this._builder.add('');
         for (const value of exports) {
-            this._builder.add(`export const ${value} = $root.${value};`);
+            this._builder.add('');
+            this._builder.add(`export const ${value} = {};`);
+        }
+        for (const namespace of this._root.namespaces.values()) {
+            this._buildNamespace(namespace);
         }
         this._content = this._builder.toString();
     }
@@ -914,8 +912,8 @@ flatc.Generator = class {
     _buildNamespace(namespace) {
         if (namespace.name !== '') {
             const parts = namespace.name.split('.');
-            for (let i = 1; i <= parts.length; i++) {
-                const name = `$root.${parts.slice(0, i).join('.')}`;
+            for (let i = 2; i <= parts.length; i++) {
+                const name = `${parts.slice(0, i).join('.')}`;
                 this._builder.add('');
                 this._builder.add(`${name} = ${name} || {};`);
             }
@@ -936,7 +934,7 @@ flatc.Generator = class {
     _buildTable(type) {
 
         const typeName = `${type.parent.name}.${type.name}`;
-        const typeReference = `$root.${typeName}`;
+        const typeReference = `${typeName}`;
 
         /* eslint-disable indent */
         this._builder.add('');
@@ -1004,25 +1002,25 @@ flatc.Generator = class {
                                 }
                             }
                         } else if (fieldType instanceof flatc.Union) {
-                            const unionType = `$root.${field.type.parent.name}.${field.type.name}`;
+                            const unionType = `${field.type.parent.name}.${field.type.name}`;
                             this._builder.add(`$.${field.name} = reader.unionArray(position, ${field.offset}, ${unionType}.decode);`);
                         } else if (fieldType instanceof flatc.Struct) {
-                            const fieldType = `$root.${field.type.parent.name}.${field.type.name}`;
+                            const fieldType = `${field.type.parent.name}.${field.type.name}`;
                             this._builder.add(`$.${field.name} = reader.structArray(position, ${field.offset}, ${fieldType}.decode);`);
                         } else {
-                            const fieldType = `$root.${field.type.parent.name}.${field.type.name}`;
+                            const fieldType = `${field.type.parent.name}.${field.type.name}`;
                             this._builder.add(`$.${field.name} = reader.tableArray(position, ${field.offset}, ${fieldType}.decode);`);
                         }
                     } else if (fieldType instanceof flatc.PrimitiveType) {
                         this._builder.add(`$.${field.name} = reader.${fieldType.name}_(position, ${field.offset}, ${field.defaultValue});`);
                     } else if (fieldType instanceof flatc.Union) {
-                        const unionType = `$root.${field.type.parent.name}.${field.type.name}`;
+                        const unionType = `${field.type.parent.name}.${field.type.name}`;
                         this._builder.add(`$.${field.name} = reader.union(position, ${field.offset}, ${unionType}.decode);`);
                     } else if (fieldType instanceof flatc.Struct) {
-                        const fieldType = `$root.${field.type.parent.name}.${field.type.name}`;
+                        const fieldType = `${field.type.parent.name}.${field.type.name}`;
                         this._builder.add(`$.${field.name} = reader.struct(position, ${field.offset}, ${fieldType}.decode);`);
                     } else {
-                        const fieldType = `$root.${field.type.parent.name}.${field.type.name}`;
+                        const fieldType = `${field.type.parent.name}.${field.type.name}`;
                         this._builder.add(`$.${field.name} = reader.table(position, ${field.offset}, ${fieldType}.decode);`);
                     }
                 }
@@ -1055,22 +1053,22 @@ flatc.Generator = class {
                             } else if (field.type instanceof flatc.Union) {
                                 throw new flatc.Error('Not implemented.');
                             } else if (field.type instanceof flatc.Struct) {
-                                const fieldType = `$root.${field.type.parent.name}.${field.type.name}`;
+                                const fieldType = `${field.type.parent.name}.${field.type.name}`;
                                 this._builder.add(`$.${field.name} = ${fieldType}.decode(reader, position + ${field.offset});`);
                             } else {
-                                const fieldType = `$root.${field.type.parent.name}.${field.type.name}`;
+                                const fieldType = `${field.type.parent.name}.${field.type.name}`;
                                 this._builder.add(`$.${field.name} = reader.objectArray(json.${field.name}, ${fieldType}.decodeText);`);
                             }
                         } else if (field.type instanceof flatc.PrimitiveType) {
                             this._builder.add(`$.${field.name} = reader.value(json.${field.name}, ${field.defaultValue});`);
                         } else if (field.type instanceof flatc.Enum) {
-                            const enumName = `$root.${field.type.parent.name}.${field.type.name}`;
+                            const enumName = `${field.type.parent.name}.${field.type.name}`;
                             this._builder.add(`$.${field.name} = ${enumName}[json.${field.name}];`);
                         } else if (field.type instanceof flatc.Union) {
-                            const unionType = `$root.${field.type.parent.name}.${field.type.name}`;
+                            const unionType = `${field.type.parent.name}.${field.type.name}`;
                             this._builder.add(`$.${field.name} = ${unionType}.decodeText(reader, json.${field.name}, json.${field.name}_type` + `);`);
                         } else { // struct | table
-                            const fieldType = `$root.${field.type.parent.name}.${field.type.name}`;
+                            const fieldType = `${field.type.parent.name}.${field.type.name}`;
                             this._builder.add(`$.${field.name} = reader.object(json.${field.name}, ${fieldType}.decodeText);`);
                         }
                     }
@@ -1087,7 +1085,7 @@ flatc.Generator = class {
     _buildStruct(type) {
 
         const typeName = `${type.parent.name}.${type.name}`;
-        const typeReference = `$root.${typeName}`;
+        const typeReference = `${typeName}`;
 
         /* eslint-disable indent */
         this._builder.add('');
@@ -1109,7 +1107,7 @@ flatc.Generator = class {
                     } else if (field.type instanceof flatc.Enum) {
                         this._builder.add(`$.${field.name} = reader.${field.type.base.name}(position + ${field.offset});`);
                     } else if (field.type instanceof flatc.Struct) {
-                        const fieldType = `$root.${field.type.parent.name}.${field.type.name}`;
+                        const fieldType = `${field.type.parent.name}.${field.type.name}`;
                         this._builder.add(`$.${field.name} = ${fieldType}.decode(reader, position + ${field.offset});`);
                     } else {
                         throw new flatc.Error(`Struct '${typeName}' may contain only scalar or struct fields.`);
@@ -1132,7 +1130,7 @@ flatc.Generator = class {
                         } else if (field.type instanceof flatc.Enum) {
                             throw new flatc.Error('Not implemented.');
                         } else if (field.type instanceof flatc.Struct) {
-                            const fieldType = `$root.${field.type.parent.name}.${field.type.name}`;
+                            const fieldType = `${field.type.parent.name}.${field.type.name}`;
                             this._builder.add(`$.${field.name} = ${fieldType}.decodeText(reader, json.${field.name});`);
                         } else {
                             throw new flatc.Error(`Struct '${typeName}' may contain only scalar or struct fields.`);
@@ -1152,7 +1150,7 @@ flatc.Generator = class {
 
         /* eslint-disable indent */
         this._builder.add('');
-        this._builder.add(`$root.${type.parent.name}.${type.name} = class ` + `{`);
+        this._builder.add(`${type.parent.name}.${type.name} = class ` + `{`);
 
         this._builder.indent();
             this._builder.add('');
@@ -1161,7 +1159,7 @@ flatc.Generator = class {
                 this._builder.add('switch (type) {');
                 this._builder.indent();
                     for (const [name, value] of type.values) {
-                        const valueType = `$root.${value.parent.name}.${value.name}`;
+                        const valueType = `${value.parent.name}.${value.name}`;
                         this._builder.add(`case ${name}: return ${valueType}.decode(reader, position);`);
                     }
                     this._builder.add('default: return undefined;');
@@ -1177,7 +1175,7 @@ flatc.Generator = class {
                     this._builder.add('switch (type) {');
                     this._builder.indent();
                         for (const [, value] of type.values) {
-                            const valueType = `$root.${value.parent.name}.${value.name}`;
+                            const valueType = `${value.parent.name}.${value.name}`;
                             this._builder.add(`case '${value.name}': return ${valueType}.decodeText(reader, json);`);
                         }
                         this._builder.add('default: return undefined;');
@@ -1196,7 +1194,7 @@ flatc.Generator = class {
 
         /* eslint-disable indent */
         this._builder.add('');
-        this._builder.add(`$root.${type.parent.name}.${type.name} = {`);
+        this._builder.add(`${type.parent.name}.${type.name} = {`);
         this._builder.indent();
             const keys = Array.from(type.values.keys());
             for (let i = 0; i < keys.length; i++) {
