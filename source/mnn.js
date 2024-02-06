@@ -1,23 +1,13 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
 const mnn = {};
 
 mnn.ModelFactory = class {
 
     match(context) {
-        const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (extension == 'mnn') {
-            const stream = context.stream;
-            if (stream && stream.length >= 4) {
-                const buffer = stream.peek(4);
-                const reader = flatbuffers.BinaryReader.open(buffer);
-                if (reader.root === 0x00000018 || reader.root === 0x0000001C || reader.root === 0x00000020) {
-                    context.type = 'mnn.flatbuffers';
-                    return;
-                }
-            }
+        const reader = context.peek('flatbuffers.binary');
+        if (reader) {
+            context.type = 'mnn.flatbuffers';
+            context.target = reader;
         }
     }
 
@@ -26,7 +16,7 @@ mnn.ModelFactory = class {
         mnn.schema = mnn.schema.MNN;
         let net = null;
         try {
-            const reader = context.read('flatbuffers.binary');
+            const reader = context.target;
             net = mnn.schema.Net.create(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();

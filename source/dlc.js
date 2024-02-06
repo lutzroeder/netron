@@ -615,18 +615,22 @@ dlc.Container = class {
             const buffer = stream.peek(Math.min(stream.length, 16));
             const match = (signature) => buffer.length >= signature.length && signature.every((value, index) => value === buffer[index]);
             if (match([ 0xD5, 0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 ]) && buffer.length >= 16) {
-                const reader = flatbuffers.BinaryReader.open(buffer.slice(8));
-                return `4.${reader.identifier}`;
+                const reader = flatbuffers.BinaryReader.open(stream, 8);
+                if (reader) {
+                    return `4.${reader.identifier}`;
+                }
             }
             if (match([ 0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 ]) && buffer.length >= 16) {
-                const reader = flatbuffers.BinaryReader.open(buffer.slice(8));
-                return `3.${reader.identifier}`;
+                const reader = flatbuffers.BinaryReader.open(stream, 8);
+                if (reader) {
+                    return `3.${reader.identifier}`;
+                }
             }
             if (match([ 0xD5, 0x0A, 0x02, 0x00 ])) {
                 return '2';
             }
-            if (buffer.length >= 8) {
-                const reader = flatbuffers.BinaryReader.open(buffer);
+            const reader = flatbuffers.BinaryReader.open(stream);
+            if (reader) {
                 return reader.identifier;
             }
         }

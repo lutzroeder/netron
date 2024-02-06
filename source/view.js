@@ -5089,6 +5089,17 @@ view.Context = class {
                             }
                             break;
                         }
+                        case 'flatbuffers.binary': {
+                            try {
+                                const reader = flatbuffers.BinaryReader.open(this._stream);
+                                if (reader) {
+                                    this._content.set('flatbuffers.binary', reader);
+                                }
+                            } catch (error) {
+                                this._content.set('flatbuffers.binary', error);
+                            }
+                            break;
+                        }
                         case 'npz': {
                             try {
                                 const content = new Map();
@@ -5142,7 +5153,12 @@ view.Context = class {
                     throw new view.Error('Invalid BSON content.');
                 }
                 case 'flatbuffers.binary': {
-                    return flatbuffers.BinaryReader.open(this._stream);
+                    const reader = flatbuffers.BinaryReader.open(this._stream);
+                    if (reader) {
+                        this._content.set('flatbuffers.reader', reader);
+                        return reader;
+                    }
+                    throw new view.Error('Invalid FlatBuffers content.');
                 }
                 case 'flatbuffers.text': {
                     const obj = this.peek('json');
@@ -5198,9 +5214,8 @@ view.Context = class {
                                 break;
                             }
                             case 'flatbuffers': {
-                                if (stream.length >= 8) {
-                                    const buffer = stream.peek(Math.min(32, stream.length));
-                                    const reader = flatbuffers.BinaryReader.open(buffer);
+                                const reader = flatbuffers.BinaryReader.open(stream);
+                                if (reader) {
                                     const identifier = reader.identifier;
                                     if (identifier.length > 0) {
                                         tags.set('file_identifier', identifier);

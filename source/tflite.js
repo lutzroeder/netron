@@ -8,23 +8,20 @@ const tflite = {};
 tflite.ModelFactory = class {
 
     match(context) {
-        const tags = context.tags('flatbuffers');
-        if (tags.get('file_identifier') === 'TFL3') {
+        const reader = context.peek('flatbuffers.binary');
+        if (reader && reader.identifier === 'TFL3') {
             context.type = 'tflite.flatbuffers';
+            context.target = reader;
             return;
         }
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        const stream = context.stream;
-        if (extension === 'tflite' && stream.length >= 8) {
-            const buffer = stream.peek(Math.min(32, stream.length));
-            const reader = flatbuffers.BinaryReader.open(buffer);
-            if (reader.root === 0x00000018) {
-                const version = reader.uint32_(reader.root, 4, 0);
-                if (version === 3) {
-                    context.type = 'tflite.flatbuffers';
-                    return;
-                }
+        if (extension === 'tflite' && reader && reader.identifier) {
+            const version = reader.uint32_(reader.root, 4, 0);
+            if (version === 3) {
+                context.type = 'tflite.flatbuffers';
+                context.target = reader;
+                return;
             }
         }
         const obj = context.peek('json');
@@ -53,7 +50,7 @@ tflite.ModelFactory = class {
             }
             case 'tflite.flatbuffers': {
                 try {
-                    const reader = context.read('flatbuffers.binary');
+                    const reader = context.target;
                     model = tflite.schema.Model.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();

@@ -17,9 +17,10 @@ megengine.ModelFactory = class {
                 buffer = stream.peek(24).slice(position, position + 12);
                 const size = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
                 if (position > 0 || size === (stream.length - position - 4)) {
-                    const reader = flatbuffers.BinaryReader.open(buffer.slice(4, 12));
+                    const reader = flatbuffers.BinaryReader.open(stream, position + 4);
                     if (reader.identifier === 'mgv2') {
                         context.type = 'megengine.mge';
+                        context.target = reader;
                         return;
                     }
                 }
@@ -49,13 +50,8 @@ megengine.ModelFactory = class {
                 megengine.schema = await context.require('./megengine-schema');
                 megengine.schema = megengine.schema.mgb.serialization.fbs;
                 let model = null;
-                const stream = context.stream;
                 try {
-                    const buffer = stream.peek(12);
-                    const tag = String.fromCharCode.apply(null, buffer);
-                    stream.skip(tag.startsWith('mgbtest0') ? 12 : 0);
-                    stream.skip(4);
-                    const reader = context.read('flatbuffers.binary');
+                    const reader = context.target;
                     model = megengine.schema.v2.Model.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();

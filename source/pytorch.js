@@ -986,8 +986,8 @@ pytorch.Container.torch_utils = class extends pytorch.Container {
 pytorch.Container.Mobile = class extends pytorch.Container {
 
     static open(context) {
-        const tags = context.tags('flatbuffers');
-        if (tags.get('file_identifier') === 'PTMF') {
+        const reader = context.peek('flatbuffers.binary');
+        if (reader && reader.identifier === 'PTMF') {
             return new pytorch.Container.Mobile(context);
         }
         return null;
@@ -1032,8 +1032,8 @@ pytorch.Container.Mobile = class extends pytorch.Container {
 pytorch.Container.ExecuTorch = class extends pytorch.Container {
 
     static open(context) {
-        const tags = context.tags('flatbuffers');
-        if (tags.get('file_identifier') === 'ET12') {
+        const reader = context.peek('flatbuffers.binary');
+        if (reader && reader.identifier === 'ET12') {
             return new pytorch.Container.ExecuTorch(context);
         }
         return null;
@@ -1086,10 +1086,6 @@ pytorch.Container.Zip = class extends pytorch.Container {
             }
             if (records.has('.data/version')) {
                 return new pytorch.Container.Package(entries);
-            }
-            const tags = context.tags('flatbuffers');
-            if (tags.get('file_identifier') === 'PTMF') {
-                return new pytorch.Container.Mobile(context);
             }
         }
         return null;

@@ -8,9 +8,10 @@ const circle = {};
 circle.ModelFactory = class {
 
     match(context) {
-        const tags = context.tags('flatbuffers');
-        if (tags.get('file_identifier') === 'CIR0') {
+        const reader = context.peek('flatbuffers.binary');
+        if (reader && reader.identifier === 'CIR0') {
             context.type = 'circle.flatbuffers';
+            context.target = reader;
             return;
         }
         const obj = context.peek('json');
@@ -39,7 +40,7 @@ circle.ModelFactory = class {
             }
             case 'circle.flatbuffers': {
                 try {
-                    const reader = context.read('flatbuffers.binary');
+                    const reader = context.target;
                     model = circle.schema.Model.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();

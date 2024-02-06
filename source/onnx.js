@@ -1,6 +1,5 @@
 
 import * as protobuf from './protobuf.js';
-import * as flatbuffers from './flatbuffers.js';
 import * as text from './text.js';
 
 const onnx = {};
@@ -1695,19 +1694,16 @@ onnx.OrtReader = class {
     static open(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
+        const reader = context.peek('flatbuffers.binary');
+        if (reader && reader.identifier === 'ORTM') {
+            context.target = reader;
+            return new onnx.OrtReader(context);
+        }
         const stream = context.stream;
-        if (stream && stream.length >= 8) {
-            const buffer = stream.peek(Math.min(32, stream.length));
-            const reader = flatbuffers.BinaryReader.open(buffer);
-            const identifier = reader.identifier;
-            if (identifier === 'ORTM') {
+        if (stream && stream.length >= 8 && extension === 'ort') {
+            const signature = [ 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
+            if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
                 return new onnx.OrtReader(context);
-            }
-            if (extension === 'ort') {
-                const signature = [ 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
-                if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                    return new onnx.OrtReader(context);
-                }
             }
         }
         return null;

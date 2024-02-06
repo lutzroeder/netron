@@ -1,23 +1,18 @@
 
-import * as flatbuffers from './flatbuffers.js';
-
 const mslite = {};
 
 mslite.ModelFactory = class {
 
     match(context) {
-        const stream = context.stream;
-        if (stream && stream.length >= 8) {
-            const buffer = stream.peek(8);
-            const reader = flatbuffers.BinaryReader.open(buffer);
-            if (reader.identifier === '' || reader.identifier === 'MSL1' || reader.identifier === 'MSL2') {
-                context.type = 'mslite';
-            }
+        const reader = context.peek('flatbuffers.binary');
+        if (reader && (reader.identifier === '' || reader.identifier === 'MSL1' || reader.identifier === 'MSL2')) {
+            context.type = 'mslite';
+            context.target = reader;
         }
     }
 
     async open(context) {
-        const reader = context.read('flatbuffers.binary');
+        const reader = context.target;
         switch (reader.identifier) {
             case '': {
                 throw new mslite.Error('MSL0 format is deprecated.');
