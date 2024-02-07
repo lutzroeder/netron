@@ -5874,6 +5874,13 @@
   },
   {
     "type":     "rknn",
+    "target":   "cyptrknn.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/14188437/cyptrknn.rknn.zip[cyptrknn.rknn]",
+    "error":    "Invalid file content. File contains undocumented encrypted RKNN data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
     "target":   "det_monitor.nb",
     "source":   "https://github.com/lutzroeder/netron/files/8886768/det_monitor.nb.zip[det_monitor.nb]",
     "format":   "RKNN OpenVX",

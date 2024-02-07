@@ -511,7 +511,8 @@ rknn.Container = class extends Map {
                 case 'rknn':
                 case 'openvx':
                 case 'flatbuffers':
-                    return new rknn.Container(stream);
+                case 'cyptrknn':
+                    return new rknn.Container(stream, signature);
                 default:
                     break;
             }
@@ -519,22 +520,22 @@ rknn.Container = class extends Map {
             if (obj && obj.version && Array.isArray(obj.nodes) && obj.network_platform) {
                 const entries = new Map();
                 entries.set('json', stream);
-                return new rknn.Container(null, entries);
+                return new rknn.Container(null, null, entries);
             }
         }
         return null;
     }
 
-    constructor(stream, entries) {
+    constructor(stream, signature, entries) {
         super(entries);
         this.stream = stream;
+        this.signature = signature;
     }
 
     read() {
         const stream = this.stream;
         if (stream) {
-            const signature = rknn.Container.signature(stream);
-            switch (signature) {
+            switch (this.signature) {
                 case 'rknn': {
                     const uint64 = () => {
                         const buffer = stream.read(8);
@@ -575,7 +576,7 @@ rknn.Container = class extends Map {
                 }
                 case 'openvx':
                 case 'flatbuffers': {
-                    this.set(signature, stream.peek());
+                    this.set(this.signature, stream.peek());
                     break;
                 }
                 case 'cyptrknn': {
