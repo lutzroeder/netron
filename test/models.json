@@ -6023,6 +6023,13 @@
   },
   {
     "type":     "sentencepiece",
+    "target":   "bpe.model",
+    "source":   "https://github.com/lutzroeder/netron/files/14189544/bpe.model.zip[bpe.model]",
+    "format":   "SentencePiece",
+    "link":     "https://github.com/lutzroeder/netron/issues/748"
+  },
+  {
+    "type":     "sentencepiece",
     "target":   "spm_char.model",
     "source":   "https://github.com/lutzroeder/netron/files/6611189/covost2_en_asr_vocab_char.zip[spm_char.model]",
     "format":   "SentencePiece",
