@@ -6,11 +6,15 @@ armnn.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        const stream = context.stream;
-        if (stream && extension === 'armnn') {
-            context.type = 'armnn.flatbuffers';
-            context.target = stream;
-        } else if (extension === 'json') {
+        if (extension === 'armnn') {
+            const reader = context.peek('flatbuffers.binary');
+            if (reader) {
+                context.type = 'armnn.flatbuffers';
+                context.target = reader;
+                return;
+            }
+        }
+        if (extension === 'json') {
             const obj = context.peek('json');
             if (obj && obj.layers && obj.inputIds && obj.outputIds) {
                 context.type = 'armnn.flatbuffers.json';
