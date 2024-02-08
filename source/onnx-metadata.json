@@ -16319,19 +16319,19 @@
     "examples": [
       {
         "summary": "infinity",
-        "code": "node = onnx.helper.make_node(\n    \"IsInf\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float32)\ny = np.isinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsInf\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, -np.inf, np.inf], dtype=np.float32)\ny = np.isinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf\")"
       },
       {
         "summary": "infinity_float16",
-        "code": "node = onnx.helper.make_node(\n    \"IsInf\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float16)\ny = np.isinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_float16\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsInf\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, -np.inf, np.inf], dtype=np.float16)\ny = np.isinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_float16\")"
       },
       {
         "summary": "negative_infinity_only",
-        "code": "node = onnx.helper.make_node(\n    \"IsInf\", inputs=[\"x\"], outputs=[\"y\"], detect_positive=0\n)\n\nx = np.array([-1.7, np.nan, np.inf, -3.6, np.NINF, np.inf], dtype=np.float32)\ny = np.isneginf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_negative\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsInf\", inputs=[\"x\"], outputs=[\"y\"], detect_positive=0\n)\n\nx = np.array([-1.7, np.nan, np.inf, -3.6, -np.inf, np.inf], dtype=np.float32)\ny = np.isneginf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_negative\")"
       },
       {
         "summary": "positive_infinity_only",
-        "code": "node = onnx.helper.make_node(\n    \"IsInf\", inputs=[\"x\"], outputs=[\"y\"], detect_negative=0\n)\n\nx = np.array([-1.7, np.nan, np.inf, 3.6, np.NINF, np.inf], dtype=np.float32)\ny = np.isposinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_positive\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsInf\", inputs=[\"x\"], outputs=[\"y\"], detect_negative=0\n)\n\nx = np.array([-1.7, np.nan, np.inf, 3.6, -np.inf, np.inf], dtype=np.float32)\ny = np.isposinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_positive\")"
       }
     ]
   },
@@ -16400,19 +16400,19 @@
     "examples": [
       {
         "summary": "infinity",
-        "code": "node = onnx.helper.make_node(\n    \"IsInf\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float32)\ny = np.isinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsInf\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, -np.inf, np.inf], dtype=np.float32)\ny = np.isinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf\")"
       },
       {
         "summary": "infinity_float16",
-        "code": "node = onnx.helper.make_node(\n    \"IsInf\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float16)\ny = np.isinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_float16\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsInf\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, -np.inf, np.inf], dtype=np.float16)\ny = np.isinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_float16\")"
       },
       {
         "summary": "negative_infinity_only",
-        "code": "node = onnx.helper.make_node(\n    \"IsInf\", inputs=[\"x\"], outputs=[\"y\"], detect_positive=0\n)\n\nx = np.array([-1.7, np.nan, np.inf, -3.6, np.NINF, np.inf], dtype=np.float32)\ny = np.isneginf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_negative\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsInf\", inputs=[\"x\"], outputs=[\"y\"], detect_positive=0\n)\n\nx = np.array([-1.7, np.nan, np.inf, -3.6, -np.inf, np.inf], dtype=np.float32)\ny = np.isneginf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_negative\")"
       },
       {
         "summary": "positive_infinity_only",
-        "code": "node = onnx.helper.make_node(\n    \"IsInf\", inputs=[\"x\"], outputs=[\"y\"], detect_negative=0\n)\n\nx = np.array([-1.7, np.nan, np.inf, 3.6, np.NINF, np.inf], dtype=np.float32)\ny = np.isposinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_positive\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsInf\", inputs=[\"x\"], outputs=[\"y\"], detect_negative=0\n)\n\nx = np.array([-1.7, np.nan, np.inf, 3.6, -np.inf, np.inf], dtype=np.float32)\ny = np.isposinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_positive\")"
       }
     ]
   },
@@ -16460,11 +16460,11 @@
     "examples": [
       {
         "summary": "float16",
-        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float16)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan_float16\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, -np.inf, np.inf], dtype=np.float16)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan_float16\")"
       },
       {
         "summary": "isnan",
-        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float32)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, -np.inf, np.inf], dtype=np.float32)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan\")"
       }
     ]
   },
@@ -16513,11 +16513,11 @@
     "examples": [
       {
         "summary": "float16",
-        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float16)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan_float16\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, -np.inf, np.inf], dtype=np.float16)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan_float16\")"
       },
       {
         "summary": "isnan",
-        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float32)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, -np.inf, np.inf], dtype=np.float32)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan\")"
       }
     ]
   },
@@ -16570,11 +16570,11 @@
     "examples": [
       {
         "summary": "float16",
-        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float16)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan_float16\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, -np.inf, np.inf], dtype=np.float16)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan_float16\")"
       },
       {
         "summary": "isnan",
-        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float32)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, -np.inf, np.inf], dtype=np.float32)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan\")"
       }
     ]
   },
