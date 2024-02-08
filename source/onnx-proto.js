@@ -1502,6 +1502,7 @@ onnx.FunctionProto = class FunctionProto {
         this.attribute_proto = [];
         this.node = [];
         this.opset_import = [];
+        this.value_info = [];
     }
 
     static decode(reader, length) {
@@ -1536,6 +1537,9 @@ onnx.FunctionProto = class FunctionProto {
                     break;
                 case 10:
                     message.domain = reader.string();
+                    break;
+                case 12:
+                    message.value_info.push(onnx.ValueInfoProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1577,6 +1581,9 @@ onnx.FunctionProto = class FunctionProto {
                     break;
                 case "domain":
                     message.domain = reader.string();
+                    break;
+                case "value_info":
+                    message.value_info.push(onnx.ValueInfoProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
