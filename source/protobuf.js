@@ -1311,7 +1311,7 @@ protobuf.Error = class extends Error {
 
     constructor(message) {
         super(message);
-        this.name = 'Protocol Buffer Error';
+        this.name = 'Protocol Buffers Error';
         this.message = message;
     }
 };

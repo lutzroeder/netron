@@ -1483,7 +1483,7 @@ protoc.Error = class extends Error {
 
     constructor(message) {
         super(message);
-        this.name = 'Protocol Buffer Compiler Error';
+        this.name = 'Protocol Buffers Compiler Error';
     }
 };
 
