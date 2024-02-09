@@ -4,6 +4,11 @@
         "node_modules": true,
         "third_party": true
     },
+    "search.exclude": {
+        "dist": true,
+        "node_modules": true,
+        "third_party": true
+    },
     "pylint.severity": {
         "convention": "Warning",
         "refactor": "Warning"
