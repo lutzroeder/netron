@@ -97,7 +97,7 @@ window.addEventListener('error', function (event) {
 });
 
 window.addEventListener('load', function() {
-    if (!Symbol || !Symbol.asyncIterator) {
+    if (!Symbol || !Symbol.asyncIterator || !DataView.prototype.getBigInt64 || !DataView.prototype.getBigUint64) {
         throw new Error('Your browser is not supported.');
     }
     window.exports.preload(function(value, error) {
