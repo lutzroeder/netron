@@ -11,7 +11,7 @@ nnc.ModelFactory = class {
         }
     }
 
-    async open(/* context, target */) {
+    async open(/* context */) {
         throw new nnc.Error('File contains undocumented NNC data.');
     }
 };
