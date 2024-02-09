@@ -101,13 +101,13 @@ onnx.ModelFactory = class {
                 weights.set(keys[i], streams[i]);
             }
         }
-        return new onnx.Model(metadata, format, model, model.graph, weights);
+        return new onnx.Model(metadata, format, model, weights);
     }
 };
 
 onnx.Model = class {
 
-    constructor(metadata, format, model, graph, locations) {
+    constructor(metadata, format, model, locations) {
         this._graphs = [];
         this._format = format;
         this._producer = model.producer_name && model.producer_name.length > 0 ? model.producer_name + (model.producer_version && model.producer_version.length > 0 ? ` ${model.producer_version}` : '') : null;
@@ -176,12 +176,9 @@ onnx.Model = class {
             }
             imageFormat = [ imageMetadata['Image.BitmapPixelFormat'], imageMetadata['Image.ColorSpaceGamma'], imageMetadata['Image.NominalPixelRange'] ].filter((item) => item);
         }
-        metadata = new onnx.ModelMetadata(metadata, imports);
-        const context = new onnx.ModelContext(metadata, locations, imageFormat);
-        for (const func of model.functions || []) {
-            context.metadata.add(new onnx.Function(context, func));
-        }
-        this._graphs = [ new onnx.Graph(context, graph) ];
+        const context = new onnx.Context.Model(metadata, locations, imageFormat, imports, model.functions);
+        const graph = new onnx.Graph(context, model.graph);
+        this._graphs = [ graph ];
     }
 
     get format() {
@@ -227,7 +224,7 @@ onnx.Graph = class {
         this._outputs = [];
         this._name = graph.name || null;
         this._description = graph.doc_string || '';
-        context = new onnx.GraphContext(context, graph);
+        context = new onnx.Context.Graph(context, graph);
         if (Array.isArray(graph.quantization_annotation)) {
             for (const tensor_annotation of graph.quantization_annotation) {
                 const tensor = context.tensor(tensor_annotation.tensor_name);
@@ -353,7 +350,7 @@ onnx.Node = class {
     constructor(context, op_type, domain, name, description, attributes, inputs, outputs) {
         attributes = attributes || [];
         domain = domain || 'ai.onnx';
-        this._type = context.metadata.type(op_type, domain) || { name: op_type, module: domain };
+        this._type = context.type(op_type, domain) || { name: op_type, module: domain };
         if (this.type.module !== domain && !(this._type instanceof onnx.Function)) {
             this._type = Object.assign({}, this.type);
             this._type.name = op_type;
@@ -485,7 +482,7 @@ onnx.Attribute = class {
             default:
                 throw new onnx.Error(`Unsupported attribute type '${attribute.type}'.`);
         }
-        const metadata = context.metadata.attribute(op_type, domain, attribute.name);
+        const metadata = context.attribute(op_type, domain, attribute.name);
         if (metadata) {
             if (Object.prototype.hasOwnProperty.call(metadata, 'default') && this._value == metadata.default) {
                 this._visible = false;
@@ -898,7 +895,7 @@ onnx.Function = class {
         this._attributes = func.attribute.map((attribtue) => {
             return { name: attribtue };
         });
-        context = new onnx.GraphContext(context, func);
+        context = new onnx.Context.Graph(context, func);
         func.input = func.input.map((input) => context.tensor(input));
         func.output = func.output.map((output) => context.tensor(output));
         context.push(func.node, func.input, func.output);
@@ -950,25 +947,54 @@ onnx.Function = class {
     }
 };
 
-onnx.ModelMetadata = class {
+onnx.Context = class {};
 
-    constructor(metadata, imports) {
+onnx.Context.Model = class {
+
+    constructor(metadata, locations, imageFormat, imports, functions) {
         this._metadata = metadata;
+        this._location = locations;
+        this._imageFormat = imageFormat;
         this._imports = imports;
         this._cache = new Map();
         this._attributes = new Map();
         this._functions = new Map();
+        for (const func of functions || []) {
+            if (!this._functions.has(func.domain)) {
+                this._functions.set(func.domain, new Map());
+            }
+            const module = this._functions.get(func.domain);
+            if (module.has(func.name)) {
+                throw new onnx.Error(`Duplicate function identifier '${func.domain}.${func.name}'.`);
+            }
+            module.set(func.name, func);
+        }
     }
 
-    add(func) {
-        if (!this._functions.has(func.module)) {
-            this._functions.set(func.module, new Map());
+    get imageFormat()  {
+        return this._imageFormat;
+    }
+
+    location(name, offset, length) {
+        if (this._locations.has(name)) {
+            const stream = this._locations.get(name);
+            if (offset >= 0 && (offset + length) <= stream.length) {
+                try {
+                    const position = stream.position;
+                    stream.seek(offset);
+                    const value = stream.stream(length);
+                    stream.seek(position);
+                    return value;
+                } catch (error) {
+                    // continue regardless of error
+                }
+            }
         }
-        const map = this._functions.get(func.module);
-        if (map.has(func.name)) {
-            throw new onnx.Error(`Duplicate function identifier '${func.module}.${func.name}'.`);
-        }
-        map.set(func.name, func);
+        return null;
+    }
+
+    initializer(/* name */) {
+        return null;
     }
 
     type(name, domain) {
@@ -977,9 +1003,14 @@ onnx.ModelMetadata = class {
             let value = this._metadata.type(name, domain, this._imports);
             if (!value) {
                 if (this._functions.has(domain)) {
-                    const map = this._functions.get(domain);
-                    if (map.has(name)) {
-                        value = map.get(name);
+                    const module = this._functions.get(domain);
+                    if (module.has(name)) {
+                        value = module.get(name);
+                        if (value.domain !== undefined) {
+                            value = new onnx.Function(this, value);
+                            module.set(name, value);
+                        }
+
                     }
                 }
             }
@@ -1141,46 +1172,7 @@ onnx.AttributeType = {
     TYPE_PROTOS: 14
 };
 
-onnx.ModelContext = class {
-
-    constructor(metadata, locations, imageFormat) {
-        this._metadata = metadata;
-        this._locations = locations;
-        this._imageFormat = imageFormat;
-    }
-
-    get metadata() {
-        return this._metadata;
-    }
-
-    get imageFormat()  {
-        return this._imageFormat;
-    }
-
-    location(name, offset, length) {
-        if (this._locations.has(name)) {
-            const stream = this._locations.get(name);
-            if (offset >= 0 && (offset + length) <= stream.length) {
-                try {
-                    const position = stream.position;
-                    stream.seek(offset);
-                    const value = stream.stream(length);
-                    stream.seek(position);
-                    return value;
-                } catch (error) {
-                    // continue regardless of error
-                }
-            }
-        }
-        return null;
-    }
-
-    initializer(/* name */) {
-        return null;
-    }
-};
-
-onnx.GraphContext = class {
+onnx.Context.Graph = class {
 
     constructor(context, graph) {
         this._context = context;
@@ -1244,8 +1236,13 @@ onnx.GraphContext = class {
         }
     }
 
-    get metadata() {
-        return this._context.metadata;
+
+    type(name, domain) {
+        return this._context.type(name, domain);
+    }
+
+    attribute(type, domain, name) {
+        return this._context.type(type, domain, name);
     }
 
     graph(value) {
@@ -1412,7 +1409,7 @@ onnx.GraphContext = class {
         });
         for (let node of nodes) {
             const domain = node.domain || 'ai.onnx';
-            const type = this._context.metadata.type(node.op_type, domain);
+            const type = this._context.type(node.op_type, domain);
             const inputs = [];
             node.input = node.input || [];
             for (let i = 0; i < node.input.length;) {

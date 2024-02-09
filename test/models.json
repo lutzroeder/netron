@@ -3710,6 +3710,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "Clara_DenseNet_dynamo.onnx.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/14216640/Clara_DenseNet_dynamo.onnx.zip",
+    "format":   "ONNX v8",
+    "link":     "https://github.com/lutzroeder/netron/issues/1225"
+  },
+  {
+    "type":     "onnx",
     "target":   "cnn.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/7148909/cnn.onnx.zip[cnn.onnx]",
     "format":   "ONNX v6",
