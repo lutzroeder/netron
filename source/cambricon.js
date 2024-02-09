@@ -14,7 +14,7 @@ cambricon.ModelFactory = class {
         }
     }
 
-    async open(/* context, match */) {
+    async open(/* context */) {
         throw new cambricon.Error("File contains undocumented Cambricon data.");
     }
 };
