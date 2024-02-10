@@ -281,6 +281,9 @@ onnx.NodeProto = class NodeProto {
                 case 7:
                     message.domain = reader.string();
                     break;
+                case 8:
+                    message.overload = reader.string();
+                    break;
                 case 5:
                     message.attribute.push(onnx.AttributeProto.decode(reader, reader.uint32()));
                     break;
@@ -316,6 +319,9 @@ onnx.NodeProto = class NodeProto {
                 case "domain":
                     message.domain = reader.string();
                     break;
+                case "overload":
+                    message.overload = reader.string();
+                    break;
                 case "attribute":
                     message.attribute.push(onnx.AttributeProto.decodeText(reader));
                     break;
@@ -334,6 +340,7 @@ onnx.NodeProto = class NodeProto {
 onnx.NodeProto.prototype.name = "";
 onnx.NodeProto.prototype.op_type = "";
 onnx.NodeProto.prototype.domain = "";
+onnx.NodeProto.prototype.overload = "";
 onnx.NodeProto.prototype.doc_string = "";
 
 onnx.TrainingInfoProto = class TrainingInfoProto {
@@ -1538,6 +1545,9 @@ onnx.FunctionProto = class FunctionProto {
                 case 10:
                     message.domain = reader.string();
                     break;
+                case 13:
+                    message.overload = reader.string();
+                    break;
                 case 12:
                     message.value_info.push(onnx.ValueInfoProto.decode(reader, reader.uint32()));
                     break;
@@ -1582,6 +1592,9 @@ onnx.FunctionProto = class FunctionProto {
                 case "domain":
                     message.domain = reader.string();
                     break;
+                case "overload":
+                    message.overload = reader.string();
+                    break;
                 case "value_info":
                     message.value_info.push(onnx.ValueInfoProto.decodeText(reader));
                     break;
@@ -1597,6 +1610,7 @@ onnx.FunctionProto = class FunctionProto {
 onnx.FunctionProto.prototype.name = "";
 onnx.FunctionProto.prototype.doc_string = "";
 onnx.FunctionProto.prototype.domain = "";
+onnx.FunctionProto.prototype.overload = "";
 
 onnx.OperatorProto = class OperatorProto {
 
