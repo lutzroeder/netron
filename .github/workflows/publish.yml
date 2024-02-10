@@ -81,7 +81,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
-        run: git push origin main:release --force
+        run: git push origin HEAD:release --force
 
       - if: startsWith(matrix.os, 'macos')
         name: Publish cask
