@@ -391,7 +391,8 @@ executorch_flatbuffer.AllocationDetails = class AllocationDetails {
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.AllocationDetails();
         $.memory_id = reader.uint32_(position, 4, 0);
-        $.memory_offset = reader.uint32_(position, 6, 0);
+        $.memory_offset_low = reader.uint32_(position, 6, 0);
+        $.memory_offset_high = reader.uint32_(position, 8, 0);
         return $;
     }
 };
