@@ -953,7 +953,7 @@ onnx.Context.Model = class {
 
     constructor(metadata, locations, imageFormat, imports, functions) {
         this._metadata = metadata;
-        this._location = locations;
+        this._locations = locations;
         this._imageFormat = imageFormat;
         this._imports = imports;
         this._cache = new Map();
