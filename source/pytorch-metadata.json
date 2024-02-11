@@ -4999,6 +4999,30 @@
     ]
   },
   {
+    "name": "aten::fft_rfft",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "n", "type": "SymInt", "optional": true, "default": null },
+      { "name": "dim", "type": "int64", "default": -1 },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::fft_rfft.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "n", "type": "SymInt", "optional": true, "default": null },
+      { "name": "dim", "type": "int64", "default": -1 },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::fft_rfft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
