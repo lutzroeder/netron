@@ -1,5 +1,4 @@
 
-import * as base from './base.js';
 import * as text from './text.js';
 
 const protobuf = {};
@@ -249,27 +248,28 @@ protobuf.BinaryReader = class {
     }
 
     int64() {
-        return this._varint().toInt64();
+        return this._varint();
     }
 
     uint64() {
-        return this._varint().toInt64();
+        return this._varint();
     }
 
     sint64() {
-        return this._varint().zzDecode().toInt64();
+        const value = this._varint();
+        return (value >> 1n) ^ (-(value & 1n));
     }
 
     fixed64() {
         const position = this._position;
         this.skip(8);
-        return this._view.getUint64(position, true);
+        return this._view.getBigUint64(position, true);
     }
 
     sfixed64() {
         const position = this._position;
         this.skip(8);
-        return this._view.getInt64(position, true);
+        return this._view.getBigInt64(position, true);
     }
 
     fixed32() {
@@ -510,7 +510,7 @@ protobuf.BinaryReader = class {
         this._position++;
         let k = key();
         if (!Number.isInteger(k) && typeof k !== 'string') {
-            k = k.toNumber();
+            k = Number(k);
         }
         this._position++;
         const v = value();
@@ -518,55 +518,17 @@ protobuf.BinaryReader = class {
     }
 
     _varint() {
-        const bits = new protobuf.LongBits(0, 0);
-        let i = 0;
-        if (this._length - this._position > 4) { // fast route (lo)
-            for (; i < 4; ++i) {
-                // 1st..4th
-                bits.lo = (bits.lo | (this._buffer[this._position] & 127) << i * 7) >>> 0;
-                if (this._buffer[this._position++] < 128) {
-                    return bits;
-                }
+        let value = 0n;
+        let shift = 0n;
+        for (let i = 0; i < 10 && this._position < this._length; i++) {
+            const byte = this._buffer[this._position++];
+            value |= BigInt(byte & 0x7F) << shift;
+            if ((byte & 0x80) === 0) {
+                return value;
             }
-            // 5th
-            bits.lo = (bits.lo | (this._buffer[this._position] & 127) << 28) >>> 0;
-            bits.hi = (bits.hi | (this._buffer[this._position] & 127) >>  4) >>> 0;
-            if (this._buffer[this._position++] < 128) {
-                return bits;
-            }
-            i = 0;
-        } else {
-            for (; i < 3; i++) {
-                if (this._position >= this._length) {
-                    this._unexpected();
-                }
-                bits.lo = (bits.lo | (this._buffer[this._position] & 127) << i * 7) >>> 0;
-                if (this._buffer[this._position++] < 128) {
-                    return bits;
-                }
-            }
-            bits.lo = (bits.lo | (this._buffer[this._position++] & 127) << i * 7) >>> 0;
-            return bits;
+            shift += 7n;
         }
-        if (this._length - this._position > 4) {
-            for (; i < 5; ++i) {
-                bits.hi = (bits.hi | (this._buffer[this._position] & 127) << i * 7 + 3) >>> 0;
-                if (this._buffer[this._position++] < 128) {
-                    return bits;
-                }
-            }
-        } else {
-            for (; i < 5; ++i) {
-                if (this._position >= this._length) {
-                    this._unexpected();
-                }
-                bits.hi = (bits.hi | (this._buffer[this._position] & 127) << i * 7 + 3) >>> 0;
-                if (this._buffer[this._position++] < 128) {
-                    return bits;
-                }
-            }
-        }
-        throw new protobuf.Error('Invalid varint encoding.');
+        throw new protobuf.Error('Invalid varint value.');
     }
 
     _unexpected() {
@@ -754,23 +716,23 @@ protobuf.TextReader = class {
     }
 
     int64() {
-        return base.Int64.create(this.integer());
+        return BigInt(this.integer());
     }
 
     uint64() {
-        return base.Uint64.create(this.integer());
+        return BigInt.asUintN(64, BigInt(this.integer()));
     }
 
     sint64() {
-        return base.Int64.create(this.integer());
+        return BigInt(this.integer());
     }
 
     fixed64() {
-        return base.Uint64.create(this.integer());
+        return BigInt.asUintN(64, BigInt(this.integer()));
     }
 
     sfixed64() {
-        return base.Int64.create(this.integer());
+        return BigInt(this.integer());
     }
 
     fixed32() {
@@ -1281,32 +1243,6 @@ protobuf.TextReader = class {
     }
 };
 
-protobuf.Int64 = base.Int64;
-protobuf.Uint64 = base.Uint64;
-
-protobuf.LongBits = class {
-
-    constructor(lo, hi) {
-        this.lo = lo >>> 0;
-        this.hi = hi >>> 0;
-    }
-
-    zzDecode() {
-        const mask = -(this.lo & 1);
-        this.lo  = ((this.lo >>> 1 | this.hi << 31) ^ mask) >>> 0;
-        this.hi  =  (this.hi >>> 1                  ^ mask) >>> 0;
-        return this;
-    }
-
-    toUint64() {
-        return new base.Uint64(this.lo, this.hi);
-    }
-
-    toInt64() {
-        return new base.Int64(this.lo, this.hi);
-    }
-};
-
 protobuf.Error = class extends Error {
 
     constructor(message) {
@@ -1318,5 +1254,3 @@ protobuf.Error = class extends Error {
 
 export const BinaryReader = protobuf.BinaryReader;
 export const TextReader = protobuf.TextReader;
-export const Int64 = protobuf.Int64;
-export const Uint64 = protobuf.Uint64;

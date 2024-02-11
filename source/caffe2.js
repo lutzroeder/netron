@@ -442,7 +442,7 @@ caffe2.Tensor = class {
             this.quantization = {
                 type: 'linear',
                 scale: [ tensor.Y_scale ? tensor.Y_scale.f : 0 ],
-                offset: [ tensor.Y_zero_point ? tensor.Y_zero_point.i.toNumber() : 0 ]
+                offset: [ tensor.Y_zero_point && typeof tensor.Y_zero_point.i === 'bigint' ? Number(tensor.Y_zero_point.i) : 0 ]
             };
         }
         if (tensor.values) {

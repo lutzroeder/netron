@@ -1,442 +1,11 @@
 
 const base = {};
 
-base.Int64 = class Int64 {
-
-    constructor(low, high) {
-        this.low = low | 0;
-        this.high = high | 0;
-    }
-
-    static create(value) {
-        if (isNaN(value)) {
-            return base.Int64.zero;
-        }
-        if (value <= -9223372036854776000) {
-            return base.Int64.min;
-        }
-        if (value + 1 >= 9223372036854776000) {
-            return base.Int64.max;
-        }
-        if (value < 0) {
-            return base.Int64.create(-value).negate();
-        }
-        return new base.Int64((value % 4294967296) | 0, (value / 4294967296));
-    }
-
-    get isZero() {
-        return this.low === 0 && this.high === 0;
-    }
-
-    get isNegative() {
-        return this.high < 0;
-    }
-
-    negate() {
-        if (this.equals(base.Int64.min)) {
-            return base.Int64.min;
-        }
-        return this.not().add(base.Int64.one);
-    }
-
-    not() {
-        return new base.Int64(~this.low, ~this.high);
-    }
-
-    equals(other) {
-        if (!(other instanceof base.Int64) && (this.high >>> 31) === 1 && (other.high >>> 31) === 1) {
-            return false;
-        }
-        return this.high === other.high && this.low === other.low;
-    }
-
-    compare(other) {
-        if (this.equals(other)) {
-            return 0;
-        }
-        const thisNeg = this.isNegative;
-        const otherNeg = other.isNegative;
-        if (thisNeg && !otherNeg) {
-            return -1;
-        }
-        if (!thisNeg && otherNeg) {
-            return 1;
-        }
-        return this.subtract(other).isNegative ? -1 : 1;
-    }
-
-    add(other) {
-        return base.Utility.add(this, other, false);
-    }
-
-    subtract(other) {
-        return base.Utility.subtract(this, other, false);
-    }
-
-    multiply(other) {
-        return base.Utility.multiply(this, other, false);
-    }
-
-    divide(other) {
-        return base.Utility.divide(this, other, false);
-    }
-
-    toInteger() {
-        return this.low;
-    }
-
-    toNumber() {
-        if (this.high === 0) {
-            return this.low >>> 0;
-        }
-        if (this.high === -1) {
-            return this.low;
-        }
-        return (this.high * 4294967296) + (this.low >>> 0);
-    }
-
-    toString(radix) {
-        const r = radix || 10;
-        if (r < 2 || r > 16) {
-            throw new RangeError('radix');
-        }
-        if (this.isZero) {
-            return '0';
-        }
-        if (this.high < 0) {
-            if (this.equals(base.Int64.min)) {
-                const radix = new base.Int64(r, 0);
-                const div = this.divide(radix);
-                const remainder = div.multiply(radix).subtract(this);
-                return div.toString(radix) + (remainder.low >>> 0).toString(radix);
-            }
-            return `-${this.negate().toString(r)}`;
-        }
-        if (this.high === 0) {
-            return this.low.toString(radix);
-        }
-        return base.Utility.text(this, false, r);
-    }
-};
-
-base.Int64.min = new base.Int64(0, -2147483648);
-base.Int64.zero = new base.Int64(0, 0);
-base.Int64.one = new base.Int64(1, 0);
-base.Int64.negativeOne = new base.Int64(-1, 0);
-base.Int64.power24 = new base.Int64(1 << 24, 0);
-base.Int64.max = new base.Int64(0, 2147483647);
-
-base.Uint64 = class Uint64 {
-
-    constructor(low, high) {
-        this.low = low | 0;
-        this.high = high | 0;
-    }
-
-    static create(value) {
-        if (isNaN(value)) {
-            return base.Uint64.zero;
-        }
-        if (value < 0) {
-            return base.Uint64.zero;
-        }
-        if (value >= 18446744073709552000) {
-            return base.Uint64.max;
-        }
-        if (value < 0) {
-            return base.Uint64.create(-value).negate();
-        }
-        return new base.Uint64((value % 4294967296) | 0, (value / 4294967296));
-    }
-
-    get isZero() {
-        return this.low === 0 && this.high === 0;
-    }
-
-    get isNegative() {
-        return false;
-    }
-
-    negate() {
-        return this.not().add(base.Int64.one);
-    }
-
-    not() {
-        return new base.Uint64(~this.low, ~this.high);
-    }
-
-    equals(other) {
-        if (!(other instanceof base.Uint64) && (this.high >>> 31) === 1 && (other.high >>> 31) === 1) {
-            return false;
-        }
-        return this.high === other.high && this.low === other.low;
-    }
-
-    compare(other) {
-        if (this.equals(other)) {
-            return 0;
-        }
-        const thisNeg = this.isNegative;
-        const otherNeg = other.isNegative;
-        if (thisNeg && !otherNeg) {
-            return -1;
-        }
-        if (!thisNeg && otherNeg) {
-            return 1;
-        }
-        return (other.high >>> 0) > (this.high >>> 0) || (other.high === this.high && (other.low >>> 0) > (this.low >>> 0)) ? -1 : 1;
-    }
-
-    add(other) {
-        return base.Utility.add(this, other, true);
-    }
-
-    subtract(other) {
-        return base.Utility.subtract(this, other, true);
-    }
-
-    multiply(other) {
-        return base.Utility.multiply(this, other, true);
-    }
-
-    divide(other) {
-        return base.Utility.divide(this, other, true);
-    }
-
-    toInteger() {
-        return this.low >>> 0;
-    }
-
-    toNumber() {
-        if (this.high === 0) {
-            return this.low >>> 0;
-        }
-        return ((this.high >>> 0) * 4294967296) + (this.low >>> 0);
-    }
-
-    toString(radix) {
-        const r = radix || 10;
-        if (r < 2 || 36 < r) {
-            throw new RangeError('radix');
-        }
-        if (this.isZero) {
-            return '0';
-        }
-        if (this.high === 0) {
-            return this.low.toString(radix);
-        }
-        return base.Utility.text(this, true, r);
-    }
-};
-
-base.Utility = class {
-
-    static add(a, b, unsigned) {
-        const a48 = a.high >>> 16;
-        const a32 = a.high & 0xFFFF;
-        const a16 = a.low >>> 16;
-        const a00 = a.low & 0xFFFF;
-        const b48 = b.high >>> 16;
-        const b32 = b.high & 0xFFFF;
-        const b16 = b.low >>> 16;
-        const b00 = b.low & 0xFFFF;
-        let c48 = 0;
-        let c32 = 0;
-        let c16 = 0;
-        let c00 = 0;
-        c00 += a00 + b00;
-        c16 += c00 >>> 16;
-        c00 &= 0xFFFF;
-        c16 += a16 + b16;
-        c32 += c16 >>> 16;
-        c16 &= 0xFFFF;
-        c32 += a32 + b32;
-        c48 += c32 >>> 16;
-        c32 &= 0xFFFF;
-        c48 += a48 + b48;
-        c48 &= 0xFFFF;
-        return base.Utility._create((c16 << 16) | c00, (c48 << 16) | c32, unsigned);
-    }
-
-    static subtract(a, b, unsigned) {
-        return base.Utility.add(a, b.negate(), unsigned);
-    }
-
-    static multiply(a, b, unsigned) {
-        if (a.isZero) {
-            return base.Int64.zero;
-        }
-        if (b.isZero) {
-            return base.Int64.zero;
-        }
-        if (a.equals(base.Int64.min)) {
-            return b.isOdd() ? base.Int64.min : base.Int64.zero;
-        }
-        if (b.equals(base.Int64.min)) {
-            return a.isOdd() ? base.Int64.min : base.Int64.zero;
-        }
-        if (a.isNegative) {
-            if (b.isNegative) {
-                return a.negate().multiply(b.negate());
-            }
-            return a.negate().multiply(b).negate();
-        } else if (b.isNegative) {
-            return a.multiply(b.negate()).negate();
-        }
-        if (a.compare(base.Int64.power24) < 0 && b.compare(base.Int64.power24) < 0) {
-            return unsigned ? base.Uint64.create(a.toNumber() * b.toNumber()) : base.Int64.create(a.toNumber() * b.toNumber());
-        }
-        const a48 = a.high >>> 16;
-        const a32 = a.high & 0xFFFF;
-        const a16 = a.low >>> 16;
-        const a00 = a.low & 0xFFFF;
-        const b48 = b.high >>> 16;
-        const b32 = b.high & 0xFFFF;
-        const b16 = b.low >>> 16;
-        const b00 = b.low & 0xFFFF;
-        let c48 = 0;
-        let c32 = 0;
-        let c16 = 0;
-        let c00 = 0;
-        c00 += a00 * b00;
-        c16 += c00 >>> 16;
-        c00 &= 0xFFFF;
-        c16 += a16 * b00;
-        c32 += c16 >>> 16;
-        c16 &= 0xFFFF;
-        c16 += a00 * b16;
-        c32 += c16 >>> 16;
-        c16 &= 0xFFFF;
-        c32 += a32 * b00;
-        c48 += c32 >>> 16;
-        c32 &= 0xFFFF;
-        c32 += a16 * b16;
-        c48 += c32 >>> 16;
-        c32 &= 0xFFFF;
-        c32 += a00 * b32;
-        c48 += c32 >>> 16;
-        c32 &= 0xFFFF;
-        c48 += a48 * b00 + a32 * b16 + a16 * b32 + a00 * b48;
-        c48 &= 0xFFFF;
-        return base.Utility._create((c16 << 16) | c00, (c48 << 16) | c32, unsigned);
-    }
-
-    static divide(a, b, unsigned) {
-        if (b.isZero) {
-            throw new Error('Division by zero.');
-        }
-        if (a.isZero) {
-            return unsigned ? base.Uint64.zero : base.Int64.zero;
-        }
-        let approx;
-        let remainder;
-        let result;
-        if (!unsigned) {
-            if (a.equals(base.Int64.min)) {
-                if (b.equals(base.Int64.one) || b.equals(base.Int64.negativeOne)) {
-                    return base.Int64.min;
-                } else if (b.equals(base.Int64.min)) {
-                    return base.Int64.one;
-                }
-                const half = base.Utility._shiftRight(a, unsigned, 1);
-                const halfDivide = half.divide(b);
-                approx = base.Utility._shiftLeft(halfDivide, halfDivide instanceof base.Uint64, 1);
-                if (approx.equals(base.Int64.zero)) {
-                    return b.isNegative ? base.Int64.one : base.Int64.negativeOne;
-                }
-                remainder = a.subtract(b.multiply(approx));
-                result = approx.add(remainder.divide(b));
-                return result;
-            } else if (b.equals(base.Int64.min)) {
-                return base.Int64.zero;
-            }
-            if (a.isNegative) {
-                if (b.isNegative) {
-                    return this.negate().divide(b.negate());
-                }
-                return a.negate().divide(b).negate();
-            } else if (b.isNegative) {
-                return a.divide(b.negate()).negate();
-            }
-            result = base.Int64.zero;
-        } else {
-            if (!(b instanceof base.Uint64)) {
-                b = new base.Uint64(b.low, b.high);
-            }
-            if (b.compare(a) > 0) {
-                return base.Int64.zero;
-            }
-            if (b.compare(base.Utility._shiftRight(a, unsigned, 1)) > 0) {
-                return base.Uint64.one;
-            }
-            result = base.Uint64.zero;
-        }
-        remainder = a;
-        while (remainder.compare(b) >= 0) {
-            let approx = Math.max(1, Math.floor(remainder.toNumber() / b.toNumber()));
-            const log2 = Math.ceil(Math.log(approx) / Math.LN2);
-            const delta = (log2 <= 48) ? 1 : Math.pow(2, log2 - 48);
-            let approxResult = base.Int64.create(approx);
-            let approxRemainder = approxResult.multiply(b);
-            while (approxRemainder.isNegative || approxRemainder.compare(remainder) > 0) {
-                approx -= delta;
-                approxResult = unsigned ? base.Uint64.create(approx) : base.Int64.create(approx);
-                approxRemainder = approxResult.multiply(b);
-            }
-            if (approxResult.isZero) {
-                approxResult = base.Int64.one;
-            }
-            result = result.add(approxResult);
-            remainder = remainder.subtract(approxRemainder);
-        }
-        return result;
-    }
-
-    static text(value, unsigned, radix) {
-        const power = unsigned ? base.Uint64.create(Math.pow(radix, 6)) : base.Int64.create(Math.pow(radix, 6));
-        let remainder = value;
-        let result = '';
-        for (;;) {
-            const remainderDiv = remainder.divide(power);
-            const intval = remainder.subtract(remainderDiv.multiply(power)).toInteger() >>> 0;
-            let digits = intval.toString(radix);
-            remainder = remainderDiv;
-            if (remainder.low === 0 && remainder.high === 0) {
-                return digits + result;
-            }
-            while (digits.length < 6) {
-                digits = `0${digits}`;
-            }
-            result = `${digits}${result}`;
-        }
-    }
-
-    static _shiftLeft(value, unsigned, shift) {
-        return base.Utility._create(value.low << shift, (value.high << shift) | (value.low >>> (32 - shift)), unsigned);
-    }
-
-    static _shiftRight(value, unsigned, shift) {
-        return base.Utility._create((value.low >>> shift) | (value.high << (32 - shift)), value.high >> shift, unsigned);
-    }
-
-    static _create(low, high, unsigned) {
-        return unsigned ? new base.Uint64(low, high) : new base.Int64(low, high);
-    }
-};
-
-base.Uint64.zero = new base.Uint64(0, 0);
-base.Uint64.one = new base.Uint64(1, 0);
-base.Uint64.max = new base.Uint64(-1, -1);
-
 base.Complex64 = class Complex {
 
     constructor(real, imaginary) {
         this.real = real;
         this.imaginary = imaginary;
-    }
-
-    static create(real, imaginary) {
-        return new base.Complex64(real, imaginary);
     }
 
     toString(/* radix */) {
@@ -449,10 +18,6 @@ base.Complex128 = class Complex {
     constructor(real, imaginary) {
         this.real = real;
         this.imaginary = imaginary;
-    }
-
-    static create(real, imaginary) {
-        return new base.Complex128(real, imaginary);
     }
 
     toString(/* radix */) {
@@ -624,22 +189,6 @@ DataView.prototype.getFloat8e5m2 = function(byteOffset, fn, uz) {
     return DataView.__float8e5m2_float32[0];
 };
 
-DataView.prototype.getInt64 = DataView.prototype.getInt64 || function(byteOffset, littleEndian) {
-    return littleEndian ?
-        new base.Int64(this.getUint32(byteOffset, true), this.getUint32(byteOffset + 4, true)) :
-        new base.Int64(this.getUint32(byteOffset + 4, true), this.getUint32(byteOffset, true));
-};
-
-DataView.prototype.setInt64 = DataView.prototype.setInt64 || function(byteOffset, value, littleEndian) {
-    if (littleEndian) {
-        this.setUint32(byteOffset, value.low, true);
-        this.setUint32(byteOffset + 4, value.high, true);
-    } else {
-        this.setUint32(byteOffset + 4, value.low, false);
-        this.setUint32(byteOffset, value.high, false);
-    }
-};
-
 DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offset, bits, littleEndian) {
     offset = offset * bits;
     const position = Math.floor(offset / 8);
@@ -652,22 +201,6 @@ DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offse
         value -= 1 << bits;
     }
     return value;
-};
-
-DataView.prototype.getUint64 = DataView.prototype.getUint64 || function(byteOffset, littleEndian) {
-    return littleEndian ?
-        new base.Uint64(this.getUint32(byteOffset, true), this.getUint32(byteOffset + 4, true)) :
-        new base.Uint64(this.getUint32(byteOffset + 4, true), this.getUint32(byteOffset, true));
-};
-
-DataView.prototype.setUint64 = DataView.prototype.setUint64 || function(byteOffset, value, littleEndian) {
-    if (littleEndian) {
-        this.setUint32(byteOffset, value.low, true);
-        this.setUint32(byteOffset + 4, value.high, true);
-    } else {
-        this.setUint32(byteOffset + 4, value.low, false);
-        this.setUint32(byteOffset, value.high, false);
-    }
 };
 
 DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offset, bits, littleEndian) {
@@ -683,7 +216,7 @@ DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offs
 DataView.prototype.getComplex64 = DataView.prototype.getComplex64 || function(byteOffset, littleEndian) {
     const real = littleEndian ? this.getFloat32(byteOffset, littleEndian) : this.getFloat32(byteOffset + 4, littleEndian);
     const imaginary = littleEndian ? this.getFloat32(byteOffset + 4, littleEndian) : this.getFloat32(byteOffset, littleEndian);
-    return base.Complex64.create(real, imaginary);
+    return new base.Complex64(real, imaginary);
 };
 
 DataView.prototype.setComplex64 = DataView.prototype.setComplex64 || function(byteOffset, value, littleEndian) {
@@ -699,7 +232,7 @@ DataView.prototype.setComplex64 = DataView.prototype.setComplex64 || function(by
 DataView.prototype.getComplex128 = DataView.prototype.getComplex128 || function(byteOffset, littleEndian) {
     const real = littleEndian ? this.getFloat64(byteOffset, littleEndian) : this.getFloat64(byteOffset + 8, littleEndian);
     const imaginary = littleEndian ? this.getFloat64(byteOffset + 8, littleEndian) : this.getFloat64(byteOffset, littleEndian);
-    return base.Complex128.create(real, imaginary);
+    return new base.Complex128(real, imaginary);
 };
 
 DataView.prototype.setComplex128 = DataView.prototype.setComplex128 || function(byteOffset, value, littleEndian) {
@@ -861,7 +394,7 @@ base.BinaryReader = class {
     int64() {
         const position = this._position;
         this.skip(8);
-        return this._view.getInt64(position, this._littleEndian).toNumber();
+        return this._view.getBigInt64(position, this._littleEndian);
     }
 
     uint16() {
@@ -879,16 +412,7 @@ base.BinaryReader = class {
     uint64() {
         const position = this._position;
         this.skip(8);
-        const low = this._view.getUint32(position, this._littleEndian);
-        const high = this._view.getUint32(position + 4, this._littleEndian);
-        if (high === 0) {
-            return low;
-        }
-        const value = (high * 4294967296) + low;
-        if (Number.isSafeInteger(value)) {
-            return value;
-        }
-        throw new Error("Unsigned 64-bit value exceeds safe integer.");
+        return this._view.getBigUint64(position, this._littleEndian);
     }
 
     float32() {
@@ -979,16 +503,9 @@ base.StreamReader = class {
     }
 
     uint64() {
-        const low = this.uint32();
-        const high = this.uint32();
-        if (high === 0) {
-            return low;
-        }
-        const value = (high * 4294967296) + low;
-        if (Number.isSafeInteger(value)) {
-            return value;
-        }
-        throw new Error("Unsigned 64-bit value exceeds safe integer.");
+        const buffer = this._stream.read(8);
+        this._buffer.set(buffer, 0);
+        return this._view.getBigUint64(0, this._littleEndian);
     }
 
     float32() {
@@ -1171,14 +688,6 @@ base.Metadata = class {
     }
 };
 
-if (typeof window !== 'undefined' && typeof window.Long != 'undefined') {
-    window.long = { Long: window.Long };
-    window.Int64 = base.Int64;
-    window.Uint64 = base.Uint64;
-}
-
-export const Int64 = base.Int64;
-export const Uint64 = base.Uint64;
 export const Complex64 = base.Complex64;
 export const Complex128 = base.Complex128;
 export const BinaryStream = base.BinaryStream;

@@ -503,13 +503,13 @@ json.BinaryReader = class {
                 case 0x11: { // uint64
                     const start = position;
                     skip(8);
-                    value = view.getUint64(start, true).toNumber();
+                    value = Number(view.getBigUint64(start, true));
                     break;
                 }
                 case 0x12: { // int64
                     const start = position;
                     skip(8);
-                    value = view.getInt64(start, true).toNumber();
+                    value = Number(view.getBigInt64(start, true));
                     break;
                 }
                 default: {

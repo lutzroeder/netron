@@ -269,7 +269,6 @@ nnabla.TensorType = class {
     constructor(shape) {
         this.dataType = "float32";
         this.shape = shape;
-        this.denotation = null; // TODO
     }
 
     toString() {

@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 export const uff = {};
 
 uff.MetaGraph = class MetaGraph {
@@ -77,8 +75,8 @@ uff.MetaGraph = class MetaGraph {
     }
 };
 
-uff.MetaGraph.prototype.version = protobuf.Int64.create(0);
-uff.MetaGraph.prototype.descriptor_core_version = protobuf.Int64.create(0);
+uff.MetaGraph.prototype.version = 0n;
+uff.MetaGraph.prototype.descriptor_core_version = 0n;
 
 uff.MetaGraph.ReferencedDataEntry = class ReferencedDataEntry {
 
@@ -231,7 +229,7 @@ uff.Descriptor = class Descriptor {
 };
 
 uff.Descriptor.prototype.id = "";
-uff.Descriptor.prototype.version = protobuf.Int64.create(0);
+uff.Descriptor.prototype.version = 0n;
 uff.Descriptor.prototype.optional = false;
 
 uff.Graph = class Graph {

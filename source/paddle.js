@@ -107,8 +107,8 @@ paddle.ModelFactory = class {
                         }
                     }
                     const formatVersion = (version) => {
-                        if (version && version.version && version.version.toNumber) {
-                            const number = version.version.toNumber();
+                        if (version && version.version !== undefined) {
+                            const number = Number(version.version);
                             if (number > 0) {
                                 const list = [ Math.floor(number / 1000000) % 1000, Math.floor(number / 1000) % 1000, number % 1000 ];
                                 if (list.slice(-1).pop() === 0) {
@@ -549,7 +549,7 @@ paddle.TensorType = class {
 paddle.TensorShape = class {
 
     constructor(dimensions) {
-        dimensions = dimensions.map((dimension) => Number.isInteger(dimension) ? dimension : dimension.toNumber());
+        dimensions = dimensions.map((dim) => typeof dim === 'bigint' ? Number(dim) : dim);
         this.dimensions = dimensions.map((dimension) => {
             return dimension != -1 ? dimension : '?';
         });
@@ -706,7 +706,7 @@ paddle.NaiveBuffer = class {
         const opt_version = reader.read(16);
         const version = decoder.decode(opt_version.slice(0, opt_version.indexOf(0x00)));
         this.format = `Paddle Lite${version && version.match(/^v\d+\.\d+.\d+$/) ? ` ${version}` : ''}`;
-        const topo_size = reader.uint64();
+        const topo_size = Number(reader.uint64());
         const openProgramDesc = (buffer) => {
             const reader = flatbuffers.BinaryReader.open(buffer);
             return paddle.schema.ProgramDesc.create(reader);
@@ -783,7 +783,7 @@ paddle.Utility = class {
         const buffer = stream.read(length);
         const reader = protobuf.BinaryReader.open(buffer);
         const tensorDesc = paddle.proto.VarType.TensorDesc.decode(reader);
-        const size = tensorDesc.dims.reduce((a, b) => a * b.toNumber(), 1);
+        const size = tensorDesc.dims.reduce((a, b) => a * Number(b), 1);
         let itemsize = 0;
         switch (tensorDesc.data_type) {
             case paddle.DataType.FP16: itemsize = 2; break;

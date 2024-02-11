@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 export const caffe = {};
 
 caffe.BlobShape = class BlobShape {
@@ -781,7 +779,7 @@ caffe.SolverParameter.prototype.snapshot_diff = false;
 caffe.SolverParameter.prototype.snapshot_format = 1;
 caffe.SolverParameter.prototype.solver_mode = 1;
 caffe.SolverParameter.prototype.device_id = 0;
-caffe.SolverParameter.prototype.random_seed = protobuf.Int64.create(-1);
+caffe.SolverParameter.prototype.random_seed = -1n;
 caffe.SolverParameter.prototype.type = "SGD";
 caffe.SolverParameter.prototype.delta = 1e-8;
 caffe.SolverParameter.prototype.momentum2 = 0.999;

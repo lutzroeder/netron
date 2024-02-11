@@ -270,7 +270,7 @@ caffe.Graph = class {
                     if (layer.input.length == 0 && layer.output.length == 1 &&
                         layer.input_param && layer.input_param.shape &&
                         layer.input_param.shape.length == 1 && layer.input_param.shape[0].dim) {
-                        const shape = new caffe.TensorShape(layer.input_param.shape[0].dim.map((dim) => dim.toNumber()));
+                        const shape = new caffe.TensorShape(layer.input_param.shape[0].dim.map((dim) => Number(dim)));
                         const type = new caffe.TensorType(null, shape);
                         this._inputs.push(new caffe.Argument(layer.output[0], [ value(layer.output[0], type) ]));
                         layer = null;
@@ -297,7 +297,7 @@ caffe.Graph = class {
                 if (net.input_shape && i < net.input_shape.length) {
                     const blobShape = net.input_shape[i];
                     if (blobShape && blobShape.dim) {
-                        const shape = new caffe.TensorShape(blobShape.dim.map((dim) => dim.toNumber()));
+                        const shape = new caffe.TensorShape(blobShape.dim.map((dim) => Number(dim)));
                         inputType = new caffe.TensorType(null, shape);
                     }
                 }
@@ -538,7 +538,7 @@ caffe.Attribute = class {
             this._type = metadata.type;
         }
         if (value instanceof caffe.proto.BlobShape) {
-            this._value = new caffe.TensorShape(value.dim.map((dim) => dim.toNumber()));
+            this._value = new caffe.TensorShape(value.dim.map((dim) => Number(dim)));
             this._type = 'shape';
         }
         if (metadata && metadata.visible === false) {
@@ -602,7 +602,7 @@ caffe.Tensor = class {
                 shape.push(blob.width);
             }
         } else if (Object.prototype.hasOwnProperty.call(blob, 'shape')) {
-            shape = blob.shape.dim.map((dim) => dim.toNumber());
+            shape = blob.shape.dim.map((dim) => Number(dim));
         }
 
         let dataType = '?';

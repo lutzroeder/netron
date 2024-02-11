@@ -3625,11 +3625,11 @@ python.Execution = class {
                         case 0xCC: return this._view.getUint8(this.skip(1));
                         case 0xCD: return this._view.getUint16(this.skip(2));
                         case 0xCE: return this._view.getUint32(this.skip(4));
-                        case 0xCF: return this._view.getUint64(this.skip(8));
+                        case 0xCF: return this._view.getBitUint64(this.skip(8));
                         case 0xD0: return this._view.getInt8(this.skip(1));
                         case 0xD1: return this._view.getInt16(this.skip(2));
                         case 0xD2: return this._view.getInt32(this.skip(4));
-                        case 0xD3: return this._view.getInt64(this.skip(8));
+                        case 0xD3: return this._view.getBigInt64(this.skip(8));
                         case 0xD4: return this.extension(1);
                         case 0xD5: return this.extension(2);
                         case 0xD6: return this.extension(4);
@@ -3733,7 +3733,7 @@ python.Execution = class {
                         case 1: return view.getInt8(0);
                         case 2: return view.getInt16(0, dtype.byteorder === '<');
                         case 4: return view.getInt32(0, dtype.byteorder === '<');
-                        case 8: return view.getInt64(0, dtype.byteorder === '<');
+                        case 8: return view.getBigInt64(0, dtype.byteorder === '<');
                         default: throw new python.Error(`Unsupported scalar dtype int itemsize '${dtype.itemsize}'.`);
                     }
                 }
@@ -3743,7 +3743,7 @@ python.Execution = class {
                         case 1: return view.getUint8(0);
                         case 2: return view.getUint16(0, dtype.byteorder === '<');
                         case 4: return view.getUint32(0, dtype.byteorder === '<');
-                        case 8: return view.getUint64(0, dtype.byteorder === '<');
+                        case 8: return view.getBigUint64(0, dtype.byteorder === '<');
                         default: throw new python.Error(`Unsupported scalar dtype uint itemsize '${dtype.itemsize}'.`);
                     }
                 }
@@ -3783,7 +3783,7 @@ python.Execution = class {
                 case 'int32':
                     return dataView.getInt32(0, true);
                 case 'int64':
-                    return dataView.getInt64(0, true);
+                    return dataView.getBigInt64(0, true);
                 default:
                     throw new python.Error(`Unsupported scalar type '${dtype.__name__}'.`);
             }
@@ -3896,7 +3896,7 @@ python.Execution = class {
                                 context.view.setInt32(context.position, data[i], littleendian);
                                 break;
                             case 'i8':
-                                context.view.setInt64(context.position, data[i], littleendian);
+                                context.view.setBigInt64(context.position, data[i], littleendian);
                                 break;
                             case 'u1':
                                 context.view.setUint8(context.position, data[i], littleendian);
@@ -3908,7 +3908,7 @@ python.Execution = class {
                                 context.view.setUint32(context.position, data[i], littleendian);
                                 break;
                             case 'u8':
-                                context.view.setUint64(context.position, data[i], littleendian);
+                                context.view.setBigUint64(context.position, data[i], littleendian);
                                 break;
                             case 'c8':
                                 context.view.setComplex64(context.position, data[i], littleendian);
@@ -6450,7 +6450,7 @@ python.Execution = class {
                 if (storage && storage.dtype.__reduce__() === 'int64' && storage.data.length === 8) {
                     const buffer = storage.data.peek ? storage.data.peek() : storage.data;
                     const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-                    return view.getInt64(0, true);
+                    return view.getBigInt64(0, true);
                 }
                 return NaN;
             }
@@ -7462,7 +7462,7 @@ python.BinaryReader = class {
     int64() {
         const position = this._position;
         this.skip(8);
-        return this._view.getInt64(position, true).toNumber();
+        return this._view.getBigInt64(position, true);
     }
 
     float64() {
@@ -7559,7 +7559,7 @@ python.StreamReader = class {
 
     int64() {
         const position = this._fill(8);
-        return this._view.getInt64(position, true).toNumber();
+        return this._view.getBigInt64(position, true);
     }
 
     float64() {

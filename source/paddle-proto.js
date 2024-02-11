@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 export const paddle = {};
 
 paddle.framework = {};
@@ -47,7 +45,7 @@ paddle.framework.proto.Version = class Version {
     }
 };
 
-paddle.framework.proto.Version.prototype.version = protobuf.Int64.create(0);
+paddle.framework.proto.Version.prototype.version = 0n;
 
 paddle.framework.proto.AttrType = {
     "INT": 0,
@@ -203,7 +201,7 @@ paddle.framework.proto.Scalar = class Scalar {
 
 paddle.framework.proto.Scalar.prototype.type = 1;
 paddle.framework.proto.Scalar.prototype.b = false;
-paddle.framework.proto.Scalar.prototype.i = protobuf.Int64.create(0);
+paddle.framework.proto.Scalar.prototype.i = 0n;
 paddle.framework.proto.Scalar.prototype.r = 0;
 paddle.framework.proto.Scalar.prototype.c = null;
 
@@ -472,7 +470,7 @@ paddle.framework.proto.OpDesc.Attr.prototype.f = 0;
 paddle.framework.proto.OpDesc.Attr.prototype.s = "";
 paddle.framework.proto.OpDesc.Attr.prototype.b = false;
 paddle.framework.proto.OpDesc.Attr.prototype.block_idx = 0;
-paddle.framework.proto.OpDesc.Attr.prototype.l = protobuf.Int64.create(0);
+paddle.framework.proto.OpDesc.Attr.prototype.l = 0n;
 paddle.framework.proto.OpDesc.Attr.prototype.var_name = "";
 paddle.framework.proto.OpDesc.Attr.prototype.float64 = 0;
 paddle.framework.proto.OpDesc.Attr.prototype.scalar = null;

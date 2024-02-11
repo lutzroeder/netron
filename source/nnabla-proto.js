@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 export const nnabla = {};
 
 nnabla.Shape = class Shape {
@@ -346,10 +344,10 @@ nnabla.TrainingConfig = class TrainingConfig {
     }
 };
 
-nnabla.TrainingConfig.prototype.max_epoch = protobuf.Int64.create(0);
-nnabla.TrainingConfig.prototype.iter_per_epoch = protobuf.Int64.create(0);
+nnabla.TrainingConfig.prototype.max_epoch = 0n;
+nnabla.TrainingConfig.prototype.iter_per_epoch = 0n;
 nnabla.TrainingConfig.prototype.save_best = false;
-nnabla.TrainingConfig.prototype.monitor_interval = protobuf.Int64.create(0);
+nnabla.TrainingConfig.prototype.monitor_interval = 0n;
 
 nnabla.Network = class Network {
 
@@ -419,7 +417,7 @@ nnabla.Network = class Network {
 };
 
 nnabla.Network.prototype.name = "";
-nnabla.Network.prototype.batch_size = protobuf.Int64.create(0);
+nnabla.Network.prototype.batch_size = 0n;
 
 nnabla.RepeatInfo = class RepeatInfo {
 
@@ -468,7 +466,7 @@ nnabla.RepeatInfo = class RepeatInfo {
 };
 
 nnabla.RepeatInfo.prototype.id = "";
-nnabla.RepeatInfo.prototype.times = protobuf.Int64.create(0);
+nnabla.RepeatInfo.prototype.times = 0n;
 
 nnabla.RepeatParameter = class RepeatParameter {
 
@@ -517,7 +515,7 @@ nnabla.RepeatParameter = class RepeatParameter {
 };
 
 nnabla.RepeatParameter.prototype.repeat_id = "";
-nnabla.RepeatParameter.prototype.times = protobuf.Int64.create(0);
+nnabla.RepeatParameter.prototype.times = 0n;
 
 nnabla.RecurrentParameter = class RecurrentParameter {
 
@@ -572,8 +570,8 @@ nnabla.RecurrentParameter = class RecurrentParameter {
 };
 
 nnabla.RecurrentParameter.prototype.repeat_id = "";
-nnabla.RecurrentParameter.prototype.length = protobuf.Int64.create(0);
-nnabla.RecurrentParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.RecurrentParameter.prototype.length = 0n;
+nnabla.RecurrentParameter.prototype.axis = 0n;
 
 nnabla.Variable = class Variable {
 
@@ -855,7 +853,7 @@ nnabla.Dataset = class Dataset {
 nnabla.Dataset.prototype.name = "";
 nnabla.Dataset.prototype.type = "";
 nnabla.Dataset.prototype.uri = "";
-nnabla.Dataset.prototype.batch_size = protobuf.Int64.create(0);
+nnabla.Dataset.prototype.batch_size = 0n;
 nnabla.Dataset.prototype.cache_dir = "";
 nnabla.Dataset.prototype.overwrite_cache = false;
 nnabla.Dataset.prototype.create_cache_explicitly = false;
@@ -974,12 +972,12 @@ nnabla.Optimizer = class Optimizer {
 };
 
 nnabla.Optimizer.prototype.name = "";
-nnabla.Optimizer.prototype.order = protobuf.Int64.create(0);
+nnabla.Optimizer.prototype.order = 0n;
 nnabla.Optimizer.prototype.network_name = "";
 nnabla.Optimizer.prototype.solver = null;
-nnabla.Optimizer.prototype.update_interval = protobuf.Int64.create(0);
-nnabla.Optimizer.prototype.start_iter = protobuf.Int64.create(0);
-nnabla.Optimizer.prototype.end_iter = protobuf.Int64.create(0);
+nnabla.Optimizer.prototype.update_interval = 0n;
+nnabla.Optimizer.prototype.start_iter = 0n;
+nnabla.Optimizer.prototype.end_iter = 0n;
 
 nnabla.SolverStateParameter = class SolverStateParameter {
 
@@ -1323,7 +1321,7 @@ nnabla.Solver.prototype.custom_scheduler_param = null;
 nnabla.Solver.prototype.lr_warmup_scheduler_type = "";
 nnabla.Solver.prototype.linear_warmup_scheduler_param = null;
 nnabla.Solver.prototype.lr_decay = 0;
-nnabla.Solver.prototype.lr_decay_interval = protobuf.Int64.create(0);
+nnabla.Solver.prototype.lr_decay_interval = 0n;
 
 nnabla.SgdParameter = class SgdParameter {
 
@@ -2611,7 +2609,7 @@ nnabla.ExponentialSchedulerParameter = class ExponentialSchedulerParameter {
 };
 
 nnabla.ExponentialSchedulerParameter.prototype.gamma = 0;
-nnabla.ExponentialSchedulerParameter.prototype.iter_interval = protobuf.Int64.create(0);
+nnabla.ExponentialSchedulerParameter.prototype.iter_interval = 0n;
 
 nnabla.StepSchedulerParameter = class StepSchedulerParameter {
 
@@ -2765,7 +2763,7 @@ nnabla.LinearWarmupSchedulerParameter = class LinearWarmupSchedulerParameter {
     }
 };
 
-nnabla.LinearWarmupSchedulerParameter.prototype.warmup_iter = protobuf.Int64.create(0);
+nnabla.LinearWarmupSchedulerParameter.prototype.warmup_iter = 0n;
 
 nnabla.DataVariable = class DataVariable {
 
@@ -3210,7 +3208,7 @@ nnabla.Executor = class Executor {
 
 nnabla.Executor.prototype.name = "";
 nnabla.Executor.prototype.network_name = "";
-nnabla.Executor.prototype.num_evaluations = protobuf.Int64.create(0);
+nnabla.Executor.prototype.num_evaluations = 0n;
 nnabla.Executor.prototype.repeat_evaluation_type = "";
 nnabla.Executor.prototype.need_back_propagation = false;
 nnabla.Executor.prototype.no_image_normalization = false;
@@ -4343,7 +4341,7 @@ nnabla.AffineParameter = class AffineParameter {
     }
 };
 
-nnabla.AffineParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.AffineParameter.prototype.base_axis = 0n;
 
 nnabla.RNNParameter = class RNNParameter {
 
@@ -4409,7 +4407,7 @@ nnabla.RNNParameter = class RNNParameter {
     }
 };
 
-nnabla.RNNParameter.prototype.num_layers = protobuf.Int64.create(0);
+nnabla.RNNParameter.prototype.num_layers = 0n;
 nnabla.RNNParameter.prototype.nonlinearity = "";
 nnabla.RNNParameter.prototype.dropout = 0;
 nnabla.RNNParameter.prototype.bidirectional = false;
@@ -4473,7 +4471,7 @@ nnabla.LSTMParameter = class LSTMParameter {
     }
 };
 
-nnabla.LSTMParameter.prototype.num_layers = protobuf.Int64.create(0);
+nnabla.LSTMParameter.prototype.num_layers = 0n;
 nnabla.LSTMParameter.prototype.dropout = 0;
 nnabla.LSTMParameter.prototype.bidirectional = false;
 nnabla.LSTMParameter.prototype.training = false;
@@ -4536,7 +4534,7 @@ nnabla.GRUParameter = class GRUParameter {
     }
 };
 
-nnabla.GRUParameter.prototype.num_layers = protobuf.Int64.create(0);
+nnabla.GRUParameter.prototype.num_layers = 0n;
 nnabla.GRUParameter.prototype.dropout = 0;
 nnabla.GRUParameter.prototype.bidirectional = false;
 nnabla.GRUParameter.prototype.training = false;
@@ -4611,11 +4609,11 @@ nnabla.ConvolutionParameter = class ConvolutionParameter {
     }
 };
 
-nnabla.ConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.ConvolutionParameter.prototype.base_axis = 0n;
 nnabla.ConvolutionParameter.prototype.pad = null;
 nnabla.ConvolutionParameter.prototype.stride = null;
 nnabla.ConvolutionParameter.prototype.dilation = null;
-nnabla.ConvolutionParameter.prototype.group = protobuf.Int64.create(0);
+nnabla.ConvolutionParameter.prototype.group = 0n;
 nnabla.ConvolutionParameter.prototype.channel_last = false;
 
 nnabla.FusedConvolutionParameter = class FusedConvolutionParameter {
@@ -4731,11 +4729,11 @@ nnabla.FusedConvolutionParameter = class FusedConvolutionParameter {
     }
 };
 
-nnabla.FusedConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.FusedConvolutionParameter.prototype.base_axis = 0n;
 nnabla.FusedConvolutionParameter.prototype.pad = null;
 nnabla.FusedConvolutionParameter.prototype.stride = null;
 nnabla.FusedConvolutionParameter.prototype.dilation = null;
-nnabla.FusedConvolutionParameter.prototype.group = protobuf.Int64.create(0);
+nnabla.FusedConvolutionParameter.prototype.group = 0n;
 nnabla.FusedConvolutionParameter.prototype.channel_last = false;
 nnabla.FusedConvolutionParameter.prototype.decay_rate = 0;
 nnabla.FusedConvolutionParameter.prototype.eps = 0;
@@ -4808,11 +4806,11 @@ nnabla.DepthwiseConvolutionParameter = class DepthwiseConvolutionParameter {
     }
 };
 
-nnabla.DepthwiseConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.DepthwiseConvolutionParameter.prototype.base_axis = 0n;
 nnabla.DepthwiseConvolutionParameter.prototype.pad = null;
 nnabla.DepthwiseConvolutionParameter.prototype.stride = null;
 nnabla.DepthwiseConvolutionParameter.prototype.dilation = null;
-nnabla.DepthwiseConvolutionParameter.prototype.multiplier = protobuf.Int64.create(0);
+nnabla.DepthwiseConvolutionParameter.prototype.multiplier = 0n;
 
 nnabla.DeconvolutionParameter = class DeconvolutionParameter {
 
@@ -4890,11 +4888,11 @@ nnabla.DeconvolutionParameter = class DeconvolutionParameter {
     }
 };
 
-nnabla.DeconvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.DeconvolutionParameter.prototype.base_axis = 0n;
 nnabla.DeconvolutionParameter.prototype.pad = null;
 nnabla.DeconvolutionParameter.prototype.stride = null;
 nnabla.DeconvolutionParameter.prototype.dilation = null;
-nnabla.DeconvolutionParameter.prototype.group = protobuf.Int64.create(0);
+nnabla.DeconvolutionParameter.prototype.group = 0n;
 nnabla.DeconvolutionParameter.prototype.channel_last = false;
 nnabla.DeconvolutionParameter.prototype.output_padding = null;
 
@@ -4962,11 +4960,11 @@ nnabla.DepthwiseDeconvolutionParameter = class DepthwiseDeconvolutionParameter {
     }
 };
 
-nnabla.DepthwiseDeconvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.DepthwiseDeconvolutionParameter.prototype.base_axis = 0n;
 nnabla.DepthwiseDeconvolutionParameter.prototype.pad = null;
 nnabla.DepthwiseDeconvolutionParameter.prototype.stride = null;
 nnabla.DepthwiseDeconvolutionParameter.prototype.dilation = null;
-nnabla.DepthwiseDeconvolutionParameter.prototype.divisor = protobuf.Int64.create(0);
+nnabla.DepthwiseDeconvolutionParameter.prototype.divisor = 0n;
 
 nnabla.DeformableConvolutionParameter = class DeformableConvolutionParameter {
 
@@ -5044,12 +5042,12 @@ nnabla.DeformableConvolutionParameter = class DeformableConvolutionParameter {
     }
 };
 
-nnabla.DeformableConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.DeformableConvolutionParameter.prototype.base_axis = 0n;
 nnabla.DeformableConvolutionParameter.prototype.pad = null;
 nnabla.DeformableConvolutionParameter.prototype.stride = null;
 nnabla.DeformableConvolutionParameter.prototype.dilation = null;
-nnabla.DeformableConvolutionParameter.prototype.group = protobuf.Int64.create(0);
-nnabla.DeformableConvolutionParameter.prototype.deformable_group = protobuf.Int64.create(0);
+nnabla.DeformableConvolutionParameter.prototype.group = 0n;
+nnabla.DeformableConvolutionParameter.prototype.deformable_group = 0n;
 nnabla.DeformableConvolutionParameter.prototype.channel_last = false;
 
 nnabla.MaxPoolingParameter = class MaxPoolingParameter {
@@ -5378,7 +5376,7 @@ nnabla.RoiAlignParameter = class RoiAlignParameter {
 };
 
 nnabla.RoiAlignParameter.prototype.output_size = null;
-nnabla.RoiAlignParameter.prototype.sampling_ratio = protobuf.Int64.create(0);
+nnabla.RoiAlignParameter.prototype.sampling_ratio = 0n;
 nnabla.RoiAlignParameter.prototype.channel_last = false;
 
 nnabla.ReLUParameter = class ReLUParameter {
@@ -5512,7 +5510,7 @@ nnabla.SoftmaxParameter = class SoftmaxParameter {
     }
 };
 
-nnabla.SoftmaxParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.SoftmaxParameter.prototype.axis = 0n;
 
 nnabla.LogSoftmaxParameter = class LogSoftmaxParameter {
 
@@ -5554,7 +5552,7 @@ nnabla.LogSoftmaxParameter = class LogSoftmaxParameter {
     }
 };
 
-nnabla.LogSoftmaxParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.LogSoftmaxParameter.prototype.axis = 0n;
 
 nnabla.ELUParameter = class ELUParameter {
 
@@ -5687,7 +5685,7 @@ nnabla.CReLUParameter = class CReLUParameter {
     }
 };
 
-nnabla.CReLUParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.CReLUParameter.prototype.axis = 0n;
 
 nnabla.CELUParameter = class CELUParameter {
 
@@ -5736,7 +5734,7 @@ nnabla.CELUParameter = class CELUParameter {
 };
 
 nnabla.CELUParameter.prototype.alpha = 0;
-nnabla.CELUParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.CELUParameter.prototype.axis = 0n;
 
 nnabla.PReLUParameter = class PReLUParameter {
 
@@ -5778,7 +5776,7 @@ nnabla.PReLUParameter = class PReLUParameter {
     }
 };
 
-nnabla.PReLUParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.PReLUParameter.prototype.base_axis = 0n;
 
 nnabla.SoftPlusParameter = class SoftPlusParameter {
 
@@ -6040,8 +6038,8 @@ nnabla.GroupNormalizationParameter = class GroupNormalizationParameter {
     }
 };
 
-nnabla.GroupNormalizationParameter.prototype.num_groups = protobuf.Int64.create(0);
-nnabla.GroupNormalizationParameter.prototype.channel_axis = protobuf.Int64.create(0);
+nnabla.GroupNormalizationParameter.prototype.num_groups = 0n;
+nnabla.GroupNormalizationParameter.prototype.channel_axis = 0n;
 nnabla.GroupNormalizationParameter.prototype.eps = 0;
 nnabla.GroupNormalizationParameter.prototype.no_scale = false;
 nnabla.GroupNormalizationParameter.prototype.no_bias = false;
@@ -6111,7 +6109,7 @@ nnabla.InstanceNormalizationParameter = class InstanceNormalizationParameter {
     }
 };
 
-nnabla.InstanceNormalizationParameter.prototype.channel_axis = protobuf.Int64.create(0);
+nnabla.InstanceNormalizationParameter.prototype.channel_axis = 0n;
 nnabla.InstanceNormalizationParameter.prototype.eps = 0;
 nnabla.InstanceNormalizationParameter.prototype.no_scale = false;
 nnabla.InstanceNormalizationParameter.prototype.no_bias = false;
@@ -6421,7 +6419,7 @@ nnabla.WeightNormalizationParameter = class WeightNormalizationParameter {
     }
 };
 
-nnabla.WeightNormalizationParameter.prototype.dim = protobuf.Int64.create(0);
+nnabla.WeightNormalizationParameter.prototype.dim = 0n;
 nnabla.WeightNormalizationParameter.prototype.eps = 0;
 
 nnabla.WeightStandardizationParameter = class WeightStandardizationParameter {
@@ -6470,7 +6468,7 @@ nnabla.WeightStandardizationParameter = class WeightStandardizationParameter {
     }
 };
 
-nnabla.WeightStandardizationParameter.prototype.channel_axis = protobuf.Int64.create(0);
+nnabla.WeightStandardizationParameter.prototype.channel_axis = 0n;
 nnabla.WeightStandardizationParameter.prototype.eps = 0;
 
 nnabla.SpectralNormParameter = class SpectralNormParameter {
@@ -6537,8 +6535,8 @@ nnabla.SpectralNormParameter = class SpectralNormParameter {
     }
 };
 
-nnabla.SpectralNormParameter.prototype.dim = protobuf.Int64.create(0);
-nnabla.SpectralNormParameter.prototype.itr = protobuf.Int64.create(0);
+nnabla.SpectralNormParameter.prototype.dim = 0n;
+nnabla.SpectralNormParameter.prototype.itr = 0n;
 nnabla.SpectralNormParameter.prototype.eps = 0;
 nnabla.SpectralNormParameter.prototype.test = false;
 nnabla.SpectralNormParameter.prototype.output_u = false;
@@ -6589,7 +6587,7 @@ nnabla.MeanSubtractionParameter = class MeanSubtractionParameter {
     }
 };
 
-nnabla.MeanSubtractionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.MeanSubtractionParameter.prototype.base_axis = 0n;
 nnabla.MeanSubtractionParameter.prototype.update_running_mean = false;
 
 nnabla.ClipGradByNormParameter = class ClipGradByNormParameter {
@@ -6742,7 +6740,7 @@ nnabla.CumSumParameter = class CumSumParameter {
     }
 };
 
-nnabla.CumSumParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.CumSumParameter.prototype.axis = 0n;
 nnabla.CumSumParameter.prototype.exclusive = false;
 nnabla.CumSumParameter.prototype.reverse = false;
 
@@ -7078,7 +7076,7 @@ nnabla.CumProdParameter = class CumProdParameter {
     }
 };
 
-nnabla.CumProdParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.CumProdParameter.prototype.axis = 0n;
 nnabla.CumProdParameter.prototype.exclusive = false;
 nnabla.CumProdParameter.prototype.reverse = false;
 
@@ -8396,7 +8394,7 @@ nnabla.LinspaceParameter = class LinspaceParameter {
 
 nnabla.LinspaceParameter.prototype.start = 0;
 nnabla.LinspaceParameter.prototype.stop = 0;
-nnabla.LinspaceParameter.prototype.num = protobuf.Int64.create(0);
+nnabla.LinspaceParameter.prototype.num = 0n;
 
 nnabla.BatchMatmulParameter = class BatchMatmulParameter {
 
@@ -8589,7 +8587,7 @@ nnabla.ConcatenateParameter = class ConcatenateParameter {
     }
 };
 
-nnabla.ConcatenateParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.ConcatenateParameter.prototype.axis = 0n;
 
 nnabla.SplitParameter = class SplitParameter {
 
@@ -8631,7 +8629,7 @@ nnabla.SplitParameter = class SplitParameter {
     }
 };
 
-nnabla.SplitParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.SplitParameter.prototype.axis = 0n;
 
 nnabla.StackParameter = class StackParameter {
 
@@ -8673,7 +8671,7 @@ nnabla.StackParameter = class StackParameter {
     }
 };
 
-nnabla.StackParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.StackParameter.prototype.axis = 0n;
 
 nnabla.SliceParameter = class SliceParameter {
 
@@ -8909,7 +8907,7 @@ nnabla.BroadcastToParameter = class BroadcastToParameter {
     }
 };
 
-nnabla.BroadcastToParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.BroadcastToParameter.prototype.axis = 0n;
 
 nnabla.TileParameter = class TileParameter {
 
@@ -9142,7 +9140,7 @@ nnabla.SortParameter = class SortParameter {
     }
 };
 
-nnabla.SortParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.SortParameter.prototype.axis = 0n;
 nnabla.SortParameter.prototype.reverse = false;
 nnabla.SortParameter.prototype.with_index = false;
 nnabla.SortParameter.prototype.only_index = false;
@@ -9242,8 +9240,8 @@ nnabla.ShapeParameter = class ShapeParameter {
     }
 };
 
-nnabla.ShapeParameter.prototype.start = protobuf.Int64.create(0);
-nnabla.ShapeParameter.prototype.end = protobuf.Int64.create(0);
+nnabla.ShapeParameter.prototype.start = 0n;
+nnabla.ShapeParameter.prototype.end = 0n;
 
 nnabla.TriluParameter = class TriluParameter {
 
@@ -9291,7 +9289,7 @@ nnabla.TriluParameter = class TriluParameter {
     }
 };
 
-nnabla.TriluParameter.prototype.k = protobuf.Int64.create(0);
+nnabla.TriluParameter.prototype.k = 0n;
 nnabla.TriluParameter.prototype.upper = false;
 
 nnabla.MeshgridParameter = class MeshgridParameter {
@@ -9424,8 +9422,8 @@ nnabla.GatherParameter = class GatherParameter {
     }
 };
 
-nnabla.GatherParameter.prototype.axis = protobuf.Int64.create(0);
-nnabla.GatherParameter.prototype.batch_dims = protobuf.Int64.create(0);
+nnabla.GatherParameter.prototype.axis = 0n;
+nnabla.GatherParameter.prototype.batch_dims = 0n;
 
 nnabla.ScatterNdParameter = class ScatterNdParameter {
 
@@ -9516,7 +9514,7 @@ nnabla.ScatterAddParameter = class ScatterAddParameter {
     }
 };
 
-nnabla.ScatterAddParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.ScatterAddParameter.prototype.axis = 0n;
 
 nnabla.BoolFillParameter = class BoolFillParameter {
 
@@ -9656,7 +9654,7 @@ nnabla.PadPackedSequenceParameter = class PadPackedSequenceParameter {
 
 nnabla.PadPackedSequenceParameter.prototype.batch_first = false;
 nnabla.PadPackedSequenceParameter.prototype.padding_value = 0;
-nnabla.PadPackedSequenceParameter.prototype.total_length = protobuf.Int64.create(0);
+nnabla.PadPackedSequenceParameter.prototype.total_length = 0n;
 
 nnabla.InterpolateParameter = class InterpolateParameter {
 
@@ -9829,7 +9827,7 @@ nnabla.ONNXResizeParameter = class ONNXResizeParameter {
 nnabla.ONNXResizeParameter.prototype.mode = "";
 nnabla.ONNXResizeParameter.prototype.coordinate_transformation_mode = "";
 nnabla.ONNXResizeParameter.prototype.cubic_coeff_a = 0;
-nnabla.ONNXResizeParameter.prototype.exclude_outside = protobuf.Int64.create(0);
+nnabla.ONNXResizeParameter.prototype.exclude_outside = 0n;
 nnabla.ONNXResizeParameter.prototype.extrapolation_value = 0;
 nnabla.ONNXResizeParameter.prototype.nearest_mode = "";
 
@@ -9879,7 +9877,7 @@ nnabla.FFTParameter = class FFTParameter {
     }
 };
 
-nnabla.FFTParameter.prototype.signal_ndim = protobuf.Int64.create(0);
+nnabla.FFTParameter.prototype.signal_ndim = 0n;
 nnabla.FFTParameter.prototype.normalized = false;
 
 nnabla.IFFTParameter = class IFFTParameter {
@@ -9928,7 +9926,7 @@ nnabla.IFFTParameter = class IFFTParameter {
     }
 };
 
-nnabla.IFFTParameter.prototype.signal_ndim = protobuf.Int64.create(0);
+nnabla.IFFTParameter.prototype.signal_ndim = 0n;
 nnabla.IFFTParameter.prototype.normalized = false;
 
 nnabla.STFTParameter = class STFTParameter {
@@ -10007,9 +10005,9 @@ nnabla.STFTParameter = class STFTParameter {
     }
 };
 
-nnabla.STFTParameter.prototype.window_size = protobuf.Int64.create(0);
-nnabla.STFTParameter.prototype.stride = protobuf.Int64.create(0);
-nnabla.STFTParameter.prototype.fft_size = protobuf.Int64.create(0);
+nnabla.STFTParameter.prototype.window_size = 0n;
+nnabla.STFTParameter.prototype.stride = 0n;
+nnabla.STFTParameter.prototype.fft_size = 0n;
 nnabla.STFTParameter.prototype.window_type = "";
 nnabla.STFTParameter.prototype.center = false;
 nnabla.STFTParameter.prototype.pad_mode = "";
@@ -10091,9 +10089,9 @@ nnabla.ISTFTParameter = class ISTFTParameter {
     }
 };
 
-nnabla.ISTFTParameter.prototype.window_size = protobuf.Int64.create(0);
-nnabla.ISTFTParameter.prototype.stride = protobuf.Int64.create(0);
-nnabla.ISTFTParameter.prototype.fft_size = protobuf.Int64.create(0);
+nnabla.ISTFTParameter.prototype.window_size = 0n;
+nnabla.ISTFTParameter.prototype.stride = 0n;
+nnabla.ISTFTParameter.prototype.fft_size = 0n;
 nnabla.ISTFTParameter.prototype.window_type = "";
 nnabla.ISTFTParameter.prototype.center = false;
 nnabla.ISTFTParameter.prototype.pad_mode = "";
@@ -10146,7 +10144,7 @@ nnabla.DropoutParameter = class DropoutParameter {
 };
 
 nnabla.DropoutParameter.prototype.p = 0;
-nnabla.DropoutParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.DropoutParameter.prototype.seed = 0n;
 
 nnabla.TopKDataParameter = class TopKDataParameter {
 
@@ -10218,10 +10216,10 @@ nnabla.TopKDataParameter = class TopKDataParameter {
     }
 };
 
-nnabla.TopKDataParameter.prototype.k = protobuf.Int64.create(0);
+nnabla.TopKDataParameter.prototype.k = 0n;
 nnabla.TopKDataParameter.prototype.abs = false;
 nnabla.TopKDataParameter.prototype.reduce = false;
-nnabla.TopKDataParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.TopKDataParameter.prototype.base_axis = 0n;
 nnabla.TopKDataParameter.prototype.largest = false;
 nnabla.TopKDataParameter.prototype.with_index = false;
 
@@ -10277,9 +10275,9 @@ nnabla.TopKGradParameter = class TopKGradParameter {
     }
 };
 
-nnabla.TopKGradParameter.prototype.k = protobuf.Int64.create(0);
+nnabla.TopKGradParameter.prototype.k = 0n;
 nnabla.TopKGradParameter.prototype.abs = false;
-nnabla.TopKGradParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.TopKGradParameter.prototype.base_axis = 0n;
 
 nnabla.RandParameter = class RandParameter {
 
@@ -10342,7 +10340,7 @@ nnabla.RandParameter = class RandParameter {
 nnabla.RandParameter.prototype.low = 0;
 nnabla.RandParameter.prototype.high = 0;
 nnabla.RandParameter.prototype.shape = null;
-nnabla.RandParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandParameter.prototype.seed = 0n;
 
 nnabla.RandintParameter = class RandintParameter {
 
@@ -10402,10 +10400,10 @@ nnabla.RandintParameter = class RandintParameter {
     }
 };
 
-nnabla.RandintParameter.prototype.low = protobuf.Int64.create(0);
-nnabla.RandintParameter.prototype.high = protobuf.Int64.create(0);
+nnabla.RandintParameter.prototype.low = 0n;
+nnabla.RandintParameter.prototype.high = 0n;
 nnabla.RandintParameter.prototype.shape = null;
-nnabla.RandintParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandintParameter.prototype.seed = 0n;
 
 nnabla.RandnParameter = class RandnParameter {
 
@@ -10468,7 +10466,7 @@ nnabla.RandnParameter = class RandnParameter {
 nnabla.RandnParameter.prototype.mu = 0;
 nnabla.RandnParameter.prototype.sigma = 0;
 nnabla.RandnParameter.prototype.shape = null;
-nnabla.RandnParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandnParameter.prototype.seed = 0n;
 
 nnabla.RandBinomialParameter = class RandBinomialParameter {
 
@@ -10528,10 +10526,10 @@ nnabla.RandBinomialParameter = class RandBinomialParameter {
     }
 };
 
-nnabla.RandBinomialParameter.prototype.n = protobuf.Int64.create(0);
+nnabla.RandBinomialParameter.prototype.n = 0n;
 nnabla.RandBinomialParameter.prototype.p = 0;
 nnabla.RandBinomialParameter.prototype.shape = null;
-nnabla.RandBinomialParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandBinomialParameter.prototype.seed = 0n;
 
 nnabla.RandBetaParameter = class RandBetaParameter {
 
@@ -10594,7 +10592,7 @@ nnabla.RandBetaParameter = class RandBetaParameter {
 nnabla.RandBetaParameter.prototype.alpha = 0;
 nnabla.RandBetaParameter.prototype.beta = 0;
 nnabla.RandBetaParameter.prototype.shape = null;
-nnabla.RandBetaParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandBetaParameter.prototype.seed = 0n;
 
 nnabla.RandGammaParameter = class RandGammaParameter {
 
@@ -10657,7 +10655,7 @@ nnabla.RandGammaParameter = class RandGammaParameter {
 nnabla.RandGammaParameter.prototype.k = 0;
 nnabla.RandGammaParameter.prototype.theta = 0;
 nnabla.RandGammaParameter.prototype.shape = null;
-nnabla.RandGammaParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandGammaParameter.prototype.seed = 0n;
 
 nnabla.RandomChoiceParameter = class RandomChoiceParameter {
 
@@ -10713,7 +10711,7 @@ nnabla.RandomChoiceParameter = class RandomChoiceParameter {
 
 nnabla.RandomChoiceParameter.prototype.shape = null;
 nnabla.RandomChoiceParameter.prototype.replace = false;
-nnabla.RandomChoiceParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandomChoiceParameter.prototype.seed = 0n;
 
 nnabla.RandomCropParameter = class RandomCropParameter {
 
@@ -10768,8 +10766,8 @@ nnabla.RandomCropParameter = class RandomCropParameter {
 };
 
 nnabla.RandomCropParameter.prototype.shape = null;
-nnabla.RandomCropParameter.prototype.base_axis = protobuf.Int64.create(0);
-nnabla.RandomCropParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandomCropParameter.prototype.base_axis = 0n;
+nnabla.RandomCropParameter.prototype.seed = 0n;
 
 nnabla.RandomFlipParameter = class RandomFlipParameter {
 
@@ -10824,8 +10822,8 @@ nnabla.RandomFlipParameter = class RandomFlipParameter {
     }
 };
 
-nnabla.RandomFlipParameter.prototype.base_axis = protobuf.Int64.create(0);
-nnabla.RandomFlipParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandomFlipParameter.prototype.base_axis = 0n;
+nnabla.RandomFlipParameter.prototype.seed = 0n;
 
 nnabla.RandomShiftParameter = class RandomShiftParameter {
 
@@ -10894,8 +10892,8 @@ nnabla.RandomShiftParameter = class RandomShiftParameter {
 
 nnabla.RandomShiftParameter.prototype.border_mode = "";
 nnabla.RandomShiftParameter.prototype.constant_value = 0;
-nnabla.RandomShiftParameter.prototype.base_axis = protobuf.Int64.create(0);
-nnabla.RandomShiftParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandomShiftParameter.prototype.base_axis = 0n;
+nnabla.RandomShiftParameter.prototype.seed = 0n;
 
 nnabla.RandomEraseParameter = class RandomEraseParameter {
 
@@ -11001,11 +10999,11 @@ nnabla.RandomEraseParameter = class RandomEraseParameter {
 };
 
 nnabla.RandomEraseParameter.prototype.prob = 0;
-nnabla.RandomEraseParameter.prototype.n = protobuf.Int64.create(0);
+nnabla.RandomEraseParameter.prototype.n = 0n;
 nnabla.RandomEraseParameter.prototype.share = false;
 nnabla.RandomEraseParameter.prototype.inplace = false;
-nnabla.RandomEraseParameter.prototype.base_axis = protobuf.Int64.create(0);
-nnabla.RandomEraseParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.RandomEraseParameter.prototype.base_axis = 0n;
+nnabla.RandomEraseParameter.prototype.seed = 0n;
 nnabla.RandomEraseParameter.prototype.channel_last = false;
 nnabla.RandomEraseParameter.prototype.ste_fine_grained = false;
 
@@ -11154,7 +11152,7 @@ nnabla.ImageAugmentationParameter.prototype.contrast = 0;
 nnabla.ImageAugmentationParameter.prototype.contrast_center = 0;
 nnabla.ImageAugmentationParameter.prototype.contrast_each = false;
 nnabla.ImageAugmentationParameter.prototype.noise = 0;
-nnabla.ImageAugmentationParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.ImageAugmentationParameter.prototype.seed = 0n;
 
 nnabla.SoftmaxCrossEntropyParameter = class SoftmaxCrossEntropyParameter {
 
@@ -11196,7 +11194,7 @@ nnabla.SoftmaxCrossEntropyParameter = class SoftmaxCrossEntropyParameter {
     }
 };
 
-nnabla.SoftmaxCrossEntropyParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.SoftmaxCrossEntropyParameter.prototype.axis = 0n;
 
 nnabla.CategoricalCrossEntropyParameter = class CategoricalCrossEntropyParameter {
 
@@ -11238,7 +11236,7 @@ nnabla.CategoricalCrossEntropyParameter = class CategoricalCrossEntropyParameter
     }
 };
 
-nnabla.CategoricalCrossEntropyParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.CategoricalCrossEntropyParameter.prototype.axis = 0n;
 
 nnabla.HuberLossParameter = class HuberLossParameter {
 
@@ -11364,7 +11362,7 @@ nnabla.KLMultinomialParameter = class KLMultinomialParameter {
     }
 };
 
-nnabla.KLMultinomialParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.KLMultinomialParameter.prototype.base_axis = 0n;
 
 nnabla.AffineGridParameter = class AffineGridParameter {
 
@@ -11524,7 +11522,7 @@ nnabla.BinaryConnectAffineParameter = class BinaryConnectAffineParameter {
     }
 };
 
-nnabla.BinaryConnectAffineParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.BinaryConnectAffineParameter.prototype.base_axis = 0n;
 nnabla.BinaryConnectAffineParameter.prototype.quantize_zero_to = 0;
 
 nnabla.BinaryConnectConvolutionParameter = class BinaryConnectConvolutionParameter {
@@ -11597,11 +11595,11 @@ nnabla.BinaryConnectConvolutionParameter = class BinaryConnectConvolutionParamet
     }
 };
 
-nnabla.BinaryConnectConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.BinaryConnectConvolutionParameter.prototype.base_axis = 0n;
 nnabla.BinaryConnectConvolutionParameter.prototype.pad = null;
 nnabla.BinaryConnectConvolutionParameter.prototype.stride = null;
 nnabla.BinaryConnectConvolutionParameter.prototype.dilation = null;
-nnabla.BinaryConnectConvolutionParameter.prototype.group = protobuf.Int64.create(0);
+nnabla.BinaryConnectConvolutionParameter.prototype.group = 0n;
 nnabla.BinaryConnectConvolutionParameter.prototype.quantize_zero_to = 0;
 
 nnabla.BinaryWeightAffineParameter = class BinaryWeightAffineParameter {
@@ -11650,7 +11648,7 @@ nnabla.BinaryWeightAffineParameter = class BinaryWeightAffineParameter {
     }
 };
 
-nnabla.BinaryWeightAffineParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.BinaryWeightAffineParameter.prototype.base_axis = 0n;
 nnabla.BinaryWeightAffineParameter.prototype.quantize_zero_to = 0;
 
 nnabla.BinaryWeightConvolutionParameter = class BinaryWeightConvolutionParameter {
@@ -11723,11 +11721,11 @@ nnabla.BinaryWeightConvolutionParameter = class BinaryWeightConvolutionParameter
     }
 };
 
-nnabla.BinaryWeightConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.BinaryWeightConvolutionParameter.prototype.base_axis = 0n;
 nnabla.BinaryWeightConvolutionParameter.prototype.pad = null;
 nnabla.BinaryWeightConvolutionParameter.prototype.stride = null;
 nnabla.BinaryWeightConvolutionParameter.prototype.dilation = null;
-nnabla.BinaryWeightConvolutionParameter.prototype.group = protobuf.Int64.create(0);
+nnabla.BinaryWeightConvolutionParameter.prototype.group = 0n;
 nnabla.BinaryWeightConvolutionParameter.prototype.quantize_zero_to = 0;
 
 nnabla.INQAffineParameter = class INQAffineParameter {
@@ -11795,10 +11793,10 @@ nnabla.INQAffineParameter = class INQAffineParameter {
     }
 };
 
-nnabla.INQAffineParameter.prototype.base_axis = protobuf.Int64.create(0);
-nnabla.INQAffineParameter.prototype.num_bits = protobuf.Int64.create(0);
+nnabla.INQAffineParameter.prototype.base_axis = 0n;
+nnabla.INQAffineParameter.prototype.num_bits = 0n;
 nnabla.INQAffineParameter.prototype.selection_algorithm = "";
-nnabla.INQAffineParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.INQAffineParameter.prototype.seed = 0n;
 
 nnabla.INQConvolutionParameter = class INQConvolutionParameter {
 
@@ -11889,14 +11887,14 @@ nnabla.INQConvolutionParameter = class INQConvolutionParameter {
     }
 };
 
-nnabla.INQConvolutionParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.INQConvolutionParameter.prototype.base_axis = 0n;
 nnabla.INQConvolutionParameter.prototype.pad = null;
 nnabla.INQConvolutionParameter.prototype.stride = null;
 nnabla.INQConvolutionParameter.prototype.dilation = null;
-nnabla.INQConvolutionParameter.prototype.group = protobuf.Int64.create(0);
-nnabla.INQConvolutionParameter.prototype.num_bits = protobuf.Int64.create(0);
+nnabla.INQConvolutionParameter.prototype.group = 0n;
+nnabla.INQConvolutionParameter.prototype.num_bits = 0n;
 nnabla.INQConvolutionParameter.prototype.selection_algorithm = "";
-nnabla.INQConvolutionParameter.prototype.seed = protobuf.Int64.create(0);
+nnabla.INQConvolutionParameter.prototype.seed = 0n;
 
 nnabla.FixedPointQuantizeParameter = class FixedPointQuantizeParameter {
 
@@ -11957,7 +11955,7 @@ nnabla.FixedPointQuantizeParameter = class FixedPointQuantizeParameter {
 };
 
 nnabla.FixedPointQuantizeParameter.prototype.sign = false;
-nnabla.FixedPointQuantizeParameter.prototype.n = protobuf.Int64.create(0);
+nnabla.FixedPointQuantizeParameter.prototype.n = 0n;
 nnabla.FixedPointQuantizeParameter.prototype.delta = 0;
 nnabla.FixedPointQuantizeParameter.prototype.ste_fine_grained = false;
 
@@ -12097,8 +12095,8 @@ nnabla.Pow2QuantizeParameter = class Pow2QuantizeParameter {
 
 nnabla.Pow2QuantizeParameter.prototype.sign = false;
 nnabla.Pow2QuantizeParameter.prototype.with_zero = false;
-nnabla.Pow2QuantizeParameter.prototype.n = protobuf.Int64.create(0);
-nnabla.Pow2QuantizeParameter.prototype.m = protobuf.Int64.create(0);
+nnabla.Pow2QuantizeParameter.prototype.n = 0n;
+nnabla.Pow2QuantizeParameter.prototype.m = 0n;
 nnabla.Pow2QuantizeParameter.prototype.ste_fine_grained = false;
 
 nnabla.PruneParameter = class PruneParameter {
@@ -12197,7 +12195,7 @@ nnabla.QuantizeLinearParameter = class QuantizeLinearParameter {
 
 nnabla.QuantizeLinearParameter.prototype.round_mode = "";
 nnabla.QuantizeLinearParameter.prototype.narrow_range = false;
-nnabla.QuantizeLinearParameter.prototype.dtype = protobuf.Int64.create(0);
+nnabla.QuantizeLinearParameter.prototype.dtype = 0n;
 
 nnabla.TopNErrorParameter = class TopNErrorParameter {
 
@@ -12245,8 +12243,8 @@ nnabla.TopNErrorParameter = class TopNErrorParameter {
     }
 };
 
-nnabla.TopNErrorParameter.prototype.axis = protobuf.Int64.create(0);
-nnabla.TopNErrorParameter.prototype.n = protobuf.Int64.create(0);
+nnabla.TopNErrorParameter.prototype.axis = 0n;
+nnabla.TopNErrorParameter.prototype.n = 0n;
 
 nnabla.ConfusionMatrixParameter = class ConfusionMatrixParameter {
 
@@ -12288,7 +12286,7 @@ nnabla.ConfusionMatrixParameter = class ConfusionMatrixParameter {
     }
 };
 
-nnabla.ConfusionMatrixParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.ConfusionMatrixParameter.prototype.axis = 0n;
 
 nnabla.VATNoiseParameter = class VATNoiseParameter {
 
@@ -12336,7 +12334,7 @@ nnabla.VATNoiseParameter = class VATNoiseParameter {
     }
 };
 
-nnabla.VATNoiseParameter.prototype.base_axis = protobuf.Int64.create(0);
+nnabla.VATNoiseParameter.prototype.base_axis = 0n;
 nnabla.VATNoiseParameter.prototype.eps = 0;
 
 nnabla.SinkParameter = class SinkParameter {
@@ -12495,8 +12493,8 @@ nnabla.ONNXNonMaxSuppressionParameter = class ONNXNonMaxSuppressionParameter {
     }
 };
 
-nnabla.ONNXNonMaxSuppressionParameter.prototype.center_point_box = protobuf.Int64.create(0);
-nnabla.ONNXNonMaxSuppressionParameter.prototype.max_output_boxes_per_class = protobuf.Int64.create(0);
+nnabla.ONNXNonMaxSuppressionParameter.prototype.center_point_box = 0n;
+nnabla.ONNXNonMaxSuppressionParameter.prototype.max_output_boxes_per_class = 0n;
 nnabla.ONNXNonMaxSuppressionParameter.prototype.iou_threshold = 0;
 nnabla.ONNXNonMaxSuppressionParameter.prototype.score_threshold = 0;
 
@@ -12711,7 +12709,7 @@ nnabla.UniqueParameter = class UniqueParameter {
 };
 
 nnabla.UniqueParameter.prototype.flatten = false;
-nnabla.UniqueParameter.prototype.axis = protobuf.Int64.create(0);
+nnabla.UniqueParameter.prototype.axis = 0n;
 nnabla.UniqueParameter.prototype.sorted = false;
 nnabla.UniqueParameter.prototype.with_index = false;
 nnabla.UniqueParameter.prototype.with_inverse = false;
@@ -12757,7 +12755,7 @@ nnabla.EyeLikeParameter = class EyeLikeParameter {
     }
 };
 
-nnabla.EyeLikeParameter.prototype.k = protobuf.Int64.create(0);
+nnabla.EyeLikeParameter.prototype.k = 0n;
 
 nnabla.Mod2Parameter = class Mod2Parameter {
 

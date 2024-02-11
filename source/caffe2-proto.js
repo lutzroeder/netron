@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 export const caffe2 = {};
 
 caffe2.TensorProto = class TensorProto {
@@ -210,8 +208,8 @@ caffe2.TensorProto.Segment = class Segment {
     }
 };
 
-caffe2.TensorProto.Segment.prototype.begin = protobuf.Int64.create(0);
-caffe2.TensorProto.Segment.prototype.end = protobuf.Int64.create(0);
+caffe2.TensorProto.Segment.prototype.begin = 0n;
+caffe2.TensorProto.Segment.prototype.end = 0n;
 
 caffe2.QTensorProto = class QTensorProto {
 
@@ -634,8 +632,8 @@ caffe2.TensorBoundShapes = class TensorBoundShapes {
     }
 };
 
-caffe2.TensorBoundShapes.prototype.max_batch_size = protobuf.Int64.create(0);
-caffe2.TensorBoundShapes.prototype.max_feature_len = protobuf.Int64.create(0);
+caffe2.TensorBoundShapes.prototype.max_batch_size = 0n;
+caffe2.TensorBoundShapes.prototype.max_feature_len = 0n;
 
 caffe2.AOTConfig = class AOTConfig {
 
@@ -719,8 +717,8 @@ caffe2.AOTConfig = class AOTConfig {
     }
 };
 
-caffe2.AOTConfig.prototype.max_batch_size = protobuf.Int64.create(0);
-caffe2.AOTConfig.prototype.max_seq_size = protobuf.Int64.create(0);
+caffe2.AOTConfig.prototype.max_batch_size = 0n;
+caffe2.AOTConfig.prototype.max_seq_size = 0n;
 caffe2.AOTConfig.prototype.in_batch_broadcast = false;
 caffe2.AOTConfig.prototype.onnxifi_blacklist_ops = "";
 caffe2.AOTConfig.prototype.onnxifi_min_ops = 0;
@@ -839,7 +837,7 @@ caffe2.Argument = class Argument {
 
 caffe2.Argument.prototype.name = "";
 caffe2.Argument.prototype.f = 0;
-caffe2.Argument.prototype.i = protobuf.Int64.create(0);
+caffe2.Argument.prototype.i = 0n;
 caffe2.Argument.prototype.s = new Uint8Array([]);
 caffe2.Argument.prototype.t = null;
 caffe2.Argument.prototype.n = null;
@@ -1053,7 +1051,7 @@ caffe2.OperatorDef.prototype.engine = "";
 caffe2.OperatorDef.prototype.is_gradient_op = false;
 caffe2.OperatorDef.prototype.debug_info = "";
 caffe2.OperatorDef.prototype.domain = "";
-caffe2.OperatorDef.prototype.op_version = protobuf.Int64.create(0);
+caffe2.OperatorDef.prototype.op_version = 0n;
 
 caffe2.MapFieldEntry = class MapFieldEntry {
 
@@ -1453,11 +1451,11 @@ caffe2.ExecutionStep = class ExecutionStep {
 };
 
 caffe2.ExecutionStep.prototype.name = "";
-caffe2.ExecutionStep.prototype.num_iter = protobuf.Int64.create(0);
+caffe2.ExecutionStep.prototype.num_iter = 0n;
 caffe2.ExecutionStep.prototype.criteria_network = "";
 caffe2.ExecutionStep.prototype.report_net = "";
 caffe2.ExecutionStep.prototype.report_interval = 0;
-caffe2.ExecutionStep.prototype.run_every_ms = protobuf.Int64.create(0);
+caffe2.ExecutionStep.prototype.run_every_ms = 0n;
 caffe2.ExecutionStep.prototype.concurrent_substeps = false;
 caffe2.ExecutionStep.prototype.should_stop_blob = "";
 caffe2.ExecutionStep.prototype.only_once = false;
@@ -1720,7 +1718,7 @@ caffe2.BlobSerializationOptions = class BlobSerializationOptions {
 };
 
 caffe2.BlobSerializationOptions.prototype.blob_name_regex = "";
-caffe2.BlobSerializationOptions.prototype.chunk_size = protobuf.Int64.create(0);
+caffe2.BlobSerializationOptions.prototype.chunk_size = 0n;
 caffe2.BlobSerializationOptions.prototype.float_format = 0;
 
 caffe2.BlobSerializationOptions.FloatFormat = {

@@ -1,6 +1,7 @@
 
-const xml = {};
 import * as text from './text.js';
+
+const xml = {};
 
 // https://www.w3.org/TR/xml
 

@@ -487,20 +487,20 @@ mlnet.ModelHeader = class {
             this.versionWritten = reader.uint32();
             this.versionReadable = reader.uint32();
 
-            const modelBlockOffset = reader.uint64();
+            const modelBlockOffset = Number(reader.uint64());
             /* let modelBlockSize = */ reader.uint64();
-            const stringTableOffset = reader.uint64();
-            const stringTableSize = reader.uint64();
-            const stringCharsOffset = reader.uint64();
+            const stringTableOffset = Number(reader.uint64());
+            const stringTableSize = Number(reader.uint64());
+            const stringCharsOffset = Number(reader.uint64());
             /* v stringCharsSize = */ reader.uint64();
             this.modelSignature = decoder.decode(reader.read(8));
             this.modelVersionWritten = reader.uint32();
             this.modelVersionReadable = reader.uint32();
             this.loaderSignature = decoder.decode(reader.read(24).filter((c) => c != 0));
             this.loaderSignatureAlt = decoder.decode(reader.read(24).filter((c) => c != 0));
-            const tailOffset = reader.uint64();
+            const tailOffset = Number(reader.uint64());
             /* let tailLimit = */ reader.uint64();
-            const assemblyNameOffset = reader.uint64();
+            const assemblyNameOffset = Number(reader.uint64());
             const assemblyNameSize = reader.uint32();
             if (stringTableOffset != 0 && stringCharsOffset != 0) {
                 reader.seek(stringTableOffset);
@@ -508,7 +508,7 @@ mlnet.ModelHeader = class {
                 const stringSizes = [];
                 let previousStringSize = 0;
                 for (let i = 0; i < stringCount; i++) {
-                    const stringSize = reader.uint64();
+                    const stringSize = Number(reader.uint64());
                     stringSizes.push(stringSize - previousStringSize);
                     previousStringSize = stringSize;
                 }
@@ -698,8 +698,8 @@ mlnet.BinaryLoader = class { // 'BINLOADR'
         reader.assert('CML\0DVB\0');
         reader.skip(8); // version
         reader.skip(8); // compatibleVersion
-        const tableOfContentsOffset = reader.uint64();
-        const tailOffset = reader.int64();
+        const tableOfContentsOffset = Number(reader.uint64());
+        const tailOffset = Number(reader.int64());
         reader.int64(); // rowCount
         const columnCount = reader.int32();
         reader.seek(tailOffset);
@@ -713,8 +713,8 @@ mlnet.BinaryLoader = class { // 'BINLOADR'
             input.type = new mlnet.Codec(reader);
             input.compression = reader.byte(); // None = 0, Deflate = 1
             input.rowsPerBlock = reader.leb128();
-            input.lookupOffset = reader.int64();
-            input.metadataTocOffset = reader.int64();
+            input.lookupOffset = Number(reader.int64());
+            input.metadataTocOffset = Number(reader.int64());
             this.schema.inputs.push(input);
         }
     }
@@ -1084,7 +1084,7 @@ mlnet.ModelStatisticsBase = class {
     constructor(context) {
         const reader = context.reader;
         this.ParametersCount = reader.int32();
-        this.TrainingExampleCount = reader.int64();
+        this.TrainingExampleCount = Number(reader.int64());
         this.Deviance = reader.float32();
         this.NullDeviance = reader.float32();
 
@@ -1791,7 +1791,7 @@ mlnet.TextLoader = class {
     constructor(context) {
         const reader = context.reader;
         reader.int32(); // floatSize
-        this.MaxRows = reader.int64();
+        this.MaxRows = Number(reader.int64());
         this.Flags = reader.uint32();
         this.InputSize = reader.int32();
         const separatorCount = reader.int32();
@@ -2170,7 +2170,7 @@ mlnet.Codec = class {
             case 'Key':
             case 'Key2':
                 this.itemType = new mlnet.Codec(reader);
-                this.count = reader.uint64();
+                this.count = Number(reader.uint64());
                 break;
             default:
                 throw new mlnet.Error(`Unsupported codec '${this.name}'.`);

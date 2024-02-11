@@ -2097,7 +2097,7 @@ view.Value = class {
                     type.shape &&
                     type.shape.dimensions &&
                     type.shape.dimensions.length > 0 &&
-                    type.shape.dimensions.every((dim) => !dim || Number.isInteger(dim) || dim instanceof base.Int64 || (typeof dim === 'string'))) {
+                    type.shape.dimensions.every((dim) => !dim || Number.isInteger(dim) || typeof dim === 'bigint' || (typeof dim === 'string'))) {
                     content = type.shape.dimensions.map((dim) => (dim !== null && dim !== undefined) ? dim : '?').join('\u00D7');
                     content = content.length > 16 ? '' : content;
                 }
@@ -3456,7 +3456,7 @@ view.Tensor = class {
         const dataType = this._type.dataType;
         const context = {};
         context.encoding = this._encoding;
-        context.dimensions = this._type.shape.dimensions.map((value) => !Number.isInteger(value) && value.toNumber ? value.toNumber() : value);
+        context.dimensions = this._type.shape.dimensions.map((value) => typeof value === 'bigint' ? Number(value) : value);
         context.dataType = dataType;
         const shape = context.dimensions;
         context.stride = this._stride;
@@ -3491,7 +3491,7 @@ view.Tensor = class {
                     const stride = strides[i];
                     const dimension = data[i];
                     for (let i = 0; i < indices.length; i++) {
-                        indices[i] += dimension[i] * stride;
+                        indices[i] += Number(dimension[i]) * stride;
                     }
                 }
                 context.data = this._decodeSparse(dataType, context.dimensions, indices, values);
@@ -3565,8 +3565,8 @@ view.Tensor = class {
         if (indices.length > 0) {
             if (Object.prototype.hasOwnProperty.call(indices[0], 'low')) {
                 for (let i = 0; i < indices.length; i++) {
-                    const index = indices[i];
-                    array[index.high === 0 ? index.low : index.toNumber()] = values[i];
+                    const index = Number(indices[i]);
+                    array[index] = values[i];
                 }
             } else {
                 for (let i = 0; i < indices.length; i++) {
@@ -3615,7 +3615,7 @@ view.Tensor = class {
                     break;
                 case 'int64':
                     for (; offset < max; offset += stride) {
-                        results.push(view.getInt64(offset, this._littleEndian));
+                        results.push(view.getBigInt64(offset, this._littleEndian));
                     }
                     break;
                 case 'int':
@@ -3643,7 +3643,7 @@ view.Tensor = class {
                     break;
                 case 'uint64':
                     for (; offset < max; offset += stride) {
-                        results.push(view.getUint64(offset, true));
+                        results.push(view.getBigUint64(offset, true));
                     }
                     break;
                 case 'uint':
@@ -3795,6 +3795,8 @@ view.Tensor = class {
                 if (isNaN(value)) {
                     return `${indentation}NaN`;
                 }
+                return indentation + value.toString();
+            case 'bigint':
                 return indentation + value.toString();
             default:
                 if (value && value.toString) {
@@ -4073,7 +4075,7 @@ view.Formatter = class {
         if (typeof value === 'function') {
             return value();
         }
-        if (value && (value instanceof base.Int64 || value instanceof base.Uint64)) {
+        if (value && typeof value === 'bigint') {
             return value.toString();
         }
         if (Number.isNaN(value)) {
@@ -4122,15 +4124,15 @@ view.Formatter = class {
                 ellipsis = true;
             }
             const itemType = (type && type.endsWith('[]')) ? type.substring(0, type.length - 2) : null;
-            const array = value.map((item) => {
-                if (item && (item instanceof base.Int64 || item instanceof base.Uint64)) {
-                    return item.toString();
+            const array = value.map((value) => {
+                if (value && typeof value === 'bigint') {
+                    return value.toString();
                 }
-                if (Number.isNaN(item)) {
+                if (Number.isNaN(value)) {
                     return 'NaN';
                 }
                 const quote = !itemType || itemType === 'string';
-                return this._format(item, itemType, quote);
+                return this._format(value, itemType, quote);
             });
             if (ellipsis) {
                 array.push('\u2026');

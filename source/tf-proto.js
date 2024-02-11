@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 export const tensorflow = {};
 export const google = {};
 
@@ -51,7 +49,7 @@ tensorflow.SavedModel = class SavedModel {
     }
 };
 
-tensorflow.SavedModel.prototype.saved_model_schema_version = protobuf.Int64.create(0);
+tensorflow.SavedModel.prototype.saved_model_schema_version = 0n;
 
 tensorflow.MetaGraphDef = class MetaGraphDef {
 
@@ -1668,7 +1666,7 @@ tensorflow.ResourceHandleProto = class ResourceHandleProto {
 tensorflow.ResourceHandleProto.prototype.device = "";
 tensorflow.ResourceHandleProto.prototype.container = "";
 tensorflow.ResourceHandleProto.prototype.name = "";
-tensorflow.ResourceHandleProto.prototype.hash_code = protobuf.Uint64.create(0);
+tensorflow.ResourceHandleProto.prototype.hash_code = 0n;
 tensorflow.ResourceHandleProto.prototype.maybe_type_name = "";
 
 tensorflow.ResourceHandleProto.DtypeAndShape = class DtypeAndShape {
@@ -1815,7 +1813,7 @@ tensorflow.TensorShapeProto.Dim = class Dim {
     }
 };
 
-tensorflow.TensorShapeProto.Dim.prototype.size = protobuf.Int64.create(0);
+tensorflow.TensorShapeProto.Dim.prototype.size = 0n;
 tensorflow.TensorShapeProto.Dim.prototype.name = "";
 
 tensorflow.DataType = {
@@ -2458,7 +2456,7 @@ tensorflow.OpDef.AttrDef.prototype.type = "";
 tensorflow.OpDef.AttrDef.prototype.default_value = null;
 tensorflow.OpDef.AttrDef.prototype.description = "";
 tensorflow.OpDef.AttrDef.prototype.has_minimum = false;
-tensorflow.OpDef.AttrDef.prototype.minimum = protobuf.Int64.create(0);
+tensorflow.OpDef.AttrDef.prototype.minimum = 0n;
 tensorflow.OpDef.AttrDef.prototype.allowed_values = null;
 
 tensorflow.OpDeprecation = class OpDeprecation {
@@ -3291,7 +3289,7 @@ tensorflow.SavedBareConcreteFunction = class SavedBareConcreteFunction {
 };
 
 tensorflow.SavedBareConcreteFunction.prototype.concrete_function_name = "";
-tensorflow.SavedBareConcreteFunction.prototype.allowed_positional_arguments = protobuf.Int64.create(0);
+tensorflow.SavedBareConcreteFunction.prototype.allowed_positional_arguments = 0n;
 tensorflow.SavedBareConcreteFunction.prototype.function_spec = null;
 
 tensorflow.SavedConstant = class SavedConstant {
@@ -4909,8 +4907,8 @@ tensorflow.BundleEntryProto = class BundleEntryProto {
 tensorflow.BundleEntryProto.prototype.dtype = 0;
 tensorflow.BundleEntryProto.prototype.shape = null;
 tensorflow.BundleEntryProto.prototype.shard_id = 0;
-tensorflow.BundleEntryProto.prototype.offset = protobuf.Int64.create(0);
-tensorflow.BundleEntryProto.prototype.size = protobuf.Int64.create(0);
+tensorflow.BundleEntryProto.prototype.offset = 0n;
+tensorflow.BundleEntryProto.prototype.size = 0n;
 tensorflow.BundleEntryProto.prototype.crc32c = 0;
 
 tensorflow.TensorSliceProto = class TensorSliceProto {
@@ -5005,7 +5003,7 @@ tensorflow.TensorSliceProto.Extent = class Extent {
     }
 };
 
-tensorflow.TensorSliceProto.Extent.prototype.start = protobuf.Int64.create(0);
+tensorflow.TensorSliceProto.Extent.prototype.start = 0n;
 
 tensorflow.SavedSliceMeta = class SavedSliceMeta {
 
@@ -5324,7 +5322,7 @@ tensorflow.Event = class Event {
 };
 
 tensorflow.Event.prototype.wall_time = 0;
-tensorflow.Event.prototype.step = protobuf.Int64.create(0);
+tensorflow.Event.prototype.step = 0n;
 tensorflow.Event.prototype.source_metadata = null;
 
 tensorflow.SourceMetadata = class SourceMetadata {
@@ -5593,7 +5591,7 @@ tensorflow.WatchdogConfig = class WatchdogConfig {
     }
 };
 
-tensorflow.WatchdogConfig.prototype.timeout_ms = protobuf.Int64.create(0);
+tensorflow.WatchdogConfig.prototype.timeout_ms = 0n;
 
 tensorflow.RequestedExitCode = class RequestedExitCode {
 
@@ -6079,8 +6077,8 @@ tensorflow.Summary.Audio = class Audio {
 };
 
 tensorflow.Summary.Audio.prototype.sample_rate = 0;
-tensorflow.Summary.Audio.prototype.num_channels = protobuf.Int64.create(0);
-tensorflow.Summary.Audio.prototype.length_frames = protobuf.Int64.create(0);
+tensorflow.Summary.Audio.prototype.num_channels = 0n;
+tensorflow.Summary.Audio.prototype.length_frames = 0n;
 tensorflow.Summary.Audio.prototype.encoded_audio_string = new Uint8Array([]);
 tensorflow.Summary.Audio.prototype.content_type = "";
 
@@ -6356,7 +6354,7 @@ tensorflow.GPUOptions = class GPUOptions {
 tensorflow.GPUOptions.prototype.per_process_gpu_memory_fraction = 0;
 tensorflow.GPUOptions.prototype.allow_growth = false;
 tensorflow.GPUOptions.prototype.allocator_type = "";
-tensorflow.GPUOptions.prototype.deferred_deletion_bytes = protobuf.Int64.create(0);
+tensorflow.GPUOptions.prototype.deferred_deletion_bytes = 0n;
 tensorflow.GPUOptions.prototype.visible_device_list = "";
 tensorflow.GPUOptions.prototype.polling_active_delay_usecs = 0;
 tensorflow.GPUOptions.prototype.polling_inactive_delay_msecs = 0;
@@ -6636,7 +6634,7 @@ tensorflow.OptimizerOptions = class OptimizerOptions {
 
 tensorflow.OptimizerOptions.prototype.do_common_subexpression_elimination = false;
 tensorflow.OptimizerOptions.prototype.do_constant_folding = false;
-tensorflow.OptimizerOptions.prototype.max_folded_constant_in_bytes = protobuf.Int64.create(0);
+tensorflow.OptimizerOptions.prototype.max_folded_constant_in_bytes = 0n;
 tensorflow.OptimizerOptions.prototype.do_function_inlining = false;
 tensorflow.OptimizerOptions.prototype.opt_level = 0;
 tensorflow.OptimizerOptions.prototype.global_jit_level = 0;
@@ -6744,8 +6742,8 @@ tensorflow.GraphOptions = class GraphOptions {
 
 tensorflow.GraphOptions.prototype.enable_recv_scheduling = false;
 tensorflow.GraphOptions.prototype.optimizer_options = null;
-tensorflow.GraphOptions.prototype.build_cost_model = protobuf.Int64.create(0);
-tensorflow.GraphOptions.prototype.build_cost_model_after = protobuf.Int64.create(0);
+tensorflow.GraphOptions.prototype.build_cost_model = 0n;
+tensorflow.GraphOptions.prototype.build_cost_model_after = 0n;
 tensorflow.GraphOptions.prototype.infer_shapes = false;
 tensorflow.GraphOptions.prototype.place_pruned_graph = false;
 tensorflow.GraphOptions.prototype.enable_bfloat16_sendrecv = false;
@@ -6848,7 +6846,7 @@ tensorflow.SessionMetadata = class SessionMetadata {
 };
 
 tensorflow.SessionMetadata.prototype.name = "";
-tensorflow.SessionMetadata.prototype.version = protobuf.Int64.create(0);
+tensorflow.SessionMetadata.prototype.version = 0n;
 
 tensorflow.ConfigProto = class ConfigProto {
 
@@ -6997,7 +6995,7 @@ tensorflow.ConfigProto.prototype.gpu_options = null;
 tensorflow.ConfigProto.prototype.allow_soft_placement = false;
 tensorflow.ConfigProto.prototype.log_device_placement = false;
 tensorflow.ConfigProto.prototype.graph_options = null;
-tensorflow.ConfigProto.prototype.operation_timeout_in_ms = protobuf.Int64.create(0);
+tensorflow.ConfigProto.prototype.operation_timeout_in_ms = 0n;
 tensorflow.ConfigProto.prototype.rpc_options = null;
 tensorflow.ConfigProto.prototype.cluster_def = null;
 tensorflow.ConfigProto.prototype.isolate_session_state = false;
@@ -7215,7 +7213,7 @@ tensorflow.ConfigProto.Experimental.prototype.enable_mlir_bridge = false;
 tensorflow.ConfigProto.Experimental.prototype.mlir_bridge_rollout = 0;
 tensorflow.ConfigProto.Experimental.prototype.enable_mlir_graph_optimization = false;
 tensorflow.ConfigProto.Experimental.prototype.disable_output_partition_graphs = false;
-tensorflow.ConfigProto.Experimental.prototype.xla_fusion_autotuner_thresh = protobuf.Int64.create(0);
+tensorflow.ConfigProto.Experimental.prototype.xla_fusion_autotuner_thresh = 0n;
 tensorflow.ConfigProto.Experimental.prototype.use_tfrt = false;
 tensorflow.ConfigProto.Experimental.prototype.enable_multi_host = false;
 tensorflow.ConfigProto.Experimental.prototype.backend_server_port = 0;
@@ -7311,7 +7309,7 @@ tensorflow.RunOptions = class RunOptions {
 };
 
 tensorflow.RunOptions.prototype.trace_level = 0;
-tensorflow.RunOptions.prototype.timeout_in_ms = protobuf.Int64.create(0);
+tensorflow.RunOptions.prototype.timeout_in_ms = 0n;
 tensorflow.RunOptions.prototype.inter_op_thread_pool = 0;
 tensorflow.RunOptions.prototype.output_partition_graphs = false;
 tensorflow.RunOptions.prototype.debug_options = null;
@@ -7377,7 +7375,7 @@ tensorflow.RunOptions.Experimental = class Experimental {
     }
 };
 
-tensorflow.RunOptions.Experimental.prototype.collective_graph_key = protobuf.Int64.create(0);
+tensorflow.RunOptions.Experimental.prototype.collective_graph_key = 0n;
 tensorflow.RunOptions.Experimental.prototype.use_run_handler_pool = false;
 tensorflow.RunOptions.Experimental.prototype.run_handler_pool_options = null;
 
@@ -7421,7 +7419,7 @@ tensorflow.RunOptions.Experimental.RunHandlerPoolOptions = class RunHandlerPoolO
     }
 };
 
-tensorflow.RunOptions.Experimental.RunHandlerPoolOptions.prototype.priority = protobuf.Int64.create(0);
+tensorflow.RunOptions.Experimental.RunHandlerPoolOptions.prototype.priority = 0n;
 
 tensorflow.RunMetadata = class RunMetadata {
 
@@ -7873,14 +7871,14 @@ tensorflow.CostGraphDef.Node = class Node {
 tensorflow.CostGraphDef.Node.prototype.name = "";
 tensorflow.CostGraphDef.Node.prototype.device = "";
 tensorflow.CostGraphDef.Node.prototype.id = 0;
-tensorflow.CostGraphDef.Node.prototype.temporary_memory_size = protobuf.Int64.create(0);
-tensorflow.CostGraphDef.Node.prototype.persistent_memory_size = protobuf.Int64.create(0);
-tensorflow.CostGraphDef.Node.prototype.host_temp_memory_size = protobuf.Int64.create(0);
-tensorflow.CostGraphDef.Node.prototype.device_temp_memory_size = protobuf.Int64.create(0);
-tensorflow.CostGraphDef.Node.prototype.device_persistent_memory_size = protobuf.Int64.create(0);
-tensorflow.CostGraphDef.Node.prototype.compute_cost = protobuf.Int64.create(0);
-tensorflow.CostGraphDef.Node.prototype.compute_time = protobuf.Int64.create(0);
-tensorflow.CostGraphDef.Node.prototype.memory_time = protobuf.Int64.create(0);
+tensorflow.CostGraphDef.Node.prototype.temporary_memory_size = 0n;
+tensorflow.CostGraphDef.Node.prototype.persistent_memory_size = 0n;
+tensorflow.CostGraphDef.Node.prototype.host_temp_memory_size = 0n;
+tensorflow.CostGraphDef.Node.prototype.device_temp_memory_size = 0n;
+tensorflow.CostGraphDef.Node.prototype.device_persistent_memory_size = 0n;
+tensorflow.CostGraphDef.Node.prototype.compute_cost = 0n;
+tensorflow.CostGraphDef.Node.prototype.compute_time = 0n;
+tensorflow.CostGraphDef.Node.prototype.memory_time = 0n;
 tensorflow.CostGraphDef.Node.prototype.is_final = false;
 tensorflow.CostGraphDef.Node.prototype.inaccurate = false;
 
@@ -7991,8 +7989,8 @@ tensorflow.CostGraphDef.Node.OutputInfo = class OutputInfo {
     }
 };
 
-tensorflow.CostGraphDef.Node.OutputInfo.prototype.size = protobuf.Int64.create(0);
-tensorflow.CostGraphDef.Node.OutputInfo.prototype.alias_input_port = protobuf.Int64.create(0);
+tensorflow.CostGraphDef.Node.OutputInfo.prototype.size = 0n;
+tensorflow.CostGraphDef.Node.OutputInfo.prototype.alias_input_port = 0n;
 tensorflow.CostGraphDef.Node.OutputInfo.prototype.shape = null;
 tensorflow.CostGraphDef.Node.OutputInfo.prototype.dtype = 0;
 
@@ -8091,8 +8089,8 @@ tensorflow.AllocationRecord = class AllocationRecord {
     }
 };
 
-tensorflow.AllocationRecord.prototype.alloc_micros = protobuf.Int64.create(0);
-tensorflow.AllocationRecord.prototype.alloc_bytes = protobuf.Int64.create(0);
+tensorflow.AllocationRecord.prototype.alloc_micros = 0n;
+tensorflow.AllocationRecord.prototype.alloc_bytes = 0n;
 
 tensorflow.AllocatorMemoryUsed = class AllocatorMemoryUsed {
 
@@ -8166,10 +8164,10 @@ tensorflow.AllocatorMemoryUsed = class AllocatorMemoryUsed {
 };
 
 tensorflow.AllocatorMemoryUsed.prototype.allocator_name = "";
-tensorflow.AllocatorMemoryUsed.prototype.total_bytes = protobuf.Int64.create(0);
-tensorflow.AllocatorMemoryUsed.prototype.peak_bytes = protobuf.Int64.create(0);
-tensorflow.AllocatorMemoryUsed.prototype.live_bytes = protobuf.Int64.create(0);
-tensorflow.AllocatorMemoryUsed.prototype.allocator_bytes_in_use = protobuf.Int64.create(0);
+tensorflow.AllocatorMemoryUsed.prototype.total_bytes = 0n;
+tensorflow.AllocatorMemoryUsed.prototype.peak_bytes = 0n;
+tensorflow.AllocatorMemoryUsed.prototype.live_bytes = 0n;
+tensorflow.AllocatorMemoryUsed.prototype.allocator_bytes_in_use = 0n;
 
 tensorflow.NodeOutput = class NodeOutput {
 
@@ -8292,10 +8290,10 @@ tensorflow.MemoryStats = class MemoryStats {
     }
 };
 
-tensorflow.MemoryStats.prototype.temp_memory_size = protobuf.Int64.create(0);
-tensorflow.MemoryStats.prototype.persistent_memory_size = protobuf.Int64.create(0);
-tensorflow.MemoryStats.prototype.device_temp_memory_size = protobuf.Int64.create(0);
-tensorflow.MemoryStats.prototype.device_persistent_memory_size = protobuf.Int64.create(0);
+tensorflow.MemoryStats.prototype.temp_memory_size = 0n;
+tensorflow.MemoryStats.prototype.persistent_memory_size = 0n;
+tensorflow.MemoryStats.prototype.device_temp_memory_size = 0n;
+tensorflow.MemoryStats.prototype.device_persistent_memory_size = 0n;
 
 tensorflow.NodeExecStats = class NodeExecStats {
 
@@ -8437,19 +8435,19 @@ tensorflow.NodeExecStats = class NodeExecStats {
 };
 
 tensorflow.NodeExecStats.prototype.node_name = "";
-tensorflow.NodeExecStats.prototype.all_start_micros = protobuf.Int64.create(0);
-tensorflow.NodeExecStats.prototype.op_start_rel_micros = protobuf.Int64.create(0);
-tensorflow.NodeExecStats.prototype.op_end_rel_micros = protobuf.Int64.create(0);
-tensorflow.NodeExecStats.prototype.all_end_rel_micros = protobuf.Int64.create(0);
+tensorflow.NodeExecStats.prototype.all_start_micros = 0n;
+tensorflow.NodeExecStats.prototype.op_start_rel_micros = 0n;
+tensorflow.NodeExecStats.prototype.op_end_rel_micros = 0n;
+tensorflow.NodeExecStats.prototype.all_end_rel_micros = 0n;
 tensorflow.NodeExecStats.prototype.timeline_label = "";
-tensorflow.NodeExecStats.prototype.scheduled_micros = protobuf.Int64.create(0);
+tensorflow.NodeExecStats.prototype.scheduled_micros = 0n;
 tensorflow.NodeExecStats.prototype.thread_id = 0;
 tensorflow.NodeExecStats.prototype.memory_stats = null;
-tensorflow.NodeExecStats.prototype.all_start_nanos = protobuf.Int64.create(0);
-tensorflow.NodeExecStats.prototype.op_start_rel_nanos = protobuf.Int64.create(0);
-tensorflow.NodeExecStats.prototype.op_end_rel_nanos = protobuf.Int64.create(0);
-tensorflow.NodeExecStats.prototype.all_end_rel_nanos = protobuf.Int64.create(0);
-tensorflow.NodeExecStats.prototype.scheduled_nanos = protobuf.Int64.create(0);
+tensorflow.NodeExecStats.prototype.all_start_nanos = 0n;
+tensorflow.NodeExecStats.prototype.op_start_rel_nanos = 0n;
+tensorflow.NodeExecStats.prototype.op_end_rel_nanos = 0n;
+tensorflow.NodeExecStats.prototype.all_end_rel_nanos = 0n;
+tensorflow.NodeExecStats.prototype.scheduled_nanos = 0n;
 
 tensorflow.DeviceStepStats = class DeviceStepStats {
 
@@ -8618,12 +8616,12 @@ tensorflow.AllocationDescription = class AllocationDescription {
     }
 };
 
-tensorflow.AllocationDescription.prototype.requested_bytes = protobuf.Int64.create(0);
-tensorflow.AllocationDescription.prototype.allocated_bytes = protobuf.Int64.create(0);
+tensorflow.AllocationDescription.prototype.requested_bytes = 0n;
+tensorflow.AllocationDescription.prototype.allocated_bytes = 0n;
 tensorflow.AllocationDescription.prototype.allocator_name = "";
-tensorflow.AllocationDescription.prototype.allocation_id = protobuf.Int64.create(0);
+tensorflow.AllocationDescription.prototype.allocation_id = 0n;
 tensorflow.AllocationDescription.prototype.has_single_reference = false;
-tensorflow.AllocationDescription.prototype.ptr = protobuf.Uint64.create(0);
+tensorflow.AllocationDescription.prototype.ptr = 0n;
 
 tensorflow.TensorDescription = class TensorDescription {
 
@@ -8894,7 +8892,7 @@ tensorflow.DebugOptions = class DebugOptions {
     }
 };
 
-tensorflow.DebugOptions.prototype.global_step = protobuf.Int64.create(0);
+tensorflow.DebugOptions.prototype.global_step = 0n;
 tensorflow.DebugOptions.prototype.reset_disk_byte_usage = false;
 
 tensorflow.DebuggedSourceFile = class DebuggedSourceFile {
@@ -8964,8 +8962,8 @@ tensorflow.DebuggedSourceFile = class DebuggedSourceFile {
 
 tensorflow.DebuggedSourceFile.prototype.host = "";
 tensorflow.DebuggedSourceFile.prototype.file_path = "";
-tensorflow.DebuggedSourceFile.prototype.last_modified = protobuf.Int64.create(0);
-tensorflow.DebuggedSourceFile.prototype.bytes = protobuf.Int64.create(0);
+tensorflow.DebuggedSourceFile.prototype.last_modified = 0n;
+tensorflow.DebuggedSourceFile.prototype.bytes = 0n;
 
 tensorflow.DebuggedSourceFiles = class DebuggedSourceFiles {
 
@@ -9385,7 +9383,7 @@ tensorflow.RewriterConfig.prototype.experimental_disable_compressed_tensor_optim
 tensorflow.RewriterConfig.prototype.experimental_disable_folding_quantization_emulation = false;
 tensorflow.RewriterConfig.prototype.memory_optimization = 0;
 tensorflow.RewriterConfig.prototype.memory_optimizer_target_node_name_scope = "";
-tensorflow.RewriterConfig.prototype.meta_optimizer_timeout_ms = protobuf.Int64.create(0);
+tensorflow.RewriterConfig.prototype.meta_optimizer_timeout_ms = 0n;
 tensorflow.RewriterConfig.prototype.auto_parallel = null;
 tensorflow.RewriterConfig.prototype.fail_on_optimizer_errors = false;
 tensorflow.RewriterConfig.prototype.scoped_allocator_opts = null;
@@ -9518,7 +9516,7 @@ tensorflow.VerifierConfig = class VerifierConfig {
     }
 };
 
-tensorflow.VerifierConfig.prototype.verification_timeout_in_ms = protobuf.Int64.create(0);
+tensorflow.VerifierConfig.prototype.verification_timeout_in_ms = 0n;
 tensorflow.VerifierConfig.prototype.structure_verifier = 0;
 
 tensorflow.VerifierConfig.Toggle = {
@@ -9760,9 +9758,9 @@ tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
 tensorflow.CoordinationServiceConfig.prototype.service_type = "";
 tensorflow.CoordinationServiceConfig.prototype.service_leader = "";
 tensorflow.CoordinationServiceConfig.prototype.enable_health_check = false;
-tensorflow.CoordinationServiceConfig.prototype.cluster_register_timeout_in_ms = protobuf.Int64.create(0);
-tensorflow.CoordinationServiceConfig.prototype.heartbeat_timeout_in_ms = protobuf.Int64.create(0);
-tensorflow.CoordinationServiceConfig.prototype.shutdown_barrier_timeout_in_ms = protobuf.Int64.create(0);
+tensorflow.CoordinationServiceConfig.prototype.cluster_register_timeout_in_ms = 0n;
+tensorflow.CoordinationServiceConfig.prototype.heartbeat_timeout_in_ms = 0n;
+tensorflow.CoordinationServiceConfig.prototype.shutdown_barrier_timeout_in_ms = 0n;
 tensorflow.CoordinationServiceConfig.prototype.agent_destruction_without_shutdown = false;
 tensorflow.CoordinationServiceConfig.prototype.allow_new_incarnation_to_reconnect = false;
 tensorflow.CoordinationServiceConfig.prototype.force_disable = false;
@@ -9819,9 +9817,9 @@ tensorflow.MemmappedFileSystemDirectoryElement = class MemmappedFileSystemDirect
     }
 };
 
-tensorflow.MemmappedFileSystemDirectoryElement.prototype.offset = protobuf.Uint64.create(0);
+tensorflow.MemmappedFileSystemDirectoryElement.prototype.offset = 0n;
 tensorflow.MemmappedFileSystemDirectoryElement.prototype.name = "";
-tensorflow.MemmappedFileSystemDirectoryElement.prototype.length = protobuf.Uint64.create(0);
+tensorflow.MemmappedFileSystemDirectoryElement.prototype.length = 0n;
 
 tensorflow.MemmappedFileSystemDirectory = class MemmappedFileSystemDirectory {
 
@@ -9934,11 +9932,11 @@ tensorflow.FingerprintDef = class FingerprintDef {
     }
 };
 
-tensorflow.FingerprintDef.prototype.saved_model_checksum = protobuf.Uint64.create(0);
-tensorflow.FingerprintDef.prototype.graph_def_program_hash = protobuf.Uint64.create(0);
-tensorflow.FingerprintDef.prototype.signature_def_hash = protobuf.Uint64.create(0);
-tensorflow.FingerprintDef.prototype.saved_object_graph_hash = protobuf.Uint64.create(0);
-tensorflow.FingerprintDef.prototype.checkpoint_hash = protobuf.Uint64.create(0);
+tensorflow.FingerprintDef.prototype.saved_model_checksum = 0n;
+tensorflow.FingerprintDef.prototype.graph_def_program_hash = 0n;
+tensorflow.FingerprintDef.prototype.signature_def_hash = 0n;
+tensorflow.FingerprintDef.prototype.saved_object_graph_hash = 0n;
+tensorflow.FingerprintDef.prototype.checkpoint_hash = 0n;
 tensorflow.FingerprintDef.prototype.version = null;
 
 google.protobuf = {};

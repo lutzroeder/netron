@@ -249,7 +249,7 @@ barracuda.NNModel = class {
                 layer.tensors.push({
                     name: reader.string(),
                     shape: reader.shape(),
-                    offset: reader.int64(),
+                    offset: Number(reader.int64()),
                     itemsize: reader.int32(),
                     length: reader.int32()
                 });
@@ -259,7 +259,8 @@ barracuda.NNModel = class {
         const position = reader.position;
         for (const layer of this.layers) {
             for (const tensor of layer.tensors) {
-                reader.seek(position + (tensor.offset * tensor.itemsize));
+                const offset = Number(tensor.offset);
+                reader.seek(position + (offset * tensor.itemsize));
                 tensor.data = reader.read(tensor.length * tensor.itemsize);
             }
         }

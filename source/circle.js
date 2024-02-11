@@ -480,7 +480,7 @@ circle.Value = class {
                 type: 'linear',
                 dimension: quantization.quantized_dimension,
                 scale: quantization.scale,
-                offset: quantization.zero_point.map((value) => value.toNumber()),
+                offset: quantization.zero_point,
                 min: quantization.min,
                 max: quantization.max
             };

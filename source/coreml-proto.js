@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 export const CoreML = {};
 
 CoreML.Specification = {};
@@ -1657,8 +1655,8 @@ CoreML.Specification.Int64Range = class Int64Range {
     }
 };
 
-CoreML.Specification.Int64Range.prototype.minValue = protobuf.Int64.create(0);
-CoreML.Specification.Int64Range.prototype.maxValue = protobuf.Int64.create(0);
+CoreML.Specification.Int64Range.prototype.minValue = 0n;
+CoreML.Specification.Int64Range.prototype.maxValue = 0n;
 
 CoreML.Specification.Int64Set = class Int64Set {
 
@@ -1961,8 +1959,8 @@ CoreML.Specification.SizeRange = class SizeRange {
     }
 };
 
-CoreML.Specification.SizeRange.prototype.lowerBound = protobuf.Uint64.create(0);
-CoreML.Specification.SizeRange.prototype.upperBound = protobuf.Int64.create(0);
+CoreML.Specification.SizeRange.prototype.lowerBound = 0n;
+CoreML.Specification.SizeRange.prototype.upperBound = 0n;
 
 CoreML.Specification.ImageFeatureType = class ImageFeatureType {
 
@@ -2033,8 +2031,8 @@ CoreML.Specification.ImageFeatureType = class ImageFeatureType {
     }
 };
 
-CoreML.Specification.ImageFeatureType.prototype.width = protobuf.Int64.create(0);
-CoreML.Specification.ImageFeatureType.prototype.height = protobuf.Int64.create(0);
+CoreML.Specification.ImageFeatureType.prototype.width = 0n;
+CoreML.Specification.ImageFeatureType.prototype.height = 0n;
 CoreML.Specification.ImageFeatureType.prototype.colorSpace = 0;
 
 CoreML.Specification.ImageFeatureType.ColorSpace = {
@@ -2091,8 +2089,8 @@ CoreML.Specification.ImageFeatureType.ImageSize = class ImageSize {
     }
 };
 
-CoreML.Specification.ImageFeatureType.ImageSize.prototype.width = protobuf.Uint64.create(0);
-CoreML.Specification.ImageFeatureType.ImageSize.prototype.height = protobuf.Uint64.create(0);
+CoreML.Specification.ImageFeatureType.ImageSize.prototype.width = 0n;
+CoreML.Specification.ImageFeatureType.ImageSize.prototype.height = 0n;
 
 CoreML.Specification.ImageFeatureType.EnumeratedImageSizes = class EnumeratedImageSizes {
 
@@ -3241,7 +3239,7 @@ CoreML.Specification.FeatureVectorizer.InputColumn = class InputColumn {
 };
 
 CoreML.Specification.FeatureVectorizer.InputColumn.prototype.inputColumn = "";
-CoreML.Specification.FeatureVectorizer.InputColumn.prototype.inputDimensions = protobuf.Uint64.create(0);
+CoreML.Specification.FeatureVectorizer.InputColumn.prototype.inputDimensions = 0n;
 
 CoreML.Specification.GLMRegressor = class GLMRegressor {
 
@@ -3889,7 +3887,7 @@ CoreML.Specification.Int64Parameter = class Int64Parameter {
     }
 };
 
-CoreML.Specification.Int64Parameter.prototype.defaultValue = protobuf.Int64.create(0);
+CoreML.Specification.Int64Parameter.prototype.defaultValue = 0n;
 
 CoreML.Specification.DoubleParameter = class DoubleParameter {
 
@@ -4228,7 +4226,7 @@ CoreML.Specification.MILSpec.Program = class Program {
     }
 };
 
-CoreML.Specification.MILSpec.Program.prototype.version = protobuf.Int64.create(0);
+CoreML.Specification.MILSpec.Program.prototype.version = 0n;
 CoreML.Specification.MILSpec.Program.prototype.docString = "";
 
 CoreML.Specification.MILSpec.Function = class Function {
@@ -4709,7 +4707,7 @@ CoreML.Specification.MILSpec.TensorType = class TensorType {
 };
 
 CoreML.Specification.MILSpec.TensorType.prototype.dataType = 0;
-CoreML.Specification.MILSpec.TensorType.prototype.rank = protobuf.Int64.create(0);
+CoreML.Specification.MILSpec.TensorType.prototype.rank = 0n;
 
 CoreML.Specification.MILSpec.TupleType = class TupleType {
 
@@ -4941,7 +4939,7 @@ CoreML.Specification.MILSpec.Dimension.ConstantDimension = class ConstantDimensi
     }
 };
 
-CoreML.Specification.MILSpec.Dimension.ConstantDimension.prototype.size = protobuf.Uint64.create(0);
+CoreML.Specification.MILSpec.Dimension.ConstantDimension.prototype.size = 0n;
 
 CoreML.Specification.MILSpec.Dimension.UnknownDimension = class UnknownDimension {
 
@@ -5161,7 +5159,7 @@ CoreML.Specification.MILSpec.Value.BlobFileValue = class BlobFileValue {
 };
 
 CoreML.Specification.MILSpec.Value.BlobFileValue.prototype.fileName = "";
-CoreML.Specification.MILSpec.Value.BlobFileValue.prototype.offset = protobuf.Uint64.create(0);
+CoreML.Specification.MILSpec.Value.BlobFileValue.prototype.offset = 0n;
 
 CoreML.Specification.MILSpec.TensorValue = class TensorValue {
 
@@ -7791,7 +7789,7 @@ CoreML.Specification.LoopLayerParams = class LoopLayerParams {
     }
 };
 
-CoreML.Specification.LoopLayerParams.prototype.maxLoopIterations = protobuf.Uint64.create(0);
+CoreML.Specification.LoopLayerParams.prototype.maxLoopIterations = 0n;
 CoreML.Specification.LoopLayerParams.prototype.conditionVar = "";
 CoreML.Specification.LoopLayerParams.prototype.conditionNetwork = null;
 CoreML.Specification.LoopLayerParams.prototype.bodyNetwork = null;
@@ -8373,8 +8371,8 @@ CoreML.Specification.BorderAmounts.EdgeSizes = class EdgeSizes {
     }
 };
 
-CoreML.Specification.BorderAmounts.EdgeSizes.prototype.startEdgeSize = protobuf.Uint64.create(0);
-CoreML.Specification.BorderAmounts.EdgeSizes.prototype.endEdgeSize = protobuf.Uint64.create(0);
+CoreML.Specification.BorderAmounts.EdgeSizes.prototype.startEdgeSize = 0n;
+CoreML.Specification.BorderAmounts.EdgeSizes.prototype.endEdgeSize = 0n;
 
 CoreML.Specification.ValidPadding = class ValidPadding {
 
@@ -8697,7 +8695,7 @@ CoreML.Specification.QuantizationParams = class QuantizationParams {
     }
 };
 
-CoreML.Specification.QuantizationParams.prototype.numberOfBits = protobuf.Uint64.create(0);
+CoreML.Specification.QuantizationParams.prototype.numberOfBits = 0n;
 
 CoreML.Specification.LinearQuantizationParams = class LinearQuantizationParams {
 
@@ -8909,9 +8907,9 @@ CoreML.Specification.ConvolutionLayerParams = class ConvolutionLayerParams {
     }
 };
 
-CoreML.Specification.ConvolutionLayerParams.prototype.outputChannels = protobuf.Uint64.create(0);
-CoreML.Specification.ConvolutionLayerParams.prototype.kernelChannels = protobuf.Uint64.create(0);
-CoreML.Specification.ConvolutionLayerParams.prototype.nGroups = protobuf.Uint64.create(0);
+CoreML.Specification.ConvolutionLayerParams.prototype.outputChannels = 0n;
+CoreML.Specification.ConvolutionLayerParams.prototype.kernelChannels = 0n;
+CoreML.Specification.ConvolutionLayerParams.prototype.nGroups = 0n;
 CoreML.Specification.ConvolutionLayerParams.prototype.isDeconvolution = false;
 CoreML.Specification.ConvolutionLayerParams.prototype.hasBias = false;
 CoreML.Specification.ConvolutionLayerParams.prototype.weights = null;
@@ -9196,8 +9194,8 @@ CoreML.Specification.InnerProductLayerParams = class InnerProductLayerParams {
     }
 };
 
-CoreML.Specification.InnerProductLayerParams.prototype.inputChannels = protobuf.Uint64.create(0);
-CoreML.Specification.InnerProductLayerParams.prototype.outputChannels = protobuf.Uint64.create(0);
+CoreML.Specification.InnerProductLayerParams.prototype.inputChannels = 0n;
+CoreML.Specification.InnerProductLayerParams.prototype.outputChannels = 0n;
 CoreML.Specification.InnerProductLayerParams.prototype.hasBias = false;
 CoreML.Specification.InnerProductLayerParams.prototype.weights = null;
 CoreML.Specification.InnerProductLayerParams.prototype.bias = null;
@@ -9267,8 +9265,8 @@ CoreML.Specification.EmbeddingLayerParams = class EmbeddingLayerParams {
     }
 };
 
-CoreML.Specification.EmbeddingLayerParams.prototype.inputDim = protobuf.Uint64.create(0);
-CoreML.Specification.EmbeddingLayerParams.prototype.outputChannels = protobuf.Uint64.create(0);
+CoreML.Specification.EmbeddingLayerParams.prototype.inputDim = 0n;
+CoreML.Specification.EmbeddingLayerParams.prototype.outputChannels = 0n;
 CoreML.Specification.EmbeddingLayerParams.prototype.hasBias = false;
 CoreML.Specification.EmbeddingLayerParams.prototype.weights = null;
 CoreML.Specification.EmbeddingLayerParams.prototype.bias = null;
@@ -9337,8 +9335,8 @@ CoreML.Specification.EmbeddingNDLayerParams = class EmbeddingNDLayerParams {
     }
 };
 
-CoreML.Specification.EmbeddingNDLayerParams.prototype.vocabSize = protobuf.Uint64.create(0);
-CoreML.Specification.EmbeddingNDLayerParams.prototype.embeddingSize = protobuf.Uint64.create(0);
+CoreML.Specification.EmbeddingNDLayerParams.prototype.vocabSize = 0n;
+CoreML.Specification.EmbeddingNDLayerParams.prototype.embeddingSize = 0n;
 CoreML.Specification.EmbeddingNDLayerParams.prototype.hasBias = false;
 CoreML.Specification.EmbeddingNDLayerParams.prototype.weights = null;
 CoreML.Specification.EmbeddingNDLayerParams.prototype.bias = null;
@@ -9425,7 +9423,7 @@ CoreML.Specification.BatchnormLayerParams = class BatchnormLayerParams {
     }
 };
 
-CoreML.Specification.BatchnormLayerParams.prototype.channels = protobuf.Uint64.create(0);
+CoreML.Specification.BatchnormLayerParams.prototype.channels = 0n;
 CoreML.Specification.BatchnormLayerParams.prototype.computeMeanVar = false;
 CoreML.Specification.BatchnormLayerParams.prototype.instanceNormalization = false;
 CoreML.Specification.BatchnormLayerParams.prototype.epsilon = 0;
@@ -10049,7 +10047,7 @@ CoreML.Specification.LRNLayerParams = class LRNLayerParams {
 
 CoreML.Specification.LRNLayerParams.prototype.alpha = 0;
 CoreML.Specification.LRNLayerParams.prototype.beta = 0;
-CoreML.Specification.LRNLayerParams.prototype.localSize = protobuf.Uint64.create(0);
+CoreML.Specification.LRNLayerParams.prototype.localSize = 0n;
 CoreML.Specification.LRNLayerParams.prototype.k = 0;
 
 CoreML.Specification.SoftmaxLayerParams = class SoftmaxLayerParams {
@@ -10126,7 +10124,7 @@ CoreML.Specification.SplitLayerParams = class SplitLayerParams {
     }
 };
 
-CoreML.Specification.SplitLayerParams.prototype.nOutputs = protobuf.Uint64.create(0);
+CoreML.Specification.SplitLayerParams.prototype.nOutputs = 0n;
 
 CoreML.Specification.AddLayerParams = class AddLayerParams {
 
@@ -10885,7 +10883,7 @@ CoreML.Specification.ReorganizeDataLayerParams = class ReorganizeDataLayerParams
 };
 
 CoreML.Specification.ReorganizeDataLayerParams.prototype.mode = 0;
-CoreML.Specification.ReorganizeDataLayerParams.prototype.blockSize = protobuf.Uint64.create(0);
+CoreML.Specification.ReorganizeDataLayerParams.prototype.blockSize = 0n;
 
 CoreML.Specification.ReorganizeDataLayerParams.ReorganizationType = {
     "SPACE_TO_DEPTH": 0,
@@ -10951,9 +10949,9 @@ CoreML.Specification.SliceLayerParams = class SliceLayerParams {
     }
 };
 
-CoreML.Specification.SliceLayerParams.prototype.startIndex = protobuf.Int64.create(0);
-CoreML.Specification.SliceLayerParams.prototype.endIndex = protobuf.Int64.create(0);
-CoreML.Specification.SliceLayerParams.prototype.stride = protobuf.Uint64.create(0);
+CoreML.Specification.SliceLayerParams.prototype.startIndex = 0n;
+CoreML.Specification.SliceLayerParams.prototype.endIndex = 0n;
+CoreML.Specification.SliceLayerParams.prototype.stride = 0n;
 CoreML.Specification.SliceLayerParams.prototype.axis = 0;
 
 CoreML.Specification.SliceLayerParams.SliceAxis = {
@@ -11328,7 +11326,7 @@ CoreML.Specification.SequenceRepeatLayerParams = class SequenceRepeatLayerParams
     }
 };
 
-CoreML.Specification.SequenceRepeatLayerParams.prototype.nRepetitions = protobuf.Uint64.create(0);
+CoreML.Specification.SequenceRepeatLayerParams.prototype.nRepetitions = 0n;
 
 CoreML.Specification.SimpleRecurrentLayerParams = class SimpleRecurrentLayerParams {
 
@@ -11418,8 +11416,8 @@ CoreML.Specification.SimpleRecurrentLayerParams = class SimpleRecurrentLayerPara
     }
 };
 
-CoreML.Specification.SimpleRecurrentLayerParams.prototype.inputVectorSize = protobuf.Uint64.create(0);
-CoreML.Specification.SimpleRecurrentLayerParams.prototype.outputVectorSize = protobuf.Uint64.create(0);
+CoreML.Specification.SimpleRecurrentLayerParams.prototype.inputVectorSize = 0n;
+CoreML.Specification.SimpleRecurrentLayerParams.prototype.outputVectorSize = 0n;
 CoreML.Specification.SimpleRecurrentLayerParams.prototype.activation = null;
 CoreML.Specification.SimpleRecurrentLayerParams.prototype.sequenceOutput = false;
 CoreML.Specification.SimpleRecurrentLayerParams.prototype.hasBiasVector = false;
@@ -11553,8 +11551,8 @@ CoreML.Specification.GRULayerParams = class GRULayerParams {
     }
 };
 
-CoreML.Specification.GRULayerParams.prototype.inputVectorSize = protobuf.Uint64.create(0);
-CoreML.Specification.GRULayerParams.prototype.outputVectorSize = protobuf.Uint64.create(0);
+CoreML.Specification.GRULayerParams.prototype.inputVectorSize = 0n;
+CoreML.Specification.GRULayerParams.prototype.outputVectorSize = 0n;
 CoreML.Specification.GRULayerParams.prototype.sequenceOutput = false;
 CoreML.Specification.GRULayerParams.prototype.hasBiasVectors = false;
 CoreML.Specification.GRULayerParams.prototype.updateGateWeightMatrix = null;
@@ -11856,8 +11854,8 @@ CoreML.Specification.UniDirectionalLSTMLayerParams = class UniDirectionalLSTMLay
     }
 };
 
-CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.inputVectorSize = protobuf.Uint64.create(0);
-CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.outputVectorSize = protobuf.Uint64.create(0);
+CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.inputVectorSize = 0n;
+CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.outputVectorSize = 0n;
 CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.params = null;
 CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.weightParams = null;
 CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.reverseInput = false;
@@ -11935,8 +11933,8 @@ CoreML.Specification.BiDirectionalLSTMLayerParams = class BiDirectionalLSTMLayer
     }
 };
 
-CoreML.Specification.BiDirectionalLSTMLayerParams.prototype.inputVectorSize = protobuf.Uint64.create(0);
-CoreML.Specification.BiDirectionalLSTMLayerParams.prototype.outputVectorSize = protobuf.Uint64.create(0);
+CoreML.Specification.BiDirectionalLSTMLayerParams.prototype.inputVectorSize = 0n;
+CoreML.Specification.BiDirectionalLSTMLayerParams.prototype.outputVectorSize = 0n;
 CoreML.Specification.BiDirectionalLSTMLayerParams.prototype.params = null;
 
 CoreML.Specification.CustomLayerParams = class CustomLayerParams {
@@ -12196,8 +12194,8 @@ CoreML.Specification.BatchedMatMulLayerParams = class BatchedMatMulLayerParams {
 
 CoreML.Specification.BatchedMatMulLayerParams.prototype.transposeA = false;
 CoreML.Specification.BatchedMatMulLayerParams.prototype.transposeB = false;
-CoreML.Specification.BatchedMatMulLayerParams.prototype.weightMatrixFirstDimension = protobuf.Uint64.create(0);
-CoreML.Specification.BatchedMatMulLayerParams.prototype.weightMatrixSecondDimension = protobuf.Uint64.create(0);
+CoreML.Specification.BatchedMatMulLayerParams.prototype.weightMatrixFirstDimension = 0n;
+CoreML.Specification.BatchedMatMulLayerParams.prototype.weightMatrixSecondDimension = 0n;
 CoreML.Specification.BatchedMatMulLayerParams.prototype.hasBias = false;
 CoreML.Specification.BatchedMatMulLayerParams.prototype.weights = null;
 CoreML.Specification.BatchedMatMulLayerParams.prototype.bias = null;
@@ -12249,7 +12247,7 @@ CoreML.Specification.ConcatNDLayerParams = class ConcatNDLayerParams {
     }
 };
 
-CoreML.Specification.ConcatNDLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.ConcatNDLayerParams.prototype.axis = 0n;
 CoreML.Specification.ConcatNDLayerParams.prototype.interleave = false;
 
 CoreML.Specification.SoftmaxNDLayerParams = class SoftmaxNDLayerParams {
@@ -12292,7 +12290,7 @@ CoreML.Specification.SoftmaxNDLayerParams = class SoftmaxNDLayerParams {
     }
 };
 
-CoreML.Specification.SoftmaxNDLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.SoftmaxNDLayerParams.prototype.axis = 0n;
 
 CoreML.Specification.ReverseLayerParams = class ReverseLayerParams {
 
@@ -12381,8 +12379,8 @@ CoreML.Specification.ReverseSeqLayerParams = class ReverseSeqLayerParams {
     }
 };
 
-CoreML.Specification.ReverseSeqLayerParams.prototype.batchAxis = protobuf.Int64.create(0);
-CoreML.Specification.ReverseSeqLayerParams.prototype.sequenceAxis = protobuf.Int64.create(0);
+CoreML.Specification.ReverseSeqLayerParams.prototype.batchAxis = 0n;
+CoreML.Specification.ReverseSeqLayerParams.prototype.sequenceAxis = 0n;
 
 CoreML.Specification.LoadConstantNDLayerParams = class LoadConstantNDLayerParams {
 
@@ -13156,8 +13154,8 @@ CoreML.Specification.MatrixBandPartLayerParams = class MatrixBandPartLayerParams
     }
 };
 
-CoreML.Specification.MatrixBandPartLayerParams.prototype.numLower = protobuf.Int64.create(0);
-CoreML.Specification.MatrixBandPartLayerParams.prototype.numUpper = protobuf.Int64.create(0);
+CoreML.Specification.MatrixBandPartLayerParams.prototype.numLower = 0n;
+CoreML.Specification.MatrixBandPartLayerParams.prototype.numUpper = 0n;
 
 CoreML.Specification.UpperTriangularLayerParams = class UpperTriangularLayerParams {
 
@@ -13199,7 +13197,7 @@ CoreML.Specification.UpperTriangularLayerParams = class UpperTriangularLayerPara
     }
 };
 
-CoreML.Specification.UpperTriangularLayerParams.prototype.k = protobuf.Int64.create(0);
+CoreML.Specification.UpperTriangularLayerParams.prototype.k = 0n;
 
 CoreML.Specification.LowerTriangularLayerParams = class LowerTriangularLayerParams {
 
@@ -13241,7 +13239,7 @@ CoreML.Specification.LowerTriangularLayerParams = class LowerTriangularLayerPara
     }
 };
 
-CoreML.Specification.LowerTriangularLayerParams.prototype.k = protobuf.Int64.create(0);
+CoreML.Specification.LowerTriangularLayerParams.prototype.k = 0n;
 
 CoreML.Specification.BroadcastToLikeLayerParams = class BroadcastToLikeLayerParams {
 
@@ -13664,7 +13662,7 @@ CoreML.Specification.GatherLayerParams = class GatherLayerParams {
     }
 };
 
-CoreML.Specification.GatherLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.GatherLayerParams.prototype.axis = 0n;
 
 CoreML.Specification.ScatterMode = {
     "SCATTER_UPDATE": 0,
@@ -13722,7 +13720,7 @@ CoreML.Specification.ScatterLayerParams = class ScatterLayerParams {
     }
 };
 
-CoreML.Specification.ScatterLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.ScatterLayerParams.prototype.axis = 0n;
 CoreML.Specification.ScatterLayerParams.prototype.mode = 0;
 
 CoreML.Specification.GatherNDLayerParams = class GatherNDLayerParams {
@@ -13841,7 +13839,7 @@ CoreML.Specification.GatherAlongAxisLayerParams = class GatherAlongAxisLayerPara
     }
 };
 
-CoreML.Specification.GatherAlongAxisLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.GatherAlongAxisLayerParams.prototype.axis = 0n;
 
 CoreML.Specification.ScatterAlongAxisLayerParams = class ScatterAlongAxisLayerParams {
 
@@ -13889,7 +13887,7 @@ CoreML.Specification.ScatterAlongAxisLayerParams = class ScatterAlongAxisLayerPa
     }
 };
 
-CoreML.Specification.ScatterAlongAxisLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.ScatterAlongAxisLayerParams.prototype.axis = 0n;
 CoreML.Specification.ScatterAlongAxisLayerParams.prototype.mode = 0;
 
 CoreML.Specification.StackLayerParams = class StackLayerParams {
@@ -13932,7 +13930,7 @@ CoreML.Specification.StackLayerParams = class StackLayerParams {
     }
 };
 
-CoreML.Specification.StackLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.StackLayerParams.prototype.axis = 0n;
 
 CoreML.Specification.RankPreservingReshapeLayerParams = class RankPreservingReshapeLayerParams {
 
@@ -14083,7 +14081,7 @@ CoreML.Specification.RandomNormalLikeLayerParams = class RandomNormalLikeLayerPa
     }
 };
 
-CoreML.Specification.RandomNormalLikeLayerParams.prototype.seed = protobuf.Int64.create(0);
+CoreML.Specification.RandomNormalLikeLayerParams.prototype.seed = 0n;
 CoreML.Specification.RandomNormalLikeLayerParams.prototype.mean = 0;
 CoreML.Specification.RandomNormalLikeLayerParams.prototype.stdDev = 0;
 
@@ -14146,7 +14144,7 @@ CoreML.Specification.RandomNormalStaticLayerParams = class RandomNormalStaticLay
     }
 };
 
-CoreML.Specification.RandomNormalStaticLayerParams.prototype.seed = protobuf.Int64.create(0);
+CoreML.Specification.RandomNormalStaticLayerParams.prototype.seed = 0n;
 CoreML.Specification.RandomNormalStaticLayerParams.prototype.mean = 0;
 CoreML.Specification.RandomNormalStaticLayerParams.prototype.stdDev = 0;
 
@@ -14202,7 +14200,7 @@ CoreML.Specification.RandomNormalDynamicLayerParams = class RandomNormalDynamicL
     }
 };
 
-CoreML.Specification.RandomNormalDynamicLayerParams.prototype.seed = protobuf.Int64.create(0);
+CoreML.Specification.RandomNormalDynamicLayerParams.prototype.seed = 0n;
 CoreML.Specification.RandomNormalDynamicLayerParams.prototype.mean = 0;
 CoreML.Specification.RandomNormalDynamicLayerParams.prototype.stdDev = 0;
 
@@ -14258,7 +14256,7 @@ CoreML.Specification.RandomUniformLikeLayerParams = class RandomUniformLikeLayer
     }
 };
 
-CoreML.Specification.RandomUniformLikeLayerParams.prototype.seed = protobuf.Int64.create(0);
+CoreML.Specification.RandomUniformLikeLayerParams.prototype.seed = 0n;
 CoreML.Specification.RandomUniformLikeLayerParams.prototype.minVal = 0;
 CoreML.Specification.RandomUniformLikeLayerParams.prototype.maxVal = 0;
 
@@ -14321,7 +14319,7 @@ CoreML.Specification.RandomUniformStaticLayerParams = class RandomUniformStaticL
     }
 };
 
-CoreML.Specification.RandomUniformStaticLayerParams.prototype.seed = protobuf.Int64.create(0);
+CoreML.Specification.RandomUniformStaticLayerParams.prototype.seed = 0n;
 CoreML.Specification.RandomUniformStaticLayerParams.prototype.minVal = 0;
 CoreML.Specification.RandomUniformStaticLayerParams.prototype.maxVal = 0;
 
@@ -14377,7 +14375,7 @@ CoreML.Specification.RandomUniformDynamicLayerParams = class RandomUniformDynami
     }
 };
 
-CoreML.Specification.RandomUniformDynamicLayerParams.prototype.seed = protobuf.Int64.create(0);
+CoreML.Specification.RandomUniformDynamicLayerParams.prototype.seed = 0n;
 CoreML.Specification.RandomUniformDynamicLayerParams.prototype.minVal = 0;
 CoreML.Specification.RandomUniformDynamicLayerParams.prototype.maxVal = 0;
 
@@ -14427,7 +14425,7 @@ CoreML.Specification.RandomBernoulliLikeLayerParams = class RandomBernoulliLikeL
     }
 };
 
-CoreML.Specification.RandomBernoulliLikeLayerParams.prototype.seed = protobuf.Int64.create(0);
+CoreML.Specification.RandomBernoulliLikeLayerParams.prototype.seed = 0n;
 CoreML.Specification.RandomBernoulliLikeLayerParams.prototype.prob = 0;
 
 CoreML.Specification.RandomBernoulliStaticLayerParams = class RandomBernoulliStaticLayerParams {
@@ -14483,7 +14481,7 @@ CoreML.Specification.RandomBernoulliStaticLayerParams = class RandomBernoulliSta
     }
 };
 
-CoreML.Specification.RandomBernoulliStaticLayerParams.prototype.seed = protobuf.Int64.create(0);
+CoreML.Specification.RandomBernoulliStaticLayerParams.prototype.seed = 0n;
 CoreML.Specification.RandomBernoulliStaticLayerParams.prototype.prob = 0;
 
 CoreML.Specification.RandomBernoulliDynamicLayerParams = class RandomBernoulliDynamicLayerParams {
@@ -14532,7 +14530,7 @@ CoreML.Specification.RandomBernoulliDynamicLayerParams = class RandomBernoulliDy
     }
 };
 
-CoreML.Specification.RandomBernoulliDynamicLayerParams.prototype.seed = protobuf.Int64.create(0);
+CoreML.Specification.RandomBernoulliDynamicLayerParams.prototype.seed = 0n;
 CoreML.Specification.RandomBernoulliDynamicLayerParams.prototype.prob = 0;
 
 CoreML.Specification.CategoricalDistributionLayerParams = class CategoricalDistributionLayerParams {
@@ -14599,8 +14597,8 @@ CoreML.Specification.CategoricalDistributionLayerParams = class CategoricalDistr
     }
 };
 
-CoreML.Specification.CategoricalDistributionLayerParams.prototype.seed = protobuf.Int64.create(0);
-CoreML.Specification.CategoricalDistributionLayerParams.prototype.numSamples = protobuf.Int64.create(0);
+CoreML.Specification.CategoricalDistributionLayerParams.prototype.seed = 0n;
+CoreML.Specification.CategoricalDistributionLayerParams.prototype.numSamples = 0n;
 CoreML.Specification.CategoricalDistributionLayerParams.prototype.isLogits = false;
 CoreML.Specification.CategoricalDistributionLayerParams.prototype.eps = 0;
 CoreML.Specification.CategoricalDistributionLayerParams.prototype.temperature = 0;
@@ -15246,7 +15244,7 @@ CoreML.Specification.FlattenTo2DLayerParams = class FlattenTo2DLayerParams {
     }
 };
 
-CoreML.Specification.FlattenTo2DLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.FlattenTo2DLayerParams.prototype.axis = 0n;
 
 CoreML.Specification.ReshapeStaticLayerParams = class ReshapeStaticLayerParams {
 
@@ -15458,8 +15456,8 @@ CoreML.Specification.TopKLayerParams = class TopKLayerParams {
     }
 };
 
-CoreML.Specification.TopKLayerParams.prototype.axis = protobuf.Int64.create(0);
-CoreML.Specification.TopKLayerParams.prototype.K = protobuf.Uint64.create(0);
+CoreML.Specification.TopKLayerParams.prototype.axis = 0n;
+CoreML.Specification.TopKLayerParams.prototype.K = 0n;
 CoreML.Specification.TopKLayerParams.prototype.useBottomK = false;
 
 CoreML.Specification.ArgMaxLayerParams = class ArgMaxLayerParams {
@@ -15508,7 +15506,7 @@ CoreML.Specification.ArgMaxLayerParams = class ArgMaxLayerParams {
     }
 };
 
-CoreML.Specification.ArgMaxLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.ArgMaxLayerParams.prototype.axis = 0n;
 CoreML.Specification.ArgMaxLayerParams.prototype.removeDim = false;
 
 CoreML.Specification.ArgMinLayerParams = class ArgMinLayerParams {
@@ -15557,7 +15555,7 @@ CoreML.Specification.ArgMinLayerParams = class ArgMinLayerParams {
     }
 };
 
-CoreML.Specification.ArgMinLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.ArgMinLayerParams.prototype.axis = 0n;
 CoreML.Specification.ArgMinLayerParams.prototype.removeDim = false;
 
 CoreML.Specification.SplitNDLayerParams = class SplitNDLayerParams {
@@ -15613,8 +15611,8 @@ CoreML.Specification.SplitNDLayerParams = class SplitNDLayerParams {
     }
 };
 
-CoreML.Specification.SplitNDLayerParams.prototype.axis = protobuf.Int64.create(0);
-CoreML.Specification.SplitNDLayerParams.prototype.numSplits = protobuf.Uint64.create(0);
+CoreML.Specification.SplitNDLayerParams.prototype.axis = 0n;
+CoreML.Specification.SplitNDLayerParams.prototype.numSplits = 0n;
 
 CoreML.Specification.CeilLayerParams = class CeilLayerParams {
 
@@ -16260,9 +16258,9 @@ CoreML.Specification.SlidingWindowsLayerParams = class SlidingWindowsLayerParams
     }
 };
 
-CoreML.Specification.SlidingWindowsLayerParams.prototype.axis = protobuf.Int64.create(0);
-CoreML.Specification.SlidingWindowsLayerParams.prototype.windowSize = protobuf.Uint64.create(0);
-CoreML.Specification.SlidingWindowsLayerParams.prototype.step = protobuf.Uint64.create(0);
+CoreML.Specification.SlidingWindowsLayerParams.prototype.axis = 0n;
+CoreML.Specification.SlidingWindowsLayerParams.prototype.windowSize = 0n;
+CoreML.Specification.SlidingWindowsLayerParams.prototype.step = 0n;
 
 CoreML.Specification.LayerNormalizationLayerParams = class LayerNormalizationLayerParams {
 
@@ -16387,7 +16385,7 @@ CoreML.Specification.NonMaximumSuppressionLayerParams = class NonMaximumSuppress
 
 CoreML.Specification.NonMaximumSuppressionLayerParams.prototype.iouThreshold = 0;
 CoreML.Specification.NonMaximumSuppressionLayerParams.prototype.scoreThreshold = 0;
-CoreML.Specification.NonMaximumSuppressionLayerParams.prototype.maxBoxes = protobuf.Uint64.create(0);
+CoreML.Specification.NonMaximumSuppressionLayerParams.prototype.maxBoxes = 0n;
 CoreML.Specification.NonMaximumSuppressionLayerParams.prototype.perClassSuppression = false;
 
 CoreML.Specification.ClampedReLULayerParams = class ClampedReLULayerParams {
@@ -16485,7 +16483,7 @@ CoreML.Specification.ArgSortLayerParams = class ArgSortLayerParams {
     }
 };
 
-CoreML.Specification.ArgSortLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.ArgSortLayerParams.prototype.axis = 0n;
 CoreML.Specification.ArgSortLayerParams.prototype.descending = false;
 
 CoreML.Specification.SliceBySizeLayerParams = class SliceBySizeLayerParams {
@@ -16534,8 +16532,8 @@ CoreML.Specification.SliceBySizeLayerParams = class SliceBySizeLayerParams {
     }
 };
 
-CoreML.Specification.SliceBySizeLayerParams.prototype.size = protobuf.Int64.create(0);
-CoreML.Specification.SliceBySizeLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.SliceBySizeLayerParams.prototype.size = 0n;
+CoreML.Specification.SliceBySizeLayerParams.prototype.axis = 0n;
 
 CoreML.Specification.NeuralNetworkClassifier = class NeuralNetworkClassifier {
 
@@ -16689,8 +16687,8 @@ CoreML.Specification.OneHotLayerParams = class OneHotLayerParams {
     }
 };
 
-CoreML.Specification.OneHotLayerParams.prototype.oneHotVectorSize = protobuf.Uint64.create(0);
-CoreML.Specification.OneHotLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.OneHotLayerParams.prototype.oneHotVectorSize = 0n;
+CoreML.Specification.OneHotLayerParams.prototype.axis = 0n;
 CoreML.Specification.OneHotLayerParams.prototype.onValue = 0;
 CoreML.Specification.OneHotLayerParams.prototype.offValue = 0;
 
@@ -16746,7 +16744,7 @@ CoreML.Specification.CumSumLayerParams = class CumSumLayerParams {
     }
 };
 
-CoreML.Specification.CumSumLayerParams.prototype.axis = protobuf.Int64.create(0);
+CoreML.Specification.CumSumLayerParams.prototype.axis = 0n;
 CoreML.Specification.CumSumLayerParams.prototype.excludeFinalSum = false;
 CoreML.Specification.CumSumLayerParams.prototype.reverse = false;
 
@@ -18295,7 +18293,7 @@ CoreML.Specification.TreeEnsembleParameters = class TreeEnsembleParameters {
     }
 };
 
-CoreML.Specification.TreeEnsembleParameters.prototype.numPredictionDimensions = protobuf.Uint64.create(0);
+CoreML.Specification.TreeEnsembleParameters.prototype.numPredictionDimensions = 0n;
 
 CoreML.Specification.TreeEnsembleParameters.TreeNode = class TreeNode {
 
@@ -18392,13 +18390,13 @@ CoreML.Specification.TreeEnsembleParameters.TreeNode = class TreeNode {
     }
 };
 
-CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.treeId = protobuf.Uint64.create(0);
-CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.nodeId = protobuf.Uint64.create(0);
+CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.treeId = 0n;
+CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.nodeId = 0n;
 CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.nodeBehavior = 0;
-CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.branchFeatureIndex = protobuf.Uint64.create(0);
+CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.branchFeatureIndex = 0n;
 CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.branchFeatureValue = 0;
-CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.trueChildNodeId = protobuf.Uint64.create(0);
-CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.falseChildNodeId = protobuf.Uint64.create(0);
+CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.trueChildNodeId = 0n;
+CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.falseChildNodeId = 0n;
 CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.missingValueTracksTrueChild = false;
 CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.relativeHitRate = 0;
 
@@ -18458,7 +18456,7 @@ CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo = class Eval
     }
 };
 
-CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo.prototype.evaluationIndex = protobuf.Uint64.create(0);
+CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo.prototype.evaluationIndex = 0n;
 CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo.prototype.evaluationValue = 0;
 
 CoreML.Specification.TreeEnsembleClassifier = class TreeEnsembleClassifier {
@@ -18720,7 +18718,7 @@ CoreML.Specification.ItemSimilarityRecommender.ConnectedItem = class ConnectedIt
     }
 };
 
-CoreML.Specification.ItemSimilarityRecommender.ConnectedItem.prototype.itemId = protobuf.Uint64.create(0);
+CoreML.Specification.ItemSimilarityRecommender.ConnectedItem.prototype.itemId = 0n;
 CoreML.Specification.ItemSimilarityRecommender.ConnectedItem.prototype.similarityScore = 0;
 
 CoreML.Specification.ItemSimilarityRecommender.SimilarItems = class SimilarItems {
@@ -18776,7 +18774,7 @@ CoreML.Specification.ItemSimilarityRecommender.SimilarItems = class SimilarItems
     }
 };
 
-CoreML.Specification.ItemSimilarityRecommender.SimilarItems.prototype.itemId = protobuf.Uint64.create(0);
+CoreML.Specification.ItemSimilarityRecommender.SimilarItems.prototype.itemId = 0n;
 CoreML.Specification.ItemSimilarityRecommender.SimilarItems.prototype.itemScoreAdjustment = 0;
 
 CoreML.Specification.LinkedModel = class LinkedModel {

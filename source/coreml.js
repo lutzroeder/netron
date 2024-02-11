@@ -331,7 +331,10 @@ coreml.Attribute = class {
                 this.visible = false;
             } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
                 if (Array.isArray(value)) {
-                    value = value.map((item) => item.toNumber());
+                    value = value.map((item) => Number(item));
+                }
+                if (typeof value === 'bigint') {
+                    value = Number(value);
                 }
                 if (JSON.stringify(metadata.default) == JSON.stringify(value)) {
                     this.visible = false;
@@ -400,7 +403,7 @@ coreml.TensorType = class {
 coreml.TensorShape = class {
 
     constructor(dimensions) {
-        this.dimensions = dimensions.map((dim) => typeof dim === 'string' || Number.isInteger(dim) ? dim : dim.toNumber());
+        this.dimensions = dimensions.map((dim) => typeof dim === 'bigint' ? Number(dim) : dim);
     }
 
     equals(obj) {
@@ -648,7 +651,7 @@ coreml.Context = class {
                     const weightsShape = [ data.outputChannels, data.kernelChannels, data.kernelSize[0], data.kernelSize[1] ];
                     if (data.isDeconvolution) {
                         weightsShape[0] = data.kernelChannels;
-                        weightsShape[1] = Math.floor(data.outputChannels / (data.nGroups != 0 ? data.nGroups : 1));
+                        weightsShape[1] = Math.floor(Number(data.outputChannels / (data.nGroups != 0 ? data.nGroups : 1)));
                     }
                     initializer(type, 'weights', weightsShape, data.weights);
                     if (data.hasBias) {
@@ -1207,7 +1210,7 @@ coreml.Context = class {
                 case 'blobFileValue': {
                     const type = coreml.Utility.valueType(value.type);
                     const blob = value.blobFileValue;
-                    const offset = blob.offset.toNumber();
+                    const offset = Number(blob.offset);
                     const file = blob.fileName;
                     let data = null;
                     const stream = this.weights.get(file);
@@ -1218,8 +1221,9 @@ coreml.Context = class {
                         const signature = reader.uint32();
                         if (signature == 0xdeadbeef) {
                             reader.uint32(); // dataType
-                            const size = reader.uint64();
-                            stream.seek(reader.uint64());
+                            const size = Number(reader.uint64());
+                            const offset = Number(reader.uint64());
+                            stream.seek(offset);
                             const length = (type.shape.dimensions || []).reduce((a, b) => a * b, 1);
                             switch (type.dataType) {
                                 case 'float32': {
@@ -1386,7 +1390,7 @@ coreml.Utility = class {
                 case 'multiArrayType': {
                     let shape = new coreml.TensorShape([]);
                     if (type.multiArrayType.shape && type.multiArrayType.shape.length > 0) {
-                        shape = new coreml.TensorShape(type.multiArrayType.shape.map((dim) => dim.toNumber()));
+                        shape = new coreml.TensorShape(type.multiArrayType.shape.map((dim) => Number(dim)));
                     }
                     let dataType;
                     const ArrayDataType = coreml.proto.ArrayFeatureType.ArrayDataType;

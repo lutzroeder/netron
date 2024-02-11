@@ -3448,7 +3448,7 @@ pytorch.Utility = class {
                 return obj === null || typeof obj === 'string';
             case 'SymInt':
             case 'int64':
-                return Number.isInteger(obj) || obj instanceof base.Int64 || (typeof obj === 'number' && isNaN(obj));
+                return Number.isInteger(obj) || typeof obj === 'bigint' || (typeof obj === 'number' && isNaN(obj));
             case 'SymInt[]':
             case 'SymInt[2]':
             case 'SymInt[3]':

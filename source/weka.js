@@ -230,11 +230,11 @@ java.io.InputObjectStream.BinaryReader = class {
     uint64() {
         const position = this._position;
         this.skip(8);
-        return this._view.getUint64(position, false);
+        return this._view.getBigUint64(position, false);
     }
 
     string(long) {
-        const size = long ? this.uint64().toNumber() : this.uint16();
+        const size = long ? Number(this.uint64()) : this.uint16();
         const position = this._position;
         this.skip(size);
         this._decoder = this._decoder || new TextDecoder('utf-8');

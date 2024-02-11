@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 export const CNTK = {};
 
 CNTK.proto = {};
@@ -275,7 +273,7 @@ CNTK.proto.Dictionary = class Dictionary {
     }
 };
 
-CNTK.proto.Dictionary.prototype.version = protobuf.Uint64.create(0);
+CNTK.proto.Dictionary.prototype.version = 0n;
 
 CNTK.proto.DictionaryValue = class DictionaryValue {
 
@@ -341,7 +339,7 @@ CNTK.proto.DictionaryValue = class DictionaryValue {
     }
 };
 
-CNTK.proto.DictionaryValue.prototype.version = protobuf.Uint64.create(0);
+CNTK.proto.DictionaryValue.prototype.version = 0n;
 CNTK.proto.DictionaryValue.prototype.value_type = 0;
 
 CNTK.proto.DictionaryValue.Type = {

@@ -36,7 +36,7 @@ flexbuffers.BinaryReader = class {
             case 1: return this._view.getInt8(offset);
             case 2: return this._view.getInt16(offset, true);
             case 4: return this._view.getInt32(offset, true);
-            case 8: return this._view.getInt64(offset, true);
+            case 8: return this._view.getBigInt64(offset, true);
             default: throw new flexbuffers.Error(`Invalid int size '${size}'.`);
         }
     }
@@ -46,7 +46,7 @@ flexbuffers.BinaryReader = class {
             case 1: return this._view.getUint8(offset);
             case 2: return this._view.getUint16(offset, true);
             case 4: return this._view.getUint32(offset, true);
-            case 8: return this._view.getUint64(offset, true);
+            case 8: return this._view.getBigUint64(offset, true);
             default: throw new flexbuffers.Error(`Invalid uint size '${size}'.`);
         }
     }

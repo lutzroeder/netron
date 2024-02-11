@@ -1131,10 +1131,6 @@ protoc.Generator = class {
         this._root = root;
         this._text = text;
         this._builder = new protoc.Generator.StringBuilder();
-        if (this._containsLong(this._root)) {
-            this._builder.add('');
-            this._builder.add("import * as protobuf from './protobuf.js';");
-        }
         const scopes = Array.from(this._root.children.values()).map((child) => child.fullName);
         const exports = new Set(scopes.map((scope) => scope.split('.')[0]));
         this._builder.add('');
@@ -1147,27 +1143,6 @@ protoc.Generator = class {
 
     get content() {
         return this._content;
-    }
-
-    _containsLong(namespace) {
-        for (const child of namespace.children.values()) {
-            if (child instanceof protoc.Type) {
-                for (const field of child.fields.values()) {
-                    if (field.partOf || field.repeated || field instanceof protoc.MapField) {
-                        continue;
-                    }
-                    if (field.type.long) {
-                        return true;
-                    }
-                }
-            }
-            if (child instanceof protoc.Namespace) {
-                if (this._containsLong(child)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     _buildContent(namespace) {
@@ -1250,9 +1225,9 @@ protoc.Generator = class {
             }
             if (field.type.long) {
                 if (field.type.name === 'uint64' || field.type.name === 'fixed64') {
-                    this._builder.add(`${name}.prototype${protoc.Generator._propertyReference(field.name)} = protobuf.Uint64.create(${field.defaultValue});`);
+                    this._builder.add(`${name}.prototype${protoc.Generator._propertyReference(field.name)} = ${field.defaultValue}n;`);
                 } else {
-                    this._builder.add(`${name}.prototype${protoc.Generator._propertyReference(field.name)} = protobuf.Int64.create(${field.defaultValue});`);
+                    this._builder.add(`${name}.prototype${protoc.Generator._propertyReference(field.name)} = ${field.defaultValue}n;`);
                 }
             } else if (field.type.name === 'bytes') {
                 this._builder.add(`${name}.prototype${protoc.Generator._propertyReference(field.name)} = new Uint8Array(${JSON.stringify(Array.prototype.slice.call(field.defaultValue))});`);

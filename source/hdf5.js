@@ -269,7 +269,7 @@ hdf5.Variable = class {
                         for (let i = 0; i < length; i++) {
                             const pos = data_pos[i];
                             inbounds = inbounds && pos < data_shape[i];
-                            index += pos * data_strides[i];
+                            index += Number(pos) * data_strides[i];
                         }
                         if (inbounds) {
                             let chunk_offset = chunk_index * item_size;
@@ -335,12 +335,12 @@ hdf5.Reader = class {
 
     int64() {
         const position = this.take(8);
-        return this._view.getInt64(position, true).toNumber();
+        return this._view.getBigInt64(position, true);
     }
 
     uint64() {
         const position = this.take(8);
-        return this._view.getUint64(position, true).toNumber();
+        return this._view.getBigUint64(position, true);
     }
 
     uint(size) {
@@ -348,7 +348,7 @@ hdf5.Reader = class {
             case 0: return this.byte();
             case 1: return this.uint16();
             case 2: return this.uint32();
-            case 3: return this.uint64();
+            case 3: return Number(this.uint64());
             default: throw new hdf5.Error(`Unsupported uint size '${size}'.`);
         }
     }
@@ -382,11 +382,14 @@ hdf5.Reader = class {
         switch (this._offsetSize) {
             case 8: {
                 const position = this.take(8);
-                const value = this._view.getUint64(position, true);
-                if (value.low === -1 && value.high === -1) {
-                    return undefined;
+                const value = this._view.getBigUint64(position, true);
+                if (value === 0xffffffffffffffffn) {
+                    return -1;
                 }
-                return value.toNumber();
+                if (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) {
+                    throw new hdf5.Error('Unsigned 64-bit value exceeds safe integer.');
+                }
+                return Number(value);
             }
             case 4: {
                 const value = this.uint32();
@@ -405,11 +408,14 @@ hdf5.Reader = class {
         switch (this._lengthSize) {
             case 8: {
                 const position = this.take(8);
-                const value = this._view.getUint64(position, true);
-                if (value.low === -1 && value.high === -1) {
-                    return undefined;
+                const value = this._view.getBigUint64(position, true);
+                if (value === 0xffffffffffffffffn) {
+                    return -1;
                 }
-                return value.toNumber();
+                if (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) {
+                    throw new hdf5.Error('Unsigned 64-bit value exceeds safe integer.');
+                }
+                return Number(value);
             }
             case 4: {
                 const value = this.uint32();
@@ -589,7 +595,7 @@ hdf5.StreamReader = class extends hdf5.Reader {
 
     int64() {
         const position = this.take(8);
-        return this._view.getInt64(position, true).toNumber();
+        return this._view.getBigInt64(position, true);
     }
 
     float32() {
@@ -928,7 +934,7 @@ hdf5.LinkInfo = class {
             case 0: {
                 const flags = reader.byte();
                 if ((flags & 1) != 0) {
-                    this.maxCreationIndex = reader.uint64();
+                    this.maxCreationIndex = Number(reader.uint64());
                 }
                 this.fractalHeapAddress = reader.offset();
                 this.nameIndexTreeAddress = reader.offset();
@@ -1064,7 +1070,7 @@ hdf5.Datatype = class {
                 } else if (this._size == 4) {
                     return ((this._flags & 0x8) != 0) ? reader.int32() : reader.uint32();
                 } else if (this._size == 8) {
-                    return ((this._flags & 0x8) != 0) ? reader.int64() : reader.uint64();
+                    return ((this._flags & 0x8) != 0) ? Number(reader.int64()) : Number(reader.uint64());
                 }
                 throw new hdf5.Error('Unsupported fixed-point datatype.');
             case 1: // floating-point
@@ -1448,7 +1454,7 @@ hdf5.AttributeInfo = class {
             case 0: {
                 const flags = reader.byte();
                 if ((flags & 1) != 0) {
-                    this.maxCreationIndex = reader.uint64();
+                    this.maxCreationIndex = Number(reader.uint64());
                 }
                 this.fractalHeapAddress = reader.offset();
                 this.attributeNameTreeAddress = reader.offset();

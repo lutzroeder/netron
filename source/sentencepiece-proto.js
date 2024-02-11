@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 export const sentencepiece = {};
 
 sentencepiece.TrainerSpec = class TrainerSpec {
@@ -324,9 +322,9 @@ sentencepiece.TrainerSpec.prototype.vocab_size = 8000;
 sentencepiece.TrainerSpec.prototype.self_test_sample_size = 0;
 sentencepiece.TrainerSpec.prototype.enable_differential_privacy = false;
 sentencepiece.TrainerSpec.prototype.differential_privacy_noise_level = 0;
-sentencepiece.TrainerSpec.prototype.differential_privacy_clipping_threshold = protobuf.Uint64.create(0);
+sentencepiece.TrainerSpec.prototype.differential_privacy_clipping_threshold = 0n;
 sentencepiece.TrainerSpec.prototype.character_coverage = 0.9995;
-sentencepiece.TrainerSpec.prototype.input_sentence_size = protobuf.Uint64.create(0);
+sentencepiece.TrainerSpec.prototype.input_sentence_size = 0n;
 sentencepiece.TrainerSpec.prototype.shuffle_input_sentence = true;
 sentencepiece.TrainerSpec.prototype.mining_sentence_size = 0;
 sentencepiece.TrainerSpec.prototype.training_sentence_size = 0;

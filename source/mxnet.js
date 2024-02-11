@@ -917,19 +917,19 @@ mxnet.ndarray.NDArray = class {
 mxnet.BinaryReader = class extends base.BinaryReader {
 
     uint32s() {
-        const count = this.uint32();
-        const array = new Array(count);
-        for (let i = 0; i < array.length; i++) {
+        const size = this.uint32();
+        const array = new Array(size);
+        for (let i = 0; i < size; i++) {
             array[i] = this.uint32();
         }
         return array;
     }
 
     uint64s() {
-        const count = this.uint32();
-        const array = new Array(count);
-        for (let i = 0; i < array.length; i++) {
-            array[i] = this.uint64();
+        const size = this.uint32();
+        const array = new Array(size);
+        for (let i = 0; i < size; i++) {
+            array[i] = Number(this.uint64());
         }
         return array;
     }

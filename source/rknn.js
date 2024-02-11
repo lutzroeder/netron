@@ -540,7 +540,7 @@ rknn.Container = class extends Map {
                     const uint64 = () => {
                         const buffer = stream.read(8);
                         const reader = new base.BinaryReader(buffer);
-                        return reader.uint64();
+                        return Number(reader.uint64());
                     };
                     stream.skip(8);
                     const version = uint64();

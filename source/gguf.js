@@ -231,8 +231,8 @@ gguf.Reader = class {
         context.header.version = reader.uint32();
         this.format = `GGUF v${context.header.version}`;
         if (context.header.version >= 2) {
-            context.header.n_tensors = reader.uint64();
-            context.header.n_kv = reader.uint64();
+            context.header.n_tensors = Number(reader.uint64());
+            context.header.n_kv = Number(reader.uint64());
             for (let i = 0; i < context.header.n_kv; i++) {
                 const entry = reader.entry();
                 this.metadata.set(entry.name, entry.value);
@@ -276,7 +276,7 @@ gguf.StreamReader = class extends base.StreamReader {
     }
 
     string() {
-        const size = this.uint64();
+        const size = Number(this.uint64());
         const buffer = this.read(size);
         return String.fromCharCode.apply(null, buffer);
     }
@@ -300,7 +300,7 @@ gguf.StreamReader = class extends base.StreamReader {
             }
             case gguf.Type.ARRAY: {
                 const type = this.uint32();
-                const size = this.uint64();
+                const size = Number(this.uint64());
                 const value = new Array(size);
                 for (let i = 0; i < size; i++) {
                     value[i] = this.value(type);
@@ -326,10 +326,10 @@ gguf.StreamReader = class extends base.StreamReader {
         const n_dims = this.uint32();
         tensor.ne = new Array(n_dims);
         for (let i = 0; i < n_dims; i++) {
-            tensor.ne[i] = this.uint64();
+            tensor.ne[i] = Number(this.uint64());
         }
         tensor.type = this.uint32();
-        tensor.offset = this.uint64();
+        tensor.offset = Number(this.uint64());
         return tensor;
     }
 };

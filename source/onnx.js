@@ -112,8 +112,7 @@ onnx.Model = class {
         this._format = format;
         this._producer = model.producer_name && model.producer_name.length > 0 ? model.producer_name + (model.producer_version && model.producer_version.length > 0 ? ` ${model.producer_version}` : '') : null;
         this._domain = model.domain;
-        const model_version = model.model_version === undefined || typeof model.model_version === 'number' ? model.model_version : model.model_version.toNumber();
-        this._version = model_version ? model_version.toString() : '';
+        this._version = typeof model.model_version === 'number' || typeof model.model_version === 'bigint' ? model.model_version.toString() : '';
         this._description = model.doc_string;
         this._metadata = new Map();
         this._imports = null;
@@ -121,7 +120,7 @@ onnx.Model = class {
         if (model.opset_import && model.opset_import.length > 0) {
             for (const opset_import of model.opset_import) {
                 const domain = opset_import.domain || 'ai.onnx';
-                const version = opset_import.version ? typeof opset_import.version === 'number' ? opset_import.version: opset_import.version.toNumber() : 0;
+                const version = typeof opset_import.version === 'bigint' ? Number(opset_import.version) : opset_import.version;
                 if (!imports.has(domain) || imports.get(domain) > version) {
                     imports.set(domain, version);
                 }
@@ -1350,8 +1349,8 @@ onnx.Context.Graph = class {
 
     createDataType(value) {
         if (!Number.isInteger(value)) {
-            if (value && value.toNumber) {
-                value = value.toNumber();
+            if (value && typeof value === 'bigint') {
+                value = Number(value);
             } else if (value && typeof value === 'string' && onnx.DataType[value.toUpperCase()] !== undefined) {
                 value = onnx.DataType[value.toUpperCase()];
             } else {
@@ -2123,7 +2122,11 @@ onnx.TextReader = class {
             this._position = 0;
             this._char = this._decoder.decode();
             this.model = this._parseModel();
-            this.format = `ONNX Text${this.model.ir_version ? ` v${this.model.ir_version}` : ''}`;
+            this.format = 'ONNX Text';
+            if (this.model.ir_version !== undefined) {
+                const version = typeof this.model.ir_version === 'bigint' ? Number(this.model.ir_version) : this.model.ir_version;
+                this.format += ` v${version}`;
+            }
             delete this._decoder;
             delete this._position;
             delete this._char;

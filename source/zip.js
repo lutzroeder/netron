@@ -109,12 +109,13 @@ zip.Archive = class {
                     reader.startDisk = reader.uint32();
                     header.diskRecords = reader.uint64();
                     header.totalRecords = reader.uint64();
-                    header.size = reader.uint64();
+                    header.size = Number(reader.uint64());
                     header.offset = reader.uint64();
-                    if (header.offset === undefined) {
+                    if (header.offset > Number.MAX_SAFE_INTEGER) {
                         stream.seek(location);
                         throw new zip.Error('Zip 64-bit central directory offset not supported.');
                     }
+                    header.offset = Number(header.offset);
                 }
                 position -= header.size;
                 if (position < 0 || position > stream.length) {
@@ -174,19 +175,19 @@ zip.Archive = class {
                     switch (type) {
                         case 0x0001:
                             if (header.size === 0xffffffff) {
-                                header.size = reader.uint64();
+                                header.size = Number(reader.uint64());
                                 if (header.size === undefined) {
                                     throw new zip.Error('Zip 64-bit size not supported.');
                                 }
                             }
                             if (header.compressedSize === 0xffffffff) {
-                                header.compressedSize = reader.uint64();
+                                header.compressedSize = Number(reader.uint64());
                                 if (header.compressedSize === undefined) {
                                     throw new zip.Error('Zip 64-bit compressed size not supported.');
                                 }
                             }
                             if (header.localHeaderOffset === 0xffffffff) {
-                                header.localHeaderOffset = reader.uint64();
+                                header.localHeaderOffset = Number(reader.uint64());
                                 if (header.localHeaderOffset === undefined) {
                                     throw new zip.Error('Zip 64-bit offset not supported.');
                                 }
@@ -783,12 +784,9 @@ zip.BinaryReader = class {
     }
 
     uint64() {
-        const lo = this.uint32();
-        const hi = this.uint32();
-        if (hi > 0xffff) {
-            return undefined;
-        }
-        return hi * 4294967296 + lo;
+        const position = this._position;
+        this.skip(8);
+        return this._view.getBigUint64(position, true);
     }
 };
 

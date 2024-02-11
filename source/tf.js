@@ -230,7 +230,7 @@ tf.ModelFactory = class {
                 const buffer = stream.read(8);
                 stream.seek(0);
                 const reader = new base.BinaryReader(buffer);
-                const offset = reader.uint64();
+                const offset = Number(reader.uint64());
                 if (offset < stream.length) {
                     context.type = 'tf.pb.mmap';
                     return;
@@ -612,7 +612,7 @@ tf.ModelFactory = class {
                 stream.seek(-8);
                 const buffer = stream.read(8);
                 const reader = new base.BinaryReader(buffer);
-                return reader.uint64();
+                return Number(reader.uint64());
             };
             const readDirectory = (stream, offset) => {
                 const end = stream.position - 8;
@@ -630,8 +630,8 @@ tf.ModelFactory = class {
                     throw new tf.Error(`Memory mapped file directory contains duplicate '${name}'.`);
                 }
                 elements.set(name, {
-                    offset: element.offset ? element.offset.toNumber() : 0,
-                    length: element.length ? element.length.toNumber() : 0
+                    offset: typeof element.offset === 'bigint' ? Number(element.offset) : element.offset,
+                    length: typeof element.length === 'bigint' ? Number(element.length) : element.length
                 });
             }
             const offsets = Array.from(elements).map(([, value]) => value.offset);
@@ -995,7 +995,7 @@ tf.Node = class {
                     if (input.numberAttr) {
                         const inputNumber = node.attr[input.numberAttr];
                         if (inputNumber && inputNumber.i) {
-                            count = inputNumber.i;
+                            count = Number(inputNumber.i);
                         }
                     } else if (input.typeListAttr) {
                         const inputTypeListAttr = node.attr[input.typeListAttr];
@@ -1021,7 +1021,7 @@ tf.Node = class {
                     if (output.numberAttr) {
                         const outputNumber = node.attr[output.numberAttr];
                         if (outputNumber && outputNumber.i) {
-                            count = outputNumber.i;
+                            count = Number(outputNumber.i);
                         }
                     } else if (output.typeListAttr) {
                         const outputTypeListAttr = node.attr[output.typeListAttr];
@@ -1183,8 +1183,8 @@ tf.Attribute = class {
                     if (typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string') {
                         return value === defaultValue;
                     }
-                    if (value instanceof base.Int64 || value instanceof base.Uint64) {
-                        return value.toNumber() === defaultValue;
+                    if (typeof value === 'bigint') {
+                        return Number(value) === defaultValue;
                     }
                     return false;
                 };
@@ -1313,7 +1313,7 @@ tf.Tensor = class {
                         const values = tensor.scomplex_val || null;
                         this._values = new Array(values.length >> 1);
                         for (let i = 0; i < values.length; i += 2) {
-                            this._values[i >> 1] = base.Complex64.create(values[i], values[i + 1]);
+                            this._values[i >> 1] = new base.Complex64(values[i], values[i + 1]);
                         }
                         break;
                     }
@@ -1322,7 +1322,7 @@ tf.Tensor = class {
                         const values = tensor.dcomplex_val || null;
                         this._values = new Array(values.length >> 1);
                         for (let i = 0; i < values.length; i += 2) {
-                            this._values[i >> 1] = base.Complex128.create(values[i], values[i + 1]);
+                            this._values[i >> 1] = new base.Complex128(values[i], values[i + 1]);
                         }
                         break;
                     }
@@ -1360,7 +1360,7 @@ tf.Tensor = class {
                 values = values.map((value) => tf.Utility.decodeText(value));
             }
             const shape = (this._tensor.tensor_shape || this._tensor.tensorShape).dim.map((dim) => dim.size);
-            const size = shape.reduce((a, b) => a * b, 1);
+            const size = shape.reduce((a, b) => a * Number(b), 1);
             if (values.length === 1 && size > 1) {
                 values = new Array(size).fill(values[0]);
             }
@@ -1522,8 +1522,8 @@ tf.TensorBundle = class {
                         const tensor = new tf.proto.tensorflow.TensorProto();
                         tensor.dtype = entry.dtype;
                         tensor.tensor_shape = entry.shape;
-                        const offset = Number.isInteger(entry.offset) ? entry.offset : entry.offset.toNumber();
-                        const size = Number.isInteger(entry.size) ? entry.size : entry.size.toNumber();
+                        const offset = typeof entry.offset === 'bigint' ? Number(entry.offset) : entry.offset;
+                        const size = typeof entry.size === 'bigint' ? Number(entry.size) : entry.size;
                         if (streams) {
                             const stream = streams[entry.shard_id];
                             stream.seek(offset);
@@ -1753,7 +1753,7 @@ tf.EventFileReader = class {
             const uint64 = (stream) => {
                 const buffer = stream.read(8);
                 const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-                return view.getUint64(0, true).toNumber();
+                return Number(view.getBigUint64(0, true));
             };
             const length = uint64(this._stream);
             this._stream.skip(4); // masked crc of length

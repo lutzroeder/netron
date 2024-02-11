@@ -1,6 +1,4 @@
 
-import * as protobuf from './protobuf.js';
-
 export const ge = {};
 
 ge.proto = {};
@@ -685,18 +683,18 @@ ge.proto.TensorDescriptor.prototype.dtype = 0;
 ge.proto.TensorDescriptor.prototype.shape = null;
 ge.proto.TensorDescriptor.prototype.layout = "";
 ge.proto.TensorDescriptor.prototype.has_out_attr = false;
-ge.proto.TensorDescriptor.prototype.size = protobuf.Int64.create(0);
-ge.proto.TensorDescriptor.prototype.weight_size = protobuf.Int64.create(0);
+ge.proto.TensorDescriptor.prototype.size = 0n;
+ge.proto.TensorDescriptor.prototype.weight_size = 0n;
 ge.proto.TensorDescriptor.prototype.reuse_input = false;
 ge.proto.TensorDescriptor.prototype.output_tensor = false;
 ge.proto.TensorDescriptor.prototype.device_type = "";
 ge.proto.TensorDescriptor.prototype.input_tensor = false;
-ge.proto.TensorDescriptor.prototype.real_dim_cnt = protobuf.Int64.create(0);
-ge.proto.TensorDescriptor.prototype.reuse_input_index = protobuf.Int64.create(0);
-ge.proto.TensorDescriptor.prototype.data_offset = protobuf.Int64.create(0);
-ge.proto.TensorDescriptor.prototype.cmps_size = protobuf.Int64.create(0);
+ge.proto.TensorDescriptor.prototype.real_dim_cnt = 0n;
+ge.proto.TensorDescriptor.prototype.reuse_input_index = 0n;
+ge.proto.TensorDescriptor.prototype.data_offset = 0n;
+ge.proto.TensorDescriptor.prototype.cmps_size = 0n;
 ge.proto.TensorDescriptor.prototype.cmps_tab = "";
-ge.proto.TensorDescriptor.prototype.cmps_tab_offset = protobuf.Int64.create(0);
+ge.proto.TensorDescriptor.prototype.cmps_tab_offset = 0n;
 
 ge.proto.TensorDef = class TensorDef {
 
@@ -919,8 +917,8 @@ ge.proto.OpDef = class OpDef {
 ge.proto.OpDef.prototype.name = "";
 ge.proto.OpDef.prototype.type = "";
 ge.proto.OpDef.prototype.has_out_attr = false;
-ge.proto.OpDef.prototype.id = protobuf.Int64.create(0);
-ge.proto.OpDef.prototype.stream_id = protobuf.Int64.create(0);
+ge.proto.OpDef.prototype.id = 0n;
+ge.proto.OpDef.prototype.stream_id = 0n;
 
 ge.proto.GraphDef = class GraphDef {
 

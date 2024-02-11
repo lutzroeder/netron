@@ -344,7 +344,7 @@ dl4j.NDArray = class {
                     break;
                 case 'LONG_SHAPE':
                 case 'MIXED_DATA_TYPES':
-                    length = reader.int64();
+                    length = Number(reader.int64());
                     break;
                 default:
                     throw new dl4j.Error(`Unsupported header alloc '${alloc}'.`);
