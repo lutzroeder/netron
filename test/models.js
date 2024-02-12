@@ -68,9 +68,13 @@ class Logger {
                     value = '';
                     break;
                 case 'download':
-                    value = message.percent !== undefined ?
-                        `${(`  ${Math.floor(100 * message.percent)}`).slice(-3)}% ` :
-                        ` ${message.position}${this._threads === 1 ? ' bytes' : ''} `;
+                    if (message.percent !== undefined) {
+                        value = `${(`  ${Math.floor(100 * message.percent)}`).slice(-3)}% `;
+                    } else if (message.position !== undefined) {
+                        value = ` ${message.position}${this._threads === 1 ? ' bytes' : ''} `;
+                    } else {
+                        value = '  \u2714  ';
+                    }
                     break;
                 case 'decompress':
                     value = this._threads === 1 ? 'decompress' : '  ^  ';
@@ -271,8 +275,8 @@ const main = async () => {
                 /* eslint-enable no-await-in-loop */
             }
         } else {
-            const cores = Math.min(10, Math.round(0.7 * os.cpus().length), queue.length);
-            const identifiers = [...new Array(cores).keys()].map((value) => value.toString());
+            const threads = Math.min(10, Math.round(0.7 * os.cpus().length), queue.length);
+            const identifiers = [...new Array(threads).keys()].map((value) => value.toString());
             const workers = identifiers.map((identifier) => new Worker(identifier, queue, logger, measures));
             const promises = workers.map((worker) => worker.start());
             await Promise.all(promises);
