@@ -6601,6 +6601,9 @@ python.Execution = class {
         this.registerFunction('fastai.metrics.accuracy', function() {
             throw new python.Error("'fastai.metrics.error_rate' not implemented.");
         });
+        this.registerFunction('fastai.metrics.mse', function() {
+            throw new python.Error("'fastai.metrics.mse' not implemented.");
+        });
         this.registerFunction('fastai.metrics.error_rate', function() {
             throw new python.Error("'fastai.metrics.error_rate' not implemented.");
         });
