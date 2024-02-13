@@ -69,30 +69,41 @@ tensorrt.Engine = class {
     static open(context) {
         const stream = context.stream;
         if (stream && stream.length >= 24) {
-            const signatures = [
-                [ 0x70, 0x74, 0x72, 0x74 ], // ptrt
-                [ 0x66, 0x74, 0x72, 0x74 ]  // ftrt
-            ];
-            const buffer = stream.peek(4);
-            for (const signature of signatures) {
-                if (buffer.every((value, index) => value === signature[index])) {
-                    return new tensorrt.Engine(context);
+            const buffer = stream.peek(Math.min(stream.length, 1024));
+            const reader = new base.BinaryReader(buffer);
+            const match = (reader) => {
+                const buffer = reader.peek(4);
+                const signature = String.fromCharCode.apply(null, buffer);
+                return signature === 'ptrt' || signature === 'ftrt';
+            };
+            if (match(reader)) {
+                return new tensorrt.Engine(context, 0);
+            }
+            const size = reader.uint32();
+            if (size < 1000 && size < (reader.length - 4)) {
+                reader.skip(size);
+                const position = reader.position;
+                if (match(reader)) {
+                    return new tensorrt.Engine(context, position);
                 }
             }
         }
         return null;
     }
 
-    constructor(context) {
+    constructor(context, position) {
         this.context = context;
+        this.position = position;
         this.format = 'TensorRT Engine';
     }
 
     read() {
         const stream = this.context.stream;
+        stream.skip(this.position);
         const buffer = stream.peek(24);
         const reader = this.context.reader;
         delete this.context;
+        delete this.position;
         reader.skip(4);
         const version = reader.uint32();
         reader.uint32();
