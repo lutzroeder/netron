@@ -146,31 +146,34 @@ keras.ModelFactory = class {
             }
         };
         const read_weights_hdf5 = (group) => {
-            const walk = (group, path, weights_store) => {
-                const checkpoint = group.groups.get('layers') || group.groups.get('_layer_checkpoint_dependencies');
-                if (checkpoint) {
-                    for (const [, layer] of checkpoint.groups) {
-                        const name = `${path ? `${path}/` : ''}layers/${layer[0]}`;
-                        walk(layer, name, weights_store);
-                        const values = [];
-                        for (const vars of layer.groups) {
-                            for (const [name, group] of vars[1].groups) {
-                                const variable = group.value;
-                                if (variable) {
-                                    const layout = variable.littleEndian ? '<' : '>';
-                                    const tensor = new keras.Tensor(name, variable.shape, variable.type, null, null, layout, variable.data);
-                                    values.push(tensor);
+            const weights_store = new Map();
+            const stack = [ [ group, '' ] ];
+            while (stack.length > 0) {
+                const [ group, path ] = stack.pop();
+                if (group.groups instanceof Map) {
+                    const checkpoint = group.groups.get('layers') || group.groups.get('_layer_checkpoint_dependencies');
+                    if (checkpoint) {
+                        for (const [key, layer] of checkpoint.groups) {
+                            const name = `${path ? `${path}/` : ''}layers/${key}`;
+                            stack.push([ layer, name ]);
+                            const values = [];
+                            for (const vars of layer.groups) {
+                                for (const [name, group] of vars[1].groups) {
+                                    const variable = group.value;
+                                    if (variable) {
+                                        const layout = variable.littleEndian ? '<' : '>';
+                                        const tensor = new keras.Tensor(name, variable.shape, variable.type, null, null, layout, variable.data);
+                                        values.push(tensor);
+                                    }
                                 }
                             }
-                        }
-                        if (values.length > 0) {
-                            weights_store.set(name, values);
+                            if (values.length > 0) {
+                                weights_store.set(name, values);
+                            }
                         }
                     }
                 }
-            };
-            const weights_store = new Map();
-            walk(group, '', weights_store);
+            }
             return weights_store;
         };
         const read_weights_numpy = (entries) => {
