@@ -2494,7 +2494,14 @@ python.Execution = class {
         this.registerType('pathlib.PosixPath', class {});
         this.registerType('pathlib.WindowsPath', class {});
         this.registerType('sklearn._loss.link.BaseLink', class {});
+        this.registerType('sklearn._loss.link.IdentityLink', class extends sklearn._loss.link.BaseLink {});
+        this.registerType('sklearn._loss.link.Interval', class {});
         this.registerType('sklearn._loss.link.MultinomialLogit', class extends sklearn._loss.link.BaseLink {});
+        this.registerType('sklearn._loss._loss.CyLossFunction', class {});
+        this.registerType('sklearn._loss._loss.CyHalfSquaredError', class extends sklearn._loss._loss.CyLossFunction {});
+        this.registerFunction('sklearn._loss._loss.__pyx_unpickle_CyHalfSquaredError', function () {
+            throw new python.Error("'sklearn._loss._loss.__pyx_unpickle_CyHalfSquaredError' not implemented.");
+        });
         this.registerType('sklearn._loss.loss.BaseLoss', class {});
         this.registerType('sklearn._loss.loss.HalfMultinomialLoss', class extends sklearn._loss.loss.BaseLoss {});
         this.registerType('sklearn.base.BaseEstimator', class {});
@@ -4903,8 +4910,15 @@ python.Execution = class {
             }
             return 0;
         });
+        this.registerFunction('torch._nested_tensor_from_mask_left_aligned', function() {
+            throw new python.Error("'torch._nested_tensor_from_mask_left_aligned' not implemented.");
+        });
         this.registerFunction('torch._unwrap_optional', function(value) {
             return value; // TODO
+        });
+        this.registerFunction('torch.empty_strided', function(/* size, stride, dtype, layout, device, pin_memory, requires_grad */) {
+            return null;
+            // TODO throw new python.Error("'torch.empty_strided' not implemented.");
         });
         this.registerFunction('torch.empty_strided', function(/* size, stride, dtype, layout, device, pin_memory, requires_grad */) {
             return null;
