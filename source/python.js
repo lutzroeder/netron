@@ -1631,6 +1631,7 @@ python.Execution = class {
         this.register('collections');
         this.register('copy_reg');
         this.register('cuml');
+        const datetime = this.register('datetime');
         this.register('gensim');
         this.register('io');
         this.register('joblib');
@@ -1644,6 +1645,8 @@ python.Execution = class {
         const math = this.register('math');
         math.inf = Infinity;
         const numpy = this.register('numpy');
+        const pandas = this.register('pandas');
+        this.register('pandas._libs.tslib');
         const pickle = this.register('pickle');
         const sklearn = this.register('sklearn');
         const torch = this.register('torch');
@@ -1810,6 +1813,8 @@ python.Execution = class {
                 this._handle = state;
             }
         });
+        this.registerType('datetime.date', class {});
+        this.registerType('datetime.datetime', class extends datetime.date {});
         this.registerType('dnnlib.tflib.network.Network', class {});
         this.registerType('dnnlib.util.EasyDict', class extends dict {});
         this.registerType('haiku._src.data_structures.FlatMapping', class {
@@ -2490,6 +2495,15 @@ python.Execution = class {
                 super(shape, dtype);
             }
         });
+        this.registerType('pandas.core.frame.DataFrame', class {});
+        this.registerFunction('pandas.core.indexes.base._new_Index', function (cls, d) {
+            return new cls(d);
+        });
+        this.registerType('pandas.core.indexes.base.Index', class {});
+        this.registerType('pandas._libs.tslibs.base.ABCTimestamp', class extends datetime.datetime {});
+        this.registerType('pandas._libs.tslibs.timestamps._Timestamp', class extends pandas._libs.tslibs.base.ABCTimestamp {});
+        this.registerType('pandas._libs.tslibs.timestamps.Timestamp', class extends pandas._libs.tslibs.timestamps._Timestamp {});
+        pandas._libs.tslib.Timestamp = pandas._libs.tslibs.timestamps.Timestamp;
         this.registerType('pathlib.Path', class {});
         this.registerType('pathlib.PosixPath', class {});
         this.registerType('pathlib.WindowsPath', class {});
