@@ -364,7 +364,7 @@ const publish = async (target) => {
                 '',
                 `  url "${url}"`,
                 `  name "${configuration.productName}"`,
-                `  desc "${configuration.description}"`,
+                `  desc "${configuration.description.replace('Visualizer', 'Visualiser')}"`,
                 `  homepage "${repository}"`,
                 '',
                 '  auto_updates true',
@@ -381,9 +381,9 @@ const publish = async (target) => {
             ].join('\n'));
             writeLine('git push homebrew-cask');
             await exec('git -C dist/homebrew-cask add --all');
-            await exec(`git -C dist/homebrew-cask commit -m "Update ${configuration.name} to ${configuration.version}"`);
+            await exec(`git -C dist/homebrew-cask commit -m "${configuration.name} ${configuration.version}"`);
             await pullrequest('Homebrew', 'homebrew-cask', {
-                title: `Update ${configuration.name} to ${configuration.version}`,
+                title: `${configuration.name} ${configuration.version}`,
                 body: 'Update version and sha256',
                 head: `${process.env.GITHUB_USER}:master`,
                 base: 'master'
