@@ -4591,6 +4591,7 @@ python.Execution = class {
         this.registerType('torchvision.transforms.transforms.Lambda', class {});
         this.registerType('torchvision.transforms.transforms.Normalize', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomAffine', class extends torch.nn.modules.module.Module {});
+        this.registerType('torchvision.transforms.transforms.RandomApply', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomCrop', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomHorizontalFlip', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomVerticalFlip', class extends torch.nn.modules.module.Module {});
@@ -6613,6 +6614,7 @@ python.Execution = class {
         this.registerType('fastai.layers.ResBlock', class {});
         this.registerType('fastai.layers.SelfAttention', class {});
         this.registerType('fastai.layers.SigmoidRange', class {});
+        this.registerType('fastai.layers.ToTensorBase', class {});
         this.registerType('fastai.learner.Metric', class {});
         this.registerType('fastai.learner.AvgLoss', class extends fastai.learner.Metric {});
         this.registerType('fastai.learner.AvgMetric', class extends fastai.learner.Metric {});
@@ -6661,6 +6663,7 @@ python.Execution = class {
         });
         this.registerType('fastai.torch_core.TensorCategory', class {});
         this.registerType('fastai.torch_core.TensorImage', class {});
+        this.registerType('fastai.torch_core.TensorMask', class {});
         this.registerFunction('fastai.torch_core.trainable_params', function() {
             throw new python.Error("'fastai.torch_core.trainable_params' not implemented.");
         });
@@ -6680,6 +6683,8 @@ python.Execution = class {
         this.registerType('fastai.vision.augment.rotate_mat', class {});
         this.registerType('fastai.vision.augment.zoom_mat', class {});
         this.registerType('fastai.vision.core.PILImage', class {});
+        this.registerType('fastai.vision.core.PILMask', class {});
+        this.registerType('fastai.vision.core.AddMaskCodes', class {});
         this.registerType('fastai.vision.learner._resnet_split', class {});
         this.registerType('fastai.vision.models.unet.DynamicUnet', class {});
         this.registerType('fastai.vision.models.unet.ResizeToOrig', class {});
