@@ -13,7 +13,7 @@ hailo.ModelFactory = class {
     }
 
     filter(context, type) {
-        if (context.type === 'hailo.metadata' && (type === 'hailo.configuration' || type === 'npz')) {
+        if (context.type === 'hailo.metadata' && (type === 'hailo.configuration' || type === 'npz' || type === 'onnx.proto')) {
             return false;
         }
         if (context.type === 'hailo.configuration' && type === 'npz') {
