@@ -5994,7 +5994,7 @@
   {
     "type":     "safetensors",
     "target":   "simple.safetensors",
-    "source":   "https://github.com/lutzroeder/netron/files/11943528/simple.safetensors.zip[simple.safetensors]",
+    "source":   "https://github.com/lutzroeder/netron/files/14323612/simple.safetensors.zip[simple.safetensors]",
     "format":   "Safetensors",
     "assert":   [ "model.graphs[0].nodes[0].inputs[0].name == 'uint64'" ],
     "link":     "https://github.com/lutzroeder/netron/issues/1113"

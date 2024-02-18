@@ -129,18 +129,21 @@ safetensors.TensorType = class {
 
     constructor(dtype, shape) {
         switch (dtype) {
-            case 'I8':   this.dataType = 'int8'; break;
-            case 'I16':  this.dataType = 'int16'; break;
-            case 'I32':  this.dataType = 'int32'; break;
-            case 'I64':  this.dataType = 'int64'; break;
-            case 'U8':   this.dataType = 'uint8'; break;
-            case 'U16':  this.dataType = 'uint16'; break;
-            case 'U32':  this.dataType = 'uint32'; break;
-            case 'U64':  this.dataType = 'uint64'; break;
-            case 'BF16': this.dataType = 'bfloat16'; break;
-            case 'F16':  this.dataType = 'float16'; break;
-            case 'F32':  this.dataType = 'float32'; break;
-            case 'F64':  this.dataType = 'float64'; break;
+            case 'I8':      this.dataType = 'int8'; break;
+            case 'I16':     this.dataType = 'int16'; break;
+            case 'I32':     this.dataType = 'int32'; break;
+            case 'I64':     this.dataType = 'int64'; break;
+            case 'U8':      this.dataType = 'uint8'; break;
+            case 'U16':     this.dataType = 'uint16'; break;
+            case 'U32':     this.dataType = 'uint32'; break;
+            case 'U64':     this.dataType = 'uint64'; break;
+            case 'BF16':    this.dataType = 'bfloat16'; break;
+            case 'F16':     this.dataType = 'float16'; break;
+            case 'F32':     this.dataType = 'float32'; break;
+            case 'F64':     this.dataType = 'float64'; break;
+            case 'BOOL':    this.dataType = 'boolean'; break;
+            case 'F8_E4M3': this.dataType = 'float8e4m3fn'; break;
+            case 'F8_E5M2': this.dataType = 'float8e5m2'; break;
             default: throw new safetensors.Error(`Unsupported data type '${dtype}'.`);
         }
         this.shape = shape;
