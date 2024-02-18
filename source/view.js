@@ -5455,6 +5455,34 @@ view.ModelFactoryService = class {
         this.register('./modular', ['.maxviz']);
         this.register('./cambricon', ['.cambricon']);
         this.register('./weka', ['.model']);
+        this.register('./mslite', ['.ms']);
+        this.register('./barracuda', ['.nn']);
+        this.register('./circle', ['.circle']);
+        this.register('./dnn', ['.dnn']);
+        this.register('./xmodel', ['.xmodel']);
+        this.register('./kmodel', ['.kmodel']);
+        this.register('./flux', ['.bson']);
+        this.register('./dl4j', ['.json', '.bin']);
+        this.register('./openvino', ['.xml', '.bin']);
+        this.register('./mlnet', ['.zip', '.mlnet']);
+        this.register('./acuity', ['.json']);
+        this.register('./imgdnn', ['.dnn', 'params', '.json']);
+        this.register('./flax', ['.msgpack']);
+        this.register('./om', ['.om', '.onnx', '.pb', '.engine']);
+        this.register('./gguf', ['.gguf', /^[^.]+$/]);
+        this.register('./nnabla', ['.nntxt'], ['.nnp']);
+        this.register('./hickle', ['.h5', '.hkl']);
+        this.register('./nnef', ['.nnef', '.dat']);
+        this.register('./onednn', ['.json']);
+        this.register('./mlir', ['.mlir']);
+        this.register('./sentencepiece', ['.model']);
+        this.register('./hailo', ['.hn', '.har', '.metadata.json']);
+        this.register('./nnc', ['.nnc']);
+        this.register('./safetensors', ['.safetensors', '.safetensors.index.json']);
+        this.register('./modular', ['.maxviz']);
+        this.register('./cambricon', ['.cambricon']);
+        this.register('./weka', ['.model']);
+        this.register('./mind_ir', ['.mindir']);
     }
 
     register(module, factories, containers) {

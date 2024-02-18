@@ -734,7 +734,8 @@ base.Metadata = class {
             'ptl', 't7',
             'dlc', 'uff', 'armnn',
             'mnn', 'ms', 'ncnn', 'om', 'tm', 'mge', 'tmfile', 'tnnproto', 'xmodel', 'kmodel', 'rknn',
-            'tar', 'zip'
+            'tar', 'zip',
+            'mindir', 'mind_ir'
         ];
     }
 };
