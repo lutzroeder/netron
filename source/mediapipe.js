@@ -32,7 +32,7 @@ mediapipe.Model = class {
 
     constructor(config) {
         this.format = 'MediaPipe';
-        this.graphs = [ new mediapipe.Graph(config) ];
+        this.graphs = [new mediapipe.Graph(config)];
     }
 };
 
@@ -45,7 +45,7 @@ mediapipe.Graph = class {
         this.nodes = [];
         const types = new Map();
         const type = (list) => {
-            list = list ? Array.isArray(list) ? list : [ list ] : [];
+            list = list ? Array.isArray(list) ? list : [list] : [];
             return list.map((item) => {
                 const parts = item.split(':');
                 const name = parts.pop();
@@ -66,7 +66,7 @@ mediapipe.Graph = class {
         config.output_stream = type(config.output_stream);
         config.input_side_packet = type(config.input_side_packet);
         config.output_side_packet = type(config.output_side_packet);
-        config.node = config.node ? Array.isArray(config.node) ? config.node : [ config.node ] : [];
+        config.node = config.node ? Array.isArray(config.node) ? config.node : [config.node] : [];
         for (const node of config.node) {
             node.input_stream = type(node.input_stream);
             node.output_stream = type(node.output_stream);
@@ -82,22 +82,22 @@ mediapipe.Graph = class {
             return values.get(name);
         };
         for (const name of config.input_stream) {
-            const argument = new mediapipe.Argument(name, [ value(name) ]);
+            const argument = new mediapipe.Argument(name, [value(name)]);
             this.inputs.push(argument);
         }
         for (const name of config.output_stream) {
-            const argument = new mediapipe.Argument(name, [ value(name) ]);
+            const argument = new mediapipe.Argument(name, [value(name)]);
             this.outputs.push(argument);
         }
         for (const name of config.input_side_packet) {
-            const argument = new mediapipe.Argument(name, [ value(name, type) ]);
+            const argument = new mediapipe.Argument(name, [value(name, type)]);
             this.inputs.push(argument);
         }
         for (const output of config.output_side_packet) {
             const parts = output.split(':');
             const type = (parts.length > 1) ? parts.shift() : '';
             const name = parts.shift();
-            const argument = new mediapipe.Argument(name, [ value(name, type) ]);
+            const argument = new mediapipe.Argument(name, [value(name, type)]);
             this.outputs.push(argument);
         }
         for (const node of config.node) {
@@ -138,7 +138,7 @@ mediapipe.Node = class {
                 options.set(key, node.options[key]);
             }
         }
-        const node_options = node.node_options ? Array.isArray(node.node_options) ? node.node_options : [ node.node_options ] : [];
+        const node_options = node.node_options ? Array.isArray(node.node_options) ? node.node_options : [node.node_options] : [];
         if (mediapipe.proto.google && node_options.every((options) => options instanceof mediapipe.proto.google.protobuf.Any)) {
             for (const entry of node_options) {
                 const value = new RegExp(/^\{(.*)\}\s*$/, 's').exec(entry.value);
@@ -218,7 +218,7 @@ mediapipe.Object = class {
                 if (obj.__type__) {
                     while (!reader.end()) {
                         if (!Array.isArray(obj)) {
-                            obj = [ obj ];
+                            obj = [obj];
                         }
                         const token = reader.token();
                         if (token.startsWith('[') && token.endsWith(']')) {
@@ -251,7 +251,7 @@ mediapipe.Object = class {
                 reader.next();
             }
             if (this[tag] && (!Array.isArray(this[tag]) || arrayTags.has(tag))) {
-                this[tag] = [ this[tag] ];
+                this[tag] = [this[tag]];
                 arrayTags.delete(tag);
             }
             if (this[tag]) {

@@ -276,9 +276,9 @@ zip.Inflater = class {
             const writer = length === undefined ? new zip.BlockWriter() : new zip.BufferWriter(length);
             if (!zip.Inflater._staticLengthTree) {
                 zip.Inflater._codeLengths = new Uint8Array(19);
-                zip.Inflater._codeOrder = [ 16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15 ];
-                zip.Inflater._lengthBase = [ 24, 32, 40, 48, 56, 64, 72, 80, 89, 105, 121, 137, 154,  186,  218,  250,  283,  347, 411,  475,  540,  668,  796,  924, 1053, 1309, 1565, 1821, 2064, 7992, 7992, 7992 ];
-                zip.Inflater._distanceBase = [ 16, 32, 48, 64, 81, 113, 146, 210, 275, 403, 532, 788, 1045, 1557, 2070, 3094, 4119, 6167, 8216, 12312, 16409, 24601, 32794, 49178, 65563, 98331, 131100, 196636, 262173, 393245, 1048560, 1048560 ];
+                zip.Inflater._codeOrder = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
+                zip.Inflater._lengthBase = [24, 32, 40, 48, 56, 64, 72, 80, 89, 105, 121, 137, 154,  186,  218,  250,  283,  347, 411,  475,  540,  668,  796,  924, 1053, 1309, 1565, 1821, 2064, 7992, 7992, 7992];
+                zip.Inflater._distanceBase = [16, 32, 48, 64, 81, 113, 146, 210, 275, 403, 532, 788, 1045, 1557, 2070, 3094, 4119, 6167, 8216, 12312, 16409, 24601, 32794, 49178, 65563, 98331, 131100, 196636, 262173, 393245, 1048560, 1048560];
             }
             let type;
             do {
@@ -795,7 +795,7 @@ zlib.Archive = class {
     constructor(stream) {
         const position = stream.position;
         stream.read(2);
-        this._entries = new Map([ [ '', new zip.InflaterStream(stream) ] ]);
+        this._entries = new Map([['', new zip.InflaterStream(stream)]]);
         stream.seek(position);
     }
 
@@ -816,7 +816,7 @@ gzip.Archive = class {
 
     constructor(stream) {
         const position = stream.position;
-        const signature = [ 0x1f, 0x8b ];
+        const signature = [0x1f, 0x8b];
         if (stream.position + 2 > stream.length ||
             !stream.read(2).every((value, index) => value === signature[index])) {
             throw new gzip.Error('Invalid gzip signature.');
@@ -853,7 +853,7 @@ gzip.Archive = class {
         if ((flags & 1) != 0) { // FHCRC
             stream.skip(2);
         }
-        this._entries = new Map([ [ name, new gzip.InflaterStream(stream) ] ]);
+        this._entries = new Map([[name, new gzip.InflaterStream(stream)]]);
         stream.seek(position);
     }
 

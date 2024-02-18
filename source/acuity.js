@@ -23,7 +23,7 @@ acuity.Model = class {
         this.name = model.MetaData.Name;
         this.format = `Acuity v${model.MetaData.AcuityVersion}`;
         this.runtime = model.MetaData.Platform;
-        this.graphs = [ new acuity.Graph(metadata, model, data, quantization) ];
+        this.graphs = [new acuity.Graph(metadata, model, data, quantization)];
     }
 };
 
@@ -73,13 +73,13 @@ acuity.Graph = class {
             switch (layer.op.toLowerCase()) {
                 case 'input': {
                     const value = values.get(layer.outputs[0].name);
-                    const argument = new acuity.Argument(name, [ value ]);
+                    const argument = new acuity.Argument(name, [value]);
                     this.inputs.push(argument);
                     break;
                 }
                 case 'output': {
                     const value = values.get(layer.inputs[0].name);
-                    const argument = new acuity.Argument(name, [ value ]);
+                    const argument = new acuity.Argument(name, [value]);
                     this.outputs.push(argument);
                     break;
                 }
@@ -117,7 +117,7 @@ acuity.Node = class {
             const input = layer.inputs[i];
             const value = values.get(input.name);
             const name = this.type && this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i].name : `input${i}`;
-            const argument = new acuity.Argument(name, [ value ]);
+            const argument = new acuity.Argument(name, [value]);
             this.inputs.push(argument);
         }
 
@@ -126,7 +126,7 @@ acuity.Node = class {
                 // const name = "@" + this.name + ":" + constant.name;
                 const type = new acuity.TensorType(null, new acuity.TensorShape(null));
                 const value = new acuity.Value('', type, null, new acuity.Tensor(type));
-                const argument = new acuity.Argument(constant.name, [ value ]);
+                const argument = new acuity.Argument(constant.name, [value]);
                 this.inputs.push(argument);
             }
         }
@@ -135,7 +135,7 @@ acuity.Node = class {
             const output = layer.outputs[i];
             const value = values.get(output.name);
             const name = this.type && this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i].name : `output${i}`;
-            const argument = new acuity.Argument(name, [ value ]);
+            const argument = new acuity.Argument(name, [value]);
             this.outputs.push(argument);
         }
     }
@@ -242,7 +242,7 @@ acuity.Inference = class {
             for (let i = 0; i < longer.length; i++) {
                 longer[i] = longer[i] > shorter[i] ? longer[i] : shorter[i];
             }
-            return [ longer ];
+            return [longer];
         });
         operators.set('concat', (inputs, params) => {
             const outputShape = inputs[0].slice();
@@ -250,15 +250,15 @@ acuity.Inference = class {
             for (const shape of inputs) {
                 outputShape[params.dim] += shape[params.dim];
             }
-            return [ outputShape ];
+            return [outputShape];
         });
         operators.set('conv1d', (inputs, params) => {
             if (params.padding == 'VALID') {
                 const out_h = ~~((inputs[0][1] + params.stride - params.ksize) / params.stride);
-                return [ [ inputs[0][0], out_h, params.weights ] ];
+                return [[inputs[0][0], out_h, params.weights]];
             } else if (params.padding == 'SAME') {
                 const out_h = ~~((inputs[0][1] + params.stride - 1) / params.stride);
-                return [ [ inputs[0][0], out_h, params.weights ] ];
+                return [[inputs[0][0], out_h, params.weights]];
             }
             return null;
         });
@@ -266,24 +266,24 @@ acuity.Inference = class {
             if (params.padding == 'VALID') {
                 const out_h = ~~((inputs[0][1] + params.stride_h + params.pad[0] + params.pad[1] - params.ksize_h) / params.stride_h);
                 const out_w = ~~((inputs[0][2] + params.stride_w + params.pad[2] + params.pad[3]- params.ksize_w) / params.stride_w);
-                return [ [ inputs[0][0], out_h, out_w, params.weights ] ];
+                return [[inputs[0][0], out_h, out_w, params.weights]];
             } else if (params.padding == 'SAME') {
                 const out_h = ~~((inputs[0][1] + params.stride_h - 1) / params.stride_h);
                 const out_w = ~~((inputs[0][2] + params.stride_w - 1) / params.stride_w);
-                return [ [ inputs[0][0], out_h, out_w, params.weights ] ];
+                return [[inputs[0][0], out_h, out_w, params.weights]];
             }
             return null;
         });
         operators.set('deconvolution', (inputs, params) => {
-            return [ params.output_shape.map((item, index) => item == 0 ? inputs[0][index] : item) ];
+            return [params.output_shape.map((item, index) => item == 0 ? inputs[0][index] : item)];
         });
         operators.set('fullconnect', (inputs, params) => {
-            return [ inputs[0].slice(0, params.axis).concat([params.weights]) ];
+            return [inputs[0].slice(0, params.axis).concat([params.weights])];
         });
         operators.set('gather', (inputs, params) => {
             const prefix = inputs[1].slice();
             const suffix = inputs[0].slice(params.axis + 1);
-            return [ prefix.concat(suffix) ];
+            return [prefix.concat(suffix)];
         });
         operators.set('lstm', (inputs, params) => {
             const [input] = inputs;
@@ -293,8 +293,8 @@ acuity.Inference = class {
             if (params.time_major) {
                 batch = b;
             }
-            const newShape = params.return_sequences ? [ a, b, output ] : [ batch, output ];
-            return [ newShape, [batch, output], [batch, params.weights] ];
+            const newShape = params.return_sequences ? [a, b, output] : [batch, output];
+            return [newShape, [batch, output], [batch, params.weights]];
         });
         operators.set('matmul', ([a, b], params) => {
             let newShape = a.slice(0, -2);
@@ -308,23 +308,23 @@ acuity.Inference = class {
             } else {
                 newShape = newShape.concat(b.slice(-1));
             }
-            return [ newShape ];
+            return [newShape];
         });
         operators.set('pad', (inputs, params) => {
-            return [ inputs[0].map((item, index) => item + params.padding_value[index][0] + params.padding_value[index][1]) ];
+            return [inputs[0].map((item, index) => item + params.padding_value[index][0] + params.padding_value[index][1])];
         });
         operators.set('permute', (inputs, params) => {
-            return [ inputs[0].map((item, index) => inputs[0][params.perm[index]]) ];
+            return [inputs[0].map((item, index) => inputs[0][params.perm[index]])];
         });
         operators.set('pooling', (inputs, params) => {
             if (params.padding == 'VALID') {
                 const out_h = ~~((inputs[0][1] + params.stride_h - params.ksize_h) / params.stride_h);
                 const out_w = ~~((inputs[0][2] + params.stride_w - params.ksize_w) / params.stride_w);
-                return [ [inputs[0][0], out_h, out_w, inputs[0][3]] ];
+                return [[inputs[0][0], out_h, out_w, inputs[0][3]]];
             } else if (params.padding == 'SAME') {
                 const out_h = ~~((inputs[0][1] + params.stride_h - 1) / params.stride_h);
                 const out_w = ~~((inputs[0][2] + params.stride_w - 1) / params.stride_w);
-                return [ [inputs[0][0], out_h, out_w, inputs[0][3]] ];
+                return [[inputs[0][0], out_h, out_w, inputs[0][3]]];
             }
             return null;
         });
@@ -348,12 +348,12 @@ acuity.Inference = class {
                     newShape.splice(0, 0, 0);
                 }
             }
-            return [ newShape ];
+            return [newShape];
         });
         operators.set('repeat', (inputs, params) => {
             const newShape = inputs[0].slice();
             newShape[params.axis] = params.maxlen;
-            return [ newShape ];
+            return [newShape];
         });
         operators.set('reshape', (inputs, params) => {
             const negativeIndexs = [];
@@ -376,13 +376,13 @@ acuity.Inference = class {
             if (negativeIndexs.length > 0) {
                 newShape[negativeIndexs[0]] = inputs[0].reduce((a, c) => a * c) / newShape.reduce((a, c) => a * c);
             }
-            return [ newShape ];
+            return [newShape];
         });
         operators.set('sequence_mask', (inputs, params) => {
-            return [ inputs[0].slice().concat([params.maxlen]) ];
+            return [inputs[0].slice().concat([params.maxlen])];
         });
         operators.set('slice', (inputs, params) => {
-            return [ params.size.map((item, index) => item == -1 ? inputs[0][index] : item) ];
+            return [params.size.map((item, index) => item == -1 ? inputs[0][index] : item)];
         });
         operators.set('squeeze', (inputs, params) => {
             const newShape = inputs[0].slice();
@@ -390,13 +390,13 @@ acuity.Inference = class {
             for (const item of axis_list) {
                 newShape.splice(item, 1);
             }
-            return [ newShape ];
+            return [newShape];
         });
         operators.set('space2depth', (inputs, params) => {
             const h = inputs[0][1] / params.block_size[0];
             const w = inputs[0][2] / params.block_size[1];
             const c = inputs[0][3] * params.block_size[1] * params.block_size[1];
-            return [ [inputs[0][0], h, w, c] ];
+            return [[inputs[0][0], h, w, c]];
         });
         operators.set('split', (inputs, params) => {
             const sizes = [];
@@ -420,7 +420,7 @@ acuity.Inference = class {
             } else {
                 newShape.splice(params.axis, 0, inputs.length);
             }
-            return [ newShape ];
+            return [newShape];
         });
         operators.set('stridedslice', (inputs, params) => {
             const input_shape = inputs[0].slice();
@@ -490,7 +490,7 @@ acuity.Inference = class {
                     }
                 }
             }
-            return [ newShape ];
+            return [newShape];
         });
         const infer = (output) => {
             if (outputs.has(output.name)) {
@@ -510,7 +510,7 @@ acuity.Inference = class {
                     if (operators.has(layer.op)) {
                         callback = operators.get(layer.op);
                     } else if (passthroughs.has(layer.op)) {
-                        callback = (inputs) => [ inputs[0].slice() ];
+                        callback = (inputs) => [inputs[0].slice()];
                     } else if (broadcasts.has(layer.op)) {
                         callback = operators.get('broadcast');
                     } else if (reduces.has(layer.op)) {

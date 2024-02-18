@@ -66,7 +66,7 @@ uff.Model = class {
         const version = meta_graph.version;
         this.format = `UFF${version ? ` v${version}` : ''}`;
         this.imports = meta_graph.descriptors.map((descriptor) => `${descriptor.id} v${descriptor.version}`);
-        const references = new Map(meta_graph.referenced_data.map((item) => [ item.key, item.value ]));
+        const references = new Map(meta_graph.referenced_data.map((item) => [item.key, item.value]));
         for (const graph of meta_graph.graphs) {
             for (const node of graph.nodes) {
                 for (const field of node.fields) {
@@ -125,11 +125,11 @@ uff.Graph = class {
         }
         for (const node of graph.nodes) {
             if (node.operation === 'Input') {
-                this.inputs.push(new uff.Argument(node.id, [ values.get(node.id) ]));
+                this.inputs.push(new uff.Argument(node.id, [values.get(node.id)]));
                 continue;
             }
             if (node.operation === 'MarkOutput' && node.inputs.length === 1) {
-                this.outputs.push(new uff.Argument(node.id, [ values.get(node.inputs[0]) ]));
+                this.outputs.push(new uff.Argument(node.id, [values.get(node.inputs[0])]));
                 continue;
             }
             this.nodes.push(new uff.Node(metadata, node, value));
@@ -183,10 +183,10 @@ uff.Node = class {
             }
             this.inputs.push(...node.inputs.slice(index).map((identifier, i) => {
                 const name = ((index + i) === 0) ? 'input' : (index + i).toString();
-                return new uff.Argument(name, [ value(identifier) ]);
+                return new uff.Argument(name, [value(identifier)]);
             }));
         }
-        this.outputs.push(new uff.Argument('output', [ value(node.id) ]));
+        this.outputs.push(new uff.Argument('output', [value(node.id)]));
         for (const field of node.fields) {
             let type = null;
             switch (field.value.type) {

@@ -56,9 +56,9 @@ nnabla.Model = class {
             const name = parameter.variable_name;
             const shape = new nnabla.TensorShape(parameter.shape.dim);
             const type = new nnabla.TensorType(shape);
-            return [ name, new nnabla.Tensor(name, type, parameter.data) ];
+            return [name, new nnabla.Tensor(name, type, parameter.data)];
         }));
-        const networks = new Map(model.network.map((network) => [ network.name, network ]));
+        const networks = new Map(model.network.map((network) => [network.name, network]));
         for (const executor of model.executor) {
             const network = networks.get(executor.network_name);
             const graph = new nnabla.Graph(metadata, network, executor.data_variable, executor.output_variable, tensors);
@@ -85,7 +85,7 @@ nnabla.Graph = class {
             const name = variable.name;
             const shape = new nnabla.TensorShape(variable.shape.dim);
             const type = new nnabla.TensorType(shape);
-            return [ name, new nnabla.Value(name, type, tensors.get(name)) ];
+            return [name, new nnabla.Value(name, type, tensors.get(name))];
         }));
         values.map = (name) => {
             if (!values.has(name)) {
@@ -95,11 +95,11 @@ nnabla.Graph = class {
         };
         this.inputs = inputs.map((item) => {
             const name = item.variable_name;
-            return new nnabla.Argument(name, [ values.map(name) ]);
+            return new nnabla.Argument(name, [values.map(name)]);
         });
         this.outputs = outputs.map((output) => {
             const name = output.variable_name;
-            return new nnabla.Argument(name, [ values.map(name) ]);
+            return new nnabla.Argument(name, [values.map(name)]);
         });
         const get_parameters = (func) => {
             for (const [key, value] of Object.entries(func)) {

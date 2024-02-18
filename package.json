@@ -50,6 +50,7 @@
             "sourceType": "module"
         },
         "rules": {
+            "array-bracket-spacing": "error",
             "array-callback-return": "error",
             "arrow-parens": "error",
             "brace-style": "error",

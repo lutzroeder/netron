@@ -87,7 +87,7 @@ tflite.Model = class {
         this._description = model.description || '';
         this._metadata = new Map();
         const builtinOperators = new Map();
-        const upperCase = new Set([ '2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM' ]);
+        const upperCase = new Set(['2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM']);
         for (const key of Object.keys(tflite.schema.BuiltinOperator)) {
             const value = key === 'BATCH_MATMUL' ? 'BATCH_MAT_MUL' : key;
             const name = value.split('_').map((s) => (s.length < 1 || upperCase.has(s)) ? s : s[0] + s.substring(1).toLowerCase()).join('');
@@ -123,7 +123,7 @@ tflite.Model = class {
                                 this._version = modelMetadata.version;
                             }
                             if (modelMetadata.description) {
-                                this._description = this._description ? [ this._description, modelMetadata.description].join(' ') : modelMetadata.description;
+                                this._description = this._description ? [this._description, modelMetadata.description].join(' ') : modelMetadata.description;
                             }
                             if (modelMetadata.author) {
                                 this._metadata.set('author', modelMetadata.author);
@@ -249,7 +249,7 @@ tflite.Graph = class {
             if (subgraphMetadata && i < subgraphMetadata.input_tensor_metadata.length) {
                 applyTensorMetadata(value, subgraphMetadata.input_tensor_metadata[i]);
             }
-            this._inputs.push(new tflite.Argument(value ? value.name : '?', true, value ? [ value ] : []));
+            this._inputs.push(new tflite.Argument(value ? value.name : '?', true, value ? [value] : []));
         }
         const outputs = subgraph.outputs;
         for (let i = 0; i < outputs.length; i++) {
@@ -258,7 +258,7 @@ tflite.Graph = class {
             if (subgraphMetadata && i < subgraphMetadata.output_tensor_metadata.length) {
                 applyTensorMetadata(value, subgraphMetadata.output_tensor_metadata[i]);
             }
-            this._outputs.push(new tflite.Argument(value ? value.name : '?', true, value ? [ value ] : []));
+            this._outputs.push(new tflite.Argument(value ? value.name : '?', true, value ? [value] : []));
         }
     }
 
@@ -374,7 +374,7 @@ tflite.Node = class {
                             throw new tflite.Error(`Unsupported activation funtion index '${JSON.stringify(value)}'.`);
                         }
                         const type = activationFunctionMap[value];
-                        this._chain = [ new tflite.Node(metadata, null, { name: type }, null, []) ];
+                        this._chain = [new tflite.Node(metadata, null, { name: type }, null, [])];
                     }
                     const schema = metadata.attribute(type.name, name);
                     this._attributes.push(new tflite.Attribute(schema, name, value));
@@ -610,7 +610,7 @@ tflite.Utility = class {
 
     static dataType(type) {
         if (!tflite.Utility._tensorTypeMap) {
-            tflite.Utility._tensorTypeMap = new Map(Object.entries(tflite.schema.TensorType).map(([key, value]) => [ value, key.toLowerCase() ]));
+            tflite.Utility._tensorTypeMap = new Map(Object.entries(tflite.schema.TensorType).map(([key, value]) => [value, key.toLowerCase()]));
             tflite.Utility._tensorTypeMap.set(6, 'boolean');
         }
         return tflite.Utility._tensorTypeMap.has(type) ? tflite.Utility._tensorTypeMap.get(type) : '?';
@@ -621,7 +621,7 @@ tflite.Utility = class {
         if (type) {
             tflite.Utility._enums = tflite.Utility._enums || new Map();
             if (!tflite.Utility._enums.has(name)) {
-                const entries = new Map(Object.entries(type).map(([key, value]) => [ value, key ]));
+                const entries = new Map(Object.entries(type).map(([key, value]) => [value, key]));
                 tflite.Utility._enums.set(name, entries);
             }
             const map = tflite.Utility._enums.get(name);

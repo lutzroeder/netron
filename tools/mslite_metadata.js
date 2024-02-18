@@ -25,7 +25,7 @@ const main = async () => {
         }
     }
     const root = new flatc.Root('mslite');
-    await root.load([], [ schema ]);
+    await root.load([], [schema]);
     const namespace = root.find('mindspore.schema', flatc.Namespace);
     const primitiveType = namespace.find('mindspore.schema.PrimitiveType', flatc.Type);
     for (const table of primitiveType.values.values()) {

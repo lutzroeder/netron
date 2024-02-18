@@ -167,12 +167,12 @@ app.Application = class {
     }
 
     _open(path) {
-        let paths = path ? [ path ] : [];
+        let paths = path ? [path] : [];
         if (paths.length === 0) {
             const extensions = new base.Metadata().extensions;
             const showOpenDialogOptions = {
-                properties: [ 'openFile' ],
-                filters: [ { name: 'All Model Files', extensions: extensions } ]
+                properties: ['openFile'],
+                filters: [{ name: 'All Model Files', extensions: extensions }]
             };
             paths = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
         }
@@ -240,8 +240,8 @@ app.Application = class {
                 defaultPath: defaultPath,
                 buttonLabel: 'Export',
                 filters: [
-                    { name: 'PNG', extensions: [ 'png' ] },
-                    { name: 'SVG', extensions: [ 'svg' ] }
+                    { name: 'PNG', extensions: ['png'] },
+                    { name: 'SVG', extensions: ['svg'] }
                 ]
             };
             const selectedFile = electron.dialog.showSaveDialogSync(owner, showSaveDialogOptions);

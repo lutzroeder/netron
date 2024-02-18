@@ -125,7 +125,7 @@ ncnn.Model = class {
 
     constructor(metadata, param, bin) {
         this._format = 'ncnn';
-        this._graphs = [ new ncnn.Graph(metadata, param, bin) ];
+        this._graphs = [new ncnn.Graph(metadata, param, bin)];
     }
 
     get format() {
@@ -271,7 +271,7 @@ ncnn.Node = class {
         }
         this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
             const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
-            return new ncnn.Argument(inputName, [ values.map(input) ]);
+            return new ncnn.Argument(inputName, [values.map(input)]);
         }));
 
         const outputs = layer.outputs || [];
@@ -288,7 +288,7 @@ ncnn.Node = class {
         }
         this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
             const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
-            return new ncnn.Argument(outputName, [ values.map(output) ]);
+            return new ncnn.Argument(outputName, [values.map(output)]);
         }));
         const weight = (blobReader, name, dimensions, dataType) => {
             const blob = blobReader.read(dimensions, dataType);
@@ -296,19 +296,19 @@ ncnn.Node = class {
             const data = blob ? blob.data : null;
             const type = new ncnn.TensorType(dataType, new ncnn.TensorShape(dimensions));
             const tensor = new ncnn.Tensor(type, data);
-            this._inputs.push(new ncnn.Argument(name, [ values.map('', null, tensor) ]));
+            this._inputs.push(new ncnn.Argument(name, [values.map('', null, tensor)]));
         };
         switch (this._type.name) {
             case 'BatchNorm': {
                 const channels = parseInt(attributes.get('0') || 0, 10);
-                weight(blobReader, 'slope', [ channels ], 'float32');
-                weight(blobReader, 'mean', [ channels ], 'float32');
-                weight(blobReader, 'variance', [ channels ], 'float32');
-                weight(blobReader, 'bias', [ channels ], 'float32');
+                weight(blobReader, 'slope', [channels], 'float32');
+                weight(blobReader, 'mean', [channels], 'float32');
+                weight(blobReader, 'variance', [channels], 'float32');
+                weight(blobReader, 'bias', [channels], 'float32');
                 break;
             }
             case 'InnerProduct': {
-                const activation_names = [ '', 'ReLU', 'Leaky ReLU', 'Clip', 'Sigmoid', 'Mish', 'HardSwish' ];
+                const activation_names = ['', 'ReLU', 'Leaky ReLU', 'Clip', 'Sigmoid', 'Mish', 'HardSwish'];
                 const activation_type = parseInt(attributes.get('9') || 0, 10);
                 if (activation_type > 0 && activation_type < activation_names.length) {
                     const layer = {
@@ -319,24 +319,24 @@ ncnn.Node = class {
                 }
                 const num_output = parseInt(attributes.get('0') || 0, 10);
                 const weight_data_size = parseInt(attributes.get('2') || 0, 10);
-                weight(blobReader, 'weight', [ num_output, weight_data_size / num_output ]);
+                weight(blobReader, 'weight', [num_output, weight_data_size / num_output]);
                 if (parseInt(attributes.get('1') || 0, 10) === 1) {
-                    weight(blobReader, 'bias', [ num_output ], 'float32');
+                    weight(blobReader, 'bias', [num_output], 'float32');
                 }
                 attributes.delete('2');
                 break;
             }
             case 'Bias': {
                 const bias_data_size = parseInt(attributes.get('0') || 0, 10);
-                weight(blobReader, 'bias', [ bias_data_size ], 'float32');
+                weight(blobReader, 'bias', [bias_data_size], 'float32');
                 break;
             }
             case 'Embed': {
                 const num_output = parseInt(attributes.get('0') || 0, 10);
                 const weight_data_size = parseInt(attributes.get('3') || 0, 10);
-                weight(blobReader, 'weight', [ weight_data_size / num_output, num_output ]);
+                weight(blobReader, 'weight', [weight_data_size / num_output, num_output]);
                 if (parseInt(attributes.get('2') || 0, 10) === 1) {
-                    weight(blobReader, 'bias', [ num_output ], 'float32');
+                    weight(blobReader, 'bias', [num_output], 'float32');
                 }
                 attributes.get('3');
                 break;
@@ -345,7 +345,7 @@ ncnn.Node = class {
             case 'ConvolutionDepthWise':
             case 'Deconvolution':
             case 'DeconvolutionDepthWise': {
-                const activation_names = [ '', 'ReLU', 'LeakyReLU', 'Clip', 'Sigmoid', 'Mish', 'HardSwish' ];
+                const activation_names = ['', 'ReLU', 'LeakyReLU', 'Clip', 'Sigmoid', 'Mish', 'HardSwish'];
                 const activation_type = parseInt(attributes.get('9') || 0, 10);
                 if (activation_type > 0 && activation_type < activation_names.length) {
                     const layer = {
@@ -358,16 +358,16 @@ ncnn.Node = class {
                 const kernel_w = parseInt(attributes.get('1') || 0, 10);
                 const kernel_h = parseInt(attributes.get('11') || kernel_w, 10);
                 const weight_data_size = parseInt(attributes.get('6') || 0, 10);
-                weight(blobReader, 'weight', [ num_output, weight_data_size / (num_output * kernel_w * kernel_h), kernel_h, kernel_w ]);
+                weight(blobReader, 'weight', [num_output, weight_data_size / (num_output * kernel_w * kernel_h), kernel_h, kernel_w]);
                 if (parseInt(attributes.get('5') || 0, 10) === 1) {
-                    weight(blobReader, 'bias', [ num_output ], 'float32');
+                    weight(blobReader, 'bias', [num_output], 'float32');
                 }
                 attributes.delete('6');
                 break;
             }
             case 'Convolution1D':
             case 'ConvolutionDepthWise1D': {
-                const activation_names = [ '', 'ReLU', 'LeakyReLU', 'Clip', 'Sigmoid', 'Mish', 'HardSwish' ];
+                const activation_names = ['', 'ReLU', 'LeakyReLU', 'Clip', 'Sigmoid', 'Mish', 'HardSwish'];
                 const activation_type = parseInt(attributes.get('9') || 0, 10);
                 if (activation_type > 0 && activation_type < activation_names.length) {
                     const layer = {
@@ -379,16 +379,16 @@ ncnn.Node = class {
                 const num_output = parseInt(attributes.get('0') || 0, 10);
                 const kernel_w = parseInt(attributes.get('1') || 0, 10);
                 const weight_data_size = parseInt(attributes.get('6') || 0, 10);
-                weight(blobReader, 'weight', [ num_output, weight_data_size / (num_output * kernel_w), kernel_w ]);
+                weight(blobReader, 'weight', [num_output, weight_data_size / (num_output * kernel_w), kernel_w]);
                 if (parseInt(attributes.get('5') || 0, 10) === 1) {
-                    weight(blobReader, 'bias', [ num_output ], 'float32');
+                    weight(blobReader, 'bias', [num_output], 'float32');
                 }
                 attributes.delete('6');
                 break;
             }
             case 'Convolution3D':
             case 'ConvolutionDepthWise3D': {
-                const activation_names = [ '', 'ReLU', 'LeakyReLU', 'Clip', 'Sigmoid', 'Mish', 'HardSwish' ];
+                const activation_names = ['', 'ReLU', 'LeakyReLU', 'Clip', 'Sigmoid', 'Mish', 'HardSwish'];
                 const activation_type = parseInt(attributes.get('9') || 0, 10);
                 if (activation_type > 0 && activation_type < activation_names.length) {
                     const layer = {
@@ -402,66 +402,66 @@ ncnn.Node = class {
                 const kernel_h = parseInt(attributes.get('11') || kernel_w, 10);
                 const kernel_d = parseInt(attributes.get('21') || kernel_w, 10);
                 const weight_data_size = parseInt(attributes.get('6') || 0, 10);
-                weight(blobReader, 'weight', [ num_output, weight_data_size / (num_output * kernel_w * kernel_h * kernel_d), kernel_d, kernel_h, kernel_w ]);
+                weight(blobReader, 'weight', [num_output, weight_data_size / (num_output * kernel_w * kernel_h * kernel_d), kernel_d, kernel_h, kernel_w]);
                 if (parseInt(attributes.get('5') || 0, 10) === 1) {
-                    weight(blobReader, 'bias', [ num_output ], 'float32');
+                    weight(blobReader, 'bias', [num_output], 'float32');
                 }
                 attributes.delete('6');
                 break;
             }
             case 'Quantize': {
                 const scale_data_size = parseInt(attributes.get('0') || 1, 10);
-                weight(blobReader, 'scale', [ scale_data_size ], 'float32');
+                weight(blobReader, 'scale', [scale_data_size], 'float32');
                 break;
             }
             case 'Dequantize': {
                 const scale_data_size = parseInt(attributes.get('0') || 1, 10);
                 const bias_data_size = parseInt(attributes.get('1') || 0, 10);
-                weight(blobReader, 'scale', [ scale_data_size ], 'float32');
-                weight(blobReader, 'bias', [ bias_data_size ], 'float32');
+                weight(blobReader, 'scale', [scale_data_size], 'float32');
+                weight(blobReader, 'bias', [bias_data_size], 'float32');
                 break;
             }
             case 'Requantize': {
                 const scale_in_data_size = parseInt(attributes.get('0') || 1, 10);
                 const scale_out_data_size = parseInt(attributes.get('1') || 1, 10);
                 const bias_data_size = parseInt(attributes.get('2') || 0, 10);
-                weight(blobReader, 'scale_in', [ scale_in_data_size ], 'float32');
-                weight(blobReader, 'scale_out', [ scale_out_data_size ], 'float32');
-                weight(blobReader, 'bias', [ bias_data_size ], 'float32');
+                weight(blobReader, 'scale_in', [scale_in_data_size], 'float32');
+                weight(blobReader, 'scale_out', [scale_out_data_size], 'float32');
+                weight(blobReader, 'bias', [bias_data_size], 'float32');
                 break;
             }
             case 'InstanceNorm': {
                 const affine = parseInt(attributes.get('2') || 1, 10);
                 if (affine === 1) {
                     const channels = parseInt(attributes.get('0') || 0, 10);
-                    weight(blobReader, 'gamma', [ channels ], 'float32');
-                    weight(blobReader, 'beta', [ channels ], 'float32');
+                    weight(blobReader, 'gamma', [channels], 'float32');
+                    weight(blobReader, 'beta', [channels], 'float32');
                 }
                 break;
             }
             case 'Scale': {
                 const scale_data_size = parseInt(attributes.get('0') || 0, 10);
                 if (scale_data_size != -233) {
-                    weight(blobReader, 'scale', [ scale_data_size], 'float32');
+                    weight(blobReader, 'scale', [scale_data_size], 'float32');
                     if (attributes.get('1') == '1') {
-                        weight(blobReader, 'bias', [ scale_data_size ], 'float32');
+                        weight(blobReader, 'bias', [scale_data_size], 'float32');
                     }
                 }
                 break;
             }
             case 'Normalize': {
                 const scale_data_size = parseInt(attributes.get('3') || 0, 10);
-                weight(blobReader, 'scale', [ scale_data_size ], 'float32');
+                weight(blobReader, 'scale', [scale_data_size], 'float32');
                 break;
             }
             case 'PReLU': {
                 const num_slope = parseInt(attributes.get('0') || 0, 10);
-                weight(blobReader, 'slope', [ num_slope ], 'float32');
+                weight(blobReader, 'slope', [num_slope], 'float32');
                 break;
             }
             case 'Padding': {
                 const per_channel_pad_data_size = parseInt(attributes.get('6') || 0, 10);
-                weight(blobReader, 'per_channel_pad_data', [ per_channel_pad_data_size ], 'float32');
+                weight(blobReader, 'per_channel_pad_data', [per_channel_pad_data_size], 'float32');
                 break;
             }
             case 'MemoryData': {
@@ -470,15 +470,15 @@ ncnn.Node = class {
                 const d = parseInt(attributes.get('11') || 0, 10);
                 const c = parseInt(attributes.get('2') || 0, 10);
                 if (d != 0) {
-                    weight(blobReader, 'data', [ c, d, h, w ], 'float32');
+                    weight(blobReader, 'data', [c, d, h, w], 'float32');
                 } else if (c != 0) {
-                    weight(blobReader, 'data', [ c, h, w ], 'float32');
+                    weight(blobReader, 'data', [c, h, w], 'float32');
                 } else if (h != 0) {
-                    weight(blobReader, 'data', [ h, w ], 'float32');
+                    weight(blobReader, 'data', [h, w], 'float32');
                 } else if (w != 0) {
-                    weight(blobReader, 'data', [ w ], 'float32');
+                    weight(blobReader, 'data', [w], 'float32');
                 } else {
-                    weight(blobReader, 'data', [ 1 ], 'float32');
+                    weight(blobReader, 'data', [1], 'float32');
                 }
                 break;
             }
@@ -486,15 +486,15 @@ ncnn.Node = class {
                 const affine = parseInt(attributes.get('3') || 1, 10);
                 if (affine === 1) {
                     const channels = parseInt(attributes.get('1') || 0, 10);
-                    weight(blobReader, 'gamma', [ channels ], 'float32');
-                    weight(blobReader, 'beta', [ channels ], 'float32');
+                    weight(blobReader, 'gamma', [channels], 'float32');
+                    weight(blobReader, 'beta', [channels], 'float32');
                 }
                 break;
             }
             case 'LayerNorm': {
                 const channels = parseInt(attributes.get('0') || 0, 10);
-                weight(blobReader, 'gamma', [ channels ], 'float32');
-                weight(blobReader, 'beta', [ channels ], 'float32');
+                weight(blobReader, 'gamma', [channels], 'float32');
+                weight(blobReader, 'beta', [channels], 'float32');
                 break;
             }
             case 'RNN': {
@@ -502,9 +502,9 @@ ncnn.Node = class {
                 const weight_data_size = parseInt(attributes.get('1') || 0, 10);
                 const direction = parseInt(attributes.get('2') || 0, 10);
                 const num_directions = direction == 2 ? 2 : 1;
-                weight(blobReader, 'weight_xc', [ num_directions, num_output, weight_data_size / num_directions / num_output ]);
-                weight(blobReader, 'bias_c', [ num_directions, num_output ]);
-                weight(blobReader, 'weight_hc', [ num_directions, num_output, num_output ]);
+                weight(blobReader, 'weight_xc', [num_directions, num_output, weight_data_size / num_directions / num_output]);
+                weight(blobReader, 'bias_c', [num_directions, num_output]);
+                weight(blobReader, 'weight_hc', [num_directions, num_output, num_output]);
                 attributes.delete('1');
                 break;
             }
@@ -513,9 +513,9 @@ ncnn.Node = class {
                 const weight_data_size = parseInt(attributes.get('1') || 0, 10);
                 const direction = parseInt(attributes.get('2') || 0, 10);
                 const num_directions = direction == 2 ? 2 : 1;
-                weight(blobReader, 'weight_xc', [ num_directions, 4, num_output, weight_data_size / num_directions / num_output / 4 ]);
-                weight(blobReader, 'bias_c', [ num_directions, 4, num_output ]);
-                weight(blobReader, 'weight_hc', [ num_directions, 4, num_output, num_output ]);
+                weight(blobReader, 'weight_xc', [num_directions, 4, num_output, weight_data_size / num_directions / num_output / 4]);
+                weight(blobReader, 'bias_c', [num_directions, 4, num_output]);
+                weight(blobReader, 'weight_hc', [num_directions, 4, num_output, num_output]);
                 attributes.delete('1');
                 break;
             }
@@ -524,9 +524,9 @@ ncnn.Node = class {
                 const weight_data_size = parseInt(attributes.get('1') || 0, 10);
                 const direction = parseInt(attributes.get('2') || 0, 10);
                 const num_directions = direction == 2 ? 2 : 1;
-                weight(blobReader, 'weight_xc', [ num_directions, 3, num_output, weight_data_size / num_directions / num_output / 3 ]);
-                weight(blobReader, 'bias_c', [ num_directions, 4, num_output ]);
-                weight(blobReader, 'weight_hc', [ num_directions, 3, num_output, num_output ]);
+                weight(blobReader, 'weight_xc', [num_directions, 3, num_output, weight_data_size / num_directions / num_output / 3]);
+                weight(blobReader, 'bias_c', [num_directions, 4, num_output]);
+                weight(blobReader, 'weight_hc', [num_directions, 3, num_output, num_output]);
                 attributes.delete('1');
                 break;
             }
@@ -534,14 +534,14 @@ ncnn.Node = class {
                 const embed_dim = parseInt(attributes.get('0') || 0, 10);
                 // const num_head = parseInt(attributes.get('1') || 0, 10);
                 // const weight_data_size = parseInt(attributes.get('2') || 0, 10);
-                weight(blobReader, 'weight_q', [ embed_dim, embed_dim ]);
-                weight(blobReader, 'bias_q', [ embed_dim ], 'float32');
-                weight(blobReader, 'weight_k', [ embed_dim, embed_dim ]);
-                weight(blobReader, 'bias_k', [ embed_dim ], 'float32');
-                weight(blobReader, 'weight_v', [ embed_dim, embed_dim ]);
-                weight(blobReader, 'bias_v', [ embed_dim ], 'float32');
-                weight(blobReader, 'weight_out', [ embed_dim, embed_dim ]);
-                weight(blobReader, 'bias_out', [ embed_dim ], 'float32');
+                weight(blobReader, 'weight_q', [embed_dim, embed_dim]);
+                weight(blobReader, 'bias_q', [embed_dim], 'float32');
+                weight(blobReader, 'weight_k', [embed_dim, embed_dim]);
+                weight(blobReader, 'bias_k', [embed_dim], 'float32');
+                weight(blobReader, 'weight_v', [embed_dim, embed_dim]);
+                weight(blobReader, 'bias_v', [embed_dim], 'float32');
+                weight(blobReader, 'weight_out', [embed_dim, embed_dim]);
+                weight(blobReader, 'bias_out', [embed_dim], 'float32');
                 attributes.delete('2');
                 break;
             }
@@ -708,15 +708,15 @@ ncnn.Utility = class {
 
     static value(value, type) {
         ncnn.Utility._enum = ncnn.Utility._enum || new Map([
-            [ 'BinaryOpType', [ 'Add', 'Sub', 'Mul', 'Div', 'Max', 'Min', 'Pow', 'RSub', 'RDiv' ] ],
-            [ 'CastOpType', [ 'Auto', 'Float32', 'Float16', 'Int8', 'BFloat16' ] ],
-            [ 'EltwiseType', [ 'Prod', 'Sum', 'Max' ] ],
-            [ 'PaddingType', [ 'Constant', 'Replicate', 'Reflect' ] ],
-            [ 'PoolingType', [ 'Max', 'Average' ] ],
-            [ 'InterpResizeType', [ '', 'Nearest', 'Bilinear', 'Bicubic' ] ],
-            [ 'PermuteOrderType', [ 'WH WHC WHDC', 'HW HWC HWDC', 'WCH WDHC', 'CWH DWHC', 'HCW HDWC', 'CHW DHWC', 'WHCD', 'HWCD', 'WCHD', 'CWHD', 'HCWD', 'CHWD', 'WDCH', 'DWCH', 'WCDH', 'CWDH', 'DCWH', 'CDWH', 'HDCW', 'DHCW', 'HCDW', 'CHDW', 'DCHW', 'CDHW' ] ],
-            [ 'ReductionOpType', [ 'Sum', 'ASum', 'SumSq', 'Mean', 'Max', 'Min', 'Prod', 'L1', 'L2', 'LogSum', 'LogSumExp' ] ],
-            [ 'UnaryOpType', [ 'Abs', 'Neg', 'Floor', 'Ceil', 'Square', 'Sqrt', 'Rsq', 'Exp', 'Log', 'Sin', 'Cos', 'Tan', 'ASin', 'ACos', 'ATan', 'Reciprocal', 'Tanh' ] ]
+            ['BinaryOpType', ['Add', 'Sub', 'Mul', 'Div', 'Max', 'Min', 'Pow', 'RSub', 'RDiv']],
+            ['CastOpType', ['Auto', 'Float32', 'Float16', 'Int8', 'BFloat16']],
+            ['EltwiseType', ['Prod', 'Sum', 'Max']],
+            ['PaddingType', ['Constant', 'Replicate', 'Reflect']],
+            ['PoolingType', ['Max', 'Average']],
+            ['InterpResizeType', ['', 'Nearest', 'Bilinear', 'Bicubic']],
+            ['PermuteOrderType', ['WH WHC WHDC', 'HW HWC HWDC', 'WCH WDHC', 'CWH DWHC', 'HCW HDWC', 'CHW DHWC', 'WHCD', 'HWCD', 'WCHD', 'CWHD', 'HCWD', 'CHWD', 'WDCH', 'DWCH', 'WCDH', 'CWDH', 'DCWH', 'CDWH', 'HDCW', 'DHCW', 'HCDW', 'CHDW', 'DCHW', 'CDHW']],
+            ['ReductionOpType', ['Sum', 'ASum', 'SumSq', 'Mean', 'Max', 'Min', 'Prod', 'L1', 'L2', 'LogSum', 'LogSumExp']],
+            ['UnaryOpType', ['Abs', 'Neg', 'Floor', 'Ceil', 'Square', 'Sqrt', 'Rsq', 'Exp', 'Log', 'Sin', 'Cos', 'Tan', 'ASin', 'ACos', 'ATan', 'Reciprocal', 'Tanh']]
         ]);
         if (this._enum.has(type) && typeof value === 'string') {
             const index = parseInt(value, 10);

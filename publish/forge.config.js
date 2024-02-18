@@ -38,7 +38,7 @@ export default {
         {
             name: '@electron-forge/maker-zip',
             config: {
-                platforms: [ 'darwin' ],
+                platforms: ['darwin'],
                 // name: "${name}-${version}-mac.zip"
             }
         },

@@ -32,18 +32,18 @@ mnn.Model = class {
     constructor(metadata, net) {
         this.format = 'MNN v2';
         const sources = new Map([
-            [ mnn.schema.NetSource.CAFFE, 'Caffe' ],
-            [ mnn.schema.NetSource.TENSORFLOW, 'TensorFlow' ],
-            [ mnn.schema.NetSource.TFLITE, 'TensorFlow Lite' ],
-            [ mnn.schema.NetSource.ONNX, 'ONNX' ],
-            [ mnn.schema.NetSource.TORCH, 'Torch' ]
+            [mnn.schema.NetSource.CAFFE, 'Caffe'],
+            [mnn.schema.NetSource.TENSORFLOW, 'TensorFlow'],
+            [mnn.schema.NetSource.TFLITE, 'TensorFlow Lite'],
+            [mnn.schema.NetSource.ONNX, 'ONNX'],
+            [mnn.schema.NetSource.TORCH, 'Torch']
         ]);
         if (!sources.has(net.sourceType)) {
             throw new mnn.Error(`Unsupported model source '${net.sourceType}'.`);
         }
         this.metadata = new Map();
         this.metadata.set('source', sources.get(net.sourceType));
-        this.graphs = [ new mnn.Graph(metadata, net) ];
+        this.graphs = [new mnn.Graph(metadata, net)];
     }
 };
 
@@ -109,7 +109,7 @@ mnn.Graph = class {
         for (let i = 0; i < net.tensorName.length; i++) {
             if (!inputs.has(i)) {
                 const value = values.map(i);
-                const argument = new mnn.Argument(value.name, [ value ]);
+                const argument = new mnn.Argument(value.name, [value]);
                 this.outputs.push(argument);
             }
         }
@@ -136,11 +136,11 @@ mnn.Node = class {
         }
         const param = op.main;
         if (param) {
-            const parameters = [ param ];
+            const parameters = [param];
             if (param instanceof mnn.schema.Blob) {
                 const tensor = mnn.Utility.createTensor(param, 'Blob');
                 const value = new mnn.Value('', null, tensor);
-                const argument = new mnn.Argument('value', [ value ]);
+                const argument = new mnn.Argument('value', [value]);
                 this.inputs.push(argument);
                 parameters.splice(0, parameters.length);
             } else if (param instanceof mnn.schema.Convolution2D) {
@@ -149,8 +149,8 @@ mnn.Node = class {
                 const inputCount = common.inputCount;
                 const kernelX = common.kernelX;
                 const kernelY = common.kernelY;
-                this._buildTensor('weight', mnn.schema.DataType.DT_FLOAT, [ outputCount, inputCount, kernelX, kernelY ], param.weight);
-                this._buildTensor('bias', mnn.schema.DataType.DT_FLOAT, [ outputCount ], param.bias);
+                this._buildTensor('weight', mnn.schema.DataType.DT_FLOAT, [outputCount, inputCount, kernelX, kernelY], param.weight);
+                this._buildTensor('bias', mnn.schema.DataType.DT_FLOAT, [outputCount], param.bias);
                 delete param.weight;
                 delete param.bias;
                 delete param.quanParameter;
@@ -158,32 +158,32 @@ mnn.Node = class {
             } else if (param instanceof mnn.schema.InnerProduct) {
                 const outputCount = param.outputCount;
                 const inputCount = param.weightSize / outputCount;
-                this._buildTensor('weight', mnn.schema.DataType.DT_FLOAT, [ outputCount, inputCount ], param.weight);
-                this._buildTensor('bias', mnn.schema.DataType.DT_FLOAT, [ outputCount ], param.bias);
+                this._buildTensor('weight', mnn.schema.DataType.DT_FLOAT, [outputCount, inputCount], param.weight);
+                this._buildTensor('bias', mnn.schema.DataType.DT_FLOAT, [outputCount], param.bias);
                 delete param.weight;
                 delete param.bias;
                 delete param.quanParameter;
             } else if (param instanceof mnn.schema.Scale) {
                 const scaleDataCount = param.channels;
-                this._buildTensor('scale', mnn.schema.DataType.DT_FLOAT, [ scaleDataCount ], param.scaleData);
-                this._buildTensor('bias', mnn.schema.DataType.DT_FLOAT, [ scaleDataCount ], param.biasData);
+                this._buildTensor('scale', mnn.schema.DataType.DT_FLOAT, [scaleDataCount], param.scaleData);
+                this._buildTensor('bias', mnn.schema.DataType.DT_FLOAT, [scaleDataCount], param.biasData);
                 delete param.scaleData;
                 delete param.biasData;
             } else if (param instanceof mnn.schema.BatchNorm) {
                 const channels = param.channels;
-                this._buildTensor('mean', mnn.schema.DataType.DT_FLOAT, [ channels ], param.meanData);
-                this._buildTensor('slope', mnn.schema.DataType.DT_FLOAT, [ channels ], param.slopeData);
-                this._buildTensor('variance', mnn.schema.DataType.DT_FLOAT, [ channels ], param.varData);
-                this._buildTensor('bias', mnn.schema.DataType.DT_FLOAT, [ channels ], param.biasData);
+                this._buildTensor('mean', mnn.schema.DataType.DT_FLOAT, [channels], param.meanData);
+                this._buildTensor('slope', mnn.schema.DataType.DT_FLOAT, [channels], param.slopeData);
+                this._buildTensor('variance', mnn.schema.DataType.DT_FLOAT, [channels], param.varData);
+                this._buildTensor('bias', mnn.schema.DataType.DT_FLOAT, [channels], param.biasData);
                 delete param.slopeData;
                 delete param.meanData;
                 delete param.varData;
                 delete param.biasData;
             } else if (param instanceof mnn.schema.PRelu) {
-                this._buildTensor('slope', mnn.schema.DataType.DT_FLOAT, [ param.slopeCount ], param.slope);
+                this._buildTensor('slope', mnn.schema.DataType.DT_FLOAT, [param.slopeCount], param.slope);
                 delete param.slopeCount;
             } else if (param instanceof mnn.schema.Normalize) {
-                this._buildTensor('scale', mnn.schema.DataType.DT_FLOAT, [ param.scale.length ], param.scale);
+                this._buildTensor('scale', mnn.schema.DataType.DT_FLOAT, [param.scale.length], param.scale);
                 delete param.scale;
             }
             while (parameters.length > 0) {
@@ -204,7 +204,7 @@ mnn.Node = class {
         const shape = new mnn.TensorShape(dimensions);
         const type = new mnn.TensorType(dataType, shape);
         const tensor = new mnn.Tensor('Weight', type, value);
-        const argument = new mnn.Argument(name, [ new mnn.Value('', null, tensor) ]);
+        const argument = new mnn.Argument(name, [new mnn.Value('', null, tensor)]);
         this.inputs.push(argument);
     }
 };

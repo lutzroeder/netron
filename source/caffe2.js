@@ -189,7 +189,7 @@ caffe2.Model = class {
         this.format = 'Caffe2';
         this.domain = predict_net.domain || null;
         const graph = new caffe2.Graph(metadata, predict_net, init_net);
-        this.graphs = [ graph ];
+        this.graphs = [graph];
     }
 };
 
@@ -206,19 +206,19 @@ caffe2.Graph = class {
         }
         if (init) {
             const dataTypes = new Map([
-                [ 'GivenTensorFill', 'float32' ],
-                [ 'GivenTensorDoubleFill', 'float64' ],
-                [ 'GivenTensorBoolFill', 'boolean' ],
-                [ 'GivenTensorByteStringToUInt8Fill', 'uint8' ],
-                [ 'GivenTensorInt16Fill', 'int16' ],
-                [ 'GivenTensorSInt16Fill', 'int16' ],
-                [ 'GivenTensorIntFill', 'int32' ],
-                [ 'GivenTensorInt64Fill', 'int64' ],
-                [ 'GivenTensorStringFill', 'string' ],
-                [ 'Int8GivenIntTensorFill', 'int32' ],
-                [ 'Int8GivenTensorFill', 'int8' ],
-                [ 'XavierFill', null ],
-                [ 'ConstantFill', null ]
+                ['GivenTensorFill', 'float32'],
+                ['GivenTensorDoubleFill', 'float64'],
+                ['GivenTensorBoolFill', 'boolean'],
+                ['GivenTensorByteStringToUInt8Fill', 'uint8'],
+                ['GivenTensorInt16Fill', 'int16'],
+                ['GivenTensorSInt16Fill', 'int16'],
+                ['GivenTensorIntFill', 'int32'],
+                ['GivenTensorInt64Fill', 'int64'],
+                ['GivenTensorStringFill', 'string'],
+                ['Int8GivenIntTensorFill', 'int32'],
+                ['Int8GivenTensorFill', 'int8'],
+                ['XavierFill', null],
+                ['ConstantFill', null]
             ]);
             for (const op of init.op) {
                 if (op.output && op.output.length == 1) {
@@ -308,12 +308,12 @@ caffe2.Graph = class {
             if (netDef.external_input.length > 1 && initializers.has(input)) {
                 continue;
             }
-            const argument = new caffe2.Argument(input, [ values.map(input) ]);
+            const argument = new caffe2.Argument(input, [values.map(input)]);
             this.inputs.push(argument);
         }
         this.outputs = [];
         for (const output of netDef.external_output) {
-            const argument = new caffe2.Argument(output, [ values.map(output) ]);
+            const argument = new caffe2.Argument(output, [values.map(output)]);
             this.outputs.push(argument);
         }
     }
@@ -365,7 +365,7 @@ caffe2.Node = class {
         } else {
             this.inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
-                return new caffe2.Argument(inputName, [ values.map(input) ]);
+                return new caffe2.Argument(inputName, [values.map(input)]);
             }));
         }
         this.outputs = [];
@@ -382,7 +382,7 @@ caffe2.Node = class {
         } else {
             this.outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
-                return new caffe2.Argument(outputName, [ values.map(output) ]);
+                return new caffe2.Argument(outputName, [values.map(output)]);
             }));
         }
     }
@@ -441,8 +441,8 @@ caffe2.Tensor = class {
         if (tensor.Y_scale !== undefined || tensor.Y_zero_point !== undefined) {
             this.quantization = {
                 type: 'linear',
-                scale: [ tensor.Y_scale ? tensor.Y_scale.f : 0 ],
-                offset: [ tensor.Y_zero_point && typeof tensor.Y_zero_point.i === 'bigint' ? Number(tensor.Y_zero_point.i) : 0 ]
+                scale: [tensor.Y_scale ? tensor.Y_scale.f : 0],
+                offset: [tensor.Y_zero_point && typeof tensor.Y_zero_point.i === 'bigint' ? Number(tensor.Y_zero_point.i) : 0]
             };
         }
         if (tensor.values) {

@@ -8,7 +8,7 @@ cntk.ModelFactory = class {
     match(context) {
         const stream = context.stream;
         // CNTK v1
-        const signature = [ 0x42, 0x00, 0x43, 0x00, 0x4e, 0x00, 0x00, 0x00 ];
+        const signature = [0x42, 0x00, 0x43, 0x00, 0x4e, 0x00, 0x00, 0x00];
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             context.type = 'cntk.v1';
             return;
@@ -114,7 +114,7 @@ cntk.Model = class {
             default:
                 throw new cntk.Error(`Unsupported CNTK version '${version}'.`);
         }
-        this.graphs = [ new cntk.Graph(metadata, version, obj) ];
+        this.graphs = [new cntk.Graph(metadata, version, obj)];
     }
 };
 
@@ -150,7 +150,7 @@ cntk.Graph = class {
                     const node = obj.nodes[name];
                     switch (node.__type__) {
                         case 'InputValue': {
-                            const argument = new cntk.Argument(node.name, [ values.map(node.name, version, node) ]);
+                            const argument = new cntk.Argument(node.name, [values.map(node.name, version, node)]);
                             this.inputs.push(argument);
                             break;
                         }
@@ -170,25 +170,25 @@ cntk.Graph = class {
                 }
                 if (obj.output) {
                     for (const output of obj.output) {
-                        const argument = new cntk.Argument(output, [ values.map(output, version) ]);
+                        const argument = new cntk.Argument(output, [values.map(output, version)]);
                         this.outputs.push(argument);
                     }
                 }
                 break;
             }
             case 2: {
-                const map = new Map(obj.primitive_functions.map((node) => [ node.uid, node ]));
+                const map = new Map(obj.primitive_functions.map((node) => [node.uid, node]));
                 for (const input of obj.inputs) {
                     const value = values.map(input.uid, version, input);
                     // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
                     if (input.kind == 0) {
                         const inputName = input.name || input.uid;
-                        this.inputs.push(new cntk.Argument(inputName, [ value ]));
+                        this.inputs.push(new cntk.Argument(inputName, [value]));
                     }
                 }
                 for (const block of obj.primitive_functions) {
                     if (block.op == 57 && block.block_function_composite) {
-                        const list = [ block.block_function_composite.root ];
+                        const list = [block.block_function_composite.root];
                         const output = map.get(block.block_function_composite.root);
                         const keys = block.block_function_composite_arguments_map_keys;
                         const args = block.block_function_composite_arguments_map_values;
@@ -196,8 +196,8 @@ cntk.Graph = class {
                         if (!Array.isArray(keys) || !Array.isArray(args) || keys.length !== args.length) {
                             throw new cntk.Error('Invalid block function composite arguments.');
                         }
-                        const inputs = keys.map((key) => new cntk.Argument(key, [ values.map(key, version) ]));
-                        const outputs = [ new cntk.Argument('output', [ values.map(`${output.uid}_Output_0`, version) ]) ];
+                        const inputs = keys.map((key) => new cntk.Argument(key, [values.map(key, version)]));
+                        const outputs = [new cntk.Argument('output', [values.map(`${output.uid}_Output_0`, version)])];
                         const nodes = [];
                         while (list.length > 0) {
                             const name = list.shift();
@@ -302,7 +302,7 @@ cntk.Node = class {
                     }
                 }
                 inputs = obj.inputs.map((input) => values.map(input, version));
-                outputs = [ values.map(this.name, version) ];
+                outputs = [values.map(this.name, version)];
                 break;
             }
             case 2: {
@@ -355,7 +355,7 @@ cntk.Node = class {
             }
         }
         this.inputs.push(...inputs.slice(inputIndex).map((argument, index) => {
-            return new cntk.Argument((inputIndex + index).toString(), [ argument ]);
+            return new cntk.Argument((inputIndex + index).toString(), [argument]);
         }));
 
         let outputIndex = 0;
@@ -369,7 +369,7 @@ cntk.Node = class {
             }
         }
         this.outputs.push(...outputs.slice(outputIndex).map((argument) => {
-            return new cntk.Argument(outputIndex.toString(), [ argument ]);
+            return new cntk.Argument(outputIndex.toString(), [argument]);
         }));
     }
 };
@@ -778,30 +778,30 @@ cntk.ComputationNetwork = class {
             }
         };
         op.Convolution = function(reader, version) {
-            op.ConvolutionBase.apply(this, [ reader, version ]);
+            op.ConvolutionBase.apply(this, [reader, version]);
             if (version < 5) {
-                this.kernelShape = shape([ Number(reader.uint64()), Number(reader.uint64()), 1 ]);
-                this.strides = shape([ Number(reader.uint64()), Number(reader.uint64()), 1 ]);
-                this.mapCount = shape([ reader.uint32() ]);
+                this.kernelShape = shape([Number(reader.uint64()), Number(reader.uint64()), 1]);
+                this.strides = shape([Number(reader.uint64()), Number(reader.uint64()), 1]);
+                this.mapCount = shape([reader.uint32()]);
                 this.imageLayoutKind = reader.int32();
-                this.autoPadding = [ reader.boolean() ];
+                this.autoPadding = [reader.boolean()];
                 this.maxTempMemSizeInSamples = Number(reader.uint64());
                 this.poolKind = 'None';
                 this.convolution2D = true;
-                this.sharing = [ true ];
-                this.lowerPad = shape([ 0 ]);
-                this.upperPad = shape([ 0 ]);
+                this.sharing = [true];
+                this.lowerPad = shape([0]);
+                this.upperPad = shape([0]);
             } else {
                 this.convolution2D = reader.boolean();
                 if (version >= 18) {
                     this.dilation = reader.shape();
                 } else {
-                    this.dilation = shape([ 1 ]);
+                    this.dilation = shape([1]);
                 }
             }
         };
         op.Pooling = function(reader, version) {
-            op.ConvolutionBase.apply(this, [ reader, version ]);
+            op.ConvolutionBase.apply(this, [reader, version]);
         };
         op.PoolingBase = function(reader) {
             this.imageLayoutKind = reader.int32();
@@ -811,7 +811,7 @@ cntk.ComputationNetwork = class {
             this.verticalSubsample = Number(reader.uint64());
         };
         op.MaxPooling = function(reader, version) {
-            op.PoolingBase.apply(this, [ reader, version ]);
+            op.PoolingBase.apply(this, [reader, version]);
         };
         op.ROIPooling = function(reader, version) {
             this.roiOutputShape = reader.shape(false);
@@ -899,7 +899,7 @@ cntk.ComputationNetwork = class {
             this.axis = [];
             this.strideMultiplier = [];
             for (let i = 0; i < num; i++) {
-                this.index.push([ [ Number(reader.uint64()), Number(reader.uint64()) ] ]);
+                this.index.push([[Number(reader.uint64()), Number(reader.uint64())]]);
                 if (version >= 3) {
                     this.axis.push(reader.int32());
                 }
@@ -915,7 +915,7 @@ cntk.ComputationNetwork = class {
             } else {
                 const rows = Number(reader.uint64());
                 reader.uint64();
-                this.sampleLayout = shape([ rows ], true);
+                this.sampleLayout = shape([rows], true);
             }
             if (version >= 2) {
                 this.initialStateValue = reader.int32();
@@ -928,7 +928,7 @@ cntk.ComputationNetwork = class {
             } else {
                 const rows = Number(reader.uint64());
                 reader.uint64();
-                this.sampleLayout = shape([ rows ], true);
+                this.sampleLayout = shape([rows], true);
             }
             if (version >= 2) {
                 this.initialStateValue = reader.int32();
@@ -951,7 +951,7 @@ cntk.ComputationNetwork = class {
             }
         };
         op.AveragePooling = function(reader, version) {
-            op.PoolingBase.apply(this, [ reader, version ]);
+            op.PoolingBase.apply(this, [reader, version]);
         };
         op.InvStdDev = function(reader) {
             this.hasComputed = reader.boolean();
@@ -979,7 +979,7 @@ cntk.ComputationNetwork = class {
             if (!constructor) {
                 throw new cntk.Error(`Unsupported node type '${obj.__type__}'.`);
             }
-            constructor.apply(obj, [ reader, this.version ]);
+            constructor.apply(obj, [reader, this.version]);
             nodes.push(obj);
             this.nodes[obj.name] = obj;
         }
@@ -998,7 +998,7 @@ cntk.ComputationNetwork = class {
                     __type__: 'LearnableParameter',
                     name: `${nodeName}.run_sample_count`,
                     precision: node.precision,
-                    sampleLayout: shape([ 1 ]), // TODO set value = 0
+                    sampleLayout: shape([1]), // TODO set value = 0
                     learningRateMultiplier: 0
                 };
                 nodes.push(runSampleCount);

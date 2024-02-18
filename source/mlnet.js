@@ -10,7 +10,7 @@ mlnet.ModelFactory = class {
     match(context) {
         const entries = context.peek('zip');
         if (entries instanceof Map && entries.size > 0) {
-            const root = new Set([ 'TransformerChain', 'Predictor']);
+            const root = new Set(['TransformerChain', 'Predictor']);
             if (Array.from(entries.keys()).some((name) => root.has(name.split('\\').shift().split('/').shift()))) {
                 context.type = 'mlnet';
                 context.target = entries;
@@ -63,7 +63,7 @@ mlnet.Graph = class {
         };
         if (reader.schema && reader.schema.inputs) {
             for (const input of reader.schema.inputs) {
-                const argument = new mlnet.Argument(input.name, [ values.map(input.name, new mlnet.TensorType(input.type)) ]);
+                const argument = new mlnet.Argument(input.name, [values.map(input.name, new mlnet.TensorType(input.type))]);
                 this._inputs.push(argument);
             }
         }
@@ -187,7 +187,7 @@ mlnet.Node = class {
         if (transformer.inputs) {
             let i = 0;
             for (const input of transformer.inputs) {
-                const argument = new mlnet.Argument(i.toString(), [ values.map(input.name) ]);
+                const argument = new mlnet.Argument(i.toString(), [values.map(input.name)]);
                 this._inputs.push(argument);
                 i++;
             }
@@ -195,7 +195,7 @@ mlnet.Node = class {
         if (transformer.outputs) {
             let i = 0;
             for (const output of transformer.outputs) {
-                const argument = new mlnet.Argument(i.toString(), [ values.map(output.name) ]);
+                const argument = new mlnet.Argument(i.toString(), [values.map(output.name)]);
                 this._outputs.push(argument);
                 i++;
             }
@@ -281,13 +281,13 @@ mlnet.TensorType = class {
 
     constructor(codec) {
         mlnet.TensorType._map = mlnet.TensorType._map || new Map([
-            [ 'Byte', 'uint8' ],
-            [ 'Boolean', 'boolean' ],
-            [ 'Single', 'float32' ],
-            [ 'Double', 'float64' ],
-            [ 'UInt32', 'uint32' ],
-            [ 'Int64', 'int64' ],
-            [ 'TextSpan', 'string' ]
+            ['Byte', 'uint8'],
+            ['Boolean', 'boolean'],
+            ['Single', 'float32'],
+            ['Double', 'float64'],
+            ['UInt32', 'uint32'],
+            ['Int64', 'int64'],
+            ['TextSpan', 'string']
         ]);
         this._dataType = '?';
         this._shape = new mlnet.TensorShape(null);
@@ -467,7 +467,7 @@ mlnet.ComponentCatalog = class {
             throw new mlnet.Error(`Unsupported loader signature '${signature}'.`);
         }
         const type = this._map.get(signature);
-        return Reflect.construct(type, [ context ]);
+        return Reflect.construct(type, [context]);
     }
 };
 
@@ -1494,7 +1494,7 @@ mlnet.NormalizingTransformer = class extends mlnet.OneToOneTransformerBase {
             let itemKind = '';
             if (context.modelVersionWritten < 0x00010002) {
                 isVector = reader.boolean();
-                shape = [ reader.int32() ];
+                shape = [reader.int32()];
                 itemKind = reader.byte();
             } else {
                 isVector = reader.boolean();
@@ -1631,7 +1631,7 @@ mlnet.CompositeDataLoader = class {
                 tag = context.string();
                 args = context.string(null);
             }
-            tagData.push([ tag, args ]);
+            tagData.push([tag, args]);
         }
         this.chain = [];
         for (let j = 0; j < cxf; j++) {

@@ -25,10 +25,10 @@ const main = async () => {
         }
     }
     const root = new flatc.Root('tflite');
-    await root.load([], [ schema ]);
+    await root.load([], [schema]);
     const namespace = root.find('tflite', flatc.Namespace);
     const builtOperator = namespace.find('tflite.BuiltinOperator', flatc.Type);
-    const upperCase = new Set([ '2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM' ]);
+    const upperCase = new Set(['2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM']);
     for (const op of builtOperator.values.keys()) {
         let op_key = op === 'BATCH_MATMUL' ? 'BATCH_MAT_MUL' : op;
         op_key = op_key.split('_').map((s) => (s.length < 1 || upperCase.has(s)) ? s : s[0] + s.substring(1).toLowerCase()).join('');

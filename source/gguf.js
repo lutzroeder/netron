@@ -63,11 +63,11 @@ gguf.Model = class {
                 this.metadata.set(name, value);
             }
         }
-        const graph = { layers: [ model ] };
+        const graph = { layers: [model] };
         if (tokenizer.metadata.size > 0) {
             graph.layers.push(tokenizer);
         }
-        this.graphs = [ new gguf.Graph(graph) ];
+        this.graphs = [new gguf.Graph(graph)];
     }
 };
 
@@ -115,7 +115,7 @@ gguf.Node = class {
             for (const [name, weight] of layer.weights) {
                 const tensor = new gguf.Tensor(weight);
                 const value = new gguf.Value(weight.name, tensor);
-                const argument = new gguf.Argument(name, [ value ]);
+                const argument = new gguf.Argument(name, [value]);
                 this.inputs.push(argument);
             }
         }
@@ -201,23 +201,23 @@ gguf.Reader = class {
         this.stream = stream;
         const QK_K = 256;
         gguf.Reader.GGML_QUANT_SIZES = gguf.Reader.GGML_QUANT_SIZES || new Map([
-            [ gguf.QuantizationType.F32,  [ 1, 4, 'float32' ] ],
-            [ gguf.QuantizationType.F16,  [ 1, 2, 'float16' ] ],
-            [ gguf.QuantizationType.Q4_0, [ 32, 2 + 16, '' ] ],
-            [ gguf.QuantizationType.Q4_1, [ 32, 2 + 2 + 16, '' ] ],
-            [ gguf.QuantizationType.Q5_0, [ 32, 2 + 4 + 16, '' ] ],
-            [ gguf.QuantizationType.Q5_1, [ 32, 2 + 2 + 4 + 16, '' ] ],
-            [ gguf.QuantizationType.Q8_0, [ 32, 2 + 32, ''] ],
-            [ gguf.QuantizationType.Q8_1, [ 32, 4 + 4 + 32, ''] ],
-            [ gguf.QuantizationType.Q2_K, [ 256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4), '' ] ],
-            [ gguf.QuantizationType.Q3_K, [ 256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12, '' ] ],
-            [ gguf.QuantizationType.Q4_K, [ 256, 2 + 2 + Math.floor(QK_K / 2) + 12, '' ] ],
-            [ gguf.QuantizationType.Q5_K, [ 256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 8) + 12, '' ] ],
-            [ gguf.QuantizationType.Q6_K, [ 256, 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '' ] ],
-            [ gguf.QuantizationType.Q8_K, [ 256, 4 + QK_K + Math.floor(QK_K / 8), '' ] ],
-            [ gguf.QuantizationType.I8,   [ 1, 4, 'int8' ] ],
-            [ gguf.QuantizationType.I16,  [ 1, 2, 'int16' ] ],
-            [ gguf.QuantizationType.I32,  [ 1, 4, 'int32' ] ]
+            [gguf.QuantizationType.F32,  [1, 4, 'float32']],
+            [gguf.QuantizationType.F16,  [1, 2, 'float16']],
+            [gguf.QuantizationType.Q4_0, [32, 2 + 16, '']],
+            [gguf.QuantizationType.Q4_1, [32, 2 + 2 + 16, '']],
+            [gguf.QuantizationType.Q5_0, [32, 2 + 4 + 16, '']],
+            [gguf.QuantizationType.Q5_1, [32, 2 + 2 + 4 + 16, '']],
+            [gguf.QuantizationType.Q8_0, [32, 2 + 32, '']],
+            [gguf.QuantizationType.Q8_1, [32, 4 + 4 + 32, '']],
+            [gguf.QuantizationType.Q2_K, [256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4), '']],
+            [gguf.QuantizationType.Q3_K, [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12, '']],
+            [gguf.QuantizationType.Q4_K, [256, 2 + 2 + Math.floor(QK_K / 2) + 12, '']],
+            [gguf.QuantizationType.Q5_K, [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 8) + 12, '']],
+            [gguf.QuantizationType.Q6_K, [256, 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '']],
+            [gguf.QuantizationType.Q8_K, [256, 4 + QK_K + Math.floor(QK_K / 8), '']],
+            [gguf.QuantizationType.I8,   [1, 4, 'int8']],
+            [gguf.QuantizationType.I16,  [1, 2, 'int16']],
+            [gguf.QuantizationType.I32,  [1, 4, 'int32']]
         ]);
     }
 
@@ -375,7 +375,7 @@ gguf.Utility = class {
     static enum(type, value) {
         gguf.Utility._enums = gguf.Utility._enums || new Map();
         if (!gguf.Utility._enums.has(type)) {
-            const entries = new Map(Object.entries(type).map(([key, value]) => [ value, key ]));
+            const entries = new Map(Object.entries(type).map(([key, value]) => [value, key]));
             gguf.Utility._enums.set(type, entries);
         }
         const entires = gguf.Utility._enums.get(type);

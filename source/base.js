@@ -523,40 +523,40 @@ base.Telemetry = class {
         this._config = new Map();
         this._metadata = {};
         this._schema = new Map([
-            [ 'protocol_version', 'v' ],
-            [ 'tracking_id', 'tid' ],
-            [ 'hash_info', 'gtm' ],
-            [ '_page_id', '_p'],
-            [ 'client_id', 'cid' ],
-            [ 'language', 'ul' ],
-            [ 'screen_resolution', 'sr' ],
-            [ '_user_agent_architecture', 'uaa' ],
-            [ '_user_agent_bitness', 'uab' ],
-            [ '_user_agent_full_version_list', 'uafvl' ],
-            [ '_user_agent_mobile', 'uamb' ],
-            [ '_user_agent_model', 'uam' ],
-            [ '_user_agent_platform', 'uap' ],
-            [ '_user_agent_platform_version', 'uapv' ],
-            [ '_user_agent_wow64', 'uaw' ],
-            [ 'hit_count', '_s' ],
-            [ 'session_id', 'sid' ],
-            [ 'session_number', 'sct' ],
-            [ 'session_engaged', 'seg' ],
-            [ 'engagement_time_msec', '_et' ],
-            [ 'page_location', 'dl' ],
-            [ 'page_title', 'dt' ],
-            [ 'page_referrer', 'dr' ],
-            [ 'is_first_visit', '_fv' ],
-            [ 'is_external_event', '_ee' ],
-            [ 'is_new_to_site', '_nsi' ],
-            [ 'is_session_start', '_ss' ],
-            [ 'event_name', 'en' ]
+            ['protocol_version', 'v'],
+            ['tracking_id', 'tid'],
+            ['hash_info', 'gtm'],
+            ['_page_id', '_p'],
+            ['client_id', 'cid'],
+            ['language', 'ul'],
+            ['screen_resolution', 'sr'],
+            ['_user_agent_architecture', 'uaa'],
+            ['_user_agent_bitness', 'uab'],
+            ['_user_agent_full_version_list', 'uafvl'],
+            ['_user_agent_mobile', 'uamb'],
+            ['_user_agent_model', 'uam'],
+            ['_user_agent_platform', 'uap'],
+            ['_user_agent_platform_version', 'uapv'],
+            ['_user_agent_wow64', 'uaw'],
+            ['hit_count', '_s'],
+            ['session_id', 'sid'],
+            ['session_number', 'sct'],
+            ['session_engaged', 'seg'],
+            ['engagement_time_msec', '_et'],
+            ['page_location', 'dl'],
+            ['page_title', 'dt'],
+            ['page_referrer', 'dr'],
+            ['is_first_visit', '_fv'],
+            ['is_external_event', '_ee'],
+            ['is_new_to_site', '_nsi'],
+            ['is_session_start', '_ss'],
+            ['event_name', 'en']
         ]);
     }
 
     async start(measurement_id, client_id, session) {
         this._session = session && typeof session === 'string' ? session.replace(/^GS1\.1\./, '').split('.') : null;
-        this._session = Array.isArray(this._session) && this._session.length >= 7 ? this._session : [ '0', '0', '0', '0', '0', '0', '0' ];
+        this._session = Array.isArray(this._session) && this._session.length >= 7 ? this._session : ['0', '0', '0', '0', '0', '0', '0'];
         this._session[0] = Date.now();
         this._session[1] = parseInt(this._session[1], 10) + 1;
         this._engagement_time_msec = 0;
@@ -573,7 +573,7 @@ base.Telemetry = class {
         } else {
             const random = String(Math.round(0x7FFFFFFF * Math.random()));
             const time = Date.now();
-            const value = [ random, Math.round(time / 1e3) ].join('.');
+            const value = [random, Math.round(time / 1e3)].join('.');
             this.set('client_id', value);
             this._metadata.is_first_visit = 1;
             this._metadata.is_new_to_site = 1;
@@ -581,7 +581,7 @@ base.Telemetry = class {
         this.set('language', ((this._navigator && (this._navigator.language || this._navigator.browserLanguage)) || '').toLowerCase());
         this.set('screen_resolution', `${window.screen ? window.screen.width : 0}x${window.screen ? window.screen.height : 0}`);
         if (this._navigator && this._navigator.userAgentData && this._navigator.userAgentData.getHighEntropyValues) {
-            const values = await this._navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]);
+            const values = await this._navigator.userAgentData.getHighEntropyValues(['platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64']);
             if (values) {
                 this.set('_user_agent_architecture', values.architecture);
                 this.set('_user_agent_bitness', values.bitness);
@@ -638,7 +638,7 @@ base.Telemetry = class {
                 const build = (entries) => entries.map(([name, value]) => `${name}=${encodeURIComponent(value)}`).join('&');
                 this._cache = this._cache || build(Array.from(this._config));
                 const key = (name, value) => this._schema.get(name) || ('number' === typeof value && !isNaN(value) ? 'epn.' : 'ep.') + name;
-                const body = build(Object.entries(params).map(([name, value]) => [ key(name, value), value ]));
+                const body = build(Object.entries(params).map(([name, value]) => [key(name, value), value]));
                 const url = `https://analytics.google.com/g/collect?${this._cache}`;
                 this._navigator.sendBeacon(url, body);
                 this._session[2] = this.get('session_engaged') || '0';

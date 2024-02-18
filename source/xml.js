@@ -25,7 +25,7 @@ xml.TextReader = class {
     constructor(data, callback) {
         this._data = data;
         this._callback = callback;
-        this._entities = new Map([ [ 'quot', '"' ], [ 'amp', '&' ], [ 'apos', "'" ], [ 'lt', '<' ],  [ 'gt', '>' ] ]);
+        this._entities = new Map([['quot', '"'], ['amp', '&'], ['apos', "'"], ['lt', '<'],  ['gt', '>']]);
         this._nameStartCharRegExp = /[:A-Z_a-z\xC0-\xD6\xD8-\xF6\xF8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/;
         this._nameCharRegExp = new RegExp(`[-.0-9\\xB7${this._nameStartCharRegExp.source.slice(1, -1)}]`);
         xml.Utility.nameStartCharRegExp = this._nameStartCharRegExp;
@@ -1730,15 +1730,15 @@ xml.Utility = class {
     static split(name) {
         const index = name.indexOf(':');
         if (index < 0 || index === name.length - 1) {
-            return [ null, name ];
+            return [null, name];
         }
         const localName = name.substring(index + 1);
         const c = localName.codePointAt(0);
         if (localName.indexOf(':') !== -1 || !xml.Utility.nameStartCharRegExp.test(String.fromCodePoint(c)) && (c < 0x10000 || c > 0xEFFFF)) {
-            return [ null, name ];
+            return [null, name];
         }
         const prefix = name.substring(0, index);
-        return [ prefix, localName ];
+        return [prefix, localName];
     }
 };
 

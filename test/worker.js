@@ -32,7 +32,7 @@ const decompress = (buffer) => {
         const stream = archive.entries.values().next().value;
         buffer = stream.peek();
     }
-    const formats = [ zip, tar ];
+    const formats = [zip, tar];
     for (const module of formats) {
         archive = module.Archive.open(buffer);
         if (archive) {
@@ -303,7 +303,7 @@ export class Target {
         this.events = {};
         this.tags = new Set(this.tags);
         this.folder = item.type ? path.normalize(dirname('..', 'third_party' , 'test', item.type)) : process.cwd();
-        this.measures = new Map([ [ 'name', this.name ] ]);
+        this.measures = new Map([['name', this.name]]);
     }
 
     on(event, callback) {

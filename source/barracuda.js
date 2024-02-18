@@ -29,7 +29,7 @@ barracuda.Model = class {
     constructor(metadata, model) {
         const version = model.version.toString();
         this.format = `Barracuda v${version}`;
-        this.graphs = [ new barracuda.Graph(metadata, model) ];
+        this.graphs = [new barracuda.Graph(metadata, model)];
     }
 };
 
@@ -63,11 +63,11 @@ barracuda.Graph = class {
         for (const input of model.inputs) {
             const shape = new barracuda.TensorShape(input.shape);
             const type = new barracuda.TensorType(4, shape);
-            const argument = new barracuda.Argument(input.name, [ values.map(input.name, type) ]);
+            const argument = new barracuda.Argument(input.name, [values.map(input.name, type)]);
             this.inputs.push(argument);
         }
         for (const output of model.outputs) {
-            const argument = new barracuda.Argument(output, [ values.map(output) ]);
+            const argument = new barracuda.Argument(output, [values.map(output)]);
             this.outputs.push(argument);
         }
         for (const layer of layers) {
@@ -103,7 +103,7 @@ barracuda.Node = class {
         this.inputs = [];
         this.outputs = [];
         this.attributes = [];
-        const inputs = Array.prototype.slice.call(this.type.inputs || [ 'input' ]);
+        const inputs = Array.prototype.slice.call(this.type.inputs || ['input']);
         if (this.type.inputs && this.type.inputs.length === 1 && this.type.inputs[0].name === 'inputs') {
             const argument = new barracuda.Argument('inputs', layer.inputs.map((input) => values.map(input)));
             this.inputs.push(argument);
@@ -111,7 +111,7 @@ barracuda.Node = class {
             for (let i = 0; i < layer.inputs.length; i++) {
                 const input = layer.inputs[i];
                 const name = inputs.length > 0 ? inputs.shift().name : i.toString();
-                const argument = new barracuda.Argument(name, [ values.map(input) ]);
+                const argument = new barracuda.Argument(name, [values.map(input)]);
                 this.inputs.push(argument);
             }
         }
@@ -120,12 +120,12 @@ barracuda.Node = class {
                 const tensor = layer.tensors[i];
                 const initializer = new barracuda.Tensor(tensor);
                 const name = inputs.length > 0 ? inputs.shift().name : i.toString();
-                const argument = new barracuda.Argument(name, [ values.map(tensor.name, initializer.type, initializer) ]);
+                const argument = new barracuda.Argument(name, [values.map(tensor.name, initializer.type, initializer)]);
                 this.inputs.push(argument);
             }
         }
         if (layer.inputs !== undefined) {
-            const argument = new barracuda.Argument('output', [ values.map(this.name) ]);
+            const argument = new barracuda.Argument('output', [values.map(this.name)]);
             this.outputs.push(argument);
         }
         if (layer.activation !== undefined && (layer.type === 50 || layer.activation !== 0)) {
@@ -134,7 +134,7 @@ barracuda.Node = class {
                 throw new barracuda.Error(`Unsupported activation '${layer.activation}'.`);
             }
             const node = new barracuda.Node(metadata, {}, { name: type, category: 'Activation' }, values);
-            this.chain = [ node ];
+            this.chain = [node];
         }
         const attribute = (name, type, value, defaultValue) => {
             if (value === undefined) {
@@ -326,11 +326,11 @@ barracuda.Metadata = class {
             }) });
         };
         register(0, 'Nop', '');
-        register(1, 'Dense', 'Layer', [ 'input', 'kernel', 'bias' ]);
-        register(2, 'MatMul', '', [ 'input', 'kernel', 'bias' ]);
-        register(20, 'Conv2D', 'Layer', [ 'input', 'kernel', 'bias' ]);
-        register(21, 'DepthwiseConv2D', 'Layer', [ 'input', 'kernel', 'bias' ]);
-        register(22, 'Conv2DTrans', 'Layer', [ 'input', 'kernel', 'bias' ]);
+        register(1, 'Dense', 'Layer', ['input', 'kernel', 'bias']);
+        register(2, 'MatMul', '', ['input', 'kernel', 'bias']);
+        register(20, 'Conv2D', 'Layer', ['input', 'kernel', 'bias']);
+        register(21, 'DepthwiseConv2D', 'Layer', ['input', 'kernel', 'bias']);
+        register(22, 'Conv2DTrans', 'Layer', ['input', 'kernel', 'bias']);
         register(23, 'Upsample2D', 'Data');
         register(25, 'MaxPool2D', 'Pool');
         register(26, 'AvgPool2D', 'Pool');
@@ -345,8 +345,8 @@ barracuda.Metadata = class {
         register(37, 'GlobalMaxPool3D', 'Pool');
         register(38, 'GlobalAvgPool3D', 'Pool');
         register(39, 'Border3D', '');
-        register(50, 'Activation', '', [ 'input' ]);
-        register(51, 'ScaleBias', 'Normalization', [ 'input', 'scale', 'bias' ]);
+        register(50, 'Activation', '', ['input']);
+        register(51, 'ScaleBias', 'Normalization', ['input', 'scale', 'bias']);
         register(52, 'Normalization', 'Normalization');
         register(53, 'LRN', 'Normalization');
         register(60, 'Dropout', 'Dropout');
@@ -356,24 +356,24 @@ barracuda.Metadata = class {
         register(67, 'OneHot', '');
         register(68, 'TopKIndices', '');
         register(69, 'TopKValues', '');
-        register(100, 'Add', '', [ 'inputs' ]);
-        register(101, 'Sub', '', [ 'inputs' ]);
-        register(102, 'Mul', '', [ 'inputs' ]);
-        register(103, 'RealDiv', '', [ 'inputs' ]);
-        register(104, 'Pow', '', [ 'inputs' ]);
-        register(110, 'Minimum', '', [ 'inputs' ]);
-        register(111, 'Maximum', '', [ 'inputs' ]);
-        register(112, 'Mean', '', [ 'inputs' ]);
-        register(120, 'ReduceL1', '', [ 'inputs' ]);
-        register(121, 'ReduceL2', '', [ 'inputs' ]);
-        register(122, 'ReduceLogSum', '', [ 'inputs' ]);
-        register(123, 'ReduceLogSumExp', '', [ 'inputs' ]);
-        register(124, 'ReduceMax', '', [ 'inputs' ]);
-        register(125, 'ReduceMean', '', [ 'inputs' ]);
-        register(126, 'ReduceMin', '', [ 'inputs' ]);
-        register(127, 'ReduceProd', '', [ 'inputs' ]);
-        register(128, 'ReduceSum', '', [ 'inputs' ]);
-        register(129, 'ReduceSumSquare', '', [ 'inputs' ]);
+        register(100, 'Add', '', ['inputs']);
+        register(101, 'Sub', '', ['inputs']);
+        register(102, 'Mul', '', ['inputs']);
+        register(103, 'RealDiv', '', ['inputs']);
+        register(104, 'Pow', '', ['inputs']);
+        register(110, 'Minimum', '', ['inputs']);
+        register(111, 'Maximum', '', ['inputs']);
+        register(112, 'Mean', '', ['inputs']);
+        register(120, 'ReduceL1', '', ['inputs']);
+        register(121, 'ReduceL2', '', ['inputs']);
+        register(122, 'ReduceLogSum', '', ['inputs']);
+        register(123, 'ReduceLogSumExp', '', ['inputs']);
+        register(124, 'ReduceMax', '', ['inputs']);
+        register(125, 'ReduceMean', '', ['inputs']);
+        register(126, 'ReduceMin', '', ['inputs']);
+        register(127, 'ReduceProd', '', ['inputs']);
+        register(128, 'ReduceSum', '', ['inputs']);
+        register(129, 'ReduceSumSquare', '', ['inputs']);
         register(140, 'Greater', '');
         register(141, 'GreaterEqual', '');
         register(142, 'Less', '');
@@ -396,7 +396,7 @@ barracuda.Metadata = class {
         register(207, 'SpaceToDepth', '');
         register(208, 'Expand', '');
         register(209, 'Resample2D', '');
-        register(210, 'Concat', 'Tensor', [ 'inputs' ]);
+        register(210, 'Concat', 'Tensor', ['inputs']);
         register(211, 'StridedSlice', 'Shape');
         register(212, 'Tile', '');
         register(213, 'Shape', '');

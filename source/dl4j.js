@@ -18,7 +18,7 @@ dl4j.ModelFactory = class {
             }
         }
         if (identifier === 'coefficients.bin') {
-            const signature = [ 0x00, 0x07, 0x4A, 0x41, 0x56, 0x41, 0x43, 0x50, 0x50 ]; // JAVACPP
+            const signature = [0x00, 0x07, 0x4A, 0x41, 0x56, 0x41, 0x43, 0x50, 0x50]; // JAVACPP
             const stream = context.stream;
             if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
                 context.type = 'dl4j.coefficients';
@@ -60,7 +60,7 @@ dl4j.Model = class {
 
     constructor(metadata, configuration, coefficients) {
         this.format = 'Deeplearning4j';
-        this.graphs = [ new dl4j.Graph(metadata, configuration, coefficients) ];
+        this.graphs = [new dl4j.Graph(metadata, configuration, coefficients)];
     }
 };
 
@@ -86,13 +86,13 @@ dl4j.Graph = class {
         };
         if (configuration.networkInputs) {
             for (const input of configuration.networkInputs) {
-                const argument = new dl4j.Argument(input, [ value(input) ]);
+                const argument = new dl4j.Argument(input, [value(input)]);
                 this.inputs.push(argument);
             }
         }
         if (configuration.networkOutputs) {
             for (const output of configuration.networkOutputs) {
-                const argument = new dl4j.Argument(output, [ value(output) ]);
+                const argument = new dl4j.Argument(output, [value(output)]);
                 this.outputs.push(argument);
             }
         }
@@ -126,14 +126,14 @@ dl4j.Graph = class {
         }
         // Multi Layer Network
         if (configuration.confs) {
-            inputs = [ 'input' ];
-            this.inputs.push(new dl4j.Argument('input', [ value('input') ]));
+            inputs = ['input'];
+            this.inputs.push(new dl4j.Argument('input', [value('input')]));
             for (const conf of configuration.confs) {
                 const layer = dl4j.Node._object(conf.layer);
                 this.nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, conf.variables, value));
-                inputs = [ layer.layerName ];
+                inputs = [layer.layerName];
             }
-            this.outputs.push(new dl4j.Argument('output', [ value(inputs[0]) ]));
+            this.outputs.push(new dl4j.Argument('output', [value(inputs[0])]));
         }
     }
 };
@@ -182,10 +182,10 @@ dl4j.Node = class {
                     case 'Convolution':
                         switch (variable) {
                             case 'W':
-                                tensor = new dl4j.Tensor(dataType, layer.kernelSize.concat([ layer.nin, layer.nout ]));
+                                tensor = new dl4j.Tensor(dataType, layer.kernelSize.concat([layer.nin, layer.nout]));
                                 break;
                             case 'b':
-                                tensor = new dl4j.Tensor(dataType, [ layer.nout ]);
+                                tensor = new dl4j.Tensor(dataType, [layer.nout]);
                                 break;
                             default:
                                 throw new dl4j.Error(`Unsupported '${type}' variable '${variable}'.`);
@@ -194,10 +194,10 @@ dl4j.Node = class {
                     case 'SeparableConvolution2D':
                         switch (variable) {
                             case 'W':
-                                tensor = new dl4j.Tensor(dataType, layer.kernelSize.concat([ layer.nin, layer.nout ]));
+                                tensor = new dl4j.Tensor(dataType, layer.kernelSize.concat([layer.nin, layer.nout]));
                                 break;
                             case 'pW':
-                                tensor = new dl4j.Tensor(dataType, [ layer.nout ]);
+                                tensor = new dl4j.Tensor(dataType, [layer.nout]);
                                 break;
                             default:
                                 throw new dl4j.Error(`Unsupported '${type}' variable '${variable}'.`);
@@ -207,27 +207,27 @@ dl4j.Node = class {
                     case 'Dense':
                         switch (variable) {
                             case 'W':
-                                tensor = new dl4j.Tensor(dataType, [ layer.nout, layer.nin ]);
+                                tensor = new dl4j.Tensor(dataType, [layer.nout, layer.nin]);
                                 break;
                             case 'b':
-                                tensor = new dl4j.Tensor(dataType, [ layer.nout ]);
+                                tensor = new dl4j.Tensor(dataType, [layer.nout]);
                                 break;
                             default:
                                 throw new dl4j.Error(`Unsupported '${this.type}' variable '${variable}'.`);
                         }
                         break;
                     case 'BatchNormalization':
-                        tensor = new dl4j.Tensor(dataType, [ layer.nin ]);
+                        tensor = new dl4j.Tensor(dataType, [layer.nin]);
                         break;
                     default:
                         throw new dl4j.Error(`Unsupported '${type}' variable '${variable}'.`);
                 }
-                const argument = new dl4j.Argument(variable, [ value('', null, tensor) ]);
+                const argument = new dl4j.Argument(variable, [value('', null, tensor)]);
                 this.inputs.push(argument);
             }
         }
         if (this.name) {
-            const argument = new dl4j.Argument('output', [ value(this.name) ]);
+            const argument = new dl4j.Argument('output', [value(this.name)]);
             this.outputs.push(argument);
         }
         let attributes = layer;
@@ -350,7 +350,7 @@ dl4j.NDArray = class {
                     throw new dl4j.Error(`Unsupported header alloc '${alloc}'.`);
             }
             const type = reader.string();
-            return [ alloc, length, type ];
+            return [alloc, length, type];
         };
         const headerShape = readHeader(reader);
         if (headerShape[2] !== 'INT') {
@@ -367,9 +367,9 @@ dl4j.NDArray = class {
         this.order = shapeInfo[shapeInfoLength - 1];
         const headerData = readHeader(reader);
         const dataTypes = new Map([
-            [ 'INT', [ 'int32', 4 ] ],
-            [ 'FLOAT', [ 'float32', 4 ] ],
-            [ 'DOUBLE', [ 'float64', 8 ] ]
+            ['INT', ['int32', 4]],
+            ['FLOAT', ['float32', 4]],
+            ['DOUBLE', ['float64', 8]]
         ]);
         if (!dataTypes.has(headerData[2])) {
             throw new dl4j.Error(`Unsupported header data type '${headerShape[2]}'.`);

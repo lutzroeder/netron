@@ -235,7 +235,7 @@ host.ElectronHost = class {
             type: 'error',
             message: message,
             detail: detail,
-            buttons: cancel ? [ 'Report', 'Cancel' ] : [ 'Report' ]
+            buttons: cancel ? ['Report', 'Cancel'] : ['Report']
         };
         return electron.ipcRenderer.sendSync('show-message-box', options);
         // return await this._message(message + ': ' + detail, 'Report');
@@ -262,7 +262,7 @@ host.ElectronHost = class {
             title: 'Export Tensor',
             defaultPath: defaultPath,
             buttonLabel: 'Export',
-            filters: [ { name: name, extensions: [ extension ] } ]
+            filters: [{ name: name, extensions: [extension] }]
         });
         if (selectedFile) {
             callback(selectedFile);

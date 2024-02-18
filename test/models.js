@@ -156,7 +156,7 @@ class Table {
     constructor(schema) {
         this.schema = schema;
         const line = `${Array.from(this.schema).join(',')}\n`;
-        this.content = [ line ];
+        this.content = [line];
     }
 
     async add(row) {
@@ -262,7 +262,7 @@ const main = async () => {
         const queue = new Queue(targets, patterns);
         const threads = inspector.url() ? 1 : undefined;
         const logger = new Logger(threads);
-        const measures = new Table([ 'name', 'download', 'load', 'validate', 'render' ]);
+        const measures = new Table(['name', 'download', 'load', 'validate', 'render']);
         // await measures.log(dirname('..', 'dist', 'test', 'measures.csv'));
         if (threads === 1) {
             const worker = await import('./worker.js');

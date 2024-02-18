@@ -19,7 +19,7 @@ mxnet.ModelFactory = class {
         }
         if (extension === 'params') {
             const stream = context.stream;
-            const signature = [ 0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
+            const signature = [0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
             if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value == signature[index])) {
                 context.type = 'mxnet.params';
                 return;
@@ -53,7 +53,7 @@ mxnet.ModelFactory = class {
                     const major = Math.floor(value[1] / 10000) % 100;
                     const minor = Math.floor(value[1] / 100) % 100;
                     const patch = Math.floor(value[1]) % 100;
-                    return [ major.toString(), minor.toString(), patch.toString() ].join('.');
+                    return [major.toString(), minor.toString(), patch.toString()].join('.');
                 }
             }
             return null;
@@ -265,7 +265,7 @@ mxnet.Model = class {
         if (manifest.license) {
             this._metadata.set('license', manifest.license);
         }
-        this._graphs = [ new mxnet.Graph(metadata, manifest, symbol, params) ];
+        this._graphs = [new mxnet.Graph(metadata, manifest, symbol, params)];
     }
 
     get format() {
@@ -331,10 +331,10 @@ mxnet.Graph = class {
             const node = nodes[nodeIndex];
             if (node) {
                 while (outputIndex >= node.outputs.length) {
-                    node.outputs.push([ nodeIndex, node.outputs.length ]);
+                    node.outputs.push([nodeIndex, node.outputs.length]);
                 }
             }
-            return [ nodeIndex, outputIndex ];
+            return [nodeIndex, outputIndex];
         };
         if (symbol) {
             let nodes = symbol.nodes;
@@ -363,7 +363,7 @@ mxnet.Graph = class {
                     outputCountMap[output] = (outputCountMap[output] || 0) + 1;
                 }
             }
-            const arg_nodes = new Map(symbol.arg_nodes.map((index) => [ index, index < nodes.length ? nodes[index] : null ]));
+            const arg_nodes = new Map(symbol.arg_nodes.map((index) => [index, index < nodes.length ? nodes[index] : null]));
             for (let i = 0; i < symbol.heads.length; i++) {
                 const head = symbol.heads[i];
                 const identifier = updateOutput(nodes, head);
@@ -371,7 +371,7 @@ mxnet.Graph = class {
                 const signature = outputs[name];
                 const type = signature && signature.data_shape ? new mxnet.TensorType(-1, new mxnet.TensorShape(signature.data_shape)) : null;
                 const value = values.map(`[${identifier.join(',')}]`, type);
-                const argument = new mxnet.Argument(name, [ value ]);
+                const argument = new mxnet.Argument(name, [value]);
                 this._outputs.push(argument);
             }
             nodes = nodes.filter((node, index) => !arg_nodes.has(index));
@@ -439,7 +439,7 @@ mxnet.Graph = class {
                     const signature = inputs[name];
                     const type = signature && signature.data_shape ? new mxnet.TensorType(-1, new mxnet.TensorShape(signature.data_shape)) : null;
                     const value = values.map(identifier, type, tensors.get(identifier));
-                    const argument = new mxnet.Argument(name, [ value ]);
+                    const argument = new mxnet.Argument(name, [value]);
                     this._inputs.push(argument);
                 }
             }
@@ -457,7 +457,7 @@ mxnet.Graph = class {
                     const parts = key.split(separator);
                     let argumentName = parts.pop();
                     if (key.endsWith('moving_mean') || key.endsWith('moving_var')) {
-                        argumentName = [ parts.pop(), argumentName ].join(separator);
+                        argumentName = [parts.pop(), argumentName].join(separator);
                     }
                     const nodeName = parts.join(separator);
                     if (!blocks.has(nodeName)) {
@@ -586,7 +586,7 @@ mxnet.Node = class {
                     const name = (inputIndex + index).toString();
                     const identifier = `[${input.join(',')}]`;
                     const value = values.map(identifier, null, initializers.get(identifier));
-                    return new mxnet.Argument(name, [ value ]);
+                    return new mxnet.Argument(name, [value]);
                 }));
             }
         }
@@ -612,14 +612,14 @@ mxnet.Node = class {
                 this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                     const name = (outputIndex + index).toString();
                     const value = values.map(`[${output.join(',')}]`);
-                    return new mxnet.Argument(name, [ value ]);
+                    return new mxnet.Argument(name, [value]);
                 }));
             }
         }
         if (node.params) {
             for (const param of node.params) {
                 const value = values.map(param.id);
-                const argument = new mxnet.Argument(param.name, [ value ]);
+                const argument = new mxnet.Argument(param.name, [value]);
                 this._inputs.push(argument);
             }
         }
@@ -854,7 +854,7 @@ mxnet.ndarray = class {
 mxnet.ndarray.NDArray = class {
 
     constructor(reader) {
-        mxnet.ndarray.NDArray._dataTypeSizeTable = [ 4, 8, 2, 1, 4, 1, 8 ];
+        mxnet.ndarray.NDArray._dataTypeSizeTable = [4, 8, 2, 1, 4, 1, 8];
         switch (reader.uint32()) {
             case 0xf993faca: { // NDARRAY_V3_MAGIC
                 throw new mxnet.Array('mxnet.ndarray.NDArray v3 not supported.');

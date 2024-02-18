@@ -31,7 +31,7 @@ tensorrt.Model = class {
 
     constructor(metadata, model) {
         this._format = model.format;
-        this._graphs = [ new tensorrt.Graph(metadata, model) ];
+        this._graphs = [new tensorrt.Graph(metadata, model)];
     }
 
     get format() {

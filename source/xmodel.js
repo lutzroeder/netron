@@ -31,7 +31,7 @@ xmodel.Model = class {
         this.name = graph.graph_name || '';
         this.format = 'xmodel';
         this.producer = graph && graph.graph_attr && graph.graph_attr.origin && graph.graph_attr.origin.string_value ? graph.graph_attr.origin.string_value : '';
-        this.graphs = [ new xmodel.Graph(graph) ];
+        this.graphs = [new xmodel.Graph(graph)];
     }
 };
 
@@ -61,7 +61,7 @@ xmodel.Graph = class {
             if (node.args.length === 0) {
                 if (node.op_type === 'data' || node.op_type === 'data-fix') {
                     const value = values.map(node.op_name, node);
-                    this.inputs.push(new xmodel.Argument(node.op_name, [ value ]));
+                    this.inputs.push(new xmodel.Argument(node.op_name, [value]));
                     continue;
                 }
             }
@@ -134,7 +134,7 @@ xmodel.Node = class {
                     if (typeof activation === 'string') {
                         activation = activation.toLowerCase();
                     } else if (Number.isInteger(activation) && activation < 5) {
-                        activation = [ 'none', 'relu', 'prelu', 'leakyrelu', 'relu6' ][activation];
+                        activation = ['none', 'relu', 'prelu', 'leakyrelu', 'relu6'][activation];
                     } else {
                         activation = JSON.stringify(activation);
                     }
@@ -153,7 +153,7 @@ xmodel.Node = class {
             }
         }
         if (op_node.op_name) {
-            const argument = new xmodel.Argument('output', [ values.map(op_node.op_name) ]);
+            const argument = new xmodel.Argument('output', [values.map(op_node.op_name)]);
             this.outputs.push(argument);
         }
     }
@@ -280,55 +280,55 @@ xmodel.Metadata = class {
         this._types = new Map();
         this._attributes = new Map();
         const categories = [
-            [ 'avgpool2d', 'Pool' ],
-            [ 'batchnorm', 'Normalization' ],
-            [ 'celu', 'Activation' ],
-            [ 'concat-fix', 'Tensor' ],
-            [ 'concat', 'Tensor' ],
-            [ 'conv2d-fix', 'Layer' ],
-            [ 'conv2d', 'Layer' ],
-            [ 'depthwise-conv2d-fix', 'Layer' ],
-            [ 'depthwise-conv2d', 'Layer' ],
-            [ 'elu', 'Activation' ],
-            [ 'fix', 'Quantization' ],
-            [ 'fix2float', 'Quantization' ],
-            [ 'flatten', 'Shape' ],
-            [ 'float2fix', 'Quantization' ],
-            [ 'gelu', 'Activation' ],
-            [ 'hard-sigmoid', 'Activation' ],
-            [ 'hard-sigmoid-fix', 'Activation' ],
-            [ 'hard-swish', 'Activation' ],
-            [ 'hard-tanh', 'Activation' ],
-            [ 'identity', 'Control' ],
-            [ 'inner-product', 'Layer' ],
-            [ 'l2_normalize', 'Normalization' ],
-            [ 'leaky-relu', 'Activation' ],
-            [ 'leakyrelu', 'Activation' ],
-            [ 'maxpool2d', 'Pool' ],
-            [ 'pool-fix', 'Pool' ],
-            [ 'relu', 'Activation' ],
-            [ 'relu6', 'Activation' ],
-            [ 'reshape-fix', 'Shape' ],
-            [ 'reshape', 'Shape' ],
-            [ 'scale', 'Layer' ],
-            [ 'selu', 'Activation' ],
-            [ 'shape', 'Shape' ],
-            [ 'sigmoid', 'Activation' ],
-            [ 'softmax', 'Activation' ],
-            [ 'squeeze', 'Transform' ],
-            [ 'stack', 'Tensor' ],
-            [ 'strided_slice', 'Tensor' ],
-            [ 'swish', 'Activation' ],
-            [ 'tanh', 'Activation' ],
-            [ 'threshold', 'Quantization' ],
-            [ 'transpose', 'Tensor' ],
-            [ 'transposed-conv2d', 'Layer' ],
-            [ 'transposed-conv2d-fix', 'Layer' ],
-            [ 'transposed-depthwise-conv2d', 'Layer' ],
-            [ 'transposed-depthwise-conv2d-fix', 'Layer' ],
-            [ 'upsample-fix', 'Data' ],
+            ['avgpool2d', 'Pool'],
+            ['batchnorm', 'Normalization'],
+            ['celu', 'Activation'],
+            ['concat-fix', 'Tensor'],
+            ['concat', 'Tensor'],
+            ['conv2d-fix', 'Layer'],
+            ['conv2d', 'Layer'],
+            ['depthwise-conv2d-fix', 'Layer'],
+            ['depthwise-conv2d', 'Layer'],
+            ['elu', 'Activation'],
+            ['fix', 'Quantization'],
+            ['fix2float', 'Quantization'],
+            ['flatten', 'Shape'],
+            ['float2fix', 'Quantization'],
+            ['gelu', 'Activation'],
+            ['hard-sigmoid', 'Activation'],
+            ['hard-sigmoid-fix', 'Activation'],
+            ['hard-swish', 'Activation'],
+            ['hard-tanh', 'Activation'],
+            ['identity', 'Control'],
+            ['inner-product', 'Layer'],
+            ['l2_normalize', 'Normalization'],
+            ['leaky-relu', 'Activation'],
+            ['leakyrelu', 'Activation'],
+            ['maxpool2d', 'Pool'],
+            ['pool-fix', 'Pool'],
+            ['relu', 'Activation'],
+            ['relu6', 'Activation'],
+            ['reshape-fix', 'Shape'],
+            ['reshape', 'Shape'],
+            ['scale', 'Layer'],
+            ['selu', 'Activation'],
+            ['shape', 'Shape'],
+            ['sigmoid', 'Activation'],
+            ['softmax', 'Activation'],
+            ['squeeze', 'Transform'],
+            ['stack', 'Tensor'],
+            ['strided_slice', 'Tensor'],
+            ['swish', 'Activation'],
+            ['tanh', 'Activation'],
+            ['threshold', 'Quantization'],
+            ['transpose', 'Tensor'],
+            ['transposed-conv2d', 'Layer'],
+            ['transposed-conv2d-fix', 'Layer'],
+            ['transposed-depthwise-conv2d', 'Layer'],
+            ['transposed-depthwise-conv2d-fix', 'Layer'],
+            ['upsample-fix', 'Data'],
         ];
-        this._types = new Map(categories.map(([name, category]) => [ name, { name: name, category: category } ]));
+        this._types = new Map(categories.map(([name, category]) => [name, { name: name, category: category }]));
         for (const op_def of op_defs) {
             const type = this._types.get(op_def.name) || { name: op_def.name };
             if (op_def.annotation) {

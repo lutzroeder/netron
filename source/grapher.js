@@ -284,7 +284,7 @@ grapher.Node = class {
     select() {
         if (this.element) {
             this.element.classList.add('select');
-            return [ this.element ];
+            return [this.element];
         }
         return [];
     }
@@ -430,7 +430,7 @@ grapher.Node.Header.Entry = class {
         this.text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         this.element.appendChild(this.path);
         this.element.appendChild(this.text);
-        const classList = [ 'node-item' ];
+        const classList = ['node-item'];
         if (this.classList) {
             classList.push(...this.classList);
         }
@@ -753,7 +753,7 @@ grapher.Edge = class {
                 this.element = path.cloneNode(true);
                 path.parentNode.replaceChild(this.element, path);
             }
-            return [ this.element ];
+            return [this.element];
         }
         return [];
     }

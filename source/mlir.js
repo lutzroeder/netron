@@ -63,7 +63,7 @@ mlir.Graph = class {
             const inputType = func.inputTypes[i];
             const type = valueType(inputType);
             const value = new mlir.Value(input, type, "input desc", null);
-            const argument = new mlir.Argument(input, [ value ]);
+            const argument = new mlir.Argument(input, [value]);
             this.inputs.push(argument);
         }
         // outputs of function
@@ -72,7 +72,7 @@ mlir.Graph = class {
             const outputType = func.outputTypes[i];
             const type = valueType(outputType);
             const value = new mlir.Value(output, type, "output desc", null);
-            const argument = new mlir.Argument(output, [ value ]);
+            const argument = new mlir.Argument(output, [value]);
             this.outputs.push(argument);
         }
         // operations

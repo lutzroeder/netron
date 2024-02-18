@@ -49,7 +49,7 @@ java.io.InputObjectStream = class {
         if (stream.length < 5) {
             throw new java.io.Error('Invalid stream size');
         }
-        const signature = [ 0xac, 0xed ];
+        const signature = [0xac, 0xed];
         if (!stream.peek(2).every((value, index) => value === signature[index])) {
             throw new java.io.Error('Invalid stream signature');
         }

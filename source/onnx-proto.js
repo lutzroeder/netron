@@ -1028,7 +1028,7 @@ onnx.TensorShapeProto.Dimension = class Dimension {
     }
 
     get value() {
-        onnx.TensorShapeProto.Dimension.valueSet = onnx.TensorShapeProto.Dimension.valueSet || new Set([ "dim_value", "dim_param"]);
+        onnx.TensorShapeProto.Dimension.valueSet = onnx.TensorShapeProto.Dimension.valueSet || new Set(["dim_value", "dim_param"]);
         return Object.keys(this).find((key) => onnx.TensorShapeProto.Dimension.valueSet.has(key) && this[key] != null);
     }
 
@@ -1087,7 +1087,7 @@ onnx.TypeProto = class TypeProto {
     }
 
     get value() {
-        onnx.TypeProto.valueSet = onnx.TypeProto.valueSet || new Set([ "tensor_type", "sequence_type", "map_type", "optional_type", "sparse_tensor_type", "opaque_type"]);
+        onnx.TypeProto.valueSet = onnx.TypeProto.valueSet || new Set(["tensor_type", "sequence_type", "map_type", "optional_type", "sparse_tensor_type", "opaque_type"]);
         return Object.keys(this).find((key) => onnx.TypeProto.valueSet.has(key) && this[key] != null);
     }
 

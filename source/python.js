@@ -96,11 +96,11 @@ python.Parser = class {
         }
         node = this._eat('id', 'raise');
         if (node) {
-            node.exception = this._expression(-1, [ 'from' ]);
+            node.exception = this._expression(-1, ['from']);
             if (this._tokenizer.eat('id', 'from')) {
                 node.from = this._expression();
             } else if (this._tokenizer.eat(',')) {
-                node.exception = [ node.exception ];
+                node.exception = [node.exception];
                 node.exception.push(this._expression());
                 if (this._tokenizer.eat(',')) {
                     node.exception.push(this._expression());
@@ -110,7 +110,7 @@ python.Parser = class {
         }
         node = this._eat('id', 'assert');
         if (node) {
-            node.condition = this._expression(-1, [ ',' ]);
+            node.condition = this._expression(-1, [',']);
             if (this._tokenizer.eat(',')) {
                 node.message = this._expression();
             }
@@ -118,11 +118,11 @@ python.Parser = class {
         }
         node = this._eat('id', 'exec');
         if (node) {
-            node.variable = this._expression(-1, [ 'in' ]);
+            node.variable = this._expression(-1, ['in']);
             if (this._tokenizer.eat('in')) {
                 do {
                     node.target = node.target || [];
-                    node.target.push(this._expression(-1, [ 'in' ], false));
+                    node.target.push(this._expression(-1, ['in'], false));
                 }
                 while (this._tokenizer.eat(','));
             }
@@ -285,13 +285,13 @@ python.Parser = class {
         node = this._eat('id', 'for');
         if (node) {
             node.variable = [];
-            node.variable.push(this._expression(-1, [ 'in' ]));
+            node.variable.push(this._expression(-1, ['in']));
             while (this._tokenizer.eat(',')) {
                 if (this._tokenizer.match('id', 'in')) {
                     node.variable.push({});
                     break;
                 }
-                node.variable.push(this._expression(-1, [ 'in' ]));
+                node.variable.push(this._expression(-1, ['in']));
             }
             this._tokenizer.expect('id', 'in');
             node.target = [];
@@ -301,7 +301,7 @@ python.Parser = class {
                     node.target.push({});
                     break;
                 }
-                node.target.push(this._expression(-1, [ 'in' ]));
+                node.target.push(this._expression(-1, ['in']));
             }
             this._tokenizer.expect(':');
             node.body = this._suite();
@@ -376,7 +376,7 @@ python.Parser = class {
                 node = this._node('var');
                 node.name = expression.value;
                 node.location = expression.location;
-                node.variableType = this._expression(-1, [ '=' ]);
+                node.variableType = this._expression(-1, ['=']);
                 if (this._tokenizer.eat('=')) {
                     node.initializer = this._expression();
                 }
@@ -555,12 +555,12 @@ python.Parser = class {
                         node.async = async;
                     }
                     node.expression = stack.pop();
-                    node.variable = this._expression(-1, [ 'in' ], true);
+                    node.variable = this._expression(-1, ['in'], true);
                     this._tokenizer.expect('id', 'in');
-                    node.target = this._expression(-1, [ 'for', 'if' ], true);
+                    node.target = this._expression(-1, ['for', 'if'], true);
                     while (this._tokenizer.eat('id', 'if')) {
                         node.condition = node.condition || [];
-                        node.condition.push(this._expression(-1, [ 'for', 'if' ]));
+                        node.condition.push(this._expression(-1, ['for', 'if']));
                     }
                     stack.push(node);
                 }
@@ -676,7 +676,7 @@ python.Parser = class {
                     [node] = stack;
                 } else {
                     node = this._node('tuple');
-                    node.value = [ stack.pop() ];
+                    node.value = [stack.pop()];
                     stack.push(node);
                 }
                 // for, bar, = <expr>
@@ -684,7 +684,7 @@ python.Parser = class {
                     continue;
                 }
                 if (!this._tokenizer.match('=') && !terminalSet.has(this._tokenizer.peek().value)) {
-                    const nextTerminal = terminal.slice(0).concat([ ',', '=' ]);
+                    const nextTerminal = terminal.slice(0).concat([',', '=']);
                     const expression = this._expression(minPrecedence, nextTerminal, tuple);
                     if (expression) {
                         node.value.push(expression);
@@ -776,7 +776,7 @@ python.Parser = class {
     _slice() {
         let node = { type: '::' };
         let list = [];
-        const group = [ 'start', 'stop', 'step' ];
+        const group = ['start', 'stop', 'step'];
         this._tokenizer.expect('[');
         while (!this._tokenizer.eat(']')) {
             if (this._tokenizer.eat(':')) {
@@ -855,7 +855,7 @@ python.Parser = class {
     _type() {
         const type = this._node();
         type.type = 'type';
-        type.name = this._expression(-1, [ '[', '=' ]);
+        type.name = this._expression(-1, ['[', '=']);
         if (type.name) {
             if (this._tokenizer.peek().value === '[') {
                 type.arguments = this._typeArguments();
@@ -2053,7 +2053,7 @@ python.Execution = class {
                 }
                 const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
                 this.data = unpickler.read(size);
-                return execution.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
+                return execution.invoke(this.subclass, [this.shape, this.dtype, this.data]);
             }
         });
         this.registerType('keras.engine.sequential.Sequential', class {});
@@ -2323,7 +2323,7 @@ python.Execution = class {
             flatten() {
                 const size = this.shape.reduce((a, b) => a * b, 1);
                 const value = execution.invoke('numpy.ndarray', [
-                    [ size ], this.dtype, this.data, this.offset, this.strides, this.order
+                    [size], this.dtype, this.data, this.offset, this.strides, this.order
                 ]);
                 value.flags = this.flags;
                 return value;
@@ -2556,7 +2556,7 @@ python.Execution = class {
                 }
                 const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
                 this.data = unpickler.read(size);
-                return execution.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
+                return execution.invoke(this.subclass, [this.shape, this.dtype, this.data]);
             }
         });
         this.registerType('sklearn.externals.joblib.numpy_pickle.NDArrayWrapper', class {
@@ -2968,20 +2968,20 @@ python.Execution = class {
                             break;
                         }
                         case 133: { // TUPLE1 // '\x85'
-                            stack.push([ stack.pop() ]);
+                            stack.push([stack.pop()]);
                             break;
                         }
                         case 134: { // TUPLE2 '\x86'
                             const b = stack.pop();
                             const a = stack.pop();
-                            stack.push([ a, b ]);
+                            stack.push([a, b]);
                             break;
                         }
                         case 135: { // TUPLE3 '\x87'
                             const c = stack.pop();
                             const b = stack.pop();
                             const a = stack.pop();
-                            stack.push([ a, b, c ]);
+                            stack.push([a, b, c]);
                             break;
                         }
                         case 115: { // SETITEM 's'
@@ -3048,7 +3048,7 @@ python.Execution = class {
                             let obj = stack.pop();
                             if (obj.__setstate__) {
                                 if (obj.__setstate__.__call__) {
-                                    obj.__setstate__.__call__([ obj, state ]);
+                                    obj.__setstate__.__call__([obj, state]);
                                 } else {
                                     obj.__setstate__(state);
                                 }
@@ -3342,7 +3342,7 @@ python.Execution = class {
         this.registerType('xgboost.sklearn.XGBClassifier', class {});
         this.registerType('xgboost.sklearn.XGBRegressor', class {});
         this.registerFunction('_codecs.encode', function(obj, encoding) {
-            return execution.invoke('builtins.bytearray', [ obj, encoding ]);
+            return execution.invoke('builtins.bytearray', [obj, encoding]);
         });
         this.registerType('builtins.bytearray', class extends Uint8Array {
             constructor(source, encoding /*, errors */) {
@@ -3525,7 +3525,7 @@ python.Execution = class {
             };
         });
         this.registerFunction('dill._dill._create_code', function(args) {
-            return self.invoke('types.CodeType', [ args ]);
+            return self.invoke('types.CodeType', [args]);
         });
         this.registerFunction('dill._dill._create_function', function(/* fcode, fglobals, fname, fdefaults, fclosure, fdict, fkwdefaults */) {
             return function() {
@@ -3533,7 +3533,7 @@ python.Execution = class {
             };
         });
         this.registerFunction('dill._dill._create_namedtuple', function(name, fieldnames, modulename /*, defaults */) {
-            const obj = execution.invoke('dill._dill._import_module', [ `${modulename}.${name}` ]);
+            const obj = execution.invoke('dill._dill._import_module', [`${modulename}.${name}`]);
             if (obj) {
                 return obj;
             }
@@ -3571,7 +3571,7 @@ python.Execution = class {
             const _dill = self.register('dill._dill');
             if (!_dill._reverse_typemap) {
                 _dill._reverse_typemap = new Map();
-                for (const name of [ '__builtin__', 'types' ]) {
+                for (const name of ['__builtin__', 'types']) {
                     const module = self.register(name);
                     for (const [name, obj] of Object.entries(module)) {
                         if (obj.__module__ === 'builtins' &&
@@ -3712,16 +3712,16 @@ python.Execution = class {
             throw new python.Error("'nolearn.lasagne.base.objective' not implemented.");
         });
         this.registerFunction('numpy._reconstruct', function(subtype, shape, dtype) {
-            return self.invoke(subtype, [ shape, dtype ]);
+            return self.invoke(subtype, [shape, dtype]);
         });
         this.registerFunction('numpy.core._DType_reconstruct', function(/* scalar_type */) {
             throw new python.Error("'numpy.core._DType_reconstruct' not implemented.");
         });
         this.registerFunction('numpy.core._multiarray_umath._reconstruct', function(subtype, shape, dtype) {
-            return self.invoke(subtype, [ shape, dtype ]);
+            return self.invoke(subtype, [shape, dtype]);
         });
         this.registerFunction('numpy.core.multiarray._reconstruct', function(subtype, shape, dtype) {
-            return self.invoke(subtype, [ shape, dtype ]);
+            return self.invoke(subtype, [shape, dtype]);
         });
         this.registerFunction('numpy.core.multiarray.scalar', function(dtype, rawData) {
             let data = rawData;
@@ -3811,16 +3811,16 @@ python.Execution = class {
         });
         this.registerFunction('numpy.load', function(file) {
             // https://github.com/numpy/numpy/blob/main/numpy/lib/format.py
-            const signature = [ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ];
+            const signature = [0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59];
             if (!file.read(6).every((v, i) => v == signature[i])) {
                 throw new python.Error('Invalid signature.');
             }
             const version = file.read(2);
             const [major, minor] = version;
             if (major > 3) {
-                throw new python.Error(`Invalid version '${[ major, minor ].join('.')}'.`);
+                throw new python.Error(`Invalid version '${[major, minor].join('.')}'.`);
             }
-            const buffer = new Uint8Array([ 0, 0, 0, 0 ]);
+            const buffer = new Uint8Array([0, 0, 0, 0]);
             buffer.set(file.read(major >= 2 ? 4 : 2), 0);
             const header_length = buffer[3] << 24 | buffer[2] << 16 | buffer[1] << 8 | buffer[0];
             let header = file.read(header_length);
@@ -3834,14 +3834,14 @@ python.Execution = class {
                 throw new python.Error("Missing property 'shape'.");
             }
             const shape = header.shape;
-            const dtype = self.invoke('numpy.dtype', [ header.descr.substring(1) ]);
+            const dtype = self.invoke('numpy.dtype', [header.descr.substring(1)]);
             dtype.byteorder = header.descr.substring(0, 1);
             let data = null;
             switch (dtype.byteorder) {
                 case '|': {
                     data = file.read();
                     if (dtype.kind === 'O') {
-                        const unpickler = execution.invoke('pickle.Unpickler', [ data ]);
+                        const unpickler = execution.invoke('pickle.Unpickler', [data]);
                         return unpickler.load();
                     }
                     break;
@@ -3862,7 +3862,7 @@ python.Execution = class {
             if (header.fortran_order) {
                 data = null;
             }
-            return self.invoke('numpy.ndarray', [ shape, dtype, data ]);
+            return self.invoke('numpy.ndarray', [shape, dtype, data]);
         });
         this.registerFunction('numpy.save', function(file, arr) {
             const descr = arr.dtype.str;
@@ -3886,8 +3886,8 @@ python.Execution = class {
             let header = `{ ${properties.join(', ')} }`;
             header += `${' '.repeat(64 - ((header.length + 2 + 8 + 1) & 0x3f))}\n`;
             const encoder = new TextEncoder('ascii');
-            file.write([ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59, 0x01, 0x00 ]); // '\\x93NUMPY' + version
-            file.write([ header.length & 0xff, (header.length >> 8) & 0xff ]);
+            file.write([0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59, 0x01, 0x00]); // '\\x93NUMPY' + version
+            file.write([header.length & 0xff, (header.length >> 8) & 0xff]);
             file.write(encoder.encode(header));
             file.write(arr.tobytes());
         });
@@ -3962,9 +3962,9 @@ python.Execution = class {
                             }
                         }
                     }
-                    return [ value.length ].concat(dim);
+                    return [value.length].concat(dim);
                 }
-                return [ value.length ];
+                return [value.length];
             };
             const shape = Array.isArray(a) ? array_size(a) : [];
             const size = dtype.itemsize * shape.reduce((a, b) => a * b, 1);
@@ -3978,16 +3978,16 @@ python.Execution = class {
             };
             context.view = new DataView(context.data.buffer, context.data.byteOffset, size);
             encode(context, a, 0);
-            return self.invoke('numpy.ndarray', [ shape, dtype, context.data ]);
+            return self.invoke('numpy.ndarray', [shape, dtype, context.data]);
         });
         this.registerFunction('numpy.mean', function() {
             throw new python.Error("'numpy.mean' not implemented.");
         });
         this.registerFunction('numpy.ma.core._mareconstruct', function(subtype, baseclass, baseshape, basetype) {
-            const data = self.invoke(baseclass, [ baseshape, basetype ]);
+            const data = self.invoke(baseclass, [baseshape, basetype]);
             // = ndarray.__new__(ndarray, baseshape, make_mask_descr(basetype))
-            const mask = self.invoke('numpy.ndarray', [ baseshape, '' ]);
-            return self.invoke(subtype, [ data, mask, basetype ]);
+            const mask = self.invoke('numpy.ndarray', [baseshape, '']);
+            return self.invoke(subtype, [data, mask, basetype]);
         });
         this.registerFunction('numpy.random.__RandomState_ctor', function() {
             return {};
@@ -4035,7 +4035,7 @@ python.Execution = class {
             throw new python.Error("'sklearn.metrics._regression.mean_squared_error' not implemented.");
         });
         this.registerFunction('re._compile', function(pattern, flags) {
-            return self.invoke('re.Pattern', [ pattern, flags ]);
+            return self.invoke('re.Pattern', [pattern, flags]);
         });
         this.registerFunction('srsly.cloudpickle.cloudpickle._builtin_type', function(name) {
             return function() {
@@ -4767,26 +4767,26 @@ python.Execution = class {
         });
         this.registerFunction('torch.from_numpy', function(obj) {
             const dtypes = new Map([
-                [ '<f2', torch.float16 ],
-                [ '<f4', torch.float32 ],
-                [ '<f8', torch.float64 ],
-                [ '<i2', torch.int16 ],
-                [ '<i4', torch.int32 ],
-                [ '<i8', torch.int64 ],
+                ['<f2', torch.float16],
+                ['<f4', torch.float32],
+                ['<f8', torch.float64],
+                ['<i2', torch.int16],
+                ['<i4', torch.int32],
+                ['<i8', torch.int64],
             ]);
             if (!dtypes.has(obj.dtype.str)) {
                 throw new python.Error(`Unsupported numpy.ndarray type '${obj.dtype.str}'.`);
             }
             const dtype = dtypes.get(obj.dtype.str);
             const strides = obj.strides.map((stride) => stride / obj.itemsize);
-            const storage = execution.invoke('torch.storage._TypedStorage', [ obj.size, dtype ]);
+            const storage = execution.invoke('torch.storage._TypedStorage', [obj.size, dtype]);
             storage._set_cdata(obj.data);
             const tensor = execution.invoke('torch.Tensor', []);
-            tensor.__setstate__([ storage, 0, obj.shape, strides ]);
+            tensor.__setstate__([storage, 0, obj.shape, strides]);
             return tensor;
         });
         this.registerFunction('torch._utils._rebuild_device_tensor_from_numpy', function(data, dtype, device, requires_grad) {
-            const tensor = execution.invoke('torch.from_numpy', [ data ]);
+            const tensor = execution.invoke('torch.from_numpy', [data]);
             // tensor = tensor.to(dtype, device)
             tensor.requires_grad = requires_grad;
             return tensor;
@@ -4806,17 +4806,17 @@ python.Execution = class {
             }
             const name = `${storage.__class__.__module__}.${storage.__class__.__name__.replace('Storage', 'Tensor')}`;
             const tensor = self.invoke(name, []);
-            tensor.__setstate__([ storage, storage_offset, size, stride ]);
+            tensor.__setstate__([storage, storage_offset, size, stride]);
             return tensor;
         });
         this.registerFunction('torch._utils._rebuild_tensor_v2', function (storage, storage_offset, size, stride, requires_grad, backward_hooks) {
-            const tensor = execution.invoke('torch._utils._rebuild_tensor', [ storage, storage_offset, size, stride ]);
+            const tensor = execution.invoke('torch._utils._rebuild_tensor', [storage, storage_offset, size, stride]);
             tensor.requires_grad = requires_grad;
             tensor.backward_hooks = backward_hooks;
             return tensor;
         });
         this.registerFunction('torch._utils._rebuild_parameter', function(data, requires_grad, backward_hooks) {
-            const param = self.invoke('torch.nn.parameter.Parameter', [ data, requires_grad ]);
+            const param = self.invoke('torch.nn.parameter.Parameter', [data, requires_grad]);
             param.backward_hooks = backward_hooks;
             return param;
         });
@@ -4825,22 +4825,22 @@ python.Execution = class {
                 const [dict_state, slots_state] = Array.isArray(state) ? state : [state, null];
                 if (dict_state) {
                     for (const [k, v] of Object.entries(dict_state)) {
-                        self.invoke('builtins.setattr', [ obj, k, v ]);
+                        self.invoke('builtins.setattr', [obj, k, v]);
                     }
                 }
                 if (slots_state) {
                     for (const [k, v] of Object.entries(slots_state)) {
-                        self.invoke('builtins.setattr', [ obj, k, v ]);
+                        self.invoke('builtins.setattr', [obj, k, v]);
                     }
                 }
             };
-            const param = self.invoke('torch.nn.parameter.Parameter', [ data, requires_grad ]);
+            const param = self.invoke('torch.nn.parameter.Parameter', [data, requires_grad]);
             param._backward_hooks = backward_hooks;
             _set_obj_state(param, state);
             return param;
         });
         this.registerFunction('torch._utils._rebuild_qtensor', function(storage, storage_offset, size, stride, quantizer_params, requires_grad, backward_hooks) {
-            const tensor = execution.invoke('torch._utils._rebuild_tensor_v2', [ storage, storage_offset, size, stride, requires_grad, backward_hooks ]);
+            const tensor = execution.invoke('torch._utils._rebuild_tensor_v2', [storage, storage_offset, size, stride, requires_grad, backward_hooks]);
             tensor.quantizer_params = quantizer_params;
             return tensor;
         });
@@ -4855,12 +4855,12 @@ python.Execution = class {
             }
             if (dict_state) {
                 for (const [name, value] of Object.entries(dict_state)) {
-                    execution.invoke('builtins.setattr', [ obj, name, value ]);
+                    execution.invoke('builtins.setattr', [obj, name, value]);
                 }
             }
             if (slots_state) {
                 for (const [name, value] of Object.entries(slots_state)) {
-                    execution.invoke('builtins.setattr', [ obj, name, value ]);
+                    execution.invoke('builtins.setattr', [obj, name, value]);
                 }
             }
             return obj;
@@ -4873,11 +4873,11 @@ python.Execution = class {
             if (ret.__class__ !== new_type) {
                 // ret = ret.as_subclass(new_type);
             }
-            const setstate = execution.invoke('builtins.getattr', [ ret.__class__, '__setstate__', torch.Tensor.__setstate__ ]);
+            const setstate = execution.invoke('builtins.getattr', [ret.__class__, '__setstate__', torch.Tensor.__setstate__]);
             if (setstate !== torch.Tensor.__setstate__) {
                 ret.__setstate__(state);
             } else {
-                ret = execution.invoke('torch._utils._set_obj_state', [ ret, state ]);
+                ret = execution.invoke('torch._utils._set_obj_state', [ret, state]);
             }
             return ret;
         });
@@ -5136,7 +5136,7 @@ python.Execution = class {
                     set = set.size > 1 || set.keys().next().value === null ? null : set;
                     prefix += set ? set.keys().next().value.length + 1 : 0;
                 }
-                this._records = new Map(Array.from(entries).map(([name, value]) => [ name.substring(prefix), value ]));
+                this._records = new Map(Array.from(entries).map(([name, value]) => [name.substring(prefix), value]));
                 this._version = '0';
                 const stream = this.get_record('.data/version') || this.get_record('version') || null;
                 if (stream) {
@@ -5164,7 +5164,7 @@ python.Execution = class {
                 const deserialized_objects = {};
                 if (entries.has('storages')) {
                     const data = entries.get('storages');
-                    const unpickler = execution.invoke('pickle.Unpickler', [ data ]);
+                    const unpickler = execution.invoke('pickle.Unpickler', [data]);
                     const num_storages = unpickler.load();
                     for (let i = 0; i < num_storages; i++) {
                         const args = unpickler.load();
@@ -5181,7 +5181,7 @@ python.Execution = class {
                 }
                 if (entries.has('tensors')) {
                     const data = entries.get('tensors');
-                    const unpickler = execution.invoke('pickle.Unpickler', [ data ]);
+                    const unpickler = execution.invoke('pickle.Unpickler', [data]);
                     const num_tensors = unpickler.load();
                     const int32 = (unpickler) => {
                         const buffer = unpickler.read(4);
@@ -5203,17 +5203,17 @@ python.Execution = class {
                         const shape = Array.from(new Array(ndim)).map(() => int64(unpickler));
                         const stride = Array.from(new Array(ndim)).map(() => int64(unpickler));
                         const storage_offset = int64(unpickler);
-                        const tensor = execution.invoke('torch._utils._rebuild_tensor', [ storage, storage_offset, shape, stride ]);
+                        const tensor = execution.invoke('torch._utils._rebuild_tensor', [storage, storage_offset, shape, stride]);
                         deserialized_objects[key] = tensor;
                     }
                 }
                 const data = entries.get('pickle');
-                const unpickler = execution.invoke('pickle.Unpickler', [ data ]);
+                const unpickler = execution.invoke('pickle.Unpickler', [data]);
                 unpickler.persistent_load = (saved_id) => deserialized_objects[saved_id];
                 return unpickler.load();
             };
             const _legacy_load = () => {
-                const unpickler = execution.invoke('pickle.Unpickler', [ f ]);
+                const unpickler = execution.invoke('pickle.Unpickler', [f]);
                 unpickler.load(); // magic_number
                 const protocol_version = unpickler.load();
                 if (protocol_version != 1001) {
@@ -5296,14 +5296,14 @@ python.Execution = class {
                     }
                 };
                 const data_file = entries.get('data.pkl');
-                const unpickler = execution.invoke('pickle.Unpickler', [ data_file ]);
+                const unpickler = execution.invoke('pickle.Unpickler', [data_file]);
                 unpickler.persistent_load = persistent_load;
                 const result = unpickler.load();
                 return result;
             };
             if (f instanceof Map) {
                 const reader = new torch.PyTorchFileReader(f);
-                const records = reader.get_all_records().map((name) => [ name, reader.get_record(name) ]);
+                const records = reader.get_all_records().map((name) => [name, reader.get_record(name)]);
                 f = new Map(records);
                 if (f.has('pickle')) {
                     return legacy_load(f);
@@ -5563,12 +5563,12 @@ python.Execution = class {
         this.registerFunction('torch.fx.graph_module.reduce_graph_module', function(body, import_block) {
             // https://github.com/pytorch/pytorch/blob/master/torch/fx/graph_module.py
             const fn_src = body._code || body.code;
-            const forward = execution.invoke('torch.fx.graph_module._forward_from_src', [ import_block + fn_src, {} ]);
-            return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [ forward, body ]);
+            const forward = execution.invoke('torch.fx.graph_module._forward_from_src', [import_block + fn_src, {}]);
+            return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [forward, body]);
         });
         this.registerFunction('torch.fx.graph_module.reduce_package_graph_module', function(importer, body, generated_module_name) {
             const forward = importer.import_module(generated_module_name).forward;
-            return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [ forward, body ]);
+            return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [forward, body]);
         });
         this.registerType('torch.fx.graph.CodeGen', class {});
         this.registerType('torch.fx.graph._Namespace', class {
@@ -5821,7 +5821,7 @@ python.Execution = class {
             }
             deserialize_graph(serialized_graph) {
                 if (serialized_graph.constants) {
-                    this.constants = new Map(Object.entries(serialized_graph.constants).map(([k, v]) => [ k, torch.load(v) ]));
+                    this.constants = new Map(Object.entries(serialized_graph.constants).map(([k, v]) => [k, torch.load(v)]));
                 }
                 for (const [name, tensor_value] of Object.entries(serialized_graph.tensor_values)) {
                     const meta_val = this.deserialize_tensor_meta(tensor_value.meta || tensor_value, this.fake_tensor_mode);
@@ -5947,7 +5947,7 @@ python.Execution = class {
                         kwargs[schema_arg.name] = actual_args[schema_arg.name];
                     }
                 }
-                return [ args, kwargs ];
+                return [args, kwargs];
             }
             deserialize_input(/* inp */) {
                 /*
@@ -6051,7 +6051,7 @@ python.Execution = class {
                 const nn_module_stack_str = metadata['nn_module_stack'];
                 if (nn_module_stack_str) {
                     const import_nn_module_stack = (key, path, ty) => {
-                        return [ key, [ path, ty ] ];
+                        return [key, [path, ty]];
                     };
                     const nn_module_stack = new Map(nn_module_stack_str.split(';').map((item) => import_nn_module_stack(...item.split(','))));
                     ret['nn_module_stack'] = nn_module_stack;
@@ -6061,7 +6061,7 @@ python.Execution = class {
                     const source_fn_st = [];
                     for (const source_fn_str of source_fn_st_str.split(';')) {
                         const [name, target_str] = source_fn_str.split(',');
-                        source_fn_st.push([ name, deserialize_meta_func(target_str) ]);
+                        source_fn_st.push([name, deserialize_meta_func(target_str)]);
                     }
                     ret['source_fn_stack'] = source_fn_st;
                 }
@@ -6113,7 +6113,7 @@ python.Execution = class {
         });
         this.registerFunction('torch_utils.persistence._reconstruct_persistent_obj', function(meta) {
             const name = `_imported_module_${Math.floor(Math.random() * 10000)}`;
-            const module = execution.invoke('types.ModuleType', [ name ]);
+            const module = execution.invoke('types.ModuleType', [name]);
             execution.register('sys').modules.set(name, module);
             const context = new python.Execution.Context(module, null);
             execution.exec(meta.module_src, context);
@@ -6668,7 +6668,7 @@ python.Execution = class {
             throw new python.Error("'fastai.torch_core.trainable_params' not implemented.");
         });
         this.registerFunction('fastai.torch_core._rebuild_from_type', function(func, type, args, dict) {
-            const tensor = self.invoke(type, [ func(...args) ]);
+            const tensor = self.invoke(type, [func(...args)]);
             Object.assign(tensor, dict);
             return tensor;
         });
@@ -6735,7 +6735,7 @@ python.Execution = class {
             }
             bits = bits.slice(0, bits.length - level);
             const base = bits.join('.');
-            name = name ? [ base, name ].join('.') : base;
+            name = name ? [base, name].join('.') : base;
         }
         const index = name.lastIndexOf('.');
         let parent = null;
@@ -6750,7 +6750,7 @@ python.Execution = class {
             module.__package__ = name;
             this._modules.set(name, module);
             const path = name.split('.').join('/');
-            module.__path__ = [ path ];
+            module.__path__ = [path];
             const file = `${path}.py`;
             const program = this.parse(file);
             if (program) {
@@ -6918,7 +6918,7 @@ python.Execution = class {
         }
         if (func.__class__ === this._builtins.method) {
             if (func.__call__) {
-                return func.__call__([ callTarget ].concat(callArguments));
+                return func.__call__([callTarget].concat(callArguments));
             }
         }
         if (typeof func === 'function') {
@@ -7049,13 +7049,13 @@ python.Execution = class {
                 }
                 for (const item of items) {
                     if (item.__enter__ && item.__enter__.__call__) {
-                        item.__enter__.__call__([ item ]);
+                        item.__enter__.__call__([item]);
                     }
                 }
                 const value = this.block(statement.body.statements, context);
                 for (const item of items) {
                     if (item.__exit__ && item.__exit__.__call__) {
-                        item.__exit__.__call__([ item ]);
+                        item.__exit__.__call__([item]);
                     }
                 }
                 if (value !== undefined) {

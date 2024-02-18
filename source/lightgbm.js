@@ -7,7 +7,7 @@ lightgbm.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        const signature = [ 0x74, 0x72, 0x65, 0x65, 0x0A ];
+        const signature = [0x74, 0x72, 0x65, 0x65, 0x0A];
         if (stream && stream.length >= signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             context.type = 'lightgbm.text';
             return;
@@ -47,7 +47,7 @@ lightgbm.Model = class {
 
     constructor(obj, format) {
         this.format = format + (obj && obj.version ? ` ${obj.version}` : '');
-        this.graphs = [ new lightgbm.Graph(obj) ];
+        this.graphs = [new lightgbm.Graph(obj)];
     }
 };
 
@@ -65,7 +65,7 @@ lightgbm.Graph = class {
             const value = new lightgbm.Value(name);
             values.push(value);
             if (feature_names.length < 1000) {
-                const argument = new lightgbm.Argument(name, [ value ]);
+                const argument = new lightgbm.Argument(name, [value]);
                 this.inputs.push(argument);
             }
         }

@@ -58,7 +58,7 @@ safetensors.Model = class {
 
     constructor(entries) {
         this.format = 'Safetensors';
-        this.graphs = [ new safetensors.Graph(entries) ];
+        this.graphs = [new safetensors.Graph(entries)];
     }
 };
 
@@ -79,7 +79,7 @@ safetensors.Graph = class {
             if (!layers.has(layer)) {
                 layers.set(layer, []);
             }
-            layers.get(layer).push([ name, key, value]);
+            layers.get(layer).push([name, key, value]);
         }
         for (const [name, values] of layers) {
             const node = new safetensors.Node(name, values);
@@ -119,7 +119,7 @@ safetensors.Node = class {
         for (const [name, identifier, obj] of values) {
             const tensor = new safetensors.Tensor(obj);
             const value = new safetensors.Value(identifier, tensor);
-            const argument = new safetensors.Argument(name, [ value ]);
+            const argument = new safetensors.Argument(name, [value]);
             this.inputs.push(argument);
         }
     }

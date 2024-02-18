@@ -25,17 +25,17 @@ flax.ModelFactory = class {
         const ext_hook = (code, data) => {
             switch (code) {
                 case 1: { // _MsgpackExtType.ndarray
-                    const tuple = execution.invoke('msgpack.unpackb', [ data ]);
-                    const dtype = execution.invoke('numpy.dtype', [ tuple[1] ]);
+                    const tuple = execution.invoke('msgpack.unpackb', [data]);
+                    const dtype = execution.invoke('numpy.dtype', [tuple[1]]);
                     dtype.byteorder = '<';
-                    return execution.invoke('numpy.ndarray', [ tuple[0], dtype, tuple[2] ]);
+                    return execution.invoke('numpy.ndarray', [tuple[0], dtype, tuple[2]]);
                 }
                 default: {
                     throw new flax.Error(`Unsupported MessagePack extension '${code}'.`);
                 }
             }
         };
-        const obj = execution.invoke('msgpack.unpackb', [ packed, ext_hook ]);
+        const obj = execution.invoke('msgpack.unpackb', [packed, ext_hook]);
         return new flax.Model(obj);
     }
 };
@@ -44,7 +44,7 @@ flax.Model = class {
 
     constructor(obj) {
         this.format = 'Flax';
-        this.graphs = [ new flax.Graph(obj) ];
+        this.graphs = [new flax.Graph(obj)];
     }
 };
 
@@ -117,7 +117,7 @@ flax.Node = class {
         for (const [name, value] of Object.entries(layer)) {
             if (flax.Utility.isTensor(value)) {
                 const tensor = new flax.Tensor(value);
-                const argument = new flax.Argument(name, [ new flax.Value('', tensor) ]);
+                const argument = new flax.Argument(name, [new flax.Value('', tensor)]);
                 this.inputs.push(argument);
             } else if (Array.isArray(value)) {
                 const attribute = new flax.Attribute(name, value);

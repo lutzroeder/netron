@@ -29,7 +29,7 @@ torch.ModelFactory = class {
             !obj[obj.length - 1].__class__) {
             graphs = obj.slice(0, obj.length - 1);
         } else {
-            graphs = [ obj ];
+            graphs = [obj];
         }
         return new torch.Model(metadata, graphs);
     }
@@ -170,10 +170,10 @@ torch.Graph = class {
         const outputs = [];
         loadModule(metadata, root, [], '', inputs, outputs);
         this.inputs = this.inputs.concat(inputs.map((input, index) => {
-            return new torch.Argument(`input${index != 0 ? (index + 1).toString() : ''}`, [ input ]);
+            return new torch.Argument(`input${index != 0 ? (index + 1).toString() : ''}`, [input]);
         }));
         this.outputs = this.outputs.concat(outputs.map((output, index) => {
-            return new torch.Argument(`output${index != 0 ? (index + 1).toString() : ''}`, [ output ]);
+            return new torch.Argument(`output${index != 0 ? (index + 1).toString() : ''}`, [output]);
         }));
     }
 };
@@ -314,7 +314,7 @@ torch.Node = class {
                     continue;
                 }
                 if (obj.__class__ && obj.__class__.__module__ === 'torch' && obj.__class__.__name__.endsWith('Tensor')) {
-                    initializers.push(new torch.Argument(key, [ values.map('', null, new torch.Tensor(obj)) ]));
+                    initializers.push(new torch.Argument(key, [values.map('', null, new torch.Tensor(obj))]));
                     continue;
                 }
                 if (key == 'modules') {
@@ -357,7 +357,7 @@ torch.Node = class {
     _updateSize(module, name) {
         if (Object.prototype.hasOwnProperty.call(module, `${name}W`) &&
             Object.prototype.hasOwnProperty.call(module, `${name}H`)) {
-            module[name] = [ module[`${name}W`], module[`${name}H`] ];
+            module[name] = [module[`${name}W`], module[`${name}H`]];
             delete module[`${name}W`];
             delete module[`${name}H`];
         }
@@ -368,7 +368,7 @@ torch.Node = class {
             Object.prototype.hasOwnProperty.call(module, `${name}_r`) &&
             Object.prototype.hasOwnProperty.call(module, `${name}_b`) &&
             Object.prototype.hasOwnProperty.call(module, `${name}_l`)) {
-            module[name] = [ module[`${name}_t`], module[`${name}_r`], module[`${name}_b`], module[`${name}_l`] ];
+            module[name] = [module[`${name}_t`], module[`${name}_r`], module[`${name}_b`], module[`${name}_l`]];
             delete module[`${name}_t`];
             delete module[`${name}_r`];
             delete module[`${name}_b`];
@@ -961,7 +961,7 @@ torch.T7Reader = class {
         const dumped = this._reader.read(size);
         const upvalues = this.read();
         const type = this._types.get('LuaFunction');
-        const obj = Reflect.construct(type, [ size, dumped, upvalues ]);
+        const obj = Reflect.construct(type, [size, dumped, upvalues]);
         this._memo.set(index, obj);
         return obj;
     }

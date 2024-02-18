@@ -140,7 +140,7 @@ om.Node = class {
                 const type = om.Utility.tensorType(op.output_desc[i]);
                 const name = this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i].name : `output${i === 0 ? '' : i}`;
                 const value = values.map(identifier, type);
-                const argument = new om.Argument(name, [ value ]);
+                const argument = new om.Argument(name, [value]);
                 this.outputs.push(argument);
             }
         }
@@ -187,7 +187,7 @@ om.Attribute = class {
                 this.value = null;
                 if (value.bt.length !== 0) {
                     this.type = 'tensor';
-                    const shape = new om.TensorShape([ value.bt.length / 4 ]);
+                    const shape = new om.TensorShape([value.bt.length / 4]);
                     const type = new om.TensorType('float32', shape);
                     this.value = new om.Tensor('Constant', type, value.bt);
                 }
@@ -381,7 +381,7 @@ om.Container = class {
                 header.model_num = header.version >= 0x20000000 ? reader.uint32() : 1;
                 header.platform_version = decoder.decode(reader.read(20));
                 header.platform_type = reader.byte();
-                header.padd = [ reader.byte(), reader.byte(), reader.byte() ];
+                header.padd = [reader.byte(), reader.byte(), reader.byte()];
                 header.model_length = Number(reader.uint64());
                 header.need_check_os_cpu_info = reader.byte();
                 header.is_unknow_model = reader.byte(); // 0:static model 1:dynamic model

@@ -10,7 +10,7 @@ hdf5.File = class {
     static open(data) {
         if (data && data.length >= 8) {
             const buffer = data instanceof Uint8Array ? data : data.peek(8);
-            const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ]; // \x89HDF\r\n\x1A\n
+            const signature = [0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A]; // \x89HDF\r\n\x1A\n
             if (signature.every((value, index) => value === buffer[index])) {
                 return new hdf5.File(data);
             }

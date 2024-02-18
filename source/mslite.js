@@ -74,11 +74,11 @@ mslite.Graph = class {
         if (subgraph === model) {
             for (let i = 0; i < subgraph.inputIndex.length; i++) {
                 const index = subgraph.inputIndex[i];
-                this.inputs.push(new mslite.Argument(i.toString(), [ values[index] ]));
+                this.inputs.push(new mslite.Argument(i.toString(), [values[index]]));
             }
             for (let i = 0; i < subgraph.outputIndex.length; i++) {
                 const index = subgraph.outputIndex[i];
-                this.outputs.push(new mslite.Argument(i.toString(), [ values[index] ]));
+                this.outputs.push(new mslite.Argument(i.toString(), [values[index]]));
             }
             for (let i = 0; i < subgraph.nodes.length; i++) {
                 this.nodes.push(new mslite.Node(metadata, subgraph.nodes[i], values));
@@ -86,11 +86,11 @@ mslite.Graph = class {
         } else {
             for (let i = 0; i < subgraph.inputIndices.length; i++) {
                 const index = subgraph.inputIndices[i];
-                this.inputs.push(new mslite.Argument(i.toString(), [ values[index] ]));
+                this.inputs.push(new mslite.Argument(i.toString(), [values[index]]));
             }
             for (let i = 0; i < subgraph.outputIndices.length; i++) {
                 const index = subgraph.outputIndices[i];
-                this.outputs.push(new mslite.Argument(i.toString(), [ values[index] ]));
+                this.outputs.push(new mslite.Argument(i.toString(), [values[index]]));
             }
             for (const name of subgraph.nodeIndices) {
                 const node = new mslite.Node(metadata, model.nodes[name], values);
@@ -123,13 +123,13 @@ mslite.Node = class {
                     break;
                 }
                 const index = op.inputIndex[i];
-                this.inputs.push(new mslite.Argument(input.name, [ values[index] ]));
+                this.inputs.push(new mslite.Argument(input.name, [values[index]]));
                 i += 1;
             }
         }
         for (let j = i; j < input_num; j++) {
             const index = op.inputIndex[j];
-            this.inputs.push(new mslite.Argument(j.toString(), [ values[index] ]));
+            this.inputs.push(new mslite.Argument(j.toString(), [values[index]]));
         }
 
         const output_num = op.outputIndex.length;
@@ -140,14 +140,14 @@ mslite.Node = class {
                     break;
                 }
                 const index = op.outputIndex[i];
-                const argument = new mslite.Argument(output.name, [ values[index] ]);
+                const argument = new mslite.Argument(output.name, [values[index]]);
                 this.outputs.push(argument);
                 i += 1;
             }
         }
         for (let j = i; j < output_num; j++) {
             const index = op.outputIndex[j];
-            const argument = new mslite.Argument(j.toString(), [ values[index] ]);
+            const argument = new mslite.Argument(j.toString(), [values[index]]);
             this.outputs.push(argument);
         }
     }
@@ -325,7 +325,7 @@ mslite.Utility = class {
             const type = name && mslite.schema ? mslite.schema[name] : undefined;
             if (type) {
                 if (!mslite.Utility._enumKeyMap.has(name)) {
-                    const entries = new Map(Object.entries(type).map(([key, value]) => [ value, key ]));
+                    const entries = new Map(Object.entries(type).map(([key, value]) => [value, key]));
                     mslite.Utility._enumKeyMap.set(name, entries);
                 }
             }

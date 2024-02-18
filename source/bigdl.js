@@ -35,7 +35,7 @@ bigdl.Model = class {
     constructor(metadata, module) {
         const version = module && module.version ? module.version : '';
         this.format = `BigDL${version ? ` v${version}` : ''}`;
-        this.graphs = [ new bigdl.Graph(metadata, module) ];
+        this.graphs = [new bigdl.Graph(metadata, module)];
     }
 };
 
@@ -64,7 +64,7 @@ bigdl.Graph = class {
                     break;
                 }
                 case 'com.intel.analytics.bigdl.nn.Input': {
-                    const argument = new bigdl.Argument(module.name, [ values.map(module.name) ]);
+                    const argument = new bigdl.Argument(module.name, [values.map(module.name)]);
                     this.inputs.push(argument);
                     break;
                 }
@@ -138,7 +138,7 @@ bigdl.Node = class {
             }
             if (value.dataType === bigdl.proto.DataType.TENSOR) {
                 if (value.value) {
-                    this.inputs.push(new bigdl.Argument(key, [ new bigdl.Value('', null, new bigdl.Tensor(value.tensorValue, tensors)) ]));
+                    this.inputs.push(new bigdl.Argument(key, [new bigdl.Value('', null, new bigdl.Tensor(value.tensorValue, tensors))]));
                 }
                 continue;
             }
@@ -152,7 +152,7 @@ bigdl.Node = class {
             this.attributes.push(new bigdl.Attribute(key, value));
         }
         const output = this.name || this.type + module.namePostfix;
-        this.outputs.push(new bigdl.Argument('output', [ values.map(output) ]));
+        this.outputs.push(new bigdl.Argument('output', [values.map(output)]));
     }
 };
 

@@ -40,7 +40,7 @@ tf.ModelFactory = class {
             }
             if (identifier == 'tfhub_module.pb') {
                 const stream = context.stream;
-                const signature = [ 0x08, 0x03 ];
+                const signature = [0x08, 0x03];
                 if (signature.length === stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
                     return;
                 }
@@ -191,7 +191,7 @@ tf.ModelFactory = class {
             }
         }
         if (extension === 'json') {
-            for (const type of [ 'json', 'json.gz' ]) {
+            for (const type of ['json', 'json.gz']) {
                 const obj = context.peek(type);
                 if (obj && obj.modelTopology && (obj.format === 'graph-model' || Array.isArray(obj.modelTopology.node))) {
                     context.type = `tf.${type}`;
@@ -205,7 +205,7 @@ tf.ModelFactory = class {
                 stream.seek(-8);
                 const buffer = stream.read(8);
                 stream.seek(0);
-                const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
+                const signature = [0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb];
                 if (buffer.every((value, index) => value === signature[index])) {
                     context.type = 'tf.bundle';
                     return;
@@ -320,8 +320,8 @@ tf.ModelFactory = class {
                 switch (event.what) {
                     case 'file_version': {
                         const formats = new Map([
-                            [ 'brain.Event:1', 'TensorFlow Event File v1' ],
-                            [ 'brain.Event:2', 'TensorFlow Event File v2' ]
+                            ['brain.Event:1', 'TensorFlow Event File v1'],
+                            ['brain.Event:2', 'TensorFlow Event File v2']
                         ]);
                         if (!formats.has(event.file_version)) {
                             throw new tf.Error(`Unsupported event file version '${event.file_version}'.`);
@@ -425,10 +425,10 @@ tf.ModelFactory = class {
                 }
                 const openShards = (shards) => {
                     const dtype_size_map = new Map([
-                        [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ],
-                        [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ],
-                        [ 'uint8', 1 ], [ 'uint16', 2 ], [ 'uint32', 4 ], [ 'uint64', 8 ],
-                        [ 'bool', 1 ]
+                        ['float16', 2], ['float32', 4], ['float64', 8],
+                        ['int8', 1], ['int16', 2], ['int32', 4], ['int64', 8],
+                        ['uint8', 1], ['uint16', 2], ['uint32', 4], ['uint64', 8],
+                        ['bool', 1]
                     ]);
                     for (const manifest of manifests) {
                         let buffer = null;
@@ -887,7 +887,7 @@ tf.Function = class {
         if (input_arg) {
             for (const input of input_arg) {
                 const value = context.value(input.name, new tf.TensorType(input.type, null), null);
-                this._inputs.push(new tf.Argument(input.name, [ value ]));
+                this._inputs.push(new tf.Argument(input.name, [value]));
             }
         }
         const output_arg_map = new Map();
@@ -901,7 +901,7 @@ tf.Function = class {
             for (const output of output_arg) {
                 const name = ret_map.get(output.name);
                 const type = new tf.TensorType(output.type, null);
-                const argument = new tf.Argument(output.name, [ context.value(name, type, null) ]);
+                const argument = new tf.Argument(output.name, [context.value(name, type, null)]);
                 this._outputs.push(argument);
                 output_arg_map.set(name, output.name);
             }
@@ -975,7 +975,7 @@ tf.Node = class {
         if (tensors) {
             for (const tensor of tensors) {
                 const value = context.value(tensor.value.name, null, tensor.value);
-                const argument = new tf.Argument(tensor.name, [ value ]);
+                const argument = new tf.Argument(tensor.name, [value]);
                 this._inputs.push(argument);
             }
         } else {
@@ -1011,7 +1011,7 @@ tf.Node = class {
             }
             this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 const name = input.label ? input.label : (inputIndex + index).toString();
-                return new tf.Argument(name, [ context.value(input.name) ]);
+                return new tf.Argument(name, [context.value(input.name)]);
             }));
             let outputIndex = 0;
             const outputs = node.output || [];
@@ -1041,7 +1041,7 @@ tf.Node = class {
             this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 const name = (outputIndex + index).toString();
                 const value = context.value(output.name ? output.name : '-', null, null);
-                return new tf.Argument(name, [ value ]);
+                return new tf.Argument(name, [value]);
             }));
             const controlDependencies = node.controlDependencies || [];
             this._controlDependencies = controlDependencies.map((input) => context.value(input.name));
@@ -1404,7 +1404,7 @@ tf.TensorShape = class {
                 if (shape.dim.length == 0) {
                     this._dimensions = [];
                 } else if (shape.dim.length == 1 && !shape.dim[0].size) {
-                    this._dimensions = [ 0 ];
+                    this._dimensions = [0];
                 } else {
                     this._dimensions = shape.dim.map((dim) => (dim.size && dim.size != -1) ? dim.size : '?');
                 }
@@ -1561,7 +1561,7 @@ tf.TensorBundle.Table = class {
         const buffer = stream.peek(48);
         const reader = new tf.BinaryReader(buffer);
         reader.seek(-8);
-        const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
+        const signature = [0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb];
         if (!reader.read(8).every((value, index) => value === signature[index])) {
             throw new tf.Error('Invalid table signature.');
         }
@@ -1990,7 +1990,7 @@ tf.Context = class {
                     const name = node.name;
                     const type = new tf.TensorType(dtype.type, shape.shape);
                     const value = this.value(name, type, null);
-                    input_map.set(name, new tf.Argument(name, [ value ]));
+                    input_map.set(name, new tf.Argument(name, [value]));
                     node_map.delete(name);
                 }
             }
@@ -2019,12 +2019,12 @@ tf.Context = class {
                     const shape = node.attr && node.attr._output_shapes && node.attr._output_shapes.list && node.attr._output_shapes.list.shape ? node.attr._output_shapes.list.shape[0] : null;
                     const type = shape ? new tf.TensorType('?', shape) : null;
                     if (node.input.length === 0 && node.output.length === 1) {
-                        const argument = new tf.Argument(node.name, [ this.value(node.output[0].name, type, null) ]);
+                        const argument = new tf.Argument(node.name, [this.value(node.output[0].name, type, null)]);
                         this.inputs.push(argument);
                         node_map.delete(node.name);
                     }
                     if (node.input.length === 1 && node.output.length === 0) {
-                        const argument = new tf.Argument(node.name, [ this.value(node.input[0].name, type, null) ]);
+                        const argument = new tf.Argument(node.name, [this.value(node.input[0].name, type, null)]);
                         this.outputs.push(argument);
                         node_map.delete(node.name);
                     }
@@ -2266,7 +2266,7 @@ tf.Utility = class {
             const DataType = tf.proto.tensorflow.DataType;
             const dataTypes = new Map(Object.entries(DataType).map(([name, value]) => {
                 const key = name.startsWith('DT_') ? name.substring(3) : name;
-                return [ value, key.toLowerCase() ];
+                return [value, key.toLowerCase()];
             }));
             dataTypes.set(DataType.DT_HALF, 'float16');
             dataTypes.set(DataType.DT_FLOAT, 'float32');
@@ -2280,7 +2280,7 @@ tf.Utility = class {
     static dataTypeKey(type) {
         if (!tf.Utility._dataTypeKeys) {
             tf.Utility.dataType(0);
-            tf.Utility._dataTypeKeys = new Map(Array.from(tf.Utility._dataTypes).map(([key, value]) => [ value, key ]));
+            tf.Utility._dataTypeKeys = new Map(Array.from(tf.Utility._dataTypes).map(([key, value]) => [value, key]));
         }
         return tf.Utility._dataTypeKeys.get(type);
     }

@@ -13,7 +13,7 @@ protoc.Object = class {
     }
 
     get fullName() {
-        const path = [ this.name ];
+        const path = [this.name];
         let context = this.parent;
         while (context) {
             if (context.name) {
@@ -886,7 +886,7 @@ protoc.Parser = class {
             } else {
                 const start = this._parseId(this._tokenizer.next());
                 const end = this._tokenizer.eat('to') ? this._parseId(this._tokenizer.next()) : start;
-                target.push([ start, end ]);
+                target.push([start, end]);
             }
         }
         while (this._tokenizer.eat(','));
@@ -1196,7 +1196,7 @@ protoc.Generator = class {
             this._builder.add('');
             this._builder.add(`get ${oneof.name}() {`);
             this._builder.indent();
-                this._builder.add(`${name}.${oneof.name}Set = ${name}.${oneof.name}Set || new Set([ ${Array.from(oneof.oneof.keys()).map(JSON.stringify).join(', ')}]);`);
+                this._builder.add(`${name}.${oneof.name}Set = ${name}.${oneof.name}Set || new Set([${Array.from(oneof.oneof.keys()).map(JSON.stringify).join(', ')}]);`);
                 this._builder.add(`return Object.keys(this).find((key) => ${name}.${oneof.name}Set.has(key) && this[key] != null);`);
             this._builder.outdent();
             this._builder.add('}');
@@ -1424,7 +1424,7 @@ protoc.Generator.StringBuilder = class {
 
     constructor() {
         this._indentation = '';
-        this._lines = [ '' ];
+        this._lines = [''];
         this._newline = true;
     }
 

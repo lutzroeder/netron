@@ -124,7 +124,7 @@ host.BrowserHost = class {
                     return obj;
                 });
             };
-            const capabilities = filter([ 'fetch', 'DataView.prototype.getBigInt64', 'Worker' ]);
+            const capabilities = filter(['fetch', 'DataView.prototype.getBigInt64', 'Worker']);
             this.event('browser_open', {
                 browser_capabilities: capabilities.map((capability) => capability.split('.').pop()).join(',')
             });

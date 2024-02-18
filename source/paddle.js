@@ -110,7 +110,7 @@ paddle.ModelFactory = class {
                         if (version && version.version !== undefined) {
                             const number = Number(version.version);
                             if (number > 0) {
-                                const list = [ Math.floor(number / 1000000) % 1000, Math.floor(number / 1000) % 1000, number % 1000 ];
+                                const list = [Math.floor(number / 1000000) % 1000, Math.floor(number / 1000) % 1000, number % 1000];
                                 if (list.slice(-1).pop() === 0) {
                                     list.pop();
                                     if (list.slice(-1).pop() === 0) {
@@ -181,7 +181,7 @@ paddle.ModelFactory = class {
                             const weights = mapParams(params, program);
                             return new paddle.Model(metadata, program.format, program.desc, weights);
                         } catch (error) {
-                            const weights = new Map(params.map((param, index) => [ index.toString(), param ]));
+                            const weights = new Map(params.map((param, index) => [index.toString(), param]));
                             return new paddle.Model(metadata, 'PaddlePaddle Inference Weights', null, weights);
                         }
                     }
@@ -196,7 +196,7 @@ paddle.ModelFactory = class {
                         };
                         const openNumPyArrayPickle = (stream) => {
                             const execution = new python.Execution();
-                            const unpickler = execution.invoke('pickle.Unpickler', [ stream ]);
+                            const unpickler = execution.invoke('pickle.Unpickler', [stream]);
                             const obj = unpickler.load();
                             const container = new paddle.Pickle(obj);
                             return container.weights || new Map();
@@ -262,7 +262,7 @@ paddle.ModelFactory = class {
 paddle.Model = class {
 
     constructor(metadata, format, desc, tensors) {
-        desc = desc && Array.isArray(desc.blocks) ? desc : { blocks: [ null ] };
+        desc = desc && Array.isArray(desc.blocks) ? desc : { blocks: [null] };
         this.format = format;
         this.graphs = desc.blocks.map((block) => new paddle.Graph(metadata, block, tensors));
     }
@@ -352,14 +352,14 @@ paddle.Graph = class {
                 values.set(name, new paddle.Value(name, tensor.type, tensor));
                 const separator = name.indexOf('.') !== -1 ? '.' : '_';
                 const regex = /(.*)_((w_attr|scale|weights|offset|b|w|b_attr)_(moment|beta|velocity|mean_square|mean_grad).*)/;
-                const parts = separator === '.' ? name.split(separator) : (regex.test(name) ? regex.exec(name).slice(1, 3) : [ '', name ]);
+                const parts = separator === '.' ? name.split(separator) : (regex.test(name) ? regex.exec(name).slice(1, 3) : ['', name]);
                 const parameter_name = parts.pop();
                 const op_name = parts.join(separator);
                 if (!ops.has(op_name)) {
                     ops.set(op_name, { name: op_name, type: 'Weights', inputs: [] });
                 }
                 const op = ops.get(op_name);
-                op.inputs.push({ parameter: parameter_name, arguments: [ name ] });
+                op.inputs.push({ parameter: parameter_name, arguments: [name] });
             }
             for (const op of Array.from(ops.values())) {
                 this.nodes.push(new paddle.Node(metadata, op, values));
@@ -504,10 +504,10 @@ paddle.Node = class {
             }
         }
         const updates = [
-            [ this.inputs, 'X' ],
-            [ this.inputs, 'Input' ],
-            [ this.outputs, 'Y' ],
-            [ this.outputs, 'Out' ]
+            [this.inputs, 'X'],
+            [this.inputs, 'Input'],
+            [this.outputs, 'Y'],
+            [this.outputs, 'Out']
         ];
         for (const [list, name] of updates) {
             let item = null;
@@ -630,7 +630,7 @@ paddle.Pickle = class {
                         if (name !== 'StructuredToParameterName@@') {
                             const obj = value && Array.isArray(value) && value.length === 2 && value[0] === name ? value[1] : value;
                             if (obj && !Array.isArray(obj) && obj.__class__ && obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray') {
-                                list.push([ name, obj ]);
+                                list.push([name, obj]);
                             }
                         }
                     }
@@ -764,7 +764,7 @@ paddle.Utility = class {
         if (!paddle.Utility._dataTypes) {
             const length = Math.max.apply(null, Object.entries(paddle.DataType).map(([, value]) => value));
             paddle.Utility._dataTypes = new Array(length);
-            const map = new Map([ [ 'bool', 'boolean' ], [ 'bf16', 'bfloat16' ], [ 'fp16', 'float16' ], [ 'fp32', 'float32' ], [ 'fp64', 'float64' ] ]);
+            const map = new Map([['bool', 'boolean'], ['bf16', 'bfloat16'], ['fp16', 'float16'], ['fp32', 'float32'], ['fp64', 'float64']]);
             for (const [name, index] of Object.entries(paddle.DataType)) {
                 const key = name.toLowerCase();
                 paddle.Utility._dataTypes[index] = map.has(key) ? map.get(key) : key;

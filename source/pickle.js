@@ -7,7 +7,7 @@ pickle.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        const signature = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+        const signature = [0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19];
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
             // Reject PyTorch models with .pkl file extension.
             return;
@@ -39,7 +39,7 @@ pickle.ModelFactory = class {
             }
         } else if (obj && obj.__class__) {
             const formats = new Map([
-                [ 'cuml.ensemble.randomforestclassifier.RandomForestClassifier', 'cuML' ]
+                ['cuml.ensemble.randomforestclassifier.RandomForestClassifier', 'cuML']
             ]);
             const type = `${obj.__class__.__module__}.${obj.__class__.__name__}`;
             if (formats.has(type)) {
@@ -58,7 +58,7 @@ pickle.Model = class {
 
     constructor(value, format) {
         this.format = format;
-        this.graphs = [ new pickle.Graph(value) ];
+        this.graphs = [new pickle.Graph(value)];
     }
 };
 

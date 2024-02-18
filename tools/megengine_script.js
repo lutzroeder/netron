@@ -61,7 +61,7 @@ const main = async () => {
         }
     }
     const root = new flatc.Root('megengine');
-    await root.load([], [ schema ]);
+    await root.load([], [schema]);
     const namespace = root.find('mgb.serialization.fbs.param', flatc.Namespace);
     const operatorParams = namespace.children;
     for (const [key, op] of operatorParams) {

@@ -29,7 +29,7 @@ tnn.ModelFactory = class {
             }
         }
         if (stream && identifier.endsWith('.tnnmodel')) {
-            for (const signature of [ [ 0x02, 0x00, 0xbc, 0xfa ], [ 0x04, 0x00, 0xbc, 0xfa ] ]) {
+            for (const signature of [[0x02, 0x00, 0xbc, 0xfa], [0x04, 0x00, 0xbc, 0xfa]]) {
                 if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
                     context.type = 'tnn.params';
                     return;
@@ -97,10 +97,10 @@ tnn.Graph = class {
         for (const input of reader.inputs) {
             const shape = new tnn.TensorShape(input.shape);
             const type = new tnn.TensorType(input.data_type, shape);
-            this.inputs.push(new tnn.Argument(input.name, [ values.map(input.name, type) ]));
+            this.inputs.push(new tnn.Argument(input.name, [values.map(input.name, type)]));
         }
         for (const output of reader.outputs) {
-            this.outputs.push(new tnn.Argument(output.name, [ values.map(output.name) ]));
+            this.outputs.push(new tnn.Argument(output.name, [values.map(output.name)]));
         }
         for (const layer of reader.layers) {
             this.nodes.push(new tnn.Node(metadata, resources, layer, values));
@@ -182,7 +182,7 @@ tnn.Node = class {
         } else {
             this.inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
-                return new tnn.Argument(inputName, [ values.map(input) ]);
+                return new tnn.Argument(inputName, [values.map(input)]);
             }));
         }
 
@@ -200,7 +200,7 @@ tnn.Node = class {
         } else {
             this.outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
-                return new tnn.Argument(outputName, [ values.map(output) ]);
+                return new tnn.Argument(outputName, [values.map(output)]);
             }));
         }
         const weight = (resource, name, shape) => {
@@ -209,7 +209,7 @@ tnn.Node = class {
                 throw new tnn.Error(`Layer initializer'${resource.type}.${name}' not found '`);
             }
             const tensor = new tnn.Tensor(new tnn.TensorType(initializer.dataType, new tnn.TensorShape(shape)), initializer.value);
-            this.inputs.push(new tnn.Argument(name, [ values.map('', null, tensor) ]));
+            this.inputs.push(new tnn.Argument(name, [values.map('', null, tensor)]));
         };
         switch (this.type.name) {
             case 'Convolution':
@@ -222,12 +222,12 @@ tnn.Node = class {
                     const kernel_w = parseInt(layer.attr['3'] || 0, 10);
                     const kernel_h = parseInt(layer.attr['4'] || kernel_w, 10);
                     const weight_data_size = resource.filter.length;
-                    weight(resource, 'filter', [ num_output, weight_data_size / (num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
+                    weight(resource, 'filter', [num_output, weight_data_size / (num_output * kernel_w * kernel_h), kernel_w, kernel_h]);
                     if (resource.bias) {
-                        weight(resource, 'bias', [ num_output ]);
+                        weight(resource, 'bias', [num_output]);
                     }
                     if (resource.quantized) {
-                        weight(resource, 'quantized', [ num_output ]);
+                        weight(resource, 'quantized', [num_output]);
                     }
                 }
                 break;
@@ -240,9 +240,9 @@ tnn.Node = class {
                     const kernel_h = parseInt(layer.attr['4'] || kernel_w, 10);
                     const kernel_d = parseInt(layer.attr['5'] || kernel_w, 10);
                     const weight_data_size = resource.filter.length;
-                    weight(resource, 'weight', [ num_output, weight_data_size / (num_output * kernel_w * kernel_h  * kernel_d), kernel_w, kernel_h, kernel_d ]);
+                    weight(resource, 'weight', [num_output, weight_data_size / (num_output * kernel_w * kernel_h  * kernel_d), kernel_w, kernel_h, kernel_d]);
                     if (resource.bias) {
-                        weight(resources, 'bias', [ num_output ]);
+                        weight(resources, 'bias', [num_output]);
                     }
                 }
                 break;
@@ -252,10 +252,10 @@ tnn.Node = class {
                 if (resource) {
                     const num_output = parseInt(layer.attr['0'] || 0, 10);
                     const weight_data_size = resource.weight.length;
-                    weight(resource, 'weight', [ num_output, weight_data_size / num_output ]);
-                    weight(resource, 'bias', [ num_output ]);
+                    weight(resource, 'weight', [num_output, weight_data_size / num_output]);
+                    weight(resource, 'bias', [num_output]);
                     if (resource.weight.dataType === 'int8') {
-                        weight(resource, 'scale', [ num_output ]);
+                        weight(resource, 'scale', [num_output]);
                     }
                 }
                 break;
@@ -263,7 +263,7 @@ tnn.Node = class {
             case 'PReLU': {
                 const resource = resources.read(this.name);
                 if (resource) {
-                    weight(resource, 'slope', [ resource.slope.length ]);
+                    weight(resource, 'slope', [resource.slope.length]);
                 }
                 break;
             }
@@ -271,8 +271,8 @@ tnn.Node = class {
             case 'InstBatchNormCxx': {
                 const resource = resources.read(this.name);
                 if (resource) {
-                    weight(resource, 'scale', [ resource.scale.length ]);
-                    weight(resource, 'bias', [ resource.bias.length ]);
+                    weight(resource, 'scale', [resource.scale.length]);
+                    weight(resource, 'bias', [resource.bias.length]);
                 }
                 break;
             }
@@ -285,7 +285,7 @@ tnn.Node = class {
                     const resource = resources.read(this.name);
                     if (resource) {
                         const num_output = resource.slope.length;
-                        weight(resource, 'slope', [ num_output ]);
+                        weight(resource, 'slope', [num_output]);
                     }
                 }
                 break;
@@ -294,12 +294,12 @@ tnn.Node = class {
                 const resource = resources.read(this.name);
                 if (resource) {
                     const weight_size = resource.ccm_weight.length;
-                    weight(resource, 'ccm_weight', [ weight_size ]);
-                    weight(resource, 'ccm_bias', [ weight_size ]);
-                    weight(resource, 'shifts', [ weight_size ]);
-                    weight(resource, 'slopes', [ weight_size ]);
-                    weight(resource, 'projection_weight', [ weight_size ]);
-                    weight(resource, 'projection_bias', [ weight_size ]);
+                    weight(resource, 'ccm_weight', [weight_size]);
+                    weight(resource, 'ccm_bias', [weight_size]);
+                    weight(resource, 'shifts', [weight_size]);
+                    weight(resource, 'slopes', [weight_size]);
+                    weight(resource, 'projection_weight', [weight_size]);
+                    weight(resource, 'projection_bias', [weight_size]);
                 }
                 break;
             }
@@ -307,8 +307,8 @@ tnn.Node = class {
                 const resource = resources.read(this.name);
                 if (resource) {
                     const scale_data_size = resource.scale.length;
-                    weight(resource, 'scale', [ scale_data_size]);
-                    weight(resource, 'bias', [ scale_data_size ]);
+                    weight(resource, 'scale', [scale_data_size]);
+                    weight(resource, 'bias', [scale_data_size]);
                 }
                 break;
             }
@@ -316,10 +316,10 @@ tnn.Node = class {
                 const resource = resources.read(this.name);
                 if (resource) {
                     if (resource.data) {
-                        weight(resource, 'data', [ resource.data.length ]);
+                        weight(resource, 'data', [resource.data.length]);
                     }
                     if (resource.indices) {
-                        weight(resource, 'indices', [ resource.indices.length ]);
+                        weight(resource, 'indices', [resource.indices.length]);
                     }
                 }
                 break;
@@ -435,7 +435,7 @@ tnn.TextProtoReader = class {
                 const data_type_index = parseInt(array[shape_size], 10);
                 return {
                     name: name,
-                    data_type: [ 'float32', 'float16', 'int8', 'int32', 'bfloat16' ][data_type_index],
+                    data_type: ['float32', 'float16', 'int8', 'int32', 'bfloat16'][data_type_index],
                     shape: array.slice(0, -1).map((dim) => parseInt(dim, 10)),
                 };
 
@@ -518,8 +518,8 @@ tnn.LayerResourceReader = class {
                     dims = reader.read(dim_size * 4);
                 }
                 return {
-                    dataType: [ 'float32', 'float16', 'int8', 'int32', 'bfloat16' ][data_type],
-                    length: length / [ 4, 2, 1, 4, 2 ][data_type],
+                    dataType: ['float32', 'float16', 'int8', 'int32', 'bfloat16'][data_type],
+                    length: length / [4, 2, 1, 4, 2][data_type],
                     value: reader.read(length),
                     shape: dims
                 };

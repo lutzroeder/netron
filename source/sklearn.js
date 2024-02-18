@@ -52,9 +52,9 @@ sklearn.Model = class {
 
     constructor(metadata, type, obj) {
         const formats = new Map([
-            [ 'sklearn', 'scikit-learn' ],
-            [ 'scipy', 'SciPy' ],
-            [ 'hmmlearn', 'hmmlearn' ]
+            ['sklearn', 'scikit-learn'],
+            ['scipy', 'SciPy'],
+            ['hmmlearn', 'hmmlearn']
         ]);
         this.format = formats.get(type.split('.').shift());
         this.graphs = [];
@@ -137,10 +137,10 @@ sklearn.Graph = class {
                     name = name || 'union';
                     const output = concat(group, name);
                     const subgroup = concat(group, name);
-                    const node = new sklearn.Node(metadata, subgroup, output, obj, inputs, [ output ], values);
+                    const node = new sklearn.Node(metadata, subgroup, output, obj, inputs, [output], values);
                     this.nodes.push(node);
                     for (const transformer of obj.transformer_list) {
-                        outputs.push(...process(subgroup, transformer[0], transformer[1], [ output ]));
+                        outputs.push(...process(subgroup, transformer[0], transformer[1], [output]));
                     }
                     return outputs;
                 }
@@ -150,20 +150,20 @@ sklearn.Graph = class {
                     const output = concat(group, name);
                     const subgroup = concat(group, name);
                     const outputs = [];
-                    const node = new sklearn.Node(metadata, subgroup, output, obj, inputs, [ output ], values);
+                    const node = new sklearn.Node(metadata, subgroup, output, obj, inputs, [output], values);
                     this.nodes.push(node);
                     for (const transformer of obj.transformers) {
                         if (transformer[1] !== 'passthrough') {
-                            outputs.push(...process(subgroup, transformer[0], transformer[1], [ output ]));
+                            outputs.push(...process(subgroup, transformer[0], transformer[1], [output]));
                         }
                     }
                     return outputs;
                 }
                 default: {
                     const output = concat(group, name);
-                    const node = new sklearn.Node(metadata, group, output, obj, inputs, output === '' ? [] : [ output ], values);
+                    const node = new sklearn.Node(metadata, group, output, obj, inputs, output === '' ? [] : [output], values);
                     this.nodes.push(node);
-                    return [ output ];
+                    return [output];
                 }
             }
         };
@@ -205,8 +205,8 @@ sklearn.Node = class {
         this.name = name || '';
         const type = obj.__class__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : 'builtins.dict';
         this.type = metadata.type(type) || { name: type };
-        this.inputs = inputs.map((input) => new sklearn.Argument(input, [ values.map(input) ]));
-        this.outputs = outputs.map((output) => new sklearn.Argument(output, [ values.map(output) ]));
+        this.inputs = inputs.map((input) => new sklearn.Argument(input, [values.map(input)]));
+        this.outputs = outputs.map((output) => new sklearn.Argument(output, [values.map(output)]));
         this.attributes = [];
         const isArray = (obj) => {
             return obj && obj.__class__ &&

@@ -45,7 +45,7 @@ caffe.ModelFactory = class {
                     } else if (message.constructor.name.endsWith('Parameter') || message.constructor.name === 'ParamSpec') {
                         if (message[tag]) {
                             if (!Array.isArray(message[tag])) {
-                                message[tag] = [ message[tag] ];
+                                message[tag] = [message[tag]];
                             }
                             message[tag].push(this.read());
                         } else {
@@ -141,7 +141,7 @@ caffe.ModelFactory = class {
                 message[tag] = value;
             } else {
                 if (!Array.isArray(message[tag])) {
-                    message[tag] = [ message[tag] ];
+                    message[tag] = [message[tag]];
                 }
                 message[tag].push(value);
             }
@@ -272,7 +272,7 @@ caffe.Graph = class {
                         layer.input_param.shape.length == 1 && layer.input_param.shape[0].dim) {
                         const shape = new caffe.TensorShape(layer.input_param.shape[0].dim.map((dim) => Number(dim)));
                         const type = new caffe.TensorType(null, shape);
-                        this._inputs.push(new caffe.Argument(layer.output[0], [ value(layer.output[0], type) ]));
+                        this._inputs.push(new caffe.Argument(layer.output[0], [value(layer.output[0], type)]));
                         layer = null;
                     }
                 }
@@ -306,7 +306,7 @@ caffe.Graph = class {
                     const shape = new caffe.TensorShape(net.input_dim.slice(dim, dim + 4));
                     inputType = new caffe.TensorType(null, shape);
                 }
-                this._inputs.push(new caffe.Argument(input, [ value(input, inputType, null) ]));
+                this._inputs.push(new caffe.Argument(input, [value(input, inputType, null)]));
             }
         }
 
@@ -321,7 +321,7 @@ caffe.Graph = class {
         }
 
         if (this._inputs.length === 0 && unusedInputs.length === 1) {
-            this._inputs.push(new caffe.Argument(unusedInputs[0], [ value(unusedInputs[0], null) ]));
+            this._inputs.push(new caffe.Argument(unusedInputs[0], [value(unusedInputs[0], null)]));
         }
     }
 
@@ -500,7 +500,7 @@ caffe.Node = class {
             }
         }
         this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
-            return new caffe.Argument((outputIndex + index).toString(), [ value(output, null, null) ]);
+            return new caffe.Argument((outputIndex + index).toString(), [value(output, null, null)]);
         }));
     }
 
@@ -693,7 +693,7 @@ caffe.Utility = class {
         if (type) {
             caffe.Utility._enumKeyMap = caffe.Utility._enumKeyMap || new Map();
             if (!caffe.Utility._enumKeyMap.has(name)) {
-                const map = new Map(Object.entries(type).map(([name, value]) => [ value, name ]));
+                const map = new Map(Object.entries(type).map(([name, value]) => [value, name]));
                 caffe.Utility._enumKeyMap.set(name, map);
             }
             const map = caffe.Utility._enumKeyMap.get(name);

@@ -51,7 +51,7 @@ onnx.ModelFactory = class {
                 }
             }
         };
-        const queue = [ model.graph ];
+        const queue = [model.graph];
         while (queue.length > 0) {
             const graph = queue.shift();
             if (Array.isArray(graph.initializer)) {
@@ -134,7 +134,7 @@ onnx.Model = class {
         let imageFormat = '';
         const metadata_props = model.metadata_props;
         if (metadata_props) {
-            const metadata = new Map(metadata_props.map((entry) => [ entry.key, entry.value ]));
+            const metadata = new Map(metadata_props.map((entry) => [entry.key, entry.value]));
             const converted_from = metadata.get('converted_from');
             if (converted_from) {
                 this._metadata.set('source', converted_from);
@@ -161,7 +161,7 @@ onnx.Model = class {
             metadata.delete('license');
             metadata.delete('license_url');
             const imageMetadata = {};
-            for (const [ name, value ] of metadata) {
+            for (const [name, value] of metadata) {
                 switch (name) {
                     case 'Image.BitmapPixelFormat':
                     case 'Image.ColorSpaceGamma':
@@ -173,11 +173,11 @@ onnx.Model = class {
                         break;
                 }
             }
-            imageFormat = [ imageMetadata['Image.BitmapPixelFormat'], imageMetadata['Image.ColorSpaceGamma'], imageMetadata['Image.NominalPixelRange'] ].filter((item) => item);
+            imageFormat = [imageMetadata['Image.BitmapPixelFormat'], imageMetadata['Image.ColorSpaceGamma'], imageMetadata['Image.NominalPixelRange']].filter((item) => item);
         }
         const context = new onnx.Context.Model(metadata, locations, imageFormat, imports, model.functions);
         const graph = new onnx.Graph(context, model.graph);
-        this._graphs = [ graph ];
+        this._graphs = [graph];
     }
 
     get format() {
@@ -258,13 +258,13 @@ onnx.Graph = class {
         for (const input of graph.input) {
             const value = context.value(input.name);
             if (!value.initializer) {
-                this._inputs.push(new onnx.Argument(input.name, [ value ]));
+                this._inputs.push(new onnx.Argument(input.name, [value]));
             }
         }
         for (const output of graph.output) {
             const value = context.value(output.name);
             if (!value.initializer) {
-                this._outputs.push(new onnx.Argument(output.name, [ value ]));
+                this._outputs.push(new onnx.Argument(output.name, [value]));
             }
         }
     }
@@ -554,8 +554,8 @@ onnx.Group = class {
                 }
             }
         }
-        this._inputs = [ new onnx.Argument('inputs', inputs) ];
-        this._outputs = [ new onnx.Argument('outputs', outputs) ];
+        this._inputs = [new onnx.Argument('inputs', inputs)];
+        this._outputs = [new onnx.Argument('outputs', outputs)];
         this._attributes = [];
     }
 
@@ -902,13 +902,13 @@ onnx.Function = class {
         for (const input of func.input) {
             const value = context.value(input.name);
             if (!value.initializer) {
-                this._inputs.push(new onnx.Argument(input.name, [ value ]));
+                this._inputs.push(new onnx.Argument(input.name, [value]));
             }
         }
         for (const output of func.output) {
             const value = context.value(output.name);
             if (!value.initializer) {
-                this._outputs.push(new onnx.Argument(output.name, [ value ]));
+                this._outputs.push(new onnx.Argument(output.name, [value]));
             }
         }
     }
@@ -1175,7 +1175,7 @@ onnx.Context.Graph = class {
 
     constructor(context, graph) {
         this._context = context;
-        this._dataTypes = new Map(Object.entries(onnx.DataType).map(([name, value]) => [ value, name.toLowerCase() ]));
+        this._dataTypes = new Map(Object.entries(onnx.DataType).map(([name, value]) => [value, name.toLowerCase()]));
         this._dataTypes.set(onnx.DataType.UNDEFINED, 'undefined');
         this._dataTypes.set(onnx.DataType.BOOL, 'boolean');
         this._dataTypes.set(onnx.DataType.FLOAT, 'float32');
@@ -1276,7 +1276,7 @@ onnx.Context.Graph = class {
                 path.pop();
                 return this.group(path.join('/'));
             }
-            this._groups.set(name, new Map([ [ '', [] ]]));
+            this._groups.set(name, new Map([['', []]]));
         }
         return this._groups.get(name);
     }
@@ -1635,9 +1635,9 @@ onnx.ProtoReader = class {
                             attribute.t = tensor;
                             const node = new onnx.proto.NodeProto();
                             node.op_type = 'Constant';
-                            node.attribute = [ attribute ];
+                            node.attribute = [attribute];
                             const graph = new onnx.proto.GraphProto();
-                            graph.node = [ node ];
+                            graph.node = [node];
                             this.model = new onnx.proto.ModelProto();
                             this.model.graph = graph;
                             this.format = 'ONNX Tensor';
@@ -1697,7 +1697,7 @@ onnx.OrtReader = class {
         }
         const stream = context.stream;
         if (stream && stream.length >= 8 && extension === 'ort') {
-            const signature = [ 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
+            const signature = [0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
             if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
                 return new onnx.OrtReader(context);
             }
@@ -1815,7 +1815,7 @@ onnx.OrtReader = class {
                 };
             });
             delete value.node_args;
-            const value_info = new Map(value.value_info.map((entry) => [ entry.name, entry ]));
+            const value_info = new Map(value.value_info.map((entry) => [entry.name, entry]));
             value.input = value.inputs.map((input) => {
                 return value_info.has(input) ? value_info.get(input) : { name: input };
             });
@@ -2109,8 +2109,8 @@ onnx.TextReader = class {
     constructor(context) {
         this.name = 'onnx.text';
         this._context = context;
-        this._dataTypes = new Map(Object.entries(onnx.DataType).map(([key, value]) => [ key.toLowerCase(), value ]));
-        this._attributeTypes = new Map(Object.entries(onnx.AttributeType).map(([key, value]) => [ key.toLowerCase(), value ]));
+        this._dataTypes = new Map(Object.entries(onnx.DataType).map(([key, value]) => [key.toLowerCase(), value]));
+        this._attributeTypes = new Map(Object.entries(onnx.AttributeType).map(([key, value]) => [key.toLowerCase(), value]));
     }
 
     async read() {
@@ -2620,7 +2620,7 @@ onnx.TextReader = class {
             }
             return value.join('');
         } else if ((this._char >= '0' && this._char <= '9') || this._char === '-') {
-            const value = [ this._char ];
+            const value = [this._char];
             this._next();
             while ((this._char >= '0' && this._char <= '9') || this._char === '.') {
                 if (this._char === '.') {

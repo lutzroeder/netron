@@ -164,7 +164,7 @@ dagre.layout = (graph, layout) => {
                     if (!visited.has(v)) {
                         visited.add(v);
                         path.add(v);
-                        stack.push([ v ]);
+                        stack.push([v]);
                         const out = g.node(v).out;
                         for (let i = out.length - 1; i >= 0; i--) {
                             const e = out[i];
@@ -294,7 +294,7 @@ dagre.layout = (graph, layout) => {
             //    1. Each node will be assign an (unnormalized) 'rank' property.
             const longestPath = (g) => {
                 const visited = new Set();
-                const stack = [ Array.from(g.nodes.values()).filter((node) => node.in.length === 0).reverse() ];
+                const stack = [Array.from(g.nodes.values()).filter((node) => node.in.length === 0).reverse()];
                 while (stack.length > 0) {
                     const current = stack[stack.length - 1];
                     if (Array.isArray(current)) {
@@ -397,7 +397,7 @@ dagre.layout = (graph, layout) => {
                 const initCutValues = (t, g) => {
                     const vs = [];
                     const visited = new Set();
-                    const stack = [ Array.from(t.nodes.keys()).reverse() ];
+                    const stack = [Array.from(t.nodes.keys()).reverse()];
                     while (stack.length > 0) {
                         const current = stack[stack.length - 1];
                         if (Array.isArray(current)) {
@@ -496,7 +496,7 @@ dagre.layout = (graph, layout) => {
                     initCutValues(t, g);
                     // update ranks
                     const root = Array.from(t.nodes.keys()).find((v) => !g.node(v).label.parent);
-                    const stack = [ root ];
+                    const stack = [root];
                     const visited = new Set();
                     while (stack.length > 0) {
                         const v = stack.pop();
@@ -934,7 +934,7 @@ dagre.layout = (graph, layout) => {
                     const mappedEntries = new Map();
                     for (let i = 0; i < entries.length; i++) {
                         const entry = entries[i];
-                        const tmp = { indegree: 0, 'in': [], out: [], vs: [ entry.v ], i: i };
+                        const tmp = { indegree: 0, 'in': [], out: [], vs: [entry.v], i: i };
                         if (entry.barycenter !== undefined) {
                             tmp.barycenter = entry.barycenter;
                             tmp.weight = entry.weight;
@@ -1765,7 +1765,7 @@ dagre.layout = (graph, layout) => {
                         max = value;
                     }
                 }
-                return [ min, max ];
+                return [min, max];
             };
             const alignToRange = range(Object.values(alignTo));
             for (const vertical of ['u', 'd']) {
@@ -1795,7 +1795,7 @@ dagre.layout = (graph, layout) => {
                 }
             } else {
                 for (const v of Object.keys(xss.ul)) {
-                    const xs = [ xss.ul[v], xss.ur[v], xss.dl[v], xss.dr[v] ].sort((a, b) => a - b);
+                    const xs = [xss.ul[v], xss.ur[v], xss.dl[v], xss.dr[v]].sort((a, b) => a - b);
                     g.node(v).label.x = (xs[1] + xs[2]) / 2;
                 }
             }

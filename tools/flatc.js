@@ -135,7 +135,7 @@ flatc.Enum = class extends flatc.Type {
                 }
                 index = this.values.get(key) + 1;
             }
-            this.keys = new Map(Array.from(this.values).map(([key, value]) => [ value, key ]));
+            this.keys = new Map(Array.from(this.values).map(([key, value]) => [value, key]));
             super.resolve();
         }
     }
@@ -285,18 +285,18 @@ flatc.PrimitiveType = class extends flatc.Type {
                     this._map.set(name, type);
                 }
             };
-            register([ 'bool' ], false, 1);
-            register([ 'int8', 'byte' ], 0, 1);
-            register([ 'uint8', 'ubyte' ], 0, 1);
-            register([ 'int16', 'short' ], 0, 2);
-            register([ 'uint16', 'ushort' ], 0, 2);
-            register([ 'int32', 'int' ], 0, 4);
-            register([ 'uint32', 'uint' ], 0, 4);
-            register([ 'int64', 'long' ], 0, 8);
-            register([ 'uint64', 'ulong' ], 0, 8);
-            register([ 'float32', 'float' ], 0.0, 4);
-            register([ 'float64', 'double' ], 0, 4);
-            register([ 'string' ], null, undefined);
+            register(['bool'], false, 1);
+            register(['int8', 'byte'], 0, 1);
+            register(['uint8', 'ubyte'], 0, 1);
+            register(['int16', 'short'], 0, 2);
+            register(['uint16', 'ushort'], 0, 2);
+            register(['int32', 'int'], 0, 4);
+            register(['uint32', 'uint'], 0, 4);
+            register(['int64', 'long'], 0, 8);
+            register(['uint64', 'ulong'], 0, 8);
+            register(['float32', 'float'], 0.0, 4);
+            register(['float64', 'double'], 0, 4);
+            register(['string'], null, undefined);
         }
         return this._map.get(name);
     }
@@ -1211,7 +1211,7 @@ flatc.Generator.StringBuilder = class {
 
     constructor() {
         this._indentation = '';
-        this._lines = [ '' ];
+        this._lines = [''];
         this._newline = true;
     }
 

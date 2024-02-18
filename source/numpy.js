@@ -9,7 +9,7 @@ numpy.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        const signature = [ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ];
+        const signature = [0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59];
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             context.type = 'npy';
             return;
@@ -50,10 +50,10 @@ numpy.ModelFactory = class {
                 const execution = new python.Execution();
                 const stream = context.stream;
                 const buffer = stream.peek();
-                const bytes = execution.invoke('io.BytesIO', [ buffer ]);
-                const array = execution.invoke('numpy.load', [ bytes ]);
-                const layer = { type: 'numpy.ndarray', parameters: [ { name: 'value', tensor: { name: '', array: array } } ] };
-                graphs.push({ layers: [ layer ] });
+                const bytes = execution.invoke('io.BytesIO', [buffer]);
+                const array = execution.invoke('numpy.load', [bytes]);
+                const layer = { type: 'numpy.ndarray', parameters: [{ name: 'value', tensor: { name: '', array: array } }] };
+                graphs.push({ layers: [layer] });
                 break;
             }
             case 'npz': {
@@ -116,9 +116,9 @@ numpy.ModelFactory = class {
                 format = 'NumPy NDArray';
                 const layer = {
                     type: 'numpy.ndarray',
-                    parameters: [ { name: 'value', tensor: { name: '', array: context.target } } ]
+                    parameters: [{ name: 'value', tensor: { name: '', array: context.target } }]
                 };
-                graphs.push({ layers: [ layer ] });
+                graphs.push({ layers: [layer] });
                 break;
             }
             case 'dnnlib.tflib.network': {
@@ -199,7 +199,7 @@ numpy.Node = class {
         for (const parameter of layer.parameters) {
             const initializer = new numpy.Tensor(parameter.tensor.array);
             const value = new numpy.Value(parameter.tensor.name || '', initializer);
-            const argument = new numpy.Argument(parameter.name, [ value ]);
+            const argument = new numpy.Argument(parameter.name, [value]);
             this._inputs.push(argument);
         }
     }
@@ -288,7 +288,7 @@ numpy.Utility = class {
                     }
                     return weights;
                 } else if (!Array.isArray(dict)) {
-                    const set = new Set([ 'weight_order', 'lr', 'model_iter', '__class__' ]);
+                    const set = new Set(['weight_order', 'lr', 'model_iter', '__class__']);
                     for (const [name, value] of Object.entries(dict)) {
                         if (numpy.Utility.isTensor(value)) {
                             weights.set(name, value);
@@ -337,7 +337,7 @@ numpy.Utility = class {
             }
             return null;
         };
-        const keys = [ '', 'blobs', 'model', 'experiment_state' ];
+        const keys = ['', 'blobs', 'model', 'experiment_state'];
         for (const key of keys) {
             const weights = dict(obj, key);
             if (weights && weights.size > 0) {

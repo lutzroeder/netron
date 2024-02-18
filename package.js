@@ -96,7 +96,7 @@ const exec = async (command, encoding, cwd) => {
     if (encoding) {
         return child_process.execSync(command, { cwd: cwd, encoding: encoding });
     }
-    child_process.execSync(command, { cwd: cwd, stdio: [ 0,1,2 ] });
+    child_process.execSync(command, { cwd: cwd, stdio: [0,1,2] });
     return '';
     /*
     return new Promise((resolve, reject) => {
@@ -264,7 +264,7 @@ const build = async (target) => {
             writeLine('cp source/dir dist/dir');
             const source_dir = dirname('source');
             const dist_dir = dirname('dist', 'web');
-            const extensions = new Set([ 'html', 'css', 'js', 'json', 'ico', 'png' ]);
+            const extensions = new Set(['html', 'css', 'js', 'json', 'ico', 'png']);
             await copy(source_dir, dist_dir, (file) => extensions.has(file.split('.').pop()));
             await rm('dist', 'web', 'app.js');
             await rm('dist', 'web', 'electron.js');
@@ -405,7 +405,7 @@ const publish = async (target) => {
             const extensions = configuration.build.fileAssociations.map((entry) => `- ${entry.ext}`).sort().join('\n');
             writeLine(`download ${url}`);
             const sha256 = await hash(url, 'sha256');
-            const paths = [ 'dist', 'winget-pkgs', 'manifests', publisher[0].toLowerCase(), publisher.replace(' ', ''), product, version ];
+            const paths = ['dist', 'winget-pkgs', 'manifests', publisher[0].toLowerCase(), publisher.replace(' ', ''), product, version];
             await mkdir(...paths);
             writeLine('update manifest');
             const manifestFile = dirname(...paths, identifier);
