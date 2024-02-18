@@ -3619,7 +3619,7 @@ view.Tensor = class {
                     }
                     break;
                 case 'int':
-                    for (; offset < size; offset += stride) {
+                    for (; offset < max; offset += stride) {
                         results.push(view.getIntBits(offset, context.bits, this._littleEndian));
                     }
                     break;
@@ -3677,27 +3677,27 @@ view.Tensor = class {
                     }
                     break;
                 case 'complex128':
-                    for (; offset < size; offset += stride) {
+                    for (; offset < max; offset += stride) {
                         results.push(view.getComplex128(offset, this._littleEndian));
                     }
                     break;
                 case 'float8e4m3fn':
-                    for (; offset < size; offset += stride) {
+                    for (; offset < max; offset += stride) {
                         results.push(view.getFloat8e4m3(offset, true, false));
                     }
                     break;
                 case 'float8e4m3fnuz':
-                    for (; offset < size; offset += stride) {
+                    for (; offset < max; offset += stride) {
                         results.push(view.getFloat8e4m3(offset, true, true));
                     }
                     break;
                 case 'float8e5m2':
-                    for (; offset < size; offset += stride) {
+                    for (; offset < max; offset += stride) {
                         results.push(view.getFloat8e5m2(offset, false, false));
                     }
                     break;
                 case 'float8e5m2fnuz':
-                    for (; offset < size; offset += stride) {
+                    for (; offset < max; offset += stride) {
                         results.push(view.getFloat8e5m2(offset, true, true));
                     }
                     break;
