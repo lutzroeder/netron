@@ -85,6 +85,7 @@
             "no-unmodified-loop-condition": "error",
             "no-unreachable-loop": "error",
             "no-unused-private-class-members": "error",
+            "no-unused-vars": "error",
             "no-use-before-define": "error",
             "no-var": "error",
             "object-curly-spacing": [ "error", "always" ],
