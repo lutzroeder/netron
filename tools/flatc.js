@@ -168,7 +168,6 @@ flatc.Union = class extends flatc.Type {
     }
 };
 
-
 flatc.Table = class extends flatc.Type {
 
     constructor(parent, name) {

@@ -212,6 +212,3 @@ flax.Error = class extends Error {
 };
 
 export const ModelFactory = flax.ModelFactory;
-
-
-

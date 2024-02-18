@@ -75,6 +75,7 @@
             "no-labels": "error",
             "no-lone-blocks": "error",
             "no-lonely-if": "error",
+            "no-multiple-empty-lines": [ "error", { "max": 1 } ],
             "no-promise-executor-return": "error",
             "no-proto": "error",
             "no-self-compare": "error",

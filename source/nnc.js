@@ -25,6 +25,3 @@ nnc.Error = class extends Error {
 };
 
 export const ModelFactory = nnc.ModelFactory;
-
-
-

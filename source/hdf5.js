@@ -626,7 +626,6 @@ hdf5.StreamReader = class extends hdf5.Reader {
         return size;
     }
 
-
     take(length) {
         const position = this.position;
         if (position + length > this._length) {

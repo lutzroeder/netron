@@ -1178,7 +1178,6 @@ onnx.Context.Graph = class {
         }
     }
 
-
     type(name, domain) {
         return this._context.type(name, domain);
     }

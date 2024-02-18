@@ -94,7 +94,6 @@ barracuda.Value = class {
     }
 };
 
-
 barracuda.Node = class {
 
     constructor(metadata, layer, type, values) {

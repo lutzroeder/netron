@@ -757,7 +757,6 @@ paddle.NaiveBuffer = class {
     }
 };
 
-
 paddle.Utility = class {
 
     static createTensorType(data_type, shape) {

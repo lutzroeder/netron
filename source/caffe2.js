@@ -464,7 +464,6 @@ caffe2.TensorType = class {
         this.shape = shape;
     }
 
-
     toString() {
         return this.dataType + this.shape.toString();
     }

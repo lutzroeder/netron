@@ -61,8 +61,6 @@ nnef.TextReader = class {
             if (line === undefined) {
                 break;
             }
-
-
         }
         return null;
     }

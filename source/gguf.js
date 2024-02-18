@@ -184,7 +184,6 @@ gguf.Tensor = class {
     }
 };
 
-
 gguf.Reader = class {
 
     static open(stream) {

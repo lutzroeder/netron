@@ -1590,7 +1590,6 @@ mlnet.TermManager = class {
     }
 };
 
-
 mlnet.ValueMappingTransformer = class extends mlnet.OneToOneTransformerBase {
 
     constructor(context) {
