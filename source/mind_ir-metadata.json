@@ -1,0 +1,406 @@
+[
+    {
+        "name": "Conv2D",
+        "category": "Layer",
+        "attributes": [
+          { "name": "format", "type": "Format", "default": "NCHW" },
+          { "name": "kernel_size", "type": "int64[]", "default": 0 },
+          { "name": "stride", "type": "int64[]", "default": 0 },
+          { "name": "dilation", "type": "int64[]", "default": 0 },
+          { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
+          { "name": "pad_list", "type": "int64[]", "default": 0 },
+          { "name": "mode", "type": "int64", "default": 0 },
+          { "name": "group", "type": "int64", "default": 0 },
+          { "name": "in_channel", "type": "int64", "default": 0 },
+          { "name": "out_channel", "type": "int64", "default": 0 },
+          { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
+        ],
+        "inputs": [
+          { "name": "input" },
+          { "name": "weight" },
+          { "name": "bias" }
+        ],
+        "outputs": [
+          { "name": "output" }
+        ]
+    },
+    {
+      "name": "MatMul",
+      "category": "Layer",
+      "attributes": [
+        { "name": "format", "type": "Format", "default": "NCHW" },
+        { "name": "kernel_size", "type": "int64[]", "default": 0 },
+        { "name": "stride", "type": "int64[]", "default": 0 },
+        { "name": "dilation", "type": "int64[]", "default": 0 },
+        { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
+        { "name": "pad_list", "type": "int64[]", "default": 0 },
+        { "name": "mode", "type": "int64", "default": 0 },
+        { "name": "group", "type": "int64", "default": 0 },
+        { "name": "in_channel", "type": "int64", "default": 0 },
+        { "name": "out_channel", "type": "int64", "default": 0 },
+        { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    },
+    {
+      "name": "BatchNorm",
+      "category": "Normalization",
+      "attributes": [
+        { "name": "epsilon", "type": "float32", "default": 0.00001 },
+        { "name": "format", "type": "Format", "default": "NCHW" },
+        { "name": "is_training", "type": "boolean", "default": false }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "gamma"},
+        { "name": "beta"},
+        { "name": "moving_mean"},
+        { "name": "moving_variance"}
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    },
+    {
+      "name": "BiasAdd",
+      "category": "Layer",
+      "attributes": [
+        { "name": "format", "type": "Format", "default": "NCHW" },
+        { "name": "kernel_size", "type": "int64[]", "default": 0 },
+        { "name": "stride", "type": "int64[]", "default": 0 },
+        { "name": "dilation", "type": "int64[]", "default": 0 },
+        { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
+        { "name": "pad_list", "type": "int64[]", "default": 0 },
+        { "name": "mode", "type": "int64", "default": 0 },
+        { "name": "group", "type": "int64", "default": 0 },
+        { "name": "in_channel", "type": "int64", "default": 0 },
+        { "name": "out_channel", "type": "int64", "default": 0 },
+        { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "bias" },
+        { "name": "weight" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    },
+    {
+      "name": "Constant",
+      "category": "Layer",
+      "attributes": [
+        
+      ],
+      "inputs": [
+        
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    },
+    {
+        "name": "MaxPool",
+        "category": "Pool",
+        "attributes": [
+          { "name": "kernel_size", "type": "int64[]", "default": 0 },
+          { "name": "strides", "type": "int64[]", "default": 0 },
+          { "name": "pad", "type": "int64[]", "default": 0 },
+          { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
+          { "name": "round_mode", "type": "RoundMode", "default": "FLOOR" },
+          { "name": "format", "type": "Format", "default": "NCHW" },
+          { "name": "global", "type": "boolean", "default": false },
+          { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
+        ],
+        "inputs": [
+          { "name": "input" }
+        ],
+        "outputs": [
+          { "name": "output" }
+        ]
+    },
+    {
+        "name": "Load",
+        "category": "Pool",
+        "attributes": [
+        ],
+        "inputs": [
+          { "name": "weight/bias" },
+          { "name": "constant" }
+        ],
+        "outputs": [
+          { "name": "output" }
+        ]
+    },
+    {
+      "name": "ReLU",
+      "category": "Activation",
+      "attributes": [
+        { "name": "type", "type": "ActivationType" },
+        { "name": "alpha", "type": "float32", "default": 0.2 },
+        { "name": "min_val", "type": "float32", "default": -1 },
+        { "name": "max_val", "type": "float32", "default": 1 },
+        { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" },
+        { "name": "approximate", "type": "boolean", "default": false }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    },
+    {
+      "name": "ActivationGrad",
+      "attributes": [
+        { "name": "type", "type": "ActivationType" },
+        { "name": "alpha", "type": "float32", "default": 0.2 },
+        { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
+      ],
+      "inputs": [
+        { "name": "yt" },
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    },
+    {
+      "name": "Adam",
+      "attributes": [
+        { "name": "useNesterov", "type": "boolean", "default": false },
+        { "name": "use_locking", "type": "boolean", "default": false },
+        { "name": "use_nesterov", "type": "boolean", "default": false }
+      ],
+      "inputs": [
+        { "name": "weight" },
+        { "name": "m" },
+        { "name": "v" },
+        { "name": "beta1_power" },
+        { "name": "beta22_power" },
+        { "name": "learning_rate" },
+        { "name": "beta1" },
+        { "name": "beta2" },
+        { "name": "eps" },
+        { "name": "gradient" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    },
+    {
+      "name": "Add",
+      "attributes": [
+        { "name": "ActivationType", "type": "ActivationType" }
+      ],
+      "inputs": [
+        { "name": "x" },
+        { "name": "y" }
+      ],
+      "outputs": [
+        { "name": "z" }
+      ]
+    },
+    {
+      "name": "AdderFusion",
+      "attributes": [
+        { "name": "format", "type": "Format", "default": "NCHW" },
+        { "name": "kernel_size", "type": "int64[]", "default": 0 },
+        { "name": "stride", "type": "int64[]", "default": 0 },
+        { "name": "dilation", "type": "int64[]", "default": 0 },
+        { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
+        { "name": "pad_list", "type": "int64[]", "default": 0 },
+        { "name": "group", "type": "int64", "default": 0 },
+        { "name": "in_channel", "type": "int64", "default": 0 },
+        { "name": "out_channel", "type": "int64", "default": 0 },
+        { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
+      ]
+    },
+    {
+      "name": "AddFold"
+    },
+    {
+      "name": "AddFusion",
+      "attributes": [
+        { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
+      ],
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    },
+    {
+      "name": "AddGrad",
+      "inputs": [
+        { "name": "x1" },
+        { "name": "x2" }
+      ],
+      "outputs": [
+        { "name": "dx1" },
+        { "name": "dx2" }
+      ]
+    },
+    {
+      "name": "AddN",
+      "attributes": [
+        { "name": "N", "type": "int32", "default": 0 }
+      ],
+      "outputs": [
+        { "name": "sums" }
+      ]
+    },
+    {
+      "name": "Affine",
+      "attributes": [
+        { "name": "context", "type": "int64[]", "default": 0 },
+        { "name": "output_dim", "type": "int64", "default": 0 },
+        { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" },
+        { "name": "transpose_a", "type": "boolean", "default": false },
+        { "name": "transpose_b", "type": "boolean", "default": false }
+      ]
+    },
+    {
+      "name": "All",
+      "attributes": [
+        { "name": "keepDims", "type": "int32", "default": 0 },
+        { "name": "keep_dims", "type": "int64", "default": 0 }
+      ]
+    },
+    {
+      "name": "AllGather",
+      "attributes": [
+        { "name": "group", "type": "string", "default": null },
+        { "name": "rank_size", "type": "int32", "default": 0 }
+      ]
+    },
+    {
+      "name": "ApplyMomentum",
+      "attributes": [
+        { "name": "gradientScale", "type": "float32", "default": 0 },
+        { "name": "useNesterov", "type": "boolean", "default": false },
+        { "name": "use_nesterov", "type": "boolean", "default": false },
+        { "name": "use_locking", "type": "boolean", "default": false },
+        { "name": "gradient_scale", "type": "float32", "default": 0 }
+      ],
+      "inputs": [
+        { "name": "weight" },
+        { "name": "accumulate" },
+        { "name": "learning_rate" },
+        { "name": "gradient" },
+        { "name": "moment" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    },
+    {
+      "name": "ArgMax",
+      "attributes": [
+        { "name": "axis", "type": "int32", "default": 0 },
+        { "name": "outMaxValue", "type": "boolean", "default": false },
+        { "name": "topK", "type": "int32", "default": 1 },
+        { "name": "keepDims", "type": "boolean", "default": false },
+        { "name": "axisType", "type": "int32", "default": 0 }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    },
+    {
+      "name": "ArgMaxFusion",
+      "attributes": [
+        { "name": "axis", "type": "int64", "default": 0 },
+        { "name": "top_k", "type": "int64", "default": 1 },
+        { "name": "keep_dims", "type": "boolean", "default": false },
+        { "name": "out_max_value", "type": "boolean", "default": false }
+      ]
+    },
+    {
+      "name": "ArgMin",
+      "attributes": [
+        { "name": "axis", "type": "int32", "default": 0 },
+        { "name": "outMaxValue", "type": "boolean", "default": false },
+        { "name": "topK", "type": "int32", "default": 1 },
+        { "name": "keepDims", "type": "boolean", "default": false },
+        { "name": "axisType", "type": "int32", "default": 0 }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    },
+    {
+      "name": "ArgMinFusion",
+      "attributes": [
+        { "name": "axis", "type": "int64", "default": 0 },
+        { "name": "top_k", "type": "int64", "default": 0 },
+        { "name": "keep_dims", "type": "boolean", "default": false },
+        { "name": "out_max_value", "type": "boolean", "default": false }
+      ]
+    },
+    {
+      "name": "Asin",
+      "inputs": [
+        { "name": "x" }
+      ],
+      "outputs": [
+        { "name": "y" }
+      ]
+    },
+    {
+      "name": "PoolingGrad",
+      "attributes": [
+        { "name": "format", "type": "Format" },
+        { "name": "poolingMode", "type": "PoolMode" },
+        { "name": "global", "type": "boolean", "default": false },
+        { "name": "windowW", "type": "int32", "default": 0 },
+        { "name": "windowH", "type": "int32", "default": 0 },
+        { "name": "strideW", "type": "int32", "default": 0 },
+        { "name": "strideH", "type": "int32", "default": 0 },
+        { "name": "padMode", "type": "PadMode" },
+        { "name": "padUp", "type": "int32", "default": 0 },
+        { "name": "padDown", "type": "int32", "default": 0 },
+        { "name": "padLeft", "type": "int32", "default": 0 },
+        { "name": "padRight", "type": "int32", "default": 0 },
+        { "name": "roundMode", "type": "RoundMode" }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "dx" },
+        { "name": "dy" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    },
+    {
+      "name": "Power",
+      "attributes": [
+        { "name": "base", "type": "float32", "default": 0 },
+        { "name": "scale", "type": "float32", "default": 0 },
+        { "name": "shift", "type": "float32", "default": 0 }
+      ],
+      "inputs": [
+        { "name": "x" },
+        { "name": "y" }
+      ],
+      "outputs": [
+        { "name": "z" }
+      ]
+    }
+  ]
