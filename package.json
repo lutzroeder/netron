@@ -54,6 +54,7 @@
             "arrow-parens": "error",
             "brace-style": "error",
             "curly": "error",
+            "computed-property-spacing": "error",
             "consistent-return": "error",
             "default-case": "error",
             "default-case-last": "error",

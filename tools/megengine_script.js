@@ -75,8 +75,8 @@ const main = async () => {
                 json.push(operator);
             }
             const operator = operators.get(key);
-            if (category[ key.replace(/V(\d+)$/, '') ]) {
-                operator.category = category[ key.replace(/V(\d+)$/, '') ];
+            if (category[key.replace(/V(\d+)$/, '')]) {
+                operator.category = category[key.replace(/V(\d+)$/, '')];
             }
             operator.attributes = operator.attributes || [];
             for (const [field_name, field] of op.fields) {
