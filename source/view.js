@@ -2359,6 +2359,13 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         if (node.device) {
             this.addProperty('device', node.device);
         }
+        const metadata = node.metadata;
+        if (Array.isArray(metadata) && metadata.length > 0) {
+            this.addHeader('Metadata');
+            for (const entry of metadata) {
+                this._addAttribute(entry.name, entry);
+            }
+        }
         const attributes = node.attributes;
         if (Array.isArray(attributes) && attributes.length > 0) {
             this.addHeader('Attributes');
@@ -3928,7 +3935,7 @@ view.Documentation = class {
                     if (source.type !== undefined) {
                         target.type = source.type;
                     }
-                    if (source.description !== undefined) {
+                    if (source.description) {
                         target.description = generator.html(source.description);
                     }
                     if (source.default !== undefined) {
@@ -3971,7 +3978,7 @@ view.Documentation = class {
                     if (source.type) {
                         target.type = source.type;
                     }
-                    if (source.description !== undefined) {
+                    if (source.description) {
                         target.description = generator.html(source.description);
                     }
                     if (source.list !== undefined) {

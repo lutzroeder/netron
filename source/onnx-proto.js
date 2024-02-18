@@ -256,6 +256,7 @@ onnx.NodeProto = class NodeProto {
         this.input = [];
         this.output = [];
         this.attribute = [];
+        this.metadata_props = [];
     }
 
     static decode(reader, length) {
@@ -287,6 +288,9 @@ onnx.NodeProto = class NodeProto {
                     break;
                 case 6:
                     message.doc_string = reader.string();
+                    break;
+                case 9:
+                    message.metadata_props.push(onnx.StringStringEntryProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -325,6 +329,9 @@ onnx.NodeProto = class NodeProto {
                     break;
                 case "doc_string":
                     message.doc_string = reader.string();
+                    break;
+                case "metadata_props":
+                    message.metadata_props.push(onnx.StringStringEntryProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -624,6 +631,7 @@ onnx.GraphProto = class GraphProto {
         this.output = [];
         this.value_info = [];
         this.quantization_annotation = [];
+        this.metadata_props = [];
     }
 
     static decode(reader, length) {
@@ -658,6 +666,9 @@ onnx.GraphProto = class GraphProto {
                     break;
                 case 14:
                     message.quantization_annotation.push(onnx.TensorAnnotation.decode(reader, reader.uint32()));
+                    break;
+                case 16:
+                    message.metadata_props.push(onnx.StringStringEntryProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -700,6 +711,9 @@ onnx.GraphProto = class GraphProto {
                 case "quantization_annotation":
                     message.quantization_annotation.push(onnx.TensorAnnotation.decodeText(reader));
                     break;
+                case "metadata_props":
+                    message.metadata_props.push(onnx.StringStringEntryProto.decodeText(reader));
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -723,6 +737,7 @@ onnx.TensorProto = class TensorProto {
         this.external_data = [];
         this.double_data = [];
         this.uint64_data = [];
+        this.metadata_props = [];
     }
 
     static decode(reader, length) {
@@ -772,6 +787,9 @@ onnx.TensorProto = class TensorProto {
                     break;
                 case 11:
                     message.uint64_data = reader.array(message.uint64_data, () => reader.uint64(), tag);
+                    break;
+                case 16:
+                    message.metadata_props.push(onnx.StringStringEntryProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -828,6 +846,9 @@ onnx.TensorProto = class TensorProto {
                     break;
                 case "uint64_data":
                     reader.array(message.uint64_data, () => reader.uint64());
+                    break;
+                case "metadata_props":
+                    message.metadata_props.push(onnx.StringStringEntryProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -1508,6 +1529,7 @@ onnx.FunctionProto = class FunctionProto {
         this.node = [];
         this.opset_import = [];
         this.value_info = [];
+        this.metadata_props = [];
     }
 
     static decode(reader, length) {
@@ -1548,6 +1570,9 @@ onnx.FunctionProto = class FunctionProto {
                     break;
                 case 12:
                     message.value_info.push(onnx.ValueInfoProto.decode(reader, reader.uint32()));
+                    break;
+                case 14:
+                    message.metadata_props.push(onnx.StringStringEntryProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1595,6 +1620,9 @@ onnx.FunctionProto = class FunctionProto {
                     break;
                 case "value_info":
                     message.value_info.push(onnx.ValueInfoProto.decodeText(reader));
+                    break;
+                case "metadata_props":
+                    message.metadata_props.push(onnx.StringStringEntryProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
