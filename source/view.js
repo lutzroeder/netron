@@ -5364,6 +5364,7 @@ view.ModelFactoryService = class {
         this.register('./modular', [ '.maxviz' ]);
         this.register('./cambricon', [ '.cambricon' ]);
         this.register('./weka', [ '.model' ]);
+        this.register('./mind_ir', [ '.mindir' ]);
     }
 
     register(module, factories, containers) {
