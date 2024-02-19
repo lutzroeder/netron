@@ -102,7 +102,8 @@
             "semi": [ "error", "always" ],
             "space-before-blocks": "error",
             "space-in-parens": "error",
-            "template-curly-spacing": "error"
+            "template-curly-spacing": "error",
+            "yoda": "error"
         },
         "globals": {
             "flatbuffers": "readonly",

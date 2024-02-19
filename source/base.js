@@ -341,7 +341,7 @@ base.BinaryReader = class {
     }
 
     align(mod) {
-        if (this._position % mod !== 0) {
+        if ((this._position % mod) !== 0) {
             this.skip(mod - (this._position % mod));
         }
     }
@@ -637,7 +637,7 @@ base.Telemetry = class {
                 }
                 const build = (entries) => entries.map(([name, value]) => `${name}=${encodeURIComponent(value)}`).join('&');
                 this._cache = this._cache || build(Array.from(this._config));
-                const key = (name, value) => this._schema.get(name) || ('number' === typeof value && !isNaN(value) ? 'epn.' : 'ep.') + name;
+                const key = (name, value) => this._schema.get(name) || (typeof value === 'number' && !isNaN(value) ? 'epn.' : 'ep.') + name;
                 const body = build(Object.entries(params).map(([name, value]) => [key(name, value), value]));
                 const url = `https://analytics.google.com/g/collect?${this._cache}`;
                 this._navigator.sendBeacon(url, body);
