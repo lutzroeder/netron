@@ -50,7 +50,7 @@ mlir.Graph = class {
                 const shape = parts
                     .slice(0, -1)
                     .map((dimension) => {
-                        const parsedDimension = parseInt(dimension.trim());
+                        const parsedDimension = parseInt(dimension.trim(), 10);
                         return isNaN(parsedDimension) ? '?' : parsedDimension;
                     });
                 return new mlir.TensorType(dataType, new mlir.TensorShape(shape));

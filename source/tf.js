@@ -1894,7 +1894,7 @@ tf.Context = class {
             for (const input of inputs) {
                 const split = input.split(':', 3);
                 const [input_name] = split;
-                const input_index = split.length === 1 ? 0 : parseInt(split[split.length - 1]);
+                const input_index = split.length === 1 ? 0 : parseInt(split[split.length - 1], 10);
                 const from_name = input_name.startsWith('^') ? input_name.substring(1) : input_name;
                 const from = node_map.get(from_name);
                 const output_name = input_index === 0 ? from_name : `${from_name}:${input_index}`;
@@ -2102,7 +2102,8 @@ tf.Context = class {
                                 }
                                 case 'int64':
                                 case 'SymInt': {
-                                    if (input.constant !== undefined && Number.isInteger(parseInt(input.constant))) {
+                                    if (input.constant !== undefined &&
+                                        Number.isInteger(parseInt(input.constant, 10))) {
                                         continue;
                                     }
                                     break;
@@ -2118,7 +2119,7 @@ tf.Context = class {
                                 case 'SymInt[]':
                                 case 'SymInt[2]': {
                                     if (Array.isArray(input.list)) {
-                                        const list = input.list.map((item) => parseInt(item));
+                                        const list = input.list.map((item) => parseInt(item, 10));
                                         if (list.every((value) => Number.isInteger(value))) {
                                             continue;
                                         }
@@ -2135,7 +2136,8 @@ tf.Context = class {
                                     break;
                                 }
                                 case 'Scalar': {
-                                    if (input.constant !== undefined && Number.isInteger(parseInt(input.constant))) {
+                                    if (input.constant !== undefined &&
+                                        Number.isInteger(parseInt(input.constant, 10))) {
                                         continue;
                                     }
                                     break;
@@ -2163,14 +2165,14 @@ tf.Context = class {
                                 }
                                 case 'int64':
                                 case 'SymInt': {
-                                    const value = parseInt(input.constant);
+                                    const value = parseInt(input.constant, 10);
                                     input.attr = new tf.proto.tensorflow.AttrValue();
                                     input.attr.i = value;
                                     input.attr.metadata = arg;
                                     break;
                                 }
                                 case 'float32': {
-                                    const value = parseFloat(input.constant);
+                                    const value = parseFloat(input.constant, 10);
                                     input.attr = new tf.proto.tensorflow.AttrValue();
                                     input.attr.f = value;
                                     input.attr.metadata = arg;
@@ -2180,7 +2182,7 @@ tf.Context = class {
                                 case 'int64[2]':
                                 case 'SymInt[]':
                                 case 'SymInt[2]': {
-                                    const list = input.list.map((item) => parseInt(item));
+                                    const list = input.list.map((item) => parseInt(item, 10));
                                     input.attr = new tf.proto.tensorflow.AttrValue();
                                     input.attr.list = new tf.proto.tensorflow.ListValue();
                                     input.attr.list.i = list;
@@ -2194,7 +2196,7 @@ tf.Context = class {
                                     break;
                                 }
                                 case 'Scalar': {
-                                    const value = parseInt(input.constant);
+                                    const value = parseInt(input.constant, 10);
                                     input.attr = new tf.proto.tensorflow.AttrValue();
                                     input.attr.i = value;
                                     input.attr.metadata = arg;

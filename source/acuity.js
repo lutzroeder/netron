@@ -53,7 +53,7 @@ acuity.Graph = class {
                         shape = layer.parameters.shape;
                     } else if (Object.prototype.hasOwnProperty.call(layer.parameters, 'size') && Object.prototype.hasOwnProperty.call(layer.parameters, 'channels')) {
                         const sizes = layer.parameters.size.split(' ');
-                        shape = [0, parseInt(sizes[0]), parseInt(sizes[1]), layer.parameters.channels];
+                        shape = [0, parseInt(sizes[0], 10), parseInt(sizes[1], 10), layer.parameters.channels];
                     }
                     if (shape && shape.length === 4 && shape[0] === 0) {
                         shape[0] = 1;
@@ -360,7 +360,7 @@ acuity.Inference = class {
             let shape = params.shape;
             if (typeof params.shape === 'string') {
                 shape = params.shape.split(/\s+/).map((item) => {
-                    return parseInt(item);
+                    return parseInt(item, 10);
                 });
             }
             const newShape = shape.map((item, index) => {
