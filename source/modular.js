@@ -94,7 +94,7 @@ modular.Node = class {
         if (node.type.category === 'List') {
             this._category = 'Data';
         } else if (node.type.category === 'ControlFlow') {
-            this._category === 'Control';
+            this._category = 'Control';
         } else {
             this._category = node.type.category;
         }

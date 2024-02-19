@@ -85,6 +85,7 @@
             "no-trailing-spaces": "error",
             "no-unmodified-loop-condition": "error",
             "no-unreachable-loop": "error",
+            "no-unused-expressions": "error",
             "no-unused-private-class-members": "error",
             "no-unused-vars": "error",
             "no-use-before-define": "error",

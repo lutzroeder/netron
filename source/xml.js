@@ -645,6 +645,7 @@ xml.TextReader = class {
     }
 
     _elementChildren() {
+        const skipQualifiers = () => this._match('?') || this._match('*') || this._match('+');
         let separator = undefined;
         const choice = new Set();
         for (;;) {
@@ -652,7 +653,7 @@ xml.TextReader = class {
             if (name) {
                 this._assert(separator !== '|' || !choice.has(name));
                 choice.add(name);
-                this._match('?') || this._match('*') || this._match('+');
+                skipQualifiers();
                 this._whitespace(0);
             } else if (this._match('(')) {
                 this._elementChildren();
@@ -673,7 +674,7 @@ xml.TextReader = class {
             this._next();
             this._whitespace(0);
         }
-        this._match('?') || this._match('*') || this._match('+');
+        skipQualifiers();
     }
 
     _attributeDefinition() {

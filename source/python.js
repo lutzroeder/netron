@@ -5895,7 +5895,9 @@ python.Execution = class {
                     // TODO
                     // throw new python.Error(`Unsupported target type '${target}'.`);
                 }
-                fx_node && Object.assign(fx_node.meta, this.deserialize_metadata(serialized_node.metadata));
+                if (fx_node) {
+                    Object.assign(fx_node.meta, this.deserialize_metadata(serialized_node.metadata));
+                }
             }
             deserialize(serialized_graph_module, symbol_name_to_range, constants) {
                 this.shape_env = new torch.fx.experimental.symbolic_shapes.ShapeEnv(/* assume_static_by_default = True */);

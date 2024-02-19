@@ -832,7 +832,7 @@ mlnet.ColumnConcatenatingTransformer = class {
             const aliases = [];
             if (context.modelVersionReadable >= 0x00010002) {
                 for (let i = 0; i < n; i++) {
-                    /* let length = */ inputs[i].length;
+                    /* let length = inputs[i].length; */
                     const alias = {};
                     aliases.push(alias);
                     if (context.modelVersionReadable >= 0x00010002) {
@@ -868,7 +868,8 @@ mlnet.PredictionTransformerBase = class {
         this.Model = context.open('Model');
         const trainSchemaReader = context.openBinary('TrainSchema');
         if (trainSchemaReader) {
-            new mlnet.BinaryLoader(null, trainSchemaReader).schema;
+            new mlnet.BinaryLoader(null, trainSchemaReader);
+            // new mlnet.BinaryLoader(null, trainSchemaReader).schema;
         }
     }
 };

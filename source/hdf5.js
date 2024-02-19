@@ -73,7 +73,6 @@ hdf5.File = class {
                     throw new hdf5.Error(`Unsupported Superblock version ${version}.`);
             }
             delete this.data;
-            this._rootGroup.attributes;
         }
         return this._rootGroup;
     }

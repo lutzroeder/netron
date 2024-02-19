@@ -560,6 +560,7 @@ export class Target {
         if (this.model.version || this.model.description || this.model.author || this.model.license) {
             // continue
         }
+        /* eslint-disable no-unused-expressions */
         const validateGraph = (graph) => {
             const values = new Map();
             const validateValue = (value) => {
@@ -684,6 +685,7 @@ export class Target {
                 // new dialog.NodeSidebar(host, node);
             }
         };
+        /* eslint-enable no-unused-expressions */
         for (const graph of this.model.graphs) {
             validateGraph(graph);
         }
