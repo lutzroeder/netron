@@ -2627,7 +2627,7 @@ view.AttributeView = class extends view.Control {
             const value = this._attribute.value;
             const content = type === 'tensor' && value && value.type ? value.type.toString() : this._attribute.type;
             const typeLine = this.createElement('div', 'sidebar-item-value-line-border');
-            typeLine.innerHTML = `type: ` + `<code><b>${content}</b></code>`;
+            typeLine.innerHTML = `type: <code><b>${content}</b></code>`;
             this._element.appendChild(typeLine);
             const description = this._attribute.description;
             if (description) {
@@ -2800,13 +2800,13 @@ view.ValueView = class extends view.Control {
 
     _bold(name, value) {
         const line = this.createElement('div');
-        line.innerHTML = `${name}: ` + `<b>${value}</b>`;
+        line.innerHTML = `${name}: <b>${value}</b>`;
         this._add(line);
     }
 
     _code(name, value) {
         const line = this.createElement('div');
-        line.innerHTML = `${name}: ` + `<code><b>${value}</b></code>`;
+        line.innerHTML = `${name}: <code><b>${value}</b></code>`;
         this._add(line);
     }
 
@@ -4710,7 +4710,7 @@ markdown.Generator = class {
                 case 'code': {
                     const code = token.text;
                     const [language] = (token.language || '').match(/\S*/);
-                    html += `<pre><code${language ? ` class="` + `language-${this._encode(language)}"` : ''}>${token.escaped ? code : this._encode(code)}</code></pre>\n`;
+                    html += `<pre><code${language ? ` class="language-${this._encode(language)}"` : ''}>${token.escaped ? code : this._encode(code)}</code></pre>\n`;
                     continue;
                 }
                 case 'table': {
@@ -4748,7 +4748,7 @@ markdown.Generator = class {
                     for (const item of token.items) {
                         let itemBody = '';
                         if (item.task) {
-                            const checkbox = `<input ${item.checked ? 'checked="" ' : ''}disabled="" type="checkbox"` + `> `;
+                            const checkbox = `<input ${item.checked ? 'checked="" ' : ''}disabled="" type="checkbox"> `;
                             if (loose) {
                                 if (item.tokens.length > 0 && item.tokens[0].type === 'text') {
                                     item.tokens[0].text = `${checkbox} ${item.tokens[0].text}`;

@@ -68,7 +68,7 @@ mlir.Graph = class {
         }
         // outputs of function
         for (let i = 0; i < func.outputTypes.length; i++) {
-            const output = `%return` + `/${i}`;
+            const output = `%return/${i}`;
             const outputType = func.outputTypes[i];
             const type = valueType(outputType);
             const value = new mlir.Value(output, type, "output desc", null);

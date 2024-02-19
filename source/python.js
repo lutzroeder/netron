@@ -6708,7 +6708,7 @@ python.Execution = class {
         const reader = new python.Parser(code, '', null);
         const program = reader.parse();
         if (!program) {
-            throw new python.Error("Module '" + '?' + "' parse error.");
+            throw new python.Error("Module '?' parse error.");
         }
         this.block(program.body, context);
     }

@@ -193,7 +193,7 @@ const fork = async (organization, repository) => {
     await sleep(4000);
     await rm('dist', repository);
     writeLine(`github clone ${repository}`);
-    await exec(`git clone --depth=2 https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_USER}/${repository}.git ` + `dist/${repository}`);
+    await exec(`git clone --depth=2 https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_USER}/${repository}.git dist/${repository}`);
 };
 
 const pullrequest = async (organization, repository, body) => {

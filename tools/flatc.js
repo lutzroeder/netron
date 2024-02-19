@@ -1065,7 +1065,7 @@ flatc.Generator = class {
                             this._builder.add(`$.${field.name} = ${enumName}[json.${field.name}];`);
                         } else if (field.type instanceof flatc.Union) {
                             const unionType = `${field.type.parent.name}.${field.type.name}`;
-                            this._builder.add(`$.${field.name} = ${unionType}.decodeText(reader, json.${field.name}, json.${field.name}_type` + `);`);
+                            this._builder.add(`$.${field.name} = ${unionType}.decodeText(reader, json.${field.name}, json.${field.name}_type);`);
                         } else { // struct | table
                             const fieldType = `${field.type.parent.name}.${field.type.name}`;
                             this._builder.add(`$.${field.name} = reader.object(json.${field.name}, ${fieldType}.decodeText);`);
@@ -1149,7 +1149,7 @@ flatc.Generator = class {
 
         /* eslint-disable indent */
         this._builder.add('');
-        this._builder.add(`${type.parent.name}.${type.name} = class ` + `{`);
+        this._builder.add(`${type.parent.name}.${type.name} = class {`);
 
         this._builder.indent();
             this._builder.add('');
