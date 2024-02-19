@@ -2,15 +2,17 @@
 /* eslint-env es2015 */
 /* eslint-disable no-var */
 /* eslint-disable prefer-template */
-
-if (window.location.hostname.endsWith('.github.io')) {
-    window.location.replace('https://netron.app');
-}
+/* eslint-disable prefer-destructuring */
 
 window.exports = {};
 
 window.exports.require = function(id, callback) {
-    var url = window.location.href + id + '.js';
+    let base = window.location.href || '';
+    base = base.split('?')[0].split('#')[0];
+    const index = base.lastIndexOf('/');
+    base = index > 0 ? base.substring(0, index + 1) : base;
+    base = base.lastIndexOf('/') === base.length - 1 ? base : base + '/';
+    var url = base + id + '.js';
     var scripts = document.head.getElementsByTagName('script');
     for (var i = 0; i < scripts.length; i++) {
         if (url === scripts[i].getAttribute('src')) {
