@@ -1091,7 +1091,7 @@ protobuf.TextReader = class {
                     if (c === undefined || c === '\n') {
                         throw new protobuf.Error(`Unexpected end of string ${this.location()}`);
                     }
-                    if (c == '\\') {
+                    if (c === '\\') {
                         c = this._decoder.decode();
                         if (c === undefined || c === '\n') {
                             throw new protobuf.Error(`Unexpected end of string ${this.location()}`);
@@ -1208,7 +1208,7 @@ protobuf.TextReader = class {
     }
 
     match(value) {
-        if (value == this._token) {
+        if (value === this._token) {
             this.next();
             return true;
         }

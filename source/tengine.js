@@ -98,16 +98,16 @@ tengine.Node = class {
         let inputIndex = 0;
         if (this.type && this.type.inputs) {
             for (const inputDef of this.type.inputs) {
-                if (inputIndex < inputs.length || inputDef.option != 'optional') {
-                    const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => tensors[id]);
+                if (inputIndex < inputs.length || inputDef.option !== 'optional') {
+                    const inputCount = (inputDef.option === 'variadic') ? (inputs.length - inputIndex) : 1;
+                    const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id !== '' || inputDef.option !== 'optional').map((id) => tensors[id]);
                     this.inputs.push(new tengine.Argument(inputDef.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
         } else {
             this.inputs.push(...inputs.slice(inputIndex).map((id, index) => {
-                const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
+                const inputName = ((inputIndex + index) === 0) ? 'input' : (inputIndex + index).toString();
                 return new tengine.Argument(inputName, [tensors[id]]);
             }));
         }
@@ -115,8 +115,8 @@ tengine.Node = class {
         let outputIndex = 0;
         if (this.type && this.type.outputs) {
             for (const outputDef of this.type.outputs) {
-                if (outputIndex < outputs.length || outputDef.option != 'optional') {
-                    const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                if (outputIndex < outputs.length || outputDef.option !== 'optional') {
+                    const outputCount = (outputDef.option === 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => tensors[id]);
                     this.outputs.push(new tengine.Argument(outputDef.name, outputArguments));
                     outputIndex += outputCount;
@@ -124,7 +124,7 @@ tengine.Node = class {
             }
         } else {
             this.outputs.push(...outputs.slice(outputIndex).map((id, index) => {
-                const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
+                const outputName = ((outputIndex + index) === 0) ? 'output' : (outputIndex + index).toString();
                 return new tengine.Argument(outputName, [tensors[id]]);
             }));
         }
@@ -145,7 +145,7 @@ tengine.Attribute = class {
             if (metadata.visible === false) {
                 this.visible = false;
             } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
-                if (this.value == metadata.default || (this.value && this.value.toString() == metadata.default.toString())) {
+                if (this.value === metadata.default || (this.value && this.value.toString() === metadata.default.toString())) {
                     this.visible = false;
                 }
             }
@@ -407,10 +407,10 @@ tengine.Reader = class {
             subgraph.id = reader.int32();
             subgraph.graphLayout = reader.int32();
             /*
-            if (graphLayout == 0) {
+            if (graphLayout === 0) {
                 return "NCHW";
             }
-            if (graphLayout == 1) {
+            if (graphLayout === 1) {
                 return "NHWC";
             }
             */
@@ -477,7 +477,7 @@ tengine.Reader = class {
                     }
                 }
                 if (node.type === 'Slice') {
-                    node.params[6] = (this._originalFormat == 5) ? node.params[6] : 0;
+                    node.params[6] = (this._originalFormat === 5) ? node.params[6] : 0;
                 }
                 node.attributes = attributeOffsets.map((attributeOffset) => {
                     reader.seek(attributeOffset);

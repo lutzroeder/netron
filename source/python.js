@@ -27,10 +27,10 @@ python.Parser = class {
                 node.body.push(statement);
                 continue;
             }
-            if (this._tokenizer.eat('\n') || this._tokenizer.eat(';') || this._tokenizer.peek().type == 'eof') {
+            if (this._tokenizer.eat('\n') || this._tokenizer.eat(';') || this._tokenizer.peek().type === 'eof') {
                 continue;
             }
-            if (this._tokenizer.eat('indent') && this._tokenizer.peek().type == 'eof') {
+            if (this._tokenizer.eat('indent') && this._tokenizer.peek().type === 'eof') {
                 continue;
             }
             throw new python.Error(`Unsupported statement ${this._tokenizer.location()}`);
@@ -166,7 +166,7 @@ python.Parser = class {
             node.type = 'import_from';
             node.level = 0;
             const dots = this._tokenizer.peek();
-            if (dots && Array.from(dots.type).every((c) => c == '.')) {
+            if (dots && Array.from(dots.type).every((c) => c === '.')) {
                 this._eat(dots.type);
                 node.level = Array.from(dots.type).length;
             }
@@ -372,7 +372,7 @@ python.Parser = class {
 
         const expression = this._expression(-1, [], true);
         if (expression) {
-            if (expression.type == 'id' && this._tokenizer.eat(':')) {
+            if (expression.type === 'id' && this._tokenizer.eat(':')) {
                 node = this._node('var');
                 node.name = expression.value;
                 node.location = expression.location;
@@ -455,7 +455,7 @@ python.Parser = class {
         for (;;) {
             let node = this._node();
             const token = this._tokenizer.peek();
-            if (stack.length == 1 && terminalSet.has(token.value)) {
+            if (stack.length === 1 && terminalSet.has(token.value)) {
                 break;
             }
             const precedence = python.Parser._precedence[token.value];
@@ -463,7 +463,7 @@ python.Parser = class {
                 if (precedence >= minPrecedence) {
                     this._tokenizer.read();
                     node.type = token.value;
-                    if (token.type == 'id' && (token.value === 'in' || token.value === 'not')) {
+                    if (token.type === 'id' && (token.value === 'in' || token.value === 'not')) {
                         if (token.value === 'in') {
                             node.type = 'in';
                         } else if (this._tokenizer.eat('id', 'in')) {
@@ -474,12 +474,12 @@ python.Parser = class {
                             stack.push(node);
                             continue;
                         }
-                    } else if (token.value == '~') {
+                    } else if (token.value === '~') {
                         node.type = '~';
                         node.expression = this._expression(precedence, terminal, tuple === false ? false : true);
                         stack.push(node);
                         continue;
-                    } else if (token.type == 'id' && token.value == 'is') {
+                    } else if (token.type === 'id' && token.value === 'is') {
                         if (this._tokenizer.eat('id', 'not')) {
                             node.type = 'is not';
                         }
@@ -601,10 +601,10 @@ python.Parser = class {
                 continue;
             }
             if (this._tokenizer.peek().type === '(') {
-                if (stack.length == 0) {
+                if (stack.length === 0) {
                     node = this._node('tuple');
                     const args = this._arguments();
-                    if (args.length == 1) {
+                    if (args.length === 1) {
                         stack.push(args[0]);
                     } else {
                         node.value = args;
@@ -619,7 +619,7 @@ python.Parser = class {
                 continue;
             }
             if (this._tokenizer.peek().type === '[') {
-                if (stack.length == 0) {
+                if (stack.length === 0) {
                     stack.push(this._expressions());
                 } else {
                     node = this._node('[]');
@@ -629,21 +629,21 @@ python.Parser = class {
                 }
                 continue;
             }
-            if (this._tokenizer.peek().type == '{') {
+            if (this._tokenizer.peek().type === '{') {
                 stack.push(this._dictOrSetMaker());
                 continue;
             }
             node = this._node();
             const literal = this._literal();
             if (literal) {
-                if (stack.length > 0 && literal.type == 'number' &&
+                if (stack.length > 0 && literal.type === 'number' &&
                     (literal.value.startsWith('-') || literal.value.startsWith('+'))) {
                     node.type = literal.value.substring(0, 1);
                     literal.value = literal.value.substring(1);
                     node.left = stack.pop();
                     node.right = literal;
                     stack.push(node);
-                } else if (stack.length == 1 && literal.type == 'string' && stack[0].type == 'string') {
+                } else if (stack.length === 1 && literal.type === 'string' && stack[0].type === 'string') {
                     stack[0].value += literal.value;
                 } else {
                     if (literal.type === 'number') {
@@ -671,7 +671,7 @@ python.Parser = class {
                 continue;
             }
 
-            if (tuple === true && stack.length == 1 && this._tokenizer.eat(',')) {
+            if (tuple === true && stack.length === 1 && this._tokenizer.eat(',')) {
                 if (stack[0].type === 'tuple') {
                     [node] = stack;
                 } else {
@@ -696,10 +696,10 @@ python.Parser = class {
             break;
         }
 
-        if (stack.length == 1) {
+        if (stack.length === 1) {
             return stack.pop();
         }
-        if (stack.length != 0) {
+        if (stack.length !== 0) {
             throw new python.Error(`Unexpected expression ${this._tokenizer.location()}`);
         }
         return null;
@@ -726,7 +726,7 @@ python.Parser = class {
         let dict = true;
         while (!this._tokenizer.eat('}')) {
             const item = this._expression(-1, [], false);
-            if (item == null) {
+            if (item === null) {
                 throw new python.Error(`Expected expression ${this._tokenizer.location()}`);
             }
             if (!this._tokenizer.eat(':')) {
@@ -734,7 +734,7 @@ python.Parser = class {
             }
             if (dict) {
                 const value = this._expression(-1, [], false);
-                if (value == null) {
+                if (value === null) {
                     throw new python.Error(`Expected expression ${this._tokenizer.location()}`);
                 }
                 list.push({ type: 'pair', key: item, value: value });
@@ -758,7 +758,7 @@ python.Parser = class {
         this._tokenizer.expect('[');
         while (!this._tokenizer.eat(']')) {
             const expression = this._expression();
-            if (expression == null) {
+            if (expression === null) {
                 throw new python.Error(`Expected expression ${this._tokenizer.location()}`);
             }
             list.push(expression);
@@ -788,9 +788,9 @@ python.Parser = class {
                 // list.push({});
                 continue;
             }
-            if (this._tokenizer.peek().type != ']') {
+            if (this._tokenizer.peek().type !== ']') {
                 const expression = this._expression();
-                if (expression == null) {
+                if (expression === null) {
                     throw new python.Error(`Expected expression ${this._tokenizer.location()}`);
                 }
                 list.push(expression);
@@ -807,7 +807,7 @@ python.Parser = class {
 
     _name(required) {
         const token = this._tokenizer.peek();
-        if (token.type == 'id' && !token.keyword) {
+        if (token.type === 'id' && !token.keyword) {
             this._tokenizer.read();
             return token;
         }
@@ -828,7 +828,7 @@ python.Parser = class {
 
     _literal() {
         const token = this._tokenizer.peek();
-        if (token.type == 'string' || token.type == 'number' || token.type == 'boolean') {
+        if (token.type === 'string' || token.type === 'number' || token.type === 'boolean') {
             this._tokenizer.read();
             return token;
         }
@@ -840,7 +840,7 @@ python.Parser = class {
         this._tokenizer.expect('[');
         while (!this._tokenizer.eat(']')) {
             const type = this._type();
-            if (type == null) {
+            if (type === null) {
                 throw new python.Error(`Expected type ${this._tokenizer.location()}`);
             }
             list.push(type);
@@ -917,7 +917,7 @@ python.Parser = class {
                 continue;
             }
             const expression = this._expression(-1, [], false);
-            if (expression == null) {
+            if (expression === null) {
                 throw new python.Error(`Expected expression ${this._tokenizer.location()}`);
             }
             list.push(expression);
@@ -1122,11 +1122,11 @@ python.Tokenizer = class {
     _skipWhitespace() {
         while (this._position < this._text.length) {
             const c = this._text[this._position];
-            if (c == '#') {
+            if (c === '#') {
                 this._skipLine();
             } else if (python.Tokenizer._isSpace(c)) {
                 this._position++;
-            } else if (c == '\\') {
+            } else if (c === '\\') {
                 // Explicit Line Continuation
                 this._position++;
                 if (python.Tokenizer._isNewline(this._get(this._position))) {
@@ -1167,7 +1167,7 @@ python.Tokenizer = class {
                 return;
             }
         }
-        if (this._token.type == '\n') {
+        if (this._token.type === '\n') {
             let indent = '';
             let i = this._position;
             while (i < this._text.length) {
@@ -1181,7 +1181,7 @@ python.Tokenizer = class {
                     this._position = i;
                     this._lineStart = i;
                     this._line++;
-                } else if (c == '#') {
+                } else if (c === '#') {
                     indent = '';
                     while (i < this._text.length && !python.Tokenizer._isNewline(this._text[i])) {
                         i++;
@@ -1381,7 +1381,7 @@ python.Tokenizer = class {
             if (i > (this._position + sign)) {
                 if (this._get(i) === 'e' || this._get(i) === 'E') {
                     i++;
-                    if (this._get(i) == '-' || this._get(i) == '+') {
+                    if (this._get(i) === '-' || this._get(i) === '+') {
                         i++;
                     }
                     if (!decimal(this._get(i))) {
@@ -1402,7 +1402,7 @@ python.Tokenizer = class {
                     return { type: 'number', value: this._text.substring(this._position, i + 1) };
                 }
                 const floatText = this._text.substring(this._position, i);
-                const floatParseText = floatText.indexOf('_') != -1 ? floatText.split('_').join('') : floatText;
+                const floatParseText = floatText.indexOf('_') !== -1 ? floatText.split('_').join('') : floatText;
                 if (!isNaN(parseFloat(floatParseText))) {
                     return { type: 'number', value: floatText };
                 }
@@ -1539,12 +1539,12 @@ python.Tokenizer = class {
                     throw new python.Error(`Unsupported string quote '${q0}'.`);
             }
             i += count;
-            if (count == 1) {
+            if (count === 1) {
                 while (i < this._text.length) {
                     if (this._text[i] === quote) {
                         return { type: 'string', value: this._text.substring(this._position, i + 1) };
                     } else if (this._text[i] === '\\' &&
-                             (this._get(i + 1) == quote || this._get(i + 1) == '\n' || this._get(i + 1) == '\\')) {
+                             (this._get(i + 1) === quote || this._get(i + 1) === '\n' || this._get(i + 1) === '\\')) {
                         i += 2;
                     } else if (this._text[i] === '\r' || this._text[i] === '\n') {
                         break;
@@ -1552,7 +1552,7 @@ python.Tokenizer = class {
                         i++;
                     }
                 }
-            } else if (count == 3) {
+            } else if (count === 3) {
                 while (i < this._text.length) {
                     if (this._get(i) === quote && this._get(i + 1) === quote && this._get(i + 2) === quote) {
                         return { type: 'string', value: this._text.substring(this._position, i + 3) };
@@ -2048,7 +2048,7 @@ python.Execution = class {
                 this.allow_mmap = state.allow_mmap;
             }
             __read__(unpickler) {
-                if (this.dtype.__name__ == 'object') {
+                if (this.dtype.__name__ === 'object') {
                     return unpickler.load();
                 }
                 const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
@@ -2095,7 +2095,7 @@ python.Execution = class {
                         } else if (strs.length > 2) {
                             if (strs[0] === "feature_names") {
                                 key_vals.set(strs[0], cur_line.substring("feature_names=".length));
-                            } else if (strs[0] == 'monotone_constraints') {
+                            } else if (strs[0] === 'monotone_constraints') {
                                 key_vals.set(strs[0], cur_line.substring('monotone_constraints='.length));
                             } else {
                                 throw new python.Error(`Wrong line: ${cur_line.substring(0, Math.min(128, cur_line.length))}`);
@@ -2393,12 +2393,12 @@ python.Execution = class {
             _read() {
                 if (this.data) {
                     const length = this.dtype.itemsize * this.size;
-                    if (typeof this.data == 'string') {
+                    if (typeof this.data === 'string') {
                         this.data = this._unescape(this.data, length);
-                        if (this.data.length != length) {
+                        if (this.data.length !== length) {
                             throw new python.Error('Invalid string array data size.');
                         }
-                    } else if (this.data.length != length) {
+                    } else if (this.data.length !== length) {
                         // throw new python.Error('Invalid array data size.');
                     }
                 }
@@ -2406,7 +2406,7 @@ python.Execution = class {
             _unescape(token, size) {
                 const length = token.length;
                 const a = new Uint8Array(length);
-                if (size && size == length) {
+                if (size && size === length) {
                     for (let p = 0; p < size; p++) {
                         a[p] = token.charCodeAt(p);
                     }
@@ -2551,7 +2551,7 @@ python.Execution = class {
                 this.allow_mmap = state.allow_mmap;
             }
             __read__(unpickler) {
-                if (this.dtype.__name__ == 'object') {
+                if (this.dtype.__name__ === 'object') {
                     return unpickler.load();
                 }
                 const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
@@ -2912,9 +2912,9 @@ python.Execution = class {
                             break;
                         case 73: { // INT 'I'
                             const value = reader.line();
-                            if (value == '01') {
+                            if (value === '01') {
                                 stack.push(true);
-                            } else if (value == '00') {
+                            } else if (value === '00') {
                                 stack.push(false);
                             } else {
                                 stack.push(parseInt(value, 10));
@@ -3812,7 +3812,7 @@ python.Execution = class {
         this.registerFunction('numpy.load', function(file) {
             // https://github.com/numpy/numpy/blob/main/numpy/lib/format.py
             const signature = [0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59];
-            if (!file.read(6).every((v, i) => v == signature[i])) {
+            if (!file.read(6).every((v, i) => v === signature[i])) {
                 throw new python.Error('Invalid signature.');
             }
             const version = file.read(2);
@@ -3895,7 +3895,7 @@ python.Execution = class {
             const encode = (context, data, dim) => {
                 const size = context.shape[dim];
                 const littleendian = context.littleendian;
-                if (dim == context.shape.length - 1) {
+                if (dim === context.shape.length - 1) {
                     for (let i = 0; i < size; i++) {
                         switch (context.dtype) {
                             case 'f2':
@@ -4848,7 +4848,7 @@ python.Execution = class {
             let dict_state = state;
             let slots_state = null;
             if (state instanceof self.builtins.tuple) {
-                if (state.length != 2) {
+                if (state.length !== 2) {
                     throw new python.Error(`Invalid serialized state: '${state}'.`);
                 }
                 [dict_state, slots_state] = state;
@@ -5216,11 +5216,11 @@ python.Execution = class {
                 const unpickler = execution.invoke('pickle.Unpickler', [f]);
                 unpickler.load(); // magic_number
                 const protocol_version = unpickler.load();
-                if (protocol_version != 1001) {
+                if (protocol_version !== 1001) {
                     throw new python.Error(`Unsupported protocol version '${protocol_version}'.`);
                 }
                 const sys_info = unpickler.load();
-                if (sys_info.protocol_version != 1001) {
+                if (sys_info.protocol_version !== 1001) {
                     throw new python.Error(`Unsupported protocol version '${sys_info.protocol_version}'.`);
                 }
                 if (sys_info.little_endian === false) {
@@ -5807,13 +5807,13 @@ python.Execution = class {
             }
             deserialize_graph_output(/* output */) {
                 /* TODO
-                if (output.type == 'as_tensor') {
+                if (output.type === 'as_tensor') {
                     return self.serialized_name_to_node[output.as_tensor.name]
                 }
-                else if (output.type == 'as_sym_int') {
+                else if (output.type === 'as_sym_int') {
                     return self.serialized_name_to_node[output.as_sym_int.as_name]
                 }
-                elif output.type == 'as_sym_bool':
+                elif output.type === 'as_sym_bool':
                     return self.serialized_name_to_node[output.as_sym_bool.as_name]
                 else:
                     raise SerializeError(f'Unable to deserialize output node {output}')
@@ -5875,9 +5875,9 @@ python.Execution = class {
                     self.deserialize_sym_op_outputs(serialized_node, fx_node);
                     */
                 } else if (builtins.isinstance(target, torch._ops.HigherOrderOperator)) {
-                    // assert(len(serialized_node.outputs) == 1 && serialized_node.outputs[0].type in ('as_tensors', 'as_tensor')), 'Only single tensor output or list of tensor output is supported for higher order operators.')
+                    // assert(len(serialized_node.outputs) === 1 && serialized_node.outputs[0].type in ('as_tensors', 'as_tensor')), 'Only single tensor output or list of tensor output is supported for higher order operators.')
                     const [output] = serialized_node.outputs;
-                    const name = output.type == 'as_tensor' ? output.value.name : null;
+                    const name = output.type === 'as_tensor' ? output.value.name : null;
                     const args = serialized_node.inputs.map((input) => this.deserialize_input(input.arg));
                     fx_node = this.graph.create_node('call_function', target, args, {}, name);
                     if (output.as_tensor !== null) {
@@ -5953,19 +5953,19 @@ python.Execution = class {
                 /*
                 value = inp.value
                 typ_ = inp.type
-                if typ_ == 'as_none':
+                if typ_ === 'as_none':
                     # None should converted as None, but is encoded as bool in serialized
                     # Convert serialized object to torch equivalent
                     return None
-                elif typ_ == 'as_tensor':
+                elif typ_ === 'as_tensor':
                     return self.serialized_name_to_node[inp.as_tensor.name]
-                elif typ_ == 'as_scalar_type':
+                elif typ_ === 'as_scalar_type':
                     return _SERIALIZE_TO_TORCH_DTYPE[inp.as_scalar_type]
-                elif typ_ == 'as_memory_format':
+                elif typ_ === 'as_memory_format':
                     return _SERIALIZE_TO_TORCH_MEMORY_FORMAT[inp.as_memory_format]
-                elif typ_ == 'as_layout':
+                elif typ_ === 'as_layout':
                     return _SERIALIZE_TO_TORCH_LAYOUT[inp.as_layout]
-                elif typ_ == 'as_graph':
+                elif typ_ === 'as_graph':
                     assert isinstance(value, GraphArgument)
                     with self.save_graph_module():
                         self.deserialize_graph(value.graph)
@@ -5976,22 +5976,22 @@ python.Execution = class {
                         value.name,
                         name=value.name,
                     )
-                elif typ_ == 'as_device':
+                elif typ_ === 'as_device':
                     return deserialize_device(inp.as_device)
-                elif typ_ == 'as_int':
+                elif typ_ === 'as_int':
                     return inp.as_int
-                elif typ_ == 'as_float':
+                elif typ_ === 'as_float':
                     return inp.as_float
-                elif typ_ == 'as_bool':
+                elif typ_ === 'as_bool':
                     return inp.as_bool
-                elif typ_ == 'as_string':
+                elif typ_ === 'as_string':
                     return inp.as_string
-                elif typ_ == 'as_sym_int':
+                elif typ_ === 'as_sym_int':
                     return self.deserialize_sym_argument(inp.as_sym_int)
-                elif typ_ == 'as_sym_bool':
+                elif typ_ === 'as_sym_bool':
                     return self.deserialize_sym_argument(inp.as_sym_bool)
                 elif isinstance(value, list):
-                    if len(value) == 0:
+                    if len(value) === 0:
                         return []
                     elif isinstance(value[0], TensorArgument):
                         result = []
@@ -6005,16 +6005,16 @@ python.Execution = class {
                         return [self.deserialize_sym_argument(arg) for arg in value]
                     elif isinstance(value[0], OptionalTensorArgument):
                         def deserialize_optional_tensor_args(a):
-                            if a.type == 'as_none':
+                            if a.type === 'as_none':
                                 return None
-                            elif a.type == 'as_tensor':
+                            elif a.type === 'as_tensor':
                                 return self.serialized_name_to_node[a.value]
                             else:
                                 raise SerializeError(f'Unhandled argument {inp}')
                         return list(map(deserialize_optional_tensor_args, value))
                     else:
                         raise SerializeError(f'Unhandled argument {inp}')
-                elif typ_ == 'as_custom_obj':
+                elif typ_ === 'as_custom_obj':
                     return self.constants[inp.as_custom_obj.name]
                 else {
                     raise SerializeError(`Unhandled argument ${inp}.`);
@@ -6440,7 +6440,7 @@ python.Execution = class {
             }
             storage() {
                 if (!this._storage) {
-                    const name = this.__class__.__name__ == 'Tensor' ? 'FloatStorage' : this.__storage__.__name__.replace('Tensor', 'Storage');
+                    const name = this.__class__.__name__ === 'Tensor' ? 'FloatStorage' : this.__storage__.__name__.replace('Tensor', 'Storage');
                     this._storage = self.invoke(`${this.__class__.__module__}.${name}`, []);
                 }
                 return this._storage;
@@ -6814,7 +6814,7 @@ python.Execution = class {
         } else if (module.__path__) {
             const handle_fromlist = (module, fromlist, recursive) => {
                 for (const name of fromlist) {
-                    if (name == '*') {
+                    if (name === '*') {
                         if (!recursive && module.__all__) {
                             handle_fromlist(module, module.__all__, true);
                         }
@@ -6881,15 +6881,15 @@ python.Execution = class {
         const callTarget = this.target(target, context);
         const callArguments = args.map((argument) => this.expression(argument, context));
         if (!callTarget || (name !== null && !callTarget[name])) {
-            if (name === '__new__' && callArguments.length === 1 && callArguments[0] == callTarget) {
+            if (name === '__new__' && callArguments.length === 1 && callArguments[0] === callTarget) {
                 name = null;
                 callArguments.shift();
             } else {
                 const format = (expression) => {
-                    if (expression.type == 'id') {
+                    if (expression.type === 'id') {
                         return expression.value;
                     }
-                    if (expression.type == '.') {
+                    if (expression.type === '.') {
                         return `${format(expression.target)}.${format(expression.member)}`;
                     }
                     return null;
@@ -7016,7 +7016,7 @@ python.Execution = class {
                 throw new python.Error("Unsupported condition.");
             }
             case 'for': {
-                if (statement.target.length == 1 &&
+                if (statement.target.length === 1 &&
                     statement.variable.length === 1 && statement.variable[0].type === 'id') {
                     const range = this.expression(statement.target[0], context);
                     const [variable] = statement.variable;
@@ -7194,7 +7194,7 @@ python.Execution = class {
                 break;
             }
             case '.': {
-                if (expression.member.type == 'id') {
+                if (expression.member.type === 'id') {
                     const target = this.target(expression.target, context);
                     return target[expression.member.value];
                 }
@@ -7508,14 +7508,14 @@ python.BinaryReader = class {
 
     string(size, encoding) {
         const data = this.read(size);
-        return (encoding == 'utf-8') ?
+        return (encoding === 'utf-8') ?
             this._utf8Decoder.decode(data) :
             this._asciiDecoder.decode(data);
     }
 
     line() {
         const index = this._buffer.indexOf(0x0A, this._position);
-        if (index == -1) {
+        if (index === -1) {
             throw new python.Error("Could not find end of line.");
         }
         const size = index - this._position;
@@ -7604,7 +7604,7 @@ python.StreamReader = class {
 
     string(size, encoding) {
         const data = this.read(size);
-        return (encoding == 'utf-8') ?
+        return (encoding === 'utf-8') ?
             this._utf8Decoder.decode(data) :
             this._asciiDecoder.decode(data);
     }
@@ -7612,13 +7612,13 @@ python.StreamReader = class {
     line() {
         let position = this._fill(0);
         let index = this._buffer.indexOf(0x0A, position);
-        if (index == -1) {
+        if (index === -1) {
             const size = Math.min(0x1000000, this._stream.length - this._position);
             this._fill(size);
             this.skip(-size);
             position = this._fill(0);
             index = this._buffer.indexOf(0x0A, position);
-            if (index == -1) {
+            if (index === -1) {
                 throw new python.Error("Could not find end of line.");
             }
         }

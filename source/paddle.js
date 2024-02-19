@@ -128,8 +128,8 @@ paddle.ModelFactory = class {
                         const blockVars = new Set();
                         for (const variable of block.vars) {
                             if (variable.persistable && variable.type &&
-                                variable.type.type != paddle.DataType.FETCH_LIST &&
-                                variable.type.type != paddle.DataType.FEED_MINIBATCH) {
+                                variable.type.type !== paddle.DataType.FETCH_LIST &&
+                                variable.type.type !== paddle.DataType.FEED_MINIBATCH) {
                                 blockVars.add(variable.name);
                             }
                         }
@@ -279,7 +279,7 @@ paddle.Graph = class {
             const values = new Map();
             for (const variable of block.vars) {
                 const type = variable.type && variable.type.type && variable.type.lod_tensor && variable.type.lod_tensor.tensor ? paddle.Utility.createTensorType(variable.type.lod_tensor.tensor.data_type, variable.type.lod_tensor.tensor.dims) : null;
-                const tensor = variable.persistable && variable.type && variable.type.type != paddle.DataType.FETCH_LIST && variable.type.type != paddle.DataType.FEED_MINIBATCH ? (tensors.get(variable.name) || new paddle.Tensor(type)) : null;
+                const tensor = variable.persistable && variable.type && variable.type.type !== paddle.DataType.FETCH_LIST && variable.type.type !== paddle.DataType.FEED_MINIBATCH ? (tensors.get(variable.name) || new paddle.Tensor(type)) : null;
                 values.set(variable.name, new paddle.Value(variable.name, type, tensor));
             }
             const scope = {};
@@ -318,27 +318,27 @@ paddle.Graph = class {
             let lastNode = null;
             let lastOutput = null;
             for (const op of block.ops) {
-                if (op.type == 'feed') {
-                    const name = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
+                if (op.type === 'feed') {
+                    const name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
                     const argument = new paddle.Argument(name, op.outputs[0].arguments.map((id) => values.get(id)));
                     this.inputs.push(argument);
-                } else if (op.type == 'fetch') {
-                    const name = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
+                } else if (op.type === 'fetch') {
+                    const name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
                     const argument = new paddle.Argument(name, op.inputs[0].arguments.map((id) => values.get(id)));
                     this.outputs.push(argument);
                 } else {
                     const node = new paddle.Node(metadata, op, values);
-                    if (op.inputs.length == 1 && op.inputs[0].arguments.length == 1 &&
-                        op.outputs.length >= 1 && op.outputs[0].arguments.length == 1 &&
-                        op.inputs[0].arguments[0].split('\n').shift() == op.outputs[0].arguments[0].split('\n').shift() &&
+                    if (op.inputs.length === 1 && op.inputs[0].arguments.length === 1 &&
+                        op.outputs.length >= 1 && op.outputs[0].arguments.length === 1 &&
+                        op.inputs[0].arguments[0].split('\n').shift() === op.outputs[0].arguments[0].split('\n').shift() &&
                         lastNode &&
-                        lastOutput == op.inputs[0].arguments[0].split('\n').shift()) {
+                        lastOutput === op.inputs[0].arguments[0].split('\n').shift()) {
                         lastNode.chain.push(node);
                     } else {
                         this.nodes.push(node);
                         lastNode = null;
                         lastOutput = null;
-                        if (op.outputs.length == 1 && op.outputs[0].arguments.length == 1) {
+                        if (op.outputs.length === 1 && op.outputs[0].arguments.length === 1) {
                             lastNode = node;
                             lastOutput = op.outputs[0].arguments[0].split('\n').shift();
                         }
@@ -477,10 +477,10 @@ paddle.Node = class {
                 if (meta) {
                     if (meta.default !== undefined) {
                         const defaultValue = meta.default;
-                        if (defaultValue == value) {
+                        if (defaultValue === value) {
                             visible = false;
-                        } else if (Array.isArray(value) && Array.isArray(defaultValue) && value.length == defaultValue.length) {
-                            if (value.every((item, index) => item == defaultValue[index])) {
+                        } else if (Array.isArray(value) && Array.isArray(defaultValue) && value.length === defaultValue.length) {
+                            if (value.every((item, index) => item === defaultValue[index])) {
                                 visible = false;
                             }
                         }
@@ -512,7 +512,7 @@ paddle.Node = class {
         for (const [list, name] of updates) {
             let item = null;
             for (let i = 0; i < list.length; i++) {
-                if (list[i].name == name) {
+                if (list[i].name === name) {
                     item = list[i];
                     list.splice(i, 1);
                     break;
@@ -551,7 +551,7 @@ paddle.TensorShape = class {
     constructor(dimensions) {
         dimensions = dimensions.map((dim) => typeof dim === 'bigint' ? Number(dim) : dim);
         this.dimensions = dimensions.map((dimension) => {
-            return dimension != -1 ? dimension : '?';
+            return dimension !== -1 ? dimension : '?';
         });
     }
 

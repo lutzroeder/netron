@@ -912,7 +912,7 @@ darknet.Attribute = class {
             if (metadata && metadata.visible === false) {
                 this._visible = false;
             } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
-                if (this._value == metadata.default) {
+                if (this._value === metadata.default) {
                     this._visible = false;
                 }
             }
@@ -932,7 +932,7 @@ darknet.Attribute = class {
     }
 
     get visible() {
-        return this._visible == false ? false : true;
+        return this._visible === false ? false : true;
     }
 };
 
@@ -991,7 +991,7 @@ darknet.TensorShape = class {
 
     toString() {
         if (this._dimensions) {
-            if (this._dimensions.length == 0) {
+            if (this._dimensions.length === 0) {
                 return '';
             }
             return `[${this._dimensions.map((dimension) => dimension.toString()).join(',')}]`;
@@ -1086,7 +1086,7 @@ darknet.Weights = class {
     }
 
     validate() {
-        if (this._reader.position != this._reader.length) {
+        if (this._reader.position !== this._reader.length) {
             throw new darknet.Error('Invalid weights size.');
         }
     }

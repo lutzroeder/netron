@@ -394,7 +394,7 @@ CoreML.Specification.Model = class Model {
 
     get Type() {
         CoreML.Specification.Model.TypeSet = CoreML.Specification.Model.TypeSet || new Set(["pipelineClassifier", "pipelineRegressor", "pipeline", "glmRegressor", "supportVectorRegressor", "treeEnsembleRegressor", "neuralNetworkRegressor", "bayesianProbitRegressor", "glmClassifier", "supportVectorClassifier", "treeEnsembleClassifier", "neuralNetworkClassifier", "kNearestNeighborsClassifier", "neuralNetwork", "itemSimilarityRecommender", "mlProgram", "customModel", "linkedModel", "classConfidenceThresholding", "oneHotEncoder", "imputer", "featureVectorizer", "dictVectorizer", "scaler", "categoricalMapping", "normalizer", "arrayFeatureExtractor", "nonMaximumSuppression", "identity", "textClassifier", "wordTagger", "visionFeaturePrint", "soundAnalysisPreprocessing", "gazetteer", "wordEmbedding", "audioFeaturePrint", "serializedModel"]);
-        return Object.keys(this).find((key) => CoreML.Specification.Model.TypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.Model.TypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -679,7 +679,7 @@ CoreML.Specification.CoreMLModels.VisionFeaturePrint = class VisionFeaturePrint 
 
     get VisionFeaturePrintType() {
         CoreML.Specification.CoreMLModels.VisionFeaturePrint.VisionFeaturePrintTypeSet = CoreML.Specification.CoreMLModels.VisionFeaturePrint.VisionFeaturePrintTypeSet || new Set(["scene", "objects"]);
-        return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.VisionFeaturePrint.VisionFeaturePrintTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.VisionFeaturePrint.VisionFeaturePrintTypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -832,7 +832,7 @@ CoreML.Specification.CoreMLModels.AudioFeaturePrint = class AudioFeaturePrint {
 
     get AudioFeaturePrintType() {
         CoreML.Specification.CoreMLModels.AudioFeaturePrint.AudioFeaturePrintTypeSet = CoreML.Specification.CoreMLModels.AudioFeaturePrint.AudioFeaturePrintTypeSet || new Set(["sound"]);
-        return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.AudioFeaturePrint.AudioFeaturePrintTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.AudioFeaturePrint.AudioFeaturePrintTypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -924,7 +924,7 @@ CoreML.Specification.CoreMLModels.TextClassifier = class TextClassifier {
 
     get ClassLabels() {
         CoreML.Specification.CoreMLModels.TextClassifier.ClassLabelsSet = CoreML.Specification.CoreMLModels.TextClassifier.ClassLabelsSet || new Set(["stringClassLabels"]);
-        return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.TextClassifier.ClassLabelsSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.TextClassifier.ClassLabelsSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -991,7 +991,7 @@ CoreML.Specification.CoreMLModels.WordTagger = class WordTagger {
 
     get Tags() {
         CoreML.Specification.CoreMLModels.WordTagger.TagsSet = CoreML.Specification.CoreMLModels.WordTagger.TagsSet || new Set(["stringTags"]);
-        return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.WordTagger.TagsSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.WordTagger.TagsSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -1086,7 +1086,7 @@ CoreML.Specification.CoreMLModels.Gazetteer = class Gazetteer {
 
     get ClassLabels() {
         CoreML.Specification.CoreMLModels.Gazetteer.ClassLabelsSet = CoreML.Specification.CoreMLModels.Gazetteer.ClassLabelsSet || new Set(["stringClassLabels"]);
-        return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.Gazetteer.ClassLabelsSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.Gazetteer.ClassLabelsSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -1209,7 +1209,7 @@ CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing = class SoundAnalys
 
     get SoundAnalysisPreprocessingType() {
         CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.SoundAnalysisPreprocessingTypeSet = CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.SoundAnalysisPreprocessingTypeSet || new Set(["vggish"]);
-        return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.SoundAnalysisPreprocessingTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.SoundAnalysisPreprocessingTypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -1969,7 +1969,7 @@ CoreML.Specification.ImageFeatureType = class ImageFeatureType {
 
     get SizeFlexibility() {
         CoreML.Specification.ImageFeatureType.SizeFlexibilitySet = CoreML.Specification.ImageFeatureType.SizeFlexibilitySet || new Set(["enumeratedSizes", "imageSizeRange"]);
-        return Object.keys(this).find((key) => CoreML.Specification.ImageFeatureType.SizeFlexibilitySet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.ImageFeatureType.SizeFlexibilitySet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -2190,12 +2190,12 @@ CoreML.Specification.ArrayFeatureType = class ArrayFeatureType {
 
     get ShapeFlexibility() {
         CoreML.Specification.ArrayFeatureType.ShapeFlexibilitySet = CoreML.Specification.ArrayFeatureType.ShapeFlexibilitySet || new Set(["enumeratedShapes", "shapeRange"]);
-        return Object.keys(this).find((key) => CoreML.Specification.ArrayFeatureType.ShapeFlexibilitySet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.ArrayFeatureType.ShapeFlexibilitySet.has(key) && this[key] !== null);
     }
 
     get defaultOptionalValue() {
         CoreML.Specification.ArrayFeatureType.defaultOptionalValueSet = CoreML.Specification.ArrayFeatureType.defaultOptionalValueSet || new Set(["intDefaultValue", "floatDefaultValue", "doubleDefaultValue"]);
-        return Object.keys(this).find((key) => CoreML.Specification.ArrayFeatureType.defaultOptionalValueSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.ArrayFeatureType.defaultOptionalValueSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -2409,7 +2409,7 @@ CoreML.Specification.DictionaryFeatureType = class DictionaryFeatureType {
 
     get KeyType() {
         CoreML.Specification.DictionaryFeatureType.KeyTypeSet = CoreML.Specification.DictionaryFeatureType.KeyTypeSet || new Set(["int64KeyType", "stringKeyType"]);
-        return Object.keys(this).find((key) => CoreML.Specification.DictionaryFeatureType.KeyTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.DictionaryFeatureType.KeyTypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -2460,7 +2460,7 @@ CoreML.Specification.SequenceFeatureType = class SequenceFeatureType {
 
     get Type() {
         CoreML.Specification.SequenceFeatureType.TypeSet = CoreML.Specification.SequenceFeatureType.TypeSet || new Set(["int64Type", "stringType"]);
-        return Object.keys(this).find((key) => CoreML.Specification.SequenceFeatureType.TypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.SequenceFeatureType.TypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -2519,7 +2519,7 @@ CoreML.Specification.FeatureType = class FeatureType {
 
     get Type() {
         CoreML.Specification.FeatureType.TypeSet = CoreML.Specification.FeatureType.TypeSet || new Set(["int64Type", "doubleType", "stringType", "imageType", "multiArrayType", "dictionaryType", "sequenceType"]);
-        return Object.keys(this).find((key) => CoreML.Specification.FeatureType.TypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.FeatureType.TypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -2908,12 +2908,12 @@ CoreML.Specification.CategoricalMapping = class CategoricalMapping {
 
     get MappingType() {
         CoreML.Specification.CategoricalMapping.MappingTypeSet = CoreML.Specification.CategoricalMapping.MappingTypeSet || new Set(["stringToInt64Map", "int64ToStringMap"]);
-        return Object.keys(this).find((key) => CoreML.Specification.CategoricalMapping.MappingTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.CategoricalMapping.MappingTypeSet.has(key) && this[key] !== null);
     }
 
     get ValueOnUnknown() {
         CoreML.Specification.CategoricalMapping.ValueOnUnknownSet = CoreML.Specification.CategoricalMapping.ValueOnUnknownSet || new Set(["strValue", "int64Value"]);
-        return Object.keys(this).find((key) => CoreML.Specification.CategoricalMapping.ValueOnUnknownSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.CategoricalMapping.ValueOnUnknownSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -3032,7 +3032,7 @@ CoreML.Specification.CustomModel.CustomModelParamValue = class CustomModelParamV
 
     get value() {
         CoreML.Specification.CustomModel.CustomModelParamValue.valueSet = CoreML.Specification.CustomModel.CustomModelParamValue.valueSet || new Set(["doubleValue", "stringValue", "intValue", "longValue", "boolValue", "bytesValue"]);
-        return Object.keys(this).find((key) => CoreML.Specification.CustomModel.CustomModelParamValue.valueSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.CustomModel.CustomModelParamValue.valueSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -3107,7 +3107,7 @@ CoreML.Specification.DictVectorizer = class DictVectorizer {
 
     get Map() {
         CoreML.Specification.DictVectorizer.MapSet = CoreML.Specification.DictVectorizer.MapSet || new Set(["stringToIndex", "int64ToIndex"]);
-        return Object.keys(this).find((key) => CoreML.Specification.DictVectorizer.MapSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.DictVectorizer.MapSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -3353,7 +3353,7 @@ CoreML.Specification.GLMClassifier = class GLMClassifier {
 
     get ClassLabels() {
         CoreML.Specification.GLMClassifier.ClassLabelsSet = CoreML.Specification.GLMClassifier.ClassLabelsSet || new Set(["stringClassLabels", "int64ClassLabels"]);
-        return Object.keys(this).find((key) => CoreML.Specification.GLMClassifier.ClassLabelsSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.GLMClassifier.ClassLabelsSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -3482,17 +3482,17 @@ CoreML.Specification.KNearestNeighborsClassifier = class KNearestNeighborsClassi
 
     get ClassLabels() {
         CoreML.Specification.KNearestNeighborsClassifier.ClassLabelsSet = CoreML.Specification.KNearestNeighborsClassifier.ClassLabelsSet || new Set(["stringClassLabels", "int64ClassLabels"]);
-        return Object.keys(this).find((key) => CoreML.Specification.KNearestNeighborsClassifier.ClassLabelsSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.KNearestNeighborsClassifier.ClassLabelsSet.has(key) && this[key] !== null);
     }
 
     get DefaultClassLabel() {
         CoreML.Specification.KNearestNeighborsClassifier.DefaultClassLabelSet = CoreML.Specification.KNearestNeighborsClassifier.DefaultClassLabelSet || new Set(["defaultStringLabel", "defaultInt64Label"]);
-        return Object.keys(this).find((key) => CoreML.Specification.KNearestNeighborsClassifier.DefaultClassLabelSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.KNearestNeighborsClassifier.DefaultClassLabelSet.has(key) && this[key] !== null);
     }
 
     get WeightingScheme() {
         CoreML.Specification.KNearestNeighborsClassifier.WeightingSchemeSet = CoreML.Specification.KNearestNeighborsClassifier.WeightingSchemeSet || new Set(["uniformWeighting", "inverseDistanceWeighting"]);
-        return Object.keys(this).find((key) => CoreML.Specification.KNearestNeighborsClassifier.WeightingSchemeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.KNearestNeighborsClassifier.WeightingSchemeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -3583,12 +3583,12 @@ CoreML.Specification.NearestNeighborsIndex = class NearestNeighborsIndex {
 
     get IndexType() {
         CoreML.Specification.NearestNeighborsIndex.IndexTypeSet = CoreML.Specification.NearestNeighborsIndex.IndexTypeSet || new Set(["linearIndex", "singleKdTreeIndex"]);
-        return Object.keys(this).find((key) => CoreML.Specification.NearestNeighborsIndex.IndexTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.NearestNeighborsIndex.IndexTypeSet.has(key) && this[key] !== null);
     }
 
     get DistanceFunction() {
         CoreML.Specification.NearestNeighborsIndex.DistanceFunctionSet = CoreML.Specification.NearestNeighborsIndex.DistanceFunctionSet || new Set(["squaredEuclideanDistance"]);
-        return Object.keys(this).find((key) => CoreML.Specification.NearestNeighborsIndex.DistanceFunctionSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.NearestNeighborsIndex.DistanceFunctionSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -3837,7 +3837,7 @@ CoreML.Specification.Int64Parameter = class Int64Parameter {
 
     get AllowedValues() {
         CoreML.Specification.Int64Parameter.AllowedValuesSet = CoreML.Specification.Int64Parameter.AllowedValuesSet || new Set(["range", "set"]);
-        return Object.keys(this).find((key) => CoreML.Specification.Int64Parameter.AllowedValuesSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.Int64Parameter.AllowedValuesSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -3896,7 +3896,7 @@ CoreML.Specification.DoubleParameter = class DoubleParameter {
 
     get AllowedValues() {
         CoreML.Specification.DoubleParameter.AllowedValuesSet = CoreML.Specification.DoubleParameter.AllowedValuesSet || new Set(["range"]);
-        return Object.keys(this).find((key) => CoreML.Specification.DoubleParameter.AllowedValuesSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.DoubleParameter.AllowedValuesSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -4067,12 +4067,12 @@ CoreML.Specification.Imputer = class Imputer {
 
     get ImputedValue() {
         CoreML.Specification.Imputer.ImputedValueSet = CoreML.Specification.Imputer.ImputedValueSet || new Set(["imputedDoubleValue", "imputedInt64Value", "imputedStringValue", "imputedDoubleArray", "imputedInt64Array", "imputedStringDictionary", "imputedInt64Dictionary"]);
-        return Object.keys(this).find((key) => CoreML.Specification.Imputer.ImputedValueSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.Imputer.ImputedValueSet.has(key) && this[key] !== null);
     }
 
     get ReplaceValue() {
         CoreML.Specification.Imputer.ReplaceValueSet = CoreML.Specification.Imputer.ReplaceValueSet || new Set(["replaceDoubleValue", "replaceInt64Value", "replaceStringValue"]);
-        return Object.keys(this).find((key) => CoreML.Specification.Imputer.ReplaceValueSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.Imputer.ReplaceValueSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -4402,7 +4402,7 @@ CoreML.Specification.MILSpec.Argument.Binding = class Binding {
 
     get binding() {
         CoreML.Specification.MILSpec.Argument.Binding.bindingSet = CoreML.Specification.MILSpec.Argument.Binding.bindingSet || new Set(["name", "value"]);
-        return Object.keys(this).find((key) => CoreML.Specification.MILSpec.Argument.Binding.bindingSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.MILSpec.Argument.Binding.bindingSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -4572,7 +4572,7 @@ CoreML.Specification.MILSpec.ValueType = class ValueType {
 
     get type() {
         CoreML.Specification.MILSpec.ValueType.typeSet = CoreML.Specification.MILSpec.ValueType.typeSet || new Set(["tensorType", "listType", "tupleType", "dictionaryType"]);
-        return Object.keys(this).find((key) => CoreML.Specification.MILSpec.ValueType.typeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.MILSpec.ValueType.typeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -4855,7 +4855,7 @@ CoreML.Specification.MILSpec.Dimension = class Dimension {
 
     get dimension() {
         CoreML.Specification.MILSpec.Dimension.dimensionSet = CoreML.Specification.MILSpec.Dimension.dimensionSet || new Set(["constant", "unknown"]);
-        return Object.keys(this).find((key) => CoreML.Specification.MILSpec.Dimension.dimensionSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.MILSpec.Dimension.dimensionSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -4990,7 +4990,7 @@ CoreML.Specification.MILSpec.Value = class Value {
 
     get value() {
         CoreML.Specification.MILSpec.Value.valueSet = CoreML.Specification.MILSpec.Value.valueSet || new Set(["immediateValue", "blobFileValue"]);
-        return Object.keys(this).find((key) => CoreML.Specification.MILSpec.Value.valueSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.MILSpec.Value.valueSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -5056,7 +5056,7 @@ CoreML.Specification.MILSpec.Value.ImmediateValue = class ImmediateValue {
 
     get value() {
         CoreML.Specification.MILSpec.Value.ImmediateValue.valueSet = CoreML.Specification.MILSpec.Value.ImmediateValue.valueSet || new Set(["tensor", "tuple", "list", "dictionary"]);
-        return Object.keys(this).find((key) => CoreML.Specification.MILSpec.Value.ImmediateValue.valueSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.MILSpec.Value.ImmediateValue.valueSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -5168,7 +5168,7 @@ CoreML.Specification.MILSpec.TensorValue = class TensorValue {
 
     get value() {
         CoreML.Specification.MILSpec.TensorValue.valueSet = CoreML.Specification.MILSpec.TensorValue.valueSet || new Set(["floats", "ints", "bools", "strings", "longInts", "doubles", "bytes"]);
-        return Object.keys(this).find((key) => CoreML.Specification.MILSpec.TensorValue.valueSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.MILSpec.TensorValue.valueSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -5900,7 +5900,7 @@ CoreML.Specification.NeuralNetworkPreprocessing = class NeuralNetworkPreprocessi
 
     get preprocessor() {
         CoreML.Specification.NeuralNetworkPreprocessing.preprocessorSet = CoreML.Specification.NeuralNetworkPreprocessing.preprocessorSet || new Set(["scaler", "meanImage"]);
-        return Object.keys(this).find((key) => CoreML.Specification.NeuralNetworkPreprocessing.preprocessorSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.NeuralNetworkPreprocessing.preprocessorSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -6493,7 +6493,7 @@ CoreML.Specification.ActivationParams = class ActivationParams {
 
     get NonlinearityType() {
         CoreML.Specification.ActivationParams.NonlinearityTypeSet = CoreML.Specification.ActivationParams.NonlinearityTypeSet || new Set(["linear", "ReLU", "leakyReLU", "thresholdedReLU", "PReLU", "tanh", "scaledTanh", "sigmoid", "sigmoidHard", "ELU", "softsign", "softplus", "parametricSoftplus"]);
-        return Object.keys(this).find((key) => CoreML.Specification.ActivationParams.NonlinearityTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.ActivationParams.NonlinearityTypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -6663,7 +6663,7 @@ CoreML.Specification.NeuralNetworkLayer = class NeuralNetworkLayer {
 
     get layer() {
         CoreML.Specification.NeuralNetworkLayer.layerSet = CoreML.Specification.NeuralNetworkLayer.layerSet || new Set(["convolution", "pooling", "activation", "innerProduct", "embedding", "batchnorm", "mvn", "l2normalize", "softmax", "lrn", "crop", "padding", "upsample", "resizeBilinear", "cropResize", "unary", "add", "multiply", "average", "scale", "bias", "max", "min", "dot", "reduce", "loadConstant", "reshape", "flatten", "permute", "concat", "split", "sequenceRepeat", "reorganizeData", "slice", "simpleRecurrent", "gru", "uniDirectionalLSTM", "biDirectionalLSTM", "custom", "copy", "branch", "loop", "loopBreak", "loopContinue", "rangeStatic", "rangeDynamic", "clip", "ceil", "floor", "sign", "round", "exp2", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh", "erf", "gelu", "equal", "notEqual", "lessThan", "lessEqual", "greaterThan", "greaterEqual", "logicalOr", "logicalXor", "logicalNot", "logicalAnd", "modBroadcastable", "minBroadcastable", "maxBroadcastable", "addBroadcastable", "powBroadcastable", "divideBroadcastable", "floorDivBroadcastable", "multiplyBroadcastable", "subtractBroadcastable", "tile", "stack", "gather", "scatter", "gatherND", "scatterND", "softmaxND", "gatherAlongAxis", "scatterAlongAxis", "reverse", "reverseSeq", "splitND", "concatND", "transpose", "sliceStatic", "sliceDynamic", "slidingWindows", "topK", "argMin", "argMax", "embeddingND", "batchedMatmul", "getShape", "loadConstantND", "fillLike", "fillStatic", "fillDynamic", "broadcastToLike", "broadcastToStatic", "broadcastToDynamic", "squeeze", "expandDims", "flattenTo2D", "reshapeLike", "reshapeStatic", "reshapeDynamic", "rankPreservingReshape", "constantPad", "randomNormalLike", "randomNormalStatic", "randomNormalDynamic", "randomUniformLike", "randomUniformStatic", "randomUniformDynamic", "randomBernoulliLike", "randomBernoulliStatic", "randomBernoulliDynamic", "categoricalDistribution", "reduceL1", "reduceL2", "reduceMax", "reduceMin", "reduceSum", "reduceProd", "reduceMean", "reduceLogSum", "reduceSumSquare", "reduceLogSumExp", "whereNonZero", "matrixBandPart", "lowerTriangular", "upperTriangular", "whereBroadcastable", "layerNormalization", "NonMaximumSuppression", "oneHot", "cumSum", "clampedReLU", "argSort", "pooling3d", "globalPooling3d", "sliceBySize", "convolution3d"]);
-        return Object.keys(this).find((key) => CoreML.Specification.NeuralNetworkLayer.layerSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.NeuralNetworkLayer.layerSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -8645,7 +8645,7 @@ CoreML.Specification.QuantizationParams = class QuantizationParams {
 
     get QuantizationType() {
         CoreML.Specification.QuantizationParams.QuantizationTypeSet = CoreML.Specification.QuantizationParams.QuantizationTypeSet || new Set(["linearQuantization", "lookupTableQuantization"]);
-        return Object.keys(this).find((key) => CoreML.Specification.QuantizationParams.QuantizationTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.QuantizationParams.QuantizationTypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -8797,7 +8797,7 @@ CoreML.Specification.ConvolutionLayerParams = class ConvolutionLayerParams {
 
     get ConvolutionPaddingType() {
         CoreML.Specification.ConvolutionLayerParams.ConvolutionPaddingTypeSet = CoreML.Specification.ConvolutionLayerParams.ConvolutionPaddingTypeSet || new Set(["valid", "same"]);
-        return Object.keys(this).find((key) => CoreML.Specification.ConvolutionLayerParams.ConvolutionPaddingTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.ConvolutionLayerParams.ConvolutionPaddingTypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -9441,7 +9441,7 @@ CoreML.Specification.PoolingLayerParams = class PoolingLayerParams {
 
     get PoolingPaddingType() {
         CoreML.Specification.PoolingLayerParams.PoolingPaddingTypeSet = CoreML.Specification.PoolingLayerParams.PoolingPaddingTypeSet || new Set(["valid", "same", "includeLastPixel"]);
-        return Object.keys(this).find((key) => CoreML.Specification.PoolingLayerParams.PoolingPaddingTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.PoolingLayerParams.PoolingPaddingTypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -9777,7 +9777,7 @@ CoreML.Specification.PaddingLayerParams = class PaddingLayerParams {
 
     get PaddingType() {
         CoreML.Specification.PaddingLayerParams.PaddingTypeSet = CoreML.Specification.PaddingLayerParams.PaddingTypeSet || new Set(["constant", "reflection", "replication"]);
-        return Object.keys(this).find((key) => CoreML.Specification.PaddingLayerParams.PaddingTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.PaddingLayerParams.PaddingTypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -12007,7 +12007,7 @@ CoreML.Specification.CustomLayerParams.CustomLayerParamValue = class CustomLayer
 
     get value() {
         CoreML.Specification.CustomLayerParams.CustomLayerParamValue.valueSet = CoreML.Specification.CustomLayerParams.CustomLayerParamValue.valueSet || new Set(["doubleValue", "stringValue", "intValue", "longValue", "boolValue"]);
-        return Object.keys(this).find((key) => CoreML.Specification.CustomLayerParams.CustomLayerParamValue.valueSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.CustomLayerParams.CustomLayerParamValue.valueSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -16544,7 +16544,7 @@ CoreML.Specification.NeuralNetworkClassifier = class NeuralNetworkClassifier {
 
     get ClassLabels() {
         CoreML.Specification.NeuralNetworkClassifier.ClassLabelsSet = CoreML.Specification.NeuralNetworkClassifier.ClassLabelsSet || new Set(["stringClassLabels", "int64ClassLabels"]);
-        return Object.keys(this).find((key) => CoreML.Specification.NeuralNetworkClassifier.ClassLabelsSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.NeuralNetworkClassifier.ClassLabelsSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -16895,7 +16895,7 @@ CoreML.Specification.LossLayer = class LossLayer {
 
     get LossLayerType() {
         CoreML.Specification.LossLayer.LossLayerTypeSet = CoreML.Specification.LossLayer.LossLayerTypeSet || new Set(["categoricalCrossEntropyLossLayer", "meanSquaredErrorLossLayer"]);
-        return Object.keys(this).find((key) => CoreML.Specification.LossLayer.LossLayerTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.LossLayer.LossLayerTypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -17052,7 +17052,7 @@ CoreML.Specification.Optimizer = class Optimizer {
 
     get OptimizerType() {
         CoreML.Specification.Optimizer.OptimizerTypeSet = CoreML.Specification.Optimizer.OptimizerTypeSet || new Set(["sgdOptimizer", "adamOptimizer"]);
-        return Object.keys(this).find((key) => CoreML.Specification.Optimizer.OptimizerTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.Optimizer.OptimizerTypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -17277,7 +17277,7 @@ CoreML.Specification.OneHotEncoder = class OneHotEncoder {
 
     get CategoryType() {
         CoreML.Specification.OneHotEncoder.CategoryTypeSet = CoreML.Specification.OneHotEncoder.CategoryTypeSet || new Set(["stringCategories", "int64Categories"]);
-        return Object.keys(this).find((key) => CoreML.Specification.OneHotEncoder.CategoryTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.OneHotEncoder.CategoryTypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -17396,12 +17396,12 @@ CoreML.Specification.NonMaximumSuppression = class NonMaximumSuppression {
 
     get SuppressionMethod() {
         CoreML.Specification.NonMaximumSuppression.SuppressionMethodSet = CoreML.Specification.NonMaximumSuppression.SuppressionMethodSet || new Set(["pickTop"]);
-        return Object.keys(this).find((key) => CoreML.Specification.NonMaximumSuppression.SuppressionMethodSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.NonMaximumSuppression.SuppressionMethodSet.has(key) && this[key] !== null);
     }
 
     get ClassLabels() {
         CoreML.Specification.NonMaximumSuppression.ClassLabelsSet = CoreML.Specification.NonMaximumSuppression.ClassLabelsSet || new Set(["stringClassLabels", "int64ClassLabels"]);
-        return Object.keys(this).find((key) => CoreML.Specification.NonMaximumSuppression.ClassLabelsSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.NonMaximumSuppression.ClassLabelsSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -17738,7 +17738,7 @@ CoreML.Specification.Kernel = class Kernel {
 
     get kernel() {
         CoreML.Specification.Kernel.kernelSet = CoreML.Specification.Kernel.kernelSet || new Set(["linearKernel", "rbfKernel", "polyKernel", "sigmoidKernel"]);
-        return Object.keys(this).find((key) => CoreML.Specification.Kernel.kernelSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.Kernel.kernelSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -18055,7 +18055,7 @@ CoreML.Specification.SupportVectorRegressor = class SupportVectorRegressor {
 
     get supportVectors() {
         CoreML.Specification.SupportVectorRegressor.supportVectorsSet = CoreML.Specification.SupportVectorRegressor.supportVectorsSet || new Set(["sparseSupportVectors", "denseSupportVectors"]);
-        return Object.keys(this).find((key) => CoreML.Specification.SupportVectorRegressor.supportVectorsSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.SupportVectorRegressor.supportVectorsSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -18133,12 +18133,12 @@ CoreML.Specification.SupportVectorClassifier = class SupportVectorClassifier {
 
     get supportVectors() {
         CoreML.Specification.SupportVectorClassifier.supportVectorsSet = CoreML.Specification.SupportVectorClassifier.supportVectorsSet || new Set(["sparseSupportVectors", "denseSupportVectors"]);
-        return Object.keys(this).find((key) => CoreML.Specification.SupportVectorClassifier.supportVectorsSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.SupportVectorClassifier.supportVectorsSet.has(key) && this[key] !== null);
     }
 
     get ClassLabels() {
         CoreML.Specification.SupportVectorClassifier.ClassLabelsSet = CoreML.Specification.SupportVectorClassifier.ClassLabelsSet || new Set(["stringClassLabels", "int64ClassLabels"]);
-        return Object.keys(this).find((key) => CoreML.Specification.SupportVectorClassifier.ClassLabelsSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.SupportVectorClassifier.ClassLabelsSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -18466,7 +18466,7 @@ CoreML.Specification.TreeEnsembleClassifier = class TreeEnsembleClassifier {
 
     get ClassLabels() {
         CoreML.Specification.TreeEnsembleClassifier.ClassLabelsSet = CoreML.Specification.TreeEnsembleClassifier.ClassLabelsSet || new Set(["stringClassLabels", "int64ClassLabels"]);
-        return Object.keys(this).find((key) => CoreML.Specification.TreeEnsembleClassifier.ClassLabelsSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.TreeEnsembleClassifier.ClassLabelsSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -18784,7 +18784,7 @@ CoreML.Specification.LinkedModel = class LinkedModel {
 
     get LinkType() {
         CoreML.Specification.LinkedModel.LinkTypeSet = CoreML.Specification.LinkedModel.LinkTypeSet || new Set(["linkedModelFile"]);
-        return Object.keys(this).find((key) => CoreML.Specification.LinkedModel.LinkTypeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CoreML.Specification.LinkedModel.LinkTypeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {

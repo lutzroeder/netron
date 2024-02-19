@@ -87,7 +87,7 @@ openvino.ModelFactory = class {
             const message = error && error.message ? error.message : error.toString();
             throw new openvino.Error(`File format is not OpenVINO XML (${message.replace(/\.$/, '')}).`);
         }
-        if (!document.documentElement || document.documentElement.localName != 'net') {
+        if (!document.documentElement || document.documentElement.localName !== 'net') {
             throw new openvino.Error('File format is not OpenVINO IR.');
         }
         const element = document.documentElement;
@@ -200,7 +200,7 @@ openvino.Graph = class {
             if (name === '') {
                 throw new openvino.Error('Empty value name.');
             }
-            const shape = port.dims.length == 0 ? null : new openvino.TensorShape(port.dims);
+            const shape = port.dims.length === 0 ? null : new openvino.TensorShape(port.dims);
             if (!precision && values.has(name)) {
                 const value = values.get(name);
                 if (value.type && value.type.shape && value.type.shape.equals(shape)) {
@@ -661,11 +661,11 @@ openvino.Attribute = class {
                             const intValue = Number.parseInt(item, 10);
                             if (Number.isNaN(item - intValue)) {
                                 ints = null;
-                            } else if (ints != null) {
+                            } else if (ints !== null) {
                                 ints.push(intValue);
                             }
                         }
-                        if (ints != null) {
+                        if (ints !== null) {
                             this.value = ints;
                         }
                     }
@@ -678,11 +678,11 @@ openvino.Attribute = class {
                             const floatValue = Number.parseFloat(item);
                             if (Number.isNaN(item - floatValue)) {
                                 floats = null;
-                            } else if (floats != null) {
+                            } else if (floats !== null) {
                                 floats.push(floatValue);
                             }
                         }
-                        if (floats != null) {
+                        if (floats !== null) {
                             this.value = floats;
                         }
                     }
@@ -691,21 +691,21 @@ openvino.Attribute = class {
                     throw new openvino.Error(`Unsupported attribute type '${metadata.type}'.`);
             }
         }
-        if (metadata && metadata.visible == false) {
+        if (metadata && metadata.visible === false) {
             this.visible = false;
         } else if (metadata && metadata.default !== undefined) {
             let defaultValue = metadata.default;
-            if (this.value == defaultValue) {
+            if (this.value === defaultValue) {
                 this.visible = false;
             } else if (Array.isArray(this.value) && Array.isArray(defaultValue)) {
                 defaultValue = defaultValue.slice(0, defaultValue.length);
-                if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
+                if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] === null) {
                     defaultValue.pop();
                     while (defaultValue.length < this.value.length) {
                         defaultValue.push(defaultValue[defaultValue.length - 1]);
                     }
                 }
-                if (this.value.every((item, index) => item == defaultValue[index])) {
+                if (this.value.every((item, index) => item === defaultValue[index])) {
                     this.visible = false;
                 }
             }
@@ -761,7 +761,7 @@ openvino.TensorType = class {
     }
 
     toString() {
-        if (this.shape == null) {
+        if (this.shape === null) {
             return `${this.dataType}[?]`;
         }
         return this.dataType + this.shape.toString();
@@ -781,7 +781,7 @@ openvino.TensorShape = class {
     }
 
     toString() {
-        if (!this.dimensions || this.dimensions.length == 0) {
+        if (!this.dimensions || this.dimensions.length === 0) {
             return '';
         }
         return `[${this.dimensions.join(',')}]`;

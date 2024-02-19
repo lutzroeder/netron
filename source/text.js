@@ -43,7 +43,7 @@ text.Decoder = class {
         if (length >= 4 && buffer[0] === 0x84 && buffer[1] === 0x31 && buffer[2] === 0x95 && buffer[3] === 0x33) {
             throw new text.Error("Unsupported GB-18030 encoding.");
         }
-        if (length > 4 && (length % 2) == 0 && (buffer[0] === 0x00 || buffer[1] === 0x00 || buffer[2] === 0x00 || buffer[3] === 0x00)) {
+        if (length > 4 && (length % 2) === 0 && (buffer[0] === 0x00 || buffer[1] === 0x00 || buffer[2] === 0x00 || buffer[3] === 0x00)) {
             const lo = new Uint32Array(256);
             const hi = new Uint32Array(256);
             const size = Math.min(1024, length);

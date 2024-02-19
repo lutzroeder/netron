@@ -1197,7 +1197,7 @@ protoc.Generator = class {
             this._builder.add(`get ${oneof.name}() {`);
             this._builder.indent();
                 this._builder.add(`${name}.${oneof.name}Set = ${name}.${oneof.name}Set || new Set([${Array.from(oneof.oneof.keys()).map(JSON.stringify).join(', ')}]);`);
-                this._builder.add(`return Object.keys(this).find((key) => ${name}.${oneof.name}Set.has(key) && this[key] != null);`);
+                this._builder.add(`return Object.keys(this).find((key) => ${name}.${oneof.name}Set.has(key) && this[key] !== null);`);
             this._builder.outdent();
             this._builder.add('}');
             /* eslint-enable indent */

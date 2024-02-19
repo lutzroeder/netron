@@ -6,7 +6,7 @@ const zlib = {};
 zip.Archive = class {
 
     static async import() {
-        if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
+        if (typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node !== 'undefined') {
             zip.zlib = await import('zlib');
         }
     }
@@ -147,7 +147,7 @@ zip.Archive = class {
             reader.uint16(); // version made by
             reader.skip(2); // version needed to extract
             const flags = reader.uint16();
-            if ((flags & 1) == 1) {
+            if ((flags & 1) === 1) {
                 throw new zip.Error('Encrypted Zip entries not supported.');
             }
             header.encoding = flags & 0x800 ? 'utf-8' : 'ascii';
@@ -307,7 +307,7 @@ zip.Inflater = class {
                         throw new zip.Error('Unsupported block type.');
                     }
                 }
-            } while ((type & 1) == 0);
+            } while ((type & 1) === 0);
             if (length !== undefined && length !== writer.length) {
                 throw new zip.Error('Invalid uncompressed size.');
             }
@@ -457,7 +457,7 @@ zip.HuffmanTree = class {
                 const rest = bits - c;
                 let index = codes[i] << rest;
                 const max = index + (1 << rest);
-                for (; index != max; index++) {
+                for (; index !== max; index++) {
                     table[rev15[index] >>> shift] = value;
                 }
             }
@@ -833,24 +833,24 @@ gzip.Archive = class {
             return content;
         };
         const reader = new zip.BinaryReader(stream.read(8));
-        const compressionMethod = reader.byte();
-        if (compressionMethod != 8) {
+        const compression = reader.byte();
+        if (compression !== 8) {
             stream.seek(position);
-            throw new gzip.Error(`Invalid compression method '${compressionMethod}'.`);
+            throw new gzip.Error(`Invalid compression method '${compression}'.`);
         }
         const flags = reader.byte();
         reader.uint32(); // MTIME
         reader.byte(); // XFL
         reader.byte(); // OS
-        if ((flags & 4) != 0) { // FEXTRA
+        if ((flags & 4) !== 0) { // FEXTRA
             const xlen = stream.byte() | (stream.byte() << 8);
             stream.skip(xlen);
         }
-        const name = (flags & 8) != 0 ? string() : ''; // FNAME
-        if ((flags & 16) != 0) { // FCOMMENT
+        const name = (flags & 8) !== 0 ? string() : ''; // FNAME
+        if ((flags & 16) !== 0) { // FCOMMENT
             string();
         }
-        if ((flags & 1) != 0) { // FHCRC
+        if ((flags & 1) !== 0) { // FHCRC
             stream.skip(2);
         }
         this._entries = new Map([[name, new gzip.InflaterStream(stream)]]);

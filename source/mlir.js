@@ -302,7 +302,7 @@ mlir.TensorShape = class {
     }
 
     toString() {
-        if (!this.dimensions || this.dimensions.length == 0) {
+        if (!this.dimensions || this.dimensions.length === 0) {
             return '';
         }
         return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
@@ -763,7 +763,7 @@ mlir.Parser = class {
         // func keyword
         this._read(mlir.TokenType.KEYWORD);
         let visibility = null;
-        if (this._current.type != mlir.TokenType.SYMBOL_REF_ID) {
+        if (this._current.type !== mlir.TokenType.SYMBOL_REF_ID) {
             visibility = this._current.value;
             this._read(this._current.type);
         }
@@ -988,7 +988,7 @@ mlir.Parser = class {
         }
         const result = [];
         for (const output of outputs) {
-            if (output.split(':').length == 2) {
+            if (output.split(':').length === 2) {
                 const [valueId, length] = output.split(':');
                 for (let i = 0; i < length; i++) {
                     result.push(`${valueId}#${i}`);

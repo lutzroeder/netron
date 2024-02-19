@@ -237,7 +237,7 @@ dl4j.Node = class {
                 if (activation.__type__.startsWith('Activation')) {
                     activation.__type__ = activation.__type__.substring('Activation'.length);
                 }
-                if (this.type == 'Activation') {
+                if (this.type === 'Activation') {
                     this.type = activation.__type__;
                     attributes = activation;
                 } else {
@@ -320,7 +320,7 @@ dl4j.TensorShape = class {
 
     toString() {
         if (this.dimensions) {
-            if (this.dimensions.length == 0) {
+            if (this.dimensions.length === 0) {
                 return '';
             }
             return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;

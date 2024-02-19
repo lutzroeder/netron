@@ -5,7 +5,7 @@ modular.ModelFactory = class {
 
     match(context) {
         const obj = context.peek('json');
-        if (obj && obj.signature == "netron:modular") {
+        if (obj && obj.signature === "netron:modular") {
             context.type = 'modular';
             context.target = obj;
         }
@@ -91,10 +91,10 @@ modular.Node = class {
 
     constructor(node) {
         this._name = node.type.name;
-        if (node.type.category == 'List') {
+        if (node.type.category === 'List') {
             this._category = 'Data';
-        } else if (node.type.category == 'ControlFlow') {
-            this._category == 'Control';
+        } else if (node.type.category === 'ControlFlow') {
+            this._category === 'Control';
         } else {
             this._category = node.type.category;
         }

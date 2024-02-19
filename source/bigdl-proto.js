@@ -369,7 +369,7 @@ com.intel.analytics.bigdl.serialization.AttrValue = class AttrValue {
 
     get value() {
         com.intel.analytics.bigdl.serialization.AttrValue.valueSet = com.intel.analytics.bigdl.serialization.AttrValue.valueSet || new Set(["int32Value", "int64Value", "floatValue", "doubleValue", "stringValue", "boolValue", "regularizerValue", "tensorValue", "variableFormatValue", "initMethodValue", "bigDLModuleValue", "nameAttrListValue", "arrayValue", "dataFormatValue", "customValue", "shape"]);
-        return Object.keys(this).find((key) => com.intel.analytics.bigdl.serialization.AttrValue.valueSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => com.intel.analytics.bigdl.serialization.AttrValue.valueSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {

@@ -244,7 +244,7 @@ gguf.Reader = class {
                 }
                 context.alignment = this.metadata.get('general.alignment') || 32;
                 const offset_pad = reader.position % context.alignment;
-                if (offset_pad != 0) {
+                if (offset_pad !== 0) {
                     reader.skip(context.alignment - offset_pad);
                 }
                 context.offset = reader.position;

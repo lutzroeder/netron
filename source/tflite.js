@@ -429,7 +429,7 @@ tflite.Attribute = class {
                 this._visible = false;
             } else if (metadata.default !== undefined) {
                 value = this._value;
-                if (typeof value == 'function') {
+                if (typeof value === 'function') {
                     value = value();
                 }
                 if (value === metadata.default) {
@@ -452,7 +452,7 @@ tflite.Attribute = class {
     }
 
     get visible() {
-        return this._visible == false ? false : true;
+        return this._visible === false ? false : true;
     }
 };
 
@@ -599,7 +599,7 @@ tflite.TensorShape = class {
     }
 
     toString() {
-        if (!this._dimensions || this._dimensions.length == 0) {
+        if (!this._dimensions || this._dimensions.length === 0) {
             return '';
         }
         return `[${this._dimensions.map((dimension) => dimension.toString()).join(',')}]`;

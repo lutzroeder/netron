@@ -240,7 +240,7 @@ nnabla.Attribute = class {
                 this.value = value;
                 break;
         }
-        if (Object.prototype.hasOwnProperty.call(attribute, 'default') && this.value == attribute.default) {
+        if (Object.prototype.hasOwnProperty.call(attribute, 'default') && this.value === attribute.default) {
             this.visible = false;
         }
     }

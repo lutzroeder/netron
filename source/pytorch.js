@@ -93,7 +93,7 @@ pytorch.Graph = class {
             return [node.name];
         };
         const loadModule = (current, groups, inputs) => {
-            if (!current._modules || current._modules.size == 0) {
+            if (!current._modules || current._modules.size === 0) {
                 createNode(groups, '', current, inputs, false);
             } else {
                 const sequential = current.__class__ && current.__class__.__module__ === 'torch.nn.modules.container' && current.__class__.__name__ === 'Sequential';
@@ -315,9 +315,9 @@ pytorch.Node = class {
                 } else if (metadata.default !== undefined) {
                     if (Array.isArray(value)) {
                         if (Array.isArray(metadata.default)) {
-                            visible = value.length !== metadata.default || !value.every((item, index) => item == metadata.default[index]);
+                            visible = value.length !== metadata.default || !value.every((item, index) => item === metadata.default[index]);
                         } else {
-                            visible = !value.every((item) => item == metadata.default);
+                            visible = !value.every((item) => item === metadata.default);
                         }
                     } else {
                         visible = value !== metadata.default;
@@ -493,7 +493,7 @@ pytorch.Node = class {
                     for (const value of values) {
                         const parameter = initializers.get(value);
                         if (parameter) {
-                            if (value.__parent__ && (module == null || module == value.__parent__)) {
+                            if (value.__parent__ && (module === null || module === value.__parent__)) {
                                 module = value.__parent__;
                                 count++;
                             } else if (value.__name__ && value.__name__.startsWith('CONSTANTS.c')) {
@@ -511,7 +511,7 @@ pytorch.Node = class {
                 if (module) {
                     const parameters = pytorch.Graph._getParameters(module);
                     parameters.delete('num_batches_tracked');
-                    if (parameters.size == count && match) {
+                    if (parameters.size === count && match) {
                         module.__hide__ = true;
                     } else {
                         module = null;
@@ -586,7 +586,7 @@ pytorch.Node = class {
                     let list = [output];
                     if (output.uses().length === 1 &&
                         output.uses()[0].user &&
-                        output.uses()[0].user.kind() == 'prim::ListUnpack' &&
+                        output.uses()[0].user.kind() === 'prim::ListUnpack' &&
                         output.uses()[0].user.outputs().every((output) => pytorch.Utility.isTensor(output.value))) {
                         list = output.uses()[0].user.outputs();
                     }
@@ -599,7 +599,7 @@ pytorch.Node = class {
                 if (module.__name__) {
                     let current = module;
                     this.name = current.__name__;
-                    while (current.__parent__ != null) {
+                    while (current.__parent__) {
                         current = current.__parent__;
                         if (!current.__parent__ && !current.__name__) {
                             break;
@@ -1532,7 +1532,7 @@ pytorch.Execution = class extends python.Execution {
             }
             _get_method(name) {
                 for (const method of this._type.methods()) {
-                    if (name == method.name) {
+                    if (name === method.name) {
                         return method;
                     }
                 }
@@ -2494,7 +2494,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
         if (moduleName && name) {
             let outputTypes = null;
             let type = `${moduleName}.${name}`;
-            if (type === 'ops.prim.NumToTensor' && args.length === 1 && args[0].type === 'call' && args[0].target.member.type == 'id') {
+            if (type === 'ops.prim.NumToTensor' && args.length === 1 && args[0].type === 'call' && args[0].target.member.type === 'id') {
                 const [arg] = args;
                 moduleName = pytorch.Utility.target(arg.target.target);
                 name = arg.target.member.value;
@@ -2667,7 +2667,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                     pytorch.Utility.isCall(assign.expression, 'torch.ne', 2) &&
                     pytorch.Utility.isCall(assign.expression.args[0], 'torch.len', 1) &&
                     pytorch.Utility.isCall(assign.expression.args[0].args[0], 'torch.size', 1) &&
-                    condition.then.statements.length == 1 &&
+                    condition.then.statements.length === 1 &&
                     pytorch.Utility.isCall(condition.then.statements[0], 'ops.prim.RaiseException', 1)) {
                     const tensor = this.expression(assign.expression.args[0].args[0].args[0], context);
                     if (pytorch.Utility.isTensor(tensor) && tensor.size) {
@@ -2707,7 +2707,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                     pytorch.Utility.isCall(assign.expression, 'torch.eq', 2) &&
                     pytorch.Utility.isCall(assign.expression.args[0], 'torch.len', 1) &&
                     pytorch.Utility.isCall(assign.expression.args[0].args[0], 'torch.size', 1) &&
-                    condition.else.statements.length == 1 &&
+                    condition.else.statements.length === 1 &&
                     pytorch.Utility.isCall(condition.else.statements[0], 'ops.prim.RaiseException', 1)) {
                     const tensor = this.expression(assign.expression.args[0].args[0].args[0], context);
                     if (pytorch.Utility.isTensor(tensor) && tensor.shape === undefined) {
@@ -2727,7 +2727,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                     pytorch.Utility.isCall(condition.condition, 'torch.eq', 2) &&
                     pytorch.Utility.isCall(condition.condition.args[0], 'torch.len', 1) &&
                     pytorch.Utility.isEqual(condition.condition.args[0].args[0], assign.target) &&
-                    condition.else.statements.length == 1 &&
+                    condition.else.statements.length === 1 &&
                     pytorch.Utility.isCall(condition.else.statements[0], 'ops.prim.RaiseException', 1)) {
                     const tensor = this.expression(assign.expression.args[0].args[0], context);
                     if (pytorch.Utility.isTensor(tensor) && tensor.shape === undefined) {
@@ -2758,7 +2758,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 // _0 = torch.split_with_sizes(...)
                 // a, a_1, a_2, = _0
                 const [statement, tuple] = statements;
-                if (statement.type === '=' && statement.target.type === 'id' && statement.expression.type == 'call' &&
+                if (statement.type === '=' && statement.target.type === 'id' && statement.expression.type === 'call' &&
                     tuple.type === '=' && tuple.target.type === 'tuple' &&
                     tuple.target.value.every((item) => item.type === 'id') &&
                     tuple.expression.value === statement.target.value) {
@@ -3377,10 +3377,10 @@ pytorch.Layout = {
 pytorch.Utility = class {
 
     static target(expression) {
-        if (expression.type == 'id') {
+        if (expression.type === 'id') {
             return expression.value;
         }
-        if (expression.type == '.') {
+        if (expression.type === '.') {
             return `${pytorch.Utility.target(expression.target)}.${pytorch.Utility.target(expression.member)}`;
         }
         return null;
@@ -3806,7 +3806,7 @@ pytorch.Utility = class {
                         layer._parameters = layer._parameters || new Map();
                         value.name = key;
                         layer._parameters.set(parameter, value);
-                        if (layer_name == '' && layer._parameters.length > 12) {
+                        if (layer_name === '' && layer._parameters.length > 12) {
                             return null;
                         }
                     } else if (value && Array.isArray(value) && value.every((item) => pytorch.Utility.isTensor(item))) {

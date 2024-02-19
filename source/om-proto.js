@@ -45,7 +45,7 @@ ge.proto.AttrDef = class AttrDef {
 
     get value() {
         ge.proto.AttrDef.valueSet = ge.proto.AttrDef.valueSet || new Set(["s", "i", "f", "b", "bt", "list", "func", "td", "t", "g", "list_list_int", "dt", "list_list_float"]);
-        return Object.keys(this).find((key) => ge.proto.AttrDef.valueSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => ge.proto.AttrDef.valueSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {

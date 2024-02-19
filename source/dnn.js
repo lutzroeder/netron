@@ -7,7 +7,7 @@ dnn.ModelFactory = class {
 
     match(context) {
         const tags = context.tags('pb');
-        if (tags.get(4) == 0 && tags.get(10) == 2) {
+        if (tags.get(4) === 0 && tags.get(10) === 2) {
             context.type = 'dnn';
         }
     }
@@ -152,8 +152,8 @@ dnn.Node = class {
             let inputIndex = 0;
             if (this.type && this.type.inputs) {
                 for (const inputSchema of this.type.inputs) {
-                    if (inputIndex < inputs.length || inputSchema.option != 'optional') {
-                        const inputCount = (inputSchema.option == 'variadic') ? (node.input.length - inputIndex) : 1;
+                    if (inputIndex < inputs.length || inputSchema.option !== 'optional') {
+                        const inputCount = (inputSchema.option === 'variadic') ? (node.input.length - inputIndex) : 1;
                         const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount);
                         this.inputs.push(new dnn.Argument(inputSchema.name, inputArguments));
                         inputIndex += inputCount;
@@ -161,13 +161,13 @@ dnn.Node = class {
                 }
             }
             this.inputs.push(...inputs.slice(inputIndex).map((input, index) => {
-                const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
+                const inputName = ((inputIndex + index) === 0) ? 'input' : (inputIndex + index).toString();
                 return new dnn.Argument(inputName, [input]);
             }));
         }
         if (outputs.length > 0) {
             this.outputs = outputs.map((output, index) => {
-                const inputName = (index == 0) ? 'output' : index.toString();
+                const inputName = (index === 0) ? 'output' : index.toString();
                 return new dnn.Argument(inputName, [output]);
             });
         }
@@ -238,7 +238,7 @@ dnn.TensorShape = class {
     }
 
     toString() {
-        if (!this.dimensions || this.dimensions.length == 0) {
+        if (!this.dimensions || this.dimensions.length === 0) {
             return '';
         }
         return `[${this.dimensions.join(',')}]`;

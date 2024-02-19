@@ -291,7 +291,7 @@ circle.Node = class {
                 if (this._type && this._type.inputs && inputIndex < this._type.inputs.length) {
                     const input = this._type.inputs[inputIndex];
                     inputName = input.name;
-                    if (input.option == 'variadic') {
+                    if (input.option === 'variadic') {
                         count = inputs.length - inputIndex;
                     }
                     if (input && input.visible === false) {
@@ -441,7 +441,7 @@ circle.Attribute = class {
     }
 
     get visible() {
-        return this._visible == false ? false : true;
+        return this._visible === false ? false : true;
     }
 };
 
@@ -586,7 +586,7 @@ circle.TensorShape = class {
     }
 
     toString() {
-        if (!this._dimensions || this._dimensions.length == 0) {
+        if (!this._dimensions || this._dimensions.length === 0) {
             return '';
         }
         return `[${this._dimensions.map((dimension) => dimension.toString()).join(',')}]`;

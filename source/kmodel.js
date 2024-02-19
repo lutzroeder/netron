@@ -559,14 +559,14 @@ kmodel.Reader = class {
                 };
                 const inputs = new Array(model_header.inputs);
                 for (let i = 0; i < inputs.length; i++) {
-                    inputs[i] = reader.parameter(`input${i == 0 ? '' : (i + 1)}`);
+                    inputs[i] = reader.parameter(`input${i === 0 ? '' : (i + 1)}`);
                 }
                 for (let i = 0; i < inputs.length; i++) {
                     inputs[i].value[0].shape = reader.runtime_shape_t();
                 }
                 const outputs = new Array(model_header.outputs);
                 for (let i = 0; i < outputs.length; i++) {
-                    outputs[i] = reader.parameter(`output${i == 0 ? '' : (i + 1)}`);
+                    outputs[i] = reader.parameter(`output${i === 0 ? '' : (i + 1)}`);
                 }
                 reader.constants(model_header.constants);
                 const layers = new Array(model_header.nodes);
@@ -948,14 +948,14 @@ kmodel.Reader = class {
                         }
                         const inputs = new Array(function_header.inputs);
                         for (let i = 0; i < inputs.length; i++) {
-                            inputs[i] = reader.parameter(`input${i == 0 ? '' : (i + 1)}`);
+                            inputs[i] = reader.parameter(`input${i === 0 ? '' : (i + 1)}`);
                         }
                         for (let i = 0; i < inputs.length; i++) {
                             inputs[i].value[0].shape = reader.shape();
                         }
                         const outputs = new Array(function_header.outputs);
                         for (let i = 0; i < outputs.length; i++) {
-                            outputs[i] = reader.parameter(`output${i == 0 ? '' : (i + 1)}`);
+                            outputs[i] = reader.parameter(`output${i === 0 ? '' : (i + 1)}`);
                         }
                         for (let i = 0; i < outputs.length; i++) {
                             outputs[i].value[0].shape = reader.shape();

@@ -315,7 +315,7 @@ view.View = class {
                 options[name] = value;
             }
         }
-        if (Object.entries(options).length == 0) {
+        if (Object.entries(options).length === 0) {
             this._host.delete('options');
         } else {
             this._host.set('options', options);
@@ -606,7 +606,7 @@ view.View = class {
         const message = err.message;
         name = name || err.name;
         const button = await this._host.error(name, message, url === null);
-        if (button === 0 && (url || this._host.type == 'Electron')) {
+        if (button === 0 && (url || this._host.type === 'Electron')) {
             this._host.openURL(url || `${this._host.environment('repository')}/issues`);
         }
         this.show(screen !== undefined ? screen : 'welcome');
@@ -668,7 +668,7 @@ view.View = class {
     async _updateGraph(model, graphs) {
         await this._timeout(100);
         const graph = Array.isArray(graphs) && graphs.length > 0 ? graphs[0] : null;
-        if (graph && graph != this._graphs[0]) {
+        if (graph && graph !== this._graphs[0]) {
             const nodes = graph.nodes;
             if (nodes.length > 2048) {
                 if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
@@ -873,7 +873,7 @@ view.View = class {
 
     export(file) {
         const lastIndex = file.lastIndexOf('.');
-        const extension = (lastIndex != -1) ? file.substring(lastIndex + 1).toLowerCase() : 'png';
+        const extension = (lastIndex !== -1) ? file.substring(lastIndex + 1).toLowerCase() : 'png';
         if (this.activeGraph && (extension === 'png' || extension === 'svg')) {
             const canvas = this._element('canvas');
             const clone = canvas.cloneNode(true);
@@ -1670,7 +1670,7 @@ view.Graph = class extends grapher.Graph {
             const inputs = node.inputs;
             for (const input of inputs) {
                 for (const value of input.value) {
-                    if (value.name != '' && !value.initializer) {
+                    if (value.name !== '' && !value.initializer) {
                         this.createValue(value).to.push(viewNode);
                     }
                 }
@@ -1689,7 +1689,7 @@ view.Graph = class extends grapher.Graph {
                         error.context = this.model.identifier;
                         throw error;
                     }
-                    if (value.name != '') {
+                    if (value.name !== '') {
                         this.createValue(value).from = viewNode;
                     }
                 }
@@ -1716,7 +1716,7 @@ view.Graph = class extends grapher.Graph {
                 if (groupName && groupName.length > 0) {
                     if (!clusterParentMap.has(groupName)) {
                         const lastIndex = groupName.lastIndexOf('/');
-                        if (lastIndex != -1) {
+                        if (lastIndex !== -1) {
                             groupName = groupName.substring(0, lastIndex);
                             if (!clusterParentMap.has(groupName)) {
                                 groupName = null;
@@ -1859,11 +1859,11 @@ view.Node = class extends grapher.Node {
         if (options.weights) {
             if (Array.isArray(node.inputs)) {
                 for (const input of node.inputs) {
-                    if (input.visible !== false && input.value.length === 1 && input.value[0].initializer != null) {
+                    if (input.visible !== false && input.value.length === 1 && input.value[0].initializer !== null) {
                         initializers.push(input);
                     }
                     if ((input.visible === false || input.value.length > 1) &&
-                        input.value.some((argument) => argument.initializer != null)) {
+                        input.value.some((argument) => argument.initializer !== null)) {
                         hiddenInitializers = true;
                     }
                 }
@@ -2192,7 +2192,7 @@ view.Sidebar = class {
         const pop = () => this._update(this._stack.slice(0, -1));
         this._closeSidebarHandler = () => pop();
         this._closeSidebarKeyDownHandler = (e) => {
-            if (e.keyCode == 27) {
+            if (e.keyCode === 27) {
                 e.preventDefault();
                 pop();
             }
@@ -2238,7 +2238,7 @@ view.Sidebar = class {
             this._element('sidebar-title').innerHTML = item.title || '';
             closeButton.addEventListener('click', this._closeSidebarHandler);
             const content = this._element('sidebar-content');
-            if (typeof item.content == 'string') {
+            if (typeof item.content === 'string') {
                 content.innerHTML = item.content;
             } else if (item.content instanceof Array) {
                 content.innerHTML = '';
@@ -2503,7 +2503,7 @@ view.SelectView = class extends view.Control {
         for (const value of values) {
             const optionElement = this.createElement('option');
             optionElement.innerText = value.name || '';
-            if (value == selected) {
+            if (value === selected) {
                 optionElement.setAttribute('selected', 'selected');
             }
             selectElement.appendChild(optionElement);
@@ -2621,11 +2621,11 @@ view.AttributeView = class extends view.Control {
     }
 
     toggle() {
-        if (this._expander.innerText == '+') {
+        if (this._expander.innerText === '+') {
             this._expander.innerText = '-';
             const type = this._attribute.type;
             const value = this._attribute.value;
-            const content = type == 'tensor' && value && value.type ? value.type.toString() : this._attribute.type;
+            const content = type === 'tensor' && value && value.type ? value.type.toString() : this._attribute.type;
             const typeLine = this.createElement('div', 'sidebar-item-value-line-border');
             typeLine.innerHTML = `type: ` + `<code><b>${content}</b></code>`;
             this._element.appendChild(typeLine);
@@ -2728,7 +2728,7 @@ view.ValueView = class extends view.Control {
 
     toggle() {
         if (this._expander) {
-            if (this._expander.innerText == '+') {
+            if (this._expander.innerText === '+') {
                 this._expander.innerText = '-';
                 const initializer = this._value.initializer;
                 if (this._hasId && this._hasCategory) {
@@ -2897,7 +2897,7 @@ view.NodeView = class extends view.Control {
 
     toggle() {
         if (this._expander) {
-            if (this._expander.innerText == '+') {
+            if (this._expander.innerText === '+') {
                 this._expander.innerText = '-';
                 const name = this._node.name;
                 const element = this.createElement('div', 'sidebar-item-value-line-border');
@@ -3317,7 +3317,7 @@ view.FindSidebar = class extends view.Control {
                 edge(value);
             }
         }
-        this._contentElement.style.display = this._contentElement.childNodes.length != 0 ? 'block' : 'none';
+        this._contentElement.style.display = this._contentElement.childNodes.length !== 0 ? 'block' : 'none';
     }
 
     render() {
@@ -3586,12 +3586,12 @@ view.Tensor = class {
 
     _decodeData(context, dimension, offset) {
         const results = [];
-        const shape = context.dimensions.length == 0 ? [1] : context.dimensions;
+        const shape = context.dimensions.length === 0 ? [1] : context.dimensions;
         const size = shape[dimension];
         const dataType = context.dataType;
         const view = context.view;
         const stride = context.stride[dimension];
-        if (dimension == shape.length - 1) {
+        if (dimension === shape.length - 1) {
             const ellipsis = (context.count + size) > context.limit;
             const length = ellipsis ? context.limit - context.count : size;
             const max = offset + (length * context.itemsize);
@@ -3725,7 +3725,7 @@ view.Tensor = class {
                 results.push(this._decodeData(context, dimension + 1, nextOffset));
             }
         }
-        if (context.dimensions.length == 0) {
+        if (context.dimensions.length === 0) {
             return results[0];
         }
         return results;
@@ -3733,11 +3733,11 @@ view.Tensor = class {
 
     _decodeValues(context, dimension, position) {
         const results = [];
-        const shape = (context.dimensions.length == 0) ? [1] : context.dimensions;
+        const shape = (context.dimensions.length === 0) ? [1] : context.dimensions;
         const size = shape[dimension];
         const dataType = context.dataType;
         const stride = context.stride[dimension];
-        if (dimension == shape.length - 1) {
+        if (dimension === shape.length - 1) {
             const ellipsis = (context.count + size) > context.limit;
             const length = ellipsis ? context.limit - context.count : size;
             const data = context.data;
@@ -3767,7 +3767,7 @@ view.Tensor = class {
                 results.push(this._decodeValues(context, dimension + 1, nextPosition));
             }
         }
-        if (context.dimensions.length == 0) {
+        if (context.dimensions.length === 0) {
             return results[0];
         }
         return results;
@@ -3793,10 +3793,10 @@ view.Tensor = class {
             case 'string':
                 return `${indentation}"${value}"`;
             case 'number':
-                if (value == Infinity) {
+                if (value === Infinity) {
                     return `${indentation}Infinity`;
                 }
-                if (value == -Infinity) {
+                if (value === -Infinity) {
                     return `${indentation}-Infinity`;
                 }
                 if (isNaN(value)) {
@@ -4101,7 +4101,7 @@ view.Formatter = class {
             case 'graph[]':
                 return value ? value.map((graph) => graph.name).join(', ') : '(null)';
             case 'tensor':
-                if (value && value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
+                if (value && value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length === 0) {
                     return value.toString();
                 }
                 return '[...]';
@@ -4118,11 +4118,11 @@ view.Formatter = class {
             default:
                 break;
         }
-        if (typeof value === 'string' && (!type || type != 'string')) {
+        if (typeof value === 'string' && (!type || type !== 'string')) {
             return quote ? `"${value}"` : value;
         }
         if (Array.isArray(value)) {
-            if (value.length == 0) {
+            if (value.length === 0) {
                 return quote ? '[]' : '';
             }
             let ellipsis = false;
@@ -4161,7 +4161,7 @@ view.Formatter = class {
         this._values.add(value);
         let list = null;
         const entries = Object.entries(value).filter(([name]) => !name.startsWith('__') && !name.endsWith('__'));
-        if (entries.length == 1) {
+        if (entries.length === 1) {
             list = [this._format(entries[0][1], null, true)];
         } else {
             list = entries.map(([name, value]) => `${name}: ${this._format(value, null, true)}`);
@@ -4171,7 +4171,7 @@ view.Formatter = class {
             objectType = value.constructor.name;
         }
         if (objectType) {
-            return objectType + (list.length == 0 ? '()' : ['(', list.join(', '), ')'].join(''));
+            return objectType + (list.length === 0 ? '()' : ['(', list.join(', '), ')'].join(''));
         }
         switch (list.length) {
             case 0:
@@ -4564,7 +4564,7 @@ markdown.Generator = class {
                 const endReg = match[0] === '**' ? this._strongEndAstRegExp : this._strongEndUndRegExp;
                 endReg.lastIndex = 0;
                 let cap;
-                while ((match = endReg.exec(masked)) != null) {
+                while ((match = endReg.exec(masked)) !== null) {
                     cap = this._strongMiddleRegExp.exec(masked.slice(0, match.index + 3));
                     if (cap) {
                         break;
@@ -4583,7 +4583,7 @@ markdown.Generator = class {
                 const endReg = match[0] === '*' ? this._emEndAstRegExp : this._emEndUndRegExp;
                 endReg.lastIndex = 0;
                 let cap;
-                while ((match = endReg.exec(masked)) != null) {
+                while ((match = endReg.exec(masked)) !== null) {
                     cap = this._emMiddleRegExp.exec(masked.slice(0, match.index + 2));
                     if (cap) {
                         break;

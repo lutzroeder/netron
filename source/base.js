@@ -30,9 +30,9 @@ if (!DataView.prototype.getFloat16) {
         const value = this.getUint16(byteOffset, littleEndian);
         const e = (value & 0x7C00) >> 10;
         let f = value & 0x03FF;
-        if (e == 0) {
+        if (e === 0) {
             f = 0.00006103515625 * (f / 1024);
-        } else if (e == 0x1F) {
+        } else if (e === 0x1F) {
             f = f ? NaN : Infinity;
         } else {
             f = DataView.__float16_pow[e] * (1 + (f / 1024));
@@ -104,7 +104,7 @@ DataView.prototype.getFloat8e4m3 = function(byteOffset, fn, uz) {
     let exponent_bias = 7;
     if (uz) {
         exponent_bias = 8;
-        if (value == 0x80) {
+        if (value === 0x80) {
             return NaN;
         }
     } else if (value === 255) {
@@ -116,15 +116,15 @@ DataView.prototype.getFloat8e4m3 = function(byteOffset, fn, uz) {
     let mant = value & 0x07;
     const sign = value & 0x80;
     let res = sign << 24;
-    if (expo == 0) {
+    if (expo === 0) {
         if (mant > 0) {
             expo = 0x7F - exponent_bias;
-            if (mant & 0x4 == 0) {
+            if (mant & 0x4 === 0) {
                 mant &= 0x3;
                 mant <<= 1;
                 expo -= 1;
             }
-            if (mant & 0x4 == 0) {
+            if (mant & 0x4 === 0) {
                 mant &= 0x3;
                 mant <<= 1;
                 expo -= 1;
@@ -147,7 +147,7 @@ DataView.prototype.getFloat8e5m2 = function(byteOffset, fn, uz) {
     const value = this.getUint8(byteOffset);
     let exponent_bias = NaN;
     if (fn && uz) {
-        if (value == 0x80) {
+        if (value === 0x80) {
             return NaN;
         }
         exponent_bias = 16;
@@ -169,10 +169,10 @@ DataView.prototype.getFloat8e5m2 = function(byteOffset, fn, uz) {
     let expo = (value & 0x7C) >> 2;
     let mant = value & 0x03;
     let res = (value & 0x80) << 24;
-    if (expo == 0) {
+    if (expo === 0) {
         if (mant > 0) {
             expo = 0x7F - exponent_bias;
-            if (mant & 0x2 == 0) {
+            if (mant & 0x2 === 0) {
                 mant &= 0x1;
                 mant <<= 1;
                 expo -= 1;
@@ -341,7 +341,7 @@ base.BinaryReader = class {
     }
 
     align(mod) {
-        if (this._position % mod != 0) {
+        if (this._position % mod !== 0) {
             this.skip(mod - (this._position % mod));
         }
     }

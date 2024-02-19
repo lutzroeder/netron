@@ -18,7 +18,7 @@ tnn.ModelFactory = class {
                     const line = content.trim();
                     if (line.startsWith('"') && line.endsWith('"')) {
                         const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
-                        if (header.length === 3 || (header.length >= 4 && (header[3] === '4206624770' || header[3] == '4206624772'))) {
+                        if (header.length === 3 || (header.length >= 4 && (header[3] === '4206624770' || header[3] === '4206624772'))) {
                             context.type = 'tnn.model';
                             return;
                         }
@@ -172,16 +172,16 @@ tnn.Node = class {
         let inputIndex = 0;
         if (this.type && this.type.inputs) {
             for (const inputDef of this.type.inputs) {
-                if (inputIndex < inputs.length || inputDef.option != 'optional') {
-                    const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => values.map(id));
+                if (inputIndex < inputs.length || inputDef.option !== 'optional') {
+                    const inputCount = (inputDef.option === 'variadic') ? (inputs.length - inputIndex) : 1;
+                    const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id !== '' || inputDef.option !== 'optional').map((id) => values.map(id));
                     this.inputs.push(new tnn.Argument(inputDef.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
         } else {
             this.inputs.push(...inputs.slice(inputIndex).map((input, index) => {
-                const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
+                const inputName = ((inputIndex + index) === 0) ? 'input' : (inputIndex + index).toString();
                 return new tnn.Argument(inputName, [values.map(input)]);
             }));
         }
@@ -190,8 +190,8 @@ tnn.Node = class {
         let outputIndex = 0;
         if (this.type && this.type.outputs) {
             for (const outputDef of this.type.outputs) {
-                if (outputIndex < outputs.length || outputDef.option != 'optional') {
-                    const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                if (outputIndex < outputs.length || outputDef.option !== 'optional') {
+                    const outputCount = (outputDef.option === 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => values.map(id));
                     this.outputs.push(new tnn.Argument(outputDef.name, outputArguments));
                     outputIndex += outputCount;
@@ -199,7 +199,7 @@ tnn.Node = class {
             }
         } else {
             this.outputs.push(...outputs.slice(outputIndex).map((output, index) => {
-                const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
+                const outputName = ((outputIndex + index) === 0) ? 'output' : (outputIndex + index).toString();
                 return new tnn.Argument(outputName, [values.map(output)]);
             }));
         }
@@ -363,7 +363,7 @@ tnn.Attribute = class {
             if (metadata && metadata.visible === false) {
                 this.visible = false;
             } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
-                if (this.value == metadata.default || (this.value && this.value.toString() == metadata.default.toString())) {
+                if (this.value === metadata.default || (this.value && this.value.toString() === metadata.default.toString())) {
                     this.visible = false;
                 }
             }

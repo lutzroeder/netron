@@ -215,7 +215,7 @@ host.BrowserHost = class {
     }
 
     async error(message, detail /*, cancel */) {
-        alert((message == 'Error' ? '' : `${message} `) + detail);
+        alert((message === 'Error' ? '' : `${message} `) + detail);
         return 0;
     }
 
@@ -353,8 +353,8 @@ host.BrowserHost = class {
             };
             request.onload = () => {
                 progress(0);
-                if (request.status == 200) {
-                    if (request.responseType == 'arraybuffer') {
+                if (request.status === 200) {
+                    if (request.responseType === 'arraybuffer') {
                         const buffer = new Uint8Array(request.response);
                         const stream = new base.BinaryStream(buffer);
                         resolve(stream);

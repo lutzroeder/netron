@@ -36,7 +36,7 @@ hickle.Graph = class {
                     switch (type[0]) {
                         case 'hickle':
                         case 'dict_item': {
-                            if (group.groups.size == 1) {
+                            if (group.groups.size === 1) {
                                 return deserialize(group.groups.values().next().value);
                             }
                             throw new hickle.Error(`Invalid Hickle type value '${type[0]}'.`);

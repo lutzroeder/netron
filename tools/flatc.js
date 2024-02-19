@@ -208,16 +208,16 @@ flatc.Struct = class extends flatc.Type {
                         throw new flatc.Error(`Struct '${name}' may contain only scalar or struct fields.`);
                     }
                     const size = fieldType.size;
-                    field.offset = (offset % size != 0) ? (Math.floor(offset / size) + 1) * size : offset;
+                    field.offset = (offset % size) !== 0 ? (Math.floor(offset / size) + 1) * size : offset;
                     offset = field.offset + (field.length * size);
                 } else if (fieldType instanceof flatc.PrimitiveType && field.type !== 'string') {
                     const size = fieldType.size;
-                    field.offset = (offset % size != 0) ? (Math.floor(offset / size) + 1) * size : offset;
+                    field.offset = (offset % size) !== 0 ? (Math.floor(offset / size) + 1) * size : offset;
                     offset = field.offset + size;
                 } else if (field.type instanceof flatc.Struct) {
                     field.type.resolve();
                     const align = 8;
-                    field.offset = (offset % align != 0) ? (Math.floor(offset / align) + 1) * align : offset;
+                    field.offset = (offset % align) !== 0 ? (Math.floor(offset / align) + 1) * align : offset;
                     offset += field.type.size;
                 } else {
                     throw new flatc.Error('Structs may contain only scalar or struct fields.');

@@ -336,7 +336,7 @@ coreml.Attribute = class {
                 if (typeof value === 'bigint') {
                     value = Number(value);
                 }
-                if (JSON.stringify(metadata.default) == JSON.stringify(value)) {
+                if (JSON.stringify(metadata.default) === JSON.stringify(value)) {
                     this.visible = false;
                 }
             }
@@ -643,7 +643,7 @@ coreml.Context = class {
             initializers.push({ name: name, visible: visible, value: [value] });
         };
         const vector = (value) => {
-            return (value && Object.keys(value).length == 1 && value.vector) ? value.vector : value;
+            return (value && Object.keys(value).length === 1 && value.vector) ? value.vector : value;
         };
         const weights = (type, data) => {
             switch (type) {
@@ -651,7 +651,7 @@ coreml.Context = class {
                     const weightsShape = [data.outputChannels, data.kernelChannels, data.kernelSize[0], data.kernelSize[1]];
                     if (data.isDeconvolution) {
                         weightsShape[0] = data.kernelChannels;
-                        weightsShape[1] = Math.floor(Number(data.outputChannels / (data.nGroups != 0 ? data.nGroups : 1)));
+                        weightsShape[1] = Math.floor(Number(data.outputChannels / (data.nGroups !== 0 ? data.nGroups : 1)));
                     }
                     initializer(type, 'weights', weightsShape, data.weights);
                     if (data.hasBias) {
@@ -721,12 +721,12 @@ coreml.Context = class {
                 }
                 case 'uniDirectionalLSTM':
                 case 'biDirectionalLSTM': {
-                    const count = (type == 'uniDirectionalLSTM') ? 1 : 2;
+                    const count = (type === 'uniDirectionalLSTM') ? 1 : 2;
                     const h = data.outputVectorSize;
                     const x = data.inputVectorSize;
                     for (let i = 0; i < count; i++) {
-                        const weights = count == 1 ? data.weightParams : data.weightParams[i];
-                        const suffix = (i == 0) ? '' : '_rev';
+                        const weights = count === 1 ? data.weightParams : data.weightParams[i];
+                        const suffix = (i === 0) ? '' : '_rev';
                         initializer(type, `inputGateWeightMatrix${suffix}`, [h,x], weights.inputGateWeightMatrix);
                         initializer(type, `forgetGateWeightMatrix${suffix}`, [h,x], weights.forgetGateWeightMatrix);
                         initializer(type, `blockInputWeightMatrix${suffix}`, [h,x], weights.blockInputWeightMatrix);
@@ -1092,7 +1092,7 @@ coreml.Context = class {
         let labelProbabilityLayerName = classifier.labelProbabilityLayerName;
         if (!labelProbabilityLayerName && this.nodes.length > 0) {
             const node = this.nodes.slice(-1).pop();
-            if (node && node.outputs.length == 1 && node.outputs[0].value.length == 1) {
+            if (node && node.outputs.length === 1 && node.outputs[0].value.length === 1) {
                 labelProbabilityLayerName = node.outputs[0].value[0].name;
             }
         }
@@ -1219,7 +1219,7 @@ coreml.Context = class {
                         const buffer = stream.read(32);
                         const reader = new base.BinaryReader(buffer);
                         const signature = reader.uint32();
-                        if (signature == 0xdeadbeef) {
+                        if (signature === 0xdeadbeef) {
                             reader.uint32(); // dataType
                             const size = Number(reader.uint64());
                             const offset = Number(reader.uint64());

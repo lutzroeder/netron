@@ -197,11 +197,11 @@ app.Application = class {
                     // find existing view for this file
                     let view = views.find((view) => view.match(path));
                     // find empty welcome window
-                    if (view == null) {
+                    if (view === null) {
                         view = views.find((view) => view.match(null));
                     }
                     // create new window
-                    if (view == null) {
+                    if (view === null) {
                         view = this._views.openView();
                     }
                     view.open(path);
@@ -299,7 +299,7 @@ app.Application = class {
 
     _about() {
         let view = this._views.activeView;
-        if (view == null) {
+        if (view === null) {
             view = this._views.openView();
         }
         view.execute('about');
@@ -657,7 +657,7 @@ app.View = class {
             options.thickFrame = true;
             options.titleBarStyle = 'hiddenInset';
         }
-        if (!this._owner.empty && app.View._position && app.View._position.length == 2) {
+        if (!this._owner.empty && app.View._position && app.View._position.length === 2) {
             options.x = app.View._position[0] + 30;
             options.y = app.View._position[1] + 30;
             if (options.x + options.width > size.width) {

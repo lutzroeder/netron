@@ -968,7 +968,7 @@ xml.TextReader = class {
             this._assert(typeof this._data !== 'string', 'Invalid text declaration', this._start);
             const obj = { version: '', encoding: '', standalone: 'no' };
             for (const name of Object.keys(obj)) {
-                const expect = (name == 'version' && this._context.length === 0) || (name == 'encoding' && this._context.length > 0);
+                const expect = (name === 'version' && this._context.length === 0) || (name === 'encoding' && this._context.length > 0);
                 if ((whitespace || expect) && (expect ? this._expect(name) : this._match(name))) {
                     this._whitespace(0);
                     this._expect('=');
@@ -1107,7 +1107,7 @@ xml.TextReader = class {
                 }
             }
         }
-        if (this._char === '\uffff' || this._char === '\ufffe' || (this._version > 0 && this._char >= '\x7f' && this._char <= '\x9f' && this._char != '\x85')) {
+        if (this._char === '\uffff' || this._char === '\ufffe' || (this._version > 0 && this._char >= '\x7f' && this._char <= '\x9f' && this._char !== '\x85')) {
             this._unexpected();
         }
         if (this._char === undefined) {
@@ -1676,7 +1676,7 @@ xml.NamedNodeMap = class extends Array {
         for (let i = this.length - 1; i >= 0; i--) {
             const node = this[i];
             const key = node.prefix ? `${node.prefix}:${node.localName}` : node.localName;
-            if (qualifiedName == key) {
+            if (qualifiedName === key) {
                 return node;
             }
         }
@@ -1686,7 +1686,7 @@ xml.NamedNodeMap = class extends Array {
     getNamedItemNS(namespaceURI, localName) {
         for (let i = this.length - 1; i >= 0; i--) {
             const node = this[i];
-            if (localName === node.localName && namespaceURI == node.namespaceURI) {
+            if (localName === node.localName && namespaceURI === node.namespaceURI) {
                 return node;
             }
         }
@@ -1698,7 +1698,7 @@ xml.NamedNodeMap = class extends Array {
         for (let i = this.length - 1; i >= 0; i--) {
             const node = this[i];
             const key = node.prefix ? `${node.prefix}:${node.localName}` : node.localName;
-            if (qualifiedName == key) {
+            if (qualifiedName === key) {
                 const oldNode = this[i];
                 this[i] = node;
                 return oldNode;

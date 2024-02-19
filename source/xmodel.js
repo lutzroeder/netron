@@ -226,7 +226,7 @@ xmodel.TensorShape = class {
     }
 
     toString() {
-        if (!this.dimensions || this.dimensions.length == 0) {
+        if (!this.dimensions || this.dimensions.length === 0) {
             return '';
         }
         return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;

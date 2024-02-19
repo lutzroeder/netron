@@ -47,8 +47,8 @@ acuity.Graph = class {
             layer.outputs = layer.outputs.map((port) => {
                 const output = value(`@${name}:${port}`);
                 let shape = null;
-                if (layer.op.toLowerCase() == 'input' ||
-                    layer.op.toLowerCase() == 'variable') {
+                if (layer.op.toLowerCase() === 'input' ||
+                    layer.op.toLowerCase() === 'variable') {
                     if (Object.prototype.hasOwnProperty.call(layer.parameters, 'shape') && layer.parameters.shape.length > 0) {
                         shape = layer.parameters.shape;
                     } else if (Object.prototype.hasOwnProperty.call(layer.parameters, 'size') && Object.prototype.hasOwnProperty.call(layer.parameters, 'channels')) {
@@ -183,11 +183,11 @@ acuity.TensorType = class {
 acuity.TensorShape = class {
 
     constructor(dimensions) {
-        this.dimensions = Array.isArray(dimensions) && dimensions.length == 1 && dimensions[0] == 0 ? [] : dimensions;
+        this.dimensions = Array.isArray(dimensions) && dimensions.length === 1 && dimensions[0] === 0 ? [] : dimensions;
     }
 
     toString() {
-        if (!Array.isArray(this.dimensions) || this.dimensions.length == 0 || (this.dimensions.length == 1 && this.dimensions[0] == 0)) {
+        if (!Array.isArray(this.dimensions) || this.dimensions.length === 0 || (this.dimensions.length === 1 && this.dimensions[0] === 0)) {
             return '';
         }
         return `[${this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`;
@@ -208,7 +208,7 @@ acuity.Inference = class {
         const outputs = new Map();
         const outputLayers = [];
         for (const [, layer] of Object.entries(layers)) {
-            if (layer.op.toLowerCase() == 'output') {
+            if (layer.op.toLowerCase() === 'output') {
                 outputLayers.push(layer);
             }
             for (const output of layer.outputs) {
@@ -253,21 +253,21 @@ acuity.Inference = class {
             return [outputShape];
         });
         operators.set('conv1d', (inputs, params) => {
-            if (params.padding == 'VALID') {
+            if (params.padding === 'VALID') {
                 const out_h = ~~((inputs[0][1] + params.stride - params.ksize) / params.stride);
                 return [[inputs[0][0], out_h, params.weights]];
-            } else if (params.padding == 'SAME') {
+            } else if (params.padding === 'SAME') {
                 const out_h = ~~((inputs[0][1] + params.stride - 1) / params.stride);
                 return [[inputs[0][0], out_h, params.weights]];
             }
             return null;
         });
         operators.set('convolution', (inputs, params) => {
-            if (params.padding == 'VALID') {
+            if (params.padding === 'VALID') {
                 const out_h = ~~((inputs[0][1] + params.stride_h + params.pad[0] + params.pad[1] - params.ksize_h) / params.stride_h);
                 const out_w = ~~((inputs[0][2] + params.stride_w + params.pad[2] + params.pad[3]- params.ksize_w) / params.stride_w);
                 return [[inputs[0][0], out_h, out_w, params.weights]];
-            } else if (params.padding == 'SAME') {
+            } else if (params.padding === 'SAME') {
                 const out_h = ~~((inputs[0][1] + params.stride_h - 1) / params.stride_h);
                 const out_w = ~~((inputs[0][2] + params.stride_w - 1) / params.stride_w);
                 return [[inputs[0][0], out_h, out_w, params.weights]];
@@ -275,7 +275,7 @@ acuity.Inference = class {
             return null;
         });
         operators.set('deconvolution', (inputs, params) => {
-            return [params.output_shape.map((item, index) => item == 0 ? inputs[0][index] : item)];
+            return [params.output_shape.map((item, index) => item === 0 ? inputs[0][index] : item)];
         });
         operators.set('fullconnect', (inputs, params) => {
             return [inputs[0].slice(0, params.axis).concat([params.weights])];
@@ -289,7 +289,7 @@ acuity.Inference = class {
             const [input] = inputs;
             const [a, b] = input;
             let batch = a;
-            const output = params.num_proj != null ? params.num_proj : params.weights;
+            const output = params.num_proj !== null ? params.num_proj : params.weights;
             if (params.time_major) {
                 batch = b;
             }
@@ -317,11 +317,11 @@ acuity.Inference = class {
             return [inputs[0].map((item, index) => inputs[0][params.perm[index]])];
         });
         operators.set('pooling', (inputs, params) => {
-            if (params.padding == 'VALID') {
+            if (params.padding === 'VALID') {
                 const out_h = ~~((inputs[0][1] + params.stride_h - params.ksize_h) / params.stride_h);
                 const out_w = ~~((inputs[0][2] + params.stride_w - params.ksize_w) / params.stride_w);
                 return [[inputs[0][0], out_h, out_w, inputs[0][3]]];
-            } else if (params.padding == 'SAME') {
+            } else if (params.padding === 'SAME') {
                 const out_h = ~~((inputs[0][1] + params.stride_h - 1) / params.stride_h);
                 const out_w = ~~((inputs[0][2] + params.stride_w - 1) / params.stride_w);
                 return [[inputs[0][0], out_h, out_w, inputs[0][3]]];
@@ -364,10 +364,10 @@ acuity.Inference = class {
                 });
             }
             const newShape = shape.map((item, index) => {
-                if (item == 0) {
+                if (item === 0) {
                     return inputs[0][index];
                 }
-                if (item == -1) {
+                if (item === -1) {
                     negativeIndexs.push(index);
                     return 1;
                 }
@@ -382,7 +382,7 @@ acuity.Inference = class {
             return [inputs[0].slice().concat([params.maxlen])];
         });
         operators.set('slice', (inputs, params) => {
-            return [params.size.map((item, index) => item == -1 ? inputs[0][index] : item)];
+            return [params.size.map((item, index) => item === -1 ? inputs[0][index] : item)];
         });
         operators.set('squeeze', (inputs, params) => {
             const newShape = inputs[0].slice();
@@ -415,7 +415,7 @@ acuity.Inference = class {
         });
         operators.set('stack', (inputs, params) => {
             const newShape = inputs[0].slice();
-            if (newShape.length == 1 && newShape[0] == 0) {
+            if (newShape.length === 1 && newShape[0] === 0) {
                 newShape[0] = 1;
             } else {
                 newShape.splice(params.axis, 0, inputs.length);
@@ -441,13 +441,13 @@ acuity.Inference = class {
                 }
             }
             for (let i = 0; i < begin.length; i++) {
-                if (begin[i] == -1) {
+                if (begin[i] === -1) {
                     begin[i] = 0;
                 }
             }
-            if (inputs[0].length == end.length) {
+            if (inputs[0].length === end.length) {
                 for (let i = 0; i < end.length; i++) {
-                    if (end[i] == -1 || end[i] > input_shape[i]) {
+                    if (end[i] === -1 || end[i] > input_shape[i]) {
                         end[i] = input_shape[i];
                     }
                 }
@@ -460,7 +460,7 @@ acuity.Inference = class {
                         }
                     }
                     for (let i = 0; i < end.length; i++) {
-                        if (end[i] == -1) {
+                        if (end[i] === -1) {
                             end[i] = input_shape[i];
                         }
                     }
@@ -482,7 +482,7 @@ acuity.Inference = class {
                 const len = (params.slice_new_axis_mask >>> 0).toString(2).length;
                 for (let i = 0; i < len; i++) {
                     if ((params.slice_new_axis_mask >>> i) & 0x1) {
-                        if (inputs[0].length == begin.length) {
+                        if (inputs[0].length === begin.length) {
                             newShape.splice(i, 0, 1);
                         } else if (inputs[0].length < begin.length) {
                             newShape[i] = 1;

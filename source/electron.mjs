@@ -676,7 +676,7 @@ host.ElectronHost.FileStream = class {
     _read(buffer, offset) {
         const descriptor = fs.openSync(this._file, 'r');
         const stat = fs.statSync(this._file);
-        if (stat.mtimeMs != this._mtime) {
+        if (stat.mtimeMs !== this._mtime) {
             throw new Error(`File '${this._file}' last modified time changed.`);
         }
         try {

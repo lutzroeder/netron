@@ -67,7 +67,7 @@ om.Graph = class {
                 let data = null;
                 if (op.attr.value.t.data.length !== 0) {
                     data = op.attr.value.t.data;
-                } else if (context.weights == null) {
+                } else if (context.weights === null) {
                     data = null;
                 } else if (desc.attr.merged_offset) {
                     const offset = Number(desc.attr.merged_offset.i);
@@ -551,7 +551,7 @@ svp.ModelDef = class ModelDef {
                     for (const item of this.graph) {
                         if (op.attr && op.attr.seg_id && op.attr.seg_id.i === item.id) {
                             let out_num;
-                            if (typeof op.output_index == 'number') {
+                            if (typeof op.output_index === 'number') {
                                 out_num = op.output_index + 1;
                             } else {
                                 const input_num = op.input.map((element) => element.split(":")[1]);
@@ -588,7 +588,7 @@ svp.ModelDef = class ModelDef {
                                     break;
                                 }
                             }
-                            if (curr_op != null) {
+                            if (curr_op !== null) {
                                 curr_op.output_desc = curr_op.output_desc.concat(out_list);
                             } else {
                                 op.output_desc = op.output_desc.concat(out_list);

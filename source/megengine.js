@@ -141,7 +141,7 @@ megengine.Graph = class {
                             return obj && (obj.state || obj._forward_pre_hooks);
                         };
                         const isTensor = (obj) => {
-                            return obj && obj.__class__ && obj.__class__.__module__ == 'megengine.tensor' && (obj.__class__.__name__ === 'Tensor' || obj.__class__.__name__ === 'Parameter');
+                            return obj && obj.__class__ && obj.__class__.__module__ === 'megengine.tensor' && (obj.__class__.__name__ === 'Tensor' || obj.__class__.__name__ === 'Parameter');
                         };
                         if (!key.startsWith('_') && !isModule(state[key])) {
                             if (!isTensor(state[key])) {

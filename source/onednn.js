@@ -53,7 +53,7 @@ onednn.Graph = class {
         const nodes = [];
         const tensors = new Set();
         for (const node of symbol.graph) {
-            if (node.kind == 'Wildcard' && node.inputs.length == 0) {
+            if (node.kind === 'Wildcard' && node.inputs.length === 0) {
                 for (const output of node.outputs) {
                     tensors.add(output.id);
                 }
@@ -219,11 +219,11 @@ onednn.Attribute = class {
                         number = Number.parseInt(item, 10);
                         if (Number.isNaN(item - number)) {
                             array = null;
-                        } else if (array != null) {
+                        } else if (array !== null) {
                             array.push(number);
                         }
                     }
-                    if (array != null) {
+                    if (array !== null) {
                         this._value = array;
                     }
                 }
@@ -244,11 +244,11 @@ onednn.Attribute = class {
                         number = Number.parseFloat(item);
                         if (Number.isNaN(item - number)) {
                             array = null;
-                        } else if (array != null) {
+                        } else if (array !== null) {
                             array.push(number);
                         }
                     }
-                    if (array != null) {
+                    if (array !== null) {
                         this._value = array;
                     }
                 }
@@ -275,7 +275,7 @@ onednn.Attribute = class {
     }
 
     get visible() {
-        return this._visible == false ? false : true;
+        return this._visible === false ? false : true;
     }
 };
 

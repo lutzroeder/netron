@@ -38,7 +38,7 @@ tf.ModelFactory = class {
             if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
                 return;
             }
-            if (identifier == 'tfhub_module.pb') {
+            if (identifier === 'tfhub_module.pb') {
                 const stream = context.stream;
                 const signature = [0x08, 0x03];
                 if (signature.length === stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
@@ -964,7 +964,7 @@ tf.Node = class {
                 this._group = node.name;
             } else {
                 const index = node.name.lastIndexOf('/');
-                if (index != -1) {
+                if (index !== -1) {
                     const namespace = node.name.substring(0, index);
                     if (namespaces.has(namespace)) {
                         this._group = namespace;
@@ -1032,7 +1032,7 @@ tf.Node = class {
                     const values = outputs.slice(outputIndex, outputIndex + count).map((output) => {
                         return context.value(output.name ? output.name : '-', null, null);
                     });
-                    const name = output.name ? output.name : `output${this._outputs.length == 0 ? '' : this._outputs.length}`;
+                    const name = output.name ? output.name : `output${this._outputs.length === 0 ? '' : this._outputs.length}`;
                     const argument = new tf.Argument(name, values);
                     this._outputs.push(argument);
                     outputIndex += count;
@@ -1199,10 +1199,10 @@ tf.Attribute = class {
                 }
             }
         }
-        if (name == '_output_shapes') {
+        if (name === '_output_shapes') {
             this._visible = false;
         }
-        if (name == '_class') {
+        if (name === '_class') {
             this._visible = false;
         }
         if (visible === false) {
@@ -1223,7 +1223,7 @@ tf.Attribute = class {
     }
 
     get visible() {
-        return this._visible == false ? false : true;
+        return this._visible === false ? false : true;
     }
 };
 
@@ -1401,12 +1401,12 @@ tf.TensorShape = class {
             if (shape.unknown_rank) {
                 this._dimensions = null;
             } else if (Array.isArray(shape.dim)) {
-                if (shape.dim.length == 0) {
+                if (shape.dim.length === 0) {
                     this._dimensions = [];
-                } else if (shape.dim.length == 1 && !shape.dim[0].size) {
+                } else if (shape.dim.length === 1 && !shape.dim[0].size) {
                     this._dimensions = [0];
                 } else {
-                    this._dimensions = shape.dim.map((dim) => (dim.size && dim.size != -1) ? dim.size : '?');
+                    this._dimensions = shape.dim.map((dim) => (dim.size && dim.size !== -1) ? dim.size : '?');
                 }
             }
         }
@@ -1427,7 +1427,7 @@ tf.TensorShape = class {
         if (this._dimensions.length === 0) {
             return '';
         }
-        return `[${this._dimensions.map((dim) => (dim && dim != -1) ? dim.toString() : '?').join(',')}]`;
+        return `[${this._dimensions.map((dim) => (dim && dim !== -1) ? dim.toString() : '?').join(',')}]`;
     }
 };
 
@@ -1486,7 +1486,7 @@ tf.TensorBundle = class {
                                 data.set(name, { key: 'tensor_content', value: tensor.tensor_content });
                             } else {
                                 const keys = Object.keys(tensor).filter((key) => key.endsWith('_val') && tensor[key] && tensor[key].length > 0);
-                                data.set(name, keys.length == 1 ? { key: keys[0], value: tensor[keys[0]] } : null);
+                                data.set(name, keys.length === 1 ? { key: keys[0], value: tensor[keys[0]] } : null);
                             }
                         } else {
                             const item = data.get(name);
@@ -1878,9 +1878,9 @@ tf.Context = class {
         for (const node of nodes) {
             const nodeName = node.name;
             node_map.set(nodeName, node);
-            if (node.op != 'Const') {
+            if (node.op !== 'Const') {
                 const index = nodeName.lastIndexOf('/');
-                if (index != -1) {
+                if (index !== -1) {
                     const namespace = nodeName.substring(0, index);
                     namespaces.add(namespace);
                 }
@@ -1894,10 +1894,10 @@ tf.Context = class {
             for (const input of inputs) {
                 const split = input.split(':', 3);
                 const [input_name] = split;
-                const input_index = split.length == 1 ? 0 : parseInt(split[split.length - 1]);
+                const input_index = split.length === 1 ? 0 : parseInt(split[split.length - 1]);
                 const from_name = input_name.startsWith('^') ? input_name.substring(1) : input_name;
                 const from = node_map.get(from_name);
-                const output_name = input_index == 0 ? from_name : `${from_name}:${input_index}`;
+                const output_name = input_index === 0 ? from_name : `${from_name}:${input_index}`;
                 const input_arg = from ? { name: output_name, from: from } : { name: output_name };
                 if (input_name.startsWith('^')) {
                     node.controlDependencies.push(input_arg);
@@ -1983,7 +1983,7 @@ tf.Context = class {
         }
         const input_map = new Map();
         for (const node of node_map.values()) {
-            if (node.op == 'Placeholder' && node.input.length === 0 && node.output.length === 1 && node.controlDependencies.length === 0) {
+            if (node.op === 'Placeholder' && node.input.length === 0 && node.output.length === 1 && node.controlDependencies.length === 0) {
                 const dtype = node.attr.dtype;
                 const shape = node.attr.shape;
                 if (dtype && dtype.type && shape && shape.shape) {

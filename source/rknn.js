@@ -494,7 +494,7 @@ rknn.TensorShape = class {
     }
 
     toString() {
-        if (!this._dimensions || this._dimensions.length == 0) {
+        if (!this._dimensions || this._dimensions.length === 0) {
             return '';
         }
         return `[${this._dimensions.join(',')}]`;

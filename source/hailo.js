@@ -193,8 +193,8 @@ hailo.Tensor = class {
         this.type = new hailo.TensorType(dataType, new hailo.TensorShape(shape));
         if (array) {
             this.stride = array.strides.map((stride) => stride / array.itemsize);
-            this.layout = this.type.dataType == 'string' || this.type.dataType == 'object' ? '|' : array.dtype.byteorder;
-            this.values = this.type.dataType == 'string' || this.type.dataType == 'object' ? array.tolist() : array.tobytes();
+            this.layout = this.type.dataType === 'string' || this.type.dataType === 'object' ? '|' : array.dtype.byteorder;
+            this.values = this.type.dataType === 'string' || this.type.dataType === 'object' ? array.tolist() : array.tobytes();
         }
     }
 };

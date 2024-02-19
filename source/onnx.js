@@ -127,7 +127,7 @@ onnx.Model = class {
             }
             this._imports = Array.from(imports).map(([name, version]) => `${name} v${version}`);
         }
-        if (imports.size == 0) {
+        if (imports.size === 0) {
             imports.set('ai.onnx', 1);
             imports.set('ai.onnx.ml', 1);
         }
@@ -429,7 +429,7 @@ onnx.Node = class {
                 }
                 const metadata = context.attribute(op_type, domain, attribute.name);
                 if (metadata) {
-                    if (Object.prototype.hasOwnProperty.call(metadata, 'default') && value == metadata.default) {
+                    if (Object.prototype.hasOwnProperty.call(metadata, 'default') && value === metadata.default) {
                         visible = false;
                     }
                     if (metadata.type === 'DataType') {
@@ -745,7 +745,7 @@ onnx.TensorShape = class {
     }
 
     toString() {
-        if (!this._dimensions || this._dimensions.length == 0) {
+        if (!this._dimensions || this._dimensions.length === 0) {
             return '';
         }
         return `[${this._dimensions.map((dim) => dim ? dim.toString() : '?').join(',')}]`;
@@ -1273,7 +1273,7 @@ onnx.Context.Graph = class {
             return new onnx.OpaqueType(type.opaque_type.domain, type.opaque_type.name);
         } else if (type.optional_type) {
             return new onnx.OptionalType(this.createType(type.optional_type.elem_type), denotation);
-        } else if (Object.keys(type).length == 0) {
+        } else if (Object.keys(type).length === 0) {
             return null;
         }
         throw new onnx.Error(`Unsupported tensor type '${JSON.stringify(type)}'.`);
@@ -2269,7 +2269,7 @@ onnx.TextReader = class {
                 }
                 while (this._match(','));
             } else {
-                if (attribute.type == onnx.AttributeType.UNDEFINED) {
+                if (attribute.type === onnx.AttributeType.UNDEFINED) {
                     this._throw('Empty list attribute value requires type annotation.');
                 }
                 switch (attribute.type) {
@@ -2541,7 +2541,7 @@ onnx.TextReader = class {
                 this._next();
             }
         }
-        if (!optional && value.length == 0) {
+        if (!optional && value.length === 0) {
             this._throw('Identifier expected.');
         }
         return value.join('');

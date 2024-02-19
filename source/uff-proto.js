@@ -512,7 +512,7 @@ uff.Data = class Data {
 
     get type() {
         uff.Data.typeSet = uff.Data.typeSet || new Set(["s", "s_list", "d", "d_list", "b", "b_list", "i", "i_list", "blob", "ref", "dtype", "dtype_list", "dim_orders", "dim_orders_list"]);
-        return Object.keys(this).find((key) => uff.Data.typeSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => uff.Data.typeSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {

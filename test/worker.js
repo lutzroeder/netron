@@ -28,7 +28,7 @@ const dirname = (...args) => {
 
 const decompress = (buffer) => {
     let archive = zip.Archive.open(buffer, 'gzip');
-    if (archive && archive.entries.size == 1) {
+    if (archive && archive.entries.size === 1) {
         const stream = archive.entries.values().next().value;
         buffer = stream.peek();
     }
@@ -60,7 +60,7 @@ host.TestHost = class {
     }
 
     environment(name) {
-        if (name == 'zoom') {
+        if (name === 'zoom') {
             return 'none';
         }
         return null;
@@ -431,7 +431,7 @@ export class Target {
             sources = sources && sources.startsWith(',') ? sources.substring(1).trim() : '';
         } else {
             const commaIndex = sources.indexOf(',');
-            if (commaIndex != -1) {
+            if (commaIndex !== -1) {
                 source = sources.substring(0, commaIndex);
                 sources = sources.substring(commaIndex + 1);
             } else {
@@ -517,13 +517,13 @@ export class Target {
     }
 
     validate() {
-        if (!this.model.format || (this.format && this.format != this.model.format)) {
+        if (!this.model.format || (this.format && this.format !== this.model.format)) {
             throw new Error(`Invalid model format '${this.model.format}'.`);
         }
-        if (this.producer && this.model.producer != this.producer) {
+        if (this.producer && this.model.producer !== this.producer) {
             throw new Error(`Invalid producer '${this.model.producer}'.`);
         }
-        if (this.runtime && this.model.runtime != this.runtime) {
+        if (this.runtime && this.model.runtime !== this.runtime) {
             throw new Error(`Invalid runtime '${this.model.runtime}'.`);
         }
         if (this.model.metadata && !(this.model.metadata instanceof Map)) {
@@ -636,7 +636,7 @@ export class Target {
             }
             for (const node of graph.nodes) {
                 const type = node.type;
-                if (!type || typeof type.name != 'string') {
+                if (!type || typeof type.name !== 'string') {
                     throw new Error(`Invalid node type '${JSON.stringify(node.type)}'.`);
                 }
                 if (Array.isArray(type.nodes)) {

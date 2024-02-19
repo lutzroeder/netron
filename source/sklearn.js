@@ -271,14 +271,14 @@ sklearn.Node = class {
                         if (schema.type) {
                             type = schema.type;
                         }
-                        if (schema.visible === false || (schema.optional && value == null)) {
+                        if (schema.visible === false || (schema.optional && value === null)) {
                             visible = false;
                         } else if (schema.default !== undefined) {
                             if (Array.isArray(value)) {
                                 if (Array.isArray(schema.default)) {
-                                    visible = value.length !== schema.default || !value.every((item, index) => item == metadata.default[index]);
+                                    visible = value.length !== schema.default || !value.every((item, index) => item === metadata.default[index]);
                                 } else {
-                                    visible = !value.every((item) => item == schema.default);
+                                    visible = !value.every((item) => item === schema.default);
                                 }
                             } else {
                                 visible = value !== schema.default;
@@ -315,8 +315,8 @@ sklearn.Tensor = class {
     constructor(array) {
         this.type = new sklearn.TensorType(array.dtype.__name__, new sklearn.TensorShape(array.shape));
         this.stride = array.strides.map((stride) => stride / array.itemsize);
-        this.encoding = this.type.dataType == 'string' || this.type.dataType == 'object' ? '|' : array.dtype.byteorder;
-        this.values = this.type.dataType == 'string' || this.type.dataType == 'object' ? array.tolist() : array.tobytes();
+        this.encoding = this.type.dataType === 'string' || this.type.dataType === 'object' ? '|' : array.dtype.byteorder;
+        this.values = this.type.dataType === 'string' || this.type.dataType === 'object' ? array.tolist() : array.tobytes();
     }
 };
 

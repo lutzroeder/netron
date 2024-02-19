@@ -67,7 +67,7 @@ CNTK.proto.NDArrayView = class NDArrayView {
 
     get values() {
         CNTK.proto.NDArrayView.valuesSet = CNTK.proto.NDArrayView.valuesSet || new Set(["float_values", "double_values", "bytes_value", "sint32_values"]);
-        return Object.keys(this).find((key) => CNTK.proto.NDArrayView.valuesSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CNTK.proto.NDArrayView.valuesSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
@@ -282,7 +282,7 @@ CNTK.proto.DictionaryValue = class DictionaryValue {
 
     get value() {
         CNTK.proto.DictionaryValue.valueSet = CNTK.proto.DictionaryValue.valueSet || new Set(["bool_value", "int_value", "size_t_value", "float_value", "double_value", "string_value", "nd_shape_value", "axis_value", "vector_value", "dictionary_value", "nd_array_view_value"]);
-        return Object.keys(this).find((key) => CNTK.proto.DictionaryValue.valueSet.has(key) && this[key] != null);
+        return Object.keys(this).find((key) => CNTK.proto.DictionaryValue.valueSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {

@@ -11,7 +11,7 @@ barracuda.ModelFactory = class {
         const stream = context.stream;
         if (stream && stream.length > 12) {
             const buffer = stream.peek(12);
-            if (buffer[0] <= 0x20 && buffer.subarray(1, 8).every((value) => value == 0x00)) {
+            if (buffer[0] <= 0x20 && buffer.subarray(1, 8).every((value) => value === 0x00)) {
                 context.type = 'barracuda';
             }
         }
@@ -139,10 +139,10 @@ barracuda.Node = class {
             if (value === undefined) {
                 return;
             }
-            if (Array.isArray(defaultValue) && Array.isArray(value) && value.length == defaultValue.length && value.every((v, i) => v === defaultValue[i])) {
+            if (Array.isArray(defaultValue) && Array.isArray(value) && value.length === defaultValue.length && value.every((v, i) => v === defaultValue[i])) {
                 return;
             }
-            if (typeof defaultValue == 'function' && defaultValue(value)) {
+            if (typeof defaultValue === 'function' && defaultValue(value)) {
                 return;
             }
             if (defaultValue === value) {

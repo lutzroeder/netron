@@ -17,7 +17,7 @@ ncnn.ModelFactory = class {
             if (stream.length > 4) {
                 const buffer = stream.peek(4);
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
-                if (signature == 0x007685DD) {
+                if (signature === 0x007685DD) {
                     context.type = 'ncnn.model.bin';
                     return;
                 }
@@ -261,16 +261,16 @@ ncnn.Node = class {
         let inputIndex = 0;
         if (this._type && this._type.inputs) {
             for (const inputDef of this._type.inputs) {
-                if (inputIndex < inputs.length || inputDef.option != 'optional') {
-                    const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => values.map(id));
+                if (inputIndex < inputs.length || inputDef.option !== 'optional') {
+                    const inputCount = (inputDef.option === 'variadic') ? (inputs.length - inputIndex) : 1;
+                    const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id !== '' || inputDef.option !== 'optional').map((id) => values.map(id));
                     this._inputs.push(new ncnn.Argument(inputDef.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
         }
         this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
-            const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
+            const inputName = ((inputIndex + index) === 0) ? 'input' : (inputIndex + index).toString();
             return new ncnn.Argument(inputName, [values.map(input)]);
         }));
 
@@ -278,8 +278,8 @@ ncnn.Node = class {
         let outputIndex = 0;
         if (this._type && this._type.outputs) {
             for (const outputDef of this._type.outputs) {
-                if (outputIndex < outputs.length || outputDef.option != 'optional') {
-                    const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                if (outputIndex < outputs.length || outputDef.option !== 'optional') {
+                    const outputCount = (outputDef.option === 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => values.map(id));
                     this._outputs.push(new ncnn.Argument(outputDef.name, outputArguments));
                     outputIndex += outputCount;
@@ -287,7 +287,7 @@ ncnn.Node = class {
             }
         }
         this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
-            const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
+            const outputName = ((outputIndex + index) === 0) ? 'output' : (outputIndex + index).toString();
             return new ncnn.Argument(outputName, [values.map(output)]);
         }));
         const weight = (blobReader, name, dimensions, dataType) => {
@@ -441,9 +441,9 @@ ncnn.Node = class {
             }
             case 'Scale': {
                 const scale_data_size = parseInt(attributes.get('0') || 0, 10);
-                if (scale_data_size != -233) {
+                if (scale_data_size !== -233) {
                     weight(blobReader, 'scale', [scale_data_size], 'float32');
-                    if (attributes.get('1') == '1') {
+                    if (attributes.get('1') === '1') {
                         weight(blobReader, 'bias', [scale_data_size], 'float32');
                     }
                 }
@@ -469,13 +469,13 @@ ncnn.Node = class {
                 const h = parseInt(attributes.get('1') || 0, 10);
                 const d = parseInt(attributes.get('11') || 0, 10);
                 const c = parseInt(attributes.get('2') || 0, 10);
-                if (d != 0) {
+                if (d !== 0) {
                     weight(blobReader, 'data', [c, d, h, w], 'float32');
-                } else if (c != 0) {
+                } else if (c !== 0) {
                     weight(blobReader, 'data', [c, h, w], 'float32');
-                } else if (h != 0) {
+                } else if (h !== 0) {
                     weight(blobReader, 'data', [h, w], 'float32');
-                } else if (w != 0) {
+                } else if (w !== 0) {
                     weight(blobReader, 'data', [w], 'float32');
                 } else {
                     weight(blobReader, 'data', [1], 'float32');
@@ -501,7 +501,7 @@ ncnn.Node = class {
                 const num_output = parseInt(attributes.get('0') || 0, 10);
                 const weight_data_size = parseInt(attributes.get('1') || 0, 10);
                 const direction = parseInt(attributes.get('2') || 0, 10);
-                const num_directions = direction == 2 ? 2 : 1;
+                const num_directions = direction === 2 ? 2 : 1;
                 weight(blobReader, 'weight_xc', [num_directions, num_output, weight_data_size / num_directions / num_output]);
                 weight(blobReader, 'bias_c', [num_directions, num_output]);
                 weight(blobReader, 'weight_hc', [num_directions, num_output, num_output]);
@@ -512,7 +512,7 @@ ncnn.Node = class {
                 const num_output = parseInt(attributes.get('0') || 0, 10);
                 const weight_data_size = parseInt(attributes.get('1') || 0, 10);
                 const direction = parseInt(attributes.get('2') || 0, 10);
-                const num_directions = direction == 2 ? 2 : 1;
+                const num_directions = direction === 2 ? 2 : 1;
                 weight(blobReader, 'weight_xc', [num_directions, 4, num_output, weight_data_size / num_directions / num_output / 4]);
                 weight(blobReader, 'bias_c', [num_directions, 4, num_output]);
                 weight(blobReader, 'weight_hc', [num_directions, 4, num_output, num_output]);
@@ -523,7 +523,7 @@ ncnn.Node = class {
                 const num_output = parseInt(attributes.get('0') || 0, 10);
                 const weight_data_size = parseInt(attributes.get('1') || 0, 10);
                 const direction = parseInt(attributes.get('2') || 0, 10);
-                const num_directions = direction == 2 ? 2 : 1;
+                const num_directions = direction === 2 ? 2 : 1;
                 weight(blobReader, 'weight_xc', [num_directions, 3, num_output, weight_data_size / num_directions / num_output / 3]);
                 weight(blobReader, 'bias_c', [num_directions, 4, num_output]);
                 weight(blobReader, 'weight_hc', [num_directions, 3, num_output, num_output]);
@@ -615,7 +615,7 @@ ncnn.Attribute = class {
             if (metadata && metadata.visible === false) {
                 this._visible = false;
             } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
-                if (this._value == metadata.default || (this._value && this._value.toString() == metadata.default.toString())) {
+                if (this._value === metadata.default || (this._value && this._value.toString() === metadata.default.toString())) {
                     this._visible = false;
                 }
             }
@@ -635,7 +635,7 @@ ncnn.Attribute = class {
     }
 
     get visible() {
-        return this._visible == false ? false : true;
+        return this._visible === false ? false : true;
     }
 };
 
@@ -750,7 +750,7 @@ ncnn.TextParamReader = class {
         while (lines.length > 0) {
             const line = lines.shift();
             if (line.length > 0) {
-                const columns = line.split(' ').filter((s) => s.length != 0);
+                const columns = line.split(' ').filter((s) => s.length !== 0);
                 const layer = {};
                 layer.type = columns.shift();
                 layer.name = columns.shift();
@@ -816,7 +816,7 @@ ncnn.BinaryParamReader = class {
             }
             const attributes = layer.attributes;
             let id = reader.int32();
-            while (id != -233) {
+            while (id !== -233) {
                 const isArray = id <= -23300;
                 if (isArray) {
                     id = -id - 23300;
