@@ -3020,7 +3020,7 @@ python.Execution = class {
                             const appends = stack;
                             stack = marker.pop();
                             const list = stack[stack.length - 1];
-                            list.push.apply(list, appends);
+                            list.push(...appends);
                             break;
                         }
                         case 83: { // STRING 'S'
@@ -4869,7 +4869,7 @@ python.Execution = class {
             dict[key] = value;
         });
         this.registerFunction('torch._tensor._rebuild_from_type_v2', (func, new_type, args, state) => {
-            let ret = func.apply(null, args);
+            let ret = func(...args);
             if (ret.__class__ !== new_type) {
                 // ret = ret.as_subclass(new_type);
             }
@@ -6865,14 +6865,14 @@ python.Execution = class {
                 }
                 const obj = Object.create(target);
                 if (obj.__init__ && typeof obj.__init__ === 'function') {
-                    obj.__init__.apply(obj, args);
+                    obj.__init__(...args);
                 }
                 return obj;
             } else if (target.__class__ === this._builtins.function) {
                 if (target.__call__) {
                     return target.__call__(args);
                 }
-                return target.apply(null, args);
+                return target(...args);
             }
         }
         throw new python.Error('Unsupported invoke target.');
@@ -6907,7 +6907,7 @@ python.Execution = class {
             const obj = Object.create(func);
             obj.__class__ = func;
             if (obj.__init__ && typeof obj.__init__ === 'function') {
-                obj.__init__.apply(obj, args);
+                obj.__init__(...args);
             }
             return obj;
         }

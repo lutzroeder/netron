@@ -100,6 +100,7 @@
             "prefer-const": [ "error" ],
             "prefer-destructuring": [ "error", { "array": true } ],
             "prefer-rest-params": "error",
+            "prefer-spread": "error",
             "prefer-template": "error",
             "radix": "error",
             "require-atomic-updates": "error",

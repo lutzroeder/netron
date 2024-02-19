@@ -290,7 +290,7 @@ zip.Inflater = class {
                     }
                     case 1: { // block with fixed huffman trees
                         if (!zip.Inflater._staticLengthTree) {
-                            zip.Inflater._staticLengthTree = zip.HuffmanTree.create(new Uint8Array([].concat.apply([], [[144, 8], [112, 9], [24, 7], [8, 8]].map((x) => [...Array(x[0])].map(() => x[1])))));
+                            zip.Inflater._staticLengthTree = zip.HuffmanTree.create(new Uint8Array([].concat(...[[144, 8], [112, 9], [24, 7], [8, 8]].map((x) => [...Array(x[0])].map(() => x[1])))));
                             zip.Inflater._staticDistanceTree = zip.HuffmanTree.create(new Uint8Array([...Array(32)].map(() => 5)));
                         }
                         this._lengthTree = zip.Inflater._staticLengthTree;
