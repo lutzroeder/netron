@@ -99,6 +99,7 @@
             "prefer-arrow-callback": "error",
             "prefer-const": [ "error" ],
             "prefer-destructuring": [ "error", { "array": true } ],
+            "prefer-rest-params": "error",
             "prefer-template": "error",
             "radix": "error",
             "require-atomic-updates": "error",

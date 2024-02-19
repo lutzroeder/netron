@@ -1346,15 +1346,15 @@ pytorch.Execution = class extends python.Execution {
             const cpp_module = torch._C.import_ir_module(cu, file, map_location, extra_files);
             return new torch.jit._script.RecursiveScriptModule(cpp_module);
         });
-        this.registerFunction('torch._C.import_ir_module', function(cu, reader) {
+        this.registerFunction('torch._C.import_ir_module', function(cu, reader, ...args) {
             switch (arguments.length) {
                 case 4: {
-                    const [, reader, device, extra_files] = arguments;
+                    const [device, extra_files] = args;
                     const deserializer = new pytorch.jit.ScriptModuleDeserializer(cu, reader);
                     return deserializer.deserialize(device, extra_files);
                 }
                 case 5: {
-                    const [, , storage_context, device, ts_id] = arguments;
+                    const [storage_context, device, ts_id] = args;
                     const deserializer = new pytorch.jit.ScriptModuleDeserializer(cu, reader, `.data/ts_code/${ts_id}/`, '.data/', storage_context);
                     return deserializer.deserialize(device, null);
                 }

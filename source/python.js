@@ -4037,9 +4037,9 @@ python.Execution = class {
         this.registerFunction('re._compile', (pattern, flags) => {
             return self.invoke('re.Pattern', [pattern, flags]);
         });
-        this.registerFunction('srsly.cloudpickle.cloudpickle._builtin_type', (name) => {
+        this.registerFunction('srsly.cloudpickle.cloudpickle._builtin_type', (...args) => {
             return function() {
-                return self.invoke(`types.${name}`, arguments);
+                return self.invoke(`types.${args[0]}`, args);
             };
         });
         this.registerFunction('theano.scalar.basic.same_out', () => {
@@ -4659,17 +4659,17 @@ python.Execution = class {
             tensor.value = value; // TODO
             return tensor;
         });
-        this.registerFunction('ops.prim.min', function(value) {
-            if (Array.isArray(value)) {
-                return Math.min.apply(null, value);
+        this.registerFunction('ops.prim.min', (...args) => {
+            if (Array.isArray(args[0])) {
+                return Math.min.apply(null, args[0]);
             }
-            return Math.min.apply(null, arguments);
+            return Math.min.apply(null, args);
         });
-        this.registerFunction('ops.prim.max', function(value) {
-            if (Array.isArray(value)) {
-                return Math.max.apply(null, value);
+        this.registerFunction('ops.prim.max', (...args) => {
+            if (Array.isArray(args[0])) {
+                return Math.max.apply(null, args[0]);
             }
-            return Math.max.apply(null, arguments);
+            return Math.max.apply(null, args);
         });
         this.registerFunction('ops.prim.shape', (tensor) => {
             return tensor && tensor.size ? tensor.size() : undefined;
@@ -5030,8 +5030,7 @@ python.Execution = class {
         this.registerFunction('torch.floordiv', (left, right) => {
             return Math.floor(left / right);
         });
-        this.registerFunction('torch.format', function() {
-            const args = Array.from(arguments);
+        this.registerFunction('torch.format', (...args) => {
             const list = args.shift().split(/({}D?)/);
             return list.map((text) => {
                 if (text === '{}' || text === '{}D') {
@@ -6247,15 +6246,15 @@ python.Execution = class {
             }
         });
         this.registerType('torch.storage._TypedStorage', class {
-            constructor() {
-                if (arguments.length >= 2 && Number.isInteger(arguments[0]) && arguments[1] instanceof torch.dtype) {
-                    if (arguments[3] instanceof torch.device) {
-                        [this._size, this._dtype, , this._device] = arguments;
+            constructor(...args) {
+                if (args.length >= 2 && Number.isInteger(args[0]) && args[1] instanceof torch.dtype) {
+                    if (args[3] instanceof torch.device) {
+                        [this._size, this._dtype, , this._device] = args;
                     } else {
-                        [this._size, this._dtype] = arguments;
+                        [this._size, this._dtype] = args;
                     }
                 } else {
-                    throw new python.Error(`Unsupported _TypedStorage arguments '${JSON.stringify(arguments)}'.`);
+                    throw new python.Error(`Unsupported _TypedStorage arguments '${JSON.stringify(args)}'.`);
                 }
             }
             get device() {
@@ -6653,8 +6652,8 @@ python.Execution = class {
         this.registerType('fastai.tabular.core.TabularPandas', class extends fastai.tabular.core.Tabular {});
         this.registerType('fastai.tabular.learner.TabularLearner', class extends fastai.learner.Learner {});
         this.registerType('fastai.tabular.model.TabularModel', class {});
-        this.registerFunction('fastai.torch_core._fa_rebuild_tensor', function(cls) {
-            const tensor = self.invoke('torch._utils._rebuild_tensor_v2', Array.from(arguments).slice(1));
+        this.registerFunction('fastai.torch_core._fa_rebuild_tensor', (cls, ...args) => {
+            const tensor = self.invoke('torch._utils._rebuild_tensor_v2', args);
             return self.invoke(cls, tensor);
         });
         this.registerType('fastai.torch_core.TensorBase', class extends torch.Tensor {

@@ -796,11 +796,12 @@ host.BrowserHost.Context = class {
 
 if (!('scrollBehavior' in window.document.documentElement.style)) {
     const __scrollTo__ = Element.prototype.scrollTo;
-    Element.prototype.scrollTo = function(options) {
+    Element.prototype.scrollTo = function(...args) {
+        const [options] = args;
         if (options !== undefined) {
-            if (options === null || typeof options !== 'object' || options.behavior === undefined || arguments[0].behavior === 'auto' || options.behavior === 'instant') {
+            if (options === null || typeof options !== 'object' || options.behavior === undefined || options.behavior === 'auto' || options.behavior === 'instant') {
                 if (__scrollTo__) {
-                    __scrollTo__.apply(this, arguments);
+                    __scrollTo__.apply(this, args);
                 }
             } else {
                 const now = () =>  window.performance && window.performance.now ? window.performance.now() : Date.now();
