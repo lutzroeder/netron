@@ -91,6 +91,7 @@
             "no-unused-private-class-members": "error",
             "no-unused-vars": "error",
             "no-use-before-define": "error",
+            "no-useless-catch": "error",
             "no-var": "error",
             "object-curly-spacing": [ "error", "always" ],
             "prefer-arrow-callback": "error",
