@@ -1358,7 +1358,7 @@ dagre.layout = (graph, layout) => {
             const layers = buildLayerMatrix(g);
             for (const layer of layers) {
                 let orderShift = 0;
-                layer.forEach(function(v, i) {
+                layer.forEach((v, i) => {
                     const label = g.node(v).label;
                     label.order = i + orderShift;
                     if (label.selfEdges) {
@@ -1681,7 +1681,7 @@ dagre.layout = (graph, layout) => {
                         let prevNorthPos = -1;
                         let nextNorthPos;
                         let southPos = 0;
-                        south.forEach(function(v, southLookahead) {
+                        south.forEach((v, southLookahead) => {
                             if (g.node(v).label.dummy === 'border') {
                                 const predecessors = g.predecessors(v);
                                 if (predecessors.length) {

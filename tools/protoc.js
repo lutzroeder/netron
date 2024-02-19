@@ -1083,7 +1083,7 @@ protoc.Tokenizer = class {
     }
 
     static _unescape(str) {
-        return str.replace(/\\(.?)/g, function($0, $1) {
+        return str.replace(/\\(.?)/g, ($0, $1) => {
             switch ($1) {
                 case '\\':
                 case '':

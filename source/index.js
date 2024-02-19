@@ -1,6 +1,7 @@
 
 /* eslint-env es2015 */
 /* eslint-disable no-var */
+/* eslint-disable prefer-arrow-callback */
 /* eslint-disable prefer-template */
 /* eslint-disable prefer-destructuring */
 

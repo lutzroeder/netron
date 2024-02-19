@@ -1340,7 +1340,7 @@ pytorch.Execution = class extends python.Execution {
                 return execution.import(name);
             }
         });
-        this.registerFunction('torch.jit.load', function(file, map_location, extra_files) {
+        this.registerFunction('torch.jit.load', (file, map_location, extra_files) => {
             const cu = new torch.jit.CompilationUnit();
             cu.execution = execution;
             const cpp_module = torch._C.import_ir_module(cu, file, map_location, extra_files);
@@ -1364,10 +1364,10 @@ pytorch.Execution = class extends python.Execution {
             }
 
         });
-        this.registerFunction('torch._C._import_ir_module_from_package', function(cu, reader, storage_context, map_location, ts_id) {
+        this.registerFunction('torch._C._import_ir_module_from_package', (cu, reader, storage_context, map_location, ts_id) => {
             return torch._C.import_ir_module(cu, reader, storage_context, null, ts_id);
         });
-        this.registerFunction('torch._C._jit_pass_inline', function(graph) {
+        this.registerFunction('torch._C._jit_pass_inline', (graph) => {
             const tryToGraphFunction = (node) => {
                 if (node.kind() === 'prim::CallFunction') {
                     // TODO
@@ -1406,13 +1406,13 @@ pytorch.Execution = class extends python.Execution {
             };
             inlineCalls(graph.blocks());
         });
-        this.registerFunction('torch.jit._script.unpackage_script_module', function(importer, script_module_id) {
+        this.registerFunction('torch.jit._script.unpackage_script_module', (importer, script_module_id) => {
             const cu = new torch.jit.CompilationUnit();
             cu.execution = execution;
             const cpp_module = torch._C._import_ir_module_from_package(cu, importer.zip_reader, importer.storage_context, importer.last_map_location, script_module_id);
             return new torch.jit._script.RecursiveScriptModule(cpp_module);
         });
-        this.registerFunction('torch.jit.jit_module_from_flatbuffer', function(f) {
+        this.registerFunction('torch.jit.jit_module_from_flatbuffer', (f) => {
             const cu = new torch.jit.CompilationUnit();
             cu.execution = execution;
             const stream = f;
@@ -1426,7 +1426,7 @@ pytorch.Execution = class extends python.Execution {
             // throw new pytorch.Error('torch.jit.mobile.serialization.Module not supported.');
             return torch.jit._script.wrap_cpp_module(cpp_module);
         });
-        this.registerFunction('torch.jit._script.wrap_cpp_module', function(cpp_module) {
+        this.registerFunction('torch.jit._script.wrap_cpp_module', (cpp_module) => {
             const init_fn = (script_module) => {
                 for (const [name, module] of new torch.ModuleDict(script_module._c).items()) {
                     script_module.__setattr__(name, torch.jit._script.wrap_cpp_module(module));

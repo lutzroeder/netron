@@ -93,6 +93,7 @@
             "no-use-before-define": "error",
             "no-var": "error",
             "object-curly-spacing": [ "error", "always" ],
+            "prefer-arrow-callback": "error",
             "prefer-const": [ "error" ],
             "prefer-destructuring": [ "error", { "array": true } ],
             "prefer-template": "error",
