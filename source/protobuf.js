@@ -248,7 +248,7 @@ protobuf.BinaryReader = class {
     }
 
     int64() {
-        return this._varint();
+        return BigInt.asIntN(64, this._varint());
     }
 
     uint64() {
@@ -257,7 +257,7 @@ protobuf.BinaryReader = class {
 
     sint64() {
         const value = this._varint();
-        return (value >> 1n) ^ (-(value & 1n));
+        return (value >> 1n) ^ (-(value & 1n)); // ZigZag decode
     }
 
     fixed64() {
