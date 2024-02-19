@@ -307,7 +307,7 @@ json.TextReader = class {
                 this._next();
             }
         }
-        return +value;
+        return Number(value);
     }
 
     _string() {

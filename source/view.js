@@ -4334,7 +4334,7 @@ markdown.Generator = class {
                 const ordered = bull.length > 1;
                 const parent = bull[bull.length - 1] === ')';
                 let raw = value;
-                const list = { type: 'list', raw: raw, ordered: ordered, start: ordered ? +bull.slice(0, -1) : '', loose: false, items: [] };
+                const list = { type: 'list', raw: raw, ordered: ordered, start: ordered ? Number(bull.slice(0, -1)) : '', loose: false, items: [] };
                 const itemMatch = value.match(this._itemRegExp);
                 let next = false;
                 const length = itemMatch.length;
@@ -4343,7 +4343,7 @@ markdown.Generator = class {
                     raw = item;
                     let space = item.length;
                     item = item.replace(/^ *([*+-]|\d+[.)]) ?/, '');
-                    if (~item.indexOf('\n ')) {
+                    if (item.indexOf('\n ') !== -1) {
                         space -= item.length;
                         item = item.replace(new RegExp(`^ {1,${space}}`, 'gm'), '');
                     }

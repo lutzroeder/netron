@@ -74,7 +74,7 @@ flatbuffers.BinaryReader = class {
     }
 
     bool(offset) {
-        return !!this.int8(offset);
+        return Boolean(this.int8(offset));
     }
 
     bool_(position, offset, defaultValue) {

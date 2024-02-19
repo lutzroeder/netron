@@ -1059,7 +1059,7 @@ dagre.layout = (graph, layout) => {
                     let sum = 0;
                     let weight = 0;
                     let vsIndex = 0;
-                    sortable.sort(compareWithBias(!!biasRight));
+                    sortable.sort(compareWithBias(Boolean(biasRight)));
                     vsIndex = consumeUnsortable(vs, unsortable, vsIndex);
                     for (const entry of sortable) {
                         vsIndex += entry.vs.length;

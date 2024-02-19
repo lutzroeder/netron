@@ -47,7 +47,7 @@ grapher.Graph = class {
         if (!this._isCompound) {
             throw new Error("Cannot set parent in a non-compound graph");
         }
-        parent += "";
+        parent = String(parent);
         for (let ancestor = parent; ancestor; ancestor = this.parent(ancestor)) {
             if (ancestor === node) {
                 throw new Error(`Setting ${parent} as parent of ${node} would create a cycle`);
@@ -805,8 +805,8 @@ grapher.Edge.Curve = class {
     }
 
     point(x, y) {
-        x = +x;
-        y = +y;
+        x = Number(x);
+        y = Number(y);
         switch (this._state) {
             case 0:
                 this._state = 1;
@@ -857,15 +857,15 @@ grapher.Edge.Path = class {
     }
 
     moveTo(x, y) {
-        this._data += `M${this._x0 = this._x1 = +x},${this._y0 = this._y1 = +y}`;
+        this._data += `M${this._x0 = this._x1 = Number(x)},${this._y0 = this._y1 = Number(y)}`;
     }
 
     lineTo(x, y) {
-        this._data += `L${this._x1 = +x},${this._y1 = +y}`;
+        this._data += `L${this._x1 = Number(x)},${this._y1 = Number(y)}`;
     }
 
     bezierCurveTo(x1, y1, x2, y2, x, y) {
-        this._data += `C${+x1},${+y1},${+x2},${+y2},${this._x1 = +x},${this._y1 = +y}`;
+        this._data += `C${Number(x1)},${Number(y1)},${Number(x2)},${Number(y2)},${this._x1 = Number(x)},${this._y1 = Number(y)}`;
     }
 
     closePath() {

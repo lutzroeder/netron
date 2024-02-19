@@ -72,6 +72,7 @@
             "no-global-assign": "error",
             "no-invalid-this": "error",
             "no-iterator": "error",
+            "no-implicit-coercion": "error",
             "no-import-assign": "error",
             "no-labels": "error",
             "no-lone-blocks": "error",
