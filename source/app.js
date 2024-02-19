@@ -197,11 +197,11 @@ app.Application = class {
                     // find existing view for this file
                     let view = views.find((view) => view.match(path));
                     // find empty welcome window
-                    if (view === null) {
+                    if (!view) {
                         view = views.find((view) => view.match(null));
                     }
                     // create new window
-                    if (view === null) {
+                    if (!view) {
                         view = this._views.openView();
                     }
                     view.open(path);
@@ -299,7 +299,7 @@ app.Application = class {
 
     _about() {
         let view = this._views.activeView;
-        if (view === null) {
+        if (!view) {
             view = this._views.openView();
         }
         view.execute('about');
