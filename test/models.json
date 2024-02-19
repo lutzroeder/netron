@@ -2039,6 +2039,7 @@
     "type":     "flux",
     "target":   "helloworld.bson",
     "source":   "https://github.com/lutzroeder/netron/files/3638212/helloworld.zip[helloworld.bson]",
+    "error":    "File contains unsupported Flux data.",
     "format":   "Flux",
     "link":     "https://github.com/lutzroeder/netron/issues/334"
   },

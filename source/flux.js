@@ -22,14 +22,14 @@ flux.ModelFactory = class {
             const message = error && error.message ? error.message : error.toString();
             throw new flux.Error(`File format is not Flux BSON (${message.replace(/\.$/, '')}).`);
         }
-        const metadata = context.metadata('flux-metadata.json');
+        /* const metadata = */ context.metadata('flux-metadata.json');
         const backref = (obj, root) => {
             if (Array.isArray(obj)) {
                 for (let i = 0; i < obj.length; i++) {
                     obj[i] = backref(obj[i], root);
                 }
             } else if (obj === Object(obj)) {
-                if (obj.tag == 'backref' && obj.ref) {
+                if (obj.tag === 'backref' && obj.ref) {
                     if (!root._backrefs[obj.ref - 1]) {
                         throw new flux.Error(`Invalid backref '${obj.ref}'.`);
                     }
@@ -48,7 +48,7 @@ flux.ModelFactory = class {
         if (!model) {
             throw new flux.Error('File does not contain Flux model.');
         }
-        return new flux.Model(metadata, model);
+        throw new flux.Error("File contains unsupported Flux data.");
     }
 };
 
