@@ -362,19 +362,21 @@ tflite.Node = class {
                 }
                 if (!decoded) {
                     const schema = metadata.attribute(type.name, 'custom');
-                    this._attributes.push(new tflite.Attribute(schema, 'custom', Array.from(node.custom_options)));
+                    const attribute = new tflite.Attribute(schema, 'custom', Array.from(node.custom_options));
+                    this._attributes.push(attribute);
                 }
             }
             const options = node.builtin_options;
             if (options) {
                 for (const [name, value] of Object.entries(options)) {
                     if (name === 'fused_activation_function' && value) {
-                        const activationFunctionMap = { 1: 'Relu', 2: 'ReluN1To1', 3: 'Relu6', 4: 'Tanh', 5: 'SignBit' };
-                        if (!activationFunctionMap[value]) {
-                            throw new tflite.Error(`Unsupported activation funtion index '${JSON.stringify(value)}'.`);
+                        if (value < 1 || value > 5) {
+                            throw new tflite.Error(`Unsupported activation funtion index '${value}'.`);
                         }
-                        const type = activationFunctionMap[value];
-                        this._chain = [new tflite.Node(metadata, null, { name: type }, null, [])];
+                        const list = ['Unknown', 'Relu', 'ReluN1To1', 'Relu6', 'Tanh', 'SignBit'];
+                        const type = list[value];
+                        const node = new tflite.Node(metadata, null, { name: type }, null, []);
+                        this._chain = [node];
                     }
                     const schema = metadata.attribute(type.name, name);
                     this._attributes.push(new tflite.Attribute(schema, name, value));
