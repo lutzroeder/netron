@@ -230,8 +230,8 @@ gguf.Reader = class {
         context.header.version = reader.uint32();
         this.format = `GGUF v${context.header.version}`;
         if (context.header.version >= 2) {
-            context.header.n_tensors = Number(reader.uint64());
-            context.header.n_kv = Number(reader.uint64());
+            context.header.n_tensors = reader.uint64().toNumber();
+            context.header.n_kv = reader.uint64().toNumber();
             for (let i = 0; i < context.header.n_kv; i++) {
                 const entry = reader.entry();
                 this.metadata.set(entry.name, entry.value);

@@ -230,7 +230,7 @@ tf.ModelFactory = class {
                 const buffer = stream.read(8);
                 stream.seek(0);
                 const reader = new base.BinaryReader(buffer);
-                const offset = Number(reader.uint64());
+                const offset = reader.uint64().toNumber();
                 if (offset < stream.length) {
                     context.type = 'tf.pb.mmap';
                     return;
@@ -612,7 +612,7 @@ tf.ModelFactory = class {
                 stream.seek(-8);
                 const buffer = stream.read(8);
                 const reader = new base.BinaryReader(buffer);
-                return Number(reader.uint64());
+                return reader.uint64().toNumber();
             };
             const readDirectory = (stream, offset) => {
                 const end = stream.position - 8;

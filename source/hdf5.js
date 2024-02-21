@@ -932,7 +932,7 @@ hdf5.LinkInfo = class {
             case 0: {
                 const flags = reader.byte();
                 if ((flags & 1) !== 0) {
-                    this.maxCreationIndex = Number(reader.uint64());
+                    this.maxCreationIndex = reader.uint64().toNumber();
                 }
                 this.fractalHeapAddress = reader.offset();
                 this.nameIndexTreeAddress = reader.offset();
@@ -1068,7 +1068,7 @@ hdf5.Datatype = class {
                 } else if (this._size === 4) {
                     return ((this._flags & 0x8) !== 0) ? reader.int32() : reader.uint32();
                 } else if (this._size === 8) {
-                    return ((this._flags & 0x8) !== 0) ? Number(reader.int64()) : Number(reader.uint64());
+                    return ((this._flags & 0x8) !== 0) ? reader.int64().toNumber() : reader.uint64().toNumber();
                 }
                 throw new hdf5.Error('Unsupported fixed-point datatype.');
             case 1: // floating-point
@@ -1452,7 +1452,7 @@ hdf5.AttributeInfo = class {
             case 0: {
                 const flags = reader.byte();
                 if ((flags & 1) !== 0) {
-                    this.maxCreationIndex = Number(reader.uint64());
+                    this.maxCreationIndex = reader.uint64().toNumber();
                 }
                 this.fractalHeapAddress = reader.offset();
                 this.attributeNameTreeAddress = reader.offset();

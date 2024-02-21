@@ -2902,7 +2902,7 @@ python.Execution = class {
                             stack.push(reader.read(reader.byte()));
                             break;
                         case 142: // BINBYTES8 '\x8e' (Protocol 4)
-                            stack.push(reader.read(reader.int64()));
+                            stack.push(reader.read(reader.int64().toNumber()));
                             break;
                         case 70: // FLOAT 'F'
                             stack.push(parseFloat(reader.line()));
@@ -3105,7 +3105,7 @@ python.Execution = class {
                             reader.read(8);
                             break;
                         case 150: { // BYTEARRAY8 '\x96' (Protocol 5)
-                            stack.push(reader.read(reader.int64()));
+                            stack.push(reader.read(reader.int64().toNumber()));
                             break;
                         }
                         case 78: // NONE 'N'

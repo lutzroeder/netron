@@ -25,6 +25,13 @@ base.Complex128 = class Complex {
     }
 };
 
+BigInt.prototype.toNumber = function() {
+    if (this > Number.MAX_SAFE_INTEGER || this < Number.MIN_SAFE_INTEGER) {
+        throw new Error('64-bit value exceeds safe integer.');
+    }
+    return Number(this);
+};
+
 if (!DataView.prototype.getFloat16) {
     DataView.prototype.getFloat16 = function(byteOffset, littleEndian) {
         const value = this.getUint16(byteOffset, littleEndian);

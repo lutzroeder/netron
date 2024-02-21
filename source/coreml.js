@@ -1221,8 +1221,8 @@ coreml.Context = class {
                         const signature = reader.uint32();
                         if (signature === 0xdeadbeef) {
                             reader.uint32(); // dataType
-                            const size = Number(reader.uint64());
-                            const offset = Number(reader.uint64());
+                            const size = reader.uint64().toNumber();
+                            const offset = reader.uint64().toNumber();
                             stream.seek(offset);
                             const length = (type.shape.dimensions || []).reduce((a, b) => a * b, 1);
                             switch (type.dataType) {

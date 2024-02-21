@@ -488,7 +488,7 @@ torch.T7Reader = class {
                 this.itemSize = itemSize;
             }
             read(reader) {
-                this.size = Number(reader.int64());
+                this.size = reader.int64();
                 this.reader = reader.storage(this.size, this.itemSize, this.dataType);
             }
             data() {
@@ -513,7 +513,7 @@ torch.T7Reader = class {
                                 array[i] = reader.int32();
                                 break;
                             case 'int64':
-                                array[i] = Number(reader.int64());
+                                array[i] = reader.int64();
                                 break;
                             case 'float32':
                                 array[i] = reader.float32();
@@ -539,7 +539,7 @@ torch.T7Reader = class {
                 const dim = reader.int32();
                 this.size = reader.int64s(dim);
                 this.stride = reader.int64s(dim);
-                this.storage_offset = Number(reader.int64()) - 1;
+                this.storage_offset = reader.int64() - 1;
                 this.storage = reader.read();
             }
         };
@@ -986,6 +986,10 @@ torch.BinaryReader = class extends base.BinaryReader {
         const position = this._position;
         this.skip(length);
         return this._buffer.subarray(position, this._position);
+    }
+
+    int64() {
+        return super.int64().toNumber();
     }
 
     int64s(size) {

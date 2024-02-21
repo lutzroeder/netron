@@ -248,7 +248,7 @@ barracuda.NNModel = class {
                 layer.tensors.push({
                     name: reader.string(),
                     shape: reader.shape(),
-                    offset: Number(reader.int64()),
+                    offset: reader.int64().toNumber(),
                     itemsize: reader.int32(),
                     length: reader.int32()
                 });

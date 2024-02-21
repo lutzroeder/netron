@@ -143,7 +143,7 @@ tensorrt.Container = class {
             const buffer = stream.peek(Math.min(512, stream.length));
             if (buffer.length > 12 && buffer[6] === 0x00 && buffer[7] === 0x00) {
                 const reader = new base.BinaryReader(buffer);
-                const length = Number(reader.uint64());
+                const length = reader.uint64().toNumber();
                 if (length === stream.length) {
                     let position = reader.position + reader.uint32();
                     if (position < reader.length) {

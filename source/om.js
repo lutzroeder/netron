@@ -382,7 +382,7 @@ om.Container = class {
                 header.platform_version = decoder.decode(reader.read(20));
                 header.platform_type = reader.byte();
                 header.padd = [reader.byte(), reader.byte(), reader.byte()];
-                header.model_length = Number(reader.uint64());
+                header.model_length = reader.uint64().toNumber();
                 header.need_check_os_cpu_info = reader.byte();
                 header.is_unknow_model = reader.byte(); // 0:static model 1:dynamic model
                 header.reserved = reader.read(62);
@@ -394,9 +394,9 @@ om.Container = class {
                     reader.skip(align - 4);
                     size = 4 + (align - 4) + (count * 3 * align);
                     for (let i = 0; i < count; i++) {
-                        const type = align === 4 ? reader.uint32() : Number(reader.uint64());
-                        const offset = align === 4 ? reader.uint32() : Number(reader.uint64());
-                        const size = align === 4 ? reader.uint32() : Number(reader.uint64());
+                        const type = align === 4 ? reader.uint32() : reader.uint64().toNumber();
+                        const offset = align === 4 ? reader.uint32() : reader.uint64().toNumber();
+                        const size = align === 4 ? reader.uint32() : reader.uint64().toNumber();
                         if (type >= 32 || partitions.has(type) || (offset + size) >= stream.length) {
                             partitions.clear();
                             break;
