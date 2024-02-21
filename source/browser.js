@@ -137,9 +137,6 @@ host.BrowserHost = class {
     }
 
     async start() {
-        const hash = this.window.location.hash ? this.window.location.hash.replace(/^#/, '') : '';
-        const search = this.window.location.search;
-        const params = new URLSearchParams(search + (hash ? `&${hash}` : ''));
         if (this._meta.file) {
             const [url] = this._meta.file;
             if (this._view.accept(url)) {
@@ -150,7 +147,10 @@ host.BrowserHost = class {
                 return;
             }
         }
-        const url = params.get('url');
+        const search = this.window.location.search;
+        const params = new Map(search ? new URLSearchParams(this.window.location.search) : []);
+        const hash = this.window.location.hash ? this.window.location.hash.replace(/^#/, '') : '';
+        const url = hash ? hash : params.get('url');
         if (url) {
             const identifier = params.get('identifier') || null;
             const location = url
