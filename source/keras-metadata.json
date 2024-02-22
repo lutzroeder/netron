@@ -2485,11 +2485,11 @@
     "description": "Specifies the rank, dtype and shape of every input to a layer.\n\nLayers can expose (if appropriate) an `input_spec` attribute:\nan instance of `InputSpec`, or a nested structure of `InputSpec` instances\n(one per input tensor). These objects enable the layer to run input\ncompatibility checks for input structure, input rank, input shape, and\ninput dtype for the first argument of `Layer.__call__`.\n\nA `None` entry in a shape is compatible with any dimension.",
     "attributes": [
       {
-        "description": "Expected DataType of the input.",
+        "description": "Expected dtype of the input.",
         "name": "dtype"
       },
       {
-        "description": "Shape tuple, expected shape of the input\n        (may include None for unchecked axes). Includes the batch size.",
+        "description": "Shape tuple, expected shape of the input\n        (may include `None` for dynamic axes).\n        Includes the batch size.",
         "name": "shape"
       },
       {
@@ -2509,7 +2509,7 @@
         "name": "axes"
       },
       {
-        "description": "If True, then allow inputs of rank N+1 as long\n        as the last axis of the input is 1, as well as inputs of rank N-1\n        as long as the last axis of the spec is 1.",
+        "description": "If `True`, allow inputs of rank N+1 as long\n        as the last axis of the input is 1, as well as inputs of rank N-1\n        as long as the last axis of the spec is 1.",
         "name": "allow_last_axis_squeeze"
       },
       {
@@ -2519,7 +2519,7 @@
     ],
     "examples": [
       {
-        "code": "class MyLayer(Layer):\n    def __init__(self):\n        super(MyLayer, self).__init__()\n        # The layer will accept inputs with\n        # shape (*, 28, 28) & (*, 28, 28, 1)\n        # and raise an appropriate error message otherwise.\n        self.input_spec = InputSpec(\n            shape=(None, 28, 28, 1),\n            allow_last_axis_squeeze=True)"
+        "code": "class MyLayer(Layer):\n    def __init__(self):\n        super().__init__()\n        # The layer will accept inputs with\n        # shape (*, 28, 28) & (*, 28, 28, 1)\n        # and raise an appropriate error message otherwise.\n        self.input_spec = InputSpec(\n            shape=(None, 28, 28, 1),\n            allow_last_axis_squeeze=True)"
       }
     ]
   },
