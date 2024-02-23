@@ -2500,6 +2500,8 @@ python.Execution = class {
             return new cls(d);
         });
         this.registerType('pandas.core.indexes.base.Index', class {});
+        this.registerType('pandas.core.internals.managers.SingleBlockManager', class {});
+        this.registerType('pandas.core.series.Series', class {});
         this.registerType('pandas._libs.tslibs.base.ABCTimestamp', class extends datetime.datetime {});
         this.registerType('pandas._libs.tslibs.timestamps._Timestamp', class extends pandas._libs.tslibs.base.ABCTimestamp {});
         this.registerType('pandas._libs.tslibs.timestamps.Timestamp', class extends pandas._libs.tslibs.timestamps._Timestamp {});
@@ -4090,10 +4092,12 @@ python.Execution = class {
         this.registerType('torch.ao.quantization.observer._PartialWrapper', class {});
         this.registerType('torch.ao.quantization.observer.HistogramObserver', class {});
         this.registerType('torch.ao.quantization.observer.MovingAverageMinMaxObserver', class {});
+        this.registerType('torch.ao.quantization.observer.MovingAveragePerChannelMinMaxObserver', class {});
         this.registerType('torch.ao.quantization.observer.MinMaxObserver', class {});
         this.registerType('torch.ao.quantization.observer.PerChannelMinMaxObserver', class {});
         this.registerType('torch.ao.quantization.observer.PlaceholderObserver', class {});
         this.registerType('torch.ao.quantization.qconfig.QConfig', class {});
+        this.registerType('torch.ao.quantization.qconfig.QConfigDynamic', class {});
         this.registerType('torch.ao.quantization.stubs.DeQuantStub', class {});
         this.registerType('torch.ao.quantization.stubs.QuantStub', class {});
         this.registerType('torch.ao.quantization.stubs.QuantWrapper', class {});
@@ -4158,6 +4162,7 @@ python.Execution = class {
         this.registerType('torch.distributions.transforms.LowerCholeskyTransform', class {});
         this.registerType('torch.distributions.uniform.Uniform', class {});
         this.registerType('torch.nn.backends.thnn._get_thnn_function_backend', class {});
+        this.registerType('torch.nn.intrinsic.modules.fused._FusedModule', class {});
         this.registerType('torch.nn.intrinsic.modules.fused.ConvBnReLU2d', class {});
         this.registerType('torch.nn.intrinsic.modules.fused.ConvReLU2d', class {});
         this.registerType('torch.nn.intrinsic.modules.fused.BNReLU2d', class {});
@@ -4565,6 +4570,7 @@ python.Execution = class {
         this.registerType('torchvision.models.segmentation.deeplabv3.DeepLabV3', class {});
         this.registerType('torchvision.models.segmentation.fcn.FCN', class {});
         this.registerType('torchvision.models.segmentation.fcn.FCNHead', class {});
+        this.registerType('torchvision.models.segmentation.lraspp.LRASPPHead', class {});
         this.registerType('torchvision.models.shufflenetv2.ShuffleNetV2', class {});
         this.registerType('torchvision.models.shufflenetv2.InvertedResidual', class {});
         this.registerType('torchvision.models.squeezenet.Fire', class {});
