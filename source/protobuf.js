@@ -9,7 +9,7 @@ protobuf.BinaryReader = class {
         if (data instanceof Uint8Array) {
             return new protobuf.BufferReader(data);
         }
-        if (data.length < 0x40000000) {
+        if (data.length < 0x20000000) {
             data = data.peek();
             return new protobuf.BufferReader(data);
         }
@@ -1213,16 +1213,24 @@ protobuf.TextReader = class {
                             case 'X': {
                                 let value = 0;
                                 for (let xi = 0; xi < 2; xi++) {
-                                    let xd = this._decoder.decode();
-                                    if (xd === undefined) {
+                                    let c = this._decoder.decode();
+                                    if (c === undefined) {
                                         throw new protobuf.Error(`Unexpected end of string ${this.location()}`);
                                     }
-                                    xd = xd.charCodeAt(0);
-                                    xd = xd >= 65 && xd <= 70 ? xd - 55 : xd >= 97 && xd <= 102 ? xd - 87 : xd >= 48 && xd <= 57 ? xd - 48 : -1;
-                                    if (xd === -1) {
-                                        throw new protobuf.Error(`Unexpected hex digit '${xd}' in bytes string ${this.location()}`);
+                                    c = c.charCodeAt(0);
+                                    if (c >= 65 && c <= 70) {
+                                        c = c - 55;
+                                    } else if (c >= 97 && c <= 102) {
+                                        c = c - 87;
+                                    } else if (c >= 48 && c <= 57) {
+                                        c = c - 48;
+                                    } else {
+                                        c = -1;
                                     }
-                                    value = value << 4 | xd;
+                                    if (c === -1) {
+                                        throw new protobuf.Error(`Unexpected hex digit '${c}' in bytes string ${this.location()}`);
+                                    }
+                                    value = value << 4 | c;
                                 }
                                 c = String.fromCharCode(value);
                                 break;

@@ -86,8 +86,8 @@ lasagne.Value = class {
         if (typeof name !== 'string') {
             throw new lasagne.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
-        this.name= name;
-        this.type = type ? type : initializer ? initializer.type : null;
+        this.name = name;
+        this.type = !type && initializer ? initializer.type : type;
         this.initializer = initializer;
     }
 };

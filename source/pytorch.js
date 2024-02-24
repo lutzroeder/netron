@@ -582,7 +582,14 @@ pytorch.Node = class {
                 for (let i = 0; i < outputs.length; i++) {
                     const output = outputs[i];
                     const metadata = this.type && this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i] : null;
-                    const name = metadata && metadata.name ? metadata.name : i === 0 ? 'output' : `output${i}`;
+                    let name;
+                    if (metadata && metadata.name) {
+                        name = metadata.name;
+                    } else if (i === 0) {
+                        name = 'output';
+                    } else {
+                        name = `output${i}`;
+                    }
                     let list = [output];
                     if (output.uses().length === 1 &&
                         output.uses()[0].user &&
@@ -631,7 +638,12 @@ pytorch.Tensor = class {
             this.stride = tensor.stride();
             const stride = this.stride;
             const offset = tensor.storage_offset();
-            const length = stride ? size.every((v) => v !== 0) ? size.reduce((a, v, i) => a + stride[i] * (v - 1), 1) : 0 : storage.size();
+            let length = 0;
+            if (!Array.isArray(stride)) {
+                length = storage.size();
+            } else if (size.every((v) => v !== 0)) {
+                length = size.reduce((a, v, i) => a + stride[i] * (v - 1), 1);
+            }
             if (offset !== 0 || length !== storage.size()) {
                 const itemsize = storage.dtype.itemsize();
                 this._offset = itemsize * offset;

@@ -207,7 +207,14 @@ json.TextReader = class {
                         break;
                     }
                     default: {
-                        const value = c === '"' ? this._string() : c >= '0' && c <= '9' ? this._number() : this._literal();
+                        let value;
+                        if (c === '"') {
+                            value = this._string();
+                        } else if (c >= '0' && c <= '9') {
+                            value = this._number();
+                        } else {
+                            value = this._literal();
+                        }
                         this._whitespace();
                         if (this._char !== undefined) {
                             this._unexpected();

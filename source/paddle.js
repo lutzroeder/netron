@@ -352,7 +352,14 @@ paddle.Graph = class {
                 values.set(name, new paddle.Value(name, tensor.type, tensor));
                 const separator = name.indexOf('.') !== -1 ? '.' : '_';
                 const regex = /(.*)_((w_attr|scale|weights|offset|b|w|b_attr)_(moment|beta|velocity|mean_square|mean_grad).*)/;
-                const parts = separator === '.' ? name.split(separator) : (regex.test(name) ? regex.exec(name).slice(1, 3) : ['', name]);
+                let parts;
+                if (separator === '.') {
+                    parts = name.split(separator);
+                } else if (regex.test(name)) {
+                    parts = regex.exec(name).slice(1, 3);
+                } else {
+                    parts = ['', name];
+                }
                 const parameter_name = parts.pop();
                 const op_name = parts.join(separator);
                 if (!ops.has(op_name)) {
@@ -389,7 +396,7 @@ paddle.Value = class {
             throw new paddle.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
-        this.type = type ? type : initializer && initializer.type ? initializer.type : null;
+        this.type = !type && initializer ? initializer.type : type;
         this.initializer = initializer || null;
     }
 };
@@ -587,8 +594,17 @@ paddle.Entries = class {
             for (const [name] of this.data) {
                 if (!name.startsWith('.') || name.startsWith('./')) {
                     const parts = name.split('/');
-                    const folder = ((parts.length > 2 && parts[0] === '.') ? (`./${parts[1]}/`) : (parts.length > 1 ? `${parts[0]}/` : ''));
-                    rootFolder = (rootFolder === null) ? folder : (rootFolder !== '' && folder !== rootFolder) ? '' : folder;
+                    let folder = '';
+                    if (parts.length > 2 && parts[0] === '.') {
+                        folder = `./${parts[1]}/`;
+                    } else if (parts.length > 1) {
+                        folder = `${parts[0]}/`;
+                    }
+                    if (rootFolder !== null && rootFolder !== '' && folder !== rootFolder) {
+                        rootFolder = '';
+                    } else {
+                        rootFolder = folder;
+                    }
                 }
             }
             this.weights = new Map();
@@ -621,7 +637,12 @@ paddle.Pickle = class {
         this._weights = null;
         if (obj && !Array.isArray(obj) && (obj instanceof Map || Object(obj) === obj)) {
             const entries = (obj) => {
-                return obj instanceof Map ? Array.from(obj) : Object(obj) === obj ? Object.entries(obj) : [];
+                if (obj instanceof Map) {
+                    return Array.from(obj);
+                } else if (Object(obj) === obj) {
+                    return Object.entries(obj);
+                }
+                return [];
             };
             const filter = (obj) => {
                 const list = [];

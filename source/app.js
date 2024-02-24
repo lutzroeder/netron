@@ -811,10 +811,16 @@ app.View = class {
     }
 
     state(event) {
+        let fullscreen;
+        switch (event) {
+            case 'enter-full-screen': fullscreen = true; break;
+            case 'leave-full-screen': fullscreen = false; break;
+            default: fullscreen = this._window.isFullScreen(); break;
+        }
         this.execute('window-state', {
             minimized: this._window.isMinimized(),
             maximized: this._window.isMaximized(),
-            fullscreen: event === 'enter-full-screen' ? true : event === 'leave-full-screen' ? false : this._window.isFullScreen()
+            fullscreen: fullscreen
         });
         if (this._dispatch) {
             const dispatch = this._dispatch;
@@ -956,7 +962,7 @@ app.ConfigurationService = class {
                 try {
                     this._data = JSON.parse(data);
                     if (Array.isArray(this._data.recents)) {
-                        this._data.recents = this._data.recents.map((recent) => typeof recent === 'string' ? recent : (recent && recent.path ? recent.path : recent));
+                        this._data.recents = this._data.recents.map((recent) => typeof recent !== 'string' && recent && recent.path ? recent.path : recent);
                     }
                 } catch (error) {
                     // continue regardless of error

@@ -255,20 +255,20 @@ hailo.Container = class {
             }
             const configuration = context.peek('json');
             if (configuration && configuration.name && configuration.net_params && configuration.layers) {
-                return new hailo.Container(context, basename.join('.'), configuration, null);
+                return new hailo.Container(context, 'hailo.configuration', basename.join('.'), configuration, null);
             }
         } else if (identifier.toLowerCase().endsWith('.metadata.json')) {
             basename.pop();
             const metadata = context.peek('json');
             if (metadata && metadata.state && metadata.hn) {
-                return new hailo.Container(context, basename.join('.'), null, metadata);
+                return new hailo.Container(context, 'hailo.metadata', basename.join('.'), null, metadata);
             }
         }
         return null;
     }
 
-    constructor(context, basename, configuration, metadata) {
-        this.type = metadata ? 'hailo.metadata' : configuration ? 'hailo.configuration' : 'hailo';
+    constructor(context, type, basename, configuration, metadata) {
+        this.type = type;
         this.context = context;
         this.basename = basename;
         this.configuration = configuration;

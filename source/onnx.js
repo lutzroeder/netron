@@ -1259,11 +1259,11 @@ onnx.Context.Graph = class {
         }
         if (type.tensor_type) {
             const tensor_type = type.tensor_type;
-            const shape = tensor_type.shape && tensor_type.shape.dim ? tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value ? dim.dim_value : null) : [];
+            const shape = tensor_type.shape && tensor_type.shape.dim ? tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value || null) : [];
             return this.createTensorType(tensor_type.elem_type, shape, null, denotation);
         } else if (type.sparse_tensor_type) {
             type = type.sparse_tensor_type;
-            const shape = type.shape && type.shape.dim ? type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value ? dim.dim_value : null) : [];
+            const shape = type.shape && type.shape.dim ? type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value || null) : [];
             return this.createTensorType(type.elem_type, shape, 'sparse', denotation);
         } else if (type.map_type) {
             return this.createMapType(type.map_type.key_type, this.createType(type.map_type.value_type), denotation);

@@ -925,7 +925,7 @@ keras.Value = class {
             throw new keras.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name= name;
-        this.type = type ? type : initializer && initializer.type ? initializer.type : null;
+        this.type = !type && initializer ? initializer.type  : type;
         this.quantization = initializer && initializer.quantization ? initializer.quantization : null;
         this.initializer = initializer || null;
     }

@@ -45,7 +45,9 @@ mediapipe.Graph = class {
         this.nodes = [];
         const types = new Map();
         const type = (list) => {
-            list = list ? Array.isArray(list) ? list : [list] : [];
+            if (!Array.isArray(list)) {
+                list = list ? [list] : [];
+            }
             return list.map((item) => {
                 const parts = item.split(':');
                 const name = parts.pop();
@@ -66,7 +68,9 @@ mediapipe.Graph = class {
         config.output_stream = type(config.output_stream);
         config.input_side_packet = type(config.input_side_packet);
         config.output_side_packet = type(config.output_side_packet);
-        config.node = config.node ? Array.isArray(config.node) ? config.node : [config.node] : [];
+        if (!Array.isArray(config.node)) {
+            config.node = config.node ? [config.node] : [];
+        }
         for (const node of config.node) {
             node.input_stream = type(node.input_stream);
             node.output_stream = type(node.output_stream);
@@ -138,7 +142,10 @@ mediapipe.Node = class {
                 options.set(key, node.options[key]);
             }
         }
-        const node_options = node.node_options ? Array.isArray(node.node_options) ? node.node_options : [node.node_options] : [];
+        let node_options = node.node_options;
+        if (!Array.isArray(node_options)) {
+            node_options = node_options ? [node_options] : [];
+        }
         if (mediapipe.proto.google && node_options.every((options) => options instanceof mediapipe.proto.google.protobuf.Any)) {
             for (const entry of node_options) {
                 const value = new RegExp(/^\{(.*)\}\s*$/, 's').exec(entry.value);

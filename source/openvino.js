@@ -394,7 +394,12 @@ openvino.Graph = class {
                 return values.map(layer.id, input.precision || layer.precision, input, body.edges);
             });
             const outputs = layer.output.map((output) => {
-                const precision = output && output.precision ? output.precision : layer && layer.precision ? layer.precision : null;
+                let precision = null;
+                if (output && output.precision) {
+                    precision = output.precision;
+                } else if (layer && layer.precision) {
+                    precision = layer.precision;
+                }
                 return values.map(layer.id, precision, output, null);
             });
             const subgraph = Array.isArray(net.input) || Array.isArray(net.output);
@@ -455,7 +460,14 @@ openvino.Node = class {
         const type = layer.type;
         this.type = metadata.type(type) || { name: type };
         for (let i = 0; i < inputs.length;) {
-            const input = this.type && Array.isArray(this.type.inputs) && i < this.type.inputs.length ? this.type.inputs[i] : inputs.length === 1 ? { name: 'input' } : { name: i.toString() };
+            let input;
+            if (this.type && Array.isArray(this.type.inputs) && i < this.type.inputs.length) {
+                input = this.type.inputs[i];
+            } else if (inputs.length === 1) {
+                input = { name: 'input' };
+            } else {
+                input = { name: i.toString() };
+            }
             const count = input.type === 'Tensor[]' ? inputs.length - i : 1;
             const values = inputs.slice(i, i + count);
             const argument = new openvino.Argument(input.name, values);
@@ -463,7 +475,14 @@ openvino.Node = class {
             i += count;
         }
         for (let i = 0; i < outputs.length;) {
-            const output = this.type && Array.isArray(this.type.outputs) && i < this.type.outputs.length ? this.type.outputs[i] : outputs.length === 1 ? { name: 'output' } : { name: i.toString() };
+            let output;
+            if (this.type && Array.isArray(this.type.outputs) && i < this.type.outputs.length) {
+                output = this.type.outputs[i];
+            } else if (outputs.length === 1) {
+                output = { name: 'output' };
+            } else {
+                output = { name: i.toString() };
+            }
             const count = output.type === 'Tensor[]' ? outputs.length - i : 1;
             const values = outputs.slice(i, i + count);
             const argument = new openvino.Argument(output.name, values);

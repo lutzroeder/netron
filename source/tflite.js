@@ -96,10 +96,17 @@ tflite.Model = class {
         }
         const operators = model.operator_codes.map((operator) => {
             const code = Math.max(operator.deprecated_builtin_code, operator.builtin_code || 0);
-            const version = operator.version;
-            const custom = code === tflite.schema.BuiltinOperator.CUSTOM;
-            const name = custom ? operator.custom_code ? operator.custom_code : 'Custom' : builtinOperators.has(code) ? builtinOperators.get(code) : code.toString();
-            return custom ? { name: name, version: version, custom: true } : { name: name, version: version };
+            const value = {};
+            if (code === tflite.schema.BuiltinOperator.CUSTOM) {
+                value.name = operator.custom_code ? operator.custom_code : 'Custom';
+                value.version = operator.version;
+                value.custom = true;
+            } else {
+                value.name = builtinOperators.has(code) ? builtinOperators.get(code) : code.toString();
+                value.version = operator.version;
+                value.custom = false;
+            }
+            return value;
         });
         let modelMetadata = null;
         for (const metadata of model.metadata) {

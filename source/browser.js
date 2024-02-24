@@ -395,7 +395,11 @@ host.BrowserHost = class {
     }
 
     _url(file) {
-        file = file.startsWith('./') ? file.substring(2) : file.startsWith('/') ? file.substring(1) : file;
+        if (file.startsWith('./')) {
+            file = file.substring(2);
+        } else if (file.startsWith('/')) {
+            file = file.substring(1);
+        }
         const location = this.window.location;
         const pathname = location.pathname.endsWith('/') ?
             location.pathname :

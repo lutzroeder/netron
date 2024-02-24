@@ -544,7 +544,15 @@ view.View = class {
 
     _wheelHandler(e) {
         if (e.shiftKey || e.ctrlKey || this._options.mousewheel === 'zoom') {
-            const delta = -e.deltaY * (e.deltaMode === 1 ? 0.05 : e.deltaMode ? 1 : 0.002) * (e.ctrlKey ? 10 : 1);
+            let factor;
+            if (e.deltaMode === 1) {
+                factor = 0.05;
+            } else if (e.deltaMode) {
+                factor = 1;
+            } else {
+                factor = 0.002;
+            }
+            const delta = -e.deltaY * factor * (e.ctrlKey ? 10 : 1);
             this._updateZoom(this._zoom * Math.pow(2, delta), e);
             e.preventDefault();
         }
@@ -1278,7 +1286,7 @@ view.Menu = class {
                     shortcut += shift ? 'Shift+' : '';
                     shortcut += key;
                 }
-                let code = (cmdOrCtrl ? 0x1000 : 0) | (cmd ? 0x0800 : 0) | (ctrl ? 0x0400 : 0) | (alt ? 0x0200 : 0 | shift ? 0x0100 : 0);
+                let code = (cmdOrCtrl ? 0x1000 : 0) | (cmd ? 0x0800 : 0) | (ctrl ? 0x0400 : 0) | (alt ? 0x0200 : 0) | (shift ? 0x0100 : 0);
                 code |= this._keyCodes.has(key) ? this._keyCodes.get(key) : key.charCodeAt(0);
                 this._accelerators.set(code, action);
             }
@@ -2372,7 +2380,13 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             attributes.sort((a, b) => {
                 const au = a.name.toUpperCase();
                 const bu = b.name.toUpperCase();
-                return (au < bu) ? -1 : (au > bu) ? 1 : 0;
+                if (au < bu) {
+                    return -1;
+                }
+                if (au > bu) {
+                    return +1;
+                }
+                return 0;
             });
             for (const attribute of attributes) {
                 this._addAttribute(attribute.name, attribute);
@@ -4640,7 +4654,12 @@ markdown.Generator = class {
                         } while (prevCapZero !== value);
                     }
                     const text = this._escape(value);
-                    const href = email ? (`mailto:${text}`) : (match[1] === 'www.' ? `http://${text}` : text);
+                    let href = text;
+                    if (email) {
+                        href = `mailto:${text}`;
+                    } else if (text.startsWith('www.')) {
+                        href = `http://${text}`;
+                    }
                     source = source.substring(value.length);
                     tokens.push({ type: 'link', text: text, href: href, tokens: [{ type: 'text', text: text }] });
                     continue;

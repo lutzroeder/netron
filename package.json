@@ -79,6 +79,7 @@
             "no-lone-blocks": "error",
             "no-lonely-if": "error",
             "no-multiple-empty-lines": [ "error", { "max": 1 } ],
+            "no-nested-ternary": "error",
             "no-promise-executor-return": "error",
             "no-proto": "error",
             "no-self-compare": "error",

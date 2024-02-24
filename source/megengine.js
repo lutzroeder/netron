@@ -471,7 +471,7 @@ megengine.Value = class {
             throw new megengine.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
-        this.type = type ? type : initializer && initializer.type ? initializer.type : null;
+        this.type = !type && initializer ? initializer.type : type;
         this.initializer = initializer;
         if (quantization && ((quantization.scale !== undefined && quantization.scale !== 0) || quantization.zeroPoint !== undefined && quantization.zeroPoint !== 0)) {
             this.quantization = {

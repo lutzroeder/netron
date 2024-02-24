@@ -706,7 +706,12 @@ tf.Model = class {
         if (model) {
             for (let i = 0; i < model.meta_graphs.length; i++) {
                 const meta_graph = model.meta_graphs[i];
-                const name = meta_graph.meta_info_def && meta_graph.meta_info_def.any_info ? meta_graph.meta_info_def.any_info.toString() : model.meta_graphs.length > 1 ? i.toString() : '';
+                let name = '';
+                if (meta_graph.meta_info_def && meta_graph.meta_info_def.any_info) {
+                    name = meta_graph.meta_info_def.any_info.toString();
+                } else if (model.meta_graphs.length > 1) {
+                    name = i.toString();
+                }
                 const graph = new tf.Graph(metadata, meta_graph, name, bundle);
                 this._graphs.push(graph);
             }

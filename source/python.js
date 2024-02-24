@@ -1464,16 +1464,33 @@ python.Tokenizer = class {
                 length = c1 === '=' || c1 === '>' ? 2 : 1;
                 break;
             case '*':
-                length = c1 === '*' ? (c2 === '=' ? 3 : 2) : (c1 === '=' ? 2 : 1);
+                switch (c1) {
+                    case '*': length = c2 === '=' ? 3 : 2; break;
+                    case '=': length = 2; break;
+                    default: length = 1; break;
+                }
                 break;
             case '/':
-                length = c1 === '/' ? (c2 === '=' ? 3 : 2) : (c1 === '=' ? 2 : 1);
+                switch (c1) {
+                    case '/': length = c2 === '=' ? 3 : 2; break;
+                    case '=': length = 2; break;
+                    default: length = 1; break;
+                }
                 break;
             case '<':
-                length = c1 === '>' ? 2 : (c1 === '<' ? (c2 === '=' ? 3 : 2) : (c1 === '=' ? 2 : 1));
+                switch (c1) {
+                    case '>': length = 2; break;
+                    case '<': length = c2 === '=' ? 3 : 2; break;
+                    case '=': length = 2; break;
+                    default: length = 1; break;
+                }
                 break;
             case '>':
-                length = c1 === '>' ? (c2 === '=' ? 3 : 2) : (c1 === '=' ? 2 : 1);
+                switch (c1) {
+                    case '>': length = c2 === '=' ? 3 : 2; break;
+                    case '=': length = 2; break;
+                    default: length = 1; break;
+                }
                 break;
             case '@':
                 length = c1 === '=' ? 2 : 1;
@@ -2439,15 +2456,23 @@ python.Execution = class {
                                         a[o] = 0x5c;
                                         break;
                                     }
-                                    let xd = token.charCodeAt(i++);
-                                    xd = xd >= 65 && xd <= 70 ? xd - 55 : xd >= 97 && xd <= 102 ? xd - 87 : xd >= 48 && xd <= 57 ? xd - 48 : -1;
-                                    if (xd === -1) {
+                                    let c = token.charCodeAt(i++);
+                                    if (c >= 65 && c <= 70) {
+                                        c = c - 55;
+                                    } else if (c >= 97 && c <= 102) {
+                                        c = c - 87;
+                                    } else if (c >= 48 && c <= 57) {
+                                        c = c - 48;
+                                    } else {
+                                        c = -1;
+                                    }
+                                    if (c === -1) {
                                         i = xsi;
                                         o = xso;
                                         a[o] = 0x5c;
                                         break;
                                     }
-                                    a[o] = a[o] << 4 | xd;
+                                    a[o] = a[o] << 4 | c;
                                 }
                                 o++;
                                 break;
@@ -5041,7 +5066,10 @@ python.Execution = class {
             return list.map((text) => {
                 if (text === '{}' || text === '{}D') {
                     const arg = args.shift();
-                    return Array.isArray(arg) ? `[${arg.map((item) => item.toString()).join(', ')}]` : arg ? arg.toString() : '?';
+                    if (Array.isArray(arg)) {
+                        return `[${arg.map((item) => item.toString()).join(', ')}]`;
+                    }
+                    return arg ? arg.toString() : '?';
                 }
                 return text;
             }).join('');
