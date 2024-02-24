@@ -1,7 +1,6 @@
 .DS_Store
 .DS_Store?
 dist/*
-out/*
 node_modules/*
 third_party/*
 package-lock.json

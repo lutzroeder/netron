@@ -584,14 +584,14 @@ const forge = async() => {
     const command = read();
     switch (command) {
         case 'install': {
-            await exec('npm install @electron-forge/cli@7.2.0');
-            await exec('npm install @electron-forge/core@7.2.0');
-            await exec('npm install @electron-forge/maker-snap@7.2.0');
-            await exec('npm install @electron-forge/maker-dmg@7.2.0');
-            await exec('npm install @electron-forge/maker-zip@7.2.0');
+            await exec('npm install @electron-forge/cli@7.3.0');
+            await exec('npm install @electron-forge/core@7.3.0');
+            await exec('npm install @electron-forge/maker-snap@7.3.0');
+            await exec('npm install @electron-forge/maker-dmg@7.3.0');
+            await exec('npm install @electron-forge/maker-zip@7.3.0');
             break;
         }
-        case 'build': {
+        case 'update': {
             const cwd = path.join(dirname(), '..', 'forge');
             const node_modules = path.join(cwd, 'node_modules');
             const links = path.join(cwd, '.links');
@@ -602,6 +602,10 @@ const forge = async() => {
             await exec('yarn build', null, cwd);
             await exec('yarn link:prepare', null, cwd);
             await exec(`yarn link @electron-forge/core --link-folder=${links}`);
+            break;
+        }
+        case 'build': {
+            await exec('npx electron-forge make');
             break;
         }
         default: {
