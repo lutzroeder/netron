@@ -305,7 +305,7 @@
     "type":     "caffe",
     "target":   "caffe_invalid_file.caffemodel",
     "source":   "https://github.com/lutzroeder/netron/files/3288816/caffe_examples.zip[caffe_invalid_file.caffemodel]",
-    "error":    "File format is not caffe.NetParameter (Invalid type 4 at offset 11).",
+    "error":    "File format is not caffe.NetParameter (Invalid type '4' at offset 11).",
     "link":     "https://github.com/lutzroeder/netron/issues/276"
   },
   {

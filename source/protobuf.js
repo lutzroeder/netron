@@ -6,15 +6,17 @@ const protobuf = {};
 protobuf.BinaryReader = class {
 
     static open(data) {
-        return data ? new protobuf.BinaryReader(data) : null;
+        if (data instanceof Uint8Array) {
+            return new protobuf.BufferReader(data);
+        }
+        if (data.length < 0x40000000) {
+            data = data.peek();
+            return new protobuf.BufferReader(data);
+        }
+        return new protobuf.StreamReader(data);
     }
 
-    constructor(data) {
-        const buffer = data instanceof Uint8Array ? data : data.peek();
-        this._buffer = buffer;
-        this._length = buffer.length;
-        this._position = 0;
-        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    constructor() {
         this._utf8Decoder = new TextDecoder('utf-8');
     }
 
@@ -23,7 +25,8 @@ protobuf.BinaryReader = class {
         this._position = 0;
         try {
             if (this._length > 0) {
-                const type = this._buffer[0] & 7;
+                const type = this.byte() & 7;
+                this.skip(-1);
                 if (type !== 4 && type !== 6 && type !== 7) {
                     const length = this.length;
                     while (this._position < length) {
@@ -122,7 +125,8 @@ protobuf.BinaryReader = class {
                 return 2;
             };
             if (this._length > 0) {
-                const type = this._buffer[0] & 7;
+                const type = this.byte() & 7;
+                this.skip(-1);
                 if (type !== 4 && type !== 6 && type !== 7) {
                     const length = this.length;
                     while (this.position < length) {
@@ -183,26 +187,18 @@ protobuf.BinaryReader = class {
         this._position = position >= 0 ? position : this._length + position;
     }
 
+    bytes() {
+        const length = this.uint32();
+        return this.read(length);
+    }
+
     string() {
-        return this._utf8Decoder.decode(this.bytes());
+        const buffer = this.bytes();
+        return this._utf8Decoder.decode(buffer);
     }
 
     bool() {
         return this.uint32() !== 0;
-    }
-
-    byte() {
-        if (this._position < this._length) {
-            return this._buffer[this._position++];
-        }
-        throw new RangeError('Unexpected end of file.');
-    }
-
-    bytes() {
-        const length = this.uint32();
-        const position = this._position;
-        this.skip(length);
-        return this._buffer.slice(position, this._position);
     }
 
     uint32() {
@@ -228,7 +224,7 @@ protobuf.BinaryReader = class {
             return value;
         }
         c = this.byte();
-        value = (value | (c & 15) << 28) >>> 0;
+        value = value + ((c & 127) * 0x10000000);
         if (c < 128) {
             return value;
         }
@@ -236,6 +232,49 @@ protobuf.BinaryReader = class {
             throw new protobuf.Error('Varint is not 32-bit.');
         }
         return value;
+    }
+
+    _uint32() {
+        if (this._position < this._length) {
+            let c = this.byte();
+            let value = (c & 127) >>> 0;
+            if (c < 128) {
+                return value;
+            }
+            if (this._position < this._length) {
+                c = this.byte();
+                value = (value | (c & 127) << 7) >>> 0;
+                if (c < 128) {
+                    return value;
+                }
+                if (this._position < this._length) {
+                    c = this.byte();
+                    value = (value | (c & 127) << 14) >>> 0;
+                    if (c < 128) {
+                        return value;
+                    }
+                    if (this._position < this._length) {
+                        c = this.byte();
+                        value = (value | (c & 127) << 21) >>> 0;
+                        if (c < 128) {
+                            return value;
+                        }
+                        if (this._position < this._length) {
+                            c = this.byte();
+                            value = value + ((c & 127) * 0x10000000);
+                            if (c < 128) {
+                                return value;
+                            }
+                            if (this.byte() !== 255 || this.byte() !== 255 || this.byte() !== 255 || this.byte() !== 255 || this.byte() !== 1) {
+                                return undefined;
+                            }
+                            return value;
+                        }
+                    }
+                }
+            }
+        }
+        return undefined;
     }
 
     int32() {
@@ -248,16 +287,218 @@ protobuf.BinaryReader = class {
     }
 
     int64() {
-        return BigInt.asIntN(64, this._varint());
+        return BigInt.asIntN(64, this.varint());
     }
 
     uint64() {
-        return this._varint();
+        return this.varint();
     }
 
     sint64() {
-        const value = this._varint();
+        const value = this.varint();
         return (value >> 1n) ^ (-(value & 1n)); // ZigZag decode
+    }
+
+    array(obj, item, tag) {
+        if ((tag & 7) === 2) {
+            const end = this.uint32() + this._position;
+            while (this._position < end) {
+                obj.push(item());
+            }
+        } else {
+            obj.push(item());
+        }
+        return obj;
+    }
+
+    floats(obj, tag) {
+        if ((tag & 7) === 2) {
+            if (obj && obj.length > 0) {
+                throw new protobuf.Error('Invalid packed float array.');
+            }
+            const size = this.uint32();
+            const end = this._position + size;
+            if (end > this._length) {
+                this._unexpected();
+            }
+            const length = size >>> 2;
+            obj = size > 1048576 ? new Float32Array(length) : new Array(length);
+            for (let i = 0; i < length; i++) {
+                obj[i] = this.float();
+            }
+            this._position = end;
+        } else if (obj !== undefined && obj.length < 1000000) {
+            obj.push(this.float());
+        } else {
+            obj = undefined;
+            this.float();
+        }
+        return obj;
+    }
+
+    doubles(obj, tag) {
+        if ((tag & 7) === 2) {
+            if (obj && obj.length > 0) {
+                throw new protobuf.Error('Invalid packed float array.');
+            }
+            const size = this.uint32();
+            const end = this._position + size;
+            if (end > this._length) {
+                this._unexpected();
+            }
+            const length = size >>> 3;
+            obj = size > 1048576 ? new Float64Array(length) : new Array(length);
+            for (let i = 0; i < length; i++) {
+                obj[i] = this.doubles();
+            }
+            this._position = end;
+        } else if (obj !== undefined && obj.length < 1000000) {
+            obj.push(this.double());
+        } else {
+            obj = undefined;
+            this.double();
+        }
+        return obj;
+    }
+
+    skip(offset) {
+        this._position += offset;
+        if (this._position > this._length) {
+            this._unexpected();
+        }
+    }
+
+    skipType(type) {
+        switch (type) {
+            case 0:
+                this.skipVarint();
+                break;
+            case 1:
+                this.skip(8);
+                break;
+            case 2:
+                this.skip(this.uint32());
+                break;
+            case 3:
+                while ((type = this.uint32() & 7) !== 4) {
+                    this.skipType(type);
+                }
+                break;
+            case 5:
+                this.skip(4);
+                break;
+            default:
+                throw new protobuf.Error(`Invalid type '${type}' at offset ${this._position}.`);
+        }
+    }
+
+    _skipType(type) {
+        switch (type) {
+            case 0: {
+                // const max = this._position + 9;
+                do {
+                    if (this._position >= this._length /* || this._position > max */) {
+                        return false;
+                    }
+                }
+                while (this.byte() & 128);
+                break;
+            }
+            case 1: {
+                if (this._position + 8 >= this._length) {
+                    return false;
+                }
+                this._position += 8;
+                break;
+            }
+            case 2: {
+                const length = this.uint32();
+                if (length === undefined) {
+                    return false;
+                }
+                if (this._position + length > this._end) {
+                    return false;
+                }
+                this._position += length;
+                break;
+            }
+            case 3: {
+                for (;;) {
+                    const tag = this.uint32();
+                    if (tag === undefined) {
+                        return false;
+                    }
+                    const wireType = tag & 7;
+                    if (wireType === 4) {
+                        break;
+                    }
+                    if (!this._skipType(wireType)) {
+                        return false;
+                    }
+                }
+                break;
+            }
+            case 5: {
+                this._position += 4;
+                if (this._position > this._length) {
+                    return false;
+                }
+                break;
+            }
+            default: {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    entry(obj, key, value) {
+        this.skipVarint();
+        this.skip(1);
+        let k = key();
+        if (!Number.isInteger(k) && typeof k !== 'string') {
+            k = Number(k);
+        }
+        this.skip(1);
+        const v = value();
+        obj[k] = v;
+    }
+
+    _unexpected() {
+        throw new RangeError('Unexpected end of file.');
+    }
+};
+
+protobuf.BufferReader = class extends protobuf.BinaryReader {
+
+    constructor(buffer) {
+        super();
+        this._buffer = buffer;
+        this._length = buffer.length;
+        this._position = 0;
+        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    }
+
+    skipVarint() {
+        do {
+            if (this._position >= this._length) {
+                this._unexpected();
+            }
+        }
+        while (this._buffer[this._position++] & 128);
+    }
+
+    read(length) {
+        const position = this._position;
+        this.skip(length);
+        return this._buffer.slice(position, this._position);
+    }
+
+    byte() {
+        if (this._position < this._length) {
+            return this._buffer[this._position++];
+        }
+        throw new RangeError('Unexpected end of file.');
     }
 
     fixed64() {
@@ -296,228 +537,7 @@ protobuf.BinaryReader = class {
         return this._view.getFloat64(position, true);
     }
 
-    array(obj, item, tag) {
-        if ((tag & 7) === 2) {
-            const end = this.uint32() + this._position;
-            while (this._position < end) {
-                obj.push(item());
-            }
-        } else {
-            obj.push(item());
-        }
-        return obj;
-    }
-
-    floats(obj, tag) {
-        if ((tag & 7) === 2) {
-            if (obj && obj.length > 0) {
-                throw new protobuf.Error('Invalid packed float array.');
-            }
-            const size = this.uint32();
-            const end = this._position + size;
-            if (end > this._length) {
-                this._unexpected();
-            }
-            const length = size >>> 2;
-            obj = size > 1048576 ? new Float32Array(length) : new Array(length);
-            let position = this._position;
-            for (let i = 0; i < length; i++) {
-                obj[i] = this._view.getFloat32(position, true);
-                position += 4;
-            }
-            this._position = end;
-        } else if (obj !== undefined && obj.length < 1000000) {
-            obj.push(this.float());
-        } else {
-            obj = undefined;
-            this.float();
-        }
-        return obj;
-    }
-
-    doubles(obj, tag) {
-        if ((tag & 7) === 2) {
-            if (obj && obj.length > 0) {
-                throw new protobuf.Error('Invalid packed float array.');
-            }
-            const size = this.uint32();
-            const end = this._position + size;
-            if (end > this._length) {
-                this._unexpected();
-            }
-            const length = size >>> 3;
-            obj = size > 1048576 ? new Float64Array(length) : new Array(length);
-            let position = this._position;
-            for (let i = 0; i < length; i++) {
-                obj[i] = this._view.getFloat64(position, true);
-                position += 8;
-            }
-            this._position = end;
-        } else if (obj !== undefined && obj.length < 1000000) {
-            obj.push(this.double());
-        } else {
-            obj = undefined;
-            this.double();
-        }
-        return obj;
-    }
-
-    skip(offset) {
-        this._position += offset;
-        if (this._position > this._length) {
-            this._unexpected();
-        }
-    }
-
-    skipVarint() {
-        do {
-            if (this._position >= this._length) {
-                this._unexpected();
-            }
-        }
-        while (this._buffer[this._position++] & 128);
-    }
-
-    _uint32() {
-        if (this._position < this._length) {
-            let c = this._buffer[this._position++];
-            let value = (c & 127) >>> 0;
-            if (c < 128) {
-                return value;
-            }
-            if (this._position < this._length) {
-                c = this._buffer[this._position++];
-                value = (value | (c & 127) << 7) >>> 0;
-                if (c < 128) {
-                    return value;
-                }
-                if (this._position < this._length) {
-                    c = this._buffer[this._position++];
-                    value = (value | (c & 127) << 14) >>> 0;
-                    if (c < 128) {
-                        return value;
-                    }
-                    if (this._position < this._length) {
-                        c = this._buffer[this._position++];
-                        value = (value | (c & 127) << 21) >>> 0;
-                        if (c < 128) {
-                            return value;
-                        }
-                        if (this._position < this._length) {
-                            c = this._buffer[this._position++];
-                            value = (value | (c & 15) << 28) >>> 0;
-                            if (c < 128) {
-                                return value;
-                            }
-                            if (this.byte() !== 255 || this.byte() !== 255 || this.byte() !== 255 || this.byte() !== 255 || this.byte() !== 1) {
-                                return undefined;
-                            }
-                            return value;
-                        }
-                    }
-                }
-            }
-        }
-        return undefined;
-    }
-
-    _skipType(wireType) {
-        switch (wireType) {
-            case 0: {
-                // const max = this._position + 9;
-                do {
-                    if (this._position >= this._length /* || this._position > max */) {
-                        return false;
-                    }
-                }
-                while (this._buffer[this._position++] & 128);
-                break;
-            }
-            case 1: {
-                if (this._position + 8 >= this._length) {
-                    return false;
-                }
-                this._position += 8;
-                break;
-            }
-            case 2: {
-                const length = this._uint32();
-                if (length === undefined) {
-                    return false;
-                }
-                if (this._position + length > this._end) {
-                    return false;
-                }
-                this._position += length;
-                break;
-            }
-            case 3: {
-                for (;;) {
-                    const tag = this._uint32();
-                    if (tag === undefined) {
-                        return false;
-                    }
-                    const wireType = tag & 7;
-                    if (wireType === 4) {
-                        break;
-                    }
-                    if (!this._skipType(wireType)) {
-                        return false;
-                    }
-                }
-                break;
-            }
-            case 5: {
-                this._position += 4;
-                if (this._position > this._length) {
-                    return false;
-                }
-                break;
-            }
-            default: {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    skipType(wireType) {
-        switch (wireType) {
-            case 0:
-                this.skipVarint();
-                break;
-            case 1:
-                this.skip(8);
-                break;
-            case 2:
-                this.skip(this.uint32());
-                break;
-            case 3:
-                while ((wireType = this.uint32() & 7) !== 4) {
-                    this.skipType(wireType);
-                }
-                break;
-            case 5:
-                this.skip(4);
-                break;
-            default:
-                throw new protobuf.Error(`Invalid type ${wireType} at offset ${this._position}.`);
-        }
-    }
-
-    entry(obj, key, value) {
-        this.skipVarint();
-        this._position++;
-        let k = key();
-        if (!Number.isInteger(k) && typeof k !== 'string') {
-            k = Number(k);
-        }
-        this._position++;
-        const v = value();
-        obj[k] = v;
-    }
-
-    _varint() {
+    varint() {
         let value = 0n;
         let shift = 0n;
         for (let i = 0; i < 10 && this._position < this._length; i++) {
@@ -530,9 +550,94 @@ protobuf.BinaryReader = class {
         }
         throw new protobuf.Error('Invalid varint value.');
     }
+};
 
-    _unexpected() {
-        throw new RangeError('Unexpected end of file.');
+protobuf.StreamReader = class extends protobuf.BinaryReader {
+
+    constructor(stream) {
+        super(new Uint8Array(0));
+        this._stream = stream;
+        this._length = stream.length;
+        this._position = 0;
+    }
+
+    skipVarint() {
+        do {
+            if (this._position >= this._length) {
+                this._unexpected();
+            }
+        }
+        while (this.byte() & 128);
+    }
+
+    read(length) {
+        this._stream.seek(this._position);
+        this.skip(length);
+        return this._stream.read(length);
+    }
+
+    byte() {
+        const position = this._fill(1);
+        return this._view.getUint8(position);
+    }
+
+    fixed64() {
+        const position = this._fill(8);
+        return this._view.getBigUint64(position, true);
+    }
+
+    sfixed64() {
+        const position = this._fill(8);
+        return this._view.getBigInt64(position, true);
+    }
+
+    fixed32() {
+        const position = this._fill(4);
+        return this._view.getUint32(position, true);
+    }
+
+    sfixed32() {
+        const position = this._fill(4);
+        return this._view.getInt32(position, true);
+    }
+
+    float() {
+        const position = this._fill(4);
+        return this._view.getFloat32(position, true);
+    }
+
+    double() {
+        const position = this._fill(8);
+        return this._view.getFloat64(position, true);
+    }
+
+    varint() {
+        let value = 0n;
+        let shift = 0n;
+        for (let i = 0; i < 10 && this._position < this._length; i++) {
+            const byte = this.byte();
+            value |= BigInt(byte & 0x7F) << shift;
+            if ((byte & 0x80) === 0) {
+                return value;
+            }
+            shift += 7n;
+        }
+        throw new protobuf.Error('Invalid varint value.');
+    }
+
+    _fill(length) {
+        if (this._position + length > this._length) {
+            throw new Error(`Expected ${this._position + length - this._length} more bytes. The file might be corrupted. Unexpected end of file.`);
+        }
+        if (!this._buffer || this._position < this._offset || this._position + length > this._offset + this._buffer.length) {
+            this._offset = this._position;
+            this._stream.seek(this._offset);
+            this._buffer = this._stream.read(Math.min(0x10000000, this._length - this._offset));
+            this._view = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
+        }
+        const position = this._position;
+        this._position += length;
+        return position - this._offset;
     }
 };
 
