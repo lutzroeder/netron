@@ -3103,6 +3103,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/1187"
   },
   {
+    "type":     "mindir",
+    "target":   "mnist.mindir",
+    "source":   "https://raw.githubusercontent.com/Ethan-Chen-plus/mindir_examples/main/mnist.mindir",
+    "format":   "MindIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/600"
+  },
+  {
     "type":     "mslite",
     "target":   "blazeface_quant.ms",
     "source":   "https://github.com/lutzroeder/netron/files/6097966/blazeface_quant.ms.zip[blazeface_quant.ms]",

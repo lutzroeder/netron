@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
+
+clean() {
+    echo "mind_ir clean"
+    rm -rf "./third_party/source/mindspore"
+}
+
+sync() {
+    echo "mind_ir sync"
+    mkdir -p "./third_party/source/mindspore/mindspore/mindir/schema/"
+    curl --silent --location --output "./third_party/source/mindspore/mindspore/mindir/schema/mind_ir-metadata.json" "https://raw.githubusercontent.com/Ethan-Chen-plus/mindir/main/mind_ir-metadata.json"
+    curl --silent --location --output "./third_party/source/mindspore/mindspore/mindir/schema/mind_ir-proto.json" "https://raw.githubusercontent.com/Ethan-Chen-plus/mindir/main/mind_ir-proto.json"
+    
+}
+
+schema() {
+    echo "mind_ir schema"
+    cp "./third_party/source/mindspore/mindspore/mindir/schema/mind_ir-proto.json" "./source/mind_ir-proto.js"
+    cp "./third_party/source/mindspore/mindspore/mindir/schema/mind_ir-metadata.json" "./source/mind_ir-metadata.js"
+    [[ $(grep -U $'\x0D' ./source/mind_ir-proto.json) ]] && crlf=1
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/mind_ir-proto.js ./source/mind_ir-proto.js
+    fi
+}
+
+metadata() {
+    echo "mind_ir metadata"
+    [[ $(grep -U $'\x0D' ./source/mind_ir-metadata.json) ]] && crlf=1
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/mind_ir-metadata.json ./source/mind_ir-metadata.json
+    fi
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "schema") schema;;
+        "metadata") metadata;;
+    esac
+done
