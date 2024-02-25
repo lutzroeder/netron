@@ -114,7 +114,7 @@ onnx.Model = class {
         this._domain = model.domain;
         this._version = typeof model.model_version === 'number' || typeof model.model_version === 'bigint' ? model.model_version.toString() : '';
         this._description = model.doc_string;
-        this._metadata = new Map();
+        this._metadata = [];
         this._imports = null;
         const imports = new Map();
         if (model.opset_import && model.opset_import.length > 0) {
@@ -137,15 +137,15 @@ onnx.Model = class {
             const metadata = new Map(metadata_props.map((entry) => [entry.key, entry.value]));
             const converted_from = metadata.get('converted_from');
             if (converted_from) {
-                this._metadata.set('source', converted_from);
+                this.source = converted_from;
             }
             const author = metadata.get('author');
             if (author) {
-                this._metadata.set('author', author);
+                this._metadata.push(new onnx.Argument('author', author));
             }
             const company = metadata.get('company');
             if (company) {
-                this._metadata.set('company', company);
+                this._metadata.push(new onnx.Argument('company', company));
             }
             let license = metadata.get('license');
             const license_url = metadata.get('license_url');
@@ -153,7 +153,7 @@ onnx.Model = class {
                 license = `<a href='${license_url}'>${license ? license : license_url}</a>`;
             }
             if (license) {
-                this._metadata.set('license', license);
+                this._metadata.push(new onnx.Argument('license', license));
             }
             metadata.delete('author');
             metadata.delete('company');
@@ -169,7 +169,7 @@ onnx.Model = class {
                         imageMetadata[name] = value;
                         break;
                     default:
-                        this._metadata.set(name, value);
+                        this._metadata.push(new onnx.Argument(name, value));
                         break;
                 }
             }
@@ -194,6 +194,10 @@ onnx.Model = class {
 
     get producer() {
         return this._producer;
+    }
+
+    get source() {
+        return this._source;
     }
 
     get domain() {

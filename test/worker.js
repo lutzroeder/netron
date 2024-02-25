@@ -526,7 +526,8 @@ export class Target {
         if (this.runtime && this.model.runtime !== this.runtime) {
             throw new Error(`Invalid runtime '${this.model.runtime}'.`);
         }
-        if (this.model.metadata && !(this.model.metadata instanceof Map)) {
+        if (this.model.metadata &&!Array.isArray(this.model.metadata) &&
+            this.model.metadata.every((argument) => argument.name && argument.value)) {
             throw new Error("Invalid metadata.'");
         }
         if (this.assert) {

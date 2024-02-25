@@ -27,8 +27,7 @@ tengine.Model = class {
 
     constructor(metadata, reader) {
         this.format = `Tengine v${reader.version}`;
-        this.metadata = new Map();
-        this.metadata.set('source', reader.source);
+        this.source = reader.source;
         this.graphs = reader.graphs.map((graph) => new tengine.Graph(metadata, graph));
     }
 };

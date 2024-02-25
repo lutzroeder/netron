@@ -194,7 +194,7 @@ coreml.Model = class {
 
     constructor(metadata, format, model, weights) {
         this.format = `${format || 'Core ML'} v${model.specificationVersion}`;
-        this.metadata = new Map();
+        this.metadata = [];
         const context = new coreml.Context(metadata, model, weights);
         const graph = new coreml.Graph(context);
         this.graphs = [graph];
@@ -207,10 +207,10 @@ coreml.Model = class {
                 this.description = properties.shortDescription;
             }
             if (properties.author) {
-                this.metadata.set('author', properties.author);
+                this.metadata.push(new coreml.Argument('author', properties.author));
             }
             if (properties.license) {
-                this.metadata.set('license', properties.license);
+                this.metadata.push(new coreml.Argument('license', properties.license));
             }
             if (metadata.userDefined && Object.keys(properties.userDefined).length > 0) {
                 /* empty */
@@ -236,11 +236,11 @@ coreml.Graph = class {
         }
         this.inputs = context.inputs.map((argument) => {
             const values = argument.value.map((value) => value.obj);
-            return new coreml.Argument(argument.name, argument.visible, values);
+            return new coreml.Argument(argument.name, values, argument.visible);
         });
         this.outputs = context.outputs.map((argument) => {
             const values = argument.value.map((value) => value.obj);
-            return new coreml.Argument(argument.name, argument.visible, values);
+            return new coreml.Argument(argument.name, values, argument.visible);
         });
         for (const obj of context.nodes) {
             const attributes = obj.attributes;
@@ -263,10 +263,10 @@ coreml.Graph = class {
 
 coreml.Argument = class {
 
-    constructor(name, visible, value) {
+    constructor(name, value, visible) {
         this.name = name;
-        this.visible = visible;
         this.value = value;
+        this.visible = visible === false ? false : true;
     }
 };
 
@@ -299,11 +299,11 @@ coreml.Node = class {
         this.description = obj.description || '';
         this.inputs = (obj.inputs || []).map((argument) => {
             const values = argument.value.map((value) => value.obj);
-            return new coreml.Argument(argument.name, argument.visible, values);
+            return new coreml.Argument(argument.name, values, argument.visible);
         });
         this.outputs = (obj.outputs || []).map((argument) => {
             const values = argument.value.map((value) => value.obj);
-            return new coreml.Argument(argument.name, argument.visible, values);
+            return new coreml.Argument(argument.name, values, argument.visible);
         });
         this.attributes = Object.entries(obj.attributes).map(([name, value]) => {
             const metadata = context.metadata.attribute(obj.type, name);

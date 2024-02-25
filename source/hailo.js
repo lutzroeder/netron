@@ -37,9 +37,9 @@ hailo.Model = class {
         this.graphs = [new hailo.Graph(metadata, configuration, container.weights)];
         this.name = configuration && configuration.name || "";
         this.format = container.format + (container.metadata && container.metadata.sdk_version ? ` v${container.metadata.sdk_version}` : '');
-        this.metadata = new Map();
+        this.metadata = [];
         if (container.metadata && container.metadata.state) {
-            this.metadata.set('state', container.metadata.state);
+            this.metadata.push(new hailo.Argument('state', container.metadata.state));
         }
     }
 };

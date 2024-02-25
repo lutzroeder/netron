@@ -85,7 +85,7 @@ tflite.Model = class {
         this._format = 'TensorFlow Lite';
         this._format = `${this._format} v${model.version}`;
         this._description = model.description || '';
-        this._metadata = new Map();
+        this._metadata = [];
         const builtinOperators = new Map();
         const upperCase = new Set(['2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM']);
         for (const key of Object.keys(tflite.schema.BuiltinOperator)) {
@@ -133,10 +133,10 @@ tflite.Model = class {
                                 this._description = this._description ? [this._description, modelMetadata.description].join(' ') : modelMetadata.description;
                             }
                             if (modelMetadata.author) {
-                                this._metadata.set('author', modelMetadata.author);
+                                this._metadata.push(new tflite.Argument('author', modelMetadata.author));
                             }
                             if (modelMetadata.license) {
-                                this._metadata.set('license', modelMetadata.license);
+                                this._metadata.push(new tflite.Argument('license', modelMetadata.license));
                             }
                         }
                         break;
@@ -256,7 +256,9 @@ tflite.Graph = class {
             if (subgraphMetadata && i < subgraphMetadata.input_tensor_metadata.length) {
                 applyTensorMetadata(value, subgraphMetadata.input_tensor_metadata[i]);
             }
-            this._inputs.push(new tflite.Argument(value ? value.name : '?', true, value ? [value] : []));
+            const name = value ? value.name : '?';
+            const argument = new tflite.Argument(name, value ? [value] : []);
+            this._inputs.push(argument);
         }
         const outputs = subgraph.outputs;
         for (let i = 0; i < outputs.length; i++) {
@@ -265,7 +267,9 @@ tflite.Graph = class {
             if (subgraphMetadata && i < subgraphMetadata.output_tensor_metadata.length) {
                 applyTensorMetadata(value, subgraphMetadata.output_tensor_metadata[i]);
             }
-            this._outputs.push(new tflite.Argument(value ? value.name : '?', true, value ? [value] : []));
+            const name = value ? value.name : '?';
+            const argument = new tflite.Argument(name, value ? [value] : []);
+            this._outputs.push(argument);
         }
     }
 
@@ -324,7 +328,7 @@ tflite.Node = class {
                 }
                 inputIndex += count;
                 name = name ? name : inputIndex.toString();
-                const argument = new tflite.Argument(name, visible, values);
+                const argument = new tflite.Argument(name, values, visible);
                 this._inputs.push(argument);
             }
             for (let k = 0; k < outputs.length; k++) {
@@ -334,14 +338,15 @@ tflite.Node = class {
                 if (value) {
                     outputArguments.push(value);
                 }
-                let outputName = k.toString();
+                let name = k.toString();
                 if (this._type && this._type.outputs && k < this._type.outputs.length) {
                     const output = this._type.outputs[k];
                     if (output && output.name) {
-                        outputName = output.name;
+                        name = output.name;
                     }
                 }
-                this._outputs.push(new tflite.Argument(outputName, true, outputArguments));
+                const argument = new tflite.Argument(name, outputArguments);
+                this._outputs.push(argument);
             }
             if (type.custom && node.custom_options.length > 0) {
                 let decoded = false;
@@ -467,10 +472,10 @@ tflite.Attribute = class {
 
 tflite.Argument = class {
 
-    constructor(name, visible, value) {
+    constructor(name, value, visible) {
         this._name = name;
-        this._visible = visible;
         this._value = value;
+        this._visible = visible === false ? false : true;
     }
 
     get name() {

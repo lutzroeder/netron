@@ -75,7 +75,7 @@ circle.Model = class {
         this._format = 'Circle';
         this._format = `${this._format} v${model.version}`;
         this._description = model.description || '';
-        this._metadata = new Map();
+        this._metadata = [];
         const builtinOperators = new Map();
         const upperCase = new Set(['2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM']);
         for (const key of Object.keys(circle.schema.BuiltinOperator)) {
@@ -123,10 +123,10 @@ circle.Model = class {
                                 this._description = this._description ? [this._description, modelMetadata.description].join(' ') : modelMetadata.description;
                             }
                             if (modelMetadata.author) {
-                                this._metadata.set('author', modelMetadata.author);
+                                this._metadata.push(new circle.Argument('author', modelMetadata.author));
                             }
                             if (modelMetadata.license) {
-                                this._metadata.set('license', modelMetadata.license);
+                                this._metadata.set(new circle.Argument('license', modelMetadata.license));
                             }
                         }
                         break;
@@ -246,7 +246,9 @@ circle.Graph = class {
             if (subgraphMetadata && i < subgraphMetadata.input_tensor_metadata.length) {
                 applyTensorMetadata(value, subgraphMetadata.input_tensor_metadata[i]);
             }
-            this._inputs.push(new circle.Argument(value ? value.name : '?', true, value ? [value] : []));
+            const name = value ? value.name : '?';
+            const argument = new circle.Argument(name, value ? [value] : []);
+            this._inputs.push(argument);
         }
         const outputs = subgraph.outputs;
         for (let i = 0; i < outputs.length; i++) {
@@ -255,7 +257,9 @@ circle.Graph = class {
             if (subgraphMetadata && i < subgraphMetadata.output_tensor_metadata.length) {
                 applyTensorMetadata(value, subgraphMetadata.output_tensor_metadata[i]);
             }
-            this._outputs.push(new circle.Argument(value ? value.name : '?', true, value ? [value] : []));
+            const name = value ? value.name : '?';
+            const argument = new circle.Argument(name, value ? [value] : []);
+            this._outputs.push(argument);
         }
     }
 
@@ -292,17 +296,17 @@ circle.Node = class {
             let inputIndex = 0;
             while (inputIndex < inputs.length) {
                 let count = 1;
-                let inputName = null;
-                let inputVisible = true;
+                let name = null;
+                let visible = true;
                 const inputArguments = [];
                 if (this._type && this._type.inputs && inputIndex < this._type.inputs.length) {
                     const input = this._type.inputs[inputIndex];
-                    inputName = input.name;
+                    name = input.name;
                     if (input.option === 'variadic') {
                         count = inputs.length - inputIndex;
                     }
                     if (input && input.visible === false) {
-                        inputVisible = false;
+                        visible = false;
                     }
                 }
                 const inputArray = inputs.slice(inputIndex, inputIndex + count);
@@ -313,8 +317,9 @@ circle.Node = class {
                     }
                 }
                 inputIndex += count;
-                inputName = inputName ? inputName : inputIndex.toString();
-                this._inputs.push(new circle.Argument(inputName, inputVisible, inputArguments));
+                name = name ? name : inputIndex.toString();
+                const argument = new circle.Argument(name, inputArguments, visible);
+                this._inputs.push(argument);
             }
             for (let k = 0; k < outputs.length; k++) {
                 const index = outputs[k];
@@ -323,14 +328,15 @@ circle.Node = class {
                 if (value) {
                     outputArguments.push(value);
                 }
-                let outputName = k.toString();
+                let name = k.toString();
                 if (this._type && this._type.outputs && k < this._type.outputs.length) {
                     const output = this._type.outputs[k];
                     if (output && output.name) {
-                        outputName = output.name;
+                        name = output.name;
                     }
                 }
-                this._outputs.push(new circle.Argument(outputName, true, outputArguments));
+                const argument = new circle.Argument(name, outputArguments);
+                this._outputs.push(argument);
             }
             if (type.custom && node.custom_options.length > 0) {
                 let decoded = false;
@@ -454,10 +460,10 @@ circle.Attribute = class {
 
 circle.Argument = class {
 
-    constructor(name, visible, value) {
+    constructor(name, value, visible) {
         this._name = name;
-        this._visible = visible;
         this._value = value;
+        this._visible = visible === false ? false : true;
     }
 
     get name() {

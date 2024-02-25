@@ -48,57 +48,32 @@ rknn.Model = class {
     constructor(metadata, type, model, container) {
         switch (type) {
             case 'json': {
-                this._format = `RKNN v${model.version.split('-').shift()}`;
-                this._name = model.name || '';
-                this._producer = model.ori_network_platform || model.network_platform || '';
-                this._runtime = model.target_platform ? model.target_platform.join(',') : '';
-                this._graphs = [new rknn.Graph(metadata, type, model.name || '', model, container)];
+                this.format = `RKNN v${model.version.split('-').shift()}`;
+                this.name = model.name || '';
+                this.producer = model.ori_network_platform || model.network_platform || '';
+                this.runtime = model.target_platform ? model.target_platform.join(',') : '';
+                this.graphs = [new rknn.Graph(metadata, type, model.name || '', model, container)];
                 break;
             }
             case 'flatbuffers': {
                 const version = model.compiler.split('-').shift();
-                this._format = `RKNN Lite${version ? ` v${version}` : ''}`;
-                this._runtime = model.runtime;
-                this._name = model.name || '';
-                this._graphs = model.graphs.map((graph) => new rknn.Graph(metadata, type, '', graph, null));
-                this._metadata = new Map();
-                this._metadata.set('source', model.source);
+                this.format = `RKNN Lite${version ? ` v${version}` : ''}`;
+                this.runtime = model.runtime;
+                this.name = model.name || '';
+                this.graphs = model.graphs.map((graph) => new rknn.Graph(metadata, type, '', graph, null));
+                this.source = model.source;
                 break;
             }
             case 'openvx': {
-                this._format = 'RKNN OpenVX';
-                this._name = model.name || '';
-                this._graphs = [new rknn.Graph(metadata, type, '', model, container)];
+                this.format = 'RKNN OpenVX';
+                this.name = model.name || '';
+                this.graphs = [new rknn.Graph(metadata, type, '', model, container)];
                 break;
             }
             default: {
                 throw new rknn.Error(`Unsupported RKNN model type '${type}'.`);
             }
         }
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get producer() {
-        return this._producer;
-    }
-
-    get runtime() {
-        return this._runtime;
-    }
-
-    get metadata() {
-        return this._metadata;
-    }
-
-    get graphs() {
-        return this._graphs;
     }
 };
 

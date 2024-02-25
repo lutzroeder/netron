@@ -24,7 +24,7 @@ gguf.Model = class {
 
     constructor(target) {
         this.format = target.format;
-        this.metadata = new Map();
+        this.metadata = [];
         const layers = new Map();
         for (const [name, tensor] of target.tensors) {
             const [key, param] = name.match(/^(.*)\.(.*?)$/).slice(1);
@@ -41,8 +41,8 @@ gguf.Model = class {
                 case 'general.name': this.name = value; break;
                 case 'general.architecture': architecture = value; break;
                 case 'general.description': this.description = value; break;
-                case 'general.author': this.metadata.set('author', value); break;
-                case 'general.license': this.metadata.set('license', value); break;
+                case 'general.author': this.metadata.push(new gguf.Argument('author', value)); break;
+                case 'general.license': this.metadata.push(new gguf.Argument('license', value)); break;
                 case 'general.file_type':
                 case 'general.quantization_version':
                     break;
@@ -60,7 +60,7 @@ gguf.Model = class {
             } else if (architecture && name.startsWith(`${architecture}.`)) {
                 model.metadata.set(name, value);
             } else {
-                this.metadata.set(name, value);
+                this.metadata.push(new gguf.Argument(name, value));
             }
         }
         const graph = { layers: [model] };

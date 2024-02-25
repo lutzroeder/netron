@@ -258,12 +258,12 @@ mxnet.Model = class {
         this._version = manifest.version;
         this._description = manifest.description || '';
         this._runtime = manifest.runtime || '';
-        this._metadata = new Map();
+        this._metadata = [];
         if (manifest.author) {
-            this._metadata.set('author', manifest.author);
+            this._metadata.push(new mxnet.Argument('author', manifest.author));
         }
         if (manifest.license) {
-            this._metadata.set('license', manifest.license);
+            this._metadata.push(new mxnet.Argument('license', manifest.license));
         }
         this._graphs = [new mxnet.Graph(metadata, manifest, symbol, params)];
     }

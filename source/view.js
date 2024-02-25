@@ -3020,10 +3020,8 @@ view.ModelSidebar = class extends view.ObjectSidebar {
         if (model.runtime) {
             this.addProperty('runtime', model.runtime);
         }
-        if (model.metadata) {
-            for (const [name, value] of Array.from(model.metadata)) {
-                this.addProperty(name, value);
-            }
+        if (model.source) {
+            this.addProperty('source', model.source);
         }
         const graphs = Array.isArray(model.graphs) ? model.graphs : [];
         if (graphs.length === 1 && graphs[0].name) {
@@ -3032,6 +3030,15 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             const selector = new view.SelectView(this._host, model.graphs, graph);
             selector.on('change', (sender, data) => this.emit('update-active-graph', data));
             this.add('graph', selector);
+        }
+        const metadata = model.metadata instanceof Map ?
+            Array.from(model.metadata).map(([name, value]) => ({ name: name, value: value })) :
+            model.metadata;
+        if (Array.isArray(metadata) && metadata.length > 0) {
+            this.addHeader('Metadata');
+            for (const argument of model.metadata) {
+                this.addProperty(argument.name, argument.value);
+            }
         }
         if (graph) {
             if (graph.version) {
