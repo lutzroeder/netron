@@ -574,6 +574,18 @@
     ]
   },
   {
+    "name": "Padv2",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input" },
+      { "name": "paddings" },
+      { "name": "constant_values" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
     "name": "Predict",
     "inputs": [
       { "name": "hashes" },
