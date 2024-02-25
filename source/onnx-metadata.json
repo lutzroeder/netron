@@ -6708,27 +6708,28 @@
         ]
       },
       {
-        "description": "Constrain output types to be numerics.",
+        "description": "Constrain output types to be numerics or boolean.",
         "type_param_str": "T2",
         "allowed_type_strs": [
-          "tensor(uint8)",
-          "tensor(uint16)",
-          "tensor(uint32)",
-          "tensor(uint64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
           "tensor(int8)",
           "tensor(int16)",
           "tensor(int32)",
           "tensor(int64)",
-          "tensor(float16)",
-          "tensor(float)",
-          "tensor(double)",
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(uint4)",
+          "tensor(int4)",
+          "tensor(bool)",
           "tensor(bfloat16)",
           "tensor(float8e4m3fn)",
           "tensor(float8e4m3fnuz)",
           "tensor(float8e5m2)",
-          "tensor(float8e5m2fnuz)",
-          "tensor(uint4)",
-          "tensor(int4)"
+          "tensor(float8e5m2fnuz)"
         ]
       }
     ],
@@ -26266,8 +26267,12 @@
         "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array(\n    [\n        [\n            [[-162, 10], [-100, 232], [-20, -50]],\n            [[-76, 0], [0, 252], [32, -44]],\n            [[245, -485], [-960, -270], [-375, -470]],\n        ],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array([2, 4, 5], dtype=np.float32)\ny_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (x / y_scale.reshape(1, 3, 1, 1) + y_zero_point.reshape(1, 3, 1, 1)).astype(\n    np.uint8\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_axis\",\n)"
       },
       {
-        "summary": "blocked",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [6.0, 12.0, 50.0, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\ny_zero_point = np.array(\n    [\n        [0, 1],\n        [1, 0],\n        [2, 3],\n    ],\n    dtype=np.uint8,\n)\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\nassert y_scale.shape == y_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\ny_zero_point_elementwise = np.repeat(\n    y_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = np.rint(x / y_scale_elementwise + y_zero_point_elementwise).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked\",\n)"
+        "summary": "blocked_asymmetric",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [6.0, 12.0, 50.0, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\ny_zero_point = np.array(\n    [\n        [0, 1],\n        [1, 0],\n        [2, 3],\n    ],\n    dtype=np.uint8,\n)\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\nassert y_scale.shape == y_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\ny_zero_point_elementwise = np.repeat(\n    y_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = np.rint(x / y_scale_elementwise + y_zero_point_elementwise).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked_asymmetric\",\n)"
+      },
+      {
+        "summary": "blocked_symmetric",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n    output_dtype=TensorProto.INT16,\n)\n\nx = np.array(\n    [\n        [6.0, -8, -10, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\n\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\n\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\n\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\n\ny_val = np.clip(\n    np.rint(x / y_scale_elementwise), a_min=-32768, a_max=32767\n).astype(np.int16)\ny = make_tensor(\n    \"y\",\n    TensorProto.INT16,\n    x.shape,\n    y_val,\n)\nexpect(\n    node,\n    inputs=[x, y_scale],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked_symmetric\",\n)"
       },
       {
         "summary": "e4m3fn",
@@ -26367,8 +26372,12 @@
         "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array(\n    [\n        [\n            [[-162, 10], [-100, 232], [-20, -50]],\n            [[-76, 0], [0, 252], [32, -44]],\n            [[245, -485], [-960, -270], [-375, -470]],\n        ],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array([2, 4, 5], dtype=np.float32)\ny_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (x / y_scale.reshape(1, 3, 1, 1) + y_zero_point.reshape(1, 3, 1, 1)).astype(\n    np.uint8\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_axis\",\n)"
       },
       {
-        "summary": "blocked",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [6.0, 12.0, 50.0, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\ny_zero_point = np.array(\n    [\n        [0, 1],\n        [1, 0],\n        [2, 3],\n    ],\n    dtype=np.uint8,\n)\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\nassert y_scale.shape == y_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\ny_zero_point_elementwise = np.repeat(\n    y_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = np.rint(x / y_scale_elementwise + y_zero_point_elementwise).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked\",\n)"
+        "summary": "blocked_asymmetric",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [6.0, 12.0, 50.0, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\ny_zero_point = np.array(\n    [\n        [0, 1],\n        [1, 0],\n        [2, 3],\n    ],\n    dtype=np.uint8,\n)\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\nassert y_scale.shape == y_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\ny_zero_point_elementwise = np.repeat(\n    y_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = np.rint(x / y_scale_elementwise + y_zero_point_elementwise).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked_asymmetric\",\n)"
+      },
+      {
+        "summary": "blocked_symmetric",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n    output_dtype=TensorProto.INT16,\n)\n\nx = np.array(\n    [\n        [6.0, -8, -10, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\n\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\n\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\n\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\n\ny_val = np.clip(\n    np.rint(x / y_scale_elementwise), a_min=-32768, a_max=32767\n).astype(np.int16)\ny = make_tensor(\n    \"y\",\n    TensorProto.INT16,\n    x.shape,\n    y_val,\n)\nexpect(\n    node,\n    inputs=[x, y_scale],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked_symmetric\",\n)"
       },
       {
         "summary": "e4m3fn",
@@ -26481,8 +26490,12 @@
         "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array(\n    [\n        [\n            [[-162, 10], [-100, 232], [-20, -50]],\n            [[-76, 0], [0, 252], [32, -44]],\n            [[245, -485], [-960, -270], [-375, -470]],\n        ],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array([2, 4, 5], dtype=np.float32)\ny_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (x / y_scale.reshape(1, 3, 1, 1) + y_zero_point.reshape(1, 3, 1, 1)).astype(\n    np.uint8\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_axis\",\n)"
       },
       {
-        "summary": "blocked",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [6.0, 12.0, 50.0, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\ny_zero_point = np.array(\n    [\n        [0, 1],\n        [1, 0],\n        [2, 3],\n    ],\n    dtype=np.uint8,\n)\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\nassert y_scale.shape == y_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\ny_zero_point_elementwise = np.repeat(\n    y_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = np.rint(x / y_scale_elementwise + y_zero_point_elementwise).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked\",\n)"
+        "summary": "blocked_asymmetric",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [6.0, 12.0, 50.0, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\ny_zero_point = np.array(\n    [\n        [0, 1],\n        [1, 0],\n        [2, 3],\n    ],\n    dtype=np.uint8,\n)\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\nassert y_scale.shape == y_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\ny_zero_point_elementwise = np.repeat(\n    y_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = np.rint(x / y_scale_elementwise + y_zero_point_elementwise).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked_asymmetric\",\n)"
+      },
+      {
+        "summary": "blocked_symmetric",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n    output_dtype=TensorProto.INT16,\n)\n\nx = np.array(\n    [\n        [6.0, -8, -10, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\n\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\n\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\n\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\n\ny_val = np.clip(\n    np.rint(x / y_scale_elementwise), a_min=-32768, a_max=32767\n).astype(np.int16)\ny = make_tensor(\n    \"y\",\n    TensorProto.INT16,\n    x.shape,\n    y_val,\n)\nexpect(\n    node,\n    inputs=[x, y_scale],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked_symmetric\",\n)"
       },
       {
         "summary": "e4m3fn",
@@ -26532,6 +26545,12 @@
         "type": "int64",
         "required": false,
         "description": "(Optional) The size of the quantization block (number of times every scale is replicated). Used only for blocked quantization. The block size is a positive integer. Given `x` shape `(D0, ..., Di, ..., Dn)`, `y_scale` shape `(S0, ... Si, ...Sn)` and `axis=i`, the accepted range is `[ceil(Di/Si), ceil(Di/(Si-1))-1]`"
+      },
+      {
+        "name": "output_dtype",
+        "type": "int64",
+        "required": false,
+        "description": "(Optional) The output data type. If not supplied, the output data type is inferred from `y_zero_point` data type (`T2`). If neither `output_dtype` nor `y_zero_point` are supplied, output data type is uint8. If both `output_dtype` and `y_zero_point` are specified, `output_dtype` must be `T2`."
       },
       {
         "name": "saturate",
@@ -26605,8 +26624,12 @@
         "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array(\n    [\n        [\n            [[-162, 10], [-100, 232], [-20, -50]],\n            [[-76, 0], [0, 252], [32, -44]],\n            [[245, -485], [-960, -270], [-375, -470]],\n        ],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array([2, 4, 5], dtype=np.float32)\ny_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (x / y_scale.reshape(1, 3, 1, 1) + y_zero_point.reshape(1, 3, 1, 1)).astype(\n    np.uint8\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_axis\",\n)"
       },
       {
-        "summary": "blocked",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [6.0, 12.0, 50.0, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\ny_zero_point = np.array(\n    [\n        [0, 1],\n        [1, 0],\n        [2, 3],\n    ],\n    dtype=np.uint8,\n)\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\nassert y_scale.shape == y_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\ny_zero_point_elementwise = np.repeat(\n    y_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = np.rint(x / y_scale_elementwise + y_zero_point_elementwise).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked\",\n)"
+        "summary": "blocked_asymmetric",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [6.0, 12.0, 50.0, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\ny_zero_point = np.array(\n    [\n        [0, 1],\n        [1, 0],\n        [2, 3],\n    ],\n    dtype=np.uint8,\n)\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\nassert y_scale.shape == y_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\ny_zero_point_elementwise = np.repeat(\n    y_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = np.rint(x / y_scale_elementwise + y_zero_point_elementwise).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked_asymmetric\",\n)"
+      },
+      {
+        "summary": "blocked_symmetric",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n    output_dtype=TensorProto.INT16,\n)\n\nx = np.array(\n    [\n        [6.0, -8, -10, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\n\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\n\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\n\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\n\ny_val = np.clip(\n    np.rint(x / y_scale_elementwise), a_min=-32768, a_max=32767\n).astype(np.int16)\ny = make_tensor(\n    \"y\",\n    TensorProto.INT16,\n    x.shape,\n    y_val,\n)\nexpect(\n    node,\n    inputs=[x, y_scale],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked_symmetric\",\n)"
       },
       {
         "summary": "e4m3fn",
