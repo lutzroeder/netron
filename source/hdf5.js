@@ -1070,13 +1070,13 @@ hdf5.Datatype = class {
         switch (this._class) {
             case 0: // fixed-point
                 if (this._size === 1) {
-                    return ((this._flags & 0x8) !== 0) ? reader.int8() : reader.byte();
+                    return this._flags & 0x8 ? reader.int8() : reader.byte();
                 } else if (this._size === 2) {
-                    return ((this._flags & 0x8) !== 0) ? reader.int16() : reader.uint16();
+                    return this._flags & 0x8 ? reader.int16() : reader.uint16();
                 } else if (this._size === 4) {
-                    return ((this._flags & 0x8) !== 0) ? reader.int32() : reader.uint32();
+                    return this._flags & 0x8 ? reader.int32() : reader.uint32();
                 } else if (this._size === 8) {
-                    return ((this._flags & 0x8) !== 0) ? reader.int64().toNumber() : reader.uint64().toNumber();
+                    return this._flags & 0x8 ? reader.int64().toNumber() : reader.uint64().toNumber();
                 }
                 throw new hdf5.Error('Unsupported fixed-point datatype.');
             case 1: // floating-point
