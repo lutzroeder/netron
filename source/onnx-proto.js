@@ -197,6 +197,7 @@ onnx.AttributeProto.AttributeType = {
 onnx.ValueInfoProto = class ValueInfoProto {
 
     constructor() {
+        this.metadata_props = [];
     }
 
     static decode(reader, length) {
@@ -213,6 +214,9 @@ onnx.ValueInfoProto = class ValueInfoProto {
                     break;
                 case 3:
                     message.doc_string = reader.string();
+                    break;
+                case 4:
+                    message.metadata_props.push(onnx.StringStringEntryProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -236,6 +240,9 @@ onnx.ValueInfoProto = class ValueInfoProto {
                     break;
                 case "doc_string":
                     message.doc_string = reader.string();
+                    break;
+                case "metadata_props":
+                    message.metadata_props.push(onnx.StringStringEntryProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
