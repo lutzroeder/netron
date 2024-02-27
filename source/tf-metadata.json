@@ -23419,6 +23419,25 @@
     ]
   },
   {
+    "name": "IteratorGetModelProto",
+    "summary": "Returns the serialized model proto of an iterator resource.",
+    "description": "Returns the serialized model proto of an iterator resource.",
+    "inputs": [
+      {
+        "name": "iterator",
+        "description": "An resource from an dataset iterator.",
+        "type": 20
+      }
+    ],
+    "outputs": [
+      {
+        "name": "model_proto",
+        "description": "A serialized model proto.",
+        "type": 7
+      }
+    ]
+  },
+  {
     "name": "IteratorGetNext",
     "summary": "Gets the next output from the given iterator .",
     "attributes": [
