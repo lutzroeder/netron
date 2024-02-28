@@ -40414,7 +40414,7 @@
     "name": "TopK",
     "module": "ai.onnx",
     "version": 1,
-    "description": "Retrieve the top-K elements along a specified axis. Given an input tensor of\nshape [a_1, a_2, ..., a_n, r] and integer argument k, return two outputs:\n  -Value tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n]\n    which contains the values of the top k elements along the specified axis\n  -Index tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] which\n   contains the indices of the top k elements (original indices from the input\n   tensor).\nGiven two equivalent values, this operator uses the indices along the axis  as\n a tiebreaker. That is, the element with the lower index will appear first.\n",
+    "description": "Retrieve the top-K elements along a specified axis. Given an input tensor of\nshape [a_0, a_1, ..., a_{n-1}] and integer argument k, return two outputs:\n  -Value tensor of shape [a_0, a_1, ..., a_{axis-1}, k, a_{axis+1}, ... a_{n-1}]\n    which contains the values of the top k elements along the specified axis\n  -Index tensor of shape [a_0, a_1, ..., a_{axis-1}, k, a_{axis+1}, ... a_{n-1}] which\n   contains the indices of the top k elements (original indices from the input\n   tensor).\nGiven two equivalent values, this operator uses the indices along the axis  as\n a tiebreaker. That is, the element with the lower index will appear first.\n",
     "attributes": [
       {
         "name": "axis",
@@ -40434,7 +40434,7 @@
       {
         "name": "X",
         "type": "T",
-        "description": "Tensor of shape [a_1, a_2, ..., a_n, r]"
+        "description": "Tensor of shape [a_0, a_1, ..., a_{n-1}]"
       }
     ],
     "min_input": 1,
@@ -40443,12 +40443,12 @@
       {
         "name": "Values",
         "type": "T",
-        "description": "Tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] containing top K values from the input tensor"
+        "description": "Tensor of shape [a_0, a_1, ..., a_{axis-1}, k, a_{axis+1}, ... a_{n-1}] containing top K values from the input tensor"
       },
       {
         "name": "Indices",
         "type": "I",
-        "description": "Tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] containing the corresponding input tensor indices for the top K values."
+        "description": "Tensor of shape [a_0, a_1, ..., a_{axis-1}, k, a_{axis+1}, ... a_{n-1}] containing the corresponding input tensor indices for the top K values."
       }
     ],
     "min_output": 2,
@@ -40490,7 +40490,7 @@
     "name": "TopK",
     "module": "ai.onnx",
     "version": 10,
-    "description": "Retrieve the top-K elements along a specified axis. Given an input tensor of\nshape [a_1, a_2, ..., a_n, r] and integer argument k, return two outputs:\n  -Value tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n]\n    which contains the values of the top k elements along the specified axis\n  -Index tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] which\n   contains the indices of the top k elements (original indices from the input\n   tensor).\n\nGiven two equivalent values, this operator uses the indices along the axis  as\n a tiebreaker. That is, the element with the lower index will appear first.\n",
+    "description": "Retrieve the top-K elements along a specified axis. Given an input tensor of\nshape [a_0, a_1, ..., a_{n-1}] and integer argument k, return two outputs:\n  -Value tensor of shape [a_0, a_1, ..., a_{axis-1}, k, a_{axis+1}, ... a_{n-1}]\n    which contains the values of the top k elements along the specified axis\n  -Index tensor of shape [a_0, a_1, ..., a_{axis-1}, k, a_{axis+1}, ... a_{n-1}] which\n   contains the indices of the top k elements (original indices from the input\n   tensor).\n\nGiven two equivalent values, this operator uses the indices along the axis  as\n a tiebreaker. That is, the element with the lower index will appear first.\n",
     "attributes": [
       {
         "name": "axis",
@@ -40504,7 +40504,7 @@
       {
         "name": "X",
         "type": "T",
-        "description": "Tensor of shape [a_1, a_2, ..., a_n, r]"
+        "description": "Tensor of shape [a_0, a_1, ..., a_{n-1}]"
       },
       {
         "name": "K",
@@ -40518,12 +40518,12 @@
       {
         "name": "Values",
         "type": "T",
-        "description": "Tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] containing top K values from the input tensor"
+        "description": "Tensor of shape [a_0, a_1, ..., a_{axis-1}, k, a_{axis+1}, ... a_{n-1}] containing top K values from the input tensor"
       },
       {
         "name": "Indices",
         "type": "I",
-        "description": "Tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] containing the corresponding input tensor indices for the top K values."
+        "description": "Tensor of shape [a_0, a_1, ..., a_{axis-1}, k, a_{axis+1}, ... a_{n-1}] containing the corresponding input tensor indices for the top K values."
       }
     ],
     "min_output": 2,
@@ -40565,7 +40565,7 @@
     "name": "TopK",
     "module": "ai.onnx",
     "version": 11,
-    "description": "Retrieve the top-K largest or smallest elements along a specified axis. Given an input tensor of\nshape [a_1, a_2, ..., a_n, r] and integer argument k, return two outputs:\n\n* Value tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n]\n  which contains the values of the top k elements along the specified axis\n* Index tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] which\n  contains the indices of the top k elements (original indices from the input\n  tensor).\n\n* If \"largest\" is 1 (the default value) then the k largest elements are returned.\n* If \"sorted\" is 1 (the default value) then the resulting k elements will be sorted.\n* If \"sorted\" is 0, order of returned 'Values' and 'Indices' are undefined.\n\nGiven two equivalent values, this operator uses the indices along the axis as\na tiebreaker. That is, the element with the lower index will appear first.\n",
+    "description": "Retrieve the top-K largest or smallest elements along a specified axis. Given an input tensor of\nshape [a_0, a_1, ..., a_{n-1}] and integer argument k, return two outputs:\n\n* Value tensor of shape [a_0, a_1, ..., a_{axis-1}, k, a_{axis+1}, ... a_{n-1}]\n  which contains the values of the top k elements along the specified axis\n* Index tensor of shape [a_0, a_1, ..., a_{axis-1}, k, a_{axis+1}, ... a_{n-1}] which\n  contains the indices of the top k elements (original indices from the input\n  tensor).\n\n* If \"largest\" is 1 (the default value) then the k largest elements are returned.\n* If \"sorted\" is 1 (the default value) then the resulting k elements will be sorted.\n* If \"sorted\" is 0, order of returned 'Values' and 'Indices' are undefined.\n\nGiven two equivalent values, this operator uses the indices along the axis as\na tiebreaker. That is, the element with the lower index will appear first.\n",
     "attributes": [
       {
         "name": "axis",
@@ -40593,7 +40593,7 @@
       {
         "name": "X",
         "type": "T",
-        "description": "Tensor of shape [a_1, a_2, ..., a_n, r]"
+        "description": "Tensor of shape [a_0, a_1, ..., a_{n-1}]"
       },
       {
         "name": "K",
@@ -40607,12 +40607,12 @@
       {
         "name": "Values",
         "type": "T",
-        "description": "Tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] containing top K values from the input tensor"
+        "description": "Tensor of shape [a_0, a_1, ..., a_{axis-1}, k, a_{axis+1}, ... a_{n-1}] containing top K values from the input tensor"
       },
       {
         "name": "Indices",
         "type": "I",
-        "description": "Tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] containing the corresponding input tensor indices for the top K values."
+        "description": "Tensor of shape [a_0, a_1, ..., a_{axis-1}, k, a_{axis+1}, ... a_{n-1}] containing the corresponding input tensor indices for the top K values."
       }
     ],
     "min_output": 2,
