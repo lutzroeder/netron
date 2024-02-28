@@ -4986,19 +4986,22 @@ python.Execution = class {
             list.push(value);
             return value;
         });
-        this.registerFunction('torch.extend', (list, value) => {
-            list.push(...value);
-        });
-        this.registerFunction('torch.insert', (list, index, value) => {
-            list.splice(index, 0, value);
-            return value;
-        });
         this.registerFunction('torch.clear', (value) => {
             if (Object(value) === value) {
                 for (const key of Object.keys(value)) {
                     delete value[key];
                 }
             }
+        });
+        this.registerFunction('torch.cosine_similarity', () => {
+            throw new python.Error("'torch.cosine_similarity' not implemented.");
+        });
+        this.registerFunction('torch.extend', (list, value) => {
+            list.push(...value);
+        });
+        this.registerFunction('torch.insert', (list, index, value) => {
+            list.splice(index, 0, value);
+            return value;
         });
         this.registerFunction('torch.replace', (value) => {
             return value;
