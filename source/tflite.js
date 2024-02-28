@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Copyright 2024 Arm Limited and/or its affiliates open-source-office@arm.com
 
 import * as flatbuffers from './flatbuffers.js';
 import * as flexbuffers from './flexbuffers.js';
@@ -153,7 +154,8 @@ tflite.Model = class {
             const subgraph = subgraphs[i];
             const name = subgraphs.length > 1 ? i.toString() : '';
             const subgraphMetadata = subgraphsMetadata && i < subgraphsMetadata.length ? subgraphsMetadata[i] : null;
-            const graph = new tflite.Graph(metadata, subgraph, subgraphMetadata, name, operators, model);
+            const subgraphSignatureDef = model.signature_defs ? model.signature_defs.find(sd => sd.subgraph_index == i) : null;
+            const graph = new tflite.Graph(metadata, subgraph, subgraphMetadata, name, operators, model, subgraphSignatureDef);
             this._graphs.push(graph);
         }
     }
@@ -189,7 +191,7 @@ tflite.Model = class {
 
 tflite.Graph = class {
 
-    constructor(metadata, subgraph, subgraphMetadata, name, operators, model) {
+    constructor(metadata, subgraph, subgraphMetadata, name, operators, model, signatureDef) {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
@@ -244,7 +246,11 @@ tflite.Graph = class {
             const metadata = subgraphMetadata && i < subgraphMetadata.input_tensor_metadata.length ? subgraphMetadata.input_tensor_metadata[i] : null;
             const value = tensors.map(input, metadata);
             const values = value ? [value] : [];
-            const name = value ? value.name : '?';
+            let name = value ? value.name : '?';
+            const signatureInfo = signatureDef ? signatureDef.inputs.find(x => x.tensor_index == input) : null;
+            if (signatureInfo) {
+                name = signatureInfo.name;
+            }
             const argument = new tflite.Argument(name, values);
             this._inputs.push(argument);
         }
@@ -254,7 +260,11 @@ tflite.Graph = class {
             const metadata = subgraphMetadata && i < subgraphMetadata.output_tensor_metadata.length ? subgraphMetadata.output_tensor_metadata[i] : null;
             const value = tensors.map(output, metadata);
             const values = value ? [value] : [];
-            const name = value ? value.name : '?';
+            let name = value ? value.name : '?';
+            const signatureInfo = signatureDef ? signatureDef.outputs.find(x => x.tensor_index == output) : null;
+            if (signatureInfo) {
+                name = signatureInfo.name;
+            }
             const argument = new tflite.Argument(name, values);
             this._outputs.push(argument);
         }
