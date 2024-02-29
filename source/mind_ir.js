@@ -24,50 +24,19 @@ mind_ir.ModelFactory = class {
    
     open(context) {
         return context.require('./mind_ir-proto').then(() => {
-
-           
             let model = null;
             try {
-               
                 mind_ir.proto = protobuf.get('mind_ir').mind_ir;
                 const stream = context.stream;
-
-               
                 const reader = protobuf.BinaryReader.open(stream);
-
-               
                 model = mind_ir.proto.ModelProto.decode(reader);
-                
 
-               
-                const modelJson = JSON.stringify(model);
-
-               
-                const blob = new Blob([modelJson], { type: 'application/json' });
-
-               
-                const url = URL.createObjectURL(blob);
-
-               
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'model_mindir.json';
-                document.body.appendChild(a);
-
-               
-               
-
-               
-                URL.revokeObjectURL(url);
-                a.remove();
             }
             catch (error) {
-               
                 const message = error && error.message ? error.message : error.toString();
                 throw new mind_ir.Error('File format is not mind_ir.Graph (' + message.replace(/\.$/, '') + ').');
             }
             return context.metadata('mind_ir-metadata.json').then((metadata) => {
-               
                 return new mind_ir.Model(metadata, model);
             });
         });
