@@ -408,13 +408,16 @@ pytorch.Node = class {
                     return new pytorch.Argument(name, value);
                 } else if (name === '_modules' && value && value.__class__ && value.__class__.__module__ === 'collections' && value.__class__.__name__ === 'OrderedDict' &&
                     value instanceof Map && Array.from(value).every(([, value]) => value.__class__)) {
-                    const values = Array.from(value).map(([name, value]) => {
+                    const values = Array.from(value).filter(([, value]) => !stack.has(value)).map(([name, value]) => {
+                        stack.add(value);
                         const item = {
                             name: name,
                             type: `${value.__class__.__module__}.${value.__class__.__name__}`,
                             obj: value
                         };
-                        return new pytorch.Node(metadata, group, item);
+                        const node = new pytorch.Node(metadata, group, item);
+                        stack.delete(value);
+                        return node;
                     });
                     return new pytorch.Argument(name, values, 'object[]');
                 } else if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj && (obj.__class__ || obj === Object(obj)))) {
@@ -431,12 +434,16 @@ pytorch.Node = class {
                     });
                     return new pytorch.Argument(name, nodes, 'object[]');
                 } else if (value && (value.__class__ || isObject(value))) {
-                    const item = {
-                        type: value.__class__ ? `${value.__class__.__module__}.${value.__class__.__name__}` : 'builtins.object',
-                        obj: value
-                    };
-                    const node = new pytorch.Node(metadata, group, item, initializers, values, stack);
-                    return new pytorch.Argument(name, node, 'object');
+                    if (!stack.has(value)) {
+                        stack.add(value);
+                        const item = {
+                            type: value.__class__ ? `${value.__class__.__module__}.${value.__class__.__name__}` : 'builtins.object',
+                            obj: value
+                        };
+                        const node = new pytorch.Node(metadata, group, item, initializers, values, stack);
+                        stack.delete(value);
+                        return new pytorch.Argument(name, node, 'object');
+                    }
                 }
                 return createAttribute(metadata.attribute(type, name), name, value);
             });
