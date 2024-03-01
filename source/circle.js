@@ -184,68 +184,54 @@ circle.Graph = class {
         this._outputs = [];
         this._name = subgraph.name || name;
         const tensors = new Map();
-        const args = (index) => {
+        tensors.map = (index, metadata) => {
             if (index === -1) {
                 return null;
             }
             if (!tensors.has(index)) {
+                let tensor = { name: '' };
+                let initializer = null;
+                let description = '';
+                let denotation = '';
                 if (index < subgraph.tensors.length) {
-                    const tensor = subgraph.tensors[index];
+                    tensor = subgraph.tensors[index];
                     const buffer = model.buffers[tensor.buffer];
                     const is_variable = tensor.is_variable;
                     const data = buffer ? buffer.data : null;
-                    const initializer = (data && data.length > 0) || is_variable ? new circle.Tensor(index, tensor, buffer, is_variable) : null;
-                    tensors.set(index, new circle.Value(index, tensor, initializer));
-                } else {
-                    tensors.set(index, new circle.Value(index, { name: '' }, null));
+                    initializer = (data && data.length > 0) || is_variable ? new circle.Tensor(index, tensor, buffer, is_variable) : null;
                 }
+                if (metadata) {
+                    description = metadata.description;
+                    const content = metadata.content;
+                    if (content) {
+                        const contentProperties = content.content_properties;
+                        if (contentProperties instanceof circle.schema.FeatureProperties) {
+                            denotation = 'Feature';
+                        } else if (contentProperties instanceof circle.schema.ImageProperties) {
+                            denotation = 'Image';
+                            switch (contentProperties.color_space) {
+                                case 0: denotation += '(Unknown)'; break;
+                                case 1: denotation += '(RGB)'; break;
+                                case 2: denotation += '(Grayscale)'; break;
+                                default: throw circle.Error(`Unsupported image color space '${contentProperties.color_space}'.`);
+                            }
+                        } else if (contentProperties instanceof circle.schema.BoundingBoxProperties) {
+                            denotation = 'BoundingBox';
+                        } else if (contentProperties instanceof circle.schema.AudioProperties) {
+                            denotation = `Audio(${contentProperties.sample_rate},${contentProperties.channels})`;
+                        }
+                    }
+                }
+                const value = new circle.Value(index, tensor, initializer, description, denotation);
+                tensors.set(index, value);
             }
             return tensors.get(index);
-        };
-        for (let i = 0; i < subgraph.operators.length; i++) {
-            const node = subgraph.operators[i];
-            const index = node.opcode_index;
-            const operator = index < operators.length ? operators[index] : { name: `(${index})` };
-            this._nodes.push(new circle.Node(metadata, node, operator, i.toString(), args));
-        }
-        const applyTensorMetadata = (argument, tensorMetadata) => {
-            if (tensorMetadata) {
-                const description = tensorMetadata.description;
-                if (description) {
-                    argument.description = description;
-                }
-                const content = tensorMetadata.content;
-                if (argument.type && content) {
-                    let denotation = null;
-                    const contentProperties = content.content_properties;
-                    if (contentProperties instanceof circle.schema.FeatureProperties) {
-                        denotation = 'Feature';
-                    } else if (contentProperties instanceof circle.schema.ImageProperties) {
-                        denotation = 'Image';
-                        switch (contentProperties.color_space) {
-                            case 0: denotation += '(Unknown)'; break;
-                            case 1: denotation += '(RGB)'; break;
-                            case 2: denotation += '(Grayscale)'; break;
-                            default: throw circle.Error(`Unsupported image color space '${contentProperties.color_space}'.`);
-                        }
-                    } else if (contentProperties instanceof circle.schema.BoundingBoxProperties) {
-                        denotation = 'BoundingBox';
-                    } else if (contentProperties instanceof circle.schema.AudioProperties) {
-                        denotation = `Audio(${contentProperties.sample_rate},${contentProperties.channels})`;
-                    }
-                    if (denotation) {
-                        argument.type.denotation = denotation;
-                    }
-                }
-            }
         };
         const inputs = subgraph.inputs;
         for (let i = 0; i < inputs.length; i++) {
             const input = inputs[i];
-            const value = args(input);
-            if (subgraphMetadata && i < subgraphMetadata.input_tensor_metadata.length) {
-                applyTensorMetadata(value, subgraphMetadata.input_tensor_metadata[i]);
-            }
+            const metadata = subgraphMetadata && i < subgraphMetadata.input_tensor_metadata.length ? subgraphMetadata.input_tensor_metadata[i] : null;
+            const value = tensors.map(input, metadata);
             const name = value ? value.name : '?';
             const argument = new circle.Argument(name, value ? [value] : []);
             this._inputs.push(argument);
@@ -253,13 +239,18 @@ circle.Graph = class {
         const outputs = subgraph.outputs;
         for (let i = 0; i < outputs.length; i++) {
             const output = outputs[i];
-            const value = args(output);
-            if (subgraphMetadata && i < subgraphMetadata.output_tensor_metadata.length) {
-                applyTensorMetadata(value, subgraphMetadata.output_tensor_metadata[i]);
-            }
+            const metadata = subgraphMetadata && i < subgraphMetadata.output_tensor_metadata.length ? subgraphMetadata.output_tensor_metadata[i] : null;
+            const value = tensors.map(output, metadata);
             const name = value ? value.name : '?';
             const argument = new circle.Argument(name, value ? [value] : []);
             this._outputs.push(argument);
+        }
+        for (let i = 0; i < subgraph.operators.length; i++) {
+            const operator = subgraph.operators[i];
+            const index = operator.opcode_index;
+            const opcode = index < operators.length ? operators[index] : { name: `(${index})` };
+            const node = new circle.Node(metadata, operator, opcode, i.toString(), tensors);
+            this._nodes.push(node);
         }
     }
 
@@ -282,7 +273,7 @@ circle.Graph = class {
 
 circle.Node = class {
 
-    constructor(metadata, node, type, location, args) {
+    constructor(metadata, node, type, location, tensors) {
         this._location = location;
         this._type = type.custom ? { name: type.name, category: 'custom' } : metadata.type(type.name);
         this._inputs = [];
@@ -293,49 +284,45 @@ circle.Node = class {
             let outputs = [];
             inputs = Array.from(node.inputs || new Int32Array(0));
             outputs = Array.from(node.outputs || new Int32Array(0));
-            let inputIndex = 0;
-            while (inputIndex < inputs.length) {
+            for (let i = 0; i < inputs.length; i++) {
                 let count = 1;
                 let name = null;
                 let visible = true;
-                const inputArguments = [];
-                if (this._type && this._type.inputs && inputIndex < this._type.inputs.length) {
-                    const input = this._type.inputs[inputIndex];
+                const values = [];
+                if (this._type && this._type.inputs && i < this._type.inputs.length) {
+                    const input = this._type.inputs[i];
                     name = input.name;
                     if (input.option === 'variadic') {
-                        count = inputs.length - inputIndex;
+                        count = inputs.length - i;
                     }
                     if (input && input.visible === false) {
                         visible = false;
                     }
                 }
-                const inputArray = inputs.slice(inputIndex, inputIndex + count);
+                const inputArray = inputs.slice(i, i + count);
                 for (const index of inputArray) {
-                    const value = args(index);
+                    const value = tensors.map(index);
                     if (value) {
-                        inputArguments.push(value);
+                        values.push(value);
                     }
                 }
-                inputIndex += count;
-                name = name ? name : inputIndex.toString();
-                const argument = new circle.Argument(name, inputArguments, visible);
+                i += count;
+                name = name ? name : i.toString();
+                const argument = new circle.Argument(name, values, visible);
                 this._inputs.push(argument);
             }
-            for (let k = 0; k < outputs.length; k++) {
-                const index = outputs[k];
-                const outputArguments = [];
-                const value = args(index);
-                if (value) {
-                    outputArguments.push(value);
-                }
-                let name = k.toString();
-                if (this._type && this._type.outputs && k < this._type.outputs.length) {
-                    const output = this._type.outputs[k];
+            for (let i = 0; i < outputs.length; i++) {
+                const index = outputs[i];
+                const value = tensors.map(index);
+                const values = value ? [value] : [];
+                let name = i.toString();
+                if (this._type && this._type.outputs && i < this._type.outputs.length) {
+                    const output = this._type.outputs[i];
                     if (output && output.name) {
                         name = output.name;
                     }
                 }
-                const argument = new circle.Argument(name, outputArguments);
+                const argument = new circle.Argument(name, values);
                 this._outputs.push(argument);
             }
             if (type.custom && node.custom_options.length > 0) {
@@ -481,12 +468,13 @@ circle.Argument = class {
 
 circle.Value = class {
 
-    constructor(index, tensor, initializer) {
+    constructor(index, tensor, initializer, description, denotation) {
         const name = tensor.name || '';
         this.name = `${name}\n${index}`;
         this.location = index.toString();
-        this.type = tensor.type !== undefined && tensor.shape !== undefined ? new circle.TensorType(tensor) : null;
+        this.type = tensor.type !== undefined && tensor.shape !== undefined ? new circle.TensorType(tensor, denotation) : null;
         this.initializer = initializer;
+        this.description = description;
         const quantization = tensor.quantization;
         if (quantization && (quantization.scale.length > 0 || quantization.zero_point.length > 0 || quantization.min.length > 0 || quantization.max.length)) {
             this.quantization = {
@@ -562,47 +550,28 @@ circle.Tensor = class {
 
 circle.TensorType = class {
 
-    constructor(tensor) {
-        this._dataType = circle.Utility.dataType(tensor.type);
-        this._shape = new circle.TensorShape(Array.from(tensor.shape || []));
-    }
-
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
-    }
-
-    set denotation(value) {
-        this._denotation = value;
-    }
-
-    get denotation() {
-        return this._denotation;
+    constructor(tensor, denotation) {
+        this.dataType = circle.Utility.dataType(tensor.type);
+        this.shape = new circle.TensorShape(Array.from(tensor.shape || []));
+        this.denotation = denotation;
     }
 
     toString() {
-        return this.dataType + this._shape.toString();
+        return this.dataType + this.shape.toString();
     }
 };
 
 circle.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = dimensions;
     }
 
     toString() {
-        if (!this._dimensions || this._dimensions.length === 0) {
+        if (!this.dimensions || this.dimensions.length === 0) {
             return '';
         }
-        return `[${this._dimensions.map((dimension) => dimension.toString()).join(',')}]`;
+        return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
     }
 };
 
