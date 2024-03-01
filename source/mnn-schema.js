@@ -1119,6 +1119,21 @@ MNN.LayerNorm = class LayerNorm {
     }
 };
 
+MNN.GroupNorm = class GroupNorm {
+
+    static decode(reader, position) {
+        const $ = new MNN.GroupNorm();
+        $.axis = reader.int32_(position, 4, 0);
+        $.epsilon = reader.float32_(position, 6, 0);
+        $.gamma = reader.typedArray(position, 8, Float32Array);
+        $.beta = reader.typedArray(position, 10, Float32Array);
+        $.group = reader.int32_(position, 12, 1);
+        $.bSwish = reader.int32_(position, 14, 0);
+        $.external = reader.int64s_(position, 16);
+        return $;
+    }
+};
+
 MNN.RandomUniform = class RandomUniform {
 
     static decode(reader, position) {
@@ -1649,6 +1664,11 @@ MNN.OpType = {
     BatchNorm: 267,
     ConvTranspose3D: 268,
     ZeroGrad: 269,
+    FmhaV2: 300,
+    Fmhca: 301,
+    SeqLen2Spatial: 302,
+    SplitGeLU: 303,
+    GroupNorm: 304,
     Extra: 512,
     ConvInt8: 513,
     Int8ToFloat: 514,
@@ -1690,6 +1710,24 @@ MNN.StringVec = class StringVec {
     static decode(reader, position) {
         const $ = new MNN.StringVec();
         $.data = reader.strings_(position, 4);
+        return $;
+    }
+};
+
+MNN.FmhaV2Param = class FmhaV2Param {
+
+    static decode(reader, position) {
+        const $ = new MNN.FmhaV2Param();
+        $.heads = reader.int32_(position, 4, 0);
+        return $;
+    }
+};
+
+MNN.FmhcaParam = class FmhcaParam {
+
+    static decode(reader, position) {
+        const $ = new MNN.FmhcaParam();
+        $.heads = reader.int32_(position, 4, 0);
         return $;
     }
 };
@@ -1848,6 +1886,9 @@ MNN.OpParameter = class {
             case 92: return MNN.LoopParam.decode(reader, position);
             case 93: return MNN.ImageProcessParam.decode(reader, position);
             case 94: return MNN.CumSum.decode(reader, position);
+            case 95: return MNN.GroupNorm.decode(reader, position);
+            case 96: return MNN.FmhaV2Param.decode(reader, position);
+            case 97: return MNN.FmhcaParam.decode(reader, position);
             default: return undefined;
         }
     }
