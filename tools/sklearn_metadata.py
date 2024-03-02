@@ -89,7 +89,8 @@ def _update_attributes(schema, lines):
         attribute['description'] = '\n'.join(description)
 
 def _metadata():
-    json_file = os.path.join(os.path.dirname(__file__), '../source/sklearn-metadata.json')
+    root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    json_file = os.path.join(root_dir, 'source', 'sklearn-metadata.json')
     with open(json_file, 'r', encoding='utf-8') as file:
         json_root = json.loads(file.read())
 
