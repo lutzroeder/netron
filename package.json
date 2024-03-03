@@ -35,7 +35,7 @@
     },
     "devDependencies": {
         "electron": "29.1.0",
-        "electron-builder": "24.12.0",
+        "electron-builder": "24.13.3",
         "@electron/notarize": "2.3.0",
         "eslint": "8.57.0"
     },
@@ -190,7 +190,6 @@
             { "ext": "uff",         "name": "UFF Model"                },
             { "ext": "xmodel",      "name": "Vitis AI Model"           }
         ],
-        "afterSign": "./publish/notarize.cjs",
         "publish": [
             { "provider": "github", "releaseType": "release" }
         ],
@@ -203,6 +202,7 @@
             "darkModeSupport": true,
             "gatekeeperAssess": false,
             "hardenedRuntime": true,
+            "notarize": true,
             "target": [ "dmg", "zip" ]
         },
         "win": {
