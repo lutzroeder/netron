@@ -4633,6 +4633,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "bad-hands-5.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/14471657/bad-hands-5.pt.zip[bad-hands-5.pt]",
+    "format":   "PyTorch v1.6",
+    "error":    "File does not contain root module or state dictionary.",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "bert-base-uncased.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7705212/bert-base-uncased.pt.zip[bert-base-uncased.pt]",
     "format":   "TorchScript v1.6",
