@@ -1699,11 +1699,13 @@ view.Graph = class extends grapher.Graph {
         }
         const inputs = signature ? signature.inputs : graph.inputs;
         const outputs = signature ? signature.outputs : graph.outputs;
-        for (const input of inputs) {
-            const viewInput = this.createInput(input);
-            this.setNode(viewInput);
-            for (const value of input.value) {
-                this.createValue(value).from = viewInput;
+        if (Array.isArray(inputs)) {
+            for (const input of inputs) {
+                const viewInput = this.createInput(input);
+                this.setNode(viewInput);
+                for (const value of input.value) {
+                    this.createValue(value).from = viewInput;
+                }
             }
         }
         for (const node of graph.nodes) {
@@ -1774,11 +1776,13 @@ view.Graph = class extends grapher.Graph {
                 }
             }
         }
-        for (const output of outputs) {
-            const viewOutput = this.createOutput(output);
-            this.setNode(viewOutput);
-            for (const value of output.value) {
-                this.createValue(value).to.push(viewOutput);
+        if (Array.isArray(outputs)) {
+            for (const output of outputs) {
+                const viewOutput = this.createOutput(output);
+                this.setNode(viewOutput);
+                for (const value of output.value) {
+                    this.createValue(value).to.push(viewOutput);
+                }
             }
         }
     }
@@ -3096,15 +3100,8 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             if (graph.description) {
                 this.addProperty('description', graph.description);
             }
-            let inputs;
-            let outputs;
-            if (Array.isArray(graph.signatures)) {
-                inputs = graph.signatures[0].inputs;
-                outputs = graph.signatures[0].outputs;
-            } else {
-                inputs = graph.inputs;
-                outputs = graph.outputs;
-            }
+            const inputs = signature ? signature.inputs : graph.inputs;
+            const outputs = signature ? signature.outputs : graph.outputs;
             if (Array.isArray(inputs) && inputs.length > 0) {
                 this.addHeader('Inputs');
                 for (const input of inputs) {
