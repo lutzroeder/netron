@@ -26,7 +26,7 @@ view.View = class {
         };
         this._options = Object.assign({}, this._defaultOptions);
         this._model = null;
-        this._graphs = [];
+        this._stack = [];
         this._selection = [];
         this._sidebar = new view.Sidebar(this._host);
         this._searchText = '';
@@ -338,8 +338,8 @@ view.View = class {
 
     _reload() {
         this.show('welcome spinner');
-        if (this._model && this._graphs.length > 0) {
-            this._updateGraph(this._model, this._graphs).catch((error) => {
+        if (this._model && this._stack.length > 0) {
+            this._updateGraph(this._model, this._stack).catch((error) => {
                 if (error) {
                     this.error(error, 'Graph update failed.', 'welcome');
                 }
@@ -643,8 +643,16 @@ view.View = class {
                 });
             }
             await this._timeout(20);
-            const graphs = Array.isArray(model.graphs) && model.graphs.length > 0 ? [model.graphs[0]] : [];
-            return await this._updateGraph(model, graphs);
+            const stack = [];
+            if (Array.isArray(model.graphs) && model.graphs.length > 0) {
+                const [graph] = model.graphs;
+                const entry = {
+                    graph: graph,
+                    signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
+                };
+                stack.push(entry);
+            }
+            return await this._updateGraph(model, stack);
         } catch (error) {
             if (error && context.identifier) {
                 error.context = context.identifier;
@@ -653,14 +661,13 @@ view.View = class {
         }
     }
 
-    async _updateActiveGraph(graph) {
+    async _updateActive(stack) {
         this._sidebar.close();
         if (this._model) {
-            const model = this._model;
             this.show('welcome spinner');
             await this._timeout(200);
             try {
-                await this._updateGraph(model, [graph]);
+                await this._updateGraph(this._model, stack);
             } catch (error) {
                 if (error) {
                     this.error(error, 'Graph update failed.', 'welcome');
@@ -670,13 +677,23 @@ view.View = class {
     }
 
     get activeGraph() {
-        return Array.isArray(this._graphs) && this._graphs.length > 0 ? this._graphs[0] : null;
+        if (Array.isArray(this._stack) && this._stack.length > 0) {
+            return this._stack[0].graph;
+        }
+        return null;
     }
 
-    async _updateGraph(model, graphs) {
+    get activeSignature() {
+        if (Array.isArray(this._stack) && this._stack.length > 0) {
+            return this._stack[0].signature;
+        }
+        return null;
+    }
+
+    async _updateGraph(model, stack) {
         await this._timeout(100);
-        const graph = Array.isArray(graphs) && graphs.length > 0 ? graphs[0] : null;
-        if (graph && graph !== this._graphs[0]) {
+        const graph = Array.isArray(stack) && stack.length > 0 ? stack[0].graph : null;
+        if (graph && (this._stack.length === 0 || graph !== this._stack[0].graph)) {
             const nodes = graph.nodes;
             if (nodes.length > 2048) {
                 if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
@@ -689,10 +706,10 @@ view.View = class {
                 }
             }
         }
-        const update = async (model, graphs) => {
+        const update = async (model, stack) => {
             this._model = model;
-            this._graphs = graphs;
-            await this.renderGraph(this._model, this.activeGraph, this._options);
+            this._stack = stack;
+            await this.renderGraph(this._model, this.activeGraph, this.activeSignature, this._options);
             if (this._page !== 'default') {
                 this.show('default');
             }
@@ -701,11 +718,11 @@ view.View = class {
             while (path.children.length > 1) {
                 path.removeChild(path.lastElementChild);
             }
-            if (this._graphs.length <= 1) {
+            if (this._stack.length <= 1) {
                 back.style.opacity = 0;
             } else {
                 back.style.opacity = 1;
-                const last = this._graphs.length - 2;
+                const last = this._stack.length - 2;
                 const count = Math.min(2, last);
                 if (count < last) {
                     const element = this._host.document.createElement('button');
@@ -714,15 +731,15 @@ view.View = class {
                     path.appendChild(element);
                 }
                 for (let i = count; i >= 0; i--) {
-                    const graph = this._graphs[i];
+                    const graph = this._stack[i].graph;
                     const element = this._host.document.createElement('button');
                     element.setAttribute('class', 'toolbar-path-name-button');
                     element.addEventListener('click', () => {
                         if (i > 0) {
-                            this._graphs = this._graphs.slice(i);
-                            this._updateGraph(this._model, this._graphs);
+                            this._stack = this._stack.slice(i);
+                            this._updateGraph(this._model, this._stack);
                         }
-                        this.showDefinition(this._graphs[0]);
+                        this.showDefinition(this._stack[0]);
                     });
                     const name = graph && graph.name ? graph.name : '';
                     if (name.length > 24) {
@@ -737,12 +754,12 @@ view.View = class {
             }
         };
         const lastModel = this._model;
-        const lastGraphs = this._graphs;
+        const lastStack = this._stack;
         try {
-            await update(model, graphs);
+            await update(model, stack);
             return this._model;
         } catch (error) {
-            await update(lastModel, lastGraphs);
+            await update(lastModel, lastStack);
             throw error;
         }
     }
@@ -750,19 +767,23 @@ view.View = class {
     pushGraph(graph) {
         if (graph && graph !== this.activeGraph && Array.isArray(graph.nodes)) {
             this._sidebar.close();
-            this._updateGraph(this._model, [graph].concat(this._graphs));
+            const entry = {
+                graph: graph,
+                signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
+            };
+            this._updateGraph(this._model, [entry].concat(this._stack));
         }
     }
 
     popGraph() {
-        if (this._graphs.length > 1) {
+        if (this._stack.length > 1) {
             this._sidebar.close();
-            return this._updateGraph(this._model, this._graphs.slice(1));
+            return this._updateGraph(this._model, this._stack.slice(1));
         }
         return null;
     }
 
-    async renderGraph(model, graph, options) {
+    async renderGraph(model, graph, signature, options) {
         this._graph = null;
         const canvas = this._element('canvas');
         while (canvas.lastChild) {
@@ -790,7 +811,7 @@ view.View = class {
             layout.ranker = 'longest-path';
         }
         const viewGraph = new view.Graph(this, model, options, groups, layout);
-        viewGraph.add(graph);
+        viewGraph.add(graph, signature);
         // Workaround for Safari background drag/zoom issue:
         // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
         const background = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -953,9 +974,20 @@ view.View = class {
     showModelProperties() {
         if (this._model) {
             try {
-                const modelSidebar = new view.ModelSidebar(this._host, this._model, this.activeGraph);
+                const modelSidebar = new view.ModelSidebar(this._host, this._model, this.activeGraph, this.activeSignature);
                 modelSidebar.on('update-active-graph', (sender, graph) => {
-                    this._updateActiveGraph(graph);
+                    const entry = {
+                        graph: graph,
+                        signature: Array.isArray(graph.signatures) ? graph.signatures[0] : null
+                    };
+                    this._updateActive([entry]);
+                });
+                modelSidebar.on('update-active-graph-signature', (sender, signature) => {
+                    const stack = this._stack.map((entry) => {
+                        return { graph: entry.graph, signature: entry.signature };
+                    });
+                    stack[0].signature = signature;
+                    this._updateActive(stack);
                 });
                 const content = modelSidebar.render();
                 this._sidebar.open(content, 'Model Properties');
@@ -1649,7 +1681,7 @@ view.Graph = class extends grapher.Graph {
         return this._values.get(name);
     }
 
-    add(graph) {
+    add(graph, signature) {
         const clusters = new Set();
         const clusterParentMap = new Map();
         const groups = graph.groups;
@@ -1665,7 +1697,9 @@ view.Graph = class extends grapher.Graph {
                 }
             }
         }
-        for (const input of graph.inputs) {
+        const inputs = signature ? signature.inputs : graph.inputs;
+        const outputs = signature ? signature.outputs : graph.outputs;
+        for (const input of inputs) {
             const viewInput = this.createInput(input);
             this.setNode(viewInput);
             for (const value of input.value) {
@@ -1740,7 +1774,7 @@ view.Graph = class extends grapher.Graph {
                 }
             }
         }
-        for (const output of graph.outputs) {
+        for (const output of outputs) {
             const viewOutput = this.createOutput(output);
             this.setNode(viewOutput);
             for (const value of output.value) {
@@ -2992,7 +3026,7 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
 
 view.ModelSidebar = class extends view.ObjectSidebar {
 
-    constructor(host, model, graph) {
+    constructor(host, model, graph, signature) {
         super(host);
         this._model = model;
 
@@ -3031,6 +3065,15 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             selector.on('change', (sender, data) => this.emit('update-active-graph', data));
             this.add('graph', selector);
         }
+        if (Array.isArray(graph.signatures)) {
+            if (graph.signatures.length === 1 && graph.signatures[0].name !== '') {
+                this.addProperty('signature', graph.signatures[0].name);
+            } else if (graph.signatures.length > 1) {
+                const selector = new view.SelectView(this._host, graph.signatures, signature);
+                selector.on('change', (sender, data) => this.emit('update-active-graph-signature', data));
+                this.add('signature', selector);
+            }
+        }
         const metadata = model.metadata instanceof Map ?
             Array.from(model.metadata).map(([name, value]) => ({ name: name, value: value })) :
             model.metadata;
@@ -3053,15 +3096,24 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             if (graph.description) {
                 this.addProperty('description', graph.description);
             }
-            if (Array.isArray(graph.inputs) && graph.inputs.length > 0) {
+            let inputs;
+            let outputs;
+            if (Array.isArray(graph.signatures)) {
+                inputs = graph.signatures[0].inputs;
+                outputs = graph.signatures[0].outputs;
+            } else {
+                inputs = graph.inputs;
+                outputs = graph.outputs;
+            }
+            if (Array.isArray(inputs) && inputs.length > 0) {
                 this.addHeader('Inputs');
-                for (const input of graph.inputs) {
+                for (const input of inputs) {
                     this.addArgument(input.name, input);
                 }
             }
-            if (Array.isArray(graph.outputs) && graph.outputs.length > 0) {
+            if (Array.isArray(outputs) && outputs.length > 0) {
                 this.addHeader('Outputs');
-                for (const output of graph.outputs) {
+                for (const output of outputs) {
                     this.addArgument(output.name, output);
                 }
             }
@@ -3897,19 +3949,19 @@ view.Documentation = class {
         if (source) {
             const generator = new markdown.Generator();
             const target = {};
-            if (source.name !== undefined) {
+            if (source.name) {
                 target.name = source.name;
             }
-            if (source.module !== undefined) {
+            if (source.module) {
                 target.module = source.module;
             }
-            if (source.category !== undefined) {
+            if (source.category) {
                 target.category = source.category;
             }
-            if (source.summary !== undefined) {
+            if (source.summary) {
                 target.summary = generator.html(source.summary);
             }
-            if (source.description !== undefined) {
+            if (source.description) {
                 target.description = generator.html(source.description);
             }
             if (Array.isArray(source.attributes)) {

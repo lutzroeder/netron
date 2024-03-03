@@ -622,18 +622,21 @@ export class Target {
                     }
                 }
             };
-            for (const input of graph.inputs) {
-                input.name.toString();
-                input.name.length;
-                for (const value of input.value) {
-                    validateValue(value);
+            const signatures = Array.isArray(graph.signatures) ? graph.signatures : [graph];
+            for (const signature of signatures) {
+                for (const input of signature.inputs) {
+                    input.name.toString();
+                    input.name.length;
+                    for (const value of input.value) {
+                        validateValue(value);
+                    }
                 }
-            }
-            for (const output of graph.outputs) {
-                output.name.toString();
-                output.name.length;
-                for (const value of output.value) {
-                    validateValue(value);
+                for (const output of signature.outputs) {
+                    output.name.toString();
+                    output.name.length;
+                    for (const value of output.value) {
+                        validateValue(value);
+                    }
                 }
             }
             for (const node of graph.nodes) {
@@ -696,7 +699,14 @@ export class Target {
         const current = new view.View(this.host);
         current.options.attributes = true;
         current.options.initializers = true;
-        await current.renderGraph(this.model, this.model.graphs[0], current.options);
+        for (const graph of this.model.graphs) {
+            const signatures = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures : [graph];
+            for (const signature of signatures) {
+                /* eslint-disable no-await-in-loop */
+                await current.renderGraph(this.model, graph, signature, current.options);
+                /* eslint-disable no-await-in-loop */
+            }
+        }
     }
 }
 
