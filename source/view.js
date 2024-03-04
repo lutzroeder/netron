@@ -265,7 +265,7 @@ view.View = class {
     find() {
         if (this._graph) {
             this._graph.select(null);
-            const content = new view.FindSidebar(this._host, this.activeGraph);
+            const content = new view.FindSidebar(this._host, this.activeGraph, this.activeSignature);
             content.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
@@ -3224,9 +3224,10 @@ view.DocumentationSidebar = class extends view.Control {
 
 view.FindSidebar = class extends view.Control {
 
-    constructor(host, graph) {
+    constructor(host, graph, signature) {
         super(host);
         this._graph = graph;
+        this._signature = signature;
         this._table = new Map();
         this._searchElement = this.createElement('input', 'sidebar-find-search');
         this._searchElement.setAttribute('id', 'search');
@@ -3354,7 +3355,8 @@ view.FindSidebar = class extends view.Control {
                 edges.add(value.name);
             }
         };
-        for (const input of this._graph.inputs) {
+        const inputs = this._signature ? this._signature.inputs : this._graph.inputs;
+        for (const input of inputs) {
             for (const value of input.value) {
                 edge(value);
             }
@@ -3382,7 +3384,8 @@ view.FindSidebar = class extends view.Control {
                 }
             }
         }
-        for (const output of this._graph.outputs) {
+        const outputs = this._signature ? this._signature.outputs : this._graph.inputs;
+        for (const output of outputs) {
             for (const value of output.value) {
                 edge(value);
             }
