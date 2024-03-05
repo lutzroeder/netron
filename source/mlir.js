@@ -1160,6 +1160,7 @@ mlir.Utility = class {
             case 'f16': return 'float16';
             case 'f32': return 'float32';
             case 'f64': return 'float64';
+            case 'i8': return 'int8';
             case 'i16': return 'int16';
             case 'i32': return 'int32';
             case 'i64': return 'int64';
