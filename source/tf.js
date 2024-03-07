@@ -727,8 +727,11 @@ tf.Graph = class {
     constructor(metadata, meta_graph, name, bundle) {
         this.name = name;
         this.nodes = [];
+        this.inputs = [];
+        this.outputs = [];
         this.signatures = [];
         this.version = null;
+        this.groups = false;
         if (meta_graph && meta_graph.graph_def) {
             const graph = meta_graph.graph_def;
             if (graph.versions) {
@@ -746,7 +749,32 @@ tf.Graph = class {
             const context = new tf.Context();
             context.graph(metadata, nodes);
             this.nodes = context.nodes;
-            this.signatures = context.signatures;
+            this.inputs = context.inputs;
+            this.outputs = context.outputs;
+            this.signatures = [];
+            /*
+            // TODO
+            for (const [key, signature_def] of Object.entries(meta_graph.signature_def)) {
+                const inputs = [];
+                for (const [key, tensor] of Object.entries(signature_def.inputs)) {
+                    const type = new tf.TensorType(tensor.dtype, tensor.tensor_shape);
+                    const name = tensor.name.replace(/:0$/, '');
+                    const value = context.value(name, type);
+                    const argument = new tf.Argument(key, [value]);
+                    inputs.push(argument);
+                }
+                const outputs = [];
+                for (const [key, tensor] of Object.entries(signature_def.outputs)) {
+                    const type = new tf.TensorType(tensor.dtype, tensor.tensor_shape);
+                    const name = tensor.name.replace(/:0$/, '');
+                    const value = context.value(name, type);
+                    const argument = new tf.Argument(key, [value]);
+                    outputs.push(argument);
+                }
+                const signature = new tf.Signature(key, inputs, outputs);
+                this.signatures.push(signature);
+            }
+            */
         } else if (bundle) {
             const nodes = new Map();
             for (const tensor of bundle.tensors) {
@@ -778,17 +806,12 @@ tf.Graph = class {
             });
         }
     }
-
-    get groups() {
-        return false;
-        // TODO return true;
-    }
 };
 
 tf.Signature = class {
 
-    constructor(inputs, outputs) {
-        this.name = '';
+    constructor(name, inputs, outputs) {
+        this.name = name;
         this.inputs = inputs;
         this.outputs = outputs;
     }
@@ -821,9 +844,9 @@ tf.Function = class {
         this.name = name;
         this.version = null;
         this.tags = null;
+        this.nodes = [];
         this.inputs = [];
         this.outputs = [];
-        this.nodes = [];
         this.description = !func ? 'Function definition not found.' : null;
         this.groups = false;
         const context = new tf.Context();
@@ -834,7 +857,8 @@ tf.Function = class {
         if (input_arg) {
             for (const input of input_arg) {
                 const value = context.value(input.name, new tf.TensorType(input.type, null), null);
-                this.inputs.push(new tf.Argument(input.name, [value]));
+                const argument = new tf.Argument(input.name, [value]);
+                this.inputs.push(argument);
             }
         }
         const output_arg_map = new Map();
@@ -848,14 +872,14 @@ tf.Function = class {
             for (const output of output_arg) {
                 const name = ret_map.get(output.name);
                 const type = new tf.TensorType(output.type, null);
-                const argument = new tf.Argument(output.name, [context.value(name, type, null)]);
+                const value = context.value(name, type, null);
+                const argument = new tf.Argument(output.name, [value]);
                 this.outputs.push(argument);
                 output_arg_map.set(name, output.name);
             }
         }
         context.graph(metadata, nodes, output_arg_map);
         this.nodes = context.nodes;
-        this.signatures = context.signatures;
     }
 };
 
@@ -1692,11 +1716,11 @@ tf.Context = class {
         return this._values.get(name);
     }
 
-    graph(metadata, nodes, output_arg_map) {
+    graph(metadata, nodes, signature_defs, output_arg_map) {
         const namespaces = new Set();
         const node_map = new Map();
-        const inputs = [];
-        const outputs = [];
+        this.inputs = [];
+        this.outputs = [];
         for (const node of nodes) {
             const nodeName = node.name;
             node_map.set(nodeName, node);
@@ -1842,12 +1866,12 @@ tf.Context = class {
                     const type = shape ? new tf.TensorType('?', shape) : null;
                     if (node.input.length === 0 && node.output.length === 1) {
                         const argument = new tf.Argument(node.name, [this.value(node.output[0].name, type, null)]);
-                        inputs.push(argument);
+                        this.inputs.push(argument);
                         node_map.delete(node.name);
                     }
                     if (node.input.length === 1 && node.output.length === 0) {
                         const argument = new tf.Argument(node.name, [this.value(node.input[0].name, type, null)]);
-                        outputs.push(argument);
+                        this.outputs.push(argument);
                         node_map.delete(node.name);
                     }
                 }
@@ -2064,11 +2088,8 @@ tf.Context = class {
         };
         updateTorchScript(node_map);
         for (const input of input_map.values()) {
-            inputs.push(input);
+            this.inputs.push(input);
         }
-        this.signatures = [
-            new tf.Signature(inputs, outputs)
-        ];
         for (const node of node_map.values()) {
             this.nodes.push(new tf.Node(metadata, node, namespaces, this));
         }
