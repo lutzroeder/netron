@@ -198,24 +198,20 @@ circle.Graph = class {
             }
             return tensors.get(index);
         };
-        const inputs = Array.from(subgraph.inputs).map((tensor_index, index) => {
+        this.inputs = Array.from(subgraph.inputs).map((tensor_index, index) => {
             const metadata = subgraphMetadata && index < subgraphMetadata.input_tensor_metadata.length ? subgraphMetadata.input_tensor_metadata[index] : null;
             const value = tensors.map(tensor_index, metadata);
-            const name = value ? value.name : '?';
-            return { name: name, tensor_index: tensor_index };
+            const values = value ? [value] : [];
+            const name = value ? value.name.split('\n')[0] : '?';
+            return new circle.Argument(name, values);
         });
-        const outputs = Array.from(subgraph.outputs).map((tensor_index, index) => {
+        this.outputs = Array.from(subgraph.outputs).map((tensor_index, index) => {
             const metadata = subgraphMetadata && index < subgraphMetadata.output_tensor_metadata.length ? subgraphMetadata.output_tensor_metadata[index] : null;
             const value = tensors.map(tensor_index, metadata);
-            const name = value ? value.name : '?';
-            return { name: name, tensor_index: tensor_index };
+            const values = value ? [value] : [];
+            const name = value ? value.name.split('\n')[0] : '?';
+            return new circle.Argument(name, values);
         });
-        const signature = {
-            signature_key: '',
-            inputs: inputs,
-            outputs: outputs
-        };
-        signatures = signatures.length === 0 ? [signature] : signatures;
         this.signatures = signatures.map((signature) => {
             return new circle.Signature(signature, tensors);
         });

@@ -648,7 +648,7 @@ view.View = class {
                 const [graph] = model.graphs;
                 const entry = {
                     graph: graph,
-                    signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
+                    signature: null
                 };
                 stack.push(entry);
             }
@@ -769,7 +769,7 @@ view.View = class {
             this._sidebar.close();
             const entry = {
                 graph: graph,
-                signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
+                signature: null
             };
             this._updateGraph(this._model, [entry].concat(this._stack));
         }
@@ -978,7 +978,7 @@ view.View = class {
                 modelSidebar.on('update-active-graph', (sender, graph) => {
                     const entry = {
                         graph: graph,
-                        signature: Array.isArray(graph.signatures) ? graph.signatures[0] : null
+                        signature: null
                     };
                     this._updateActive([entry]);
                 });
@@ -2540,25 +2540,24 @@ view.NameValueView = class extends view.Control {
 
 view.SelectView = class extends view.Control {
 
-    constructor(host, values, selected) {
+    constructor(host, entries, selected) {
         super();
         this._host = host;
         this._elements = [];
-        this._values = values;
+        this._entries = Array.from(entries);
 
         const selectElement = this.createElement('select', 'sidebar-item-select');
         selectElement.addEventListener('change', (e) => {
-            this.emit('change', this._values[e.target.selectedIndex]);
+            this.emit('change', this._entries[e.target.selectedIndex][1]);
         });
         this._elements.push(selectElement);
-
-        for (const value of values) {
-            const optionElement = this.createElement('option');
-            optionElement.innerText = value.name || '';
+        for (const [name, value] of this._entries) {
+            const element = this.createElement('option');
+            element.innerText = name;
             if (value === selected) {
-                optionElement.setAttribute('selected', 'selected');
+                element.setAttribute('selected', 'selected');
             }
-            selectElement.appendChild(optionElement);
+            selectElement.appendChild(element);
         }
     }
 
@@ -3065,18 +3064,23 @@ view.ModelSidebar = class extends view.ObjectSidebar {
         if (graphs.length === 1 && graphs[0].name) {
             this.addProperty('graph', graphs[0].name);
         } else if (graphs.length > 1) {
-            const selector = new view.SelectView(this._host, model.graphs, graph);
+            const entries = new Map();
+            for (const graph of model.graphs) {
+                entries.set(graph.name, graph);
+            }
+            const selector = new view.SelectView(this._host, entries, graph);
             selector.on('change', (sender, data) => this.emit('update-active-graph', data));
             this.add('graph', selector);
         }
-        if (Array.isArray(graph.signatures)) {
-            if (graph.signatures.length === 1 && graph.signatures[0].name !== '') {
-                this.addProperty('signature', graph.signatures[0].name);
-            } else if (graph.signatures.length > 1) {
-                const selector = new view.SelectView(this._host, graph.signatures, signature);
-                selector.on('change', (sender, data) => this.emit('update-active-graph-signature', data));
-                this.add('signature', selector);
+        if (Array.isArray(graph.signatures) && graph.signatures.length > 0) {
+            const entries = new Map();
+            entries.set('', graph);
+            for (const signature of graph.signatures) {
+                entries.set(signature.name, signature);
             }
+            const selector = new view.SelectView(this._host, entries, signature || graph);
+            selector.on('change', (sender, data) => this.emit('update-active-graph-signature', data));
+            this.add('signature', selector);
         }
         const metadata = model.metadata instanceof Map ?
             Array.from(model.metadata).map(([name, value]) => ({ name: name, value: value })) :
