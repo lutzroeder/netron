@@ -1716,7 +1716,7 @@ tf.Context = class {
         return this._values.get(name);
     }
 
-    graph(metadata, nodes, signature_defs, output_arg_map) {
+    graph(metadata, nodes, output_arg_map) {
         const namespaces = new Set();
         const node_map = new Map();
         this.inputs = [];
