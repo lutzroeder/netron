@@ -4574,6 +4574,14 @@
   },
   {
     "type":     "pickle",
+    "target":   "nfl_model.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/14547128/nfl_model.pkl.zip[nfl_model.pkl]",
+    "error":    "Unsupported Pickle object.",
+    "format":   "Pickle",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
     "target":   "robinhood-portfolio_data_user.pkl.pkl",
     "source":   "https://raw.githubusercontent.com/omdv/robinhood-portfolio/4622dc61e0556a85ce52c4de178d01a9838acbc5/data/user.pkl",
     "format":   "Pickle",

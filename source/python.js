@@ -2527,8 +2527,12 @@ python.Execution = class {
         });
         this.registerType('pandas.core.indexes.base.Index', class {});
         this.registerType('pandas.core.indexes.range.RangeIndex', class {});
+        this.registerType('pandas.core.index.Int64Index', class {});
+        pandas.core.index.Index = pandas.core.indexes.base.Index;
+        pandas.core.index._new_Index = pandas.core.indexes.base._new_Index;
         this.registerType('pandas.core.internals.managers.SingleBlockManager', class {});
         this.registerType('pandas.core.internals.managers.BlockManager', class {});
+        pandas.core.internals.BlockManager = pandas.core.internals.managers.BlockManager;
         this.registerType('pandas.core.series.Series', class {});
         this.registerType('pandas._libs.tslibs.base.ABCTimestamp', class extends datetime.datetime {});
         this.registerType('pandas._libs.tslibs.timestamps._Timestamp', class extends pandas._libs.tslibs.base.ABCTimestamp {});
