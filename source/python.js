@@ -2236,6 +2236,7 @@ python.Execution = class {
         this.registerType('megengine.module.module.Module', class {});
         this.registerType('megengine.module.normalization.InstanceNorm', class {});
         this.registerType('megengine.module.normalization.GroupNorm', class {});
+        this.registerType('megengine.module.normalization.LayerNorm', class {});
         this.registerType('megengine.module.pooling.AvgPool2d', class {});
         this.registerType('megengine.module.pooling.MaxPool2d', class {});
         this.registerType('megengine.module.qat.concat.Concat', class {});
@@ -2525,7 +2526,9 @@ python.Execution = class {
             return new cls(d);
         });
         this.registerType('pandas.core.indexes.base.Index', class {});
+        this.registerType('pandas.core.indexes.range.RangeIndex', class {});
         this.registerType('pandas.core.internals.managers.SingleBlockManager', class {});
+        this.registerType('pandas.core.internals.managers.BlockManager', class {});
         this.registerType('pandas.core.series.Series', class {});
         this.registerType('pandas._libs.tslibs.base.ABCTimestamp', class extends datetime.datetime {});
         this.registerType('pandas._libs.tslibs.timestamps._Timestamp', class extends pandas._libs.tslibs.base.ABCTimestamp {});
@@ -4175,6 +4178,7 @@ python.Execution = class {
         });
         this.registerType('torch.distributed.algorithms.join._JoinConfig', class {});
         this.registerType('torch.distributions.bernoulli.Bernoulli', class {});
+        this.registerType('torch.distributions.binomial.Binomial', class {});
         this.registerType('torch.distributions.categorical.Categorical', class {});
         this.registerType('torch.distributions.constraints._LowerCholesky', class {});
         this.registerType('torch.distributions.constraints._Real', class {});
@@ -4424,6 +4428,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.intrinsic.modules.fused.ConvBnReLU2d', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
         this.registerType('torch.nn.utils.prune.CustomFromMask', class {});
         this.registerType('torch.nn.utils.prune.L1Unstructured', class {});
+        this.registerType('torch.nn.utils.prune.LnStructured', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNorm', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormStateDictHook', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook', class {});
@@ -6623,6 +6628,7 @@ python.Execution = class {
         this.registerType('fastai.callback.hook.Hook', class {});
         this.registerType('fastai.callback.hook.Hooks', class {});
         this.registerType('fastai.callback.progress.ProgressCallback', class {});
+        this.registerType('fastai.callback.progress.ShowGraphCallback', class {});
         this.registerType('fastai.callback.core.Callback', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.data.core.DataLoaders', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.data.core.Datasets', class {});
