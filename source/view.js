@@ -648,7 +648,7 @@ view.View = class {
                 const [graph] = model.graphs;
                 const entry = {
                     graph: graph,
-                    signature: null
+                    signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
                 };
                 stack.push(entry);
             }
@@ -769,7 +769,7 @@ view.View = class {
             this._sidebar.close();
             const entry = {
                 graph: graph,
-                signature: null
+                signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
             };
             this._updateGraph(this._model, [entry].concat(this._stack));
         }
@@ -978,7 +978,7 @@ view.View = class {
                 modelSidebar.on('update-active-graph', (sender, graph) => {
                     const entry = {
                         graph: graph,
-                        signature: null
+                        signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
                     };
                     this._updateActive([entry]);
                 });
