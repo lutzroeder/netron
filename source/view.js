@@ -5548,7 +5548,8 @@ view.ModelFactoryService = class {
                     { name: 'Waifu2x data', tags: ['[].nInputPlane', '[].nOutputPlane', '[].weight', '[].bias'] },
                     { name: 'Brain.js data', tags: ['type', 'sizes', 'layers'] },
                     { name: 'Custom Vision metadata', tags: ['CustomVision.Metadata.Version'] },
-                    { name: 'W&B metadata', tags: ['program', 'host', 'executable'] }
+                    { name: 'W&B metadata', tags: ['program', 'host', 'executable'] },
+                    { name: 'TypeScript configuration data', tags: ['compilerOptions'] }
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
