@@ -1664,6 +1664,7 @@ python.Execution = class {
         const numpy = this.register('numpy');
         const pandas = this.register('pandas');
         this.register('pandas._libs.tslib');
+        this.register('pandas._libs.internals');
         const pickle = this.register('pickle');
         const sklearn = this.register('sklearn');
         const torch = this.register('torch');
@@ -2527,6 +2528,7 @@ python.Execution = class {
         });
         this.registerType('pandas.core.indexes.base.Index', class {});
         this.registerType('pandas.core.indexes.range.RangeIndex', class {});
+        this.registerType('pandas.core.indexes.multi.MultiIndex', class {});
         this.registerType('pandas.core.index.Int64Index', class {});
         pandas.core.index.Index = pandas.core.indexes.base.Index;
         pandas.core.index._new_Index = pandas.core.indexes.base._new_Index;
@@ -2534,6 +2536,9 @@ python.Execution = class {
         this.registerType('pandas.core.internals.managers.BlockManager', class {});
         pandas.core.internals.BlockManager = pandas.core.internals.managers.BlockManager;
         this.registerType('pandas.core.series.Series', class {});
+        this.registerFunction('pandas._libs.internals._unpickle_block', () => {
+            throw new python.Error("'pandas._libs.internals._unpickle_block' not implemented.");
+        });
         this.registerType('pandas._libs.tslibs.base.ABCTimestamp', class extends datetime.datetime {});
         this.registerType('pandas._libs.tslibs.timestamps._Timestamp', class extends pandas._libs.tslibs.base.ABCTimestamp {});
         this.registerType('pandas._libs.tslibs.timestamps.Timestamp', class extends pandas._libs.tslibs.timestamps._Timestamp {});
