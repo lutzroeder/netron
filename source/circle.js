@@ -101,33 +101,33 @@ circle.Model = class {
         let modelMetadata = null;
         for (const metadata of model.metadata) {
             const buffer = model.buffers[metadata.buffer];
-            if (buffer) {
+            if (buffer && buffer.data && buffer.data.length > 0) {
                 switch (metadata.name) {
                     case 'min_runtime_version': {
-                        const data = buffer.data || new Uint8Array(0);
-                        this.runtime = new TextDecoder().decode(data);
+                        const decoder = new TextDecoder();
+                        this.runtime = decoder.decode(buffer.data);
                         break;
                     }
                     case 'TFLITE_METADATA': {
-                        const data = buffer.data || new Uint8Array(0);
-                        const reader = flatbuffers.BinaryReader.open(data);
-                        if (circle.schema.ModelMetadata.identifier(reader)) {
-                            modelMetadata = circle.schema.ModelMetadata.create(reader);
-                            if (modelMetadata.name) {
-                                this.name = modelMetadata.name;
-                            }
-                            if (modelMetadata.version) {
-                                this.version = modelMetadata.version;
-                            }
-                            if (modelMetadata.description) {
-                                this.description = this._description ? [this._description, modelMetadata.description].join(' ') : modelMetadata.description;
-                            }
-                            if (modelMetadata.author) {
-                                this.metadata.push(new circle.Argument('author', modelMetadata.author));
-                            }
-                            if (modelMetadata.license) {
-                                this.metadata.push(new circle.Argument('license', modelMetadata.license));
-                            }
+                        const reader = flatbuffers.BinaryReader.open(buffer.data);
+                        if (!reader || !circle.schema.ModelMetadata.identifier(reader)) {
+                            throw new circle.Error('Invalid TensorFlow Lite metadata.');
+                        }
+                        modelMetadata = circle.schema.ModelMetadata.create(reader);
+                        if (modelMetadata.name) {
+                            this.name = modelMetadata.name;
+                        }
+                        if (modelMetadata.version) {
+                            this.version = modelMetadata.version;
+                        }
+                        if (modelMetadata.description) {
+                            this.description = this._description ? [this._description, modelMetadata.description].join(' ') : modelMetadata.description;
+                        }
+                        if (modelMetadata.author) {
+                            this.metadata.push(new circle.Argument('author', modelMetadata.author));
+                        }
+                        if (modelMetadata.license) {
+                            this.metadata.push(new circle.Argument('license', modelMetadata.license));
                         }
                         break;
                     }
