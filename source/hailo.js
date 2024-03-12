@@ -50,8 +50,9 @@ hailo.Graph = class {
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];
+        const outputIndexes  = new Map();
         const values = new Map();
-        values.map = (name, type, tensor) => {
+        values.map = (name, type, tensor, layerIndex) => {
             if (name.length === 0 && tensor) {
                 return new hailo.Value(name, type || null, tensor);
             }
@@ -60,7 +61,12 @@ hailo.Graph = class {
             } else if (tensor) {
                 throw new hailo.Error(`Duplicate value '${name}'.`);
             } else if (type && !type.equals(values.get(name).type)) {
-                throw new hailo.Error(`Duplicate value '${name}'.`);
+                const savedIndex = outputIndexes.get(name);
+                if (!savedIndex) {
+                    outputIndexes.set(name, layerIndex);
+                }
+                name = `${name}\n${savedIndex ? savedIndex : layerIndex}`;
+                values.set(name, new hailo.Value(name, type || null, tensor || null));
             }
             return values.get(name);
         };
@@ -68,6 +74,7 @@ hailo.Graph = class {
             value.name = name;
             return value;
         });
+        let index = 0;
         for (const layer of layers) {
             switch (layer.type) {
                 case 'input_layer':
@@ -88,11 +95,12 @@ hailo.Graph = class {
                     break;
                 }
                 default: {
-                    const node = new hailo.Node(metadata, layer, values, weights.get(layer.name));
+                    const node = new hailo.Node(metadata, layer, values, weights.get(layer.name), index);
                     this.nodes.push(node);
                     break;
                 }
             }
+            index++;
         }
     }
 };
@@ -119,7 +127,7 @@ hailo.Value = class {
 
 hailo.Node = class {
 
-    constructor(metadata, layer, values, weights) {
+    constructor(metadata, layer, values, weights, layerIndex) {
         weights = weights || new Map();
         this.name = layer.name || '';
         this.type = metadata.type(layer.type);
@@ -152,7 +160,7 @@ hailo.Node = class {
         this.outputs = (layer.output || []).map((_, index) => {
             const shape = layer.output_shapes ? layer.output_shapes[index] : null;
             const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
-            return new hailo.Argument("output", [values.map(layer.name, type)]);
+            return new hailo.Argument("output", [values.map(layer.name, type, undefined, layerIndex)]);
         });
         const attrs = Object.assign(layer.params || {}, { original_names: layer.original_names || [] });
         this.attributes = Object.entries(attrs).map(([name, value]) => new hailo.Attribute(metadata.attribute(layer.type, name), name, value));
