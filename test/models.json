@@ -4324,7 +4324,7 @@
   },
   {
     "type":     "openvino",
-    "target":   "0484.bin",
+    "target":   "0484.bin,0484.xml",
     "source":   "https://github.com/lutzroeder/netron/files/14076942/0484.zip[0484.bin,0484.xml]",
     "format":   "OpenVINO IR",
     "link":     "https://github.com/lutzroeder/netron/issues/484"
