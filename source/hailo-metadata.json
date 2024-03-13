@@ -144,6 +144,10 @@
     "category": "Activation"
   },
   {
+    "name": "delta",
+    "category": "Activation"
+  },
+  {
     "name": "activation",
     "category": "Activation",
     "description": "Activation function",
