@@ -41,7 +41,6 @@ openvino.ModelFactory = class {
         const tags = context.tags('xml');
         if (tags.has('net')) {
             context.type = 'openvino.xml';
-            context.target = tags.get('net');
             return;
         }
     }
@@ -53,11 +52,11 @@ openvino.ModelFactory = class {
     async open(context) {
         const identifier = context.identifier;
         const base = identifier.substring(0, identifier.length - 4);
-        let element = null;
+        let stream = null;
         let bin = null;
         switch (context.type) {
             case 'openvino.xml': {
-                element = context.target;
+                stream = context.stream;
                 try {
                     const file = `${base}.bin`;
                     const content = await context.fetch(file);
@@ -70,21 +69,7 @@ openvino.ModelFactory = class {
             case 'openvino.bin': {
                 const file = `${base}.xml`;
                 const content = await context.fetch(file, null);
-                let document = null;
-                const reader = xml.TextReader.open(content.stream);
-                if (!reader) {
-                    throw new openvino.Error(`File format is not OpenVINO XML.`);
-                }
-                try {
-                    document = reader.read();
-                } catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new openvino.Error(`File format is not OpenVINO XML (${message.replace(/\.$/, '')}).`);
-                }
-                if (!document.documentElement || document.documentElement.localName !== 'net') {
-                    throw new openvino.Error('File format is not OpenVINO IR.');
-                }
-                element = document.documentElement;
+                stream = content.stream;
                 bin = context.stream.peek();
                 break;
             }
@@ -92,6 +77,21 @@ openvino.ModelFactory = class {
                 throw new openvino.Error(`Unsupported OpenVINO format '${context.type}'.`);
             }
         }
+        let document = null;
+        const reader = xml.TextReader.open(stream);
+        if (!reader) {
+            throw new openvino.Error(`File format is not OpenVINO XML.`);
+        }
+        try {
+            document = reader.read();
+        } catch (error) {
+            const message = error && error.message ? error.message : error.toString();
+            throw new openvino.Error(`File format is not OpenVINO XML (${message.replace(/\.$/, '')}).`);
+        }
+        if (!document.documentElement || document.documentElement.localName !== 'net') {
+            throw new openvino.Error('File format is not OpenVINO IR.');
+        }
+        const element = document.documentElement;
         const metadata = await context.metadata('openvino-metadata.json');
         const object = (element) => {
             const obj = {};
