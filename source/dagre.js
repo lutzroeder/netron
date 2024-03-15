@@ -887,8 +887,8 @@ dagre.layout = (graph, layout) => {
                 }
             };
             const queue = g.children();
-            while (queue.length > 0) {
-                const v = queue.shift();
+            for (let i = 0; i < queue.length; i++) {
+                const v = queue[i];
                 const node = g.node(v).label;
                 if ('minRank' in node) {
                     node.borderLeft = [];
@@ -1240,8 +1240,8 @@ dagre.layout = (graph, layout) => {
                 if (maxRank !== undefined) {
                     const layers = Array.from(new Array(maxRank + 1), () => []);
                     const queue = nodes.sort((a, b) => a.label.rank - b.label.rank).map((node) => node.v).reverse();
-                    while (queue.length > 0) {
-                        const v = queue.shift();
+                    for (let i = 0; i < queue.length; i++) {
+                        const v = queue[i];
                         if (!visited.has(v)) {
                             visited.add(v);
                             const rank = g.node(v).label.rank;
