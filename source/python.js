@@ -2529,6 +2529,7 @@ python.Execution = class {
         this.registerType('pandas.core.indexes.base.Index', class {});
         this.registerType('pandas.core.indexes.range.RangeIndex', class {});
         this.registerType('pandas.core.indexes.multi.MultiIndex', class {});
+        this.registerType('pandas.core.indexes.numeric.Int64Index', class {});
         this.registerType('pandas.core.index.Int64Index', class {});
         pandas.core.index.Index = pandas.core.indexes.base.Index;
         pandas.core.index._new_Index = pandas.core.indexes.base._new_Index;
