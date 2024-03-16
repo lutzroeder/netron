@@ -1067,21 +1067,24 @@ darknet.Weights = class {
             const major = reader.int32();
             const minor = reader.int32();
             reader.int32(); // revision
+            reader.seek(0);
             const transpose = (major > 1000) || (minor > 1000);
             if (!transpose) {
-                reader.skip((major * 10 + minor) >= 2 ? 8 : 4);
-                return new darknet.Weights(reader);
+                const offset = 12 + ((major * 10 + minor) >= 2 ? 8 : 4);
+                return new darknet.Weights(reader, offset);
             }
-            reader.seek(0);
         }
         return null;
     }
 
-    constructor(reader) {
+    constructor(reader, offset) {
         this._reader = reader;
+        this._offset = offset;
     }
 
     read(size) {
+        this._reader.skip(this._offset);
+        this._offset = 0;
         return this._reader.read(size);
     }
 

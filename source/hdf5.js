@@ -139,6 +139,7 @@ hdf5.Group = class {
         if (!this._dataObjectHeader) {
             const reader = this._reader.at(this._entry.objectHeaderAddress);
             this._dataObjectHeader = new hdf5.DataObjectHeader(reader);
+            this._reader.seek(0);
         }
         if (!this._attributes) {
             this._attributes = new Map();
@@ -155,6 +156,7 @@ hdf5.Group = class {
             if (datatype && dataspace && dataLayout) {
                 this._value = new hdf5.Variable(this._reader, this._globalHeap, datatype, dataspace, dataLayout, filterPipeline);
             }
+            this._reader.seek(0);
         }
     }
 
@@ -487,6 +489,13 @@ hdf5.BinaryReader = class extends hdf5.Reader {
         return position;
     }
 
+    seek(position) {
+        this._position = position >= 0 ? position : this._length + position;
+        if (this._position > this._buffer.length) {
+            throw new Error(`Expected ${this._position - this._buffer.length} more bytes. The file might be corrupted. Unexpected end of file.`);
+        }
+    }
+
     skip(offset) {
         this._position += offset;
         if (this._offset + this._position > this._buffer.length) {
@@ -553,6 +562,13 @@ hdf5.StreamReader = class extends hdf5.Reader {
 
     get position() {
         return this._offset + this._position;
+    }
+
+    seek(position) {
+        if (position > this._length) {
+            throw new Error(`Expected ${this._position - this._buffer.length} more bytes. The file might be corrupted. Unexpected end of file.`);
+        }
+        this._stream.seek(position);
     }
 
     skip(offset) {
@@ -1035,7 +1051,7 @@ hdf5.Datatype = class {
             case 3: // string
                 return 'string';
             case 5: // opaque
-                return 'uint8[]';
+                return 'uint8';
             case 6: // compound
                 return 'compound';
             case 8: // enumerated

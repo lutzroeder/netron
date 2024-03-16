@@ -5727,6 +5727,9 @@ view.ModelFactoryService = class {
             const factory = await this._require(module);
             /* eslint-enable no-await-in-loop */
             factory.match(context);
+            if (context.stream && context.stream.position !== 0) {
+                throw new view.Error('Invalid stream position.');
+            }
             if (context.type) {
                 try {
                     /* eslint-disable no-await-in-loop */
@@ -5744,6 +5747,9 @@ view.ModelFactoryService = class {
                     }
                     errors.push(error);
                 }
+            }
+            if (context.stream && context.stream.position !== 0) {
+                throw new view.Error('Invalid stream position.');
             }
         }
         if (errors.length > 0) {
@@ -5782,6 +5788,9 @@ view.ModelFactoryService = class {
                         const factory = await this._require(module);
                         /* eslint-enable no-await-in-loop */
                         factory.match(context);
+                        if (context.stream && context.stream.position !== 0) {
+                            throw new view.Error('Invalid stream position.');
+                        }
                         delete context.target;
                         if (context.type) {
                             matches = matches.filter((match) => !factory.filter || factory.filter(context, match.type));

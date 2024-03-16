@@ -607,10 +607,12 @@ zip.InflaterStream = class {
     }
 
     seek(position) {
-        if (this._buffer === undefined) {
-            this._inflate();
+        if (position !== this._position) {
+            if (this._buffer === undefined) {
+                this._inflate();
+            }
+            this._position = position >= 0 ? position : this._length + position;
         }
-        this._position = position >= 0 ? position : this._length + position;
     }
 
     skip(offset) {
