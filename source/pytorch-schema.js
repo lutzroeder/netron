@@ -424,7 +424,7 @@ executorch_flatbuffer.Int = class Int {
 
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.Int();
-        $.int_val = reader.int64_(position, 4, 0);
+        $.int_val = reader.int64_(position, 4, 0n);
         return $;
     }
 };
@@ -720,8 +720,8 @@ executorch_flatbuffer.DataSegment = class DataSegment {
 
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.DataSegment();
-        $.offset = reader.uint64_(position, 4, 0);
-        $.size = reader.uint64_(position, 6, 0);
+        $.offset = reader.uint64_(position, 4, 0n);
+        $.size = reader.uint64_(position, 6, 0n);
         return $;
     }
 };

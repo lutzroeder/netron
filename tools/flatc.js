@@ -291,8 +291,8 @@ flatc.PrimitiveType = class extends flatc.Type {
             register(['uint16', 'ushort'], 0, 2);
             register(['int32', 'int'], 0, 4);
             register(['uint32', 'uint'], 0, 4);
-            register(['int64', 'long'], 0, 8);
-            register(['uint64', 'ulong'], 0, 8);
+            register(['int64', 'long'], 0n, 8);
+            register(['uint64', 'ulong'], 0n, 8);
             register(['float32', 'float'], 0.0, 4);
             register(['float64', 'double'], 0, 4);
             register(['string'], null, undefined);
@@ -1011,7 +1011,8 @@ flatc.Generator = class {
                             this._builder.add(`$.${field.name} = reader.tableArray(position, ${field.offset}, ${fieldType}.decode);`);
                         }
                     } else if (fieldType instanceof flatc.PrimitiveType) {
-                        this._builder.add(`$.${field.name} = reader.${fieldType.name}_(position, ${field.offset}, ${field.defaultValue});`);
+                        const n = fieldType.name === 'uint64' || fieldType.name === 'int64' ? 'n' : '';
+                        this._builder.add(`$.${field.name} = reader.${fieldType.name}_(position, ${field.offset}, ${field.defaultValue}${n});`);
                     } else if (fieldType instanceof flatc.Union) {
                         const unionType = `${field.type.parent.name}.${field.type.name}`;
                         this._builder.add(`$.${field.name} = reader.union(position, ${field.offset}, ${unionType}.decode);`);
@@ -1059,7 +1060,20 @@ flatc.Generator = class {
                                 this._builder.add(`$.${field.name} = reader.objectArray(json.${field.name}, ${fieldType}.decodeText);`);
                             }
                         } else if (field.type instanceof flatc.PrimitiveType) {
-                            this._builder.add(`$.${field.name} = reader.value(json.${field.name}, ${field.defaultValue});`);
+                            switch (field.type.name) {
+                                case 'int64': {
+                                    this._builder.add(`$.${field.name} = reader.int64(json.${field.name}, ${field.defaultValue}n);`);
+                                    break;
+                                }
+                                case 'uint64': {
+                                    this._builder.add(`$.${field.name} = reader.uint64(json.${field.name}, ${field.defaultValue}n);`);
+                                    break;
+                                }
+                                default: {
+                                    this._builder.add(`$.${field.name} = reader.value(json.${field.name}, ${field.defaultValue});`);
+                                    break;
+                                }
+                            }
                         } else if (field.type instanceof flatc.Enum) {
                             const enumName = `${field.type.parent.name}.${field.type.name}`;
                             this._builder.add(`$.${field.name} = ${enumName}[json.${field.name}];`);

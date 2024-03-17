@@ -49,7 +49,7 @@ onnxruntime.fbs.DimensionValue = class DimensionValue {
     static decode(reader, position) {
         const $ = new onnxruntime.fbs.DimensionValue();
         $.dim_type = reader.int8_(position, 4, 0);
-        $.dim_value = reader.int64_(position, 6, 0);
+        $.dim_value = reader.int64_(position, 6, 0n);
         $.dim_param = reader.string_(position, 8, null);
         return $;
     }
@@ -194,7 +194,7 @@ onnxruntime.fbs.OperatorSetId = class OperatorSetId {
     static decode(reader, position) {
         const $ = new onnxruntime.fbs.OperatorSetId();
         $.domain = reader.string_(position, 4, null);
-        $.version = reader.int64_(position, 6, 0);
+        $.version = reader.int64_(position, 6, 0n);
         return $;
     }
 };
@@ -232,7 +232,7 @@ onnxruntime.fbs.Attribute = class Attribute {
         $.doc_string = reader.string_(position, 6, null);
         $.type = reader.int32_(position, 8, 0);
         $.f = reader.float32_(position, 10, 0);
-        $.i = reader.int64_(position, 12, 0);
+        $.i = reader.int64_(position, 12, 0n);
         $.s = reader.string_(position, 14, null);
         $.t = reader.table(position, 16, onnxruntime.fbs.Tensor.decode);
         $.g = reader.table(position, 18, onnxruntime.fbs.Graph.decode);
@@ -265,7 +265,7 @@ onnxruntime.fbs.DeprecatedNodeIndexAndKernelDefHash = class DeprecatedNodeIndexA
     static decode(reader, position) {
         const $ = new onnxruntime.fbs.DeprecatedNodeIndexAndKernelDefHash();
         $.node_index = reader.uint32_(position, 4, 0);
-        $.kernel_def_hash = reader.uint64_(position, 6, 0);
+        $.kernel_def_hash = reader.uint64_(position, 6, 0n);
         return $;
     }
 };
@@ -332,12 +332,12 @@ onnxruntime.fbs.Model = class Model {
 
     static decode(reader, position) {
         const $ = new onnxruntime.fbs.Model();
-        $.ir_version = reader.int64_(position, 4, 0);
+        $.ir_version = reader.int64_(position, 4, 0n);
         $.opset_import = reader.tableArray(position, 6, onnxruntime.fbs.OperatorSetId.decode);
         $.producer_name = reader.string_(position, 8, null);
         $.producer_version = reader.string_(position, 10, null);
         $.domain = reader.string_(position, 12, null);
-        $.model_version = reader.int64_(position, 14, 0);
+        $.model_version = reader.int64_(position, 14, 0n);
         $.doc_string = reader.string_(position, 16, null);
         $.graph = reader.table(position, 18, onnxruntime.fbs.Graph.decode);
         $.graph_doc_string = reader.string_(position, 20, null);

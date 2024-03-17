@@ -789,7 +789,7 @@ circle.StablehloGatherOptions = class StablehloGatherOptions {
         $.offset_dims = reader.int64s_(position, 4);
         $.collapsed_slice_dims = reader.int64s_(position, 6);
         $.start_index_map = reader.int64s_(position, 8);
-        $.index_vector_dim = reader.int64_(position, 10, 0);
+        $.index_vector_dim = reader.int64_(position, 10, 0n);
         $.slice_sizes = reader.int64s_(position, 12);
         $.indices_are_sorted = reader.bool_(position, 14, false);
         return $;
@@ -800,7 +800,7 @@ circle.StablehloGatherOptions = class StablehloGatherOptions {
         $.offset_dims = reader.array(json.offset_dims);
         $.collapsed_slice_dims = reader.array(json.collapsed_slice_dims);
         $.start_index_map = reader.array(json.start_index_map);
-        $.index_vector_dim = reader.value(json.index_vector_dim, 0);
+        $.index_vector_dim = reader.int64(json.index_vector_dim, 0n);
         $.slice_sizes = reader.array(json.slice_sizes);
         $.indices_are_sorted = reader.value(json.indices_are_sorted, false);
         return $;
@@ -897,7 +897,7 @@ circle.StablehloSortOptions = class StablehloSortOptions {
 
     static decode(reader, position) {
         const $ = new circle.StablehloSortOptions();
-        $.dimension = reader.int64_(position, 4, 0);
+        $.dimension = reader.int64_(position, 4, 0n);
         $.is_stable = reader.bool_(position, 6, false);
         $.comparator_subgraph_index = reader.int32_(position, 8, 0);
         return $;
@@ -905,7 +905,7 @@ circle.StablehloSortOptions = class StablehloSortOptions {
 
     static decodeText(reader, json) {
         const $ = new circle.StablehloSortOptions();
-        $.dimension = reader.value(json.dimension, 0);
+        $.dimension = reader.int64(json.dimension, 0n);
         $.is_stable = reader.value(json.is_stable, false);
         $.comparator_subgraph_index = reader.value(json.comparator_subgraph_index, 0);
         return $;
@@ -916,13 +916,13 @@ circle.StablehloConcatenateOptions = class StablehloConcatenateOptions {
 
     static decode(reader, position) {
         const $ = new circle.StablehloConcatenateOptions();
-        $.dimension = reader.int64_(position, 4, 0);
+        $.dimension = reader.int64_(position, 4, 0n);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new circle.StablehloConcatenateOptions();
-        $.dimension = reader.value(json.dimension, 0);
+        $.dimension = reader.int64(json.dimension, 0n);
         return $;
     }
 };
@@ -1014,13 +1014,13 @@ circle.StablehloIotaOptions = class StablehloIotaOptions {
 
     static decode(reader, position) {
         const $ = new circle.StablehloIotaOptions();
-        $.iota_dimension = reader.int64_(position, 4, 0);
+        $.iota_dimension = reader.int64_(position, 4, 0n);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new circle.StablehloIotaOptions();
-        $.iota_dimension = reader.value(json.iota_dimension, 0);
+        $.iota_dimension = reader.int64(json.iota_dimension, 0n);
         return $;
     }
 };
@@ -1095,17 +1095,17 @@ circle.StablehloConvolutionOptions = class StablehloConvolutionOptions {
         $.lhs_dilation = reader.int64s_(position, 8);
         $.rhs_dilation = reader.int64s_(position, 10);
         $.window_reversal = reader.bools_(position, 12);
-        $.input_batch_dimension = reader.int64_(position, 14, 0);
-        $.input_feature_dimension = reader.int64_(position, 16, 0);
+        $.input_batch_dimension = reader.int64_(position, 14, 0n);
+        $.input_feature_dimension = reader.int64_(position, 16, 0n);
         $.input_spatial_dimensions = reader.int64s_(position, 18);
-        $.kernel_input_feature_dimension = reader.int64_(position, 20, 0);
-        $.kernel_output_feature_dimension = reader.int64_(position, 22, 0);
+        $.kernel_input_feature_dimension = reader.int64_(position, 20, 0n);
+        $.kernel_output_feature_dimension = reader.int64_(position, 22, 0n);
         $.kernel_spatial_dimensions = reader.int64s_(position, 24);
-        $.output_batch_dimension = reader.int64_(position, 26, 0);
-        $.output_feature_dimension = reader.int64_(position, 28, 0);
+        $.output_batch_dimension = reader.int64_(position, 26, 0n);
+        $.output_feature_dimension = reader.int64_(position, 28, 0n);
         $.output_spatial_dimensions = reader.int64s_(position, 30);
-        $.feature_group_count = reader.int64_(position, 32, 0);
-        $.batch_group_count = reader.int64_(position, 34, 0);
+        $.feature_group_count = reader.int64_(position, 32, 0n);
+        $.batch_group_count = reader.int64_(position, 34, 0n);
         $.precision_config = reader.typedArray(position, 36, Uint32Array);
         return $;
     }
@@ -1117,17 +1117,17 @@ circle.StablehloConvolutionOptions = class StablehloConvolutionOptions {
         $.lhs_dilation = reader.array(json.lhs_dilation);
         $.rhs_dilation = reader.array(json.rhs_dilation);
         $.window_reversal = reader.array(json.window_reversal);
-        $.input_batch_dimension = reader.value(json.input_batch_dimension, 0);
-        $.input_feature_dimension = reader.value(json.input_feature_dimension, 0);
+        $.input_batch_dimension = reader.int64(json.input_batch_dimension, 0n);
+        $.input_feature_dimension = reader.int64(json.input_feature_dimension, 0n);
         $.input_spatial_dimensions = reader.array(json.input_spatial_dimensions);
-        $.kernel_input_feature_dimension = reader.value(json.kernel_input_feature_dimension, 0);
-        $.kernel_output_feature_dimension = reader.value(json.kernel_output_feature_dimension, 0);
+        $.kernel_input_feature_dimension = reader.int64(json.kernel_input_feature_dimension, 0n);
+        $.kernel_output_feature_dimension = reader.int64(json.kernel_output_feature_dimension, 0n);
         $.kernel_spatial_dimensions = reader.array(json.kernel_spatial_dimensions);
-        $.output_batch_dimension = reader.value(json.output_batch_dimension, 0);
-        $.output_feature_dimension = reader.value(json.output_feature_dimension, 0);
+        $.output_batch_dimension = reader.int64(json.output_batch_dimension, 0n);
+        $.output_feature_dimension = reader.int64(json.output_feature_dimension, 0n);
         $.output_spatial_dimensions = reader.array(json.output_spatial_dimensions);
-        $.feature_group_count = reader.value(json.feature_group_count, 0);
-        $.batch_group_count = reader.value(json.batch_group_count, 0);
+        $.feature_group_count = reader.int64(json.feature_group_count, 0n);
+        $.batch_group_count = reader.int64(json.batch_group_count, 0n);
         $.precision_config = reader.objectArray(json.precision_config, circle.StablehloPrecisionConfig.decodeText);
         return $;
     }
@@ -1141,7 +1141,7 @@ circle.StablehloScatterOptions = class StablehloScatterOptions {
         $.update_window_dims = reader.int64s_(position, 6);
         $.inserted_window_dims = reader.int64s_(position, 8);
         $.scatter_dims_to_operand_dims = reader.int64s_(position, 10);
-        $.index_vector_dim = reader.int64_(position, 12, 0);
+        $.index_vector_dim = reader.int64_(position, 12, 0n);
         $.unique_indices = reader.bool_(position, 14, false);
         $.update_computation_subgraph_index = reader.int32_(position, 16, 0);
         return $;
@@ -1153,7 +1153,7 @@ circle.StablehloScatterOptions = class StablehloScatterOptions {
         $.update_window_dims = reader.array(json.update_window_dims);
         $.inserted_window_dims = reader.array(json.inserted_window_dims);
         $.scatter_dims_to_operand_dims = reader.array(json.scatter_dims_to_operand_dims);
-        $.index_vector_dim = reader.value(json.index_vector_dim, 0);
+        $.index_vector_dim = reader.int64(json.index_vector_dim, 0n);
         $.unique_indices = reader.value(json.unique_indices, false);
         $.update_computation_subgraph_index = reader.value(json.update_computation_subgraph_index, 0);
         return $;
@@ -2988,15 +2988,15 @@ circle.RandomOptions = class RandomOptions {
 
     static decode(reader, position) {
         const $ = new circle.RandomOptions();
-        $.seed = reader.int64_(position, 4, 0);
-        $.seed2 = reader.int64_(position, 6, 0);
+        $.seed = reader.int64_(position, 4, 0n);
+        $.seed2 = reader.int64_(position, 6, 0n);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new circle.RandomOptions();
-        $.seed = reader.value(json.seed, 0);
-        $.seed2 = reader.value(json.seed2, 0);
+        $.seed = reader.int64(json.seed, 0n);
+        $.seed2 = reader.int64(json.seed2, 0n);
         return $;
     }
 };
@@ -3292,8 +3292,8 @@ circle.Operator = class Operator {
         $.custom_options_format = reader.int8_(position, 16, 0);
         $.mutating_variable_inputs = reader.bools_(position, 18);
         $.intermediates = reader.typedArray(position, 20, Int32Array);
-        $.large_custom_options_offset = reader.uint64_(position, 22, 0);
-        $.large_custom_options_size = reader.uint64_(position, 24, 0);
+        $.large_custom_options_offset = reader.uint64_(position, 22, 0n);
+        $.large_custom_options_size = reader.uint64_(position, 24, 0n);
         $.builtin_options_2 = reader.union(position, 26, circle.BuiltinOptions2.decode);
         return $;
     }
@@ -3308,8 +3308,8 @@ circle.Operator = class Operator {
         $.custom_options_format = circle.CustomOptionsFormat[json.custom_options_format];
         $.mutating_variable_inputs = reader.array(json.mutating_variable_inputs);
         $.intermediates = reader.typedArray(json.intermediates, Int32Array);
-        $.large_custom_options_offset = reader.value(json.large_custom_options_offset, 0);
-        $.large_custom_options_size = reader.value(json.large_custom_options_size, 0);
+        $.large_custom_options_offset = reader.uint64(json.large_custom_options_offset, 0n);
+        $.large_custom_options_size = reader.uint64(json.large_custom_options_size, 0n);
         $.builtin_options_2 = circle.BuiltinOptions2.decodeText(reader, json.builtin_options_2, json.builtin_options_2_type);
         return $;
     }
@@ -3345,16 +3345,16 @@ circle.Buffer = class Buffer {
     static decode(reader, position) {
         const $ = new circle.Buffer();
         $.data = reader.typedArray(position, 4, Uint8Array);
-        $.offset = reader.uint64_(position, 6, 0);
-        $.size = reader.uint64_(position, 8, 0);
+        $.offset = reader.uint64_(position, 6, 0n);
+        $.size = reader.uint64_(position, 8, 0n);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new circle.Buffer();
         $.data = reader.typedArray(json.data, Uint8Array);
-        $.offset = reader.value(json.offset, 0);
-        $.size = reader.value(json.size, 0);
+        $.offset = reader.uint64(json.offset, 0n);
+        $.size = reader.uint64(json.size, 0n);
         return $;
     }
 };

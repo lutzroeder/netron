@@ -63,14 +63,15 @@ circle.ModelFactory = class {
                 throw new circle.Error(`Unsupported Circle format '${context.type}'.`);
             }
         }
+        const stream = context.stream;
         const metadata = await context.metadata('circle-metadata.json');
-        return new circle.Model(metadata, model);
+        return new circle.Model(metadata, model, stream);
     }
 };
 
 circle.Model = class {
 
-    constructor(metadata, model) {
+    constructor(metadata, model, stream) {
         this.graphs = [];
         this.format = 'Circle';
         this.format = `${this.format} v${model.version}`;
@@ -144,7 +145,7 @@ circle.Model = class {
             const name = subgraphs.length > 1 ? i.toString() : '';
             const subgraphMetadata = subgraphsMetadata && i < subgraphsMetadata.length ? subgraphsMetadata[i] : null;
             const signatures = model.signature_defs.filter((signature) => signature.subgraph_index === i);
-            const graph = new circle.Graph(metadata, subgraph, signatures, subgraphMetadata, name, operators, model);
+            const graph = new circle.Graph(metadata, subgraph, signatures, subgraphMetadata, name, operators, model, stream);
             this.graphs.push(graph);
         }
     }
@@ -152,8 +153,25 @@ circle.Model = class {
 
 circle.Graph = class {
 
-    constructor(metadata, subgraph, signatures, subgraphMetadata, name, operators, model) {
+    constructor(metadata, subgraph, signatures, subgraphMetadata, name, operators, model, stream) {
         this.name = subgraph.name || name;
+        if (subgraph.operators.length === 0 && subgraph.tensors.length > 0 && operators.length === 0) {
+            operators.push({ name: 'Weights', custom: true });
+            const layers = new Map();
+            for (let i = 0; i < subgraph.tensors.length; i++) {
+                const tensor = subgraph.tensors[i];
+                const parts = tensor.name.split('.');
+                parts.pop();
+                const key = parts.join('.');
+                if (!layers.has(key)) {
+                    const operator = { opcode_index: 0, inputs: [], outputs: [] };
+                    layers.set(key, operator);
+                    subgraph.operators.push(operator);
+                }
+                const operator = layers.get(key);
+                operator.inputs.push(i);
+            }
+        }
         const tensors = new Map();
         tensors.map = (index, metadata) => {
             if (index === -1) {
@@ -168,8 +186,8 @@ circle.Graph = class {
                     tensor = subgraph.tensors[index];
                     const buffer = model.buffers[tensor.buffer];
                     const is_variable = tensor.is_variable;
-                    const data = buffer ? buffer.data : null;
-                    initializer = (data && data.length > 0) || is_variable ? new circle.Tensor(index, tensor, buffer, is_variable) : null;
+                    const variable = is_variable || (buffer && buffer.data && buffer.data.length > 0) || (buffer && buffer.offset !== 0n && buffer.size !== 0n);
+                    initializer = variable ? new circle.Tensor(index, tensor, buffer, stream, is_variable) : null;
                 }
                 if (metadata) {
                     description = metadata.description;
@@ -244,7 +262,7 @@ circle.Node = class {
 
     constructor(metadata, node, type, location, tensors) {
         this._location = location;
-        this._type = type.custom ? { name: type.name, category: 'custom' } : metadata.type(type.name);
+        this._type = type.custom ? { name: type.name } : metadata.type(type.name);
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -268,15 +286,14 @@ circle.Node = class {
                         visible = false;
                     }
                 }
-                const inputArray = inputs.slice(i, i + count);
-                for (const index of inputArray) {
+                for (const index of inputs.slice(i, i + count)) {
                     const value = tensors.map(index);
                     if (value) {
                         values.push(value);
                     }
                 }
+                name = name ? name : (i + 1).toString();
                 i += count;
-                name = name ? name : i.toString();
                 const argument = new circle.Argument(name, values, visible);
                 this._inputs.push(argument);
             }
@@ -284,7 +301,7 @@ circle.Node = class {
                 const index = outputs[i];
                 const value = tensors.map(index);
                 const values = value ? [value] : [];
-                let name = i.toString();
+                let name = (i + 1).toString();
                 if (this._type && this._type.outputs && i < this._type.outputs.length) {
                     const output = this._type.outputs[i];
                     if (output && output.name) {
@@ -294,7 +311,7 @@ circle.Node = class {
                 const argument = new circle.Argument(name, values);
                 this._outputs.push(argument);
             }
-            if (type.custom && node.custom_options.length > 0) {
+            if (type.custom && Array.isArray(node.custom_options) && node.custom_options.length > 0) {
                 let decoded = false;
                 if (node.custom_options_format === circle.schema.CustomOptionsFormat.FLEXBUFFERS) {
                     try {
@@ -451,18 +468,21 @@ circle.Value = class {
 
 circle.Tensor = class {
 
-    constructor(index, tensor, buffer, is_variable) {
+    constructor(index, tensor, buffer, stream, is_variable) {
         this.location = index.toString();
         this.name = tensor.name;
         this.type = new circle.TensorType(tensor);
         this.category = is_variable ? 'Variable' : '';
-        this._data = buffer.data.slice(0);
-    }
-
-    get encoding() {
-        switch (this.type.dataType) {
-            case 'string': return '|';
-            default: return '<';
+        this.encoding = this.type.dataType === 'string' ? '|' : '<';
+        if (buffer && buffer.data && buffer.data.length > 0) {
+            this._data = buffer.data.slice(0);
+        } else if (buffer && buffer.offset !== 0n && buffer.size !== 0n) {
+            const offset = buffer.offset.toNumber();
+            const size = buffer.size.toNumber();
+            stream.seek(offset);
+            this._data = stream.stream(size);
+        } else {
+            this._data = null;
         }
     }
 
@@ -488,7 +508,13 @@ circle.Tensor = class {
                 return stringTable;
             }
             default: {
-                return this._data;
+                if (this._data instanceof Uint8Array) {
+                    return this._data;
+                }
+                if (this._data && this._data.peek) {
+                    return this._data.peek();
+                }
+                return null;
             }
         }
     }
@@ -524,11 +550,11 @@ circle.TensorShape = class {
 circle.Utility = class {
 
     static dataType(type) {
-        if (!circle.Utility._tensorTypeMap) {
-            circle.Utility._tensorTypeMap = new Map(Object.entries(circle.schema.TensorType).map(([key, value]) => [value, key.toLowerCase()]));
-            circle.Utility._tensorTypeMap.set(6, 'boolean');
+        if (!circle.Utility._tensorTypes) {
+            circle.Utility._tensorTypes = new Map(Object.entries(circle.schema.TensorType).map(([key, value]) => [value, key.toLowerCase()]));
+            circle.Utility._tensorTypes.set(6, 'boolean');
         }
-        return circle.Utility._tensorTypeMap.has(type) ? circle.Utility._tensorTypeMap.get(type) : '?';
+        return circle.Utility._tensorTypes.has(type) ? circle.Utility._tensorTypes.get(type) : '?';
     }
 
     static enum(name, value) {

@@ -30,13 +30,13 @@ paddle.lite.fbs.proto.Version = class Version {
 
     static decode(reader, position) {
         const $ = new paddle.lite.fbs.proto.Version();
-        $.version = reader.int64_(position, 4, 0);
+        $.version = reader.int64_(position, 4, 0n);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new paddle.lite.fbs.proto.Version();
-        $.version = reader.value(json.version, 0);
+        $.version = reader.int64(json.version, 0n);
         return $;
     }
 };
@@ -384,7 +384,7 @@ paddle.lite.fbs.proto.OpDesc_.Attr = class Attr {
         $.b = reader.bool_(position, 20, false);
         $.bools = reader.bools_(position, 22);
         $.block_idx = reader.int32_(position, 24, 0);
-        $.l = reader.int64_(position, 26, 0);
+        $.l = reader.int64_(position, 26, 0n);
         $.blocks_idx = reader.typedArray(position, 28, Int32Array);
         $.longs = reader.int64s_(position, 30);
         $.float64 = reader.float64_(position, 32, 0);
@@ -405,7 +405,7 @@ paddle.lite.fbs.proto.OpDesc_.Attr = class Attr {
         $.b = reader.value(json.b, false);
         $.bools = reader.array(json.bools);
         $.block_idx = reader.value(json.block_idx, 0);
-        $.l = reader.value(json.l, 0);
+        $.l = reader.int64(json.l, 0n);
         $.blocks_idx = reader.typedArray(json.blocks_idx, Int32Array);
         $.longs = reader.array(json.longs);
         $.float64 = reader.value(json.float64, 0);

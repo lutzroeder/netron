@@ -1183,7 +1183,7 @@ mgb.serialization.fbs.param.UniformRNGV0 = class UniformRNGV0 {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.UniformRNGV0();
-        $.seed = reader.uint64_(position, 4, 0);
+        $.seed = reader.uint64_(position, 4, 0n);
         return $;
     }
 };
@@ -1192,7 +1192,7 @@ mgb.serialization.fbs.param.UniformRNG = class UniformRNG {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.UniformRNG();
-        $.seed = reader.uint64_(position, 4, 0);
+        $.seed = reader.uint64_(position, 4, 0n);
         $.dtype = reader.int8_(position, 6, 0);
         return $;
     }
@@ -1202,7 +1202,7 @@ mgb.serialization.fbs.param.GaussianRNGV0 = class GaussianRNGV0 {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.GaussianRNGV0();
-        $.seed = reader.uint64_(position, 4, 0);
+        $.seed = reader.uint64_(position, 4, 0n);
         $.mean = reader.float32_(position, 6, 0);
         $.std = reader.float32_(position, 8, 1);
         return $;
@@ -1213,7 +1213,7 @@ mgb.serialization.fbs.param.GaussianRNG = class GaussianRNG {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.GaussianRNG();
-        $.seed = reader.uint64_(position, 4, 0);
+        $.seed = reader.uint64_(position, 4, 0n);
         $.mean = reader.float32_(position, 6, 0);
         $.std = reader.float32_(position, 8, 1);
         $.dtype = reader.int8_(position, 10, 0);
@@ -1225,7 +1225,7 @@ mgb.serialization.fbs.param.GammaRNG = class GammaRNG {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.GammaRNG();
-        $.seed = reader.uint64_(position, 4, 0);
+        $.seed = reader.uint64_(position, 4, 0n);
         return $;
     }
 };
@@ -1234,7 +1234,7 @@ mgb.serialization.fbs.param.BetaRNG = class BetaRNG {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.BetaRNG();
-        $.seed = reader.uint64_(position, 4, 0);
+        $.seed = reader.uint64_(position, 4, 0n);
         return $;
     }
 };
@@ -1243,7 +1243,7 @@ mgb.serialization.fbs.param.PoissonRNG = class PoissonRNG {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.PoissonRNG();
-        $.seed = reader.uint64_(position, 4, 0);
+        $.seed = reader.uint64_(position, 4, 0n);
         return $;
     }
 };
@@ -1252,8 +1252,8 @@ mgb.serialization.fbs.param.MultinomialRNG = class MultinomialRNG {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.MultinomialRNG();
-        $.seed = reader.uint64_(position, 4, 0);
-        $.num_samples = reader.uint64_(position, 6, 1);
+        $.seed = reader.uint64_(position, 4, 0n);
+        $.num_samples = reader.uint64_(position, 6, 1n);
         $.replacement = reader.bool_(position, 8, false);
         return $;
     }
@@ -1263,7 +1263,7 @@ mgb.serialization.fbs.param.PermutationRNG = class PermutationRNG {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.PermutationRNG();
-        $.seed = reader.uint64_(position, 4, 0);
+        $.seed = reader.uint64_(position, 4, 0n);
         $.dtype = reader.int8_(position, 6, 4);
         return $;
     }
@@ -1273,7 +1273,7 @@ mgb.serialization.fbs.param.ShuffleRNG = class ShuffleRNG {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.ShuffleRNG();
-        $.seed = reader.uint64_(position, 4, 0);
+        $.seed = reader.uint64_(position, 4, 0n);
         return $;
     }
 };
@@ -1756,8 +1756,8 @@ mgb.serialization.fbs.param.LayerNorm = class LayerNorm {
         const $ = new mgb.serialization.fbs.param.LayerNorm();
         $.affine = reader.bool_(position, 4, true);
         $.eps = reader.float32_(position, 6, 0.00001);
-        $.normalized_dim = reader.uint64_(position, 8, 1);
-        $.normalized_size = reader.uint64_(position, 10, 1);
+        $.normalized_dim = reader.uint64_(position, 8, 1n);
+        $.normalized_size = reader.uint64_(position, 10, 1n);
         return $;
     }
 };
@@ -1779,7 +1779,7 @@ mgb.serialization.fbs.param.Dropout = class Dropout {
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.Dropout();
         $.drop_prob = reader.float32_(position, 4, 0);
-        $.seed = reader.uint64_(position, 6, 0);
+        $.seed = reader.uint64_(position, 6, 0n);
         return $;
     }
 };
@@ -1926,7 +1926,7 @@ mgb.serialization.fbs.param.ExecutionPolicyV0 = class ExecutionPolicyV0 {
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.ExecutionPolicyV0();
         $.strategy = reader.uint32_(position, 4, 0);
-        $.workspace_limit = reader.uint64_(position, 6, 18446744073709552000);
+        $.workspace_limit = reader.uint64_(position, 6, 18446744073709552000n);
         return $;
     }
 };
@@ -1936,7 +1936,7 @@ mgb.serialization.fbs.param.ExecutionPolicy = class ExecutionPolicy {
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.ExecutionPolicy();
         $.strategy = reader.uint32_(position, 4, 1);
-        $.workspace_limit = reader.uint64_(position, 6, 18446744073709552000);
+        $.workspace_limit = reader.uint64_(position, 6, 18446744073709552000n);
         return $;
     }
 };
@@ -2343,7 +2343,7 @@ mgb.serialization.fbs.v2.Operator = class Operator {
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.v2.Operator();
         $.type = reader.string_(position, 4, null);
-        $.type_id = reader.uint64_(position, 6, 0);
+        $.type_id = reader.uint64_(position, 6, 0n);
         $.name = reader.string_(position, 8, null);
         $.param = reader.union(position, 10, mgb.serialization.fbs.v2.OperatorParam.decode);
         $.additional_params = reader.unionArray(position, 14, mgb.serialization.fbs.v2.OperatorParam.decode);
@@ -2365,7 +2365,7 @@ mgb.serialization.fbs.v2.Metadata = class Metadata {
         const $ = new mgb.serialization.fbs.v2.Metadata();
         $.is_valid = reader.bool_(position, 4, false);
         $.graph_modified = reader.bool_(position, 6, false);
-        $.optimize_options = reader.uint64_(position, 8, 0);
+        $.optimize_options = reader.uint64_(position, 8, 0n);
         $.user_info = reader.string_(position, 10, null);
         return $;
     }
