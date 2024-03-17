@@ -6,71 +6,37 @@ flatbuffers.BinaryReader = class {
     static open(data, offset) {
         offset = offset || 0;
         if (data && data.length >= (offset + 8)) {
+            const position = data instanceof Uint8Array ? -1 : data.position;
             const reader = data instanceof Uint8Array ?
-                new flatbuffers.BinaryReader(data, offset) :
-                new flatbuffers.StreamReader(data, offset);
-            const root = reader.uint32(offset) + offset;
-            if (root < reader.length) {
-                const start = root - reader.int32(root);
+                new flatbuffers.BufferReader(data) :
+                new flatbuffers.StreamReader(data);
+            reader.root = reader.int32(offset) + offset;
+            let value = false;
+            if (reader.root > 0 && reader.root < reader.length) {
+                const buffer = reader.read(offset + 4, 4);
+                reader.identifier = buffer.every((c) => c >= 32 && c <= 128) ? String.fromCharCode(...buffer) : '';
+                const start = reader.root - reader.int32(reader.root);
                 if (start > 0 && (start + 4) < reader.length) {
                     const last = reader.int16(start) + start;
-                    const max = reader.int16(start + 2);
                     if (last < reader.length) {
-                        let valid = true;
+                        const max = reader.int16(start + 2);
+                        const offsets = [];
                         for (let i = start + 4; i < last; i += 2) {
                             const offset = reader.int16(i);
-                            if (offset >= max) {
-                                valid = false;
-                                break;
-                            }
+                            offsets.push(offset);
                         }
-                        if (valid) {
-                            const identifier = reader.identifier;
-                            reader.dispose();
-                            return new flatbuffers.BinaryReader(data, offset, identifier);
-                        }
+                        value = max > Math.max(...offsets);
                     }
                 }
             }
-            reader.dispose();
+            if (position !== -1) {
+                data.seek(position);
+            }
+            if (value) {
+                return reader;
+            }
         }
         return null;
-    }
-
-    constructor(data, offset, identifier) {
-        if (data instanceof Uint8Array) {
-            this._buffer = data;
-            this._dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
-        } else {
-            this._data = data;
-        }
-        this._length = data.length;
-        this._offset = offset;
-        this._identifier = identifier;
-    }
-
-    dispose() {
-    }
-
-    get root() {
-        if (!this._buffer) {
-            this._buffer = this._data.peek();
-            this._dataView = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
-            delete this._data;
-        }
-        return this.int32(this._offset) + this._offset;
-    }
-
-    get length() {
-        return this._buffer.length;
-    }
-
-    get identifier() {
-        if (this._identifier === undefined) {
-            const buffer = this._buffer.slice(this._offset + 4, this._offset + 8);
-            this._identifier = buffer.every((c) => c >= 32 && c <= 128) ? String.fromCharCode(...buffer) : '';
-        }
-        return this._identifier;
     }
 
     bool(offset) {
@@ -91,17 +57,9 @@ flatbuffers.BinaryReader = class {
         return offset ? this.int8(position + offset) : defaultValue;
     }
 
-    uint8(offset) {
-        return this._buffer[offset];
-    }
-
     uint8_(position, offset, defaultValue) {
         offset = this.__offset(position, offset);
         return offset ? this.uint8(position + offset) : defaultValue;
-    }
-
-    int16(offset) {
-        return this._dataView.getInt16(offset, true);
     }
 
     int16_(position, offset, defaultValue) {
@@ -109,17 +67,9 @@ flatbuffers.BinaryReader = class {
         return offset ? this.int16(position + offset) : defaultValue;
     }
 
-    uint16(offset) {
-        return this._dataView.getUint16(offset, true);
-    }
-
     uint16_(position, offset, defaultValue) {
         offset = this.__offset(position, offset);
         return offset ? this.uint16(position + offset) : defaultValue;
-    }
-
-    int32(offset) {
-        return this._dataView.getInt32(offset, true);
     }
 
     int32_(position, offset, defaultValue) {
@@ -127,17 +77,9 @@ flatbuffers.BinaryReader = class {
         return offset ? this.int32(position + offset) : defaultValue;
     }
 
-    uint32(offset) {
-        return this._dataView.getUint32(offset, true);
-    }
-
     uint32_(position, offset, defaultValue) {
         offset = this.__offset(position, offset);
         return offset ? this.int32(position + offset) : defaultValue;
-    }
-
-    int64(offset) {
-        return this._dataView.getBigInt64(offset, true);
     }
 
     int64_(position, offset, defaultValue) {
@@ -145,26 +87,14 @@ flatbuffers.BinaryReader = class {
         return offset ? this.int64(position + offset) : defaultValue;
     }
 
-    uint64(offset) {
-        return this._dataView.getBigUint64(offset, true);
-    }
-
     uint64_(position, offset, defaultValue) {
         offset = this.__offset(position, offset);
         return offset ? this.uint64(position + offset) : defaultValue;
     }
 
-    float32(offset) {
-        return this._dataView.getFloat32(offset, true);
-    }
-
     float32_(position, offset, defaultValue) {
         offset = this.__offset(position, offset);
         return offset ? this.float32(position + offset) : defaultValue;
-    }
-
-    float64(offset) {
-        return this._dataView.getFloat64(offset, true);
     }
 
     float64_(position, offset, defaultValue) {
@@ -175,15 +105,13 @@ flatbuffers.BinaryReader = class {
     string(offset, encoding) {
         offset += this.int32(offset);
         const length = this.int32(offset);
-        let result = '';
-        let i = 0;
         offset += 4;
         if (encoding === 1) {
-            return this._buffer.subarray(offset, offset + length);
+            return this.read(offset, length);
         }
-        while (i < length) {
+        let text = '';
+        for (let i = 0; i < length;) {
             let codePoint;
-            // Decode UTF-8
             const a = this.uint8(offset + i++);
             if (a < 0xC0) {
                 codePoint = a;
@@ -203,14 +131,13 @@ flatbuffers.BinaryReader = class {
             }
             // Encode UTF-16
             if (codePoint < 0x10000) {
-                result += String.fromCharCode(codePoint);
+                text += String.fromCharCode(codePoint);
             } else {
                 codePoint -= 0x10000;
-                result += String.fromCharCode((codePoint >> 10) + 0xD800, (codePoint & ((1 << 10) - 1)) + 0xDC00);
+                text += String.fromCharCode((codePoint >> 10) + 0xD800, (codePoint & ((1 << 10) - 1)) + 0xDC00);
             }
         }
-
-        return result;
+        return text;
     }
 
     string_(position, offset, defaultValue) {
@@ -293,7 +220,13 @@ flatbuffers.BinaryReader = class {
 
     typedArray(position, offset, type) {
         offset = this.__offset(position, offset);
-        return offset ? new type(this._buffer.buffer, this._buffer.byteOffset + this.__vector(position + offset), this.__vector_len(position + offset)) : new type(0);
+        if (offset) {
+            const length = this.__vector_len(position + offset);
+            offset = this.__vector(position + offset);
+            const buffer = this.read(offset, length * type.BYTES_PER_ELEMENT);
+            return new type(buffer.buffer, buffer.byteOffset, length);
+        }
+        return new type(0);
     }
 
     unionArray(/* position, offset, decode */) {
@@ -342,45 +275,127 @@ flatbuffers.BinaryReader = class {
     }
 };
 
-flatbuffers.StreamReader = class {
+flatbuffers.BufferReader = class extends flatbuffers.BinaryReader {
 
-    constructor(stream, offset) {
-        this._stream = stream;
-        this._length = stream.length;
-        this._position = stream.position;
-        this._offset = offset;
+    constructor(data) {
+        super();
+        this.length = data.length;
+        this._buffer = data;
+        this._view = new DataView(data.buffer, data.byteOffset, data.byteLength);
     }
 
-    dispose() {
-        this._stream.seek(this._position);
+    read(offset, length) {
+        return this._buffer.slice(offset, offset + length);
     }
 
-    get length() {
-        return this._length;
-    }
-
-    get identifier() {
-        this._stream.seek(this._offset + 4);
-        const buffer = this._stream.peek(4);
-        return buffer.every((c) => c >= 32 && c <= 128) ? String.fromCharCode(...buffer) : '';
+    uint8(offset) {
+        return this._buffer[offset];
     }
 
     int16(offset) {
-        this._stream.seek(offset);
-        const buffer = this._stream.peek(2);
-        return buffer[0] | (buffer[1] << 8);
+        return this._view.getInt16(offset, true);
+    }
+
+    uint16(offset) {
+        return this._view.getUint16(offset, true);
     }
 
     int32(offset) {
-        this._stream.seek(offset);
-        const buffer = this._stream.peek(4);
-        return buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24);
+        return this._view.getInt32(offset, true);
     }
 
     uint32(offset) {
+        return this._view.getUint32(offset, true);
+    }
+
+    int64(offset) {
+        return this._view.getBigInt64(offset, true);
+    }
+
+    uint64(offset) {
+        return this._view.getBigUint64(offset, true);
+    }
+
+    float32(offset) {
+        return this._view.getFloat32(offset, true);
+    }
+
+    float64(offset) {
+        return this._view.getFloat64(offset, true);
+    }
+};
+
+flatbuffers.StreamReader = class extends flatbuffers.BinaryReader {
+
+    constructor(stream) {
+        super();
+        this.length = stream.length;
+        this._stream = stream;
+        this._fill(0, Math.min(0x100000, stream.length));
+    }
+
+    read(offset, length) {
         this._stream.seek(offset);
-        const buffer = this._stream.peek(4);
-        return (buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24)) >>> 0;
+        return this._stream.read(length);
+    }
+
+    uint8(offset) {
+        const position = this._fill(offset, 1);
+        return this._view.getInt8(position);
+    }
+
+    int16(offset) {
+        const position = this._fill(offset, 2);
+        return this._view.getInt16(position, true);
+    }
+
+    uint16(offset) {
+        const position = this._fill(offset, 2);
+        return this._view.getUint16(position, true);
+    }
+
+    int32(offset) {
+        const position = this._fill(offset, 4);
+        return this._view.getInt32(position, true);
+    }
+
+    uint32(offset) {
+        const position = this._fill(offset, 4);
+        return this._view.getUint32(position, true);
+    }
+
+    int64(offset) {
+        const position = this._fill(offset, 8);
+        return this._view.getBigInt64(position, true);
+    }
+
+    uint64(offset) {
+        const position = this._fill(offset, 8);
+        return this._view.getBigUint64(position, true);
+    }
+
+    float32(offset) {
+        const position = this._fill(offset, 4);
+        return this._view.getFloat32(position, true);
+    }
+
+    float64(offset) {
+        const position = this._fill(offset, 8);
+        return this._view.getFloat64(position, true);
+    }
+
+    _fill(offset, length) {
+        if (offset + length > this._length) {
+            throw new Error(`Expected ${offset + length - this._length} more bytes. The file might be corrupted. Unexpected end of file.`);
+        }
+        if (!this._buffer || offset < this._offset || offset + length > this._offset + this._buffer.length) {
+            this._offset = offset;
+            this._stream.seek(this._offset);
+            const size = Math.min(0x10000000, this.length - this._offset);
+            this._buffer = this._stream.read(size);
+            this._view = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
+        }
+        return offset - this._offset;
     }
 };
 
@@ -396,6 +411,14 @@ flatbuffers.TextReader = class {
 
     get root() {
         return this._root;
+    }
+
+    int64(obj, defaultValue) {
+        return obj !== undefined ? BigInt(obj) : defaultValue;
+    }
+
+    uint64(obj, defaultValue) {
+        return obj !== undefined ? BigInt(obj) : defaultValue;
     }
 
     value(obj, defaultValue) {
