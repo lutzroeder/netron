@@ -744,6 +744,7 @@ tf.Graph = class {
             if (meta_graph.meta_info_def && meta_graph.meta_info_def.tags) {
                 this.tags = meta_graph.meta_info_def.tags.join(', ');
             }
+            const output_arg_map = new Map();
             metadata = new tf.GraphMetadata(metadata, graph.library);
             const context = new tf.Context();
             for (const [key, signature_def] of Object.entries(meta_graph.signature_def)) {
@@ -762,12 +763,13 @@ tf.Graph = class {
                     const value = context.value(name, type);
                     const argument = new tf.Argument(key, [value]);
                     outputs.push(argument);
+                    output_arg_map.set(name, key);
                 }
                 const signature = new tf.Signature(key, inputs, outputs);
                 this.signatures.push(signature);
             }
             const nodes = graph.node || [];
-            context.graph(metadata, nodes);
+            context.graph(metadata, nodes, output_arg_map);
             this.nodes = context.nodes;
             this.inputs = context.inputs;
             this.outputs = context.outputs;
@@ -1727,28 +1729,37 @@ tf.Context = class {
             }
             node.output = [];
         }
+        const node_output = (input) => {
+            const parts = input.split(':', 3);
+            let [name] = parts;
+            const index = parts.length === 1 ? 0 : parseInt(parts.pop(), 10);
+            const control = name.startsWith('^');
+            name = control ? name.substring(1) : name;
+            const from = nodes.get(name);
+            if (from) {
+                for (let i = from.output.length; i <= index; i++) {
+                    const key = i === 0 ? from.name : `${from.name}:${i}`;
+                    const value = { name: key, to: [] };
+                    from.output.push(value);
+                }
+            }
+            const key = index === 0 ? name : `${name}:${index}`;
+            return [key, index, control, from];
+        };
         for (const node of nodes.values()) {
             const inputs = node.input;
             node.input = [];
             node.controlDependencies = [];
             for (const input of inputs) {
-                const split = input.split(':', 3);
-                const [input_name] = split;
-                const input_index = split.length === 1 ? 0 : parseInt(split[split.length - 1], 10);
-                const from_name = input_name.startsWith('^') ? input_name.substring(1) : input_name;
-                const from = nodes.get(from_name);
-                const output_name = input_index === 0 ? from_name : `${from_name}:${input_index}`;
-                const input_arg = from ? { name: output_name, from: from } : { name: output_name };
-                if (input_name.startsWith('^')) {
-                    node.controlDependencies.push(input_arg);
-                } else {
-                    node.input.push(input_arg);
-                }
+                const [key, index, control, from] = node_output(input);
                 if (from) {
-                    for (let i = from.output.length; i <= input_index; i++) {
-                        from.output.push({ name: i === 0 ? from_name : `${from_name}:${i}`, to: [] });
-                    }
-                    from.output[input_index].to.push(node);
+                    from.output[index].to.push(node);
+                }
+                const value = { name: key, from: from };
+                if (control) {
+                    node.controlDependencies.push(value);
+                } else {
+                    node.input.push(value);
                 }
             }
         }
