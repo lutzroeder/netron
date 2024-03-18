@@ -1,7 +1,5 @@
 
 import * as fs from 'fs/promises';
-import * as http from 'http';
-import * as https from 'https';
 import * as path from 'path';
 import * as process from 'process';
 import * as url from 'url';
@@ -362,55 +360,53 @@ export class Target {
         }
     }
 
-    async request(location) {
-        const request = new Promise((resolve, reject) => {
-            const url = new URL(location);
-            const request = url.protocol === 'https:' ? https.request(location) : http.request(location);
-            request.on('response', (response) => resolve(response));
-            request.on('error', (error) => reject(error));
-            request.end();
-        });
-        const response = await request;
-        const url = new URL(location);
-        switch (response.statusCode) {
-            case 200: {
-                return new Promise((resolve, reject) => {
-                    let position = 0;
-                    const data = [];
-                    const length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
-                    response.on('data', (chunk) => {
-                        position += chunk.length;
-                        if (length >= 0) {
-                            const percent = position / length;
-                            this.status({ name: 'download', target: location, percent: percent });
-                        } else {
-                            this.status({ name: 'download', target: location, position: position });
-                        }
-                        data.push(chunk);
-                    });
-                    response.on('end', () => {
-                        this.status({ name: 'download' });
-                        resolve(Buffer.concat(data));
-                    });
-                    response.on('error', (error) => {
-                        this.status({ name: 'download' });
-                        reject(error);
-                    });
-                });
-            }
-            case 301:
-            case 302: {
-                location = response.headers.location;
-                const context = location.startsWith('http://') || location.startsWith('https://') ? '' : `${url.protocol}//${url.hostname}`;
-                response.destroy();
-                return this.request(context + location);
-            }
-            default: {
-                throw new Error(`${response.statusCode} ${location}`);
-            }
+    async request(url, init) {
+        const response = await fetch(url, init);
+        if (!response.ok) {
+            throw new Error(response.status.toString());
         }
-    }
+        if (response.body) {
+            const reader = response.body.getReader();
+            const length = response.headers.has('Content-Length') ? parseInt(response.headers.get('Content-Length'), 10) : -1;
+            let position = 0;
+            const target = this;
+            const stream = new ReadableStream({
+                async start(controller) {
+                    const read = async () => {
+                        try {
+                            const result = await reader.read();
+                            if (result.done) {
+                                target.status({ name: 'download' });
+                                controller.close();
+                            } else {
+                                position += result.value.length;
+                                if (length >= 0) {
+                                    const percent = position / length;
+                                    target.status({ name: 'download', target: url, percent: percent });
+                                } else {
+                                    target.status({ name: 'download', target: url, position: position });
+                                }
+                                controller.enqueue(result.value);
+                                return await read();
+                            }
+                        } catch (error) {
+                            controller.error(error);
+                            throw error;
+                        }
 
+                        return null;
+                    };
+                    return read();
+                }
+            });
+            return new Response(stream, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: response.headers
+            });
+        }
+        return response;
+    }
     async download(targets, sources) {
         targets = targets || Array.from(this.targets);
         sources = sources || this.source;
@@ -443,7 +439,9 @@ export class Target {
             const dir = path.dirname(`${this.folder}/${target}`);
             return fs.mkdir(dir, { recursive: true });
         }));
-        const data = await this.request(source);
+        const response = await this.request(source);
+        const buffer = await response.arrayBuffer();
+        const data = new Uint8Array(buffer);
         if (sourceFiles.length > 0) {
             this.status({ name: 'decompress' });
             const archive = decompress(data);
