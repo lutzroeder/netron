@@ -3829,6 +3829,7 @@ pytorch.Utility = class {
                             return null;
                         }
                     } else if (value && Array.isArray(value) && value.every((item) => pytorch.Utility.isTensor(item))) {
+                        layer._parameters = layer._parameters || new Map();
                         layer._parameters.set(parameter, value);
                     } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
                         layer[parameter] = value;
