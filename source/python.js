@@ -4549,6 +4549,7 @@ python.Execution = class {
         this.registerType('torchvision.models.detection.rpn.RegionProposalNetwork', class {});
         this.registerType('torchvision.models.detection.rpn.RPNHead', class {});
         this.registerType('torchvision.models.detection.ssd.SSD', class {});
+        this.registerType('torchvision.models.detection.ssd.SSDClassificationHead', class {});
         this.registerType('torchvision.models.detection.ssd.SSDFeatureExtractorVGG', class {});
         this.registerType('torchvision.models.detection.ssdlite.SSDLiteClassificationHead', class {});
         this.registerType('torchvision.models.detection.ssdlite.SSDLiteFeatureExtractorMobileNet', class {});
