@@ -6418,6 +6418,12 @@ tensorflow.GPUOptions.Experimental = class Experimental {
                 case 16:
                     message.gpu_system_memory_size_in_mb = reader.int32();
                     break;
+                case 17:
+                    message.populate_pjrt_gpu_client_creation_info = reader.bool();
+                    break;
+                case 18:
+                    message.node_id = reader.int32();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -6477,6 +6483,12 @@ tensorflow.GPUOptions.Experimental = class Experimental {
                 case "gpu_system_memory_size_in_mb":
                     message.gpu_system_memory_size_in_mb = reader.int32();
                     break;
+                case "populate_pjrt_gpu_client_creation_info":
+                    message.populate_pjrt_gpu_client_creation_info = reader.bool();
+                    break;
+                case "node_id":
+                    message.node_id = reader.int32();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -6500,6 +6512,8 @@ tensorflow.GPUOptions.Experimental.prototype.disallow_retry_on_allocation_failur
 tensorflow.GPUOptions.Experimental.prototype.gpu_host_mem_limit_in_mb = 0;
 tensorflow.GPUOptions.Experimental.prototype.gpu_host_mem_disallow_growth = false;
 tensorflow.GPUOptions.Experimental.prototype.gpu_system_memory_size_in_mb = 0;
+tensorflow.GPUOptions.Experimental.prototype.populate_pjrt_gpu_client_creation_info = false;
+tensorflow.GPUOptions.Experimental.prototype.node_id = 0;
 
 tensorflow.GPUOptions.Experimental.VirtualDevices = class VirtualDevices {
 
