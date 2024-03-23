@@ -4758,7 +4758,7 @@
     "type":     "pytorch",
     "target":   "densenet.data.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/13064609/densenet.data.pkl.zip[densenet.data.pkl]",
-    "format":   "PyTorch",
+    "format":   "PyTorch Pickle",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
@@ -4821,7 +4821,7 @@
     "type":     "pytorch",
     "target":   "fast.ai.data.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/13064775/fast.ai.data.pkl.zip[fast.ai.data.pkl]",
-    "format":   "PyTorch",
+    "format":   "PyTorch Pickle",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
@@ -5595,9 +5595,23 @@
   },
   {
     "type":     "pytorch",
+    "target":   "tensor.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/14733020/tensor.pkl.zip[tensor.pkl]",
+    "format":   "PyTorch Pickle",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "tensors.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/14733021/tensors.pkl.zip[tensors.pkl]",
+    "format":   "PyTorch Pickle",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "tensors.data.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/13061412/tensors.data.pkl.zip[tensors.data.pkl]",
-    "format":   "PyTorch Pickle Weights",
+    "format":   "PyTorch Pickle",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
@@ -5836,7 +5850,7 @@
     "type":     "pytorch",
     "target":   "yolov5n.tensor.data.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/13064842/yolov5n.tensor.data.pkl.zip[yolov5n.tensor.data.pkl]",
-    "format":   "PyTorch Pickle Weights",
+    "format":   "PyTorch Pickle",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {

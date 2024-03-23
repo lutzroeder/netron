@@ -895,15 +895,18 @@ pytorch.Container.data_pkl = class extends pytorch.Container {
             if (pytorch.Utility.isTensor(obj)) {
                 return new pytorch.Container.data_pkl('tensor', obj);
             }
+            if (Array.isArray(obj) && obj.every((tensor) => pytorch.Utility.isTensor(tensor))) {
+                return new pytorch.Container.data_pkl('tensor', obj);
+            }
             if (obj instanceof Map) {
                 const entries = Array.from(obj).filter(([name, value]) => name === '_metadata' || pytorch.Utility.isTensor(value));
                 if (entries.length > 0) {
-                    return new pytorch.Container.data_pkl('tensor<>', obj);
+                    return new pytorch.Container.data_pkl('tensor', obj);
                 }
             } else if (!Array.isArray(obj)) {
                 const entries = Object.entries(obj).filter(([name, value]) => name === '_metadata' || pytorch.Utility.isTensor(value));
                 if (entries.length > 0) {
-                    return new pytorch.Container.data_pkl('tensor<>', obj);
+                    return new pytorch.Container.data_pkl('tensor', obj);
                 }
             }
             for (const key of ['', 'model', 'net']) {
@@ -924,12 +927,7 @@ pytorch.Container.data_pkl = class extends pytorch.Container {
     }
 
     get format() {
-        switch (this._type) {
-            case 'module': return 'PyTorch';
-            case 'tensor': return 'PyTorch Tensor';
-            case 'tensor<>': return 'PyTorch Pickle Weights';
-            default: return 'PyTorch Pickle';
-        }
+        return 'PyTorch Pickle';
     }
 
     get modules() {
@@ -945,6 +943,7 @@ pytorch.Container.data_pkl = class extends pytorch.Container {
                 return this._modules;
             }
             case 'tensor':
+            case 'tensor[]':
             case 'tensor<>': {
                 if (this._data) {
                     this._modules = pytorch.Utility.findWeights(this._data);
