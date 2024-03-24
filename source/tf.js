@@ -1596,7 +1596,8 @@ tf.EventFileReader = class {
             const uint64 = (stream) => {
                 const buffer = stream.read(8);
                 const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-                return Number(view.getBigUint64(0, true));
+                const value = view.getBigUint64(0, true);
+                return value.toNumber();
             };
             const length = uint64(this._stream);
             this._stream.skip(4); // masked crc of length

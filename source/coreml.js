@@ -394,7 +394,7 @@ coreml.TensorType = class {
 coreml.TensorShape = class {
 
     constructor(dimensions) {
-        this.dimensions = dimensions.map((dim) => typeof dim === 'bigint' ? Number(dim) : dim);
+        this.dimensions = dimensions.map((dim) => typeof dim === 'bigint' ? dim.toNumber() : dim);
     }
 
     equals(obj) {

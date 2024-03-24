@@ -115,7 +115,7 @@ zip.Archive = class {
                         stream.seek(location);
                         throw new zip.Error('Zip 64-bit central directory offset not supported.');
                     }
-                    header.offset = Number(header.offset);
+                    header.offset = header.offset.toNumber();
                 }
                 position -= header.size;
                 if (position < 0 || position > stream.length) {

@@ -3540,7 +3540,7 @@ view.Tensor = class {
         const dataType = this._type.dataType;
         const context = {};
         context.encoding = this._encoding;
-        context.dimensions = this._type.shape.dimensions.map((value) => typeof value === 'bigint' ? Number(value) : value);
+        context.dimensions = this._type.shape.dimensions.map((value) => typeof value === 'bigint' ? value.toNumber() : value);
         context.dataType = dataType;
         const shape = context.dimensions;
         context.stride = this._stride;
@@ -3575,7 +3575,7 @@ view.Tensor = class {
                     const stride = strides[i];
                     const dimension = data[i];
                     for (let i = 0; i < indices.length; i++) {
-                        indices[i] += Number(dimension[i]) * stride;
+                        indices[i] += dimension[i].toNumber() * stride;
                     }
                 }
                 context.data = this._decodeSparse(dataType, context.dimensions, indices, values);
@@ -3649,7 +3649,7 @@ view.Tensor = class {
         if (indices.length > 0) {
             if (Object.prototype.hasOwnProperty.call(indices[0], 'low')) {
                 for (let i = 0; i < indices.length; i++) {
-                    const index = Number(indices[i]);
+                    const index = indices[i].toNumber();
                     array[index] = values[i];
                 }
             } else {

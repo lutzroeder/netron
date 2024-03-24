@@ -537,13 +537,13 @@ onnx.Tensor = class {
         this._category = category || null;
         if (tensor.indices && tensor.values) {
             this._name = tensor.values.name || '';
-            this._type = context.createTensorType(tensor.values.data_type, tensor.dims.map((dim) => dim), 'sparse');
+            this._type = context.createTensorType(tensor.values.data_type, tensor.dims, 'sparse');
             this._location = context.createLocation(tensor.values.data_location);
             this._values = new onnx.Tensor(context, tensor.values);
             this._indices = new onnx.Tensor(context, tensor.indices);
         } else {
             this._name = tensor.name || '';
-            this._type = context.createTensorType(tensor.data_type, tensor.dims.map((dim) => dim));
+            this._type = context.createTensorType(tensor.data_type, tensor.dims);
             this._location = context.createLocation(tensor.data_location);
             switch (tensor.data_location) {
                 case onnx.DataLocation.DEFAULT: {
@@ -741,7 +741,7 @@ onnx.TensorType = class {
 onnx.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
+        this._dimensions = dimensions.map((dim) => typeof dim === 'bigint' ? dim.toNumber() : dim);
     }
 
     get dimensions() {
@@ -752,7 +752,7 @@ onnx.TensorShape = class {
         if (!this._dimensions || this._dimensions.length === 0) {
             return '';
         }
-        return `[${this._dimensions.map((dim) => dim ? dim.toString() : '?').join(',')}]`;
+        return `[${this._dimensions.map((dim) => dim || Number.isInteger(dim) ? dim.toString() : '?').join(',')}]`;
     }
 };
 

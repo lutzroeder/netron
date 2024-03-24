@@ -556,7 +556,7 @@ paddle.TensorType = class {
 paddle.TensorShape = class {
 
     constructor(dimensions) {
-        dimensions = dimensions.map((dim) => typeof dim === 'bigint' ? Number(dim) : dim);
+        dimensions = dimensions.map((dim) => typeof dim === 'bigint' ? dim.toNumber() : dim);
         this.dimensions = dimensions.map((dimension) => {
             return dimension !== -1 ? dimension : '?';
         });

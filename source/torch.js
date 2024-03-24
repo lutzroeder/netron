@@ -890,7 +890,7 @@ torch.T7Reader = class {
         let name = null;
         if (version.startsWith('V ')) {
             name = this.string();
-            version = Number(version.split(' ')[1]);
+            version = parseInt(version.split(' ')[1], 10);
         } else {
             name = version;
             version = 0;

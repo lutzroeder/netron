@@ -628,7 +628,7 @@ cntk.ComputationNetwork = class {
             return content.join('');
         };
         reader.strings = function() {
-            const size = Number(this.uint64());
+            const size = this.uint64().toNumber();
             const array = new Array(size);
             for (let i = 0; i < size; i++) {
                 array[i] = this.string();
@@ -636,7 +636,7 @@ cntk.ComputationNetwork = class {
             return array;
         };
         reader.booleans = function() {
-            const size = Number(this.uint64());
+            const size = this.uint64().toNumber();
             const array = new Array(size);
             for (let i = 0; i < size; i++) {
                 array[i] = this.boolean();
@@ -649,12 +649,12 @@ cntk.ComputationNetwork = class {
                 case 100: {
                     // dense
                     this.assert('BMAT');
-                    const elsize = Number(this.uint64());
+                    const elsize = this.uint64().toNumber();
                     const value = {};
                     value.name = this.string();
                     value.format = this.uint32();
-                    value.rows = Number(this.uint64());
-                    value.columns = Number(this.uint64());
+                    value.rows = this.uint64().toNumber();
+                    value.columns = this.uint64().toNumber();
                     this.read(elsize * value.rows * value.columns);
                     this.assert('EMAT');
                     return value;
