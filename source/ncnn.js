@@ -791,7 +791,7 @@ ncnn.TextParamReader = class {
 ncnn.BinaryParamReader = class {
 
     constructor(buffer) {
-        const reader = new base.BinaryReader(buffer);
+        const reader = base.BinaryReader.open(buffer);
         if (reader.int32() !== 0x007685DD) {
             throw new ncnn.Error('Invalid signature.');
         }

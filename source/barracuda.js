@@ -1,8 +1,6 @@
 
 // Experimental
 
-import * as base from './base.js';
-
 const barracuda = {};
 
 barracuda.ModelFactory = class {
@@ -19,7 +17,8 @@ barracuda.ModelFactory = class {
 
     async open(context) {
         const metadata = barracuda.Metadata.open();
-        const model = new barracuda.NNModel(context.stream.peek());
+        const reader = context.read('binary');
+        const model = new barracuda.NNModel(reader);
         return new barracuda.Model(metadata, model);
     }
 };
@@ -205,9 +204,9 @@ barracuda.TensorShape = class {
 
 barracuda.NNModel = class {
 
-    constructor(buffer) {
+    constructor(reader) {
         // https://github.com/Unity-Technologies/barracuda-release/blob/release/1.3.2/Barracuda/Runtime/Core/Model.cs
-        const reader = new barracuda.BinaryReader(buffer);
+        reader = new barracuda.BinaryReader(reader);
         this.version = reader.int32();
         reader.int32();
         this.inputs = new Array(reader.int32());
@@ -275,7 +274,35 @@ barracuda.Activation = {
     200: "Acos", 201: "Acosh", 202: "Asin", 203: "Asinh", 204: "Atan", 205: "Atanh", 206: "Cos", 207: "Cosh", 208: "Sin", 209: "Sinh", 210: "Tan"
 };
 
-barracuda.BinaryReader = class extends base.BinaryReader {
+barracuda.BinaryReader = class {
+
+    constructor(reader) {
+        this._reader = reader;
+    }
+
+    get position() {
+        return this._reader.position;
+    }
+
+    seek(position) {
+        this._reader.seek(position);
+    }
+
+    skip(offset) {
+        this._reader.skip(offset);
+    }
+
+    read(length) {
+        return this._reader.read(length);
+    }
+
+    byte() {
+        return this._reader.byte();
+    }
+
+    int32() {
+        return this._reader.int32();
+    }
 
     int32s() {
         const values = new Array(this.int32());
@@ -285,13 +312,20 @@ barracuda.BinaryReader = class extends base.BinaryReader {
         return values;
     }
 
+    int64() {
+        return this._reader.int64();
+    }
+
+    float32() {
+        return this._reader.float32();
+    }
+
     string() {
         let content = '';
         const size = this.int32();
-        let position = this._position;
-        this.skip(size);
         for (let i = 0; i < size; i++) {
-            content += String.fromCharCode(this._buffer[position++]);
+            const c = this.byte();
+            content += String.fromCharCode(c);
         }
         return content;
     }

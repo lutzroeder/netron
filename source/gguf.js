@@ -1,12 +1,10 @@
 
-import * as base from './base.js';
-
 const gguf = {};
 
 gguf.ModelFactory = class {
 
     match(context) {
-        const reader = gguf.Reader.open(context.stream);
+        const reader = gguf.Reader.open(context);
         if (reader) {
             context.type = 'gguf';
             context.target = reader;
@@ -186,18 +184,19 @@ gguf.Tensor = class {
 
 gguf.Reader = class {
 
-    static open(stream) {
+    static open(context) {
+        const stream = context.stream;
         if (stream && stream.length > 4) {
             const signature = String.fromCharCode.apply(null, stream.peek(4));
             if (signature === 'GGUF') {
-                return new gguf.Reader(stream);
+                return new gguf.Reader(context);
             }
         }
         return null;
     }
 
-    constructor(stream) {
-        this.stream = stream;
+    constructor(context) {
+        this.context = context;
         const QK_K = 256;
         gguf.Reader.GGML_QUANT_SIZES = gguf.Reader.GGML_QUANT_SIZES || new Map([
             [gguf.QuantizationType.F32,  [1, 4, 'float32']],
@@ -221,7 +220,7 @@ gguf.Reader = class {
     }
 
     read() {
-        const reader = new gguf.StreamReader(this.stream);
+        const reader = new gguf.BinaryReader(this.context.read('binary'));
         this.tensors = new Map();
         this.metadata = new Map();
         const context = {};
@@ -248,7 +247,7 @@ gguf.Reader = class {
                     reader.skip(context.alignment - offset_pad);
                 }
                 context.offset = reader.position;
-                if (context.offset < this.stream.length) {
+                if (context.offset < reader.length) {
                     for (const tensor of this.tensors.values()) {
                         reader.seek(context.offset + tensor.offset);
                         if (!gguf.Reader.GGML_QUANT_SIZES.has(tensor.type)) {
@@ -263,15 +262,43 @@ gguf.Reader = class {
                 }
             }
         }
-        this.stream.seek(0);
-        delete this.stream;
+        this.context.stream.seek(0);
+        delete this.context;
     }
 };
 
-gguf.StreamReader = class extends base.StreamReader {
+gguf.BinaryReader = class {
 
-    constructor(stream) {
-        super(stream);
+    constructor(reader) {
+        this._reader = reader;
+    }
+
+    skip(offset) {
+        this._reader.skip(offset);
+    }
+
+    read(length) {
+        return this._reader.read(length);
+    }
+
+    byte() {
+        return this._reader.byte();
+    }
+
+    int32() {
+        return this._reader.int32();
+    }
+
+    uint32() {
+        return this._reader.uint32();
+    }
+
+    uint64() {
+        return this._reader.uint64();
+    }
+
+    float32() {
+        return this._reader.float32();
     }
 
     string() {

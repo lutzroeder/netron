@@ -244,7 +244,7 @@ kmodel.Reader = class {
                 return new kmodel.Reader(stream, 3);
             }
             if ([0x4C, 0x44, 0x4D, 0x4B].every((value, index) => value === buffer[index]) && buffer.length >= 8) {
-                const reader = new base.BinaryReader(buffer);
+                const reader = base.BinaryReader.open(buffer);
                 reader.skip(4);
                 const version = reader.uint32();
                 return new kmodel.Reader(stream, version);
@@ -960,7 +960,7 @@ kmodel.Reader = class {
                         for (let i = 0; i < outputs.length; i++) {
                             outputs[i].value[0].shape = reader.shape();
                         }
-                        reader.align_position(8);
+                        reader.align(8);
                         const size = reader.size - position;
                         if (function_header.size > size) {
                             reader.skip(function_header.size - size);
@@ -978,10 +978,10 @@ kmodel.Reader = class {
                         reader.skip(section_header.body_start);
                         const body = reader.read(section_header.body_size);
                         const section = {
-                            reader: new base.BinaryReader(body),
+                            reader: base.BinaryReader.open(body),
                             flags: section_header.flags
                         };
-                        reader.align_position(8);
+                        reader.align(8);
                         sections.set(section_header.name, section);
                     }
                     for (let i = 0; i < function_headers.length; i++) {
@@ -1019,7 +1019,59 @@ kmodel.Reader = class {
     }
 };
 
-kmodel.BinaryReader = class extends base.BinaryReader {
+kmodel.BinaryReader = class {
+
+    constructor(data) {
+        this._reader = base.BinaryReader.open(data);
+    }
+
+    get position() {
+        return this._reader.position;
+    }
+
+    seek(position) {
+        this._reader.seek(position);
+    }
+
+    skip(offset) {
+        this._reader.skip(offset);
+    }
+
+    align(size) {
+        this._reader.align(size);
+    }
+
+    read(length) {
+        return this._reader.read(length);
+    }
+
+    byte() {
+        return this._reader.byte();
+    }
+
+    int8() {
+        return this._reader.int8();
+    }
+
+    int16() {
+        return this._reader.int16();
+    }
+
+    int32() {
+        return this._reader.int32();
+    }
+
+    uint16() {
+        return this._reader.uint16();
+    }
+
+    uint32() {
+        return this._reader.uint32();
+    }
+
+    float32() {
+        return this._reader.float32();
+    }
 
     uint64_bits(fields) {
         const buffer = this.read(8);
@@ -1337,13 +1389,6 @@ kmodel.BinaryReader.v5 = class extends kmodel.BinaryReader {
             array[i] = this.uint32();
         }
         return array;
-    }
-
-    align_position(alignment) {
-        const remainder = this._position % alignment;
-        if (remainder !== 0) {
-            this.skip(alignment - remainder);
-        }
     }
 };
 

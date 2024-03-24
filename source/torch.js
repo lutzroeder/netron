@@ -971,25 +971,35 @@ torch.T7Reader = class {
     }
 };
 
-torch.BinaryReader = class extends base.BinaryReader {
+torch.BinaryReader = class {
 
     constructor(data) {
-        super(data instanceof Uint8Array ? data : data.peek(), true);
+        this._reader = base.BinaryReader.open(data);
         this._textDecoder = new TextDecoder('ascii');
+    }
+
+    seek(position) {
+        this._reader.seek(position);
+    }
+
+    skip(offset) {
+        this._reader.skip(offset);
+    }
+
+    read(length) {
+        return this._reader.read(length);
     }
 
     boolean() {
         return this.int32() === 1;
     }
 
-    read(length) {
-        const position = this._position;
-        this.skip(length);
-        return this._buffer.subarray(position, this._position);
+    int32() {
+        return this._reader.int32();
     }
 
     int64() {
-        return super.int64().toNumber();
+        return this._reader.int64().toNumber();
     }
 
     int64s(size) {
@@ -998,6 +1008,14 @@ torch.BinaryReader = class extends base.BinaryReader {
             array.push(this.int64());
         }
         return array;
+    }
+
+    float32() {
+        return this._reader.float32();
+    }
+
+    float64() {
+        return this._reader.float64();
     }
 
     string() {

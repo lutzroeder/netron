@@ -3847,7 +3847,7 @@ pytorch.nnapi = {};
 pytorch.nnapi.SerializedModel = class {
 
     constructor(serialized_model, buffers) {
-        const reader = new base.BinaryReader(serialized_model);
+        const reader = base.BinaryReader.open(serialized_model);
         this.version = reader.int32();
         if (this.version !== 1) {
             throw new pytorch.Error('Invalid NNAPI serialized model version.');

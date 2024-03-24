@@ -1,6 +1,4 @@
 
-import * as base from './base.js';
-
 const cntk = {};
 
 cntk.ModelFactory = class {
@@ -27,9 +25,8 @@ cntk.ModelFactory = class {
             case 'cntk.v1': {
                 let obj = null;
                 try {
-                    const stream = context.stream;
-                    const buffer = stream.peek();
-                    obj = new cntk.ComputationNetwork(buffer);
+                    const reader = context.read('binary');
+                    obj = new cntk.ComputationNetwork(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
                     throw new cntk.Error(`File format is not CNTK v1 (${message.replace(/\.$/, '')}).`);
@@ -597,8 +594,8 @@ cntk.GraphMetadata = class {
 
 cntk.ComputationNetwork = class {
 
-    constructor(buffer) {
-        const reader = new cntk.BinaryReader(buffer);
+    constructor(reader) {
+        reader = new cntk.BinaryReader(reader);
         const shape = (dims) => {
             return { __type__: 'shape', dims: dims };
         };
@@ -963,10 +960,58 @@ cntk.ComputationNetwork = class {
     }
 };
 
-cntk.BinaryReader = class extends base.BinaryReader {
+cntk.BinaryReader = class {
 
-    constructor(buffer) {
-        super(buffer);
+    constructor(reader) {
+        this._reader = reader;
+    }
+
+    get position() {
+        return this._reader.position;
+    }
+
+    seek(offset) {
+        this._reader.seek(offset);
+    }
+
+    skip(offset) {
+        this._reader.skip(offset);
+    }
+
+    read(length) {
+        return this._reader.read(length);
+    }
+
+    boolean() {
+        return this._reader.boolean();
+    }
+
+    byte() {
+        return this._reader.byte();
+    }
+
+    int32() {
+        return this._reader.int32();
+    }
+
+    uint16() {
+        return this._reader.uint16();
+    }
+
+    uint32() {
+        return this._reader.uint32();
+    }
+
+    uint64() {
+        return this._reader.uint64();
+    }
+
+    float32() {
+        return this._reader.float32();
+    }
+
+    float64() {
+        return this._reader.float64();
     }
 
     match(text) {

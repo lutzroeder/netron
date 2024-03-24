@@ -1062,7 +1062,7 @@ darknet.Reader = class {
 darknet.Weights = class {
 
     static open(context) {
-        const reader = context.reader;
+        const reader = context.read('binary');
         if (reader && reader.length >= 20) {
             const major = reader.int32();
             const minor = reader.int32();

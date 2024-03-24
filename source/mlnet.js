@@ -590,23 +590,26 @@ mlnet.ModelHeader = class {
     }
 };
 
-mlnet.BinaryReader = class extends base.BinaryReader {
+mlnet.BinaryReader = class {
 
-    match(text) {
-        const position = this.position;
-        for (let i = 0; i < text.length; i++) {
-            if (this.byte() !== text.charCodeAt(i)) {
-                this.seek(position);
-                return false;
-            }
-        }
-        return true;
+    constructor(data) {
+        this._reader = base.BinaryReader.open(data);
     }
 
-    assert(text) {
-        if (!this.match(text)) {
-            throw new mlnet.Error(`Invalid '${text.split('\0').join('')}' signature.`);
-        }
+    seek(position) {
+        this._reader.seek(position);
+    }
+
+    skip(offset) {
+        this._reader.skip(offset);
+    }
+
+    read(length) {
+        return this._reader.read(length);
+    }
+
+    boolean() {
+        return this._reader.boolean();
     }
 
     booleans(count) {
@@ -617,12 +620,36 @@ mlnet.BinaryReader = class extends base.BinaryReader {
         return values;
     }
 
+    byte() {
+        return this._reader.byte();
+    }
+
+    int16() {
+        return this._reader.int16();
+    }
+
+    int32() {
+        return this._reader.int32();
+    }
+
     int32s(count) {
         const values = [];
         for (let i = 0; i < count; i++) {
             values.push(this.int32());
         }
         return values;
+    }
+
+    int64() {
+        return this._reader.int64();
+    }
+
+    uint16() {
+        return this._reader.uint16();
+    }
+
+    uint32() {
+        return this._reader.uint32();
     }
 
     uint32s(count) {
@@ -633,12 +660,24 @@ mlnet.BinaryReader = class extends base.BinaryReader {
         return values;
     }
 
+    uint64() {
+        return this._reader.uint64();
+    }
+
+    float32() {
+        return this._reader.float32();
+    }
+
     float32s(count) {
         const values = [];
         for (let i = 0; i < count; i++) {
             values.push(this.float32());
         }
         return values;
+    }
+
+    float64() {
+        return this._reader.float64();
     }
 
     float64s(count) {
@@ -665,6 +704,23 @@ mlnet.BinaryReader = class extends base.BinaryReader {
             shift += 7;
         } while ((value & 0x80) !== 0);
         return result;
+    }
+
+    match(text) {
+        const position = this.position;
+        for (let i = 0; i < text.length; i++) {
+            if (this.byte() !== text.charCodeAt(i)) {
+                this.seek(position);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    assert(text) {
+        if (!this.match(text)) {
+            throw new mlnet.Error(`Invalid '${text.split('\0').join('')}' signature.`);
+        }
     }
 };
 

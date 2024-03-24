@@ -493,7 +493,7 @@ tnn.LayerResourceReader = class {
     constructor(buffer) {
         this.layerResources = [];
         if (buffer) {
-            const reader = new base.BinaryReader(buffer);
+            const reader = base.BinaryReader.open(buffer);
             const magic_number = reader.uint32();
             if (magic_number !== 0xFABC0002 && magic_number !== 0xFABC0004) {
                 throw new tnn.Error(`Invalid blob header signature '${magic_number}'.`);

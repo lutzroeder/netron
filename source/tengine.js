@@ -1,14 +1,12 @@
 
 // Experimental
 
-import * as base from './base.js';
-
 const tengine = {};
 
 tengine.ModelFactory = class {
 
     match(context) {
-        const reader = tengine.Reader.open(context.stream);
+        const reader = tengine.Reader.open(context);
         if (reader) {
             context.type = 'tengine';
             context.target = reader;
@@ -242,18 +240,19 @@ tengine.Metadata = class {
 
 tengine.Reader = class {
 
-    static open(stream) {
+    static open(context) {
+        const stream = context.stream;
         if (stream && stream.length > 4) {
             const buffer = stream.peek(2);
             if (buffer[0] < 4 && buffer[1] === 0) {
-                return new tengine.Reader(stream);
+                return new tengine.Reader(context);
             }
         }
         return null;
     }
 
-    constructor(stream) {
-        this.stream = stream;
+    constructor(context) {
+        this.context = context;
         // https://github.com/OAID/Tengine/wiki/The-format-of-tmfile
         // https://github.com/OAID/Tengine/blob/tengine-lite/source/serializer/tmfile/tm2_format.h
     }
@@ -385,8 +384,7 @@ tengine.Reader = class {
         register(101, 0, 'L2Normalization', []);
         register(102, 0, 'PackModel', ['i','i']);
         register(103, 0, 'Num', []);
-        const buffer = this.stream.peek();
-        const reader = new tengine.BinaryReader(buffer);
+        const reader = new tengine.BinaryReader(this.context.read('binary'));
         this._majorVersion = reader.uint16();
         this._minorVersion = reader.uint16();
         if (this._majorVersion !== 2) {
@@ -567,37 +565,42 @@ tengine.Reader = class {
     }
 };
 
-tengine.BinaryReader = class extends base.BinaryReader {
+tengine.BinaryReader = class {
 
-    string() {
-        const position = this.uint32();
-        let content = '';
-        if (position) {
-            const next = this._position;
-            this.seek(position);
-            const size = this.uint32();
-            this.seek(this.uint32());
-            for (let i = 0; i < size - 1; i++) {
-                content += String.fromCharCode(this._buffer[this._position++]);
-            }
-            this.seek(next);
-        }
-        return content;
+    constructor(reader) {
+        this._reader = reader;
     }
 
-    uint32s() {
-        const values = [];
-        const offset = this.uint32();
-        if (offset) {
-            const next = this.position;
-            this.seek(offset);
-            const count = this.uint32();
-            for (let i = 0; i < count; i++) {
-                values.push(this.uint32());
-            }
-            this.seek(next);
-        }
-        return values;
+    get position() {
+        return this._reader.position;
+    }
+
+    seek(offset) {
+        this._reader.seek(offset);
+    }
+
+    skip(offset) {
+        this._reader.skip(offset);
+    }
+
+    align(mod) {
+        return this._reader.align(mod);
+    }
+
+    read(length) {
+        return this._reader.read(length);
+    }
+
+    boolean() {
+        return this._reader.boolean();
+    }
+
+    byte() {
+        return this._reader.byte();
+    }
+
+    int32() {
+        return this._reader.int32();
     }
 
     int32s() {
@@ -615,6 +618,33 @@ tengine.BinaryReader = class extends base.BinaryReader {
         return values;
     }
 
+    uint16() {
+        return this._reader.uint16();
+    }
+
+    uint32() {
+        return this._reader.uint32();
+    }
+
+    uint32s() {
+        const values = [];
+        const offset = this.uint32();
+        if (offset) {
+            const next = this.position;
+            this.seek(offset);
+            const count = this.uint32();
+            for (let i = 0; i < count; i++) {
+                values.push(this.uint32());
+            }
+            this.seek(next);
+        }
+        return values;
+    }
+
+    float32() {
+        return this._reader.float32();
+    }
+
     float32s() {
         const values = [];
         const offset = this.uint32();
@@ -628,6 +658,22 @@ tengine.BinaryReader = class extends base.BinaryReader {
             this.seek(next);
         }
         return values;
+    }
+
+    string() {
+        const position = this.uint32();
+        let content = '';
+        if (position) {
+            const next = this.position;
+            this.seek(position);
+            const size = this.uint32();
+            this.seek(this.uint32());
+            for (let i = 0; i < size - 1; i++) {
+                content += String.fromCharCode(this.byte());
+            }
+            this.seek(next);
+        }
+        return content;
     }
 
     anchors(length) {

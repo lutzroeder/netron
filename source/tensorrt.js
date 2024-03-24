@@ -70,7 +70,7 @@ tensorrt.Engine = class {
         const stream = context.stream;
         if (stream && stream.length >= 24) {
             const buffer = stream.peek(Math.min(stream.length, 1024));
-            const reader = new base.BinaryReader(buffer);
+            const reader = base.BinaryReader.open(buffer);
             const match = (reader) => {
                 const buffer = reader.peek(4);
                 const signature = String.fromCharCode.apply(null, buffer);
@@ -98,10 +98,9 @@ tensorrt.Engine = class {
     }
 
     read() {
-        const stream = this.context.stream;
-        stream.skip(this.position);
-        const buffer = stream.peek(24);
-        const reader = this.context.reader;
+        const reader = this.context.read('binary');
+        reader.skip(this.position);
+        const buffer = reader.peek(24);
         delete this.context;
         delete this.position;
         reader.skip(4);
@@ -142,7 +141,7 @@ tensorrt.Container = class {
         if (stream) {
             const buffer = stream.peek(Math.min(512, stream.length));
             if (buffer.length > 12 && buffer[6] === 0x00 && buffer[7] === 0x00) {
-                const reader = new base.BinaryReader(buffer);
+                const reader = base.BinaryReader.open(buffer);
                 const length = reader.uint64().toNumber();
                 if (length === stream.length) {
                     let position = reader.position + reader.uint32();
@@ -177,13 +176,25 @@ tensorrt.Container = class {
     }
 };
 
-tensorrt.BinaryReader = class extends base.BinaryReader {
+tensorrt.BinaryReader = class {
+
+    constructor(reader) {
+        this._reader = reader;
+    }
+
+    get position() {
+        return this._reader.position;
+    }
+
+    uint64() {
+        return this._reader.uint64();
+    }
 
     string() {
-        const length = Number(this.uint64());
-        const position = this._position;
+        const length = this.uint64().toNumber();
+        const position = this.position;
         this.skip(length);
-        const data = this._buffer.subarray(position, this._position);
+        const data = this._buffer.subarray(position, this.position);
         this._decoder = this._decoder || new TextDecoder('utf-8');
         return this._decoder.decode(data);
     }

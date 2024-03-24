@@ -1,5 +1,4 @@
 
-import * as base from './base.js';
 import * as json from './json.js';
 
 const mxnet = {};
@@ -198,8 +197,8 @@ mxnet.ModelFactory = class {
                     if (file) {
                         try {
                             const content = await context.fetch(file);
-                            const buffer = content.stream.peek();
-                            return createModel(metadata, manifest, symbol, buffer);
+                            const reader = content.read('binary');
+                            return createModel(metadata, manifest, symbol, reader);
                         } catch (error) {
                             return createModel(metadata, manifest, symbol, null);
                         }
@@ -210,8 +209,7 @@ mxnet.ModelFactory = class {
                 return requestParams(manifest);
             }
             case 'mxnet.params': {
-                const stream = context.stream;
-                const params = stream.peek();
+                const params = context.read('binary');
                 const requestSymbol = async (manifest) => {
                     const name = basename(manifest.symbol, identifier, '.params', null, '-symbol.json');
                     if (name) {
@@ -822,24 +820,26 @@ mxnet.TensorShape = class {
 
 mxnet.ndarray = class {
 
-    static load(buffer) {
+    static load(reader) {
         // NDArray::Load(dmlc::Stream* fi, std::vector<NDArray>* data, std::vector<std::string>* keys)
         const map = new Map();
-        const reader = new mxnet.BinaryReader(buffer);
-        if (reader.uint64() !== 0x112) { // kMXAPINDArrayListMagic
+        reader = new mxnet.BinaryReader(reader);
+        if (reader.uint64().toNumber() !== 0x112) { // kMXAPINDArrayListMagic
             throw new mxnet.Error('Invalid signature.');
         }
-        if (reader.uint64() !== 0) {
+        if (reader.uint64().toNumber() !== 0) {
             throw new mxnet.Error('Invalid reserved block.');
         }
-        const data = new Array(reader.uint64());
+        const data = new Array(reader.uint64().toNumber());
         for (let i = 0; i < data.length; i++) {
             data[i] = new mxnet.ndarray.NDArray(reader);
         }
         const decoder = new TextDecoder('ascii');
-        const names = new Array(reader.uint64());
+        const names = new Array(reader.uint64().toNumber());
         for (let i = 0; i < names.length; i++) {
-            names[i] = decoder.decode(reader.read(reader.uint64()));
+            const size = reader.uint64().toNumber();
+            const buffer = reader.read(size);
+            names[i] = decoder.decode(buffer);
         }
         if (names.length !== data.length) {
             throw new mxnet.Error('Label count mismatch.');
@@ -914,7 +914,23 @@ mxnet.ndarray.NDArray = class {
     }
 };
 
-mxnet.BinaryReader = class extends base.BinaryReader {
+mxnet.BinaryReader = class {
+
+    constructor(reader) {
+        this._reader = reader;
+    }
+
+    skip(offset) {
+        this._reader.skip(offset);
+    }
+
+    read(length) {
+        return this._reader.read(length);
+    }
+
+    uint32() {
+        return this._reader.uint32();
+    }
 
     uint32s() {
         const size = this.uint32();
@@ -925,11 +941,15 @@ mxnet.BinaryReader = class extends base.BinaryReader {
         return array;
     }
 
+    uint64() {
+        return this._reader.uint64();
+    }
+
     uint64s() {
         const size = this.uint32();
         const array = new Array(size);
         for (let i = 0; i < size; i++) {
-            array[i] = Number(this.uint64());
+            array[i] = this.uint64().toNumber();
         }
         return array;
     }

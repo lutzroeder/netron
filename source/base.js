@@ -323,6 +323,16 @@ base.BinaryStream = class {
 
 base.BinaryReader = class {
 
+    static open(data, littleEndian) {
+        if (data instanceof Uint8Array || data.length <= 0x20000000) {
+            return new base.BufferReader(data, littleEndian);
+        }
+        return new base.StreamReader(data, littleEndian);
+    }
+};
+
+base.BufferReader = class {
+
     constructor(data, littleEndian) {
         this._buffer = data instanceof Uint8Array ? data : data.peek();
         this._littleEndian = littleEndian !== false;
@@ -354,8 +364,9 @@ base.BinaryReader = class {
     }
 
     align(mod) {
-        if ((this._position % mod) !== 0) {
-            this.skip(mod - (this._position % mod));
+        const remainder = this.position % mod;
+        if (remainder !== 0) {
+            this.skip(mod - remainder);
         }
     }
 
@@ -475,8 +486,15 @@ base.StreamReader = class {
         this._stream.seek(position);
     }
 
-    skip(position) {
-        this._stream.skip(position);
+    skip(offset) {
+        this._stream.skip(offset);
+    }
+
+    align(mod) {
+        const remainder = this.position % mod;
+        if (remainder !== 0) {
+            this.skip(mod - remainder);
+        }
     }
 
     stream(length) {
@@ -705,6 +723,5 @@ export const Complex64 = base.Complex64;
 export const Complex128 = base.Complex128;
 export const BinaryStream = base.BinaryStream;
 export const BinaryReader = base.BinaryReader;
-export const StreamReader = base.StreamReader;
 export const Telemetry = base.Telemetry;
 export const Metadata = base.Metadata;

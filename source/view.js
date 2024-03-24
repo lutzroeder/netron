@@ -4988,10 +4988,6 @@ view.Context = class {
         return this._stream;
     }
 
-    get reader() {
-        return new base.StreamReader(this._stream);
-    }
-
     async request(file) {
         return this._context.request(file, 'utf-8', null);
     }
@@ -5260,6 +5256,12 @@ view.Context = class {
                 }
                 case 'protobuf.text': {
                     return protobuf.TextReader.open(this._stream);
+                }
+                case 'binary': {
+                    return base.BinaryReader.open(this._stream);
+                }
+                case 'binary.big-endian': {
+                    return base.BinaryReader.open(this._stream, false);
                 }
                 default: {
                     break;

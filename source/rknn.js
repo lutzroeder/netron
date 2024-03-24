@@ -514,7 +514,7 @@ rknn.Container = class extends Map {
                 case 'rknn': {
                     const uint64 = () => {
                         const buffer = stream.read(8);
-                        const reader = new base.BinaryReader(buffer);
+                        const reader = base.BinaryReader.open(buffer);
                         return reader.uint64().toNumber();
                     };
                     stream.skip(8);
@@ -595,7 +595,31 @@ rknn.Container = class extends Map {
     }
 };
 
-openvx.BinaryReader = class extends base.BinaryReader {
+openvx.BufferReader = class {
+
+    constructor(buffer) {
+        this._reader = base.BinaryReader.open(buffer);
+    }
+
+    seek(position) {
+        this._reader.seek(position);
+    }
+
+    skip(offset) {
+        this._reader.skip(offset);
+    }
+
+    read(length) {
+        return this._reader.read(length);
+    }
+
+    uint16() {
+        return this._reader.uint16();
+    }
+
+    uint32() {
+        return this._reader.uint32();
+    }
 
     string(length) {
         const buffer = this.read(length);
@@ -609,7 +633,7 @@ openvx.BinaryReader = class extends base.BinaryReader {
 openvx.Model = class {
 
     constructor(buffer) {
-        const reader = new openvx.BinaryReader(buffer);
+        const reader = new openvx.BufferReader(buffer);
         reader.skip(4); // signature
         const major = reader.uint16();
         /* const minor = */ reader.uint16();

@@ -1208,7 +1208,7 @@ coreml.Context = class {
                     if (stream) {
                         stream.seek(offset);
                         const buffer = stream.read(32);
-                        const reader = new base.BinaryReader(buffer);
+                        const reader = base.BinaryReader.open(buffer);
                         const signature = reader.uint32();
                         if (signature === 0xdeadbeef) {
                             reader.uint32(); // dataType

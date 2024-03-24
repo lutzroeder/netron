@@ -229,7 +229,7 @@ tf.ModelFactory = class {
                 stream.seek(-8);
                 const buffer = stream.read(8);
                 stream.seek(0);
-                const reader = new base.BinaryReader(buffer);
+                const reader = base.BinaryReader.open(buffer);
                 const offset = reader.uint64().toNumber();
                 if (offset < stream.length) {
                     context.type = 'tf.pb.mmap';
@@ -611,7 +611,7 @@ tf.ModelFactory = class {
             const readDirectoryOffset = (stream) => {
                 stream.seek(-8);
                 const buffer = stream.read(8);
-                const reader = new base.BinaryReader(buffer);
+                const reader = base.BinaryReader.open(buffer);
                 return reader.uint64().toNumber();
             };
             const readDirectory = (stream, offset) => {
@@ -1473,11 +1473,39 @@ tf.TensorBundle.Table.Block = class {
     }
 };
 
-tf.BinaryReader = class extends base.BinaryReader {
+tf.BinaryReader = class {
 
     constructor(buffer) {
-        super(buffer);
+        this._reader = base.BinaryReader.open(buffer);
         this._decoder = new TextDecoder('utf-8');
+    }
+
+    get length() {
+        return this._reader.length;
+    }
+
+    get position() {
+        return this._reader.position;
+    }
+
+    seek(position) {
+        this._reader.seek(position);
+    }
+
+    read(length) {
+        return this._reader.read(length);
+    }
+
+    byte() {
+        return this._reader.byte();
+    }
+
+    int32() {
+        return this._reader.int32();
+    }
+
+    uint32() {
+        return this._reader.uint32();
     }
 
     string() {

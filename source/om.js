@@ -360,7 +360,7 @@ om.Container = class {
     async read() {
         if (this.context) {
             const stream = this.context.stream;
-            const reader = new base.BinaryReader(stream);
+            const reader = base.BinaryReader.open(stream);
             reader.skip(4);
             switch (this.signature) {
                 case 'IMOD': {
@@ -432,7 +432,7 @@ om.Container = class {
                             case 5: { // DEVICE_CONFIG, SO_BINS
                                 this.devices = new Map();
                                 const decoder = new TextDecoder('ascii');
-                                const reader = new base.BinaryReader(buffer);
+                                const reader = base.BinaryReader.open(buffer);
                                 reader.uint32();
                                 for (let position = 4; position < partition.size;) {
                                     const length = reader.uint32();
@@ -733,7 +733,39 @@ svp.AttrDef = class {
     }
 };
 
-svp.BinaryReader = class extends base.BinaryReader {
+svp.BinaryReader = class {
+
+    constructor(buffer) {
+        this._reader = base.BinaryReader.open(buffer);
+    }
+
+    get length() {
+        return this._reader.length;
+    }
+
+    get position() {
+        return this._reader.position;
+    }
+
+    seek(position) {
+        this._reader.seek(position);
+    }
+
+    read(length) {
+        return this._reader.read(length);
+    }
+
+    int8() {
+        return this._reader.int8();
+    }
+
+    uint16() {
+        return this._reader.uint16();
+    }
+
+    uint32() {
+        return this._reader.uint32();
+    }
 
     value(tag, type) {
         let value;
@@ -776,7 +808,7 @@ svp.BinaryReader = class extends base.BinaryReader {
                 throw new om.Error(`Invalid 'string' tag '${tag.toString(16)}'.`);
             }
             case 'uint32[]': {
-                const reader = new base.BinaryReader(value);
+                const reader = base.BinaryReader.open(value);
                 value = [];
                 while (reader.position < reader.length) {
                     value.push(reader.uint32());
