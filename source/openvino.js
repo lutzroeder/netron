@@ -510,13 +510,13 @@ openvino.Node = class {
             const precision = blob.precision || layer.precision;
             let itemSize = undefined;
             switch (precision) {
-                case 'BOOL': case 'BOOLEAN':         itemSize = 1; break;
-                case 'I1':  case 'U1':               itemSize = 0.125; break;
-                case 'I4':  case 'U4':               itemSize = 0.5; break;
-                case 'I8':  case 'U8':               itemSize = 1; break;
-                case 'I16': case 'U16': case 'FP16': itemSize = 2; break;
-                case 'I32': case 'U32': case 'FP32': itemSize = 4; break;
-                case 'I64': case 'U64': case 'FP64': itemSize = 8; break;
+                case 'BOOL': case 'BOOLEAN':            itemSize = 1; break;
+                case 'I1':   case 'U1':                 itemSize = 0.125; break;
+                case 'I4':   case 'U4':                 itemSize = 0.5; break;
+                case 'I8':   case 'U8':  case 'F8E4M3': itemSize = 1; break;
+                case 'I16':  case 'U16': case 'FP16':   itemSize = 2; break;
+                case 'I32':  case 'U32': case 'FP32':   itemSize = 4; break;
+                case 'I64':  case 'U64': case 'FP64':   itemSize = 8; break;
                 default: throw new openvino.Error(`Unsupported data type size '${precision}'.`);
             }
             const weight = (name, precision, dimensions, data) => {
@@ -769,6 +769,7 @@ openvino.TensorType = class {
             case 'bool':    this.dataType = 'boolean'; break;
             case 'boolean': this.dataType = 'boolean'; break;
             case 'bin':     this.dataType = 'bit'; break;
+            case 'f8e4m3':  this.dataType = 'float8e4m3'; break;
             case '':        this.dataType = '?'; break;
             case null:      this.dataType = '?'; break;
             default:        throw new openvino.Error(`Unsupported precision '${JSON.stringify(precision)}'.`);
