@@ -4856,6 +4856,12 @@ python.Execution = class {
             param.backward_hooks = backward_hooks;
             return param;
         });
+        this.registerFunction('torch._utils._rebuild_parameter_v2', (data, requires_grad, backward_hooks, state) => {
+            const param = self.invoke('torch.nn.parameter.Parameter', [data, requires_grad]);
+            param.backward_hooks = backward_hooks;
+            execution.invoke('torch._utils._set_obj_state', [param, state]);
+            return param;
+        });
         this.registerFunction('torch._utils._rebuild_parameter_with_state', (data, requires_grad, backward_hooks, state) => {
             const _set_obj_state = (obj, state) => {
                 const [dict_state, slots_state] = Array.isArray(state) ? state : [state, null];
