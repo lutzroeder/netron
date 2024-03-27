@@ -610,15 +610,15 @@ tf.ModelFactory = class {
             const stream = context.stream;
             const readDirectoryOffset = (stream) => {
                 stream.seek(-8);
-                const buffer = stream.read(8);
-                const reader = base.BinaryReader.open(buffer);
+                stream = stream.stream(8);
+                const reader = base.BinaryReader.open(stream);
                 return reader.uint64().toNumber();
             };
             const readDirectory = (stream, offset) => {
                 const end = stream.position - 8;
                 stream.seek(offset);
-                const buffer = stream.read(end - offset);
-                const reader = protobuf.BinaryReader.open(buffer);
+                stream = stream.stream(end - offset);
+                const reader = protobuf.BinaryReader.open(stream);
                 return tf.proto.tensorflow.MemmappedFileSystemDirectory.decode(reader);
             };
             const offset = readDirectoryOffset(stream);
@@ -1434,7 +1434,7 @@ tf.TensorBundle.Table.Block = class {
         this.entries = new Map();
         stream.seek(offset);
         const buffer = stream.read(size); // blockContents
-        const compression = stream.byte();
+        const [compression] = stream.read(1);
         stream.skip(4); // crc32
         let reader = new tf.BinaryReader(buffer);
         switch (compression) {

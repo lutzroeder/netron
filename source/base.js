@@ -313,12 +313,6 @@ base.BinaryStream = class {
         this.skip(length !== undefined ? length : this._length - this._position);
         return this._buffer.subarray(position, this._position);
     }
-
-    byte() {
-        const position = this._position;
-        this.skip(1);
-        return this._buffer[position];
-    }
 };
 
 base.BinaryReader = class {
@@ -501,12 +495,22 @@ base.StreamReader = class {
         return this._stream.stream(length);
     }
 
+    peek(length) {
+        return this._stream.peek(length).slice(0);
+    }
+
     read(length) {
-        return this._stream.read(length);
+        return this._stream.read(length).slice(0);
     }
 
     byte() {
-        return this._stream.byte();
+        return this._stream.read(1)[0];
+    }
+
+    int8() {
+        const buffer = this._stream.read(1);
+        this._buffer.set(buffer, 0);
+        return this._view.getInt8(0);
     }
 
     int16() {
@@ -519,6 +523,12 @@ base.StreamReader = class {
         const buffer = this._stream.read(4);
         this._buffer.set(buffer, 0);
         return this._view.getInt32(0, this._littleEndian);
+    }
+
+    int64() {
+        const buffer = this._stream.read(8);
+        this._buffer.set(buffer, 0);
+        return this._view.getBigInt64(0, this._littleEndian);
     }
 
     uint16() {
@@ -543,6 +553,16 @@ base.StreamReader = class {
         const buffer = this._stream.read(4);
         this._buffer.set(buffer, 0);
         return this._view.getFloat32(0, this._littleEndian);
+    }
+
+    float64() {
+        const buffer = this._stream.read(8);
+        this._buffer.set(buffer, 0);
+        return this._view.getFloat64(0, this._littleEndian);
+    }
+
+    boolean() {
+        return this.byte() !== 0 ? true : false;
     }
 };
 

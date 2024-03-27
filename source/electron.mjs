@@ -650,11 +650,6 @@ host.ElectronHost.FileStream = class {
         return buffer;
     }
 
-    byte() {
-        const position = this._fill(1);
-        return this._buffer[position];
-    }
-
     _fill(length) {
         if (this._position + length > this._length) {
             const offset = this._position + length - this._length;

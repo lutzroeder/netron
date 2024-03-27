@@ -725,11 +725,6 @@ host.BrowserHost.FileStream = class {
         return buffer;
     }
 
-    byte() {
-        const position = this._fill(1);
-        return this._buffer[position];
-    }
-
     _fill(length) {
         if (this._position + length > this._length) {
             throw new Error(`Expected ${this._position + length - this._length} more bytes. The file might be corrupted. Unexpected end of file.`);

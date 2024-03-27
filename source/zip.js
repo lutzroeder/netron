@@ -649,12 +649,6 @@ zip.InflaterStream = class {
         return new zip.BinaryReader(buffer);
     }
 
-    byte() {
-        const position = this._position;
-        this.skip(1);
-        return this._buffer[position];
-    }
-
     _inflate() {
         if (this._buffer === undefined) {
             const position = this._stream.position;
@@ -701,10 +695,6 @@ zip.ErrorStream = class {
     }
 
     stream(/* length */) {
-        this._throw();
-    }
-
-    byte() {
         this._throw();
     }
 
@@ -818,15 +808,22 @@ gzip.Archive = class {
 
     constructor(stream) {
         const position = stream.position;
-        const signature = [0x1f, 0x8b];
-        if (stream.position + 2 > stream.length ||
-            !stream.read(2).every((value, index) => value === signature[index])) {
-            throw new gzip.Error('Invalid gzip signature.');
+        if (stream.position + 10 > stream.length) {
+            throw new gzip.Error('Invalid Gzip header size.');
         }
+        const header = stream.peek(10);
+        if (header[0] !== 0x1f || header[1] !== 0x8b) {
+            throw new gzip.Error('Invalid Gzip signature.');
+        }
+        if (header[2] !== 8) {
+            stream.seek(position);
+            throw new gzip.Error(`Invalid compression method '${header[2]}'.`);
+        }
+        stream.skip(10);
         const string = () => {
             let content = '';
             while (stream.position < stream.length) {
-                const value = stream.byte();
+                const [value] = stream.read(1);
                 if (value === 0x00) {
                     break;
                 }
@@ -834,28 +831,24 @@ gzip.Archive = class {
             }
             return content;
         };
-        const reader = new zip.BinaryReader(stream.read(8));
-        const compression = reader.byte();
-        if (compression !== 8) {
-            stream.seek(position);
-            throw new gzip.Error(`Invalid compression method '${compression}'.`);
-        }
-        const flags = reader.byte();
-        reader.uint32(); // MTIME
-        reader.byte(); // XFL
-        reader.byte(); // OS
-        if ((flags & 4) !== 0) { // FEXTRA
-            const xlen = stream.byte() | (stream.byte() << 8);
+        const fhcrc = header[3] & 1;
+        const fextra = header[3] & 4;
+        const fname = header[3] & 8;
+        const fcomment = header[3] & 16;
+        if (fextra) {
+            const buffer = stream.read(2);
+            const xlen = buffer[0] | (buffer[1] << 8);
             stream.skip(xlen);
         }
-        const name = (flags & 8) !== 0 ? string() : ''; // FNAME
-        if ((flags & 16) !== 0) { // FCOMMENT
+        const name = fname ? string() : '';
+        if (fcomment) {
             string();
         }
-        if ((flags & 1) !== 0) { // FHCRC
+        if (fhcrc) {
             stream.skip(2);
         }
-        this._entries = new Map([[name, new gzip.InflaterStream(stream)]]);
+        this._entries = new Map();
+        this._entries.set(name, new gzip.InflaterStream(stream));
         stream.seek(position);
     }
 
@@ -920,12 +913,6 @@ gzip.InflaterStream = class {
             return this._buffer;
         }
         return this._buffer.subarray(position, this._position);
-    }
-
-    byte() {
-        const position = this._position;
-        this.skip(1);
-        return this._buffer[position];
     }
 
     _inflate() {
