@@ -1591,7 +1591,7 @@ dagre.layout = (graph, layout) => {
                             }
                             const label = g.node(v).label;
                             if (min !== Number.POSITIVE_INFINITY && label.borderType !== borderType) {
-                                xs[v] = Math.max(xs[v], min);
+                                xs[v] = Math.min(xs[v], min);
                             }
                         } else {
                             visited.add(v);
@@ -1740,7 +1740,7 @@ dagre.layout = (graph, layout) => {
                 for (const [v, x] of Object.entries(xs)) {
                     const halfWidth = g.node(v).label.width / 2;
                     max = Math.max(x + halfWidth, max);
-                    min = Math.min(x - halfWidth, min);
+                    min = Math.min(Math.max(0, x - halfWidth), min);
                 }
                 const width = max - min;
                 if (width < minWidth) {
