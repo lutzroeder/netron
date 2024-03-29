@@ -329,14 +329,25 @@ flatbuffers.StreamReader = class extends flatbuffers.BinaryReader {
 
     constructor(stream) {
         super();
-        this.length = stream.length;
+        this._length = stream.length;
         this._stream = stream;
-        this._fill(0, Math.min(0x100000, stream.length));
+        this._size = 0x10000000;
+        this._offset = 0;
+        this._window = Math.min(0x1000, stream.length);
+        const buffer = this._stream.peek(this._window);
+        this._buffer = buffer;
+        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        this._chunk = -1;
+    }
+
+    get length() {
+        return this._length;
     }
 
     read(offset, length) {
-        this._stream.seek(offset);
-        return this._stream.read(length);
+        const buffer = new Uint8Array(length);
+        this._read(buffer, offset);
+        return buffer;
     }
 
     uint8(offset) {
@@ -388,14 +399,51 @@ flatbuffers.StreamReader = class extends flatbuffers.BinaryReader {
         if (offset + length > this._length) {
             throw new Error(`Expected ${offset + length - this._length} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
-        if (!this._buffer || offset < this._offset || offset + length > this._offset + this._buffer.length) {
-            this._offset = offset;
-            this._stream.seek(this._offset);
-            const size = Math.min(0x10000000, this.length - this._offset);
-            this._buffer = this._stream.read(size);
-            this._view = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
+        if (offset < this._offset || offset + length > this._offset + this._window) {
+            const remainder = offset % this. _size;
+            const last = this._last;
+            if (this._chunk !== -1) {
+                this._last = [this._chunk, this._buffer, this._view];
+            }
+            if (remainder + length > this._size) {
+                const buffer = new Uint8Array(length);
+                this._read(buffer, length);
+                this._chunk = -1;
+                this._offset = offset;
+                this._window = length;
+                this._buffer = buffer;
+                this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+            } else {
+                const chunk = Math.floor(offset / this._size);
+                this._offset = chunk * this._size;
+                this._window = Math.min(this._length - this._offset, this._size);
+                if (last && last[0] === chunk) {
+                    [this._chunk, this._buffer, this._view] = last;
+                } else {
+                    this._chunk = chunk;
+                    this._stream.seek(this._offset);
+                    const buffer = this._stream.read(this._window);
+                    this._buffer = buffer;
+                    this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                    this._stream.seek(0);
+                }
+            }
         }
         return offset - this._offset;
+    }
+
+    _read(buffer, offset) {
+        const length = buffer.length;
+        if (offset < this._offset || offset + length > this._offset + this._window) {
+            this._stream.seek(offset);
+            const data = this._stream.read(length);
+            buffer.set(data, 0);
+            this._stream.seek(0);
+        } else {
+            offset -= this._offset;
+            const data = this._buffer.subarray(offset, offset + length);
+            buffer.set(data, 0);
+        }
     }
 };
 
