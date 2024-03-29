@@ -65369,13 +65369,14 @@
     "inputs": [
       {
         "name": "input",
-        "description": "Input tensor to split across all dimensions.\n  }\n  out_arg {\n    name: \"outputs\"\n    description: <<END\nOutput slices based on input and num_splits defined, in row-major order.",
+        "description": "Input tensor to split across all dimensions.",
         "typeAttr": "T"
       }
     ],
     "outputs": [
       {
         "name": "outputs",
+        "description": "Output slices based on input and num_splits defined, in row-major order.",
         "numberAttr": "N",
         "typeAttr": "T"
       }
