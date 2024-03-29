@@ -359,6 +359,7 @@
   },
   {
     "name": "LeakyRelu",
+    "category": "Activation",
     "attributes": [
       { "name": "alpha", "type": "float32", "default": 0 }
     ]
