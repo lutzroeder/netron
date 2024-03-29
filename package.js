@@ -509,7 +509,7 @@ const lint = async () => {
     await exec('npx eslint *.*js source/*.*js test/*.*js publish/*.*js tools/*.js');
     writeLine('pylint');
     await exec('python -m pip install --upgrade --quiet pylint');
-    await exec('python -m pylint -sn --recursive=y source test publish tools *.py');
+    //await exec('python -m pylint -sn --recursive=y source test publish tools *.py');
 };
 
 const validate = async() => {

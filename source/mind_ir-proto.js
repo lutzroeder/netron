@@ -1,4 +1,4 @@
-var $root = protobuf.get('mind_ir');
+const $root = protobuf.get('mind_ir');
 
 $root.mind_ir = {};
 
