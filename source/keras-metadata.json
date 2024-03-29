@@ -1910,7 +1910,7 @@
     "attributes": [
       {
         "default": false,
-        "description": "Boolean, whether or not the input value 0 is a special\n        \"padding\" value that should be masked out.\n        This is useful when using recurrent layers which\n        may take variable length input. If this is `True`,\n        then all subsequent layers in the model need\n        to support masking or an exception will be raised.\n        If mask_zero is set to True, as a consequence,\n        index 0 cannot be used in the vocabulary (input_dim should\n        equal size of vocabulary + 1).",
+        "description": "Boolean, whether or not the input value 0 is a special\n        \"padding\" value that should be masked out.\n        This is useful when using recurrent layers which\n        may take variable length input. If this is `True`,\n        then all subsequent layers in the model need\n        to support masking or an exception will be raised.\n        If `mask_zero` is set to `True`, as a consequence,\n        index 0 cannot be used in the vocabulary (`input_dim` should\n        equal size of vocabulary + 1).",
         "name": "mask_zero"
       },
       {
