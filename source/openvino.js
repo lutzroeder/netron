@@ -35,7 +35,14 @@ openvino.ModelFactory = class {
             if (identifiers.has(identifier)) {
                 return;
             }
-            context.type = 'openvino.bin';
+            const size = Math.min(stream.length, 1024) & 0xFFFC;
+            const buffer = stream.peek(size);
+            const array = new Float32Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+            const values = Array.from(array);
+            if (values.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -10.0 && value < 10.0)) {
+                context.type = 'openvino.bin';
+                return;
+            }
             return;
         }
         const tags = context.tags('xml');
