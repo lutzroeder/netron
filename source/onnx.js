@@ -1173,7 +1173,7 @@ onnx.Context.Graph = class {
                     } else if (attribute.g !== undefined) {
                         attribute.type = onnx.AttributeType.GRAPH;
                     } else if (attribute.sparse_tensor !== undefined) {
-                        attribute.type =onnx.AttributeType.SPARSE_TENSOR;
+                        attribute.type = onnx.AttributeType.SPARSE_TENSOR;
                     } else {
                         attribute.type = onnx.AttributeType.UNDEFINED;
                     }

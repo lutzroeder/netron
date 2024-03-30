@@ -2536,7 +2536,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                         metadata.name = type;
                         metadata.inputs = [];
                         metadata.outputs = [];
-                        for (let i = 0; i< args.length; i++) {
+                        for (let i = 0; i < args.length; i++) {
                             const input = {};
                             let argument = args[i];
                             input.name = i.toString();
@@ -3901,7 +3901,7 @@ pytorch.nnapi.SerializedModel = class {
             };
         }
         for (const operand of operands) {
-            for (let i = 0; i< operand.dimensions.length; i++) {
+            for (let i = 0; i < operand.dimensions.length; i++) {
                 operand.dimensions[i] = reader.uint32();
             }
         }
@@ -3953,20 +3953,20 @@ pytorch.nnapi.SerializedModel = class {
             }
         }
         for (const operation of this.operations) {
-            for (let i = 0; i< operation.inputs.length; i++) {
+            for (let i = 0; i < operation.inputs.length; i++) {
                 const index = reader.uint32();
                 operation.inputs[i] = operands[index];
             }
-            for (let i = 0; i< operation.outputs.length; i++) {
+            for (let i = 0; i < operation.outputs.length; i++) {
                 const index = reader.uint32();
                 operation.outputs[i] = operands[index];
             }
         }
-        for (let i = 0; i< this.inputs.length; i++) {
+        for (let i = 0; i < this.inputs.length; i++) {
             const index = reader.uint32();
             this.inputs[i] = operands[index];
         }
-        for (let i = 0; i< this.outputs.length; i++) {
+        for (let i = 0; i < this.outputs.length; i++) {
             const index = reader.uint32();
             this.outputs[i] = operands[index];
         }

@@ -2849,7 +2849,7 @@ python.Execution = class {
                             stack = marker.pop();
                             break;
                         case 50: // DUP '2'
-                            stack.push(stack[stack.length-1]);
+                            stack.push(stack[stack.length - 1]);
                             break;
                         case 80: // PERSID 'P'
                             stack.push(this.persistent_load(reader.line()));
@@ -3037,7 +3037,7 @@ python.Execution = class {
                             break;
                         case 97: { // APPEND 'a'
                             const append = stack.pop();
-                            stack[stack.length-1].push(append);
+                            stack[stack.length - 1].push(append);
                             break;
                         }
                         case 101: { // APPENDS 'e'
@@ -4715,7 +4715,7 @@ python.Execution = class {
             params.weight = weight;
             params.bias = bias;
             params.stride = stride;
-            params.padding =padding;
+            params.padding = padding;
             params.dilation = dilation;
             params.groups = groups;
             return params;
@@ -4725,7 +4725,7 @@ python.Execution = class {
             params.weight = weight;
             params.bias = bias;
             params.stride = stride;
-            params.padding =padding;
+            params.padding = padding;
             params.dilation = dilation;
             params.groups = groups;
             return params;
@@ -4735,7 +4735,7 @@ python.Execution = class {
             params.weight = weight;
             params.bias = bias;
             params.stride = stride;
-            params.padding =padding;
+            params.padding = padding;
             params.dilation = dilation;
             params.groups = groups;
             return params;
@@ -4745,7 +4745,7 @@ python.Execution = class {
             params.weight = weight;
             params.bias = bias;
             params.stride = stride;
-            params.padding =padding;
+            params.padding = padding;
             params.dilation = dilation;
             params.groups = groups;
             return params;
@@ -4755,7 +4755,7 @@ python.Execution = class {
             params.weight = weight;
             params.bias = bias;
             params.stride = stride;
-            params.padding =padding;
+            params.padding = padding;
             params.output_padding = output_padding;
             params.dilation = dilation;
             params.groups = groups;
@@ -4766,7 +4766,7 @@ python.Execution = class {
             params.weight = weight;
             params.bias = bias;
             params.stride = stride;
-            params.padding =padding;
+            params.padding = padding;
             params.output_padding = output_padding;
             params.dilation = dilation;
             params.groups = groups;
@@ -6269,7 +6269,7 @@ python.Execution = class {
             }
             _set_from_file(unpickler) {
                 const buffer = unpickler.read(8);
-                const size = buffer.reverse().reduce((a, b) => (a*256)+b, 0);
+                const size = buffer.reverse().reduce((a, b) => (a * 256) + b, 0);
                 if (size !== this.size()) {
                     throw new python.Error('Storage size mismatch.');
                 }
@@ -6329,7 +6329,7 @@ python.Execution = class {
             }
             _set_from_file(unpickler) {
                 const buffer = unpickler.read(8);
-                const size = buffer.reverse().reduce((a, b) => (a*256)+b, 0);
+                const size = buffer.reverse().reduce((a, b) => (a * 256) + b, 0);
                 if (size !== this.size()) {
                     throw new python.Error('Storage size mismatch.');
                 }
@@ -6339,7 +6339,7 @@ python.Execution = class {
             }
             static _new_with_file(unpickler) {
                 const buffer = unpickler.read(8);
-                const size = buffer.reverse().reduce((a, b) => (a*256)+b, 0);
+                const size = buffer.reverse().reduce((a, b) => (a * 256) + b, 0);
                 const storage = new this(size);
                 const itemsize = storage.dtype.itemsize();
                 const data = unpickler.stream(itemsize * size);

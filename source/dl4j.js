@@ -67,7 +67,7 @@ dl4j.Graph = class {
 
     constructor(metadata, configuration, coefficients) {
         this.inputs = [];
-        this.outputs =[];
+        this.outputs = [];
         this.nodes = [];
         coefficients = coefficients ? new dl4j.NDArray(coefficients) : null;
         const dataType = coefficients ? coefficients.dataType : '?';

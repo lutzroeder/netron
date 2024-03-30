@@ -492,7 +492,7 @@ megengine.Node = class {
         if (this.type.name.length > 4 && this.type.name.startsWith('__') && this.type.name.endsWith('__')) {
             this.type.name = this.type.name.substring(2, this.type.name.length - 2);
         }
-        this.type.category = this.type.category? this.type.category: metadata.type(item.type.replace(/V(\d+)$/, '')).category;
+        this.type.category = this.type.category ? this.type.category : metadata.type(item.type.replace(/V(\d+)$/, '')).category;
         this.inputs = [];
         this.outputs = [];
         this.chain = [];

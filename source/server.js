@@ -127,7 +127,7 @@ message.Argument = class {
 message.Value = class {
 
     constructor(data) {
-        this._name= data.name || '';
+        this._name = data.name || '';
         this._type = data.type ? new message.TensorType(data.type) : null;
         this._initializer = data.initializer ? new message.Tensor(data.initializer) : null;
     }

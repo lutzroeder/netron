@@ -2229,7 +2229,7 @@ tf.JsonReader = class {
                 message.list = tf.JsonReader.decodeAttrValueListValue(json.list);
                 break;
             case 'func':
-                message[key]= value;
+                message[key] = value;
                 break;
             default:
                 throw new tf.Error(`Unsupported JSON 'tensorflow.AttrValue.${key}'.`);

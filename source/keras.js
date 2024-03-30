@@ -667,7 +667,7 @@ keras.Graph = class {
                                     const [dim] = dims;
                                     for (let i = 1; i < dims.length; i++) {
                                         if (dim.length === dims[i].length) {
-                                            if (!dims[i].every((value, i) => value ===dim[i])) {
+                                            if (!dims[i].every((value, i) => value === dim[i])) {
                                                 throw new python.Error('Invalid array shape.');
                                             }
                                         }
@@ -924,7 +924,7 @@ keras.Value = class {
         if (typeof name !== 'string') {
             throw new keras.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
-        this.name= name;
+        this.name = name;
         this.type = !type && initializer ? initializer.type  : type;
         this.quantization = initializer && initializer.quantization ? initializer.quantization : null;
         this.initializer = initializer || null;

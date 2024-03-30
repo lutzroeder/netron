@@ -482,8 +482,8 @@ view.View = class {
         const touchMoveHandler = (e) => {
             if (Array.isArray(this._touchPoints) && this._touchPoints.length === 2 && e.touches.length === 2) {
                 const distance = (points) => {
-                    const dx =(points[1].clientX - points[0].clientX);
-                    const dy =(points[1].clientY - points[0].clientY);
+                    const dx = (points[1].clientX - points[0].clientX);
+                    const dy = (points[1].clientY - points[0].clientY);
                     return Math.sqrt(dx * dx + dy * dy);
                 };
                 const d1 = distance(Array.from(e.touches));
@@ -2380,7 +2380,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             const type = node.type;
             const item = this.addProperty('type', node.type.identifier || node.type.name);
             if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
-                item.action(type.nodes ? '\u0192': '?', () => {
+                item.action(type.nodes ? '\u0192' : '?', () => {
                     this.emit('show-documentation', null);
                 });
             }
@@ -5699,7 +5699,7 @@ view.ModelFactoryService = class {
                 stream.seek(0);
                 const buffer = stream.peek(Math.min(16, stream.length));
                 const bytes = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                const content = stream.length > 268435456 ? `(${bytes}) [${stream.length}]`: `(${bytes})`;
+                const content = stream.length > 268435456 ? `(${bytes}) [${stream.length}]` : `(${bytes})`;
                 throw new view.Error(`Unsupported file content ${content} for extension '.${extension}'.`);
             }
             throw new view.Error("Unsupported file directory.");

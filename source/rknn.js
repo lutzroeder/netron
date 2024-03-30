@@ -274,7 +274,7 @@ rknn.Node = class {
                     const buffer = container.get('openvx');
                     const model = new openvx.Model(buffer);
                     this._type = new rknn.Graph(metadata, 'openvx', 'NBG', model, null);
-                } else if (node.op === 'RKNN_OP_NNBG'&& container && container.has('flatbuffers')) {
+                } else if (node.op === 'RKNN_OP_NNBG' && container && container.has('flatbuffers')) {
                     const buffer = container.get('flatbuffers');
                     const reader = flatbuffers.BinaryReader.open(buffer);
                     const model = rknn.schema.Model.create(reader);

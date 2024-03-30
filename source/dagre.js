@@ -1077,7 +1077,7 @@ dagre.layout = (graph, layout) => {
                 };
                 const node = g.node(v);
                 const bl = node && node.label ? node.label.borderLeft : undefined;
-                const br = node && node.label ? node.label.borderRight: undefined;
+                const br = node && node.label ? node.label.borderRight : undefined;
                 const subgraphs = {};
                 const movable = bl ? g.children(v).filter((w) => w !== bl && w !== br) : g.children(v);
                 const barycenters = barycenter(g, movable);

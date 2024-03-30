@@ -119,7 +119,7 @@ class Queue extends Array {
         for (const target of targets) {
             target.targets = target.target.split(',');
             target.name = target.type ? `${target.type}/${target.targets[0]}` : target.targets[0];
-            target.tags = target.tags? target.tags.split(',') : [];
+            target.tags = target.tags ? target.tags.split(',') : [];
         }
         if (patterns.length > 0) {
             const tags = new Set();
