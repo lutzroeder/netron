@@ -346,15 +346,18 @@ onnx.Value = class {
 onnx.Node = class {
 
     constructor(context, node, inputs, outputs) {
-        const op_type = node.op_type;
         const domain = node.domain || 'ai.onnx';
+        const op_type = node.op_type;
+        const overload = node.overload || '';
         const attributes = node.attribute || [];
         const metadata_props = node.metadata_props || [];
-        this.type = context.type(op_type, domain) || { name: op_type, module: domain };
-        if (this.type.module !== domain && !(this.type instanceof onnx.Function)) {
+        this.type = context.type(domain, op_type, overload);
+        if (!this.type || (this.type.module !== domain && !(this.type instanceof onnx.Function))) {
             this.type = Object.assign({}, this.type);
             this.type.name = op_type;
             this.type.module = domain;
+            this.type.overload = overload;
+            this.type.identifier = overload ? `${op_type}:${overload}` : `${op_type}`;
         }
         this.name = node.name || '';
         this.description = node.doc_string || '';
@@ -377,7 +380,7 @@ onnx.Node = class {
                         type = 'float32';
                         break;
                     case onnx.AttributeType.INT:
-                        value = attribute.i;
+                        value = BigInt(attribute.i);
                         type = 'int64';
                         break;
                     case onnx.AttributeType.STRING:
@@ -397,7 +400,7 @@ onnx.Node = class {
                         type = 'float32[]';
                         break;
                     case onnx.AttributeType.INTS:
-                        value = ArrayBuffer.isView(attribute.ints) ? Array.from(attribute.ints) : attribute.ints;
+                        value = ArrayBuffer.isView(attribute.ints) ? Array.from(attribute.ints) : attribute.ints.map((value) => BigInt(value));
                         type = 'int64[]';
                         break;
                     case onnx.AttributeType.STRINGS:
@@ -431,10 +434,13 @@ onnx.Node = class {
                     default:
                         throw new onnx.Error(`Unsupported attribute type '${attribute.type}'.`);
                 }
-                const metadata = context.attribute(op_type, domain, attribute.name);
+                const metadata = context.attribute(domain, op_type, overload, attribute.name);
                 if (metadata) {
-                    if (Object.prototype.hasOwnProperty.call(metadata, 'default') && value === metadata.default) {
-                        visible = false;
+                    if (metadata.default !== undefined) {
+                        const defaultValue = type === 'int64' ? BigInt(metadata.default) : metadata.default;
+                        if (value === defaultValue) {
+                            visible = false;
+                        }
                     }
                     if (metadata.type === 'DataType') {
                         type = metadata.type;
@@ -442,7 +448,6 @@ onnx.Node = class {
                     }
                 }
             }
-            // (context, op_type, domain, attribute)
             return new onnx.Argument(name, value, type, attribute.doc_string, visible);
         });
         this.metadata = metadata_props.map((metadata) => {
@@ -833,63 +838,34 @@ onnx.OptionalType = class {
 onnx.Function = class {
 
     constructor(context, func) {
-        this._name = func.name;
-        this._domain = func.domain;
-        this._description = func.doc_string;
-        this._inputs = [];
-        this._outputs = [];
-        this._attributes = func.attribute.map((attribtue) => {
+        this.type = 'function';
+        this.name = func.name;
+        this.module = func.domain;
+        this.overload = func.overload || '';
+        this.identifier = this.overload ? `${this.name}:${this.overload}` : this.name;
+        this.description = func.doc_string;
+        this.inputs = [];
+        this.outputs = [];
+        this.attributes = func.attribute.map((attribtue) => {
             return { name: attribtue };
         });
         context = new onnx.Context.Graph(context, func);
         func.input = func.input.map((input) => context.tensor(input));
         func.output = func.output.map((output) => context.tensor(output));
         context.push(func.node, func.input, func.output);
-        this._nodes = context.pop();
+        this.nodes = context.pop();
         for (const input of func.input) {
             const value = context.value(input.name);
             if (!value.initializer) {
-                this._inputs.push(new onnx.Argument(input.name, [value]));
+                this.inputs.push(new onnx.Argument(input.name, [value]));
             }
         }
         for (const output of func.output) {
             const value = context.value(output.name);
             if (!value.initializer) {
-                this._outputs.push(new onnx.Argument(output.name, [value]));
+                this.outputs.push(new onnx.Argument(output.name, [value]));
             }
         }
-    }
-
-    get type() {
-        return 'function';
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get module() {
-        return this._domain;
-    }
-
-    get description() {
-        return this._description;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-
-    get nodes() {
-        return this._nodes;
     }
 };
 
@@ -902,18 +878,18 @@ onnx.Context.Model = class {
         this._locations = locations;
         this._imageFormat = imageFormat;
         this._imports = imports;
-        this._cache = new Map();
+        this._types = new Map();
         this._attributes = new Map();
         this._functions = new Map();
         for (const func of functions || []) {
-            if (!this._functions.has(func.domain)) {
-                this._functions.set(func.domain, new Map());
+            const domain = func.domain;
+            const name = func.name;
+            const overload = func.overload;
+            const key = overload ? `${domain}:${name}:${overload}` : `${domain}:${name}`;
+            if (this._functions.has(key)) {
+                throw new onnx.Error(`Duplicate function identifier '${key}'.`);
             }
-            const module = this._functions.get(func.domain);
-            if (module.has(func.name)) {
-                throw new onnx.Error(`Duplicate function identifier '${func.domain}.${func.name}'.`);
-            }
-            module.set(func.name, func);
+            this._functions.set(key, func);
         }
     }
 
@@ -943,36 +919,34 @@ onnx.Context.Model = class {
         return null;
     }
 
-    type(name, domain) {
-        const key = `${domain}:${name}`;
-        if (!this._cache.has(key)) {
-            let value = this._metadata.type(name, domain, this._imports);
-            if (!value) {
-                if (this._functions.has(domain)) {
-                    const module = this._functions.get(domain);
-                    if (module.has(name)) {
-                        value = module.get(name);
-                        if (value.domain !== undefined) {
-                            value = new onnx.Function(this, value);
-                            module.set(name, value);
-                        }
-
-                    }
+    type(domain, name, overload) {
+        const key = overload ? `${domain}:${name}:${overload}` : `${domain}:${name}`;
+        if (!this._types.has(key)) {
+            let value = null;
+            if (this._functions.has(key)) {
+                value = this._functions.get(key);
+                if (value.domain !== undefined) {
+                    value = new onnx.Function(this, value);
+                    this._functions.set(key, value);
                 }
             }
-            this._cache.set(key, value);
+            if (!value) {
+                value = this._metadata.type(domain, name, this._imports);
+            }
+            this._types.set(key, value);
         }
-        return this._cache.get(key);
+        return this._types.get(key);
     }
 
-    attribute(type, domain, name) {
-        const key = `${domain}:${type}:${name}`;
+    attribute(domain, type, overload, name) {
+        const key = overload ? `${domain}:${type}:${overload}::${name}` : `${domain}:${type}::${name}`;
         if (!this._attributes.has(key)) {
             this._attributes.set(key, null);
-            const metadata = this.type(type, domain);
+            const metadata = this.type(domain, type);
             if (metadata && Array.isArray(metadata.attributes) && metadata.attributes.length > 0) {
                 for (const attribute of metadata.attributes) {
-                    const key = `${domain}:${type}:${attribute.name}`;
+                    const name = attribute.name;
+                    const key = overload ? `${domain}:${type}:${overload}::${name}` : `${domain}:${type}::${name}`;
                     this._attributes.set(key, attribute);
                 }
             }
@@ -1014,7 +988,7 @@ onnx.Metadata = class {
         }
     }
 
-    type(name, domain, imports) {
+    type(domain, name, imports) {
         domain = domain || 'ai.onnx';
         let current = null;
         if (this._types.has(domain)) {
@@ -1182,12 +1156,12 @@ onnx.Context.Graph = class {
         }
     }
 
-    type(name, domain) {
-        return this._context.type(name, domain);
+    type(domain, name, overload) {
+        return this._context.type(domain, name, overload);
     }
 
-    attribute(type, domain, name) {
-        return this._context.type(type, domain, name);
+    attribute(domain, type, overload, name) {
+        return this._context.attribute(domain, type, overload, name);
     }
 
     graph(value) {
@@ -1354,7 +1328,9 @@ onnx.Context.Graph = class {
         });
         for (let node of nodes) {
             const domain = node.domain || 'ai.onnx';
-            const type = this._context.type(node.op_type, domain);
+            const op_type = node.op_type;
+            const overload = node.overload || '';
+            const type = this._context.type(domain, op_type, overload);
             const inputs = [];
             node.input = node.input || [];
             for (let i = 0; i < node.input.length;) {
@@ -2205,6 +2181,9 @@ onnx.TextReader = class {
         }
         node.domain = domain;
         node.op_type = identifier;
+        if (this._match(':')) {
+            node.overload = this._parseIdentifier();
+        }
         node.attribute = this._parseAttributeList();
         this._expect('(');
         node.input = this._parseIdentifierList();
@@ -2483,6 +2462,9 @@ onnx.TextReader = class {
                         break;
                     case 'domain':
                     case 'doc_string':
+                        func[keyword] = this._parseString();
+                        break;
+                    case 'overload':
                         func[keyword] = this._parseString();
                         break;
                     default:

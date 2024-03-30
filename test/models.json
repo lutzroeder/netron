@@ -3669,6 +3669,7 @@
     "type":     "onnx",
     "target":   "candy.json",
     "source":   "https://github.com/lutzroeder/netron/files/12329067/candy.json.zip[candy.json]",
+    "assert":   [ "model.graphs[0].nodes[2].attributes[1].visible == false" ],
     "format":   "ONNX JSON v3",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
@@ -3676,6 +3677,7 @@
     "type":     "onnx",
     "target":   "candy.onnx",
     "source":   "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/FNSCandyStyleTransfer/UWP/cs/Assets/candy.onnx",
+    "assert":   [ "model.graphs[0].nodes[2].attributes[1].visible == false" ],
     "format":   "ONNX v3",
     "tags":     "validation",
     "link":     "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/FNSCandyStyleTransfer/UWP/cs/Assets"
@@ -3994,6 +3996,21 @@
     "source":   "https://github.com/lutzroeder/netron/files/5322320/maskrcnn.onnx.zip",
     "format":   "ONNX v6",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
+    "target":   "test_mi_overloaded_function.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/14812772/test_mi_overloaded_function.zip[test_mi_overloaded_function.onnx]",
+    "assert":   [ "model.graphs[0].nodes[0].type.identifier == 'cast:to_int32'" ],
+    "format":   "ONNX v10",
+    "link":     "https://github.com/lutzroeder/netron/issues/884"
+  },
+  {
+    "type":     "onnx",
+    "target":   "test_mi_overloaded_function.txt",
+    "source":   "https://github.com/lutzroeder/netron/files/14812772/test_mi_overloaded_function.zip[test_mi_overloaded_function.txt]",
+    "format":   "ONNX Text v10",
+    "link":     "https://github.com/lutzroeder/netron/issues/884"
   },
   {
     "type":     "onnx",

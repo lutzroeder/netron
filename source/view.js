@@ -741,7 +741,12 @@ view.View = class {
                         }
                         this.showDefinition(this._stack[0]);
                     });
-                    const name = graph && graph.name ? graph.name : '';
+                    let name = '';
+                    if (graph && graph.identifier) {
+                        name = graph.identifier;
+                    } else if (graph && graph.name) {
+                        name = graph.name;
+                    }
                     if (name.length > 24) {
                         element.setAttribute('title', name);
                         element.innerHTML = `&hellip;${name.substring(name.length - 24, name.length)}`;
@@ -5399,7 +5404,7 @@ view.ModelFactoryService = class {
         this._factories = [];
         this.register('./server', ['.netron']);
         this.register('./pytorch', ['.pt', '.pth', '.ptl', '.pt1', '.pyt', '.pyth', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel', '.torchscript', '.pytorch', '.ot', '.params', '.trt', '.ff', '.ptmf', '.jit', '.pte', '.bin.index.json', 'serialized_exported_program.json'], ['.model', '.pt2']);
-        this.register('./onnx', ['.onnx', '.onn', '.pb', '.onnxtxt', '.pbtxt', '.prototxt', '.txt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx', 'onnxmodel', 'ngf', 'json']);
+        this.register('./onnx', ['.onnx', '.onn', '.pb', '.onnxtxt', '.pbtxt', '.prototxt', '.txt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx', 'onnxmodel', '.ngf', '.json', '.bin']);
         this.register('./mxnet', ['.json', '.params'], ['.mar']);
         this.register('./coreml', ['.mlmodel', '.bin', 'manifest.json', 'metadata.json', 'featuredescriptions.json', '.pb', '.pbtxt'], ['.mlpackage']);
         this.register('./caffe', ['.caffemodel', '.pbtxt', '.prototxt', '.pt', '.txt']);
