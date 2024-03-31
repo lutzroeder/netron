@@ -4637,6 +4637,7 @@ python.Execution = class {
         this.registerType('torchvision.transforms.v2._container.Compose', class {});
         this.registerType('torchvision.transforms.v2._misc.Normalize', class {});
         this.registerType('torchvision.transforms.v2._geometry.CenterCrop', class {});
+        this.registerType('torchvision.transforms.v2._geometry.Resize', class {});
         this.registerFunction('torchvision.models.resnet.resnet18', () => {});
         this.registerFunction('torchvision.models.resnet.resnet34', () => {});
         this.registerFunction('torchvision.models.resnet.resnet50', () => {});
@@ -6687,10 +6688,20 @@ python.Execution = class {
         this.registerFunction('fastai.metrics.error_rate', () => {
             throw new python.Error("'fastai.metrics.error_rate' not implemented.");
         });
+        this.registerType('fastai.optimizer._BaseOptimizer', class {});
+        this.registerType('fastai.optimizer.Optimizer', class extends fastai.optimizer._BaseOptimizer {});
         this.registerFunction('fastai.optimizer.Adam', () => {
             throw new python.Error("'fastai.optimizer.Adam' not implemented.");
         });
-
+        this.registerFunction('fastai.optimizer.adam_step', () => {
+            throw new python.Error("'fastai.optimizer.adam_step' not implemented.");
+        });
+        this.registerFunction('fastai.optimizer.average_grad', () => {
+            throw new python.Error("'fastai.optimizer.average_grad' not implemented.");
+        });
+        this.registerFunction('fastai.optimizer.weight_decay', () => {
+            throw new python.Error("'fastai.optimizer.weight_decay' not implemented.");
+        });
         this.registerType('fastai.tabular.core.Categorify', class {});
         this.registerType('fastai.tabular.core.FillMissing', class {});
         this.registerType('fastai.tabular.core.FillStrategy', class {});
@@ -6731,11 +6742,18 @@ python.Execution = class {
         this.registerType('fastai.vision.augment.RandomResizedCropGPU', class {});
         this.registerType('fastai.vision.augment.Resize', class {});
         this.registerType('fastai.vision.augment.rotate_mat', class {});
+        this.registerFunction('fastai.vision.augment.TensorImage.lighting', () => {
+            throw new python.Error("'fastai.vision.augment.TensorImage.lighting' not implemented.");
+        });
         this.registerType('fastai.vision.augment.zoom_mat', class {});
         this.registerType('fastai.vision.core.PILImage', class {});
         this.registerType('fastai.vision.core.PILMask', class {});
         this.registerType('fastai.vision.core.AddMaskCodes', class {});
-        this.registerType('fastai.vision.learner._resnet_split', class {});
+        this.registerFunction('fastai.vision.learner._resnet_split', () => {
+            throw new python.Error("'fastai.vision.learner._resnet_split' not implemented.");
+        });
+        this.registerType('fastai.learner._ConstantFunc', class {});
+        this.registerType('fastai.vision.learner.TimmBody', class {});
         this.registerType('fastai.vision.models.unet.DynamicUnet', class {});
         this.registerType('fastai.vision.models.unet.ResizeToOrig', class {});
         this.registerType('fastai.vision.models.unet.UnetBlock', class {});
