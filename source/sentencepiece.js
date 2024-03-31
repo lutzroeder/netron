@@ -11,8 +11,7 @@ sentencepiece.ModelFactory = class {
             const model = context.tags('pb+');
             if (model &&
                 model['1'] && model['1']['1'] === 2 && model['1']['2'] === 5 && model['1']['3'] === 0 &&
-                model['2'] && model['2']['1'] === 2 && model['2']['2'] === 2 && model['2']['3'] === 0 &&
-                model['2']['4'] === 0 && model['2']['10'] === 5 &&
+                model['2'] && model['2']['3'] === 0 && model['2']['4'] === 0 && model['2']['10'] === 5 &&
                 model['2']['40'] === 0 && model['2']['41'] === 0 && model['2']['42'] === 0) {
                 context.type = 'sentencepiece';
             }
@@ -95,4 +94,3 @@ sentencepiece.Error = class extends Error {
 };
 
 export const ModelFactory = sentencepiece.ModelFactory;
-
