@@ -1045,6 +1045,10 @@ kmodel.BinaryReader = class {
         return this._reader.read(length);
     }
 
+    boolean() {
+        return this._reader.boolean();
+    }
+
     byte() {
         return this._reader.byte();
     }
