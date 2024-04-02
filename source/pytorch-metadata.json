@@ -9712,6 +9712,26 @@
     ]
   },
   {
+    "name": "aten::polar",
+    "inputs": [
+      { "name": "abs", "type": "Tensor" },
+      { "name": "angle", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::polar.out",
+    "inputs": [
+      { "name": "abs", "type": "Tensor" },
+      { "name": "angle", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::pop.t",
     "inputs": [
       { "name": "self", "type": "t[]" },
