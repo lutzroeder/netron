@@ -265,6 +265,7 @@ xmodel.Utility = class {
             case 'float': return { type: 'float32', value: value };
             case 'float_vec': return { type: 'float32[]', value: value.value };
             case 'double': return { type: 'float64', value: value };
+            case 'double_vec': return { type: 'float64[]', value: value };
             case 'string': return { type: 'string', value: value };
             case 'string_vec':  return { type: 'string[]', value: value.value };
             case 'bytes': return { type: 'byte[]', value: value.value };
