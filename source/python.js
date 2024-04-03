@@ -2651,6 +2651,7 @@ python.Execution = class {
         this.registerType('sklearn.grid_search._CVScoreTuple', class {});
         this.registerType('sklearn.grid_search.GridSearchCV', class {});
         this.registerType('sklearn.impute._base.SimpleImputer', class {});
+        this.registerType('sklearn.impute._iterative.IterativeImputer', class {});
         this.registerType('sklearn.impute.SimpleImputer', class {});
         this.registerType('sklearn.isotonic.IsotonicRegression', class {});
         this.registerType('sklearn.linear_model._base.LinearRegression', class {});
