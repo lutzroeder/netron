@@ -1472,15 +1472,18 @@ onnx.ProtoReader = class {
             if (buffer[0] === 0x08 && buffer[1] < 0x0A && buffer[2] === 0x12) {
                 const producers = [
                     'backend-test', 'BrainwaveCompiler',
-                    'CNTK', 'customvision',
+                    'CNTK', 'customvision', 'cvflowbackend',
+                    'fuse_model',
+                    'horizon_nn',
                     'keras2onnx', 'Kneron', 'kneron_formatter', 'kneron_kl530_test_case',
                     'darknet to ONNX example',
                     'htshinichi',
-                    'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'ML.NET', 'MVTec Software',
-                    'onnx-caffe2', 'onnx-example', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'onnx_test', 'onnxruntime-tools', 'onnxruntime.transformers',
-                    'PaddlePaddle', 'pytorch',
+                    'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'ML.NET', 'MVTec Software', 'Novaic',
+                    'onnx-caffe2', 'onnx-example', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'onnx-TIDL', 'onnx_test', 'onnx_tool', 'onnxruntime-tools', 'onnxruntime.transformers',
+                    'PaddlePaddle', 'PPL Quantization Tool', 'pytorch',
                     'sclblonnx', 'skl2onnx',
                     'Tencent YouTu', 'tf2onnx', 'tflite2onnx',
+                    'vai_q_onnx',
                     'WinMLTools'
                 ];
                 if (producers.some((producer) => Array.from(producer).every((ch, index) => index + 4 < buffer.length && ch.charCodeAt(0) === buffer[index + 4]))) {
