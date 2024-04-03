@@ -3872,7 +3872,7 @@ python.Execution = class {
                 }
                 case '>':
                 case '<': {
-                    if (header.descr.length !== 3) {
+                    if (header.descr.length !== 3 && header.descr[1] !== 'U') {
                         throw new python.Error(`Unsupported data type '${header.descr}'.`);
                     }
                     const count = shape.length === 0 ? 1 : shape.reduce((a, b) => a * b, 1);
