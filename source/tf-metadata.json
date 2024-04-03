@@ -2823,11 +2823,12 @@
     "inputs": [
       {
         "name": "resource",
-        "description": "Resource variable for concatenated input tensors across all dimensions.\n  }\n  in_arg {\n    name: \"inputs\"\n    description: <<END\nInput tensor slices in row-major order to merge across all dimensions. All\ninputs must have the same shape.\n  }\n  out_arg {\n    name: \"output\"\n    description: <<END\nOutput tensor formed from merging input slices based on num_concats defined.",
+        "description": "Resource variable for concatenated input tensors across all dimensions.",
         "type": 20
       },
       {
         "name": "inputs",
+        "description": "Input tensor slices in row-major order to merge across all dimensions. All\ninputs must have the same shape.",
         "numberAttr": "N",
         "typeAttr": "T"
       }
@@ -39284,13 +39285,14 @@
     "inputs": [
       {
         "name": "resource",
-        "description": "Resource variable of input tensor to split across all dimensions.\n  }\n  out_arg {\n    name: \"outputs\"\n    description: <<END\nOutput slices based on input and num_splits defined, in row-major order.",
+        "description": "Resource variable of input tensor to split across all dimensions.",
         "type": 20
       }
     ],
     "outputs": [
       {
         "name": "outputs",
+        "description": "Output slices based on input and num_splits defined, in row-major order.",
         "numberAttr": "N",
         "typeAttr": "T"
       }
@@ -64164,7 +64166,7 @@
     "inputs": [
       {
         "name": "inputs",
-        "description": "Input tensor slices in row-major order to merge across all dimensions. All\ninputs must have the same shape.\n  }\n  out_arg {\n    name: \"output\"\n    description: <<END\nOutput tensor formed from merging input slices based on num_concats defined.",
+        "description": "Input tensor slices in row-major order to merge across all dimensions. All\ninputs must have the same shape.",
         "numberAttr": "N",
         "typeAttr": "T"
       }
@@ -64172,6 +64174,7 @@
     "outputs": [
       {
         "name": "output",
+        "description": "Output tensor formed from merging input slices based on num_concats defined.",
         "typeAttr": "T"
       }
     ]
