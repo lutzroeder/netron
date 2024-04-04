@@ -311,7 +311,7 @@ circle.Node = class {
                 const argument = new circle.Argument(name, values);
                 this._outputs.push(argument);
             }
-            if (type.custom && Array.isArray(node.custom_options) && node.custom_options.length > 0) {
+            if (type.custom && node.custom_options && node.custom_options.length > 0) {
                 let decoded = false;
                 if (node.custom_options_format === circle.schema.CustomOptionsFormat.FLEXBUFFERS) {
                     try {

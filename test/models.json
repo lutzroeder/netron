@@ -6910,6 +6910,7 @@
     "type":     "tflite",
     "target":   "complex64.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/9507072/complex64.tflite.zip[complex64.tflite]",
+    "assert":   [ "model.graphs[0].nodes[6].attributes[0].name == 'T'" ],
     "format":   "TensorFlow Lite v3",
     "link":     "https://github.com/lutzroeder/netron/issues/964"
   },
@@ -7094,6 +7095,7 @@
     "type":     "tflite",
     "target":   "signature_concrete_functions.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/13687443/signature_tflite_samples.zip[signature_concrete_functions.tflite]",
+    "assert":   [ "model.graphs[0].nodes[0].attributes[0].value[0] == 'StringToNumber'" ],
     "format":   "TensorFlow Lite v3",
     "link":     "https://github.com/lutzroeder/netron/issues/783"
   },
