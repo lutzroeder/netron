@@ -3839,6 +3839,12 @@
         "default": 0
       },
       {
+        "name": "mixed_priority_policy",
+        "type": "string",
+        "description": "Must be one of the following: `low_priority_padding_with_max_batch_size`, `low_priority_padding_with_next_allowed_batch_size`.",
+        "default": "low_priority_padding_with_max_batch_size"
+      },
+      {
         "name": "Tin",
         "type": "type[]",
         "description": "the types of tensors to be batched.",
