@@ -28,7 +28,8 @@ openvino.ModelFactory = class {
                 }
             }
             if (/^.*pytorch_model.*\.bin$/.test(identifier) ||
-                /^.*group.+-shard.+of.+\.bin$/.test(identifier)) {
+                /^.*group.+-shard.+of.+\.bin$/.test(identifier) ||
+                /^.*param\.bin$/.test(identifier)) {
                 return;
             }
             const identifiers = new Set(['config.bin', 'model.bin', '__model__.bin', 'weights.bin', 'programs.bin', 'best.bin', 'ncnn.bin']);
@@ -777,6 +778,7 @@ openvino.TensorType = class {
             case 'boolean': this.dataType = 'boolean'; break;
             case 'bin':     this.dataType = 'bit'; break;
             case 'f8e4m3':  this.dataType = 'float8e4m3'; break;
+            case 'string':  this.dataType = 'string'; break;
             case '':        this.dataType = '?'; break;
             case null:      this.dataType = '?'; break;
             default:        throw new openvino.Error(`Unsupported precision '${JSON.stringify(precision)}'.`);
