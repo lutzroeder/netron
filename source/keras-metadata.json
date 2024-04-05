@@ -2295,6 +2295,10 @@
       {
         "name": "seed",
         "description": "Random seed for dropout."
+      },
+      {
+        "name": "use_cudnn",
+        "description": "Whether to use a cuDNN-backed implementation. `\"auto\"` will\n        attempt to use cuDNN when feasible, and will fallback to the\n        default implementation if not."
       }
     ],
     "inputs": [
@@ -2919,6 +2923,10 @@
       {
         "name": "seed",
         "description": "Random seed for dropout."
+      },
+      {
+        "name": "use_cudnn",
+        "description": "Whether to use a cuDNN-backed implementation. `\"auto\"` will\n        attempt to use cuDNN when feasible, and will fallback to the\n        default implementation if not."
       }
     ],
     "inputs": [
