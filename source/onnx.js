@@ -1479,9 +1479,10 @@ onnx.ProtoReader = class {
                     'darknet to ONNX example',
                     'htshinichi',
                     'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'ML.NET', 'MVTec Software', 'Novaic',
-                    'onnx-caffe2', 'onnx-example', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'onnx-TIDL', 'onnx_test', 'onnx_tool', 'onnxruntime-tools', 'onnxruntime.transformers',
+                    'onnx-caffe2', 'onnx-example', 'onnx-fix-nodes', 'onnx-TIDL', 'onnx_test', 'onnx_tool', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'onnxruntime-tools', 'onnxruntime.transformers', 'optimum-onnx', 'optimum-onnxruntime',
                     'PaddlePaddle', 'PPL Quantization Tool', 'pytorch',
-                    'sclblonnx', 'skl2onnx',
+                    'rk',
+                    'sclblonnx', 'sequencer_save', 'SNPS MWNN Quantizer', 'skl2onnx',
                     'Tencent YouTu', 'tf2onnx', 'tflite2onnx',
                     'vai_q_onnx',
                     'WinMLTools'
