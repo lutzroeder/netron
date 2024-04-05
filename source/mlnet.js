@@ -28,20 +28,12 @@ mlnet.ModelFactory = class {
 mlnet.Model = class {
 
     constructor(metadata, reader) {
-        this._format = "ML.NET";
+        this.format = "ML.NET";
         if (reader.version && reader.version.length > 0) {
-            this._format += ` v${reader.version}`;
+            this.format += ` v${reader.version}`;
         }
-        this._graphs = [];
-        this._graphs.push(new mlnet.Graph(metadata, reader));
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get graphs() {
-        return this._graphs;
+        const graph = new mlnet.Graph(metadata, reader);
+        this.graphs = [graph];
     }
 };
 
@@ -141,16 +133,8 @@ mlnet.Graph = class {
 mlnet.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -160,16 +144,8 @@ mlnet.Value = class {
         if (typeof name !== 'string') {
             throw new mlnet.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
-        this._name = name;
-        this._type = type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
+        this.name = name;
+        this.type = type;
     }
 };
 
@@ -234,46 +210,34 @@ mlnet.Node = class {
 mlnet.Attribute = class {
 
     constructor(schema, name, value) {
-        this._name = name;
-        this._value = value;
+        this.name = name;
+        this.value = value;
         if (schema) {
             if (schema.type) {
-                this._type = schema.type;
+                this.type = schema.type;
             }
-            if (this._type) {
+            if (this.type) {
                 let type = mlnet;
-                const id = this._type.split('.');
+                const id = this.type.split('.');
                 while (type && id.length > 0) {
                     type = type[id.shift()];
                 }
                 if (type) {
                     mlnet.Attribute._reverseMap = mlnet.Attribute._reverseMap || {};
-                    let reverse = mlnet.Attribute._reverseMap[this._type];
+                    let reverse = mlnet.Attribute._reverseMap[this.type];
                     if (!reverse) {
                         reverse = {};
                         for (const key of Object.keys(type)) {
                             reverse[type[key.toString()]] = key;
                         }
-                        mlnet.Attribute._reverseMap[this._type] = reverse;
+                        mlnet.Attribute._reverseMap[this.type] = reverse;
                     }
-                    if (Object.prototype.hasOwnProperty.call(reverse, this._value)) {
-                        this._value = reverse[this._value];
+                    if (Object.prototype.hasOwnProperty.call(reverse, this.value)) {
+                        this.value = reverse[this.value];
                     }
                 }
             }
         }
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
     }
 };
 
@@ -289,52 +253,40 @@ mlnet.TensorType = class {
             ['Int64', 'int64'],
             ['TextSpan', 'string']
         ]);
-        this._dataType = '?';
-        this._shape = new mlnet.TensorShape(null);
+        this.dataType = '?';
+        this.shape = new mlnet.TensorShape(null);
         if (mlnet.TensorType._map.has(codec.name)) {
-            this._dataType = mlnet.TensorType._map.get(codec.name);
+            this.dataType = mlnet.TensorType._map.get(codec.name);
         } else if (codec.name === 'VBuffer') {
             if (mlnet.TensorType._map.has(codec.itemType.name)) {
-                this._dataType = mlnet.TensorType._map.get(codec.itemType.name);
+                this.dataType = mlnet.TensorType._map.get(codec.itemType.name);
             } else {
                 throw new mlnet.Error(`Unsupported data type '${codec.itemType.name}'.`);
             }
-            this._shape = new mlnet.TensorShape(codec.dims);
+            this.shape = new mlnet.TensorShape(codec.dims);
         } else if (codec.name === 'Key2') {
-            this._dataType = 'key2';
+            this.dataType = 'key2';
         } else {
             throw new mlnet.Error(`Unsupported data type '${codec.name}'.`);
         }
     }
 
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
-    }
-
     toString() {
-        return this.dataType + this._shape.toString();
+        return this.dataType + this.shape.toString();
     }
 };
 
 mlnet.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = dimensions;
     }
 
     toString() {
-        if (!this._dimensions || this._dimensions.length === 0) {
+        if (!this.dimensions || this.dimensions.length === 0) {
             return '';
         }
-        return `[${this._dimensions.join(',')}]`;
+        return `[${this.dimensions.join(',')}]`;
     }
 };
 
@@ -427,7 +379,7 @@ mlnet.ModelReader = class {
 
         const version = root.openText('TrainingInfo/Version.txt');
         if (version) {
-            this.version = version.split(' ').shift().split('\r').shift();
+            [this.version] = version.split(/[\s+\r]+/);
         }
 
         const schemaReader = root.openBinary('Schema');
@@ -455,18 +407,18 @@ mlnet.ModelReader = class {
 mlnet.ComponentCatalog = class {
 
     constructor() {
-        this._map = new Map();
+        this._registry = new Map();
     }
 
     register(signature, type) {
-        this._map.set(signature, type);
+        this._registry.set(signature, type);
     }
 
     create(signature, context) {
-        if (!this._map.has(signature)) {
+        if (!this._registry.has(signature)) {
             throw new mlnet.Error(`Unsupported loader signature '${signature}'.`);
         }
-        const type = this._map.get(signature);
+        const type = this._registry.get(signature);
         return Reflect.construct(type, [context]);
     }
 };
