@@ -3077,7 +3077,7 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             selector.on('change', (sender, data) => this.emit('update-active-graph', data));
             this.add('graph', selector);
         }
-        if (Array.isArray(graph.signatures) && graph.signatures.length > 0) {
+        if (graph && Array.isArray(graph.signatures) && graph.signatures.length > 0) {
             const entries = new Map();
             entries.set('', graph);
             for (const signature of graph.signatures) {
