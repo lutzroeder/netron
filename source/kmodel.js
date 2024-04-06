@@ -1093,7 +1093,7 @@ kmodel.BinaryReader = class {
                 const offset = (position / 8) >> 0;
                 const start = (position & 7);
                 const count = Math.min((offset + 1) * 8, end) - position;
-                value = value | ((buffer[offset] >>> start) & ((1 << count) - 1)) << (position - fields[i][1]);
+                value |= ((buffer[offset] >>> start) & ((1 << count) - 1)) << (position - fields[i][1]);
                 position += count;
             }
             obj[key] = value;

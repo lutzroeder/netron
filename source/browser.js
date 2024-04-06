@@ -753,7 +753,7 @@ host.BrowserHost.FileStream = class {
 
     _read(buffer, offset) {
         let index = Math.floor(offset / this._size);
-        offset = offset - (index * this._size);
+        offset -= index * this._size;
         const chunk = this._chunks[index++];
         let destination = Math.min(chunk.length - offset, buffer.length);
         buffer.set(chunk.subarray(offset, offset + destination), 0);

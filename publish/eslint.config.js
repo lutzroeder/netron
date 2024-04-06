@@ -192,7 +192,7 @@ export default [
             'object-curly-spacing': ['error', 'always'],
             'object-shorthand': 'error',
             // 'one-var': 'error',
-            // 'operator-assignment': 'error',
+            'operator-assignment': 'error',
             'prefer-arrow-callback': 'error',
             'prefer-const': 'error',
             'prefer-destructuring': ['error', { 'array': true }],

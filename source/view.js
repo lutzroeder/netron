@@ -568,8 +568,8 @@ view.View = class {
                 x += rect.left + (rect.width / 2);
                 y += rect.top + (rect.height / 2);
             }
-            x = x / selection.length;
-            y = y / selection.length;
+            x /= selection.length;
+            y /= selection.length;
             const rect = container.getBoundingClientRect();
             const left = (container.scrollLeft + x - rect.left) - (rect.width / 2);
             const top = (container.scrollTop + y - rect.top) - (rect.height / 2);

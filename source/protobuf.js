@@ -223,7 +223,7 @@ protobuf.BinaryReader = class {
             return value;
         }
         c = this.byte();
-        value = value + ((c & 127) * 0x10000000);
+        value += (c & 127) * 0x10000000;
         if (c < 128) {
             return value;
         }
@@ -260,7 +260,7 @@ protobuf.BinaryReader = class {
                         }
                         if (this._position < this._length) {
                             c = this.byte();
-                            value = value + ((c & 127) * 0x10000000);
+                            value += (c & 127) * 0x10000000;
                             if (c < 128) {
                                 return value;
                             }
@@ -1219,11 +1219,11 @@ protobuf.TextReader = class {
                                     }
                                     c = c.charCodeAt(0);
                                     if (c >= 65 && c <= 70) {
-                                        c = c - 55;
+                                        c -= 55;
                                     } else if (c >= 97 && c <= 102) {
-                                        c = c - 87;
+                                        c -= 87;
                                     } else if (c >= 48 && c <= 57) {
-                                        c = c - 48;
+                                        c -= 48;
                                     } else {
                                         c = -1;
                                     }

@@ -199,7 +199,7 @@ DataView.prototype.getFloat8e5m2 = function(byteOffset, fn, uz) {
 };
 
 DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offset, bits, littleEndian) {
-    offset = offset * bits;
+    offset *= bits;
     const position = Math.floor(offset / 8);
     const remainder = offset % 8;
     let value = 0;
@@ -216,7 +216,7 @@ DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offse
 };
 
 DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offset, bits, littleEndian) {
-    offset = offset * bits;
+    offset *= bits;
     const position = Math.floor(offset / 8);
     const remainder = offset % 8;
     let value = 0;

@@ -2473,11 +2473,11 @@ python.Execution = class {
                                     }
                                     let c = token.charCodeAt(i++);
                                     if (c >= 65 && c <= 70) {
-                                        c = c - 55;
+                                        c -= 55;
                                     } else if (c >= 97 && c <= 102) {
-                                        c = c - 87;
+                                        c -= 87;
                                     } else if (c >= 48 && c <= 57) {
-                                        c = c - 48;
+                                        c -= 48;
                                     } else {
                                         c = -1;
                                     }

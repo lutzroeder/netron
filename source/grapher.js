@@ -253,7 +253,7 @@ grapher.Node = class {
         this.height = 0;
         for (const block of this._blocks) {
             block.measure();
-            this.height = this.height + block.height;
+            this.height += block.height;
         }
         this.width = Math.max(...this._blocks.map((block) => block.width));
         for (const block of this._blocks) {

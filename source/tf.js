@@ -1462,7 +1462,7 @@ tf.TensorBundle.Table.Block = class {
                     break;
                 }
                 key = key.substring(0, sharedSize);
-                key = key + decoder.decode(reader.read(nonSharedSize));
+                key += decoder.decode(reader.read(nonSharedSize));
                 const value = reader.read(valueSize);
                 this.entries.set(key, value);
             }
@@ -1594,12 +1594,12 @@ tf.EventFileReader = class {
                 crc = crc & 1 ? (crc >>> 1) ^ poly : crc >>> 1;
                 crc = crc & 1 ? (crc >>> 1) ^ poly : crc >>> 1;
                 crc = crc & 1 ? (crc >>> 1) ^ poly : crc >>> 1;
-                crc = crc >>> 0;
+                crc >>>= 0;
             }
-            crc = crc ^ 0xffffffff;
-            crc = crc >>> 0;
+            crc ^= 0xffffffff;
+            crc >>>= 0;
             crc = ((crc >> 15) | (crc << 17)) + 0xa282ead8;
-            crc = crc >>> 0;
+            crc >>>= 0;
             return crc;
         };
         const buffer = stream.peek(12);

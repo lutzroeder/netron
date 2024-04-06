@@ -800,7 +800,7 @@ coreml.Context = class {
     }
 
     model(model, group, description) {
-        this.groups = this.groups | (group.length > 0 ? true : false);
+        this.groups |= group.length > 0;
         const shortDescription = model && model.description && model.description.metadata && model.description.metadata.shortDescription ? model.description.metadata.shortDescription : '';
         switch (model.Type) {
             case 'neuralNetworkClassifier': {
