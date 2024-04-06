@@ -90,7 +90,7 @@ export default [
             'no-empty-pattern': 'error',
             'no-empty-static-block': 'error',
             'no-eq-null': 'error',
-            // 'no-eval': 'error',
+            'no-eval': 'error',
             'no-ex-assign': 'error',
             'no-extend-native': 'error',
             'no-extra-bind': 'error',

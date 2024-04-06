@@ -15,12 +15,13 @@ host.ElectronHost = class {
     constructor() {
         this._document = window.document;
         this._window = window;
+        this._global = global;
         this._telemetry = new base.Telemetry(this._window);
         process.on('uncaughtException', (err) => {
             this.exception(err, true);
             this._terminate(err.message);
         });
-        global.eval = () => {
+        this._global.eval = () => {
             throw new Error('eval.eval() not supported.');
         };
         this._window.eval = () => {
