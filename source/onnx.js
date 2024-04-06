@@ -847,7 +847,7 @@ onnx.Context.Model = class {
                     const value = stream.stream(length);
                     stream.seek(position);
                     return value;
-                } catch (error) {
+                } catch {
                     // continue regardless of error
                 }
             }
@@ -905,7 +905,7 @@ onnx.Metadata = class {
             const data = await context.request('onnx-metadata.json');
             onnx.Metadata._metadata = new onnx.Metadata(data);
             return onnx.Metadata._metadata;
-        } catch (error) {
+        } catch {
             onnx.Metadata._metadata = new onnx.Metadata(null);
             return onnx.Metadata._metadata;
         }
@@ -1444,7 +1444,7 @@ onnx.ProtoReader = class {
                         stream.seek(4);
                         return new onnx.ProtoReader(context, 'binary', 'model');
                     }
-                } catch (error) {
+                } catch {
                     // continue regardless of error
                 }
             }
@@ -2037,7 +2037,7 @@ onnx.TextReader = class {
                     }
                 }
             }
-        } catch (err) {
+        } catch {
             // continue regardless of error
         }
         return null;

@@ -694,7 +694,7 @@ base.Telemetry = class {
                 this._navigator.sendBeacon(url, body);
                 this._session[2] = this.get('session_engaged') || '0';
                 this.set('hit_count', this.get('hit_count') + 1);
-            } catch (e) {
+            } catch {
                 // continue regardless of error
             }
         }

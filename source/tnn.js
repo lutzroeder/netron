@@ -24,7 +24,7 @@ tnn.ModelFactory = class {
                         }
                     }
                 }
-            } catch (err) {
+            } catch {
                 // continue regardless of error
             }
         }
@@ -47,7 +47,7 @@ tnn.ModelFactory = class {
                     const content = await context.fetch(name);
                     const buffer = content.stream.peek();
                     return new tnn.Model(metadata, context.stream.peek(), buffer);
-                } catch (error) {
+                } catch {
                     return new tnn.Model(metadata, context.stream.peek(), null);
                 }
             }

@@ -83,7 +83,7 @@ caffe2.ModelFactory = class {
                                 init_net = caffe2.proto.NetDef.decode(reader);
                             }
                         }
-                    } catch (error) {
+                    } catch {
                         // continue regardless of error
                     }
                     return new caffe2.Model(metadata, predict_net, init_net);
@@ -93,7 +93,7 @@ caffe2.ModelFactory = class {
                         const name = identifier.replace('init_net', 'predict_net');
                         const content = await context.fetch(name);
                         return openText(content, context, true);
-                    } catch (error) {
+                    } catch {
                         return openText(context, null, true);
                     }
                 }
@@ -102,12 +102,12 @@ caffe2.ModelFactory = class {
                         const name = identifier.replace('predict_net', 'init_net').replace(/\.pbtxt/, '.pb');
                         const content = await context.fetch(name);
                         return openText(context, content, false);
-                    } catch (error) {
+                    } catch {
                         try {
                             const name = identifier.replace('predict_net', 'init_net');
                             const content = await context.fetch(name);
                             return openText(context, content, true);
-                        } catch (error) {
+                        } catch {
                             return openText(context, null, true);
                         }
                     }
@@ -116,7 +116,7 @@ caffe2.ModelFactory = class {
                     const name = `${base}_init.pb`;
                     const content = await context.fetch(name);
                     return openText(context, content, false);
-                } catch (error) {
+                } catch {
                     return openText(context, null, false);
                 }
             }
@@ -136,7 +136,7 @@ caffe2.ModelFactory = class {
                             const reader = initContext.read('protobuf.binary');
                             init_net = caffe2.proto.NetDef.decode(reader);
                         }
-                    } catch (error) {
+                    } catch {
                         // continue regardless of error
                     }
                     return new caffe2.Model(metadata, predict_net, init_net);
@@ -146,7 +146,7 @@ caffe2.ModelFactory = class {
                         const name = `${base.replace(/init_net$/, '')}predict_net.${extension}`;
                         const content = await context.fetch(name);
                         return openBinary(content, context);
-                    } catch (error) {
+                    } catch {
                         return openBinary(context, null);
                     }
                 }
@@ -155,7 +155,7 @@ caffe2.ModelFactory = class {
                         const name = `${base.replace(/_init$/, '')}.${extension}`;
                         const content = await context.fetch(name);
                         return openBinary(content, context);
-                    } catch (error) {
+                    } catch {
                         return openBinary(context, null);
                     }
                 }
@@ -164,7 +164,7 @@ caffe2.ModelFactory = class {
                         const name = identifier.replace('predict_net', 'init_net');
                         const content = await context.fetch(name);
                         return openBinary(context, content);
-                    } catch (error) {
+                    } catch {
                         return openBinary(context, null);
                     }
                 }
@@ -172,7 +172,7 @@ caffe2.ModelFactory = class {
                     const file = `${base}_init.${extension}`;
                     const content = await context.fetch(file, null);
                     return openBinary(context, content);
-                } catch (error) {
+                } catch {
                     return openBinary(context, null);
                 }
             }

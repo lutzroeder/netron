@@ -964,7 +964,7 @@ app.ConfigurationService = class {
                     if (Array.isArray(this._data.recents)) {
                         this._data.recents = this._data.recents.map((recent) => typeof recent !== 'string' && recent && recent.path ? recent.path : recent);
                     }
-                } catch (error) {
+                } catch {
                     // continue regardless of error
                 }
             }

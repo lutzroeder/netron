@@ -864,7 +864,7 @@ flatc.Root = class extends flatc.Object {
             try {
                 await fs.access(path);
                 return true;
-            } catch (error) {
+            } catch {
                 return false;
             }
         };

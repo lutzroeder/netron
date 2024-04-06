@@ -69,7 +69,7 @@ openvino.ModelFactory = class {
                     const file = `${base}.bin`;
                     const content = await context.fetch(file);
                     bin = content.stream.peek();
-                } catch (error) {
+                } catch {
                     // continue regardless of error
                 }
                 break;

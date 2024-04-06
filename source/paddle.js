@@ -180,7 +180,7 @@ paddle.ModelFactory = class {
                             const program = openProgram(content, 'paddle.pb');
                             const weights = mapParams(params, program);
                             return new paddle.Model(metadata, program.format, program.desc, weights);
-                        } catch (error) {
+                        } catch {
                             const weights = new Map(params.map((param, index) => [index.toString(), param]));
                             return new paddle.Model(metadata, 'PaddlePaddle Inference Weights', null, weights);
                         }
@@ -209,7 +209,7 @@ paddle.ModelFactory = class {
                                 const params = loadParams(content.stream);
                                 const weights = mapParams(params, program);
                                 return new paddle.Model(metadata, program.format, program.desc, weights);
-                            } catch (error) {
+                            } catch {
                                 try {
                                     const name = `${base}.pdparams`;
                                     const content = await context.fetch(name);
@@ -223,16 +223,16 @@ paddle.ModelFactory = class {
                                             }
                                         }
                                         return new paddle.Model(metadata, program.format, program.desc, weights);
-                                    } catch (error) {
+                                    } catch {
                                         return new paddle.Model(metadata, program.format, program.desc, weights);
                                     }
-                                } catch (error) {
+                                } catch {
                                     try {
                                         const name = `${base}.pdopt`;
                                         const content = await context.fetch(name);
                                         const weights = openNumPyArrayPickle(content.stream);
                                         return new paddle.Model(metadata, program.format, program.desc, weights);
-                                    } catch (error) {
+                                    } catch {
                                         return loadEntries(context, program);
                                     }
                                 }
@@ -244,7 +244,7 @@ paddle.ModelFactory = class {
                                 const params = loadParams(content.stream);
                                 const weights = mapParams(params, program);
                                 return new paddle.Model(metadata, program.format, program.desc, weights);
-                            } catch (error) {
+                            } catch {
                                 return loadEntries(context, program);
                             }
                         }

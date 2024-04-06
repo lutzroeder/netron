@@ -27,7 +27,7 @@ darknet.ModelFactory = class {
                     return;
                 }
             }
-        } catch (err) {
+        } catch {
             // continue regardless of error
         }
     }
@@ -53,7 +53,7 @@ darknet.ModelFactory = class {
                     const weights = darknet.Weights.open(content);
                     const reader = new darknet.Reader(context.stream, context.identifier);
                     return new darknet.Model(metadata, reader, weights);
-                } catch (error) {
+                } catch {
                     const reader = new darknet.Reader(context.stream, context.identifier);
                     return new darknet.Model(metadata, reader, null);
                 }

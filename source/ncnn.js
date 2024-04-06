@@ -38,7 +38,7 @@ ncnn.ModelFactory = class {
                         return;
                     }
                 }
-            } catch (err) {
+            } catch {
                 // continue regardless of error
             }
         }
@@ -92,7 +92,7 @@ ncnn.ModelFactory = class {
                     const content = await context.fetch(bin);
                     const buffer = content.stream.peek();
                     return openText(context.stream.peek(), buffer);
-                } catch (error) {
+                } catch {
                     return openText(context.stream.peek(), null);
                 }
             }
@@ -102,7 +102,7 @@ ncnn.ModelFactory = class {
                     const content = await context.fetch(bin);
                     const buffer = content.stream.peek();
                     return openBinary(context.stream.peek(), buffer);
-                } catch (error) {
+                } catch {
                     return openBinary(context.stream.peek(), null);
                 }
             }
@@ -117,7 +117,7 @@ ncnn.ModelFactory = class {
                     const content = await context.fetch(file);
                     const buffer = content.stream.peek();
                     return openText(buffer, context.stream.peek());
-                } catch (error) {
+                } catch {
                     const content = await context.fetch(`${file}.bin`);
                     const buffer = content.stream.peek();
                     return openBinary(buffer, context.stream.peek());

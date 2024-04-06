@@ -85,11 +85,13 @@ window.exports.terminate = function(message, action, callback) {
         button.onclick = null;
     }
     if (window.__view__) {
+        /* eslint-disable no-unused-vars */
         try {
             window.__view__.show('welcome message');
         } catch (error) {
             // continue regardless of error
         }
+        /* eslint-enable no-unused-vars */
     }
     document.body.setAttribute('class', 'welcome message');
 };

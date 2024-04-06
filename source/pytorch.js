@@ -1095,7 +1095,7 @@ pytorch.Container.Zip = class extends pytorch.Container {
                     if (model.mainModule) {
                         return new pytorch.Container.Zip(entries, model);
                     }
-                } catch (error) {
+                } catch {
                     // continue regardless of error
                 }
             }
@@ -1294,7 +1294,7 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
             if (context) {
                 return context.peek('zip');
             }
-        } catch (error) {
+        } catch {
             // continue regardless of error
         }
         return null;
@@ -4252,7 +4252,7 @@ pytorch.Metadata = class {
             const data = await context.request('pytorch-metadata.json');
             pytorch.Metadata._metadata = new pytorch.Metadata(data);
             return pytorch.Metadata._metadata;
-        } catch (error) {
+        } catch {
             pytorch.Metadata._metadata = new pytorch.Metadata(null);
             return pytorch.Metadata._metadata;
         }

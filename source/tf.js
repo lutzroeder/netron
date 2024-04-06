@@ -266,7 +266,7 @@ tf.ModelFactory = class {
                     const stream = content.stream;
                     const bundle = await tf.TensorBundle.open(stream, identifier, context);
                     return openModel(saved_model, format, producer, bundle);
-                } catch (error) {
+                } catch {
                     return openModel(saved_model, format, producer, null);
                 }
             }
@@ -297,7 +297,7 @@ tf.ModelFactory = class {
                 const content = await context.fetch(file);
                 const stream = content.stream;
                 return openBundle(context, stream, file);
-            } catch (error) {
+            } catch {
                 const file = `${base.join('.')}.ckpt`;
                 const content = await context.fetch(file);
                 const stream = content.stream;
@@ -389,7 +389,7 @@ tf.ModelFactory = class {
                             }
                         }
                         return saved_model;
-                    } catch (error) {
+                    } catch {
                         return saved_model;
                     }
                 };
@@ -494,21 +494,19 @@ tf.ModelFactory = class {
                         try {
                             for (const key of shards.keys()) {
                                 const stream = shards.get(key);
-                                /* eslint-disable no-await-in-loop */
                                 const archive = zip.Archive.open(stream, 'gzip');
-                                /* eslint-enable no-await-in-loop */
                                 if (archive && archive.entries.size === 1) {
                                     const stream = archive.entries.values().next().value;
                                     const buffer = stream.peek();
                                     shards.set(key, buffer);
                                 }
                             }
-                        } catch (error) {
+                        } catch {
                             // continue regardless of error
                         }
                     }
                     return openShards(shards);
-                } catch (error) {
+                } catch {
                     shards.clear();
                     return openShards(shards);
                 }
@@ -598,7 +596,7 @@ tf.ModelFactory = class {
                 const content = await context.fetch(identifier);
                 saved_model = openBinarySavedModel(content);
 
-            } catch (error) {
+            } catch {
                 format = 'TensorFlow Fingerprint';
                 saved_model = new tf.proto.tensorflow.SavedModel();
             }

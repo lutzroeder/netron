@@ -78,7 +78,7 @@ host.BrowserHost = class {
                 if (json && json.country && countries.indexOf(json.country) === -1) {
                     consent = false;
                 }
-            } catch (error) {
+            } catch {
                 // continue regardless of error
             }
             if (consent) {
@@ -515,7 +515,7 @@ host.BrowserHost = class {
                 const content = this.window.localStorage.getItem(name);
                 return JSON.parse(content);
             }
-        } catch (error) {
+        } catch {
             // continue regardless of error
         }
         return undefined;
@@ -526,7 +526,7 @@ host.BrowserHost = class {
             if (typeof this.window.localStorage !== 'undefined') {
                 this.window.localStorage.setItem(name, JSON.stringify(value));
             }
-        } catch (error) {
+        } catch {
             // continue regardless of error
         }
     }
@@ -536,7 +536,7 @@ host.BrowserHost = class {
             if (typeof this.window.localStorage !== 'undefined') {
                 this.window.localStorage.removeItem(name);
             }
-        } catch (error) {
+        } catch {
             // continue regardless of error
         }
     }

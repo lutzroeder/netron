@@ -84,7 +84,7 @@ host.ElectronHost = class {
                     if (json && json.country && countries.indexOf(json.country) === -1) {
                         consent = false;
                     }
-                } catch (error) {
+                } catch {
                     // continue regardless of error
                 }
                 if (consent) {
@@ -370,7 +370,7 @@ host.ElectronHost = class {
                     error_stack: stack,
                     error_fatal: fatal ? true : false
                 });
-            } catch (e) {
+            } catch {
                 // continue regardless of error
             }
         }
@@ -497,7 +497,7 @@ host.ElectronHost = class {
     get(name) {
         try {
             return electron.ipcRenderer.sendSync('get-configuration', { name: name });
-        } catch (error) {
+        } catch {
             // continue regardless of error
         }
         return undefined;
@@ -506,7 +506,7 @@ host.ElectronHost = class {
     set(name, value) {
         try {
             electron.ipcRenderer.sendSync('set-configuration', { name: name, value: value });
-        } catch (error) {
+        } catch {
             // continue regardless of error
         }
     }
@@ -514,7 +514,7 @@ host.ElectronHost = class {
     delete(name) {
         try {
             electron.ipcRenderer.sendSync('delete-configuration', { name: name });
-        } catch (error) {
+        } catch {
             // continue regardless of error
         }
     }
@@ -557,7 +557,7 @@ host.ElectronHost = class {
         if (this._view) {
             try {
                 this._view.show('welcome message');
-            } catch (error) {
+            } catch {
                 // continue regardless of error
             }
         }

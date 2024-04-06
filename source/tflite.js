@@ -64,7 +64,7 @@ tflite.ModelFactory = class {
                             attachments.set(name, value);
                         }
                     }
-                } catch (error) {
+                } catch {
                     // continue regardless of error
                 }
                 break;
@@ -341,7 +341,7 @@ tflite.Node = class {
                                 decoded = true;
                             }
                         }
-                    } catch (err) {
+                    } catch {
                         // continue regardless of error
                     }
                 }

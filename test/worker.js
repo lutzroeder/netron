@@ -13,7 +13,7 @@ const access = async (path) => {
     try {
         await fs.access(path);
         return true;
-    } catch (error) {
+    } catch {
         return false;
     }
 };
@@ -702,7 +702,7 @@ export class Target {
             for (const signature of signatures) {
                 /* eslint-disable no-await-in-loop */
                 await current.renderGraph(this.model, graph, signature, current.options);
-                /* eslint-disable no-await-in-loop */
+                /* eslint-enable no-await-in-loop */
             }
         }
     }

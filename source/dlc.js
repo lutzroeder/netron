@@ -607,7 +607,7 @@ dlc.Container = class {
         try {
             const context = await this.context.fetch(name);
             return context.stream;
-        } catch (error) {
+        } catch {
             return null;
         }
     }

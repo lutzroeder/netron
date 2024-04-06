@@ -54,7 +54,7 @@ circle.ModelFactory = class {
                             attachments.set(name, value);
                         }
                     }
-                } catch (error) {
+                } catch {
                     // continue regardless of error
                 }
                 break;
@@ -331,7 +331,7 @@ circle.Node = class {
                                 decoded = true;
                             }
                         }
-                    } catch (err) {
+                    } catch {
                         // continue regardless of error
                     }
                 }

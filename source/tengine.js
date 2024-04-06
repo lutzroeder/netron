@@ -199,7 +199,7 @@ tengine.Metadata = class {
             const data = await context.request('tengine-metadata.json');
             tengine.Metadata._metadata = new tengine.Metadata(data);
             return tengine.Metadata._metadata;
-        } catch (error) {
+        } catch {
             tengine.Metadata._metadata = new tengine.Metadata(null);
             return tengine.Metadata._metadata;
         }

@@ -87,7 +87,7 @@ keras.ModelFactory = class {
         const request_json = async (context, name) => {
             try {
                 context = await context.fetch(name);
-            } catch (error) {
+            } catch {
                 return null;
             }
             return context.read('json');
@@ -210,7 +210,7 @@ keras.ModelFactory = class {
                     /* eslint-disable no-await-in-loop */
                     content = await context.fetch(name);
                     /* eslint-enable no-await-in-loop */
-                } catch (error) {
+                } catch {
                     // continue regardless of error
                 }
                 if (content) {
@@ -1536,7 +1536,7 @@ tfjs.Container = class {
             }
             this._openShards(manifests, shards);
             return;
-        } catch (error) {
+        } catch {
             shards.clear();
             this._openShards(manifests, shards);
             return;

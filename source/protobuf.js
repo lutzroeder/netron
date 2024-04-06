@@ -45,7 +45,7 @@ protobuf.BinaryReader = class {
                     }
                 }
             }
-        } catch (err) {
+        } catch {
             tags.clear();
         }
         this._position = 0;
@@ -118,7 +118,7 @@ protobuf.BinaryReader = class {
                     if (this.position === end) {
                         return tags;
                     }
-                } catch (err) {
+                } catch {
                     // continue regardless of error
                 }
                 this.seek(end);
@@ -168,7 +168,7 @@ protobuf.BinaryReader = class {
                     }
                 }
             }
-        } catch (err) {
+        } catch {
             tags = {};
         }
         this._position = 0;
@@ -717,7 +717,7 @@ protobuf.TextReader = class {
                     tags.set(tag, true);
                 }
             }
-        } catch (err) {
+        } catch {
             if (tags.has('[')) {
                 tags.clear();
             }

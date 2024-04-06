@@ -36,7 +36,7 @@ nnabla.ModelFactory = class {
                     const params = nnabla.proto.NNablaProtoBuf.decode(reader);
                     model.parameter = params.parameter;
                     return await open(model, version);
-                } catch (error) {
+                } catch {
                     return await open(model);
                 }
             }

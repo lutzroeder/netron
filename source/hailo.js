@@ -289,7 +289,7 @@ hailo.Container = class {
             if (content) {
                 return content.read(type);
             }
-        } catch (error) {
+        } catch {
             // continue regardless of error
         }
         return null;

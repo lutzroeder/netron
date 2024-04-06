@@ -123,7 +123,7 @@ coreml.ModelFactory = class {
                     for (let i = 0; i < keys.length; i++) {
                         weights.set(keys[i], contexts[i].stream);
                     }
-                } catch (error) {
+                } catch {
                     // continue regardless of error
                 }
             }

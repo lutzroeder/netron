@@ -38,7 +38,7 @@ dl4j.ModelFactory = class {
                     const content = await context.fetch('coefficients.bin');
                     const reader = content.read('binary.big-endian');
                     return new dl4j.Model(metadata, obj, reader);
-                } catch (error) {
+                } catch {
                     return new dl4j.Model(metadata, obj, null);
                 }
             }

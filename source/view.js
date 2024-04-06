@@ -1968,7 +1968,7 @@ view.Node = class extends grapher.Node {
                             let type = '?';
                             try {
                                 type = value.initializer.type.toString();
-                            } catch (error) {
+                            } catch {
                                 // continue regardless of error
                             }
                             const error = new view.Error(`Failed to render tensor of type '${type}' (${err.message}).`);
@@ -5043,7 +5043,7 @@ view.Context = class {
                                         this._content.set(type, obj);
                                     }
                                 }
-                            } catch (error) {
+                            } catch {
                                 // continue regardless of error
                             }
                             break;
@@ -5059,7 +5059,7 @@ view.Context = class {
                                         this._content.set(type, obj);
                                     }
                                 }
-                            } catch (error) {
+                            } catch {
                                 // continue regardless of error
                             }
                             break;
@@ -5087,7 +5087,7 @@ view.Context = class {
                                     const pickle = execution.__import__('pickle');
                                     unpickler = new pickle.Unpickler(data);
                                 }
-                            } catch (error) {
+                            } catch {
                                 // continue regardless of error
                             }
                             if (unpickler) {
@@ -5207,7 +5207,7 @@ view.Context = class {
                                     }
                                     this._content.set(type, content);
                                 }
-                            } catch (error) {
+                            } catch {
                                 // continue regardless of error
                             }
                             break;
@@ -5327,7 +5327,7 @@ view.Context = class {
                                 throw new view.Error(`Unsupported tags format type '${type}'.`);
                             }
                         }
-                    } catch (error) {
+                    } catch {
                         tags.clear();
                     }
                 }
@@ -5514,10 +5514,8 @@ view.ModelFactoryService = class {
         for (const callback of callbacks) {
             let archive = null;
             try {
-                /* eslint-disable no-await-in-loop */
                 archive = callback(stream);
-                /* eslint-enable no-await-in-loop */
-            } catch (error) {
+            } catch {
                 // continue regardless of error
             }
             if (archive) {
@@ -5917,7 +5915,7 @@ view.Metadata = class {
                 const content = await context.request(name);
                 const types = JSON.parse(content);
                 metadata.set(name, new view.Metadata(types));
-            } catch (error) {
+            } catch {
                 metadata.set(name, new view.Metadata(null));
             }
         }

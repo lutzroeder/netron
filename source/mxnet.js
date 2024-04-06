@@ -137,7 +137,7 @@ mxnet.ModelFactory = class {
                                 const content = await context.fetch(obj.Model.Signature);
                                 manifest.signature = content.read('json');
                                 return manifest;
-                            } catch (error) {
+                            } catch {
                                 return manifest;
                             }
                         }
@@ -150,11 +150,11 @@ mxnet.ModelFactory = class {
             try {
                 const content = await context.fetch('MANIFEST.json');
                 return parse(content.stream);
-            } catch (error) {
+            } catch {
                 try {
                     const content = await context.fetch('MAR-INF/MANIFEST.json');
                     return parse(content.stream);
-                } catch (error) {
+                } catch {
                     return parse(null);
                 }
             }
@@ -167,7 +167,7 @@ mxnet.ModelFactory = class {
                         const name = (key.startsWith('arg:') || key.startsWith('aux:')) ? key.substring(4) : key;
                         parameters.set(name, array);
                     }
-                } catch (error) {
+                } catch {
                     // continue regardless of error
                 }
             }
@@ -199,7 +199,7 @@ mxnet.ModelFactory = class {
                             const content = await context.fetch(file);
                             const reader = content.read('binary');
                             return createModel(metadata, manifest, symbol, reader);
-                        } catch (error) {
+                        } catch {
                             return createModel(metadata, manifest, symbol, null);
                         }
                     }
@@ -217,7 +217,7 @@ mxnet.ModelFactory = class {
                             const content = await context.fetch(name);
                             const symbol = content.read('json');
                             return createModel(metadata, manifest, symbol, params);
-                        } catch (error) {
+                        } catch {
                             return createModel(metadata, manifest, null, params);
                         }
                     }
@@ -410,7 +410,7 @@ mxnet.Graph = class {
                                         try {
                                             dataType = parseInt(arg_node.attrs.__dtype__, 10);
                                             shape = JSON.parse(`[${arg_node.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map(((dimension) => dimension || '"?"')).join(',')}]`);
-                                        } catch (err) {
+                                        } catch {
                                             // continue regardless of error
                                         }
                                     }

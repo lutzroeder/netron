@@ -229,7 +229,7 @@ protoc.Root = class extends protoc.Namespace {
             try {
                 await fs.access(path);
                 return true;
-            } catch (error) {
+            } catch {
                 return false;
             }
         };

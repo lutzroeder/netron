@@ -49,7 +49,7 @@ const access = async (path) => {
     try {
         await fs.access(path);
         return true;
-    } catch (error) {
+    } catch {
         return false;
     }
 };
@@ -506,7 +506,7 @@ const publish = async (target) => {
 const lint = async () => {
     await install();
     writeLine('eslint');
-    await exec('npx eslint *.*js source/*.*js test/*.*js publish/*.*js tools/*.js');
+    await exec('npx eslint --config publish/eslint.config.js *.*js source/*.*js test/*.*js publish/*.*js tools/*.js');
     writeLine('pylint');
     await exec('python -m pip install --upgrade --quiet pylint');
     await exec('python -m pylint -sn --recursive=y source test publish tools *.py');
