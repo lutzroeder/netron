@@ -221,7 +221,7 @@ export default [
             'strict': 'error',
             'symbol-description': 'error',
             'template-curly-spacing': 'error',
-            // 'unicode-bom': 'error',
+            'unicode-bom': 'error',
             'use-isnan': 'error',
             'valid-typeof': 'error',
             // 'vars-on-top': 'error',
