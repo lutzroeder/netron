@@ -304,9 +304,6 @@ hdf5.Variable = class {
 
 hdf5.Reader = class {
 
-    constructor() {
-    }
-
     initialize() {
         this._offsetSize = this.byte();
         this._lengthSize = this.byte();

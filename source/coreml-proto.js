@@ -53,9 +53,6 @@ CoreML.Specification.Pipeline = class Pipeline {
 
 CoreML.Specification.PipelineClassifier = class PipelineClassifier {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.PipelineClassifier();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -95,9 +92,6 @@ CoreML.Specification.PipelineClassifier.prototype.pipeline = null;
 
 CoreML.Specification.PipelineRegressor = class PipelineRegressor {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.PipelineRegressor();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -136,9 +130,6 @@ CoreML.Specification.PipelineRegressor = class PipelineRegressor {
 CoreML.Specification.PipelineRegressor.prototype.pipeline = null;
 
 CoreML.Specification.FeatureDescription = class FeatureDescription {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FeatureDescription();
@@ -340,9 +331,6 @@ CoreML.Specification.ModelDescription.prototype.metadata = null;
 
 CoreML.Specification.SerializedModel = class SerializedModel {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.SerializedModel();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -388,9 +376,6 @@ CoreML.Specification.SerializedModel.prototype.identifier = "";
 CoreML.Specification.SerializedModel.prototype.model = new Uint8Array([]);
 
 CoreML.Specification.Model = class Model {
-
-    constructor() {
-    }
 
     get Type() {
         CoreML.Specification.Model.TypeSet = CoreML.Specification.Model.TypeSet || new Set(["pipelineClassifier", "pipelineRegressor", "pipeline", "glmRegressor", "supportVectorRegressor", "treeEnsembleRegressor", "neuralNetworkRegressor", "bayesianProbitRegressor", "glmClassifier", "supportVectorClassifier", "treeEnsembleClassifier", "neuralNetworkClassifier", "kNearestNeighborsClassifier", "neuralNetwork", "itemSimilarityRecommender", "mlProgram", "customModel", "linkedModel", "classConfidenceThresholding", "oneHotEncoder", "imputer", "featureVectorizer", "dictVectorizer", "scaler", "categoricalMapping", "normalizer", "arrayFeatureExtractor", "nonMaximumSuppression", "identity", "textClassifier", "wordTagger", "visionFeaturePrint", "soundAnalysisPreprocessing", "gazetteer", "wordEmbedding", "audioFeaturePrint", "serializedModel"]);
@@ -674,9 +659,6 @@ CoreML.Specification.CoreMLModels = {};
 
 CoreML.Specification.CoreMLModels.VisionFeaturePrint = class VisionFeaturePrint {
 
-    constructor() {
-    }
-
     get VisionFeaturePrintType() {
         CoreML.Specification.CoreMLModels.VisionFeaturePrint.VisionFeaturePrintTypeSet = CoreML.Specification.CoreMLModels.VisionFeaturePrint.VisionFeaturePrintTypeSet || new Set(["scene", "objects"]);
         return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.VisionFeaturePrint.VisionFeaturePrintTypeSet.has(key) && this[key] !== null);
@@ -724,9 +706,6 @@ CoreML.Specification.CoreMLModels.VisionFeaturePrint = class VisionFeaturePrint 
 };
 
 CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene = class Scene {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene();
@@ -827,9 +806,6 @@ CoreML.Specification.CoreMLModels.VisionFeaturePrint.Objects.ObjectsVersion = {
 
 CoreML.Specification.CoreMLModels.AudioFeaturePrint = class AudioFeaturePrint {
 
-    constructor() {
-    }
-
     get AudioFeaturePrintType() {
         CoreML.Specification.CoreMLModels.AudioFeaturePrint.AudioFeaturePrintTypeSet = CoreML.Specification.CoreMLModels.AudioFeaturePrint.AudioFeaturePrintTypeSet || new Set(["sound"]);
         return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.AudioFeaturePrint.AudioFeaturePrintTypeSet.has(key) && this[key] !== null);
@@ -871,9 +847,6 @@ CoreML.Specification.CoreMLModels.AudioFeaturePrint = class AudioFeaturePrint {
 };
 
 CoreML.Specification.CoreMLModels.AudioFeaturePrint.Sound = class Sound {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.AudioFeaturePrint.Sound();
@@ -918,9 +891,6 @@ CoreML.Specification.CoreMLModels.AudioFeaturePrint.Sound.SoundVersion = {
 };
 
 CoreML.Specification.CoreMLModels.TextClassifier = class TextClassifier {
-
-    constructor() {
-    }
 
     get ClassLabels() {
         CoreML.Specification.CoreMLModels.TextClassifier.ClassLabelsSet = CoreML.Specification.CoreMLModels.TextClassifier.ClassLabelsSet || new Set(["stringClassLabels"]);
@@ -985,9 +955,6 @@ CoreML.Specification.CoreMLModels.TextClassifier.prototype.language = "";
 CoreML.Specification.CoreMLModels.TextClassifier.prototype.modelParameterData = new Uint8Array([]);
 
 CoreML.Specification.CoreMLModels.WordTagger = class WordTagger {
-
-    constructor() {
-    }
 
     get Tags() {
         CoreML.Specification.CoreMLModels.WordTagger.TagsSet = CoreML.Specification.CoreMLModels.WordTagger.TagsSet || new Set(["stringTags"]);
@@ -1081,9 +1048,6 @@ CoreML.Specification.CoreMLModels.WordTagger.prototype.modelParameterData = new 
 
 CoreML.Specification.CoreMLModels.Gazetteer = class Gazetteer {
 
-    constructor() {
-    }
-
     get ClassLabels() {
         CoreML.Specification.CoreMLModels.Gazetteer.ClassLabelsSet = CoreML.Specification.CoreMLModels.Gazetteer.ClassLabelsSet || new Set(["stringClassLabels"]);
         return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.Gazetteer.ClassLabelsSet.has(key) && this[key] !== null);
@@ -1148,9 +1112,6 @@ CoreML.Specification.CoreMLModels.Gazetteer.prototype.modelParameterData = new U
 
 CoreML.Specification.CoreMLModels.WordEmbedding = class WordEmbedding {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.WordEmbedding();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1204,9 +1165,6 @@ CoreML.Specification.CoreMLModels.WordEmbedding.prototype.modelParameterData = n
 
 CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing = class SoundAnalysisPreprocessing {
 
-    constructor() {
-    }
-
     get SoundAnalysisPreprocessingType() {
         CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.SoundAnalysisPreprocessingTypeSet = CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.SoundAnalysisPreprocessingTypeSet || new Set(["vggish"]);
         return Object.keys(this).find((key) => CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.SoundAnalysisPreprocessingTypeSet.has(key) && this[key] !== null);
@@ -1248,9 +1206,6 @@ CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing = class SoundAnalys
 };
 
 CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.Vggish = class Vggish {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.Vggish();
@@ -1611,9 +1566,6 @@ CoreML.Specification.DoubleVector = class DoubleVector {
 
 CoreML.Specification.Int64Range = class Int64Range {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.Int64Range();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1701,9 +1653,6 @@ CoreML.Specification.Int64Set = class Int64Set {
 
 CoreML.Specification.DoubleRange = class DoubleRange {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.DoubleRange();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1749,9 +1698,6 @@ CoreML.Specification.DoubleRange.prototype.minValue = 0;
 CoreML.Specification.DoubleRange.prototype.maxValue = 0;
 
 CoreML.Specification.PrecisionRecallCurve = class PrecisionRecallCurve {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PrecisionRecallCurve();
@@ -1813,9 +1759,6 @@ CoreML.Specification.PrecisionRecallCurve.prototype.recallConfidenceThresholds =
 
 CoreML.Specification.Int64FeatureType = class Int64FeatureType {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.Int64FeatureType();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1846,9 +1789,6 @@ CoreML.Specification.Int64FeatureType = class Int64FeatureType {
 };
 
 CoreML.Specification.DoubleFeatureType = class DoubleFeatureType {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.DoubleFeatureType();
@@ -1881,9 +1821,6 @@ CoreML.Specification.DoubleFeatureType = class DoubleFeatureType {
 
 CoreML.Specification.StringFeatureType = class StringFeatureType {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.StringFeatureType();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1914,9 +1851,6 @@ CoreML.Specification.StringFeatureType = class StringFeatureType {
 };
 
 CoreML.Specification.SizeRange = class SizeRange {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SizeRange();
@@ -1963,9 +1897,6 @@ CoreML.Specification.SizeRange.prototype.lowerBound = 0n;
 CoreML.Specification.SizeRange.prototype.upperBound = 0n;
 
 CoreML.Specification.ImageFeatureType = class ImageFeatureType {
-
-    constructor() {
-    }
 
     get SizeFlexibility() {
         CoreML.Specification.ImageFeatureType.SizeFlexibilitySet = CoreML.Specification.ImageFeatureType.SizeFlexibilitySet || new Set(["enumeratedSizes", "imageSizeRange"]);
@@ -2044,9 +1975,6 @@ CoreML.Specification.ImageFeatureType.ColorSpace = {
 };
 
 CoreML.Specification.ImageFeatureType.ImageSize = class ImageSize {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ImageFeatureType.ImageSize();
@@ -2134,9 +2062,6 @@ CoreML.Specification.ImageFeatureType.EnumeratedImageSizes = class EnumeratedIma
 };
 
 CoreML.Specification.ImageFeatureType.ImageSizeRange = class ImageSizeRange {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ImageFeatureType.ImageSizeRange();
@@ -2404,9 +2329,6 @@ CoreML.Specification.ArrayFeatureType.ShapeRange = class ShapeRange {
 
 CoreML.Specification.DictionaryFeatureType = class DictionaryFeatureType {
 
-    constructor() {
-    }
-
     get KeyType() {
         CoreML.Specification.DictionaryFeatureType.KeyTypeSet = CoreML.Specification.DictionaryFeatureType.KeyTypeSet || new Set(["int64KeyType", "stringKeyType"]);
         return Object.keys(this).find((key) => CoreML.Specification.DictionaryFeatureType.KeyTypeSet.has(key) && this[key] !== null);
@@ -2454,9 +2376,6 @@ CoreML.Specification.DictionaryFeatureType = class DictionaryFeatureType {
 };
 
 CoreML.Specification.SequenceFeatureType = class SequenceFeatureType {
-
-    constructor() {
-    }
 
     get Type() {
         CoreML.Specification.SequenceFeatureType.TypeSet = CoreML.Specification.SequenceFeatureType.TypeSet || new Set(["int64Type", "stringType"]);
@@ -2513,9 +2432,6 @@ CoreML.Specification.SequenceFeatureType = class SequenceFeatureType {
 CoreML.Specification.SequenceFeatureType.prototype.sizeRange = null;
 
 CoreML.Specification.FeatureType = class FeatureType {
-
-    constructor() {
-    }
 
     get Type() {
         CoreML.Specification.FeatureType.TypeSet = CoreML.Specification.FeatureType.TypeSet || new Set(["int64Type", "doubleType", "stringType", "imageType", "multiArrayType", "dictionaryType", "sequenceType"]);
@@ -2756,9 +2672,6 @@ CoreML.Specification.BayesianProbitRegressor.prototype.sampledProbabilityOutputF
 
 CoreML.Specification.BayesianProbitRegressor.Gaussian = class Gaussian {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.BayesianProbitRegressor.Gaussian();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2804,9 +2717,6 @@ CoreML.Specification.BayesianProbitRegressor.Gaussian.prototype.mean = 0;
 CoreML.Specification.BayesianProbitRegressor.Gaussian.prototype.precision = 0;
 
 CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight = class FeatureValueWeight {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight();
@@ -2902,9 +2812,6 @@ CoreML.Specification.BayesianProbitRegressor.FeatureWeight = class FeatureWeight
 CoreML.Specification.BayesianProbitRegressor.FeatureWeight.prototype.featureId = 0;
 
 CoreML.Specification.CategoricalMapping = class CategoricalMapping {
-
-    constructor() {
-    }
 
     get MappingType() {
         CoreML.Specification.CategoricalMapping.MappingTypeSet = CoreML.Specification.CategoricalMapping.MappingTypeSet || new Set(["stringToInt64Map", "int64ToStringMap"]);
@@ -3027,9 +2934,6 @@ CoreML.Specification.CustomModel.prototype.description = "";
 
 CoreML.Specification.CustomModel.CustomModelParamValue = class CustomModelParamValue {
 
-    constructor() {
-    }
-
     get value() {
         CoreML.Specification.CustomModel.CustomModelParamValue.valueSet = CoreML.Specification.CustomModel.CustomModelParamValue.valueSet || new Set(["doubleValue", "stringValue", "intValue", "longValue", "boolValue", "bytesValue"]);
         return Object.keys(this).find((key) => CoreML.Specification.CustomModel.CustomModelParamValue.valueSet.has(key) && this[key] !== null);
@@ -3101,9 +3005,6 @@ CoreML.Specification.CustomModel.CustomModelParamValue = class CustomModelParamV
 };
 
 CoreML.Specification.DictVectorizer = class DictVectorizer {
-
-    constructor() {
-    }
 
     get Map() {
         CoreML.Specification.DictVectorizer.MapSet = CoreML.Specification.DictVectorizer.MapSet || new Set(["stringToIndex", "int64ToIndex"]);
@@ -3193,9 +3094,6 @@ CoreML.Specification.FeatureVectorizer = class FeatureVectorizer {
 };
 
 CoreML.Specification.FeatureVectorizer.InputColumn = class InputColumn {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FeatureVectorizer.InputColumn();
@@ -3477,9 +3375,6 @@ CoreML.Specification.GLMClassifier.ClassEncoding = {
 
 CoreML.Specification.KNearestNeighborsClassifier = class KNearestNeighborsClassifier {
 
-    constructor() {
-    }
-
     get ClassLabels() {
         CoreML.Specification.KNearestNeighborsClassifier.ClassLabelsSet = CoreML.Specification.KNearestNeighborsClassifier.ClassLabelsSet || new Set(["stringClassLabels", "int64ClassLabels"]);
         return Object.keys(this).find((key) => CoreML.Specification.KNearestNeighborsClassifier.ClassLabelsSet.has(key) && this[key] !== null);
@@ -3654,9 +3549,6 @@ CoreML.Specification.NearestNeighborsIndex.prototype.numberOfDimensions = 0;
 
 CoreML.Specification.UniformWeighting = class UniformWeighting {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.UniformWeighting();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3687,9 +3579,6 @@ CoreML.Specification.UniformWeighting = class UniformWeighting {
 };
 
 CoreML.Specification.InverseDistanceWeighting = class InverseDistanceWeighting {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.InverseDistanceWeighting();
@@ -3722,9 +3611,6 @@ CoreML.Specification.InverseDistanceWeighting = class InverseDistanceWeighting {
 
 CoreML.Specification.LinearIndex = class LinearIndex {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.LinearIndex();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3755,9 +3641,6 @@ CoreML.Specification.LinearIndex = class LinearIndex {
 };
 
 CoreML.Specification.SingleKdTreeIndex = class SingleKdTreeIndex {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SingleKdTreeIndex();
@@ -3798,9 +3681,6 @@ CoreML.Specification.SingleKdTreeIndex.prototype.leafSize = 0;
 
 CoreML.Specification.SquaredEuclideanDistance = class SquaredEuclideanDistance {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.SquaredEuclideanDistance();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3831,9 +3711,6 @@ CoreML.Specification.SquaredEuclideanDistance = class SquaredEuclideanDistance {
 };
 
 CoreML.Specification.Int64Parameter = class Int64Parameter {
-
-    constructor() {
-    }
 
     get AllowedValues() {
         CoreML.Specification.Int64Parameter.AllowedValuesSet = CoreML.Specification.Int64Parameter.AllowedValuesSet || new Set(["range", "set"]);
@@ -3891,9 +3768,6 @@ CoreML.Specification.Int64Parameter.prototype.defaultValue = 0n;
 
 CoreML.Specification.DoubleParameter = class DoubleParameter {
 
-    constructor() {
-    }
-
     get AllowedValues() {
         CoreML.Specification.DoubleParameter.AllowedValuesSet = CoreML.Specification.DoubleParameter.AllowedValuesSet || new Set(["range"]);
         return Object.keys(this).find((key) => CoreML.Specification.DoubleParameter.AllowedValuesSet.has(key) && this[key] !== null);
@@ -3944,9 +3818,6 @@ CoreML.Specification.DoubleParameter.prototype.defaultValue = 0;
 
 CoreML.Specification.StringParameter = class StringParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.StringParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3985,9 +3856,6 @@ CoreML.Specification.StringParameter = class StringParameter {
 CoreML.Specification.StringParameter.prototype.defaultValue = "";
 
 CoreML.Specification.BoolParameter = class BoolParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BoolParameter();
@@ -4028,9 +3896,6 @@ CoreML.Specification.BoolParameter.prototype.defaultValue = false;
 
 CoreML.Specification.Identity = class Identity {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.Identity();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4061,9 +3926,6 @@ CoreML.Specification.Identity = class Identity {
 };
 
 CoreML.Specification.Imputer = class Imputer {
-
-    constructor() {
-    }
 
     get ImputedValue() {
         CoreML.Specification.Imputer.ImputedValueSet = CoreML.Specification.Imputer.ImputedValueSet || new Set(["imputedDoubleValue", "imputedInt64Value", "imputedStringValue", "imputedDoubleArray", "imputedInt64Array", "imputedStringDictionary", "imputedInt64Dictionary"]);
@@ -4397,9 +4259,6 @@ CoreML.Specification.MILSpec.Argument = class Argument {
 
 CoreML.Specification.MILSpec.Argument.Binding = class Binding {
 
-    constructor() {
-    }
-
     get binding() {
         CoreML.Specification.MILSpec.Argument.Binding.bindingSet = CoreML.Specification.MILSpec.Argument.Binding.bindingSet || new Set(["name", "value"]);
         return Object.keys(this).find((key) => CoreML.Specification.MILSpec.Argument.Binding.bindingSet.has(key) && this[key] !== null);
@@ -4518,9 +4377,6 @@ CoreML.Specification.MILSpec.Operation.prototype.type = "";
 
 CoreML.Specification.MILSpec.NamedValueType = class NamedValueType {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.NamedValueType();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4566,9 +4422,6 @@ CoreML.Specification.MILSpec.NamedValueType.prototype.name = "";
 CoreML.Specification.MILSpec.NamedValueType.prototype.type = null;
 
 CoreML.Specification.MILSpec.ValueType = class ValueType {
-
-    constructor() {
-    }
 
     get type() {
         CoreML.Specification.MILSpec.ValueType.typeSet = CoreML.Specification.MILSpec.ValueType.typeSet || new Set(["tensorType", "listType", "tupleType", "dictionaryType"]);
@@ -4752,9 +4605,6 @@ CoreML.Specification.MILSpec.TupleType = class TupleType {
 
 CoreML.Specification.MILSpec.ListType = class ListType {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.ListType();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4801,9 +4651,6 @@ CoreML.Specification.MILSpec.ListType.prototype.length = null;
 
 CoreML.Specification.MILSpec.DictionaryType = class DictionaryType {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.DictionaryType();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4849,9 +4696,6 @@ CoreML.Specification.MILSpec.DictionaryType.prototype.keyType = null;
 CoreML.Specification.MILSpec.DictionaryType.prototype.valueType = null;
 
 CoreML.Specification.MILSpec.Dimension = class Dimension {
-
-    constructor() {
-    }
 
     get dimension() {
         CoreML.Specification.MILSpec.Dimension.dimensionSet = CoreML.Specification.MILSpec.Dimension.dimensionSet || new Set(["constant", "unknown"]);
@@ -4901,9 +4745,6 @@ CoreML.Specification.MILSpec.Dimension = class Dimension {
 
 CoreML.Specification.MILSpec.Dimension.ConstantDimension = class ConstantDimension {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Dimension.ConstantDimension();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4943,9 +4784,6 @@ CoreML.Specification.MILSpec.Dimension.ConstantDimension.prototype.size = 0n;
 
 CoreML.Specification.MILSpec.Dimension.UnknownDimension = class UnknownDimension {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Dimension.UnknownDimension();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4984,9 +4822,6 @@ CoreML.Specification.MILSpec.Dimension.UnknownDimension = class UnknownDimension
 CoreML.Specification.MILSpec.Dimension.UnknownDimension.prototype.variadic = false;
 
 CoreML.Specification.MILSpec.Value = class Value {
-
-    constructor() {
-    }
 
     get value() {
         CoreML.Specification.MILSpec.Value.valueSet = CoreML.Specification.MILSpec.Value.valueSet || new Set(["immediateValue", "blobFileValue"]);
@@ -5051,9 +4886,6 @@ CoreML.Specification.MILSpec.Value.prototype.type = null;
 
 CoreML.Specification.MILSpec.Value.ImmediateValue = class ImmediateValue {
 
-    constructor() {
-    }
-
     get value() {
         CoreML.Specification.MILSpec.Value.ImmediateValue.valueSet = CoreML.Specification.MILSpec.Value.ImmediateValue.valueSet || new Set(["tensor", "tuple", "list", "dictionary"]);
         return Object.keys(this).find((key) => CoreML.Specification.MILSpec.Value.ImmediateValue.valueSet.has(key) && this[key] !== null);
@@ -5114,9 +4946,6 @@ CoreML.Specification.MILSpec.Value.ImmediateValue = class ImmediateValue {
 
 CoreML.Specification.MILSpec.Value.BlobFileValue = class BlobFileValue {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Value.BlobFileValue();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5162,9 +4991,6 @@ CoreML.Specification.MILSpec.Value.BlobFileValue.prototype.fileName = "";
 CoreML.Specification.MILSpec.Value.BlobFileValue.prototype.offset = 0n;
 
 CoreML.Specification.MILSpec.TensorValue = class TensorValue {
-
-    constructor() {
-    }
 
     get value() {
         CoreML.Specification.MILSpec.TensorValue.valueSet = CoreML.Specification.MILSpec.TensorValue.valueSet || new Set(["floats", "ints", "bools", "strings", "longInts", "doubles", "bytes"]);
@@ -5490,9 +5316,6 @@ CoreML.Specification.MILSpec.TensorValue.RepeatedStrings = class RepeatedStrings
 
 CoreML.Specification.MILSpec.TensorValue.RepeatedBytes = class RepeatedBytes {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.TensorValue.RepeatedBytes();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5655,9 +5478,6 @@ CoreML.Specification.MILSpec.DictionaryValue = class DictionaryValue {
 
 CoreML.Specification.MILSpec.DictionaryValue.KeyValuePair = class KeyValuePair {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.DictionaryValue.KeyValuePair();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5784,9 +5604,6 @@ CoreML.Specification.NeuralNetwork.prototype.updateParams = null;
 
 CoreML.Specification.NeuralNetworkImageScaler = class NeuralNetworkImageScaler {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.NeuralNetworkImageScaler();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5895,9 +5712,6 @@ CoreML.Specification.NeuralNetworkMeanImage = class NeuralNetworkMeanImage {
 
 CoreML.Specification.NeuralNetworkPreprocessing = class NeuralNetworkPreprocessing {
 
-    constructor() {
-    }
-
     get preprocessor() {
         CoreML.Specification.NeuralNetworkPreprocessing.preprocessorSet = CoreML.Specification.NeuralNetworkPreprocessing.preprocessorSet || new Set(["scaler", "meanImage"]);
         return Object.keys(this).find((key) => CoreML.Specification.NeuralNetworkPreprocessing.preprocessorSet.has(key) && this[key] !== null);
@@ -5954,9 +5768,6 @@ CoreML.Specification.NeuralNetworkPreprocessing.prototype.featureName = "";
 
 CoreML.Specification.ActivationReLU = class ActivationReLU {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationReLU();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5987,9 +5798,6 @@ CoreML.Specification.ActivationReLU = class ActivationReLU {
 };
 
 CoreML.Specification.ActivationLeakyReLU = class ActivationLeakyReLU {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationLeakyReLU();
@@ -6030,9 +5838,6 @@ CoreML.Specification.ActivationLeakyReLU.prototype.alpha = 0;
 
 CoreML.Specification.ActivationTanh = class ActivationTanh {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationTanh();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -6063,9 +5868,6 @@ CoreML.Specification.ActivationTanh = class ActivationTanh {
 };
 
 CoreML.Specification.ActivationScaledTanh = class ActivationScaledTanh {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationScaledTanh();
@@ -6113,9 +5915,6 @@ CoreML.Specification.ActivationScaledTanh.prototype.beta = 0;
 
 CoreML.Specification.ActivationSigmoid = class ActivationSigmoid {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationSigmoid();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -6146,9 +5945,6 @@ CoreML.Specification.ActivationSigmoid = class ActivationSigmoid {
 };
 
 CoreML.Specification.ActivationLinear = class ActivationLinear {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationLinear();
@@ -6196,9 +5992,6 @@ CoreML.Specification.ActivationLinear.prototype.beta = 0;
 
 CoreML.Specification.ActivationSigmoidHard = class ActivationSigmoidHard {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationSigmoidHard();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -6245,9 +6038,6 @@ CoreML.Specification.ActivationSigmoidHard.prototype.beta = 0;
 
 CoreML.Specification.ActivationPReLU = class ActivationPReLU {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationPReLU();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -6286,9 +6076,6 @@ CoreML.Specification.ActivationPReLU = class ActivationPReLU {
 CoreML.Specification.ActivationPReLU.prototype.alpha = null;
 
 CoreML.Specification.ActivationELU = class ActivationELU {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationELU();
@@ -6329,9 +6116,6 @@ CoreML.Specification.ActivationELU.prototype.alpha = 0;
 
 CoreML.Specification.ActivationThresholdedReLU = class ActivationThresholdedReLU {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationThresholdedReLU();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -6371,9 +6155,6 @@ CoreML.Specification.ActivationThresholdedReLU.prototype.alpha = 0;
 
 CoreML.Specification.ActivationSoftsign = class ActivationSoftsign {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationSoftsign();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -6405,9 +6186,6 @@ CoreML.Specification.ActivationSoftsign = class ActivationSoftsign {
 
 CoreML.Specification.ActivationSoftplus = class ActivationSoftplus {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationSoftplus();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -6438,9 +6216,6 @@ CoreML.Specification.ActivationSoftplus = class ActivationSoftplus {
 };
 
 CoreML.Specification.ActivationParametricSoftplus = class ActivationParametricSoftplus {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationParametricSoftplus();
@@ -6487,9 +6262,6 @@ CoreML.Specification.ActivationParametricSoftplus.prototype.alpha = null;
 CoreML.Specification.ActivationParametricSoftplus.prototype.beta = null;
 
 CoreML.Specification.ActivationParams = class ActivationParams {
-
-    constructor() {
-    }
 
     get NonlinearityType() {
         CoreML.Specification.ActivationParams.NonlinearityTypeSet = CoreML.Specification.ActivationParams.NonlinearityTypeSet || new Set(["linear", "ReLU", "leakyReLU", "thresholdedReLU", "PReLU", "tanh", "scaledTanh", "sigmoid", "sigmoidHard", "ELU", "softsign", "softplus", "parametricSoftplus"]);
@@ -7684,9 +7456,6 @@ CoreML.Specification.NeuralNetworkLayer.prototype.isUpdatable = false;
 
 CoreML.Specification.BranchLayerParams = class BranchLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.BranchLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7732,9 +7501,6 @@ CoreML.Specification.BranchLayerParams.prototype.ifBranch = null;
 CoreML.Specification.BranchLayerParams.prototype.elseBranch = null;
 
 CoreML.Specification.LoopLayerParams = class LoopLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LoopLayerParams();
@@ -7796,9 +7562,6 @@ CoreML.Specification.LoopLayerParams.prototype.bodyNetwork = null;
 
 CoreML.Specification.LoopBreakLayerParams = class LoopBreakLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.LoopBreakLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7829,9 +7592,6 @@ CoreML.Specification.LoopBreakLayerParams = class LoopBreakLayerParams {
 };
 
 CoreML.Specification.LoopContinueLayerParams = class LoopContinueLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LoopContinueLayerParams();
@@ -7864,9 +7624,6 @@ CoreML.Specification.LoopContinueLayerParams = class LoopContinueLayerParams {
 
 CoreML.Specification.CopyLayerParams = class CopyLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.CopyLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7897,9 +7654,6 @@ CoreML.Specification.CopyLayerParams = class CopyLayerParams {
 };
 
 CoreML.Specification.GreaterThanLayerParams = class GreaterThanLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GreaterThanLayerParams();
@@ -7940,9 +7694,6 @@ CoreML.Specification.GreaterThanLayerParams.prototype.alpha = 0;
 
 CoreML.Specification.GreaterEqualLayerParams = class GreaterEqualLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.GreaterEqualLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7981,9 +7732,6 @@ CoreML.Specification.GreaterEqualLayerParams = class GreaterEqualLayerParams {
 CoreML.Specification.GreaterEqualLayerParams.prototype.alpha = 0;
 
 CoreML.Specification.LessThanLayerParams = class LessThanLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LessThanLayerParams();
@@ -8024,9 +7772,6 @@ CoreML.Specification.LessThanLayerParams.prototype.alpha = 0;
 
 CoreML.Specification.LessEqualLayerParams = class LessEqualLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.LessEqualLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8065,9 +7810,6 @@ CoreML.Specification.LessEqualLayerParams = class LessEqualLayerParams {
 CoreML.Specification.LessEqualLayerParams.prototype.alpha = 0;
 
 CoreML.Specification.EqualLayerParams = class EqualLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.EqualLayerParams();
@@ -8108,9 +7850,6 @@ CoreML.Specification.EqualLayerParams.prototype.alpha = 0;
 
 CoreML.Specification.NotEqualLayerParams = class NotEqualLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.NotEqualLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8150,9 +7889,6 @@ CoreML.Specification.NotEqualLayerParams.prototype.alpha = 0;
 
 CoreML.Specification.LogicalAndLayerParams = class LogicalAndLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.LogicalAndLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8183,9 +7919,6 @@ CoreML.Specification.LogicalAndLayerParams = class LogicalAndLayerParams {
 };
 
 CoreML.Specification.LogicalOrLayerParams = class LogicalOrLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LogicalOrLayerParams();
@@ -8218,9 +7951,6 @@ CoreML.Specification.LogicalOrLayerParams = class LogicalOrLayerParams {
 
 CoreML.Specification.LogicalXorLayerParams = class LogicalXorLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.LogicalXorLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8251,9 +7981,6 @@ CoreML.Specification.LogicalXorLayerParams = class LogicalXorLayerParams {
 };
 
 CoreML.Specification.LogicalNotLayerParams = class LogicalNotLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LogicalNotLayerParams();
@@ -8327,9 +8054,6 @@ CoreML.Specification.BorderAmounts = class BorderAmounts {
 
 CoreML.Specification.BorderAmounts.EdgeSizes = class EdgeSizes {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.BorderAmounts.EdgeSizes();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8376,9 +8100,6 @@ CoreML.Specification.BorderAmounts.EdgeSizes.prototype.endEdgeSize = 0n;
 
 CoreML.Specification.ValidPadding = class ValidPadding {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ValidPadding();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8417,9 +8138,6 @@ CoreML.Specification.ValidPadding = class ValidPadding {
 CoreML.Specification.ValidPadding.prototype.paddingAmounts = null;
 
 CoreML.Specification.SamePadding = class SamePadding {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SamePadding();
@@ -8464,9 +8182,6 @@ CoreML.Specification.SamePadding.SamePaddingMode = {
 };
 
 CoreML.Specification.SamplingMode = class SamplingMode {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SamplingMode();
@@ -8513,9 +8228,6 @@ CoreML.Specification.SamplingMode.Method = {
 };
 
 CoreML.Specification.BoxCoordinatesMode = class BoxCoordinatesMode {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BoxCoordinatesMode();
@@ -8639,9 +8351,6 @@ CoreML.Specification.WeightParams.prototype.quantization = null;
 CoreML.Specification.WeightParams.prototype.isUpdatable = false;
 
 CoreML.Specification.QuantizationParams = class QuantizationParams {
-
-    constructor() {
-    }
 
     get QuantizationType() {
         CoreML.Specification.QuantizationParams.QuantizationTypeSet = CoreML.Specification.QuantizationParams.QuantizationTypeSet || new Set(["linearQuantization", "lookupTableQuantization"]);
@@ -9126,9 +8835,6 @@ CoreML.Specification.Convolution3DLayerParams.PaddingType = {
 
 CoreML.Specification.InnerProductLayerParams = class InnerProductLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.InnerProductLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9203,9 +8909,6 @@ CoreML.Specification.InnerProductLayerParams.prototype.int8DynamicQuantize = fal
 
 CoreML.Specification.EmbeddingLayerParams = class EmbeddingLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.EmbeddingLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9273,9 +8976,6 @@ CoreML.Specification.EmbeddingLayerParams.prototype.bias = null;
 
 CoreML.Specification.EmbeddingNDLayerParams = class EmbeddingNDLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.EmbeddingNDLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9342,9 +9042,6 @@ CoreML.Specification.EmbeddingNDLayerParams.prototype.weights = null;
 CoreML.Specification.EmbeddingNDLayerParams.prototype.bias = null;
 
 CoreML.Specification.BatchnormLayerParams = class BatchnormLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BatchnormLayerParams();
@@ -9574,9 +9271,6 @@ CoreML.Specification.PoolingLayerParams.ValidCompletePadding = class ValidComple
 
 CoreML.Specification.Pooling3DLayerParams = class Pooling3DLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.Pooling3DLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9725,9 +9419,6 @@ CoreML.Specification.Pooling3DLayerParams.Pooling3DPaddingType = {
 
 CoreML.Specification.GlobalPooling3DLayerParams = class GlobalPooling3DLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.GlobalPooling3DLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9771,9 +9462,6 @@ CoreML.Specification.GlobalPooling3DLayerParams.GlobalPoolingType3D = {
 };
 
 CoreML.Specification.PaddingLayerParams = class PaddingLayerParams {
-
-    constructor() {
-    }
 
     get PaddingType() {
         CoreML.Specification.PaddingLayerParams.PaddingTypeSet = CoreML.Specification.PaddingLayerParams.PaddingTypeSet || new Set(["constant", "reflection", "replication"]);
@@ -9837,9 +9525,6 @@ CoreML.Specification.PaddingLayerParams.prototype.paddingAmounts = null;
 
 CoreML.Specification.PaddingLayerParams.PaddingConstant = class PaddingConstant {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.PaddingLayerParams.PaddingConstant();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9879,9 +9564,6 @@ CoreML.Specification.PaddingLayerParams.PaddingConstant.prototype.value = 0;
 
 CoreML.Specification.PaddingLayerParams.PaddingReflection = class PaddingReflection {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.PaddingLayerParams.PaddingReflection();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9913,9 +9595,6 @@ CoreML.Specification.PaddingLayerParams.PaddingReflection = class PaddingReflect
 
 CoreML.Specification.PaddingLayerParams.PaddingReplication = class PaddingReplication {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.PaddingLayerParams.PaddingReplication();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9946,9 +9625,6 @@ CoreML.Specification.PaddingLayerParams.PaddingReplication = class PaddingReplic
 };
 
 CoreML.Specification.ConcatLayerParams = class ConcatLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ConcatLayerParams();
@@ -9988,9 +9664,6 @@ CoreML.Specification.ConcatLayerParams = class ConcatLayerParams {
 CoreML.Specification.ConcatLayerParams.prototype.sequenceConcat = false;
 
 CoreML.Specification.LRNLayerParams = class LRNLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LRNLayerParams();
@@ -10052,9 +9725,6 @@ CoreML.Specification.LRNLayerParams.prototype.k = 0;
 
 CoreML.Specification.SoftmaxLayerParams = class SoftmaxLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.SoftmaxLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -10085,9 +9755,6 @@ CoreML.Specification.SoftmaxLayerParams = class SoftmaxLayerParams {
 };
 
 CoreML.Specification.SplitLayerParams = class SplitLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SplitLayerParams();
@@ -10128,9 +9795,6 @@ CoreML.Specification.SplitLayerParams.prototype.nOutputs = 0n;
 
 CoreML.Specification.AddLayerParams = class AddLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.AddLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -10170,9 +9834,6 @@ CoreML.Specification.AddLayerParams.prototype.alpha = 0;
 
 CoreML.Specification.MultiplyLayerParams = class MultiplyLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.MultiplyLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -10211,9 +9872,6 @@ CoreML.Specification.MultiplyLayerParams = class MultiplyLayerParams {
 CoreML.Specification.MultiplyLayerParams.prototype.alpha = 0;
 
 CoreML.Specification.UnaryFunctionLayerParams = class UnaryFunctionLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.UnaryFunctionLayerParams();
@@ -10654,9 +10312,6 @@ CoreML.Specification.LoadConstantLayerParams.prototype.data = null;
 
 CoreML.Specification.L2NormalizeLayerParams = class L2NormalizeLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.L2NormalizeLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -10695,9 +10350,6 @@ CoreML.Specification.L2NormalizeLayerParams = class L2NormalizeLayerParams {
 CoreML.Specification.L2NormalizeLayerParams.prototype.epsilon = 0;
 
 CoreML.Specification.FlattenLayerParams = class FlattenLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FlattenLayerParams();
@@ -10838,9 +10490,6 @@ CoreML.Specification.PermuteLayerParams = class PermuteLayerParams {
 
 CoreML.Specification.ReorganizeDataLayerParams = class ReorganizeDataLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ReorganizeDataLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -10892,9 +10541,6 @@ CoreML.Specification.ReorganizeDataLayerParams.ReorganizationType = {
 };
 
 CoreML.Specification.SliceLayerParams = class SliceLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SliceLayerParams();
@@ -10961,9 +10607,6 @@ CoreML.Specification.SliceLayerParams.SliceAxis = {
 };
 
 CoreML.Specification.ReduceLayerParams = class ReduceLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReduceLayerParams();
@@ -11088,9 +10731,6 @@ CoreML.Specification.CropLayerParams.prototype.cropAmounts = null;
 
 CoreML.Specification.AverageLayerParams = class AverageLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.AverageLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -11121,9 +10761,6 @@ CoreML.Specification.AverageLayerParams = class AverageLayerParams {
 };
 
 CoreML.Specification.MaxLayerParams = class MaxLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MaxLayerParams();
@@ -11156,9 +10793,6 @@ CoreML.Specification.MaxLayerParams = class MaxLayerParams {
 
 CoreML.Specification.MinLayerParams = class MinLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.MinLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -11189,9 +10823,6 @@ CoreML.Specification.MinLayerParams = class MinLayerParams {
 };
 
 CoreML.Specification.DotProductLayerParams = class DotProductLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.DotProductLayerParams();
@@ -11231,9 +10862,6 @@ CoreML.Specification.DotProductLayerParams = class DotProductLayerParams {
 CoreML.Specification.DotProductLayerParams.prototype.cosineSimilarity = false;
 
 CoreML.Specification.MeanVarianceNormalizeLayerParams = class MeanVarianceNormalizeLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MeanVarianceNormalizeLayerParams();
@@ -11288,9 +10916,6 @@ CoreML.Specification.MeanVarianceNormalizeLayerParams.prototype.epsilon = 0;
 
 CoreML.Specification.SequenceRepeatLayerParams = class SequenceRepeatLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.SequenceRepeatLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -11329,9 +10954,6 @@ CoreML.Specification.SequenceRepeatLayerParams = class SequenceRepeatLayerParams
 CoreML.Specification.SequenceRepeatLayerParams.prototype.nRepetitions = 0n;
 
 CoreML.Specification.SimpleRecurrentLayerParams = class SimpleRecurrentLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SimpleRecurrentLayerParams();
@@ -11568,9 +11190,6 @@ CoreML.Specification.GRULayerParams.prototype.reverseInput = false;
 
 CoreML.Specification.LSTMParams = class LSTMParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.LSTMParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -11644,9 +11263,6 @@ CoreML.Specification.LSTMParams.prototype.coupledInputAndForgetGate = false;
 CoreML.Specification.LSTMParams.prototype.cellClipThreshold = 0;
 
 CoreML.Specification.LSTMWeightParams = class LSTMWeightParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LSTMWeightParams();
@@ -12002,9 +11618,6 @@ CoreML.Specification.CustomLayerParams.prototype.description = "";
 
 CoreML.Specification.CustomLayerParams.CustomLayerParamValue = class CustomLayerParamValue {
 
-    constructor() {
-    }
-
     get value() {
         CoreML.Specification.CustomLayerParams.CustomLayerParamValue.valueSet = CoreML.Specification.CustomLayerParams.CustomLayerParamValue.valueSet || new Set(["doubleValue", "stringValue", "intValue", "longValue", "boolValue"]);
         return Object.keys(this).find((key) => CoreML.Specification.CustomLayerParams.CustomLayerParamValue.valueSet.has(key) && this[key] !== null);
@@ -12112,9 +11725,6 @@ CoreML.Specification.TransposeLayerParams = class TransposeLayerParams {
 
 CoreML.Specification.BatchedMatMulLayerParams = class BatchedMatMulLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.BatchedMatMulLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12203,9 +11813,6 @@ CoreML.Specification.BatchedMatMulLayerParams.prototype.int8DynamicQuantize = fa
 
 CoreML.Specification.ConcatNDLayerParams = class ConcatNDLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ConcatNDLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12251,9 +11858,6 @@ CoreML.Specification.ConcatNDLayerParams.prototype.axis = 0n;
 CoreML.Specification.ConcatNDLayerParams.prototype.interleave = false;
 
 CoreML.Specification.SoftmaxNDLayerParams = class SoftmaxNDLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SoftmaxNDLayerParams();
@@ -12334,9 +11938,6 @@ CoreML.Specification.ReverseLayerParams = class ReverseLayerParams {
 };
 
 CoreML.Specification.ReverseSeqLayerParams = class ReverseSeqLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReverseSeqLayerParams();
@@ -12433,9 +12034,6 @@ CoreML.Specification.LoadConstantNDLayerParams.prototype.data = null;
 
 CoreML.Specification.FillLikeLayerParams = class FillLikeLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.FillLikeLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12524,9 +12122,6 @@ CoreML.Specification.FillStaticLayerParams.prototype.value = 0;
 
 CoreML.Specification.FillDynamicLayerParams = class FillDynamicLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.FillDynamicLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12566,9 +12161,6 @@ CoreML.Specification.FillDynamicLayerParams.prototype.value = 0;
 
 CoreML.Specification.WhereBroadcastableLayerParams = class WhereBroadcastableLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.WhereBroadcastableLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12599,9 +12191,6 @@ CoreML.Specification.WhereBroadcastableLayerParams = class WhereBroadcastableLay
 };
 
 CoreML.Specification.SinLayerParams = class SinLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SinLayerParams();
@@ -12634,9 +12223,6 @@ CoreML.Specification.SinLayerParams = class SinLayerParams {
 
 CoreML.Specification.CosLayerParams = class CosLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.CosLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12667,9 +12253,6 @@ CoreML.Specification.CosLayerParams = class CosLayerParams {
 };
 
 CoreML.Specification.TanLayerParams = class TanLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.TanLayerParams();
@@ -12702,9 +12285,6 @@ CoreML.Specification.TanLayerParams = class TanLayerParams {
 
 CoreML.Specification.AsinLayerParams = class AsinLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.AsinLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12735,9 +12315,6 @@ CoreML.Specification.AsinLayerParams = class AsinLayerParams {
 };
 
 CoreML.Specification.AcosLayerParams = class AcosLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AcosLayerParams();
@@ -12770,9 +12347,6 @@ CoreML.Specification.AcosLayerParams = class AcosLayerParams {
 
 CoreML.Specification.AtanLayerParams = class AtanLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.AtanLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12803,9 +12377,6 @@ CoreML.Specification.AtanLayerParams = class AtanLayerParams {
 };
 
 CoreML.Specification.SinhLayerParams = class SinhLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SinhLayerParams();
@@ -12838,9 +12409,6 @@ CoreML.Specification.SinhLayerParams = class SinhLayerParams {
 
 CoreML.Specification.CoshLayerParams = class CoshLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.CoshLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12871,9 +12439,6 @@ CoreML.Specification.CoshLayerParams = class CoshLayerParams {
 };
 
 CoreML.Specification.TanhLayerParams = class TanhLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.TanhLayerParams();
@@ -12906,9 +12471,6 @@ CoreML.Specification.TanhLayerParams = class TanhLayerParams {
 
 CoreML.Specification.AsinhLayerParams = class AsinhLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.AsinhLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12939,9 +12501,6 @@ CoreML.Specification.AsinhLayerParams = class AsinhLayerParams {
 };
 
 CoreML.Specification.AcoshLayerParams = class AcoshLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AcoshLayerParams();
@@ -12974,9 +12533,6 @@ CoreML.Specification.AcoshLayerParams = class AcoshLayerParams {
 
 CoreML.Specification.AtanhLayerParams = class AtanhLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.AtanhLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -13007,9 +12563,6 @@ CoreML.Specification.AtanhLayerParams = class AtanhLayerParams {
 };
 
 CoreML.Specification.PowBroadcastableLayerParams = class PowBroadcastableLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PowBroadcastableLayerParams();
@@ -13042,9 +12595,6 @@ CoreML.Specification.PowBroadcastableLayerParams = class PowBroadcastableLayerPa
 
 CoreML.Specification.Exp2LayerParams = class Exp2LayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.Exp2LayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -13076,9 +12626,6 @@ CoreML.Specification.Exp2LayerParams = class Exp2LayerParams {
 
 CoreML.Specification.WhereNonZeroLayerParams = class WhereNonZeroLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.WhereNonZeroLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -13109,9 +12656,6 @@ CoreML.Specification.WhereNonZeroLayerParams = class WhereNonZeroLayerParams {
 };
 
 CoreML.Specification.MatrixBandPartLayerParams = class MatrixBandPartLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MatrixBandPartLayerParams();
@@ -13159,9 +12703,6 @@ CoreML.Specification.MatrixBandPartLayerParams.prototype.numUpper = 0n;
 
 CoreML.Specification.UpperTriangularLayerParams = class UpperTriangularLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.UpperTriangularLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -13201,9 +12742,6 @@ CoreML.Specification.UpperTriangularLayerParams.prototype.k = 0n;
 
 CoreML.Specification.LowerTriangularLayerParams = class LowerTriangularLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.LowerTriangularLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -13242,9 +12780,6 @@ CoreML.Specification.LowerTriangularLayerParams = class LowerTriangularLayerPara
 CoreML.Specification.LowerTriangularLayerParams.prototype.k = 0n;
 
 CoreML.Specification.BroadcastToLikeLayerParams = class BroadcastToLikeLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BroadcastToLikeLayerParams();
@@ -13318,9 +12853,6 @@ CoreML.Specification.BroadcastToStaticLayerParams = class BroadcastToStaticLayer
 
 CoreML.Specification.BroadcastToDynamicLayerParams = class BroadcastToDynamicLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.BroadcastToDynamicLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -13351,9 +12883,6 @@ CoreML.Specification.BroadcastToDynamicLayerParams = class BroadcastToDynamicLay
 };
 
 CoreML.Specification.AddBroadcastableLayerParams = class AddBroadcastableLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AddBroadcastableLayerParams();
@@ -13386,9 +12915,6 @@ CoreML.Specification.AddBroadcastableLayerParams = class AddBroadcastableLayerPa
 
 CoreML.Specification.MaxBroadcastableLayerParams = class MaxBroadcastableLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.MaxBroadcastableLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -13419,9 +12945,6 @@ CoreML.Specification.MaxBroadcastableLayerParams = class MaxBroadcastableLayerPa
 };
 
 CoreML.Specification.MinBroadcastableLayerParams = class MinBroadcastableLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MinBroadcastableLayerParams();
@@ -13454,9 +12977,6 @@ CoreML.Specification.MinBroadcastableLayerParams = class MinBroadcastableLayerPa
 
 CoreML.Specification.ModBroadcastableLayerParams = class ModBroadcastableLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ModBroadcastableLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -13487,9 +13007,6 @@ CoreML.Specification.ModBroadcastableLayerParams = class ModBroadcastableLayerPa
 };
 
 CoreML.Specification.FloorDivBroadcastableLayerParams = class FloorDivBroadcastableLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FloorDivBroadcastableLayerParams();
@@ -13522,9 +13039,6 @@ CoreML.Specification.FloorDivBroadcastableLayerParams = class FloorDivBroadcasta
 
 CoreML.Specification.SubtractBroadcastableLayerParams = class SubtractBroadcastableLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.SubtractBroadcastableLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -13555,9 +13069,6 @@ CoreML.Specification.SubtractBroadcastableLayerParams = class SubtractBroadcasta
 };
 
 CoreML.Specification.MultiplyBroadcastableLayerParams = class MultiplyBroadcastableLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MultiplyBroadcastableLayerParams();
@@ -13590,9 +13101,6 @@ CoreML.Specification.MultiplyBroadcastableLayerParams = class MultiplyBroadcasta
 
 CoreML.Specification.DivideBroadcastableLayerParams = class DivideBroadcastableLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.DivideBroadcastableLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -13623,9 +13131,6 @@ CoreML.Specification.DivideBroadcastableLayerParams = class DivideBroadcastableL
 };
 
 CoreML.Specification.GatherLayerParams = class GatherLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GatherLayerParams();
@@ -13676,9 +13181,6 @@ CoreML.Specification.ScatterMode = {
 
 CoreML.Specification.ScatterLayerParams = class ScatterLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ScatterLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -13725,9 +13227,6 @@ CoreML.Specification.ScatterLayerParams.prototype.mode = 0;
 
 CoreML.Specification.GatherNDLayerParams = class GatherNDLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.GatherNDLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -13758,9 +13257,6 @@ CoreML.Specification.GatherNDLayerParams = class GatherNDLayerParams {
 };
 
 CoreML.Specification.ScatterNDLayerParams = class ScatterNDLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ScatterNDLayerParams();
@@ -13801,9 +13297,6 @@ CoreML.Specification.ScatterNDLayerParams.prototype.mode = 0;
 
 CoreML.Specification.GatherAlongAxisLayerParams = class GatherAlongAxisLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.GatherAlongAxisLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -13842,9 +13335,6 @@ CoreML.Specification.GatherAlongAxisLayerParams = class GatherAlongAxisLayerPara
 CoreML.Specification.GatherAlongAxisLayerParams.prototype.axis = 0n;
 
 CoreML.Specification.ScatterAlongAxisLayerParams = class ScatterAlongAxisLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ScatterAlongAxisLayerParams();
@@ -13891,9 +13381,6 @@ CoreML.Specification.ScatterAlongAxisLayerParams.prototype.axis = 0n;
 CoreML.Specification.ScatterAlongAxisLayerParams.prototype.mode = 0;
 
 CoreML.Specification.StackLayerParams = class StackLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.StackLayerParams();
@@ -14031,9 +13518,6 @@ CoreML.Specification.ConstantPaddingLayerParams.prototype.padToGivenOutputSizeMo
 
 CoreML.Specification.RandomNormalLikeLayerParams = class RandomNormalLikeLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomNormalLikeLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -14150,9 +13634,6 @@ CoreML.Specification.RandomNormalStaticLayerParams.prototype.stdDev = 0;
 
 CoreML.Specification.RandomNormalDynamicLayerParams = class RandomNormalDynamicLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomNormalDynamicLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -14205,9 +13686,6 @@ CoreML.Specification.RandomNormalDynamicLayerParams.prototype.mean = 0;
 CoreML.Specification.RandomNormalDynamicLayerParams.prototype.stdDev = 0;
 
 CoreML.Specification.RandomUniformLikeLayerParams = class RandomUniformLikeLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomUniformLikeLayerParams();
@@ -14325,9 +13803,6 @@ CoreML.Specification.RandomUniformStaticLayerParams.prototype.maxVal = 0;
 
 CoreML.Specification.RandomUniformDynamicLayerParams = class RandomUniformDynamicLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomUniformDynamicLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -14380,9 +13855,6 @@ CoreML.Specification.RandomUniformDynamicLayerParams.prototype.minVal = 0;
 CoreML.Specification.RandomUniformDynamicLayerParams.prototype.maxVal = 0;
 
 CoreML.Specification.RandomBernoulliLikeLayerParams = class RandomBernoulliLikeLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomBernoulliLikeLayerParams();
@@ -14486,9 +13958,6 @@ CoreML.Specification.RandomBernoulliStaticLayerParams.prototype.prob = 0;
 
 CoreML.Specification.RandomBernoulliDynamicLayerParams = class RandomBernoulliDynamicLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomBernoulliDynamicLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -14534,9 +14003,6 @@ CoreML.Specification.RandomBernoulliDynamicLayerParams.prototype.seed = 0n;
 CoreML.Specification.RandomBernoulliDynamicLayerParams.prototype.prob = 0;
 
 CoreML.Specification.CategoricalDistributionLayerParams = class CategoricalDistributionLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CategoricalDistributionLayerParams();
@@ -15206,9 +14672,6 @@ CoreML.Specification.ExpandDimsLayerParams = class ExpandDimsLayerParams {
 
 CoreML.Specification.FlattenTo2DLayerParams = class FlattenTo2DLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.FlattenTo2DLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -15289,9 +14752,6 @@ CoreML.Specification.ReshapeStaticLayerParams = class ReshapeStaticLayerParams {
 
 CoreML.Specification.ReshapeLikeLayerParams = class ReshapeLikeLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ReshapeLikeLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -15322,9 +14782,6 @@ CoreML.Specification.ReshapeLikeLayerParams = class ReshapeLikeLayerParams {
 };
 
 CoreML.Specification.ReshapeDynamicLayerParams = class ReshapeDynamicLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReshapeDynamicLayerParams();
@@ -15406,9 +14863,6 @@ CoreML.Specification.SqueezeLayerParams.prototype.squeezeAll = false;
 
 CoreML.Specification.TopKLayerParams = class TopKLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.TopKLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -15462,9 +14916,6 @@ CoreML.Specification.TopKLayerParams.prototype.useBottomK = false;
 
 CoreML.Specification.ArgMaxLayerParams = class ArgMaxLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ArgMaxLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -15510,9 +14961,6 @@ CoreML.Specification.ArgMaxLayerParams.prototype.axis = 0n;
 CoreML.Specification.ArgMaxLayerParams.prototype.removeDim = false;
 
 CoreML.Specification.ArgMinLayerParams = class ArgMinLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ArgMinLayerParams();
@@ -15616,9 +15064,6 @@ CoreML.Specification.SplitNDLayerParams.prototype.numSplits = 0n;
 
 CoreML.Specification.CeilLayerParams = class CeilLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.CeilLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -15649,9 +15094,6 @@ CoreML.Specification.CeilLayerParams = class CeilLayerParams {
 };
 
 CoreML.Specification.RoundLayerParams = class RoundLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RoundLayerParams();
@@ -15684,9 +15126,6 @@ CoreML.Specification.RoundLayerParams = class RoundLayerParams {
 
 CoreML.Specification.FloorLayerParams = class FloorLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.FloorLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -15718,9 +15157,6 @@ CoreML.Specification.FloorLayerParams = class FloorLayerParams {
 
 CoreML.Specification.SignLayerParams = class SignLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.SignLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -15751,9 +15187,6 @@ CoreML.Specification.SignLayerParams = class SignLayerParams {
 };
 
 CoreML.Specification.ClipLayerParams = class ClipLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ClipLayerParams();
@@ -15987,9 +15420,6 @@ CoreML.Specification.TileLayerParams = class TileLayerParams {
 
 CoreML.Specification.GetShapeLayerParams = class GetShapeLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.GetShapeLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -16021,9 +15451,6 @@ CoreML.Specification.GetShapeLayerParams = class GetShapeLayerParams {
 
 CoreML.Specification.ErfLayerParams = class ErfLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ErfLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -16054,9 +15481,6 @@ CoreML.Specification.ErfLayerParams = class ErfLayerParams {
 };
 
 CoreML.Specification.GeluLayerParams = class GeluLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GeluLayerParams();
@@ -16102,9 +15526,6 @@ CoreML.Specification.GeluLayerParams.GeluMode = {
 };
 
 CoreML.Specification.RangeStaticLayerParams = class RangeStaticLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RangeStaticLayerParams();
@@ -16159,9 +15580,6 @@ CoreML.Specification.RangeStaticLayerParams.prototype.stepSizeValue = 0;
 
 CoreML.Specification.RangeDynamicLayerParams = class RangeDynamicLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.RangeDynamicLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -16207,9 +15625,6 @@ CoreML.Specification.RangeDynamicLayerParams.prototype.startValue = 0;
 CoreML.Specification.RangeDynamicLayerParams.prototype.stepSizeValue = 0;
 
 CoreML.Specification.SlidingWindowsLayerParams = class SlidingWindowsLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SlidingWindowsLayerParams();
@@ -16327,9 +15742,6 @@ CoreML.Specification.LayerNormalizationLayerParams.prototype.beta = null;
 
 CoreML.Specification.NonMaximumSuppressionLayerParams = class NonMaximumSuppressionLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.NonMaximumSuppressionLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -16390,9 +15802,6 @@ CoreML.Specification.NonMaximumSuppressionLayerParams.prototype.perClassSuppress
 
 CoreML.Specification.ClampedReLULayerParams = class ClampedReLULayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ClampedReLULayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -16439,9 +15848,6 @@ CoreML.Specification.ClampedReLULayerParams.prototype.beta = 0;
 
 CoreML.Specification.ArgSortLayerParams = class ArgSortLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ArgSortLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -16487,9 +15893,6 @@ CoreML.Specification.ArgSortLayerParams.prototype.axis = 0n;
 CoreML.Specification.ArgSortLayerParams.prototype.descending = false;
 
 CoreML.Specification.SliceBySizeLayerParams = class SliceBySizeLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SliceBySizeLayerParams();
@@ -16631,9 +16034,6 @@ CoreML.Specification.NeuralNetworkClassifier.prototype.labelProbabilityLayerName
 
 CoreML.Specification.OneHotLayerParams = class OneHotLayerParams {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.OneHotLayerParams();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -16693,9 +16093,6 @@ CoreML.Specification.OneHotLayerParams.prototype.onValue = 0;
 CoreML.Specification.OneHotLayerParams.prototype.offValue = 0;
 
 CoreML.Specification.CumSumLayerParams = class CumSumLayerParams {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CumSumLayerParams();
@@ -16890,9 +16287,6 @@ CoreML.Specification.NetworkUpdateParameters.prototype.seed = null;
 
 CoreML.Specification.LossLayer = class LossLayer {
 
-    constructor() {
-    }
-
     get LossLayerType() {
         CoreML.Specification.LossLayer.LossLayerTypeSet = CoreML.Specification.LossLayer.LossLayerTypeSet || new Set(["categoricalCrossEntropyLossLayer", "meanSquaredErrorLossLayer"]);
         return Object.keys(this).find((key) => CoreML.Specification.LossLayer.LossLayerTypeSet.has(key) && this[key] !== null);
@@ -16949,9 +16343,6 @@ CoreML.Specification.LossLayer.prototype.name = "";
 
 CoreML.Specification.CategoricalCrossEntropyLossLayer = class CategoricalCrossEntropyLossLayer {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.CategoricalCrossEntropyLossLayer();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -16998,9 +16389,6 @@ CoreML.Specification.CategoricalCrossEntropyLossLayer.prototype.target = "";
 
 CoreML.Specification.MeanSquaredErrorLossLayer = class MeanSquaredErrorLossLayer {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.MeanSquaredErrorLossLayer();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -17046,9 +16434,6 @@ CoreML.Specification.MeanSquaredErrorLossLayer.prototype.input = "";
 CoreML.Specification.MeanSquaredErrorLossLayer.prototype.target = "";
 
 CoreML.Specification.Optimizer = class Optimizer {
-
-    constructor() {
-    }
 
     get OptimizerType() {
         CoreML.Specification.Optimizer.OptimizerTypeSet = CoreML.Specification.Optimizer.OptimizerTypeSet || new Set(["sgdOptimizer", "adamOptimizer"]);
@@ -17097,9 +16482,6 @@ CoreML.Specification.Optimizer = class Optimizer {
 };
 
 CoreML.Specification.SGDOptimizer = class SGDOptimizer {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SGDOptimizer();
@@ -17153,9 +16535,6 @@ CoreML.Specification.SGDOptimizer.prototype.miniBatchSize = null;
 CoreML.Specification.SGDOptimizer.prototype.momentum = null;
 
 CoreML.Specification.AdamOptimizer = class AdamOptimizer {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AdamOptimizer();
@@ -17224,9 +16603,6 @@ CoreML.Specification.AdamOptimizer.prototype.eps = null;
 
 CoreML.Specification.Normalizer = class Normalizer {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.Normalizer();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -17271,9 +16647,6 @@ CoreML.Specification.Normalizer.NormType = {
 };
 
 CoreML.Specification.OneHotEncoder = class OneHotEncoder {
-
-    constructor() {
-    }
 
     get CategoryType() {
         CoreML.Specification.OneHotEncoder.CategoryTypeSet = CoreML.Specification.OneHotEncoder.CategoryTypeSet || new Set(["stringCategories", "int64Categories"]);
@@ -17391,9 +16764,6 @@ CoreML.Specification.Scaler = class Scaler {
 
 CoreML.Specification.NonMaximumSuppression = class NonMaximumSuppression {
 
-    constructor() {
-    }
-
     get SuppressionMethod() {
         CoreML.Specification.NonMaximumSuppression.SuppressionMethodSet = CoreML.Specification.NonMaximumSuppression.SuppressionMethodSet || new Set(["pickTop"]);
         return Object.keys(this).find((key) => CoreML.Specification.NonMaximumSuppression.SuppressionMethodSet.has(key) && this[key] !== null);
@@ -17510,9 +16880,6 @@ CoreML.Specification.NonMaximumSuppression.prototype.coordinatesOutputFeatureNam
 
 CoreML.Specification.NonMaximumSuppression.PickTop = class PickTop {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.NonMaximumSuppression.PickTop();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -17552,9 +16919,6 @@ CoreML.Specification.NonMaximumSuppression.PickTop.prototype.perClass = false;
 
 CoreML.Specification.LinearKernel = class LinearKernel {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.LinearKernel();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -17585,9 +16949,6 @@ CoreML.Specification.LinearKernel = class LinearKernel {
 };
 
 CoreML.Specification.RBFKernel = class RBFKernel {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RBFKernel();
@@ -17627,9 +16988,6 @@ CoreML.Specification.RBFKernel = class RBFKernel {
 CoreML.Specification.RBFKernel.prototype.gamma = 0;
 
 CoreML.Specification.PolyKernel = class PolyKernel {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PolyKernel();
@@ -17684,9 +17042,6 @@ CoreML.Specification.PolyKernel.prototype.gamma = 0;
 
 CoreML.Specification.SigmoidKernel = class SigmoidKernel {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.SigmoidKernel();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -17732,9 +17087,6 @@ CoreML.Specification.SigmoidKernel.prototype.gamma = 0;
 CoreML.Specification.SigmoidKernel.prototype.c = 0;
 
 CoreML.Specification.Kernel = class Kernel {
-
-    constructor() {
-    }
 
     get kernel() {
         CoreML.Specification.Kernel.kernelSet = CoreML.Specification.Kernel.kernelSet || new Set(["linearKernel", "rbfKernel", "polyKernel", "sigmoidKernel"]);
@@ -17795,9 +17147,6 @@ CoreML.Specification.Kernel = class Kernel {
 };
 
 CoreML.Specification.SparseNode = class SparseNode {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SparseNode();
@@ -18049,9 +17398,6 @@ CoreML.Specification.Coefficients = class Coefficients {
 };
 
 CoreML.Specification.SupportVectorRegressor = class SupportVectorRegressor {
-
-    constructor() {
-    }
 
     get supportVectors() {
         CoreML.Specification.SupportVectorRegressor.supportVectorsSet = CoreML.Specification.SupportVectorRegressor.supportVectorsSet || new Set(["sparseSupportVectors", "denseSupportVectors"]);
@@ -18412,9 +17758,6 @@ CoreML.Specification.TreeEnsembleParameters.TreeNode.TreeNodeBehavior = {
 
 CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo = class EvaluationInfo {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -18460,9 +17803,6 @@ CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo.prototype.ev
 CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo.prototype.evaluationValue = 0;
 
 CoreML.Specification.TreeEnsembleClassifier = class TreeEnsembleClassifier {
-
-    constructor() {
-    }
 
     get ClassLabels() {
         CoreML.Specification.TreeEnsembleClassifier.ClassLabelsSet = CoreML.Specification.TreeEnsembleClassifier.ClassLabelsSet || new Set(["stringClassLabels", "int64ClassLabels"]);
@@ -18526,9 +17866,6 @@ CoreML.Specification.TreeEnsembleClassifier.prototype.treeEnsemble = null;
 CoreML.Specification.TreeEnsembleClassifier.prototype.postEvaluationTransform = 0;
 
 CoreML.Specification.TreeEnsembleRegressor = class TreeEnsembleRegressor {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.TreeEnsembleRegressor();
@@ -18674,9 +18011,6 @@ CoreML.Specification.ItemSimilarityRecommender.prototype.recommendedItemScoreOut
 
 CoreML.Specification.ItemSimilarityRecommender.ConnectedItem = class ConnectedItem {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CoreML.Specification.ItemSimilarityRecommender.ConnectedItem();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -18779,9 +18113,6 @@ CoreML.Specification.ItemSimilarityRecommender.SimilarItems.prototype.itemScoreA
 
 CoreML.Specification.LinkedModel = class LinkedModel {
 
-    constructor() {
-    }
-
     get LinkType() {
         CoreML.Specification.LinkedModel.LinkTypeSet = CoreML.Specification.LinkedModel.LinkTypeSet || new Set(["linkedModelFile"]);
         return Object.keys(this).find((key) => CoreML.Specification.LinkedModel.LinkTypeSet.has(key) && this[key] !== null);
@@ -18823,9 +18154,6 @@ CoreML.Specification.LinkedModel = class LinkedModel {
 };
 
 CoreML.Specification.LinkedModelFile = class LinkedModelFile {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LinkedModelFile();

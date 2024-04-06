@@ -367,9 +367,6 @@ sentencepiece.TrainerSpec.ModelType = {
 
 sentencepiece.NormalizerSpec = class NormalizerSpec {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new sentencepiece.NormalizerSpec();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -484,9 +481,6 @@ sentencepiece.SelfTestData = class SelfTestData {
 };
 
 sentencepiece.SelfTestData.Sample = class Sample {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new sentencepiece.SelfTestData.Sample();
@@ -603,9 +597,6 @@ sentencepiece.ModelProto.prototype.self_test_data = null;
 sentencepiece.ModelProto.prototype.denormalizer_spec = null;
 
 sentencepiece.ModelProto.SentencePiece = class SentencePiece {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new sentencepiece.ModelProto.SentencePiece();

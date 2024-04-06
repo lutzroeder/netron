@@ -80,9 +80,6 @@ uff.MetaGraph.prototype.descriptor_core_version = 0n;
 
 uff.MetaGraph.ReferencedDataEntry = class ReferencedDataEntry {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new uff.MetaGraph.ReferencedDataEntry();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -129,9 +126,6 @@ uff.MetaGraph.ReferencedDataEntry.prototype.value = null;
 
 uff.MetaGraph.ExtraFieldsEntry = class ExtraFieldsEntry {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new uff.MetaGraph.ExtraFieldsEntry();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -177,9 +171,6 @@ uff.MetaGraph.ExtraFieldsEntry.prototype.key = "";
 uff.MetaGraph.ExtraFieldsEntry.prototype.value = null;
 
 uff.Descriptor = class Descriptor {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new uff.Descriptor();
@@ -289,9 +280,6 @@ uff.Graph = class Graph {
 uff.Graph.prototype.id = "";
 
 uff.Graph.ExtraFieldsEntry = class ExtraFieldsEntry {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new uff.Graph.ExtraFieldsEntry();
@@ -409,9 +397,6 @@ uff.Node.prototype.operation = "";
 
 uff.Node.FieldsEntry = class FieldsEntry {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new uff.Node.FieldsEntry();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -458,9 +443,6 @@ uff.Node.FieldsEntry.prototype.value = null;
 
 uff.Node.ExtraFieldsEntry = class ExtraFieldsEntry {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new uff.Node.ExtraFieldsEntry();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -506,9 +488,6 @@ uff.Node.ExtraFieldsEntry.prototype.key = "";
 uff.Node.ExtraFieldsEntry.prototype.value = null;
 
 uff.Data = class Data {
-
-    constructor() {
-    }
 
     get type() {
         uff.Data.typeSet = uff.Data.typeSet || new Set(["s", "s_list", "d", "d_list", "b", "b_list", "i", "i_list", "blob", "ref", "dtype", "dtype_list", "dim_orders", "dim_orders_list"]);
@@ -687,9 +666,6 @@ uff.DimensionOrders = class DimensionOrders {
 };
 
 uff.DimensionOrders.OrdersEntry = class OrdersEntry {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new uff.DimensionOrders.OrdersEntry();

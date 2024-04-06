@@ -388,9 +388,6 @@ serial_v2.OpDef.prototype.annotation = "";
 
 serial_v2.AttrDef = class AttrDef {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new serial_v2.AttrDef();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -463,9 +460,6 @@ serial_v2.AttrDef.OccurType = {
 
 serial_v2.OpArgDef = class OpArgDef {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new serial_v2.OpArgDef();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -532,9 +526,6 @@ serial_v2.OpArgDef.OccurType = {
 };
 
 serial_v2.AttrValue = class AttrValue {
-
-    constructor() {
-    }
 
     get value() {
         serial_v2.AttrValue.valueSet = serial_v2.AttrValue.valueSet || new Set(["bool_value", "int32_value", "uint32_value", "int64_value", "uint64_value", "float_value", "double_value", "string_value", "bytes_value", "bool_vec_value", "int32_vec_value", "uint32_vec_value", "int64_vec_value", "uint64_vec_value", "float_vec_value", "double_vec_value", "string_vec_value", "bytes_vec_value", "map_string_2_int32_value", "map_string_2_uint32_value", "map_string_2_int64_value", "map_string_2_uint64_value", "map_string_2_string_value", "map_string_2_bytes_value", "map_string_2_int32_vec_value", "map_string_2_uint32_vec_value", "map_string_2_int64_vec_value", "map_string_2_uint64_vec_value", "map_string_2_string_vec_value"]);
@@ -745,9 +736,6 @@ serial_v2.AttrValue = class AttrValue {
 };
 
 serial_v2.Bytes = class Bytes {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new serial_v2.Bytes();

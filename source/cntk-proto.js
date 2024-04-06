@@ -29,9 +29,6 @@ CNTK.proto.NDShape = class NDShape {
 
 CNTK.proto.Axis = class Axis {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CNTK.proto.Axis();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -61,9 +58,6 @@ CNTK.proto.Axis.prototype.name = "";
 CNTK.proto.Axis.prototype.is_ordered_dynamic_axis = false;
 
 CNTK.proto.NDArrayView = class NDArrayView {
-
-    constructor() {
-    }
 
     get values() {
         CNTK.proto.NDArrayView.valuesSet = CNTK.proto.NDArrayView.valuesSet || new Set(["float_values", "double_values", "bytes_value", "sint32_values"]);
@@ -175,9 +169,6 @@ CNTK.proto.NDArrayView.DoubleValues = class DoubleValues {
 
 CNTK.proto.NDArrayView.BytesValue = class BytesValue {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new CNTK.proto.NDArrayView.BytesValue();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -276,9 +267,6 @@ CNTK.proto.Dictionary = class Dictionary {
 CNTK.proto.Dictionary.prototype.version = 0n;
 
 CNTK.proto.DictionaryValue = class DictionaryValue {
-
-    constructor() {
-    }
 
     get value() {
         CNTK.proto.DictionaryValue.valueSet = CNTK.proto.DictionaryValue.valueSet || new Set(["bool_value", "int_value", "size_t_value", "float_value", "double_value", "string_value", "nd_shape_value", "axis_value", "vector_value", "dictionary_value", "nd_array_view_value"]);

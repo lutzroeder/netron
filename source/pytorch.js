@@ -1495,12 +1495,7 @@ pytorch.Execution = class extends python.Execution {
                 // TODO
             }
         });
-        this.registerType('torch.TupleType', class extends torch.Type {
-            constructor(/* elements, name, schema */) {
-                super();
-                // TODO
-            }
-        });
+        this.registerType('torch.TupleType', class extends torch.Type {});
         this.registerType('torch.ScriptFunction', class {
             constructor(name, graph /*, function_creator */) {
                 this._name = name;
@@ -1574,9 +1569,6 @@ pytorch.Execution = class extends python.Execution {
             }
         });
         this.registerType('torch.ScriptModule', class extends torch.ScriptObject {
-            constructor(type) {
-                super(type);
-            }
             get qualified_name() {
                 return this._type.qualified_name();
             }
@@ -1725,12 +1717,7 @@ pytorch.Execution = class extends python.Execution {
                 this._classes.set(name, cls);
             }
         });
-        this.registerType('torch.jit._script.ScriptModule', class extends torch.nn.modules.module.Module {
-            constructor(/* obj */) {
-                super();
-                // TODO
-            }
-        });
+        this.registerType('torch.jit._script.ScriptModule', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.jit._trace.TracedModule', class extends torch.jit._script.ScriptModule {});
         this.registerType('torch.jit._trace.TopLevelTracedModule', class extends torch.jit._trace.TracedModule {});
         this.registerType('torch.jit._script.RecursiveScriptModule', class extends torch.jit._script.ScriptModule {

@@ -267,9 +267,6 @@ caffe.Datum.prototype.encoded = false;
 
 caffe.FillerParameter = class FillerParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.FillerParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1004,9 +1001,6 @@ caffe.NetStateRule.prototype.max_level = 0;
 
 caffe.ParamSpec = class ParamSpec {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.ParamSpec();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1611,9 +1605,6 @@ caffe.TransformationParameter.prototype.force_gray = false;
 
 caffe.LossParameter = class LossParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.LossParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1674,9 +1665,6 @@ caffe.LossParameter.NormalizationMode = {
 
 caffe.AccuracyParameter = class AccuracyParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.AccuracyParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1729,9 +1717,6 @@ caffe.AccuracyParameter.prototype.axis = 1;
 caffe.AccuracyParameter.prototype.ignore_label = 0;
 
 caffe.ArgMaxParameter = class ArgMaxParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.ArgMaxParameter();
@@ -1786,9 +1771,6 @@ caffe.ArgMaxParameter.prototype.axis = 0;
 
 caffe.ClipParameter = class ClipParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.ClipParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1835,9 +1817,6 @@ caffe.ClipParameter.prototype.max = 0;
 
 caffe.ConcatParameter = class ConcatParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.ConcatParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1883,9 +1862,6 @@ caffe.ConcatParameter.prototype.axis = 1;
 caffe.ConcatParameter.prototype.concat_dim = 1;
 
 caffe.BatchNormParameter = class BatchNormParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.BatchNormParameter();
@@ -1940,9 +1916,6 @@ caffe.BatchNormParameter.prototype.eps = 0.00001;
 
 caffe.BiasParameter = class BiasParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.BiasParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1995,9 +1968,6 @@ caffe.BiasParameter.prototype.num_axes = 1;
 caffe.BiasParameter.prototype.filler = null;
 
 caffe.ContrastiveLossParameter = class ContrastiveLossParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.ContrastiveLossParameter();
@@ -2261,9 +2231,6 @@ caffe.CropParameter.prototype.axis = 2;
 
 caffe.DataParameter = class DataParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.DataParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2370,9 +2337,6 @@ caffe.DataParameter.DB = {
 };
 
 caffe.DropoutParameter = class DropoutParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.DropoutParameter();
@@ -2551,9 +2515,6 @@ caffe.EltwiseParameter.EltwiseOp = {
 
 caffe.ELUParameter = class ELUParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.ELUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2592,9 +2553,6 @@ caffe.ELUParameter = class ELUParameter {
 caffe.ELUParameter.prototype.alpha = 1;
 
 caffe.EmbedParameter = class EmbedParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.EmbedParameter();
@@ -2663,9 +2621,6 @@ caffe.EmbedParameter.prototype.bias_filler = null;
 
 caffe.ExpParameter = class ExpParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.ExpParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2719,9 +2674,6 @@ caffe.ExpParameter.prototype.shift = 0;
 
 caffe.FlattenParameter = class FlattenParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.FlattenParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2767,9 +2719,6 @@ caffe.FlattenParameter.prototype.axis = 1;
 caffe.FlattenParameter.prototype.end_axis = -1;
 
 caffe.HDF5DataParameter = class HDF5DataParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.HDF5DataParameter();
@@ -2824,9 +2773,6 @@ caffe.HDF5DataParameter.prototype.shuffle = false;
 
 caffe.HDF5OutputParameter = class HDF5OutputParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.HDF5OutputParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2865,9 +2811,6 @@ caffe.HDF5OutputParameter = class HDF5OutputParameter {
 caffe.HDF5OutputParameter.prototype.file_name = "";
 
 caffe.HingeLossParameter = class HingeLossParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.HingeLossParameter();
@@ -2912,9 +2855,6 @@ caffe.HingeLossParameter.Norm = {
 };
 
 caffe.ImageDataParameter = class ImageDataParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.ImageDataParameter();
@@ -3032,9 +2972,6 @@ caffe.ImageDataParameter.prototype.root_folder = "";
 
 caffe.InfogainLossParameter = class InfogainLossParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.InfogainLossParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3080,9 +3017,6 @@ caffe.InfogainLossParameter.prototype.source = "";
 caffe.InfogainLossParameter.prototype.axis = 1;
 
 caffe.InnerProductParameter = class InnerProductParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.InnerProductParameter();
@@ -3199,9 +3133,6 @@ caffe.InputParameter = class InputParameter {
 
 caffe.LogParameter = class LogParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.LogParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3254,9 +3185,6 @@ caffe.LogParameter.prototype.scale = 1;
 caffe.LogParameter.prototype.shift = 0;
 
 caffe.LRNParameter = class LRNParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.LRNParameter();
@@ -3343,9 +3271,6 @@ caffe.LRNParameter.Engine = {
 
 caffe.MemoryDataParameter = class MemoryDataParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.MemoryDataParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3406,9 +3331,6 @@ caffe.MemoryDataParameter.prototype.width = 0;
 
 caffe.MVNParameter = class MVNParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.MVNParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3462,9 +3384,6 @@ caffe.MVNParameter.prototype.eps = 1e-9;
 
 caffe.ParameterParameter = class ParameterParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.ParameterParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3503,9 +3422,6 @@ caffe.ParameterParameter = class ParameterParameter {
 caffe.ParameterParameter.prototype.shape = null;
 
 caffe.PoolingParameter = class PoolingParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.PoolingParameter();
@@ -3647,9 +3563,6 @@ caffe.PoolingParameter.RoundMode = {
 
 caffe.PowerParameter = class PowerParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.PowerParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3702,9 +3615,6 @@ caffe.PowerParameter.prototype.scale = 1;
 caffe.PowerParameter.prototype.shift = 0;
 
 caffe.PythonParameter = class PythonParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.PythonParameter();
@@ -3765,9 +3675,6 @@ caffe.PythonParameter.prototype.param_str = "";
 caffe.PythonParameter.prototype.share_in_parallel = false;
 
 caffe.RecurrentParameter = class RecurrentParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.RecurrentParameter();
@@ -3836,9 +3743,6 @@ caffe.RecurrentParameter.prototype.expose_hidden = false;
 
 caffe.ReductionParameter = class ReductionParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.ReductionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3899,9 +3803,6 @@ caffe.ReductionParameter.ReductionOp = {
 
 caffe.ReLUParameter = class ReLUParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.ReLUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3953,9 +3854,6 @@ caffe.ReLUParameter.Engine = {
 };
 
 caffe.ReshapeParameter = class ReshapeParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.ReshapeParameter();
@@ -4009,9 +3907,6 @@ caffe.ReshapeParameter.prototype.axis = 0;
 caffe.ReshapeParameter.prototype.num_axes = -1;
 
 caffe.ScaleParameter = class ScaleParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.ScaleParameter();
@@ -4079,9 +3974,6 @@ caffe.ScaleParameter.prototype.bias_term = false;
 caffe.ScaleParameter.prototype.bias_filler = null;
 
 caffe.SigmoidParameter = class SigmoidParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.SigmoidParameter();
@@ -4184,9 +4076,6 @@ caffe.SliceParameter.prototype.slice_dim = 1;
 
 caffe.SoftmaxParameter = class SoftmaxParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.SoftmaxParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4239,9 +4128,6 @@ caffe.SoftmaxParameter.Engine = {
 
 caffe.SwishParameter = class SwishParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.SwishParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4280,9 +4166,6 @@ caffe.SwishParameter = class SwishParameter {
 caffe.SwishParameter.prototype.beta = 1;
 
 caffe.TanHParameter = class TanHParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.TanHParameter();
@@ -4328,9 +4211,6 @@ caffe.TanHParameter.Engine = {
 };
 
 caffe.TileParameter = class TileParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.TileParameter();
@@ -4378,9 +4258,6 @@ caffe.TileParameter.prototype.tiles = 0;
 
 caffe.ThresholdParameter = class ThresholdParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe.ThresholdParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4419,9 +4296,6 @@ caffe.ThresholdParameter = class ThresholdParameter {
 caffe.ThresholdParameter.prototype.threshold = 0;
 
 caffe.WindowDataParameter = class WindowDataParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.WindowDataParameter();
@@ -4545,9 +4419,6 @@ caffe.WindowDataParameter.prototype.cache_images = false;
 caffe.WindowDataParameter.prototype.root_folder = "";
 
 caffe.SPPParameter = class SPPParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.SPPParameter();
@@ -5304,9 +5175,6 @@ caffe.V0LayerParameter.PoolMethod = {
 };
 
 caffe.PReLUParameter = class PReLUParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe.PReLUParameter();

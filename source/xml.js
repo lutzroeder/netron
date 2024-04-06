@@ -1235,10 +1235,6 @@ xml.TextReader = class {
 
 xml.NodeList = class extends Array {
 
-    constructor() {
-        super();
-    }
-
     item(index) {
         return this[index] || null;
     }

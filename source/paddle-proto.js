@@ -7,9 +7,6 @@ paddle.framework.proto = {};
 
 paddle.framework.proto.Version = class Version {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new paddle.framework.proto.Version();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -70,9 +67,6 @@ paddle.framework.proto.AttrType = {
 
 paddle.framework.proto.Complex = class Complex {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new paddle.framework.proto.Complex();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -130,9 +124,6 @@ paddle.framework.proto.Complex.prototype.r = 0;
 paddle.framework.proto.Complex.prototype.i = 0;
 
 paddle.framework.proto.Scalar = class Scalar {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new paddle.framework.proto.Scalar();
@@ -614,9 +605,6 @@ paddle.framework.proto.OpProto.prototype.comment = "";
 
 paddle.framework.proto.OpProto.Var = class Var {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new paddle.framework.proto.OpProto.Var();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -709,9 +697,6 @@ paddle.framework.proto.OpProto.Var.prototype.extra = false;
 paddle.framework.proto.OpProto.Var.prototype.quant = false;
 
 paddle.framework.proto.OpProto.Attr = class Attr {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new paddle.framework.proto.OpProto.Attr();
@@ -811,9 +796,6 @@ paddle.framework.proto.OpProto.Attr.prototype.quant = false;
 paddle.framework.proto.OpProto.Attr.prototype.support_tensor = false;
 
 paddle.framework.proto.VarType = class VarType {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new paddle.framework.proto.VarType();
@@ -1019,9 +1001,6 @@ paddle.framework.proto.VarType.TensorDesc.prototype.data_type = 0;
 
 paddle.framework.proto.VarType.LoDTensorDesc = class LoDTensorDesc {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new paddle.framework.proto.VarType.LoDTensorDesc();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1073,9 +1052,6 @@ paddle.framework.proto.VarType.LoDTensorDesc.prototype.tensor = null;
 paddle.framework.proto.VarType.LoDTensorDesc.prototype.lod_level = 0;
 
 paddle.framework.proto.VarType.LoDTensorArrayDesc = class LoDTensorArrayDesc {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new paddle.framework.proto.VarType.LoDTensorArrayDesc();
@@ -1471,9 +1447,6 @@ paddle.framework.proto.BlockDesc.prototype.forward_block_idx = -1;
 
 paddle.framework.proto.OpVersion = class OpVersion {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new paddle.framework.proto.OpVersion();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1559,9 +1532,6 @@ paddle.framework.proto.OpVersionMap = class OpVersionMap {
 };
 
 paddle.framework.proto.OpVersionMap.OpVersionPair = class OpVersionPair {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new paddle.framework.proto.OpVersionMap.OpVersionPair();

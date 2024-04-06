@@ -236,9 +236,6 @@ message.TensorShape = class {
 };
 
 message.Tensor = class {
-
-    constructor() {
-    }
 };
 
 message.Error = class extends Error {

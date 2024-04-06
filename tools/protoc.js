@@ -1186,7 +1186,6 @@ protoc.Generator = class {
 
         const name = type.fullName.split('.').map((name) => protoc.Generator._escapeName(name)).join('.');
         this._builder.add(`${name} = class ${protoc.Generator._escapeName(type.name)} {`);
-        this._builder.add('');
         this._builder.indent();
 
         this._buildConstructor(type);
@@ -1240,10 +1239,16 @@ protoc.Generator = class {
     }
 
     _buildConstructor(type) {
+        const filter = (field) => field instanceof protoc.MapField || field.repeated;
+        const fields = Array.from(type.fields.values()).filter(filter);
+        if (fields.length === 0) {
+            return;
+        }
         /* eslint-disable indent */
+        this._builder.add('');
         this._builder.add('constructor() {');
         this._builder.indent();
-            for (const field of type.fields.values()) {
+            for (const field of fields) {
                 if (field instanceof protoc.MapField) {
                     this._builder.add(`this${protoc.Generator._propertyReference(field.name)} = {};`);
                 } else if (field.repeated) {

@@ -228,9 +228,6 @@ tensorflow.MetaGraphDef.MetaInfoDef.prototype.stripped_default_attrs = false;
 
 tensorflow.CollectionDef = class CollectionDef {
 
-    constructor() {
-    }
-
     get kind() {
         tensorflow.CollectionDef.kindSet = tensorflow.CollectionDef.kindSet || new Set(["node_list", "bytes_list", "int64_list", "float_list", "any_list"]);
         return Object.keys(this).find((key) => tensorflow.CollectionDef.kindSet.has(key) && this[key] !== null);
@@ -502,9 +499,6 @@ tensorflow.CollectionDef.AnyList = class AnyList {
 
 tensorflow.TensorInfo = class TensorInfo {
 
-    constructor() {
-    }
-
     get encoding() {
         tensorflow.TensorInfo.encodingSet = tensorflow.TensorInfo.encodingSet || new Set(["name", "coo_sparse", "composite_tensor"]);
         return Object.keys(this).find((key) => tensorflow.TensorInfo.encodingSet.has(key) && this[key] !== null);
@@ -573,9 +567,6 @@ tensorflow.TensorInfo.prototype.dtype = 0;
 tensorflow.TensorInfo.prototype.tensor_shape = null;
 
 tensorflow.TensorInfo.CooSparse = class CooSparse {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.TensorInfo.CooSparse();
@@ -741,9 +732,6 @@ tensorflow.SignatureDef = class SignatureDef {
 tensorflow.SignatureDef.prototype.method_name = "";
 
 tensorflow.AssetFileDef = class AssetFileDef {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.AssetFileDef();
@@ -1041,9 +1029,6 @@ tensorflow.FunctionDef.ArgAttrs = class ArgAttrs {
 
 tensorflow.GradientDef = class GradientDef {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.GradientDef();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1090,9 +1075,6 @@ tensorflow.GradientDef.prototype.gradient_func = "";
 
 tensorflow.RegisteredGradient = class RegisteredGradient {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.RegisteredGradient();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1138,9 +1120,6 @@ tensorflow.RegisteredGradient.prototype.gradient_func = "";
 tensorflow.RegisteredGradient.prototype.registered_op_type = "";
 
 tensorflow.AttrValue = class AttrValue {
-
-    constructor() {
-    }
 
     get value() {
         tensorflow.AttrValue.valueSet = tensorflow.AttrValue.valueSet || new Set(["s", "i", "f", "b", "type", "shape", "tensor", "list", "func", "placeholder"]);
@@ -1671,9 +1650,6 @@ tensorflow.ResourceHandleProto.prototype.maybe_type_name = "";
 
 tensorflow.ResourceHandleProto.DtypeAndShape = class DtypeAndShape {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.ResourceHandleProto.DtypeAndShape();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1768,9 +1744,6 @@ tensorflow.TensorShapeProto = class TensorShapeProto {
 tensorflow.TensorShapeProto.prototype.unknown_rank = false;
 
 tensorflow.TensorShapeProto.Dim = class Dim {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.TensorShapeProto.Dim();
@@ -1875,9 +1848,6 @@ tensorflow.DataType = {
 };
 
 tensorflow.SerializedDType = class SerializedDType {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.SerializedDType();
@@ -2377,9 +2347,6 @@ tensorflow.OpDef.ArgDef.prototype.experimental_full_type = null;
 
 tensorflow.OpDef.AttrDef = class AttrDef {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.OpDef.AttrDef();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2460,9 +2427,6 @@ tensorflow.OpDef.AttrDef.prototype.minimum = 0n;
 tensorflow.OpDef.AttrDef.prototype.allowed_values = null;
 
 tensorflow.OpDeprecation = class OpDeprecation {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.OpDeprecation();
@@ -2619,9 +2583,6 @@ tensorflow.GraphDebugInfo = class GraphDebugInfo {
 };
 
 tensorflow.GraphDebugInfo.FileLineCol = class FileLineCol {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.GraphDebugInfo.FileLineCol();
@@ -2979,9 +2940,6 @@ tensorflow.SavedObject.prototype.registered_saver = "";
 
 tensorflow.SavedUserObject = class SavedUserObject {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.SavedUserObject();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3034,9 +2992,6 @@ tensorflow.SavedUserObject.prototype.version = null;
 tensorflow.SavedUserObject.prototype.metadata = "";
 
 tensorflow.SavedAsset = class SavedAsset {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.SavedAsset();
@@ -3125,9 +3080,6 @@ tensorflow.SavedFunction = class SavedFunction {
 tensorflow.SavedFunction.prototype.function_spec = null;
 
 tensorflow.CapturedTensor = class CapturedTensor {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.CapturedTensor();
@@ -3294,9 +3246,6 @@ tensorflow.SavedBareConcreteFunction.prototype.function_spec = null;
 
 tensorflow.SavedConstant = class SavedConstant {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.SavedConstant();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3427,9 +3376,6 @@ tensorflow.SavedVariable.prototype.device = "";
 
 tensorflow.FunctionSpec = class FunctionSpec {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.FunctionSpec();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3496,9 +3442,6 @@ tensorflow.FunctionSpec.JitCompile = {
 
 tensorflow.SavedResource = class SavedResource {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.SavedResource();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -3537,9 +3480,6 @@ tensorflow.SavedResource = class SavedResource {
 tensorflow.SavedResource.prototype.device = "";
 
 tensorflow.SaveableObject = class SaveableObject {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.SaveableObject();
@@ -3600,9 +3540,6 @@ tensorflow.VariableAggregation = {
 };
 
 tensorflow.VariableDef = class VariableDef {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.VariableDef();
@@ -3762,9 +3699,6 @@ tensorflow.SaveSliceInfoDef.prototype.full_name = "";
 
 tensorflow.StructuredValue = class StructuredValue {
 
-    constructor() {
-    }
-
     get kind() {
         tensorflow.StructuredValue.kindSet = tensorflow.StructuredValue.kindSet || new Set(["none_value", "float64_value", "int64_value", "string_value", "bool_value", "tensor_shape_value", "tensor_dtype_value", "tensor_spec_value", "type_spec_value", "bounded_tensor_spec_value", "list_value", "tuple_value", "dict_value", "named_tuple_value", "tensor_value", "numpy_value"]);
         return Object.keys(this).find((key) => tensorflow.StructuredValue.kindSet.has(key) && this[key] !== null);
@@ -3896,9 +3830,6 @@ tensorflow.StructuredValue = class StructuredValue {
 };
 
 tensorflow.NoneValue = class NoneValue {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.NoneValue();
@@ -4054,9 +3985,6 @@ tensorflow.DictValue = class DictValue {
 
 tensorflow.PairValue = class PairValue {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.PairValue();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4152,9 +4080,6 @@ tensorflow.NamedTupleValue.prototype.name = "";
 
 tensorflow.TensorSpecProto = class TensorSpecProto {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.TensorSpecProto();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4207,9 +4132,6 @@ tensorflow.TensorSpecProto.prototype.shape = null;
 tensorflow.TensorSpecProto.prototype.dtype = 0;
 
 tensorflow.BoundedTensorSpecProto = class BoundedTensorSpecProto {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.BoundedTensorSpecProto();
@@ -4277,9 +4199,6 @@ tensorflow.BoundedTensorSpecProto.prototype.minimum = null;
 tensorflow.BoundedTensorSpecProto.prototype.maximum = null;
 
 tensorflow.TypeSpecProto = class TypeSpecProto {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.TypeSpecProto();
@@ -4468,9 +4387,6 @@ tensorflow.TrackableObjectGraph.TrackableObject.prototype.has_checkpoint_values 
 
 tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference = class ObjectReference {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4516,9 +4432,6 @@ tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.prototype.node_i
 tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.prototype.local_name = "";
 
 tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor = class SerializedTensor {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor();
@@ -4573,9 +4486,6 @@ tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor.prototype.check
 
 tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference = class SlotVariableReference {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4629,9 +4539,6 @@ tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.prototype.
 
 tensorflow.RegisteredSaver = class RegisteredSaver {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.RegisteredSaver();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4677,9 +4584,6 @@ tensorflow.RegisteredSaver.prototype.name = "";
 tensorflow.RegisteredSaver.prototype.object_name = "";
 
 tensorflow.SaverDef = class SaverDef {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.SaverDef();
@@ -4767,9 +4671,6 @@ tensorflow.SaverDef.CheckpointFormatVersion = {
 };
 
 tensorflow.BundleHeaderProto = class BundleHeaderProto {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.BundleHeaderProto();
@@ -4954,9 +4855,6 @@ tensorflow.TensorSliceProto = class TensorSliceProto {
 
 tensorflow.TensorSliceProto.Extent = class Extent {
 
-    constructor() {
-    }
-
     get has_length() {
         tensorflow.TensorSliceProto.Extent.has_lengthSet = tensorflow.TensorSliceProto.Extent.has_lengthSet || new Set(["length"]);
         return Object.keys(this).find((key) => tensorflow.TensorSliceProto.Extent.has_lengthSet.has(key) && this[key] !== null);
@@ -5119,9 +5017,6 @@ tensorflow.SavedTensorSliceMeta.prototype.versions = null;
 
 tensorflow.SavedSlice = class SavedSlice {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.SavedSlice();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5175,9 +5070,6 @@ tensorflow.SavedSlice.prototype.data = null;
 
 tensorflow.SavedTensorSlices = class SavedTensorSlices {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.SavedTensorSlices();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5223,9 +5115,6 @@ tensorflow.SavedTensorSlices.prototype.meta = null;
 tensorflow.SavedTensorSlices.prototype.data = null;
 
 tensorflow.Event = class Event {
-
-    constructor() {
-    }
 
     get what() {
         tensorflow.Event.whatSet = tensorflow.Event.whatSet || new Set(["file_version", "graph_def", "summary", "log_message", "session_log", "tagged_run_metadata", "meta_graph_def"]);
@@ -5327,9 +5216,6 @@ tensorflow.Event.prototype.source_metadata = null;
 
 tensorflow.SourceMetadata = class SourceMetadata {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.SourceMetadata();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5368,9 +5254,6 @@ tensorflow.SourceMetadata = class SourceMetadata {
 tensorflow.SourceMetadata.prototype.writer = "";
 
 tensorflow.LogMessage = class LogMessage {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.LogMessage();
@@ -5426,9 +5309,6 @@ tensorflow.LogMessage.Level = {
 };
 
 tensorflow.SessionLog = class SessionLog {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.SessionLog();
@@ -5490,9 +5370,6 @@ tensorflow.SessionLog.SessionStatus = {
 
 tensorflow.TaggedRunMetadata = class TaggedRunMetadata {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.TaggedRunMetadata();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5553,9 +5430,6 @@ tensorflow.WorkerShutdownMode = {
 
 tensorflow.WatchdogConfig = class WatchdogConfig {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.WatchdogConfig();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5595,9 +5469,6 @@ tensorflow.WatchdogConfig.prototype.timeout_ms = 0n;
 
 tensorflow.RequestedExitCode = class RequestedExitCode {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.RequestedExitCode();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5636,9 +5507,6 @@ tensorflow.RequestedExitCode = class RequestedExitCode {
 tensorflow.RequestedExitCode.prototype.exit_code = 0;
 
 tensorflow.WorkerHeartbeatRequest = class WorkerHeartbeatRequest {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.WorkerHeartbeatRequest();
@@ -5749,9 +5617,6 @@ tensorflow.WorkerHeartbeatResponse.prototype.hostname = "";
 
 tensorflow.SummaryDescription = class SummaryDescription {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.SummaryDescription();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5790,9 +5655,6 @@ tensorflow.SummaryDescription = class SummaryDescription {
 tensorflow.SummaryDescription.prototype.type_hint = "";
 
 tensorflow.SummaryMetadata = class SummaryMetadata {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.SummaryMetadata();
@@ -5853,9 +5715,6 @@ tensorflow.SummaryMetadata.prototype.summary_description = "";
 tensorflow.SummaryMetadata.prototype.data_class = 0;
 
 tensorflow.SummaryMetadata.PluginData = class PluginData {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.SummaryMetadata.PluginData();
@@ -5951,9 +5810,6 @@ tensorflow.Summary = class Summary {
 
 tensorflow.Summary.Image = class Image {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.Summary.Image();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -6013,9 +5869,6 @@ tensorflow.Summary.Image.prototype.colorspace = 0;
 tensorflow.Summary.Image.prototype.encoded_image_string = new Uint8Array([]);
 
 tensorflow.Summary.Audio = class Audio {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.Summary.Audio();
@@ -6083,9 +5936,6 @@ tensorflow.Summary.Audio.prototype.encoded_audio_string = new Uint8Array([]);
 tensorflow.Summary.Audio.prototype.content_type = "";
 
 tensorflow.Summary.Value = class Value {
-
-    constructor() {
-    }
 
     get value() {
         tensorflow.Summary.Value.valueSet = tensorflow.Summary.Value.valueSet || new Set(["simple_value", "obsolete_old_style_histogram", "image", "histo", "audio", "tensor"]);
@@ -6264,9 +6114,6 @@ tensorflow.HistogramProto.prototype.sum = 0;
 tensorflow.HistogramProto.prototype.sum_squares = 0;
 
 tensorflow.GPUOptions = class GPUOptions {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.GPUOptions();
@@ -6572,9 +6419,6 @@ tensorflow.GPUOptions.Experimental.VirtualDevices = class VirtualDevices {
 
 tensorflow.OptimizerOptions = class OptimizerOptions {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.OptimizerOptions();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -6667,9 +6511,6 @@ tensorflow.OptimizerOptions.GlobalJitLevel = {
 };
 
 tensorflow.GraphOptions = class GraphOptions {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.GraphOptions();
@@ -6766,9 +6607,6 @@ tensorflow.GraphOptions.prototype.rewrite_options = null;
 
 tensorflow.ThreadPoolOptionProto = class ThreadPoolOptionProto {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.ThreadPoolOptionProto();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -6814,9 +6652,6 @@ tensorflow.ThreadPoolOptionProto.prototype.num_threads = 0;
 tensorflow.ThreadPoolOptionProto.prototype.global_name = "";
 
 tensorflow.SessionMetadata = class SessionMetadata {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.SessionMetadata();
@@ -7017,9 +6852,6 @@ tensorflow.ConfigProto.prototype.share_cluster_devices_in_session = false;
 tensorflow.ConfigProto.prototype.experimental = null;
 
 tensorflow.ConfigProto.Experimental = class Experimental {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.ConfigProto.Experimental();
@@ -7248,9 +7080,6 @@ tensorflow.ConfigProto.Experimental.MlirBridgeRollout = {
 
 tensorflow.RunOptions = class RunOptions {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.RunOptions();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7339,9 +7168,6 @@ tensorflow.RunOptions.TraceLevel = {
 
 tensorflow.RunOptions.Experimental = class Experimental {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.RunOptions.Experimental();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7394,9 +7220,6 @@ tensorflow.RunOptions.Experimental.prototype.use_run_handler_pool = false;
 tensorflow.RunOptions.Experimental.prototype.run_handler_pool_options = null;
 
 tensorflow.RunOptions.Experimental.RunHandlerPoolOptions = class RunHandlerPoolOptions {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.RunOptions.Experimental.RunHandlerPoolOptions();
@@ -7562,9 +7385,6 @@ tensorflow.RunMetadata.FunctionGraphs.prototype.pre_optimization_graph = null;
 tensorflow.RunMetadata.FunctionGraphs.prototype.post_optimization_graph = null;
 
 tensorflow.TensorConnection = class TensorConnection {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.TensorConnection();
@@ -7898,9 +7718,6 @@ tensorflow.CostGraphDef.Node.prototype.inaccurate = false;
 
 tensorflow.CostGraphDef.Node.InputInfo = class InputInfo {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.CostGraphDef.Node.InputInfo();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7946,9 +7763,6 @@ tensorflow.CostGraphDef.Node.InputInfo.prototype.preceding_node = 0;
 tensorflow.CostGraphDef.Node.InputInfo.prototype.preceding_port = 0;
 
 tensorflow.CostGraphDef.Node.OutputInfo = class OutputInfo {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.CostGraphDef.Node.OutputInfo();
@@ -8010,9 +7824,6 @@ tensorflow.CostGraphDef.Node.OutputInfo.prototype.dtype = 0;
 
 tensorflow.CostGraphDef.AggregatedCost = class AggregatedCost {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.CostGraphDef.AggregatedCost();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8058,9 +7869,6 @@ tensorflow.CostGraphDef.AggregatedCost.prototype.cost = 0;
 tensorflow.CostGraphDef.AggregatedCost.prototype.dimension = "";
 
 tensorflow.AllocationRecord = class AllocationRecord {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.AllocationRecord();
@@ -8184,9 +7992,6 @@ tensorflow.AllocatorMemoryUsed.prototype.live_bytes = 0n;
 tensorflow.AllocatorMemoryUsed.prototype.allocator_bytes_in_use = 0n;
 
 tensorflow.NodeOutput = class NodeOutput {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.NodeOutput();
@@ -8562,9 +8367,6 @@ tensorflow.StepStats = class StepStats {
 
 tensorflow.AllocationDescription = class AllocationDescription {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.AllocationDescription();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8638,9 +8440,6 @@ tensorflow.AllocationDescription.prototype.has_single_reference = false;
 tensorflow.AllocationDescription.prototype.ptr = 0n;
 
 tensorflow.TensorDescription = class TensorDescription {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.TensorDescription();
@@ -9021,9 +8820,6 @@ tensorflow.DebuggedSourceFiles = class DebuggedSourceFiles {
 };
 
 tensorflow.AutoParallelOptions = class AutoParallelOptions {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.AutoParallelOptions();
@@ -9486,9 +9282,6 @@ tensorflow.RewriterConfig.CustomGraphOptimizer.prototype.name = "";
 
 tensorflow.VerifierConfig = class VerifierConfig {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.VerifierConfig();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9542,9 +9335,6 @@ tensorflow.VerifierConfig.Toggle = {
 tensorflow.dummy = {};
 
 tensorflow.RPCOptions = class RPCOptions {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.RPCOptions();
@@ -9619,9 +9409,6 @@ tensorflow.RPCOptions.prototype.disable_session_connection_sharing = false;
 tensorflow.RPCOptions.prototype.num_channels_per_target = 0;
 
 tensorflow.CoordinatedJob = class CoordinatedJob {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new tensorflow.CoordinatedJob();
@@ -9781,9 +9568,6 @@ tensorflow.CoordinationServiceConfig.prototype.force_disable = false;
 
 tensorflow.MemmappedFileSystemDirectoryElement = class MemmappedFileSystemDirectoryElement {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.MemmappedFileSystemDirectoryElement();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9878,9 +9662,6 @@ tensorflow.MemmappedFileSystemDirectory = class MemmappedFileSystemDirectory {
 
 tensorflow.FingerprintDef = class FingerprintDef {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new tensorflow.FingerprintDef();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9957,9 +9738,6 @@ google.protobuf = {};
 
 google.protobuf.Any = class Any {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new google.protobuf.Any();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9989,9 +9767,6 @@ google.protobuf.Any.prototype.type_url = "";
 google.protobuf.Any.prototype.value = new Uint8Array([]);
 
 google.protobuf.BoolValue = class BoolValue {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new google.protobuf.BoolValue();

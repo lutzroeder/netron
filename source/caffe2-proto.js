@@ -152,9 +152,6 @@ caffe2.TensorProto.SerializationFormat = {
 
 caffe2.TensorProto.Segment = class Segment {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe2.TensorProto.Segment();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -637,9 +634,6 @@ caffe2.TensorBoundShapes.prototype.max_feature_len = 0n;
 
 caffe2.AOTConfig = class AOTConfig {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe2.AOTConfig();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1054,9 +1048,6 @@ caffe2.OperatorDef.prototype.domain = "";
 caffe2.OperatorDef.prototype.op_version = 0n;
 
 caffe2.MapFieldEntry = class MapFieldEntry {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe2.MapFieldEntry();
@@ -1520,9 +1511,6 @@ caffe2.PlanDef.prototype.name = "";
 
 caffe2.BlobProto = class BlobProto {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe2.BlobProto();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1604,9 +1592,6 @@ caffe2.BlobProto.prototype.content_chunk_id = 0;
 
 caffe2.DBReaderProto = class DBReaderProto {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new caffe2.DBReaderProto();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1666,9 +1651,6 @@ caffe2.DBReaderProto.prototype.db_type = "";
 caffe2.DBReaderProto.prototype.key = "";
 
 caffe2.BlobSerializationOptions = class BlobSerializationOptions {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new caffe2.BlobSerializationOptions();

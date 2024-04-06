@@ -2057,8 +2057,7 @@ python.Execution = class {
             }
         });
         this.registerType('joblib.numpy_pickle.NumpyArrayWrapper', class {
-            constructor(/* subtype, shape, dtype */) {
-            }
+
             __setstate__(state) {
                 this.subclass = state.subclass;
                 this.dtype = state.dtype;
@@ -2076,8 +2075,7 @@ python.Execution = class {
             }
         });
         this.registerType('joblib.numpy_pickle.NDArrayWrapper', class {
-            constructor(/* subtype, shape, dtype */) {
-            }
+
             __setstate__(state) {
                 this.subclass = state.subclass;
                 this.filename = state.state;
@@ -2533,9 +2531,6 @@ python.Execution = class {
             }
         });
         this.registerType('numpy.core.memmap.memmap', class extends numpy.ndarray {
-            constructor(shape, dtype) {
-                super(shape, dtype);
-            }
         });
         this.registerType('pandas.core.frame.DataFrame', class {});
         this.registerFunction('pandas.core.indexes.base._new_Index', (cls, d) => {
@@ -3496,11 +3491,7 @@ python.Execution = class {
         this.registerFunction('builtins.setattr', (obj, name, value) => {
             obj[name] = value;
         });
-        this.registerType('builtins.set', class extends Set {
-            constructor(iterable) {
-                super(iterable);
-            }
-        });
+        this.registerType('builtins.set', class extends Set {});
         this.registerType('builtins.slice', class {
             constructor(start, stop, step) {
                 this.start = start;
@@ -5569,15 +5560,8 @@ python.Execution = class {
         this.registerType('torch._ops.OperatorBase', class {});
         this.registerType('torch._ops.HigherOrderOperator', class extends torch._ops.OperatorBase {});
         this.registerType('torch._ops.OpOverload', class extends torch._ops.OperatorBase {});
-        this.registerType('torch.export.unflatten.UnflattenedModule', class extends torch.nn.modules.module.Module {
-            constructor(/* export_module, flat_args_adapter */) {
-                super();
-            }
-        });
-        this.registerType('torch.export.exported_program.ExportedProgram', class {
-            constructor(/* root, graph, graph_signature, state_dict, range_constraints, module_call_graph, example_inputs, verifier, tensor_constants */) {
-            }
-        });
+        this.registerType('torch.export.unflatten.UnflattenedModule', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.export.exported_program.ExportedProgram', class {});
         this.registerFunction('torch.export.unflatten', (/* module, flat_args_adapter */) => {
             throw new python.Error("'torch.export.unflatten' not implemented.");
         });
@@ -5592,8 +5576,6 @@ python.Execution = class {
             }
         });
         this.registerType('torch.fx.experimental.symbolic_shapes.ShapeEnv', class {
-            constructor() {
-            }
             create_symintnode(/* sym, hint, source */) {
                 return new torch.SymInt();
             }

@@ -44,9 +44,6 @@ nnabla.Shape = class Shape {
 
 nnabla.Communicator = class Communicator {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.Communicator();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -246,9 +243,6 @@ nnabla.NNablaProtoBuf.prototype.training_config = null;
 
 nnabla.GlobalConfig = class GlobalConfig {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.GlobalConfig();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -287,9 +281,6 @@ nnabla.GlobalConfig = class GlobalConfig {
 nnabla.GlobalConfig.prototype.default_context = null;
 
 nnabla.TrainingConfig = class TrainingConfig {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.TrainingConfig();
@@ -421,9 +412,6 @@ nnabla.Network.prototype.batch_size = 0n;
 
 nnabla.RepeatInfo = class RepeatInfo {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.RepeatInfo();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -470,9 +458,6 @@ nnabla.RepeatInfo.prototype.times = 0n;
 
 nnabla.RepeatParameter = class RepeatParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.RepeatParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -518,9 +503,6 @@ nnabla.RepeatParameter.prototype.repeat_id = "";
 nnabla.RepeatParameter.prototype.times = 0n;
 
 nnabla.RecurrentParameter = class RecurrentParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.RecurrentParameter();
@@ -644,9 +626,6 @@ nnabla.Variable.prototype.shape = null;
 nnabla.Variable.prototype.initializer = null;
 
 nnabla.Initializer = class Initializer {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.Initializer();
@@ -1325,9 +1304,6 @@ nnabla.Solver.prototype.lr_decay_interval = 0n;
 
 nnabla.SgdParameter = class SgdParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.SgdParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1366,9 +1342,6 @@ nnabla.SgdParameter = class SgdParameter {
 nnabla.SgdParameter.prototype.lr = 0;
 
 nnabla.SgdWParameter = class SgdWParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.SgdWParameter();
@@ -1423,9 +1396,6 @@ nnabla.SgdWParameter.prototype.wd = 0;
 
 nnabla.MomentumParameter = class MomentumParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.MomentumParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1471,9 +1441,6 @@ nnabla.MomentumParameter.prototype.lr = 0;
 nnabla.MomentumParameter.prototype.momentum = 0;
 
 nnabla.LarsParameter = class LarsParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.LarsParameter();
@@ -1535,9 +1502,6 @@ nnabla.LarsParameter.prototype.eps = 0;
 
 nnabla.NesterovParameter = class NesterovParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.NesterovParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1583,9 +1547,6 @@ nnabla.NesterovParameter.prototype.lr = 0;
 nnabla.NesterovParameter.prototype.momentum = 0;
 
 nnabla.AdadeltaParameter = class AdadeltaParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.AdadeltaParameter();
@@ -1640,9 +1601,6 @@ nnabla.AdadeltaParameter.prototype.eps = 0;
 
 nnabla.AdagradParameter = class AdagradParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.AdagradParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1688,9 +1646,6 @@ nnabla.AdagradParameter.prototype.lr = 0;
 nnabla.AdagradParameter.prototype.eps = 0;
 
 nnabla.AdaBeliefParameter = class AdaBeliefParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.AdaBeliefParameter();
@@ -1787,9 +1742,6 @@ nnabla.AdaBeliefParameter.prototype.rectify = false;
 
 nnabla.RMSpropParameter = class RMSpropParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.RMSpropParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1842,9 +1794,6 @@ nnabla.RMSpropParameter.prototype.decay = 0;
 nnabla.RMSpropParameter.prototype.eps = 0;
 
 nnabla.RMSpropGravesParameter = class RMSpropGravesParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.RMSpropGravesParameter();
@@ -1906,9 +1855,6 @@ nnabla.RMSpropGravesParameter.prototype.eps = 0;
 
 nnabla.AdamParameter = class AdamParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.AdamParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1968,9 +1914,6 @@ nnabla.AdamParameter.prototype.beta2 = 0;
 nnabla.AdamParameter.prototype.eps = 0;
 
 nnabla.AdamWParameter = class AdamWParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.AdamWParameter();
@@ -2038,9 +1981,6 @@ nnabla.AdamWParameter.prototype.eps = 0;
 nnabla.AdamWParameter.prototype.wd = 0;
 
 nnabla.AdaBoundParameter = class AdaBoundParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.AdaBoundParameter();
@@ -2116,9 +2056,6 @@ nnabla.AdaBoundParameter.prototype.gamma = 0;
 
 nnabla.AdamaxParameter = class AdamaxParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.AdamaxParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2178,9 +2115,6 @@ nnabla.AdamaxParameter.prototype.beta2 = 0;
 nnabla.AdamaxParameter.prototype.eps = 0;
 
 nnabla.AMSGRADParameter = class AMSGRADParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.AMSGRADParameter();
@@ -2248,9 +2182,6 @@ nnabla.AMSGRADParameter.prototype.eps = 0;
 nnabla.AMSGRADParameter.prototype.bias_correction = false;
 
 nnabla.AMSBoundParameter = class AMSBoundParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.AMSBoundParameter();
@@ -2333,9 +2264,6 @@ nnabla.AMSBoundParameter.prototype.bias_correction = false;
 
 nnabla.LambParameter = class LambParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.LambParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2417,9 +2345,6 @@ nnabla.LambParameter.prototype.bias_correction = false;
 
 nnabla.LionParameter = class LionParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.LionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2473,9 +2398,6 @@ nnabla.LionParameter.prototype.beta2 = 0;
 
 nnabla.PolynomialSchedulerParameter = class PolynomialSchedulerParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.PolynomialSchedulerParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2522,9 +2444,6 @@ nnabla.PolynomialSchedulerParameter.prototype.power = 0;
 
 nnabla.CosineSchedulerParameter = class CosineSchedulerParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.CosineSchedulerParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2563,9 +2482,6 @@ nnabla.CosineSchedulerParameter = class CosineSchedulerParameter {
 nnabla.CosineSchedulerParameter.prototype.max_iter = 0;
 
 nnabla.ExponentialSchedulerParameter = class ExponentialSchedulerParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.ExponentialSchedulerParameter();
@@ -2725,9 +2641,6 @@ nnabla.CustomSchedulerParameter.prototype.network_name = "";
 
 nnabla.LinearWarmupSchedulerParameter = class LinearWarmupSchedulerParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.LinearWarmupSchedulerParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2766,9 +2679,6 @@ nnabla.LinearWarmupSchedulerParameter = class LinearWarmupSchedulerParameter {
 nnabla.LinearWarmupSchedulerParameter.prototype.warmup_iter = 0n;
 
 nnabla.DataVariable = class DataVariable {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.DataVariable();
@@ -2815,9 +2725,6 @@ nnabla.DataVariable.prototype.variable_name = "";
 nnabla.DataVariable.prototype.data_name = "";
 
 nnabla.GeneratorVariable = class GeneratorVariable {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.GeneratorVariable();
@@ -2872,9 +2779,6 @@ nnabla.GeneratorVariable.prototype.multiplier = 0;
 
 nnabla.LossVariable = class LossVariable {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.LossVariable();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -2913,9 +2817,6 @@ nnabla.LossVariable = class LossVariable {
 nnabla.LossVariable.prototype.variable_name = "";
 
 nnabla.ParameterVariable = class ParameterVariable {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.ParameterVariable();
@@ -3039,9 +2940,6 @@ nnabla.Monitor.prototype.name = "";
 nnabla.Monitor.prototype.network_name = "";
 
 nnabla.MonitorVariable = class MonitorVariable {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.MonitorVariable();
@@ -3214,9 +3112,6 @@ nnabla.Executor.prototype.need_back_propagation = false;
 nnabla.Executor.prototype.no_image_normalization = false;
 
 nnabla.OutputVariable = class OutputVariable {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.OutputVariable();
@@ -4303,9 +4198,6 @@ nnabla.Function.prototype.recurrent_param = null;
 
 nnabla.AffineParameter = class AffineParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.AffineParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4344,9 +4236,6 @@ nnabla.AffineParameter = class AffineParameter {
 nnabla.AffineParameter.prototype.base_axis = 0n;
 
 nnabla.RNNParameter = class RNNParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.RNNParameter();
@@ -4415,9 +4304,6 @@ nnabla.RNNParameter.prototype.training = false;
 
 nnabla.LSTMParameter = class LSTMParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.LSTMParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4478,9 +4364,6 @@ nnabla.LSTMParameter.prototype.training = false;
 
 nnabla.GRUParameter = class GRUParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.GRUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4540,9 +4423,6 @@ nnabla.GRUParameter.prototype.bidirectional = false;
 nnabla.GRUParameter.prototype.training = false;
 
 nnabla.ConvolutionParameter = class ConvolutionParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.ConvolutionParameter();
@@ -4744,9 +4624,6 @@ nnabla.FusedConvolutionParameter.prototype.constant_value = 0;
 
 nnabla.DepthwiseConvolutionParameter = class DepthwiseConvolutionParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.DepthwiseConvolutionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4813,9 +4690,6 @@ nnabla.DepthwiseConvolutionParameter.prototype.dilation = null;
 nnabla.DepthwiseConvolutionParameter.prototype.multiplier = 0n;
 
 nnabla.DeconvolutionParameter = class DeconvolutionParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.DeconvolutionParameter();
@@ -4898,9 +4772,6 @@ nnabla.DeconvolutionParameter.prototype.output_padding = null;
 
 nnabla.DepthwiseDeconvolutionParameter = class DepthwiseDeconvolutionParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.DepthwiseDeconvolutionParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -4967,9 +4838,6 @@ nnabla.DepthwiseDeconvolutionParameter.prototype.dilation = null;
 nnabla.DepthwiseDeconvolutionParameter.prototype.divisor = 0n;
 
 nnabla.DeformableConvolutionParameter = class DeformableConvolutionParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.DeformableConvolutionParameter();
@@ -5052,9 +4920,6 @@ nnabla.DeformableConvolutionParameter.prototype.channel_last = false;
 
 nnabla.MaxPoolingParameter = class MaxPoolingParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.MaxPoolingParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5121,9 +4986,6 @@ nnabla.MaxPoolingParameter.prototype.pad = null;
 nnabla.MaxPoolingParameter.prototype.channel_last = false;
 
 nnabla.AveragePoolingParameter = class AveragePoolingParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.AveragePoolingParameter();
@@ -5199,9 +5061,6 @@ nnabla.AveragePoolingParameter.prototype.including_pad = false;
 
 nnabla.SumPoolingParameter = class SumPoolingParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.SumPoolingParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5268,9 +5127,6 @@ nnabla.SumPoolingParameter.prototype.pad = null;
 nnabla.SumPoolingParameter.prototype.channel_last = false;
 
 nnabla.UnpoolingParameter = class UnpoolingParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.UnpoolingParameter();
@@ -5381,9 +5237,6 @@ nnabla.RoiAlignParameter.prototype.channel_last = false;
 
 nnabla.ReLUParameter = class ReLUParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.ReLUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5422,9 +5275,6 @@ nnabla.ReLUParameter = class ReLUParameter {
 nnabla.ReLUParameter.prototype.inplace = false;
 
 nnabla.LeakyReLUParameter = class LeakyReLUParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.LeakyReLUParameter();
@@ -5472,9 +5322,6 @@ nnabla.LeakyReLUParameter.prototype.inplace = false;
 
 nnabla.SoftmaxParameter = class SoftmaxParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.SoftmaxParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5513,9 +5360,6 @@ nnabla.SoftmaxParameter = class SoftmaxParameter {
 nnabla.SoftmaxParameter.prototype.axis = 0n;
 
 nnabla.LogSoftmaxParameter = class LogSoftmaxParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.LogSoftmaxParameter();
@@ -5556,9 +5400,6 @@ nnabla.LogSoftmaxParameter.prototype.axis = 0n;
 
 nnabla.ELUParameter = class ELUParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.ELUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5597,9 +5438,6 @@ nnabla.ELUParameter = class ELUParameter {
 nnabla.ELUParameter.prototype.alpha = 0;
 
 nnabla.SELUParameter = class SELUParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.SELUParameter();
@@ -5647,9 +5485,6 @@ nnabla.SELUParameter.prototype.alpha = 0;
 
 nnabla.CReLUParameter = class CReLUParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.CReLUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5688,9 +5523,6 @@ nnabla.CReLUParameter = class CReLUParameter {
 nnabla.CReLUParameter.prototype.axis = 0n;
 
 nnabla.CELUParameter = class CELUParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.CELUParameter();
@@ -5738,9 +5570,6 @@ nnabla.CELUParameter.prototype.axis = 0n;
 
 nnabla.PReLUParameter = class PReLUParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.PReLUParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -5779,9 +5608,6 @@ nnabla.PReLUParameter = class PReLUParameter {
 nnabla.PReLUParameter.prototype.base_axis = 0n;
 
 nnabla.SoftPlusParameter = class SoftPlusParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.SoftPlusParameter();
@@ -6375,9 +6201,6 @@ nnabla.TensorNormalizationParameter.prototype.no_bias = false;
 
 nnabla.WeightNormalizationParameter = class WeightNormalizationParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.WeightNormalizationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -6424,9 +6247,6 @@ nnabla.WeightNormalizationParameter.prototype.eps = 0;
 
 nnabla.WeightStandardizationParameter = class WeightStandardizationParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.WeightStandardizationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -6472,9 +6292,6 @@ nnabla.WeightStandardizationParameter.prototype.channel_axis = 0n;
 nnabla.WeightStandardizationParameter.prototype.eps = 0;
 
 nnabla.SpectralNormParameter = class SpectralNormParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.SpectralNormParameter();
@@ -6542,9 +6359,6 @@ nnabla.SpectralNormParameter.prototype.test = false;
 nnabla.SpectralNormParameter.prototype.output_u = false;
 
 nnabla.MeanSubtractionParameter = class MeanSubtractionParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.MeanSubtractionParameter();
@@ -6689,9 +6503,6 @@ nnabla.SumParameter = class SumParameter {
 nnabla.SumParameter.prototype.keep_dims = false;
 
 nnabla.CumSumParameter = class CumSumParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.CumSumParameter();
@@ -7026,9 +6837,6 @@ nnabla.ProdParameter.prototype.keep_dims = false;
 
 nnabla.CumProdParameter = class CumProdParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.CumProdParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7082,9 +6890,6 @@ nnabla.CumProdParameter.prototype.reverse = false;
 
 nnabla.Add2Parameter = class Add2Parameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.Add2Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7123,9 +6928,6 @@ nnabla.Add2Parameter = class Add2Parameter {
 nnabla.Add2Parameter.prototype.inplace = false;
 
 nnabla.BcAdd2Parameter = class BcAdd2Parameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.BcAdd2Parameter();
@@ -7166,9 +6968,6 @@ nnabla.BcAdd2Parameter.prototype.inplace = false;
 
 nnabla.Sub2Parameter = class Sub2Parameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.Sub2Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7207,9 +7006,6 @@ nnabla.Sub2Parameter = class Sub2Parameter {
 nnabla.Sub2Parameter.prototype.inplace = false;
 
 nnabla.Mul2Parameter = class Mul2Parameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.Mul2Parameter();
@@ -7250,9 +7046,6 @@ nnabla.Mul2Parameter.prototype.inplace = false;
 
 nnabla.Div2Parameter = class Div2Parameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.Div2Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7292,9 +7085,6 @@ nnabla.Div2Parameter.prototype.inplace = false;
 
 nnabla.Pow2Parameter = class Pow2Parameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.Pow2Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7333,9 +7123,6 @@ nnabla.Pow2Parameter = class Pow2Parameter {
 nnabla.Pow2Parameter.prototype.inplace = false;
 
 nnabla.AddScalarParameter = class AddScalarParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.AddScalarParameter();
@@ -7383,9 +7170,6 @@ nnabla.AddScalarParameter.prototype.inplace = false;
 
 nnabla.MulScalarParameter = class MulScalarParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.MulScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7431,9 +7215,6 @@ nnabla.MulScalarParameter.prototype.val = 0;
 nnabla.MulScalarParameter.prototype.inplace = false;
 
 nnabla.PowScalarParameter = class PowScalarParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.PowScalarParameter();
@@ -7481,9 +7262,6 @@ nnabla.PowScalarParameter.prototype.inplace = false;
 
 nnabla.RSubScalarParameter = class RSubScalarParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.RSubScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7522,9 +7300,6 @@ nnabla.RSubScalarParameter = class RSubScalarParameter {
 nnabla.RSubScalarParameter.prototype.val = 0;
 
 nnabla.RDivScalarParameter = class RDivScalarParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.RDivScalarParameter();
@@ -7565,9 +7340,6 @@ nnabla.RDivScalarParameter.prototype.val = 0;
 
 nnabla.RPowScalarParameter = class RPowScalarParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.RPowScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7606,9 +7378,6 @@ nnabla.RPowScalarParameter = class RPowScalarParameter {
 nnabla.RPowScalarParameter.prototype.val = 0;
 
 nnabla.SignParameter = class SignParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.SignParameter();
@@ -7649,9 +7418,6 @@ nnabla.SignParameter.prototype.alpha = 0;
 
 nnabla.MinimumScalarParameter = class MinimumScalarParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.MinimumScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7690,9 +7456,6 @@ nnabla.MinimumScalarParameter = class MinimumScalarParameter {
 nnabla.MinimumScalarParameter.prototype.val = 0;
 
 nnabla.MaximumScalarParameter = class MaximumScalarParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.MaximumScalarParameter();
@@ -7733,9 +7496,6 @@ nnabla.MaximumScalarParameter.prototype.val = 0;
 
 nnabla.SearchSortedParameter = class SearchSortedParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.SearchSortedParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7774,9 +7534,6 @@ nnabla.SearchSortedParameter = class SearchSortedParameter {
 nnabla.SearchSortedParameter.prototype.right = false;
 
 nnabla.LogicalAndScalarParameter = class LogicalAndScalarParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.LogicalAndScalarParameter();
@@ -7817,9 +7574,6 @@ nnabla.LogicalAndScalarParameter.prototype.val = false;
 
 nnabla.LogicalOrScalarParameter = class LogicalOrScalarParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.LogicalOrScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7858,9 +7612,6 @@ nnabla.LogicalOrScalarParameter = class LogicalOrScalarParameter {
 nnabla.LogicalOrScalarParameter.prototype.val = false;
 
 nnabla.LogicalXorScalarParameter = class LogicalXorScalarParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.LogicalXorScalarParameter();
@@ -7901,9 +7652,6 @@ nnabla.LogicalXorScalarParameter.prototype.val = false;
 
 nnabla.EqualScalarParameter = class EqualScalarParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.EqualScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -7942,9 +7690,6 @@ nnabla.EqualScalarParameter = class EqualScalarParameter {
 nnabla.EqualScalarParameter.prototype.val = 0;
 
 nnabla.NotEqualScalarParameter = class NotEqualScalarParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.NotEqualScalarParameter();
@@ -7985,9 +7730,6 @@ nnabla.NotEqualScalarParameter.prototype.val = 0;
 
 nnabla.GreaterEqualScalarParameter = class GreaterEqualScalarParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.GreaterEqualScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8026,9 +7768,6 @@ nnabla.GreaterEqualScalarParameter = class GreaterEqualScalarParameter {
 nnabla.GreaterEqualScalarParameter.prototype.val = 0;
 
 nnabla.GreaterScalarParameter = class GreaterScalarParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.GreaterScalarParameter();
@@ -8069,9 +7808,6 @@ nnabla.GreaterScalarParameter.prototype.val = 0;
 
 nnabla.LessEqualScalarParameter = class LessEqualScalarParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.LessEqualScalarParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8110,9 +7846,6 @@ nnabla.LessEqualScalarParameter = class LessEqualScalarParameter {
 nnabla.LessEqualScalarParameter.prototype.val = 0;
 
 nnabla.LessScalarParameter = class LessScalarParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.LessScalarParameter();
@@ -8153,9 +7886,6 @@ nnabla.LessScalarParameter.prototype.val = 0;
 
 nnabla.ResetNaNParameter = class ResetNaNParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.ResetNaNParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8195,9 +7925,6 @@ nnabla.ResetNaNParameter.prototype.val = 0;
 
 nnabla.ResetInfParameter = class ResetInfParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.ResetInfParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8236,9 +7963,6 @@ nnabla.ResetInfParameter = class ResetInfParameter {
 nnabla.ResetInfParameter.prototype.val = 0;
 
 nnabla.ConstantParameter = class ConstantParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.ConstantParameter();
@@ -8285,9 +8009,6 @@ nnabla.ConstantParameter.prototype.val = 0;
 nnabla.ConstantParameter.prototype.shape = null;
 
 nnabla.ArangeParameter = class ArangeParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.ArangeParameter();
@@ -8342,9 +8063,6 @@ nnabla.ArangeParameter.prototype.step = 0;
 
 nnabla.LinspaceParameter = class LinspaceParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.LinspaceParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8398,9 +8116,6 @@ nnabla.LinspaceParameter.prototype.num = 0n;
 
 nnabla.BatchMatmulParameter = class BatchMatmulParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.BatchMatmulParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8447,9 +8162,6 @@ nnabla.BatchMatmulParameter.prototype.transpose_b = false;
 
 nnabla.RoundParameter = class RoundParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.RoundParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8480,9 +8192,6 @@ nnabla.RoundParameter = class RoundParameter {
 };
 
 nnabla.CeilParameter = class CeilParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.CeilParameter();
@@ -8515,9 +8224,6 @@ nnabla.CeilParameter = class CeilParameter {
 
 nnabla.FloorParameter = class FloorParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.FloorParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8548,9 +8254,6 @@ nnabla.FloorParameter = class FloorParameter {
 };
 
 nnabla.ConcatenateParameter = class ConcatenateParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.ConcatenateParameter();
@@ -8591,9 +8294,6 @@ nnabla.ConcatenateParameter.prototype.axis = 0n;
 
 nnabla.SplitParameter = class SplitParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.SplitParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8632,9 +8332,6 @@ nnabla.SplitParameter = class SplitParameter {
 nnabla.SplitParameter.prototype.axis = 0n;
 
 nnabla.StackParameter = class StackParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.StackParameter();
@@ -8827,9 +8524,6 @@ nnabla.TransposeParameter = class TransposeParameter {
 
 nnabla.BroadcastParameter = class BroadcastParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.BroadcastParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -8868,9 +8562,6 @@ nnabla.BroadcastParameter = class BroadcastParameter {
 nnabla.BroadcastParameter.prototype.shape = null;
 
 nnabla.BroadcastToParameter = class BroadcastToParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.BroadcastToParameter();
@@ -8951,9 +8642,6 @@ nnabla.TileParameter = class TileParameter {
 };
 
 nnabla.OneHotParameter = class OneHotParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.OneHotParameter();
@@ -9084,9 +8772,6 @@ nnabla.ShiftParameter.prototype.border_mode = "";
 
 nnabla.SortParameter = class SortParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.SortParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9147,9 +8832,6 @@ nnabla.SortParameter.prototype.only_index = false;
 
 nnabla.ReshapeParameter = class ReshapeParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.ReshapeParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9195,9 +8877,6 @@ nnabla.ReshapeParameter.prototype.shape = null;
 nnabla.ReshapeParameter.prototype.inplace = false;
 
 nnabla.ShapeParameter = class ShapeParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.ShapeParameter();
@@ -9245,9 +8924,6 @@ nnabla.ShapeParameter.prototype.end = 0n;
 
 nnabla.TriluParameter = class TriluParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.TriluParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9294,9 +8970,6 @@ nnabla.TriluParameter.prototype.upper = false;
 
 nnabla.MeshgridParameter = class MeshgridParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.MeshgridParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9336,9 +9009,6 @@ nnabla.MeshgridParameter.prototype.ij_indexing = false;
 
 nnabla.BatchCholeskyParameter = class BatchCholeskyParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.BatchCholeskyParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9377,9 +9047,6 @@ nnabla.BatchCholeskyParameter = class BatchCholeskyParameter {
 nnabla.BatchCholeskyParameter.prototype.upper = false;
 
 nnabla.GatherParameter = class GatherParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.GatherParameter();
@@ -9476,9 +9143,6 @@ nnabla.ScatterNdParameter.prototype.add = false;
 
 nnabla.ScatterAddParameter = class ScatterAddParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.ScatterAddParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9517,9 +9181,6 @@ nnabla.ScatterAddParameter = class ScatterAddParameter {
 nnabla.ScatterAddParameter.prototype.axis = 0n;
 
 nnabla.BoolFillParameter = class BoolFillParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.BoolFillParameter();
@@ -9560,9 +9221,6 @@ nnabla.BoolFillParameter.prototype.value = 0;
 
 nnabla.PackPaddedSequenceParameter = class PackPaddedSequenceParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.PackPaddedSequenceParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9601,9 +9259,6 @@ nnabla.PackPaddedSequenceParameter = class PackPaddedSequenceParameter {
 nnabla.PackPaddedSequenceParameter.prototype.batch_first = false;
 
 nnabla.PadPackedSequenceParameter = class PadPackedSequenceParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.PadPackedSequenceParameter();
@@ -9833,9 +9488,6 @@ nnabla.ONNXResizeParameter.prototype.nearest_mode = "";
 
 nnabla.FFTParameter = class FFTParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.FFTParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9882,9 +9534,6 @@ nnabla.FFTParameter.prototype.normalized = false;
 
 nnabla.IFFTParameter = class IFFTParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.IFFTParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -9930,9 +9579,6 @@ nnabla.IFFTParameter.prototype.signal_ndim = 0n;
 nnabla.IFFTParameter.prototype.normalized = false;
 
 nnabla.STFTParameter = class STFTParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.STFTParameter();
@@ -10015,9 +9661,6 @@ nnabla.STFTParameter.prototype.as_istft_backward = false;
 
 nnabla.ISTFTParameter = class ISTFTParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.ISTFTParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -10099,9 +9742,6 @@ nnabla.ISTFTParameter.prototype.as_stft_backward = false;
 
 nnabla.DropoutParameter = class DropoutParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.DropoutParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -10147,9 +9787,6 @@ nnabla.DropoutParameter.prototype.p = 0;
 nnabla.DropoutParameter.prototype.seed = 0n;
 
 nnabla.TopKDataParameter = class TopKDataParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.TopKDataParameter();
@@ -10225,9 +9862,6 @@ nnabla.TopKDataParameter.prototype.with_index = false;
 
 nnabla.TopKGradParameter = class TopKGradParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.TopKGradParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -10280,9 +9914,6 @@ nnabla.TopKGradParameter.prototype.abs = false;
 nnabla.TopKGradParameter.prototype.base_axis = 0n;
 
 nnabla.RandParameter = class RandParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.RandParameter();
@@ -10344,9 +9975,6 @@ nnabla.RandParameter.prototype.seed = 0n;
 
 nnabla.RandintParameter = class RandintParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.RandintParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -10406,9 +10034,6 @@ nnabla.RandintParameter.prototype.shape = null;
 nnabla.RandintParameter.prototype.seed = 0n;
 
 nnabla.RandnParameter = class RandnParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.RandnParameter();
@@ -10470,9 +10095,6 @@ nnabla.RandnParameter.prototype.seed = 0n;
 
 nnabla.RandBinomialParameter = class RandBinomialParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.RandBinomialParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -10532,9 +10154,6 @@ nnabla.RandBinomialParameter.prototype.shape = null;
 nnabla.RandBinomialParameter.prototype.seed = 0n;
 
 nnabla.RandBetaParameter = class RandBetaParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.RandBetaParameter();
@@ -10596,9 +10215,6 @@ nnabla.RandBetaParameter.prototype.seed = 0n;
 
 nnabla.RandGammaParameter = class RandGammaParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.RandGammaParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -10659,9 +10275,6 @@ nnabla.RandGammaParameter.prototype.seed = 0n;
 
 nnabla.RandomChoiceParameter = class RandomChoiceParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.RandomChoiceParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -10714,9 +10327,6 @@ nnabla.RandomChoiceParameter.prototype.replace = false;
 nnabla.RandomChoiceParameter.prototype.seed = 0n;
 
 nnabla.RandomCropParameter = class RandomCropParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.RandomCropParameter();
@@ -11009,9 +10619,6 @@ nnabla.RandomEraseParameter.prototype.ste_fine_grained = false;
 
 nnabla.ImageAugmentationParameter = class ImageAugmentationParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.ImageAugmentationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -11156,9 +10763,6 @@ nnabla.ImageAugmentationParameter.prototype.seed = 0n;
 
 nnabla.SoftmaxCrossEntropyParameter = class SoftmaxCrossEntropyParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.SoftmaxCrossEntropyParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -11197,9 +10801,6 @@ nnabla.SoftmaxCrossEntropyParameter = class SoftmaxCrossEntropyParameter {
 nnabla.SoftmaxCrossEntropyParameter.prototype.axis = 0n;
 
 nnabla.CategoricalCrossEntropyParameter = class CategoricalCrossEntropyParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.CategoricalCrossEntropyParameter();
@@ -11240,9 +10841,6 @@ nnabla.CategoricalCrossEntropyParameter.prototype.axis = 0n;
 
 nnabla.HuberLossParameter = class HuberLossParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.HuberLossParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -11282,9 +10880,6 @@ nnabla.HuberLossParameter.prototype.delta = 0;
 
 nnabla.EpsilonInsensitiveLossParameter = class EpsilonInsensitiveLossParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.EpsilonInsensitiveLossParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -11323,9 +10918,6 @@ nnabla.EpsilonInsensitiveLossParameter = class EpsilonInsensitiveLossParameter {
 nnabla.EpsilonInsensitiveLossParameter.prototype.epsilon = 0;
 
 nnabla.KLMultinomialParameter = class KLMultinomialParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.KLMultinomialParameter();
@@ -11415,9 +11007,6 @@ nnabla.AffineGridParameter.prototype.align_corners = false;
 
 nnabla.WarpByGridParameter = class WarpByGridParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.WarpByGridParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -11478,9 +11067,6 @@ nnabla.WarpByGridParameter.prototype.channel_last = false;
 
 nnabla.BinaryConnectAffineParameter = class BinaryConnectAffineParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.BinaryConnectAffineParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -11526,9 +11112,6 @@ nnabla.BinaryConnectAffineParameter.prototype.base_axis = 0n;
 nnabla.BinaryConnectAffineParameter.prototype.quantize_zero_to = 0;
 
 nnabla.BinaryConnectConvolutionParameter = class BinaryConnectConvolutionParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.BinaryConnectConvolutionParameter();
@@ -11604,9 +11187,6 @@ nnabla.BinaryConnectConvolutionParameter.prototype.quantize_zero_to = 0;
 
 nnabla.BinaryWeightAffineParameter = class BinaryWeightAffineParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.BinaryWeightAffineParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -11652,9 +11232,6 @@ nnabla.BinaryWeightAffineParameter.prototype.base_axis = 0n;
 nnabla.BinaryWeightAffineParameter.prototype.quantize_zero_to = 0;
 
 nnabla.BinaryWeightConvolutionParameter = class BinaryWeightConvolutionParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.BinaryWeightConvolutionParameter();
@@ -11898,9 +11475,6 @@ nnabla.INQConvolutionParameter.prototype.seed = 0n;
 
 nnabla.FixedPointQuantizeParameter = class FixedPointQuantizeParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.FixedPointQuantizeParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -11960,9 +11534,6 @@ nnabla.FixedPointQuantizeParameter.prototype.delta = 0;
 nnabla.FixedPointQuantizeParameter.prototype.ste_fine_grained = false;
 
 nnabla.MinMaxQuantizeParameter = class MinMaxQuantizeParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.MinMaxQuantizeParameter();
@@ -12031,9 +11602,6 @@ nnabla.MinMaxQuantizeParameter.prototype.eps = 0;
 
 nnabla.Pow2QuantizeParameter = class Pow2QuantizeParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.Pow2QuantizeParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12101,9 +11669,6 @@ nnabla.Pow2QuantizeParameter.prototype.ste_fine_grained = false;
 
 nnabla.PruneParameter = class PruneParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.PruneParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12142,9 +11707,6 @@ nnabla.PruneParameter = class PruneParameter {
 nnabla.PruneParameter.prototype.rate = 0;
 
 nnabla.QuantizeLinearParameter = class QuantizeLinearParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.QuantizeLinearParameter();
@@ -12199,9 +11761,6 @@ nnabla.QuantizeLinearParameter.prototype.dtype = 0n;
 
 nnabla.TopNErrorParameter = class TopNErrorParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.TopNErrorParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12248,9 +11807,6 @@ nnabla.TopNErrorParameter.prototype.n = 0n;
 
 nnabla.ConfusionMatrixParameter = class ConfusionMatrixParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.ConfusionMatrixParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12289,9 +11845,6 @@ nnabla.ConfusionMatrixParameter = class ConfusionMatrixParameter {
 nnabla.ConfusionMatrixParameter.prototype.axis = 0n;
 
 nnabla.VATNoiseParameter = class VATNoiseParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.VATNoiseParameter();
@@ -12339,9 +11892,6 @@ nnabla.VATNoiseParameter.prototype.eps = 0;
 
 nnabla.SinkParameter = class SinkParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.SinkParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12380,9 +11930,6 @@ nnabla.SinkParameter = class SinkParameter {
 nnabla.SinkParameter.prototype.one_input_grad = false;
 
 nnabla.NmsDetection2dParameter = class NmsDetection2dParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.NmsDetection2dParameter();
@@ -12436,9 +11983,6 @@ nnabla.NmsDetection2dParameter.prototype.nms = 0;
 nnabla.NmsDetection2dParameter.prototype.nms_per_class = false;
 
 nnabla.ONNXNonMaxSuppressionParameter = class ONNXNonMaxSuppressionParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.ONNXNonMaxSuppressionParameter();
@@ -12499,9 +12043,6 @@ nnabla.ONNXNonMaxSuppressionParameter.prototype.iou_threshold = 0;
 nnabla.ONNXNonMaxSuppressionParameter.prototype.score_threshold = 0;
 
 nnabla.MaxPoolingBackwardParameter = class MaxPoolingBackwardParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.MaxPoolingBackwardParameter();
@@ -12570,9 +12111,6 @@ nnabla.MaxPoolingBackwardParameter.prototype.channel_last = false;
 
 nnabla.PatchCorrelationParameter = class PatchCorrelationParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.PatchCorrelationParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12639,9 +12177,6 @@ nnabla.PatchCorrelationParameter.prototype.shift_step = null;
 nnabla.PatchCorrelationParameter.prototype.padding = null;
 
 nnabla.UniqueParameter = class UniqueParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.UniqueParameter();
@@ -12717,9 +12252,6 @@ nnabla.UniqueParameter.prototype.with_counts = false;
 
 nnabla.EyeLikeParameter = class EyeLikeParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.EyeLikeParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12758,9 +12290,6 @@ nnabla.EyeLikeParameter = class EyeLikeParameter {
 nnabla.EyeLikeParameter.prototype.k = 0n;
 
 nnabla.Mod2Parameter = class Mod2Parameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.Mod2Parameter();
@@ -12801,9 +12330,6 @@ nnabla.Mod2Parameter.prototype.fmod = false;
 
 nnabla.BitShiftParameter = class BitShiftParameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new nnabla.BitShiftParameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -12842,9 +12368,6 @@ nnabla.BitShiftParameter = class BitShiftParameter {
 nnabla.BitShiftParameter.prototype.direction = "";
 
 nnabla.EinsumParameter = class EinsumParameter {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new nnabla.EinsumParameter();

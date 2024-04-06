@@ -40,9 +40,6 @@ ge.proto.DataType = {
 
 ge.proto.AttrDef = class AttrDef {
 
-    constructor() {
-    }
-
     get value() {
         ge.proto.AttrDef.valueSet = ge.proto.AttrDef.valueSet || new Set(["s", "i", "f", "b", "bt", "list", "func", "td", "t", "g", "list_list_int", "dt", "list_list_float"]);
         return Object.keys(this).find((key) => ge.proto.AttrDef.valueSet.has(key) && this[key] !== null);
@@ -697,9 +694,6 @@ ge.proto.TensorDescriptor.prototype.cmps_tab = "";
 ge.proto.TensorDescriptor.prototype.cmps_tab_offset = 0n;
 
 ge.proto.TensorDef = class TensorDef {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new ge.proto.TensorDef();

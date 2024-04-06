@@ -56,9 +56,6 @@ dnn.Model.prototype.a014 = 0;
 
 dnn.Parameter = class Parameter {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new dnn.Parameter();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -84,9 +81,6 @@ dnn.Parameter.prototype.name = "";
 dnn.Parameter.prototype.shape = null;
 
 dnn.Shape = class Shape {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new dnn.Shape();
@@ -296,9 +290,6 @@ dnn.Layer.prototype.a116 = 0;
 
 dnn.Buffer = class Buffer {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new dnn.Buffer();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -320,9 +311,6 @@ dnn.Buffer = class Buffer {
 dnn.Buffer.prototype.data = new Uint8Array([]);
 
 dnn.Tensor = class Tensor {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new dnn.Tensor();

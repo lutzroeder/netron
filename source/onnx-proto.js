@@ -532,9 +532,6 @@ onnx.ModelProto.prototype.graph = null;
 
 onnx.StringStringEntryProto = class StringStringEntryProto {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new onnx.StringStringEntryProto();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -901,9 +898,6 @@ onnx.TensorProto.DataType = {
 
 onnx.TensorProto.Segment = class Segment {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new onnx.TensorProto.Segment();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1052,9 +1046,6 @@ onnx.TensorShapeProto = class TensorShapeProto {
 
 onnx.TensorShapeProto.Dimension = class Dimension {
 
-    constructor() {
-    }
-
     get value() {
         onnx.TensorShapeProto.Dimension.valueSet = onnx.TensorShapeProto.Dimension.valueSet || new Set(["dim_value", "dim_param"]);
         return Object.keys(this).find((key) => onnx.TensorShapeProto.Dimension.valueSet.has(key) && this[key] !== null);
@@ -1110,9 +1101,6 @@ onnx.TensorShapeProto.Dimension = class Dimension {
 onnx.TensorShapeProto.Dimension.prototype.denotation = "";
 
 onnx.TypeProto = class TypeProto {
-
-    constructor() {
-    }
 
     get value() {
         onnx.TypeProto.valueSet = onnx.TypeProto.valueSet || new Set(["tensor_type", "sequence_type", "map_type", "optional_type", "sparse_tensor_type", "opaque_type"]);
@@ -1194,9 +1182,6 @@ onnx.TypeProto.prototype.denotation = "";
 
 onnx.TypeProto.Tensor = class Tensor {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new onnx.TypeProto.Tensor();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1243,9 +1228,6 @@ onnx.TypeProto.Tensor.prototype.shape = null;
 
 onnx.TypeProto.Sequence = class Sequence {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new onnx.TypeProto.Sequence();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1284,9 +1266,6 @@ onnx.TypeProto.Sequence = class Sequence {
 onnx.TypeProto.Sequence.prototype.elem_type = null;
 
 onnx.TypeProto.Map = class Map {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new onnx.TypeProto.Map();
@@ -1334,9 +1313,6 @@ onnx.TypeProto.Map.prototype.value_type = null;
 
 onnx.TypeProto.Optional = class Optional {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new onnx.TypeProto.Optional();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1375,9 +1351,6 @@ onnx.TypeProto.Optional = class Optional {
 onnx.TypeProto.Optional.prototype.elem_type = null;
 
 onnx.TypeProto.SparseTensor = class SparseTensor {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new onnx.TypeProto.SparseTensor();
@@ -1425,9 +1398,6 @@ onnx.TypeProto.SparseTensor.prototype.shape = null;
 
 onnx.TypeProto.Opaque = class Opaque {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new onnx.TypeProto.Opaque();
         const end = length !== undefined ? reader.position + length : reader.length;
@@ -1473,9 +1443,6 @@ onnx.TypeProto.Opaque.prototype.domain = "";
 onnx.TypeProto.Opaque.prototype.name = "";
 
 onnx.OperatorSetIdProto = class OperatorSetIdProto {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new onnx.OperatorSetIdProto();
@@ -1646,9 +1613,6 @@ onnx.FunctionProto.prototype.domain = "";
 onnx.FunctionProto.prototype.overload = "";
 
 onnx.OperatorProto = class OperatorProto {
-
-    constructor() {
-    }
 
     static decode(reader, length) {
         const message = new onnx.OperatorProto();
