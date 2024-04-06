@@ -1064,7 +1064,7 @@ keras.Node = class {
                         inputIndex++;
                         continue;
                     }
-                    visible = input.visible === false ? false : true;
+                    visible = input.visible !== false;
                     if (this._type.inputs[inputIndex].list) {
                         list = true;
                     }
@@ -1240,7 +1240,7 @@ keras.Attribute = class {
     }
 
     get visible() {
-        return this._visible === false ? false : true;
+        return this._visible !== false;
     }
 
     static _convert(value) {

@@ -245,7 +245,7 @@ onnx.Argument = class {
         this.value = value;
         this.type = type || null;
         this.description = description || null;
-        this.visible = visible === false ? false : true;
+        this.visible = visible !== false;
     }
 };
 

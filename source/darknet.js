@@ -120,7 +120,7 @@ darknet.Graph = class {
             const type = new darknet.TensorType('float32', make_shape(shape, 'load_weights'));
             const initializer = new darknet.Tensor(type, data);
             const value = new darknet.Value('', null, initializer);
-            return new darknet.Argument(name, visible === false ? false : true, [value]);
+            return new darknet.Argument(name, visible !== false, [value]);
         };
         const load_batch_normalize_weights = (layer, prefix, size) => {
             layer.weights.push(load_weights(`${prefix}scale`, [size], prefix === ''));
@@ -932,7 +932,7 @@ darknet.Attribute = class {
     }
 
     get visible() {
-        return this._visible === false ? false : true;
+        return this._visible !== false;
     }
 };
 

@@ -439,7 +439,7 @@ tflite.Attribute = class {
     }
 
     get visible() {
-        return this._visible === false ? false : true;
+        return this._visible !== false;
     }
 };
 
@@ -448,7 +448,7 @@ tflite.Argument = class {
     constructor(name, value, visible) {
         this.name = name;
         this.value = value;
-        this.visible = visible === false ? false : true;
+        this.visible = visible !== false;
     }
 };
 

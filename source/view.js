@@ -3680,7 +3680,7 @@ view.Tensor = class {
             switch (dataType) {
                 case 'boolean':
                     for (; offset < max; offset += stride) {
-                        results.push(view.getUint8(offset) === 0 ? false : true);
+                        results.push(view.getUint8(offset) !== 0);
                     }
                     break;
                 case 'qint8':
