@@ -4448,7 +4448,7 @@ markdown.Generator = class {
                         list.loose = true;
                     }
                     const task = /^\[[ xX]\] /.test(item);
-                    let checked = undefined;
+                    let checked = false;
                     if (task) {
                         checked = item[1] !== ' ';
                         item = item.replace(/^\[[ xX]\] +/, '');

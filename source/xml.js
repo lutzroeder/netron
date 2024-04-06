@@ -646,7 +646,7 @@ xml.TextReader = class {
 
     _elementChildren() {
         const skipQualifiers = () => this._match('?') || this._match('*') || this._match('+');
-        let separator = undefined;
+        let separator = '';
         const choice = new Set();
         for (;;) {
             const name = this._name();

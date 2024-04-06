@@ -307,7 +307,7 @@ hailo.Container = class {
             if (!this.configuration) {
                 throw new hailo.Error("Archive does not contain '.nn' configuration.");
             }
-            let extension = undefined;
+            let extension = '';
             switch (this.metadata.state) {
                 case 'fp_optimized_model': extension = '.fpo.npz'; break;
                 case 'quantized_model': extension = '.q.npz'; break;

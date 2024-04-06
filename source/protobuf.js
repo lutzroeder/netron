@@ -982,7 +982,7 @@ protobuf.TextReader = class {
     entry(obj, key, value) {
         this.start();
         let k = '';
-        let v = undefined;
+        let v = null;
         while (!this.end()) {
             const tag = this.tag();
             switch (tag) {

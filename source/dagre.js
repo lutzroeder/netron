@@ -261,7 +261,7 @@ dagre.layout = (graph, layout) => {
                 while (tightTree(t, g) < size) {
                     // Finds the edge with the smallest slack that is incident on tree and returns it.
                     let minKey = Number.MAX_SAFE_INTEGER;
-                    let edge = undefined;
+                    let edge = null;
                     for (const e of g.edges.values()) {
                         if (t.hasNode(e.v) !== t.hasNode(e.w)) {
                             const key = slack(g, e);
@@ -476,7 +476,7 @@ dagre.layout = (graph, layout) => {
                         return rootLabel.low <= vLabel.lim && vLabel.lim <= rootLabel.lim;
                     };
                     let minKey = Number.POSITIVE_INFINITY;
-                    let minValue = undefined;
+                    let minValue = null;
                     for (const edge of g.edges.values()) {
                         if (flip === isDescendant(t.node(edge.v).label, tailLabel) &&
                             flip !== isDescendant(t.node(edge.w).label, tailLabel)) {
@@ -1230,14 +1230,14 @@ dagre.layout = (graph, layout) => {
             const initOrder = (g) => {
                 const visited = new Set();
                 const nodes = Array.from(g.nodes.values()).filter((node) => g.children(node.v).length === 0);
-                let maxRank = undefined;
+                let maxRank = -1;
                 for (const node of nodes) {
                     const rank = node.label.rank;
-                    if (maxRank === undefined || (rank !== undefined && rank > maxRank)) {
+                    if (maxRank === -1 || (rank !== undefined && rank > maxRank)) {
                         maxRank = rank;
                     }
                 }
-                if (maxRank !== undefined) {
+                if (maxRank !== -1) {
                     const layers = Array.from(new Array(maxRank + 1), () => []);
                     const queue = nodes.sort((a, b) => a.label.rank - b.label.rank).map((node) => node.v).reverse();
                     for (let i = 0; i < queue.length; i++) {
@@ -1735,7 +1735,7 @@ dagre.layout = (graph, layout) => {
             }
             // Find smallest width alignment: Returns the alignment that has the smallest width of the given alignments.
             let minWidth = Number.POSITIVE_INFINITY;
-            let minValue = undefined;
+            let minValue = null;
             for (const xs of Object.values(xss)) {
                 let max = Number.NEGATIVE_INFINITY;
                 let min = Number.POSITIVE_INFINITY;

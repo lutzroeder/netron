@@ -67,7 +67,7 @@ json.TextReader = class {
         this._position = 0;
         this._char = this._decoder.decode();
         this._whitespace();
-        let obj = undefined;
+        let obj = null;
         let first = true;
         for (;;) {
             if (Array.isArray(obj)) {

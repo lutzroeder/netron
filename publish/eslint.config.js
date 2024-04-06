@@ -159,7 +159,7 @@ export default [
             'no-throw-literal': 'error',
             'no-trailing-spaces': 'error',
             'no-undef': 'error',
-            // 'no-undef-init': 'error',
+            'no-undef-init': 'error',
             // 'no-undefined': 'error',
             // 'no-underscore-dangle': 'error',
             'no-unexpected-multiline': 'error',

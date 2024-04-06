@@ -83,7 +83,7 @@ numpy.ModelFactory = class {
                     return layers.get(name);
                 };
                 const weights = context.target;
-                let separator = undefined;
+                let separator = '';
                 if (Array.from(weights.keys()).every((key) => key.indexOf('.') !== -1)) {
                     separator = '.';
                 }

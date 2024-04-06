@@ -513,7 +513,7 @@ openvino.Node = class {
             const category = blob.kind || 'Blob';
             const id = blob.id || '';
             const precision = blob.precision || layer.precision;
-            let itemSize = undefined;
+            let itemSize = -1;
             switch (precision) {
                 case 'BOOL': case 'BOOLEAN':            itemSize = 1; break;
                 case 'I1':   case 'U1':                 itemSize = 0.125; break;
@@ -536,7 +536,7 @@ openvino.Node = class {
                 }
                 return null;
             };
-            if (itemSize) {
+            if (itemSize !== -1) {
                 switch (`${type}:${name}`) {
                     case 'FullyConnected:weights': {
                         const outSize = parseInt(layer.data['out-size'], 10);

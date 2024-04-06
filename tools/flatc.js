@@ -471,12 +471,13 @@ flatc.Parser = class {
         if (token.type === '[') {
             const identifier = this._tokenizer.read();
             if (identifier.type === 'id') {
-                let length = undefined;
                 if (this._tokenizer.eat(':')) {
-                    length = this._parseScalar(); // array length
+                    const length = this._parseScalar(); // array length
+                    this._tokenizer.expect(']');
+                    return new flatc.TypeReference(identifier.token, true, length);
                 }
                 this._tokenizer.expect(']');
-                return new flatc.TypeReference(identifier.token, true, length);
+                return new flatc.TypeReference(identifier.token, true);
             }
         }
         throw new flatc.Error(`Expected type instead of '${token.token}' ${this._tokenizer.location()}`);

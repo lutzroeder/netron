@@ -266,8 +266,8 @@ sklearn.Node = class {
                 } else {
                     const schema = metadata.attribute(type, name);
                     if (schema) {
-                        let type = undefined;
-                        let visible = undefined;
+                        let type = '';
+                        let visible = true;
                         if (schema.type) {
                             type = schema.type;
                         }
@@ -301,12 +301,8 @@ sklearn.Attribute = class {
     constructor(name, value, type, visible) {
         this.name = name;
         this.value = value;
-        if (type) {
-            this.type = type;
-        }
-        if (visible === false) {
-            this.visible = visible;
-        }
+        this.type = type;
+        this.visible = visible !== false ? true : false;
     }
 };
 
