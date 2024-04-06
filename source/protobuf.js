@@ -202,8 +202,7 @@ protobuf.BinaryReader = class {
     }
 
     uint32() {
-        let c;
-        c = this.byte();
+        let c = this.byte();
         let value = (c & 127) >>> 0;
         if (c < 128) {
             return value;
@@ -667,7 +666,7 @@ protobuf.TextReader = class {
                 if (first && !whitespace) {
                     first = false;
                     if (c === '#') {
-                        let c;
+                        let c = '';
                         do {
                             c = decoder.decode();
                         }
@@ -784,7 +783,7 @@ protobuf.TextReader = class {
     }
 
     double() {
-        let value;
+        let value = 0;
         let token = this._token;
         switch (token) {
             case 'nan': value = NaN; break;
@@ -899,7 +898,7 @@ protobuf.TextReader = class {
 
     enum(type) {
         const token = this._token;
-        let value;
+        let value = 0;
         if (Object.prototype.hasOwnProperty.call(type, token)) {
             value = type[token];
         } else {
@@ -982,8 +981,8 @@ protobuf.TextReader = class {
 
     entry(obj, key, value) {
         this.start();
-        let k;
-        let v;
+        let k = '';
+        let v = undefined;
         while (!this.end()) {
             const tag = this.tag();
             switch (tag) {
@@ -1333,7 +1332,7 @@ protobuf.TextReader = class {
         let line = 1;
         let column = 1;
         this._decoder.position = 0;
-        let c;
+        let c = '';
         do {
             if (this._decoder.position === this._position) {
                 return `at ${line}:${column}.`;

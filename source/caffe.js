@@ -388,7 +388,7 @@ caffe.Node = class {
     constructor(metadata, layer, version, value) {
         this._chain = [];
         this._attributes = [];
-        let type;
+        let type = '';
         switch (version) {
             case 0: {
                 this._name = layer.layer.name;

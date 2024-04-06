@@ -544,7 +544,7 @@ view.View = class {
 
     _wheelHandler(e) {
         if (e.shiftKey || e.ctrlKey || this._options.mousewheel === 'zoom') {
-            let factor;
+            let factor = 1;
             if (e.deltaMode === 1) {
                 factor = 0.05;
             } else if (e.deltaMode) {
@@ -4645,7 +4645,7 @@ markdown.Generator = class {
                 const masked = maskedSource.slice(-1 * source.length);
                 const endReg = match[0] === '**' ? this._strongEndAstRegExp : this._strongEndUndRegExp;
                 endReg.lastIndex = 0;
-                let cap;
+                let cap = '';
                 while ((match = endReg.exec(masked)) !== null) {
                     cap = this._strongMiddleRegExp.exec(masked.slice(0, match.index + 3));
                     if (cap) {
@@ -4664,7 +4664,7 @@ markdown.Generator = class {
                 const masked = maskedSource.slice(-1 * source.length);
                 const endReg = match[0] === '*' ? this._emEndAstRegExp : this._emEndUndRegExp;
                 endReg.lastIndex = 0;
-                let cap;
+                let cap = '';
                 while ((match = endReg.exec(masked)) !== null) {
                     cap = this._emMiddleRegExp.exec(masked.slice(0, match.index + 2));
                     if (cap) {
@@ -4715,7 +4715,7 @@ markdown.Generator = class {
                     const email = match[2] === '@';
                     let [value] = match;
                     if (!email) {
-                        let prevCapZero;
+                        let prevCapZero = '';
                         do {
                             prevCapZero = value;
                             [value] = this._backpedalRegExp.exec(value);

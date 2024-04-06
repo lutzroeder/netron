@@ -1383,7 +1383,7 @@ coreml.Utility = class {
                     if (type.multiArrayType.shape && type.multiArrayType.shape.length > 0) {
                         shape = new coreml.TensorShape(type.multiArrayType.shape.map((dim) => Number(dim)));
                     }
-                    let dataType;
+                    let dataType = '';
                     const ArrayDataType = coreml.proto.ArrayFeatureType.ArrayDataType;
                     switch (type.multiArrayType.dataType) {
                         case ArrayDataType.INVALID_ARRAY_DATA_TYPE:

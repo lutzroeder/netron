@@ -2236,7 +2236,7 @@ onnx.TextReader = class {
             if (!this._match(']')) {
                 do {
                     const value = new onnx.proto.AttributeProto();
-                    let type;
+                    let type = onnx.AttributeType.UNDEFINED;
                     switch (attribute.type) {
                         case onnx.AttributeType.FLOATS: type = onnx.AttributeType.FLOAT; break;
                         case onnx.AttributeType.INTS: type = onnx.AttributeType.INT; break;
@@ -2725,7 +2725,7 @@ onnx.TextReader = class {
         let line = 1;
         let column = 1;
         this._decoder.position = 0;
-        let c;
+        let c = '';
         do {
             if (this._decoder.position === this._position) {
                 return `at ${line}:${column}.`;

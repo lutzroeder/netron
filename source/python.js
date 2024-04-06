@@ -6109,7 +6109,7 @@ python.Execution = class {
             }
             deserialize_sym_int(s) {
                 if (s.as_expr !== undefined && s.as_expr !== null) {
-                    let sym;
+                    let sym = {};
                     if (this.symbol_name_to_symbol.has(s.as_expr.expr_str)) {
                         sym = this.symbol_name_to_symbol.get(s.as_expr.expr_str);
                     } else {

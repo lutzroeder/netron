@@ -649,7 +649,7 @@ mlnet.BinaryReader = class {
     leb128() {
         let result = 0;
         let shift = 0;
-        let value;
+        let value = 0;
         do {
             value = this.byte();
             result |= (value & 0x7F) << shift;

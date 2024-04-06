@@ -44,7 +44,7 @@ export default [
             // 'id-length': 'error',
             'id-match': 'error',
             'indent': ['error', 4, { 'SwitchCase': 1 }],
-            // 'init-declarations': 'error',
+            'init-declarations': 'error',
             'keyword-spacing': 'error',
             // 'line-comment-position': 'error',
             // 'logical-assignment-operators': 'error',

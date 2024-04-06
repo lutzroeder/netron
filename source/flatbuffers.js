@@ -111,7 +111,7 @@ flatbuffers.BinaryReader = class {
         }
         let text = '';
         for (let i = 0; i < length;) {
-            let codePoint;
+            let codePoint = 0;
             const a = this.uint8(offset + i++);
             if (a < 0xC0) {
                 codePoint = a;

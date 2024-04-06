@@ -467,7 +467,7 @@ openvino.Node = class {
         const type = layer.type;
         this.type = metadata.type(type) || { name: type };
         for (let i = 0; i < inputs.length;) {
-            let input;
+            let input = null;
             if (this.type && Array.isArray(this.type.inputs) && i < this.type.inputs.length) {
                 input = this.type.inputs[i];
             } else if (inputs.length === 1) {
@@ -482,7 +482,7 @@ openvino.Node = class {
             i += count;
         }
         for (let i = 0; i < outputs.length;) {
-            let output;
+            let output = null;
             if (this.type && Array.isArray(this.type.outputs) && i < this.type.outputs.length) {
                 output = this.type.outputs[i];
             } else if (outputs.length === 1) {

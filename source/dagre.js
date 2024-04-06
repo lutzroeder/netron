@@ -70,7 +70,7 @@ dagre.layout = (graph, layout) => {
 
         // Adds a dummy node to the graph and return v.
         const addDummyNode = (g, type, label, name) => {
-            let v;
+            let v = '';
             do {
                 v = uniqueId(name);
             } while (g.hasNode(v));
@@ -525,8 +525,8 @@ dagre.layout = (graph, layout) => {
                 const t = feasibleTree(g);
                 initLowLimValues(t);
                 initCutValues(t, g);
-                let e;
-                let f;
+                let e = null;
+                let f = null;
                 while ((e = leaveEdge(t))) {
                     f = enterEdge(t, g, e);
                     exchangeEdges(t, g, e, f);
@@ -1026,7 +1026,7 @@ dagre.layout = (graph, layout) => {
                 };
                 const sort = (entries, biasRight) => {
                     const consumeUnsortable = (vs, unsortable, index) => {
-                        let last;
+                        let last = null;
                         while (unsortable.length && (last = unsortable[unsortable.length - 1]).i <= index) {
                             unsortable.pop();
                             vs.push(last.vs);
@@ -1129,11 +1129,11 @@ dagre.layout = (graph, layout) => {
                     }
                     // add subgraph constraints
                     const prev = {};
-                    let rootPrev;
+                    let rootPrev = '';
                     let exit = false;
                     for (const v of vs) {
                         let child = lg.parent(v);
-                        let prevChild;
+                        let prevChild = null;
                         while (child) {
                             const parent = lg.parent(child);
                             if (parent) {
@@ -1278,7 +1278,7 @@ dagre.layout = (graph, layout) => {
             //    4. Edges incident on movable nodes, selected by the relationship parameter, are added to the output graph.
             //    5. The weights for copied edges are aggregated as need, since the output graph is not a multi-graph.
             const buildLayerGraph = (g, nodes, rank, relationship) => {
-                let root;
+                let root = '';
                 while (g.hasNode((root = uniqueId('_root')))) {
                     // continue
                 }
@@ -1336,7 +1336,7 @@ dagre.layout = (graph, layout) => {
                 upLayerGraphs[i] = buildLayerGraph(g, nodes, rank - i - 1, false);
             }
             let bestCC = Number.POSITIVE_INFINITY;
-            let best;
+            let best = [];
             for (let i = 0, lastBest = 0; lastBest < 4; ++i, ++lastBest) {
                 sweepLayerGraphs(i % 2 ? downLayerGraphs : upLayerGraphs, i % 4 >= 2);
                 layering = buildLayerMatrix(g);
@@ -1463,7 +1463,7 @@ dagre.layout = (graph, layout) => {
                 const edgeSep = g.layout.edgesep;
                 const blockGraph = new dagre.Graph();
                 for (const layer of layering) {
-                    let u;
+                    let u = null;
                     for (const v of layer) {
                         const vRoot = root[v];
                         blockGraph.setNode(vRoot, {});
@@ -1472,7 +1472,7 @@ dagre.layout = (graph, layout) => {
                             const vLabel = g.node(v).label;
                             const wLabel = g.node(u).label;
                             let sum = 0;
-                            let delta;
+                            let delta = 0;
                             sum += vLabel.width / 2;
                             if ('labelpos' in vLabel) {
                                 switch (vLabel.labelpos) {
@@ -1664,9 +1664,8 @@ dagre.layout = (graph, layout) => {
             const findType2Conflicts = (g, layering) => {
                 const conflicts = {};
                 const scan = (south, southPos, southEnd, prevNorthBorder, nextNorthBorder) => {
-                    let v;
                     for (let i = southPos; i < southEnd; i++) {
-                        v = south[i];
+                        const v = south[i];
                         if (g.node(v).labeldummy) {
                             for (const u of g.predecessors(v)) {
                                 const uNode = g.node(u).label;
@@ -1682,7 +1681,7 @@ dagre.layout = (graph, layout) => {
                     for (let i = 1; i < layering.length; i++) {
                         const south = layering[i];
                         let prevNorthPos = -1;
-                        let nextNorthPos;
+                        let nextNorthPos = 0;
                         let southPos = 0;
                         south.forEach((v, southLookahead) => {
                             if (g.node(v).label.dummy === 'border') {
@@ -1775,10 +1774,9 @@ dagre.layout = (graph, layout) => {
                 for (const horizontal of ['l', 'r']) {
                     const alignment = vertical + horizontal;
                     const xs = xss[alignment];
-                    let delta;
                     if (xs !== alignTo) {
                         const vsValsRange = range(Object.values(xs));
-                        delta = horizontal === 'l' ? alignToRange[0] - vsValsRange[0] : alignToRange[1] - vsValsRange[1];
+                        const delta = horizontal === 'l' ? alignToRange[0] - vsValsRange[0] : alignToRange[1] - vsValsRange[1];
                         if (delta) {
                             const list = {};
                             for (const key of Object.keys(xs)) {
@@ -1939,8 +1937,8 @@ dagre.layout = (graph, layout) => {
                 const edge = e.label;
                 const vNode = e.vNode.label;
                 const wNode = e.wNode.label;
-                let p1;
-                let p2;
+                let p1 = null;
+                let p2 = null;
                 if (!edge.points) {
                     edge.points = [];
                     p1 = wNode;

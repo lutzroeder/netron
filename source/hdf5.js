@@ -27,7 +27,7 @@ hdf5.File = class {
             // https://support.hdfgroup.org/HDF5/doc/H5.format.html
             const data = this.data;
             delete this.data;
-            let reader;
+            let reader = null;
             if (data instanceof Uint8Array) {
                 reader = new hdf5.BinaryReader(data);
             } else if (data.length < 0x10000000) {

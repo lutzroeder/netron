@@ -654,8 +654,6 @@ mxnet.Attribute = class {
     constructor(metadata, type, name, value) {
         this._name = name;
         this._value = value;
-
-        let number;
         metadata = metadata.attribute(type, name);
         if (metadata && metadata.type) {
             switch (metadata.type) {
@@ -675,15 +673,17 @@ mxnet.Attribute = class {
                             throw new mxnet.Error(`Unsupported attribute boolean value '${value}'.`);
                     }
                     break;
-                case 'int32':
-                    number = Number.parseInt(this._value, 10);
+                case 'int32': {
+                    const number = Number.parseInt(this._value, 10);
                     this._value = Number.isNaN(this._value - number) ? value : number;
                     break;
+                }
                 case 'float32':
-                case 'float64':
-                    number = Number.parseFloat(this._value);
+                case 'float64': {
+                    const number = Number.parseFloat(this._value);
                     this._value = Number.isNaN(this._value - number) ? value : number;
                     break;
+                }
                 case 'int32[]':
                     if (this._value.length > 2 && this._value.startsWith('(') && this._value.endsWith(')')) {
                         let array = [];
@@ -691,11 +691,11 @@ mxnet.Attribute = class {
                             .map((item) => item.trim())
                             .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
                         for (const item of items) {
-                            number = Number.parseInt(item, 10);
-                            if (Number.isNaN(item - number)) {
+                            const value = Number.parseInt(item, 10);
+                            if (Number.isNaN(item - value)) {
                                 array = null;
                             } else if (array !== null) {
-                                array.push(number);
+                                array.push(value);
                             }
                         }
                         if (array !== null) {

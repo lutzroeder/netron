@@ -589,7 +589,7 @@ pytorch.Node = class {
                 for (let i = 0; i < outputs.length; i++) {
                     const output = outputs[i];
                     const metadata = this.type && this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i] : null;
-                    let name;
+                    let name = '';
                     if (metadata && metadata.name) {
                         name = metadata.name;
                     } else if (i === 0) {

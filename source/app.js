@@ -811,7 +811,7 @@ app.View = class {
     }
 
     state(event) {
-        let fullscreen;
+        let fullscreen = false;
         switch (event) {
             case 'enter-full-screen': fullscreen = true; break;
             case 'leave-full-screen': fullscreen = false; break;

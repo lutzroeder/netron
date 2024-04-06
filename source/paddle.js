@@ -351,7 +351,7 @@ paddle.Graph = class {
                 values.set(name, new paddle.Value(name, tensor.type, tensor));
                 const separator = name.indexOf('.') !== -1 ? '.' : '_';
                 const regex = /(.*)_((w_attr|scale|weights|offset|b|w|b_attr)_(moment|beta|velocity|mean_square|mean_grad).*)/;
-                let parts;
+                let parts = [];
                 if (separator === '.') {
                     parts = name.split(separator);
                 } else if (regex.test(name)) {

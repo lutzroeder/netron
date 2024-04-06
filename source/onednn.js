@@ -193,7 +193,6 @@ onednn.Attribute = class {
     constructor(name, type, value) {
         this._name = name;
         this._value = value;
-        let number;
         switch (type) {
             case 'bool':
                 this._type = 'boolean';
@@ -203,11 +202,12 @@ onednn.Attribute = class {
                     default: throw new onednn.Error(`Unsupported attribute boolean value '${value}'.`);
                 }
                 break;
-            case 's64':
+            case 's64': {
                 this._type = 'int64';
-                number = Number.parseInt(this._value, 10);
+                const number = Number.parseInt(this._value, 10);
                 this._value = Number.isNaN(this._value - number) ? value : number;
                 break;
+            }
             case 's64[]':
                 this._type = 'int64[]';
                 if (this._value.length > 2 && this._value.toString().startsWith('[') && this._value.toString().endsWith(']')) {
@@ -216,11 +216,11 @@ onednn.Attribute = class {
                         .map((item) => item.trim())
                         .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
                     for (const item of items) {
-                        number = Number.parseInt(item, 10);
-                        if (Number.isNaN(item - number)) {
+                        const value = Number.parseInt(item, 10);
+                        if (Number.isNaN(item - value)) {
                             array = null;
                         } else if (array !== null) {
-                            array.push(number);
+                            array.push(value);
                         }
                     }
                     if (array !== null) {
@@ -228,11 +228,12 @@ onednn.Attribute = class {
                     }
                 }
                 break;
-            case 'f32':
+            case 'f32': {
                 this._type = 'float32';
-                number = Number.parseFloat(this._value);
+                const number = Number.parseFloat(this._value);
                 this._value = Number.isNaN(this._value - number) ? value : number;
                 break;
+            }
             case 'f32[]':
                 this._type = 'float32[]';
                 if (this._value.length > 2 && this._value.toString().startsWith('[') && this._value.toString().endsWith(']')) {
@@ -241,11 +242,11 @@ onednn.Attribute = class {
                         .map((item) => item.trim())
                         .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
                     for (const item of items) {
-                        number = Number.parseFloat(item);
-                        if (Number.isNaN(item - number)) {
+                        const value = Number.parseFloat(item);
+                        if (Number.isNaN(item - value)) {
                             array = null;
                         } else if (array !== null) {
-                            array.push(number);
+                            array.push(value);
                         }
                     }
                     if (array !== null) {

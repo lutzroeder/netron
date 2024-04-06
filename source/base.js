@@ -200,7 +200,7 @@ DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offse
     offset = offset * bits;
     const position = Math.floor(offset / 8);
     const remainder = offset % 8;
-    let value;
+    let value = 0;
     if ((remainder + bits) <= 8) {
         value = littleEndian ? this.getUint8(position) >> remainder /* TODO */ : this.getUint8(position) >> (8 - remainder - bits);
     } else {
@@ -217,7 +217,7 @@ DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offs
     offset = offset * bits;
     const position = Math.floor(offset / 8);
     const remainder = offset % 8;
-    let value;
+    let value = 0;
     if ((remainder + bits) <= 8) {
         value = littleEndian ? this.getUint8(position) >> remainder /* TODO */ : this.getUint8(position) >> (8 - remainder - bits);
     } else {

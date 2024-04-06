@@ -207,7 +207,7 @@ json.TextReader = class {
                         break;
                     }
                     default: {
-                        let value;
+                        let value = null;
                         if (c === '"') {
                             value = this._string();
                         } else if (c >= '0' && c <= '9') {
@@ -383,7 +383,7 @@ json.TextReader = class {
         let line = 1;
         let column = 1;
         this._decoder.position = 0;
-        let c;
+        let c = '';
         do {
             if (this._decoder.position === this._position) {
                 return `at ${line}:${column}.`;

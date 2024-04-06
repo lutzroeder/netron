@@ -553,7 +553,7 @@ svp.ModelDef = class ModelDef {
                     const op = new svp.OpDef(value);
                     for (const item of this.graph) {
                         if (op.attr && op.attr.seg_id && op.attr.seg_id.i === item.id) {
-                            let out_num;
+                            let out_num = 0;
                             if (typeof op.output_index === 'number') {
                                 out_num = op.output_index + 1;
                             } else {
@@ -768,7 +768,7 @@ svp.BinaryReader = class {
     }
 
     value(tag, type) {
-        let value;
+        let value = 0;
         switch (tag >> 13) {
             case 1: value = this.int8(); break;
             case 2: value = this.uint16(); break;

@@ -424,7 +424,7 @@ protoc.Parser = class {
     }
 
     parse() {
-        let token;
+        let token = '';
         while ((token = this._tokenizer.next()) !== null) {
             switch (token) {
                 case 'package':
@@ -552,7 +552,7 @@ protoc.Parser = class {
             obj.file = this._file;
         }
         if (this._tokenizer.eat("{")) {
-            let token;
+            let token = '';
             while ((token = this._tokenizer.next()) !== "}") {
                 ifCallback(token);
             }
@@ -839,7 +839,7 @@ protoc.Parser = class {
 
     _readString() {
         const values = [];
-        let token;
+        let token = '';
         do {
             if ((token = this._tokenizer.next()) !== '"' && token !== "'") {
                 throw this._parseError(token);
@@ -880,7 +880,7 @@ protoc.Parser = class {
 
     _readRanges(target, acceptStrings) {
         do {
-            let token;
+            let token = '';
             if (acceptStrings && ((token = this._tokenizer.peek()) === '"' || token === "'")) {
                 target.push(this._readString());
             } else {
@@ -975,9 +975,9 @@ protoc.Tokenizer = class {
             return this._readString();
         }
 
-        let repeat;
-        let prev;
-        let curr;
+        let repeat = false;
+        let prev = '';
+        let curr = '';
         do {
             if (this._position === this._length) {
                 return null;
@@ -992,7 +992,6 @@ protoc.Tokenizer = class {
                     return null;
                 }
             }
-
             if (this._get(this._position) === '/') {
                 this._position++;
                 if (this._position === this._length) {

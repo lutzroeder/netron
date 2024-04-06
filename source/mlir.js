@@ -472,7 +472,7 @@ mlir.Tokenizer = class {
         let line = 1;
         let column = 1;
         this._decoder.position = 0;
-        let c;
+        let c = '';
         do {
             if (this._decoder.position === this._position) {
                 return `at ${line}:${column}.`;
@@ -1001,7 +1001,7 @@ mlir.Parser = class {
     }
 
     _parseOperationName() {
-        let value;
+        let value = '';
         switch (this._current.type) {
             case mlir.TokenType.STRING_LITERAL:
                 value = this._current.value;
