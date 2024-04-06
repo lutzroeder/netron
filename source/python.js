@@ -6575,6 +6575,7 @@ python.Execution = class {
         this.register('torch.optim').Adam = this.register('torch.optim.adam').Adam;
         this.register('torch.nn').ReLU = this.register('torch.nn.modules.activation').ReLU;
         this.register('sklearn.utils').Bunch = this.register('sklearn.utils._bunch').Bunch;
+        /* eslint-disable no-multi-assign */
         torch.uint8 = torch.ByteStorage.dtype = new torch.dtype(0, 'uint8', 1);
         torch.int8 = torch.CharStorage.dtype = new torch.dtype(1, 'int8', 1);
         torch.int16 = torch.ShortStorage.dtype = new torch.dtype(2, 'int16', 2);
@@ -6591,6 +6592,7 @@ python.Execution = class {
         torch.quint8 = torch.QUInt8Storage.dtype = new torch.dtype(13, 'quint8', 1);
         torch.qint32 = torch.QInt32Storage.dtype = new torch.dtype(14, 'qint32', 4);
         torch.bfloat16 = torch.BFloat16Storage.dtype = new torch.dtype(15, 'bfloat16', 2);
+        /* eslint-enable no-multi-assign */
         torch.quint4x2 = new torch.dtype(16, 'quint4x2');
         torch.strided = new torch.layout('torch.strided');
         torch.sparse_coo = new torch.layout('torch.sparse_coo');

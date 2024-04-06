@@ -118,7 +118,7 @@ export default [
             'no-loss-of-precision': 'error',
             // 'no-magic-numbers': 'error',
             'no-misleading-character-class': 'error',
-            // 'no-multi-assign': 'error',
+            'no-multi-assign': 'error',
             'no-multi-str': 'error',
             'no-multiple-empty-lines': ['error', { 'max': 1 }],
             // 'no-negated-condition': 'error',

@@ -857,15 +857,23 @@ grapher.Edge.Path = class {
     }
 
     moveTo(x, y) {
-        this._data += `M${this._x0 = this._x1 = Number(x)},${this._y0 = this._y1 = Number(y)}`;
+        this._x0 = x;
+        this._x1 = x;
+        this._y0 = y;
+        this._y1 = y;
+        this._data += `M${x},${y}`;
     }
 
     lineTo(x, y) {
-        this._data += `L${this._x1 = Number(x)},${this._y1 = Number(y)}`;
+        this._x1 = x;
+        this._y1 = y;
+        this._data += `L${x},${y}`;
     }
 
     bezierCurveTo(x1, y1, x2, y2, x, y) {
-        this._data += `C${Number(x1)},${Number(y1)},${Number(x2)},${Number(y2)},${this._x1 = Number(x)},${this._y1 = Number(y)}`;
+        this._x1 = x;
+        this._y1 = y;
+        this._data += `C${x1},${y1},${x2},${y2},${x},${y}`;
     }
 
     closePath() {

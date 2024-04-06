@@ -1445,7 +1445,8 @@ dagre.layout = (graph, layout) => {
                 }
                 let conflictsV = conflicts[v];
                 if (!conflictsV) {
-                    conflicts[v] = conflictsV = {};
+                    conflictsV = {};
+                    conflicts[v] = conflictsV;
                 }
                 conflictsV[w] = true;
             };
@@ -1541,8 +1542,10 @@ dagre.layout = (graph, layout) => {
                             for (let i = Math.floor(mp); i <= il; i++) {
                                 const w = ws[i];
                                 if (align[v] === v && prevIdx < pos[w] && !hasConflict(conflicts, v, w)) {
+                                    const x = root[w];
                                     align[w] = v;
-                                    align[v] = root[v] = root[w];
+                                    align[v] = x;
+                                    root[v] = x;
                                     prevIdx = pos[w];
                                 }
                             }

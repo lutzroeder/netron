@@ -20,7 +20,10 @@ host.ElectronHost = class {
             this.exception(err, true);
             this._terminate(err.message);
         });
-        this._window.eval = global.eval = () => {
+        global.eval = () => {
+            throw new Error('eval.eval() not supported.');
+        };
+        this._window.eval = () => {
             throw new Error('window.eval() not supported.');
         };
         this._window.addEventListener('unload', () => {

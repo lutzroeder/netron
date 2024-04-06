@@ -445,7 +445,7 @@ hdf5.Reader = class {
             hdf5.Reader._utf8Decoder = hdf5.Reader._utf8Decoder || new TextDecoder('utf-8');
             return hdf5.Reader._utf8Decoder.decode(data).replace(/\0/g, '');
         }
-        hdf5.Reader._asciiDecoder = hdf5.Reader._asciiDecoder = new TextDecoder('ascii');
+        hdf5.Reader._asciiDecoder = hdf5.Reader._asciiDecoder || new TextDecoder('ascii');
         return hdf5.Reader._asciiDecoder.decode(data).replace(/\0/g, '');
     }
 
