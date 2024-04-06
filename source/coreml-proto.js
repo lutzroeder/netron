@@ -4219,7 +4219,7 @@ CoreML.Specification.MILSpec.Block = class Block {
 CoreML.Specification.MILSpec.Argument = class Argument {
 
     constructor() {
-        this["arguments"] = [];
+        this.arguments = [];
     }
 
     static decode(reader, length) {
@@ -4229,7 +4229,7 @@ CoreML.Specification.MILSpec.Argument = class Argument {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message["arguments"].push(CoreML.Specification.MILSpec.Argument.Binding.decode(reader, reader.uint32()));
+                    message.arguments.push(CoreML.Specification.MILSpec.Argument.Binding.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -4246,7 +4246,7 @@ CoreML.Specification.MILSpec.Argument = class Argument {
             const tag = reader.tag();
             switch (tag) {
                 case "arguments":
-                    message["arguments"].push(CoreML.Specification.MILSpec.Argument.Binding.decodeText(reader));
+                    message.arguments.push(CoreML.Specification.MILSpec.Argument.Binding.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);

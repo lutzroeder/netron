@@ -469,7 +469,7 @@ paddle.framework.proto.OpDesc.Attr.prototype.scalar = null;
 paddle.framework.proto.OpDesc.Var = class Var {
 
     constructor() {
-        this["arguments"] = [];
+        this.arguments = [];
     }
 
     static decode(reader, length) {
@@ -482,7 +482,7 @@ paddle.framework.proto.OpDesc.Var = class Var {
                     message.parameter = reader.string();
                     break;
                 case 2:
-                    message["arguments"].push(reader.string());
+                    message.arguments.push(reader.string());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -505,7 +505,7 @@ paddle.framework.proto.OpDesc.Var = class Var {
                     message.parameter = reader.string();
                     break;
                 case "arguments":
-                    reader.array(message["arguments"], () => reader.string());
+                    reader.array(message.arguments, () => reader.string());
                     break;
                 default:
                     reader.field(tag, message);

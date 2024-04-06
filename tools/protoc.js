@@ -1416,7 +1416,7 @@ protoc.Generator = class {
     }
 
     static _propertyReference(name) {
-        if (!/^[$\w_]+$/.test(name) || protoc.Generator._isKeyword(name)) {
+        if (!/^[$\w_]+$/.test(name)) {
             return `["${name.replace(/\\/g, '\\\\').replace(/"/g, "\\\"")}"]`;
         }
         return `.${name}`;

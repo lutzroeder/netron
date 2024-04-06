@@ -5957,7 +5957,7 @@ python.Execution = class {
                     throw new python.Error(`Node ${name} has already been deserialized before.`);
                 }
                 this.serialized_name_to_node.set(name, fx_node);
-                fx_node.meta['val'] = this.serialized_name_to_meta.get(name);
+                fx_node.meta.val = this.serialized_name_to_meta.get(name);
             }
             deserialize_sym_op_inputs(inputs) {
                 return inputs.map((input) => this.deserialize_input(input.arg));
@@ -6056,9 +6056,9 @@ python.Execution = class {
             }
             deserialize_metadata(metadata) {
                 const ret = {};
-                const stack_trace = metadata['stack_trace'];
+                const stack_trace = metadata.stack_trace;
                 if (stack_trace) {
-                    ret['stack_trace'] = stack_trace;
+                    ret.stack_trace = stack_trace;
                 }
                 const deserialize_meta_func = (serialized_target) => {
                     let module = null;
@@ -6081,22 +6081,22 @@ python.Execution = class {
                     }
                     return target;
                 };
-                const nn_module_stack_str = metadata['nn_module_stack'];
+                const nn_module_stack_str = metadata.nn_module_stack;
                 if (nn_module_stack_str) {
                     const import_nn_module_stack = (key, path, ty) => {
                         return [key, [path, ty]];
                     };
                     const nn_module_stack = new Map(nn_module_stack_str.split(';').map((item) => import_nn_module_stack(...item.split(','))));
-                    ret['nn_module_stack'] = nn_module_stack;
+                    ret.nn_module_stack = nn_module_stack;
                 }
-                const source_fn_st_str = metadata['source_fn_stack'];
+                const source_fn_st_str = metadata.source_fn_stack;
                 if (source_fn_st_str) {
                     const source_fn_st = [];
                     for (const source_fn_str of source_fn_st_str.split(';')) {
                         const [name, target_str] = source_fn_str.split(',');
                         source_fn_st.push([name, deserialize_meta_func(target_str)]);
                     }
-                    ret['source_fn_stack'] = source_fn_st;
+                    ret.source_fn_stack = source_fn_st;
                 }
                 return ret;
             }

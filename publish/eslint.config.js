@@ -31,7 +31,7 @@ export default [
             'default-case': 'error',
             'default-case-last': 'error',
             'default-param-last': 'error',
-            // 'dot-notation': 'error',
+            'dot-notation': 'error',
             'eqeqeq': 'error',
             'for-direction': 'error',
             'func-name-matching': 'error',

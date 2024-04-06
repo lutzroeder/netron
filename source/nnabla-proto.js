@@ -345,7 +345,7 @@ nnabla.Network = class Network {
     constructor() {
         this.repeat_info = [];
         this.variable = [];
-        this["function"] = [];
+        this.function = [];
     }
 
     static decode(reader, length) {
@@ -367,7 +367,7 @@ nnabla.Network = class Network {
                     message.variable.push(nnabla.Variable.decode(reader, reader.uint32()));
                     break;
                 case 200:
-                    message["function"].push(nnabla.Function.decode(reader, reader.uint32()));
+                    message.function.push(nnabla.Function.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -396,7 +396,7 @@ nnabla.Network = class Network {
                     message.variable.push(nnabla.Variable.decodeText(reader));
                     break;
                 case "function":
-                    message["function"].push(nnabla.Function.decodeText(reader));
+                    message.function.push(nnabla.Function.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);

@@ -850,7 +850,7 @@ tensorflow.GraphDef.prototype.debug_info = null;
 tensorflow.FunctionDefLibrary = class FunctionDefLibrary {
 
     constructor() {
-        this["function"] = [];
+        this.function = [];
         this.gradient = [];
         this.registered_gradients = [];
     }
@@ -862,7 +862,7 @@ tensorflow.FunctionDefLibrary = class FunctionDefLibrary {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message["function"].push(tensorflow.FunctionDef.decode(reader, reader.uint32()));
+                    message.function.push(tensorflow.FunctionDef.decode(reader, reader.uint32()));
                     break;
                 case 2:
                     message.gradient.push(tensorflow.GradientDef.decode(reader, reader.uint32()));
@@ -885,7 +885,7 @@ tensorflow.FunctionDefLibrary = class FunctionDefLibrary {
             const tag = reader.tag();
             switch (tag) {
                 case "function":
-                    message["function"].push(tensorflow.FunctionDef.decodeText(reader));
+                    message.function.push(tensorflow.FunctionDef.decodeText(reader));
                     break;
                 case "gradient":
                     message.gradient.push(tensorflow.GradientDef.decodeText(reader));
@@ -2837,7 +2837,7 @@ tensorflow.SavedObject = class SavedObject {
                     message.asset = tensorflow.SavedAsset.decode(reader, reader.uint32());
                     break;
                 case 6:
-                    message["function"] = tensorflow.SavedFunction.decode(reader, reader.uint32());
+                    message.function = tensorflow.SavedFunction.decode(reader, reader.uint32());
                     break;
                 case 7:
                     message.variable = tensorflow.SavedVariable.decode(reader, reader.uint32());
@@ -2896,7 +2896,7 @@ tensorflow.SavedObject = class SavedObject {
                     message.asset = tensorflow.SavedAsset.decodeText(reader);
                     break;
                 case "function":
-                    message["function"] = tensorflow.SavedFunction.decodeText(reader);
+                    message.function = tensorflow.SavedFunction.decodeText(reader);
                     break;
                 case "variable":
                     message.variable = tensorflow.SavedVariable.decodeText(reader);
