@@ -3841,7 +3841,7 @@
       {
         "name": "mixed_priority_policy",
         "type": "string",
-        "description": "Must be one of the following: `low_priority_padding_with_max_batch_size`, `low_priority_padding_with_next_allowed_batch_size`.",
+        "description": "Must be one of the following: `low_priority_padding_with_max_batch_size`, `low_priority_padding_with_next_allowed_batch_size`, `priority_isolation`.",
         "default": "low_priority_padding_with_max_batch_size"
       },
       {
