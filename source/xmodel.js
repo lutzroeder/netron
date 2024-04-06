@@ -255,18 +255,18 @@ xmodel.Utility = class {
         const type = key.replace(/_value$/, '');
         const value = attr_value[attr_value.value];
         switch (type) {
-            case 'bool': return { type: 'boolean', value: value };
-            case 'int32': return { type: 'int32', value: value };
+            case 'bool': return { type: 'boolean', value };
+            case 'int32': return { type: 'int32', value };
             case 'int32_vec': return { type: 'int32[]', value: value.value };
-            case 'uint32': return { type: 'uint32', value: value };
+            case 'uint32': return { type: 'uint32', value };
             case 'uint32_vec': return { type: 'uint32[]', value: value.value };
-            case 'int64': return { type: 'int64', value: value };
-            case 'uint64': return { type: 'uint64', value: value };
-            case 'float': return { type: 'float32', value: value };
+            case 'int64': return { type: 'int64', value };
+            case 'uint64': return { type: 'uint64', value };
+            case 'float': return { type: 'float32', value };
             case 'float_vec': return { type: 'float32[]', value: value.value };
-            case 'double': return { type: 'float64', value: value };
-            case 'double_vec': return { type: 'float64[]', value: value };
-            case 'string': return { type: 'string', value: value };
+            case 'double': return { type: 'float64', value };
+            case 'double_vec': return { type: 'float64[]', value };
+            case 'string': return { type: 'string', value };
             case 'string_vec':  return { type: 'string[]', value: value.value };
             case 'bytes': return { type: 'byte[]', value: value.value };
             case 'map_string_2_int32': return { type: 'map<string,int32>', value: value.value };
@@ -329,7 +329,7 @@ xmodel.Metadata = class {
             ['transposed-depthwise-conv2d-fix', 'Layer'],
             ['upsample-fix', 'Data'],
         ];
-        this._types = new Map(categories.map(([name, category]) => [name, { name: name, category: category }]));
+        this._types = new Map(categories.map(([name, category]) => [name, { name, category }]));
         for (const op_def of op_defs) {
             const type = this._types.get(op_def.name) || { name: op_def.name };
             if (op_def.annotation) {
@@ -361,7 +361,7 @@ xmodel.Metadata = class {
 
     type(name) {
         if (!this._types.has(name)) {
-            this._types.set(name, { name: name });
+            this._types.set(name, { name });
         }
         return this._types.get(name);
     }

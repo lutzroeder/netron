@@ -573,7 +573,7 @@ view.View = class {
             const rect = container.getBoundingClientRect();
             const left = (container.scrollLeft + x - rect.left) - (rect.width / 2);
             const top = (container.scrollTop + y - rect.top) - (rect.height / 2);
-            container.scrollTo({ left: left, top: top, behavior: 'smooth' });
+            container.scrollTo({ left, top, behavior: 'smooth' });
         }
     }
 
@@ -647,7 +647,7 @@ view.View = class {
             if (Array.isArray(model.graphs) && model.graphs.length > 0) {
                 const [graph] = model.graphs;
                 const entry = {
-                    graph: graph,
+                    graph,
                     signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
                 };
                 stack.push(entry);
@@ -773,7 +773,7 @@ view.View = class {
         if (graph && graph !== this.activeGraph && Array.isArray(graph.nodes)) {
             this._sidebar.close();
             const entry = {
-                graph: graph,
+                graph,
                 signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
             };
             this._updateGraph(this._model, [entry].concat(this._stack));
@@ -874,13 +874,13 @@ view.View = class {
             const graphRect = container.getBoundingClientRect();
             const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
             const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
-            container.scrollTo({ left: left, top: top, behavior: 'auto' });
+            container.scrollTo({ left, top, behavior: 'auto' });
         } else {
             const canvasRect = canvas.getBoundingClientRect();
             const graphRect = container.getBoundingClientRect();
             const left = (container.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
             const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
-            container.scrollTo({ left: left, top: top, behavior: 'auto' });
+            container.scrollTo({ left, top, behavior: 'auto' });
         }
         this._graph = viewGraph;
     }
@@ -982,7 +982,7 @@ view.View = class {
                 const modelSidebar = new view.ModelSidebar(this._host, this._model, this.activeGraph, this.activeSignature);
                 modelSidebar.on('update-active-graph', (sender, graph) => {
                     const entry = {
-                        graph: graph,
+                        graph,
                         signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
                     };
                     this._updateActive([entry]);
@@ -1647,7 +1647,7 @@ view.Graph = class extends grapher.Graph {
 
     createNode(node, type) {
         if (type) {
-            const value = new view.Node(this, { type: type });
+            const value = new view.Node(this, { type });
             value.name = (this._nodeKey++).toString();
             this._table.set(type, value);
             return value;
@@ -1751,7 +1751,7 @@ view.Graph = class extends grapher.Graph {
             }
             const createCluster = (name) => {
                 if (!clusters.has(name)) {
-                    this.setNode({ name: name, rx: 5, ry: 5 });
+                    this.setNode({ name, rx: 5, ry: 5 });
                     clusters.add(name);
                     const parent = clusterParentMap.get(name);
                     if (parent) {
@@ -2262,7 +2262,7 @@ view.Sidebar = class {
     }
 
     open(content, title) {
-        this._update([{ title: title, content: content }]);
+        this._update([{ title, content }]);
     }
 
     close() {
@@ -2270,7 +2270,7 @@ view.Sidebar = class {
     }
 
     push(content, title) {
-        this._update(this._stack.concat({ title: title, content: content }));
+        this._update(this._stack.concat({ title, content }));
     }
 
     _update(stack) {
@@ -3088,7 +3088,7 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             this.add('signature', selector);
         }
         const metadata = model.metadata instanceof Map ?
-            Array.from(model.metadata).map(([name, value]) => ({ name: name, value: value })) :
+            Array.from(model.metadata).map(([name, value]) => ({ name, value })) :
             model.metadata;
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addHeader('Metadata');
@@ -4347,7 +4347,7 @@ markdown.Generator = class {
                     lastToken.text += `\n${match[0].trimRight()}`;
                 } else {
                     const text = match[0].replace(/^ {4}/gm, '').replace(/\n*$/, '');
-                    tokens.push({ type: 'code', text: text });
+                    tokens.push({ type: 'code', text });
                 }
                 continue;
             }
@@ -4364,7 +4364,7 @@ markdown.Generator = class {
                         return (match !== null && match[0].length >= indent.length) ? node.slice(indent.length) : node;
                     }).join('\n');
                 }
-                tokens.push({ type: 'code', language: language, text: content });
+                tokens.push({ type: 'code', language, text: content });
                 continue;
             }
             match = this._headingRegExp.exec(source);
@@ -4379,7 +4379,7 @@ markdown.Generator = class {
                 const align = match[2].replace(/^ *|\| *$/g, '').split(/ *\| */);
                 if (header.length === align.length) {
                     const cells = match[3] ? match[3].replace(/\n$/, '').split('\n') : [];
-                    const token = { type: 'table', header: header, align: align, cells: cells, raw: match[0] };
+                    const token = { type: 'table', header, align, cells, raw: match[0] };
                     for (let i = 0; i < token.align.length; i++) {
                         if (/^ *-+: *$/.test(token.align[i])) {
                             token.align[i] = 'right';
@@ -4407,7 +4407,7 @@ markdown.Generator = class {
             if (match) {
                 source = source.substring(match[0].length);
                 const text = match[0].replace(/^ *> ?/gm, '');
-                tokens.push({ type: 'blockquote', text: text, tokens: this._tokenize(text, [], links, top) });
+                tokens.push({ type: 'blockquote', text, tokens: this._tokenize(text, [], links, top) });
                 continue;
             }
             match = this._listRegExp.exec(source);
@@ -4416,7 +4416,7 @@ markdown.Generator = class {
                 const ordered = bull.length > 1;
                 const parent = bull[bull.length - 1] === ')';
                 let raw = value;
-                const list = { type: 'list', raw: raw, ordered: ordered, start: ordered ? Number(bull.slice(0, -1)) : '', loose: false, items: [] };
+                const list = { type: 'list', raw, ordered, start: ordered ? Number(bull.slice(0, -1)) : '', loose: false, items: [] };
                 const itemMatch = value.match(this._itemRegExp);
                 let next = false;
                 const length = itemMatch.length;
@@ -4453,7 +4453,7 @@ markdown.Generator = class {
                         checked = item[1] !== ' ';
                         item = item.replace(/^\[[ xX]\] +/, '');
                     }
-                    list.items.push({ type: 'list_item', raw, task: task, checked: checked, loose: loose, text: item });
+                    list.items.push({ type: 'list_item', raw, task, checked, loose, text: item });
                 }
                 source = source.substring(list.raw.length);
                 for (const item of list.items) {
@@ -4486,7 +4486,7 @@ markdown.Generator = class {
                 const align = match[2].replace(/^ *|\| *$/g, '').split(/ *\| */);
                 if (header.length === align.length) {
                     const cells = match[3] ? match[3].replace(/\n$/, '').split('\n') : [];
-                    const token = { type: 'table', header: header, align: align, cells: cells, raw: match[0] };
+                    const token = { type: 'table', header, align, cells, raw: match[0] };
                     for (let i = 0; i < token.align.length; i++) {
                         if (/^ *-+: *$/.test(token.align[i])) {
                             token.align[i] = 'right';
@@ -4629,7 +4629,7 @@ markdown.Generator = class {
                 if (!link || !link.href) {
                     const text = match[0].charAt(0);
                     source = source.substring(text.length);
-                    tokens.push({ type: 'text', text: text });
+                    tokens.push({ type: 'text', text });
                 } else {
                     source = source.substring(match[0].length);
                     const token = this._outputLink(match, link);
@@ -4655,7 +4655,7 @@ markdown.Generator = class {
                 if (cap) {
                     const text = source.substring(2, cap[0].length - 2);
                     source = source.substring(cap[0].length);
-                    tokens.push({ type: 'strong', text: text, tokens: this._tokenizeInline(text, links, inLink, inRawBlock, '') });
+                    tokens.push({ type: 'strong', text, tokens: this._tokenizeInline(text, links, inLink, inRawBlock, '') });
                     continue;
                 }
             }
@@ -4674,7 +4674,7 @@ markdown.Generator = class {
                 if (cap) {
                     const text = source.slice(1, cap[0].length - 1);
                     source = source.substring(cap[0].length);
-                    tokens.push({ type: 'em', text: text, tokens: this._tokenizeInline(text, links, inLink, inRawBlock, '') });
+                    tokens.push({ type: 'em', text, tokens: this._tokenizeInline(text, links, inLink, inRawBlock, '') });
                     continue;
                 }
             }
@@ -4698,7 +4698,7 @@ markdown.Generator = class {
             if (match) {
                 const [value, text] = match;
                 source = source.substring(value.length);
-                tokens.push({ type: 'del', text: text, tokens: this._tokenizeInline(text, links, inLink, inRawBlock, '') });
+                tokens.push({ type: 'del', text, tokens: this._tokenizeInline(text, links, inLink, inRawBlock, '') });
                 continue;
             }
             match = this._autolinkRegExp.exec(source);
@@ -4706,7 +4706,7 @@ markdown.Generator = class {
                 source = source.substring(match[0].length);
                 const text = this._escape(match[1]);
                 const href = match[2] === '@' ? `mailto:${text}` : text;
-                tokens.push({ type: 'link', text: text, href: href, tokens: [{ type: 'text', raw: text, text }] });
+                tokens.push({ type: 'link', text, href, tokens: [{ type: 'text', raw: text, text }] });
                 continue;
             }
             if (!inLink) {
@@ -4729,7 +4729,7 @@ markdown.Generator = class {
                         href = `http://${text}`;
                     }
                     source = source.substring(value.length);
-                    tokens.push({ type: 'link', text: text, href: href, tokens: [{ type: 'text', text: text }] });
+                    tokens.push({ type: 'link', text, href, tokens: [{ type: 'text', text }] });
                     continue;
                 }
             }
@@ -4936,8 +4936,8 @@ markdown.Generator = class {
         title = title ? this._escape(title) : null;
         const text = match[1].replace(/\\([[\]])/g, '$1');
         return match[0].charAt(0) !== '!' ?
-            { type: 'link', href: href, title: title, text: text } :
-            { type: 'image', href: href, title: title, text: this._escape(text) };
+            { type: 'link', href, title, text } :
+            { type: 'image', href, title, text: this._escape(text) };
     }
 
     _splitCells(tableRow, count) {
@@ -5454,7 +5454,7 @@ view.ModelFactoryService = class {
 
     register(module, factories, containers) {
         for (const pattern of factories) {
-            this._factories.push({ pattern: pattern, module: module });
+            this._factories.push({ pattern, module });
             this._patterns.add(pattern);
         }
         for (const pattern of containers || []) {

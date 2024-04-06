@@ -190,7 +190,7 @@ export default [
             // 'no-warning-comments': 'error',
             'no-with': 'error',
             'object-curly-spacing': ['error', 'always'],
-            // 'object-shorthand': 'error',
+            'object-shorthand': 'error',
             // 'one-var': 'error',
             // 'operator-assignment': 'error',
             'prefer-arrow-callback': 'error',

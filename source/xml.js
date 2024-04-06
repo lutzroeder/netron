@@ -165,9 +165,9 @@ xml.TextReader = class {
                                     const value = this._attributeValue();
                                     attributes.push({
                                         qualifiedName: name,
-                                        value: value,
-                                        position: position,
-                                        valuePosition: valuePosition
+                                        value,
+                                        position,
+                                        valuePosition
                                     });
                                     whitespace = this._whitespace(0);
                                     if (name === 'xmlns' && (!this._validateNamespace(value) || value === 'http://www.w3.org/2000/xmlns/' || value === 'http://www.w3.org/XML/1998/namespace')) {

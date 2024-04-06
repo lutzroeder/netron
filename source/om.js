@@ -30,7 +30,7 @@ om.Model = class {
     constructor(metadata, target) {
         this.format = target.format;
         const context = {
-            metadata: metadata,
+            metadata,
             signature: target.signature,
             weights: target.weights
         };
@@ -402,7 +402,7 @@ om.Container = class {
                                 partitions.clear();
                                 break;
                             }
-                            partitions.set(type, { offset: offset, size: size });
+                            partitions.set(type, { offset, size });
                         }
                         if (partitions.size > 0) {
                             break;

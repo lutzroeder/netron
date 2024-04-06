@@ -1033,7 +1033,7 @@ darknet.Reader = class {
                         }
                         section = {
                             line: lineNumber,
-                            type: type,
+                            type,
                             options: {}
                         };
                         sections.push(section);

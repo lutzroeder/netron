@@ -612,7 +612,7 @@ keras.Graph = class {
                                 continue;
                             }
                         }
-                        const nodeInputs = [{ name: name }];
+                        const nodeInputs = [{ name }];
                         if (layer.config && layer.config.name) {
                             current = layer.config.name;
                         }
@@ -678,7 +678,7 @@ keras.Graph = class {
                             const shape = transform(input_data);
                             const flatten = (input) => input.reduce((a, b) => a.concat(Array.isArray(b) ? flatten(b) : b), []);
                             const value = flatten(input_data);
-                            return { shape: shape, value: value };
+                            return { shape, value };
                         };
                         const functional = config.layers.every((layer) => Array.isArray(layer.inbound_nodes));
                         const layers = new Map();
@@ -871,7 +871,7 @@ keras.Graph = class {
         } else if (weights) {
             for (const name of weights.keys()) {
                 if (weights.get('', name).length <= 6) {
-                    const layer = { class_name: 'Weights', config: { name: name } };
+                    const layer = { class_name: 'Weights', config: { name } };
                     const node = new keras.Node(metadata, layer, '', weights, values);
                     this._nodes.push(node);
                 }
@@ -1015,12 +1015,12 @@ keras.Node = class {
                 let tensors = weights.get(group, name);
                 if (tensors.length > 0) {
                     for (const initializer of tensors) {
-                        inputs.push({ name: initializer.name, initializer: initializer });
+                        inputs.push({ name: initializer.name, initializer });
                     }
                 } else {
                     tensors = weights.get('', name);
                     for (const initializer of tensors) {
-                        inputs.push({ name: initializer.name, initializer: initializer });
+                        inputs.push({ name: initializer.name, initializer });
                     }
                 }
             }
@@ -1031,7 +1031,7 @@ keras.Node = class {
                 if (class_name !== 'Activation' && name === 'activation' && value !== 'linear') {
                     if (typeof value === 'string') {
                         const config = { activation: value };
-                        const node = new keras.Node(metadata, { class_name: 'Activation', config: config }, null, null, value);
+                        const node = new keras.Node(metadata, { class_name: 'Activation', config }, null, null, value);
                         this.chain.push(node);
                     } else if (value && typeof value.class_name === 'string' && value.config) {
                         const type = value.class_name;

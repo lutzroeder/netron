@@ -129,7 +129,7 @@ cntk.Graph = class {
             if (!values.has(name)) {
                 switch (version) {
                     case 1:
-                        values.set(name, new cntk.Value(version, obj ? obj : { name: name }));
+                        values.set(name, new cntk.Value(version, obj ? obj : { name }));
                         break;
                     case 2:
                         values.set(name, new cntk.Value(version, obj ? obj : { uid: name }));
@@ -596,7 +596,7 @@ cntk.ComputationNetwork = class {
     constructor(reader) {
         reader = new cntk.BinaryReader(reader);
         const shape = (dims) => {
-            return { __type__: 'shape', dims: dims };
+            return { __type__: 'shape', dims };
         };
         reader.assert('BCN');
         reader.assert('BVersion');
@@ -1105,7 +1105,7 @@ cntk.BinaryReader = class {
             dims.push(rank);
             dims.push(dim);
         }
-        return { __type__: 'shape', dims: dims };
+        return { __type__: 'shape', dims };
     }
 };
 

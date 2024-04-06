@@ -36,7 +36,7 @@ acuity.Graph = class {
         const values = new Map();
         const value = (name) => {
             if (!values.has(name)) {
-                values.set(name, { name: name, shape: null });
+                values.set(name, { name, shape: null });
             }
             return values.get(name);
         };

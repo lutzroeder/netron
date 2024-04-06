@@ -546,14 +546,14 @@ coreml.Context = class {
 
     input(name) {
         if (!this.values.has(name)) {
-            this.values.set(name, { counter: 0, name: name, to: [], from: [] });
+            this.values.set(name, { counter: 0, name, to: [], from: [] });
         }
         return this.values.get(name);
     }
 
     output(name) {
         if (!this.values.has(name)) {
-            const value = { counter: 0, name: name, to: [], from: [] };
+            const value = { counter: 0, name, to: [], from: [] };
             this.values.set(name, value);
             const key = `${name}|${value.counter}`;
             this.values.set(key, value);
@@ -578,10 +578,10 @@ coreml.Context = class {
 
     node(group, type, name, description, data, inputs, outputs, inputTensors, outputTensors) {
         const obj = {
-            group: group,
-            type: type,
-            name: name,
-            description: description,
+            group,
+            type,
+            name,
+            description,
             attributes: {},
             inputs: [],
             outputs: []
@@ -631,7 +631,7 @@ coreml.Context = class {
             const input = this.metadata.input(type, name);
             const visible = input && input.visible === false ? false : true;
             const value = { obj: new coreml.Value('', null, null, tensor) };
-            initializers.push({ name: name, visible: visible, value: [value] });
+            initializers.push({ name, visible, value: [value] });
         };
         const vector = (value) => {
             return (value && Object.keys(value).length === 1 && value.vector) ? value.vector : value;
@@ -1109,7 +1109,7 @@ coreml.Context = class {
             const type = classifier.ClassLabels;
             const node = {
                 // group: this._group,
-                type: type,
+                type,
                 name: null,
                 description: '',
                 attributes: classifier[type] || {}
@@ -1257,7 +1257,7 @@ coreml.Context = class {
                     }
                     return { value: argument.value };
                 });
-                return { name: name, value: args };
+                return { name, value: args };
             });
             operation.outputs = op.outputs.map((output) => {
                 const value = this.input(output.name);

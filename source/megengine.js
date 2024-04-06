@@ -405,7 +405,7 @@ megengine.Graph = class {
             } else {
                 args.push(value(name));
             }
-            return { name: name, type: type, args: args };
+            return { name, type, args };
         };
         const getAllOprAndTensor = (oprs) => {
             const allOprAndTensor = new Map();
@@ -420,7 +420,7 @@ megengine.Graph = class {
                         const type = opr.type;
                         const tensors = opr.tensors.length ? [opr.tensors[id]] : [];
                         const onlyShape = obj.middle_tensors[keyId] ? obj.middle_tensors[keyId].shape : [];
-                        allOprAndTensor.set(keyId, { name: name, type: type, tensors: tensors, shape: onlyShape, inputs: opr.inputs, outputs: opr.outputs });
+                        allOprAndTensor.set(keyId, { name, type, tensors, shape: onlyShape, inputs: opr.inputs, outputs: opr.outputs });
                         const _opr = allOprAndTensor.get(keyId);
                         _opr.extraInfo = getExtraInfo(_opr);
                     }

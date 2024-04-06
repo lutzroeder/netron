@@ -1456,7 +1456,7 @@ mlnet.NormalizingTransformer = class extends mlnet.OneToOneTransformerBase {
             const type = itemType + (!isVector ? '' : `[${shape.map((dim) => dim.toString()).join(',')}]`);
             const name = `Normalizer_${(`00${i}`).slice(-3)}`;
             const func = context.open(name);
-            this.Options.push({ type: type, func: func });
+            this.Options.push({ type, func });
         }
     }
 };
@@ -1804,7 +1804,7 @@ mlnet.KMeansModelParameters = class extends mlnet.ModelParametersBase {
             const count = context.modelVersionWritten >= 0x00010002 ? reader.int32() : this.Dimensionality;
             const indices = count < this.Dimensionality ? reader.int32s(count) : null;
             const values = reader.float32s(count);
-            this.Centroids.push({ indices: indices, values: values });
+            this.Centroids.push({ indices, values });
         }
         // input type = float32[dimensionality]
         // output type = float32[k]

@@ -249,7 +249,7 @@ openvino.Graph = class {
                     const shape = layer.data.shape;
                     layer.blobs.push({
                         name: 'value',
-                        precision: precision,
+                        precision,
                         offset: parseInt(layer.data.offset, 10),
                         size: parseInt(layer.data.size, 10),
                         shape: shape ? shape.split(',').map((dim) => parseInt(dim.trim(), 10)) : null
@@ -265,7 +265,7 @@ openvino.Graph = class {
             for (const layer of layers) {
                 if (layer.type === 'Const' && layer.input.length === 0 && layer.output.length === 1) {
                     const from = `${layer.id}:${layer.output[0].id}`;
-                    constants.set(from, { layer: layer, counter: 0 });
+                    constants.set(from, { layer, counter: 0 });
                 }
             }
             for (const from of Object.values(edges)) {

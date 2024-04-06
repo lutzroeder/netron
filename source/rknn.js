@@ -656,7 +656,7 @@ openvx.Model = class {
         reader.seek(nodeOffset);
         for (let i = 0; i < this._nodes.length; i++) {
             const type = reader.string(64);
-            const node = { type: type };
+            const node = { type };
             node.index = reader.uint32();
             node.c = reader.uint32();
             if (major > 3) {

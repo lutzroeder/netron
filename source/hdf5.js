@@ -1527,7 +1527,7 @@ hdf5.Tree = class {
                     const childPointer = reader.offset();
                     if (this.level === 0) {
                         const data = reader.at(childPointer).read(size);
-                        this.nodes.push({ data: data, fields: fields, filterMask: filterMask });
+                        this.nodes.push({ data, fields, filterMask });
                     } else {
                         const tree = new hdf5.Tree(reader.at(childPointer), dimensionality);
                         this.nodes.push(...tree.nodes);

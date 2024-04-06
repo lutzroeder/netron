@@ -219,7 +219,7 @@ host.ElectronHost = class {
             e.preventDefault();
             const paths = Array.from(e.dataTransfer.files).map(((file) => file.path));
             if (paths.length > 0) {
-                electron.ipcRenderer.send('drop-paths', { paths: paths });
+                electron.ipcRenderer.send('drop-paths', { paths });
             }
             return false;
         });
@@ -233,8 +233,8 @@ host.ElectronHost = class {
     async error(message, detail, cancel) {
         const options = {
             type: 'error',
-            message: message,
-            detail: detail,
+            message,
+            detail,
             buttons: cancel ? ['Report', 'Cancel'] : ['Report']
         };
         return electron.ipcRenderer.sendSync('show-message-box', options);
@@ -244,8 +244,8 @@ host.ElectronHost = class {
     confirm(message, detail) {
         const result = electron.ipcRenderer.sendSync('show-message-box', {
             type: 'question',
-            message: message,
-            detail: detail,
+            message,
+            detail,
             buttons: ['Yes', 'No'],
             defaultId: 0,
             cancelId: 1
@@ -260,9 +260,9 @@ host.ElectronHost = class {
     save(name, extension, defaultPath, callback) {
         const selectedFile = electron.ipcRenderer.sendSync('show-save-dialog', {
             title: 'Export Tensor',
-            defaultPath: defaultPath,
+            defaultPath,
             buttonLabel: 'Export',
-            filters: [{ name: name, extensions: [extension] }]
+            filters: [{ name, extensions: [extension] }]
         });
         if (selectedFile) {
             callback(selectedFile);
@@ -297,7 +297,7 @@ host.ElectronHost = class {
     }
 
     execute(name, value) {
-        electron.ipcRenderer.send('execute', { name: name, value: value });
+        electron.ipcRenderer.send('execute', { name, value });
     }
 
     async request(file, encoding, basename) {
@@ -496,7 +496,7 @@ host.ElectronHost = class {
 
     get(name) {
         try {
-            return electron.ipcRenderer.sendSync('get-configuration', { name: name });
+            return electron.ipcRenderer.sendSync('get-configuration', { name });
         } catch {
             // continue regardless of error
         }
@@ -505,7 +505,7 @@ host.ElectronHost = class {
 
     set(name, value) {
         try {
-            electron.ipcRenderer.sendSync('set-configuration', { name: name, value: value });
+            electron.ipcRenderer.sendSync('set-configuration', { name, value });
         } catch {
             // continue regardless of error
         }
@@ -513,7 +513,7 @@ host.ElectronHost = class {
 
     delete(name) {
         try {
-            electron.ipcRenderer.sendSync('delete-configuration', { name: name });
+            electron.ipcRenderer.sendSync('delete-configuration', { name });
         } catch {
             // continue regardless of error
         }

@@ -343,7 +343,7 @@ gguf.BinaryReader = class {
         const name = this.string();
         const type = this.uint32();
         const value = this.value(type);
-        return { name: name, value: value, type: type };
+        return { name, value, type };
     }
 
     tensor() {

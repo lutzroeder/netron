@@ -172,7 +172,7 @@ app.Application = class {
             const extensions = new base.Metadata().extensions;
             const showOpenDialogOptions = {
                 properties: ['openFile'],
-                filters: [{ name: 'All Model Files', extensions: extensions }]
+                filters: [{ name: 'All Model Files', extensions }]
             };
             paths = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
         }
@@ -237,7 +237,7 @@ app.Application = class {
             const owner = electron.BrowserWindow.getFocusedWindow();
             const showSaveDialogOptions = {
                 title: 'Export',
-                defaultPath: defaultPath,
+                defaultPath,
                 buttonLabel: 'Export',
                 filters: [
                     { name: 'PNG', extensions: ['png'] },
@@ -621,10 +621,10 @@ app.Application = class {
         if (process.platform !== 'win32') {
             const homeDir = os.homedir();
             if (path.startsWith(homeDir)) {
-                return { path: path, label: `~${path.substring(homeDir.length)}` };
+                return { path, label: `~${path.substring(homeDir.length)}` };
             }
         }
-        return { path: path, label: path };
+        return { path, label: path };
     }
 };
 
@@ -748,7 +748,7 @@ app.View = class {
 
     execute(command, data) {
         if (this._dispatch) {
-            this._dispatch.push({ command: command, data: data });
+            this._dispatch.push({ command, data });
         } else if (this._window && this._window.webContents) {
             const window = this._window;
             const contents = window.webContents;
@@ -820,7 +820,7 @@ app.View = class {
         this.execute('window-state', {
             minimized: this._window.isMinimized(),
             maximized: this._window.isMaximized(),
-            fullscreen: fullscreen
+            fullscreen
         });
         if (this._dispatch) {
             const dispatch = this._dispatch;

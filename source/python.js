@@ -737,7 +737,7 @@ python.Parser = class {
                 if (value === null) {
                     throw new python.Error(`Expected expression ${this._tokenizer.location()}`);
                 }
-                list.push({ type: 'pair', key: item, value: value });
+                list.push({ type: 'pair', key: item, value });
             } else {
                 list.push(item);
             }
@@ -1214,7 +1214,7 @@ python.Tokenizer = class {
                 this._outdent = this._indentation.length;
             }
             if (type === 'indent' || type === 'dedent') {
-                this._token = { type: type, value: indent };
+                this._token = { type, value: indent };
                 return;
             }
         }
@@ -1439,7 +1439,7 @@ python.Tokenizer = class {
                     keyword = false;
                     break;
             }
-            return { type: 'id', value: text, keyword: keyword };
+            return { type: 'id', value: text, keyword };
         }
         return null;
     }
@@ -3989,7 +3989,7 @@ python.Execution = class {
                 itemsize: dtype.itemsize,
                 dtype: dtype.str.substring(1),
                 littleendian: dtype.str[0],
-                shape: shape,
+                shape,
                 data: new Uint8Array(size)
             };
             context.view = new DataView(context.data.buffer, context.data.byteOffset, size);
@@ -5948,7 +5948,7 @@ python.Execution = class {
                 return {
                     graph_module: torch._export.exported_program._create_graph_module_for_export(this.module, this.graph),
                     signature: sig,
-                    module_call_graph: module_call_graph,
+                    module_call_graph,
                     names_to_symbols: this.symbol_name_to_symbol
                 };
             }
@@ -7021,7 +7021,7 @@ python.Execution = class {
                     __module__: module,
                     __name__: statement.name,
                     __code__: statement,
-                    __call__: function(args) {
+                    __call__(args) {
                         return self.apply(this.__code__, args, this.__globals__);
                     }
                 };

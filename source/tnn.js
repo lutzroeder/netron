@@ -434,14 +434,14 @@ tnn.TextProtoReader = class {
                 const shape_size = parseInt(array.shift(), 10);
                 const data_type_index = parseInt(array[shape_size], 10);
                 return {
-                    name: name,
+                    name,
                     data_type: ['float32', 'float16', 'int8', 'int32', 'bfloat16'][data_type_index],
                     shape: array.slice(0, -1).map((dim) => parseInt(dim, 10)),
                 };
 
             }
             return {
-                name: name,
+                name,
                 data_type: 'float32',
                 shape: array.map((dim) => parseInt(dim, 10))
             };
@@ -478,7 +478,7 @@ tnn.TextProtoReader = class {
                             key = (-(keyInt + 23300)).toString();
                         }
                         layer.attr[key] = value;
-                        layer.attributes.push({ key: key, value: value });
+                        layer.attributes.push({ key, value });
                         count++;
                     }
                 }

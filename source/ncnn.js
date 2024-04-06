@@ -930,7 +930,7 @@ ncnn.BlobReader = class {
                     }
                 }
             }
-            return { dataType: dataType, data: data };
+            return { dataType, data };
         }
         return null;
     }

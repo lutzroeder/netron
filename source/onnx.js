@@ -1120,7 +1120,7 @@ onnx.Context.Graph = class {
 
     tensor(name) {
         if (!this._tensors.has(name)) {
-            this._tensors.set(name, { name: name, initializer: this.initializer(name) });
+            this._tensors.set(name, { name, initializer: this.initializer(name) });
         }
         return this._tensors.get(name);
     }

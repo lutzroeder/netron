@@ -49,7 +49,7 @@ numpy.ModelFactory = class {
                 const buffer = stream.peek();
                 const bytes = execution.invoke('io.BytesIO', [buffer]);
                 const array = execution.invoke('numpy.load', [bytes]);
-                const layer = { type: 'numpy.ndarray', parameters: [{ name: 'value', tensor: { name: '', array: array } }] };
+                const layer = { type: 'numpy.ndarray', parameters: [{ name: 'value', tensor: { name: '', array } }] };
                 graphs.push({ layers: [layer] });
                 break;
             }
@@ -67,7 +67,7 @@ numpy.ModelFactory = class {
                     const layer = layers.get(groupName);
                     layer.parameters.push({
                         name: parameterName,
-                        tensor: { name: name, array: array }
+                        tensor: { name, array }
                     });
                 }
                 graphs.push({ layers: Array.from(layers.values()) });
@@ -78,7 +78,7 @@ numpy.ModelFactory = class {
                 const layers = new Map();
                 const layer = (name) => {
                     if (!layers.has(name)) {
-                        layers.set(name, { name: name, parameters: [] });
+                        layers.set(name, { name, parameters: [] });
                     }
                     return layers.get(name);
                 };
@@ -103,7 +103,7 @@ numpy.ModelFactory = class {
                     }
                     layer(layerName).parameters.push({
                         name: parameterName,
-                        tensor: { name: name, array: value }
+                        tensor: { name, array: value }
                     });
                 }
                 graphs.push({ layers: Array.from(layers.values()) });
@@ -133,7 +133,7 @@ numpy.ModelFactory = class {
                             const layer = layers.get(layerName);
                             layer.parameters.push({
                                 name: parameterName,
-                                tensor: { name: name, array: value }
+                                tensor: { name, array: value }
                             });
                         }
                     }

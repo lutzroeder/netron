@@ -82,11 +82,11 @@ pytorch.Graph = class {
             const name = group ? (`${group}/${key}`) : key;
             const outputs = output ? [new pytorch.Argument('output', [values.map(name)])] : [];
             const item = {
-                name: name,
-                type: type,
-                obj: obj,
-                inputs: inputs,
-                outputs: outputs
+                name,
+                type,
+                obj,
+                inputs,
+                outputs
             };
             const node = new pytorch.Node(metadata, group, item, {}, values);
             this.nodes.push(node);
@@ -132,7 +132,7 @@ pytorch.Graph = class {
         const loadScriptModule = (module, initializers) => {
             if (module) {
                 if (pytorch.Graph._getParameters(module).size > 0 && !module.__hide__) {
-                    const item = { module: module };
+                    const item = { module };
                     this.nodes.push(new pytorch.Node(metadata, '', item, initializers, values));
                 }
                 const submodules = getSubmodules(module);
@@ -228,7 +228,7 @@ pytorch.Graph = class {
                 }
                 const item = {
                     type: node.kind(),
-                    node: node
+                    node
                 };
                 this.nodes.push(new pytorch.Node(metadata, '', item, initializers, values));
             }
@@ -295,7 +295,7 @@ pytorch.Node = class {
             if (name instanceof pytorch.nnapi.Graph) {
                 return name;
             }
-            const type = Object.assign({}, metadata.type(name) || { name: name });
+            const type = Object.assign({}, metadata.type(name) || { name });
             type.identifier = type.name;
             type.name = type.name.indexOf('::') !== -1 ? type.name.split('::').pop().split('.')[0] : type.name;
             return type;
@@ -411,7 +411,7 @@ pytorch.Node = class {
                     const values = Array.from(value).filter(([, value]) => !stack.has(value)).map(([name, value]) => {
                         stack.add(value);
                         const item = {
-                            name: name,
+                            name,
                             type: `${value.__class__.__module__}.${value.__class__.__name__}`,
                             obj: value
                         };
@@ -4200,9 +4200,9 @@ pytorch.nnapi.Metadata = class {
     register(index, name, category, inputs, attributes, outputs) {
         const type = {};
         type.name = name;
-        type.inputs = (inputs || []).map((name) => ({ name: name, type: 'Tensor' }));
-        type.outputs = (outputs || []).map((name) => ({ name: name, type: 'Tensor' }));
-        type.attributes = (attributes || []).map(([name, type]) => ({ name: name, type: type }));
+        type.inputs = (inputs || []).map((name) => ({ name, type: 'Tensor' }));
+        type.outputs = (outputs || []).map((name) => ({ name, type: 'Tensor' }));
+        type.attributes = (attributes || []).map(([name, type]) => ({ name, type }));
         if (category) {
             type.category = category;
         }

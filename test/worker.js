@@ -382,9 +382,9 @@ export class Target {
                                 position += result.value.length;
                                 if (length >= 0) {
                                     const percent = position / length;
-                                    target.status({ name: 'download', target: url, percent: percent });
+                                    target.status({ name: 'download', target: url, percent });
                                 } else {
-                                    target.status({ name: 'download', target: url, position: position });
+                                    target.status({ name: 'download', target: url, position });
                                 }
                                 controller.enqueue(result.value);
                                 return await read();
@@ -468,7 +468,7 @@ export class Target {
             }
         } else {
             const target = targets.shift();
-            this.status({ name: 'write', target: target });
+            this.status({ name: 'write', target });
             await fs.writeFile(`${this.folder}/${target}`, data, null);
         }
         if (targets.length > 0 && sources.length > 0) {

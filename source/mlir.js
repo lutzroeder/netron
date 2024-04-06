@@ -80,7 +80,7 @@ mlir.Graph = class {
         const values = new Map();
         values.map = (name) => {
             if (!values.has(name)) {
-                values.set(name, { name: name, to: [], from: [] });
+                values.set(name, { name, to: [], from: [] });
             }
             return values.get(name);
         };
@@ -738,7 +738,7 @@ mlir.Parser = class {
         const graph = {
             functions: [],
             operations: [],
-            attributes: attributes,
+            attributes,
         };
         // functions or operations
         const terminal = hasModule ? mlir.TokenType.RBRACE : mlir.TokenType.EOF;
@@ -791,13 +791,13 @@ mlir.Parser = class {
         }
         this._read(mlir.TokenType.RBRACE);
         return {
-            name: name,
+            name,
             inputs: inputs.map((input) => input.name),
             inputTypes: inputs.map((input) => input.type),
             outputTypes: outputs,
-            operations: operations,
-            attributes: attributes,
-            visibility: visibility,
+            operations,
+            attributes,
+            visibility,
         };
     }
 
@@ -869,7 +869,7 @@ mlir.Parser = class {
         if (this._current.type === mlir.TokenType.RBRACE) {
             // early return
             return {
-                outputs: outputs,
+                outputs,
                 name: operationName,
             };
         }
@@ -915,10 +915,10 @@ mlir.Parser = class {
             // constant
             const result = {
                 name: operationName,
-                attributes: attributes,
+                attributes,
                 // data: this._parseConstantData(),
-                outputs: outputs,
-                outputTypes: outputTypes,
+                outputs,
+                outputTypes,
                 isConstant: true,
             };
             return result;
@@ -953,12 +953,12 @@ mlir.Parser = class {
         attributes = Object.assign(attributes, this._parseAttribute());
         const result = {
             name: operationName,
-            attributes: attributes,
-            inputs: inputs,
-            inputTypes: inputTypes,
-            outputs: outputs,
-            outputTypes: outputTypes,
-            body: body,
+            attributes,
+            inputs,
+            inputTypes,
+            outputs,
+            outputTypes,
+            body,
         };
         return result;
     }

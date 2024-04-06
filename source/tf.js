@@ -796,7 +796,7 @@ tf.Graph = class {
             }
             const namespaces = new Set();
             this.nodes = Array.from(nodes).map(([name, value]) => {
-                const node = { op: 'Node', name: name };
+                const node = { op: 'Node', name };
                 return new tf.Node(metadata, node, namespaces, new tf.Context(), value);
             });
         }
@@ -1781,7 +1781,7 @@ tf.Context = class {
                 if (from) {
                     from.output[index].to.push(node);
                 }
-                const value = { name: key, from: from };
+                const value = { name: key, from };
                 if (control) {
                     node.controlDependencies.push(value);
                 } else {
@@ -1792,7 +1792,7 @@ tf.Context = class {
         if (output_arg_map) {
             for (const [name, node] of nodes) {
                 if (output_arg_map.has(name)) {
-                    node.output.push({ name: name, to: [] });
+                    node.output.push({ name, to: [] });
                 }
             }
         }

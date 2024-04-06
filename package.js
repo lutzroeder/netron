@@ -94,9 +94,9 @@ const unlink = async (dir, filter) => {
 const exec = async (command, encoding, cwd) => {
     cwd = cwd || dirname();
     if (encoding) {
-        return child_process.execSync(command, { cwd: cwd, encoding: encoding });
+        return child_process.execSync(command, { cwd, encoding });
     }
-    child_process.execSync(command, { cwd: cwd, stdio: [0,1,2] });
+    child_process.execSync(command, { cwd, stdio: [0,1,2] });
     return '';
     /*
     return new Promise((resolve, reject) => {
@@ -181,13 +181,13 @@ const fork = async (organization, repository) => {
     writeLine(`github delete ${repository}`);
     await request(`https://api.github.com/repos/${process.env.GITHUB_USER}/${repository}`, {
         method: 'DELETE',
-        headers: headers
+        headers
     }, false);
     await sleep(4000);
     writeLine(`github fork ${repository}`);
     await request(`https://api.github.com/repos/${organization}/${repository}/forks`, {
         method: 'POST',
-        headers: headers,
+        headers,
         body: ''
     });
     await sleep(4000);
@@ -205,7 +205,7 @@ const pullrequest = async (organization, repository, body) => {
     };
     await request(`https://api.github.com/repos/${organization}/${repository}/pulls`, {
         method: 'POST',
-        headers: headers,
+        headers,
         body: JSON.stringify(body)
     });
 };

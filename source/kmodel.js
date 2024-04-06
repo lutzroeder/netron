@@ -265,7 +265,7 @@ kmodel.Reader = class {
         }
         const types = new Map();
         const register = (type, name, category, callback) => {
-            types.set(type, { type: { name: name, category: category || '' }, callback: callback });
+            types.set(type, { type: { name, category: category || '' }, callback });
         };
         switch (this.version) {
             case 3: {
@@ -541,7 +541,7 @@ kmodel.Reader = class {
                 }
                 this.modules.push({
                     name: '',
-                    layers: layers
+                    layers
                 });
                 break;
             }
@@ -908,7 +908,7 @@ kmodel.Reader = class {
                 }
                 this.modules.push({
                     name: '',
-                    layers: layers
+                    layers
                 });
                 break;
             }
@@ -968,8 +968,8 @@ kmodel.Reader = class {
                         function_headers[i] = function_header;
                         functions[i] = {
                             type: { name: 'Unknown' },
-                            inputs: inputs,
-                            outputs: outputs
+                            inputs,
+                            outputs
                         };
                     }
                     const sections = new Map();
@@ -1004,7 +1004,7 @@ kmodel.Reader = class {
                     }
                     const name = this.modules.length > 1 ? i.toString() : '';
                     this.modules[i] = {
-                        name: name,
+                        name,
                         type: module_header.type,
                         layers: functions
                     };
@@ -1141,7 +1141,7 @@ kmodel.BinaryReader.v3 = class extends kmodel.BinaryReader {
     }
 
     parameter(name, memory_type) {
-        return { name: name, value: [this.argument(memory_type)] };
+        return { name, value: [this.argument(memory_type)] };
     }
 };
 
@@ -1191,7 +1191,7 @@ kmodel.BinaryReader.v4 = class extends kmodel.BinaryReader {
     }
 
     parameter(name) {
-        return { name: name, value: [this.argument()] };
+        return { name, value: [this.argument()] };
     }
 
     runtime_shape_t() {
@@ -1384,7 +1384,7 @@ kmodel.BinaryReader.v5 = class extends kmodel.BinaryReader {
     }
 
     parameter(name) {
-        return { name: name, value: [this.argument()] };
+        return { name, value: [this.argument()] };
     }
 
     shape() {
