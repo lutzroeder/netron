@@ -19,11 +19,9 @@ ncnn.ModelFactory = class {
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature === 0x007685DD) {
                     context.type = 'ncnn.model.bin';
-                    return;
                 }
             }
-        }
-        if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
+        } else if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
             try {
                 const reader = text.Reader.open(context.stream, 2048);
                 const signature = reader.read();
@@ -35,31 +33,37 @@ ncnn.ModelFactory = class {
                     const header = signature.trim().split(' ');
                     if (header.length === 2 && header.every((value) => value >>> 0 === parseFloat(value))) {
                         context.type = 'ncnn.model';
-                        return;
                     }
                 }
             } catch {
                 // continue regardless of error
             }
-        }
-        if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
+        } else if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
             const stream = context.stream;
             if (stream.length > 4) {
                 const buffer = stream.peek(4);
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
-                if (signature === 0x00000000 || signature === 0x00000001) {
-                    const size = Math.min(stream.length, 1024) & 0xFFFC;
-                    const buffer = stream.peek(size);
-                    const array = new Float32Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-                    const values = Array.from(array).slice(1);
-                    if (values.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -10.0 && value < 10.0)) {
-                        context.type = 'ncnn.weights';
-                        return;
+                switch (signature) {
+                    case 0x00000000:
+                    case 0x00000001: {
+                        const size = Math.min(stream.length, 1024) & 0xFFFC;
+                        const buffer = stream.peek(size);
+                        const array = new Float32Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                        const values = Array.from(array).slice(1);
+                        if (values.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -10.0 && value < 10.0)) {
+                            context.type = 'ncnn.weights';
+                        }
+                        break;
                     }
-                }
-                if (signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
-                    context.type = 'ncnn.weights';
-                    return;
+                    case 0x01306B47:
+                    case 0x000D4B38:
+                    case 0x0002C056: {
+                        context.type = 'ncnn.weights';
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
                 }
             }
         }

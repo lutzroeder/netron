@@ -28,7 +28,6 @@ tflite.ModelFactory = class {
         if (obj && obj.subgraphs && obj.operator_codes) {
             context.type = 'tflite.flatbuffers.json';
             context.target = obj;
-            return;
         }
     }
 

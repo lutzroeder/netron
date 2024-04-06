@@ -18,11 +18,8 @@ caffe.ModelFactory = class {
         const tags = context.tags('pbtxt');
         if (tags.has('layer') || tags.has('layers')) {
             context.type = 'caffe.pbtxt';
-            return;
-        }
-        if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
+        } else if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
             context.type = 'caffe.pbtxt.solver';
-            return;
         }
     }
 

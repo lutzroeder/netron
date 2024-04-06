@@ -35,7 +35,6 @@ megengine.ModelFactory = class {
         const obj = context.peek('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ === 'megengine.traced_module.traced_module' && obj.__class__.__name__ === 'TracedModule') {
             context.type = 'megengine.tm';
-            return;
         }
     }
 

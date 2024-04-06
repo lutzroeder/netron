@@ -12,16 +12,13 @@ nnef.ModelFactory = class {
             const stream = context.stream;
             if (nnef.TextReader.open(stream)) {
                 context.type = 'nnef.graph';
-                return;
             }
-        }
-        if (extension === 'dat') {
+        } else if (extension === 'dat') {
             const stream = context.stream;
             if (stream && stream.length > 2) {
                 const buffer = stream.peek(2);
                 if (buffer[0] === 0x4E && buffer[1] === 0xEF) {
                     context.type = 'nnef.dat';
-                    return;
                 }
             }
         }

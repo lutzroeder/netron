@@ -18,7 +18,6 @@ pickle.ModelFactory = class {
             if (!name.startsWith('__torch__.')) {
                 context.type = 'pickle';
                 context.target = obj;
-                return;
             }
         }
     }

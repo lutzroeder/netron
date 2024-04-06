@@ -12,31 +12,28 @@ numpy.ModelFactory = class {
         const signature = [0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59];
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             context.type = 'npy';
-            return;
-        }
-        const entries = context.peek('npz');
-        if (entries && entries.size > 0) {
-            context.type = 'npz';
-            context.target = entries;
-            return;
-        }
-        const obj = context.peek('pkl');
-        if (obj) {
-            if (numpy.Utility.isTensor(obj)) {
-                context.type = 'numpy.ndarray';
-                context.target = obj;
-                return;
-            }
-            if (Array.isArray(obj) && obj.length > 0 && obj.every((obj) => obj && obj.__class__ && obj.__class__.__name__ === 'Network' && (obj.__class__.__module__ === 'dnnlib.tflib.network' || obj.__class__.__module__ === 'tfutil'))) {
-                context.type = 'dnnlib.tflib.network';
-                context.target = obj;
-                return;
-            }
-            const weights = numpy.Utility.weights(obj);
-            if (weights && weights.size > 0) {
-                context.type = 'numpy.pickle';
-                context.target = weights;
-                return;
+        } else {
+            const entries = context.peek('npz');
+            if (entries && entries.size > 0) {
+                context.type = 'npz';
+                context.target = entries;
+            } else {
+                const obj = context.peek('pkl');
+                if (obj) {
+                    if (numpy.Utility.isTensor(obj)) {
+                        context.type = 'numpy.ndarray';
+                        context.target = obj;
+                    } else if (Array.isArray(obj) && obj.length > 0 && obj.every((obj) => obj && obj.__class__ && obj.__class__.__name__ === 'Network' && (obj.__class__.__module__ === 'dnnlib.tflib.network' || obj.__class__.__module__ === 'tfutil'))) {
+                        context.type = 'dnnlib.tflib.network';
+                        context.target = obj;
+                    } else {
+                        const weights = numpy.Utility.weights(obj);
+                        if (weights && weights.size > 0) {
+                            context.type = 'numpy.pickle';
+                            context.target = weights;
+                        }
+                    }
+                }
             }
         }
     }

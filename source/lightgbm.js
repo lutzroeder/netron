@@ -10,13 +10,12 @@ lightgbm.ModelFactory = class {
         const signature = [0x74, 0x72, 0x65, 0x65, 0x0A];
         if (stream && stream.length >= signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             context.type = 'lightgbm.text';
-            return;
-        }
-        const obj = context.peek('pkl');
-        if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__module__.startsWith('lightgbm.')) {
-            context.type = 'lightgbm.pickle';
-            context.target = obj;
-            return;
+        } else {
+            const obj = context.peek('pkl');
+            if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__module__.startsWith('lightgbm.')) {
+                context.type = 'lightgbm.pickle';
+                context.target = obj;
+            }
         }
     }
 

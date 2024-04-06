@@ -46,7 +46,6 @@ paddle.ModelFactory = class {
         if (naive) {
             context.target = naive;
             context.type = context.target.name;
-            return;
         }
     }
 

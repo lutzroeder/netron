@@ -15,7 +15,6 @@ cntk.ModelFactory = class {
         const tags = context.tags('pb');
         if (tags.get(1) === 0 && tags.get(2) === 2) {
             context.type = 'cntk.v2';
-            return;
         }
     }
 

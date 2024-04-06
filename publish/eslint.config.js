@@ -184,7 +184,7 @@ export default [
             // 'no-useless-constructor': 'error',
             'no-useless-escape': 'error',
             'no-useless-rename': 'error',
-            // 'no-useless-return': 'error',
+            'no-useless-return': 'error',
             'no-var': 'error',
             'no-void': 'error',
             // 'no-warning-comments': 'error',

@@ -12,15 +12,12 @@ dl4j.ModelFactory = class {
             if (obj && (obj.confs || obj.vertices)) {
                 context.type = 'dl4j.configuration';
                 context.target = obj;
-                return;
             }
-        }
-        if (identifier === 'coefficients.bin') {
+        } else if (identifier === 'coefficients.bin') {
             const signature = [0x00, 0x07, 0x4A, 0x41, 0x56, 0x41, 0x43, 0x50, 0x50]; // JAVACPP
             const stream = context.stream;
             if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
                 context.type = 'dl4j.coefficients';
-                return;
             }
         }
     }

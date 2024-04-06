@@ -18,7 +18,6 @@ circle.ModelFactory = class {
         if (obj && obj.subgraphs && obj.operator_codes) {
             context.type = 'circle.flatbuffers.json';
             context.target = obj;
-            return;
         }
     }
 

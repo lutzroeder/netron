@@ -15,14 +15,11 @@ uff.ModelFactory = class {
                 tags.has(4) && tags.get(4) === 2 &&
                 (!tags.has(5) || tags.get(5) === 2)) {
                 context.type = 'uff.pb';
-                return;
             }
-        }
-        if (extension === 'pbtxt' || identifier.toLowerCase().endsWith('.uff.txt')) {
+        } else if (extension === 'pbtxt' || identifier.toLowerCase().endsWith('.uff.txt')) {
             const tags = context.tags('pbtxt');
             if (tags.has('version') && tags.has('descriptors') && tags.has('graphs')) {
                 context.type = 'uff.pbtxt';
-                return;
             }
         }
     }

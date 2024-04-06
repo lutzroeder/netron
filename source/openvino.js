@@ -33,23 +33,20 @@ openvino.ModelFactory = class {
                 return;
             }
             const identifiers = new Set(['config.bin', 'model.bin', '__model__.bin', 'weights.bin', 'programs.bin', 'best.bin', 'ncnn.bin']);
-            if (identifiers.has(identifier)) {
-                return;
-            }
-            const size = Math.min(stream.length, 1024) & 0xFFFC;
-            const buffer = stream.peek(size);
-            const array = new Float32Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-            const values = Array.from(array);
-            if (values.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -10.0 && value < 10.0)) {
-                context.type = 'openvino.bin';
-                return;
+            if (!identifiers.has(identifier)) {
+                const size = Math.min(stream.length, 1024) & 0xFFFC;
+                const buffer = stream.peek(size);
+                const array = new Float32Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                const values = Array.from(array);
+                if (values.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -10.0 && value < 10.0)) {
+                    context.type = 'openvino.bin';
+                }
             }
             return;
         }
         const tags = context.tags('xml');
         if (tags.has('net')) {
             context.type = 'openvino.xml';
-            return;
         }
     }
 

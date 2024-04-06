@@ -6,17 +6,17 @@ const tensorrt = {};
 tensorrt.ModelFactory = class {
 
     match(context) {
-        const engine = tensorrt.Engine.open(context);
-        if (engine) {
-            context.target = engine;
-            context.type = 'tensorrt.engine';
-            return;
-        }
-        const container = tensorrt.Container.open(context);
-        if (container) {
-            context.target = container;
-            context.type = 'tensorrt.container';
-            return;
+        const entries = [
+            tensorrt.Engine,
+            tensorrt.Container
+        ];
+        for (const entry of entries) {
+            const target = entry.open(context);
+            if (target) {
+                context.type = target.type;
+                context.target = target;
+                break;
+            }
         }
     }
 
@@ -92,9 +92,10 @@ tensorrt.Engine = class {
     }
 
     constructor(context, position) {
+        this.type = 'tensorrt.engine';
+        this.format = 'TensorRT Engine';
         this.context = context;
         this.position = position;
-        this.format = 'TensorRT Engine';
     }
 
     read() {
@@ -164,8 +165,9 @@ tensorrt.Container = class {
     }
 
     constructor(stream) {
-        this.stream = stream;
+        this.type = 'tensorrt.container';
         this.format = 'TensorRT FlatBuffers';
+        this.stream = stream;
     }
 
     read() {

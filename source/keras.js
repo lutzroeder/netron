@@ -67,7 +67,6 @@ keras.ModelFactory = class {
                 const content = String.fromCharCode.apply(null, buffer);
                 if (/root"/.test(content) && /\{\s*"class_name"\s*:/.test(content)) {
                     context.type = 'keras.pb.SavedMetadata';
-                    return;
                 }
             }
         }
@@ -1535,11 +1534,9 @@ tfjs.Container = class {
                 shards.set(key, buffer);
             }
             this._openShards(manifests, shards);
-            return;
         } catch {
             shards.clear();
             this._openShards(manifests, shards);
-            return;
         }
     }
 

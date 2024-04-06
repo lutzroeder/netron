@@ -6,42 +6,51 @@ caffe2.ModelFactory = class {
     match(context) {
         const identifier = context.identifier.toLowerCase();
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'pb') {
-            const tags = context.tags('pb');
-            if (tags.size > 0 &&
-                Array.from(tags.keys()).every((tag) => tag <= 9) &&
-                Array.from(tags.values()).every((type) => type <= 4)) {
-                if (tags.size === 1 && tags.get(2) === 2 && identifier.endsWith('saved_model.pb')) {
-                    return;
+        switch (extension) {
+            case 'pbtxt':
+            case 'prototxt': {
+                const tags = context.tags('pbtxt');
+                if (tags.has('op') && !tags.has('op.attr') && !tags.has('op.graph_op_name') && !tags.has('op.endpoint')) {
+                    context.type = 'caffe2.pbtxt';
                 }
-                const schema = [[1,2],[2,2],[3,2],[4,0],[5,2],[6,2],[7,2],[8,2],[9,2]];
-                if (schema.every(([key, value]) => !tags.has(key) || tags.get(key) === value)) {
-                    const stream = context.stream;
-                    if (stream.length > 3) {
-                        const buffer = stream.peek(Math.min(stream.length, 67));
-                        const [signature, size] = buffer;
-                        if (signature === 0x0A) {
-                            if (size < 64 &&
-                                buffer.length > 2 + size + 1 &&
-                                buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) &&
-                                buffer[2 + size] === 0x12) {
-                                context.type = 'caffe2.pb';
-                                return;
+                break;
+            }
+            case 'pb': {
+                const tags = context.tags('pb');
+                if (tags.size > 0 &&
+                    Array.from(tags.keys()).every((tag) => tag <= 9) &&
+                    Array.from(tags.values()).every((type) => type <= 4)) {
+                    if (tags.size === 1 && tags.get(2) === 2 && identifier.endsWith('saved_model.pb')) {
+                        return;
+                    }
+                    const schema = [[1,2],[2,2],[3,2],[4,0],[5,2],[6,2],[7,2],[8,2],[9,2]];
+                    if (schema.every(([key, value]) => !tags.has(key) || tags.get(key) === value)) {
+                        const stream = context.stream;
+                        if (stream.length > 3) {
+                            const buffer = stream.peek(Math.min(stream.length, 67));
+                            const [signature, size] = buffer;
+                            switch (signature) {
+                                case 0x0A:
+                                    if (size < 64 &&
+                                        buffer.length > 2 + size + 1 &&
+                                        buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) &&
+                                        buffer[2 + size] === 0x12) {
+                                        context.type = 'caffe2.pb';
+                                    }
+                                    break;
+                                case 0x12:
+                                    context.type = 'caffe2.pb';
+                                    break;
+                                default:
+                                    break;
                             }
-                        }
-                        if (signature === 0x12) {
-                            context.type = 'caffe2.pb';
-                            return;
                         }
                     }
                 }
+                break;
             }
-        }
-        if (extension === 'pbtxt' || extension === 'prototxt') {
-            const tags = context.tags('pbtxt');
-            if (tags.has('op') && !tags.has('op.attr') && !tags.has('op.graph_op_name') && !tags.has('op.endpoint')) {
-                context.type = 'caffe2.pbtxt';
-                return;
+            default: {
+                break;
             }
         }
     }

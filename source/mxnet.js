@@ -8,20 +8,25 @@ mxnet.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'json') {
-            const obj = context.peek('json');
-            if (obj && obj.nodes && obj.arg_nodes && obj.heads) {
-                context.type = 'mxnet.json';
-                context.target = obj;
-                return;
+        switch (extension) {
+            case 'json': {
+                const obj = context.peek('json');
+                if (obj && obj.nodes && obj.arg_nodes && obj.heads) {
+                    context.type = 'mxnet.json';
+                    context.target = obj;
+                }
+                break;
             }
-        }
-        if (extension === 'params') {
-            const stream = context.stream;
-            const signature = [0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-            if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                context.type = 'mxnet.params';
-                return;
+            case 'params': {
+                const stream = context.stream;
+                const signature = [0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+                if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+                    context.type = 'mxnet.params';
+                }
+                break;
+            }
+            default: {
+                break;
             }
         }
     }

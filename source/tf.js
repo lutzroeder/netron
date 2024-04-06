@@ -233,7 +233,6 @@ tf.ModelFactory = class {
                 const offset = reader.uint64().toNumber();
                 if (offset < stream.length) {
                     context.type = 'tf.pb.mmap';
-                    return;
                 }
             }
         }
