@@ -25,6 +25,8 @@ base.Complex128 = class Complex {
     }
 };
 
+/* eslint-disable no-extend-native */
+
 BigInt.prototype.toNumber = function() {
     if (this > Number.MAX_SAFE_INTEGER || this < Number.MIN_SAFE_INTEGER) {
         throw new Error('64-bit value exceeds safe integer.');
@@ -257,6 +259,8 @@ DataView.prototype.setComplex128 = DataView.prototype.setComplex128 || function(
         this.setFloat64(byteOffset, value.imaginary, littleEndian);
     }
 };
+
+/* eslint-enable no-extend-native */
 
 base.BinaryStream = class {
 
