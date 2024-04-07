@@ -181,7 +181,7 @@ nnabla.Node = class {
         this.attributes = attributes || [];
         this.outputs = outputs || [];
         this.chain = [];
-        // TODO: "nonlinearity" does not match metadata type
+        // "nonlinearity" does not match metadata type
         const get_nonlinearity = (name) => {
             switch (name) {
                 case "identity": return "Identity";

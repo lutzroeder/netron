@@ -877,7 +877,6 @@ mlnet.MatrixFactorizationPredictionTransformer = class extends mlnet.PredictionT
         super(context);
         this.MatrixColumnIndexColumnName = context.string();
         this.MatrixRowIndexColumnName = context.string();
-        // TODO
     }
 };
 
@@ -1218,10 +1217,9 @@ mlnet.NgramHashingTransformer = class extends mlnet.RowToRowTransformerBase {
         this.outputs = [];
         const columnsLength = reader.int32();
         if (loadLegacy) {
-            /* TODO
-            for (let i = 0; i < columnsLength; i++) {
-                this.Columns.push(new NgramHashingEstimator.ColumnOptions(context));
-            } */
+            // for (let i = 0; i < columnsLength; i++) {
+            //     this.Columns.push(new NgramHashingEstimator.ColumnOptions(context));
+            // }
         } else {
             for (let i = 0; i < columnsLength; i++) {
                 this.outputs.push(context.string());
@@ -1229,7 +1227,7 @@ mlnet.NgramHashingTransformer = class extends mlnet.RowToRowTransformerBase {
                 for (let j = 0; j < csrc; j++) {
                     const src = context.string();
                     this.inputs.push(src);
-                    // TODO inputs[i][j] = src;
+                    // inputs[i][j] = src;
                 }
             }
         }
@@ -1540,7 +1538,6 @@ mlnet.ValueMappingTransformer = class extends mlnet.OneToOneTransformerBase {
         if (context.check('TXTLOOKT', 0x00010002, 0x00010002)) {
             this.keyColumnName = 'Term';
         }
-        // TODO
     }
 };
 

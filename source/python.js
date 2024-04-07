@@ -2886,7 +2886,6 @@ python.Execution = class {
                             const args = stack;
                             const cls = `${module}.${name}`;
                             stack = marker.pop();
-                            // TODO
                             // cls = this.find_class(module, name)
                             const obj = this._instantiate(cls, args);
                             stack.push(obj);
@@ -3115,7 +3114,7 @@ python.Execution = class {
                             break;
                         }
                         case 139: // LONG4 '\x8b'
-                            // TODO decode LONG4
+                            // decode LONG4
                             stack.push(reader.read(reader.uint32()));
                             break;
                         case 148: // MEMOIZE '\x94' (Protocol 4)
@@ -3537,7 +3536,6 @@ python.Execution = class {
         });
         this.registerFunction('dill._dill._create_cell', (/* args */) => {
             return function() {
-                // TODO
             };
         });
         this.registerFunction('dill._dill._create_code', (args) => {
@@ -3545,7 +3543,6 @@ python.Execution = class {
         });
         this.registerFunction('dill._dill._create_function', (/* fcode, fglobals, fname, fdefaults, fclosure, fdict, fkwdefaults */) => {
             return function() {
-                // TODO
             };
         });
         this.registerFunction('dill._dill._create_namedtuple', (name, fieldnames, modulename /*, defaults */) => {
@@ -4685,7 +4682,7 @@ python.Execution = class {
         });
         this.registerFunction('ops.prim.NumToTensor', (value) => {
             const tensor = self.invoke('torch.Tensor', []);
-            tensor.value = value; // TODO
+            tensor.value = value;
             return tensor;
         });
         this.registerFunction('ops.prim.min', (...args) => {
@@ -4964,15 +4961,15 @@ python.Execution = class {
             throw new python.Error("'torch._nested_tensor_from_mask_left_aligned' not implemented.");
         });
         this.registerFunction('torch._unwrap_optional', (value) => {
-            return value; // TODO
+            return value;
         });
         this.registerFunction('torch.empty_strided', (/* size, stride, dtype, layout, device, pin_memory, requires_grad */) => {
             return null;
-            // TODO throw new python.Error("'torch.empty_strided' not implemented.");
+            // throw new python.Error("'torch.empty_strided' not implemented.");
         });
         this.registerFunction('torch.empty_strided', (/* size, stride, dtype, layout, device, pin_memory, requires_grad */) => {
             return null;
-            // TODO throw new python.Error("'torch.empty_strided' not implemented.");
+            // throw new python.Error("'torch.empty_strided' not implemented.");
         });
         this.registerFunction('torch.add', (left, right) => {
             if (typeof left === 'number' && typeof right === 'number') {
@@ -5030,7 +5027,7 @@ python.Execution = class {
                     return size.length;
                 }
             }
-            return NaN; // TODO
+            return NaN;
         });
         this.registerFunction('torch.numel', (tensor) => {
             if (tensor && tensor.size) {
@@ -5437,7 +5434,7 @@ python.Execution = class {
             throw new python.Error("Unsupported 'torch.pow' expression type.");
         });
         this.registerFunction('torch.q_scale', (/* tensor */) => {
-            return -1; // TODO
+            return -1;
         });
         this.registerFunction('torch.t', (tensor) => {
             return tensor;
@@ -5837,7 +5834,7 @@ python.Execution = class {
                 ]);
             }
             deserialize_graph_output(/* output */) {
-                /* TODO
+                /*
                 if (output.type === 'as_tensor') {
                     return self.serialized_name_to_node[output.as_tensor.name]
                 }
@@ -5923,7 +5920,6 @@ python.Execution = class {
                     fx_node = self.graph.create_node('call_function', target, args, kwargs, name);
                     this.deserialize_outputs(serialized_node, fx_node);
                 } else {
-                    // TODO
                     // throw new python.Error(`Unsupported target type '${target}'.`);
                 }
                 if (fx_node) {
@@ -6104,7 +6100,7 @@ python.Execution = class {
                 const sizes = tensor_meta.sizes.map((val) => this.deserialize_sym_int(val));
                 const strides = tensor_meta.strides.map((val) => this.deserialize_sym_int(val));
                 const device = this.deserialize_device(tensor_meta.device);
-                const dtype = null; // TODO _SERIALIZE_TO_TORCH_DTYPE[tensor_meta.dtype],
+                const dtype = null; // _SERIALIZE_TO_TORCH_DTYPE[tensor_meta.dtype],
                 return torch.empty_strided(sizes, strides, device, dtype);
             }
             deserialize_sym_int(s) {
@@ -6114,7 +6110,7 @@ python.Execution = class {
                         sym = this.symbol_name_to_symbol.get(s.as_expr.expr_str);
                     } else {
                         sym = {};
-                        /* TODO
+                        /*
                         sym = sympy.sympify(val.expr_str, locals=self.symbol_name_to_symbol)
                         if isinstance(sym, sympy.Symbol) {
                             self.symbol_name_to_symbol[val.expr_str] = sym

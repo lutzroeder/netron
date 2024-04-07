@@ -93,7 +93,7 @@ mlir.Graph = class {
                 outputs: [],
                 delete: false,
             };
-            // TODO: convert attributes to proper types
+            // convert attributes to proper types
             operation.attributes = op.attributes;
             // for (const [key, value] of Object.entries(op.attributes)) {
             //     operation.attributes[key] = convertValue(value);
@@ -890,17 +890,17 @@ mlir.Parser = class {
         // successor-list?
         // condition: start with `[`, end with `]`
         if (this._match(mlir.TokenType.LBRACKET)) {
-            skipSymbolBetween(mlir.TokenType.LBRACKET, mlir.TokenType.RBRACKET); // TODO
+            skipSymbolBetween(mlir.TokenType.LBRACKET, mlir.TokenType.RBRACKET);
         }
         // dictionary-properties?
         // condition: start with `<`, end with `>`
         if (this._match(mlir.TokenType.LESS_THAN)) {
-            skipSymbolBetween(mlir.TokenType.LESS_THAN, mlir.TokenType.GREATER_THAN); // TODO
+            skipSymbolBetween(mlir.TokenType.LESS_THAN, mlir.TokenType.GREATER_THAN);
         }
         // region-list?
         // condition: start with `({^`, or (operation, end with `)`
         if (this._match(mlir.TokenType.LPAREN) && this._current.type === mlir.TokenType.LBRACE) {
-            skipSymbolBetween(mlir.TokenType.LPAREN, mlir.TokenType.RPAREN); // TODO
+            skipSymbolBetween(mlir.TokenType.LPAREN, mlir.TokenType.RPAREN);
         }
         // dictionary-attribute?
         // condition: start with `{`, end with `}`

@@ -1162,9 +1162,9 @@ coreml.Context = class {
     }
 
     program(program, group) {
-        // TODO: need to handle functions other than main?
+        // need to handle functions other than main?
         const main = program.functions.main;
-        // TODO: need to handle more than one block specialization?
+        // need to handle more than one block specialization?
         const block_specializations = main.block_specializations;
         const key = Object.keys(block_specializations).filter((key) => key.startsWith('CoreML')).shift();
         const block = block_specializations[key];

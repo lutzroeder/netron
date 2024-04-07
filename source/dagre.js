@@ -384,7 +384,7 @@ dagre.layout = (graph, layout) => {
                         if (parent) {
                             label.parent = parent;
                         } else {
-                            // TODO should be able to remove this when we incrementally update low lim
+                            // should be able to remove this when we incrementally update low lim
                             delete label.parent;
                         }
                         return nextLim;

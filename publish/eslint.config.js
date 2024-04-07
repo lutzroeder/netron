@@ -187,7 +187,7 @@ export default [
             'no-useless-return': 'error',
             'no-var': 'error',
             'no-void': 'error',
-            // 'no-warning-comments': 'error',
+            'no-warning-comments': 'error',
             'no-with': 'error',
             'object-curly-spacing': ['error', 'always'],
             'object-shorthand': 'error',

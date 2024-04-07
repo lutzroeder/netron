@@ -756,7 +756,7 @@ cntk.ComputationNetwork = class {
                     if (version !== 19) {
                         this.runCountUntied = reader.uint64().toNumber();
                     } else {
-                        this.runCountUntied = reader.boolean() ? 0 : 'SIZE_MAX'; // TODO
+                        this.runCountUntied = reader.boolean() ? 0 : 'SIZE_MAX';
                     }
                 } else {
                     mbCount = reader.uint64().toNumber();
@@ -906,7 +906,7 @@ cntk.ComputationNetwork = class {
                     __type__: 'LearnableParameter',
                     name: `${nodeName}.run_sample_count`,
                     precision: node.precision,
-                    sampleLayout: shape([1]), // TODO set value = 0
+                    sampleLayout: shape([1]),
                     learningRateMultiplier: 0
                 };
                 nodes.push(runSampleCount);

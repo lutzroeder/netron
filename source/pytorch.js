@@ -1388,7 +1388,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerFunction('torch._C._jit_pass_inline', (graph) => {
             const tryToGraphFunction = (node) => {
                 if (node.kind() === 'prim::CallFunction') {
-                    // TODO
+                    //
                 }
                 if (node.kind() === 'prim::CallMethod') {
                     const name = null; // node.s(attr::name);
@@ -1401,7 +1401,6 @@ pytorch.Execution = class extends python.Execution {
                 return null;
             };
             const inlineCallTo = (/* to_replace, callee, use_graph */) => {
-                // TODO
             };
             const inlineCalls = (block) => {
                 for (const cur of block.nodes()) {
@@ -1480,19 +1479,14 @@ pytorch.Execution = class extends python.Execution {
                 return this._is_module;
             }
             addMethod(/* name, fn */) {
-                // TODO
             }
             addAttribute(/* name */) {
-                // TODO
             }
             hasAttribute(/* name */) {
-                // TODO
             }
             hasConstant(/* name */) {
-                // TODO
             }
             methods() {
-                // TODO
             }
         });
         this.registerType('torch.TupleType', class extends torch.Type {});
@@ -1555,7 +1549,7 @@ pytorch.Execution = class extends python.Execution {
                 throw new pytorch.Error();
             }
             __setattr__(name, value) {
-                // TODO if (this._type.hasContant(name))
+                // if (this._type.hasContant(name))
                 this[name] = value;
             }
             __getattr__(name) {
@@ -1754,7 +1748,7 @@ pytorch.Execution = class extends python.Execution {
                 } else if (this._c.hasattr(name)) {
                     this._c.setattr(name, value);
                 } else {
-                    // TODO
+                    //
                 }
             }
             __getattr__(name) {
@@ -1768,7 +1762,7 @@ pytorch.Execution = class extends python.Execution {
                     return this._c.getattr(name);
                 }
                 if (this._c._has_method(name)) {
-                    // TODO
+                    //
                 }
                 return super.__getattr__(name);
             }
@@ -2973,7 +2967,7 @@ pytorch.jit.SourceImporter = class {
     }
 
     loadType(/* name */) {
-        // TODO;
+        //
     }
 
     resolveType(name) {
@@ -2981,12 +2975,10 @@ pytorch.jit.SourceImporter = class {
     }
 
     findNamedType(name) {
-        // TODO
         this.parseSourceIfNeeded(name.prefix());
     }
 
     parseSourceIfNeeded(/* qualifier */) {
-        // TODO
     }
 };
 
@@ -3289,7 +3281,7 @@ pytorch.jit.FlatBuffersLoader = class {
                     this._cu.register_type(cls);
                 }
             } else {
-                // TODO cls = c10::parseType(qn_str)->cast<ClassType>();
+                // cls = c10::parseType(qn_str)->cast<ClassType>();
             }
             this._all_types[object.type_index] = cls;
             if (obj_type.type === pytorch.mobile.serialization.TypeType.CLASS_WITH_FIELD) {

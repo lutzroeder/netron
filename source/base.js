@@ -204,9 +204,9 @@ DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offse
     const remainder = offset % 8;
     let value = 0;
     if ((remainder + bits) <= 8) {
-        value = littleEndian ? this.getUint8(position) >> remainder /* TODO */ : this.getUint8(position) >> (8 - remainder - bits);
+        value = littleEndian ? this.getUint8(position) >> remainder : this.getUint8(position) >> (8 - remainder - bits);
     } else {
-        value = littleEndian ? this.getUint16(position, true) >> remainder /* TODO */ : this.getUint16(position, false) >> (16 - remainder - bits);
+        value = littleEndian ? this.getUint16(position, true) >> remainder : this.getUint16(position, false) >> (16 - remainder - bits);
     }
     value &= (1 << bits) - 1;
     if (value & (1 << (bits - 1))) {
@@ -221,9 +221,9 @@ DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offs
     const remainder = offset % 8;
     let value = 0;
     if ((remainder + bits) <= 8) {
-        value = littleEndian ? this.getUint8(position) >> remainder /* TODO */ : this.getUint8(position) >> (8 - remainder - bits);
+        value = littleEndian ? this.getUint8(position) >> remainder : this.getUint8(position) >> (8 - remainder - bits);
     } else {
-        value = littleEndian ? this.getUint16(position, true) >> remainder /* TODO */ : this.getUint16(position, false) >> (16 - remainder - bits);
+        value = littleEndian ? this.getUint16(position, true) >> remainder : this.getUint16(position, false) >> (16 - remainder - bits);
     }
     return value & ((1 << bits) - 1);
 };
