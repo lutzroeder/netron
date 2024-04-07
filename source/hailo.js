@@ -130,7 +130,8 @@ hailo.Node = class {
         this.name = layer.name || '';
         this.type = metadata.type(layer.type);
         if (layer.type === 'activation') {
-            this.type = Object.assign({}, this.type, { name: layer.params.activation || layer.name || '' });
+            const name = layer.params.activation || layer.name || '';
+            this.type = { ...this.type, name };
         }
         this.inputs = layer.input.map((name, index) => {
             const shape = layer.input_shapes ? layer.input_shapes[index] : null;

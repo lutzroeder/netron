@@ -716,7 +716,7 @@ const main = () => {
             response.type = 'complete';
             response.target = target.name;
             target.on('status', (_, message) => {
-                message = Object.assign({ type: 'status' }, message);
+                message = { type: 'status', ...message };
                 worker_threads.parentPort.postMessage(message);
             });
             await target.execute();

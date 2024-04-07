@@ -2080,7 +2080,7 @@ tf.Context = class {
                                 }
                             }
                         }
-                        node.metadata = Object.assign({}, schema);
+                        node.metadata = { ...schema };
                         node.metadata.name = node.op;
                     }
                 }

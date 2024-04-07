@@ -5556,7 +5556,7 @@ python.Execution = class {
             return execution.invoke('torch.fx.graph_module.GraphModule', []);
         });
         this.registerFunction('torch.fx.graph_module._forward_from_src', (src, globals /*, co_fields */) => {
-            globals = Object.assign({}, globals);
+            globals = { ...globals };
             const context = new python.Execution.Context(globals, null);
             execution.exec(src, context);
             const forward_fn = globals.forward;
@@ -7212,7 +7212,7 @@ python.Execution = class {
                     (target.__class__ === this._typing._TupleType ||
                      target.__class__ === this._typing._SpecialGenericAlias ||
                      target.__class__ === this._typing._SpecialForm)) {
-                    const type = Object.assign({}, target);
+                    const type = { ...target };
                     type.__args__ = expression.arguments.value.map((arg) => this.expression(arg, context));
                     return type;
                 }

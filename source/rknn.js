@@ -280,7 +280,8 @@ rknn.Node = class {
                     const model = rknn.schema.Model.create(reader);
                     this._type = new rknn.Graph(metadata, 'flatbuffers', 'NNBG', model.graphs[0], null);
                 } else {
-                    this._type = Object.assign({}, metadata.type(node.op) || { name: node.op });
+                    const type = metadata.type(node.op);
+                    this._type = type ? { ...type } : { name: node.op };
                     for (const prefix of ['VSI_NN_OP_', 'RKNN_OP_']) {
                         this._type.name = this._type.name.startsWith(prefix) ? this._type.name.substring(prefix.length) : this._type.name;
                     }

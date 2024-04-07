@@ -24,7 +24,7 @@ view.View = class {
             direction: 'vertical',
             mousewheel: 'scroll'
         };
-        this._options = Object.assign({}, this._defaultOptions);
+        this._options = { ...this._defaultOptions };
         this._model = null;
         this._stack = [];
         this._selection = [];

@@ -20,8 +20,8 @@ dagre.layout = (graph, layout) => {
     // attributes can influence layout.
     const buildLayoutGraph = (graph) => {
         const g = new dagre.Graph({ compound: true });
-        g.layout = Object.assign({}, { ranksep: 50, edgesep: 20, nodesep: 50, rankdir: 'tb' }, layout);
-        g.state = Object.assign({}, graph.state);
+        g.layout = { ranksep: 50, edgesep: 20, nodesep: 50, rankdir: 'tb', ...layout };
+        g.state = { ...graph.state };
         for (const node of graph.nodes.values()) {
             const v = node.v;
             const label = node.label;

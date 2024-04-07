@@ -159,7 +159,7 @@ host.ElectronHost = class {
         });
         electron.ipcRenderer.on('toggle', (sender, name) => {
             this._view.toggle(name);
-            this._update(Object.assign({}, this._view.options));
+            this._update({ ...this._view.options });
         });
         electron.ipcRenderer.on('zoom-in', () => {
             this._element('zoom-in-button').click();
@@ -438,14 +438,14 @@ host.ElectronHost = class {
             try {
                 const model = await this._view.open(context);
                 this._view.show(null);
-                const options = Object.assign({}, this._view.options);
+                const options = { ...this._view.options };
                 if (model) {
                     options.path = path;
                     this._title(location.label);
                 }
                 this._update(options);
             } catch (error) {
-                const options = Object.assign({}, this._view.options);
+                const options = { ...this._view.options };
                 if (error) {
                     await this._view.error(error, null, null);
                     options.path = null;

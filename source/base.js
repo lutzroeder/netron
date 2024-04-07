@@ -684,7 +684,7 @@ base.Telemetry = class {
     send(name, params) {
         if (this._session) {
             try {
-                params = Object.assign({ event_name: name }, this._metadata, /* { debug_mode: true },*/ params);
+                params = { event_name: name, ...this._metadata, ...params };
                 this._metadata = {};
                 if (this._update()) {
                     params.engagement_time_msec = this._engagement_time_msec;

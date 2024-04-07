@@ -284,7 +284,8 @@ coreml.Node = class {
         if (obj.group) {
             this.group = obj.group || null;
         }
-        this.type = Object.assign({}, context.metadata.type(obj.type) || { name: obj.type });
+        const type = context.metadata.type(obj.type);
+        this.type = type ? { ...type } : { name: obj.type };
         this.type.name = obj.type.split(':').pop();
         this.name = obj.name || '';
         this.description = obj.description || '';
@@ -553,7 +554,7 @@ coreml.Context = class {
 
     output(name) {
         if (this.values.has(name)) {
-            const value = Object.assign({}, this.values.get(name));
+            const value = { ...this.values.get(name) };
             value.counter++;
             value.name = `${name}|${value.counter}`; // custom argument id
             this.values.set(name, value);

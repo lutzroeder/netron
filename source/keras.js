@@ -791,7 +791,7 @@ keras.Graph = class {
                                             config.class_name = '__Function__';
                                             config.name = layer.name;
                                             config.config = {};
-                                            config.config.layers = [Object.assign({}, layer)];
+                                            config.config.layers = [{ ...layer }];
                                             delete config.config.layers[0].inbound_nodes;
                                             delete config.config.layers[0].input_layers;
                                             delete config.config.layers[0].output_layers;
@@ -1004,7 +1004,7 @@ keras.Node = class {
         if (layer._trainable_variables) {
             if (inputs.length === 0 && Array.isArray(this._type.inputs) && this._type.inputs.length > 0) {
                 // weights-only, remove 'input' from type metadata
-                this._type = Object.assign({}, this._type);
+                this._type = { ...this._type };
                 this._type.inputs = this._type.inputs.slice(1);
             }
             for (const variable of layer._trainable_variables) {

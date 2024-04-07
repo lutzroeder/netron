@@ -295,7 +295,8 @@ pytorch.Node = class {
             if (name instanceof pytorch.nnapi.Graph) {
                 return name;
             }
-            const type = Object.assign({}, metadata.type(name) || { name });
+            const value = metadata.type(name);
+            const type = value ? { ...value } : { name };
             type.identifier = type.name;
             type.name = type.name.indexOf('::') === -1 ? type.name : type.name.split('::').pop().split('.')[0];
             return type;
@@ -2792,7 +2793,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                         return false;
                     };
                     if (!containsVariableReference(statements.slice(2, statements.length - 1), statement.target.value)) {
-                        statements[0] = Object.assign({}, statement);
+                        statements[0] = { ...statement };
                         statements[0].target = tuple.target;
                         statements.splice(1, 1);
                     }

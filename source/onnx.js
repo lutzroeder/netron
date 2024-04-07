@@ -296,7 +296,7 @@ onnx.Node = class {
         const metadata_props = node.metadata_props || [];
         this.type = context.type(domain, op_type, overload);
         if (!this.type || (this.type.module !== domain && !(this.type instanceof onnx.Function))) {
-            this.type = Object.assign({}, this.type);
+            this.type = { ...this.type };
             this.type.name = op_type;
             this.type.module = domain;
             this.type.overload = overload;

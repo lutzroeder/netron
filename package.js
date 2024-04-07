@@ -221,7 +221,7 @@ const install = async () => {
     const node_modules = dirname('node_modules');
     let exists = await access(node_modules);
     if (exists) {
-        const dependencies = Object.assign({}, configuration.dependencies, configuration.devDependencies);
+        const dependencies = { ...configuration.dependencies, ...configuration.devDependencies };
         const matches = await Promise.all(Object.entries(dependencies).map(async ([name, version]) => {
             const file = path.join('node_modules', name, 'package.json');
             const exists = await access(file);

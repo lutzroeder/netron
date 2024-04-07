@@ -143,8 +143,9 @@ armnn.Graph = class {
 armnn.Node = class {
 
     constructor(metadata, layer, value) {
-        const type = layer.layer.constructor.name;
-        this.type = Object.assign({}, metadata.type(type) || { name: type });
+        const name = layer.layer.constructor.name;
+        const type = metadata.type(name);
+        this.type = type ? { ...type } : { name };
         this.type.name = this.type.name.replace(/Layer$/, '');
         this.name = '';
         this.outputs = [];

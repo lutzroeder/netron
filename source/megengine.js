@@ -297,6 +297,8 @@ megengine.Graph = class {
                         break;
                     }
                     case 'CallMethod': {
+                        const obj = { 'name': '' };
+                        let state = {};
                         if (expression.method === '__call__') {
                             const module = parseGetAttr(tmodule, expression.inputs[0].expr);
                             const getModuleType = (obj) => {
@@ -327,21 +329,19 @@ megengine.Graph = class {
                                 loadGraph(module, internalGraph, context, prefix, metadata, false);
                                 continue;
                             }
-                            const item = { 'name': '', 'type': moduleType };
-                            let state = module.__class__.__name__ === 'TracedModule' ? module : module.state;
+                            obj.type = moduleType;
+                            state = module.__class__.__name__ === 'TracedModule' ? module : module.state;
                             if (state === undefined) {
                                 state = module;
                             }
-                            const node = getOpNode(metadata, item, expression, state);
-                            this.nodes.push(node);
                         } else {
-                            const item = { 'name': '', 'type': expression.method };
+                            obj.type = expression.method;
                             const [args, kwargs] = expression.arg_def.children_defs;
                             const schema = metadata.type(expression.method);
-                            const state = parseArgs(args, kwargs, schema);
-                            const node = getOpNode(metadata, item, expression, state);
-                            this.nodes.push(node);
+                            state = parseArgs(args, kwargs, schema);
                         }
+                        const node = getOpNode(metadata, obj, expression, state);
+                        this.nodes.push(node);
                         break;
                     }
                     case 'CallFunction': {
@@ -484,37 +484,37 @@ megengine.Value = class {
 
 megengine.Node = class {
 
-    constructor(metadata, item, allOprAndTensor) {
+    constructor(metadata, obj, allOprAndTensor) {
         this.name = '';
-        this.type = Object.assign({}, metadata.type(item.type));
+        const type = metadata.type(obj.type);
+        this.type = type ? { ...type } : { name: obj.type };
         this.type.name = this.type.name.replace(/V(\d+)$/, '');
         if (this.type.name.length > 4 && this.type.name.startsWith('__') && this.type.name.endsWith('__')) {
             this.type.name = this.type.name.substring(2, this.type.name.length - 2);
         }
-        this.type.category = this.type.category ? this.type.category : metadata.type(item.type.replace(/V(\d+)$/, '')).category;
         this.inputs = [];
         this.outputs = [];
         this.chain = [];
         this.attributes = [];
-        if (item.inputs && item.outputs) {
+        if (obj.inputs && obj.outputs) {
             const inputSchemas = this.type && this.type.inputs ? [...this.type.inputs] : [];
-            for (let i = 0; i < item.inputs.length; i++) {
-                const inputOpr = allOprAndTensor.get(item.inputs[i]);
-                const inputSchema = inputSchemas.length > 0 ? inputSchemas.shift() : { name: (`input${i}`) };
+            for (let i = 0; i < obj.inputs.length; i++) {
+                const inputOpr = allOprAndTensor.get(obj.inputs[i]);
+                const inputSchema = inputSchemas.length > 0 ? inputSchemas.shift() : { name: `input${i === 0 ? '' : i.toString()}` };
                 const argument = new megengine.Argument(inputSchema.name, inputOpr.extraInfo.args);
                 this.inputs.push(argument);
             }
             const outputSchemas = this.type && this.type.outputs ? [...this.type.outputs] : [];
-            for (let i = 0; i < item.outputs.length; i++) {
-                const outputOpr = allOprAndTensor.get(item.outputs[i]);
-                const outputSchema = outputSchemas.length > 0 ? outputSchemas.shift() : { name: (`output${i}`) };
+            for (let i = 0; i < obj.outputs.length; i++) {
+                const outputOpr = allOprAndTensor.get(obj.outputs[i]);
+                const outputSchema = outputSchemas.length > 0 ? outputSchemas.shift() : { name: `output${i === 0 ? '' : i.toString()}` };
                 const argument = new megengine.Argument(outputSchema.name, outputOpr.extraInfo.args);
                 this.outputs.push(argument);
             }
-            if (item.param) {
-                for (const [name, value] of Object.entries(item.param)) {
+            if (obj.param) {
+                for (const [name, value] of Object.entries(obj.param)) {
                     if (value !== null) {
-                        const attribute = new megengine.Attribute(metadata.attribute(item.param.constructor.name, name), name, value);
+                        const attribute = new megengine.Attribute(metadata.attribute(obj.param.constructor.name, name), name, value);
                         this.attributes.push(attribute);
                     }
                 }
