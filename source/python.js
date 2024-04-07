@@ -1645,6 +1645,7 @@ python.Execution = class {
         const operator = this.register('operator');
         this.register('_codecs');
         this.register('argparse');
+        this._enum = this.register('enum');
         this.register('collections');
         this.register('copy_reg');
         this.register('cuml');
@@ -1776,6 +1777,7 @@ python.Execution = class {
         typing.Sequence = Reflect.construct(typing._SpecialGenericAlias, []);
         typing.Tuple = Reflect.construct(typing._TupleType, []);
         typing.Union = Reflect.construct(typing._SpecialForm, []);
+        this.registerType('enum.Enum', class {});
         this.registerFunction('operator.add', () => {
             throw new python.Error("'operator.add' not implemented.");
         });
@@ -1846,16 +1848,9 @@ python.Execution = class {
                 Object.assign(this, obj);
             }
         });
-        this.registerType('hmmlearn.hmm.MultinomialHMM', class {
-            __setstate__(state) {
-                Object.assign(this, state);
-            }
-        });
-        this.registerType('hmmlearn.base.ConvergenceMonitor', class {
-            __setstate__(state) {
-                Object.assign(this, state);
-            }
-        });
+        this.registerType('hmmlearn.hmm.GaussianHMM', class {});
+        this.registerType('hmmlearn.hmm.MultinomialHMM', class {});
+        this.registerType('hmmlearn.base.ConvergenceMonitor', class {});
         this.registerType('io.BytesIO', class {
             constructor(buf, mode) {
                 this.mode = mode || 'r';
@@ -3264,31 +3259,11 @@ python.Execution = class {
         this.registerType('theano.tensor.var.TensorConstant', class {});
         this.registerType('theano.tensor.var.TensorConstantSignature', class {});
         this.registerType('theano.tensor.var.TensorVariable', class {});
-        this.registerType('thinc.describe.Biases', class {
-            __setstate__(state) {
-                Object.assign(this, state);
-            }
-        });
-        this.registerType('thinc.describe.Dimension', class {
-            __setstate__(state) {
-                Object.assign(this, state);
-            }
-        });
-        this.registerType('thinc.describe.Gradient', class {
-            __setstate__(state) {
-                Object.assign(this, state);
-            }
-        });
-        this.registerType('thinc.describe.Weights', class {
-            __setstate__(state) {
-                Object.assign(this, state);
-            }
-        });
-        this.registerType('thinc.describe.Synapses', class {
-            __setstate__(state) {
-                Object.assign(this, state);
-            }
-        });
+        this.registerType('thinc.describe.Biases', class {});
+        this.registerType('thinc.describe.Dimension', class {});
+        this.registerType('thinc.describe.Gradient', class {});
+        this.registerType('thinc.describe.Weights', class {});
+        this.registerType('thinc.describe.Synapses', class {});
         this.registerType('thinc.neural._classes.affine.Affine', class {
             __setstate__(state) {
                 Object.assign(this, new pickle.Unpickler(state).load());
@@ -6603,6 +6578,9 @@ python.Execution = class {
         torch.per_channel_symmetric = new torch.qscheme('torch.per_channel_symmetric');
         torch.per_channel_affine_float_qparams = new torch.qscheme('torch.per_channel_affine_float_qparams');
         torch.inf = this.register('math').inf;
+        this.registerFunction('fastcore.basics._using_attr', () => {
+            throw new python.Error("'fastcore.basics._using_attr' not implemented.");
+        });
         this.registerType('fastcore.basics.fastuple', class {});
         this.registerType('fastcore.basics.GetAttr', class {});
         this.registerType('fastcore.dispatch._TypeDict', class {});
@@ -6611,13 +6589,15 @@ python.Execution = class {
         this.registerType('fastcore.transform.Pipeline', class {});
         this.registerType('fastcore.transform.Transform', class {});
         this.registerType('fastcore.transform.ItemTransform', class extends fastcore.transform.Transform {});
+        this.registerType('fastai.callback.core.Callback', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.callback.core.TrainEvalCallback', class {});
+        this.registerType('fastai.callback.fp16.AMPMode', class extends this._enum.Enum {});
         this.registerType('fastai.callback.hook._hook_inner', class {});
         this.registerType('fastai.callback.hook.Hook', class {});
         this.registerType('fastai.callback.hook.Hooks', class {});
         this.registerType('fastai.callback.progress.ProgressCallback', class {});
         this.registerType('fastai.callback.progress.ShowGraphCallback', class {});
-        this.registerType('fastai.callback.core.Callback', class extends fastcore.basics.GetAttr {});
+        this.registerType('fastai.callback.tracker.EarlyStoppingCallback', class {});
         this.registerType('fastai.data.core.DataLoaders', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.data.core.Datasets', class {});
         this.registerType('fastai.data.load.DataLoader', class extends fastcore.basics.GetAttr {});
@@ -6630,6 +6610,7 @@ python.Execution = class {
         this.registerType('fastai.data.transforms.Categorize', class {});
         this.registerType('fastai.data.transforms.Category', class {});
         this.registerType('fastai.data.transforms.CategoryMap', class {});
+        this.registerType('fastai.data.transforms.ColReader', class {});
         this.registerType('fastai.data.transforms.IntToFloatTensor', class {});
         this.registerType('fastai.data.transforms.Normalize', class {});
         this.registerType('fastai.data.transforms.parent_label', class {});
@@ -6646,6 +6627,7 @@ python.Execution = class {
         this.registerType('fastai.layers.ResBlock', class {});
         this.registerType('fastai.layers.SelfAttention', class {});
         this.registerType('fastai.layers.SigmoidRange', class {});
+        this.registerType('fastai.layers.TimeDistributed', class {});
         this.registerType('fastai.layers.ToTensorBase', class {});
         this.registerType('fastai.learner.Metric', class {});
         this.registerType('fastai.learner.AvgLoss', class extends fastai.learner.Metric {});
