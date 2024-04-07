@@ -297,7 +297,7 @@ pytorch.Node = class {
             }
             const type = Object.assign({}, metadata.type(name) || { name });
             type.identifier = type.name;
-            type.name = type.name.indexOf('::') !== -1 ? type.name.split('::').pop().split('.')[0] : type.name;
+            type.name = type.name.indexOf('::') === -1 ? type.name : type.name.split('::').pop().split('.')[0];
             return type;
         };
         const createAttribute = (metadata, name, value) => {
@@ -2182,7 +2182,9 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                             continue;
                         }
                         throw new pytorch.Error();
-                    } else if (arg.type !== '=') {
+                    } else if (arg.type === '=') {
+                        throw new pytorch.Error('Expected named argument.');
+                    } else {
                         copyArgs.shift();
                         copyEvalArgs.shift();
                         switch (parameter.type) {
@@ -2209,8 +2211,6 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                                 break;
                             }
                         }
-                    } else {
-                        throw new pytorch.Error('Expected named argument.');
                     }
                 }
             }
@@ -2539,7 +2539,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 }
             }
             if (overloads) {
-                overloads = !Array.isArray(overloads) ? [overloads] : overloads;
+                overloads = Array.isArray(overloads) ? overloads : [overloads];
                 const evalArgs = args.map((argument) => {
                     if (argument.type === '=' && argument.target && argument.target.type === 'id') {
                         argument = argument.expression;
@@ -2610,11 +2610,11 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                                     continue;
                                 }
                                 next = true;
-                            } else if (arg.type !== '=') {
+                            } else if (arg.type === '=') {
+                                throw new pytorch.Error('Expected named argument.');
+                            } else {
                                 copyArgs.shift();
                                 copyEvalArgs.shift();
-                            } else {
-                                throw new pytorch.Error('Expected named argument.');
                             }
                         }
                         if (next) {
@@ -3603,7 +3603,7 @@ pytorch.Utility = class {
             if (!Array.isArray(obj) && !(obj instanceof Map) && obj === Object(obj) && Object.keys(obj).length === 0) {
                 return new Map();
             }
-            const keys = !Array.isArray(obj) ? Object.keys(obj) : [];
+            const keys = Array.isArray(obj) ? [] : Object.keys(obj);
             if (keys.length > 1) {
                 keys.splice(0, keys.length);
             }
@@ -3979,7 +3979,7 @@ pytorch.nnapi.Graph = class {
                     case 'quant16_asymm':
                     case 'quant16_symm':
                         quantization = dataType;
-                        dataType = dataType.indexOf('16') !== -1 ? 'uint16' : 'uint8';
+                        dataType = dataType.indexOf('16') === -1 ? 'uint8' : 'uint16';
                         break;
                     default:
                         break;

@@ -462,19 +462,19 @@ flatbuffers.TextReader = class {
     }
 
     int64(obj, defaultValue) {
-        return obj !== undefined ? BigInt(obj) : defaultValue;
+        return obj === undefined ? defaultValue : BigInt(obj);
     }
 
     uint64(obj, defaultValue) {
-        return obj !== undefined ? BigInt(obj) : defaultValue;
+        return obj === undefined ? defaultValue : BigInt(obj);
     }
 
     value(obj, defaultValue) {
-        return obj !== undefined ? obj : defaultValue;
+        return obj === undefined ? defaultValue : obj;
     }
 
     object(obj, decode) {
-        return obj !== undefined ? decode(this, obj) : obj;
+        return obj === undefined ? obj : decode(this, obj);
     }
 
     array(obj) {

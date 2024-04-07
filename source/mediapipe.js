@@ -250,11 +250,11 @@ mediapipe.Object = class {
                         obj.push(parseFloat(data));
                     }
                 }
-            } else if (!isNaN(next)) {
-                obj = parseFloat(next);
+            } else if (isNaN(next)) {
+                obj = next;
                 reader.next();
             } else {
-                obj = next;
+                obj = parseFloat(next);
                 reader.next();
             }
             if (this[tag] && (!Array.isArray(this[tag]) || arrayTags.has(tag))) {

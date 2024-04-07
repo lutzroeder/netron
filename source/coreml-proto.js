@@ -12,7 +12,7 @@ CoreML.Specification.Pipeline = class Pipeline {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Pipeline();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -55,7 +55,7 @@ CoreML.Specification.PipelineClassifier = class PipelineClassifier {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PipelineClassifier();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -94,7 +94,7 @@ CoreML.Specification.PipelineRegressor = class PipelineRegressor {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PipelineRegressor();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -133,7 +133,7 @@ CoreML.Specification.FeatureDescription = class FeatureDescription {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FeatureDescription();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -190,7 +190,7 @@ CoreML.Specification.Metadata = class Metadata {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Metadata();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -262,7 +262,7 @@ CoreML.Specification.ModelDescription = class ModelDescription {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ModelDescription();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -333,7 +333,7 @@ CoreML.Specification.SerializedModel = class SerializedModel {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SerializedModel();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -384,7 +384,7 @@ CoreML.Specification.Model = class Model {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Model();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -666,7 +666,7 @@ CoreML.Specification.CoreMLModels.VisionFeaturePrint = class VisionFeaturePrint 
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.VisionFeaturePrint();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -709,7 +709,7 @@ CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene = class Scene {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -758,7 +758,7 @@ CoreML.Specification.CoreMLModels.VisionFeaturePrint.Objects = class Objects {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.VisionFeaturePrint.Objects();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -813,7 +813,7 @@ CoreML.Specification.CoreMLModels.AudioFeaturePrint = class AudioFeaturePrint {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.AudioFeaturePrint();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -850,7 +850,7 @@ CoreML.Specification.CoreMLModels.AudioFeaturePrint.Sound = class Sound {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.AudioFeaturePrint.Sound();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -899,7 +899,7 @@ CoreML.Specification.CoreMLModels.TextClassifier = class TextClassifier {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.TextClassifier();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -963,7 +963,7 @@ CoreML.Specification.CoreMLModels.WordTagger = class WordTagger {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.WordTagger();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1055,7 +1055,7 @@ CoreML.Specification.CoreMLModels.Gazetteer = class Gazetteer {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.Gazetteer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1114,7 +1114,7 @@ CoreML.Specification.CoreMLModels.WordEmbedding = class WordEmbedding {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.WordEmbedding();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1172,7 +1172,7 @@ CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing = class SoundAnalys
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1209,7 +1209,7 @@ CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.Vggish = class Vggi
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.Vggish();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1244,7 +1244,7 @@ CoreML.Specification.StringToInt64Map = class StringToInt64Map {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.StringToInt64Map();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1285,7 +1285,7 @@ CoreML.Specification.Int64ToStringMap = class Int64ToStringMap {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Int64ToStringMap();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1326,7 +1326,7 @@ CoreML.Specification.StringToDoubleMap = class StringToDoubleMap {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.StringToDoubleMap();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1367,7 +1367,7 @@ CoreML.Specification.Int64ToDoubleMap = class Int64ToDoubleMap {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Int64ToDoubleMap();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1408,7 +1408,7 @@ CoreML.Specification.StringVector = class StringVector {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.StringVector();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1449,7 +1449,7 @@ CoreML.Specification.Int64Vector = class Int64Vector {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Int64Vector();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1490,7 +1490,7 @@ CoreML.Specification.FloatVector = class FloatVector {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FloatVector();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1531,7 +1531,7 @@ CoreML.Specification.DoubleVector = class DoubleVector {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.DoubleVector();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1568,7 +1568,7 @@ CoreML.Specification.Int64Range = class Int64Range {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Int64Range();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1618,7 +1618,7 @@ CoreML.Specification.Int64Set = class Int64Set {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Int64Set();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1655,7 +1655,7 @@ CoreML.Specification.DoubleRange = class DoubleRange {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.DoubleRange();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1701,7 +1701,7 @@ CoreML.Specification.PrecisionRecallCurve = class PrecisionRecallCurve {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PrecisionRecallCurve();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1761,7 +1761,7 @@ CoreML.Specification.Int64FeatureType = class Int64FeatureType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Int64FeatureType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1792,7 +1792,7 @@ CoreML.Specification.DoubleFeatureType = class DoubleFeatureType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.DoubleFeatureType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1823,7 +1823,7 @@ CoreML.Specification.StringFeatureType = class StringFeatureType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.StringFeatureType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1854,7 +1854,7 @@ CoreML.Specification.SizeRange = class SizeRange {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SizeRange();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1905,7 +1905,7 @@ CoreML.Specification.ImageFeatureType = class ImageFeatureType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ImageFeatureType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1978,7 +1978,7 @@ CoreML.Specification.ImageFeatureType.ImageSize = class ImageSize {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ImageFeatureType.ImageSize();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2028,7 +2028,7 @@ CoreML.Specification.ImageFeatureType.EnumeratedImageSizes = class EnumeratedIma
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ImageFeatureType.EnumeratedImageSizes();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2065,7 +2065,7 @@ CoreML.Specification.ImageFeatureType.ImageSizeRange = class ImageSizeRange {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ImageFeatureType.ImageSizeRange();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2125,7 +2125,7 @@ CoreML.Specification.ArrayFeatureType = class ArrayFeatureType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ArrayFeatureType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2212,7 +2212,7 @@ CoreML.Specification.ArrayFeatureType.Shape = class Shape {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ArrayFeatureType.Shape();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2253,7 +2253,7 @@ CoreML.Specification.ArrayFeatureType.EnumeratedShapes = class EnumeratedShapes 
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ArrayFeatureType.EnumeratedShapes();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2294,7 +2294,7 @@ CoreML.Specification.ArrayFeatureType.ShapeRange = class ShapeRange {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ArrayFeatureType.ShapeRange();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2336,7 +2336,7 @@ CoreML.Specification.DictionaryFeatureType = class DictionaryFeatureType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.DictionaryFeatureType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2384,7 +2384,7 @@ CoreML.Specification.SequenceFeatureType = class SequenceFeatureType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SequenceFeatureType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2440,7 +2440,7 @@ CoreML.Specification.FeatureType = class FeatureType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FeatureType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2525,7 +2525,7 @@ CoreML.Specification.ArrayFeatureExtractor = class ArrayFeatureExtractor {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ArrayFeatureExtractor();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2566,7 +2566,7 @@ CoreML.Specification.BayesianProbitRegressor = class BayesianProbitRegressor {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BayesianProbitRegressor();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2674,7 +2674,7 @@ CoreML.Specification.BayesianProbitRegressor.Gaussian = class Gaussian {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BayesianProbitRegressor.Gaussian();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2720,7 +2720,7 @@ CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight = class FeatureV
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2770,7 +2770,7 @@ CoreML.Specification.BayesianProbitRegressor.FeatureWeight = class FeatureWeight
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BayesianProbitRegressor.FeatureWeight();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2825,7 +2825,7 @@ CoreML.Specification.CategoricalMapping = class CategoricalMapping {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CategoricalMapping();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2884,7 +2884,7 @@ CoreML.Specification.CustomModel = class CustomModel {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CustomModel();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2941,7 +2941,7 @@ CoreML.Specification.CustomModel.CustomModelParamValue = class CustomModelParamV
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CustomModel.CustomModelParamValue();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3013,7 +3013,7 @@ CoreML.Specification.DictVectorizer = class DictVectorizer {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.DictVectorizer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3060,7 +3060,7 @@ CoreML.Specification.FeatureVectorizer = class FeatureVectorizer {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FeatureVectorizer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3097,7 +3097,7 @@ CoreML.Specification.FeatureVectorizer.InputColumn = class InputColumn {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FeatureVectorizer.InputColumn();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3148,7 +3148,7 @@ CoreML.Specification.GLMRegressor = class GLMRegressor {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GLMRegressor();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3203,7 +3203,7 @@ CoreML.Specification.GLMRegressor.DoubleArray = class DoubleArray {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GLMRegressor.DoubleArray();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3256,7 +3256,7 @@ CoreML.Specification.GLMClassifier = class GLMClassifier {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GLMClassifier();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3330,7 +3330,7 @@ CoreML.Specification.GLMClassifier.DoubleArray = class DoubleArray {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GLMClassifier.DoubleArray();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3392,7 +3392,7 @@ CoreML.Specification.KNearestNeighborsClassifier = class KNearestNeighborsClassi
 
     static decode(reader, length) {
         const message = new CoreML.Specification.KNearestNeighborsClassifier();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3488,7 +3488,7 @@ CoreML.Specification.NearestNeighborsIndex = class NearestNeighborsIndex {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.NearestNeighborsIndex();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3551,7 +3551,7 @@ CoreML.Specification.UniformWeighting = class UniformWeighting {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.UniformWeighting();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3582,7 +3582,7 @@ CoreML.Specification.InverseDistanceWeighting = class InverseDistanceWeighting {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.InverseDistanceWeighting();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3613,7 +3613,7 @@ CoreML.Specification.LinearIndex = class LinearIndex {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LinearIndex();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3644,7 +3644,7 @@ CoreML.Specification.SingleKdTreeIndex = class SingleKdTreeIndex {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SingleKdTreeIndex();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3683,7 +3683,7 @@ CoreML.Specification.SquaredEuclideanDistance = class SquaredEuclideanDistance {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SquaredEuclideanDistance();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3719,7 +3719,7 @@ CoreML.Specification.Int64Parameter = class Int64Parameter {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Int64Parameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3775,7 +3775,7 @@ CoreML.Specification.DoubleParameter = class DoubleParameter {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.DoubleParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3820,7 +3820,7 @@ CoreML.Specification.StringParameter = class StringParameter {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.StringParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3859,7 +3859,7 @@ CoreML.Specification.BoolParameter = class BoolParameter {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BoolParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3898,7 +3898,7 @@ CoreML.Specification.Identity = class Identity {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Identity();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3939,7 +3939,7 @@ CoreML.Specification.Imputer = class Imputer {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Imputer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4037,7 +4037,7 @@ CoreML.Specification.MILSpec.Program = class Program {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Program();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4101,7 +4101,7 @@ CoreML.Specification.MILSpec.Function = class Function {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Function();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4165,7 +4165,7 @@ CoreML.Specification.MILSpec.Block = class Block {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Block();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4224,7 +4224,7 @@ CoreML.Specification.MILSpec.Argument = class Argument {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Argument();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4266,7 +4266,7 @@ CoreML.Specification.MILSpec.Argument.Binding = class Binding {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Argument.Binding();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4316,7 +4316,7 @@ CoreML.Specification.MILSpec.Operation = class Operation {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Operation();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4379,7 +4379,7 @@ CoreML.Specification.MILSpec.NamedValueType = class NamedValueType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.NamedValueType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4430,7 +4430,7 @@ CoreML.Specification.MILSpec.ValueType = class ValueType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.ValueType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4508,7 +4508,7 @@ CoreML.Specification.MILSpec.TensorType = class TensorType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.TensorType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4570,7 +4570,7 @@ CoreML.Specification.MILSpec.TupleType = class TupleType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.TupleType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4607,7 +4607,7 @@ CoreML.Specification.MILSpec.ListType = class ListType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.ListType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4653,7 +4653,7 @@ CoreML.Specification.MILSpec.DictionaryType = class DictionaryType {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.DictionaryType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4704,7 +4704,7 @@ CoreML.Specification.MILSpec.Dimension = class Dimension {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Dimension();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4747,7 +4747,7 @@ CoreML.Specification.MILSpec.Dimension.ConstantDimension = class ConstantDimensi
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Dimension.ConstantDimension();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4786,7 +4786,7 @@ CoreML.Specification.MILSpec.Dimension.UnknownDimension = class UnknownDimension
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Dimension.UnknownDimension();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4830,7 +4830,7 @@ CoreML.Specification.MILSpec.Value = class Value {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Value();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4893,7 +4893,7 @@ CoreML.Specification.MILSpec.Value.ImmediateValue = class ImmediateValue {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Value.ImmediateValue();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4948,7 +4948,7 @@ CoreML.Specification.MILSpec.Value.BlobFileValue = class BlobFileValue {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.Value.BlobFileValue();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4999,7 +4999,7 @@ CoreML.Specification.MILSpec.TensorValue = class TensorValue {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.TensorValue();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5076,7 +5076,7 @@ CoreML.Specification.MILSpec.TensorValue.RepeatedFloats = class RepeatedFloats {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.TensorValue.RepeatedFloats();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5117,7 +5117,7 @@ CoreML.Specification.MILSpec.TensorValue.RepeatedDoubles = class RepeatedDoubles
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.TensorValue.RepeatedDoubles();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5158,7 +5158,7 @@ CoreML.Specification.MILSpec.TensorValue.RepeatedInts = class RepeatedInts {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.TensorValue.RepeatedInts();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5199,7 +5199,7 @@ CoreML.Specification.MILSpec.TensorValue.RepeatedLongInts = class RepeatedLongIn
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.TensorValue.RepeatedLongInts();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5240,7 +5240,7 @@ CoreML.Specification.MILSpec.TensorValue.RepeatedBools = class RepeatedBools {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.TensorValue.RepeatedBools();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5281,7 +5281,7 @@ CoreML.Specification.MILSpec.TensorValue.RepeatedStrings = class RepeatedStrings
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.TensorValue.RepeatedStrings();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5318,7 +5318,7 @@ CoreML.Specification.MILSpec.TensorValue.RepeatedBytes = class RepeatedBytes {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.TensorValue.RepeatedBytes();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5361,7 +5361,7 @@ CoreML.Specification.MILSpec.TupleValue = class TupleValue {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.TupleValue();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5402,7 +5402,7 @@ CoreML.Specification.MILSpec.ListValue = class ListValue {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.ListValue();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5443,7 +5443,7 @@ CoreML.Specification.MILSpec.DictionaryValue = class DictionaryValue {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.DictionaryValue();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5480,7 +5480,7 @@ CoreML.Specification.MILSpec.DictionaryValue.KeyValuePair = class KeyValuePair {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MILSpec.DictionaryValue.KeyValuePair();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5541,7 +5541,7 @@ CoreML.Specification.NeuralNetwork = class NeuralNetwork {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.NeuralNetwork();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5606,7 +5606,7 @@ CoreML.Specification.NeuralNetworkImageScaler = class NeuralNetworkImageScaler {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.NeuralNetworkImageScaler();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5677,7 +5677,7 @@ CoreML.Specification.NeuralNetworkMeanImage = class NeuralNetworkMeanImage {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.NeuralNetworkMeanImage();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5719,7 +5719,7 @@ CoreML.Specification.NeuralNetworkPreprocessing = class NeuralNetworkPreprocessi
 
     static decode(reader, length) {
         const message = new CoreML.Specification.NeuralNetworkPreprocessing();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5770,7 +5770,7 @@ CoreML.Specification.ActivationReLU = class ActivationReLU {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationReLU();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5801,7 +5801,7 @@ CoreML.Specification.ActivationLeakyReLU = class ActivationLeakyReLU {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationLeakyReLU();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5840,7 +5840,7 @@ CoreML.Specification.ActivationTanh = class ActivationTanh {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationTanh();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5871,7 +5871,7 @@ CoreML.Specification.ActivationScaledTanh = class ActivationScaledTanh {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationScaledTanh();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5917,7 +5917,7 @@ CoreML.Specification.ActivationSigmoid = class ActivationSigmoid {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationSigmoid();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5948,7 +5948,7 @@ CoreML.Specification.ActivationLinear = class ActivationLinear {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationLinear();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5994,7 +5994,7 @@ CoreML.Specification.ActivationSigmoidHard = class ActivationSigmoidHard {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationSigmoidHard();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6040,7 +6040,7 @@ CoreML.Specification.ActivationPReLU = class ActivationPReLU {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationPReLU();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6079,7 +6079,7 @@ CoreML.Specification.ActivationELU = class ActivationELU {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationELU();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6118,7 +6118,7 @@ CoreML.Specification.ActivationThresholdedReLU = class ActivationThresholdedReLU
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationThresholdedReLU();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6157,7 +6157,7 @@ CoreML.Specification.ActivationSoftsign = class ActivationSoftsign {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationSoftsign();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6188,7 +6188,7 @@ CoreML.Specification.ActivationSoftplus = class ActivationSoftplus {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationSoftplus();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6219,7 +6219,7 @@ CoreML.Specification.ActivationParametricSoftplus = class ActivationParametricSo
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationParametricSoftplus();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6270,7 +6270,7 @@ CoreML.Specification.ActivationParams = class ActivationParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ActivationParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6383,7 +6383,7 @@ CoreML.Specification.Tensor = class Tensor {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Tensor();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6440,7 +6440,7 @@ CoreML.Specification.NeuralNetworkLayer = class NeuralNetworkLayer {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.NeuralNetworkLayer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7458,7 +7458,7 @@ CoreML.Specification.BranchLayerParams = class BranchLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BranchLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7504,7 +7504,7 @@ CoreML.Specification.LoopLayerParams = class LoopLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LoopLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7564,7 +7564,7 @@ CoreML.Specification.LoopBreakLayerParams = class LoopBreakLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LoopBreakLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7595,7 +7595,7 @@ CoreML.Specification.LoopContinueLayerParams = class LoopContinueLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LoopContinueLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7626,7 +7626,7 @@ CoreML.Specification.CopyLayerParams = class CopyLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CopyLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7657,7 +7657,7 @@ CoreML.Specification.GreaterThanLayerParams = class GreaterThanLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GreaterThanLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7696,7 +7696,7 @@ CoreML.Specification.GreaterEqualLayerParams = class GreaterEqualLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GreaterEqualLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7735,7 +7735,7 @@ CoreML.Specification.LessThanLayerParams = class LessThanLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LessThanLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7774,7 +7774,7 @@ CoreML.Specification.LessEqualLayerParams = class LessEqualLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LessEqualLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7813,7 +7813,7 @@ CoreML.Specification.EqualLayerParams = class EqualLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.EqualLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7852,7 +7852,7 @@ CoreML.Specification.NotEqualLayerParams = class NotEqualLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.NotEqualLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7891,7 +7891,7 @@ CoreML.Specification.LogicalAndLayerParams = class LogicalAndLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LogicalAndLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7922,7 +7922,7 @@ CoreML.Specification.LogicalOrLayerParams = class LogicalOrLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LogicalOrLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7953,7 +7953,7 @@ CoreML.Specification.LogicalXorLayerParams = class LogicalXorLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LogicalXorLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7984,7 +7984,7 @@ CoreML.Specification.LogicalNotLayerParams = class LogicalNotLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LogicalNotLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8019,7 +8019,7 @@ CoreML.Specification.BorderAmounts = class BorderAmounts {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BorderAmounts();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8056,7 +8056,7 @@ CoreML.Specification.BorderAmounts.EdgeSizes = class EdgeSizes {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BorderAmounts.EdgeSizes();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8102,7 +8102,7 @@ CoreML.Specification.ValidPadding = class ValidPadding {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ValidPadding();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8141,7 +8141,7 @@ CoreML.Specification.SamePadding = class SamePadding {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SamePadding();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8185,7 +8185,7 @@ CoreML.Specification.SamplingMode = class SamplingMode {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SamplingMode();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8231,7 +8231,7 @@ CoreML.Specification.BoxCoordinatesMode = class BoxCoordinatesMode {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BoxCoordinatesMode();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8281,7 +8281,7 @@ CoreML.Specification.WeightParams = class WeightParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.WeightParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8359,7 +8359,7 @@ CoreML.Specification.QuantizationParams = class QuantizationParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.QuantizationParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8415,7 +8415,7 @@ CoreML.Specification.LinearQuantizationParams = class LinearQuantizationParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LinearQuantizationParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8462,7 +8462,7 @@ CoreML.Specification.LookUpTableQuantizationParams = class LookUpTableQuantizati
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LookUpTableQuantizationParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8511,7 +8511,7 @@ CoreML.Specification.ConvolutionLayerParams = class ConvolutionLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ConvolutionLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8632,7 +8632,7 @@ CoreML.Specification.Convolution3DLayerParams = class Convolution3DLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Convolution3DLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8837,7 +8837,7 @@ CoreML.Specification.InnerProductLayerParams = class InnerProductLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.InnerProductLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8911,7 +8911,7 @@ CoreML.Specification.EmbeddingLayerParams = class EmbeddingLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.EmbeddingLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8978,7 +8978,7 @@ CoreML.Specification.EmbeddingNDLayerParams = class EmbeddingNDLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.EmbeddingNDLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9045,7 +9045,7 @@ CoreML.Specification.BatchnormLayerParams = class BatchnormLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BatchnormLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9143,7 +9143,7 @@ CoreML.Specification.PoolingLayerParams = class PoolingLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PoolingLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9236,7 +9236,7 @@ CoreML.Specification.PoolingLayerParams.ValidCompletePadding = class ValidComple
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PoolingLayerParams.ValidCompletePadding();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9273,7 +9273,7 @@ CoreML.Specification.Pooling3DLayerParams = class Pooling3DLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Pooling3DLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9421,7 +9421,7 @@ CoreML.Specification.GlobalPooling3DLayerParams = class GlobalPooling3DLayerPara
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GlobalPooling3DLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9470,7 +9470,7 @@ CoreML.Specification.PaddingLayerParams = class PaddingLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PaddingLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9527,7 +9527,7 @@ CoreML.Specification.PaddingLayerParams.PaddingConstant = class PaddingConstant 
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PaddingLayerParams.PaddingConstant();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9566,7 +9566,7 @@ CoreML.Specification.PaddingLayerParams.PaddingReflection = class PaddingReflect
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PaddingLayerParams.PaddingReflection();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9597,7 +9597,7 @@ CoreML.Specification.PaddingLayerParams.PaddingReplication = class PaddingReplic
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PaddingLayerParams.PaddingReplication();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9628,7 +9628,7 @@ CoreML.Specification.ConcatLayerParams = class ConcatLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ConcatLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9667,7 +9667,7 @@ CoreML.Specification.LRNLayerParams = class LRNLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LRNLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9727,7 +9727,7 @@ CoreML.Specification.SoftmaxLayerParams = class SoftmaxLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SoftmaxLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9758,7 +9758,7 @@ CoreML.Specification.SplitLayerParams = class SplitLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SplitLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9797,7 +9797,7 @@ CoreML.Specification.AddLayerParams = class AddLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AddLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9836,7 +9836,7 @@ CoreML.Specification.MultiplyLayerParams = class MultiplyLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MultiplyLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9875,7 +9875,7 @@ CoreML.Specification.UnaryFunctionLayerParams = class UnaryFunctionLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.UnaryFunctionLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9958,7 +9958,7 @@ CoreML.Specification.UpsampleLayerParams = class UpsampleLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.UpsampleLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10031,7 +10031,7 @@ CoreML.Specification.ResizeBilinearLayerParams = class ResizeBilinearLayerParams
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ResizeBilinearLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10080,7 +10080,7 @@ CoreML.Specification.CropResizeLayerParams = class CropResizeLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CropResizeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10150,7 +10150,7 @@ CoreML.Specification.BiasLayerParams = class BiasLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BiasLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10200,7 +10200,7 @@ CoreML.Specification.ScaleLayerParams = class ScaleLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ScaleLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10269,7 +10269,7 @@ CoreML.Specification.LoadConstantLayerParams = class LoadConstantLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LoadConstantLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10314,7 +10314,7 @@ CoreML.Specification.L2NormalizeLayerParams = class L2NormalizeLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.L2NormalizeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10353,7 +10353,7 @@ CoreML.Specification.FlattenLayerParams = class FlattenLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FlattenLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10401,7 +10401,7 @@ CoreML.Specification.ReshapeLayerParams = class ReshapeLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReshapeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10455,7 +10455,7 @@ CoreML.Specification.PermuteLayerParams = class PermuteLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PermuteLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10492,7 +10492,7 @@ CoreML.Specification.ReorganizeDataLayerParams = class ReorganizeDataLayerParams
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReorganizeDataLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10544,7 +10544,7 @@ CoreML.Specification.SliceLayerParams = class SliceLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SliceLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10610,7 +10610,7 @@ CoreML.Specification.ReduceLayerParams = class ReduceLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReduceLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10688,7 +10688,7 @@ CoreML.Specification.CropLayerParams = class CropLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CropLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10733,7 +10733,7 @@ CoreML.Specification.AverageLayerParams = class AverageLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AverageLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10764,7 +10764,7 @@ CoreML.Specification.MaxLayerParams = class MaxLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MaxLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10795,7 +10795,7 @@ CoreML.Specification.MinLayerParams = class MinLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MinLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10826,7 +10826,7 @@ CoreML.Specification.DotProductLayerParams = class DotProductLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.DotProductLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10865,7 +10865,7 @@ CoreML.Specification.MeanVarianceNormalizeLayerParams = class MeanVarianceNormal
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MeanVarianceNormalizeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10918,7 +10918,7 @@ CoreML.Specification.SequenceRepeatLayerParams = class SequenceRepeatLayerParams
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SequenceRepeatLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10957,7 +10957,7 @@ CoreML.Specification.SimpleRecurrentLayerParams = class SimpleRecurrentLayerPara
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SimpleRecurrentLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11056,7 +11056,7 @@ CoreML.Specification.GRULayerParams = class GRULayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GRULayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11192,7 +11192,7 @@ CoreML.Specification.LSTMParams = class LSTMParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LSTMParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11266,7 +11266,7 @@ CoreML.Specification.LSTMWeightParams = class LSTMWeightParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LSTMWeightParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11407,7 +11407,7 @@ CoreML.Specification.UniDirectionalLSTMLayerParams = class UniDirectionalLSTMLay
 
     static decode(reader, length) {
         const message = new CoreML.Specification.UniDirectionalLSTMLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11486,7 +11486,7 @@ CoreML.Specification.BiDirectionalLSTMLayerParams = class BiDirectionalLSTMLayer
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BiDirectionalLSTMLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11562,7 +11562,7 @@ CoreML.Specification.CustomLayerParams = class CustomLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CustomLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11625,7 +11625,7 @@ CoreML.Specification.CustomLayerParams.CustomLayerParamValue = class CustomLayer
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CustomLayerParams.CustomLayerParamValue();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11690,7 +11690,7 @@ CoreML.Specification.TransposeLayerParams = class TransposeLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.TransposeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11727,7 +11727,7 @@ CoreML.Specification.BatchedMatMulLayerParams = class BatchedMatMulLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BatchedMatMulLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11815,7 +11815,7 @@ CoreML.Specification.ConcatNDLayerParams = class ConcatNDLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ConcatNDLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11861,7 +11861,7 @@ CoreML.Specification.SoftmaxNDLayerParams = class SoftmaxNDLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SoftmaxNDLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11904,7 +11904,7 @@ CoreML.Specification.ReverseLayerParams = class ReverseLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReverseLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11941,7 +11941,7 @@ CoreML.Specification.ReverseSeqLayerParams = class ReverseSeqLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReverseSeqLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11991,7 +11991,7 @@ CoreML.Specification.LoadConstantNDLayerParams = class LoadConstantNDLayerParams
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LoadConstantNDLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12036,7 +12036,7 @@ CoreML.Specification.FillLikeLayerParams = class FillLikeLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FillLikeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12079,7 +12079,7 @@ CoreML.Specification.FillStaticLayerParams = class FillStaticLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FillStaticLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12124,7 +12124,7 @@ CoreML.Specification.FillDynamicLayerParams = class FillDynamicLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FillDynamicLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12163,7 +12163,7 @@ CoreML.Specification.WhereBroadcastableLayerParams = class WhereBroadcastableLay
 
     static decode(reader, length) {
         const message = new CoreML.Specification.WhereBroadcastableLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12194,7 +12194,7 @@ CoreML.Specification.SinLayerParams = class SinLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SinLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12225,7 +12225,7 @@ CoreML.Specification.CosLayerParams = class CosLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CosLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12256,7 +12256,7 @@ CoreML.Specification.TanLayerParams = class TanLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.TanLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12287,7 +12287,7 @@ CoreML.Specification.AsinLayerParams = class AsinLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AsinLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12318,7 +12318,7 @@ CoreML.Specification.AcosLayerParams = class AcosLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AcosLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12349,7 +12349,7 @@ CoreML.Specification.AtanLayerParams = class AtanLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AtanLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12380,7 +12380,7 @@ CoreML.Specification.SinhLayerParams = class SinhLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SinhLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12411,7 +12411,7 @@ CoreML.Specification.CoshLayerParams = class CoshLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CoshLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12442,7 +12442,7 @@ CoreML.Specification.TanhLayerParams = class TanhLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.TanhLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12473,7 +12473,7 @@ CoreML.Specification.AsinhLayerParams = class AsinhLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AsinhLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12504,7 +12504,7 @@ CoreML.Specification.AcoshLayerParams = class AcoshLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AcoshLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12535,7 +12535,7 @@ CoreML.Specification.AtanhLayerParams = class AtanhLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AtanhLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12566,7 +12566,7 @@ CoreML.Specification.PowBroadcastableLayerParams = class PowBroadcastableLayerPa
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PowBroadcastableLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12597,7 +12597,7 @@ CoreML.Specification.Exp2LayerParams = class Exp2LayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Exp2LayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12628,7 +12628,7 @@ CoreML.Specification.WhereNonZeroLayerParams = class WhereNonZeroLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.WhereNonZeroLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12659,7 +12659,7 @@ CoreML.Specification.MatrixBandPartLayerParams = class MatrixBandPartLayerParams
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MatrixBandPartLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12705,7 +12705,7 @@ CoreML.Specification.UpperTriangularLayerParams = class UpperTriangularLayerPara
 
     static decode(reader, length) {
         const message = new CoreML.Specification.UpperTriangularLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12744,7 +12744,7 @@ CoreML.Specification.LowerTriangularLayerParams = class LowerTriangularLayerPara
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LowerTriangularLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12783,7 +12783,7 @@ CoreML.Specification.BroadcastToLikeLayerParams = class BroadcastToLikeLayerPara
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BroadcastToLikeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12818,7 +12818,7 @@ CoreML.Specification.BroadcastToStaticLayerParams = class BroadcastToStaticLayer
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BroadcastToStaticLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12855,7 +12855,7 @@ CoreML.Specification.BroadcastToDynamicLayerParams = class BroadcastToDynamicLay
 
     static decode(reader, length) {
         const message = new CoreML.Specification.BroadcastToDynamicLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12886,7 +12886,7 @@ CoreML.Specification.AddBroadcastableLayerParams = class AddBroadcastableLayerPa
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AddBroadcastableLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12917,7 +12917,7 @@ CoreML.Specification.MaxBroadcastableLayerParams = class MaxBroadcastableLayerPa
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MaxBroadcastableLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12948,7 +12948,7 @@ CoreML.Specification.MinBroadcastableLayerParams = class MinBroadcastableLayerPa
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MinBroadcastableLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12979,7 +12979,7 @@ CoreML.Specification.ModBroadcastableLayerParams = class ModBroadcastableLayerPa
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ModBroadcastableLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13010,7 +13010,7 @@ CoreML.Specification.FloorDivBroadcastableLayerParams = class FloorDivBroadcasta
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FloorDivBroadcastableLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13041,7 +13041,7 @@ CoreML.Specification.SubtractBroadcastableLayerParams = class SubtractBroadcasta
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SubtractBroadcastableLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13072,7 +13072,7 @@ CoreML.Specification.MultiplyBroadcastableLayerParams = class MultiplyBroadcasta
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MultiplyBroadcastableLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13103,7 +13103,7 @@ CoreML.Specification.DivideBroadcastableLayerParams = class DivideBroadcastableL
 
     static decode(reader, length) {
         const message = new CoreML.Specification.DivideBroadcastableLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13134,7 +13134,7 @@ CoreML.Specification.GatherLayerParams = class GatherLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GatherLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13183,7 +13183,7 @@ CoreML.Specification.ScatterLayerParams = class ScatterLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ScatterLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13229,7 +13229,7 @@ CoreML.Specification.GatherNDLayerParams = class GatherNDLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GatherNDLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13260,7 +13260,7 @@ CoreML.Specification.ScatterNDLayerParams = class ScatterNDLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ScatterNDLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13299,7 +13299,7 @@ CoreML.Specification.GatherAlongAxisLayerParams = class GatherAlongAxisLayerPara
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GatherAlongAxisLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13338,7 +13338,7 @@ CoreML.Specification.ScatterAlongAxisLayerParams = class ScatterAlongAxisLayerPa
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ScatterAlongAxisLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13384,7 +13384,7 @@ CoreML.Specification.StackLayerParams = class StackLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.StackLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13427,7 +13427,7 @@ CoreML.Specification.RankPreservingReshapeLayerParams = class RankPreservingResh
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RankPreservingReshapeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13468,7 +13468,7 @@ CoreML.Specification.ConstantPaddingLayerParams = class ConstantPaddingLayerPara
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ConstantPaddingLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13520,7 +13520,7 @@ CoreML.Specification.RandomNormalLikeLayerParams = class RandomNormalLikeLayerPa
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomNormalLikeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13577,7 +13577,7 @@ CoreML.Specification.RandomNormalStaticLayerParams = class RandomNormalStaticLay
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomNormalStaticLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13636,7 +13636,7 @@ CoreML.Specification.RandomNormalDynamicLayerParams = class RandomNormalDynamicL
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomNormalDynamicLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13689,7 +13689,7 @@ CoreML.Specification.RandomUniformLikeLayerParams = class RandomUniformLikeLayer
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomUniformLikeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13746,7 +13746,7 @@ CoreML.Specification.RandomUniformStaticLayerParams = class RandomUniformStaticL
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomUniformStaticLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13805,7 +13805,7 @@ CoreML.Specification.RandomUniformDynamicLayerParams = class RandomUniformDynami
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomUniformDynamicLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13858,7 +13858,7 @@ CoreML.Specification.RandomBernoulliLikeLayerParams = class RandomBernoulliLikeL
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomBernoulliLikeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13908,7 +13908,7 @@ CoreML.Specification.RandomBernoulliStaticLayerParams = class RandomBernoulliSta
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomBernoulliStaticLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -13960,7 +13960,7 @@ CoreML.Specification.RandomBernoulliDynamicLayerParams = class RandomBernoulliDy
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RandomBernoulliDynamicLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14006,7 +14006,7 @@ CoreML.Specification.CategoricalDistributionLayerParams = class CategoricalDistr
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CategoricalDistributionLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14077,7 +14077,7 @@ CoreML.Specification.ReduceL1LayerParams = class ReduceL1LayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReduceL1LayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14133,7 +14133,7 @@ CoreML.Specification.ReduceL2LayerParams = class ReduceL2LayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReduceL2LayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14189,7 +14189,7 @@ CoreML.Specification.ReduceMaxLayerParams = class ReduceMaxLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReduceMaxLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14245,7 +14245,7 @@ CoreML.Specification.ReduceMinLayerParams = class ReduceMinLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReduceMinLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14301,7 +14301,7 @@ CoreML.Specification.ReduceSumLayerParams = class ReduceSumLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReduceSumLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14357,7 +14357,7 @@ CoreML.Specification.ReduceProdLayerParams = class ReduceProdLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReduceProdLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14413,7 +14413,7 @@ CoreML.Specification.ReduceMeanLayerParams = class ReduceMeanLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReduceMeanLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14469,7 +14469,7 @@ CoreML.Specification.ReduceLogSumLayerParams = class ReduceLogSumLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReduceLogSumLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14525,7 +14525,7 @@ CoreML.Specification.ReduceSumSquareLayerParams = class ReduceSumSquareLayerPara
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReduceSumSquareLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14581,7 +14581,7 @@ CoreML.Specification.ReduceLogSumExpLayerParams = class ReduceLogSumExpLayerPara
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReduceLogSumExpLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14637,7 +14637,7 @@ CoreML.Specification.ExpandDimsLayerParams = class ExpandDimsLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ExpandDimsLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14674,7 +14674,7 @@ CoreML.Specification.FlattenTo2DLayerParams = class FlattenTo2DLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FlattenTo2DLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14717,7 +14717,7 @@ CoreML.Specification.ReshapeStaticLayerParams = class ReshapeStaticLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReshapeStaticLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14754,7 +14754,7 @@ CoreML.Specification.ReshapeLikeLayerParams = class ReshapeLikeLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReshapeLikeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14785,7 +14785,7 @@ CoreML.Specification.ReshapeDynamicLayerParams = class ReshapeDynamicLayerParams
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ReshapeDynamicLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14820,7 +14820,7 @@ CoreML.Specification.SqueezeLayerParams = class SqueezeLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SqueezeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14865,7 +14865,7 @@ CoreML.Specification.TopKLayerParams = class TopKLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.TopKLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14918,7 +14918,7 @@ CoreML.Specification.ArgMaxLayerParams = class ArgMaxLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ArgMaxLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -14964,7 +14964,7 @@ CoreML.Specification.ArgMinLayerParams = class ArgMinLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ArgMinLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15014,7 +15014,7 @@ CoreML.Specification.SplitNDLayerParams = class SplitNDLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SplitNDLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15066,7 +15066,7 @@ CoreML.Specification.CeilLayerParams = class CeilLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CeilLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15097,7 +15097,7 @@ CoreML.Specification.RoundLayerParams = class RoundLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RoundLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15128,7 +15128,7 @@ CoreML.Specification.FloorLayerParams = class FloorLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.FloorLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15159,7 +15159,7 @@ CoreML.Specification.SignLayerParams = class SignLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SignLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15190,7 +15190,7 @@ CoreML.Specification.ClipLayerParams = class ClipLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ClipLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15245,7 +15245,7 @@ CoreML.Specification.SliceStaticLayerParams = class SliceStaticLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SliceStaticLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15320,7 +15320,7 @@ CoreML.Specification.SliceDynamicLayerParams = class SliceDynamicLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SliceDynamicLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15385,7 +15385,7 @@ CoreML.Specification.TileLayerParams = class TileLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.TileLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15422,7 +15422,7 @@ CoreML.Specification.GetShapeLayerParams = class GetShapeLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GetShapeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15453,7 +15453,7 @@ CoreML.Specification.ErfLayerParams = class ErfLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ErfLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15484,7 +15484,7 @@ CoreML.Specification.GeluLayerParams = class GeluLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.GeluLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15529,7 +15529,7 @@ CoreML.Specification.RangeStaticLayerParams = class RangeStaticLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RangeStaticLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15582,7 +15582,7 @@ CoreML.Specification.RangeDynamicLayerParams = class RangeDynamicLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RangeDynamicLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15628,7 +15628,7 @@ CoreML.Specification.SlidingWindowsLayerParams = class SlidingWindowsLayerParams
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SlidingWindowsLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15685,7 +15685,7 @@ CoreML.Specification.LayerNormalizationLayerParams = class LayerNormalizationLay
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LayerNormalizationLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15744,7 +15744,7 @@ CoreML.Specification.NonMaximumSuppressionLayerParams = class NonMaximumSuppress
 
     static decode(reader, length) {
         const message = new CoreML.Specification.NonMaximumSuppressionLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15804,7 +15804,7 @@ CoreML.Specification.ClampedReLULayerParams = class ClampedReLULayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ClampedReLULayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15850,7 +15850,7 @@ CoreML.Specification.ArgSortLayerParams = class ArgSortLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ArgSortLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15896,7 +15896,7 @@ CoreML.Specification.SliceBySizeLayerParams = class SliceBySizeLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SliceBySizeLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -15952,7 +15952,7 @@ CoreML.Specification.NeuralNetworkClassifier = class NeuralNetworkClassifier {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.NeuralNetworkClassifier();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16036,7 +16036,7 @@ CoreML.Specification.OneHotLayerParams = class OneHotLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.OneHotLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16096,7 +16096,7 @@ CoreML.Specification.CumSumLayerParams = class CumSumLayerParams {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CumSumLayerParams();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16154,7 +16154,7 @@ CoreML.Specification.NeuralNetworkRegressor = class NeuralNetworkRegressor {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.NeuralNetworkRegressor();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16223,7 +16223,7 @@ CoreML.Specification.NetworkUpdateParameters = class NetworkUpdateParameters {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.NetworkUpdateParameters();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16294,7 +16294,7 @@ CoreML.Specification.LossLayer = class LossLayer {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LossLayer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16345,7 +16345,7 @@ CoreML.Specification.CategoricalCrossEntropyLossLayer = class CategoricalCrossEn
 
     static decode(reader, length) {
         const message = new CoreML.Specification.CategoricalCrossEntropyLossLayer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16391,7 +16391,7 @@ CoreML.Specification.MeanSquaredErrorLossLayer = class MeanSquaredErrorLossLayer
 
     static decode(reader, length) {
         const message = new CoreML.Specification.MeanSquaredErrorLossLayer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16442,7 +16442,7 @@ CoreML.Specification.Optimizer = class Optimizer {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Optimizer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16485,7 +16485,7 @@ CoreML.Specification.SGDOptimizer = class SGDOptimizer {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SGDOptimizer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16538,7 +16538,7 @@ CoreML.Specification.AdamOptimizer = class AdamOptimizer {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.AdamOptimizer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16605,7 +16605,7 @@ CoreML.Specification.Normalizer = class Normalizer {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Normalizer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16655,7 +16655,7 @@ CoreML.Specification.OneHotEncoder = class OneHotEncoder {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.OneHotEncoder();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16723,7 +16723,7 @@ CoreML.Specification.Scaler = class Scaler {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Scaler();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16776,7 +16776,7 @@ CoreML.Specification.NonMaximumSuppression = class NonMaximumSuppression {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.NonMaximumSuppression();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16882,7 +16882,7 @@ CoreML.Specification.NonMaximumSuppression.PickTop = class PickTop {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.NonMaximumSuppression.PickTop();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16921,7 +16921,7 @@ CoreML.Specification.LinearKernel = class LinearKernel {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LinearKernel();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16952,7 +16952,7 @@ CoreML.Specification.RBFKernel = class RBFKernel {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.RBFKernel();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -16991,7 +16991,7 @@ CoreML.Specification.PolyKernel = class PolyKernel {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.PolyKernel();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17044,7 +17044,7 @@ CoreML.Specification.SigmoidKernel = class SigmoidKernel {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SigmoidKernel();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17095,7 +17095,7 @@ CoreML.Specification.Kernel = class Kernel {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Kernel();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17150,7 +17150,7 @@ CoreML.Specification.SparseNode = class SparseNode {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SparseNode();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17200,7 +17200,7 @@ CoreML.Specification.SparseVector = class SparseVector {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SparseVector();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17241,7 +17241,7 @@ CoreML.Specification.SparseSupportVectors = class SparseSupportVectors {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SparseSupportVectors();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17282,7 +17282,7 @@ CoreML.Specification.DenseVector = class DenseVector {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.DenseVector();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17323,7 +17323,7 @@ CoreML.Specification.DenseSupportVectors = class DenseSupportVectors {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.DenseSupportVectors();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17364,7 +17364,7 @@ CoreML.Specification.Coefficients = class Coefficients {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.Coefficients();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17406,7 +17406,7 @@ CoreML.Specification.SupportVectorRegressor = class SupportVectorRegressor {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SupportVectorRegressor();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17489,7 +17489,7 @@ CoreML.Specification.SupportVectorClassifier = class SupportVectorClassifier {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.SupportVectorClassifier();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17594,7 +17594,7 @@ CoreML.Specification.TreeEnsembleParameters = class TreeEnsembleParameters {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.TreeEnsembleParameters();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17649,7 +17649,7 @@ CoreML.Specification.TreeEnsembleParameters.TreeNode = class TreeNode {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.TreeEnsembleParameters.TreeNode();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17760,7 +17760,7 @@ CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo = class Eval
 
     static decode(reader, length) {
         const message = new CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17811,7 +17811,7 @@ CoreML.Specification.TreeEnsembleClassifier = class TreeEnsembleClassifier {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.TreeEnsembleClassifier();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17869,7 +17869,7 @@ CoreML.Specification.TreeEnsembleRegressor = class TreeEnsembleRegressor {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.TreeEnsembleRegressor();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -17919,7 +17919,7 @@ CoreML.Specification.ItemSimilarityRecommender = class ItemSimilarityRecommender
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ItemSimilarityRecommender();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -18013,7 +18013,7 @@ CoreML.Specification.ItemSimilarityRecommender.ConnectedItem = class ConnectedIt
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ItemSimilarityRecommender.ConnectedItem();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -18063,7 +18063,7 @@ CoreML.Specification.ItemSimilarityRecommender.SimilarItems = class SimilarItems
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ItemSimilarityRecommender.SimilarItems();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -18120,7 +18120,7 @@ CoreML.Specification.LinkedModel = class LinkedModel {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LinkedModel();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -18157,7 +18157,7 @@ CoreML.Specification.LinkedModelFile = class LinkedModelFile {
 
     static decode(reader, length) {
         const message = new CoreML.Specification.LinkedModelFile();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -18207,7 +18207,7 @@ CoreML.Specification.ClassConfidenceThresholding = class ClassConfidenceThreshol
 
     static decode(reader, length) {
         const message = new CoreML.Specification.ClassConfidenceThresholding();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {

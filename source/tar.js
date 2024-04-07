@@ -69,7 +69,7 @@ tar.Entry = class {
             this._name = reader.string(155) + this._name;
         }
         this._stream = stream.stream(size);
-        stream.read(((size % 512) !== 0) ? (512 - (size % 512)) : 0);
+        stream.read(((size % 512) === 0) ? 0 : (512 - (size % 512)));
     }
 
     get type() {
@@ -123,7 +123,7 @@ tar.BinaryReader = class {
             return this._buffer;
         }
         const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
+        this.skip(length === undefined ? this._length - this._position : length);
         const end = this._position;
         this.seek(position);
         return this._buffer.subarray(position, end);
@@ -135,7 +135,7 @@ tar.BinaryReader = class {
             return this._buffer;
         }
         const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
+        this.skip(length === undefined ? this._length - this._position : length);
         return this._buffer.subarray(position, this._position);
     }
 

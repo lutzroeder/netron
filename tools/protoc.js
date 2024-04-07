@@ -174,7 +174,10 @@ protoc.Root = class extends protoc.Namespace {
     async _loadFile(paths, file, weak) {
         if (!this._files.has(file)) {
             this._files.add(file);
-            if (!this._library.has(file)) {
+            if (this._library.has(file)) {
+                const callback = this._library.get(file);
+                callback();
+            } else {
                 try {
                     await this._parseFile(paths, file);
                 } catch (err) {
@@ -182,9 +185,6 @@ protoc.Root = class extends protoc.Namespace {
                         throw err;
                     }
                 }
-            } else {
-                const callback = this._library.get(file);
-                callback();
             }
         }
     }
@@ -274,7 +274,7 @@ protoc.Enum = class extends protoc.Type {
 
     constructor(parent, name) {
         super(parent, name);
-        this.valuesById = {};
+        this.valuesById = new Map();
         this.values = {};
         this.reserved = [];
     }
@@ -292,12 +292,12 @@ protoc.Enum = class extends protoc.Type {
         if (protoc.Namespace.isReservedName(this.reserved, name)) {
             throw new protoc.Error(`Name '${name}' is reserved in '${this.name}'.`);
         }
-        if (this.valuesById[id] !== undefined) {
+        if (this.valuesById.has(id)) {
             if (!this.options.has('allow_alias')) {
                 throw new protoc.Error(`Duplicate identifier '${id}' in '${this.name}'.`);
             }
         } else {
-            this.valuesById[id] = name;
+            this.valuesById.set(id, name);
         }
         this.values[name] = id;
     }
@@ -1270,7 +1270,7 @@ protoc.Generator = class {
         this._builder.add('static decode(reader, length) {');
         this._builder.indent();
             this._builder.add(`const message = new ${type.fullName}();`);
-            this._builder.add('const end = length !== undefined ? reader.position + length : reader.length;');
+            this._builder.add('const end = length === undefined ? reader.length : reader.position + length;');
             this._builder.add("while (reader.position < end) {");
             this._builder.indent();
                 this._builder.add("const tag = reader.uint32();");

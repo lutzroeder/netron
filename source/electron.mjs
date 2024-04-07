@@ -465,13 +465,7 @@ host.ElectronHost = class {
                 options.timeout = timeout;
             }
             const request = protocol.request(location, options, (response) => {
-                if (response.statusCode !== 200) {
-                    const err = new Error(`The web request failed with status code ${response.statusCode} at '${location}'.`);
-                    err.type = 'error';
-                    err.url = location;
-                    err.status = response.statusCode;
-                    reject(err);
-                } else {
+                if (response.statusCode === 200) {
                     let data = '';
                     response.on('data', (chunk) => {
                         data += chunk;
@@ -482,6 +476,12 @@ host.ElectronHost = class {
                     response.on('end', () => {
                         resolve(data);
                     });
+                } else {
+                    const err = new Error(`The web request failed with status code ${response.statusCode} at '${location}'.`);
+                    err.type = 'error';
+                    err.url = location;
+                    err.status = response.statusCode;
+                    reject(err);
                 }
             });
             request.on("error", (err) => {
@@ -531,7 +531,7 @@ host.ElectronHost = class {
                 const path = label.split(this._environment.separator || '/');
                 for (let i = 0; i < path.length; i++) {
                     const span = this.document.createElement('span');
-                    span.innerHTML = ` ${path[i]} ${i !== path.length - 1 ? '<svg class="titlebar-icon" aria-hidden="true"><use xlink:href="#icon-arrow-right"></use></svg>' : ''}`;
+                    span.innerHTML = ` ${path[i]} ${i === path.length - 1 ? '' : '<svg class="titlebar-icon" aria-hidden="true"><use xlink:href="#icon-arrow-right"></use></svg>'}`;
                     element.appendChild(span);
                 }
             }
@@ -627,7 +627,7 @@ host.ElectronHost.FileStream = class {
     }
 
     peek(length) {
-        length = length !== undefined ? length : this._length - this._position;
+        length = length === undefined ? this._length - this._position : length;
         if (length < 0x1000000) {
             const position = this._fill(length);
             this._position -= length;
@@ -642,7 +642,7 @@ host.ElectronHost.FileStream = class {
     }
 
     read(length) {
-        length = length !== undefined ? length : this._length - this._position;
+        length = length === undefined ? this._length - this._position : length;
         if (length < 0x10000000) {
             const position = this._fill(length);
             return this._buffer.slice(position, position + length);

@@ -369,7 +369,7 @@ zip.Inflater = class {
         const lengthMask = lengthTree.length - 1;
         const distanceMask = distanceTree.length - 1;
         const buffer = writer.buffer;
-        const threshold = writer.threshold !== undefined ? writer.threshold : writer.length;
+        const threshold = writer.threshold === undefined ? writer.length : writer.threshold;
         let position = writer.position;
         for (;;) {
             if (position > threshold) {
@@ -624,7 +624,7 @@ zip.InflaterStream = class {
 
     peek(length) {
         const position = this._position;
-        length = length !== undefined ? length : this.length - position;
+        length = length === undefined ? this.length - position : length;
         this.skip(length);
         const end = this._position;
         this.seek(position);
@@ -636,7 +636,7 @@ zip.InflaterStream = class {
 
     read(length) {
         const position = this._position;
-        length = length !== undefined ? length : this.length - position;
+        length = length === undefined ? this.length - position : length;
         this.skip(length);
         if (position === 0 && length === this.length) {
             return this._buffer;
@@ -741,7 +741,7 @@ zip.BinaryReader = class {
             return this._buffer;
         }
         const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
+        this.skip(length === undefined ? this._length - this._position : length);
         const end = this._position;
         this.seek(position);
         return this._buffer.subarray(position, end);
@@ -753,7 +753,7 @@ zip.BinaryReader = class {
             return this._buffer;
         }
         const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
+        this.skip(length === undefined ? this._length - this._position : length);
         return this._buffer.subarray(position, this._position);
     }
 
@@ -895,7 +895,7 @@ gzip.InflaterStream = class {
 
     peek(length) {
         const position = this._position;
-        length = length !== undefined ? length : this._length - this._position;
+        length = length === undefined ? this._length - this._position : length;
         this.skip(length);
         const end = this._position;
         this.seek(position);
@@ -907,7 +907,7 @@ gzip.InflaterStream = class {
 
     read(length) {
         const position = this._position;
-        length = length !== undefined ? length : this._length - this._position;
+        length = length === undefined ? this._length - this._position : length;
         this.skip(length);
         if (position === 0 && length === this._length) {
             return this._buffer;

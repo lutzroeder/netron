@@ -191,7 +191,7 @@ ncnn.Graph = class {
         }
         for (const layer of layers) {
             if (layer.type === 'Input' || layer.type === 16) {
-                const dimensions = Array.from(layer.attributes.values()).map((value) => !isNaN(parseInt(value, 10)) ? parseInt(value, 10) : value);
+                const dimensions = Array.from(layer.attributes.values()).map((value) => isNaN(parseInt(value, 10)) ? value : parseInt(value, 10));
                 const shape = new ncnn.TensorShape(dimensions);
                 const type = new ncnn.TensorType('float32', shape);
                 const input = new ncnn.Argument(layer.name, layer.outputs.map((output) => values.map(output, type)));
@@ -482,6 +482,7 @@ ncnn.Node = class {
                 const h = parseInt(attributes.get('1') || 0, 10);
                 const d = parseInt(attributes.get('11') || 0, 10);
                 const c = parseInt(attributes.get('2') || 0, 10);
+                /* eslint-disable no-negated-condition */
                 if (d !== 0) {
                     weight(blobReader, 'data', [c, d, h, w], 'float32');
                 } else if (c !== 0) {
@@ -493,6 +494,7 @@ ncnn.Node = class {
                 } else {
                     weight(blobReader, 'data', [1], 'float32');
                 }
+                /* eslint-enable no-negated-condition */
                 break;
             }
             case 'GroupNorm': {
@@ -755,7 +757,7 @@ ncnn.TextParamReader = class {
             lines.push(line.trim());
         }
         const signature = lines.shift();
-        const header = (signature !== '7767517' ? signature : lines.shift()).split(' ');
+        const header = (signature === '7767517' ? lines.shift() : signature).split(' ');
         if (header.length !== 2 || !header.every((value) => value >>> 0 === parseFloat(value))) {
             throw new ncnn.Error('Invalid header.');
         }

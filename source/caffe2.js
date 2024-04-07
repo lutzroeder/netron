@@ -411,8 +411,6 @@ caffe2.Attribute = class {
         } else if (arg.n) {
             this.value = new caffe2.Graph(metadata, arg.n, null);
             this.type = 'graph';
-        } else if (arg.i !== 0) {
-            this.value = arg.i;
         } else {
             this.value = arg.i;
         }

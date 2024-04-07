@@ -134,13 +134,13 @@ caffe.ModelFactory = class {
         while (!reader.end()) {
             const tag = reader.tag();
             const value = reader.read();
-            if (!message[tag]) {
-                message[tag] = value;
-            } else {
+            if (message[tag]) {
                 if (!Array.isArray(message[tag])) {
                     message[tag] = [message[tag]];
                 }
                 message[tag].push(value);
+            } else {
+                message[tag] = value;
             }
         }
         return message;

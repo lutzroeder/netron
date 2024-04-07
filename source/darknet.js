@@ -107,7 +107,7 @@ darknet.Graph = class {
         };
         const option_find_str = (options, key, defaultValue) => {
             const value = options[key];
-            return value !== undefined ? value : defaultValue;
+            return value === undefined ? defaultValue : value;
         };
         const make_shape = (dimensions, source) => {
             if (dimensions.some((dimension) => dimension === 0 || dimension === undefined || isNaN(dimension))) {
@@ -813,7 +813,7 @@ darknet.Node = class {
 
     constructor(metadata, net, section) {
         this._name = section.name || '';
-        this._location = section.line !== undefined ? section.line.toString() : undefined;
+        this._location = section.line === undefined ? undefined : section.line.toString();
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];

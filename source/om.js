@@ -591,11 +591,11 @@ svp.ModelDef = class ModelDef {
                                     break;
                                 }
                             }
-                            if (curr_op !== null) {
-                                curr_op.output_desc = curr_op.output_desc.concat(out_list);
-                            } else {
+                            if (curr_op === null) {
                                 op.output_desc = op.output_desc.concat(out_list);
                                 item.op.push(op);
+                            } else {
+                                curr_op.output_desc = curr_op.output_desc.concat(out_list);
                             }
                             break;
                         }

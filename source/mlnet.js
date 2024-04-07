@@ -1450,7 +1450,7 @@ mlnet.NormalizingTransformer = class extends mlnet.OneToOneTransformerBase {
                 case 10: itemType = 'float64'; break;
                 default: throw new mlnet.Error(`Unsupported NormalizingTransformer item kind '${itemKind}'.`);
             }
-            const type = itemType + (!isVector ? '' : `[${shape.map((dim) => dim.toString()).join(',')}]`);
+            const type = itemType + (isVector ? `[${shape.map((dim) => dim.toString()).join(',')}]` : '');
             const name = `Normalizer_${(`00${i}`).slice(-3)}`;
             const func = context.open(name);
             this.Options.push({ type, func });

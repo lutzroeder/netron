@@ -12,7 +12,7 @@ uff.MetaGraph = class MetaGraph {
 
     static decode(reader, length) {
         const message = new uff.MetaGraph();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -82,7 +82,7 @@ uff.MetaGraph.ReferencedDataEntry = class ReferencedDataEntry {
 
     static decode(reader, length) {
         const message = new uff.MetaGraph.ReferencedDataEntry();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -128,7 +128,7 @@ uff.MetaGraph.ExtraFieldsEntry = class ExtraFieldsEntry {
 
     static decode(reader, length) {
         const message = new uff.MetaGraph.ExtraFieldsEntry();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -174,7 +174,7 @@ uff.Descriptor = class Descriptor {
 
     static decode(reader, length) {
         const message = new uff.Descriptor();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -232,7 +232,7 @@ uff.Graph = class Graph {
 
     static decode(reader, length) {
         const message = new uff.Graph();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -283,7 +283,7 @@ uff.Graph.ExtraFieldsEntry = class ExtraFieldsEntry {
 
     static decode(reader, length) {
         const message = new uff.Graph.ExtraFieldsEntry();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -335,7 +335,7 @@ uff.Node = class Node {
 
     static decode(reader, length) {
         const message = new uff.Node();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -399,7 +399,7 @@ uff.Node.FieldsEntry = class FieldsEntry {
 
     static decode(reader, length) {
         const message = new uff.Node.FieldsEntry();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -445,7 +445,7 @@ uff.Node.ExtraFieldsEntry = class ExtraFieldsEntry {
 
     static decode(reader, length) {
         const message = new uff.Node.ExtraFieldsEntry();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -496,7 +496,7 @@ uff.Data = class Data {
 
     static decode(reader, length) {
         const message = new uff.Data();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -632,7 +632,7 @@ uff.DimensionOrders = class DimensionOrders {
 
     static decode(reader, length) {
         const message = new uff.DimensionOrders();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -669,7 +669,7 @@ uff.DimensionOrders.OrdersEntry = class OrdersEntry {
 
     static decode(reader, length) {
         const message = new uff.DimensionOrders.OrdersEntry();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -719,7 +719,7 @@ uff.ListString = class ListString {
 
     static decode(reader, length) {
         const message = new uff.ListString();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -760,7 +760,7 @@ uff.ListDouble = class ListDouble {
 
     static decode(reader, length) {
         const message = new uff.ListDouble();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -801,7 +801,7 @@ uff.ListBool = class ListBool {
 
     static decode(reader, length) {
         const message = new uff.ListBool();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -842,7 +842,7 @@ uff.ListInt64 = class ListInt64 {
 
     static decode(reader, length) {
         const message = new uff.ListInt64();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -883,7 +883,7 @@ uff.ListDataType = class ListDataType {
 
     static decode(reader, length) {
         const message = new uff.ListDataType();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -924,7 +924,7 @@ uff.ListDimensionOrders = class ListDimensionOrders {
 
     static decode(reader, length) {
         const message = new uff.ListDimensionOrders();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {

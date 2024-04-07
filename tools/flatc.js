@@ -208,16 +208,16 @@ flatc.Struct = class extends flatc.Type {
                         throw new flatc.Error(`Struct '${name}' may contain only scalar or struct fields.`);
                     }
                     const size = fieldType.size;
-                    field.offset = (offset % size) !== 0 ? (Math.floor(offset / size) + 1) * size : offset;
+                    field.offset = (offset % size) === 0 ? offset : (Math.floor(offset / size) + 1) * size;
                     offset = field.offset + (field.length * size);
                 } else if (fieldType instanceof flatc.PrimitiveType && field.type !== 'string') {
                     const size = fieldType.size;
-                    field.offset = (offset % size) !== 0 ? (Math.floor(offset / size) + 1) * size : offset;
+                    field.offset = (offset % size) === 0 ? offset : (Math.floor(offset / size) + 1) * size;
                     offset = field.offset + size;
                 } else if (field.type instanceof flatc.Struct) {
                     field.type.resolve();
                     const align = 8;
-                    field.offset = (offset % align) !== 0 ? (Math.floor(offset / align) + 1) * align : offset;
+                    field.offset = (offset % align) === 0 ? offset : (Math.floor(offset / align) + 1) * align;
                     offset += field.type.size;
                 } else {
                     throw new flatc.Error('Structs may contain only scalar or struct fields.');
@@ -971,7 +971,7 @@ flatc.Generator = class {
             }
 
             this._builder.add('');
-            this._builder.add(type.fields.size !== 0 ? 'static decode(reader, position) {' : 'static decode(/* reader, position */) {');
+            this._builder.add(type.fields.size === 0 ? 'static decode(/* reader, position */) {' : 'static decode(reader, position) {');
             this._builder.indent();
                 this._builder.add(`const $ = new ${typeReference}();`);
                 for (const field of type.fields.values()) {
@@ -1031,7 +1031,7 @@ flatc.Generator = class {
 
             if (this._text) {
                 this._builder.add('');
-                this._builder.add(type.fields.size !== 0 ? 'static decodeText(reader, json) {' : 'static decodeText(/* reader, json */) {');
+                this._builder.add(type.fields.size === 0 ? 'static decodeText(/* reader, json */) {' : 'static decodeText(reader, json) {');
                 this._builder.indent();
                     this._builder.add(`const $ = new ${typeReference}();`);
                     for (const field of type.fields.values()) {
@@ -1107,7 +1107,7 @@ flatc.Generator = class {
         this._builder.indent();
 
             this._builder.add('');
-            this._builder.add(type.fields.size !== 0 ? 'static decode(reader, position) {' : 'static decode(/* reader, position */) {');
+            this._builder.add(type.fields.size === 0 ? 'static decode(/* reader, position */) {' : 'static decode(reader, position) {');
             this._builder.indent();
                 this._builder.add(`const $ = new ${typeReference}();`);
                 for (const field of type.fields.values()) {
@@ -1133,7 +1133,7 @@ flatc.Generator = class {
 
             if (this._text) {
                 this._builder.add('');
-                this._builder.add(type.fields.size !== 0 ? 'static decodeText(reader, json) {' : 'static decodeText(/* reader, json */) {');
+                this._builder.add(type.fields.size === 0 ? 'static decodeText(/* reader, json */) {' : 'static decodeText(reader, json) {');
                 this._builder.indent();
                     this._builder.add(`const $ = new ${typeReference}();`);
                     for (const field of type.fields.values()) {
@@ -1168,7 +1168,7 @@ flatc.Generator = class {
 
         this._builder.indent();
             this._builder.add('');
-            this._builder.add(type.values.size !== 0 ? 'static decode(reader, position, type) {' : 'static decode(/* reader, position, type */) {');
+            this._builder.add(type.values.size === 0 ? 'static decode(/* reader, position, type */) {' : 'static decode(reader, position, type) {');
             this._builder.indent();
                 this._builder.add('switch (type) {');
                 this._builder.indent();
@@ -1184,7 +1184,7 @@ flatc.Generator = class {
 
             if (this._text) {
                 this._builder.add('');
-                this._builder.add(type.values.size !== 0 ? 'static decodeText(reader, json, type) {' : 'static decodeText(/* reader, json, type */) {');
+                this._builder.add(type.values.size === 0 ? 'static decodeText(/* reader, json, type */) {' : 'static decodeText(reader, json, type) {');
                 this._builder.indent();
                     this._builder.add('switch (type) {');
                     this._builder.indent();

@@ -302,7 +302,7 @@ base.BinaryStream = class {
             return this._buffer;
         }
         const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
+        this.skip(length === undefined ? this._length - this._position : length);
         const end = this._position;
         this.seek(position);
         return this._buffer.subarray(position, end);
@@ -314,7 +314,7 @@ base.BinaryStream = class {
             return this._buffer;
         }
         const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
+        this.skip(length === undefined ? this._length - this._position : length);
         return this._buffer.subarray(position, this._position);
     }
 };
@@ -373,7 +373,7 @@ base.BufferReader = class {
             return this._buffer;
         }
         const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
+        this.skip(length === undefined ? this._length - this._position : length);
         const end = this._position;
         this._position = position;
         return this._buffer.slice(position, end);
@@ -385,7 +385,7 @@ base.BufferReader = class {
             return this._buffer;
         }
         const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
+        this.skip(length === undefined ? this._length - this._position : length);
         return this._buffer.slice(position, this._position);
     }
 
@@ -459,7 +459,7 @@ base.BufferReader = class {
     }
 
     boolean() {
-        return this.byte() !== 0 ? true : false;
+        return this.byte() === 0 ? false : true;
     }
 };
 
@@ -566,7 +566,7 @@ base.StreamReader = class {
     }
 
     boolean() {
-        return this.byte() !== 0 ? true : false;
+        return this.byte() === 0 ? false : true;
     }
 };
 

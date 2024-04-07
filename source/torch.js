@@ -170,10 +170,10 @@ torch.Graph = class {
         const outputs = [];
         loadModule(metadata, root, [], '', inputs, outputs);
         this.inputs = this.inputs.concat(inputs.map((input, index) => {
-            return new torch.Argument(`input${index !== 0 ? (index + 1).toString() : ''}`, [input]);
+            return new torch.Argument(`input${index === 0 ? '' : (index + 1).toString()}`, [input]);
         }));
         this.outputs = this.outputs.concat(outputs.map((output, index) => {
-            return new torch.Argument(`output${index !== 0 ? (index + 1).toString() : ''}`, [output]);
+            return new torch.Argument(`output${index === 0 ? '' : (index + 1).toString()}`, [output]);
         }));
     }
 };

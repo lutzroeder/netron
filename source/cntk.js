@@ -753,10 +753,10 @@ cntk.ComputationNetwork = class {
                 this.blendTimeConstant = reader.float64();
                 this.imageLayoutKind = reader.int32();
                 if (version >= 13) {
-                    if (version !== 19) {
-                        this.runCountUntied = reader.uint64().toNumber();
-                    } else {
+                    if (version === 19) {
                         this.runCountUntied = reader.boolean() ? 0 : 'SIZE_MAX';
+                    } else {
+                        this.runCountUntied = reader.uint64().toNumber();
                     }
                 } else {
                     mbCount = reader.uint64().toNumber();

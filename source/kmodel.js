@@ -194,7 +194,7 @@ kmodel.Tensor = class {
 kmodel.Node = class {
 
     constructor(layer, value) {
-        this.location = layer.location !== undefined ? layer.location.toString() : layer.location;
+        this.location = layer.location === undefined ? layer.location : layer.location.toString();
         this.name = '';
         this.type = layer.type;
         this.inputs = [];

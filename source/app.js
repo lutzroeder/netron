@@ -777,7 +777,7 @@ app.View = class {
                     if (value) {
                         this._path = value;
                         const location = app.Application.location(this._path);
-                        const title = process.platform !== 'darwin' ? `${location.label} - ${electron.app.name}` : location.label;
+                        const title = process.platform === 'darwin' ? location.label : `${location.label} - ${electron.app.name}`;
                         this._window.setTitle(title);
                         this._window.focus();
                     }

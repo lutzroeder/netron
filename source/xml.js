@@ -210,15 +210,15 @@ xml.TextReader = class {
                             let element = null;
                             const documentType = document.documentType;
                             const elementType = documentType ? documentType.elements.getNamedItem(name) : null;
-                            if (namespaceURI !== null) {
+                            if (namespaceURI === null) {
+                                this._assert((pair[0] === null && !name.endsWith(':')) || name === ':' || elementType !== null);
+                                element = document.createElement(name);
+                            } else {
                                 this._assert(name === ':' || (!name.endsWith(':') && !name.startsWith(':')));
                                 if (prefix && namespaceURI === '') {
                                     this._error(`Invalid namespace prefix '${prefix}'`, this._start);
                                 }
                                 element = document.createElementNS(namespaceURI, name);
-                            } else {
-                                this._assert((pair[0] === null && !name.endsWith(':')) || name === ':' || elementType !== null);
-                                element = document.createElement(name);
                             }
                             const parent = this._node();
                             if (parent.nodeType === xml.NodeType.Document && parent.documentElement !== null) {
@@ -729,7 +729,7 @@ xml.TextReader = class {
     }
 
     _content() {
-        const c = this._char !== '&' ? this._char : this._resolveEntityReference();
+        const c = this._char === '&' ? this._resolveEntityReference() : this._char;
         if (c === undefined) {
             return '';
         }

@@ -289,7 +289,7 @@ acuity.Inference = class {
             const [input] = inputs;
             const [a, b] = input;
             let batch = a;
-            const output = params.num_proj !== null ? params.num_proj : params.weights;
+            const output = params.num_proj === null ? params.weights : params.num_proj;
             if (params.time_major) {
                 batch = b;
             }

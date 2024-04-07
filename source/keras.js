@@ -134,12 +134,12 @@ keras.ModelFactory = class {
                     return name.toLowerCase();
                 };
                 let name = pascal_to_snake_case(trackable.class_name);
-                if (!used_names.has(name)) {
-                    used_names.set(name, 0);
-                } else {
+                if (used_names.has(name)) {
                     const next = used_names.get(name) + 1;
                     used_names.set(name, next);
                     name = `${name}_${next}`;
+                } else {
+                    used_names.set(name, 0);
                 }
                 _load_state(trackable, weights_store, assets_store, `${inner_path}/${name}`);
             }
@@ -1095,7 +1095,7 @@ keras.Node = class {
                         break;
                 }
             }
-            const input = !list ? [inputs.shift()] : inputs.splice(0, inputs.length);
+            const input = list ? inputs.splice(0, inputs.length) : [inputs.shift()];
             const inputArguments = input.map((input) => {
                 if (input.name) {
                     return values.map(input.name, null, input.initializer);

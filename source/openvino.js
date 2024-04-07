@@ -141,14 +141,14 @@ openvino.ModelFactory = class {
                 layer.output = ports(element, 'output');
                 const data = child(element, 'data');
                 const blobs = child(element, 'blobs');
-                layer.data = !data ? {} : object(data);
-                layer.blobs = !blobs ? [] : blobs.getElementsByTagName('*').map((blob) => {
+                layer.data = data ? object(data) : {};
+                layer.blobs = blobs ? blobs.getElementsByTagName('*').map((blob) => {
                     const obj = object(blob);
                     obj.name = blob.localName;
                     obj.offset = parseInt(obj.offset, 10);
                     obj.size = parseInt(obj.size, 10);
                     return obj;
-                });
+                }) : [];
                 if (layer.type === 'TensorIterator') {
                     layer.back_edges = edges(element, 'back_edges');
                     const body = child(element, 'body');

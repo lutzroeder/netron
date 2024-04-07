@@ -9,7 +9,7 @@ nnabla.Shape = class Shape {
 
     static decode(reader, length) {
         const message = new nnabla.Shape();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -46,7 +46,7 @@ nnabla.Communicator = class Communicator {
 
     static decode(reader, length) {
         const message = new nnabla.Communicator();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -81,7 +81,7 @@ nnabla.Context = class Context {
 
     static decode(reader, length) {
         const message = new nnabla.Context();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -156,7 +156,7 @@ nnabla.NNablaProtoBuf = class NNablaProtoBuf {
 
     static decode(reader, length) {
         const message = new nnabla.NNablaProtoBuf();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -245,7 +245,7 @@ nnabla.GlobalConfig = class GlobalConfig {
 
     static decode(reader, length) {
         const message = new nnabla.GlobalConfig();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -284,7 +284,7 @@ nnabla.TrainingConfig = class TrainingConfig {
 
     static decode(reader, length) {
         const message = new nnabla.TrainingConfig();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -350,7 +350,7 @@ nnabla.Network = class Network {
 
     static decode(reader, length) {
         const message = new nnabla.Network();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -414,7 +414,7 @@ nnabla.RepeatInfo = class RepeatInfo {
 
     static decode(reader, length) {
         const message = new nnabla.RepeatInfo();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -460,7 +460,7 @@ nnabla.RepeatParameter = class RepeatParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RepeatParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -506,7 +506,7 @@ nnabla.RecurrentParameter = class RecurrentParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RecurrentParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -563,7 +563,7 @@ nnabla.Variable = class Variable {
 
     static decode(reader, length) {
         const message = new nnabla.Variable();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -629,7 +629,7 @@ nnabla.Initializer = class Initializer {
 
     static decode(reader, length) {
         const message = new nnabla.Initializer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -679,7 +679,7 @@ nnabla.Parameter = class Parameter {
 
     static decode(reader, length) {
         const message = new nnabla.Parameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -742,7 +742,7 @@ nnabla.Dataset = class Dataset {
 
     static decode(reader, length) {
         const message = new nnabla.Dataset();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -851,7 +851,7 @@ nnabla.Optimizer = class Optimizer {
 
     static decode(reader, length) {
         const message = new nnabla.Optimizer();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -966,7 +966,7 @@ nnabla.SolverStateParameter = class SolverStateParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SolverStateParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1015,7 +1015,7 @@ nnabla.SolverState = class SolverState {
 
     static decode(reader, length) {
         const message = new nnabla.SolverState();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1069,7 +1069,7 @@ nnabla.Solver = class Solver {
 
     static decode(reader, length) {
         const message = new nnabla.Solver();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1306,7 +1306,7 @@ nnabla.SgdParameter = class SgdParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SgdParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1345,7 +1345,7 @@ nnabla.SgdWParameter = class SgdWParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SgdWParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1398,7 +1398,7 @@ nnabla.MomentumParameter = class MomentumParameter {
 
     static decode(reader, length) {
         const message = new nnabla.MomentumParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1444,7 +1444,7 @@ nnabla.LarsParameter = class LarsParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LarsParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1504,7 +1504,7 @@ nnabla.NesterovParameter = class NesterovParameter {
 
     static decode(reader, length) {
         const message = new nnabla.NesterovParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1550,7 +1550,7 @@ nnabla.AdadeltaParameter = class AdadeltaParameter {
 
     static decode(reader, length) {
         const message = new nnabla.AdadeltaParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1603,7 +1603,7 @@ nnabla.AdagradParameter = class AdagradParameter {
 
     static decode(reader, length) {
         const message = new nnabla.AdagradParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1649,7 +1649,7 @@ nnabla.AdaBeliefParameter = class AdaBeliefParameter {
 
     static decode(reader, length) {
         const message = new nnabla.AdaBeliefParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1744,7 +1744,7 @@ nnabla.RMSpropParameter = class RMSpropParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RMSpropParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1797,7 +1797,7 @@ nnabla.RMSpropGravesParameter = class RMSpropGravesParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RMSpropGravesParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1857,7 +1857,7 @@ nnabla.AdamParameter = class AdamParameter {
 
     static decode(reader, length) {
         const message = new nnabla.AdamParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1917,7 +1917,7 @@ nnabla.AdamWParameter = class AdamWParameter {
 
     static decode(reader, length) {
         const message = new nnabla.AdamWParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1984,7 +1984,7 @@ nnabla.AdaBoundParameter = class AdaBoundParameter {
 
     static decode(reader, length) {
         const message = new nnabla.AdaBoundParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2058,7 +2058,7 @@ nnabla.AdamaxParameter = class AdamaxParameter {
 
     static decode(reader, length) {
         const message = new nnabla.AdamaxParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2118,7 +2118,7 @@ nnabla.AMSGRADParameter = class AMSGRADParameter {
 
     static decode(reader, length) {
         const message = new nnabla.AMSGRADParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2185,7 +2185,7 @@ nnabla.AMSBoundParameter = class AMSBoundParameter {
 
     static decode(reader, length) {
         const message = new nnabla.AMSBoundParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2266,7 +2266,7 @@ nnabla.LambParameter = class LambParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LambParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2347,7 +2347,7 @@ nnabla.LionParameter = class LionParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LionParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2400,7 +2400,7 @@ nnabla.PolynomialSchedulerParameter = class PolynomialSchedulerParameter {
 
     static decode(reader, length) {
         const message = new nnabla.PolynomialSchedulerParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2446,7 +2446,7 @@ nnabla.CosineSchedulerParameter = class CosineSchedulerParameter {
 
     static decode(reader, length) {
         const message = new nnabla.CosineSchedulerParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2485,7 +2485,7 @@ nnabla.ExponentialSchedulerParameter = class ExponentialSchedulerParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ExponentialSchedulerParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2535,7 +2535,7 @@ nnabla.StepSchedulerParameter = class StepSchedulerParameter {
 
     static decode(reader, length) {
         const message = new nnabla.StepSchedulerParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2585,7 +2585,7 @@ nnabla.CustomSchedulerParameter = class CustomSchedulerParameter {
 
     static decode(reader, length) {
         const message = new nnabla.CustomSchedulerParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2643,7 +2643,7 @@ nnabla.LinearWarmupSchedulerParameter = class LinearWarmupSchedulerParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LinearWarmupSchedulerParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2682,7 +2682,7 @@ nnabla.DataVariable = class DataVariable {
 
     static decode(reader, length) {
         const message = new nnabla.DataVariable();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2728,7 +2728,7 @@ nnabla.GeneratorVariable = class GeneratorVariable {
 
     static decode(reader, length) {
         const message = new nnabla.GeneratorVariable();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2781,7 +2781,7 @@ nnabla.LossVariable = class LossVariable {
 
     static decode(reader, length) {
         const message = new nnabla.LossVariable();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2820,7 +2820,7 @@ nnabla.ParameterVariable = class ParameterVariable {
 
     static decode(reader, length) {
         const message = new nnabla.ParameterVariable();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2873,7 +2873,7 @@ nnabla.Monitor = class Monitor {
 
     static decode(reader, length) {
         const message = new nnabla.Monitor();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -2943,7 +2943,7 @@ nnabla.MonitorVariable = class MonitorVariable {
 
     static decode(reader, length) {
         const message = new nnabla.MonitorVariable();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3011,7 +3011,7 @@ nnabla.Executor = class Executor {
 
     static decode(reader, length) {
         const message = new nnabla.Executor();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3115,7 +3115,7 @@ nnabla.OutputVariable = class OutputVariable {
 
     static decode(reader, length) {
         const message = new nnabla.OutputVariable();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -3179,7 +3179,7 @@ nnabla.Function = class Function {
 
     static decode(reader, length) {
         const message = new nnabla.Function();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4200,7 +4200,7 @@ nnabla.AffineParameter = class AffineParameter {
 
     static decode(reader, length) {
         const message = new nnabla.AffineParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4239,7 +4239,7 @@ nnabla.RNNParameter = class RNNParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RNNParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4306,7 +4306,7 @@ nnabla.LSTMParameter = class LSTMParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LSTMParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4366,7 +4366,7 @@ nnabla.GRUParameter = class GRUParameter {
 
     static decode(reader, length) {
         const message = new nnabla.GRUParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4426,7 +4426,7 @@ nnabla.ConvolutionParameter = class ConvolutionParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ConvolutionParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4504,7 +4504,7 @@ nnabla.FusedConvolutionParameter = class FusedConvolutionParameter {
 
     static decode(reader, length) {
         const message = new nnabla.FusedConvolutionParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4626,7 +4626,7 @@ nnabla.DepthwiseConvolutionParameter = class DepthwiseConvolutionParameter {
 
     static decode(reader, length) {
         const message = new nnabla.DepthwiseConvolutionParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4693,7 +4693,7 @@ nnabla.DeconvolutionParameter = class DeconvolutionParameter {
 
     static decode(reader, length) {
         const message = new nnabla.DeconvolutionParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4774,7 +4774,7 @@ nnabla.DepthwiseDeconvolutionParameter = class DepthwiseDeconvolutionParameter {
 
     static decode(reader, length) {
         const message = new nnabla.DepthwiseDeconvolutionParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4841,7 +4841,7 @@ nnabla.DeformableConvolutionParameter = class DeformableConvolutionParameter {
 
     static decode(reader, length) {
         const message = new nnabla.DeformableConvolutionParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4922,7 +4922,7 @@ nnabla.MaxPoolingParameter = class MaxPoolingParameter {
 
     static decode(reader, length) {
         const message = new nnabla.MaxPoolingParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -4989,7 +4989,7 @@ nnabla.AveragePoolingParameter = class AveragePoolingParameter {
 
     static decode(reader, length) {
         const message = new nnabla.AveragePoolingParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5063,7 +5063,7 @@ nnabla.SumPoolingParameter = class SumPoolingParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SumPoolingParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5130,7 +5130,7 @@ nnabla.UnpoolingParameter = class UnpoolingParameter {
 
     static decode(reader, length) {
         const message = new nnabla.UnpoolingParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5180,7 +5180,7 @@ nnabla.RoiAlignParameter = class RoiAlignParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RoiAlignParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5239,7 +5239,7 @@ nnabla.ReLUParameter = class ReLUParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ReLUParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5278,7 +5278,7 @@ nnabla.LeakyReLUParameter = class LeakyReLUParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LeakyReLUParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5324,7 +5324,7 @@ nnabla.SoftmaxParameter = class SoftmaxParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SoftmaxParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5363,7 +5363,7 @@ nnabla.LogSoftmaxParameter = class LogSoftmaxParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LogSoftmaxParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5402,7 +5402,7 @@ nnabla.ELUParameter = class ELUParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ELUParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5441,7 +5441,7 @@ nnabla.SELUParameter = class SELUParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SELUParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5487,7 +5487,7 @@ nnabla.CReLUParameter = class CReLUParameter {
 
     static decode(reader, length) {
         const message = new nnabla.CReLUParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5526,7 +5526,7 @@ nnabla.CELUParameter = class CELUParameter {
 
     static decode(reader, length) {
         const message = new nnabla.CELUParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5572,7 +5572,7 @@ nnabla.PReLUParameter = class PReLUParameter {
 
     static decode(reader, length) {
         const message = new nnabla.PReLUParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5611,7 +5611,7 @@ nnabla.SoftPlusParameter = class SoftPlusParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SoftPlusParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5654,7 +5654,7 @@ nnabla.FusedBatchNormalizationParameter = class FusedBatchNormalizationParameter
 
     static decode(reader, length) {
         const message = new nnabla.FusedBatchNormalizationParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5724,7 +5724,7 @@ nnabla.BatchNormalizationParameter = class BatchNormalizationParameter {
 
     static decode(reader, length) {
         const message = new nnabla.BatchNormalizationParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5801,7 +5801,7 @@ nnabla.GroupNormalizationParameter = class GroupNormalizationParameter {
 
     static decode(reader, length) {
         const message = new nnabla.GroupNormalizationParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5878,7 +5878,7 @@ nnabla.InstanceNormalizationParameter = class InstanceNormalizationParameter {
 
     static decode(reader, length) {
         const message = new nnabla.InstanceNormalizationParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -5948,7 +5948,7 @@ nnabla.LayerNormalizationParameter = class LayerNormalizationParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LayerNormalizationParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6011,7 +6011,7 @@ nnabla.NormNormalizationParameter = class NormNormalizationParameter {
 
     static decode(reader, length) {
         const message = new nnabla.NormNormalizationParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6067,7 +6067,7 @@ nnabla.SyncBatchNormalizationParameter = class SyncBatchNormalizationParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SyncBatchNormalizationParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6144,7 +6144,7 @@ nnabla.TensorNormalizationParameter = class TensorNormalizationParameter {
 
     static decode(reader, length) {
         const message = new nnabla.TensorNormalizationParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6203,7 +6203,7 @@ nnabla.WeightNormalizationParameter = class WeightNormalizationParameter {
 
     static decode(reader, length) {
         const message = new nnabla.WeightNormalizationParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6249,7 +6249,7 @@ nnabla.WeightStandardizationParameter = class WeightStandardizationParameter {
 
     static decode(reader, length) {
         const message = new nnabla.WeightStandardizationParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6295,7 +6295,7 @@ nnabla.SpectralNormParameter = class SpectralNormParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SpectralNormParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6362,7 +6362,7 @@ nnabla.MeanSubtractionParameter = class MeanSubtractionParameter {
 
     static decode(reader, length) {
         const message = new nnabla.MeanSubtractionParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6412,7 +6412,7 @@ nnabla.ClipGradByNormParameter = class ClipGradByNormParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ClipGradByNormParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6461,7 +6461,7 @@ nnabla.SumParameter = class SumParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SumParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6506,7 +6506,7 @@ nnabla.CumSumParameter = class CumSumParameter {
 
     static decode(reader, length) {
         const message = new nnabla.CumSumParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6563,7 +6563,7 @@ nnabla.MeanParameter = class MeanParameter {
 
     static decode(reader, length) {
         const message = new nnabla.MeanParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6612,7 +6612,7 @@ nnabla.MaxParameter = class MaxParameter {
 
     static decode(reader, length) {
         const message = new nnabla.MaxParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6675,7 +6675,7 @@ nnabla.MinParameter = class MinParameter {
 
     static decode(reader, length) {
         const message = new nnabla.MinParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6738,7 +6738,7 @@ nnabla.NormParameter = class NormParameter {
 
     static decode(reader, length) {
         const message = new nnabla.NormParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6794,7 +6794,7 @@ nnabla.ProdParameter = class ProdParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ProdParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6839,7 +6839,7 @@ nnabla.CumProdParameter = class CumProdParameter {
 
     static decode(reader, length) {
         const message = new nnabla.CumProdParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6892,7 +6892,7 @@ nnabla.Add2Parameter = class Add2Parameter {
 
     static decode(reader, length) {
         const message = new nnabla.Add2Parameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6931,7 +6931,7 @@ nnabla.BcAdd2Parameter = class BcAdd2Parameter {
 
     static decode(reader, length) {
         const message = new nnabla.BcAdd2Parameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -6970,7 +6970,7 @@ nnabla.Sub2Parameter = class Sub2Parameter {
 
     static decode(reader, length) {
         const message = new nnabla.Sub2Parameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7009,7 +7009,7 @@ nnabla.Mul2Parameter = class Mul2Parameter {
 
     static decode(reader, length) {
         const message = new nnabla.Mul2Parameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7048,7 +7048,7 @@ nnabla.Div2Parameter = class Div2Parameter {
 
     static decode(reader, length) {
         const message = new nnabla.Div2Parameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7087,7 +7087,7 @@ nnabla.Pow2Parameter = class Pow2Parameter {
 
     static decode(reader, length) {
         const message = new nnabla.Pow2Parameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7126,7 +7126,7 @@ nnabla.AddScalarParameter = class AddScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.AddScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7172,7 +7172,7 @@ nnabla.MulScalarParameter = class MulScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.MulScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7218,7 +7218,7 @@ nnabla.PowScalarParameter = class PowScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.PowScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7264,7 +7264,7 @@ nnabla.RSubScalarParameter = class RSubScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RSubScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7303,7 +7303,7 @@ nnabla.RDivScalarParameter = class RDivScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RDivScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7342,7 +7342,7 @@ nnabla.RPowScalarParameter = class RPowScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RPowScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7381,7 +7381,7 @@ nnabla.SignParameter = class SignParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SignParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7420,7 +7420,7 @@ nnabla.MinimumScalarParameter = class MinimumScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.MinimumScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7459,7 +7459,7 @@ nnabla.MaximumScalarParameter = class MaximumScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.MaximumScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7498,7 +7498,7 @@ nnabla.SearchSortedParameter = class SearchSortedParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SearchSortedParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7537,7 +7537,7 @@ nnabla.LogicalAndScalarParameter = class LogicalAndScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LogicalAndScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7576,7 +7576,7 @@ nnabla.LogicalOrScalarParameter = class LogicalOrScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LogicalOrScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7615,7 +7615,7 @@ nnabla.LogicalXorScalarParameter = class LogicalXorScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LogicalXorScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7654,7 +7654,7 @@ nnabla.EqualScalarParameter = class EqualScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.EqualScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7693,7 +7693,7 @@ nnabla.NotEqualScalarParameter = class NotEqualScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.NotEqualScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7732,7 +7732,7 @@ nnabla.GreaterEqualScalarParameter = class GreaterEqualScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.GreaterEqualScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7771,7 +7771,7 @@ nnabla.GreaterScalarParameter = class GreaterScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.GreaterScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7810,7 +7810,7 @@ nnabla.LessEqualScalarParameter = class LessEqualScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LessEqualScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7849,7 +7849,7 @@ nnabla.LessScalarParameter = class LessScalarParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LessScalarParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7888,7 +7888,7 @@ nnabla.ResetNaNParameter = class ResetNaNParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ResetNaNParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7927,7 +7927,7 @@ nnabla.ResetInfParameter = class ResetInfParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ResetInfParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -7966,7 +7966,7 @@ nnabla.ConstantParameter = class ConstantParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ConstantParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8012,7 +8012,7 @@ nnabla.ArangeParameter = class ArangeParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ArangeParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8065,7 +8065,7 @@ nnabla.LinspaceParameter = class LinspaceParameter {
 
     static decode(reader, length) {
         const message = new nnabla.LinspaceParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8118,7 +8118,7 @@ nnabla.BatchMatmulParameter = class BatchMatmulParameter {
 
     static decode(reader, length) {
         const message = new nnabla.BatchMatmulParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8164,7 +8164,7 @@ nnabla.RoundParameter = class RoundParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RoundParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8195,7 +8195,7 @@ nnabla.CeilParameter = class CeilParameter {
 
     static decode(reader, length) {
         const message = new nnabla.CeilParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8226,7 +8226,7 @@ nnabla.FloorParameter = class FloorParameter {
 
     static decode(reader, length) {
         const message = new nnabla.FloorParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8257,7 +8257,7 @@ nnabla.ConcatenateParameter = class ConcatenateParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ConcatenateParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8296,7 +8296,7 @@ nnabla.SplitParameter = class SplitParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SplitParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8335,7 +8335,7 @@ nnabla.StackParameter = class StackParameter {
 
     static decode(reader, length) {
         const message = new nnabla.StackParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8380,7 +8380,7 @@ nnabla.SliceParameter = class SliceParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SliceParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8433,7 +8433,7 @@ nnabla.PadParameter = class PadParameter {
 
     static decode(reader, length) {
         const message = new nnabla.PadParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8489,7 +8489,7 @@ nnabla.TransposeParameter = class TransposeParameter {
 
     static decode(reader, length) {
         const message = new nnabla.TransposeParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8526,7 +8526,7 @@ nnabla.BroadcastParameter = class BroadcastParameter {
 
     static decode(reader, length) {
         const message = new nnabla.BroadcastParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8565,7 +8565,7 @@ nnabla.BroadcastToParameter = class BroadcastToParameter {
 
     static decode(reader, length) {
         const message = new nnabla.BroadcastToParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8608,7 +8608,7 @@ nnabla.TileParameter = class TileParameter {
 
     static decode(reader, length) {
         const message = new nnabla.TileParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8645,7 +8645,7 @@ nnabla.OneHotParameter = class OneHotParameter {
 
     static decode(reader, length) {
         const message = new nnabla.OneHotParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8688,7 +8688,7 @@ nnabla.FlipParameter = class FlipParameter {
 
     static decode(reader, length) {
         const message = new nnabla.FlipParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8729,7 +8729,7 @@ nnabla.ShiftParameter = class ShiftParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ShiftParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8774,7 +8774,7 @@ nnabla.SortParameter = class SortParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SortParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8834,7 +8834,7 @@ nnabla.ReshapeParameter = class ReshapeParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ReshapeParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8880,7 +8880,7 @@ nnabla.ShapeParameter = class ShapeParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ShapeParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8926,7 +8926,7 @@ nnabla.TriluParameter = class TriluParameter {
 
     static decode(reader, length) {
         const message = new nnabla.TriluParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -8972,7 +8972,7 @@ nnabla.MeshgridParameter = class MeshgridParameter {
 
     static decode(reader, length) {
         const message = new nnabla.MeshgridParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9011,7 +9011,7 @@ nnabla.BatchCholeskyParameter = class BatchCholeskyParameter {
 
     static decode(reader, length) {
         const message = new nnabla.BatchCholeskyParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9050,7 +9050,7 @@ nnabla.GatherParameter = class GatherParameter {
 
     static decode(reader, length) {
         const message = new nnabla.GatherParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9100,7 +9100,7 @@ nnabla.ScatterNdParameter = class ScatterNdParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ScatterNdParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9145,7 +9145,7 @@ nnabla.ScatterAddParameter = class ScatterAddParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ScatterAddParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9184,7 +9184,7 @@ nnabla.BoolFillParameter = class BoolFillParameter {
 
     static decode(reader, length) {
         const message = new nnabla.BoolFillParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9223,7 +9223,7 @@ nnabla.PackPaddedSequenceParameter = class PackPaddedSequenceParameter {
 
     static decode(reader, length) {
         const message = new nnabla.PackPaddedSequenceParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9262,7 +9262,7 @@ nnabla.PadPackedSequenceParameter = class PadPackedSequenceParameter {
 
     static decode(reader, length) {
         const message = new nnabla.PadPackedSequenceParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9319,7 +9319,7 @@ nnabla.InterpolateParameter = class InterpolateParameter {
 
     static decode(reader, length) {
         const message = new nnabla.InterpolateParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9398,7 +9398,7 @@ nnabla.ONNXResizeParameter = class ONNXResizeParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ONNXResizeParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9490,7 +9490,7 @@ nnabla.FFTParameter = class FFTParameter {
 
     static decode(reader, length) {
         const message = new nnabla.FFTParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9536,7 +9536,7 @@ nnabla.IFFTParameter = class IFFTParameter {
 
     static decode(reader, length) {
         const message = new nnabla.IFFTParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9582,7 +9582,7 @@ nnabla.STFTParameter = class STFTParameter {
 
     static decode(reader, length) {
         const message = new nnabla.STFTParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9663,7 +9663,7 @@ nnabla.ISTFTParameter = class ISTFTParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ISTFTParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9744,7 +9744,7 @@ nnabla.DropoutParameter = class DropoutParameter {
 
     static decode(reader, length) {
         const message = new nnabla.DropoutParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9790,7 +9790,7 @@ nnabla.TopKDataParameter = class TopKDataParameter {
 
     static decode(reader, length) {
         const message = new nnabla.TopKDataParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9864,7 +9864,7 @@ nnabla.TopKGradParameter = class TopKGradParameter {
 
     static decode(reader, length) {
         const message = new nnabla.TopKGradParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9917,7 +9917,7 @@ nnabla.RandParameter = class RandParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RandParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -9977,7 +9977,7 @@ nnabla.RandintParameter = class RandintParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RandintParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10037,7 +10037,7 @@ nnabla.RandnParameter = class RandnParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RandnParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10097,7 +10097,7 @@ nnabla.RandBinomialParameter = class RandBinomialParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RandBinomialParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10157,7 +10157,7 @@ nnabla.RandBetaParameter = class RandBetaParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RandBetaParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10217,7 +10217,7 @@ nnabla.RandGammaParameter = class RandGammaParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RandGammaParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10277,7 +10277,7 @@ nnabla.RandomChoiceParameter = class RandomChoiceParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RandomChoiceParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10330,7 +10330,7 @@ nnabla.RandomCropParameter = class RandomCropParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RandomCropParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10387,7 +10387,7 @@ nnabla.RandomFlipParameter = class RandomFlipParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RandomFlipParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10443,7 +10443,7 @@ nnabla.RandomShiftParameter = class RandomShiftParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RandomShiftParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10515,7 +10515,7 @@ nnabla.RandomEraseParameter = class RandomEraseParameter {
 
     static decode(reader, length) {
         const message = new nnabla.RandomEraseParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10621,7 +10621,7 @@ nnabla.ImageAugmentationParameter = class ImageAugmentationParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ImageAugmentationParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10765,7 +10765,7 @@ nnabla.SoftmaxCrossEntropyParameter = class SoftmaxCrossEntropyParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SoftmaxCrossEntropyParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10804,7 +10804,7 @@ nnabla.CategoricalCrossEntropyParameter = class CategoricalCrossEntropyParameter
 
     static decode(reader, length) {
         const message = new nnabla.CategoricalCrossEntropyParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10843,7 +10843,7 @@ nnabla.HuberLossParameter = class HuberLossParameter {
 
     static decode(reader, length) {
         const message = new nnabla.HuberLossParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10882,7 +10882,7 @@ nnabla.EpsilonInsensitiveLossParameter = class EpsilonInsensitiveLossParameter {
 
     static decode(reader, length) {
         const message = new nnabla.EpsilonInsensitiveLossParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10921,7 +10921,7 @@ nnabla.KLMultinomialParameter = class KLMultinomialParameter {
 
     static decode(reader, length) {
         const message = new nnabla.KLMultinomialParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -10964,7 +10964,7 @@ nnabla.AffineGridParameter = class AffineGridParameter {
 
     static decode(reader, length) {
         const message = new nnabla.AffineGridParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11009,7 +11009,7 @@ nnabla.WarpByGridParameter = class WarpByGridParameter {
 
     static decode(reader, length) {
         const message = new nnabla.WarpByGridParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11069,7 +11069,7 @@ nnabla.BinaryConnectAffineParameter = class BinaryConnectAffineParameter {
 
     static decode(reader, length) {
         const message = new nnabla.BinaryConnectAffineParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11115,7 +11115,7 @@ nnabla.BinaryConnectConvolutionParameter = class BinaryConnectConvolutionParamet
 
     static decode(reader, length) {
         const message = new nnabla.BinaryConnectConvolutionParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11189,7 +11189,7 @@ nnabla.BinaryWeightAffineParameter = class BinaryWeightAffineParameter {
 
     static decode(reader, length) {
         const message = new nnabla.BinaryWeightAffineParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11235,7 +11235,7 @@ nnabla.BinaryWeightConvolutionParameter = class BinaryWeightConvolutionParameter
 
     static decode(reader, length) {
         const message = new nnabla.BinaryWeightConvolutionParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11313,7 +11313,7 @@ nnabla.INQAffineParameter = class INQAffineParameter {
 
     static decode(reader, length) {
         const message = new nnabla.INQAffineParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11383,7 +11383,7 @@ nnabla.INQConvolutionParameter = class INQConvolutionParameter {
 
     static decode(reader, length) {
         const message = new nnabla.INQConvolutionParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11477,7 +11477,7 @@ nnabla.FixedPointQuantizeParameter = class FixedPointQuantizeParameter {
 
     static decode(reader, length) {
         const message = new nnabla.FixedPointQuantizeParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11537,7 +11537,7 @@ nnabla.MinMaxQuantizeParameter = class MinMaxQuantizeParameter {
 
     static decode(reader, length) {
         const message = new nnabla.MinMaxQuantizeParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11604,7 +11604,7 @@ nnabla.Pow2QuantizeParameter = class Pow2QuantizeParameter {
 
     static decode(reader, length) {
         const message = new nnabla.Pow2QuantizeParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11671,7 +11671,7 @@ nnabla.PruneParameter = class PruneParameter {
 
     static decode(reader, length) {
         const message = new nnabla.PruneParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11710,7 +11710,7 @@ nnabla.QuantizeLinearParameter = class QuantizeLinearParameter {
 
     static decode(reader, length) {
         const message = new nnabla.QuantizeLinearParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11763,7 +11763,7 @@ nnabla.TopNErrorParameter = class TopNErrorParameter {
 
     static decode(reader, length) {
         const message = new nnabla.TopNErrorParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11809,7 +11809,7 @@ nnabla.ConfusionMatrixParameter = class ConfusionMatrixParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ConfusionMatrixParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11848,7 +11848,7 @@ nnabla.VATNoiseParameter = class VATNoiseParameter {
 
     static decode(reader, length) {
         const message = new nnabla.VATNoiseParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11894,7 +11894,7 @@ nnabla.SinkParameter = class SinkParameter {
 
     static decode(reader, length) {
         const message = new nnabla.SinkParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11933,7 +11933,7 @@ nnabla.NmsDetection2dParameter = class NmsDetection2dParameter {
 
     static decode(reader, length) {
         const message = new nnabla.NmsDetection2dParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -11986,7 +11986,7 @@ nnabla.ONNXNonMaxSuppressionParameter = class ONNXNonMaxSuppressionParameter {
 
     static decode(reader, length) {
         const message = new nnabla.ONNXNonMaxSuppressionParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12046,7 +12046,7 @@ nnabla.MaxPoolingBackwardParameter = class MaxPoolingBackwardParameter {
 
     static decode(reader, length) {
         const message = new nnabla.MaxPoolingBackwardParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12113,7 +12113,7 @@ nnabla.PatchCorrelationParameter = class PatchCorrelationParameter {
 
     static decode(reader, length) {
         const message = new nnabla.PatchCorrelationParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12180,7 +12180,7 @@ nnabla.UniqueParameter = class UniqueParameter {
 
     static decode(reader, length) {
         const message = new nnabla.UniqueParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12254,7 +12254,7 @@ nnabla.EyeLikeParameter = class EyeLikeParameter {
 
     static decode(reader, length) {
         const message = new nnabla.EyeLikeParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12293,7 +12293,7 @@ nnabla.Mod2Parameter = class Mod2Parameter {
 
     static decode(reader, length) {
         const message = new nnabla.Mod2Parameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12332,7 +12332,7 @@ nnabla.BitShiftParameter = class BitShiftParameter {
 
     static decode(reader, length) {
         const message = new nnabla.BitShiftParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -12371,7 +12371,7 @@ nnabla.EinsumParameter = class EinsumParameter {
 
     static decode(reader, length) {
         const message = new nnabla.EinsumParameter();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {

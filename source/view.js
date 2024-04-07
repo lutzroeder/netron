@@ -617,7 +617,7 @@ view.View = class {
         if (button === 0 && (url || this._host.type === 'Electron')) {
             this._host.openURL(url || `${this._host.environment('repository')}/issues`);
         }
-        this.show(screen !== undefined ? screen : 'welcome');
+        this.show(screen ? screen : 'welcome');
     }
 
     accept(file, size) {
@@ -907,7 +907,7 @@ view.View = class {
 
     export(file) {
         const lastIndex = file.lastIndexOf('.');
-        const extension = (lastIndex !== -1) ? file.substring(lastIndex + 1).toLowerCase() : 'png';
+        const extension = lastIndex === -1 ? 'png' : file.substring(lastIndex + 1).toLowerCase();
         if (this.activeGraph && (extension === 'png' || extension === 'svg')) {
             const canvas = this._element('canvas');
             const clone = canvas.cloneNode(true);
@@ -1674,13 +1674,13 @@ view.Graph = class extends grapher.Graph {
 
     createValue(argument) {
         const name = argument.name;
-        if (!this._values.has(name)) {
-            const value = new view.Value(this, argument);
-            this._values.set(name, value);
-            this._table.set(argument, value);
-        } else {
+        if (this._values.has(name)) {
             // duplicate argument name
             const value = this._values.get(name);
+            this._table.set(argument, value);
+        } else {
+            const value = new view.Value(this, argument);
+            this._values.set(name, value);
             this._table.set(argument, value);
         }
         return this._values.get(name);
@@ -1765,13 +1765,13 @@ view.Graph = class extends grapher.Graph {
                 if (groupName && groupName.length > 0) {
                     if (!clusterParentMap.has(groupName)) {
                         const lastIndex = groupName.lastIndexOf('/');
-                        if (lastIndex !== -1) {
+                        if (lastIndex === -1) {
+                            groupName = null;
+                        } else {
                             groupName = groupName.substring(0, lastIndex);
                             if (!clusterParentMap.has(groupName)) {
                                 groupName = null;
                             }
-                        } else {
-                            groupName = null;
                         }
                     }
                     if (groupName) {
@@ -3399,7 +3399,7 @@ view.FindSidebar = class extends view.Control {
                 edge(value);
             }
         }
-        this._contentElement.style.display = this._contentElement.childNodes.length !== 0 ? 'block' : 'none';
+        this._contentElement.style.display = this._contentElement.childNodes.length === 0 ? 'none' : 'block';
     }
 
     render() {
@@ -4935,9 +4935,9 @@ markdown.Generator = class {
     _outputLink(match, href, title) {
         title = title ? this._escape(title) : null;
         const text = match[1].replace(/\\([[\]])/g, '$1');
-        return match[0].charAt(0) !== '!' ?
-            { type: 'link', href, title, text } :
-            { type: 'image', href, title, text: this._escape(text) };
+        return match[0].charAt(0) === '!' ?
+            { type: 'image', href, title, text: this._escape(text) } :
+            { type: 'link', href, title, text };
     }
 
     _splitCells(tableRow, count) {

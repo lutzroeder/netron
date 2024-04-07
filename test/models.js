@@ -70,7 +70,7 @@ class Logger {
                 case 'download':
                     if (message.percent !== undefined) {
                         value = `${(`  ${Math.floor(100 * message.percent)}`).slice(-3)}% `;
-                    } else if (message.position !== undefined) {
+                    } else if (Number.isInteger(message.position)) {
                         value = ` ${message.position}${this._threads === 1 ? ' bytes' : ''} `;
                     } else {
                         value = '  \u2714  ';

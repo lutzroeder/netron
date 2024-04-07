@@ -11,7 +11,7 @@ serial_v2.Graph = class Graph {
 
     static decode(reader, length) {
         const message = new serial_v2.Graph();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -80,7 +80,7 @@ serial_v2.OPNode = class OPNode {
 
     static decode(reader, length) {
         const message = new serial_v2.OPNode();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -149,7 +149,7 @@ serial_v2.OpArg = class OpArg {
 
     static decode(reader, length) {
         const message = new serial_v2.OpArg();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -199,7 +199,7 @@ serial_v2.Tensor = class Tensor {
 
     static decode(reader, length) {
         const message = new serial_v2.Tensor();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -270,7 +270,7 @@ serial_v2.SubGraph = class SubGraph {
 
     static decode(reader, length) {
         const message = new serial_v2.SubGraph();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -332,7 +332,7 @@ serial_v2.OpDef = class OpDef {
 
     static decode(reader, length) {
         const message = new serial_v2.OpDef();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -390,7 +390,7 @@ serial_v2.AttrDef = class AttrDef {
 
     static decode(reader, length) {
         const message = new serial_v2.AttrDef();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -462,7 +462,7 @@ serial_v2.OpArgDef = class OpArgDef {
 
     static decode(reader, length) {
         const message = new serial_v2.OpArgDef();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -534,7 +534,7 @@ serial_v2.AttrValue = class AttrValue {
 
     static decode(reader, length) {
         const message = new serial_v2.AttrValue();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -739,7 +739,7 @@ serial_v2.Bytes = class Bytes {
 
     static decode(reader, length) {
         const message = new serial_v2.Bytes();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -782,7 +782,7 @@ serial_v2.BoolVec = class BoolVec {
 
     static decode(reader, length) {
         const message = new serial_v2.BoolVec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -823,7 +823,7 @@ serial_v2.Int32Vec = class Int32Vec {
 
     static decode(reader, length) {
         const message = new serial_v2.Int32Vec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -864,7 +864,7 @@ serial_v2.Uint32Vec = class Uint32Vec {
 
     static decode(reader, length) {
         const message = new serial_v2.Uint32Vec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -905,7 +905,7 @@ serial_v2.Int64Vec = class Int64Vec {
 
     static decode(reader, length) {
         const message = new serial_v2.Int64Vec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -946,7 +946,7 @@ serial_v2.Uint64Vec = class Uint64Vec {
 
     static decode(reader, length) {
         const message = new serial_v2.Uint64Vec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -987,7 +987,7 @@ serial_v2.FloatVec = class FloatVec {
 
     static decode(reader, length) {
         const message = new serial_v2.FloatVec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1028,7 +1028,7 @@ serial_v2.DoubleVec = class DoubleVec {
 
     static decode(reader, length) {
         const message = new serial_v2.DoubleVec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1069,7 +1069,7 @@ serial_v2.StringVec = class StringVec {
 
     static decode(reader, length) {
         const message = new serial_v2.StringVec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1110,7 +1110,7 @@ serial_v2.BytesVec = class BytesVec {
 
     static decode(reader, length) {
         const message = new serial_v2.BytesVec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1151,7 +1151,7 @@ serial_v2.MapString2Int32 = class MapString2Int32 {
 
     static decode(reader, length) {
         const message = new serial_v2.MapString2Int32();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1192,7 +1192,7 @@ serial_v2.MapString2Uint32 = class MapString2Uint32 {
 
     static decode(reader, length) {
         const message = new serial_v2.MapString2Uint32();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1233,7 +1233,7 @@ serial_v2.MapString2Int64 = class MapString2Int64 {
 
     static decode(reader, length) {
         const message = new serial_v2.MapString2Int64();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1274,7 +1274,7 @@ serial_v2.MapString2Uint64 = class MapString2Uint64 {
 
     static decode(reader, length) {
         const message = new serial_v2.MapString2Uint64();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1315,7 +1315,7 @@ serial_v2.MapString2Bytes = class MapString2Bytes {
 
     static decode(reader, length) {
         const message = new serial_v2.MapString2Bytes();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1356,7 +1356,7 @@ serial_v2.MapString2String = class MapString2String {
 
     static decode(reader, length) {
         const message = new serial_v2.MapString2String();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1397,7 +1397,7 @@ serial_v2.MapString2Int32Vec = class MapString2Int32Vec {
 
     static decode(reader, length) {
         const message = new serial_v2.MapString2Int32Vec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1438,7 +1438,7 @@ serial_v2.MapString2Uint32Vec = class MapString2Uint32Vec {
 
     static decode(reader, length) {
         const message = new serial_v2.MapString2Uint32Vec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1479,7 +1479,7 @@ serial_v2.MapString2Int64Vec = class MapString2Int64Vec {
 
     static decode(reader, length) {
         const message = new serial_v2.MapString2Int64Vec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1520,7 +1520,7 @@ serial_v2.MapString2Uint64Vec = class MapString2Uint64Vec {
 
     static decode(reader, length) {
         const message = new serial_v2.MapString2Uint64Vec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1561,7 +1561,7 @@ serial_v2.MapString2BytesVec = class MapString2BytesVec {
 
     static decode(reader, length) {
         const message = new serial_v2.MapString2BytesVec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -1602,7 +1602,7 @@ serial_v2.MapString2StringVec = class MapString2StringVec {
 
     static decode(reader, length) {
         const message = new serial_v2.MapString2StringVec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {

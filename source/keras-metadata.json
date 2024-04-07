@@ -1982,7 +1982,7 @@
     ],
     "examples": [
       {
-        "code": ">>> model = keras.Sequential()\n>>> model.add(keras.layers.Embedding(1000, 64, input_length=10))\n>>> # The model will take as input an integer matrix of size (batch,\n>>> # input_length), and the largest integer (i.e. word index) in the input\n>>> # should be no larger than 999 (vocabulary size).\n>>> # Now model.output_shape is (None, 10, 64), where `None` is the batch\n>>> # dimension.\n>>> input_array = np.random.randint(1000, size=(32, 10))\n>>> model.compile('rmsprop', 'mse')\n>>> output_array = model.predict(input_array)\n>>> print(output_array.shape)\n(32, 10, 64)"
+        "code": ">>> model = keras.Sequential()\n>>> model.add(keras.layers.Embedding(1000, 64))\n>>> # The model will take as input an integer matrix of size (batch,\n>>> # input_length), and the largest integer (i.e. word index) in the input\n>>> # should be no larger than 999 (vocabulary size).\n>>> # Now model.output_shape is (None, 10, 64), where `None` is the batch\n>>> # dimension.\n>>> input_array = np.random.randint(1000, size=(32, 10))\n>>> model.compile('rmsprop', 'mse')\n>>> output_array = model.predict(input_array)\n>>> print(output_array.shape)\n(32, 10, 64)"
       }
     ]
   },

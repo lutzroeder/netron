@@ -47,12 +47,13 @@ mslite.Model = class {
         const version = model.version ? model.version.match(/^.*(\d\.\d\.\d)$/) : null;
         this.format = `MindSpore Lite${version ? ` v${version[1]}` : ''}`;
         const subgraphs = model.subGraph;
-        if (!Array.isArray(subgraphs)) {
-            this.graphs.push(new mslite.Graph(metadata, model, model));
-        } else {
+        if (Array.isArray(subgraphs)) {
             for (const subgraph of subgraphs) {
                 this.graphs.push(new mslite.Graph(metadata, subgraph, model));
             }
+        } else {
+            const graph = new mslite.Graph(metadata, model, model);
+            this.graphs.push(graph);
         }
     }
 };

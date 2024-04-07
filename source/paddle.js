@@ -172,7 +172,7 @@ paddle.ModelFactory = class {
                         return new paddle.Model(metadata, target.format, null, target.weights);
                     }
                     case 'paddle.params': {
-                        const file = identifier !== 'params' ? `${base}.pdmodel` : 'model';
+                        const file = identifier === 'params' ? 'model' : `${base}.pdmodel`;
                         const params = loadParams(context.stream);
                         try {
                             const content = await context.fetch(file);
@@ -349,7 +349,7 @@ paddle.Graph = class {
             const ops = new Map();
             for (const [name, tensor] of tensors) {
                 values.set(name, new paddle.Value(name, tensor.type, tensor));
-                const separator = name.indexOf('.') !== -1 ? '.' : '_';
+                const separator = name.indexOf('.') === -1 ? '_' : '.';
                 const regex = /(.*)_((w_attr|scale|weights|offset|b|w|b_attr)_(moment|beta|velocity|mean_square|mean_grad).*)/;
                 let parts = [];
                 if (separator === '.') {
@@ -557,7 +557,7 @@ paddle.TensorShape = class {
     constructor(dimensions) {
         dimensions = dimensions.map((dim) => typeof dim === 'bigint' ? dim.toNumber() : dim);
         this.dimensions = dimensions.map((dimension) => {
-            return dimension !== -1 ? dimension : '?';
+            return dimension === -1 ? '?' : dimension;
         });
     }
 

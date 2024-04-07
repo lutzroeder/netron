@@ -714,7 +714,7 @@ python.Parser = class {
                 throw new python.Error(`Invalid decorator ${this._tokenizer.location()}`);
             }
             this._tokenizer.eat('\n');
-            list = list !== null ? list : [];
+            list = list === null ? [] : list;
             list.push(node);
         }
         return list;
@@ -1337,7 +1337,7 @@ python.Tokenizer = class {
             }
             if (radix > 0 && this._get(i) !== '.') {
                 const radixText = this._text.substring(this._position, i);
-                const radixParseText = radixText.indexOf('_') !== -1 ? radixText.split('_').join('') : radixText;
+                const radixParseText = radixText.indexOf('_') === -1 ? radixText : radixText.split('_').join('');
                 if (!isNaN(parseInt(radixParseText, radix))) {
                     return { type: 'number', value: radixText };
                 }
@@ -1384,12 +1384,12 @@ python.Tokenizer = class {
                     if (this._get(i) === '-' || this._get(i) === '+') {
                         i++;
                     }
-                    if (!decimal(this._get(i))) {
-                        i = this._position;
-                    } else {
+                    if (decimal(this._get(i))) {
                         while (decimal(this._get(i))) {
                             i++;
                         }
+                    } else {
+                        i = this._position;
                     }
                 } else {
                     while (decimal(this._get(i))) {
@@ -1402,7 +1402,7 @@ python.Tokenizer = class {
                     return { type: 'number', value: this._text.substring(this._position, i + 1) };
                 }
                 const floatText = this._text.substring(this._position, i);
-                const floatParseText = floatText.indexOf('_') !== -1 ? floatText.split('_').join('') : floatText;
+                const floatParseText = floatText.indexOf('_') === -1 ? floatText : floatText.split('_').join('');
                 if (!isNaN(parseFloat(floatParseText))) {
                     return { type: 'number', value: floatText };
                 }
@@ -1867,7 +1867,7 @@ python.Execution = class {
             }
             read(size) {
                 const start = this._point;
-                this._point = size !== undefined ? start + size : this._buf.length;
+                this._point = size === undefined ? this._buf.length : start + size;
                 return this._buf.subarray(start, this._point);
             }
             write(data) {
@@ -2302,10 +2302,10 @@ python.Execution = class {
         this.registerType('megengine.traced_module.pytree.LeafDef', class {
             toString() {
                 let content = '';
-                if (this.const_val !== null) {
-                    content += this.const_val;
-                } else {
+                if (this.const_val === null) {
                     content += '[';
+                } else {
+                    content += this.const_val;
                 }
                 for (const t of Object.values(this.type)) {
                     content += t.__name__;
@@ -2341,10 +2341,10 @@ python.Execution = class {
             constructor(shape, dtype, buffer, offset, strides, order) {
                 this.shape = shape;
                 this.dtype = dtype;
-                this.data = buffer !== undefined ? buffer : null;
-                this.offset = offset !== undefined ? offset : 0;
-                this._strides = strides !== undefined ? strides : null;
-                this.order = offset !== undefined ? order : null;
+                this.data = buffer === undefined ? null : buffer;
+                this.offset = offset === undefined ? 0 : offset;
+                this._strides = strides === undefined ? null : strides;
+                this.order = order === undefined ? null : order;
                 this.flags = {};
                 this._read();
             }
@@ -4906,10 +4906,10 @@ python.Execution = class {
                 // ret = ret.as_subclass(new_type);
             }
             const setstate = execution.invoke('builtins.getattr', [ret.__class__, '__setstate__', torch.Tensor.__setstate__]);
-            if (setstate !== torch.Tensor.__setstate__) {
-                ret.__setstate__(state);
-            } else {
+            if (setstate === torch.Tensor.__setstate__) {
                 ret = execution.invoke('torch._utils._set_obj_state', [ret, state]);
+            } else {
+                ret.__setstate__(state);
             }
             return ret;
         });
@@ -6534,7 +6534,7 @@ python.Execution = class {
                     data = self.invoke('torch.Tensor', [[]]);
                 }
                 this.data = data;
-                this.requires_grad = requires_grad !== undefined ? requires_grad : true;
+                this.requires_grad = requires_grad === undefined ? true : requires_grad;
             }
         });
         this.registerType('torch.nn.parameter.UninitializedParameter', class extends torch.nn.parameter.Parameter {
@@ -7499,7 +7499,7 @@ python.BinaryReader = class {
 
     peek(length) {
         const position = this._position;
-        length = length !== undefined ? length : this._length - this._position;
+        length = length === undefined ? this._length - this._position : length;
         this.skip(length);
         const end = this._position;
         this.skip(-length);
@@ -7511,7 +7511,7 @@ python.BinaryReader = class {
 
     read(length) {
         const position = this._position;
-        length = length !== undefined ? length : this._length - this._position;
+        length = length === undefined ? this._length - this._position : length;
         this.skip(length);
         if (position === 0 && length === this._length) {
             return this._buffer;

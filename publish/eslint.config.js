@@ -121,7 +121,7 @@ export default [
             'no-multi-assign': 'error',
             'no-multi-str': 'error',
             'no-multiple-empty-lines': ['error', { 'max': 1 }],
-            // 'no-negated-condition': 'error',
+            'no-negated-condition': 'error',
             'no-nested-ternary': 'error',
             'no-new': 'error',
             'no-new-func': 'error',

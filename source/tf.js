@@ -375,7 +375,7 @@ tf.ModelFactory = class {
                             const name = item.name;
                             if (name.indexOf('::') !== -1) {
                                 const index = name.indexOf('.');
-                                const key = (index !== -1) ? name.substring(0, index) : name;
+                                const key = index === -1 ? name : name.substring(0, index);
                                 if (!metadata.has(key)) {
                                     metadata.set(key, []);
                                 }
@@ -842,7 +842,7 @@ tf.Function = class {
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];
-        this.description = !func ? 'Function definition not found.' : null;
+        this.description = func ? null : 'Function definition not found.';
         this.groups = false;
         const context = new tf.Context();
         const input_arg = func && func.signature ? func.signature.input_arg : [];
@@ -1282,7 +1282,7 @@ tf.TensorShape = class {
 tf.TensorBundle = class {
 
     static async open(stream, identifier, context) {
-        const format = !identifier.toLowerCase().endsWith('.index') ? 1 : 2;
+        const format = identifier.toLowerCase().endsWith('.index') ? 2 : 1;
         const table = new tf.TensorBundle.Table(stream);
         if (!table.entries.has('')) {
             throw new tf.Error('Bundle header not available.');
@@ -1329,14 +1329,7 @@ tf.TensorBundle = class {
                         const slices = tf.proto.tensorflow.SavedTensorSlices.decode(reader);
                         const name = slices.data.name;
                         const tensor = slices.data.data;
-                        if (!data.has(name)) {
-                            if (tensor.tensor_content && tensor.tensor_content.length > 0) {
-                                data.set(name, { key: 'tensor_content', value: tensor.tensor_content });
-                            } else {
-                                const keys = Object.keys(tensor).filter((key) => key.endsWith('_val') && tensor[key] && tensor[key].length > 0);
-                                data.set(name, keys.length === 1 ? { key: keys[0], value: tensor[keys[0]] } : null);
-                            }
-                        } else {
+                        if (data.has(name)) {
                             const item = data.get(name);
                             if (item !== null) {
                                 if (tensor[item.key] && tensor[item.key].length > 0) {
@@ -1345,6 +1338,11 @@ tf.TensorBundle = class {
                                     data.set(name, null);
                                 }
                             }
+                        } else if (tensor.tensor_content && tensor.tensor_content.length > 0) {
+                            data.set(name, { key: 'tensor_content', value: tensor.tensor_content });
+                        } else {
+                            const keys = Object.keys(tensor).filter((key) => key.endsWith('_val') && tensor[key] && tensor[key].length > 0);
+                            data.set(name, keys.length === 1 ? { key: keys[0], value: tensor[keys[0]] } : null);
                         }
                     }
                 }

@@ -302,7 +302,7 @@ sklearn.Attribute = class {
         this.name = name;
         this.value = value;
         this.type = type;
-        this.visible = visible !== false ? true : false;
+        this.visible = visible !== false;
     }
 };
 

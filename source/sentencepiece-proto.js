@@ -12,7 +12,7 @@ sentencepiece.TrainerSpec = class TrainerSpec {
 
     static decode(reader, length) {
         const message = new sentencepiece.TrainerSpec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -369,7 +369,7 @@ sentencepiece.NormalizerSpec = class NormalizerSpec {
 
     static decode(reader, length) {
         const message = new sentencepiece.NormalizerSpec();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -447,7 +447,7 @@ sentencepiece.SelfTestData = class SelfTestData {
 
     static decode(reader, length) {
         const message = new sentencepiece.SelfTestData();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -484,7 +484,7 @@ sentencepiece.SelfTestData.Sample = class Sample {
 
     static decode(reader, length) {
         const message = new sentencepiece.SelfTestData.Sample();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -534,7 +534,7 @@ sentencepiece.ModelProto = class ModelProto {
 
     static decode(reader, length) {
         const message = new sentencepiece.ModelProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -600,7 +600,7 @@ sentencepiece.ModelProto.SentencePiece = class SentencePiece {
 
     static decode(reader, length) {
         const message = new sentencepiece.ModelProto.SentencePiece();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {

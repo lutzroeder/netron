@@ -160,22 +160,20 @@ dagre.layout = (graph, layout) => {
             const stack = Array.from(g.nodes.keys()).reverse();
             while (stack.length > 0) {
                 const v = stack.pop();
-                if (!Array.isArray(v)) {
-                    if (!visited.has(v)) {
-                        visited.add(v);
-                        path.add(v);
-                        stack.push([v]);
-                        const out = g.node(v).out;
-                        for (let i = out.length - 1; i >= 0; i--) {
-                            const e = out[i];
-                            if (path.has(e.w)) {
-                                edges.push(e);
-                            }
-                            stack.push(e.w);
-                        }
-                    }
-                } else {
+                if (Array.isArray(v)) {
                     path.delete(v[0]);
+                } else if (!visited.has(v)) {
+                    visited.add(v);
+                    path.add(v);
+                    stack.push([v]);
+                    const out = g.node(v).out;
+                    for (let i = out.length - 1; i >= 0; i--) {
+                        const e = out[i];
+                        if (path.has(e.w)) {
+                            edges.push(e);
+                        }
+                        stack.push(e.w);
+                    }
                 }
             }
             for (const e of edges) {
@@ -657,7 +655,7 @@ dagre.layout = (graph, layout) => {
                     const childTop = childNode.borderTop ? childNode.borderTop : child;
                     const childBottom = childNode.borderBottom ? childNode.borderBottom : child;
                     const thisWeight = childNode.borderTop ? weight : 2 * weight;
-                    const minlen = childTop !== childBottom ? 1 : height - depths[v] + 1;
+                    const minlen = childTop === childBottom ? height - depths[v] + 1 : 1;
                     g.setEdge(top, childTop, { weight: thisWeight, minlen, nestingEdge: true });
                     g.setEdge(childBottom, bottom, { weight: thisWeight, minlen, nestingEdge: true });
                 }
@@ -1041,7 +1039,7 @@ dagre.layout = (graph, layout) => {
                             } else if (entryV.barycenter > entryW.barycenter) {
                                 return 1;
                             }
-                            return !bias ? entryV.i - entryW.i : entryW.i - entryV.i;
+                            return bias ? entryW.i - entryV.i : entryV.i - entryW.i;
                         };
                     };
                     // partition
@@ -1086,12 +1084,12 @@ dagre.layout = (graph, layout) => {
                         const result = sortSubgraph(g, entry.v, cg, biasRight);
                         subgraphs[entry.v] = result;
                         if ('barycenter' in result) {
-                            if (entry.barycenter !== undefined) {
-                                entry.barycenter = (entry.barycenter * entry.weight + result.barycenter * result.weight) / (entry.weight + result.weight);
-                                entry.weight += result.weight;
-                            } else {
+                            if (entry.barycenter === undefined) {
                                 entry.barycenter = result.barycenter;
                                 entry.weight = result.weight;
+                            } else {
+                                entry.barycenter = (entry.barycenter * entry.weight + result.barycenter * result.weight) / (entry.weight + result.weight);
+                                entry.weight += result.weight;
                             }
                         }
                     }
@@ -1939,13 +1937,13 @@ dagre.layout = (graph, layout) => {
                 const wNode = e.wNode.label;
                 let p1 = null;
                 let p2 = null;
-                if (!edge.points) {
+                if (edge.points) {
+                    [p1] = edge.points;
+                    p2 = edge.points[edge.points.length - 1];
+                } else {
                     edge.points = [];
                     p1 = wNode;
                     p2 = vNode;
-                } else {
-                    [p1] = edge.points;
-                    p2 = edge.points[edge.points.length - 1];
                 }
                 edge.points.unshift(intersectRect(vNode, p1));
                 edge.points.push(intersectRect(wNode, p2));

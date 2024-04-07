@@ -552,17 +552,17 @@ coreml.Context = class {
     }
 
     output(name) {
-        if (!this.values.has(name)) {
-            const value = { counter: 0, name, to: [], from: [] };
-            this.values.set(name, value);
-            const key = `${name}|${value.counter}`;
-            this.values.set(key, value);
-        } else {
+        if (this.values.has(name)) {
             const value = Object.assign({}, this.values.get(name));
             value.counter++;
             value.name = `${name}|${value.counter}`; // custom argument id
             this.values.set(name, value);
             this.values.set(value.name, value);
+        } else {
+            const value = { counter: 0, name, to: [], from: [] };
+            this.values.set(name, value);
+            const key = `${name}|${value.counter}`;
+            this.values.set(key, value);
         }
         return this.values.get(name);
     }
@@ -642,7 +642,7 @@ coreml.Context = class {
                     const weightsShape = [data.outputChannels, data.kernelChannels, data.kernelSize[0], data.kernelSize[1]];
                     if (data.isDeconvolution) {
                         weightsShape[0] = data.kernelChannels;
-                        weightsShape[1] = Math.floor(Number(data.outputChannels / (data.nGroups !== 0 ? data.nGroups : 1)));
+                        weightsShape[1] = Math.floor(Number(data.outputChannels / (data.nGroups === 0 ? 1 : data.nGroups)));
                     }
                     initializer(type, 'weights', weightsShape, data.weights);
                     if (data.hasBias) {

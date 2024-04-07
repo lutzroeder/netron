@@ -427,12 +427,12 @@ export class Target {
             sources = sources && sources.startsWith(',') ? sources.substring(1).trim() : '';
         } else {
             const commaIndex = sources.indexOf(',');
-            if (commaIndex !== -1) {
-                source = sources.substring(0, commaIndex);
-                sources = sources.substring(commaIndex + 1);
-            } else {
+            if (commaIndex === -1) {
                 source = sources;
                 sources = '';
+            } else {
+                source = sources.substring(0, commaIndex);
+                sources = sources.substring(commaIndex + 1);
             }
         }
         await Promise.all(targets.map((target) => {
@@ -447,7 +447,13 @@ export class Target {
             const archive = decompress(data);
             for (const name of sourceFiles) {
                 this.status({ name: 'write', target: name });
-                if (name !== '.') {
+                if (name === '.') {
+                    const target = targets.shift();
+                    const dir = path.join(this.folder, target);
+                    /* eslint-disable no-await-in-loop */
+                    await fs.mkdir(dir, { recursive: true });
+                    /* eslint-enable no-await-in-loop */
+                } else {
                     const stream = archive.entries.get(name);
                     if (!stream) {
                         throw new Error(`Entry not found '${name}. Archive contains entries: ${JSON.stringify(Array.from(archive.entries.keys()))} .`);
@@ -457,12 +463,6 @@ export class Target {
                     const file = path.join(this.folder, target);
                     /* eslint-disable no-await-in-loop */
                     await fs.writeFile(file, buffer, null);
-                    /* eslint-enable no-await-in-loop */
-                } else {
-                    const target = targets.shift();
-                    const dir = path.join(this.folder, target);
-                    /* eslint-disable no-await-in-loop */
-                    await fs.mkdir(dir, { recursive: true });
                     /* eslint-enable no-await-in-loop */
                 }
             }

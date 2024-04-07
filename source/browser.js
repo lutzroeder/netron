@@ -698,7 +698,7 @@ host.BrowserHost.FileStream = class {
     }
 
     peek(length) {
-        length = length !== undefined ? length : this._length - this._position;
+        length = length === undefined ? this._length - this._position : length;
         if (length < 0x10000000) {
             const position = this._fill(length);
             this._position -= length;
@@ -718,7 +718,7 @@ host.BrowserHost.FileStream = class {
     }
 
     read(length) {
-        length = length !== undefined ? length : this._length - this._position;
+        length = length === undefined ? this._length - this._position : length;
         if (length < 0x10000000) {
             const position = this._fill(length);
             return this._buffer.subarray(position, position + length);

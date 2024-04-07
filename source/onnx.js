@@ -1084,7 +1084,7 @@ onnx.Context.Graph = class {
                         attribute.type = onnx.AttributeType.TENSOR;
                     } else if (attribute.g !== undefined) {
                         attribute.type = onnx.AttributeType.GRAPH;
-                    } else if (attribute.sparse_tensor !== undefined) {
+                    } else if (attribute.sparse_tensor) {
                         attribute.type = onnx.AttributeType.SPARSE_TENSOR;
                     } else {
                         attribute.type = onnx.AttributeType.UNDEFINED;
@@ -2231,7 +2231,25 @@ onnx.TextReader = class {
         }
         this._expect('=');
         if (this._match('[')) {
-            if (!this._match(']')) {
+            if (this._match(']')) {
+
+                if (attribute.type === onnx.AttributeType.UNDEFINED) {
+                    this._throw('Empty list attribute value requires type annotation.');
+                }
+                switch (attribute.type) {
+                    case onnx.AttributeType.FLOAT:
+                    case onnx.AttributeType.INT:
+                    case onnx.AttributeType.STRING:
+                    case onnx.AttributeType.TENSOR:
+                    case onnx.AttributeType.GRAPH:
+                    case onnx.AttributeType.SPARSE_TENSOR:
+                    case onnx.AttributeType.TYPE_PROTO:
+                        this._throw("Singleton attribute value cannot be specified as a list.");
+                        break;
+                    default:
+                        break;
+                }
+            } else {
                 do {
                     const value = new onnx.proto.AttributeProto();
                     let type = onnx.AttributeType.UNDEFINED;
@@ -2264,23 +2282,6 @@ onnx.TextReader = class {
                     }
                 }
                 while (this._match(','));
-            } else {
-                if (attribute.type === onnx.AttributeType.UNDEFINED) {
-                    this._throw('Empty list attribute value requires type annotation.');
-                }
-                switch (attribute.type) {
-                    case onnx.AttributeType.FLOAT:
-                    case onnx.AttributeType.INT:
-                    case onnx.AttributeType.STRING:
-                    case onnx.AttributeType.TENSOR:
-                    case onnx.AttributeType.GRAPH:
-                    case onnx.AttributeType.SPARSE_TENSOR:
-                    case onnx.AttributeType.TYPE_PROTO:
-                        this._throw("Singleton attribute value cannot be specified as a list.");
-                        break;
-                    default:
-                        break;
-                }
             }
             this._expect(']');
         } else {

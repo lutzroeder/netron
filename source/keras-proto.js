@@ -17,7 +17,7 @@ third_party.tensorflow.python.keras.protobuf.SavedMetadata = class SavedMetadata
 
     static decode(reader, length) {
         const message = new third_party.tensorflow.python.keras.protobuf.SavedMetadata();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -54,7 +54,7 @@ third_party.tensorflow.python.keras.protobuf.SavedObject = class SavedObject {
 
     static decode(reader, length) {
         const message = new third_party.tensorflow.python.keras.protobuf.SavedObject();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -125,7 +125,7 @@ third_party.tensorflow.python.keras.protobuf.VersionDef = class VersionDef {
 
     static decode(reader, length) {
         const message = new third_party.tensorflow.python.keras.protobuf.VersionDef();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
