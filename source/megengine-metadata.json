@@ -2472,6 +2472,10 @@
     ]
   },
   {
+    "name": "PoolingV1",
+    "category": "Pool"
+  },
+  {
     "name": "Pooling",
     "category": "Pool",
     "attributes": [
@@ -3486,6 +3490,10 @@
   },
   {
     "name": "GetVarShape",
+    "category": "Shape"
+  },
+  {
+    "name": "GetVarShapeV1",
     "category": "Shape"
   },
   {
