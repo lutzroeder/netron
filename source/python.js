@@ -6592,6 +6592,7 @@ python.Execution = class {
         this.registerType('fastai.callback.core.Callback', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.callback.core.TrainEvalCallback', class {});
         this.registerType('fastai.callback.fp16.AMPMode', class extends this._enum.Enum {});
+        this.registerType('fastai.callback.fp16.MixedPrecision', class {});
         this.registerType('fastai.callback.hook._hook_inner', class {});
         this.registerType('fastai.callback.hook.Hook', class {});
         this.registerType('fastai.callback.hook.Hooks', class {});
