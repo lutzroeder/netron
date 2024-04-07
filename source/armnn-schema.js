@@ -48,11 +48,11 @@ armnnSerializer.TensorInfo = class TensorInfo {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.TensorInfo();
-        $.dimensions = reader.typedArray(position, 4, Uint32Array);
+        $.dimensions = reader.array(position, 4, Uint32Array);
         $.dataType = reader.int8_(position, 6, 0);
         $.quantizationScale = reader.float32_(position, 8, 1);
         $.quantizationOffset = reader.int32_(position, 10, 0);
-        $.quantizationScales = reader.typedArray(position, 12, Float32Array);
+        $.quantizationScales = reader.array(position, 12, Float32Array);
         $.quantizationDim = reader.uint32_(position, 14, 0);
         $.dimensionality = reader.uint32_(position, 16, 1);
         return $;
@@ -60,11 +60,11 @@ armnnSerializer.TensorInfo = class TensorInfo {
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.TensorInfo();
-        $.dimensions = reader.typedArray(json.dimensions, Uint32Array);
+        $.dimensions = reader.array(json.dimensions, Uint32Array);
         $.dataType = armnnSerializer.DataType[json.dataType];
         $.quantizationScale = reader.value(json.quantizationScale, 1);
         $.quantizationOffset = reader.value(json.quantizationOffset, 0);
-        $.quantizationScales = reader.typedArray(json.quantizationScales, Float32Array);
+        $.quantizationScales = reader.array(json.quantizationScales, Float32Array);
         $.quantizationDim = reader.value(json.quantizationDim, 0);
         $.dimensionality = reader.value(json.dimensionality, 1);
         return $;
@@ -92,13 +92,13 @@ armnnSerializer.ByteData = class ByteData {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ByteData();
-        $.data = reader.typedArray(position, 4, Int8Array);
+        $.data = reader.array(position, 4, Int8Array);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ByteData();
-        $.data = reader.typedArray(json.data, Int8Array);
+        $.data = reader.array(json.data, Int8Array);
         return $;
     }
 };
@@ -107,13 +107,13 @@ armnnSerializer.ShortData = class ShortData {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ShortData();
-        $.data = reader.typedArray(position, 4, Int16Array);
+        $.data = reader.array(position, 4, Int16Array);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ShortData();
-        $.data = reader.typedArray(json.data, Int16Array);
+        $.data = reader.array(json.data, Int16Array);
         return $;
     }
 };
@@ -122,13 +122,13 @@ armnnSerializer.IntData = class IntData {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.IntData();
-        $.data = reader.typedArray(position, 4, Int32Array);
+        $.data = reader.array(position, 4, Int32Array);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.IntData();
-        $.data = reader.typedArray(json.data, Int32Array);
+        $.data = reader.array(json.data, Int32Array);
         return $;
     }
 };
@@ -175,14 +175,14 @@ armnnSerializer.ConstTensor = class ConstTensor {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ConstTensor();
-        $.info = reader.table(position, 4, armnnSerializer.TensorInfo.decode);
-        $.data = reader.union(position, 6, armnnSerializer.ConstTensorData.decode);
+        $.info = reader.table(position, 4, armnnSerializer.TensorInfo);
+        $.data = reader.union(position, 6, armnnSerializer.ConstTensorData);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ConstTensor();
-        $.info = reader.object(json.info, armnnSerializer.TensorInfo.decodeText);
+        $.info = reader.object(json.info, armnnSerializer.TensorInfo);
         $.data = armnnSerializer.ConstTensorData.decodeText(reader, json.data, json.data_type);
         return $;
     }
@@ -193,14 +193,14 @@ armnnSerializer.InputSlot = class InputSlot {
     static decode(reader, position) {
         const $ = new armnnSerializer.InputSlot();
         $.index = reader.uint32_(position, 4, 0);
-        $.connection = reader.struct(position, 6, armnnSerializer.Connection.decode);
+        $.connection = reader.struct(position, 6, armnnSerializer.Connection);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.InputSlot();
         $.index = reader.value(json.index, 0);
-        $.connection = reader.object(json.connection, armnnSerializer.Connection.decodeText);
+        $.connection = reader.object(json.connection, armnnSerializer.Connection);
         return $;
     }
 };
@@ -210,14 +210,14 @@ armnnSerializer.OutputSlot = class OutputSlot {
     static decode(reader, position) {
         const $ = new armnnSerializer.OutputSlot();
         $.index = reader.uint32_(position, 4, 0);
-        $.tensorInfo = reader.table(position, 6, armnnSerializer.TensorInfo.decode);
+        $.tensorInfo = reader.table(position, 6, armnnSerializer.TensorInfo);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.OutputSlot();
         $.index = reader.value(json.index, 0);
-        $.tensorInfo = reader.object(json.tensorInfo, armnnSerializer.TensorInfo.decodeText);
+        $.tensorInfo = reader.object(json.tensorInfo, armnnSerializer.TensorInfo);
         return $;
     }
 };
@@ -291,8 +291,8 @@ armnnSerializer.LayerBase = class LayerBase {
         $.index = reader.uint32_(position, 4, 0);
         $.layerName = reader.string_(position, 6, null);
         $.layerType = reader.uint32_(position, 8, 0);
-        $.inputSlots = reader.tableArray(position, 10, armnnSerializer.InputSlot.decode);
-        $.outputSlots = reader.tableArray(position, 12, armnnSerializer.OutputSlot.decode);
+        $.inputSlots = reader.tables(position, 10, armnnSerializer.InputSlot);
+        $.outputSlots = reader.tables(position, 12, armnnSerializer.OutputSlot);
         return $;
     }
 
@@ -301,8 +301,8 @@ armnnSerializer.LayerBase = class LayerBase {
         $.index = reader.value(json.index, 0);
         $.layerName = reader.value(json.layerName, null);
         $.layerType = armnnSerializer.LayerType[json.layerType];
-        $.inputSlots = reader.objectArray(json.inputSlots, armnnSerializer.InputSlot.decodeText);
-        $.outputSlots = reader.objectArray(json.outputSlots, armnnSerializer.OutputSlot.decodeText);
+        $.inputSlots = reader.objects(json.inputSlots, armnnSerializer.InputSlot);
+        $.outputSlots = reader.objects(json.outputSlots, armnnSerializer.OutputSlot);
         return $;
     }
 };
@@ -311,14 +311,14 @@ armnnSerializer.BindableLayerBase = class BindableLayerBase {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.BindableLayerBase();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         $.layerBindingId = reader.int32_(position, 6, 0);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.BindableLayerBase();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         $.layerBindingId = reader.value(json.layerBindingId, 0);
         return $;
     }
@@ -328,13 +328,13 @@ armnnSerializer.AbsLayer = class AbsLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.AbsLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.AbsLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -343,15 +343,15 @@ armnnSerializer.ActivationLayer = class ActivationLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ActivationLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.ActivationDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.ActivationDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ActivationLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.ActivationDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.ActivationDescriptor);
         return $;
     }
 };
@@ -379,13 +379,13 @@ armnnSerializer.AdditionLayer = class AdditionLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.AdditionLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.AdditionLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -394,15 +394,15 @@ armnnSerializer.ArgMinMaxLayer = class ArgMinMaxLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ArgMinMaxLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.ArgMinMaxDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.ArgMinMaxDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ArgMinMaxLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.ArgMinMaxDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.ArgMinMaxDescriptor);
         return $;
     }
 };
@@ -452,15 +452,15 @@ armnnSerializer.ComparisonLayer = class ComparisonLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ComparisonLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.ComparisonDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.ComparisonDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ComparisonLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.ComparisonDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.ComparisonDescriptor);
         return $;
     }
 };
@@ -469,15 +469,15 @@ armnnSerializer.ConstantLayer = class ConstantLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ConstantLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.input = reader.table(position, 6, armnnSerializer.ConstTensor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.input = reader.table(position, 6, armnnSerializer.ConstTensor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ConstantLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.input = reader.object(json.input, armnnSerializer.ConstTensor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.input = reader.object(json.input, armnnSerializer.ConstTensor);
         return $;
     }
 };
@@ -486,19 +486,19 @@ armnnSerializer.Convolution2dLayer = class Convolution2dLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.Convolution2dLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.Convolution2dDescriptor.decode);
-        $.weights = reader.table(position, 8, armnnSerializer.ConstTensor.decode);
-        $.biases = reader.table(position, 10, armnnSerializer.ConstTensor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.Convolution2dDescriptor);
+        $.weights = reader.table(position, 8, armnnSerializer.ConstTensor);
+        $.biases = reader.table(position, 10, armnnSerializer.ConstTensor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.Convolution2dLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.Convolution2dDescriptor.decodeText);
-        $.weights = reader.object(json.weights, armnnSerializer.ConstTensor.decodeText);
-        $.biases = reader.object(json.biases, armnnSerializer.ConstTensor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.Convolution2dDescriptor);
+        $.weights = reader.object(json.weights, armnnSerializer.ConstTensor);
+        $.biases = reader.object(json.biases, armnnSerializer.ConstTensor);
         return $;
     }
 };
@@ -540,15 +540,15 @@ armnnSerializer.DepthToSpaceLayer = class DepthToSpaceLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.DepthToSpaceLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.DepthToSpaceDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.DepthToSpaceDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.DepthToSpaceLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.DepthToSpaceDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.DepthToSpaceDescriptor);
         return $;
     }
 };
@@ -574,13 +574,13 @@ armnnSerializer.DivisionLayer = class DivisionLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.DivisionLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.DivisionLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -612,15 +612,15 @@ armnnSerializer.ElementwiseUnaryLayer = class ElementwiseUnaryLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ElementwiseUnaryLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.ElementwiseUnaryDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.ElementwiseUnaryDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ElementwiseUnaryLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.ElementwiseUnaryDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.ElementwiseUnaryDescriptor);
         return $;
     }
 };
@@ -629,13 +629,13 @@ armnnSerializer.EqualLayer = class EqualLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.EqualLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.EqualLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -644,15 +644,15 @@ armnnSerializer.FillLayer = class FillLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.FillLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.FillDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.FillDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.FillLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.FillDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.FillDescriptor);
         return $;
     }
 };
@@ -676,13 +676,13 @@ armnnSerializer.FloorLayer = class FloorLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.FloorLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.FloorLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -691,19 +691,19 @@ armnnSerializer.FullyConnectedLayer = class FullyConnectedLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.FullyConnectedLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.FullyConnectedDescriptor.decode);
-        $.weights = reader.table(position, 8, armnnSerializer.ConstTensor.decode);
-        $.biases = reader.table(position, 10, armnnSerializer.ConstTensor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.FullyConnectedDescriptor);
+        $.weights = reader.table(position, 8, armnnSerializer.ConstTensor);
+        $.biases = reader.table(position, 10, armnnSerializer.ConstTensor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.FullyConnectedLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.FullyConnectedDescriptor.decodeText);
-        $.weights = reader.object(json.weights, armnnSerializer.ConstTensor.decodeText);
-        $.biases = reader.object(json.biases, armnnSerializer.ConstTensor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.FullyConnectedDescriptor);
+        $.weights = reader.object(json.weights, armnnSerializer.ConstTensor);
+        $.biases = reader.object(json.biases, armnnSerializer.ConstTensor);
         return $;
     }
 };
@@ -729,15 +729,15 @@ armnnSerializer.GatherLayer = class GatherLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.GatherLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.GatherDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.GatherDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.GatherLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.GatherDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.GatherDescriptor);
         return $;
     }
 };
@@ -761,13 +761,13 @@ armnnSerializer.GreaterLayer = class GreaterLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.GreaterLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.GreaterLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -776,13 +776,13 @@ armnnSerializer.InputLayer = class InputLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.InputLayer();
-        $.base = reader.table(position, 4, armnnSerializer.BindableLayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.BindableLayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.InputLayer();
-        $.base = reader.object(json.base, armnnSerializer.BindableLayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.BindableLayerBase);
         return $;
     }
 };
@@ -791,15 +791,15 @@ armnnSerializer.InstanceNormalizationLayer = class InstanceNormalizationLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.InstanceNormalizationLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.InstanceNormalizationDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.InstanceNormalizationDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.InstanceNormalizationLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.InstanceNormalizationDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.InstanceNormalizationDescriptor);
         return $;
     }
 };
@@ -829,15 +829,15 @@ armnnSerializer.LogSoftmaxLayer = class LogSoftmaxLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.LogSoftmaxLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.LogSoftmaxDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.LogSoftmaxDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.LogSoftmaxLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.LogSoftmaxDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.LogSoftmaxDescriptor);
         return $;
     }
 };
@@ -863,15 +863,15 @@ armnnSerializer.L2NormalizationLayer = class L2NormalizationLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.L2NormalizationLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.L2NormalizationDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.L2NormalizationDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.L2NormalizationLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.L2NormalizationDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.L2NormalizationDescriptor);
         return $;
     }
 };
@@ -897,13 +897,13 @@ armnnSerializer.MinimumLayer = class MinimumLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.MinimumLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.MinimumLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -912,13 +912,13 @@ armnnSerializer.MaximumLayer = class MaximumLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.MaximumLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.MaximumLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -927,13 +927,13 @@ armnnSerializer.MultiplicationLayer = class MultiplicationLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.MultiplicationLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.MultiplicationLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -942,15 +942,15 @@ armnnSerializer.Pooling2dLayer = class Pooling2dLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.Pooling2dLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.Pooling2dDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.Pooling2dDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.Pooling2dLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.Pooling2dDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.Pooling2dDescriptor);
         return $;
     }
 };
@@ -1012,13 +1012,13 @@ armnnSerializer.QuantizeLayer = class QuantizeLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.QuantizeLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.QuantizeLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -1027,15 +1027,15 @@ armnnSerializer.SoftmaxLayer = class SoftmaxLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.SoftmaxLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.SoftmaxDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.SoftmaxDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.SoftmaxLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.SoftmaxDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.SoftmaxDescriptor);
         return $;
     }
 };
@@ -1059,19 +1059,19 @@ armnnSerializer.DepthwiseConvolution2dLayer = class DepthwiseConvolution2dLayer 
 
     static decode(reader, position) {
         const $ = new armnnSerializer.DepthwiseConvolution2dLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.DepthwiseConvolution2dDescriptor.decode);
-        $.weights = reader.table(position, 8, armnnSerializer.ConstTensor.decode);
-        $.biases = reader.table(position, 10, armnnSerializer.ConstTensor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.DepthwiseConvolution2dDescriptor);
+        $.weights = reader.table(position, 8, armnnSerializer.ConstTensor);
+        $.biases = reader.table(position, 10, armnnSerializer.ConstTensor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.DepthwiseConvolution2dLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.DepthwiseConvolution2dDescriptor.decodeText);
-        $.weights = reader.object(json.weights, armnnSerializer.ConstTensor.decodeText);
-        $.biases = reader.object(json.biases, armnnSerializer.ConstTensor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.DepthwiseConvolution2dDescriptor);
+        $.weights = reader.object(json.weights, armnnSerializer.ConstTensor);
+        $.biases = reader.object(json.biases, armnnSerializer.ConstTensor);
         return $;
     }
 };
@@ -1113,13 +1113,13 @@ armnnSerializer.OutputLayer = class OutputLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.OutputLayer();
-        $.base = reader.table(position, 4, armnnSerializer.BindableLayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.BindableLayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.OutputLayer();
-        $.base = reader.object(json.base, armnnSerializer.BindableLayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.BindableLayerBase);
         return $;
     }
 };
@@ -1128,15 +1128,15 @@ armnnSerializer.ReshapeLayer = class ReshapeLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ReshapeLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.ReshapeDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.ReshapeDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ReshapeLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.ReshapeDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.ReshapeDescriptor);
         return $;
     }
 };
@@ -1145,13 +1145,13 @@ armnnSerializer.ReshapeDescriptor = class ReshapeDescriptor {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ReshapeDescriptor();
-        $.targetShape = reader.typedArray(position, 4, Uint32Array);
+        $.targetShape = reader.array(position, 4, Uint32Array);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ReshapeDescriptor();
-        $.targetShape = reader.typedArray(json.targetShape, Uint32Array);
+        $.targetShape = reader.array(json.targetShape, Uint32Array);
         return $;
     }
 };
@@ -1160,15 +1160,15 @@ armnnSerializer.PermuteLayer = class PermuteLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.PermuteLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.PermuteDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.PermuteDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.PermuteLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.PermuteDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.PermuteDescriptor);
         return $;
     }
 };
@@ -1177,13 +1177,13 @@ armnnSerializer.PermuteDescriptor = class PermuteDescriptor {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.PermuteDescriptor();
-        $.dimMappings = reader.typedArray(position, 4, Uint32Array);
+        $.dimMappings = reader.array(position, 4, Uint32Array);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.PermuteDescriptor();
-        $.dimMappings = reader.typedArray(json.dimMappings, Uint32Array);
+        $.dimMappings = reader.array(json.dimMappings, Uint32Array);
         return $;
     }
 };
@@ -1192,15 +1192,15 @@ armnnSerializer.SpaceToBatchNdLayer = class SpaceToBatchNdLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.SpaceToBatchNdLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.SpaceToBatchNdDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.SpaceToBatchNdDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.SpaceToBatchNdLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.SpaceToBatchNdDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.SpaceToBatchNdDescriptor);
         return $;
     }
 };
@@ -1209,16 +1209,16 @@ armnnSerializer.SpaceToBatchNdDescriptor = class SpaceToBatchNdDescriptor {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.SpaceToBatchNdDescriptor();
-        $.blockShape = reader.typedArray(position, 4, Uint32Array);
-        $.padList = reader.typedArray(position, 6, Uint32Array);
+        $.blockShape = reader.array(position, 4, Uint32Array);
+        $.padList = reader.array(position, 6, Uint32Array);
         $.dataLayout = reader.int8_(position, 8, 0);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.SpaceToBatchNdDescriptor();
-        $.blockShape = reader.typedArray(json.blockShape, Uint32Array);
-        $.padList = reader.typedArray(json.padList, Uint32Array);
+        $.blockShape = reader.array(json.blockShape, Uint32Array);
+        $.padList = reader.array(json.padList, Uint32Array);
         $.dataLayout = armnnSerializer.DataLayout[json.dataLayout];
         return $;
     }
@@ -1228,15 +1228,15 @@ armnnSerializer.SpaceToDepthLayer = class SpaceToDepthLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.SpaceToDepthLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.SpaceToDepthDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.SpaceToDepthDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.SpaceToDepthLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.SpaceToDepthDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.SpaceToDepthDescriptor);
         return $;
     }
 };
@@ -1262,13 +1262,13 @@ armnnSerializer.SubtractionLayer = class SubtractionLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.SubtractionLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.SubtractionLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -1277,15 +1277,15 @@ armnnSerializer.BatchToSpaceNdLayer = class BatchToSpaceNdLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.BatchToSpaceNdLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.BatchToSpaceNdDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.BatchToSpaceNdDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.BatchToSpaceNdLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.BatchToSpaceNdDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.BatchToSpaceNdDescriptor);
         return $;
     }
 };
@@ -1294,16 +1294,16 @@ armnnSerializer.BatchToSpaceNdDescriptor = class BatchToSpaceNdDescriptor {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.BatchToSpaceNdDescriptor();
-        $.blockShape = reader.typedArray(position, 4, Uint32Array);
-        $.crops = reader.typedArray(position, 6, Uint32Array);
+        $.blockShape = reader.array(position, 4, Uint32Array);
+        $.crops = reader.array(position, 6, Uint32Array);
         $.dataLayout = reader.int8_(position, 8, 0);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.BatchToSpaceNdDescriptor();
-        $.blockShape = reader.typedArray(json.blockShape, Uint32Array);
-        $.crops = reader.typedArray(json.crops, Uint32Array);
+        $.blockShape = reader.array(json.blockShape, Uint32Array);
+        $.crops = reader.array(json.crops, Uint32Array);
         $.dataLayout = armnnSerializer.DataLayout[json.dataLayout];
         return $;
     }
@@ -1323,15 +1323,15 @@ armnnSerializer.NormalizationLayer = class NormalizationLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.NormalizationLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.NormalizationDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.NormalizationDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.NormalizationLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.NormalizationDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.NormalizationDescriptor);
         return $;
     }
 };
@@ -1367,15 +1367,15 @@ armnnSerializer.MeanLayer = class MeanLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.MeanLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.MeanDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.MeanDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.MeanLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.MeanDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.MeanDescriptor);
         return $;
     }
 };
@@ -1384,14 +1384,14 @@ armnnSerializer.MeanDescriptor = class MeanDescriptor {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.MeanDescriptor();
-        $.axis = reader.typedArray(position, 4, Uint32Array);
+        $.axis = reader.array(position, 4, Uint32Array);
         $.keepDims = reader.bool_(position, 6, false);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.MeanDescriptor();
-        $.axis = reader.typedArray(json.axis, Uint32Array);
+        $.axis = reader.array(json.axis, Uint32Array);
         $.keepDims = reader.value(json.keepDims, false);
         return $;
     }
@@ -1401,15 +1401,15 @@ armnnSerializer.PadLayer = class PadLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.PadLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.PadDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.PadDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.PadLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.PadDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.PadDescriptor);
         return $;
     }
 };
@@ -1418,14 +1418,14 @@ armnnSerializer.PadDescriptor = class PadDescriptor {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.PadDescriptor();
-        $.padList = reader.typedArray(position, 4, Uint32Array);
+        $.padList = reader.array(position, 4, Uint32Array);
         $.padValue = reader.float32_(position, 6, 0);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.PadDescriptor();
-        $.padList = reader.typedArray(json.padList, Uint32Array);
+        $.padList = reader.array(json.padList, Uint32Array);
         $.padValue = reader.value(json.padValue, 0);
         return $;
     }
@@ -1435,13 +1435,13 @@ armnnSerializer.RsqrtLayer = class RsqrtLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.RsqrtLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.RsqrtLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -1450,23 +1450,23 @@ armnnSerializer.BatchNormalizationLayer = class BatchNormalizationLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.BatchNormalizationLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.BatchNormalizationDescriptor.decode);
-        $.mean = reader.table(position, 8, armnnSerializer.ConstTensor.decode);
-        $.variance = reader.table(position, 10, armnnSerializer.ConstTensor.decode);
-        $.beta = reader.table(position, 12, armnnSerializer.ConstTensor.decode);
-        $.gamma = reader.table(position, 14, armnnSerializer.ConstTensor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.BatchNormalizationDescriptor);
+        $.mean = reader.table(position, 8, armnnSerializer.ConstTensor);
+        $.variance = reader.table(position, 10, armnnSerializer.ConstTensor);
+        $.beta = reader.table(position, 12, armnnSerializer.ConstTensor);
+        $.gamma = reader.table(position, 14, armnnSerializer.ConstTensor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.BatchNormalizationLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.BatchNormalizationDescriptor.decodeText);
-        $.mean = reader.object(json.mean, armnnSerializer.ConstTensor.decodeText);
-        $.variance = reader.object(json.variance, armnnSerializer.ConstTensor.decodeText);
-        $.beta = reader.object(json.beta, armnnSerializer.ConstTensor.decodeText);
-        $.gamma = reader.object(json.gamma, armnnSerializer.ConstTensor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.BatchNormalizationDescriptor);
+        $.mean = reader.object(json.mean, armnnSerializer.ConstTensor);
+        $.variance = reader.object(json.variance, armnnSerializer.ConstTensor);
+        $.beta = reader.object(json.beta, armnnSerializer.ConstTensor);
+        $.gamma = reader.object(json.gamma, armnnSerializer.ConstTensor);
         return $;
     }
 };
@@ -1492,15 +1492,15 @@ armnnSerializer.ResizeBilinearLayer = class ResizeBilinearLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ResizeBilinearLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.ResizeBilinearDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.ResizeBilinearDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ResizeBilinearLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.ResizeBilinearDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.ResizeBilinearDescriptor);
         return $;
     }
 };
@@ -1532,15 +1532,15 @@ armnnSerializer.SliceLayer = class SliceLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.SliceLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.SliceDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.SliceDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.SliceLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.SliceDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.SliceDescriptor);
         return $;
     }
 };
@@ -1549,15 +1549,15 @@ armnnSerializer.SliceDescriptor = class SliceDescriptor {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.SliceDescriptor();
-        $.begin = reader.typedArray(position, 4, Uint32Array);
-        $.size = reader.typedArray(position, 6, Uint32Array);
+        $.begin = reader.array(position, 4, Uint32Array);
+        $.size = reader.array(position, 6, Uint32Array);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.SliceDescriptor();
-        $.begin = reader.typedArray(json.begin, Uint32Array);
-        $.size = reader.typedArray(json.size, Uint32Array);
+        $.begin = reader.array(json.begin, Uint32Array);
+        $.size = reader.array(json.size, Uint32Array);
         return $;
     }
 };
@@ -1566,15 +1566,15 @@ armnnSerializer.StridedSliceLayer = class StridedSliceLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.StridedSliceLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.StridedSliceDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.StridedSliceDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.StridedSliceLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.StridedSliceDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.StridedSliceDescriptor);
         return $;
     }
 };
@@ -1583,9 +1583,9 @@ armnnSerializer.StridedSliceDescriptor = class StridedSliceDescriptor {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.StridedSliceDescriptor();
-        $.begin = reader.typedArray(position, 4, Int32Array);
-        $.end = reader.typedArray(position, 6, Int32Array);
-        $.stride = reader.typedArray(position, 8, Int32Array);
+        $.begin = reader.array(position, 4, Int32Array);
+        $.end = reader.array(position, 6, Int32Array);
+        $.stride = reader.array(position, 8, Int32Array);
         $.beginMask = reader.int32_(position, 10, 0);
         $.endMask = reader.int32_(position, 12, 0);
         $.shrinkAxisMask = reader.int32_(position, 14, 0);
@@ -1597,9 +1597,9 @@ armnnSerializer.StridedSliceDescriptor = class StridedSliceDescriptor {
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.StridedSliceDescriptor();
-        $.begin = reader.typedArray(json.begin, Int32Array);
-        $.end = reader.typedArray(json.end, Int32Array);
-        $.stride = reader.typedArray(json.stride, Int32Array);
+        $.begin = reader.array(json.begin, Int32Array);
+        $.end = reader.array(json.end, Int32Array);
+        $.stride = reader.array(json.stride, Int32Array);
         $.beginMask = reader.value(json.beginMask, 0);
         $.endMask = reader.value(json.endMask, 0);
         $.shrinkAxisMask = reader.value(json.shrinkAxisMask, 0);
@@ -1614,15 +1614,15 @@ armnnSerializer.ConcatLayer = class ConcatLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ConcatLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.OriginsDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.OriginsDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ConcatLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.OriginsDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.OriginsDescriptor);
         return $;
     }
 };
@@ -1631,15 +1631,15 @@ armnnSerializer.MergerLayer = class MergerLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.MergerLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.OriginsDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.OriginsDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.MergerLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.OriginsDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.OriginsDescriptor);
         return $;
     }
 };
@@ -1648,13 +1648,13 @@ armnnSerializer.UintVector = class UintVector {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.UintVector();
-        $.data = reader.typedArray(position, 4, Uint32Array);
+        $.data = reader.array(position, 4, Uint32Array);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.UintVector();
-        $.data = reader.typedArray(json.data, Uint32Array);
+        $.data = reader.array(json.data, Uint32Array);
         return $;
     }
 };
@@ -1666,7 +1666,7 @@ armnnSerializer.OriginsDescriptor = class OriginsDescriptor {
         $.concatAxis = reader.uint32_(position, 4, 0);
         $.numViews = reader.uint32_(position, 6, 0);
         $.numDimensions = reader.uint32_(position, 8, 0);
-        $.viewOrigins = reader.tableArray(position, 10, armnnSerializer.UintVector.decode);
+        $.viewOrigins = reader.tables(position, 10, armnnSerializer.UintVector);
         return $;
     }
 
@@ -1675,7 +1675,7 @@ armnnSerializer.OriginsDescriptor = class OriginsDescriptor {
         $.concatAxis = reader.value(json.concatAxis, 0);
         $.numViews = reader.value(json.numViews, 0);
         $.numDimensions = reader.value(json.numDimensions, 0);
-        $.viewOrigins = reader.objectArray(json.viewOrigins, armnnSerializer.UintVector.decodeText);
+        $.viewOrigins = reader.objects(json.viewOrigins, armnnSerializer.UintVector);
         return $;
     }
 };
@@ -1684,15 +1684,15 @@ armnnSerializer.ViewsDescriptor = class ViewsDescriptor {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ViewsDescriptor();
-        $.origins = reader.table(position, 4, armnnSerializer.OriginsDescriptor.decode);
-        $.viewSizes = reader.tableArray(position, 6, armnnSerializer.UintVector.decode);
+        $.origins = reader.table(position, 4, armnnSerializer.OriginsDescriptor);
+        $.viewSizes = reader.tables(position, 6, armnnSerializer.UintVector);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ViewsDescriptor();
-        $.origins = reader.object(json.origins, armnnSerializer.OriginsDescriptor.decodeText);
-        $.viewSizes = reader.objectArray(json.viewSizes, armnnSerializer.UintVector.decodeText);
+        $.origins = reader.object(json.origins, armnnSerializer.OriginsDescriptor);
+        $.viewSizes = reader.objects(json.viewSizes, armnnSerializer.UintVector);
         return $;
     }
 };
@@ -1701,15 +1701,15 @@ armnnSerializer.SplitterLayer = class SplitterLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.SplitterLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.ViewsDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.ViewsDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.SplitterLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.ViewsDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.ViewsDescriptor);
         return $;
     }
 };
@@ -1718,17 +1718,17 @@ armnnSerializer.DetectionPostProcessLayer = class DetectionPostProcessLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.DetectionPostProcessLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.DetectionPostProcessDescriptor.decode);
-        $.anchors = reader.table(position, 8, armnnSerializer.ConstTensor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.DetectionPostProcessDescriptor);
+        $.anchors = reader.table(position, 8, armnnSerializer.ConstTensor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.DetectionPostProcessLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.DetectionPostProcessDescriptor.decodeText);
-        $.anchors = reader.object(json.anchors, armnnSerializer.ConstTensor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.DetectionPostProcessDescriptor);
+        $.anchors = reader.object(json.anchors, armnnSerializer.ConstTensor);
         return $;
     }
 };
@@ -1772,53 +1772,53 @@ armnnSerializer.LstmInputParams = class LstmInputParams {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.LstmInputParams();
-        $.inputToForgetWeights = reader.table(position, 4, armnnSerializer.ConstTensor.decode);
-        $.inputToCellWeights = reader.table(position, 6, armnnSerializer.ConstTensor.decode);
-        $.inputToOutputWeights = reader.table(position, 8, armnnSerializer.ConstTensor.decode);
-        $.recurrentToForgetWeights = reader.table(position, 10, armnnSerializer.ConstTensor.decode);
-        $.recurrentToCellWeights = reader.table(position, 12, armnnSerializer.ConstTensor.decode);
-        $.recurrentToOutputWeights = reader.table(position, 14, armnnSerializer.ConstTensor.decode);
-        $.forgetGateBias = reader.table(position, 16, armnnSerializer.ConstTensor.decode);
-        $.cellBias = reader.table(position, 18, armnnSerializer.ConstTensor.decode);
-        $.outputGateBias = reader.table(position, 20, armnnSerializer.ConstTensor.decode);
-        $.inputToInputWeights = reader.table(position, 22, armnnSerializer.ConstTensor.decode);
-        $.recurrentToInputWeights = reader.table(position, 24, armnnSerializer.ConstTensor.decode);
-        $.cellToInputWeights = reader.table(position, 26, armnnSerializer.ConstTensor.decode);
-        $.inputGateBias = reader.table(position, 28, armnnSerializer.ConstTensor.decode);
-        $.projectionWeights = reader.table(position, 30, armnnSerializer.ConstTensor.decode);
-        $.projectionBias = reader.table(position, 32, armnnSerializer.ConstTensor.decode);
-        $.cellToForgetWeights = reader.table(position, 34, armnnSerializer.ConstTensor.decode);
-        $.cellToOutputWeights = reader.table(position, 36, armnnSerializer.ConstTensor.decode);
-        $.inputLayerNormWeights = reader.table(position, 38, armnnSerializer.ConstTensor.decode);
-        $.forgetLayerNormWeights = reader.table(position, 40, armnnSerializer.ConstTensor.decode);
-        $.cellLayerNormWeights = reader.table(position, 42, armnnSerializer.ConstTensor.decode);
-        $.outputLayerNormWeights = reader.table(position, 44, armnnSerializer.ConstTensor.decode);
+        $.inputToForgetWeights = reader.table(position, 4, armnnSerializer.ConstTensor);
+        $.inputToCellWeights = reader.table(position, 6, armnnSerializer.ConstTensor);
+        $.inputToOutputWeights = reader.table(position, 8, armnnSerializer.ConstTensor);
+        $.recurrentToForgetWeights = reader.table(position, 10, armnnSerializer.ConstTensor);
+        $.recurrentToCellWeights = reader.table(position, 12, armnnSerializer.ConstTensor);
+        $.recurrentToOutputWeights = reader.table(position, 14, armnnSerializer.ConstTensor);
+        $.forgetGateBias = reader.table(position, 16, armnnSerializer.ConstTensor);
+        $.cellBias = reader.table(position, 18, armnnSerializer.ConstTensor);
+        $.outputGateBias = reader.table(position, 20, armnnSerializer.ConstTensor);
+        $.inputToInputWeights = reader.table(position, 22, armnnSerializer.ConstTensor);
+        $.recurrentToInputWeights = reader.table(position, 24, armnnSerializer.ConstTensor);
+        $.cellToInputWeights = reader.table(position, 26, armnnSerializer.ConstTensor);
+        $.inputGateBias = reader.table(position, 28, armnnSerializer.ConstTensor);
+        $.projectionWeights = reader.table(position, 30, armnnSerializer.ConstTensor);
+        $.projectionBias = reader.table(position, 32, armnnSerializer.ConstTensor);
+        $.cellToForgetWeights = reader.table(position, 34, armnnSerializer.ConstTensor);
+        $.cellToOutputWeights = reader.table(position, 36, armnnSerializer.ConstTensor);
+        $.inputLayerNormWeights = reader.table(position, 38, armnnSerializer.ConstTensor);
+        $.forgetLayerNormWeights = reader.table(position, 40, armnnSerializer.ConstTensor);
+        $.cellLayerNormWeights = reader.table(position, 42, armnnSerializer.ConstTensor);
+        $.outputLayerNormWeights = reader.table(position, 44, armnnSerializer.ConstTensor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.LstmInputParams();
-        $.inputToForgetWeights = reader.object(json.inputToForgetWeights, armnnSerializer.ConstTensor.decodeText);
-        $.inputToCellWeights = reader.object(json.inputToCellWeights, armnnSerializer.ConstTensor.decodeText);
-        $.inputToOutputWeights = reader.object(json.inputToOutputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.recurrentToForgetWeights = reader.object(json.recurrentToForgetWeights, armnnSerializer.ConstTensor.decodeText);
-        $.recurrentToCellWeights = reader.object(json.recurrentToCellWeights, armnnSerializer.ConstTensor.decodeText);
-        $.recurrentToOutputWeights = reader.object(json.recurrentToOutputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.forgetGateBias = reader.object(json.forgetGateBias, armnnSerializer.ConstTensor.decodeText);
-        $.cellBias = reader.object(json.cellBias, armnnSerializer.ConstTensor.decodeText);
-        $.outputGateBias = reader.object(json.outputGateBias, armnnSerializer.ConstTensor.decodeText);
-        $.inputToInputWeights = reader.object(json.inputToInputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.recurrentToInputWeights = reader.object(json.recurrentToInputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.cellToInputWeights = reader.object(json.cellToInputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.inputGateBias = reader.object(json.inputGateBias, armnnSerializer.ConstTensor.decodeText);
-        $.projectionWeights = reader.object(json.projectionWeights, armnnSerializer.ConstTensor.decodeText);
-        $.projectionBias = reader.object(json.projectionBias, armnnSerializer.ConstTensor.decodeText);
-        $.cellToForgetWeights = reader.object(json.cellToForgetWeights, armnnSerializer.ConstTensor.decodeText);
-        $.cellToOutputWeights = reader.object(json.cellToOutputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.inputLayerNormWeights = reader.object(json.inputLayerNormWeights, armnnSerializer.ConstTensor.decodeText);
-        $.forgetLayerNormWeights = reader.object(json.forgetLayerNormWeights, armnnSerializer.ConstTensor.decodeText);
-        $.cellLayerNormWeights = reader.object(json.cellLayerNormWeights, armnnSerializer.ConstTensor.decodeText);
-        $.outputLayerNormWeights = reader.object(json.outputLayerNormWeights, armnnSerializer.ConstTensor.decodeText);
+        $.inputToForgetWeights = reader.object(json.inputToForgetWeights, armnnSerializer.ConstTensor);
+        $.inputToCellWeights = reader.object(json.inputToCellWeights, armnnSerializer.ConstTensor);
+        $.inputToOutputWeights = reader.object(json.inputToOutputWeights, armnnSerializer.ConstTensor);
+        $.recurrentToForgetWeights = reader.object(json.recurrentToForgetWeights, armnnSerializer.ConstTensor);
+        $.recurrentToCellWeights = reader.object(json.recurrentToCellWeights, armnnSerializer.ConstTensor);
+        $.recurrentToOutputWeights = reader.object(json.recurrentToOutputWeights, armnnSerializer.ConstTensor);
+        $.forgetGateBias = reader.object(json.forgetGateBias, armnnSerializer.ConstTensor);
+        $.cellBias = reader.object(json.cellBias, armnnSerializer.ConstTensor);
+        $.outputGateBias = reader.object(json.outputGateBias, armnnSerializer.ConstTensor);
+        $.inputToInputWeights = reader.object(json.inputToInputWeights, armnnSerializer.ConstTensor);
+        $.recurrentToInputWeights = reader.object(json.recurrentToInputWeights, armnnSerializer.ConstTensor);
+        $.cellToInputWeights = reader.object(json.cellToInputWeights, armnnSerializer.ConstTensor);
+        $.inputGateBias = reader.object(json.inputGateBias, armnnSerializer.ConstTensor);
+        $.projectionWeights = reader.object(json.projectionWeights, armnnSerializer.ConstTensor);
+        $.projectionBias = reader.object(json.projectionBias, armnnSerializer.ConstTensor);
+        $.cellToForgetWeights = reader.object(json.cellToForgetWeights, armnnSerializer.ConstTensor);
+        $.cellToOutputWeights = reader.object(json.cellToOutputWeights, armnnSerializer.ConstTensor);
+        $.inputLayerNormWeights = reader.object(json.inputLayerNormWeights, armnnSerializer.ConstTensor);
+        $.forgetLayerNormWeights = reader.object(json.forgetLayerNormWeights, armnnSerializer.ConstTensor);
+        $.cellLayerNormWeights = reader.object(json.cellLayerNormWeights, armnnSerializer.ConstTensor);
+        $.outputLayerNormWeights = reader.object(json.outputLayerNormWeights, armnnSerializer.ConstTensor);
         return $;
     }
 };
@@ -1854,17 +1854,17 @@ armnnSerializer.LstmLayer = class LstmLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.LstmLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.LstmDescriptor.decode);
-        $.inputParams = reader.table(position, 8, armnnSerializer.LstmInputParams.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.LstmDescriptor);
+        $.inputParams = reader.table(position, 8, armnnSerializer.LstmInputParams);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.LstmLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.LstmDescriptor.decodeText);
-        $.inputParams = reader.object(json.inputParams, armnnSerializer.LstmInputParams.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.LstmDescriptor);
+        $.inputParams = reader.object(json.inputParams, armnnSerializer.LstmInputParams);
         return $;
     }
 };
@@ -1873,53 +1873,53 @@ armnnSerializer.QLstmInputParams = class QLstmInputParams {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.QLstmInputParams();
-        $.inputToForgetWeights = reader.table(position, 4, armnnSerializer.ConstTensor.decode);
-        $.inputToCellWeights = reader.table(position, 6, armnnSerializer.ConstTensor.decode);
-        $.inputToOutputWeights = reader.table(position, 8, armnnSerializer.ConstTensor.decode);
-        $.recurrentToForgetWeights = reader.table(position, 10, armnnSerializer.ConstTensor.decode);
-        $.recurrentToCellWeights = reader.table(position, 12, armnnSerializer.ConstTensor.decode);
-        $.recurrentToOutputWeights = reader.table(position, 14, armnnSerializer.ConstTensor.decode);
-        $.forgetGateBias = reader.table(position, 16, armnnSerializer.ConstTensor.decode);
-        $.cellBias = reader.table(position, 18, armnnSerializer.ConstTensor.decode);
-        $.outputGateBias = reader.table(position, 20, armnnSerializer.ConstTensor.decode);
-        $.inputToInputWeights = reader.table(position, 22, armnnSerializer.ConstTensor.decode);
-        $.recurrentToInputWeights = reader.table(position, 24, armnnSerializer.ConstTensor.decode);
-        $.inputGateBias = reader.table(position, 26, armnnSerializer.ConstTensor.decode);
-        $.projectionWeights = reader.table(position, 28, armnnSerializer.ConstTensor.decode);
-        $.projectionBias = reader.table(position, 30, armnnSerializer.ConstTensor.decode);
-        $.cellToInputWeights = reader.table(position, 32, armnnSerializer.ConstTensor.decode);
-        $.cellToForgetWeights = reader.table(position, 34, armnnSerializer.ConstTensor.decode);
-        $.cellToOutputWeights = reader.table(position, 36, armnnSerializer.ConstTensor.decode);
-        $.inputLayerNormWeights = reader.table(position, 38, armnnSerializer.ConstTensor.decode);
-        $.forgetLayerNormWeights = reader.table(position, 40, armnnSerializer.ConstTensor.decode);
-        $.cellLayerNormWeights = reader.table(position, 42, armnnSerializer.ConstTensor.decode);
-        $.outputLayerNormWeights = reader.table(position, 44, armnnSerializer.ConstTensor.decode);
+        $.inputToForgetWeights = reader.table(position, 4, armnnSerializer.ConstTensor);
+        $.inputToCellWeights = reader.table(position, 6, armnnSerializer.ConstTensor);
+        $.inputToOutputWeights = reader.table(position, 8, armnnSerializer.ConstTensor);
+        $.recurrentToForgetWeights = reader.table(position, 10, armnnSerializer.ConstTensor);
+        $.recurrentToCellWeights = reader.table(position, 12, armnnSerializer.ConstTensor);
+        $.recurrentToOutputWeights = reader.table(position, 14, armnnSerializer.ConstTensor);
+        $.forgetGateBias = reader.table(position, 16, armnnSerializer.ConstTensor);
+        $.cellBias = reader.table(position, 18, armnnSerializer.ConstTensor);
+        $.outputGateBias = reader.table(position, 20, armnnSerializer.ConstTensor);
+        $.inputToInputWeights = reader.table(position, 22, armnnSerializer.ConstTensor);
+        $.recurrentToInputWeights = reader.table(position, 24, armnnSerializer.ConstTensor);
+        $.inputGateBias = reader.table(position, 26, armnnSerializer.ConstTensor);
+        $.projectionWeights = reader.table(position, 28, armnnSerializer.ConstTensor);
+        $.projectionBias = reader.table(position, 30, armnnSerializer.ConstTensor);
+        $.cellToInputWeights = reader.table(position, 32, armnnSerializer.ConstTensor);
+        $.cellToForgetWeights = reader.table(position, 34, armnnSerializer.ConstTensor);
+        $.cellToOutputWeights = reader.table(position, 36, armnnSerializer.ConstTensor);
+        $.inputLayerNormWeights = reader.table(position, 38, armnnSerializer.ConstTensor);
+        $.forgetLayerNormWeights = reader.table(position, 40, armnnSerializer.ConstTensor);
+        $.cellLayerNormWeights = reader.table(position, 42, armnnSerializer.ConstTensor);
+        $.outputLayerNormWeights = reader.table(position, 44, armnnSerializer.ConstTensor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.QLstmInputParams();
-        $.inputToForgetWeights = reader.object(json.inputToForgetWeights, armnnSerializer.ConstTensor.decodeText);
-        $.inputToCellWeights = reader.object(json.inputToCellWeights, armnnSerializer.ConstTensor.decodeText);
-        $.inputToOutputWeights = reader.object(json.inputToOutputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.recurrentToForgetWeights = reader.object(json.recurrentToForgetWeights, armnnSerializer.ConstTensor.decodeText);
-        $.recurrentToCellWeights = reader.object(json.recurrentToCellWeights, armnnSerializer.ConstTensor.decodeText);
-        $.recurrentToOutputWeights = reader.object(json.recurrentToOutputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.forgetGateBias = reader.object(json.forgetGateBias, armnnSerializer.ConstTensor.decodeText);
-        $.cellBias = reader.object(json.cellBias, armnnSerializer.ConstTensor.decodeText);
-        $.outputGateBias = reader.object(json.outputGateBias, armnnSerializer.ConstTensor.decodeText);
-        $.inputToInputWeights = reader.object(json.inputToInputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.recurrentToInputWeights = reader.object(json.recurrentToInputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.inputGateBias = reader.object(json.inputGateBias, armnnSerializer.ConstTensor.decodeText);
-        $.projectionWeights = reader.object(json.projectionWeights, armnnSerializer.ConstTensor.decodeText);
-        $.projectionBias = reader.object(json.projectionBias, armnnSerializer.ConstTensor.decodeText);
-        $.cellToInputWeights = reader.object(json.cellToInputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.cellToForgetWeights = reader.object(json.cellToForgetWeights, armnnSerializer.ConstTensor.decodeText);
-        $.cellToOutputWeights = reader.object(json.cellToOutputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.inputLayerNormWeights = reader.object(json.inputLayerNormWeights, armnnSerializer.ConstTensor.decodeText);
-        $.forgetLayerNormWeights = reader.object(json.forgetLayerNormWeights, armnnSerializer.ConstTensor.decodeText);
-        $.cellLayerNormWeights = reader.object(json.cellLayerNormWeights, armnnSerializer.ConstTensor.decodeText);
-        $.outputLayerNormWeights = reader.object(json.outputLayerNormWeights, armnnSerializer.ConstTensor.decodeText);
+        $.inputToForgetWeights = reader.object(json.inputToForgetWeights, armnnSerializer.ConstTensor);
+        $.inputToCellWeights = reader.object(json.inputToCellWeights, armnnSerializer.ConstTensor);
+        $.inputToOutputWeights = reader.object(json.inputToOutputWeights, armnnSerializer.ConstTensor);
+        $.recurrentToForgetWeights = reader.object(json.recurrentToForgetWeights, armnnSerializer.ConstTensor);
+        $.recurrentToCellWeights = reader.object(json.recurrentToCellWeights, armnnSerializer.ConstTensor);
+        $.recurrentToOutputWeights = reader.object(json.recurrentToOutputWeights, armnnSerializer.ConstTensor);
+        $.forgetGateBias = reader.object(json.forgetGateBias, armnnSerializer.ConstTensor);
+        $.cellBias = reader.object(json.cellBias, armnnSerializer.ConstTensor);
+        $.outputGateBias = reader.object(json.outputGateBias, armnnSerializer.ConstTensor);
+        $.inputToInputWeights = reader.object(json.inputToInputWeights, armnnSerializer.ConstTensor);
+        $.recurrentToInputWeights = reader.object(json.recurrentToInputWeights, armnnSerializer.ConstTensor);
+        $.inputGateBias = reader.object(json.inputGateBias, armnnSerializer.ConstTensor);
+        $.projectionWeights = reader.object(json.projectionWeights, armnnSerializer.ConstTensor);
+        $.projectionBias = reader.object(json.projectionBias, armnnSerializer.ConstTensor);
+        $.cellToInputWeights = reader.object(json.cellToInputWeights, armnnSerializer.ConstTensor);
+        $.cellToForgetWeights = reader.object(json.cellToForgetWeights, armnnSerializer.ConstTensor);
+        $.cellToOutputWeights = reader.object(json.cellToOutputWeights, armnnSerializer.ConstTensor);
+        $.inputLayerNormWeights = reader.object(json.inputLayerNormWeights, armnnSerializer.ConstTensor);
+        $.forgetLayerNormWeights = reader.object(json.forgetLayerNormWeights, armnnSerializer.ConstTensor);
+        $.cellLayerNormWeights = reader.object(json.cellLayerNormWeights, armnnSerializer.ConstTensor);
+        $.outputLayerNormWeights = reader.object(json.outputLayerNormWeights, armnnSerializer.ConstTensor);
         return $;
     }
 };
@@ -1965,17 +1965,17 @@ armnnSerializer.QLstmLayer = class QLstmLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.QLstmLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.QLstmDescriptor.decode);
-        $.inputParams = reader.table(position, 8, armnnSerializer.QLstmInputParams.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.QLstmDescriptor);
+        $.inputParams = reader.table(position, 8, armnnSerializer.QLstmInputParams);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.QLstmLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.QLstmDescriptor.decodeText);
-        $.inputParams = reader.object(json.inputParams, armnnSerializer.QLstmInputParams.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.QLstmDescriptor);
+        $.inputParams = reader.object(json.inputParams, armnnSerializer.QLstmInputParams);
         return $;
     }
 };
@@ -1984,35 +1984,35 @@ armnnSerializer.QuantizedLstmInputParams = class QuantizedLstmInputParams {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.QuantizedLstmInputParams();
-        $.inputToInputWeights = reader.table(position, 4, armnnSerializer.ConstTensor.decode);
-        $.inputToForgetWeights = reader.table(position, 6, armnnSerializer.ConstTensor.decode);
-        $.inputToCellWeights = reader.table(position, 8, armnnSerializer.ConstTensor.decode);
-        $.inputToOutputWeights = reader.table(position, 10, armnnSerializer.ConstTensor.decode);
-        $.recurrentToInputWeights = reader.table(position, 12, armnnSerializer.ConstTensor.decode);
-        $.recurrentToForgetWeights = reader.table(position, 14, armnnSerializer.ConstTensor.decode);
-        $.recurrentToCellWeights = reader.table(position, 16, armnnSerializer.ConstTensor.decode);
-        $.recurrentToOutputWeights = reader.table(position, 18, armnnSerializer.ConstTensor.decode);
-        $.inputGateBias = reader.table(position, 20, armnnSerializer.ConstTensor.decode);
-        $.forgetGateBias = reader.table(position, 22, armnnSerializer.ConstTensor.decode);
-        $.cellBias = reader.table(position, 24, armnnSerializer.ConstTensor.decode);
-        $.outputGateBias = reader.table(position, 26, armnnSerializer.ConstTensor.decode);
+        $.inputToInputWeights = reader.table(position, 4, armnnSerializer.ConstTensor);
+        $.inputToForgetWeights = reader.table(position, 6, armnnSerializer.ConstTensor);
+        $.inputToCellWeights = reader.table(position, 8, armnnSerializer.ConstTensor);
+        $.inputToOutputWeights = reader.table(position, 10, armnnSerializer.ConstTensor);
+        $.recurrentToInputWeights = reader.table(position, 12, armnnSerializer.ConstTensor);
+        $.recurrentToForgetWeights = reader.table(position, 14, armnnSerializer.ConstTensor);
+        $.recurrentToCellWeights = reader.table(position, 16, armnnSerializer.ConstTensor);
+        $.recurrentToOutputWeights = reader.table(position, 18, armnnSerializer.ConstTensor);
+        $.inputGateBias = reader.table(position, 20, armnnSerializer.ConstTensor);
+        $.forgetGateBias = reader.table(position, 22, armnnSerializer.ConstTensor);
+        $.cellBias = reader.table(position, 24, armnnSerializer.ConstTensor);
+        $.outputGateBias = reader.table(position, 26, armnnSerializer.ConstTensor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.QuantizedLstmInputParams();
-        $.inputToInputWeights = reader.object(json.inputToInputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.inputToForgetWeights = reader.object(json.inputToForgetWeights, armnnSerializer.ConstTensor.decodeText);
-        $.inputToCellWeights = reader.object(json.inputToCellWeights, armnnSerializer.ConstTensor.decodeText);
-        $.inputToOutputWeights = reader.object(json.inputToOutputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.recurrentToInputWeights = reader.object(json.recurrentToInputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.recurrentToForgetWeights = reader.object(json.recurrentToForgetWeights, armnnSerializer.ConstTensor.decodeText);
-        $.recurrentToCellWeights = reader.object(json.recurrentToCellWeights, armnnSerializer.ConstTensor.decodeText);
-        $.recurrentToOutputWeights = reader.object(json.recurrentToOutputWeights, armnnSerializer.ConstTensor.decodeText);
-        $.inputGateBias = reader.object(json.inputGateBias, armnnSerializer.ConstTensor.decodeText);
-        $.forgetGateBias = reader.object(json.forgetGateBias, armnnSerializer.ConstTensor.decodeText);
-        $.cellBias = reader.object(json.cellBias, armnnSerializer.ConstTensor.decodeText);
-        $.outputGateBias = reader.object(json.outputGateBias, armnnSerializer.ConstTensor.decodeText);
+        $.inputToInputWeights = reader.object(json.inputToInputWeights, armnnSerializer.ConstTensor);
+        $.inputToForgetWeights = reader.object(json.inputToForgetWeights, armnnSerializer.ConstTensor);
+        $.inputToCellWeights = reader.object(json.inputToCellWeights, armnnSerializer.ConstTensor);
+        $.inputToOutputWeights = reader.object(json.inputToOutputWeights, armnnSerializer.ConstTensor);
+        $.recurrentToInputWeights = reader.object(json.recurrentToInputWeights, armnnSerializer.ConstTensor);
+        $.recurrentToForgetWeights = reader.object(json.recurrentToForgetWeights, armnnSerializer.ConstTensor);
+        $.recurrentToCellWeights = reader.object(json.recurrentToCellWeights, armnnSerializer.ConstTensor);
+        $.recurrentToOutputWeights = reader.object(json.recurrentToOutputWeights, armnnSerializer.ConstTensor);
+        $.inputGateBias = reader.object(json.inputGateBias, armnnSerializer.ConstTensor);
+        $.forgetGateBias = reader.object(json.forgetGateBias, armnnSerializer.ConstTensor);
+        $.cellBias = reader.object(json.cellBias, armnnSerializer.ConstTensor);
+        $.outputGateBias = reader.object(json.outputGateBias, armnnSerializer.ConstTensor);
         return $;
     }
 };
@@ -2021,15 +2021,15 @@ armnnSerializer.QuantizedLstmLayer = class QuantizedLstmLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.QuantizedLstmLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.inputParams = reader.table(position, 6, armnnSerializer.QuantizedLstmInputParams.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.inputParams = reader.table(position, 6, armnnSerializer.QuantizedLstmInputParams);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.QuantizedLstmLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.inputParams = reader.object(json.inputParams, armnnSerializer.QuantizedLstmInputParams.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.inputParams = reader.object(json.inputParams, armnnSerializer.QuantizedLstmInputParams);
         return $;
     }
 };
@@ -2038,13 +2038,13 @@ armnnSerializer.DequantizeLayer = class DequantizeLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.DequantizeLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.DequantizeLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -2053,13 +2053,13 @@ armnnSerializer.MergeLayer = class MergeLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.MergeLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.MergeLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -2068,13 +2068,13 @@ armnnSerializer.SwitchLayer = class SwitchLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.SwitchLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.SwitchLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -2083,13 +2083,13 @@ armnnSerializer.PreluLayer = class PreluLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.PreluLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.PreluLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -2098,19 +2098,19 @@ armnnSerializer.TransposeConvolution2dLayer = class TransposeConvolution2dLayer 
 
     static decode(reader, position) {
         const $ = new armnnSerializer.TransposeConvolution2dLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.TransposeConvolution2dDescriptor.decode);
-        $.weights = reader.table(position, 8, armnnSerializer.ConstTensor.decode);
-        $.biases = reader.table(position, 10, armnnSerializer.ConstTensor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.TransposeConvolution2dDescriptor);
+        $.weights = reader.table(position, 8, armnnSerializer.ConstTensor);
+        $.biases = reader.table(position, 10, armnnSerializer.ConstTensor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.TransposeConvolution2dLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.TransposeConvolution2dDescriptor.decodeText);
-        $.weights = reader.object(json.weights, armnnSerializer.ConstTensor.decodeText);
-        $.biases = reader.object(json.biases, armnnSerializer.ConstTensor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.TransposeConvolution2dDescriptor);
+        $.weights = reader.object(json.weights, armnnSerializer.ConstTensor);
+        $.biases = reader.object(json.biases, armnnSerializer.ConstTensor);
         return $;
     }
 };
@@ -2148,15 +2148,15 @@ armnnSerializer.TransposeLayer = class TransposeLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.TransposeLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.TransposeDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.TransposeDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.TransposeLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.TransposeDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.TransposeDescriptor);
         return $;
     }
 };
@@ -2165,13 +2165,13 @@ armnnSerializer.TransposeDescriptor = class TransposeDescriptor {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.TransposeDescriptor();
-        $.dimMappings = reader.typedArray(position, 4, Uint32Array);
+        $.dimMappings = reader.array(position, 4, Uint32Array);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.TransposeDescriptor();
-        $.dimMappings = reader.typedArray(json.dimMappings, Uint32Array);
+        $.dimMappings = reader.array(json.dimMappings, Uint32Array);
         return $;
     }
 };
@@ -2180,15 +2180,15 @@ armnnSerializer.ResizeLayer = class ResizeLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.ResizeLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.ResizeDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.ResizeDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.ResizeLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.ResizeDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.ResizeDescriptor);
         return $;
     }
 };
@@ -2222,15 +2222,15 @@ armnnSerializer.StackLayer = class StackLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.StackLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.StackDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.StackDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.StackLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.StackDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.StackDescriptor);
         return $;
     }
 };
@@ -2241,7 +2241,7 @@ armnnSerializer.StackDescriptor = class StackDescriptor {
         const $ = new armnnSerializer.StackDescriptor();
         $.axis = reader.uint32_(position, 4, 0);
         $.numInputs = reader.uint32_(position, 6, 0);
-        $.inputShape = reader.typedArray(position, 8, Uint32Array);
+        $.inputShape = reader.array(position, 8, Uint32Array);
         return $;
     }
 
@@ -2249,7 +2249,7 @@ armnnSerializer.StackDescriptor = class StackDescriptor {
         const $ = new armnnSerializer.StackDescriptor();
         $.axis = reader.value(json.axis, 0);
         $.numInputs = reader.value(json.numInputs, 0);
-        $.inputShape = reader.typedArray(json.inputShape, Uint32Array);
+        $.inputShape = reader.array(json.inputShape, Uint32Array);
         return $;
     }
 };
@@ -2275,15 +2275,15 @@ armnnSerializer.StandInLayer = class StandInLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.StandInLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
-        $.descriptor = reader.table(position, 6, armnnSerializer.StandInDescriptor.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
+        $.descriptor = reader.table(position, 6, armnnSerializer.StandInDescriptor);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.StandInLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
-        $.descriptor = reader.object(json.descriptor, armnnSerializer.StandInDescriptor.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
+        $.descriptor = reader.object(json.descriptor, armnnSerializer.StandInDescriptor);
         return $;
     }
 };
@@ -2292,13 +2292,13 @@ armnnSerializer.RankLayer = class RankLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.RankLayer();
-        $.base = reader.table(position, 4, armnnSerializer.LayerBase.decode);
+        $.base = reader.table(position, 4, armnnSerializer.LayerBase);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.RankLayer();
-        $.base = reader.object(json.base, armnnSerializer.LayerBase.decodeText);
+        $.base = reader.object(json.base, armnnSerializer.LayerBase);
         return $;
     }
 };
@@ -2440,7 +2440,7 @@ armnnSerializer.AnyLayer = class AnyLayer {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.AnyLayer();
-        $.layer = reader.union(position, 4, armnnSerializer.Layer.decode);
+        $.layer = reader.union(position, 4, armnnSerializer.Layer);
         return $;
     }
 
@@ -2482,19 +2482,19 @@ armnnSerializer.SerializedGraph = class SerializedGraph {
 
     static decode(reader, position) {
         const $ = new armnnSerializer.SerializedGraph();
-        $.layers = reader.tableArray(position, 4, armnnSerializer.AnyLayer.decode);
-        $.inputIds = reader.typedArray(position, 6, Int32Array);
-        $.outputIds = reader.typedArray(position, 8, Int32Array);
-        $.featureVersions = reader.table(position, 10, armnnSerializer.FeatureCompatibilityVersions.decode);
+        $.layers = reader.tables(position, 4, armnnSerializer.AnyLayer);
+        $.inputIds = reader.array(position, 6, Int32Array);
+        $.outputIds = reader.array(position, 8, Int32Array);
+        $.featureVersions = reader.table(position, 10, armnnSerializer.FeatureCompatibilityVersions);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new armnnSerializer.SerializedGraph();
-        $.layers = reader.objectArray(json.layers, armnnSerializer.AnyLayer.decodeText);
-        $.inputIds = reader.typedArray(json.inputIds, Int32Array);
-        $.outputIds = reader.typedArray(json.outputIds, Int32Array);
-        $.featureVersions = reader.object(json.featureVersions, armnnSerializer.FeatureCompatibilityVersions.decodeText);
+        $.layers = reader.objects(json.layers, armnnSerializer.AnyLayer);
+        $.inputIds = reader.array(json.inputIds, Int32Array);
+        $.outputIds = reader.array(json.outputIds, Int32Array);
+        $.featureVersions = reader.object(json.featureVersions, armnnSerializer.FeatureCompatibilityVersions);
         return $;
     }
 };

@@ -997,32 +997,32 @@ flatc.Generator = class {
                                 }
                                 default: {
                                     const arrayType = `${fieldType.name[0].toUpperCase() + fieldType.name.substring(1)}Array`;
-                                    this._builder.add(`$.${field.name} = reader.typedArray(position, ${field.offset}, ${arrayType});`);
+                                    this._builder.add(`$.${field.name} = reader.array(position, ${field.offset}, ${arrayType});`);
                                     break;
                                 }
                             }
                         } else if (fieldType instanceof flatc.Union) {
                             const unionType = `${field.type.parent.name}.${field.type.name}`;
-                            this._builder.add(`$.${field.name} = reader.unionArray(position, ${field.offset}, ${unionType}.decode);`);
+                            this._builder.add(`$.${field.name} = reader.unions(position, ${field.offset}, ${unionType});`);
                         } else if (fieldType instanceof flatc.Struct) {
                             const fieldType = `${field.type.parent.name}.${field.type.name}`;
-                            this._builder.add(`$.${field.name} = reader.structArray(position, ${field.offset}, ${fieldType}.decode);`);
+                            this._builder.add(`$.${field.name} = reader.structs(position, ${field.offset}, ${fieldType});`);
                         } else {
                             const fieldType = `${field.type.parent.name}.${field.type.name}`;
-                            this._builder.add(`$.${field.name} = reader.tableArray(position, ${field.offset}, ${fieldType}.decode);`);
+                            this._builder.add(`$.${field.name} = reader.tables(position, ${field.offset}, ${fieldType});`);
                         }
                     } else if (fieldType instanceof flatc.PrimitiveType) {
                         const n = fieldType.name === 'uint64' || fieldType.name === 'int64' ? 'n' : '';
                         this._builder.add(`$.${field.name} = reader.${fieldType.name}_(position, ${field.offset}, ${field.defaultValue}${n});`);
                     } else if (fieldType instanceof flatc.Union) {
                         const unionType = `${field.type.parent.name}.${field.type.name}`;
-                        this._builder.add(`$.${field.name} = reader.union(position, ${field.offset}, ${unionType}.decode);`);
+                        this._builder.add(`$.${field.name} = reader.union(position, ${field.offset}, ${unionType});`);
                     } else if (fieldType instanceof flatc.Struct) {
                         const fieldType = `${field.type.parent.name}.${field.type.name}`;
-                        this._builder.add(`$.${field.name} = reader.struct(position, ${field.offset}, ${fieldType}.decode);`);
+                        this._builder.add(`$.${field.name} = reader.struct(position, ${field.offset}, ${fieldType});`);
                     } else {
                         const fieldType = `${field.type.parent.name}.${field.type.name}`;
-                        this._builder.add(`$.${field.name} = reader.table(position, ${field.offset}, ${fieldType}.decode);`);
+                        this._builder.add(`$.${field.name} = reader.table(position, ${field.offset}, ${fieldType});`);
                     }
                 }
                 this._builder.add('return $;');
@@ -1046,8 +1046,8 @@ flatc.Generator = class {
                                         break;
                                     }
                                     default: {
-                                        const arrayType = `${field.type.name[0].toUpperCase() + field.type.name.substring(1)}Array`;
-                                        this._builder.add(`$.${field.name} = reader.typedArray(json.${field.name}, ${arrayType});`);
+                                        const type = `${field.type.name[0].toUpperCase() + field.type.name.substring(1)}Array`;
+                                        this._builder.add(`$.${field.name} = reader.array(json.${field.name}, ${type});`);
                                         break;
                                     }
                                 }
@@ -1058,7 +1058,7 @@ flatc.Generator = class {
                                 this._builder.add(`$.${field.name} = ${fieldType}.decode(reader, position + ${field.offset});`);
                             } else {
                                 const fieldType = `${field.type.parent.name}.${field.type.name}`;
-                                this._builder.add(`$.${field.name} = reader.objectArray(json.${field.name}, ${fieldType}.decodeText);`);
+                                this._builder.add(`$.${field.name} = reader.objects(json.${field.name}, ${fieldType});`);
                             }
                         } else if (field.type instanceof flatc.PrimitiveType) {
                             switch (field.type.name) {
@@ -1083,7 +1083,7 @@ flatc.Generator = class {
                             this._builder.add(`$.${field.name} = ${unionType}.decodeText(reader, json.${field.name}, json.${field.name}_type);`);
                         } else { // struct | table
                             const fieldType = `${field.type.parent.name}.${field.type.name}`;
-                            this._builder.add(`$.${field.name} = reader.object(json.${field.name}, ${fieldType}.decodeText);`);
+                            this._builder.add(`$.${field.name} = reader.object(json.${field.name}, ${fieldType});`);
                         }
                     }
                     this._builder.add('return $;');

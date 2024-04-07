@@ -53,8 +53,8 @@ torch.jit.mobile.serialization.QuantizedSchema = class QuantizedSchema {
         $.qscheme = reader.int8_(position, 4, 0);
         $.scale = reader.float64_(position, 6, 0);
         $.zero_point = reader.int32_(position, 8, 0);
-        $.scales = reader.table(position, 10, torch.jit.mobile.serialization.TensorMetadata.decode);
-        $.zero_points = reader.table(position, 12, torch.jit.mobile.serialization.TensorMetadata.decode);
+        $.scales = reader.table(position, 10, torch.jit.mobile.serialization.TensorMetadata);
+        $.zero_points = reader.table(position, 12, torch.jit.mobile.serialization.TensorMetadata);
         $.axis = reader.int32_(position, 14, 0);
         return $;
     }
@@ -67,10 +67,10 @@ torch.jit.mobile.serialization.TensorMetadata = class TensorMetadata {
         $.storage_location_index = reader.uint32_(position, 4, 0);
         $.scalar_type = reader.int8_(position, 6, 0);
         $.storage_offset = reader.int32_(position, 8, 0);
-        $.sizes = reader.typedArray(position, 10, Int32Array);
-        $.strides = reader.typedArray(position, 12, Int32Array);
+        $.sizes = reader.array(position, 10, Int32Array);
+        $.strides = reader.array(position, 12, Int32Array);
         $.requires_grad = reader.bool_(position, 14, false);
-        $.quantized_schema = reader.table(position, 16, torch.jit.mobile.serialization.QuantizedSchema.decode);
+        $.quantized_schema = reader.table(position, 16, torch.jit.mobile.serialization.QuantizedSchema);
         return $;
     }
 };
@@ -97,7 +97,7 @@ torch.jit.mobile.serialization.List = class List {
 
     static decode(reader, position) {
         const $ = new torch.jit.mobile.serialization.List();
-        $.items = reader.typedArray(position, 4, Uint32Array);
+        $.items = reader.array(position, 4, Uint32Array);
         $.annotation_str = reader.string_(position, 6, null);
         return $;
     }
@@ -116,7 +116,7 @@ torch.jit.mobile.serialization.DoubleList = class DoubleList {
 
     static decode(reader, position) {
         const $ = new torch.jit.mobile.serialization.DoubleList();
-        $.items = reader.typedArray(position, 4, Float64Array);
+        $.items = reader.array(position, 4, Float64Array);
         return $;
     }
 };
@@ -134,7 +134,7 @@ torch.jit.mobile.serialization.Tuple = class Tuple {
 
     static decode(reader, position) {
         const $ = new torch.jit.mobile.serialization.Tuple();
-        $.items = reader.typedArray(position, 4, Uint32Array);
+        $.items = reader.array(position, 4, Uint32Array);
         return $;
     }
 };
@@ -143,8 +143,8 @@ torch.jit.mobile.serialization.Dict = class Dict {
 
     static decode(reader, position) {
         const $ = new torch.jit.mobile.serialization.Dict();
-        $.keys = reader.typedArray(position, 4, Uint32Array);
-        $.values = reader.typedArray(position, 6, Uint32Array);
+        $.keys = reader.array(position, 4, Uint32Array);
+        $.values = reader.array(position, 6, Uint32Array);
         $.annotation_str = reader.string_(position, 8, null);
         return $;
     }
@@ -175,7 +175,7 @@ torch.jit.mobile.serialization.Object = class Object {
         const $ = new torch.jit.mobile.serialization.Object();
         $.type_index = reader.uint32_(position, 4, 0);
         $.state = reader.uint32_(position, 6, 0);
-        $.attrs = reader.typedArray(position, 8, Uint32Array);
+        $.attrs = reader.array(position, 8, Uint32Array);
         $.setstate_func = reader.uint32_(position, 10, 0);
         return $;
     }
@@ -238,8 +238,8 @@ torch.jit.mobile.serialization.Schema = class Schema {
 
     static decode(reader, position) {
         const $ = new torch.jit.mobile.serialization.Schema();
-        $.arguments = reader.tableArray(position, 4, torch.jit.mobile.serialization.Arg.decode);
-        $.returns = reader.tableArray(position, 6, torch.jit.mobile.serialization.Arg.decode);
+        $.arguments = reader.tables(position, 4, torch.jit.mobile.serialization.Arg);
+        $.returns = reader.tables(position, 6, torch.jit.mobile.serialization.Arg);
         return $;
     }
 };
@@ -258,13 +258,13 @@ torch.jit.mobile.serialization.Function = class Function {
     static decode(reader, position) {
         const $ = new torch.jit.mobile.serialization.Function();
         $.qn = reader.string_(position, 4, null);
-        $.instructions = reader.structArray(position, 6, torch.jit.mobile.serialization.Instruction.decode);
-        $.operators = reader.tableArray(position, 8, torch.jit.mobile.serialization.Operator.decode);
-        $.constants = reader.typedArray(position, 10, Uint32Array);
+        $.instructions = reader.structs(position, 6, torch.jit.mobile.serialization.Instruction);
+        $.operators = reader.tables(position, 8, torch.jit.mobile.serialization.Operator);
+        $.constants = reader.array(position, 10, Uint32Array);
         $.type_annotations = reader.strings_(position, 12);
         $.register_size = reader.int32_(position, 14, 0);
-        $.schema = reader.table(position, 16, torch.jit.mobile.serialization.Schema.decode);
-        $.debug_info = reader.table(position, 18, torch.jit.mobile.serialization.DebugInfo.decode);
+        $.schema = reader.table(position, 16, torch.jit.mobile.serialization.Schema);
+        $.debug_info = reader.table(position, 18, torch.jit.mobile.serialization.DebugInfo);
         $.class_type = reader.uint32_(position, 20, 0);
         return $;
     }
@@ -274,7 +274,7 @@ torch.jit.mobile.serialization.StorageData = class StorageData {
 
     static decode(reader, position) {
         const $ = new torch.jit.mobile.serialization.StorageData();
-        $.data = reader.typedArray(position, 4, Uint8Array);
+        $.data = reader.array(position, 4, Uint8Array);
         return $;
     }
 };
@@ -308,7 +308,7 @@ torch.jit.mobile.serialization.IValue = class IValue {
 
     static decode(reader, position) {
         const $ = new torch.jit.mobile.serialization.IValue();
-        $.val = reader.union(position, 4, torch.jit.mobile.serialization.IValueUnion.decode);
+        $.val = reader.union(position, 4, torch.jit.mobile.serialization.IValueUnion);
         return $;
     }
 };
@@ -336,15 +336,15 @@ torch.jit.mobile.serialization.Module = class Module {
     static decode(reader, position) {
         const $ = new torch.jit.mobile.serialization.Module();
         $.bytecode_version = reader.uint32_(position, 4, 0);
-        $.extra_files = reader.tableArray(position, 6, torch.jit.mobile.serialization.ExtraFile.decode);
-        $.methods = reader.typedArray(position, 8, Uint32Array);
+        $.extra_files = reader.tables(position, 6, torch.jit.mobile.serialization.ExtraFile);
+        $.methods = reader.array(position, 8, Uint32Array);
         $.state_obj = reader.uint32_(position, 10, 0);
-        $.ivalues = reader.tableArray(position, 12, torch.jit.mobile.serialization.IValue.decode);
+        $.ivalues = reader.tables(position, 12, torch.jit.mobile.serialization.IValue);
         $.storage_data_size = reader.int32_(position, 14, 0);
-        $.storage_data = reader.tableArray(position, 16, torch.jit.mobile.serialization.StorageData.decode);
-        $.object_types = reader.tableArray(position, 18, torch.jit.mobile.serialization.ObjectType.decode);
-        $.jit_sources = reader.tableArray(position, 20, torch.jit.mobile.serialization.ExtraFile.decode);
-        $.jit_constants = reader.typedArray(position, 22, Uint32Array);
+        $.storage_data = reader.tables(position, 16, torch.jit.mobile.serialization.StorageData);
+        $.object_types = reader.tables(position, 18, torch.jit.mobile.serialization.ObjectType);
+        $.jit_sources = reader.tables(position, 20, torch.jit.mobile.serialization.ExtraFile);
+        $.jit_constants = reader.array(position, 22, Uint32Array);
         $.operator_version = reader.uint32_(position, 24, 0);
         $.mobile_ivalue_size = reader.uint32_(position, 26, 0);
         return $;
@@ -409,11 +409,11 @@ executorch_flatbuffer.Tensor = class Tensor {
         const $ = new executorch_flatbuffer.Tensor();
         $.scalar_type = reader.int8_(position, 4, 0);
         $.storage_offset = reader.int32_(position, 6, 0);
-        $.sizes = reader.typedArray(position, 8, Int32Array);
-        $.dim_order = reader.typedArray(position, 10, Uint8Array);
+        $.sizes = reader.array(position, 8, Int32Array);
+        $.dim_order = reader.array(position, 10, Uint8Array);
         $.requires_grad = reader.bool_(position, 12, false);
         $.constant_buffer_idx = reader.uint32_(position, 14, 0);
-        $.allocation_info = reader.table(position, 16, executorch_flatbuffer.AllocationDetails.decode);
+        $.allocation_info = reader.table(position, 16, executorch_flatbuffer.AllocationDetails);
         $.layout = reader.int8_(position, 18, 0);
         $.shape_dynamism = reader.int8_(position, 20, 0);
         return $;
@@ -469,7 +469,7 @@ executorch_flatbuffer.DoubleList = class DoubleList {
 
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.DoubleList();
-        $.items = reader.typedArray(position, 4, Float64Array);
+        $.items = reader.array(position, 4, Float64Array);
         return $;
     }
 };
@@ -487,7 +487,7 @@ executorch_flatbuffer.TensorList = class TensorList {
 
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.TensorList();
-        $.items = reader.typedArray(position, 4, Int32Array);
+        $.items = reader.array(position, 4, Int32Array);
         return $;
     }
 };
@@ -496,7 +496,7 @@ executorch_flatbuffer.OptionalTensorList = class OptionalTensorList {
 
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.OptionalTensorList();
-        $.items = reader.typedArray(position, 4, Int32Array);
+        $.items = reader.array(position, 4, Int32Array);
         return $;
     }
 };
@@ -525,7 +525,7 @@ executorch_flatbuffer.EValue = class EValue {
 
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.EValue();
-        $.val = reader.union(position, 4, executorch_flatbuffer.KernelTypes.decode);
+        $.val = reader.union(position, 4, executorch_flatbuffer.KernelTypes);
         return $;
     }
 };
@@ -545,7 +545,7 @@ executorch_flatbuffer.KernelCall = class KernelCall {
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.KernelCall();
         $.op_index = reader.int32_(position, 4, 0);
-        $.args = reader.typedArray(position, 6, Int32Array);
+        $.args = reader.array(position, 6, Int32Array);
         return $;
     }
 };
@@ -555,7 +555,7 @@ executorch_flatbuffer.DelegateCall = class DelegateCall {
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.DelegateCall();
         $.delegate_index = reader.int32_(position, 4, 0);
-        $.args = reader.typedArray(position, 6, Int32Array);
+        $.args = reader.array(position, 6, Int32Array);
         return $;
     }
 };
@@ -607,7 +607,7 @@ executorch_flatbuffer.Instruction = class Instruction {
 
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.Instruction();
-        $.instr_args = reader.union(position, 4, executorch_flatbuffer.InstructionArguments.decode);
+        $.instr_args = reader.union(position, 4, executorch_flatbuffer.InstructionArguments);
         return $;
     }
 };
@@ -628,7 +628,7 @@ executorch_flatbuffer.FrameList = class FrameList {
 
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.FrameList();
-        $.items = reader.tableArray(position, 4, executorch_flatbuffer.Frame.decode);
+        $.items = reader.tables(position, 4, executorch_flatbuffer.Frame);
         return $;
     }
 };
@@ -653,7 +653,7 @@ executorch_flatbuffer.CompileSpec = class CompileSpec {
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.CompileSpec();
         $.key = reader.string_(position, 4, null);
-        $.value = reader.typedArray(position, 6, Uint8Array);
+        $.value = reader.array(position, 6, Uint8Array);
         return $;
     }
 };
@@ -663,8 +663,8 @@ executorch_flatbuffer.BackendDelegate = class BackendDelegate {
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.BackendDelegate();
         $.id = reader.string_(position, 4, null);
-        $.processed = reader.table(position, 6, executorch_flatbuffer.BackendDelegateDataReference.decode);
-        $.compile_specs = reader.tableArray(position, 8, executorch_flatbuffer.CompileSpec.decode);
+        $.processed = reader.table(position, 6, executorch_flatbuffer.BackendDelegateDataReference);
+        $.compile_specs = reader.tables(position, 8, executorch_flatbuffer.CompileSpec);
         return $;
     }
 };
@@ -673,10 +673,10 @@ executorch_flatbuffer.Chain = class Chain {
 
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.Chain();
-        $.inputs = reader.typedArray(position, 4, Int32Array);
-        $.outputs = reader.typedArray(position, 6, Int32Array);
-        $.instructions = reader.tableArray(position, 8, executorch_flatbuffer.Instruction.decode);
-        $.stacktrace = reader.tableArray(position, 10, executorch_flatbuffer.FrameList.decode);
+        $.inputs = reader.array(position, 4, Int32Array);
+        $.outputs = reader.array(position, 6, Int32Array);
+        $.instructions = reader.tables(position, 8, executorch_flatbuffer.Instruction);
+        $.stacktrace = reader.tables(position, 10, executorch_flatbuffer.FrameList);
         return $;
     }
 };
@@ -686,13 +686,13 @@ executorch_flatbuffer.ExecutionPlan = class ExecutionPlan {
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.ExecutionPlan();
         $.name = reader.string_(position, 4, null);
-        $.container_meta_type = reader.table(position, 6, executorch_flatbuffer.ContainerMetadata.decode);
-        $.values = reader.tableArray(position, 8, executorch_flatbuffer.EValue.decode);
-        $.inputs = reader.typedArray(position, 10, Int32Array);
-        $.outputs = reader.typedArray(position, 12, Int32Array);
-        $.chains = reader.tableArray(position, 14, executorch_flatbuffer.Chain.decode);
-        $.operators = reader.tableArray(position, 16, executorch_flatbuffer.Operator.decode);
-        $.delegates = reader.tableArray(position, 18, executorch_flatbuffer.BackendDelegate.decode);
+        $.container_meta_type = reader.table(position, 6, executorch_flatbuffer.ContainerMetadata);
+        $.values = reader.tables(position, 8, executorch_flatbuffer.EValue);
+        $.inputs = reader.array(position, 10, Int32Array);
+        $.outputs = reader.array(position, 12, Int32Array);
+        $.chains = reader.tables(position, 14, executorch_flatbuffer.Chain);
+        $.operators = reader.tables(position, 16, executorch_flatbuffer.Operator);
+        $.delegates = reader.tables(position, 18, executorch_flatbuffer.BackendDelegate);
         $.non_const_buffer_sizes = reader.int64s_(position, 20);
         return $;
     }
@@ -702,7 +702,7 @@ executorch_flatbuffer.Buffer = class Buffer {
 
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.Buffer();
-        $.storage = reader.typedArray(position, 4, Uint8Array);
+        $.storage = reader.array(position, 4, Uint8Array);
         return $;
     }
 };
@@ -711,7 +711,7 @@ executorch_flatbuffer.BackendDelegateInlineData = class BackendDelegateInlineDat
 
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.BackendDelegateInlineData();
-        $.data = reader.typedArray(position, 4, Uint8Array);
+        $.data = reader.array(position, 4, Uint8Array);
         return $;
     }
 };
@@ -749,11 +749,11 @@ executorch_flatbuffer.Program = class Program {
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.Program();
         $.version = reader.uint32_(position, 4, 0);
-        $.execution_plan = reader.tableArray(position, 6, executorch_flatbuffer.ExecutionPlan.decode);
-        $.constant_buffer = reader.tableArray(position, 8, executorch_flatbuffer.Buffer.decode);
-        $.backend_delegate_data = reader.tableArray(position, 10, executorch_flatbuffer.BackendDelegateInlineData.decode);
-        $.segments = reader.tableArray(position, 12, executorch_flatbuffer.DataSegment.decode);
-        $.constant_segment = reader.table(position, 14, executorch_flatbuffer.SubsegmentOffsets.decode);
+        $.execution_plan = reader.tables(position, 6, executorch_flatbuffer.ExecutionPlan);
+        $.constant_buffer = reader.tables(position, 8, executorch_flatbuffer.Buffer);
+        $.backend_delegate_data = reader.tables(position, 10, executorch_flatbuffer.BackendDelegateInlineData);
+        $.segments = reader.tables(position, 12, executorch_flatbuffer.DataSegment);
+        $.constant_segment = reader.table(position, 14, executorch_flatbuffer.SubsegmentOffsets);
         return $;
     }
 };

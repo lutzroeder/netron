@@ -46,14 +46,14 @@ MNN.Blob = class Blob {
 
     static decode(reader, position) {
         const $ = new MNN.Blob();
-        $.dims = reader.typedArray(position, 4, Int32Array);
+        $.dims = reader.array(position, 4, Int32Array);
         $.dataFormat = reader.int8_(position, 6, 0);
         $.dataType = reader.int32_(position, 8, 1);
-        $.uint8s = reader.typedArray(position, 10, Uint8Array);
-        $.int8s = reader.typedArray(position, 12, Int8Array);
-        $.int32s = reader.typedArray(position, 14, Int32Array);
+        $.uint8s = reader.array(position, 10, Uint8Array);
+        $.int8s = reader.array(position, 12, Int8Array);
+        $.int32s = reader.array(position, 14, Int32Array);
         $.int64s = reader.int64s_(position, 16);
-        $.float32s = reader.typedArray(position, 18, Float32Array);
+        $.float32s = reader.array(position, 18, Float32Array);
         $.strings = reader.strings_(position, 20);
         $.external = reader.int64s_(position, 22);
         return $;
@@ -65,10 +65,10 @@ MNN.ListValue = class ListValue {
     static decode(reader, position) {
         const $ = new MNN.ListValue();
         $.s = reader.strings_(position, 4);
-        $.i = reader.typedArray(position, 6, Int32Array);
-        $.f = reader.typedArray(position, 8, Float32Array);
+        $.i = reader.array(position, 6, Int32Array);
+        $.f = reader.array(position, 8, Float32Array);
         $.b = reader.bools_(position, 10);
-        $.type = reader.typedArray(position, 12, Int32Array);
+        $.type = reader.array(position, 12, Int32Array);
         return $;
     }
 };
@@ -83,9 +83,9 @@ MNN.Attribute = class Attribute {
         $.key = reader.string_(position, 10, null);
         $.type = reader.int32_(position, 12, 0);
         $.f = reader.float32_(position, 14, 0);
-        $.tensor = reader.table(position, 16, MNN.Blob.decode);
-        $.list = reader.table(position, 18, MNN.ListValue.decode);
-        $.func = reader.table(position, 20, MNN.NamedAttrList.decode);
+        $.tensor = reader.table(position, 16, MNN.Blob);
+        $.list = reader.table(position, 18, MNN.ListValue);
+        $.func = reader.table(position, 20, MNN.NamedAttrList);
         return $;
     }
 };
@@ -95,7 +95,7 @@ MNN.NamedAttrList = class NamedAttrList {
     static decode(reader, position) {
         const $ = new MNN.NamedAttrList();
         $.name = reader.string_(position, 4, null);
-        $.attr = reader.tableArray(position, 6, MNN.Attribute.decode);
+        $.attr = reader.tables(position, 6, MNN.Attribute);
         return $;
     }
 };
@@ -124,8 +124,8 @@ MNN.Convolution2DCommon = class Convolution2DCommon {
         $.inputCount = reader.int32_(position, 26, 0);
         $.relu = reader.bool_(position, 28, false);
         $.relu6 = reader.bool_(position, 30, false);
-        $.pads = reader.typedArray(position, 32, Int32Array);
-        $.outPads = reader.typedArray(position, 34, Int32Array);
+        $.pads = reader.array(position, 32, Int32Array);
+        $.outPads = reader.array(position, 34, Int32Array);
         $.hasOutputShape = reader.bool_(position, 36, false);
         return $;
     }
@@ -135,17 +135,17 @@ MNN.Convolution3DCommon = class Convolution3DCommon {
 
     static decode(reader, position) {
         const $ = new MNN.Convolution3DCommon();
-        $.dilates = reader.typedArray(position, 4, Int32Array);
-        $.strides = reader.typedArray(position, 6, Int32Array);
-        $.kernels = reader.typedArray(position, 8, Int32Array);
-        $.pads = reader.typedArray(position, 10, Int32Array);
+        $.dilates = reader.array(position, 4, Int32Array);
+        $.strides = reader.array(position, 6, Int32Array);
+        $.kernels = reader.array(position, 8, Int32Array);
+        $.pads = reader.array(position, 10, Int32Array);
         $.padMode = reader.int8_(position, 12, 0);
         $.inputCount = reader.int32_(position, 14, 0);
         $.outputCount = reader.int32_(position, 16, 0);
         $.relu = reader.bool_(position, 18, false);
         $.relu6 = reader.bool_(position, 20, false);
         $.group = reader.int32_(position, 22, 1);
-        $.outPads = reader.typedArray(position, 24, Int32Array);
+        $.outPads = reader.array(position, 24, Int32Array);
         $.hasOutputShape = reader.bool_(position, 26, false);
         return $;
     }
@@ -161,7 +161,7 @@ MNN.SparseCommon = class SparseCommon {
     static decode(reader, position) {
         const $ = new MNN.SparseCommon();
         $.method = reader.int8_(position, 4, 0);
-        $.args = reader.tableArray(position, 6, MNN.Attribute.decode);
+        $.args = reader.tables(position, 6, MNN.Attribute);
         return $;
     }
 };
@@ -170,8 +170,8 @@ MNN.IDSTQuan = class IDSTQuan {
 
     static decode(reader, position) {
         const $ = new MNN.IDSTQuan();
-        $.buffer = reader.typedArray(position, 4, Int8Array);
-        $.alpha = reader.typedArray(position, 6, Float32Array);
+        $.buffer = reader.array(position, 4, Int8Array);
+        $.alpha = reader.array(position, 6, Float32Array);
         $.type = reader.int32_(position, 8, 0);
         $.useInt32 = reader.bool_(position, 10, false);
         $.quantScale = reader.float32_(position, 12, 0);
@@ -183,7 +183,7 @@ MNN.IDSTQuan = class IDSTQuan {
         $.has_scaleInt = reader.bool_(position, 24, false);
         $.shapeInt32 = reader.bool_(position, 26, false);
         $.weightSize = reader.uint32_(position, 28, 0);
-        $.index = reader.typedArray(position, 30, Uint32Array);
+        $.index = reader.array(position, 30, Uint32Array);
         return $;
     }
 };
@@ -198,17 +198,17 @@ MNN.QuantizedFloatParam = class QuantizedFloatParam {
 
     static decode(reader, position) {
         const $ = new MNN.QuantizedFloatParam();
-        $.weight = reader.typedArray(position, 4, Int8Array);
-        $.bias = reader.typedArray(position, 6, Int32Array);
-        $.scale = reader.typedArray(position, 8, Float32Array);
-        $.tensorScale = reader.typedArray(position, 10, Float32Array);
+        $.weight = reader.array(position, 4, Int8Array);
+        $.bias = reader.array(position, 6, Int32Array);
+        $.scale = reader.array(position, 8, Float32Array);
+        $.tensorScale = reader.array(position, 10, Float32Array);
         $.method = reader.int8_(position, 12, 0);
         $.nbits = reader.int32_(position, 14, 8);
         $.zeroPoint = reader.int8_(position, 16, 0);
         $.outputZeroPoint = reader.int8_(position, 18, 0);
         $.clampMin = reader.int8_(position, 20, -128);
         $.clampMax = reader.int8_(position, 22, 127);
-        $.winogradAttr = reader.typedArray(position, 24, Int32Array);
+        $.winogradAttr = reader.array(position, 24, Int32Array);
         $.outputDataType = reader.int32_(position, 26, 6);
         return $;
     }
@@ -218,12 +218,12 @@ MNN.Convolution2D = class Convolution2D {
 
     static decode(reader, position) {
         const $ = new MNN.Convolution2D();
-        $.common = reader.table(position, 4, MNN.Convolution2DCommon.decode);
-        $.weight = reader.typedArray(position, 6, Float32Array);
-        $.bias = reader.typedArray(position, 8, Float32Array);
-        $.quanParameter = reader.table(position, 10, MNN.IDSTQuan.decode);
-        $.symmetricQuan = reader.table(position, 12, MNN.QuantizedFloatParam.decode);
-        $.sparseParameter = reader.table(position, 14, MNN.SparseCommon.decode);
+        $.common = reader.table(position, 4, MNN.Convolution2DCommon);
+        $.weight = reader.array(position, 6, Float32Array);
+        $.bias = reader.array(position, 8, Float32Array);
+        $.quanParameter = reader.table(position, 10, MNN.IDSTQuan);
+        $.symmetricQuan = reader.table(position, 12, MNN.QuantizedFloatParam);
+        $.sparseParameter = reader.table(position, 14, MNN.SparseCommon);
         $.external = reader.int64s_(position, 16);
         return $;
     }
@@ -233,9 +233,9 @@ MNN.Convolution3D = class Convolution3D {
 
     static decode(reader, position) {
         const $ = new MNN.Convolution3D();
-        $.common = reader.table(position, 4, MNN.Convolution3DCommon.decode);
-        $.weight = reader.typedArray(position, 6, Float32Array);
-        $.bias = reader.typedArray(position, 8, Float32Array);
+        $.common = reader.table(position, 4, MNN.Convolution3DCommon);
+        $.weight = reader.array(position, 6, Float32Array);
+        $.bias = reader.array(position, 8, Float32Array);
         $.external = reader.int64s_(position, 10);
         return $;
     }
@@ -248,11 +248,11 @@ MNN.InnerProduct = class InnerProduct {
         $.outputCount = reader.int32_(position, 4, 0);
         $.biasTerm = reader.int32_(position, 6, 0);
         $.weightSize = reader.int32_(position, 8, 0);
-        $.weight = reader.typedArray(position, 10, Float32Array);
-        $.bias = reader.typedArray(position, 12, Float32Array);
+        $.weight = reader.array(position, 10, Float32Array);
+        $.bias = reader.array(position, 12, Float32Array);
         $.axis = reader.int32_(position, 14, 0);
         $.transpose = reader.bool_(position, 16, false);
-        $.quanParameter = reader.table(position, 18, MNN.IDSTQuan.decode);
+        $.quanParameter = reader.table(position, 18, MNN.IDSTQuan);
         return $;
     }
 };
@@ -289,7 +289,7 @@ MNN.Pool = class Pool {
         $.padType = reader.int8_(position, 20, 0);
         $.dataType = reader.int32_(position, 22, 1);
         $.ceilModel = reader.bool_(position, 24, true);
-        $.pads = reader.typedArray(position, 26, Int32Array);
+        $.pads = reader.array(position, 26, Int32Array);
         $.countType = reader.int8_(position, 28, 0);
         return $;
     }
@@ -299,9 +299,9 @@ MNN.Pool3D = class Pool3D {
 
     static decode(reader, position) {
         const $ = new MNN.Pool3D();
-        $.strides = reader.typedArray(position, 4, Int32Array);
-        $.kernels = reader.typedArray(position, 6, Int32Array);
-        $.pads = reader.typedArray(position, 8, Int32Array);
+        $.strides = reader.array(position, 4, Int32Array);
+        $.kernels = reader.array(position, 6, Int32Array);
+        $.pads = reader.array(position, 8, Int32Array);
         $.type = reader.int8_(position, 10, 0);
         $.padType = reader.int8_(position, 12, 0);
         $.isGlobal = reader.bool_(position, 14, false);
@@ -333,7 +333,7 @@ MNN.PRelu = class PRelu {
     static decode(reader, position) {
         const $ = new MNN.PRelu();
         $.slopeCount = reader.int32_(position, 4, 0);
-        $.slope = reader.typedArray(position, 6, Float32Array);
+        $.slope = reader.array(position, 6, Float32Array);
         return $;
     }
 };
@@ -385,7 +385,7 @@ MNN.Input = class Input {
 
     static decode(reader, position) {
         const $ = new MNN.Input();
-        $.dims = reader.typedArray(position, 4, Int32Array);
+        $.dims = reader.array(position, 4, Int32Array);
         $.dtype = reader.int32_(position, 6, 1);
         $.dformat = reader.int8_(position, 8, 2);
         return $;
@@ -399,11 +399,11 @@ MNN.LSTM = class LSTM {
         $.outputCount = reader.int32_(position, 4, 0);
         $.weightSize = reader.int32_(position, 6, 0);
         $.clippingThreshold = reader.float32_(position, 8, 0);
-        $.weightI = reader.table(position, 10, MNN.Blob.decode);
-        $.weightH = reader.table(position, 12, MNN.Blob.decode);
-        $.bias = reader.table(position, 14, MNN.Blob.decode);
-        $.weightIQ = reader.table(position, 16, MNN.Blob.decode);
-        $.weightIA = reader.table(position, 18, MNN.Blob.decode);
+        $.weightI = reader.table(position, 10, MNN.Blob);
+        $.weightH = reader.table(position, 12, MNN.Blob);
+        $.bias = reader.table(position, 14, MNN.Blob);
+        $.weightIQ = reader.table(position, 16, MNN.Blob);
+        $.weightIA = reader.table(position, 18, MNN.Blob);
         $.quantScale = reader.float32_(position, 20, 0);
         return $;
     }
@@ -414,7 +414,7 @@ MNN.Slice = class Slice {
     static decode(reader, position) {
         const $ = new MNN.Slice();
         $.axis = reader.int32_(position, 4, 0);
-        $.slicePoints = reader.typedArray(position, 6, Int32Array);
+        $.slicePoints = reader.array(position, 6, Int32Array);
         $.sourceType = reader.int8_(position, 8, 0);
         return $;
     }
@@ -425,12 +425,12 @@ MNN.BatchNorm = class BatchNorm {
     static decode(reader, position) {
         const $ = new MNN.BatchNorm();
         $.channels = reader.int32_(position, 4, 0);
-        $.slopeData = reader.typedArray(position, 6, Float32Array);
-        $.meanData = reader.typedArray(position, 8, Float32Array);
-        $.varData = reader.typedArray(position, 10, Float32Array);
-        $.biasData = reader.typedArray(position, 12, Float32Array);
-        $.Adata = reader.typedArray(position, 14, Float32Array);
-        $.Bdata = reader.typedArray(position, 16, Float32Array);
+        $.slopeData = reader.array(position, 6, Float32Array);
+        $.meanData = reader.array(position, 8, Float32Array);
+        $.varData = reader.array(position, 10, Float32Array);
+        $.biasData = reader.array(position, 12, Float32Array);
+        $.Adata = reader.array(position, 14, Float32Array);
+        $.Bdata = reader.array(position, 16, Float32Array);
         $.epsilon = reader.float32_(position, 18, 0.001);
         return $;
     }
@@ -441,8 +441,8 @@ MNN.Scale = class Scale {
     static decode(reader, position) {
         const $ = new MNN.Scale();
         $.channels = reader.int32_(position, 4, 0);
-        $.scaleData = reader.typedArray(position, 6, Float32Array);
-        $.biasData = reader.typedArray(position, 8, Float32Array);
+        $.scaleData = reader.array(position, 6, Float32Array);
+        $.biasData = reader.array(position, 8, Float32Array);
         $.external = reader.int64s_(position, 10);
         return $;
     }
@@ -460,7 +460,7 @@ MNN.Eltwise = class Eltwise {
     static decode(reader, position) {
         const $ = new MNN.Eltwise();
         $.type = reader.int8_(position, 4, 0);
-        $.coeff = reader.typedArray(position, 6, Float32Array);
+        $.coeff = reader.array(position, 6, Float32Array);
         return $;
     }
 };
@@ -479,7 +479,7 @@ MNN.Permute = class Permute {
 
     static decode(reader, position) {
         const $ = new MNN.Permute();
-        $.dims = reader.typedArray(position, 4, Int32Array);
+        $.dims = reader.array(position, 4, Int32Array);
         return $;
     }
 };
@@ -488,7 +488,7 @@ MNN.Reshape = class Reshape {
 
     static decode(reader, position) {
         const $ = new MNN.Reshape();
-        $.dims = reader.typedArray(position, 4, Int32Array);
+        $.dims = reader.array(position, 4, Int32Array);
         $.dimType = reader.int8_(position, 6, 0);
         return $;
     }
@@ -537,9 +537,9 @@ MNN.Proposal = class Proposal {
         $.afterNmsTopN = reader.int32_(position, 10, 0);
         $.nmsThreshold = reader.float32_(position, 12, 0);
         $.minSize = reader.int32_(position, 14, 0);
-        $.ratios = reader.table(position, 16, MNN.Blob.decode);
-        $.scales = reader.table(position, 18, MNN.Blob.decode);
-        $.anchors = reader.table(position, 20, MNN.Blob.decode);
+        $.ratios = reader.table(position, 16, MNN.Blob);
+        $.scales = reader.table(position, 18, MNN.Blob);
+        $.anchors = reader.table(position, 20, MNN.Blob);
         return $;
     }
 };
@@ -590,10 +590,10 @@ MNN.PriorBox = class PriorBox {
 
     static decode(reader, position) {
         const $ = new MNN.PriorBox();
-        $.minSizes = reader.typedArray(position, 4, Float32Array);
-        $.maxSizes = reader.typedArray(position, 6, Float32Array);
-        $.aspectRatios = reader.typedArray(position, 8, Float32Array);
-        $.variances = reader.typedArray(position, 10, Float32Array);
+        $.minSizes = reader.array(position, 4, Float32Array);
+        $.maxSizes = reader.array(position, 6, Float32Array);
+        $.aspectRatios = reader.array(position, 8, Float32Array);
+        $.variances = reader.array(position, 10, Float32Array);
         $.flip = reader.bool_(position, 12, false);
         $.clip = reader.bool_(position, 14, false);
         $.imageWidth = reader.int32_(position, 16, 0);
@@ -612,7 +612,7 @@ MNN.Normalize = class Normalize {
         $.acrossSpatial = reader.int32_(position, 4, 0);
         $.channelShared = reader.int32_(position, 6, 0);
         $.eps = reader.float32_(position, 8, 0);
-        $.scale = reader.typedArray(position, 10, Float32Array);
+        $.scale = reader.array(position, 10, Float32Array);
         return $;
     }
 };
@@ -622,9 +622,9 @@ MNN.EltwiseInt8 = class EltwiseInt8 {
     static decode(reader, position) {
         const $ = new MNN.EltwiseInt8();
         $.type = reader.int8_(position, 4, 0);
-        $.inputQuan0 = reader.table(position, 6, MNN.QuantizedFloatParam.decode);
-        $.inputQuan1 = reader.table(position, 8, MNN.QuantizedFloatParam.decode);
-        $.outputQuan = reader.table(position, 10, MNN.QuantizedFloatParam.decode);
+        $.inputQuan0 = reader.table(position, 6, MNN.QuantizedFloatParam);
+        $.inputQuan1 = reader.table(position, 8, MNN.QuantizedFloatParam);
+        $.outputQuan = reader.table(position, 10, MNN.QuantizedFloatParam);
         return $;
     }
 };
@@ -711,7 +711,7 @@ MNN.SqueezeParam = class SqueezeParam {
 
     static decode(reader, position) {
         const $ = new MNN.SqueezeParam();
-        $.squeezeDims = reader.typedArray(position, 4, Int32Array);
+        $.squeezeDims = reader.array(position, 4, Int32Array);
         return $;
     }
 };
@@ -743,7 +743,7 @@ MNN.ReductionParam = class ReductionParam {
     static decode(reader, position) {
         const $ = new MNN.ReductionParam();
         $.operation = reader.int8_(position, 4, 0);
-        $.dim = reader.typedArray(position, 6, Int32Array);
+        $.dim = reader.array(position, 6, Int32Array);
         $.coeff = reader.float32_(position, 8, 0);
         $.keepDims = reader.bool_(position, 10, false);
         $.dType = reader.int32_(position, 12, 1);
@@ -851,7 +851,7 @@ MNN.UnaryOp = class UnaryOp {
         const $ = new MNN.UnaryOp();
         $.opType = reader.int32_(position, 4, 0);
         $.T = reader.int32_(position, 6, 0);
-        $.tableInt8 = reader.typedArray(position, 8, Int8Array);
+        $.tableInt8 = reader.array(position, 8, Int8Array);
         return $;
     }
 };
@@ -967,7 +967,7 @@ MNN.Crop = class Crop {
     static decode(reader, position) {
         const $ = new MNN.Crop();
         $.axis = reader.int32_(position, 4, 2);
-        $.offset = reader.typedArray(position, 6, Int32Array);
+        $.offset = reader.array(position, 6, Int32Array);
         return $;
     }
 };
@@ -976,8 +976,8 @@ MNN.SpaceBatch = class SpaceBatch {
 
     static decode(reader, position) {
         const $ = new MNN.SpaceBatch();
-        $.blockShape = reader.table(position, 4, MNN.Blob.decode);
-        $.padding = reader.table(position, 6, MNN.Blob.decode);
+        $.blockShape = reader.table(position, 4, MNN.Blob);
+        $.padding = reader.table(position, 6, MNN.Blob);
         return $;
     }
 };
@@ -989,8 +989,8 @@ MNN.MatMul = class MatMul {
         $.T = reader.int32_(position, 4, 0);
         $.transposeA = reader.bool_(position, 6, false);
         $.transposeB = reader.bool_(position, 8, false);
-        $.weight = reader.typedArray(position, 10, Float32Array);
-        $.bias = reader.typedArray(position, 12, Float32Array);
+        $.weight = reader.array(position, 10, Float32Array);
+        $.bias = reader.array(position, 12, Float32Array);
         return $;
     }
 };
@@ -999,7 +999,7 @@ MNN.MomentsParam = class MomentsParam {
 
     static decode(reader, position) {
         const $ = new MNN.MomentsParam();
-        $.dim = reader.typedArray(position, 4, Int32Array);
+        $.dim = reader.array(position, 4, Int32Array);
         $.keepDims = reader.bool_(position, 6, true);
         $.dType = reader.int32_(position, 8, 1);
         return $;
@@ -1014,16 +1014,16 @@ MNN.RNNParam = class RNNParam {
         $.isBidirectionalRNN = reader.bool_(position, 6, false);
         $.linearBeforeReset = reader.bool_(position, 8, false);
         $.keepAllOutputs = reader.bool_(position, 10, false);
-        $.fwGateWeight = reader.table(position, 12, MNN.Blob.decode);
-        $.fwGateBias = reader.table(position, 14, MNN.Blob.decode);
-        $.fwCandidateWeight = reader.table(position, 16, MNN.Blob.decode);
-        $.fwCandidateBias = reader.table(position, 18, MNN.Blob.decode);
-        $.fwRecurrentBias = reader.table(position, 20, MNN.Blob.decode);
-        $.bwGateWeight = reader.table(position, 22, MNN.Blob.decode);
-        $.bwGateBias = reader.table(position, 24, MNN.Blob.decode);
-        $.bwCandidateWeight = reader.table(position, 26, MNN.Blob.decode);
-        $.bwCandidateBias = reader.table(position, 28, MNN.Blob.decode);
-        $.bwRecurrentBias = reader.table(position, 30, MNN.Blob.decode);
+        $.fwGateWeight = reader.table(position, 12, MNN.Blob);
+        $.fwGateBias = reader.table(position, 14, MNN.Blob);
+        $.fwCandidateWeight = reader.table(position, 16, MNN.Blob);
+        $.fwCandidateBias = reader.table(position, 18, MNN.Blob);
+        $.fwRecurrentBias = reader.table(position, 20, MNN.Blob);
+        $.bwGateWeight = reader.table(position, 22, MNN.Blob);
+        $.bwGateBias = reader.table(position, 24, MNN.Blob);
+        $.bwCandidateWeight = reader.table(position, 26, MNN.Blob);
+        $.bwCandidateBias = reader.table(position, 28, MNN.Blob);
+        $.bwRecurrentBias = reader.table(position, 30, MNN.Blob);
         return $;
     }
 };
@@ -1074,7 +1074,7 @@ MNN.DetectionPostProcessParam = class DetectionPostProcessParam {
         $.iouThreshold = reader.float32_(position, 12, 0);
         $.numClasses = reader.int32_(position, 14, 0);
         $.useRegularNMS = reader.bool_(position, 16, false);
-        $.centerSizeEncoding = reader.typedArray(position, 18, Float32Array);
+        $.centerSizeEncoding = reader.array(position, 18, Float32Array);
         return $;
     }
 };
@@ -1109,10 +1109,10 @@ MNN.LayerNorm = class LayerNorm {
 
     static decode(reader, position) {
         const $ = new MNN.LayerNorm();
-        $.axis = reader.typedArray(position, 4, Int32Array);
+        $.axis = reader.array(position, 4, Int32Array);
         $.epsilon = reader.float32_(position, 6, 0);
-        $.gamma = reader.typedArray(position, 8, Float32Array);
-        $.beta = reader.typedArray(position, 10, Float32Array);
+        $.gamma = reader.array(position, 8, Float32Array);
+        $.beta = reader.array(position, 10, Float32Array);
         $.group = reader.int32_(position, 12, 1);
         $.external = reader.int64s_(position, 14);
         return $;
@@ -1125,8 +1125,8 @@ MNN.GroupNorm = class GroupNorm {
         const $ = new MNN.GroupNorm();
         $.axis = reader.int32_(position, 4, 0);
         $.epsilon = reader.float32_(position, 6, 0);
-        $.gamma = reader.typedArray(position, 8, Float32Array);
-        $.beta = reader.typedArray(position, 10, Float32Array);
+        $.gamma = reader.array(position, 8, Float32Array);
+        $.beta = reader.array(position, 10, Float32Array);
         $.group = reader.int32_(position, 12, 1);
         $.bSwish = reader.int32_(position, 14, 0);
         $.external = reader.int64s_(position, 16);
@@ -1153,7 +1153,7 @@ MNN.TensorArray = class TensorArray {
         const $ = new MNN.TensorArray();
         $.dynamic_size = reader.bool_(position, 4, false);
         $.identical_element_shapes = reader.bool_(position, 6, false);
-        $.element_shape = reader.typedArray(position, 8, Int32Array);
+        $.element_shape = reader.array(position, 8, Int32Array);
         $.T = reader.int32_(position, 10, 1);
         $.axis = reader.int32_(position, 12, 0);
         $.keepdims = reader.bool_(position, 14, true);
@@ -1198,9 +1198,9 @@ MNN.QuantizedAdd = class QuantizedAdd {
     static decode(reader, position) {
         const $ = new MNN.QuantizedAdd();
         $.activationType = reader.int8_(position, 4, 0);
-        $.input1QuantizedParam = reader.table(position, 6, MNN.QuantizedParam.decode);
-        $.input2QuantizedParam = reader.table(position, 8, MNN.QuantizedParam.decode);
-        $.outputQuantizedParam = reader.table(position, 10, MNN.QuantizedParam.decode);
+        $.input1QuantizedParam = reader.table(position, 6, MNN.QuantizedParam);
+        $.input2QuantizedParam = reader.table(position, 8, MNN.QuantizedParam);
+        $.outputQuantizedParam = reader.table(position, 10, MNN.QuantizedParam);
         return $;
     }
 };
@@ -1220,7 +1220,7 @@ MNN.Dequantize = class Dequantize {
 
     static decode(reader, position) {
         const $ = new MNN.Dequantize();
-        $.inputQuantizedParam = reader.table(position, 4, MNN.QuantizedParam.decode);
+        $.inputQuantizedParam = reader.table(position, 4, MNN.QuantizedParam);
         $.mode = reader.int8_(position, 6, 0);
         $.modelFormat = reader.int8_(position, 8, 0);
         $.type = reader.int32_(position, 10, 0);
@@ -1251,7 +1251,7 @@ MNN.QuantizedBiasAdd = class QuantizedBiasAdd {
 
     static decode(reader, position) {
         const $ = new MNN.QuantizedBiasAdd();
-        $.bias = reader.typedArray(position, 4, Int32Array);
+        $.bias = reader.array(position, 4, Int32Array);
         $.inputType = reader.int32_(position, 6, 0);
         $.max = reader.int32_(position, 8, 0);
         $.min = reader.int32_(position, 10, 0);
@@ -1266,9 +1266,9 @@ MNN.QuantizedConcat = class QuantizedConcat {
         const $ = new MNN.QuantizedConcat();
         $.activationType = reader.int8_(position, 4, 0);
         $.axis = reader.int32_(position, 6, 0);
-        $.inputScale = reader.typedArray(position, 8, Float32Array);
-        $.inputZeroPoint = reader.typedArray(position, 10, Int32Array);
-        $.outputQuantizedParam = reader.table(position, 12, MNN.QuantizedParam.decode);
+        $.inputScale = reader.array(position, 8, Float32Array);
+        $.inputZeroPoint = reader.array(position, 10, Int32Array);
+        $.outputQuantizedParam = reader.table(position, 12, MNN.QuantizedParam);
         return $;
     }
 };
@@ -1277,8 +1277,8 @@ MNN.QuantizedLogistic = class QuantizedLogistic {
 
     static decode(reader, position) {
         const $ = new MNN.QuantizedLogistic();
-        $.inputQuantizedParam = reader.table(position, 4, MNN.QuantizedParam.decode);
-        $.outputQuantizedParam = reader.table(position, 6, MNN.QuantizedParam.decode);
+        $.inputQuantizedParam = reader.table(position, 4, MNN.QuantizedParam);
+        $.outputQuantizedParam = reader.table(position, 6, MNN.QuantizedParam);
         return $;
     }
 };
@@ -1334,7 +1334,7 @@ MNN.QuantizedReshape = class QuantizedReshape {
 
     static decode(reader, position) {
         const $ = new MNN.QuantizedReshape();
-        $.dims = reader.typedArray(position, 4, Int32Array);
+        $.dims = reader.array(position, 4, Int32Array);
         $.modelFormat = reader.int8_(position, 6, 0);
         return $;
     }
@@ -1386,21 +1386,21 @@ MNN.TfQuantizedConv2D = class TfQuantizedConv2D {
 
     static decode(reader, position) {
         const $ = new MNN.TfQuantizedConv2D();
-        $.bias = reader.typedArray(position, 4, Int32Array);
+        $.bias = reader.array(position, 4, Int32Array);
         $.biasflag = reader.bool_(position, 6, false);
-        $.common = reader.table(position, 8, MNN.Convolution2DCommon.decode);
-        $.weight = reader.typedArray(position, 10, Uint8Array);
+        $.common = reader.table(position, 8, MNN.Convolution2DCommon);
+        $.weight = reader.array(position, 10, Uint8Array);
         $.activationType = reader.int8_(position, 12, 0);
         $.multiplier = reader.int32_(position, 14, 0);
         $.outMax = reader.int32_(position, 16, 0);
         $.outMin = reader.int32_(position, 18, 0);
         $.shift = reader.int32_(position, 20, 0);
-        $.biasQuantizedParam = reader.table(position, 22, MNN.QuantizedParam.decode);
+        $.biasQuantizedParam = reader.table(position, 22, MNN.QuantizedParam);
         $.depthMultiplier = reader.int32_(position, 24, 0);
-        $.filterQuantizedParam = reader.table(position, 26, MNN.QuantizedParam.decode);
-        $.inputQuantizedParam = reader.table(position, 28, MNN.QuantizedParam.decode);
+        $.filterQuantizedParam = reader.table(position, 26, MNN.QuantizedParam);
+        $.inputQuantizedParam = reader.table(position, 28, MNN.QuantizedParam);
         $.modelFormat = reader.int8_(position, 30, 0);
-        $.outputQuantizedParam = reader.table(position, 32, MNN.QuantizedParam.decode);
+        $.outputQuantizedParam = reader.table(position, 32, MNN.QuantizedParam);
         return $;
     }
 };
@@ -1409,7 +1409,7 @@ MNN.ExtraInfo = class ExtraInfo {
 
     static decode(reader, position) {
         const $ = new MNN.ExtraInfo();
-        $.buffer = reader.typedArray(position, 4, Int8Array);
+        $.buffer = reader.array(position, 4, Int8Array);
         $.name = reader.string_(position, 6, null);
         $.version = reader.string_(position, 8, null);
         return $;
@@ -1488,11 +1488,11 @@ MNN.ImageProcessParam = class ImageProcessParam {
         $.sourceFormat = reader.int32_(position, 6, 0);
         $.destFormat = reader.int32_(position, 8, 0);
         $.wrap = reader.int8_(position, 10, 0);
-        $.mean = reader.typedArray(position, 12, Float32Array);
-        $.normal = reader.typedArray(position, 14, Float32Array);
-        $.transform = reader.typedArray(position, 16, Float32Array);
+        $.mean = reader.array(position, 12, Float32Array);
+        $.normal = reader.array(position, 14, Float32Array);
+        $.transform = reader.array(position, 16, Float32Array);
         $.paddingValue = reader.int8_(position, 18, 0);
-        $.shape = reader.typedArray(position, 20, Int32Array);
+        $.shape = reader.array(position, 20, Int32Array);
         $.outputType = reader.int32_(position, 22, 0);
         $.draw = reader.bool_(position, 24, false);
         return $;
@@ -1687,7 +1687,7 @@ MNN.Plugin = class Plugin {
     static decode(reader, position) {
         const $ = new MNN.Plugin();
         $.type = reader.string_(position, 4, null);
-        $.attr = reader.tableArray(position, 6, MNN.Attribute.decode);
+        $.attr = reader.tables(position, 6, MNN.Attribute);
         return $;
     }
 };
@@ -1698,8 +1698,8 @@ MNN.Extra = class Extra {
         const $ = new MNN.Extra();
         $.type = reader.string_(position, 4, null);
         $.engine = reader.string_(position, 6, null);
-        $.info = reader.typedArray(position, 8, Int8Array);
-        $.attr = reader.tableArray(position, 10, MNN.Attribute.decode);
+        $.info = reader.array(position, 8, Int8Array);
+        $.attr = reader.tables(position, 10, MNN.Attribute);
         $.vector = reader.bool_(position, 12, false);
         return $;
     }
@@ -1738,9 +1738,9 @@ MNN.WhileParam = class WhileParam {
         const $ = new MNN.WhileParam();
         $.cond_graph = reader.string_(position, 4, null);
         $.body_graph = reader.string_(position, 6, null);
-        $.aliases_inputs = reader.tableArray(position, 8, MNN.StringVec.decode);
+        $.aliases_inputs = reader.tables(position, 8, MNN.StringVec);
         $.aliases_outputs = reader.strings_(position, 10);
-        $.aliases_updates = reader.tableArray(position, 12, MNN.StringVec.decode);
+        $.aliases_updates = reader.tables(position, 12, MNN.StringVec);
         return $;
     }
 };
@@ -1751,8 +1751,8 @@ MNN.IfParam = class IfParam {
         const $ = new MNN.IfParam();
         $.then_graph = reader.string_(position, 4, null);
         $.else_graph = reader.string_(position, 6, null);
-        $.aliases_inputs = reader.tableArray(position, 8, MNN.StringVec.decode);
-        $.aliases_outputs = reader.tableArray(position, 10, MNN.StringVec.decode);
+        $.aliases_inputs = reader.tables(position, 8, MNN.StringVec);
+        $.aliases_outputs = reader.tables(position, 10, MNN.StringVec);
         return $;
     }
 };
@@ -1761,13 +1761,13 @@ MNN.RegionCommand = class RegionCommand {
 
     static decode(reader, position) {
         const $ = new MNN.RegionCommand();
-        $.op = reader.table(position, 4, MNN.Op.decode);
-        $.steps = reader.typedArray(position, 6, Int32Array);
-        $.size = reader.typedArray(position, 8, Int32Array);
-        $.indexes = reader.typedArray(position, 10, Int32Array);
-        $.view = reader.tableArray(position, 12, MNN.View.decode);
+        $.op = reader.table(position, 4, MNN.Op);
+        $.steps = reader.array(position, 6, Int32Array);
+        $.size = reader.array(position, 8, Int32Array);
+        $.indexes = reader.array(position, 10, Int32Array);
+        $.view = reader.tables(position, 12, MNN.View);
         $.fuse = reader.int32_(position, 14, -1);
-        $.iterIndexes = reader.typedArray(position, 16, Int32Array);
+        $.iterIndexes = reader.array(position, 16, Int32Array);
         return $;
     }
 };
@@ -1777,13 +1777,13 @@ MNN.LoopParam = class LoopParam {
     static decode(reader, position) {
         const $ = new MNN.LoopParam();
         $.tensorNumber = reader.int32_(position, 4, 0);
-        $.outputIndexes = reader.typedArray(position, 6, Int32Array);
-        $.inputIndexes = reader.typedArray(position, 8, Int32Array);
-        $.extraTensorInfos = reader.tableArray(position, 10, MNN.TensorDescribe.decode);
+        $.outputIndexes = reader.array(position, 6, Int32Array);
+        $.inputIndexes = reader.array(position, 8, Int32Array);
+        $.extraTensorInfos = reader.tables(position, 10, MNN.TensorDescribe);
         $.parallel = reader.bool_(position, 12, true);
         $.loopNumber = reader.int32_(position, 14, 0);
-        $.commands = reader.tableArray(position, 16, MNN.RegionCommand.decode);
-        $.initCommand = reader.tableArray(position, 18, MNN.RegionCommand.decode);
+        $.commands = reader.tables(position, 16, MNN.RegionCommand);
+        $.initCommand = reader.tables(position, 18, MNN.RegionCommand);
         return $;
     }
 };
@@ -1898,10 +1898,10 @@ MNN.Op = class Op {
 
     static decode(reader, position) {
         const $ = new MNN.Op();
-        $.inputIndexes = reader.typedArray(position, 4, Int32Array);
-        $.main = reader.union(position, 6, MNN.OpParameter.decode);
+        $.inputIndexes = reader.array(position, 4, Int32Array);
+        $.main = reader.union(position, 6, MNN.OpParameter);
         $.name = reader.string_(position, 10, null);
-        $.outputIndexes = reader.typedArray(position, 12, Int32Array);
+        $.outputIndexes = reader.array(position, 12, Int32Array);
         $.type = reader.int32_(position, 14, 0);
         $.defaultDimentionFormat = reader.int8_(position, 16, 1);
         return $;
@@ -1913,7 +1913,7 @@ MNN.View = class View {
     static decode(reader, position) {
         const $ = new MNN.View();
         $.offset = reader.int32_(position, 4, 0);
-        $.stride = reader.typedArray(position, 6, Int32Array);
+        $.stride = reader.array(position, 6, Int32Array);
         return $;
     }
 };
@@ -1922,9 +1922,9 @@ MNN.Region = class Region {
 
     static decode(reader, position) {
         const $ = new MNN.Region();
-        $.src = reader.table(position, 4, MNN.View.decode);
-        $.dst = reader.table(position, 6, MNN.View.decode);
-        $.size = reader.typedArray(position, 8, Int32Array);
+        $.src = reader.table(position, 4, MNN.View);
+        $.dst = reader.table(position, 6, MNN.View);
+        $.size = reader.array(position, 8, Int32Array);
         $.origin = reader.int32_(position, 10, 0);
         return $;
     }
@@ -1934,11 +1934,11 @@ MNN.TensorDescribe = class TensorDescribe {
 
     static decode(reader, position) {
         const $ = new MNN.TensorDescribe();
-        $.blob = reader.table(position, 4, MNN.Blob.decode);
+        $.blob = reader.table(position, 4, MNN.Blob);
         $.index = reader.int32_(position, 6, 0);
         $.name = reader.string_(position, 8, null);
-        $.regions = reader.tableArray(position, 10, MNN.Region.decode);
-        $.quantInfo = reader.table(position, 12, MNN.TensorQuantInfo.decode);
+        $.regions = reader.tables(position, 10, MNN.Region);
+        $.quantInfo = reader.table(position, 12, MNN.TensorQuantInfo);
         return $;
     }
 };
@@ -1962,11 +1962,11 @@ MNN.SubGraphProto = class SubGraphProto {
     static decode(reader, position) {
         const $ = new MNN.SubGraphProto();
         $.name = reader.string_(position, 4, null);
-        $.inputs = reader.typedArray(position, 6, Int32Array);
-        $.outputs = reader.typedArray(position, 8, Int32Array);
+        $.inputs = reader.array(position, 6, Int32Array);
+        $.outputs = reader.array(position, 8, Int32Array);
         $.tensors = reader.strings_(position, 10);
-        $.nodes = reader.tableArray(position, 12, MNN.Op.decode);
-        $.extraTensorDescribe = reader.tableArray(position, 14, MNN.TensorDescribe.decode);
+        $.nodes = reader.tables(position, 12, MNN.Op);
+        $.extraTensorDescribe = reader.tables(position, 14, MNN.TensorDescribe);
         return $;
     }
 };
@@ -1993,16 +1993,16 @@ MNN.Net = class Net {
     static decode(reader, position) {
         const $ = new MNN.Net();
         $.bizCode = reader.string_(position, 4, null);
-        $.extraTensorDescribe = reader.tableArray(position, 6, MNN.TensorDescribe.decode);
-        $.extraInfo = reader.table(position, 8, MNN.ExtraInfo.decode);
-        $.oplists = reader.tableArray(position, 10, MNN.Op.decode);
+        $.extraTensorDescribe = reader.tables(position, 6, MNN.TensorDescribe);
+        $.extraInfo = reader.table(position, 8, MNN.ExtraInfo);
+        $.oplists = reader.tables(position, 10, MNN.Op);
         $.outputName = reader.strings_(position, 12);
         $.preferForwardType = reader.int8_(position, 14, 0);
         $.sourceType = reader.int8_(position, 16, 0);
         $.tensorName = reader.strings_(position, 18);
         $.tensorNumber = reader.int32_(position, 20, 0);
         $.usage = reader.int8_(position, 22, 0);
-        $.subgraphs = reader.tableArray(position, 24, MNN.SubGraphProto.decode);
+        $.subgraphs = reader.tables(position, 24, MNN.SubGraphProto);
         $.mnn_uuid = reader.string_(position, 26, null);
         return $;
     }

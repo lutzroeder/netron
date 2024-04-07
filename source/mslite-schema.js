@@ -144,13 +144,13 @@ mindspore.schema.Vec2D = class Vec2D {
 
     static decode(reader, position) {
         const $ = new mindspore.schema.Vec2D();
-        $.data = reader.tableArray(position, 4, mindspore.schema.Vec.decode);
+        $.data = reader.tables(position, 4, mindspore.schema.Vec);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new mindspore.schema.Vec2D();
-        $.data = reader.objectArray(json.data, mindspore.schema.Vec.decodeText);
+        $.data = reader.objects(json.data, mindspore.schema.Vec);
         return $;
     }
 };
@@ -160,14 +160,14 @@ mindspore.schema.Attribute = class Attribute {
     static decode(reader, position) {
         const $ = new mindspore.schema.Attribute();
         $.name = reader.string_(position, 4, null);
-        $.data = reader.typedArray(position, 6, Uint8Array);
+        $.data = reader.array(position, 6, Uint8Array);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new mindspore.schema.Attribute();
         $.name = reader.value(json.name, null);
-        $.data = reader.typedArray(json.data, Uint8Array);
+        $.data = reader.array(json.data, Uint8Array);
         return $;
     }
 };
@@ -1000,14 +1000,14 @@ mindspore.schema.BatchToSpace = class BatchToSpace {
     static decode(reader, position) {
         const $ = new mindspore.schema.BatchToSpace();
         $.block_size = reader.int64s_(position, 4);
-        $.crops = reader.table(position, 6, mindspore.schema.Vec2D.decode);
+        $.crops = reader.table(position, 6, mindspore.schema.Vec2D);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new mindspore.schema.BatchToSpace();
         $.block_size = reader.array(json.block_size);
-        $.crops = reader.object(json.crops, mindspore.schema.Vec2D.decodeText);
+        $.crops = reader.object(json.crops, mindspore.schema.Vec2D);
         return $;
     }
 };
@@ -1017,14 +1017,14 @@ mindspore.schema.BatchToSpaceND = class BatchToSpaceND {
     static decode(reader, position) {
         const $ = new mindspore.schema.BatchToSpaceND();
         $.block_shape = reader.int64s_(position, 4);
-        $.crops = reader.table(position, 6, mindspore.schema.Vec2D.decode);
+        $.crops = reader.table(position, 6, mindspore.schema.Vec2D);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new mindspore.schema.BatchToSpaceND();
         $.block_shape = reader.array(json.block_shape);
-        $.crops = reader.object(json.crops, mindspore.schema.Vec2D.decodeText);
+        $.crops = reader.object(json.crops, mindspore.schema.Vec2D);
         return $;
     }
 };
@@ -1345,14 +1345,14 @@ mindspore.schema.ConstantOfShape = class ConstantOfShape {
     static decode(reader, position) {
         const $ = new mindspore.schema.ConstantOfShape();
         $.data_type = reader.int64_(position, 4, 0n);
-        $.value = reader.typedArray(position, 6, Float32Array);
+        $.value = reader.array(position, 6, Float32Array);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new mindspore.schema.ConstantOfShape();
         $.data_type = reader.int64(json.data_type, 0n);
-        $.value = reader.typedArray(json.value, Float32Array);
+        $.value = reader.array(json.value, Float32Array);
         return $;
     }
 };
@@ -1488,7 +1488,7 @@ mindspore.schema.DetectionPostProcess = class DetectionPostProcess {
         const $ = new mindspore.schema.DetectionPostProcess();
         $.format = reader.int32_(position, 4, 0);
         $.input_size = reader.int64_(position, 6, 0n);
-        $.scale = reader.typedArray(position, 8, Float32Array);
+        $.scale = reader.array(position, 8, Float32Array);
         $.nms_iou_threshold = reader.float32_(position, 10, 0);
         $.nms_score_threshold = reader.float32_(position, 12, 0);
         $.max_detections = reader.int64_(position, 14, 0n);
@@ -1504,7 +1504,7 @@ mindspore.schema.DetectionPostProcess = class DetectionPostProcess {
         const $ = new mindspore.schema.DetectionPostProcess();
         $.format = mindspore.schema.Format[json.format];
         $.input_size = reader.int64(json.input_size, 0n);
-        $.scale = reader.typedArray(json.scale, Float32Array);
+        $.scale = reader.array(json.scale, Float32Array);
         $.nms_iou_threshold = reader.value(json.nms_iou_threshold, 0);
         $.nms_score_threshold = reader.value(json.nms_score_threshold, 0);
         $.max_detections = reader.int64(json.max_detections, 0n);
@@ -2480,7 +2480,7 @@ mindspore.schema.PadFusion = class PadFusion {
 
     static decode(reader, position) {
         const $ = new mindspore.schema.PadFusion();
-        $.paddings = reader.table(position, 4, mindspore.schema.Vec2D.decode);
+        $.paddings = reader.table(position, 4, mindspore.schema.Vec2D);
         $.padding_mode = reader.int8_(position, 6, 0);
         $.constant_value = reader.float32_(position, 8, 0);
         return $;
@@ -2488,7 +2488,7 @@ mindspore.schema.PadFusion = class PadFusion {
 
     static decodeText(reader, json) {
         const $ = new mindspore.schema.PadFusion();
-        $.paddings = reader.object(json.paddings, mindspore.schema.Vec2D.decodeText);
+        $.paddings = reader.object(json.paddings, mindspore.schema.Vec2D);
         $.padding_mode = mindspore.schema.PaddingMode[json.padding_mode];
         $.constant_value = reader.value(json.constant_value, 0);
         return $;
@@ -2552,8 +2552,8 @@ mindspore.schema.PriorBox = class PriorBox {
         const $ = new mindspore.schema.PriorBox();
         $.min_sizes = reader.int64s_(position, 4);
         $.max_sizes = reader.int64s_(position, 6);
-        $.aspect_ratios = reader.typedArray(position, 8, Float32Array);
-        $.variances = reader.typedArray(position, 10, Float32Array);
+        $.aspect_ratios = reader.array(position, 8, Float32Array);
+        $.variances = reader.array(position, 10, Float32Array);
         $.image_size_w = reader.int64_(position, 12, 0n);
         $.image_size_h = reader.int64_(position, 14, 0n);
         $.step_w = reader.float32_(position, 16, 0);
@@ -2568,8 +2568,8 @@ mindspore.schema.PriorBox = class PriorBox {
         const $ = new mindspore.schema.PriorBox();
         $.min_sizes = reader.array(json.min_sizes);
         $.max_sizes = reader.array(json.max_sizes);
-        $.aspect_ratios = reader.typedArray(json.aspect_ratios, Float32Array);
-        $.variances = reader.typedArray(json.variances, Float32Array);
+        $.aspect_ratios = reader.array(json.aspect_ratios, Float32Array);
+        $.variances = reader.array(json.variances, Float32Array);
         $.image_size_w = reader.int64(json.image_size_w, 0n);
         $.image_size_h = reader.int64(json.image_size_h, 0n);
         $.step_w = reader.value(json.step_w, 0);
@@ -3032,14 +3032,14 @@ mindspore.schema.SpaceToBatch = class SpaceToBatch {
     static decode(reader, position) {
         const $ = new mindspore.schema.SpaceToBatch();
         $.block_size = reader.int64s_(position, 4);
-        $.paddings = reader.table(position, 6, mindspore.schema.Vec2D.decode);
+        $.paddings = reader.table(position, 6, mindspore.schema.Vec2D);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new mindspore.schema.SpaceToBatch();
         $.block_size = reader.array(json.block_size);
-        $.paddings = reader.object(json.paddings, mindspore.schema.Vec2D.decodeText);
+        $.paddings = reader.object(json.paddings, mindspore.schema.Vec2D);
         return $;
     }
 };
@@ -3049,14 +3049,14 @@ mindspore.schema.SpaceToBatchND = class SpaceToBatchND {
     static decode(reader, position) {
         const $ = new mindspore.schema.SpaceToBatchND();
         $.block_shape = reader.int64s_(position, 4);
-        $.paddings = reader.table(position, 6, mindspore.schema.Vec2D.decode);
+        $.paddings = reader.table(position, 6, mindspore.schema.Vec2D);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new mindspore.schema.SpaceToBatchND();
         $.block_shape = reader.array(json.block_shape);
-        $.paddings = reader.object(json.paddings, mindspore.schema.Vec2D.decodeText);
+        $.paddings = reader.object(json.paddings, mindspore.schema.Vec2D);
         return $;
     }
 };
@@ -3792,14 +3792,14 @@ mindspore.schema.Custom = class Custom {
     static decode(reader, position) {
         const $ = new mindspore.schema.Custom();
         $.type = reader.string_(position, 4, null);
-        $.attr = reader.tableArray(position, 6, mindspore.schema.Attribute.decode);
+        $.attr = reader.tables(position, 6, mindspore.schema.Attribute);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new mindspore.schema.Custom();
         $.type = reader.value(json.type, null);
-        $.attr = reader.objectArray(json.attr, mindspore.schema.Attribute.decodeText);
+        $.attr = reader.objects(json.attr, mindspore.schema.Attribute);
         return $;
     }
 };
@@ -3938,7 +3938,7 @@ mindspore.schema.TensorArray = class TensorArray {
         const $ = new mindspore.schema.TensorArray();
         $.dynamic_size = reader.bool_(position, 4, false);
         $.identical_element_shapes = reader.bool_(position, 6, false);
-        $.element_shape = reader.typedArray(position, 8, Int32Array);
+        $.element_shape = reader.array(position, 8, Int32Array);
         $.data_type = reader.int32_(position, 10, 0);
         return $;
     }
@@ -3947,7 +3947,7 @@ mindspore.schema.TensorArray = class TensorArray {
         const $ = new mindspore.schema.TensorArray();
         $.dynamic_size = reader.value(json.dynamic_size, false);
         $.identical_element_shapes = reader.value(json.identical_element_shapes, false);
-        $.element_shape = reader.typedArray(json.element_shape, Int32Array);
+        $.element_shape = reader.array(json.element_shape, Int32Array);
         $.data_type = reader.value(json.data_type, 0);
         return $;
     }
@@ -4442,17 +4442,17 @@ mindspore.schema.Tensor = class Tensor {
         const $ = new mindspore.schema.Tensor();
         $.nodeType = reader.int32_(position, 4, 0);
         $.dataType = reader.int32_(position, 6, 0);
-        $.dims = reader.typedArray(position, 8, Int32Array);
+        $.dims = reader.array(position, 8, Int32Array);
         $.format = reader.int32_(position, 10, 0);
         $.refCount = reader.int32_(position, 12, 0);
         $.offset = reader.int32_(position, 14, 0);
-        $.data = reader.typedArray(position, 16, Uint8Array);
-        $.quantParams = reader.tableArray(position, 18, mindspore.schema.QuantParam.decode);
-        $.quantClusters = reader.typedArray(position, 20, Float32Array);
+        $.data = reader.array(position, 16, Uint8Array);
+        $.quantParams = reader.tables(position, 18, mindspore.schema.QuantParam);
+        $.quantClusters = reader.array(position, 20, Float32Array);
         $.name = reader.string_(position, 22, null);
         $.enableHuffmanCode = reader.bool_(position, 24, false);
         $.weightQuantCompressType = reader.int32_(position, 26, 0);
-        $.externalData = reader.tableArray(position, 28, mindspore.schema.ExternalData.decode);
+        $.externalData = reader.tables(position, 28, mindspore.schema.ExternalData);
         return $;
     }
 
@@ -4460,17 +4460,17 @@ mindspore.schema.Tensor = class Tensor {
         const $ = new mindspore.schema.Tensor();
         $.nodeType = reader.value(json.nodeType, 0);
         $.dataType = reader.value(json.dataType, 0);
-        $.dims = reader.typedArray(json.dims, Int32Array);
+        $.dims = reader.array(json.dims, Int32Array);
         $.format = mindspore.schema.Format[json.format];
         $.refCount = reader.value(json.refCount, 0);
         $.offset = reader.value(json.offset, 0);
-        $.data = reader.typedArray(json.data, Uint8Array);
-        $.quantParams = reader.objectArray(json.quantParams, mindspore.schema.QuantParam.decodeText);
-        $.quantClusters = reader.typedArray(json.quantClusters, Float32Array);
+        $.data = reader.array(json.data, Uint8Array);
+        $.quantParams = reader.objects(json.quantParams, mindspore.schema.QuantParam);
+        $.quantClusters = reader.array(json.quantClusters, Float32Array);
         $.name = reader.value(json.name, null);
         $.enableHuffmanCode = reader.value(json.enableHuffmanCode, false);
         $.weightQuantCompressType = mindspore.schema.WeightQuantCompressType[json.weightQuantCompressType];
-        $.externalData = reader.objectArray(json.externalData, mindspore.schema.ExternalData.decodeText);
+        $.externalData = reader.objects(json.externalData, mindspore.schema.ExternalData);
         return $;
     }
 };
@@ -4489,7 +4489,7 @@ mindspore.schema.Primitive = class Primitive {
 
     static decode(reader, position) {
         const $ = new mindspore.schema.Primitive();
-        $.value = reader.union(position, 4, mindspore.schema.PrimitiveType.decode);
+        $.value = reader.union(position, 4, mindspore.schema.PrimitiveType);
         return $;
     }
 
@@ -4506,9 +4506,9 @@ mindspore.schema.CNode = class CNode {
         const $ = new mindspore.schema.CNode();
         $.name = reader.string_(position, 4, null);
         $.nodeType = reader.int32_(position, 6, 0);
-        $.primitive = reader.table(position, 8, mindspore.schema.Primitive.decode);
-        $.inputIndex = reader.typedArray(position, 10, Uint32Array);
-        $.outputIndex = reader.typedArray(position, 12, Uint32Array);
+        $.primitive = reader.table(position, 8, mindspore.schema.Primitive);
+        $.inputIndex = reader.array(position, 10, Uint32Array);
+        $.outputIndex = reader.array(position, 12, Uint32Array);
         $.quantType = reader.int32_(position, 14, 0);
         $.deviceType = reader.int32_(position, 16, -1);
         return $;
@@ -4518,9 +4518,9 @@ mindspore.schema.CNode = class CNode {
         const $ = new mindspore.schema.CNode();
         $.name = reader.value(json.name, null);
         $.nodeType = reader.value(json.nodeType, 0);
-        $.primitive = reader.object(json.primitive, mindspore.schema.Primitive.decodeText);
-        $.inputIndex = reader.typedArray(json.inputIndex, Uint32Array);
-        $.outputIndex = reader.typedArray(json.outputIndex, Uint32Array);
+        $.primitive = reader.object(json.primitive, mindspore.schema.Primitive);
+        $.inputIndex = reader.array(json.inputIndex, Uint32Array);
+        $.outputIndex = reader.array(json.outputIndex, Uint32Array);
         $.quantType = mindspore.schema.QuantType[json.quantType];
         $.deviceType = reader.value(json.deviceType, -1);
         return $;
@@ -4532,20 +4532,20 @@ mindspore.schema.SubGraph = class SubGraph {
     static decode(reader, position) {
         const $ = new mindspore.schema.SubGraph();
         $.name = reader.string_(position, 4, null);
-        $.inputIndices = reader.typedArray(position, 6, Uint32Array);
-        $.outputIndices = reader.typedArray(position, 8, Uint32Array);
-        $.nodeIndices = reader.typedArray(position, 10, Uint32Array);
-        $.tensorIndices = reader.typedArray(position, 12, Uint32Array);
+        $.inputIndices = reader.array(position, 6, Uint32Array);
+        $.outputIndices = reader.array(position, 8, Uint32Array);
+        $.nodeIndices = reader.array(position, 10, Uint32Array);
+        $.tensorIndices = reader.array(position, 12, Uint32Array);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new mindspore.schema.SubGraph();
         $.name = reader.value(json.name, null);
-        $.inputIndices = reader.typedArray(json.inputIndices, Uint32Array);
-        $.outputIndices = reader.typedArray(json.outputIndices, Uint32Array);
-        $.nodeIndices = reader.typedArray(json.nodeIndices, Uint32Array);
-        $.tensorIndices = reader.typedArray(json.tensorIndices, Uint32Array);
+        $.inputIndices = reader.array(json.inputIndices, Uint32Array);
+        $.outputIndices = reader.array(json.outputIndices, Uint32Array);
+        $.nodeIndices = reader.array(json.nodeIndices, Uint32Array);
+        $.tensorIndices = reader.array(json.tensorIndices, Uint32Array);
         return $;
     }
 };
@@ -4569,14 +4569,14 @@ mindspore.schema.MetaGraph = class MetaGraph {
         $.name = reader.string_(position, 4, null);
         $.version = reader.string_(position, 6, null);
         $.fmkType = reader.int32_(position, 8, 0);
-        $.inputIndex = reader.typedArray(position, 10, Uint32Array);
-        $.outputIndex = reader.typedArray(position, 12, Uint32Array);
+        $.inputIndex = reader.array(position, 10, Uint32Array);
+        $.outputIndex = reader.array(position, 12, Uint32Array);
         $.mempoolSize = reader.uint32_(position, 14, 0);
-        $.nodes = reader.tableArray(position, 16, mindspore.schema.CNode.decode);
-        $.allTensors = reader.tableArray(position, 18, mindspore.schema.Tensor.decode);
-        $.subGraph = reader.tableArray(position, 20, mindspore.schema.SubGraph.decode);
+        $.nodes = reader.tables(position, 16, mindspore.schema.CNode);
+        $.allTensors = reader.tables(position, 18, mindspore.schema.Tensor);
+        $.subGraph = reader.tables(position, 20, mindspore.schema.SubGraph);
         $.obfuscate = reader.bool_(position, 22, false);
-        $.obfMetaData = reader.typedArray(position, 24, Uint8Array);
+        $.obfMetaData = reader.array(position, 24, Uint8Array);
         return $;
     }
 
@@ -4585,14 +4585,14 @@ mindspore.schema.MetaGraph = class MetaGraph {
         $.name = reader.value(json.name, null);
         $.version = reader.value(json.version, null);
         $.fmkType = reader.value(json.fmkType, 0);
-        $.inputIndex = reader.typedArray(json.inputIndex, Uint32Array);
-        $.outputIndex = reader.typedArray(json.outputIndex, Uint32Array);
+        $.inputIndex = reader.array(json.inputIndex, Uint32Array);
+        $.outputIndex = reader.array(json.outputIndex, Uint32Array);
         $.mempoolSize = reader.value(json.mempoolSize, 0);
-        $.nodes = reader.objectArray(json.nodes, mindspore.schema.CNode.decodeText);
-        $.allTensors = reader.objectArray(json.allTensors, mindspore.schema.Tensor.decodeText);
-        $.subGraph = reader.objectArray(json.subGraph, mindspore.schema.SubGraph.decodeText);
+        $.nodes = reader.objects(json.nodes, mindspore.schema.CNode);
+        $.allTensors = reader.objects(json.allTensors, mindspore.schema.Tensor);
+        $.subGraph = reader.objects(json.subGraph, mindspore.schema.SubGraph);
         $.obfuscate = reader.value(json.obfuscate, false);
-        $.obfMetaData = reader.typedArray(json.obfMetaData, Uint8Array);
+        $.obfMetaData = reader.array(json.obfMetaData, Uint8Array);
         return $;
     }
 };

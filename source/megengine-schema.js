@@ -54,7 +54,7 @@ mgb.serialization.fbs.DType = class DType {
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.DType();
         $.type = reader.int8_(position, 4, 0);
-        $.param = reader.union(position, 6, mgb.serialization.fbs.DTypeParam.decode);
+        $.param = reader.union(position, 6, mgb.serialization.fbs.DTypeParam);
         return $;
     }
 };
@@ -2048,9 +2048,9 @@ mgb.serialization.fbs.param.MGBAddUpdate = class MGBAddUpdate {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.MGBAddUpdate();
-        $.alpha = reader.struct(position, 4, mgb.serialization.fbs.param.PersistentDTypeScalar.decode);
-        $.beta = reader.struct(position, 6, mgb.serialization.fbs.param.PersistentDTypeScalar.decode);
-        $.bias = reader.struct(position, 8, mgb.serialization.fbs.param.PersistentDTypeScalar.decode);
+        $.alpha = reader.struct(position, 4, mgb.serialization.fbs.param.PersistentDTypeScalar);
+        $.beta = reader.struct(position, 6, mgb.serialization.fbs.param.PersistentDTypeScalar);
+        $.bias = reader.struct(position, 8, mgb.serialization.fbs.param.PersistentDTypeScalar);
         return $;
     }
 };
@@ -2070,7 +2070,7 @@ mgb.serialization.fbs.param.Dimshuffle = class Dimshuffle {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.Dimshuffle();
-        $.pattern = reader.typedArray(position, 4, Int32Array);
+        $.pattern = reader.array(position, 4, Int32Array);
         $.ndim = reader.uint32_(position, 6, 0);
         return $;
     }
@@ -2095,7 +2095,7 @@ mgb.serialization.fbs.param.AxisAddRemove = class AxisAddRemove {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.AxisAddRemove();
-        $.desc = reader.structArray(position, 4, mgb.serialization.fbs.param.AxisDesc.decode);
+        $.desc = reader.structs(position, 4, mgb.serialization.fbs.param.AxisDesc);
         return $;
     }
 };
@@ -2128,7 +2128,7 @@ mgb.serialization.fbs.param.IndexDescMaskDump = class IndexDescMaskDump {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.IndexDescMaskDump();
-        $.items = reader.structArray(position, 4, mgb.serialization.fbs.param.IndexDescMaskItem.decode);
+        $.items = reader.structs(position, 4, mgb.serialization.fbs.param.IndexDescMaskItem);
         return $;
     }
 };
@@ -2201,7 +2201,7 @@ mgb.serialization.fbs.v2.Blob = class Blob {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.v2.Blob();
-        $.data = reader.typedArray(position, 4, Uint8Array);
+        $.data = reader.array(position, 4, Uint8Array);
         return $;
     }
 };
@@ -2211,11 +2211,11 @@ mgb.serialization.fbs.v2.Tensor = class Tensor {
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.v2.Tensor();
         $.name = reader.string_(position, 4, null);
-        $.shape = reader.typedArray(position, 6, Uint32Array);
-        $.comp_node = reader.table(position, 8, mgb.serialization.fbs.v2.CompNode.decode);
-        $.dtype = reader.table(position, 10, mgb.serialization.fbs.DType.decode);
-        $.format = reader.union(position, 12, mgb.serialization.fbs.v2.TensorFormat.decode);
-        $.data = reader.typedArray(position, 16, Uint8Array);
+        $.shape = reader.array(position, 6, Uint32Array);
+        $.comp_node = reader.table(position, 8, mgb.serialization.fbs.v2.CompNode);
+        $.dtype = reader.table(position, 10, mgb.serialization.fbs.DType);
+        $.format = reader.union(position, 12, mgb.serialization.fbs.v2.TensorFormat);
+        $.data = reader.array(position, 16, Uint8Array);
         return $;
     }
 };
@@ -2345,16 +2345,16 @@ mgb.serialization.fbs.v2.Operator = class Operator {
         $.type = reader.string_(position, 4, null);
         $.type_id = reader.uint64_(position, 6, 0n);
         $.name = reader.string_(position, 8, null);
-        $.param = reader.union(position, 10, mgb.serialization.fbs.v2.OperatorParam.decode);
-        $.additional_params = reader.unionArray(position, 14, mgb.serialization.fbs.v2.OperatorParam.decode);
-        $.inputs = reader.typedArray(position, 18, Uint32Array);
-        $.outputs = reader.typedArray(position, 20, Uint32Array);
-        $.comp_node = reader.tableArray(position, 22, mgb.serialization.fbs.v2.CompNode.decode);
-        $.output_dtype = reader.table(position, 24, mgb.serialization.fbs.DType.decode);
-        $.tensors = reader.tableArray(position, 26, mgb.serialization.fbs.v2.Tensor.decode);
+        $.param = reader.union(position, 10, mgb.serialization.fbs.v2.OperatorParam);
+        $.additional_params = reader.unions(position, 14, mgb.serialization.fbs.v2.OperatorParam);
+        $.inputs = reader.array(position, 18, Uint32Array);
+        $.outputs = reader.array(position, 20, Uint32Array);
+        $.comp_node = reader.tables(position, 22, mgb.serialization.fbs.v2.CompNode);
+        $.output_dtype = reader.table(position, 24, mgb.serialization.fbs.DType);
+        $.tensors = reader.tables(position, 26, mgb.serialization.fbs.v2.Tensor);
         $.opr_version = reader.uint32_(position, 28, 0);
         $.priority = reader.int32_(position, 30, 0);
-        $.custom_data = reader.tableArray(position, 32, mgb.serialization.fbs.v2.Blob.decode);
+        $.custom_data = reader.tables(position, 32, mgb.serialization.fbs.v2.Blob);
         return $;
     }
 };
@@ -2376,10 +2376,10 @@ mgb.serialization.fbs.v2.MiddleTensor = class MiddleTensor {
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.v2.MiddleTensor();
         $.name = reader.string_(position, 4, null);
-        $.shape = reader.typedArray(position, 6, Uint32Array);
-        $.comp_node = reader.table(position, 8, mgb.serialization.fbs.v2.CompNode.decode);
-        $.dtype = reader.table(position, 10, mgb.serialization.fbs.DType.decode);
-        $.format = reader.union(position, 12, mgb.serialization.fbs.v2.TensorFormat.decode);
+        $.shape = reader.array(position, 6, Uint32Array);
+        $.comp_node = reader.table(position, 8, mgb.serialization.fbs.v2.CompNode);
+        $.dtype = reader.table(position, 10, mgb.serialization.fbs.DType);
+        $.format = reader.union(position, 12, mgb.serialization.fbs.v2.TensorFormat);
         return $;
     }
 };
@@ -2418,12 +2418,12 @@ mgb.serialization.fbs.v2.Model = class Model {
         const $ = new mgb.serialization.fbs.v2.Model();
         $.mge_version = reader.uint32_(position, 4, 0);
         $.model_version = reader.uint32_(position, 6, 0);
-        $.oprs = reader.tableArray(position, 8, mgb.serialization.fbs.v2.Operator.decode);
-        $.middle_tensors = reader.tableArray(position, 10, mgb.serialization.fbs.v2.MiddleTensor.decode);
-        $.output_vars_idx = reader.tableArray(position, 12, mgb.serialization.fbs.v2.OutputVar.decode);
-        $.output_alias = reader.tableArray(position, 14, mgb.serialization.fbs.v2.OutputAlias.decode);
+        $.oprs = reader.tables(position, 8, mgb.serialization.fbs.v2.Operator);
+        $.middle_tensors = reader.tables(position, 10, mgb.serialization.fbs.v2.MiddleTensor);
+        $.output_vars_idx = reader.tables(position, 12, mgb.serialization.fbs.v2.OutputVar);
+        $.output_alias = reader.tables(position, 14, mgb.serialization.fbs.v2.OutputAlias);
         $.nr_shared_tensor = reader.uint32_(position, 16, 0);
-        $.metadata = reader.table(position, 18, mgb.serialization.fbs.v2.Metadata.decode);
+        $.metadata = reader.table(position, 18, mgb.serialization.fbs.v2.Metadata);
         return $;
     }
 };
