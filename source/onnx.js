@@ -196,7 +196,10 @@ onnx.Graph = class {
             tensor.description = valueInfo.doc_string;
             return tensor;
         });
-        new onnx.Inference(graph.node, graph.output);
+        const inference = new onnx.Inference(graph.node);
+        for (const output of graph.output) {
+            inference.infer(output.name);
+        }
         context.push(graph.node, graph.input, graph.output);
         this._nodes = context.pop();
         for (const input of graph.input) {
@@ -949,27 +952,22 @@ onnx.Metadata = class {
 
 onnx.Inference = class {
 
-    constructor(nodes, outputs) {
+    constructor(nodes) {
         this._outputs = new Map();
-
         for (const node of nodes) {
             for (const output of node.output) {
                 this._outputs.set(output.name, node);
             }
         }
-
-        for (const output of outputs) {
-            this._infer(output.name);
-        }
     }
 
-    _infer(output) {
+    infer(output) {
         if (this._outputs.has(output)) {
             let hasInputShapes = true;
             const node = this._outputs.get(output);
             for (const input of node.input) {
                 if (!input.type) {
-                    this._infer(input);
+                    this.infer(input);
                     if (!input.type) {
                         hasInputShapes = false;
                         break;

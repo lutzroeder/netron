@@ -846,8 +846,7 @@ mlnet.PredictionTransformerBase = class {
         this.Model = context.open('Model');
         const trainSchemaReader = context.openBinary('TrainSchema');
         if (trainSchemaReader) {
-            new mlnet.BinaryLoader(null, trainSchemaReader);
-            // new mlnet.BinaryLoader(null, trainSchemaReader).schema;
+            this.schema = new mlnet.BinaryLoader(null, trainSchemaReader).schema;
         }
     }
 };

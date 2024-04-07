@@ -146,11 +146,12 @@ protoc.Root = class extends protoc.Namespace {
         this._library = new Map();
         this._library.set('google/protobuf/any.proto', () => {
             const type = this.defineType('google.protobuf.Any');
-            new protoc.Field(type, 'type_url', 1, 'string');
-            new protoc.Field(type, 'value', 2, 'bytes');
+            type.defineField('type_url', 1, 'string');
+            type.defineField('value', 2, 'bytes');
         });
         this._library.set('google/protobuf/wrappers.proto', () => {
-            new protoc.Field(this.defineType('google.protobuf.BoolValue'), 'value', 1, 'bool');
+            const type = this.defineType('google.protobuf.BoolValue');
+            type.defineField('value', 1, 'bool');
         });
     }
 
@@ -262,6 +263,10 @@ protoc.Type = class extends protoc.Namespace {
 
     get(name) {
         return this.fields.get(name) || this.oneofs.get(name) || this.children.get(name) || null;
+    }
+
+    defineField(name, id, type, rule, extend) {
+        return new protoc.Field(this, name, id, type, rule, extend);
     }
 };
 
