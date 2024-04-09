@@ -22639,6 +22639,64 @@
     ]
   },
   {
+    "name": "IndexFlatMapDataset",
+    "attributes": [
+      {
+        "name": "map_func",
+        "type": "function"
+      },
+      {
+        "name": "index_map_func",
+        "type": "function"
+      },
+      {
+        "name": "Tmap_func_args",
+        "type": "type[]",
+        "minimum": 0
+      },
+      {
+        "name": "Tindex_map_func_args",
+        "type": "type[]",
+        "minimum": 0
+      },
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input_dataset",
+        "type": 21
+      },
+      {
+        "name": "map_func_other_args",
+        "typeListAttr": "Tmap_func_args"
+      },
+      {
+        "name": "index_map_func_other_args",
+        "typeListAttr": "Tindex_map_func_args"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
     "name": "InfeedDequeue",
     "summary": "A placeholder op for a value that will be fed into the computation.",
     "attributes": [
