@@ -22,35 +22,65 @@ nnabla.ModelFactory = class {
             case 'nnabla.pbtxt': {
                 const reader = context.read('protobuf.text');
                 const model = nnabla.proto.NNablaProtoBuf.decodeText(reader);
-                const open = async (model, version) => {
-                    const metadata = await context.metadata('nnabla-metadata.json');
-                    return new nnabla.Model(metadata, model, `NNabla${version ? ` v${version}` : ''}`);
-                };
-                try {
-                    const contexts = await Promise.all([
-                        context.fetch('nnp_version.txt'),
-                        context.fetch('parameter.protobuf')
-                    ]);
-                    const version = text.Reader.open(contexts[0].stream).read();
-                    const reader = contexts[1].read('protobuf.binary');
+                const files = ['nnp_version.txt', 'parameter.protobuf', 'parameter.h5'];
+                let contexts = await Promise.all(files.map((file) => context.fetch(file).catch(() => null)));
+                contexts = contexts.filter((context) => context !== null);
+                contexts = new Map(contexts.map((context) => [context.identifier, context]));
+                let version = '';
+                if (contexts.has('nnp_version.txt')) {
+                    const context = contexts.get('nnp_version.txt');
+                    const stream = context.stream;
+                    const reader = text.Reader.open(stream);
+                    version = reader.read();
+                    version = version.split('\r').shift();
+                }
+                if (contexts.has('parameter.protobuf')) {
+                    const context = contexts.get('parameter.protobuf');
+                    const reader = context.read('protobuf.binary');
                     const params = nnabla.proto.NNablaProtoBuf.decode(reader);
                     model.parameter = params.parameter;
-                    return await open(model, version);
-                } catch {
-                    return await open(model);
+                } else if (contexts.has('parameter.h5')) {
+                    const context = contexts.get('parameter.h5');
+                    const file = context.read('hdf5');
+                    const queue = [['',file]];
+                    while (queue.length > 0) {
+                        const [name, group] = queue.shift();
+                        if (group.value) {
+                            const variable = group.value;
+                            const data = variable.data.peek();
+                            const buffer = new Uint8Array(data.length);
+                            buffer.set(data, 0);
+                            const parameter = new nnabla.proto.Parameter();
+                            parameter.variable_name = name;
+                            parameter.shape = new nnabla.proto.Shape();
+                            parameter.shape.dim = variable.shape.map((dim) => BigInt(dim));
+                            parameter.data = new Float32Array(buffer.buffer, buffer.byteOffset, buffer.byteLength >> 2);
+                            model.parameter.push(parameter);
+                        } else {
+                            for (const [key, value] of group.groups) {
+                                queue.push([name ? `${name}/${key}` : key, value]);
+                            }
+                        }
+                    }
                 }
+                const metadata = await context.metadata('nnabla-metadata.json');
+                return new nnabla.Model(metadata, model, version);
             }
             default: {
                 throw new nnabla.Error(`Unsupported nnabla format '${context.type}'.`);
             }
         }
     }
+
+    filter(context, type) {
+        return context.type !== 'nnabla.pbtxt' || type !== 'hdf5.parameter.h5';
+    }
 };
 
 nnabla.Model = class {
 
-    constructor(metadata, model, format) {
-        this.format = format;
+    constructor(metadata, model, version) {
+        this.format = `NNabla${version ? ` v${version}` : ''}`;
         this.graphs = [];
         const tensors = new Map(model.parameter.map((parameter) => {
             const name = parameter.variable_name;

@@ -3481,6 +3481,13 @@
   },
   {
     "type":     "nnabla",
+    "target":   "results.nnp",
+    "source":   "https://github.com/lutzroeder/netron/files/14927097/results.nnp.zip[results.nnp]",
+    "format":   "NNabla v0.1",
+    "link":     "https://github.com/lutzroeder/netron/issues/759"
+  },
+  {
+    "type":     "nnabla",
     "target":   "ShuffleNet-0.5x.nnp",
     "source":   "https://nnabla.org/pretrained-models/nnp_models/imagenet/ShuffleNet-0.5x/ShuffleNet-0.5x.nnp",
     "format":   "NNabla v0.1",

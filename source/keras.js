@@ -17,6 +17,10 @@ keras.ModelFactory = class {
                 context.type = 'keras.model.weights.h5';
                 return;
             }
+            if (identifier === 'parameter.h5') {
+                context.type = 'hdf5.parameter.h5';
+                return;
+            }
             context.type = 'keras.h5';
             return;
         }
@@ -286,6 +290,7 @@ keras.ModelFactory = class {
                 }
                 return open_model(format, '', '', config, null);
             }
+            case 'hdf5.parameter.h5':
             case 'keras.h5': {
                 const find_root_group = (root_group) => {
                     const kerasmodel = root_group.group('model/kerasmodel');
