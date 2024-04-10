@@ -92,7 +92,7 @@ megengine.Graph = class {
             }
             if (!values.has(name)) {
                 values.set(name, new megengine.Value(name, type || null, tensor || null));
-            } else if ((type && !type.equals(values.get(name).type)) || tensor) {
+            } else if ((type && !type.equals(values.get(name).type)) || (tensor && !tensor.equals(values.get(name).initializer))) {
                 throw new megengine.Error(`Duplicate value '${name}'.`);
             }
             return values.get(name);
@@ -552,6 +552,10 @@ megengine.Tensor = class {
         this.name = name || '';
         this.type = type;
         this.values = data;
+    }
+
+    equals(obj) {
+        return obj && this.category === obj.category && this.name === obj.name && ((!this.type && !obj.type) || this.type.equals(obj.type)) && ((!this.values && !obj.values) || this.values.equals(obj.values));
     }
 };
 
