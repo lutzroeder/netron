@@ -425,53 +425,55 @@ view.View = class {
     }
 
     _pointerDownHandler(e) {
-        if (e.pointerType !== 'touch' && e.buttons === 1) {
-            e.target.setPointerCapture(e.pointerId);
-            const document = this._host.document.documentElement;
-            const container = this._element('graph');
-            this._mousePosition = {
-                left: container.scrollLeft,
-                top: container.scrollTop,
-                x: e.clientX,
-                y: e.clientY
-            };
-            container.style.cursor = 'grabbing';
+        if (e.pointerType === 'touch' || e.buttons !== 1) {
+            return;
+        }
+        const container = this._element('graph');
+        if (e.target === container) {
+            return;
+        }
+        e.target.setPointerCapture(e.pointerId);
+        this._mousePosition = {
+            left: container.scrollLeft,
+            top: container.scrollTop,
+            x: e.clientX,
+            y: e.clientY
+        };
+        container.style.cursor = 'grabbing';
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const pointerMoveHandler = (e) => {
+            e.preventDefault();
             e.stopImmediatePropagation();
-            const pointerMoveHandler = (e) => {
+            if (this._mousePosition) {
+                const dx = e.clientX - this._mousePosition.x;
+                const dy = e.clientY - this._mousePosition.y;
+                this._mousePosition.moved = dx * dx + dy * dy > 0;
+                if (this._mousePosition.moved) {
+                    const container = this._element('graph');
+                    container.scrollTop = this._mousePosition.top - dy;
+                    container.scrollLeft = this._mousePosition.left - dx;
+                }
+            }
+        };
+        const clickHandler = (e) => {
+            e.stopPropagation();
+            document.removeEventListener('click', clickHandler, true);
+        };
+        const pointerUpHandler = (e) => {
+            e.target.releasePointerCapture(e.pointerId);
+            container.style.removeProperty('cursor');
+            container.removeEventListener('pointerup', pointerUpHandler);
+            container.removeEventListener('pointermove', pointerMoveHandler);
+            if (this._mousePosition && this._mousePosition.moved) {
                 e.preventDefault();
                 e.stopImmediatePropagation();
-                if (this._mousePosition) {
-                    const dx = e.clientX - this._mousePosition.x;
-                    const dy = e.clientY - this._mousePosition.y;
-                    this._mousePosition.moved = dx * dx + dy * dy > 0;
-                    if (this._mousePosition.moved) {
-                        const container = this._element('graph');
-                        container.scrollTop = this._mousePosition.top - dy;
-                        container.scrollLeft = this._mousePosition.left - dx;
-                    }
-                }
-            };
-            const clickHandler = (e) => {
-                e.stopPropagation();
-                document.removeEventListener('click', clickHandler, true);
-            };
-            const pointerUpHandler = (e) => {
-                e.target.releasePointerCapture(e.pointerId);
-                container.style.removeProperty('cursor');
-                container.removeEventListener('pointerup', pointerUpHandler);
-                container.removeEventListener('pointerleave', pointerUpHandler);
-                container.removeEventListener('pointermove', pointerMoveHandler);
-                if (this._mousePosition && this._mousePosition.moved) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    delete this._mousePosition;
-                    document.addEventListener('click', clickHandler, true);
-                }
-            };
-            container.addEventListener('pointermove', pointerMoveHandler);
-            container.addEventListener('pointerup', pointerUpHandler);
-            container.addEventListener('pointerleave', pointerUpHandler);
-        }
+                delete this._mousePosition;
+                document.addEventListener('click', clickHandler, true);
+            }
+        };
+        container.addEventListener('pointermove', pointerMoveHandler);
+        container.addEventListener('pointerup', pointerUpHandler);
     }
 
     _touchStartHandler(e) {
