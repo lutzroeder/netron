@@ -519,28 +519,27 @@ const validate = async() => {
 };
 
 const update = async () => {
+    const dependencies = { ...configuration.dependencies, ...configuration.devDependencies };
+    for (const name of Object.keys(dependencies)) {
+        writeLine(name);
+        /* eslint-disable no-await-in-loop */
+        await exec(`npm install --quiet --no-progress --silent --save-exact ${name}@latest`);
+        /* eslint-enable no-await-in-loop */
+    }
+    await install();
     const targets = process.argv.length > 3 ? process.argv.slice(3) : [
         'armnn',
         'bigdl',
-        'caffe',
-        'circle',
-        'cntk',
-        'coreml',
-        'dlc',
-        'dnn',
+        'caffe', 'circle', 'cntk', 'coreml',
+        'dlc', 'dnn',
         'gguf',
         'keras',
-        'mnn',
-        'mslite',
-        'megengine',
+        'mnn', 'mslite', 'megengine',
         'nnabla',
-        'onnx',
-        'om',
-        'paddle',
-        'pytorch',
+        'onnx', 'om',
+        'paddle', 'pytorch',
         'rknn',
-        'sentencepiece',
-        'sklearn',
+        'sentencepiece', 'sklearn',
         'tf',
         'uff',
         'xmodel'
