@@ -809,7 +809,7 @@
       { "name": "drop_prob" },
       { "name": "training" }
     ],
-    "category": "Layer"
+    "category": "Dropout"
   },
   {
     "name": "megengine.functional.nn.embedding",
@@ -820,7 +820,7 @@
       { "name": "max_norm" },
       { "name": "norm_type" }
     ],
-    "category": "Layer"
+    "category": "Transform"
   },
   {
     "name": "megengine.functional.nn.gelu",
@@ -1363,7 +1363,7 @@
       { "name": "inp" },
       { "name": "pattern" }
     ],
-    "category": "Shape"
+    "category": "Transform"
   },
   {
     "name": "megengine.functional.tensor.swapaxes",
@@ -1913,8 +1913,7 @@
     "attributes": [
       { "name": "self" },
       { "name": "index" }
-    ],
-    "category": "Tensor"
+    ]
   },
   {
     "name": "__setitem__",
@@ -1922,8 +1921,7 @@
       { "name": "self" },
       { "name": "index" },
       { "name": "value" }
-    ],
-    "category": "Tensor"
+    ]
   },
   {
     "name": "megengine.module.adaptive_pooling.AdaptiveAvgPool2d",
@@ -1999,7 +1997,7 @@
   },
   {
     "name": "megengine.module.dropout.Dropout",
-    "category": "Layer"
+    "category": "Dropout"
   },
   {
     "name": "megengine.module.elemwise.Elemwise"
@@ -3482,7 +3480,6 @@
   },
   {
     "name": "Subtensor",
-    "category": "Tensor",
     "inputs": [
       { "name": "input" },
       { "name": "axis" }
