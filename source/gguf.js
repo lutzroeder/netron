@@ -25,7 +25,9 @@ gguf.Model = class {
         this.metadata = [];
         const layers = new Map();
         for (const [name, tensor] of target.tensors) {
-            const [key, param] = name.match(/^(.*)\.(.*?)$/).slice(1);
+            const parts = name.split('.');
+            const param = parts.pop();
+            const key = parts.join('.');
             if (!layers.has(key)) {
                 layers.set(key, { name: key, type: 'weights', metadata: new Map(), weights: new Map() });
             }
@@ -33,37 +35,42 @@ gguf.Model = class {
             layer.weights.set(param, tensor);
         }
         const metadata = new Map();
-        let architecture = '?';
-        for (const [name, value] of target.metadata) {
-            switch (name) {
-                case 'general.name': this.name = value; break;
-                case 'general.architecture': architecture = value; break;
-                case 'general.description': this.description = value; break;
-                case 'general.author': this.metadata.push(new gguf.Argument('author', value)); break;
-                case 'general.license': this.metadata.push(new gguf.Argument('license', value)); break;
-                case 'general.file_type':
-                case 'general.quantization_version':
-                    break;
-                default:
-                    metadata.set(name, value);
-                    break;
+        const graph = {};
+        if (target.metadata.size === 0) {
+            graph.layers = Array.from(layers.values());
+        } else {
+            let architecture = '?';
+            for (const [name, value] of target.metadata) {
+                switch (name) {
+                    case 'general.name': this.name = value; break;
+                    case 'general.architecture': architecture = value; break;
+                    case 'general.description': this.description = value; break;
+                    case 'general.author': this.metadata.push(new gguf.Argument('author', value)); break;
+                    case 'general.license': this.metadata.push(new gguf.Argument('license', value)); break;
+                    case 'general.file_type':
+                    case 'general.quantization_version':
+                        break;
+                    default:
+                        metadata.set(name, value);
+                        break;
+                }
             }
-        }
-        const tokenizer = { type: 'tokenizer', metadata: new Map(), layers: [] };
-        const model = { type: architecture, metadata: new Map(), layers: Array.from(layers.values()) };
-        for (const [name, value] of metadata) {
-            if (name.startsWith('tokenizer.')) {
-                const [, param] = name.match(/^(.*)\.(.*?)$/).slice(1);
-                tokenizer.metadata.set(param, value);
-            } else if (architecture && name.startsWith(`${architecture}.`)) {
-                model.metadata.set(name, value);
-            } else {
-                this.metadata.push(new gguf.Argument(name, value));
+            const tokenizer = { type: 'tokenizer', metadata: new Map(), layers: [] };
+            const model = { type: architecture, metadata: new Map(), layers: Array.from(layers.values()) };
+            for (const [name, value] of metadata) {
+                if (name.startsWith('tokenizer.')) {
+                    const [, param] = name.match(/^(.*)\.(.*?)$/).slice(1);
+                    tokenizer.metadata.set(param, value);
+                } else if (architecture && name.startsWith(`${architecture}.`)) {
+                    model.metadata.set(name, value);
+                } else {
+                    this.metadata.push(new gguf.Argument(name, value));
+                }
             }
-        }
-        const graph = { layers: [model] };
-        if (tokenizer.metadata.size > 0) {
-            graph.layers.push(tokenizer);
+            graph.layers = [model];
+            if (tokenizer.metadata.size > 0) {
+                graph.layers.push(tokenizer);
+            }
         }
         this.graphs = [new gguf.Graph(graph)];
     }
@@ -104,7 +111,11 @@ gguf.Value = class {
 gguf.Node = class {
 
     constructor(layer) {
-        this.type = Array.isArray(layer.layers) && layer.layers.length > 0 ? new gguf.Graph(layer) : { name: layer.type };
+        if (Array.isArray(layer.layers) && layer.layers.length > 0) {
+            this.type = new gguf.Graph(layer);
+        } else {
+            this.type = { name: layer.type };
+        }
         this.name = layer.name || '';
         this.inputs = [];
         this.outputs = [];
@@ -220,7 +231,7 @@ gguf.Reader = class {
     }
 
     read() {
-        const reader = new gguf.BinaryReader(this.context.read('binary'));
+        const reader = new gguf.BinaryReader(this.context);
         this.tensors = new Map();
         this.metadata = new Map();
         const context = {};
@@ -269,8 +280,8 @@ gguf.Reader = class {
 
 gguf.BinaryReader = class {
 
-    constructor(reader) {
-        this._reader = reader;
+    constructor(context) {
+        this._reader = context.read('binary');
     }
 
     skip(offset) {
