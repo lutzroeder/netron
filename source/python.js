@@ -2531,6 +2531,9 @@ python.Execution = class {
         this.registerFunction('pandas.core.indexes.base._new_Index', (cls, d) => {
             return new cls(d);
         });
+        this.registerType('pandas.core.arrays.datetimes.DatetimeArray', class {});
+        this.registerType('pandas.core.indexes.datetimes._new_DatetimeIndex', class {});
+        this.registerType('pandas.core.indexes.datetimes.DatetimeIndex', class {});
         this.registerType('pandas.core.indexes.base.Index', class {});
         this.registerType('pandas.core.indexes.range.RangeIndex', class {});
         this.registerType('pandas.core.indexes.multi.MultiIndex', class {});
@@ -2546,6 +2549,7 @@ python.Execution = class {
             throw new python.Error("'pandas._libs.internals._unpickle_block' not implemented.");
         });
         this.registerType('pandas._libs.tslibs.base.ABCTimestamp', class extends datetime.datetime {});
+        this.registerType('pandas._libs.tslibs.offsets.Minute', class extends datetime.datetime {});
         this.registerType('pandas._libs.tslibs.timestamps._Timestamp', class extends pandas._libs.tslibs.base.ABCTimestamp {});
         this.registerType('pandas._libs.tslibs.timestamps.Timestamp', class extends pandas._libs.tslibs.timestamps._Timestamp {});
         pandas._libs.tslib.Timestamp = pandas._libs.tslibs.timestamps.Timestamp;
@@ -2630,6 +2634,7 @@ python.Execution = class {
         this.registerType('sklearn.feature_selection._variance_threshold.VarianceThreshold', class {});
         this.registerType('sklearn.feature_selection.univariate_selection.SelectKBest', class {});
         this.registerType('sklearn.feature_selection.variance_threshold.VarianceThreshold', class {});
+        this.registerType('sklearn.gaussian_process._gpc.GaussianProcessClassifier', class {});
         this.registerType('sklearn.gaussian_process._gpr.GaussianProcessRegressor', class {});
         this.registerType('sklearn.gaussian_process.gpc.GaussianProcessClassifier', class {});
         this.registerType('sklearn.gaussian_process.kernels.ConstantKernel', class {});
@@ -2651,6 +2656,7 @@ python.Execution = class {
         this.registerType('sklearn.linear_model._coordinate_descent.Lasso', class {});
         this.registerType('sklearn.linear_model._least_angle.LassoLarsCV', class {});
         this.registerType('sklearn.linear_model._logistic.LogisticRegression', class {});
+        this.registerType('sklearn.linear_model._logistic.LogisticRegressionCV', class {});
         this.registerType('sklearn.linear_model._quantile.QuantileRegressor', class {});
         this.registerType('sklearn.linear_model._ridge.Ridge', class {});
         this.registerType('sklearn.linear_model._ridge.RidgeClassifier', class {});
@@ -2681,6 +2687,7 @@ python.Execution = class {
         this.registerType('sklearn.model_selection._search.RandomizedSearchCV', class {});
         this.registerType('sklearn.model_selection._split.KFold', class {});
         this.registerType('sklearn.model_selection._split.StratifiedKFold', class {});
+        this.registerType('sklearn.model_selection._split.StratifiedShuffleSplit', class {});
         this.registerType('sklearn.multiclass.OneVsRestClassifier', class {});
         this.registerType('sklearn.multioutput.MultiOutputClassifier', class {});
         this.registerType('sklearn.multioutput.MultiOutputRegressor', class {});
@@ -4580,6 +4587,7 @@ python.Execution = class {
         this.registerType('torchvision.models.vision_transformer.MLPBlock', class extends torchvision.ops.misc.MLP {});
         this.registerType('torchvision.models.vision_transformer.VisionTransformer', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.models._utils.IntermediateLayerGetter', class {});
+        this.registerType('torchvision.transforms._presets.ImageClassification', class {});
         this.registerType('torchvision.transforms.functional.InterpolationMode', class {});
         this.registerType('torchvision.transforms.transforms.ColorJitter', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.Compose', class {});
