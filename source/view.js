@@ -5425,7 +5425,7 @@ view.ModelFactoryService = class {
         this.register('./ncnn', ['.param', '.bin', '.cfg.ncnn', '.weights.ncnn', '.ncnnmodel']);
         this.register('./tnn', ['.tnnproto', '.tnnmodel']);
         this.register('./tengine', ['.tmfile']);
-        this.register('./mslite', ['.ms']);
+        this.register('./mslite', ['.ms', '.bin']);
         this.register('./barracuda', ['.nn']);
         this.register('./circle', ['.circle']);
         this.register('./dnn', ['.dnn']);
@@ -5438,7 +5438,7 @@ view.ModelFactoryService = class {
         this.register('./acuity', ['.json']);
         this.register('./imgdnn', ['.dnn', 'params', '.json']);
         this.register('./flax', ['.msgpack']);
-        this.register('./om', ['.om', '.onnx', '.pb', '.engine']);
+        this.register('./om', ['.om', '.onnx', '.pb', '.engine', '.bin']);
         this.register('./gguf', ['.gguf', /^[^.]+$/]);
         this.register('./nnabla', ['.nntxt'], ['.nnp']);
         this.register('./hickle', ['.h5', '.hkl']);
