@@ -2821,6 +2821,13 @@
   },
   {
     "type":     "megengine",
+    "target":   "mge_duplicate_value.tm",
+    "source":   "https://github.com/lutzroeder/netron/files/14964811/mge_duplicate_value.tm.zip[mge_duplicate_value.tm]",
+    "format":   "MegEngine v1.12.2",
+    "link":     "https://github.com/lutzroeder/netron/issues/607"
+  },
+  {
+    "type":     "megengine",
     "target":   "mobilenetv1.tm",
     "source":   "https://github.com/lutzroeder/netron/files/9257882/mobilenetv1.tm.zip[mobilenetv1.tm]",
     "format":   "MegEngine v1.10.0",
