@@ -2815,18 +2815,21 @@ view.ValueView = class extends view.Control {
                     if (typeof quantization.type !== 'string') {
                         throw new view.Error('Unsupported quantization value.');
                     }
-                    const line = this.createElement('div', 'sidebar-item-value-line-border');
-                    const content = [
-                        "<span class='sidebar-item-value-line-content'>",
-                        "quantization: ",
-                        `<b>${quantization.type}</b>`,
-                        "</span>",
-                        "<pre style='margin: 4px 0 2px 0'>",
-                        new view.Quantization(quantization).toString(),
-                        "</pre>"
-                    ];
-                    line.innerHTML = content.join('');
-                    this._element.appendChild(line);
+                    const value = new view.Quantization(quantization).toString();
+                    if (value && value !== 'q') {
+                        const line = this.createElement('div', 'sidebar-item-value-line-border');
+                        const content = [
+                            "<span class='sidebar-item-value-line-content'>",
+                            "quantization: ",
+                            `<b>${quantization.type}</b>`,
+                            "</span>",
+                            "<pre style='margin: 4px 0 2px 0'>",
+                            value,
+                            "</pre>"
+                        ];
+                        line.innerHTML = content.join('');
+                        this._element.appendChild(line);
+                    }
                 }
                 const location = this._value.location;
                 if (location !== undefined) {
@@ -3922,7 +3925,7 @@ view.Quantization = class {
                     s = value > 0 ? `${s} - ${value}` : `${s} + ${-value}`;
                     bracket = true;
                 }
-                if (i < scale.length && scale[i] !== undefined && scale[i] !== 0) {
+                if (i < scale.length && scale[i] !== undefined && scale[i] !== 1) {
                     const value = scale[i];
                     s = bracket ? `(${s})` : s;
                     s = `${value} * ${s}`;

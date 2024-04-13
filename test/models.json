@@ -3127,6 +3127,7 @@
     "type":     "mslite",
     "target":   "mnist.ms",
     "source":   "https://github.com/lutzroeder/netron/files/6128484/mnist.ms.zip[mnist.ms]",
+    "tags":     "quantization",
     "format":   "MindSpore Lite v1.2.0",
     "link":     "https://github.com/lutzroeder/netron/issues/600"
   },
@@ -3134,6 +3135,7 @@
     "type":     "mslite",
     "target":   "squeezenet1.1.ms",
     "source":   "https://github.com/lutzroeder/netron/files/6128485/squeezenet1.1.ms.zip[squeezenet1.1.ms]",
+    "tags":     "quantization",
     "format":   "MindSpore Lite v1.2.0",
     "link":     "https://github.com/lutzroeder/netron/issues/600"
   },

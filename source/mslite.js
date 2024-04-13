@@ -184,29 +184,16 @@ mslite.Value = class {
         this.name = name;
         this.type = initializer ? initializer.type : new mslite.TensorType(tensor.dataType, tensor.dims);
         this.initializer = initializer || null;
-        if (tensor.quantParams) {
-            const list = [];
+        if (Array.isArray(tensor.quantParams) && tensor.quantParams.length > 0) {
+            this.quantization = {
+                type: 'linear',
+                scale: [],
+                offset: []
+            };
             for (let i = 0; i < tensor.quantParams.length; i++) {
                 const param = tensor.quantParams[i];
-                if (param.scale !== 0 || param.zeroPoint !== 0) {
-                    const scale = param.scale;
-                    const zeroPoint = param.zeroPoint;
-                    let quantization = '';
-                    if (scale !== 1) {
-                        quantization += `${scale} * `;
-                    }
-                    if (zeroPoint === 0) {
-                        quantization += 'q';
-                    } else if (zeroPoint < 0) {
-                        quantization += `(q + ${-zeroPoint})`;
-                    } else if (zeroPoint > 0) {
-                        quantization += `(q - ${zeroPoint})`;
-                    }
-                    list.push(quantization);
-                }
-            }
-            if (list.length > 0 && !list.every((value) => value === 'q')) {
-                this.quantization = list.length === 1 ? list[0] : list;
+                this.quantization.scale.push(param.scale);
+                this.quantization.offset.push(param.zeroPoint);
             }
         }
     }
