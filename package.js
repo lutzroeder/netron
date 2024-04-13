@@ -402,10 +402,9 @@ const publish = async (target) => {
             const copyright = `Copyright (c) ${publisher}`;
             const repository = `https://github.com/${configuration.repository}`;
             const url = `${repository}/releases/download/v${version}/${product}-Setup-${version}.exe`;
-            const content = await fs.readFile('publish/electron-builder.json', 'utf-8');
+            const content = await fs.readFile(configuration.build.extends, 'utf-8');
             const builder = JSON.parse(content);
             const extensions = builder.fileAssociations.map((entry) => `- ${entry.ext}`).sort().join('\n');
-            writeLine(`download ${url}`);
             const sha256 = await hash(url, 'sha256');
             const paths = ['dist', 'winget-pkgs', 'manifests', publisher[0].toLowerCase(), publisher.replace(' ', ''), product, version];
             await mkdir(...paths);
