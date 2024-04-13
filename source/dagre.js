@@ -1432,6 +1432,27 @@ dagre.layout = (graph, layout) => {
                     ++j;
                 }
             }
+            // mitigate crossings of input connection lines
+            for (let i = 0; i < best.length - 2; i += 2) {
+                const layer0 = best[i];
+                const layer1 = best[i + 1];
+                const layer2 = best[i + 2];
+                for (let j = 0; j < layer2.length; ++j) {
+                    const node0 = g.nodes.get(layer2[j]);
+                    if (!node0.in || node0.in.length < 2) {
+                        continue;
+                    }
+                    for (let k = 0; k < node0.in.length - 1; ++k) {
+                        const node1d = node0.in[k].vNode;
+                        const node2d = node0.in[k + 1].vNode;
+                        const node1 = node1d.in[0].vNode;
+                        const node2 = node2d.in[0].vNode;
+                        if ((layer1.indexOf(node1d.v) < layer1.indexOf(node2d.v)) ^ (layer0.indexOf(node1.v) < layer0.indexOf(node2.v))) {
+                            exchange(layer1, node1d, node2d);
+                        }
+                    }
+                }
+            }
             assignOrder(g, best);
         };
 
