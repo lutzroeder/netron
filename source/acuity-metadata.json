@@ -620,7 +620,7 @@
   },
   {
     "name": "embedding_lookup",
-    "category": "Embedding",
+    "category": "Transform",
     "attributes": [
       { "name": "partition_strategy", "default": "mod" }
     ],
