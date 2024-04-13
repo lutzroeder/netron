@@ -38,14 +38,15 @@ zip.Archive = class {
                 const seek = (signature, size) => {
                     signature = Array.from(signature, (c) => c.charCodeAt(0));
                     let position = stream.length;
-                    do {
+                    const offset = Math.max(stream.length - 0x1000000, 0);
+                    while (position > offset) {
                         position = Math.max(0, position - 66000);
                         stream.seek(position);
                         const length = Math.min(stream.length - position, 66000 + size);
                         const buffer = stream.read(length);
-                        for (let i = buffer.length - size; i >= 0; i--) {
-                            if (signature[0] === buffer[i]     && signature[1] === buffer[i + 1] &&
-                                signature[2] === buffer[i + 2] && signature[3] === buffer[i + 3]) {
+                        for (let i = length - size; i >= 0; i--) {
+                            i = buffer.lastIndexOf(signature[0], i);
+                            if (i !== -1 && signature[1] === buffer[i + 1] && signature[2] === buffer[i + 2] && signature[3] === buffer[i + 3]) {
                                 stream.seek(position + i);
                                 return new zip.BinaryReader(buffer.subarray(i, i + size));
                             }
@@ -54,7 +55,6 @@ zip.Archive = class {
                             break;
                         }
                     }
-                    while (position > 0);
                     return null;
                 };
                 const read = (signature, size) => {
