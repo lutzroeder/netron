@@ -63698,6 +63698,54 @@
     ]
   },
   {
+    "name": "WeightedFlatMapDataset",
+    "attributes": [
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 2
+      },
+      {
+        "name": "M",
+        "type": "int64",
+        "minimum": 2
+      },
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input_datasets",
+        "numberAttr": "N",
+        "type": 21
+      },
+      {
+        "name": "weights",
+        "numberAttr": "M",
+        "type": 2
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
     "name": "Where",
     "summary": "Returns locations of nonzero / true values in a tensor.",
     "description": "This operation returns the coordinates of true elements in `input`. The\ncoordinates are returned in a 2-D tensor where the first dimension (rows)\nrepresents the number of true elements, and the second dimension (columns)\nrepresents the coordinates of the true elements. Keep in mind, the shape of\nthe output tensor can vary depending on how many true values there are in\n`input`. Indices are output in row-major order.\n\nFor example:\n\n```\n# 'input' tensor is [[True, False]\n#                    [True, False]]\n# 'input' has two true values, so output has two coordinates.\n# 'input' has rank of 2, so coordinates have two indices.\nwhere(input) ==> [[0, 0],\n                  [1, 0]]\n\n# `input` tensor is [[[True, False]\n#                     [True, False]]\n#                    [[False, True]\n#                     [False, True]]\n#                    [[False, False]\n#                     [False, True]]]\n# 'input' has 5 true values, so output has 5 coordinates.\n# 'input' has rank of 3, so coordinates have three indices.\nwhere(input) ==> [[0, 0, 0],\n                  [0, 1, 0],\n                  [1, 0, 1],\n                  [1, 1, 1],\n                  [2, 1, 1]]\n\n# `input` tensor is [[[1.5,  0.0]\n#                     [-0.5, 0.0]]\n#                    [[0.0,  0.25]\n#                     [0.0,  0.75]]\n#                    [[0.0,  0.0]\n#                     [0.0,  0.01]]]\n# 'input' has 5 nonzero values, so output has 5 coordinates.\n# 'input' has rank of 3, so coordinates have three indices.\nwhere(input) ==> [[0, 0, 0],\n                  [0, 1, 0],\n                  [1, 0, 1],\n                  [1, 1, 1],\n                  [2, 1, 1]]\n\n# `input` tensor is [[[1.5 + 0.0j, 0.0  + 0.0j]\n#                     [0.0 + 0.5j, 0.0  + 0.0j]]\n#                    [[0.0 + 0.0j, 0.25 + 1.5j]\n#                     [0.0 + 0.0j, 0.75 + 0.0j]]\n#                    [[0.0 + 0.0j, 0.0  + 0.0j]\n#                     [0.0 + 0.0j, 0.01 + 0.0j]]]\n# 'input' has 5 nonzero magnitude values, so output has 5 coordinates.\n# 'input' has rank of 3, so coordinates have three indices.\nwhere(input) ==> [[0, 0, 0],\n                  [0, 1, 0],\n                  [1, 0, 1],\n                  [1, 1, 1],\n                  [2, 1, 1]]\n```",
