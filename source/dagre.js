@@ -1349,6 +1349,89 @@ dagre.layout = (graph, layout) => {
                     bestCC = cc;
                 }
             }
+            // Mitigate crossings
+            const exchange = (layer, node0, node1) => {
+                const idx0 = layer.indexOf(node0.v);
+                const idx1 = layer.indexOf(node1.v);
+                layer[idx1] = node0.v;
+                layer[idx0] = node1.v;
+            };
+            for (let i = 0; i < best.length - 4; i += 2) {
+                const layer0 = best[i];
+                const layer2 = best[i + 2];
+                const layer4 = best[i + 4];
+                if (layer2.length < 2 || layer4.length < 2) {
+                    continue;
+                }
+                const layer1 = best[i + 1];
+                const layer3 = best[i + 3];
+                for (let j = 0; j < layer0.length; ++j) {
+                    const node0 = g.nodes.get(layer0[j]);
+                    if (!node0.in || !node0.out || node0.out.length < 2) {
+                        continue;
+                    }
+                    for (let k = 0; k < node0.out.length - 1; ++k) {
+                        const node1u = node0.out[k].wNode;
+                        const node2u = node0.out[k + 1].wNode;
+                        const node1 = node1u.out[0].wNode;
+                        const node2 = node2u.out[0].wNode;
+                        if (node1.out.length !== 1 || node2.out.length !== 1) {
+                            continue;
+                        }
+                        const idx1 = layer2.indexOf(node1.v);
+                        const idx2 = layer2.indexOf(node2.v);
+                        if (idx1 + 1 !== idx2) {
+                            continue;
+                        }
+                        const node1d = node1.out[0].wNode;
+                        const node2d = node2.out[0].wNode;
+                        const node3 = node1d.out[0].wNode;
+                        const node4 = node2d.out[0].wNode;
+                        const idx3 = layer4.indexOf(node3.v);
+                        const idx4 = layer4.indexOf(node4.v);
+                        if (idx3 <= idx4) {
+                            continue;
+                        }
+                        exchange(layer1, node1u, node2u);
+                        exchange(layer2, node1, node2);
+                        exchange(layer3, node1d, node2d);
+                        ++k;
+                    }
+                }
+                for (let j = 0; j < layer2.length - 1; ++j) {
+                    const node0 = g.nodes.get(layer2[j]);
+                    if (!node0.in || !node0.out || node0.in.length !== 1 || node0.out.length !== 1) {
+                        continue;
+                    }
+                    const node1 = g.nodes.get(layer2[j + 1]);
+                    if (!node1.in || !node1.out || node1.in.length !== 1 || node1.out.length !== 1) {
+                        continue;
+                    }
+                    const node0u = node0.in[0].vNode;
+                    const node1u = node1.in[0].vNode;
+                    const node2 = node0u.in[0].vNode;
+                    const node3 = node1u.in[0].vNode;
+                    let idx0 = layer0.indexOf(node2.v);
+                    let idx1 = layer0.indexOf(node3.v);
+                    if (idx1 + 1 !== idx0) {
+                        continue;
+                    }
+                    const node0d = node0.out[0].wNode;
+                    const node1d = node1.out[0].wNode;
+                    idx0 = layer3.indexOf(node0d.v);
+                    idx1 = layer3.indexOf(node1d.v);
+                    if (idx0 + 1 !== idx1) {
+                        continue;
+                    }
+                    if (node0d.out[0].wNode !== node1d.out[0].wNode) {
+                        continue;
+                    }
+                    exchange(layer1, node0u, node1u);
+                    exchange(layer2, node0, node1);
+                    exchange(layer3, node0d, node1d);
+                    ++j;
+                }
+            }
             assignOrder(g, best);
         };
 
