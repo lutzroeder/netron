@@ -90,8 +90,13 @@ host.BrowserHost = class {
         const telemetry = async () => {
             if (this._environment.packaged) {
                 this._window.addEventListener('error', (event) => {
-                    const error = event instanceof ErrorEvent && event.error && event.error instanceof Error ? event.error : new Error(event && event.message ? event.message : JSON.stringify(event));
-                    this.exception(error, true);
+                    if (event instanceof ErrorEvent && event.error && event.error instanceof Error) {
+                        this.exception(event.error, true);
+                    } else {
+                        const message = event && event.message ? event.message : JSON.stringify(event);
+                        const error = new Error(message);
+                        this.exception(error, true);
+                    }
                 });
                 const measurement_id = '848W2NVWVH';
                 const user = this._getCookie('_ga').replace(/^(GA1\.\d\.)*/, '');
