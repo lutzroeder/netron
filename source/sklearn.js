@@ -210,7 +210,8 @@ sklearn.Node = class {
         this.attributes = [];
         const isArray = (obj) => {
             return obj && obj.__class__ &&
-                obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray';
+                ((obj.__class__ && obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray') ||
+                 (obj.__class__ && obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'matrix'));
         };
         const isObject = (obj) => {
             if (obj && typeof obj === 'object') {

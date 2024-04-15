@@ -1663,6 +1663,8 @@ python.Execution = class {
         const math = this.register('math');
         math.inf = Infinity;
         const numpy = this.register('numpy');
+        this.register('numpy.core._multiarray_umath');
+        this.register('numpy.matrixlib.defmatrix');
         const pandas = this.register('pandas');
         this.register('pandas._libs.tslib');
         this.register('pandas._libs.internals');
@@ -2343,6 +2345,9 @@ python.Execution = class {
                 this.flags = {};
                 this._read();
             }
+            static __new__(cls, shape, dtype, buffer, offset, strides, order) {
+                return new cls(shape, dtype, buffer, offset, strides, order);
+            }
             __setstate__(state) {
                 [this.version, this.shape, this.dtype, this.flags.fn, this.data] = state;
                 this._read();
@@ -2520,6 +2525,12 @@ python.Execution = class {
                 return a.slice(0, o);
             }
         });
+        this.registerType('numpy.matrix', class extends numpy.ndarray {
+            static __new__(/* subtype, data, dtype, copy */) {
+                throw new Error("'numpy.matrix.__new__' not implemented.");
+            }
+        });
+        numpy.matrixlib.defmatrix.matrix = numpy.matrix;
         this.registerType('numpy.ma.core.MaskedArray', class extends numpy.ndarray {
             constructor(data /*, mask, dtype, copy, subok, ndmin, fill_value, keep_mask, hard_mask, shrink, order */) {
                 super(data.shape, data.dtype, data.data);
@@ -3706,18 +3717,13 @@ python.Execution = class {
         this.registerFunction('nolearn.lasagne.base.objective', () => {
             throw new python.Error("'nolearn.lasagne.base.objective' not implemented.");
         });
-        this.registerFunction('numpy._reconstruct', (subtype, shape, dtype) => {
-            return self.invoke(subtype, [shape, dtype]);
-        });
         this.registerFunction('numpy.core._DType_reconstruct', (/* scalar_type */) => {
             throw new python.Error("'numpy.core._DType_reconstruct' not implemented.");
         });
-        this.registerFunction('numpy.core._multiarray_umath._reconstruct', (subtype, shape, dtype) => {
-            return self.invoke(subtype, [shape, dtype]);
-        });
         this.registerFunction('numpy.core.multiarray._reconstruct', (subtype, shape, dtype) => {
-            return self.invoke(subtype, [shape, dtype]);
+            return numpy.ndarray.__new__(subtype, shape, dtype);
         });
+        numpy.core._multiarray_umath._reconstruct = numpy.core.multiarray._reconstruct;
         this.registerFunction('numpy.core.multiarray.scalar', (dtype, rawData) => {
             let data = rawData;
             if (typeof rawData === 'string' || rawData instanceof String) {
