@@ -2,6 +2,7 @@
 export const circle = {};
 
 circle.TensorType = {
+    UINT4: -1,
     FLOAT32: 0,
     FLOAT16: 1,
     INT32: 2,
@@ -243,6 +244,7 @@ circle.Tensor = class Tensor {
 };
 
 circle.BuiltinOperator = {
+    GRU: -5,
     BCQ_GATHER: -4,
     BCQ_FULLY_CONNECTED: -3,
     INSTANCE_NORM: -2,
@@ -584,6 +586,7 @@ circle.BuiltinOptions = class {
             case 124: return circle.BitcastOptions.decode(reader, position);
             case 125: return circle.BitwiseXorOptions.decode(reader, position);
             case 126: return circle.RightShiftOptions.decode(reader, position);
+            case 251: return circle.GRUOptions.decode(reader, position);
             case 252: return circle.BCQGatherOptions.decode(reader, position);
             case 253: return circle.BCQFullyConnectedOptions.decode(reader, position);
             case 254: return circle.InstanceNormOptions.decode(reader, position);
@@ -719,6 +722,7 @@ circle.BuiltinOptions = class {
             case 'BitcastOptions': return circle.BitcastOptions.decodeText(reader, json);
             case 'BitwiseXorOptions': return circle.BitwiseXorOptions.decodeText(reader, json);
             case 'RightShiftOptions': return circle.RightShiftOptions.decodeText(reader, json);
+            case 'GRUOptions': return circle.GRUOptions.decodeText(reader, json);
             case 'BCQGatherOptions': return circle.BCQGatherOptions.decodeText(reader, json);
             case 'BCQFullyConnectedOptions': return circle.BCQFullyConnectedOptions.decodeText(reader, json);
             case 'InstanceNormOptions': return circle.InstanceNormOptions.decodeText(reader, json);
@@ -3195,6 +3199,25 @@ circle.ReduceWindowOptions = class ReduceWindowOptions {
     static decodeText(reader, json) {
         const $ = new circle.ReduceWindowOptions();
         $.reduce_function = circle.ReduceWindowFunction[json.reduce_function];
+        return $;
+    }
+};
+
+circle.GRUOptions = class GRUOptions {
+
+    static decode(reader, position) {
+        const $ = new circle.GRUOptions();
+        $.fused_activation_function = reader.int8_(position, 4, 0);
+        $.return_sequences = reader.bool_(position, 6, false);
+        $.time_major = reader.bool_(position, 8, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new circle.GRUOptions();
+        $.fused_activation_function = circle.ActivationFunctionType[json.fused_activation_function];
+        $.return_sequences = reader.value(json.return_sequences, false);
+        $.time_major = reader.value(json.time_major, false);
         return $;
     }
 };
