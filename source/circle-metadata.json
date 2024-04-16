@@ -198,6 +198,7 @@
   },
   {
     "name": "Dequantize",
+    "category": "Quantization",
     "inputs": [
       { "name": "input" }
     ],
@@ -599,6 +600,7 @@
   },
   {
     "name": "Quantize",
+    "category": "Quantization",
     "inputs": [
       { "name": "input" }
     ],

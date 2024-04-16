@@ -3646,6 +3646,7 @@
   },
   {
     "name": "aten::dequantize.any",
+    "category": "Quantization",
     "inputs": [
       { "name": "tensors", "type": "Any" }
     ],
@@ -3655,6 +3656,7 @@
   },
   {
     "name": "aten::dequantize.list",
+    "category": "Quantization",
     "inputs": [
       { "name": "qtensors", "type": "Tensor[]" }
     ],
@@ -3664,6 +3666,7 @@
   },
   {
     "name": "aten::dequantize.self",
+    "category": "Quantization",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -3673,6 +3676,7 @@
   },
   {
     "name": "aten::dequantize.tensor",
+    "category": "Quantization",
     "inputs": [
       { "name": "qtensor", "type": "Tensor" }
     ],
@@ -3682,6 +3686,7 @@
   },
   {
     "name": "aten::dequantize.tensors",
+    "category": "Quantization",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" }
     ],
@@ -9954,6 +9959,7 @@
   },
   {
     "name": "aten::quantize_per_channel",
+    "category": "Quantization",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "scales", "type": "Tensor" },
@@ -9967,6 +9973,7 @@
   },
   {
     "name": "aten::quantize_per_tensor",
+    "category": "Quantization",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "scale", "type": "float32" },
@@ -9979,6 +9986,7 @@
   },
   {
     "name": "aten::quantize_per_tensor.tensor_qparams",
+    "category": "Quantization",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "scale", "type": "Tensor" },
@@ -9991,6 +9999,7 @@
   },
   {
     "name": "aten::quantize_per_tensor.tensors",
+    "category": "Quantization",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" },
       { "name": "scales", "type": "Tensor" },
@@ -10003,6 +10012,7 @@
   },
   {
     "name": "aten::quantize_per_tensor_dynamic",
+    "category": "Quantization",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dtype", "type": "ScalarType" },

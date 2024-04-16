@@ -14396,7 +14396,7 @@
   },
   {
     "name": "Dequantize",
-    "category": "Tensor",
+    "category": "Quantization",
     "summary": "Dequantize the 'input' tensor into a float or bfloat16 Tensor.",
     "description": "[min_range, max_range] are scalar floats that specify the range for\nthe output. The 'mode' attribute controls exactly which calculations are\nused to convert the float values to their quantized equivalents.\n\nIn 'MIN_COMBINED' mode, each value of the tensor will undergo the following:\n\n```\nif T == qint8: in[i] += (range(T) + 1)/ 2.0\nout[i] = min_range + (in[i]* (max_range - min_range) / range(T))\n```\nhere `range(T) = numeric_limits<T>::max() - numeric_limits<T>::min()`\n\n*MIN_COMBINED Mode Example*\n\nIf the input comes from a QuantizedRelu6, the output type is\nquint8 (range of 0-255) but the possible range of QuantizedRelu6 is\n0-6.  The min_range and max_range values are therefore 0.0 and 6.0.\nDequantize on quint8 will take each value, cast to float, and multiply\nby 6 / 255.\nNote that if quantizedtype is qint8, the operation will additionally add\neach value by 128 prior to casting.\n\nIf the mode is 'MIN_FIRST', then this approach is used:\n\n```c++\nnum_discrete_values = 1 << (# of bits in T)\nrange_adjust = num_discrete_values / (num_discrete_values - 1)\nrange = (range_max - range_min) * range_adjust\nrange_scale = range / num_discrete_values\nconst double offset_input = static_cast<double>(input) - lowest_quantized;\nresult = range_min + ((input - numeric_limits<T>::min()) * range_scale)\n```\n\nIf the mode is `SCALED`, dequantization is performed by multiplying each\ninput value by a scaling_factor. (Thus an input of 0 always maps to 0.0).\n\nThe scaling_factor is determined from `min_range`, `max_range`, and\n`narrow_range` in a way that is compatible with `QuantizeAndDequantize{V2|V3}`\nand `QuantizeV2`, using the following algorithm:\n\n```c++\n\n  const int min_expected_T = std::numeric_limits<T>::min() +\n    (narrow_range ? 1 : 0);\n  const int max_expected_T = std::numeric_limits<T>::max();\n  const float max_expected_T = std::numeric_limits<float>::max();\n\n  const float scale_factor =\n    (std::numeric_limits<T>::min() == 0) ? (max_range / max_expected_T)\n                                         : std::max(min_range / min_expected_T,\n                                                    max_range / max_expected_T);\n```",
     "attributes": [
@@ -33668,6 +33668,7 @@
   },
   {
     "name": "QuantizeAndDequantize",
+    "category": "Quantization",
     "summary": "Use QuantizeAndDequantizeV2 instead.",
     "attributes": [
       {
@@ -33716,6 +33717,7 @@
   },
   {
     "name": "QuantizeAndDequantizeV2",
+    "category": "Quantization",
     "summary": "Quantizes then dequantizes a tensor.",
     "description": "This op simulates the precision loss from the quantized forward pass by:\n\n1. Quantizing the tensor to fixed point numbers, which should match the target\n   quantization method when it is used in inference.\n2. Dequantizing it back to floating point numbers for the following ops, most\n   likely matmul.\n\nThere are different ways to quantize. This version uses only scaling, so 0.0\nmaps to 0.\n\nFrom the specified 'num_bits' in the quantized output type, it determines\nminimum and maximum representable quantized values.\n\ne.g.\n\n*   [-128, 127] for signed, num_bits = 8, or\n*   [0, 255] for unsigned, num_bits = 8.\n\nIf range_given == False, the initial input_min, input_max will be determined\nautomatically as the minimum and maximum values in the input tensor, otherwise\nthe specified values of input_min, input_max are used.\n\nNote: If the input_min, input_max are specified, they do not need to equal the\nactual minimum and maximum values in the tensor. e.g. in some cases it may be\nbeneficial to specify these values such that the low probability extremes of the\ninput distribution are clipped.\n\nThis op determines the maximum scale_factor that would map the initial\n[input_min, input_max] range to a range that lies within the representable\nquantized range.\n\nIt determines the scale from one of input_min and input_max, then updates the\nother one to maximize the representable range.\n\ne.g.\n\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    5.0]: it would use a scale_factor of -128 / -10.0 = 12.8 In this case, it\n    would update input_max to be 127 / 12.8 = 9.921875\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    10.0]: it would use a scale_factor of 127 / 10.0 = 12.7 In this case, it\n    would update input_min to be 128.0 / 12.7 = -10.07874\n*   if the output is unsigned, input_min is forced to be 0, and only the\n    specified input_max is used.\n\nAfter determining the scale_factor and updating the input range, it applies the\nfollowing to each value in the 'input' tensor.\n\noutput = round(clamp(value, input_min, input_max) * scale_factor) / scale_factor.\n\nThe above round function rounds the value based on the given round_mode.\n",
     "attributes": [
@@ -33787,6 +33789,7 @@
   },
   {
     "name": "QuantizeAndDequantizeV3",
+    "category": "Quantization",
     "summary": "Quantizes then dequantizes a tensor.",
     "description": "This is almost identical to QuantizeAndDequantizeV2, except that num_bits is a\ntensor, so its value can change during training.",
     "attributes": [
@@ -33843,6 +33846,7 @@
   },
   {
     "name": "QuantizeAndDequantizeV4",
+    "category": "Quantization",
     "summary": "Quantizes then dequantizes a tensor.",
     "description": "This is almost identical to QuantizeAndDequantizeV2, except that it returns a\ngradient of 1 for inputs that are within the quantization range, or 0 otherwise.",
     "attributes": [
@@ -33914,6 +33918,7 @@
   },
   {
     "name": "QuantizeAndDequantizeV4Grad",
+    "category": "Quantization",
     "summary": "Returns the gradient of `QuantizeAndDequantizeV4`.",
     "description": "Returns a gradient of 1 for inputs that are within the quantization range,\nor 0 otherwise.",
     "attributes": [
@@ -33963,6 +33968,7 @@
   },
   {
     "name": "QuantizeDownAndShrinkRange",
+    "category": "Quantization",
     "summary": "Convert the quantized 'input' tensor into a lower-precision 'output', using the",
     "description": "actual distribution of the values to maximize the usage of the lower bit depth\nand adjusting the output min and max ranges accordingly.\n\n[input_min, input_max] are scalar floats that specify the range for the float\ninterpretation of the 'input' data. For example, if input_min is -1.0f and\ninput_max is 1.0f, and we are dealing with quint16 quantized data, then a 0\nvalue in the 16-bit data should be interpreted as -1.0f, and a 65535 means 1.0f.\n\nThis operator tries to squeeze as much precision as possible into an output with\na lower bit depth by calculating the actual min and max values found in the\ndata. For example, maybe that quint16 input has no values lower than 16,384 and\nnone higher than 49,152. That means only half the range is actually needed, all\nthe float interpretations are between -0.5f and 0.5f, so if we want to compress\nthe data into a quint8 output, we can use that range rather than the theoretical\n-1.0f to 1.0f that is suggested by the input min and max.\n\nIn practice, this is most useful for taking output from operations like\nQuantizedMatMul that can produce higher bit-depth outputs than their inputs and\nmay have large potential output ranges, but in practice have a distribution of\ninput values that only uses a small fraction of the possible range. By feeding\nthat output into this operator, we can reduce it from 32 bits down to 8 with\nminimal loss of accuracy.",
     "attributes": [
@@ -34012,6 +34018,7 @@
   },
   {
     "name": "QuantizeV2",
+    "category": "Quantization",
     "summary": "Quantize the 'input' tensor of type float to 'output' tensor of type 'T'.",
     "description": "[min_range, max_range] are scalar floats that specify the range for\nthe 'input' data. The 'mode' attribute controls exactly which calculations are\nused to convert the float values to their quantized equivalents.  The\n'round_mode' attribute controls which rounding tie-breaking algorithm is used\nwhen rounding float values to their quantized equivalents.\n\nIn 'MIN_COMBINED' mode, each value of the tensor will undergo the following:\n\n```\nout[i] = (in[i] - min_range) * range(T) / (max_range - min_range)\nif T == qint8: out[i] -= (range(T) + 1) / 2.0\n```\n\nhere `range(T) = numeric_limits<T>::max() - numeric_limits<T>::min()`\n\n*MIN_COMBINED Mode Example*\n\nAssume the input is type float and has a possible range of [0.0, 6.0] and the\noutput type is quint8 ([0, 255]). The min_range and max_range values should be\nspecified as 0.0 and 6.0. Quantizing from float to quint8 will multiply each\nvalue of the input by 255/6 and cast to quint8.\n\nIf the output type was qint8 ([-128, 127]), the operation will additionally\nsubtract each value by 128 prior to casting, so that the range of values aligns\nwith the range of qint8.\n\nIf the mode is 'MIN_FIRST', then this approach is used:\n\n```\nnum_discrete_values = 1 << (# of bits in T)\nrange_adjust = num_discrete_values / (num_discrete_values - 1)\nrange = (range_max - range_min) * range_adjust\nrange_scale = num_discrete_values / range\nquantized = round(input * range_scale) - round(range_min * range_scale) +\n  numeric_limits<T>::min()\nquantized = max(quantized, numeric_limits<T>::min())\nquantized = min(quantized, numeric_limits<T>::max())\n```\n\nThe biggest difference between this and MIN_COMBINED is that the minimum range\nis rounded first, before it's subtracted from the rounded value. With\nMIN_COMBINED, a small bias is introduced where repeated iterations of quantizing\nand dequantizing will introduce a larger and larger error.\n\n*SCALED mode Example*\n\n`SCALED` mode matches the quantization approach used in\n`QuantizeAndDequantize{V2|V3}`.\n\nIf the mode is `SCALED`, the quantization is performed by multiplying each\ninput value by a scaling_factor.\nThe scaling_factor is determined from `min_range` and `max_range` to be as large\nas possible such that the range from `min_range` to `max_range` is representable\nwithin values of type T.\n\n```c++\n\n  const int min_T = std::numeric_limits<T>::min();\n  const int max_T = std::numeric_limits<T>::max();\n  const float max_float = std::numeric_limits<float>::max();\n\n  const float scale_factor_from_min_side =\n      (min_T * min_range > 0) ? min_T / min_range : max_float;\n  const float scale_factor_from_max_side =\n      (max_T * max_range > 0) ? max_T / max_range : max_float;\n\n  const float scale_factor = std::min(scale_factor_from_min_side,\n                                      scale_factor_from_max_side);\n```\n\nWe next use the scale_factor to adjust min_range and max_range as follows:\n\n```c++\n      min_range = min_T / scale_factor;\n      max_range = max_T / scale_factor;\n```\n\n\ne.g. if T = qint8, and initially min_range = -10, and max_range = 9, we would\ncompare -128/-10.0 = 12.8 to 127/9.0 = 14.11, and set scaling_factor = 12.8\nIn this case, min_range would remain -10, but max_range would be adjusted to\n127 / 12.8 = 9.921875\n\nSo we will quantize input values in the range (-10, 9.921875) to (-128, 127).\n\nThe input tensor can now be quantized by clipping values to the range\n`min_range` to `max_range`, then multiplying by scale_factor as follows:\n\n```c++\nresult = round(min(max_range, max(min_range, input)) * scale_factor)\n```\n\nThe adjusted `min_range` and `max_range` are returned as outputs 2 and 3 of\nthis operation. These outputs should be used as the range for any further\ncalculations.\n\n\n*narrow_range (bool) attribute*\n\nIf true, we do not use the minimum quantized value.\ni.e. for int8 the quantized output, it would be restricted to the range\n-127..127 instead of the full -128..127 range.\nThis is provided for compatibility with certain inference backends.\n(Only applies to SCALED mode)\n\n\n*axis (int) attribute*\n\nAn optional `axis` attribute can specify a dimension index of the input tensor,\nsuch that quantization ranges will be calculated and applied separately for each\nslice of the tensor along that dimension. This is useful for per-channel\nquantization.\n\nIf axis is specified, min_range and max_range\n\nif `axis`=None, per-tensor quantization is performed as normal.\n\n\n*ensure_minimum_range (float) attribute*\n\nEnsures the minimum quantization range is at least this value.\nThe legacy default value for this is 0.01, but it is strongly suggested to\nset it to 0 for new uses.\n",
     "attributes": [

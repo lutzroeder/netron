@@ -498,7 +498,7 @@
   },
   {
     "name": "dequantize",
-    "category": "Layer",
+    "category": "Quantization",
     "attributes": [],
     "inputs": [
       { "name": "input" }
@@ -1833,6 +1833,7 @@
   },
   {
     "name": "quantize",
+    "category": "Quantization",
     "attributes": [],
     "inputs": [
       { "name": "input" }

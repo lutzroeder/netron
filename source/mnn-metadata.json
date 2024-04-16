@@ -129,7 +129,8 @@
   },
   {
     "name": "Dequantize",
-    "operator": 19
+    "operator": 19,
+    "category": "Quantization",
   },
   {
     "name": "DetectionOutput",
@@ -390,7 +391,8 @@
   },
   {
     "name": "QuantizeV2",
-    "operator": 64
+    "operator": 64,
+    "category": "Quantization"
   },
   {
     "name": "Range",

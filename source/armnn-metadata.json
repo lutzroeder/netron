@@ -99,7 +99,8 @@
     ]
   },
   {
-    "name": "DequantizeLayer"
+    "name": "DequantizeLayer",
+    "category": "Quantization"
   },
   {
     "name": "DetectionPostProcessLayer",
@@ -305,7 +306,8 @@
     ]
   },
   {
-    "name": "QuantizeLayer"
+    "name": "QuantizeLayer",
+    "category": "Quantization"
   },
   {
     "name": "ReshapeLayer",

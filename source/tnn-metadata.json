@@ -157,7 +157,8 @@
   },
   {
     "name": "Dequantize",
-    "identifier": 58
+    "identifier": 58,
+    "category": "Quantization"
   },
   {
     "name": "DetectionOutput",
@@ -482,7 +483,8 @@
   },
   {
     "name": "Quantize",
-    "identifier": 57
+    "identifier": 57,
+    "category": "Quantization"
   },
   {
     "name": "QuantizedConcat",

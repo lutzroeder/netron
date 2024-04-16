@@ -325,6 +325,7 @@
   {
     "name": "Dequantize",
     "identifier": 58,
+    "category": "Quantization",
     "attributes": [
       { "name": "scale_data_size", "default": 1, "visible": false },
       { "name": "bias_data_size", "default": 0, "visible": false }
@@ -794,6 +795,7 @@
   {
     "name": "Quantize",
     "identifier": 57,
+    "category": "Quantization",
     "attributes": [
       { "name": "scale_data_size", "default": 1, "visible": false }
     ]

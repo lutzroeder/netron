@@ -683,7 +683,7 @@
   },
   {
     "name": "Dequantize",
-    "category": "Tensor",
+    "category": "Quantization",
     "inputs": [
       { "name": "x" },
       { "name": "min_range" },
@@ -1839,6 +1839,7 @@
   },
   {
     "name": "Quantize",
+    "category": "Quantization",
     "inputs": [
       { "name": "x" },
       { "name": "min_range" },
