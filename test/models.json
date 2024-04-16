@@ -4629,6 +4629,14 @@
   },
   {
     "type":     "pickle",
+    "target":   "vec_normalize.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/14981937/vec_normalize.pkl.zip[vec_normalize.pkl]",
+    "format":   "Pickle",
+    "error":    "Unsupported Pickle type 'stable_baselines3.common.vec_env.vec_normalize.VecNormalize'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
     "target":   "word2vec.model",
     "source":   "https://github.com/lutzroeder/netron/files/13628139/word2vec.model.zip[word2vec.model]",
     "format":   "Pickle",

@@ -2688,6 +2688,7 @@ python.Execution = class {
         this.registerType('sklearn.manifold._t_sne.TSNE', class {});
         this.registerType('sklearn.metrics._dist_metrics.EuclideanDistance', class {});
         this.registerType('sklearn.metrics._dist_metrics.EuclideanDistance64', class {});
+        this.registerType('sklearn.metrics._dist_metrics.ManhattanDistance', class {});
         this.registerType('sklearn.metrics._scorer._PassthroughScorer', class {});
         this.registerType('sklearn.metrics._scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics.scorer._PredictScorer', class {});
@@ -3996,11 +3997,35 @@ python.Execution = class {
         this.registerFunction('numpy.random._pickle.__randomstate_ctor', () => {
             return {};
         });
-        this.registerFunction('numpy.random._pickle.__bit_generator_ctor', () => {
-            throw new python.Error("'numpy.random._pickle.__bit_generator_ctor' not implemented.");
+        this.registerType('numpy.random.bit_generator.BitGenerator', class {});
+        this.registerType('numpy.random._mt19937.MT19937', class extends numpy.random.bit_generator.BitGenerator {});
+        this.registerType('numpy.random._pcg64.PCG64', class extends numpy.random.bit_generator.BitGenerator {});
+        this.registerType('numpy.random._pcg64.PCG64DXSM', class extends numpy.random.bit_generator.BitGenerator {});
+        this.registerType('numpy.random._philox.Philox', class extends numpy.random.bit_generator.BitGenerator {});
+        this.registerType('numpy.random._sfc64.SFC64', class extends numpy.random.bit_generator.BitGenerator {});
+        numpy.random._pickle.BitGenerators = {
+            'MT19937': numpy.random._mt19937.MT19937,
+            'PCG64': numpy.random._pcg64.PCG64,
+            'PCG64DXSM': numpy.random._pcg64.PCG64DXSM,
+            'Philox': numpy.random._philox.Philox,
+            'SFC64': numpy.random._sfc64.SFC64,
+        };
+        this.registerType('numpy.random._generator.Generator', class {
+            constructor(bit_generator) {
+                this.bit_generator = bit_generator;
+            }
         });
-        this.registerFunction('numpy.random._pickle.__generator_ctor', () => {
-            throw new python.Error("'numpy.random._pickle.__generator_ctor' not implemented.");
+        this.registerFunction('numpy.random._pickle.__bit_generator_ctor', (bit_generator_name) => {
+            bit_generator_name = bit_generator_name || 'MT19937';
+            const bit_generator = numpy.random._pickle.BitGenerators[bit_generator_name];
+            if (bit_generator) {
+                return new bit_generator();
+            }
+            throw new python.Error(`Unknown bit generator '${bit_generator_name}'.`);
+        });
+        this.registerFunction('numpy.random._pickle.__generator_ctor', (bit_generator_name, bit_generator_ctor) => {
+            bit_generator_ctor = bit_generator_ctor || numpy.random._pickle.__bit_generator_ctor;
+            return new numpy.random._generator.Generator(bit_generator_ctor(bit_generator_name));
         });
         this.registerFunction('numpy.reshape', () => {
             throw new python.Error("'numpy.reshape' not implemented.");
@@ -4026,8 +4051,9 @@ python.Execution = class {
         this.registerFunction('sklearn.metrics._classification.recall_score', () => {
             throw new python.Error("'sklearn.metrics._classification.recall_score' not implemented.");
         });
-        this.registerFunction('sklearn.metrics._dist_metrics.newObj', () => {
-            throw new python.Error("'sklearn.metrics._dist_metrics.newObj' not implemented.");
+        this.registerFunction('sklearn.metrics._dist_metrics.newObj', (obj) => {
+            return obj.__new__(obj);
+
         });
         this.registerFunction('sklearn.metrics._regression.mean_absolute_error', () => {
             throw new python.Error("'sklearn.metrics._regression.mean_absolute_error' not implemented.");
