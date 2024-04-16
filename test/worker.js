@@ -146,7 +146,22 @@ class CSSStyleDeclaration {
 
 class DOMTokenList {
 
-    add(/* token */) {
+    constructor(element) {
+        this._element = element;
+    }
+
+    add(...tokens) {
+        const value = this._element.getAttribute('class') || '';
+        tokens = new Set(value.split(' ').contact(tokens));
+        this._element.setAttribute('class', Array.from(tokens).join(' '));
+    }
+
+    contains(token) {
+        const value = this._element.getAttribute('class');
+        if (value === null || value.indexOf(token) === -1) {
+            return false;
+        }
+        return value.split(' ').some((s) => s === token);
     }
 }
 
@@ -191,7 +206,7 @@ class HTMLElement {
     }
 
     getAttribute(name) {
-        return this._attributes.get(name);
+        return this._attributes.has(name) ? this._attributes.get(name) : null;
     }
 
     getElementsByClassName(name) {
@@ -199,8 +214,7 @@ class HTMLElement {
         for (const node of this._childNodes) {
             if (node instanceof HTMLElement) {
                 elements.push(...node.getElementsByClassName(name));
-                if (node.hasAttribute('class') &&
-                    node.getAttribute('class').split(' ').find((text) => text === name)) {
+                if (node.classList.contains(name)) {
                     elements.push(node);
                 }
             }
@@ -215,7 +229,8 @@ class HTMLElement {
     }
 
     get classList() {
-        return new DOMTokenList();
+        this._classList = this._classList || new DOMTokenList(this);
+        return this._classList;
     }
 
     getBBox() {
