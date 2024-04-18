@@ -5549,7 +5549,8 @@ view.ModelFactoryService = class {
                     { name: 'Brain.js data', tags: ['type', 'sizes', 'layers'] },
                     { name: 'Custom Vision metadata', tags: ['CustomVision.Metadata.Version'] },
                     { name: 'W&B metadata', tags: ['program', 'host', 'executable'] },
-                    { name: 'TypeScript configuration data', tags: ['compilerOptions'] }
+                    { name: 'TypeScript configuration data', tags: ['compilerOptions'] },
+                    { name: 'CatBoost model', tags: ['features_info', 'model_info'] }
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
@@ -5896,7 +5897,8 @@ view.ModelFactoryService = class {
                 { name: 'V8 natives blob', value: /^./, identifier: 'natives_blob.bin' },
                 { name: 'ViSQOL model', value: /^svm_type\s/ },
                 { name: 'SenseTime model', value: /^STEF/ },
-                { name: 'AES Crypt data', value: /^AES[\x01|\x02]\x00/ }
+                { name: 'AES Crypt data', value: /^AES[\x01|\x02]\x00/ },
+                { name: 'CatBoost model', value: /^CBM1/ }
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
