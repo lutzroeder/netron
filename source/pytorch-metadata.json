@@ -1986,6 +1986,24 @@
     ]
   },
   {
+    "name": "aten::asin",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::asin.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::atan",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -2636,6 +2654,16 @@
   {
     "name": "aten::celu",
     "category": "Activation",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "alpha", "type": "Scalar", "default": 1.0 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::celu_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "alpha", "type": "Scalar", "default": 1.0 }
