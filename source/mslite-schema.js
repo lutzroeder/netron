@@ -4060,6 +4060,7 @@ mindspore.schema.DynamicQuant = class DynamicQuant {
         $.activation_channel = reader.bool_(position, 8, false);
         $.prefer_axis = reader.int64_(position, 10, 0n);
         $.transpose = reader.bool_(position, 12, false);
+        $.prefer_axes = reader.array(position, 14, Int32Array);
         return $;
     }
 
@@ -4070,6 +4071,7 @@ mindspore.schema.DynamicQuant = class DynamicQuant {
         $.activation_channel = reader.value(json.activation_channel, false);
         $.prefer_axis = reader.int64(json.prefer_axis, 0n);
         $.transpose = reader.value(json.transpose, false);
+        $.prefer_axes = reader.array(json.prefer_axes, Int32Array);
         return $;
     }
 };
