@@ -352,7 +352,7 @@ flatbuffers.StreamReader = class extends flatbuffers.BinaryReader {
 
     uint8(offset) {
         const position = this._fill(offset, 1);
-        return this._view.getInt8(position);
+        return this._view.getUint8(position);
     }
 
     int16(offset) {
