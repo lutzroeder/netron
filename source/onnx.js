@@ -1207,8 +1207,8 @@ onnx.Context.Graph = class {
 
     createDataType(value) {
         if (!Number.isInteger(value)) {
-            if (value && typeof value === 'bigint') {
-                value = Number(value);
+            if (typeof value === 'bigint') {
+                value = value.toNumber();
             } else if (value && typeof value === 'string' && onnx.DataType[value.toUpperCase()] !== undefined) {
                 value = onnx.DataType[value.toUpperCase()];
             } else {
@@ -1411,13 +1411,14 @@ onnx.ProtoReader = class {
                 const producers = [
                     'backend-test', 'BrainwaveCompiler',
                     'CNTK', 'customvision', 'cvflowbackend',
+                    'dmp2x',
                     'fuse_model',
                     'horizon_nn',
                     'keras2onnx', 'Kneron', 'kneron_formatter', 'kneron_kl530_test_case',
                     'darknet to ONNX example',
                     'htshinichi',
                     'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'ML.NET', 'MVTec Software', 'Novaic',
-                    'onnx-caffe2', 'onnx-example', 'onnx-fix-nodes', 'onnx-TIDL', 'onnx_test', 'onnx_tool', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'onnxruntime-tools', 'onnxruntime.transformers', 'optimum-onnx', 'optimum-onnxruntime',
+                    'onnx-caffe2', 'onnx.compose.merge_models', 'onnx-example', 'onnx-fix-nodes', 'onnx-TIDL', 'onnx_test', 'onnx_tool', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'onnxruntime-tools', 'onnxruntime.transformers', 'optimum-onnx', 'optimum-onnxruntime',
                     'PaddlePaddle', 'PPL Quantization Tool', 'pytorch',
                     'rk',
                     'sclblonnx', 'sequencer_save', 'SNPS MWNN Quantizer', 'skl2onnx',
