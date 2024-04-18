@@ -1406,6 +1406,9 @@ dagre.layout = (graph, layout) => {
                         }
                         const node1d = node1.out[0].wNode;
                         const node2d = node2.out[0].wNode;
+                        if (node1d.out.length !== 1 || node2d.out.length !== 1) {
+                            continue;
+                        }
                         const node3 = node1d.out[0].wNode;
                         const node4 = node2d.out[0].wNode;
                         const idx3 = layer4.indexOf(node3.v);
@@ -1430,6 +1433,9 @@ dagre.layout = (graph, layout) => {
                     }
                     const node0u = node0.in[0].vNode;
                     const node1u = node1.in[0].vNode;
+                    if (node0u.in.length !== 1 || node1u.in.length !== 1) {
+                        continue;
+                    }
                     const node2 = node0u.in[0].vNode;
                     const node3 = node1u.in[0].vNode;
                     let idx0 = layer0.indexOf(node2.v);
