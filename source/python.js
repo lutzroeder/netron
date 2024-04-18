@@ -1838,6 +1838,9 @@ python.Execution = class {
         });
         this.registerType('datetime.date', class {});
         this.registerType('datetime.datetime', class extends datetime.date {});
+        this.registerType('datetime.timedelta', class {});
+        this.registerType('datetime.tzinfo', class {});
+        this.registerType('datetime.timezone', class extends datetime.tzinfo {});
         this.registerType('dnnlib.tflib.network.Network', class {});
         this.registerType('dnnlib.util.EasyDict', class extends dict {});
         this.registerType('haiku._src.data_structures.FlatMapping', class {
@@ -2561,6 +2564,9 @@ python.Execution = class {
         });
         this.registerType('pandas._libs.tslibs.base.ABCTimestamp', class extends datetime.datetime {});
         this.registerType('pandas._libs.tslibs.offsets.Minute', class extends datetime.datetime {});
+        this.registerFunction('pandas._libs.tslibs.timestamps._unpickle_timestamp', () => {
+            throw new python.Error("'pandas._libs.tslibs.timestamps._unpickle_timestamp' not implemented.");
+        });
         this.registerType('pandas._libs.tslibs.timestamps._Timestamp', class extends pandas._libs.tslibs.base.ABCTimestamp {});
         this.registerType('pandas._libs.tslibs.timestamps.Timestamp', class extends pandas._libs.tslibs.timestamps._Timestamp {});
         pandas._libs.tslib.Timestamp = pandas._libs.tslibs.timestamps.Timestamp;
@@ -4364,6 +4370,7 @@ python.Execution = class {
         this.registerType('torch.nn.qat.modules.linear.Linear', class {});
         this.registerType('torch.nn.quantized.modules.activation.ReLU', class {});
         this.registerType('torch.nn.quantized.modules.activation.LeakyReLU', class {});
+        this.registerType('torch.nn.quantized.modules.activation.Softmax', class {});
         this.registerType('torch.nn.quantized.dynamic.modules.linear.Linear', class {});
         this.registerType('torch.nn.quantized.dynamic.modules.rnn.GRU', class {});
         this.registerType('torch.nn.quantized.dynamic.modules.rnn.LSTM', class {});
@@ -4387,7 +4394,10 @@ python.Execution = class {
         this.registerType('torch.nn.quantized.modules.normalization.LayerNorm', class extends torch.nn.modules.normalization.LayerNorm {});
         this.registerType('torch.nn.quantized.modules.Quantize', class {});
         this.registerType('torch.ao.nn.quantizable.modules.activation.MultiheadAttention', class extends torch.nn.modules.activation.MultiheadAttention {});
+        this.registerType('torch.ao.nn.quantizable.modules.rnn._LSTMLayer', class {});
+        this.registerType('torch.ao.nn.quantizable.modules.rnn._LSTMSingleLayer', class {});
         this.registerType('torch.ao.nn.quantizable.modules.rnn.LSTM', class {});
+        this.registerType('torch.ao.nn.quantizable.modules.rnn.LSTMCell', class {});
         this.registerType('torch.ao.nn.quantized.modules.activation.MultiheadAttention', class extends torch.ao.nn.quantizable.modules.activation.MultiheadAttention {});
         this.registerType('torch.ao.nn.quantized.modules.activation.ReLU6', class extends torch.nn.modules.activation.ReLU {});
         this.registerType('torch.ao.nn.quantized.modules.activation.LeakyReLU', class extends torch.nn.modules.activation.LeakyReLU {});
@@ -4413,6 +4423,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.PackedParameter', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.RNNBase', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.GRU', class extends torch.ao.nn.quantized.dynamic.modules.rnn.RNNBase {});
+        this.registerType('torch.ao.nn.quantized.reference.modules.conv.Conv1d', class {});
         this.registerType('torch.ao.nn.quantized.reference.modules.conv.Conv2d', class {});
         this.registerType('torch.ao.nn.quantized.reference.modules.linear.Linear', class {});
         this.registerType('torch.ao.nn.qat.modules.conv.Conv2d', class {});
@@ -4420,6 +4431,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.intrinsic.quantized.modules.linear_relu.LinearReLU', class extends torch.ao.nn.quantized.modules.linear.Linear {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused._FusedModule', class extends torch.nn.modules.container.Sequential {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused.ConvBn2d', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
+        this.registerType('torch.ao.nn.intrinsic.modules.fused.ConvReLU1d', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused.ConvReLU2d', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused.LinearReLU', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused.ConvBnReLU2d', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
@@ -6621,6 +6633,9 @@ python.Execution = class {
         this.registerFunction('fastcore.basics._using_attr', () => {
             throw new python.Error("'fastcore.basics._using_attr' not implemented.");
         });
+        this.registerFunction('fastcore.imports.noop', () => {
+            throw new python.Error("'fastcore.imports.noop' not implemented.");
+        });
         this.registerType('fastcore.basics.fastuple', class {});
         this.registerType('fastcore.basics.GetAttr', class {});
         this.registerType('fastcore.dispatch._TypeDict', class {});
@@ -6736,6 +6751,9 @@ python.Execution = class {
             const tensor = self.invoke(type, [func(...args)]);
             Object.assign(tensor, dict);
             return tensor;
+        });
+        this.registerFunction('fastai.vision.augment.aug_transforms', () => {
+            throw new python.Error("'fastai.vision.augment.aug_transforms' not implemented.");
         });
         this.registerType('fastai.vision.augment._BrightnessLogit', class {});
         this.registerType('fastai.vision.augment._ContrastLogit', class {});
