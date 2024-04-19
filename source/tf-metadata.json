@@ -22687,6 +22687,10 @@
       {
         "name": "index_map_func_other_args",
         "typeListAttr": "Tindex_map_func_args"
+      },
+      {
+        "name": "output_cardinality",
+        "type": 9
       }
     ],
     "outputs": [
