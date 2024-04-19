@@ -5875,6 +5875,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "yolox_m.torchscript.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/15031984/yolox_m.torchscript.pt.zip[yolox_m.torchscript.pt]",
+    "format":   "TorchScript v1.5",
+    "error":    "ValueError: not enough values to unpack (expected 3, actual 1).",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
     "target":   "yolo4_tiny.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7995416/yolo4_tiny.pt.zip[yolo4_tiny.pt]",
     "format":   "TorchScript v1.5",
