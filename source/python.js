@@ -1752,9 +1752,7 @@ python.Execution = class {
         this.registerType('builtins.staticmethod', class {});
         this.registerFunction('builtins.long', this.builtins.int);
         this.registerFunction('builtins.print', () => {});
-        this.registerFunction('builtins.unicode', (/* value */) => {
-            throw new python.Error("'builtins.unicode' not implemented.");
-        });
+        this.registerFunction('builtins.unicode');
         this.registerType('builtins.Warning', class {});
         this.registerType('builtins.FutureWarning', class extends builtins.Warning {});
         this.registerType('builtins.BaseException', class {});
@@ -1767,9 +1765,7 @@ python.Execution = class {
         this.registerType('typing._SpecialGenericAlias', class extends typing._BaseGenericAlias {});
         this.registerType('typing._TupleType', class extends typing._SpecialGenericAlias {});
         this.registerType('typing._CallableType', class {});
-        this.registerFunction('typing.cast', () => {
-            throw new python.Error("'typing.cast' not implemented.");
-        });
+        this.registerFunction('typing.cast');
         typing.Any = Reflect.construct(typing._SpecialForm, []);
         typing.Callable = Reflect.construct(typing._CallableType, []);
         typing.Dict = Reflect.construct(typing._SpecialGenericAlias, []);
@@ -1780,39 +1776,17 @@ python.Execution = class {
         typing.Tuple = Reflect.construct(typing._TupleType, []);
         typing.Union = Reflect.construct(typing._SpecialForm, []);
         this.registerType('enum.Enum', class {});
-        this.registerFunction('operator.add', () => {
-            throw new python.Error("'operator.add' not implemented.");
-        });
-        this.registerFunction('operator.eq', () => {
-            throw new python.Error("'operator.eq' not implemented.");
-        });
-        this.registerFunction('operator.ge', () => {
-            throw new python.Error("'operator.ge' not implemented.");
-        });
-        this.registerFunction('operator.gt', () => {
-            throw new python.Error("'operator.gt' not implemented.");
-        });
-        this.registerFunction('operator.mul', () => {
-            throw new python.Error("'operator.mul' not implemented.");
-        });
-        this.registerFunction('operator.mod', () => {
-            throw new python.Error("'operator.mod' not implemented.");
-        });
-        this.registerFunction('operator.le', () => {
-            throw new python.Error("'operator.le' not implemented.");
-        });
-        this.registerFunction('operator.lt', () => {
-            throw new python.Error("'operator.lt' not implemented.");
-        });
-        this.registerFunction('operator.ne', () => {
-            throw new python.Error("'operator.ne' not implemented.");
-        });
-        this.registerFunction('operator.floordiv', () => {
-            throw new python.Error("'operator.floordiv' not implemented.");
-        });
-        this.registerFunction('operator.sub', () => {
-            throw new python.Error("'operator.sub' not implemented.");
-        });
+        this.registerFunction('operator.add');
+        this.registerFunction('operator.eq');
+        this.registerFunction('operator.ge');
+        this.registerFunction('operator.gt');
+        this.registerFunction('operator.mul');
+        this.registerFunction('operator.mod');
+        this.registerFunction('operator.le');
+        this.registerFunction('operator.lt');
+        this.registerFunction('operator.ne');
+        this.registerFunction('operator.floordiv');
+        this.registerFunction('operator.sub');
         this.registerType('argparse.Namespace', class {
             constructor(args) {
                 this.args = args;
@@ -2559,14 +2533,11 @@ python.Execution = class {
         this.registerType('pandas.core.internals.managers.BlockManager', class {});
         pandas.core.internals.BlockManager = pandas.core.internals.managers.BlockManager;
         this.registerType('pandas.core.series.Series', class {});
-        this.registerFunction('pandas._libs.internals._unpickle_block', () => {
-            throw new python.Error("'pandas._libs.internals._unpickle_block' not implemented.");
-        });
+        this.registerFunction('pandas._libs.arrays.__pyx_unpickle_NDArrayBacked');
+        this.registerFunction('pandas._libs.internals._unpickle_block');
         this.registerType('pandas._libs.tslibs.base.ABCTimestamp', class extends datetime.datetime {});
         this.registerType('pandas._libs.tslibs.offsets.Minute', class extends datetime.datetime {});
-        this.registerFunction('pandas._libs.tslibs.timestamps._unpickle_timestamp', () => {
-            throw new python.Error("'pandas._libs.tslibs.timestamps._unpickle_timestamp' not implemented.");
-        });
+        this.registerFunction('pandas._libs.tslibs.timestamps._unpickle_timestamp');
         this.registerType('pandas._libs.tslibs.timestamps._Timestamp', class extends pandas._libs.tslibs.base.ABCTimestamp {});
         this.registerType('pandas._libs.tslibs.timestamps.Timestamp', class extends pandas._libs.tslibs.timestamps._Timestamp {});
         pandas._libs.tslib.Timestamp = pandas._libs.tslibs.timestamps.Timestamp;
@@ -2579,9 +2550,7 @@ python.Execution = class {
         this.registerType('sklearn._loss.link.MultinomialLogit', class extends sklearn._loss.link.BaseLink {});
         this.registerType('sklearn._loss._loss.CyLossFunction', class {});
         this.registerType('sklearn._loss._loss.CyHalfSquaredError', class extends sklearn._loss._loss.CyLossFunction {});
-        this.registerFunction('sklearn._loss._loss.__pyx_unpickle_CyHalfSquaredError', () => {
-            throw new python.Error("'sklearn._loss._loss.__pyx_unpickle_CyHalfSquaredError' not implemented.");
-        });
+        this.registerFunction('sklearn._loss._loss.__pyx_unpickle_CyHalfSquaredError');
         this.registerType('sklearn._loss.loss.BaseLoss', class {});
         this.registerType('sklearn._loss.loss.HalfMultinomialLoss', class extends sklearn._loss.loss.BaseLoss {});
         this.registerType('sklearn.base.BaseEstimator', class {});
@@ -2642,9 +2611,7 @@ python.Execution = class {
         this.registerType('sklearn.feature_extraction.text.TfidfTransformer', class {});
         this.registerType('sklearn.feature_extraction.text.TfidfVectorizer', class {});
         this.registerType('sklearn.feature_selection._from_model.SelectFromModel', class {});
-        this.registerFunction('sklearn.feature_selection._univariate_selection.chi2', () => {
-            throw new python.Error("'sklearn.feature_selection._univariate_selection.chi2' not implemented.");
-        });
+        this.registerFunction('sklearn.feature_selection._univariate_selection.chi2');
         this.registerType('sklearn.feature_selection._univariate_selection.GenericUnivariateSelect', class {});
         this.registerType('sklearn.feature_selection._univariate_selection.SelectKBest', class {});
         this.registerType('sklearn.feature_selection._univariate_selection.SelectPercentile', class {});
@@ -3498,9 +3465,7 @@ python.Execution = class {
                 this.step = step;
             }
         });
-        this.registerFunction('builtins.hash', (/* obj */) => {
-            throw new python.Error("'builtins.hash' not implemented.");
-        });
+        this.registerFunction('builtins.hash');
         this.registerFunction('cloudpickle.cloudpickle._builtin_type', (name) => {
             return name;
         });
@@ -3556,9 +3521,7 @@ python.Execution = class {
             // return execution.invoke(typeobj, Array.from(arguments).slice(1));
             throw new python.Error("'dill._dill._create_type' not implemented.");
         });
-        this.registerFunction('dill._dill._eval_repr', (/* repr_str */) => {
-            throw new python.Error("'dill._dill._eval_repr' not implemented.");
-        });
+        this.registerFunction('dill._dill._eval_repr');
         this.registerFunction('dill._dill._get_attr', (self, name) => {
             if (Object.prototype.hasOwnProperty.call(self, name)) {
                 return self[name];
@@ -3605,18 +3568,10 @@ python.Execution = class {
             return null; // throw new python.Error("'keras.saving.pickle_utils.deserialize_model_from_bytecode' not implemented.");
         });
         this.registerFunction('keras.src.saving.pickle_utils.deserialize_model_from_bytecode', keras.saving.pickle_utils.deserialize_model_from_bytecode);
-        this.registerFunction('lasagne.nonlinearities.rectify', () => {
-            throw new python.Error("'lasagne.nonlinearities.rectify' not implemented.");
-        });
-        this.registerFunction('lasagne.nonlinearities.softmax', () => {
-            throw new python.Error("'lasagne.nonlinearities.softmax' not implemented.");
-        });
-        this.registerFunction('lasagne.objectives.categorical_crossentropy', () => {
-            throw new python.Error("'lasagne.objectives.categorical_crossentropy' not implemented.");
-        });
-        this.registerFunction('lasagne.updates.nesterov_momentum', () => {
-            throw new python.Error("'lasagne.updates.nesterov_momentum' not implemented.");
-        });
+        this.registerFunction('lasagne.nonlinearities.rectify');
+        this.registerFunction('lasagne.nonlinearities.softmax');
+        this.registerFunction('lasagne.objectives.categorical_crossentropy');
+        this.registerFunction('lasagne.updates.nesterov_momentum');
         this.registerFunction('msgpack.unpackb', (packed, ext_hook) => {
             const BinaryReader = class {
                 constructor(buffer, ext_hook) {
@@ -3721,12 +3676,8 @@ python.Execution = class {
             };
             return new BinaryReader(packed, ext_hook).value();
         });
-        this.registerFunction('nolearn.lasagne.base.objective', () => {
-            throw new python.Error("'nolearn.lasagne.base.objective' not implemented.");
-        });
-        this.registerFunction('numpy.core._DType_reconstruct', (/* scalar_type */) => {
-            throw new python.Error("'numpy.core._DType_reconstruct' not implemented.");
-        });
+        this.registerFunction('nolearn.lasagne.base.objective');
+        this.registerFunction('numpy.core._DType_reconstruct');
         this.registerFunction('numpy.core.multiarray._reconstruct', (subtype, shape, dtype) => {
             return numpy.ndarray.__new__(subtype, shape, dtype);
         });
@@ -3988,9 +3939,7 @@ python.Execution = class {
             encode(context, a, 0);
             return self.invoke('numpy.ndarray', [shape, dtype, context.data]);
         });
-        this.registerFunction('numpy.mean', () => {
-            throw new python.Error("'numpy.mean' not implemented.");
-        });
+        this.registerFunction('numpy.mean');
         this.registerFunction('numpy.ma.core._mareconstruct', (subtype, baseclass, baseshape, basetype) => {
             const data = self.invoke(baseclass, [baseshape, basetype]);
             // = ndarray.__new__(ndarray, baseshape, make_mask_descr(basetype))
@@ -4033,40 +3982,22 @@ python.Execution = class {
             bit_generator_ctor = bit_generator_ctor || numpy.random._pickle.__bit_generator_ctor;
             return new numpy.random._generator.Generator(bit_generator_ctor(bit_generator_name));
         });
-        this.registerFunction('numpy.reshape', () => {
-            throw new python.Error("'numpy.reshape' not implemented.");
-        });
+        this.registerFunction('numpy.reshape');
         this.registerFunction('numpy.core.numeric._frombuffer', (/* buf, dtype, shape, order */) => {
             return {};
         });
-        this.registerFunction('sklearn.feature_selection._univariate_selection.f_classif', () => {
-            throw new python.Error("'sklearn.feature_selection._univariate_selection.f_classif' not implemented.");
-        });
-        this.registerFunction('sklearn.metrics.scorer._passthrough_scorer', () => {
-            throw new python.Error("'sklearn.metrics.scorer._passthrough_scorer' not implemented.");
-        });
-        this.registerFunction('sklearn.metrics._classification.accuracy_score', () => {
-            throw new python.Error("'sklearn.metrics._classification.accuracy_score' not implemented.");
-        });
-        this.registerFunction('sklearn.metrics._classification.f1_score', () => {
-            throw new python.Error("'sklearn.metrics._classification.f1_score' not implemented.");
-        });
-        this.registerFunction('sklearn.metrics._classification.precision_score', () => {
-            throw new python.Error("'sklearn.metrics._classification.precision_score' not implemented.");
-        });
-        this.registerFunction('sklearn.metrics._classification.recall_score', () => {
-            throw new python.Error("'sklearn.metrics._classification.recall_score' not implemented.");
-        });
+        this.registerFunction('sklearn.feature_selection._univariate_selection.f_classif');
+        this.registerFunction('sklearn.metrics.scorer._passthrough_scorer');
+        this.registerFunction('sklearn.metrics._classification.accuracy_score');
+        this.registerFunction('sklearn.metrics._classification.f1_score');
+        this.registerFunction('sklearn.metrics._classification.precision_score');
+        this.registerFunction('sklearn.metrics._classification.recall_score');
         this.registerFunction('sklearn.metrics._dist_metrics.newObj', (obj) => {
             return obj.__new__(obj);
 
         });
-        this.registerFunction('sklearn.metrics._regression.mean_absolute_error', () => {
-            throw new python.Error("'sklearn.metrics._regression.mean_absolute_error' not implemented.");
-        });
-        this.registerFunction('sklearn.metrics._regression.mean_squared_error', () => {
-            throw new python.Error("'sklearn.metrics._regression.mean_squared_error' not implemented.");
-        });
+        this.registerFunction('sklearn.metrics._regression.mean_absolute_error');
+        this.registerFunction('sklearn.metrics._regression.mean_squared_error');
         this.registerFunction('re._compile', (pattern, flags) => {
             return self.invoke('re.Pattern', [pattern, flags]);
         });
@@ -4075,27 +4006,13 @@ python.Execution = class {
                 return self.invoke(`types.${args[0]}`, args);
             };
         });
-        this.registerFunction('theano.scalar.basic.same_out', () => {
-            throw new python.Error("'theano.scalar.basic.same_out' not implemented.");
-        });
-        this.registerFunction('theano.scalar.basic.same_out_nocomplex', () => {
-            throw new python.Error("'theano.scalar.basic.same_out_nocomplex' not implemented.");
-        });
-        this.registerFunction('theano.scalar.basic.upcast_out', () => {
-            throw new python.Error("'theano.scalar.basic.upcast_out' not implemented.");
-        });
-        this.registerFunction('theano.scalar.basic.upgrade_to_float', () => {
-            throw new python.Error("'theano.scalar.basic.upgrade_to_float' not implemented.");
-        });
-        this.registerFunction('theano.tensor.nnet.conv2d', () => {
-            throw new python.Error("'theano.tensor.nnet.conv2d' not implemented.");
-        });
-        this.registerFunction('theano.tensor.type.values_eq_approx_remove_inf_nan', () => {
-            throw new python.Error("'theano.tensor.type.values_eq_approx_remove_inf_nan' not implemented.");
-        });
-        this.registerFunction('theano.tensor.type.values_eq_approx_remove_nan', () => {
-            throw new python.Error("'theano.tensor.type.values_eq_approx_remove_nan' not implemented.");
-        });
+        this.registerFunction('theano.scalar.basic.same_out');
+        this.registerFunction('theano.scalar.basic.same_out_nocomplex');
+        this.registerFunction('theano.scalar.basic.upcast_out');
+        this.registerFunction('theano.scalar.basic.upgrade_to_float');
+        this.registerFunction('theano.tensor.nnet.conv2d');
+        this.registerFunction('theano.tensor.type.values_eq_approx_remove_inf_nan');
+        this.registerFunction('theano.tensor.type.values_eq_approx_remove_nan');
         this.registerType('torch.nn.modules.module.Module', class {
             constructor() {
                 this._modules = execution.invoke('collections.OrderedDict', []);
@@ -4132,59 +4049,31 @@ python.Execution = class {
         this.registerType('torch.ao.quantization.stubs.DeQuantStub', class {});
         this.registerType('torch.ao.quantization.stubs.QuantStub', class {});
         this.registerType('torch.ao.quantization.stubs.QuantWrapper', class {});
-        this.registerFunction('torch.ao.quantization.fx.graph_module._save_packed_weight', () => {
-            throw new python.Error("'torch.ao.quantization.fx.graph_module._save_packed_weight' not implemented.");
-        });
-        this.registerFunction('torch.ao.quantization.fx._lower_to_native_backend._load_packed_weight', () => {
-            throw new python.Error("'torch.ao.quantization.fx._lower_to_native_backend._load_packed_weight' not implemented.");
-        });
-        this.registerFunction('torch.ao.quantization.fx._lower_to_native_backend._save_packed_weight', () => {
-            throw new python.Error("'torch.ao.quantization.fx._lower_to_native_backend._save_packed_weight' not implemented.");
-        });
-        this.registerFunction('torch.ao.quantization.quantization_mappings._get_special_act_post_process', () => {
-            throw new python.Error("'torch.ao.quantization.quantization_mappings._get_special_act_post_process' not implemented.");
-        });
-        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_dynamic_quant_module_mappings', () => {
-            throw new python.Error("'torch.ao.quantization.quantization_mappings.get_default_dynamic_quant_module_mappings' not implemented.");
-        });
-        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_qat_module_mappings', () => {
-            throw new python.Error("'torch.ao.quantization.quantization_mappings.get_default_qat_module_mappings' not implemented.");
-        });
-        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_qconfig_propagation_list', () => {
-            throw new python.Error("'torch.ao.quantization.quantization_mappings.get_default_qconfig_propagation_list' not implemented.");
-        });
-        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_static_quant_module_mappings', () => {
-            throw new python.Error("'torch.ao.quantization.quantization_mappings.get_default_static_quant_module_mappings' not implemented.");
-        });
-        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_static_quant_reference_module_mappings', () => {
-            throw new python.Error("'torch.ao.quantization.quantization_mappings.get_default_static_quant_reference_module_mappings' not implemented.");
-        });
-        this.registerFunction('torch.ao.quantization.quantization_mappings.no_observer_set', () => {
-            throw new python.Error("'torch.ao.quantization.quantization_mappings.no_observer_set' not implemented.");
-        });
-        this.registerFunction('torch.ao.quantization.quantization_mappings._has_special_act_post_process', () => {
-            throw new python.Error("'torch.ao.quantization.quantization_mappings._has_special_act_post_process' not implemented.");
-        });
-        this.registerFunction('torch.ao.quantization.utils.get_qparam_dict', () => {
-            throw new python.Error("'torch.ao.quantization.utils.get_qparam_dict' not implemented.");
-        });
-        this.registerFunction('torch.ao.quantization.utils.has_no_children_ignoring_parametrizations', () => {
-            throw new python.Error("'torch.ao.quantization.utils.has_no_children_ignoring_parametrizations' not implemented.");
-        });
+        this.registerFunction('torch.ao.quantization.fx.graph_module._save_packed_weight');
+        this.registerFunction('torch.ao.quantization.fx._lower_to_native_backend._load_packed_weight');
+        this.registerFunction('torch.ao.quantization.fx._lower_to_native_backend._save_packed_weight');
+        this.registerFunction('torch.ao.quantization.quantization_mappings._get_special_act_post_process');
+        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_dynamic_quant_module_mappings');
+        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_qat_module_mappings');
+        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_qconfig_propagation_list');
+        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_static_quant_module_mappings');
+        this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_static_quant_reference_module_mappings');
+        this.registerFunction('torch.ao.quantization.quantization_mappings.no_observer_set');
+        this.registerFunction('torch.ao.quantization.quantization_mappings._has_special_act_post_process');
+        this.registerFunction('torch.ao.quantization.utils.get_qparam_dict');
+        this.registerFunction('torch.ao.quantization.utils.has_no_children_ignoring_parametrizations');
         this.registerType('torch.autograd.variable.Variable', class {});
         this.registerType('torch.backends.cudnn.rnn.Unserializable', class {});
-        this.registerFunction('torch.distributed._shard.sharded_tensor.pre_load_state_dict_hook', () => {
-            throw new python.Error("'torch.distributed._shard.sharded_tensor.pre_load_state_dict_hook' not implemented.");
-        });
-        this.registerFunction('torch.distributed._shard.sharded_tensor.state_dict_hook', () => {
-            throw new python.Error("'torch.distributed._shard.sharded_tensor.state_dict_hook' not implemented.");
-        });
+        this.registerFunction('torch.distributed._shard.sharded_tensor.pre_load_state_dict_hook');
+        this.registerFunction('torch.distributed._shard.sharded_tensor.state_dict_hook');
         this.registerType('torch.distributed.algorithms.join._JoinConfig', class {});
         this.registerType('torch.distributions.bernoulli.Bernoulli', class {});
+        this.registerType('torch.distributions.beta.Beta', class {});
         this.registerType('torch.distributions.binomial.Binomial', class {});
         this.registerType('torch.distributions.categorical.Categorical', class {});
         this.registerType('torch.distributions.constraints._LowerCholesky', class {});
         this.registerType('torch.distributions.constraints._Real', class {});
+        this.registerType('torch.distributions.dirichlet.Dirichlet', class {});
         this.registerType('torch.distributions.multivariate_normal.MultivariateNormal', class {});
         this.registerType('torch.distributions.normal.Normal', class {});
         this.registerType('torch.distributions.transforms._InverseTransform', class {});
@@ -4442,9 +4331,7 @@ python.Execution = class {
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormStateDictHook', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook', class {});
         this.registerType('torch.nn.utils.weight_norm.WeightNorm', class {});
-        this.registerFunction('torch.nn.utils.parametrize.type_before_parametrizations', () => {
-            throw python.Error("'torch.nn.utils.parametrize.type_before_parametrizations' not implemented.");
-        });
+        this.registerFunction('torch.nn.utils.parametrize.type_before_parametrizations');
         this.registerType('torch.torch_version.TorchVersion', class extends String {});
         this.registerType('torch.optim.optimizer.Optimizer', class {});
         this.registerType('torch.optim.adam.Adam', class extends torch.optim.optimizer.Optimizer {});
@@ -4479,9 +4366,7 @@ python.Execution = class {
         this.registerType('torch.quantization.stubs.QuantStub', class {});
         this.registerType('torch.utils._pytree.LeafSpec', class {});
         this.registerType('torch.utils._pytree.TreeSpec', class {});
-        this.registerFunction('torch.utils.data._utils.collate.default_collate', () => {
-            throw new python.Error("'torch.utils.data._utils.collate.default_collate' not implemented.");
-        });
+        this.registerFunction('torch.utils.data._utils.collate.default_collate');
         this.registerType('torch.utils.data.dataloader._MultiProcessingDataLoaderIter', class {});
         this.registerType('torch.utils.data.dataloader.DataLoader', class {});
         this.registerType('torch.utils.data.dataset.Subset', class {});
@@ -4490,6 +4375,7 @@ python.Execution = class {
         this.registerType('torch.utils.data.sampler.BatchSampler', class {});
         this.registerType('torch.utils.data.sampler.RandomSampler', class {});
         this.registerType('torch.utils.data.sampler.SequentialSampler', class {});
+        this.registerFunction('torchvision.datasets.folder.default_loader');
         this.registerType('torchvision.datasets.folder.ImageFolder', class {});
         this.registerType('torchvision.datasets.mnist.FashionMNIST', class {});
         this.registerType('torchvision.datasets.mnist.MNIST', class {});
@@ -4632,6 +4518,7 @@ python.Execution = class {
         this.registerType('torchvision.models.vision_transformer.VisionTransformer', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.models._utils.IntermediateLayerGetter', class {});
         this.registerType('torchvision.transforms._presets.ImageClassification', class {});
+        this.registerType('torchvision.transforms.autoaugment.AutoAugment', class {});
         this.registerType('torchvision.transforms.functional.InterpolationMode', class {});
         this.registerType('torchvision.transforms.transforms.ColorJitter', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.Compose', class {});
@@ -4660,9 +4547,7 @@ python.Execution = class {
         this.registerFunction('torchvision.models.resnet.resnet101', () => {});
         this.registerFunction('torchvision.models.resnet.resnet152', () => {});
         this.registerFunction('torchvision.models.vision_transformer.vit_h_14', () => {});
-        this.registerFunction('torchvision.ops.boxes.box_iou', (/* boxes1, boxes2 */) => {
-            throw new python.Error("'torchvision.ops.boxes.box_iou' not implemented.");
-        });
+        this.registerFunction('torchvision.ops.boxes.box_iou');
         this.registerFunction('builtins.annotate', (type, value) => {
             if (type === self._builtins.int) {
                 return Number.isInteger(value) ? value : NaN;
@@ -4809,15 +4694,14 @@ python.Execution = class {
             }
             throw new python.Error(`Unsupported range(${JSON.stringify(start)}, ${JSON.stringify(stop)}, ${JSON.stringify(step)})`);
         });
-        this.registerFunction('torch._C._nn.gelu', () => {
-            throw new python.Error("'torch._C._nn.gelu' not implemented.");
-        });
+        this.registerFunction('torch._C._nn.gelu');
         this.registerFunction('torch._utils._rebuild_sparse_tensor', (layout, data) => {
             if (layout === torch.sparse_coo) {
                 return self.invoke('torch._sparse_coo_tensor_unsafe', data);
             }
             throw new python.Error(`Unsupported sparse tensor layout '${layout ? layout.__str__() : ''}'.`);
         });
+        this.registerFunction('torch._utils._rebuild_wrapper_subclass');
         this.registerFunction('torch.from_numpy', (obj) => {
             const dtypes = new Map([
                 ['<f2', torch.float16],
@@ -4984,19 +4868,12 @@ python.Execution = class {
             }
             return 0;
         });
-        this.registerFunction('torch._nested_tensor_from_mask_left_aligned', () => {
-            throw new python.Error("'torch._nested_tensor_from_mask_left_aligned' not implemented.");
-        });
+        this.registerFunction('torch._nested_tensor_from_mask_left_aligned');
         this.registerFunction('torch._unwrap_optional', (value) => {
             return value;
         });
         this.registerFunction('torch.empty_strided', (/* size, stride, dtype, layout, device, pin_memory, requires_grad */) => {
             return null;
-            // throw new python.Error("'torch.empty_strided' not implemented.");
-        });
-        this.registerFunction('torch.empty_strided', (/* size, stride, dtype, layout, device, pin_memory, requires_grad */) => {
-            return null;
-            // throw new python.Error("'torch.empty_strided' not implemented.");
         });
         this.registerFunction('torch.add', (left, right) => {
             if (typeof left === 'number' && typeof right === 'number') {
@@ -5021,9 +4898,7 @@ python.Execution = class {
                 }
             }
         });
-        this.registerFunction('torch.cosine_similarity', () => {
-            throw new python.Error("'torch.cosine_similarity' not implemented.");
-        });
+        this.registerFunction('torch.cosine_similarity');
         this.registerFunction('torch.extend', (list, value) => {
             list.push(...value);
         });
@@ -5379,9 +5254,7 @@ python.Execution = class {
             }
             return _legacy_load(f);
         });
-        this.registerFunction('torch.log10', (/* x */) => {
-            throw new python.Error("'torch.log10' not implemented.");
-        });
+        this.registerFunction('torch.log10');
         this.registerFunction('torch.lt', (left, right) => {
             if (typeof left === 'number' && typeof right === 'number') {
                 return left < right;
@@ -5510,72 +5383,28 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported 'torch.sub' expression type.");
         });
-        this.registerFunction('torch.functional.einsum', () => {
-            throw new python.Error("'torch.functional.einsum' not implemented.");
-        });
-        this.registerFunction('torch.functional.split', () => {
-            throw new python.Error("'torch.functional.split' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.adaptive_avg_pool2d', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.adaptive_avg_pool2d' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.cross_entropy', () => {
-            throw new python.Error("'torch.nn.functional.cross_entropy' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.elu', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.elu' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.gelu', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.gelu' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.hardsigmoid', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.hardsigmoid' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.hardswish', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.hardswish' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.hardtanh', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.hardtanh' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.interpolate', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.interpolate' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.leaky_relu', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.leaky_relu' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.linear', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.linear' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional._max_pool2d', (/* input */) => {
-            throw new python.Error("'torch.nn.functional._max_pool2d' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.max_pool2d_with_indices', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.max_pool2d_with_indices' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.mse_loss', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.mse_loss' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.pad', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.pad' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.relu', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.relu' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.relu6', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.relu6' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.sigmoid', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.sigmoid' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.silu', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.silu' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.softmax', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.softmax' not implemented.");
-        });
-        this.registerFunction('torch.nn.functional.tanh', (/* input */) => {
-            throw new python.Error("'torch.nn.functional.tanh' not implemented.");
-        });
+        this.registerFunction('torch.functional.einsum');
+        this.registerFunction('torch.functional.split');
+        this.registerFunction('torch.nn.functional.adaptive_avg_pool2d');
+        this.registerFunction('torch.nn.functional.cross_entropy');
+        this.registerFunction('torch.nn.functional.elu');
+        this.registerFunction('torch.nn.functional.gelu');
+        this.registerFunction('torch.nn.functional.hardsigmoid');
+        this.registerFunction('torch.nn.functional.hardswish');
+        this.registerFunction('torch.nn.functional.hardtanh');
+        this.registerFunction('torch.nn.functional.interpolate');
+        this.registerFunction('torch.nn.functional.leaky_relu');
+        this.registerFunction('torch.nn.functional.linear');
+        this.registerFunction('torch.nn.functional._max_pool2d');
+        this.registerFunction('torch.nn.functional.max_pool2d_with_indices');
+        this.registerFunction('torch.nn.functional.mse_loss');
+        this.registerFunction('torch.nn.functional.pad');
+        this.registerFunction('torch.nn.functional.relu');
+        this.registerFunction('torch.nn.functional.relu6');
+        this.registerFunction('torch.nn.functional.sigmoid');
+        this.registerFunction('torch.nn.functional.silu');
+        this.registerFunction('torch.nn.functional.softmax');
+        this.registerFunction('torch.nn.functional.tanh');
         this.registerFunction('torch.values', (dict) => {
             return Object.values(dict);
         });
@@ -5586,9 +5415,7 @@ python.Execution = class {
         this.registerType('torch._ops.OpOverload', class extends torch._ops.OperatorBase {});
         this.registerType('torch.export.unflatten.UnflattenedModule', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.export.exported_program.ExportedProgram', class {});
-        this.registerFunction('torch.export.unflatten', (/* module, flat_args_adapter */) => {
-            throw new python.Error("'torch.export.unflatten' not implemented.");
-        });
+        this.registerFunction('torch.export.unflatten');
         this.registerFunction('torch._export.exported_program._create_graph_module_for_export', (root, graph) => {
             return new torch.fx.graph_module.GraphModule(root, graph);
         });
@@ -6630,12 +6457,8 @@ python.Execution = class {
         torch.per_channel_symmetric = new torch.qscheme('torch.per_channel_symmetric');
         torch.per_channel_affine_float_qparams = new torch.qscheme('torch.per_channel_affine_float_qparams');
         torch.inf = this.register('math').inf;
-        this.registerFunction('fastcore.basics._using_attr', () => {
-            throw new python.Error("'fastcore.basics._using_attr' not implemented.");
-        });
-        this.registerFunction('fastcore.imports.noop', () => {
-            throw new python.Error("'fastcore.imports.noop' not implemented.");
-        });
+        this.registerFunction('fastcore.basics._using_attr');
+        this.registerFunction('fastcore.imports.noop');
         this.registerType('fastcore.basics.fastuple', class {});
         this.registerType('fastcore.basics.GetAttr', class {});
         this.registerType('fastcore.dispatch._TypeDict', class {});
@@ -6660,9 +6483,7 @@ python.Execution = class {
         this.registerType('fastai.data.core.TfmdDL', class extends fastai.data.load.DataLoader {});
         this.registerType('fastai.data.core.TfmdLists', class {});
         this.registerType('fastai.data.load._FakeLoader', class {});
-        this.registerFunction('fastai.data.load._wif', () => {
-            throw new python.Error("'fastai.data.load._wif' not implemented.");
-        });
+        this.registerFunction('fastai.data.load._wif');
         this.registerType('fastai.data.transforms.Categorize', class {});
         this.registerType('fastai.data.transforms.Category', class {});
         this.registerType('fastai.data.transforms.CategoryMap', class {});
@@ -6695,32 +6516,16 @@ python.Execution = class {
         this.registerType('fastai.losses.BaseLoss', class {});
         this.registerType('fastai.losses.CrossEntropyLossFlat', class {});
         this.registerType('fastai.metrics.AccumMetric', class extends fastai.learner.Metric {});
-        this.registerFunction('fastai.metrics._rmse', () => {
-            throw new python.Error("'fastai.metrics._rmse' not implemented.");
-        });
-        this.registerFunction('fastai.metrics.accuracy', () => {
-            throw new python.Error("'fastai.metrics.error_rate' not implemented.");
-        });
-        this.registerFunction('fastai.metrics.mse', () => {
-            throw new python.Error("'fastai.metrics.mse' not implemented.");
-        });
-        this.registerFunction('fastai.metrics.error_rate', () => {
-            throw new python.Error("'fastai.metrics.error_rate' not implemented.");
-        });
+        this.registerFunction('fastai.metrics._rmse');
+        this.registerFunction('fastai.metrics.accuracy');
+        this.registerFunction('fastai.metrics.mse');
+        this.registerFunction('fastai.metrics.error_rate');
         this.registerType('fastai.optimizer._BaseOptimizer', class {});
         this.registerType('fastai.optimizer.Optimizer', class extends fastai.optimizer._BaseOptimizer {});
-        this.registerFunction('fastai.optimizer.Adam', () => {
-            throw new python.Error("'fastai.optimizer.Adam' not implemented.");
-        });
-        this.registerFunction('fastai.optimizer.adam_step', () => {
-            throw new python.Error("'fastai.optimizer.adam_step' not implemented.");
-        });
-        this.registerFunction('fastai.optimizer.average_grad', () => {
-            throw new python.Error("'fastai.optimizer.average_grad' not implemented.");
-        });
-        this.registerFunction('fastai.optimizer.weight_decay', () => {
-            throw new python.Error("'fastai.optimizer.weight_decay' not implemented.");
-        });
+        this.registerFunction('fastai.optimizer.Adam');
+        this.registerFunction('fastai.optimizer.adam_step');
+        this.registerFunction('fastai.optimizer.average_grad');
+        this.registerFunction('fastai.optimizer.weight_decay');
         this.registerType('fastai.tabular.core.Categorify', class {});
         this.registerType('fastai.tabular.core.FillMissing', class {});
         this.registerType('fastai.tabular.core.FillStrategy', class {});
@@ -6744,17 +6549,13 @@ python.Execution = class {
         this.registerType('fastai.torch_core.TensorCategory', class {});
         this.registerType('fastai.torch_core.TensorImage', class {});
         this.registerType('fastai.torch_core.TensorMask', class {});
-        this.registerFunction('fastai.torch_core.trainable_params', () => {
-            throw new python.Error("'fastai.torch_core.trainable_params' not implemented.");
-        });
+        this.registerFunction('fastai.torch_core.trainable_params');
         this.registerFunction('fastai.torch_core._rebuild_from_type', (func, type, args, dict) => {
             const tensor = self.invoke(type, [func(...args)]);
             Object.assign(tensor, dict);
             return tensor;
         });
-        this.registerFunction('fastai.vision.augment.aug_transforms', () => {
-            throw new python.Error("'fastai.vision.augment.aug_transforms' not implemented.");
-        });
+        this.registerFunction('fastai.vision.augment.aug_transforms');
         this.registerType('fastai.vision.augment._BrightnessLogit', class {});
         this.registerType('fastai.vision.augment._ContrastLogit', class {});
         this.registerType('fastai.vision.augment._WarpCoord', class {});
@@ -6764,16 +6565,12 @@ python.Execution = class {
         this.registerType('fastai.vision.augment.RandomResizedCropGPU', class {});
         this.registerType('fastai.vision.augment.Resize', class {});
         this.registerType('fastai.vision.augment.rotate_mat', class {});
-        this.registerFunction('fastai.vision.augment.TensorImage.lighting', () => {
-            throw new python.Error("'fastai.vision.augment.TensorImage.lighting' not implemented.");
-        });
+        this.registerFunction('fastai.vision.augment.TensorImage.lighting');
         this.registerType('fastai.vision.augment.zoom_mat', class {});
         this.registerType('fastai.vision.core.PILImage', class {});
         this.registerType('fastai.vision.core.PILMask', class {});
         this.registerType('fastai.vision.core.AddMaskCodes', class {});
-        this.registerFunction('fastai.vision.learner._resnet_split', () => {
-            throw new python.Error("'fastai.vision.learner._resnet_split' not implemented.");
-        });
+        this.registerFunction('fastai.vision.learner._resnet_split');
         this.registerType('fastai.learner._ConstantFunc', class {});
         this.registerType('fastai.vision.learner.TimmBody', class {});
         this.registerType('fastai.vision.models.unet.DynamicUnet', class {});
@@ -7435,6 +7232,11 @@ python.Execution = class {
 
     registerFunction(name, value) {
         const parts = name.split('.');
+        if (!value) {
+            value = () => {
+                throw new python.Error(`'${name}' is not implemented.`);
+            };
+        }
         value.__class__ = this._builtins.function;
         value.__name__ = parts.pop();
         value.__module__ = parts.join('.');
