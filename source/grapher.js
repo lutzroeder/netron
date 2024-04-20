@@ -171,7 +171,7 @@ grapher.Graph = class {
         }
     }
 
-    layout() {
+    async layout() {
         dagre.layout(this, this._layout);
         for (const key of this.nodes.keys()) {
             const entry = this.node(key);
