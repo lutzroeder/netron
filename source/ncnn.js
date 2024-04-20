@@ -137,25 +137,17 @@ ncnn.ModelFactory = class {
 ncnn.Model = class {
 
     constructor(metadata, param, bin) {
-        this._format = 'ncnn';
-        this._graphs = [new ncnn.Graph(metadata, param, bin)];
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.format = 'ncnn';
+        this.graphs = [new ncnn.Graph(metadata, param, bin)];
     }
 };
 
 ncnn.Graph = class {
 
     constructor(metadata, param, bin) {
-        this._inputs = [];
-        this._outputs = [];
-        this._nodes = [];
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
         const blobReader = new ncnn.BlobReader(bin);
         const layers = param.layers;
         const values = new Map();
@@ -195,40 +187,22 @@ ncnn.Graph = class {
                 const shape = new ncnn.TensorShape(dimensions);
                 const type = new ncnn.TensorType('float32', shape);
                 const input = new ncnn.Argument(layer.name, layer.outputs.map((output) => values.map(output, type)));
-                this._inputs.push(input);
+                this.inputs.push(input);
             } else {
                 const node = new ncnn.Node(metadata, blobReader, layer, values);
-                this._nodes.push(node);
+                this.nodes.push(node);
             }
         }
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
     }
 };
 
 ncnn.Argument = class {
 
-    constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+    constructor(name, value, type, visible) {
+        this.name = name;
+        this.value = value;
+        this.type = type;
+        this.visible = visible !== false;
     }
 };
 
@@ -238,70 +212,57 @@ ncnn.Value = class {
         if (typeof name !== 'string') {
             throw new ncnn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
-        this._name = name;
-        this._type = type || null;
-        this._initializer = initializer || null;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return this._type;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name = name;
+        this.type = initializer ? initializer.type : type;
+        this.initializer = initializer || null;
     }
 };
 
 ncnn.Node = class {
 
     constructor(metadata, blobReader, layer, values) {
-        this._inputs = [];
-        this._outputs = [];
-        this._chain = [];
-        this._name = layer.name || '';
+        this.inputs = [];
+        this.outputs = [];
+        this.chain = [];
+        this.name = layer.name || '';
         const type = layer.type;
-        this._type = metadata.type(type);
-        const attributeMetadata = this._type && this._type.attributes ? this._type.attributes : [];
+        this.type = metadata.type(type);
+        const attributeMetadata = this.type && this.type.attributes ? this.type.attributes : [];
         const attributes = layer.attributes;
         const inputs = layer.inputs || [];
         let inputIndex = 0;
-        if (this._type && this._type.inputs) {
-            for (const inputDef of this._type.inputs) {
+        if (this.type && Array.isArray(this.type.inputs)) {
+            for (const inputDef of this.type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option !== 'optional') {
-                    const inputCount = (inputDef.option === 'variadic') ? (inputs.length - inputIndex) : 1;
-                    const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id !== '' || inputDef.option !== 'optional').map((id) => values.map(id));
-                    this._inputs.push(new ncnn.Argument(inputDef.name, inputArguments));
-                    inputIndex += inputCount;
+                    const count = (inputDef.option === 'variadic') ? (inputs.length - inputIndex) : 1;
+                    const inputArguments = inputs.slice(inputIndex, inputIndex + count).filter((id) => id !== '' || inputDef.option !== 'optional').map((id) => values.map(id));
+                    const argument = new ncnn.Argument(inputDef.name, inputArguments);
+                    this.inputs.push(argument);
+                    inputIndex += count;
                 }
             }
         }
-        this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
-            const inputName = ((inputIndex + index) === 0) ? 'input' : (inputIndex + index).toString();
-            return new ncnn.Argument(inputName, [values.map(input)]);
+        this.inputs.push(...inputs.slice(inputIndex).map((input, index) => {
+            const name = ((inputIndex + index) === 0) ? 'input' : (inputIndex + index).toString();
+            return new ncnn.Argument(name, [values.map(input)]);
         }));
 
         const outputs = layer.outputs || [];
         let outputIndex = 0;
-        if (this._type && this._type.outputs) {
-            for (const outputDef of this._type.outputs) {
+        if (this.type && this.type.outputs) {
+            for (const outputDef of this.type.outputs) {
                 if (outputIndex < outputs.length || outputDef.option !== 'optional') {
-                    const outputCount = (outputDef.option === 'variadic') ? (outputs.length - outputIndex) : 1;
-                    const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => values.map(id));
-                    this._outputs.push(new ncnn.Argument(outputDef.name, outputArguments));
-                    outputIndex += outputCount;
+                    const count = (outputDef.option === 'variadic') ? (outputs.length - outputIndex) : 1;
+                    const outputArguments = outputs.slice(outputIndex, outputIndex + count).map((id) => values.map(id));
+                    const argument = new ncnn.Argument(outputDef.name, outputArguments);
+                    this.outputs.push(argument);
+                    outputIndex += count;
                 }
             }
         }
-        this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
-            const outputName = ((outputIndex + index) === 0) ? 'output' : (outputIndex + index).toString();
-            return new ncnn.Argument(outputName, [values.map(output)]);
+        this.outputs.push(...outputs.slice(outputIndex).map((output, index) => {
+            const name = ((outputIndex + index) === 0) ? 'output' : (outputIndex + index).toString();
+            return new ncnn.Argument(name, [values.map(output)]);
         }));
         const weight = (blobReader, name, dimensions, dataType) => {
             const blob = blobReader.read(dimensions, dataType);
@@ -309,9 +270,10 @@ ncnn.Node = class {
             const data = blob ? blob.data : null;
             const type = new ncnn.TensorType(dataType, new ncnn.TensorShape(dimensions));
             const tensor = new ncnn.Tensor(type, data);
-            this._inputs.push(new ncnn.Argument(name, [values.map('', null, tensor)]));
+            const argument = new ncnn.Argument(name, [values.map('', null, tensor)]);
+            this.inputs.push(argument);
         };
-        switch (this._type.name) {
+        switch (this.type.name) {
             case 'BatchNorm': {
                 const channels = parseInt(attributes.get('0') || 0, 10);
                 weight(blobReader, 'slope', [channels], 'float32');
@@ -328,7 +290,7 @@ ncnn.Node = class {
                         type: activation_names[activation_type],
                         attributes: new Map()
                     };
-                    this._chain.push(new ncnn.Node(metadata, blobReader, layer, values));
+                    this.chain.push(new ncnn.Node(metadata, blobReader, layer, values));
                 }
                 const num_output = parseInt(attributes.get('0') || 0, 10);
                 const weight_data_size = parseInt(attributes.get('2') || 0, 10);
@@ -365,7 +327,7 @@ ncnn.Node = class {
                         type: activation_names[activation_type],
                         attributes: new Map()
                     };
-                    this._chain.push(new ncnn.Node(metadata, blobReader, layer, values));
+                    this.chain.push(new ncnn.Node(metadata, blobReader, layer, values));
                 }
                 const num_output = parseInt(attributes.get('0') || 0, 10);
                 const kernel_w = parseInt(attributes.get('1') || 0, 10);
@@ -387,7 +349,7 @@ ncnn.Node = class {
                         type: activation_names[activation_type],
                         attributes: new Map()
                     };
-                    this._chain.push(new ncnn.Node(metadata, blobReader, layer, values));
+                    this.chain.push(new ncnn.Node(metadata, blobReader, layer, values));
                 }
                 const num_output = parseInt(attributes.get('0') || 0, 10);
                 const kernel_w = parseInt(attributes.get('1') || 0, 10);
@@ -408,7 +370,7 @@ ncnn.Node = class {
                         type: activation_names[activation_type],
                         attributes: new Map()
                     };
-                    this._chain.push(new ncnn.Node(metadata, blobReader, layer, values));
+                    this.chain.push(new ncnn.Node(metadata, blobReader, layer, values));
                 }
                 const num_output = parseInt(attributes.get('0') || 0, 10);
                 const kernel_w = parseInt(attributes.get('1') || 0, 10);
@@ -564,158 +526,83 @@ ncnn.Node = class {
                 break;
             }
         }
-
-        this._attributes = Array.from(attributes).map(([key, value]) => {
+        this.attributes = Array.from(attributes).map(([key, value]) => {
             const metadata = attributeMetadata[key];
-            return new ncnn.Attribute(metadata, key, value);
-        });
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get chain() {
-        return this._chain;
-    }
-};
-
-ncnn.Attribute = class {
-
-    constructor(metadata, key, value) {
-        this._type = '';
-        this._name = key;
-        this._value = value;
-        if (metadata) {
-            this._name = metadata.name;
-            if (metadata.type) {
-                this._type = metadata.type;
-            }
-            switch (this._type) {
-                case 'int32': {
-                    this._value = parseInt(this._value, 10);
-                    break;
-                }
-                case 'float32': {
-                    this._value = parseFloat(this._value);
-                    break;
-                }
-                case 'float32[]': {
-                    this._value = this._value.map((v) => parseFloat(v));
-                    break;
-                }
-                default: {
-                    if (this._type) {
-                        this._value = ncnn.Utility.value(this._value, this._type);
+            let type = '';
+            let name = key;
+            let visible = true;
+            if (metadata) {
+                name = metadata.name;
+                type = metadata.type ? metadata.type : type;
+                switch (type) {
+                    case 'int32': {
+                        value = parseInt(value, 10);
+                        break;
                     }
-                    break;
+                    case 'float32': {
+                        value = parseFloat(value);
+                        break;
+                    }
+                    case 'float32[]': {
+                        value = value.map((v) => parseFloat(v));
+                        break;
+                    }
+                    default: {
+                        value = type ? ncnn.Utility.value(value, type) : value;
+                        break;
+                    }
+                }
+                if (metadata && metadata.visible === false) {
+                    visible = false;
+                } else if (metadata.default !== undefined) {
+                    if (value === metadata.default || (value && value.toString() === metadata.default.toString())) {
+                        visible = false;
+                    }
                 }
             }
-            if (metadata && metadata.visible === false) {
-                this._visible = false;
-            } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
-                if (this._value === metadata.default || (this._value && this._value.toString() === metadata.default.toString())) {
-                    this._visible = false;
-                }
-            }
-        }
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    get visible() {
-        return this._visible !== false;
+            return new ncnn.Argument(name, value, type, visible);
+        });
     }
 };
 
 ncnn.Tensor = class {
 
-    constructor(type, data) {
-        this._type = type;
-        this._data = data;
-    }
-
-    get category() {
-        return 'Weights';
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get values() {
-        return this._data;
+    constructor(type, values) {
+        this.type = type;
+        this.values = values;
     }
 };
 
 ncnn.TensorType = class {
 
     constructor(dataType, shape) {
-        this._dataType = dataType || '?';
-        this._shape = shape;
-    }
-
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
+        this.dataType = dataType || '?';
+        this.shape = shape;
     }
 
     equals(obj) {
-        return obj && this._dataType === obj.dataType && this._shape && this._shape.equals(obj.shape);
+        return obj && this.dataType === obj.dataType && this.shape && this.shape.equals(obj.shape);
     }
 
     toString() {
-        return this._dataType + this._shape.toString();
+        return this.dataType + this.shape.toString();
     }
 };
 
 ncnn.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = dimensions;
     }
 
     equals(obj) {
         return obj && Array.isArray(obj.dimensions) &&
-            Array.isArray(this._dimensions) && this._dimensions.length === obj.dimensions.length
-            && obj.dimensions.every((value, index) => this._dimensions[index] === value);
+            Array.isArray(this.dimensions) && this.dimensions.length === obj.dimensions.length
+            && obj.dimensions.every((value, index) => this.dimensions[index] === value);
     }
 
     toString() {
-        return this._dimensions ? (`[${this._dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`) : '';
+        return this.dimensions ? (`[${this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`) : '';
     }
 };
 
@@ -733,9 +620,9 @@ ncnn.Utility = class {
             ['ReductionOpType', ['Sum', 'ASum', 'SumSq', 'Mean', 'Max', 'Min', 'Prod', 'L1', 'L2', 'LogSum', 'LogSumExp']],
             ['UnaryOpType', ['Abs', 'Neg', 'Floor', 'Ceil', 'Square', 'Sqrt', 'Rsq', 'Exp', 'Log', 'Sin', 'Cos', 'Tan', 'ASin', 'ACos', 'ATan', 'Reciprocal', 'Tanh']]
         ]);
-        if (this._enum.has(type) && typeof value === 'string') {
+        if (ncnn.Utility._enum.has(type) && typeof value === 'string') {
             const index = parseInt(value, 10);
-            const list = this._enum.get(type);
+            const list = ncnn.Utility._enum.get(type);
             if (Number.isInteger(index) && index < list.length) {
                 return list[index];
             }
@@ -761,7 +648,7 @@ ncnn.TextParamReader = class {
         if (header.length !== 2 || !header.every((value) => value >>> 0 === parseFloat(value))) {
             throw new ncnn.Error('Invalid header.');
         }
-        const layers = [];
+        this.layers = [];
         while (lines.length > 0) {
             const line = lines.shift();
             if (line.length > 0) {
@@ -779,7 +666,7 @@ ncnn.TextParamReader = class {
                 for (const column of columns) {
                     const parts = column.split('=');
                     if (parts.length > 2) {
-                        throw new ncnn.Attribute(`Invalid attribute '${column}'.`);
+                        throw new ncnn.Error(`Invalid attribute '${column}'.`);
                     }
                     let key = (parts.length === 2) ? parts[0].trim() : index.toString();
                     let value = (parts.length === 2) ? parts[1].trim() : parts[0].trim();
@@ -792,14 +679,9 @@ ncnn.TextParamReader = class {
                     attributes.set(key, value);
                     index++;
                 }
-                layers.push(layer);
+                this.layers.push(layer);
             }
         }
-        this._layers = layers;
-    }
-
-    get layers() {
-        return this._layers;
     }
 };
 
@@ -812,7 +694,7 @@ ncnn.BinaryParamReader = class {
         }
         const layerCount = reader.int32();
         /* const blobCount = */ reader.int32();
-        this._layers = [];
+        this.layers = [];
         for (let i = 0; i < layerCount; i++) {
             const layer = {
                 type: reader.int32(),
@@ -850,12 +732,8 @@ ncnn.BinaryParamReader = class {
                 }
                 id = reader.int32();
             }
-            this._layers.push(layer);
+            this.layers.push(layer);
         }
-    }
-
-    get layers() {
-        return this._layers;
     }
 };
 
