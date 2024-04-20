@@ -900,12 +900,12 @@ pytorch.Container.data_pkl = class extends pytorch.Container {
                 return new pytorch.Container.data_pkl('tensor', obj);
             }
             if (obj instanceof Map) {
-                const entries = Array.from(obj).filter(([name, value]) => name === '_metadata' || pytorch.Utility.isTensor(value));
+                const entries = Array.from(obj).filter(([, value]) => pytorch.Utility.isTensor(value));
                 if (entries.length > 0) {
                     return new pytorch.Container.data_pkl('tensor', obj);
                 }
             } else if (!Array.isArray(obj)) {
-                const entries = Object.entries(obj).filter(([name, value]) => name === '_metadata' || pytorch.Utility.isTensor(value));
+                const entries = Object.entries(obj).filter(([, value]) => pytorch.Utility.isTensor(value));
                 if (entries.length > 0) {
                     return new pytorch.Container.data_pkl('tensor', obj);
                 }
