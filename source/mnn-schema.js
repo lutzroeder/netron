@@ -1115,6 +1115,7 @@ MNN.LayerNorm = class LayerNorm {
         $.beta = reader.array(position, 10, Float32Array);
         $.group = reader.int32_(position, 12, 1);
         $.external = reader.int64s_(position, 14);
+        $.useRMSNorm = reader.bool_(position, 16, false);
         return $;
     }
 };
@@ -1650,6 +1651,7 @@ MNN.OpType = {
     GatherElements: 152,
     Svd: 153,
     Histogram: 154,
+    DynamicQuant: 155,
     Plugin: 256,
     Select: 257,
     ZerosLike: 258,
@@ -1904,6 +1906,7 @@ MNN.Op = class Op {
         $.outputIndexes = reader.array(position, 12, Int32Array);
         $.type = reader.int32_(position, 14, 0);
         $.defaultDimentionFormat = reader.int8_(position, 16, 1);
+        $.externalPath = reader.string_(position, 18, null);
         return $;
     }
 };
