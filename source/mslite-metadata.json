@@ -1026,7 +1026,8 @@
       { "name": "dst_type", "type": "int64", "default": 32 },
       { "name": "activation_channel", "type": "boolean", "default": false },
       { "name": "prefer_axis", "type": "int64", "default": 0 },
-      { "name": "transpose", "type": "boolean", "default": false }
+      { "name": "transpose", "type": "boolean", "default": false },
+      { "name": "prefer_axes", "type": "int32[]", "default": 0 }
     ]
   },
   {
@@ -1177,6 +1178,9 @@
     "outputs": [
       { "name": "output" }
     ]
+  },
+  {
+    "name": "FillV2"
   },
   {
     "name": "Flatten",
@@ -1723,7 +1727,8 @@
       { "name": "num_directions", "type": "int64", "default": 0 },
       { "name": "dropout", "type": "float32", "default": 0 },
       { "name": "zoneout_cell", "type": "float32", "default": 0 },
-      { "name": "zoneout_hidden", "type": "float32", "default": 0 }
+      { "name": "zoneout_hidden", "type": "float32", "default": 0 },
+      { "name": "proj_size", "type": "int64", "default": 0 }
     ]
   },
   {
