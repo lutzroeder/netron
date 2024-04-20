@@ -2529,12 +2529,31 @@ python.Execution = class {
         this.registerType('pandas.core.index.Int64Index', class {});
         pandas.core.index.Index = pandas.core.indexes.base.Index;
         pandas.core.index._new_Index = pandas.core.indexes.base._new_Index;
+        this.registerFunction('pandas.core.internals.blocks.Block', class {
+        });
+        this.registerFunction('pandas.core.internals.blocks.NumpyBlock', class extends pandas.core.internals.blocks.Block {
+        });
+        this.registerFunction('pandas.core.internals.blocks.get_block_type', (/* dtype */) => {
+            return pandas.core.internals.blocks.NumpyBlock;
+        });
+        this.registerFunction('pandas.core.internals.blocks.maybe_coerce_values', (values) => {
+            return values;
+        });
+        this.registerFunction('pandas.core.internals.blocks.new_block', (values, placement, ndim, refs) => {
+            const klass = execution.invoke('pandas.core.internals.blocks.get_block_type', [values.dtype]);
+            return new klass(values, ndim, placement, refs);
+        });
         this.registerType('pandas.core.internals.managers.SingleBlockManager', class {});
         this.registerType('pandas.core.internals.managers.BlockManager', class {});
         pandas.core.internals.BlockManager = pandas.core.internals.managers.BlockManager;
         this.registerType('pandas.core.series.Series', class {});
         this.registerFunction('pandas._libs.arrays.__pyx_unpickle_NDArrayBacked');
-        this.registerFunction('pandas._libs.internals._unpickle_block');
+        this.registerFunction('pandas._libs.internals._unpickle_block', (values, placement, ndim) => {
+            values = execution.invoke('pandas.core.internals.blocks.maybe_coerce_values', [values]);
+            // if not isinstance(placement, BlockPlacement):
+            //     placement = BlockPlacement(placement)
+            return execution.invoke('pandas.core.internals.blocks.new_block', [values, placement, ndim]);
+        });
         this.registerType('pandas._libs.tslibs.base.ABCTimestamp', class extends datetime.datetime {});
         this.registerType('pandas._libs.tslibs.offsets.Minute', class extends datetime.datetime {});
         this.registerFunction('pandas._libs.tslibs.timestamps._unpickle_timestamp');

@@ -4582,6 +4582,14 @@
   },
   {
     "type":     "pickle",
+    "target":   "bloom_dataset.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/15046492/bloom_dataset.pkl.zip[bloom_dataset.pkl]",
+    "format":   "Pickle",
+    "error":    "Unsupported Pickle type 'pandas.core.frame.DataFrame'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
     "target":   "dill_custom_class.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/13035743/dill_custom_class.pkl.zip[dill_custom_class.pkl]",
     "format":   "Pickle",
