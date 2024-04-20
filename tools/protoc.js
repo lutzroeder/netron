@@ -1519,7 +1519,9 @@ const main = async (args) => {
     process.exit(0);
 };
 
-if (typeof process === 'object' && Array.isArray(process.argv) && process.argv.length > 1) {
+if (typeof process === 'object' &&
+    Array.isArray(process.argv) && process.argv.length > 1 &&
+    path.basename(process.argv[1]) === 'protoc.js') {
     const args = process.argv.slice(2);
     main(args);
 }
