@@ -7276,9 +7276,10 @@
   },
   {
      "type":     "tnn",
-     "target":   "instance_normalization.tnnproto,instance_normalization.tnnmodel",
-     "source":   "https://github.com/lutzroeder/netron/files/5124180/instance_normalization.zip[instance_normalization.tnnproto,instance_normalization.tnnmodel]",
+     "target":   "instance_normalization.tnnproto",
+     "source":   "https://github.com/lutzroeder/netron/files/5124180/instance_normalization.zip[instance_normalization.tnnproto]",
      "format":   "TNN",
+     "assert":   [ "model.graphs[0].nodes[0].inputs.length == 1" ],
      "link":     "https://github.com/lutzroeder/netron/pull/583"
   },
   {
@@ -7297,10 +7298,11 @@
   },
   {
     "type":     "tnn",
-    "target":   "squeezenet_v1.1.tnnproto,squeezenet_v1.1.tnnmodel",
-    "source":   "https://raw.githubusercontent.com/Tencent/TNN/master/model/SqueezeNet/squeezenet_v1.1.tnnproto,https://raw.githubusercontent.com/Tencent/TNN/master/model/SqueezeNet/squeezenet_v1.1.tnnmodel",
+    "target":   "youtu_face_alignment_phase1.tnnproto,youtu_face_alignment_phase1.tnnmodel",
+    "source":   "https://github.com/lutzroeder/netron/files/15048808/youtu_face_alignment_phase1.zip[youtu_face_alignment_phase1.tnnproto,youtu_face_alignment_phase1.tnnmodel]",
     "format":   "TNN",
-    "link":     "https://github.com/Tencent/TNN"
+    "assert":   [ "model.graphs[0].nodes[0].inputs[1].name == 'filter'" ],
+    "link":     "https://github.com/lutzroeder/netron/issues/521"
   },
   {
     "type":     "torch",
