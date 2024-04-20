@@ -64,23 +64,24 @@ const main = async () => {
     await root.load([], [schema]);
     const namespace = root.find('mgb.serialization.fbs.param', flatc.Namespace);
     const operatorParams = namespace.children;
-    for (const [key, op] of operatorParams) {
+    for (const [name, op] of operatorParams) {
         if (op instanceof flatc.Enum) {
             continue;
         }
         if (op && op.fields.size > 0) {
-            if (!operators.has(key)) {
-                const operator = { name: key };
-                operators.set(key, operator);
+            if (!operators.has(name)) {
+                const operator = { name };
+                operators.set(name, operator);
                 json.push(operator);
             }
-            const operator = operators.get(key);
-            if (category[key.replace(/V(\d+)$/, '')]) {
-                operator.category = category[key.replace(/V(\d+)$/, '')];
+            const operator = operators.get(name);
+            const k = name.replace(/V\d+$/, '');
+            if (category[k]) {
+                operator.category = category[k];
             }
             operator.attributes = operator.attributes || [];
             for (const [field_name, field] of op.fields) {
-                const attr_key = `${key}:${field_name}`;
+                const attr_key = `${name}:${field_name}`;
                 if (!attributes.has(attr_key)) {
                     const attribute = { name: field_name };
                     attributes.set(attr_key, attribute);
