@@ -276,10 +276,7 @@ tflite.Node = class {
         this._outputs = [];
         this._attributes = [];
         if (node) {
-            let inputs = [];
-            let outputs = [];
-            inputs = Array.from(node.inputs || new Int32Array(0));
-            outputs = Array.from(node.outputs || new Int32Array(0));
+            const inputs = Array.from(node.inputs || new Int32Array(0));
             for (let i = 0; i < inputs.length;) {
                 let count = 1;
                 let name = null;
@@ -306,6 +303,7 @@ tflite.Node = class {
                 const argument = new tflite.Argument(name, values, visible);
                 this._inputs.push(argument);
             }
+            const outputs = Array.from(node.outputs || new Int32Array(0));
             for (let i = 0; i < outputs.length; i++) {
                 const index = outputs[i];
                 const value = tensors.map(index);
