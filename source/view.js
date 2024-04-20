@@ -5453,6 +5453,7 @@ view.ModelFactoryService = class {
         this.register('./nnc', ['.nnc']);
         this.register('./safetensors', ['.safetensors', '.safetensors.index.json']);
         this.register('./modular', ['.maxviz']);
+        this.register('./catboost', ['.cbm']);
         this.register('./cambricon', ['.cambricon']);
         this.register('./weka', ['.model']);
     }
@@ -5897,8 +5898,7 @@ view.ModelFactoryService = class {
                 { name: 'V8 natives blob', value: /^./, identifier: 'natives_blob.bin' },
                 { name: 'ViSQOL model', value: /^svm_type\s/ },
                 { name: 'SenseTime model', value: /^STEF/ },
-                { name: 'AES Crypt data', value: /^AES[\x01|\x02]\x00/ },
-                { name: 'CatBoost model', value: /^CBM1/ }
+                { name: 'AES Crypt data', value: /^AES[\x01|\x02]\x00/ }
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));

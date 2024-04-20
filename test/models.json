@@ -914,6 +914,38 @@
     "link":     "https://github.com/lutzroeder/netron/issues/917"
   },
   {
+    "type":     "catboost",
+    "target":   "iris_model.cbm",
+    "source":   "https://github.com/lutzroeder/netron/files/15046507/iris_model.cbm.zip[iris_model.cbm]",
+    "format":   "CatBoost",
+    "error":    "'catboost.core.CatBoostClassifier.load_model' not implemented.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1263"
+  },
+  {
+    "type":     "catboost",
+    "target":   "model.cbm",
+    "source":   "https://github.com/lutzroeder/netron/files/15046506/model.cbm.zip[model.cbm]",
+    "format":   "CatBoost",
+    "error":    "'catboost.core.CatBoostClassifier.load_model' not implemented.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1263"
+  },
+  {
+    "type":     "catboost",
+    "target":   "model.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/15046504/model.pkl.zip[model.pkl]",
+    "format":   "Pickle",
+    "error":    "Unsupported Pickle type 'autogluon.tabular.models.catboost.catboost_model.CatBoostModel'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1263"
+  },
+  {
+    "type":     "catboost",
+    "target":   "numeric_only_model.cbm",
+    "source":   "https://github.com/lutzroeder/netron/files/15046509/numeric_only_model.cbm.zip[numeric_only_model.cbm]",
+    "format":   "CatBoost",
+    "error":    "'catboost.core.CatBoostClassifier.load_model' not implemented.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1263"
+  },
+  {
     "type":     "circle",
     "target":   "ArgMax_001.circle",
     "source":   "https://github.com/lutzroeder/netron/files/7489768/circle_model_samples.zip[ArgMax_001.circle]",

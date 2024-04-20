@@ -1656,6 +1656,7 @@ python.Execution = class {
         const functools = this.register('functools');
         this.registerType('functools.partial', class {});
         const keras = this.register('keras');
+        const catboost = this.register('catboost');
         this.register('lightgbm');
         this.register('nolearn');
         const fastcore = this.register('fastcore');
@@ -1792,6 +1793,14 @@ python.Execution = class {
                 this.args = args;
             }
         });
+        this.registerType('catboost.core._CatBoostBase', class {});
+        this.registerType('catboost.core.CatBoost', class extends catboost.core._CatBoostBase {});
+        this.registerType('catboost.core.CatBoostClassifier', class extends catboost.core.CatBoost {
+            load_model() {
+                throw new python.Error("'catboost.core.CatBoostClassifier.load_model' not implemented.");
+            }
+        });
+        catboost.CatBoostClassifier = catboost.core.CatBoostClassifier;
         this.registerType('collections.deque', class extends Array {
             constructor(iterable) {
                 super();
