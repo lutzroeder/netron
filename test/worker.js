@@ -72,6 +72,15 @@ host.TestHost = class {
         return await import(`file://${file}`);
     }
 
+    worker(id) {
+        const file = path.join(host.TestHost.source, `${id}.js`);
+        const worker = new worker_threads.Worker(file);
+        worker.addEventListener = (type, listener) => {
+            worker.on(type, (message) => listener({ data: message }));
+        };
+        return worker;
+    }
+
     async request(file, encoding, basename) {
         const pathname = path.join(basename || host.TestHost.source, file);
         const exists = await access(pathname);

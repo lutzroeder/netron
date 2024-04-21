@@ -211,6 +211,7 @@ class Worker {
         this._logger.delete(this._identifier);
         await this._worker.terminate();
     }
+
     _attach() {
         this._worker.on('message', this._events.message);
         this._worker.on('error', this._events.error);

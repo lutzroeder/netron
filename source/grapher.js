@@ -1,13 +1,11 @@
 
-import * as dagre from './dagre.js';
-
 const grapher = {};
 
 grapher.Graph = class {
 
     constructor(compound, layout) {
         this._layout = layout;
-        this._isCompound = compound;
+        this._compound = compound;
         this._nodes = new Map();
         this._edges = new Map();
         this._children = {};
@@ -22,7 +20,7 @@ grapher.Graph = class {
             value.label = node;
         } else {
             this._nodes.set(key, { v: key, label: node });
-            if (this._isCompound) {
+            if (this._compound) {
                 this._parent[key] = '\x00';
                 this._children[key] = {};
                 this._children['\x00'][key] = true;
@@ -44,7 +42,7 @@ grapher.Graph = class {
     }
 
     setParent(node, parent) {
-        if (!this._isCompound) {
+        if (!this._compound) {
             throw new Error("Cannot set parent in a non-compound graph");
         }
         parent = String(parent);
@@ -71,12 +69,16 @@ grapher.Graph = class {
         return this._nodes.get(key);
     }
 
+    edge(v, w) {
+        return this._edges.get(`${v}:${w}`);
+    }
+
     get edges() {
         return this._edges;
     }
 
     parent(key) {
-        if (this._isCompound) {
+        if (this._compound) {
             const parent = this._parent[key];
             if (parent !== '\x00') {
                 return parent;
@@ -87,7 +89,7 @@ grapher.Graph = class {
 
     children(key) {
         key = key === undefined ? '\x00' : key;
-        if (this._isCompound) {
+        if (this._compound) {
             const children = this._children[key];
             if (children) {
                 return Object.keys(children);
@@ -171,15 +173,71 @@ grapher.Graph = class {
         }
     }
 
-    async layout() {
-        dagre.layout(this, this._layout);
-        for (const key of this.nodes.keys()) {
-            const entry = this.node(key);
-            if (this.children(key).length === 0) {
-                const node = entry.label;
-                node.layout();
+    async layout(host) {
+        const update = () => {
+            for (const key of this.nodes.keys()) {
+                const entry = this.node(key);
+                if (this.children(key).length === 0) {
+                    const node = entry.label;
+                    node.layout();
+                }
             }
+        };
+        if (host && host.worker) {
+            return new Promise((resolve) => {
+                const worker = host.worker('./worker');
+                worker.addEventListener('message', (e) => {
+                    const message = e.data;
+                    for (const node of message.nodes) {
+                        const label = this.node(node.v).label;
+                        label.x = node.x;
+                        label.y = node.y;
+                        if (this.children(node.v).length) {
+                            label.width = node.width;
+                            label.height = node.height;
+                        }
+                    }
+                    for (const edge of message.edges) {
+                        const label = this.edge(edge.v, edge.w).label;
+                        label.points = edge.points;
+                        if ('x' in edge) {
+                            label.x = edge.x;
+                            label.y = edge.y;
+                        }
+                    }
+                    worker.terminate();
+                    update();
+                    resolve();
+                });
+                const nodes = [];
+                for (const node of this.nodes.values()) {
+                    nodes.push({
+                        v: node.v,
+                        width: node.label.width || 0,
+                        height: node.label.height || 0,
+                        parent: this.parent(node.v) });
+                }
+                const edges = [];
+                for (const edge of this.edges.values()) {
+                    edges.push({
+                        v: edge.v,
+                        w: edge.w,
+                        minlen: edge.label.minlen || 1,
+                        weight: edge.label.weight || 1,
+                        width: edge.label.width || 0,
+                        height: edge.label.height || 0,
+                        labeloffset: edge.label.labeloffset || 10,
+                        labelpos: edge.label.labelpos || 'r'
+                    });
+                }
+                const message = { type: 'dagre.layout', nodes, edges, compound: this._compound, layout: this._layout };
+                worker.postMessage(message);
+            });
         }
+        const dagre = await import('./dagre.js');
+        dagre.layout(this, this._layout);
+        update();
+        return Promise.resolve();
     }
 
     update() {

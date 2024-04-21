@@ -832,7 +832,8 @@ view.View = class {
         viewGraph.build(this._host.document, origin);
         await this._timeout(20);
         viewGraph.measure();
-        await viewGraph.layout();
+        await viewGraph.layout(null);
+        // await viewGraph.layout(this._host);
         viewGraph.update();
         const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
         if (elements.length === 0) {

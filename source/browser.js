@@ -232,6 +232,10 @@ host.BrowserHost = class {
         return import(`${id}.js`);
     }
 
+    worker(id) {
+        return new this.window.Worker(`${id}.js`, { type: 'module' });
+    }
+
     save(name, extension, defaultPath, callback) {
         callback(`${defaultPath}.${extension}`);
     }

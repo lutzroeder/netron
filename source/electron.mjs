@@ -261,6 +261,10 @@ host.ElectronHost = class {
         return import(`${id}.js`);
     }
 
+    worker(id) {
+        return new this.window.Worker(`${id}.js`, { type: 'module' });
+    }
+
     save(name, extension, defaultPath, callback) {
         const selectedFile = electron.ipcRenderer.sendSync('show-save-dialog', {
             title: 'Export Tensor',
