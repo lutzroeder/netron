@@ -1788,6 +1788,7 @@ python.Execution = class {
         this.registerFunction('operator.ne');
         this.registerFunction('operator.floordiv');
         this.registerFunction('operator.sub');
+        this.registerFunction('sys.path.insert', () => {});
         this.registerType('argparse.Namespace', class {
             constructor(args) {
                 this.args = args;
@@ -6922,9 +6923,11 @@ python.Execution = class {
                     }
                     break;
                 } else if (condition === false) {
-                    const value = this.block(statement.else.statements, context);
-                    if (value !== undefined) {
-                        return value;
+                    if (statement.else) {
+                        const value = this.block(statement.else.statements, context);
+                        if (value !== undefined) {
+                            return value;
+                        }
                     }
                     break;
                 }
@@ -7172,6 +7175,16 @@ python.Execution = class {
                     }
                     default: {
                         throw new python.Error(`Unsupported unary expression '${expression.op}'.`);
+                    }
+                }
+            }
+            case 'binary': {
+                switch (expression.op) {
+                    case '==': {
+                        return this.expression(expression.left, context) === this.expression(expression.right, context);
+                    }
+                    default: {
+                        throw new python.Error(`Unsupported binary expression '${expression.op}'.`);
                     }
                 }
             }
