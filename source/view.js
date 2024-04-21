@@ -1912,11 +1912,11 @@ view.Node = class extends grapher.Node {
         if (options.weights) {
             if (Array.isArray(node.inputs)) {
                 for (const input of node.inputs) {
-                    if (input.visible !== false && input.value.length === 1 && input.value[0].initializer !== null) {
+                    if (input.visible !== false && input.value.length === 1 && input.value[0].initializer) {
                         initializers.push(input);
                     }
                     if ((input.visible === false || input.value.length > 1) &&
-                        input.value.some((argument) => argument.initializer !== null)) {
+                        input.value.some((argument) => argument.initializer)) {
                         hiddenInitializers = true;
                     }
                 }

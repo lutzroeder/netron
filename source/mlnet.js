@@ -40,10 +40,10 @@ mlnet.Model = class {
 mlnet.Graph = class {
 
     constructor(metadata, reader) {
-        this._inputs = [];
-        this._outputs = [];
-        this._nodes = [];
-        this._groups = false;
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
+        this.groups = false;
         const values = new Map();
         values.map = (name, type) => {
             if (!values.has(name)) {
@@ -56,7 +56,7 @@ mlnet.Graph = class {
         if (reader.schema && reader.schema.inputs) {
             for (const input of reader.schema.inputs) {
                 const argument = new mlnet.Argument(input.name, [values.map(input.name, new mlnet.TensorType(input.type))]);
-                this._inputs.push(argument);
+                this.inputs.push(argument);
             }
         }
         const createNode = (scope, group, transformer) => {
@@ -79,11 +79,11 @@ mlnet.Graph = class {
                 }
             }
             const node = new mlnet.Node(metadata, group, transformer, values);
-            this._nodes.push(node);
+            this.nodes.push(node);
         };
         /* eslint-disable no-use-before-define */
         const loadChain = (scope, name, chain) => {
-            this._groups = true;
+            this.groups = true;
             const group = name.split('/').splice(1).join('/');
             for (const childTransformer of chain) {
                 loadTransformer(scope, group, childTransformer);
@@ -112,22 +112,6 @@ mlnet.Graph = class {
             loadTransformer(scope, '', reader.transformerChain);
         }
     }
-
-    get groups() {
-        return this._groups;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
-    }
 };
 
 mlnet.Argument = class {
@@ -146,25 +130,26 @@ mlnet.Value = class {
         }
         this.name = name;
         this.type = type;
+        this.initializer = null;
     }
 };
 
 mlnet.Node = class {
 
     constructor(metadata, group, transformer, values) {
-        this._metadata = metadata;
-        this._group = group;
-        this._name = transformer.__name__;
-        this._inputs = [];
-        this._outputs = [];
-        this._attributes = [];
+        this.group = group;
+        this.name = transformer.__name__;
+        this.inputs = [];
+        this.outputs = [];
+        this.attributes = [];
         const type = transformer.__type__;
-        this._type = metadata.type(type) || { name: type };
+        this.type = metadata.type(type) || { name: type };
         if (transformer.inputs) {
             let i = 0;
             for (const input of transformer.inputs) {
-                const argument = new mlnet.Argument(i.toString(), [values.map(input.name)]);
-                this._inputs.push(argument);
+                const value = values.map(input.name);
+                const argument = new mlnet.Argument(i.toString(), [value]);
+                this.inputs.push(argument);
                 i++;
             }
         }
@@ -172,38 +157,14 @@ mlnet.Node = class {
             let i = 0;
             for (const output of transformer.outputs) {
                 const argument = new mlnet.Argument(i.toString(), [values.map(output.name)]);
-                this._outputs.push(argument);
+                this.outputs.push(argument);
                 i++;
             }
         }
         for (const key of Object.keys(transformer).filter((key) => !key.startsWith('_') && key !== 'inputs' && key !== 'outputs')) {
-            const attribute = new mlnet.Attribute(metadata.attribute(type, this._name), key, transformer[key]);
-            this._attributes.push(attribute);
+            const attribute = new mlnet.Attribute(metadata.attribute(type, this.name), key, transformer[key]);
+            this.attributes.push(attribute);
         }
-    }
-
-    get group() {
-        return this._group;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get attributes() {
-        return this._attributes;
     }
 };
 
