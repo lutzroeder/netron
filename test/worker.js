@@ -723,8 +723,9 @@ export class Target {
     }
 }
 
-const main = () => {
-    worker_threads.parentPort.on('message', async (message) => {
+if (!worker_threads.isMainThread) {
+    worker_threads.parentPort.addEventListener('message', async (e) => {
+        const message = e.data;
         const response = {};
         try {
             const target = new Target(message);
@@ -752,8 +753,4 @@ const main = () => {
         }
         worker_threads.parentPort.postMessage(response);
     });
-};
-
-if (!worker_threads.isMainThread) {
-    main();
 }
