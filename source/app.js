@@ -170,11 +170,12 @@ app.Application = class {
         let paths = path ? [path] : [];
         if (paths.length === 0) {
             const extensions = new base.Metadata().extensions;
-            const showOpenDialogOptions = {
+            const options = {
                 properties: ['openFile'],
                 filters: [{ name: 'All Model Files', extensions }]
             };
-            paths = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
+            const owner = electron.BrowserWindow.getFocusedWindow();
+            paths = electron.dialog.showOpenDialogSync(owner, options);
         }
         if (Array.isArray(paths) && paths.length > 0) {
             for (const path of paths) {
@@ -235,7 +236,7 @@ app.Application = class {
                 defaultPath = file.substring(0, lastIndex);
             }
             const owner = electron.BrowserWindow.getFocusedWindow();
-            const showSaveDialogOptions = {
+            const options = {
                 title: 'Export',
                 defaultPath,
                 buttonLabel: 'Export',
@@ -244,7 +245,7 @@ app.Application = class {
                     { name: 'SVG', extensions: ['svg'] }
                 ]
             };
-            const selectedFile = electron.dialog.showSaveDialogSync(owner, showSaveDialogOptions);
+            const selectedFile = electron.dialog.showSaveDialogSync(owner, options);
             if (selectedFile) {
                 view.execute('export', { 'file': selectedFile });
             }
