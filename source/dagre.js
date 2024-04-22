@@ -5,7 +5,7 @@ const dagre = {};
 // https://github.com/dagrejs/dagre
 // https://github.com/dagrejs/graphlib
 
-dagre.layout = (graph, layout) => {
+dagre.layout = (nodes, edges, layout, state) => {
 
     let uniqueIdCounter = 0;
     const uniqueId = (prefix) => {
@@ -2008,18 +2008,17 @@ dagre.layout = (graph, layout) => {
 
     // Build layout graph
     const g = new dagre.Graph(true, true);
-    for (const node of graph.nodes.values()) {
-        const v = node.v;
-        const label = node.label;
-        g.setNode(v, {
-            width: label.width || 0,
-            height: label.height || 0
+    for (const node of nodes) {
+        g.setNode(node.v, {
+            width: node.width,
+            height: node.height
         });
-        g.setParent(v, graph.parent(v));
+        if (node.parent) {
+            g.setParent(node.v, node.parent);
+        }
     }
-    for (const e of graph.edges.values()) {
-        const edge = e.label;
-        g.setEdge(e.v, e.w, {
+    for (const edge of edges) {
+        g.setEdge(edge.v, edge.w, {
             minlen: edge.minlen || 1,
             weight: edge.weight || 1,
             width: edge.width || 0,
@@ -2031,7 +2030,6 @@ dagre.layout = (graph, layout) => {
 
     // Run layout
     layout = { ranksep: 50, edgesep: 20, nodesep: 50, rankdir: 'tb', ...layout };
-    const state = {};
     const tasks = [
         makeSpaceForEdgeLabels,
         removeSelfEdges,
@@ -2068,25 +2066,21 @@ dagre.layout = (graph, layout) => {
     }
 
     // Update source graph
-    for (const node of graph.nodes.values()) {
-        const label = node.label;
-        if (label) {
-            const v = node.v;
-            const l = g.node(v).label;
-            label.x = l.x;
-            label.y = l.y;
-            if (g.children(v).length) {
-                label.width = l.width;
-                label.height = l.height;
-            }
+    for (const node of nodes) {
+        const label = g.node(node.v).label;
+        node.x = label.x;
+        node.y = label.y;
+        if (g.children(node.v).length) {
+            node.width = label.width;
+            node.height = label.height;
         }
     }
-    for (const e of graph.edges.values()) {
-        const label = g.edge(e.v, e.w).label;
-        e.label.points = label.points;
+    for (const edge of edges) {
+        const label = g.edge(edge.v, edge.w).label;
+        edge.points = label.points;
         if ('x' in label) {
-            e.label.x = label.x;
-            e.label.y = label.y;
+            edge.x = label.x;
+            edge.y = label.y;
         }
     }
 };

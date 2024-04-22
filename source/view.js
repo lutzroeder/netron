@@ -800,7 +800,7 @@ view.View = class {
             return;
         }
         this._zoom = 1;
-        const groups = graph.groups;
+        const groups = graph.groups || false;
         const nodes = graph.nodes;
         this._host.event('graph_view', {
             graph_node_count: nodes.length,
@@ -832,8 +832,8 @@ view.View = class {
         viewGraph.build(this._host.document, origin);
         await this._timeout(20);
         viewGraph.measure();
-        await viewGraph.layout(null);
-        // await viewGraph.layout(this._host);
+        // await viewGraph.layout(null);
+        await viewGraph.layout(this._host);
         viewGraph.update();
         const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
         if (elements.length === 0) {

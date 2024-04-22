@@ -174,7 +174,46 @@ grapher.Graph = class {
     }
 
     async layout(host) {
-        const update = () => {
+        const nodes = [];
+        for (const node of this.nodes.values()) {
+            nodes.push({
+                v: node.v,
+                width: node.label.width || 0,
+                height: node.label.height || 0,
+                parent: this.parent(node.v) });
+        }
+        const edges = [];
+        for (const edge of this.edges.values()) {
+            edges.push({
+                v: edge.v,
+                w: edge.w,
+                minlen: edge.label.minlen || 1,
+                weight: edge.label.weight || 1,
+                width: edge.label.width || 0,
+                height: edge.label.height || 0,
+                labeloffset: edge.label.labeloffset || 10,
+                labelpos: edge.label.labelpos || 'r'
+            });
+        }
+        const layout = this._layout;
+        const update = (nodes, edges) => {
+            for (const node of nodes) {
+                const label = this.node(node.v).label;
+                label.x = node.x;
+                label.y = node.y;
+                if (this.children(node.v).length) {
+                    label.width = node.width;
+                    label.height = node.height;
+                }
+            }
+            for (const edge of edges) {
+                const label = this.edge(edge.v, edge.w).label;
+                label.points = edge.points;
+                if ('x' in edge) {
+                    label.x = edge.x;
+                    label.y = edge.y;
+                }
+            }
             for (const key of this.nodes.keys()) {
                 const entry = this.node(key);
                 if (this.children(key).length === 0) {
@@ -188,55 +227,17 @@ grapher.Graph = class {
                 const worker = host.worker('./worker');
                 worker.addEventListener('message', (e) => {
                     const message = e.data;
-                    for (const node of message.nodes) {
-                        const label = this.node(node.v).label;
-                        label.x = node.x;
-                        label.y = node.y;
-                        if (this.children(node.v).length) {
-                            label.width = node.width;
-                            label.height = node.height;
-                        }
-                    }
-                    for (const edge of message.edges) {
-                        const label = this.edge(edge.v, edge.w).label;
-                        label.points = edge.points;
-                        if ('x' in edge) {
-                            label.x = edge.x;
-                            label.y = edge.y;
-                        }
-                    }
                     worker.terminate();
-                    update();
+                    update(message.nodes, message.edges);
                     resolve();
                 });
-                const nodes = [];
-                for (const node of this.nodes.values()) {
-                    nodes.push({
-                        v: node.v,
-                        width: node.label.width || 0,
-                        height: node.label.height || 0,
-                        parent: this.parent(node.v) });
-                }
-                const edges = [];
-                for (const edge of this.edges.values()) {
-                    edges.push({
-                        v: edge.v,
-                        w: edge.w,
-                        minlen: edge.label.minlen || 1,
-                        weight: edge.label.weight || 1,
-                        width: edge.label.width || 0,
-                        height: edge.label.height || 0,
-                        labeloffset: edge.label.labeloffset || 10,
-                        labelpos: edge.label.labelpos || 'r'
-                    });
-                }
-                const message = { type: 'dagre.layout', nodes, edges, compound: this._compound, layout: this._layout };
+                const message = { type: 'dagre.layout', nodes, edges, layout };
                 worker.postMessage(message);
             });
         }
         const dagre = await import('./dagre.js');
-        dagre.layout(this, this._layout);
-        update();
+        dagre.layout(nodes, edges, layout, {});
+        update(nodes, edges);
         return Promise.resolve();
     }
 
