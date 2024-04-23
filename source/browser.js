@@ -83,7 +83,7 @@ host.BrowserHost = class {
             }
             if (consent) {
                 this.document.body.classList.remove('spinner');
-                await this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
+                await this.message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
             }
             this._setCookie('consent', Date.now().toString(), 30);
         };
@@ -145,11 +145,10 @@ host.BrowserHost = class {
         if (this._meta.file) {
             const [url] = this._meta.file;
             if (this._view.accept(url)) {
-                this._openModel(this._url(url), null);
-                if (this._meta.identifier) {
-                    this._document.title = this._meta.identifier;
+                const status = await this._openModel(this._url(url), this._meta.identifier || null);
+                if (status === '') {
+                    return;
                 }
-                return;
             }
         }
         const search = this.window.location.search;
@@ -163,9 +162,8 @@ host.BrowserHost = class {
                 .replace(/^https:\/\/github\.com\/([\w-]*\/[\w-]*)\/raw\/([\w/\-_.]*)$/, 'https://raw.githubusercontent.com/$1/$2')
                 .replace(/^https:\/\/huggingface.co\/(.*)\/blob\/(.*)$/, 'https://huggingface.co/$1/resolve/$2');
             if (this._view.accept(identifier || location)) {
-                const title = await this._openModel(location, identifier);
-                if (title) {
-                    this.document.title = title;
+                const status = await this._openModel(location, identifier);
+                if (status === '') {
                     return;
                 }
             }
@@ -222,10 +220,6 @@ host.BrowserHost = class {
     async error(message, detail /*, cancel */) {
         alert((message === 'Error' ? '' : `${message} `) + detail);
         return 0;
-    }
-
-    confirm(message, detail) {
-        return confirm(`${message} ${detail}`);
     }
 
     async require(id) {
@@ -440,15 +434,7 @@ host.BrowserHost = class {
             this._view.show('welcome');
             return null;
         }
-        try {
-            await this._view.open(context);
-            return identifier || context.identifier;
-        } catch (err) {
-            if (err) {
-                this._view.error(err, null, 'welcome');
-            }
-            return null;
-        }
+        return await this._openContext(context);
     }
 
     async _open(file, files) {
@@ -456,12 +442,11 @@ host.BrowserHost = class {
         const context = new host.BrowserHost.BrowserFileContext(this, file, files);
         try {
             await context.open();
-            this._telemetry.set('session_engaged', 1);
-            await this._view.open(context);
-            this._view.show(null);
-            this.document.title = files[0].name;
+            await this._openContext(context);
         } catch (error) {
-            this._view.error(error, null, null);
+            if (error) {
+                this._view.error(error, error.name, null);
+            }
         }
     }
 
@@ -485,17 +470,27 @@ host.BrowserHost = class {
             const buffer = encoder.encode(file.content);
             const stream = new base.BinaryStream(buffer);
             const context = new host.BrowserHost.Context(this, '', identifier, stream);
-            this._telemetry.set('session_engaged', 1);
-            try {
-                await this._view.open(context);
-                this.document.title = identifier;
-            } catch (error) {
-                if (error) {
-                    this._view.error(error, error.name, 'welcome');
-                }
-            }
+            await this._openContext(context);
         } catch (error) {
             this._view.error(error, 'Model load request failed.', 'welcome');
+        }
+    }
+
+    async _openContext(context) {
+        this._telemetry.set('session_engaged', 1);
+        try {
+            const model = await this._view.open(context);
+            if (model) {
+                this.document.title = context.identifier;
+                return '';
+            }
+            this.document.title = '';
+            return 'context-open-failed';
+        } catch (error) {
+            if (error) {
+                this._view.error(error, error.name, null);
+            }
+            return 'context-open-error';
         }
     }
 
@@ -554,7 +549,7 @@ host.BrowserHost = class {
         return this.document.getElementById(id);
     }
 
-    _message(message, action) {
+    message(message, action) {
         return new Promise((resolve) => {
             this._element('message-text').innerText = message;
             const button = this._element('message-button');

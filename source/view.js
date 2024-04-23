@@ -619,7 +619,7 @@ view.View = class {
         if (button === 0 && (url || this._host.type === 'Electron')) {
             this._host.openURL(url || `${this._host.environment('repository')}/issues`);
         }
-        this.show(screen ? screen : 'welcome');
+        this.show(screen);
     }
 
     accept(file, size) {
@@ -693,26 +693,16 @@ view.View = class {
     }
 
     async _updateGraph(model, stack) {
-        await this._timeout(100);
-        const graph = Array.isArray(stack) && stack.length > 0 ? stack[0].graph : null;
-        if (graph && (this._stack.length === 0 || graph !== this._stack[0].graph)) {
-            const nodes = graph.nodes;
-            if (nodes.length > 2048) {
-                if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
-                    this._host.event('graph_view', {
-                        graph_node_count: nodes.length,
-                        graph_skip: 1 }
-                    );
-                    this.show(null);
-                    return null;
-                }
-            }
-        }
         const update = async (model, stack) => {
             this._model = model;
             this._stack = stack;
-            await this.renderGraph(this._model, this.activeGraph, this.activeSignature, this._options);
-            if (this._page !== 'default') {
+            const status = await this.renderGraph(this._model, this.activeGraph, this.activeSignature, this._options);
+            if (status !== '') {
+                this._model = null;
+                this._stack = [];
+                this._activeGraph = null;
+                this.show(null);
+            } else if (this._page !== 'default') {
                 this.show('default');
             }
             const path = this._element('toolbar-path');
@@ -720,43 +710,45 @@ view.View = class {
             while (path.children.length > 1) {
                 path.removeChild(path.lastElementChild);
             }
-            if (this._stack.length <= 1) {
-                back.style.opacity = 0;
-            } else {
-                back.style.opacity = 1;
-                const last = this._stack.length - 2;
-                const count = Math.min(2, last);
-                if (count < last) {
-                    const element = this._host.document.createElement('button');
-                    element.setAttribute('class', 'toolbar-path-name-button');
-                    element.innerHTML = '&hellip;';
-                    path.appendChild(element);
-                }
-                for (let i = count; i >= 0; i--) {
-                    const graph = this._stack[i].graph;
-                    const element = this._host.document.createElement('button');
-                    element.setAttribute('class', 'toolbar-path-name-button');
-                    element.addEventListener('click', () => {
-                        if (i > 0) {
-                            this._stack = this._stack.slice(i);
-                            this._updateGraph(this._model, this._stack);
+            if (status === '') {
+                if (this._stack.length <= 1) {
+                    back.style.opacity = 0;
+                } else {
+                    back.style.opacity = 1;
+                    const last = this._stack.length - 2;
+                    const count = Math.min(2, last);
+                    if (count < last) {
+                        const element = this._host.document.createElement('button');
+                        element.setAttribute('class', 'toolbar-path-name-button');
+                        element.innerHTML = '&hellip;';
+                        path.appendChild(element);
+                    }
+                    for (let i = count; i >= 0; i--) {
+                        const graph = this._stack[i].graph;
+                        const element = this._host.document.createElement('button');
+                        element.setAttribute('class', 'toolbar-path-name-button');
+                        element.addEventListener('click', () => {
+                            if (i > 0) {
+                                this._stack = this._stack.slice(i);
+                                this._updateGraph(this._model, this._stack);
+                            }
+                            this.showDefinition(this._stack[0]);
+                        });
+                        let name = '';
+                        if (graph && graph.identifier) {
+                            name = graph.identifier;
+                        } else if (graph && graph.name) {
+                            name = graph.name;
                         }
-                        this.showDefinition(this._stack[0]);
-                    });
-                    let name = '';
-                    if (graph && graph.identifier) {
-                        name = graph.identifier;
-                    } else if (graph && graph.name) {
-                        name = graph.name;
+                        if (name.length > 24) {
+                            element.setAttribute('title', name);
+                            element.innerHTML = `&hellip;${name.substring(name.length - 24, name.length)}`;
+                        } else {
+                            element.removeAttribute('title');
+                            element.innerHTML = name;
+                        }
+                        path.appendChild(element);
                     }
-                    if (name.length > 24) {
-                        element.setAttribute('title', name);
-                        element.innerHTML = `&hellip;${name.substring(name.length - 24, name.length)}`;
-                    } else {
-                        element.removeAttribute('title');
-                        element.innerHTML = name;
-                    }
-                    path.appendChild(element);
                 }
             }
         };
@@ -797,7 +789,7 @@ view.View = class {
             canvas.removeChild(canvas.lastChild);
         }
         if (!graph) {
-            return;
+            return '';
         }
         this._zoom = 1;
         const groups = graph.groups || false;
@@ -833,59 +825,62 @@ view.View = class {
         await this._timeout(20);
         viewGraph.measure();
         // await viewGraph.layout(null);
-        await viewGraph.layout(this._host);
-        viewGraph.update();
-        const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
-        if (elements.length === 0) {
-            const nodeElements = Array.from(canvas.getElementsByClassName('graph-node') || []);
-            if (nodeElements.length > 0) {
-                elements.push(nodeElements[0]);
+        const status = await viewGraph.layout(this._host);
+        if (status === '') {
+            viewGraph.update();
+            const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
+            if (elements.length === 0) {
+                const nodeElements = Array.from(canvas.getElementsByClassName('graph-node') || []);
+                if (nodeElements.length > 0) {
+                    elements.push(nodeElements[0]);
+                }
             }
+            const size = canvas.getBBox();
+            const margin = 100;
+            const width = Math.ceil(margin + size.width + margin);
+            const height = Math.ceil(margin + size.height + margin);
+            origin.setAttribute('transform', `translate(${margin}, ${margin}) scale(1)`);
+            background.setAttribute('width', width);
+            background.setAttribute('height', height);
+            this._width = width;
+            this._height = height;
+            delete this._scrollLeft;
+            delete this._scrollRight;
+            canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            canvas.setAttribute('width', width);
+            canvas.setAttribute('height', height);
+            this._zoom = 1;
+            this._updateZoom(this._zoom);
+            const container = this._element('graph');
+            if (elements && elements.length > 0) {
+                // Center view based on input elements
+                const xs = [];
+                const ys = [];
+                for (let i = 0; i < elements.length; i++) {
+                    const element = elements[i];
+                    const rect = element.getBoundingClientRect();
+                    xs.push(rect.left + (rect.width / 2));
+                    ys.push(rect.top + (rect.height / 2));
+                }
+                let [x] = xs;
+                const [y] = ys;
+                if (ys.every((y) => y === ys[0])) {
+                    x = xs.reduce((a, b) => a + b, 0) / xs.length;
+                }
+                const graphRect = container.getBoundingClientRect();
+                const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
+                const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
+                container.scrollTo({ left, top, behavior: 'auto' });
+            } else {
+                const canvasRect = canvas.getBoundingClientRect();
+                const graphRect = container.getBoundingClientRect();
+                const left = (container.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
+                const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
+                container.scrollTo({ left, top, behavior: 'auto' });
+            }
+            this._graph = viewGraph;
         }
-        const size = canvas.getBBox();
-        const margin = 100;
-        const width = Math.ceil(margin + size.width + margin);
-        const height = Math.ceil(margin + size.height + margin);
-        origin.setAttribute('transform', `translate(${margin}, ${margin}) scale(1)`);
-        background.setAttribute('width', width);
-        background.setAttribute('height', height);
-        this._width = width;
-        this._height = height;
-        delete this._scrollLeft;
-        delete this._scrollRight;
-        canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
-        canvas.setAttribute('width', width);
-        canvas.setAttribute('height', height);
-        this._zoom = 1;
-        this._updateZoom(this._zoom);
-        const container = this._element('graph');
-        if (elements && elements.length > 0) {
-            // Center view based on input elements
-            const xs = [];
-            const ys = [];
-            for (let i = 0; i < elements.length; i++) {
-                const element = elements[i];
-                const rect = element.getBoundingClientRect();
-                xs.push(rect.left + (rect.width / 2));
-                ys.push(rect.top + (rect.height / 2));
-            }
-            let [x] = xs;
-            const [y] = ys;
-            if (ys.every((y) => y === ys[0])) {
-                x = xs.reduce((a, b) => a + b, 0) / xs.length;
-            }
-            const graphRect = container.getBoundingClientRect();
-            const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
-            const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
-            container.scrollTo({ left, top, behavior: 'auto' });
-        } else {
-            const canvasRect = canvas.getBoundingClientRect();
-            const graphRect = container.getBoundingClientRect();
-            const left = (container.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
-            const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
-            container.scrollTo({ left, top, behavior: 'auto' });
-        }
-        this._graph = viewGraph;
+        return status;
     }
 
     applyStyleSheet(element, name) {

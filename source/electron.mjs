@@ -92,7 +92,7 @@ host.ElectronHost = class {
                     // continue regardless of error
                 }
                 if (consent) {
-                    await this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
+                    await this.message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
                 }
                 this.set('consent', Date.now());
             }
@@ -242,19 +242,7 @@ host.ElectronHost = class {
             buttons: cancel ? ['Report', 'Cancel'] : ['Report']
         };
         return electron.ipcRenderer.sendSync('show-message-box', options);
-        // return await this._message(message + ': ' + detail, 'Report');
-    }
-
-    confirm(message, detail) {
-        const result = electron.ipcRenderer.sendSync('show-message-box', {
-            type: 'question',
-            message,
-            detail,
-            buttons: ['Yes', 'No'],
-            defaultId: 0,
-            cancelId: 1
-        });
-        return result === 0;
+        // return await this.message(message + ': ' + detail, 'Report');
     }
 
     async require(id) {
@@ -446,13 +434,15 @@ host.ElectronHost = class {
                 if (model) {
                     options.path = path;
                     this._title(location.label);
+                } else {
+                    options.path = path;
+                    this._title('');
                 }
                 this._update(options);
             } catch (error) {
                 const options = { ...this._view.options };
                 if (error) {
                     await this._view.error(error, null, null);
-                    options.path = null;
                 }
                 this._update(options);
             }
@@ -572,7 +562,7 @@ host.ElectronHost = class {
         this._document.body.setAttribute('class', 'welcome message');
     }
 
-    _message(message, action) {
+    message(message, action) {
         return new Promise((resolve) => {
             this._element('message-text').innerText = message;
             const button = this._element('message-button');

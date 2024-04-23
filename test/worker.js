@@ -101,6 +101,9 @@ host.TestHost = class {
     exception(error /*, fatal */) {
         this.errors.push(error);
     }
+
+    message() {
+    }
 };
 
 host.TestHost.Context = class {

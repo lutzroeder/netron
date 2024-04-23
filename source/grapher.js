@@ -30,10 +30,10 @@ grapher.Graph = class {
 
     setEdge(edge) {
         if (!this._nodes.has(edge.v)) {
-            throw new grapher.Error(`Invalid edge '${JSON.stringify(edge.v)}'.`);
+            throw new Error(`Invalid edge '${JSON.stringify(edge.v)}'.`);
         }
         if (!this._nodes.has(edge.w)) {
-            throw new grapher.Error(`Invalid edge '${JSON.stringify(edge.w)}'.`);
+            throw new Error(`Invalid edge '${JSON.stringify(edge.w)}'.`);
         }
         const key = `${edge.v}:${edge.w}`;
         if (!this._edges.has(key)) {
@@ -224,21 +224,31 @@ grapher.Graph = class {
         };
         if (host && host.worker) {
             return new Promise((resolve) => {
+                let timeout = -1;
                 const worker = host.worker('./worker');
                 worker.addEventListener('message', (e) => {
                     const message = e.data;
                     worker.terminate();
                     update(message.nodes, message.edges);
-                    resolve();
+                    if (timeout >= 0) {
+                        clearTimeout(timeout);
+                        host.message('');
+                    }
+                    resolve('');
                 });
                 const message = { type: 'dagre.layout', nodes, edges, layout };
                 worker.postMessage(message);
+                timeout = setTimeout(async () => {
+                    await host.message('This large graph layout might take a very long time to complete.', 'Cancel');
+                    worker.terminate();
+                    resolve('graph-layout-cancelled');
+                }, 2500);
             });
         }
         const dagre = await import('./dagre.js');
         dagre.layout(nodes, edges, layout, {});
         update(nodes, edges);
-        return Promise.resolve();
+        return Promise.resolve('');
     }
 
     update() {
