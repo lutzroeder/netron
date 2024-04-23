@@ -209,6 +209,7 @@ onnxruntime.fbs.Tensor = class Tensor {
         $.data_type = reader.int32_(position, 10, 0);
         $.raw_data = reader.array(position, 12, Uint8Array);
         $.string_data = reader.strings_(position, 14);
+        $.external_data_offset = reader.int64_(position, 16, -1n);
         return $;
     }
 };
