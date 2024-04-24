@@ -92,6 +92,7 @@ install() {
             ;;
     esac
     ${python} -m pip install --quiet "./third_party/source/onnx"
+    ${python} -m pip install --quiet --upgrade onnxruntime
     deactivate
 }
 
