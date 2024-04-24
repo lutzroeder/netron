@@ -1,0 +1,252 @@
+syntax = "proto2";
+package mind_ir;
+
+enum Version {
+  IR_VERSION_START = 0;
+  IR_VERSION = 1;
+  IR_VERSION_WITH_PRIM_FUNCTION=2;
+}
+
+message AttributeProto {
+  enum AttributeType {
+    UNDEFINED = 0;
+    FLOAT = 1;
+    UINT8 = 2;
+    INT8 = 3;
+    UINT16 = 4;
+    INT16 = 5;
+    INT32 = 6;
+    INT64 = 7;
+    STRING = 8;
+    BOOL = 9;
+    FLOAT16 = 10;
+    DOUBLE = 11;
+    UINT32 = 12;
+    UINT64 = 13;
+    COMPLEX64 = 14;
+    COMPLEX128 = 15;
+    BFLOAT16 = 16;
+    TENSOR = 17;
+    GRAPH = 18;
+    TENSORS = 19;
+    TUPLE = 20;        // tuple
+    LIST = 21;         // list
+    DICT = 22;         // dictionary
+    UMONAD = 23;
+    IOMONAD = 24;
+    NONE = 25;
+    PRIMITIVECLOSURE = 26;
+    FUNCGRAPHCLOSURE = 27;
+    PARTIALCLOSURE = 28;
+    UNIONFUNCCLOSURE = 29;
+    CSR_TENSOR = 30;
+    COO_TENSOR = 31;
+    ROW_TENSOR = 32;
+    CLASS_TYPE = 33;
+    NAME_SPACE = 34;
+    SYMBOL = 35;
+    TYPE_NULL = 36;
+    MAP_TENSOR = 37;
+    FUNCTOR = 38;
+    SCALAR = 39;
+  }
+  message SeqInfoProto{
+    optional bool is_dyn_len = 1;                 // store if tuple is dynamic length
+    optional AttributeProto tuple_elem_item = 2;  // store the element of tuple dynamic length
+  }
+  optional string name = 1;
+  optional float f = 2;
+  optional int64 i = 3;
+  optional double d = 4;
+  optional bytes s = 5;
+  optional TensorProto t = 6;
+  optional GraphProto g = 7;
+  repeated float floats = 8;
+  repeated double doubles = 9;
+  repeated int64 ints = 10;
+  repeated bytes strings = 11;
+  repeated TensorProto tensors = 12;
+  repeated GraphProto graphs = 13;
+  optional string doc_string = 14;
+  optional string ref_attr_name = 15;
+  optional AttributeType type = 16;
+  repeated AttributeProto values = 17;          // tuple, list, dict of value
+  optional SeqInfoProto seq_info = 18;       // tuple, list, structural info
+  optional FunctorProto functor = 19;
+}
+
+message FunctorProto {
+  enum FunctorType {
+    SHAPE_CALC_FUNCTOR = 1;
+  }
+  optional FunctorType type = 1;
+  optional string name = 2;
+  repeated AttributeProto values = 3;
+}
+
+message ValueInfoProto {
+  optional string name = 1;
+  repeated TensorProto tensor = 2;
+  optional string doc_string = 3;
+  optional string denotation = 4;
+  optional AttributeProto attr_info = 5; // graph input info for other type
+}
+
+
+message NodeProto {
+  repeated string input = 1;
+  repeated string output = 2;
+  optional string name = 3;
+  optional string op_type = 4;
+  repeated AttributeProto attribute = 5;
+  optional string doc_string = 6;
+  optional string domain = 7;
+  repeated AttributeProto node_attr = 8;
+  repeated AttributeProto primal_attr = 9;
+}
+
+message ModelProto {
+  optional string ir_version = 1;
+  optional string producer_name = 2;
+  optional string producer_version = 3;
+  optional string domain = 4;
+  optional string model_version = 5;
+  optional string doc_string = 6;
+  optional GraphProto graph = 7;
+  repeated GraphProto functions = 8; // all the graphs without the main graph.
+  optional PreprocessorProto preprocessor = 9;  // data graph from MindData.
+  optional bool little_endian = 10; // bytes order in load device.
+  optional ParallelProto parallel = 11; // information for parallel.
+  repeated PrimitiveProto primitives = 12; // all the primitives of the model.
+  optional int64 mind_ir_version = 13;
+  map<string,string> user_info = 14; // data for custom
+}
+
+
+message PreprocessorProto {
+  repeated PreprocessOpProto op = 1;
+}
+
+
+message PreprocessOpProto {
+  optional string input_columns = 1;
+  optional string output_columns = 2;
+  optional string project_columns = 3;
+  optional string op_type = 4;
+  optional string operations = 5;
+  optional bool offload = 6;
+}
+
+
+message GraphProto {
+  repeated NodeProto node = 1;
+  optional string name = 2;
+  repeated TensorProto parameter = 3;
+  optional string doc_string = 4;
+  repeated ValueInfoProto input = 5;
+  repeated ValueInfoProto output = 6;
+  optional string bprop_hash = 7;
+  repeated AttributeProto attribute = 8;
+  optional string bprop_filepath = 9;
+  repeated MapTensorProto map_parameter = 10;
+}
+
+
+message TensorProto {
+  enum DataType {
+    UNDEFINED = 0;
+    // Basic types.
+    FLOAT = 1;   // float
+    UINT8 = 2;   // uint8_t
+    INT8 = 3;    // int8_t
+    UINT16 = 4;  // uint16_t
+    INT16 = 5;   // int16_t
+    INT32 = 6;   // int32_t
+    INT64 = 7;   // int64_t
+    STRING = 8;  // string
+    BOOL = 9;    // bool
+    FLOAT16 = 10;
+    DOUBLE = 11;
+    UINT32 = 12;
+    UINT64 = 13;
+    COMPLEX64 = 14;
+    COMPLEX128 = 15;
+    BFLOAT16 = 16;
+    FLOAT64 = 17;
+  }
+  enum CompressionType {
+    NO_COMPRESSION = 0;
+    INDEXING = 1;
+    SPARSE = 2;
+    FSE = 3;
+    BIT_PACKING = 4;
+    FSE_INT = 5;
+    FSE_INFER = 6;
+  }
+  message ExternalDataProto {
+    //POSIX filesystem path relative to the directory where the MindIR model was stored.
+    optional string location = 1;
+    optional int64 offset = 2;
+    optional int64 length = 3;
+    //optional string checksum = 4;
+  }
+  message QuantParamProto {
+    required string quant_algo_name = 1;
+    repeated AttributeProto attribute = 2;
+  }
+  repeated int64 dims = 1;
+  optional int32 data_type = 2;
+  repeated float float_data = 3;
+  repeated int32 int32_data = 4;
+  repeated bytes string_data = 5;
+  repeated int64 int64_data = 6;
+  optional string name = 7;
+  optional string doc_string = 8;
+  optional bytes raw_data = 9;
+  repeated double double_data = 10;
+  repeated uint64 uint64_data = 11;
+  optional ExternalDataProto external_data = 12;
+  optional string ref_key = 13;
+  repeated int64 min_dims = 14;
+  repeated int64 max_dims = 15;
+  optional CompressionType compression_type = 16;
+  repeated QuantParamProto quant_params = 17;
+}
+
+message MapTensorProto {
+  required string name = 1;
+  required AttributeProto default_value = 2;
+  required TensorProto key_tensor = 3;
+  required TensorProto value_tensor = 4;
+  required TensorProto status_tensor = 5;
+}
+
+message ParallelProto {
+  repeated LayoutProto layout = 1;
+}
+
+message LayoutProto {
+  optional string name = 1;
+  repeated int64 device_arrangement_int = 2;
+  repeated int64 tensor_map_int = 3;
+  repeated int64 slice_shape_int = 4;
+  optional int64 field_size = 5;
+  optional bool uniform_split = 6;
+  optional string opt_shard_group = 7;
+  optional bool pipeline_shared = 8;
+  optional bool is_send = 9;
+  optional int64 peer_rank = 10;
+  optional int64 sr_tag = 11;
+}
+
+message PrimitiveProto {
+  enum PrimType {
+    PRIMITIVE = 1;
+    PRIMITIVE_FUNCTION = 2;
+  }
+  optional string name = 1;
+  optional string op_type = 2;
+  repeated AttributeProto attribute = 3;
+  optional string instance_name = 4;
+  optional PrimType prim_type = 5;
+}

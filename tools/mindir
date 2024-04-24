@@ -12,14 +12,12 @@ sync() {
     echo "mind_ir sync"
     mkdir -p "./third_party/source/mindspore/mindspore/mindir/schema/"
     curl --silent --location --output "./third_party/source/mindspore/mindspore/mindir/schema/mind_ir-metadata.json" "https://raw.githubusercontent.com/Ethan-Chen-plus/mindir/main/mind_ir-metadata.json"
-    curl --silent --location --output "./third_party/source/mindspore/mindspore/mindir/schema/mind_ir-proto.json" "https://raw.githubusercontent.com/Ethan-Chen-plus/mindir/main/mind_ir-proto.json"
-    
 }
 
 schema() {
     echo "mind_ir schema"
-    cp "./third_party/source/mindspore/mindspore/mindir/schema/mind_ir-proto.json" "./source/mind_ir-proto.js"
     cp "./third_party/source/mindspore/mindspore/mindir/schema/mind_ir-metadata.json" "./source/mind_ir-metadata.js"
+    node ./tools/protoc.js --text --root mind_ir --out ./source/mind_ir-proto.js ./tools/mind_ir.proto
     [[ $(grep -U $'\x0D' ./source/mind_ir-proto.json) ]] && crlf=1
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/mind_ir-proto.js ./source/mind_ir-proto.js
