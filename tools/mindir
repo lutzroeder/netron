@@ -12,6 +12,7 @@ sync() {
     echo "mind_ir sync"
     mkdir -p "./third_party/source/mindspore/mindspore/mindir/schema/"
     curl --silent --location --output "./third_party/source/mindspore/mindspore/mindir/schema/mind_ir-metadata.json" "https://raw.githubusercontent.com/Ethan-Chen-plus/mindir/main/mind_ir-metadata.json"
+    curl --silent --location --output "./tools/mind_ir.proto" "https://raw.githubusercontent.com/mindspore-ai/mindspore/master/mindspore/core/proto/mind_ir.proto"
 }
 
 schema() {
