@@ -5689,6 +5689,9 @@ view.ModelFactoryService = class {
             if (obj instanceof Error) {
                 throw obj;
             }
+            if (obj) {
+                throw new view.Error(`Invalid file content. File contains HDF5 content.`);
+            }
         };
         const unknown = () => {
             if (stream) {
