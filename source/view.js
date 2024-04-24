@@ -50,8 +50,8 @@ view.View = class {
             this._element('zoom-out-button').addEventListener('click', () => {
                 this.zoomOut();
             });
-            this._element('toolbar-path-back-button').addEventListener('click', () => {
-                this.popGraph();
+            this._element('toolbar-path-back-button').addEventListener('click', async () => {
+                await this.popGraph();
             });
             this._element('sidebar').addEventListener('mousewheel', (e) => {
                 if (e.shiftKey || e.ctrlKey) {
@@ -71,7 +71,7 @@ view.View = class {
             });
             this._menu.add({
                 accelerator: 'Backspace',
-                execute: () => this.popGraph()
+                execute: async () => await this.popGraph()
             });
             if (this._host.environment('menu')) {
                 this._menu.attach(this._element('menu'), this._element('menu-button'));
@@ -727,12 +727,12 @@ view.View = class {
                         const graph = this._stack[i].graph;
                         const element = this._host.document.createElement('button');
                         element.setAttribute('class', 'toolbar-path-name-button');
-                        element.addEventListener('click', () => {
+                        element.addEventListener('click', async () => {
                             if (i > 0) {
                                 this._stack = this._stack.slice(i);
-                                this._updateGraph(this._model, this._stack);
+                                await this._updateGraph(this._model, this._stack);
                             }
-                            this.showDefinition(this._stack[0]);
+                            await this.showDefinition(this._stack[0]);
                         });
                         let name = '';
                         if (graph && graph.identifier) {
@@ -763,21 +763,21 @@ view.View = class {
         }
     }
 
-    pushGraph(graph) {
+    async pushGraph(graph) {
         if (graph && graph !== this.activeGraph && Array.isArray(graph.nodes)) {
             this._sidebar.close();
             const entry = {
                 graph,
                 signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
             };
-            this._updateGraph(this._model, [entry].concat(this._stack));
+            await this._updateGraph(this._model, [entry].concat(this._stack));
         }
     }
 
-    popGraph() {
+    async popGraph() {
         if (this._stack.length > 1) {
             this._sidebar.close();
-            return this._updateGraph(this._model, this._stack.slice(1));
+            return await this._updateGraph(this._model, this._stack.slice(1));
         }
         return null;
     }
@@ -1010,8 +1010,8 @@ view.View = class {
                     this._menu.close();
                 }
                 const nodeSidebar = new view.NodeSidebar(this._host, node);
-                nodeSidebar.on('show-documentation', (/* sender, e */) => {
-                    this.showDefinition(node.type);
+                nodeSidebar.on('show-documentation', async (/* sender, e */) => {
+                    await this.showDefinition(node.type);
                 });
                 nodeSidebar.on('export-tensor', (sender, tensor) => {
                     const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
@@ -1089,10 +1089,10 @@ view.View = class {
         }
     }
 
-    showDefinition(type) {
+    async showDefinition(type) {
         if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
             if (type.nodes && type.nodes.length > 0) {
-                this.pushGraph(type);
+                await this.pushGraph(type);
             }
             const documentationSidebar = new view.DocumentationSidebar(this._host, type);
             documentationSidebar.on('navigate', (sender, e) => {
@@ -1897,7 +1897,7 @@ view.Node = class extends grapher.Node {
         });
         if (Array.isArray(node.type.nodes) && node.type.nodes.length > 0) {
             const definition = header.add(null, styles, '\u0192', 'Show Function Definition');
-            definition.on('click', () => this.context.view.pushGraph(node.type));
+            definition.on('click', async () => await this.context.view.pushGraph(node.type));
         }
         if (Array.isArray(node.nodes)) {
             // this._expand = header.add(null, styles, '+', null);
@@ -3390,7 +3390,7 @@ view.FindSidebar = class extends view.Control {
             }
             for (const value of initializers) {
                 if (value.name && !edges.has(value.name) && matchValue(value)) {
-                    add(node, `\u25A0 ${value.name.split('\n').shift()}`); // split custom argument id
+                    add(node, `\u25CF ${value.name.split('\n').shift()}`); // split custom argument id
                 }
             }
         }

@@ -566,7 +566,11 @@ host.BrowserHost = class {
                 button.style.display = 'none';
                 button.onclick = null;
             }
-            this._document.body.classList.add('message');
+            if (message || action) {
+                this._document.body.classList.add('message');
+            } else {
+                this._document.body.classList.remove('message');
+            }
         });
     }
 };
