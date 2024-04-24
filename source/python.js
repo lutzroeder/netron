@@ -1758,6 +1758,7 @@ python.Execution = class {
         this.registerType('builtins.FutureWarning', class extends builtins.Warning {});
         this.registerType('builtins.BaseException', class {});
         this.registerType('builtins.Exception', class extends builtins.BaseException {});
+        this.registerType('builtins.AttributeError', class extends builtins.Exception {});
         this.registerType('builtins.SyntaxError', class extends builtins.Exception {});
         this.registerType('typing._Final', class {});
         this.registerType('typing._SpecialForm', class extends typing._Final {});
@@ -2032,9 +2033,11 @@ python.Execution = class {
         this.registerType('gensim.models.word2vec.Word2Vec', class {});
         this.registerType('gensim.models.word2vec.Word2VecTrainables', class {});
         this.registerType('gensim.models.word2vec.Word2VecVocab', class {});
+        this.registerFunction('gensim.models.tfidfmodel.df2idf');
         this.registerFunction('gensim.utils.call_on_class_only', () => {
-            throw new python.Error('This method should be called on a class object.');
+            throw new builtins.AttributeError('This method should be called on a class object.');
         });
+        this.registerFunction('gensim.utils.identity');
         this.registerType('google3.learning.deepmind.research.nbr.pbl_jax.clean_jaxline.utils.optimizers.ScaleByLarsState', class {
             constructor(obj) {
                 Object.assign(this, obj);
@@ -2241,6 +2244,7 @@ python.Execution = class {
         this.registerType('megengine.module.qat.elemwise.Elemwise', class {});
         this.registerType('megengine.module.sequential.Sequential', class {});
         this.registerType('megengine.quantization.fake_quant.FakeQuantize', class {});
+        this.registerType('megengine.quantization.fake_quant.TQT', class {});
         this.registerType('megengine.quantization.utils.QParams', class {});
         this.registerType('megengine.quantization.utils.QuantMode', class {});
         this.registerType('megengine.quantization.observer.ExponentialMovingAverageObserver', class {});
@@ -2565,6 +2569,10 @@ python.Execution = class {
             return execution.invoke('pandas.core.internals.blocks.new_block', [values, placement, ndim]);
         });
         this.registerType('pandas._libs.tslibs.base.ABCTimestamp', class extends datetime.datetime {});
+        this.registerType('pandas._libs.tslibs.offsets.BaseOffset', class {});
+        this.registerType('pandas._libs.tslibs.offsets.SingleConstructorOffset', class extends pandas._libs.tslibs.offsets.BaseOffset {});
+        this.registerType('pandas._libs.tslibs.offsets.Tick', class extends pandas._libs.tslibs.offsets.SingleConstructorOffset {});
+        this.registerType('pandas._libs.tslibs.offsets.Day', class extends pandas._libs.tslibs.offsets.Tick {});
         this.registerType('pandas._libs.tslibs.offsets.Minute', class extends datetime.datetime {});
         this.registerFunction('pandas._libs.tslibs.timestamps._unpickle_timestamp');
         this.registerType('pandas._libs.tslibs.timestamps._Timestamp', class extends pandas._libs.tslibs.base.ABCTimestamp {});
@@ -4027,6 +4035,7 @@ python.Execution = class {
         });
         this.registerFunction('sklearn.metrics._regression.mean_absolute_error');
         this.registerFunction('sklearn.metrics._regression.mean_squared_error');
+        this.registerFunction('sklearn.metrics._regression.root_mean_squared_error');
         this.registerFunction('re._compile', (pattern, flags) => {
             return self.invoke('re.Pattern', [pattern, flags]);
         });
