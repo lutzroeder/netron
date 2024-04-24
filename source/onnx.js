@@ -1424,7 +1424,7 @@ onnx.ProtoReader = class {
                     'PaddlePaddle', 'PPL Quantization Tool', 'pytorch',
                     'rk',
                     'sclblonnx', 'sequencer_save', 'SNPS MWNN Quantizer', 'skl2onnx',
-                    'Tencent YouTu', 'tf2onnx', 'tflite2onnx',
+                    'Tencent YouTu', 'TensorRT', 'tf2onnx', 'tflite2onnx',
                     'vai_q_onnx',
                     'WinMLTools'
                 ];
