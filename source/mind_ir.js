@@ -32,13 +32,12 @@ mind_ir.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension=="mindir") {
+        if (extension === "mindir") {
             return 'mind_ir';
         }
         return undefined;
 
     }
-
 
     open(context) {
         return context.require('./mind_ir-proto').then(() => {
@@ -60,12 +59,7 @@ mind_ir.ModelFactory = class {
     }
 };
 
-
-
-
-
 mind_ir.Model = class {
-
 
     constructor(metadata, model) {
 
@@ -75,9 +69,8 @@ mind_ir.Model = class {
             const node = model.graph.node[i];
             node.tensors = node.attribute[0].tensors;
             if (node.attribute[0].tensors.dims) {
-                node.dims=node.attribute[0].tensors.dims;
+                node.dims = node.attribute[0].tensors.dims;
                 const int32Array = new Int32Array(node.dims.length);
-
 
                 node.dims.forEach((int64, index) => {
                     int32Array[index] = int64.low;
@@ -100,7 +93,6 @@ mind_ir.Model = class {
             }
         }
 
-
         this._graphs = [new mind_ir.Graph(metadata, model.graph)];
     }
 
@@ -117,27 +109,15 @@ mind_ir.Model = class {
     }
 };
 
-
 mind_ir.Graph = class {
 
-
     constructor(metadata, model) {
-
-
-
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-
-
         //const scope = {};
         //const index = 0;
-
-
-
-
         const args_map = new Map();
-
         for (const parameter of model.input) {
             args_map.set(parameter.name, new mind_ir.Argument("input", parameter.tensor[0], null, null, true));
         }
@@ -146,15 +126,13 @@ mind_ir.Graph = class {
             args_map.set(parameter.name, new mind_ir.Argument("output", parameter.tensor[0], null, null, true));
         }
 
-
-
         for (const para of model.parameter) {
             const data = para.raw_data;
             const int32Array = new Int32Array(para.dims.length);
             para.dims.forEach((int64, index) => {
                 int32Array[index] = int64.low;
             });
-            para.dims=int32Array;
+            para.dims = int32Array;
             const type = new mind_ir.TensorType(para.data_type, para.dims);
             para.data_type = type;
             const initializer = (data && data.length > 0) ? new mind_ir.Tensor(type, data) : null;
@@ -179,13 +157,11 @@ mind_ir.Graph = class {
             }
         }
 
-
         for (const input of model.input) {
             const argument = args_map.get(input.name);
             this._inputs.push(new mind_ir.Parameter("input", [argument]));
 
         }
-
 
         for (const output of model.output) {
             this._outputs.push(new mind_ir.Parameter("output", [args_map.get(output.name)]));
@@ -212,32 +188,22 @@ mind_ir.Graph = class {
     }
 };
 
-
-
-
-
 mind_ir.Parameter = class {
-
 
     constructor(name, args) {
         this._name = name;
         this._arguments = args;
     }
 
-
     get name() {
         return this._name;
     }
-
 
     get arguments() {
         return this._arguments;
     }
 
-
-
     get visible() {
-
         if (this._name.includes("Load") || this._name.includes("MakeTuple") || this._name.includes("Constant") || this._name.includes("UpdateState")) {
             return false;
         }
@@ -245,9 +211,7 @@ mind_ir.Parameter = class {
     }
 };
 
-
 mind_ir.Argument = class {
-
 
     constructor(name, tensor, initializer, quantization, visible) {
 
@@ -271,30 +235,23 @@ mind_ir.Argument = class {
         this._visible = visible || false;
     }
 
-
     get name() {
         return this._name;
     }
-
 
     get type() {
         return this._type;
     }
 
-
     get quantization() {
         return null;
     }
-
 
     get initializer() {
         return this._initializer;
     }
 
-
-
     get visible() {
-
         if (this._name.includes("Load") || this._name.includes("MakeTuple") || this._name.includes("Constant") || this._name.includes("UpdateState")) {
             return false;
         }
@@ -302,22 +259,15 @@ mind_ir.Argument = class {
     }
 };
 
-
-
 mind_ir.Node = class {
 
-
     constructor(metadata, node, args_map) {
-
-
         this._name = node.domain;
         this._type = { name: node.op_type };
         this._type = metadata.type(this._type.name);
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-
-
         const input_num = node.input.length;
         let i = 0;
         if (this._type && this._type.inputs) {
@@ -369,26 +319,21 @@ mind_ir.Node = class {
         }
     }
 
-
     get name() {
         return this._name;
     }
-
 
     get type() {
         return this._type;
     }
 
-
     get inputs() {
         return this._inputs;
     }
 
-
     get outputs() {
         return this._outputs;
     }
-
 
     get attributes() {
         return this._attributes;
@@ -437,7 +382,6 @@ mind_ir.Utility = class {
     }
 };
 
-
 mind_ir.AttributeType = {
     UNDEFINED: 0,
     FLOAT: 1,
@@ -479,8 +423,6 @@ mind_ir.AttributeType = {
     MAP_TENSOR: 37
 };
 
-
-
 mind_ir.Attribute = class {
 
     constructor(context, attribute) {
@@ -518,7 +460,7 @@ mind_ir.Attribute = class {
                 this._type = 'int32';
                 break;
             case mind_ir.AttributeType.INT64:
-                if (attribute.ints!=0) {
+                if (attribute.ints !== 0) {
                     this._value = attribute.ints;
                 } else {
                     this._value = attribute.i;
@@ -526,7 +468,7 @@ mind_ir.Attribute = class {
                 this._type = 'int64';
                 break;
             case mind_ir.AttributeType.STRING:
-                if (attribute.s==0) {
+                if (attribute.s === 0) {
                     this._value = attribute.strings;
                 } else {
                     this._value = attribute.s;
@@ -661,9 +603,6 @@ mind_ir.Attribute = class {
         }
     }
 
-
-
-
     get name() {
         return this._name;
     }
@@ -673,11 +612,8 @@ mind_ir.Attribute = class {
     }
 
     get value() {
-        if (this._type == 'string') {
-
+        if (this._type === 'string') {
             const decoder = new TextDecoder('utf-8');
-
-
             const decodedString = decoder.decode(this._value);
             return decodedString;
         }
@@ -686,13 +622,12 @@ mind_ir.Attribute = class {
 
     get visible() {
 
-        if (this._name.includes("output_names")||this._name.includes("output_names")) {
+        if (this._name.includes("output_names") || this._name.includes("output_names")) {
             return false;
         }
         return this._visible !== false;
     }
 };
-
 
 mind_ir.Tensor = class {
 
@@ -739,11 +674,9 @@ mind_ir.Tensor = class {
     }
 };
 
-
-
 mind_ir.TensorType = class {
     constructor(dataType, dimensions) {
-        switch (dataType+1) {
+        switch (dataType + 1) {
             case 1: this._dataType = "undefined"; break;
             case 2: this._dataType = "float32"; break;
             case 3: this._dataType = "uint8"; break;
@@ -783,16 +716,14 @@ mind_ir.TensorType = class {
     }
 };
 
-
-
 mind_ir.TensorShape = class {
 
     constructor(dimensions) {
         // if (dimensions instanceof Int32Array) {
         //     dimensions = dimensions;
         // }
-        if (typeof(dimensions)=='object') {
-            dimensions=mind_ir.Utility.convertList(dimensions);
+        if (typeof(dimensions) === 'object') {
+            dimensions = mind_ir.Utility.convertList(dimensions);
         }
         //debugger;
         this._dimensions = Array.from(dimensions);
@@ -811,16 +742,13 @@ mind_ir.TensorShape = class {
     }
 };
 
-
 mind_ir.Error = class extends Error {
-
 
     constructor(message) {
         super(message);
         this.name = 'SnapML Model Load Error.';
     }
 };
-
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = mind_ir.ModelFactory;
