@@ -3253,6 +3253,53 @@ view.FindSidebar = class extends view.Control {
                 e.stopPropagation();
             }
         });
+        this._searchBox = this.createElement('div', 'sidebar-find-box');
+        const edgeIcon = this.createElement('div', 'siderbar-find-edge-icon');
+        const nodeIcon = this.createElement('div', 'siderbar-find-node-icon');
+        const initializerIcon = this.createElement('div', 'siderbar-find-initializer-icon');
+        edgeIcon.innerHTML = '\u2192';
+        nodeIcon.innerHTML = '\u25A2';
+        initializerIcon.innerHTML = '\u25CF';
+        this._showEdge = true;
+        this._showNode = true;
+        this._showInitializer = true;
+        const toggleSearchItemTypes = (toggleEdge, toggleNode, toggleInitializer) => {
+            let showEdge = this._showEdge;
+            let showNode = this._showNode;
+            let showInitializer = this._showInitializer;
+            if (toggleEdge) {
+                showEdge = !showEdge;
+            }
+            if (toggleNode) {
+                showNode = !showNode;
+            }
+            if (toggleInitializer) {
+                showInitializer = !showInitializer;
+            }
+            if (!showEdge && !showNode && !showInitializer) {
+                return;
+            }
+            this._showEdge = showEdge;
+            this._showNode = showNode;
+            this._showInitializer = showInitializer;
+            edgeIcon.style.opacity = this._showEdge ? "1.0" : "0.4";
+            nodeIcon.style.opacity = this._showNode ? "1.0" : "0.4";
+            initializerIcon.style.opacity = this._showInitializer ? "1.0" : "0.4";
+            this.update(this._searchElement.value);
+        };
+        edgeIcon.addEventListener('click', () => {
+            toggleSearchItemTypes(true, false, false);
+        });
+        nodeIcon.addEventListener('click', () => {
+            toggleSearchItemTypes(false, true, false);
+        });
+        initializerIcon.addEventListener('click', () => {
+            toggleSearchItemTypes(false, false, true);
+        });
+        this._searchBox.appendChild(this._searchElement);
+        this._searchBox.appendChild(edgeIcon);
+        this._searchBox.appendChild(nodeIcon);
+        this._searchBox.appendChild(initializerIcon);
         this._contentElement = this.createElement('ol', 'sidebar-find-content');
         this._contentElement.addEventListener('click', (e) => {
             const identifier = e.target.getAttribute('data');
@@ -3365,10 +3412,12 @@ view.FindSidebar = class extends view.Control {
                 edges.add(value.name);
             }
         };
-        const inputs = this._signature ? this._signature.inputs : this._graph.inputs;
-        for (const input of inputs) {
-            for (const value of input.value) {
-                edge(value);
+        if (this._showEdge) {
+            const inputs = this._signature ? this._signature.inputs : this._graph.inputs;
+            for (const input of inputs) {
+                for (const value of input.value) {
+                    edge(value);
+                }
             }
         }
         for (const node of this._graph.nodes) {
@@ -3377,34 +3426,40 @@ view.FindSidebar = class extends view.Control {
                 for (const value of input.value) {
                     if (value.initializer) {
                         initializers.push(value);
-                    } else {
+                    } else if (this._showEdge) {
                         edge(value);
                     }
                 }
             }
-            const name = node.name;
-            const type = node.type.name;
-            const location = node.location;
-            if ((name && match(name)) || (type && match(type)) || (location && match(location))) {
-                add(node, `\u25A2 ${name || `[${type}]`}`);
+            if (this._showNode) {
+                const name = node.name;
+                const type = node.type.name;
+                const location = node.location;
+                if ((name && match(name)) || (type && match(type)) || (location && match(location))) {
+                    add(node, `\u25A2 ${name || `[${type}]`}`);
+                }
             }
-            for (const value of initializers) {
-                if (value.name && !edges.has(value.name) && matchValue(value)) {
-                    add(node, `\u25CF ${value.name.split('\n').shift()}`); // split custom argument id
+            if (this._showInitializer) {
+                for (const value of initializers) {
+                    if (value.name && !edges.has(value.name) && matchValue(value)) {
+                        add(node, `\u25CF ${value.name.split('\n').shift()}`); // split custom argument id
+                    }
                 }
             }
         }
-        const outputs = this._signature ? this._signature.outputs : this._graph.inputs;
-        for (const output of outputs) {
-            for (const value of output.value) {
-                edge(value);
+        if (this._showEdge) {
+            const outputs = this._signature ? this._signature.outputs : this._graph.inputs;
+            for (const output of outputs) {
+                for (const value of output.value) {
+                    edge(value);
+                }
             }
         }
         this._contentElement.style.display = this._contentElement.childNodes.length === 0 ? 'none' : 'block';
     }
 
     render() {
-        return [this._searchElement, this._contentElement];
+        return [this._searchBox, this._contentElement];
     }
 };
 
