@@ -5409,7 +5409,7 @@ view.ModelFactoryService = class {
         this.register('./lasagne', ['.pkl', '.pickle', '.joblib', '.model', '.pkl.z', '.joblib.z']);
         this.register('./lightgbm', ['.txt', '.pkl', '.model']);
         this.register('./sklearn', ['.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z', '.pickle.dat']);
-        this.register('./megengine', ['.tm', '.mge']);
+        this.register('./megengine', ['.tm', '.mge', '.pkl']);
         this.register('./pickle', ['.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z', '.pdstates', '.mge']);
         this.register('./cntk', ['.model', '.cntk', '.cmf', '.dnn']);
         this.register('./uff', ['.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine']);
