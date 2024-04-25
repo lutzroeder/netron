@@ -10517,6 +10517,185 @@
     ]
   },
   {
+    "name": "ConvertToListOfSparseCoreCooTensors",
+    "attributes": [
+      {
+        "name": "sample_count",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_sc_per_chip",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "row_offset",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "col_offset",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "col_shift",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "num_sc_shards",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "stacked_table_sample_count",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "combiner",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "indices_or_row_splits",
+        "type": 3
+      },
+      {
+        "name": "values",
+        "type": 3
+      },
+      {
+        "name": "weights",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "row_ids_list",
+        "numberAttr": "num_sc_per_chip",
+        "type": 3
+      },
+      {
+        "name": "col_ids_list",
+        "numberAttr": "num_sc_per_chip",
+        "type": 3
+      },
+      {
+        "name": "gains_list",
+        "numberAttr": "num_sc_per_chip",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "ConvertToSparseCoreCsrWrappedCooTensor",
+    "attributes": [
+      {
+        "name": "sample_count_per_sc",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_replica",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "max_minibatches_per_sc",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "max_ids_per_chip_per_sample",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_vocab_size",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "feature_width",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_sc_per_chip",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      },
+      {
+        "name": "allow_id_dropping",
+        "type": "boolean"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "sorted_row_ids_list",
+        "numberAttr": "num_sc_per_chip",
+        "type": 3
+      },
+      {
+        "name": "sorted_col_ids_list",
+        "numberAttr": "num_sc_per_chip",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains_list",
+        "numberAttr": "num_sc_per_chip",
+        "type": 1
+      },
+      {
+        "name": "id_counts_list",
+        "numberAttr": "num_sc_per_chip",
+        "type": 3
+      },
+      {
+        "name": "splits",
+        "type": 9
+      }
+    ],
+    "outputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "row_pointers_unpadded_size",
+        "type": 3
+      },
+      {
+        "name": "ids_unpadded_size",
+        "type": 3
+      },
+      {
+        "name": "num_minibatches_per_sc",
+        "type": 3
+      }
+    ]
+  },
+  {
     "name": "Copy",
     "summary": "Copy a tensor from CPU-to-CPU or GPU-to-GPU.",
     "description": "Performs CPU-to-CPU or GPU-to-GPU deep-copying of tensor, depending on the\ndevice on which the tensor is allocated.\nN.B.: If the all downstream attached debug ops are disabled given the current\ngRPC gating status, the output will simply forward the input tensor without\ndeep-copying. See the documentation of Debug* ops for more details.\n\nUnlike the CopyHost Op, this op does not have HostMemory constraint on its\ninput or output.",
@@ -21227,6 +21406,75 @@
         "name": "value",
         "description": "The tensor for the given handle.",
         "typeAttr": "dtype"
+      }
+    ]
+  },
+  {
+    "name": "GetStatsFromListOfSparseCoreCooTensors",
+    "attributes": [
+      {
+        "name": "sample_count_list",
+        "type": "int64[]"
+      },
+      {
+        "name": "col_offset_list",
+        "type": "int64[]"
+      },
+      {
+        "name": "num_replica",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_vocab_size",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "feature_width",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_sc_per_chip",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      },
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_ids_list",
+        "numberAttr": "N",
+        "type": 3
+      },
+      {
+        "name": "col_ids_list",
+        "numberAttr": "N",
+        "type": 3
+      },
+      {
+        "name": "gains_list",
+        "numberAttr": "N",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "max_ids_per_sparse_core",
+        "type": 3
+      },
+      {
+        "name": "max_unique_ids_per_sparse_core",
+        "type": 3
       }
     ]
   },
@@ -50185,6 +50433,93 @@
     ]
   },
   {
+    "name": "SortListOfSparseCoreCooTensors",
+    "attributes": [
+      {
+        "name": "sample_count_list",
+        "type": "int64[]"
+      },
+      {
+        "name": "col_offset_list",
+        "type": "int64[]"
+      },
+      {
+        "name": "num_replica",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_vocab_size",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "feature_width",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_sc_per_chip",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "max_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "max_unique_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      },
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_ids_list",
+        "numberAttr": "N",
+        "type": 3
+      },
+      {
+        "name": "col_ids_list",
+        "numberAttr": "N",
+        "type": 3
+      },
+      {
+        "name": "gains_list",
+        "numberAttr": "N",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "sorted_row_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_col_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "id_counts",
+        "type": 3
+      }
+    ]
+  },
+  {
     "name": "SpaceToBatch",
     "summary": "SpaceToBatch for 4-D tensors of type T.",
     "description": "This is a legacy version of the more general SpaceToBatchND.\n\nZero-pads and then rearranges (permutes) blocks of spatial data into batch.\nMore specifically, this op outputs a copy of the input tensor where values from\nthe `height` and `width` dimensions are moved to the `batch` dimension. After\nthe zero-padding, both `height` and `width` of the input must be divisible by the\nblock size.\n\nThe attr `block_size` must be greater than one. It indicates the block size.\n\n  * Non-overlapping blocks of size `block_size x block size` in the height and\n    width dimensions are rearranged into the batch dimension at each location.\n  * The batch of the output tensor is `batch * block_size * block_size`.\n  * Both height_pad and width_pad must be divisible by block_size.\n\nThe shape of the output will be:\n\n    [batch*block_size*block_size, height_pad/block_size, width_pad/block_size,\n     depth]\n\nSome examples:\n\n(1) For the following input of shape `[1, 2, 2, 1]` and block_size of 2:\n\n```\nx = [[[[1], [2]], [[3], [4]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 1]` and value:\n\n```\n[[[[1]]], [[[2]]], [[[3]]], [[[4]]]]\n```\n\n(2) For the following input of shape `[1, 2, 2, 3]` and block_size of 2:\n\n```\nx = [[[[1, 2, 3], [4, 5, 6]],\n      [[7, 8, 9], [10, 11, 12]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 3]` and value:\n\n```\n[[[[1, 2, 3]]], [[[4, 5, 6]]], [[[7, 8, 9]]], [[[10, 11, 12]]]]\n```\n\n(3) For the following input of shape `[1, 4, 4, 1]` and block_size of 2:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]],\n      [[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[4, 2, 2, 1]` and value:\n\n```\nx = [[[[1], [3]], [[9], [11]]],\n     [[[2], [4]], [[10], [12]]],\n     [[[5], [7]], [[13], [15]]],\n     [[[6], [8]], [[14], [16]]]]\n```\n\n(4) For the following input of shape `[2, 2, 4, 1]` and block_size of 2:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]]],\n     [[[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[8, 1, 2, 1]` and value:\n\n```\nx = [[[[1], [3]]], [[[9], [11]]], [[[2], [4]]], [[[10], [12]]],\n     [[[5], [7]]], [[[13], [15]]], [[[6], [8]]], [[[14], [16]]]]\n```\n\nAmong others, this operation is useful for reducing atrous convolution into\nregular convolution.",
@@ -65068,6 +65403,83 @@
     ]
   },
   {
+    "name": "XlaSparseDenseMatmulGradWithAdagradAndStaticBufferSize",
+    "attributes": [
+      {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
+      },
+      {
+        "name": "max_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "max_unique_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "accumulator",
+        "type": 1
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_accumulator",
+        "type": 1
+      }
+    ]
+  },
+  {
     "name": "XlaSparseDenseMatmulGradWithAdagradMomentumAndCsrInput",
     "attributes": [
       {
@@ -65163,6 +65575,111 @@
     ]
   },
   {
+    "name": "XlaSparseDenseMatmulGradWithAdagradMomentumAndStaticBufferSize",
+    "attributes": [
+      {
+        "name": "use_nesterov",
+        "type": "boolean"
+      },
+      {
+        "name": "exponent",
+        "type": "float32"
+      },
+      {
+        "name": "beta1",
+        "type": "float32"
+      },
+      {
+        "name": "beta2",
+        "type": "float32"
+      },
+      {
+        "name": "epsilon",
+        "type": "float32"
+      },
+      {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
+      },
+      {
+        "name": "max_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "max_unique_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "accumulator",
+        "type": 1
+      },
+      {
+        "name": "momenta",
+        "type": 1
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_accumulator",
+        "type": 1
+      },
+      {
+        "name": "updated_momenta",
+        "type": 1
+      }
+    ]
+  },
+  {
     "name": "XlaSparseDenseMatmulGradWithAdamAndCsrInput",
     "attributes": [
       {
@@ -65190,6 +65707,107 @@
         "name": "clip_weight_max",
         "type": "float32",
         "default": "NaN"
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "momenta",
+        "type": 1
+      },
+      {
+        "name": "velocity",
+        "type": 1
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_momenta",
+        "type": 1
+      },
+      {
+        "name": "updated_velocity",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulGradWithAdamAndStaticBufferSize",
+    "attributes": [
+      {
+        "name": "use_sum_inside_sqrt",
+        "type": "boolean"
+      },
+      {
+        "name": "beta1",
+        "type": "float32"
+      },
+      {
+        "name": "beta2",
+        "type": "float32"
+      },
+      {
+        "name": "epsilon",
+        "type": "float32"
+      },
+      {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
+      },
+      {
+        "name": "max_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "max_unique_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
       },
       {
         "name": "table_name",
@@ -65349,6 +65967,111 @@
     ]
   },
   {
+    "name": "XlaSparseDenseMatmulGradWithFtrlAndStaticBufferSize",
+    "attributes": [
+      {
+        "name": "multiply_linear_by_learning_rate",
+        "type": "boolean"
+      },
+      {
+        "name": "beta",
+        "type": "float32"
+      },
+      {
+        "name": "learning_rate_power",
+        "type": "float32"
+      },
+      {
+        "name": "l1_regularization_strength",
+        "type": "float32"
+      },
+      {
+        "name": "l2_regularization_strength",
+        "type": "float32"
+      },
+      {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
+      },
+      {
+        "name": "max_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "max_unique_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "accumulator",
+        "type": 1
+      },
+      {
+        "name": "linear",
+        "type": 1
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_accumulator",
+        "type": 1
+      },
+      {
+        "name": "updated_linear",
+        "type": 1
+      }
+    ]
+  },
+  {
     "name": "XlaSparseDenseMatmulGradWithSgdAndCsrInput",
     "attributes": [
       {
@@ -65360,6 +66083,75 @@
         "name": "clip_weight_max",
         "type": "float32",
         "default": "NaN"
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulGradWithSgdAndStaticBufferSize",
+    "attributes": [
+      {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
+      },
+      {
+        "name": "max_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "max_unique_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
       },
       {
         "name": "table_name",
@@ -65427,6 +66219,75 @@
         "name": "quantization_config_num_buckets",
         "type": "int64",
         "minimum": 0
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "activations",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulWithStaticBufferSize",
+    "attributes": [
+      {
+        "name": "input_size",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "quantization_config_low",
+        "type": "float32"
+      },
+      {
+        "name": "quantization_config_high",
+        "type": "float32"
+      },
+      {
+        "name": "quantization_config_num_buckets",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "max_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "max_unique_ids_per_sparse_core",
+        "type": "int64",
+        "minimum": 1
       },
       {
         "name": "table_name",
