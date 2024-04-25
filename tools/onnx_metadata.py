@@ -6,14 +6,7 @@ import os
 import re
 import onnx.backend.test.case # pylint: disable=import-error
 import onnx.defs # pylint: disable=import-error
-
-def _read(path):
-    with open(path, 'r', encoding='utf-8') as file:
-        return file.read()
-
-def _write(path, content):
-    with open(path, 'w', encoding='utf-8') as file:
-        file.write(content)
+import onnxruntime # pylint: disable=import-error
 
 categories = {
     'Constant': 'Constant',
@@ -37,6 +30,8 @@ categories = {
     'Sigmoid': 'Activation',
     'Tanh': 'Activation',
     'LogSoftmax': 'Activation',
+    'SimplifiedLayerNormalization': 'Normalization',
+    'SkipSimplifiedLayerNormalization': 'Normalization',
     'Softmax': 'Activation',
     'Softplus': 'Activation',
     'Softsign': 'Activation',
@@ -47,6 +42,7 @@ categories = {
     'LRN': 'Normalization',
     'Flatten': 'Shape',
     'Reshape': 'Shape',
+    'RotaryEmbedding': 'Transform',
     'Tile': 'Shape',
     'AveragePool': 'Pool',
     'GlobalAveragePool': 'Pool',
@@ -68,38 +64,24 @@ categories = {
     'Squeeze': 'Transform',
 }
 
-attribute_type_table = {
-    'undefined': None,
-    'float': 'float32', 'int': 'int64', 'string': 'string',
-    'tensor': 'tensor', 'graph': 'graph',
-    'floats': 'float32[]', 'ints': 'int64[]', 'strings': 'string[]',
-    'tensors': 'tensor[]', 'graphs': 'graph[]',
-}
+attribute_type_table = [
+    'undefined',
+    'float32',
+    'int64',
+    'string',
+    'tensor',
+    'graph',
+    'float32[]',
+    'int64[]',
+    'string[]',
+    'tensor[]',
+    'graph[]',
+    'sparse_tensor',
+    'sparse_tensor[]',
+    'type_proto',
+    'type_proto[]'
+]
 
-def _get_attr_type(attribute_type, attribute_name, op_type, op_domain):
-    key = op_domain + ':' + op_type + ':' + attribute_name
-    if key in (':Cast:to', ':EyeLike:dtype', ':RandomNormal:dtype'):
-        return 'DataType'
-    value = str(attribute_type)
-    value = value[value.rfind('.')+1:].lower()
-    if value in attribute_type_table:
-        return attribute_type_table[value]
-    return None
-
-def _get_attr_default_value(attr_value):
-    if not str(attr_value):
-        return None
-    if attr_value.HasField('i'):
-        return attr_value.i
-    if attr_value.HasField('s'):
-        return attr_value.s.decode('utf8')
-    if attr_value.HasField('f'):
-        return attr_value.f
-    return None
-
-def _generate_json_support_level_name(support_level):
-    value = str(support_level)
-    return value[value.rfind('.')+1:].lower()
 
 def _format_description(description):
     def replace_line(match):
@@ -108,123 +90,276 @@ def _format_description(description):
         if not url.startswith("http://") and not url.startswith("https://"):
             url = "https://github.com/onnx/onnx/blob/master/docs/" + url
         return "[" + link + "](" + url + ")"
-    description = re.sub("\\[(.+)\\]\\(([^ ]+?)( \"(.+)\")?\\)", replace_line, description)
-    return description
-
-def _update_attributes(json_schema, schema):
-    json_schema['attributes'] = []
-    for _ in collections.OrderedDict(schema.attributes.items()).values():
-        json_attribute = {}
-        json_attribute['name'] = _.name
-        attribute_type = _get_attr_type(_.type, _.name, schema.name, schema.domain)
-        if attribute_type:
-            json_attribute['type'] = attribute_type
-        elif 'type' in json_attribute:
-            del json_attribute['type']
-        json_attribute['required'] = _.required
-        default_value = _get_attr_default_value(_.default_value)
-        if default_value:
-            json_attribute['default'] = default_value
-        json_attribute['description'] = _format_description(_.description)
-        json_schema['attributes'].append(json_attribute)
-
-def _update_inputs(json_schema, inputs):
-    json_schema['inputs'] = []
-    for _ in inputs:
-        json_input = {}
-        json_input['name'] = _.name
-        json_input['type'] = _.type_str
-        if _.option == onnx.defs.OpSchema.FormalParameterOption.Optional:
-            json_input['option'] = 'optional'
-        elif _.option == onnx.defs.OpSchema.FormalParameterOption.Variadic:
-            json_input['list'] = True
-        json_input['description'] = _format_description(_.description)
-        json_schema['inputs'].append(json_input)
-
-def _update_outputs(json_schema, outputs):
-    json_schema['outputs'] = []
-    for _ in outputs:
-        json_output = {}
-        json_output['name'] = _.name
-        json_output['type'] = _.type_str
-        if _.option == onnx.defs.OpSchema.FormalParameterOption.Optional:
-            json_output['option'] = 'optional'
-        elif _.option == onnx.defs.OpSchema.FormalParameterOption.Variadic:
-            json_output['list'] = True
-        json_output['description'] = _format_description(_.description)
-        json_schema['outputs'].append(json_output)
-
-def _update_type_constraints(json_schema, type_constraints):
-    json_schema['type_constraints'] = []
-    for _ in type_constraints:
-        json_schema['type_constraints'].append({
-            'description': _.description,
-            'type_param_str': _.type_param_str,
-            'allowed_type_strs': _.allowed_type_strs
-        })
-
-def _update_snippets(json_schema, snippets):
-    json_schema['examples'] = []
-    for summary, code in sorted(snippets):
-        lines = code.splitlines()
-        while len(lines) > 0 and re.search("\\s*#", lines[-1]):
-            lines.pop()
-            if len(lines) > 0 and len(lines[-1]) == 0:
-                lines.pop()
-        json_schema['examples'].append({
-            'summary': summary,
-            'code': '\n'.join(lines)
-        })
+    return re.sub("\\[(.+)\\]\\(([^ ]+?)( \"(.+)\")?\\)", replace_line, description)
 
 def _format_range(value):
     return '&#8734;' if value == 2147483647 else str(value)
 
+class OnnxSchema: # pylint: disable=too-few-public-methods
+    ''' ONNX schema '''
+
+    def __init__(self, schema, snippets):
+        self.schema = schema
+        self.snippets = snippets
+        self.name = self.schema.name
+        self.module = self.schema.domain if self.schema.domain else 'ai.onnx'
+        self.version = self.schema.since_version
+        self.key = self.name + ':' + self.module + ':' + str(self.version).zfill(4)
+
+    def _get_attr_type(self, attribute_type, attribute_name, op_type, op_domain):
+        key = op_domain + ':' + op_type + ':' + attribute_name
+        if key in (':Cast:to', ':EyeLike:dtype', ':RandomNormal:dtype'):
+            return 'DataType'
+        return attribute_type_table[attribute_type]
+
+    def _get_attr_default_value(self, attr_value):
+        if not str(attr_value):
+            return None
+        if attr_value.HasField('i'):
+            return attr_value.i
+        if attr_value.HasField('s'):
+            return attr_value.s.decode('utf8')
+        if attr_value.HasField('f'):
+            return attr_value.f
+        return None
+
+    def _update_attributes(self, value, schema):
+        target = value['attributes'] = []
+        for _ in collections.OrderedDict(schema.attributes.items()).values():
+            value = {}
+            value['name'] = _.name
+            attribute_type = self._get_attr_type(_.type, _.name, schema.name, schema.domain)
+            if attribute_type:
+                value['type'] = attribute_type
+            value['required'] = _.required
+            default_value = self._get_attr_default_value(_.default_value)
+            if default_value:
+                value['default'] = default_value
+            description = _format_description(_.description)
+            if len(description) > 0:
+                value['description'] = description
+            target.append(value)
+
+    def _update_inputs(self, value, inputs):
+        target = value['inputs'] = []
+        for _ in inputs:
+            value = {}
+            value['name'] = _.name
+            value['type'] = _.type_str
+            if _.option == onnx.defs.OpSchema.FormalParameterOption.Optional:
+                value['option'] = 'optional'
+            elif _.option == onnx.defs.OpSchema.FormalParameterOption.Variadic:
+                value['list'] = True
+            description = _format_description(_.description)
+            if len(description) > 0:
+                value['description'] = description
+            target.append(value)
+
+    def _update_outputs(self, value, outputs):
+        target = value['outputs'] = []
+        for _ in outputs:
+            value = {}
+            value['name'] = _.name
+            value['type'] = _.type_str
+            if _.option == onnx.defs.OpSchema.FormalParameterOption.Optional:
+                value['option'] = 'optional'
+            elif _.option == onnx.defs.OpSchema.FormalParameterOption.Variadic:
+                value['list'] = True
+            description = _format_description(_.description)
+            if len(description) > 0:
+                value['description'] = description
+            target.append(value)
+
+    def _update_type_constraints(self, value, type_constraints):
+        value['type_constraints'] = []
+        for _ in type_constraints:
+            value['type_constraints'].append({
+                'description': _.description,
+                'type_param_str': _.type_param_str,
+                'allowed_type_strs': _.allowed_type_strs
+            })
+
+    def _update_snippets(self, value, snippets):
+        target = value['examples'] = []
+        for summary, code in sorted(snippets):
+            lines = code.splitlines()
+            while len(lines) > 0 and re.search("\\s*#", lines[-1]):
+                lines.pop()
+                if len(lines) > 0 and len(lines[-1]) == 0:
+                    lines.pop()
+            target.append({
+                'summary': summary,
+                'code': '\n'.join(lines)
+            })
+
+    def to_dict(self):
+        ''' Serialize model to JSON message '''
+        value = {}
+        value['name'] = self.name
+        value['module'] = self.module
+        value['version'] = self.version
+        if self.schema.support_level != onnx.defs.OpSchema.SupportType.COMMON:
+            value['status'] = self.schema.support_level.name.lower()
+        description = _format_description(self.schema.doc.lstrip())
+        if len(description) > 0:
+            value['description'] = description
+        if self.schema.attributes:
+            self._update_attributes(value, self.schema)
+        if self.schema.inputs:
+            self._update_inputs(value, self.schema.inputs)
+        value['min_input'] = self.schema.min_input
+        value['max_input'] = self.schema.max_input
+        if self.schema.outputs:
+            self._update_outputs(value, self.schema.outputs)
+        value['min_output'] = self.schema.min_output
+        value['max_output'] = self.schema.max_output
+        if self.schema.min_input != self.schema.max_input:
+            value['inputs_range'] = _format_range(self.schema.min_input) + ' - ' \
+                + _format_range(self.schema.max_input)
+        if self.schema.min_output != self.schema.max_output:
+            value['outputs_range'] = _format_range(self.schema.min_output) + ' - ' \
+                + _format_range(self.schema.max_output)
+        if self.schema.type_constraints:
+            self._update_type_constraints(value, self.schema.type_constraints)
+        if self.name in self.snippets:
+            self._update_snippets(value, self.snippets[self.name])
+        if self.name in categories:
+            value['category'] = categories[self.name]
+        return value
+
+class OnnxRuntimeSchema: # pylint: disable=too-few-public-methods
+    ''' ONNX Runtime schema '''
+
+    def __init__(self, schema):
+        self.schema = schema
+        self.name = self.schema.name
+        self.module = self.schema.domain if self.schema.domain else 'ai.onnx'
+        self.version = self.schema.since_version
+        self.key = self.name + ':' + self.module + ':' + str(self.version).zfill(4)
+
+    def _get_attr_type(self, attribute_type):
+        return attribute_type_table[attribute_type]
+
+    def _get_attr_default_value(self, attr_value):
+        if not str(attr_value):
+            return None
+        if attr_value.HasField('i'):
+            return attr_value.i
+        if attr_value.HasField('s'):
+            return attr_value.s.decode('utf8')
+        if attr_value.HasField('f'):
+            return attr_value.f
+        return None
+
+    def _update_attributes(self, value, schema):
+        target = value['attributes'] = []
+        for _ in collections.OrderedDict(schema.attributes.items()).values():
+            value = {}
+            value['name'] = _.name
+            attribute_type = self._get_attr_type(_.type)
+            if attribute_type:
+                value['type'] = attribute_type
+            value['required'] = _.required
+            # default_value = self._get_attr_default_value(_._default_value)
+            # if default_value:
+            #     value['default'] = default_value
+            description = _format_description(_.description)
+            if len(description) > 0:
+                value['description'] = description
+            target.append(value)
+
+    def _update_inputs(self, value, inputs):
+        target = value['inputs'] = []
+        for _ in inputs:
+            value = {}
+            value['name'] = _.name
+            value['type'] = _.typeStr
+            if _.option == onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.FormalParameterOption.Optional: # pylint: disable=c-extension-no-member,line-too-long
+                value['option'] = 'optional'
+            elif _.option == onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.FormalParameterOption.Variadic: # pylint: disable=c-extension-no-member,line-too-long
+                value['list'] = True
+            description = _format_description(_.description)
+            if len(description) > 0:
+                value['description'] = description
+            target.append(value)
+
+    def _update_outputs(self, value, outputs):
+        target = value['outputs'] = []
+        for _ in outputs:
+            value = {}
+            value['name'] = _.name
+            value['type'] = _.typeStr
+            if _.option == onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.FormalParameterOption.Optional: # pylint: disable=c-extension-no-member,line-too-long
+                value['option'] = 'optional'
+            elif _.option == onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.FormalParameterOption.Variadic: # pylint: disable=c-extension-no-member,line-too-long
+                value['list'] = True
+            description = _format_description(_.description)
+            if len(description) > 0:
+                value['description'] = description
+            target.append(value)
+
+    def _update_type_constraints(self, value, type_constraints):
+        value['type_constraints'] = []
+        for _ in type_constraints:
+            value['type_constraints'].append({
+                'description': _.description,
+                'type_param_str': _.type_param_str,
+                'allowed_type_strs': _.allowed_type_strs
+            })
+
+    def to_dict(self):
+        ''' Serialize model to JSON message '''
+        value = {}
+        value['name'] = self.name
+        value['module'] = self.module
+        value['version'] = self.version
+        if self.schema.support_level != onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.SupportType.COMMON: # pylint: disable=c-extension-no-member,line-too-long
+            value['status'] = self.schema.support_level.name.lower()
+        if self.schema.doc:
+            description = _format_description(self.schema.doc.lstrip())
+            if len(description) > 0:
+                value['description'] = description
+        if self.schema.attributes:
+            self._update_attributes(value, self.schema)
+        if self.schema.inputs:
+            self._update_inputs(value, self.schema.inputs)
+        value['min_input'] = self.schema.min_input
+        value['max_input'] = self.schema.max_input
+        if self.schema.outputs:
+            self._update_outputs(value, self.schema.outputs)
+        value['min_output'] = self.schema.min_output
+        value['max_output'] = self.schema.max_output
+        if self.schema.min_input != self.schema.max_input:
+            value['inputs_range'] = _format_range(self.schema.min_input) + ' - ' \
+                + _format_range(self.schema.max_input)
+        if self.schema.min_output != self.schema.max_output:
+            value['outputs_range'] = _format_range(self.schema.min_output) + ' - ' \
+                + _format_range(self.schema.max_output)
+        if self.schema.type_constraints:
+            self._update_type_constraints(value, self.schema.type_constraints)
+        if self.name in categories:
+            value['category'] = categories[self.name]
+        return value
+
 def _metadata():
-    json_root = []
+    types = collections.OrderedDict()
     numpy = __import__('numpy')
     with numpy.errstate(all='ignore'):
         snippets = onnx.backend.test.case.collect_snippets()
-    all_schemas_with_history = onnx.defs.get_all_schemas_with_history()
-    for schema in all_schemas_with_history:
-        json_schema = {}
-        json_schema['name'] = schema.name
-        json_schema['module'] = schema.domain if schema.domain else 'ai.onnx'
-        json_schema['version'] = schema.since_version
-        if schema.support_level != onnx.defs.OpSchema.SupportType.COMMON:
-            json_schema['status'] = schema.support_level.name.lower()
-        json_schema['description'] = _format_description(schema.doc.lstrip())
-        if schema.attributes:
-            _update_attributes(json_schema, schema)
-        if schema.inputs:
-            _update_inputs(json_schema, schema.inputs)
-        json_schema['min_input'] = schema.min_input
-        json_schema['max_input'] = schema.max_input
-        if schema.outputs:
-            _update_outputs(json_schema, schema.outputs)
-        json_schema['min_output'] = schema.min_output
-        json_schema['max_output'] = schema.max_output
-        if schema.min_input != schema.max_input:
-            json_schema['inputs_range'] = _format_range(schema.min_input) + ' - ' \
-                + _format_range(schema.max_input)
-        if schema.min_output != schema.max_output:
-            json_schema['outputs_range'] = _format_range(schema.min_output) + ' - ' \
-                + _format_range(schema.max_output)
-        if schema.type_constraints:
-            _update_type_constraints(json_schema, schema.type_constraints)
-        if schema.name in snippets:
-            _update_snippets(json_schema, snippets[schema.name])
-        if schema.name in categories:
-            json_schema['category'] = categories[schema.name]
-        json_root.append(json_schema)
-    json_root = sorted(json_root, key=lambda item: item['name'] + ':' + \
-        str(item['version'] if 'version' in item else 0).zfill(4))
+    for schema in onnx.defs.get_all_schemas_with_history():
+        schema = OnnxSchema(schema, snippets)
+        if not schema.key in types:
+            types[schema.key] = schema.to_dict()
+    for schema in onnxruntime.capi.onnxruntime_pybind11_state.get_all_operator_schema(): # pylint: disable=c-extension-no-member
+        schema = OnnxRuntimeSchema(schema)
+        if not schema.key in types:
+            types[schema.key] = schema.to_dict()
+    types = [types[key] for key in sorted(types)]
     root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    json_file = os.path.join(root_dir, 'source', 'onnx-metadata.json')
-    content = _read(json_file)
-    items = json.loads(content)
-    items = list(filter(lambda item: item['module'] == "com.microsoft", items))
-    json_root = json_root + items
-    _write(json_file, json.dumps(json_root, indent=2))
+    file = os.path.join(root_dir, 'source', 'onnx-metadata.json')
+    content = json.dumps(types, indent=2)
+    with open(file, 'w', encoding='utf-8') as handle:
+        handle.write(content)
 
 def main(): # pylint: disable=missing-function-docstring
     _metadata()
