@@ -449,7 +449,8 @@ tflite.BuiltinOperator = {
     STABLEHLO_TRANSPOSE: 202,
     DILATE: 203,
     STABLEHLO_RNG_BIT_GENERATOR: 204,
-    REDUCE_WINDOW: 205
+    REDUCE_WINDOW: 205,
+    STABLEHLO_COMPOSITE: 206
 };
 
 tflite.BuiltinOptions = class {
@@ -743,6 +744,7 @@ tflite.BuiltinOptions2 = class {
             case 18: return tflite.DilateOptions.decode(reader, position);
             case 19: return tflite.StablehloRngBitGeneratorOptions.decode(reader, position);
             case 20: return tflite.ReduceWindowOptions.decode(reader, position);
+            case 21: return tflite.StableHLOCompositeOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -769,6 +771,7 @@ tflite.BuiltinOptions2 = class {
             case 'DilateOptions': return tflite.DilateOptions.decodeText(reader, json);
             case 'StablehloRngBitGeneratorOptions': return tflite.StablehloRngBitGeneratorOptions.decodeText(reader, json);
             case 'ReduceWindowOptions': return tflite.ReduceWindowOptions.decodeText(reader, json);
+            case 'StableHLOCompositeOptions': return tflite.StableHLOCompositeOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -3213,6 +3216,29 @@ tflite.OperatorCode = class OperatorCode {
 
 tflite.CustomOptionsFormat = {
     FLEXBUFFERS: 0
+};
+
+tflite.StableHLOCompositeOptions = class StableHLOCompositeOptions {
+
+    static decode(reader, position) {
+        const $ = new tflite.StableHLOCompositeOptions();
+        $.name = reader.string_(position, 4, null);
+        $.decomposition_subgraph_index = reader.int32_(position, 6, 0);
+        $.composite_attributes = reader.array(position, 8, Uint8Array);
+        $.composite_attributes_format = reader.int8_(position, 10, 0);
+        $.version = reader.int32_(position, 12, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new tflite.StableHLOCompositeOptions();
+        $.name = reader.value(json.name, null);
+        $.decomposition_subgraph_index = reader.value(json.decomposition_subgraph_index, 0);
+        $.composite_attributes = reader.array(json.composite_attributes, Uint8Array);
+        $.composite_attributes_format = tflite.CustomOptionsFormat[json.composite_attributes_format];
+        $.version = reader.value(json.version, 0);
+        return $;
+    }
 };
 
 tflite.Operator = class Operator {
