@@ -103,7 +103,7 @@ window.addEventListener('error', function (event) {
 
 window.addEventListener('load', function() {
     if (typeof Symbol !== 'function' || typeof Symbol.asyncIterator !== 'symbol' ||
-        typeof BigInt !== 'function' || typeof BigInt.asIntN !== 'function' || typeof BigInt.asUintN !== 'function') {
+        typeof BigInt !== 'function' || typeof BigInt.asIntN !== 'function' || typeof BigInt.asUintN !== 'function' || typeof DataView.prototype.getBigInt64 !== 'function') {
         throw new Error('Your browser is not supported.');
     }
     window.exports.preload(function(value, error) {
