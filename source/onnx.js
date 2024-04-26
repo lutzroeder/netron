@@ -1410,9 +1410,9 @@ onnx.ProtoReader = class {
             if (buffer[0] === 0x08 && buffer[1] < 0x0B && buffer[2] === 0x12) {
                 const producers = [
                     'backend-test', 'BrainwaveCompiler',
-                    'CNTK', 'customvision', 'cvflowbackend',
+                    'caffe', 'CNTK', 'customvision', 'Cube.AI', 'cvflowbackend',
                     'dmp2x', 'dx-dl',
-                    'eva_tool',
+                    'eva_tool', 'eytorch',
                     'fuse_model',
                     'GE',
                     'horizon_nn',
@@ -1420,11 +1420,12 @@ onnx.ProtoReader = class {
                     'darknet to ONNX example',
                     'Novatek NovaOnnx Converter', 'htshinichi',
                     'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'ML.NET', 'MVTec Software', 'Novaic',
-                    'onnx-caffe2', 'onnx.compose.merge_models', 'onnx-example', 'onnx-fix-nodes', 'onnx-TIDL', 'onnx-typecast', 'onnx_test', 'onnx_tool', 'onnx_translator', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'onnxruntime-tools', 'onnxruntime.transformers', 'optimum-onnx', 'optimum-onnxruntime',
-                    'PaddlePaddle', 'PPL Quantization Tool', 'pytorch',
+                    'onnx-caffe2', 'onnx.compose.merge_models', 'onnx-example', 'onnx-fix-nodes', 'onnx-TIDL', 'onnx-typecast', 'onnx_test', 'onnx_tool', 'onnx_translator', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'onnxruntime-genai', 'onnxruntime-test', 'onnxruntime-tools', 'onnxruntime.transformers', 'optimum-onnx', 'optimum-onnxruntime',
+                    'PaddlePaddle', 'PPL Quantization Tool', 'prune_model_weight', 'Pulsar2', 'pytorch',
                     'rk',
-                    'sclblonnx', 'sequencer_save', 'SNPS MWNN Quantizer', 'skl2onnx',
+                    'sclblonnx', 'sequencer_save', 'SNPS MWNN Optimizer', 'SNPS MWNN Quantizer', 'skl2onnx',
                     'Tencent YouTu', 'TensorRT', 'tf2onnx', 'tflite2onnx',
+                    'Updated Producer',
                     'vai_q_onnx',
                     'WinMLTools'
                 ];
