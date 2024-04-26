@@ -4739,7 +4739,7 @@
         "name": "training_mode",
         "type": "int64",
         "required": false,
-        "description": "If set to true, it indicates BatchNormalization is being used for training, and outputs 1, 2, 3, and 4 would be populated."
+        "description": "If set to true, it indicates BatchNormalization is being used for training, and outputs 1 and 2 are to be computed."
       }
     ],
     "inputs": [
@@ -11876,6 +11876,58 @@
       {
         "summary": "default_mode_example",
         "code": "node = onnx.helper.make_node(\n    \"DepthToSpace\", inputs=[\"x\"], outputs=[\"y\"], blocksize=2, mode=\"DCR\"\n)\n\n# (1, 8, 2, 3) input tensor\nx = np.array(\n    [\n        [\n            [[0.0, 1.0, 2.0], [3.0, 4.0, 5.0]],\n            [[9.0, 10.0, 11.0], [12.0, 13.0, 14.0]],\n            [[18.0, 19.0, 20.0], [21.0, 22.0, 23.0]],\n            [[27.0, 28.0, 29.0], [30.0, 31.0, 32.0]],\n            [[36.0, 37.0, 38.0], [39.0, 40.0, 41.0]],\n            [[45.0, 46.0, 47.0], [48.0, 49.0, 50.0]],\n            [[54.0, 55.0, 56.0], [57.0, 58.0, 59.0]],\n            [[63.0, 64.0, 65.0], [66.0, 67.0, 68.0]],\n        ]\n    ]\n).astype(np.float32)\n\n# (1, 2, 4, 6) output tensor\ny = np.array(\n    [\n        [\n            [\n                [0.0, 18.0, 1.0, 19.0, 2.0, 20.0],\n                [36.0, 54.0, 37.0, 55.0, 38.0, 56.0],\n                [3.0, 21.0, 4.0, 22.0, 5.0, 23.0],\n                [39.0, 57.0, 40.0, 58.0, 41.0, 59.0],\n            ],\n            [\n                [9.0, 27.0, 10.0, 28.0, 11.0, 29.0],\n                [45.0, 63.0, 46.0, 64.0, 47.0, 65.0],\n                [12.0, 30.0, 13.0, 31.0, 14.0, 32.0],\n                [48.0, 66.0, 49.0, 67.0, 50.0, 68.0],\n            ],\n        ]\n    ]\n).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y], name=\"test_depthtospace_example\")"
+      }
+    ]
+  },
+  {
+    "name": "DepthToSpace",
+    "module": "com.ms.internal.nhwc",
+    "version": 1,
+    "attributes": [
+      {
+        "name": "blocksize",
+        "type": "int64",
+        "required": true,
+        "description": "Blocks of [blocksize, blocksize] are moved."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to all tensor types.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)"
+        ]
       }
     ]
   },
@@ -19438,6 +19490,63 @@
     ]
   },
   {
+    "name": "GemmaRotaryEmbedding",
+    "module": "com.microsoft",
+    "version": 1,
+    "inputs": [
+      {
+        "name": "emb",
+        "type": "U"
+      },
+      {
+        "name": "q",
+        "type": "T"
+      },
+      {
+        "name": "q_rot",
+        "type": "T"
+      },
+      {
+        "name": "k",
+        "type": "T"
+      },
+      {
+        "name": "k_rot",
+        "type": "T"
+      }
+    ],
+    "min_input": 5,
+    "max_input": 5,
+    "outputs": [
+      {
+        "name": "output1",
+        "type": "T"
+      },
+      {
+        "name": "output2",
+        "type": "T"
+      }
+    ],
+    "min_output": 2,
+    "max_output": 2,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float16 tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)"
+        ]
+      },
+      {
+        "description": "Constrain input 0 type to float tensors",
+        "type_param_str": "U",
+        "allowed_type_strs": [
+          "tensor(float)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "GivenTensorFill",
     "module": "ai.onnx",
     "version": 1,
@@ -21462,7 +21571,8 @@
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(float16)",
-          "tensor(bfloat16)"
+          "tensor(bfloat16)",
+          "tensor(float)"
         ]
       },
       {
@@ -28856,7 +28966,8 @@
         "description": "Constrain input a_scale, b_scale and output Y data type as float tensor.",
         "type_param_str": "T3",
         "allowed_type_strs": [
-          "tensor(float)"
+          "tensor(float)",
+          "tensor(float16)"
         ]
       }
     ]
@@ -28912,12 +29023,17 @@
       },
       {
         "name": "zero_points",
-        "type": "T2",
+        "type": "T3",
+        "option": "optional"
+      },
+      {
+        "name": "g_idx",
+        "type": "T4",
         "option": "optional"
       }
     ],
     "min_input": 3,
-    "max_input": 4,
+    "max_input": 5,
     "outputs": [
       {
         "name": "Y",
@@ -28926,7 +29042,7 @@
     ],
     "min_output": 1,
     "max_output": 1,
-    "inputs_range": "3 - 4",
+    "inputs_range": "3 - 5",
     "type_constraints": [
       {
         "description": "Constrain input and output types to float/half_float tensors.",
@@ -28937,10 +29053,28 @@
         ]
       },
       {
-        "description": "Constrain quantized weight types to uint8.",
+        "description": "Constrain quantized weight types to uint8/int32.",
         "type_param_str": "T2",
         "allowed_type_strs": [
-          "tensor(uint8)"
+          "tensor(uint8)",
+          "tensor(int32)"
+        ]
+      },
+      {
+        "description": "Constrain quantized zero point types to uint8/int32/float16/float.",
+        "type_param_str": "T3",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(int32)",
+          "tensor(float16)",
+          "tensor(float)"
+        ]
+      },
+      {
+        "description": "the index tensor.",
+        "type_param_str": "T4",
+        "allowed_type_strs": [
+          "tensor(int32)"
         ]
       }
     ]
@@ -32156,6 +32290,12 @@
         "type": "int64",
         "required": false,
         "description": "Number of top experts to select from expert pool"
+      },
+      {
+        "name": "normalize_routing_weights",
+        "type": "int64",
+        "required": false,
+        "description": "Whether to normalize routing weights"
       }
     ],
     "inputs": [
@@ -32172,22 +32312,32 @@
         "type": "T"
       },
       {
-        "name": "fc2_experts_weights",
-        "type": "T"
-      },
-      {
         "name": "fc1_experts_bias",
         "type": "T",
         "option": "optional"
       },
       {
+        "name": "fc2_experts_weights",
+        "type": "T"
+      },
+      {
         "name": "fc2_experts_bias",
+        "type": "T",
+        "option": "optional"
+      },
+      {
+        "name": "fc3_experts_weights",
+        "type": "T",
+        "option": "optional"
+      },
+      {
+        "name": "fc3_experts_bias",
         "type": "T",
         "option": "optional"
       }
     ],
-    "min_input": 4,
-    "max_input": 6,
+    "min_input": 5,
+    "max_input": 8,
     "outputs": [
       {
         "name": "output",
@@ -32196,7 +32346,7 @@
     ],
     "min_output": 1,
     "max_output": 1,
-    "inputs_range": "4 - 6",
+    "inputs_range": "5 - 8",
     "type_constraints": [
       {
         "description": "Constrain input and output types to float or float16 tensors.",
@@ -38932,6 +39082,109 @@
         "allowed_type_strs": [
           "tensor(uint8)",
           "tensor(int8)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "QMoE",
+    "module": "com.microsoft",
+    "version": 1,
+    "attributes": [
+      {
+        "name": "activation_type",
+        "type": "string",
+        "required": false,
+        "description": "Activation function to use. Choose from relu, gelu, silu and identity. Default is relu"
+      },
+      {
+        "name": "k",
+        "type": "int64",
+        "required": false,
+        "description": "Number of top experts to select from expert pool"
+      },
+      {
+        "name": "normalize_routing_weights",
+        "type": "int64",
+        "required": false,
+        "description": "Whether to normalize routing weights"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T"
+      },
+      {
+        "name": "router_probs",
+        "type": "T"
+      },
+      {
+        "name": "fc1_experts_weights",
+        "type": "T1"
+      },
+      {
+        "name": "fc1_scales",
+        "type": "T"
+      },
+      {
+        "name": "fc1_experts_bias",
+        "type": "T",
+        "option": "optional"
+      },
+      {
+        "name": "fc2_experts_weights",
+        "type": "T1"
+      },
+      {
+        "name": "fc2_scales",
+        "type": "T"
+      },
+      {
+        "name": "fc2_experts_bias",
+        "type": "T",
+        "option": "optional"
+      },
+      {
+        "name": "fc3_experts_weights",
+        "type": "T1",
+        "option": "optional"
+      },
+      {
+        "name": "fc3_scales",
+        "type": "T",
+        "option": "optional"
+      },
+      {
+        "name": "fc3_experts_bias",
+        "type": "T",
+        "option": "optional"
+      }
+    ],
+    "min_input": 7,
+    "max_input": 11,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "7 - 11",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float or float16 tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)"
+        ]
+      },
+      {
+        "description": "Constrain weights type to uint8 tensors.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(uint8)"
         ]
       }
     ]
@@ -59748,10 +60001,15 @@
         "name": "extra_decoding_ids",
         "type": "I",
         "option": "optional"
+      },
+      {
+        "name": "temperature",
+        "type": "T",
+        "option": "optional"
       }
     ],
     "min_input": 5,
-    "max_input": 14,
+    "max_input": 15,
     "outputs": [
       {
         "name": "sequences",
@@ -59780,7 +60038,7 @@
     ],
     "min_output": 1,
     "max_output": 5,
-    "inputs_range": "5 - 14",
+    "inputs_range": "5 - 15",
     "outputs_range": "1 - 5",
     "type_constraints": [
       {
