@@ -354,9 +354,15 @@ def _metadata():
         schema = OnnxRuntimeSchema(schema)
         if not schema.key in types:
             types[schema.key] = schema.to_dict()
-    types = [types[key] for key in sorted(types)]
     root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     file = os.path.join(root_dir, 'source', 'onnx-metadata.json')
+    with open(file, 'r', encoding='utf-8') as handle:
+        content = handle.read()
+    for schema in json.loads(content):
+        key = schema['name'] + ':' + schema['module'] + ':' + str(schema['version']).zfill(4)
+        if not key in types:
+            types[key] = schema
+    types = [types[key] for key in sorted(types)]
     content = json.dumps(types, indent=2)
     with open(file, 'w', encoding='utf-8') as handle:
         handle.write(content)
