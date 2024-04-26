@@ -3390,6 +3390,74 @@
   },
   {
     "name": "AveragePool",
+    "module": "com.microsoft.nchwc",
+    "version": 1,
+    "attributes": [
+      {
+        "name": "auto_pad",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "ceil_mode",
+        "type": "int64",
+        "required": false
+      },
+      {
+        "name": "count_include_pad",
+        "type": "int64",
+        "required": false
+      },
+      {
+        "name": "dilations",
+        "type": "int64[]",
+        "required": false
+      },
+      {
+        "name": "kernel_shape",
+        "type": "int64[]",
+        "required": true
+      },
+      {
+        "name": "pads",
+        "type": "int64[]",
+        "required": false
+      },
+      {
+        "name": "strides",
+        "type": "int64[]",
+        "required": false
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)"
+        ]
+      }
+    ],
+    "category": "Pool"
+  },
+  {
+    "name": "AveragePool",
     "module": "com.ms.internal.nhwc",
     "version": 7,
     "attributes": [
@@ -9419,6 +9487,94 @@
       {
         "summary": "conv_with_strides",
         "code": "x = np.array(\n    [\n        [\n            [\n                [0.0, 1.0, 2.0, 3.0, 4.0],  # (1, 1, 7, 5) input tensor\n                [5.0, 6.0, 7.0, 8.0, 9.0],\n                [10.0, 11.0, 12.0, 13.0, 14.0],\n                [15.0, 16.0, 17.0, 18.0, 19.0],\n                [20.0, 21.0, 22.0, 23.0, 24.0],\n                [25.0, 26.0, 27.0, 28.0, 29.0],\n                [30.0, 31.0, 32.0, 33.0, 34.0],\n            ]\n        ]\n    ]\n).astype(np.float32)\nW = np.array(\n    [\n        [\n            [\n                [1.0, 1.0, 1.0],  # (1, 1, 3, 3) tensor for convolution weights\n                [1.0, 1.0, 1.0],\n                [1.0, 1.0, 1.0],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\n# Convolution with strides=2 and padding\nnode_with_padding = onnx.helper.make_node(\n    \"Conv\",\n    inputs=[\"x\", \"W\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[1, 1, 1, 1],\n    strides=[\n        2,\n        2,\n    ],  # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_with_padding = np.array(\n    [\n        [\n            [\n                [12.0, 27.0, 24.0],  # (1, 1, 4, 3) output tensor\n                [63.0, 108.0, 81.0],\n                [123.0, 198.0, 141.0],\n                [112.0, 177.0, 124.0],\n            ]\n        ]\n    ]\n).astype(np.float32)\nexpect(\n    node_with_padding,\n    inputs=[x, W],\n    outputs=[y_with_padding],\n    name=\"test_conv_with_strides_padding\",\n)\n\n# Convolution with strides=2 and no padding\nnode_without_padding = onnx.helper.make_node(\n    \"Conv\",\n    inputs=[\"x\", \"W\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[0, 0, 0, 0],\n    strides=[\n        2,\n        2,\n    ],  # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_without_padding = np.array(\n    [\n        [\n            [\n                [54.0, 72.0],  # (1, 1, 3, 2) output tensor\n                [144.0, 162.0],\n                [234.0, 252.0],\n            ]\n        ]\n    ]\n).astype(np.float32)\nexpect(\n    node_without_padding,\n    inputs=[x, W],\n    outputs=[y_without_padding],\n    name=\"test_conv_with_strides_no_padding\",\n)\n\n# Convolution with strides=2 and padding only along one dimension (the H dimension in NxCxHxW tensor)\nnode_with_asymmetric_padding = onnx.helper.make_node(\n    \"Conv\",\n    inputs=[\"x\", \"W\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[1, 0, 1, 0],\n    strides=[\n        2,\n        2,\n    ],  # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_with_asymmetric_padding = np.array(\n    [\n        [\n            [\n                [21.0, 33.0],  # (1, 1, 4, 2) output tensor\n                [99.0, 117.0],\n                [189.0, 207.0],\n                [171.0, 183.0],\n            ]\n        ]\n    ]\n).astype(np.float32)\nexpect(\n    node_with_asymmetric_padding,\n    inputs=[x, W],\n    outputs=[y_with_asymmetric_padding],\n    name=\"test_conv_with_strides_and_asymmetric_padding\",\n)"
+      }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "Conv",
+    "module": "com.microsoft.nchwc",
+    "version": 1,
+    "attributes": [
+      {
+        "name": "activation",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "activation_params",
+        "type": "float32[]",
+        "required": false
+      },
+      {
+        "name": "auto_pad",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "dilations",
+        "type": "int64[]",
+        "required": false
+      },
+      {
+        "name": "group",
+        "type": "int64",
+        "required": false
+      },
+      {
+        "name": "kernel_shape",
+        "type": "int64[]",
+        "required": false
+      },
+      {
+        "name": "pads",
+        "type": "int64[]",
+        "required": false
+      },
+      {
+        "name": "strides",
+        "type": "int64[]",
+        "required": false
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T"
+      },
+      {
+        "name": "W",
+        "type": "T"
+      },
+      {
+        "name": "B",
+        "type": "T",
+        "option": "optional"
+      },
+      {
+        "name": "Sum",
+        "type": "T",
+        "option": "optional"
+      }
+    ],
+    "min_input": 2,
+    "max_input": 4,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "2 - 4",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)"
+        ]
       }
     ],
     "category": "Layer"
@@ -19753,6 +19909,37 @@
   },
   {
     "name": "GlobalAveragePool",
+    "module": "com.microsoft.nchwc",
+    "version": 1,
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)"
+        ]
+      }
+    ],
+    "category": "Pool"
+  },
+  {
+    "name": "GlobalAveragePool",
     "module": "com.ms.internal.nhwc",
     "version": 1,
     "inputs": [
@@ -20050,6 +20237,37 @@
       {
         "summary": "globalmaxpool_precomputed",
         "code": "node = onnx.helper.make_node(\n    \"GlobalMaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3],\n                [4, 5, 6],\n                [7, 8, 9],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[9]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y], name=\"test_globalmaxpool_precomputed\")"
+      }
+    ],
+    "category": "Pool"
+  },
+  {
+    "name": "GlobalMaxPool",
+    "module": "com.microsoft.nchwc",
+    "version": 1,
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)"
+        ]
       }
     ],
     "category": "Pool"
@@ -30334,6 +30552,74 @@
       {
         "summary": "maxpool_with_argmax_2d_precomputed_strides",
         "code": "\"\"\"input_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\", \"z\"],\n    kernel_shape=[2, 2],\n    strides=[2, 2],\n    storage_order=1,\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4, 5],\n                [6, 7, 8, 9, 10],\n                [11, 12, 13, 14, 15],\n                [16, 17, 18, 19, 20],\n                [21, 22, 23, 24, 25],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[7, 9], [17, 19]]]]).astype(np.float32)\nz = np.array([[[[6, 16], [8, 18]]]]).astype(np.int64)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y, z],\n    name=\"test_maxpool_with_argmax_2d_precomputed_strides\",\n)"
+      }
+    ],
+    "category": "Pool"
+  },
+  {
+    "name": "MaxPool",
+    "module": "com.microsoft.nchwc",
+    "version": 1,
+    "attributes": [
+      {
+        "name": "auto_pad",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "ceil_mode",
+        "type": "int64",
+        "required": false
+      },
+      {
+        "name": "dilations",
+        "type": "int64[]",
+        "required": false
+      },
+      {
+        "name": "kernel_shape",
+        "type": "int64[]",
+        "required": true
+      },
+      {
+        "name": "pads",
+        "type": "int64[]",
+        "required": false
+      },
+      {
+        "name": "storage_order",
+        "type": "int64",
+        "required": false
+      },
+      {
+        "name": "strides",
+        "type": "int64[]",
+        "required": false
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)"
+        ]
       }
     ],
     "category": "Pool"
@@ -45643,6 +45929,85 @@
     ]
   },
   {
+    "name": "ReorderInput",
+    "module": "com.microsoft.nchwc",
+    "version": 1,
+    "attributes": [
+      {
+        "name": "channels_last",
+        "type": "int64",
+        "required": false
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "ReorderOutput",
+    "module": "com.microsoft.nchwc",
+    "version": 1,
+    "attributes": [
+      {
+        "name": "channels",
+        "type": "int64",
+        "required": false
+      },
+      {
+        "name": "channels_last",
+        "type": "int64",
+        "required": false
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "Reshape",
     "module": "ai.onnx",
     "version": 1,
@@ -59674,6 +60039,54 @@
       {
         "summary": "nearest",
         "code": "node = onnx.helper.make_node(\n    \"Upsample\",\n    inputs=[\"X\", \"scales\"],\n    outputs=[\"Y\"],\n    mode=\"nearest\",\n)\n\ndata = np.array(\n    [\n        [\n            [\n                [1, 2],\n                [3, 4],\n            ]\n        ]\n    ],\n    dtype=np.float32,\n)\n\nscales = np.array([1.0, 1.0, 2.0, 3.0], dtype=np.float32)\n\noutput = np.array(\n    [\n        [\n            [\n                [1, 1, 1, 2, 2, 2],\n                [1, 1, 1, 2, 2, 2],\n                [3, 3, 3, 4, 4, 4],\n                [3, 3, 3, 4, 4, 4],\n            ]\n        ]\n    ],\n    dtype=np.float32,\n)\n\nexpect(\n    node,\n    inputs=[data, scales],\n    outputs=[output],\n    name=\"test_upsample_nearest\",\n    opset_imports=[helper.make_opsetid(\"\", 9)],\n)"
+      }
+    ],
+    "category": "Data"
+  },
+  {
+    "name": "Upsample",
+    "module": "com.microsoft.nchwc",
+    "version": 1,
+    "attributes": [
+      {
+        "name": "coordinate_transformation_mode",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "mode",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "scales",
+        "type": "int64[]",
+        "required": false
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)"
+        ]
       }
     ],
     "category": "Data"
