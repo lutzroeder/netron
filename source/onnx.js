@@ -2772,9 +2772,8 @@ onnx.PickleReader = class {
 onnx.DataReader = class {
 
     static open(context) {
-        const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'onnx_data') {
+        const identifier = context.identifier.toLowerCase();
+        if (identifier.endsWith('.onnx_data') || identifier.endsWith('.onnx.data')) {
             return new onnx.DataReader(context, identifier);
         }
         return null;
