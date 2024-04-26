@@ -4276,9 +4276,9 @@
   {
     "type":     "onnx",
     "target":   "test_lstm_with_peepholes.onnx",
-    "source":   "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/node/test_lstm_with_peepholes/model.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/15123905/test_lstm_with_peepholes.onnx.zip[test_lstm_with_peepholes.onnx]",
     "format":   "ONNX v7",
-    "link":     "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
