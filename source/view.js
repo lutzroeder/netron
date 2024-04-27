@@ -5417,7 +5417,7 @@ view.ModelFactoryService = class {
         this.register('./bigdl', ['.model', '.bigdl']);
         this.register('./darknet', ['.cfg', '.model', '.txt', '.weights']);
         this.register('./mediapipe', ['.pbtxt']);
-        this.register('./rknn', ['.rknn', '.nb', '.onnx', '.json']);
+        this.register('./rknn', ['.rknn', '.nb', '.onnx', '.json', '.bin']);
         this.register('./dlc', ['.dlc', 'model', '.params']);
         this.register('./armnn', ['.armnn', '.json']);
         this.register('./mnn', ['.mnn']);
@@ -5897,7 +5897,9 @@ view.ModelFactoryService = class {
                 { name: 'V8 natives blob', value: /^./, identifier: 'natives_blob.bin' },
                 { name: 'ViSQOL model', value: /^svm_type\s/ },
                 { name: 'SenseTime model', value: /^STEF/ },
-                { name: 'AES Crypt data', value: /^AES[\x01|\x02]\x00/ }
+                { name: 'AES Crypt data', value: /^AES[\x01|\x02]\x00/ },
+                { name: 'BModel data', value: /^\xEE\xAA\x55\xFF/ }, // https://github.com/sophgo/tpu-mlir/blob/master/include/tpu_mlir/Builder/BM168x/bmodel.fbs
+                { name: 'CviModel data', value: /^CviModel/ } // https://github.com/sophgo/tpu-mlir/blob/master/include/tpu_mlir/Builder/CV18xx/proto/cvimodel.fbs
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
