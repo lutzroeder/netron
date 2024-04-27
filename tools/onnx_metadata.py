@@ -6,6 +6,7 @@ import os
 import re
 import onnx.backend.test.case # pylint: disable=import-error
 import onnx.defs # pylint: disable=import-error
+import onnx.onnx_ml_pb2 # pylint: disable=import-error
 import onnxruntime # pylint: disable=import-error
 
 categories = {
@@ -113,8 +114,6 @@ class OnnxSchema: # pylint: disable=too-few-public-methods
         return attribute_type_table[attribute_type]
 
     def _get_attr_default_value(self, attr_value):
-        if not str(attr_value):
-            return None
         if attr_value.HasField('i'):
             return attr_value.i
         if attr_value.HasField('s'):
@@ -241,8 +240,6 @@ class OnnxRuntimeSchema: # pylint: disable=too-few-public-methods
         return attribute_type_table[attribute_type]
 
     def _get_attr_default_value(self, attr_value):
-        if not str(attr_value):
-            return None
         if attr_value.HasField('i'):
             return attr_value.i
         if attr_value.HasField('s'):
@@ -260,9 +257,11 @@ class OnnxRuntimeSchema: # pylint: disable=too-few-public-methods
             if attribute_type:
                 value['type'] = attribute_type
             value['required'] = _.required
-            # default_value = self._get_attr_default_value(_._default_value)
-            # if default_value:
-            #     value['default'] = default_value
+            default_value = onnx.onnx_ml_pb2.AttributeProto() # pylint: disable=no-member
+            default_value.ParseFromString(_._default_value) # pylint: disable=protected-access
+            default_value = self._get_attr_default_value(default_value)
+            if default_value:
+                value['default'] = default_value
             description = _format_description(_.description)
             if len(description) > 0:
                 value['description'] = description
