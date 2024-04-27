@@ -3506,6 +3506,9 @@ python.Execution = class {
         this.registerFunction('cloudpickle.cloudpickle._builtin_type', (name) => {
             return name;
         });
+        this.registerFunction('cloudpickle.cloudpickle._make_skeleton_class');
+        this.registerFunction('cloudpickle.cloudpickle._make_function');
+        this.registerFunction('cloudpickle.cloudpickle_fast._function_setstate');
         this.registerType('collections.Counter', class {});
         this.registerFunction('collections.defaultdict', (/* default_factory */) => {
             return {};
@@ -6549,6 +6552,7 @@ python.Execution = class {
         this.registerType('fastai.learner.AvgMetric', class extends fastai.learner.Metric {});
         this.registerType('fastai.learner.AvgSmoothLoss', class extends fastai.learner.Metric {});
         this.registerType('fastai.learner.CastToTensor', class extends fastai.callback.core.Callback {});
+        this.registerType('fastai.learner.Dice', class extends fastai.learner.Metric {});
         this.registerType('fastai.learner.Learner', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.learner.Recorder', class {});
         this.registerType('fastai.losses.BaseLoss', class {});
@@ -6556,6 +6560,7 @@ python.Execution = class {
         this.registerType('fastai.metrics.AccumMetric', class extends fastai.learner.Metric {});
         this.registerFunction('fastai.metrics._rmse');
         this.registerFunction('fastai.metrics.accuracy');
+        this.registerFunction('fastai.metrics.foreground_acc');
         this.registerFunction('fastai.metrics.mse');
         this.registerFunction('fastai.metrics.error_rate');
         this.registerType('fastai.optimizer._BaseOptimizer', class {});
@@ -6609,6 +6614,7 @@ python.Execution = class {
         this.registerType('fastai.vision.core.PILMask', class {});
         this.registerType('fastai.vision.core.AddMaskCodes', class {});
         this.registerFunction('fastai.vision.learner._resnet_split');
+        this.registerFunction('fastai.vision.learner.default_split');
         this.registerType('fastai.learner._ConstantFunc', class {});
         this.registerType('fastai.vision.learner.TimmBody', class {});
         this.registerType('fastai.vision.models.unet.DynamicUnet', class {});
