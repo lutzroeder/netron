@@ -746,41 +746,22 @@ pytorch.TensorShape = class {
 pytorch.Container = class {
 
     static open(context) {
-        const zip = pytorch.Container.Zip.open(context);
-        if (zip) {
-            return zip;
-        }
-        const pickle = pytorch.Container.Pickle.open(context);
-        if (pickle) {
-            return pickle;
-        }
-        const tar = pytorch.Container.Tar.open(context);
-        if (tar) {
-            return tar;
-        }
-        const data = pytorch.Container.data_pkl.open(context);
-        if (data) {
-            return data;
-        }
-        const torch_utils = pytorch.Container.torch_utils.open(context);
-        if (torch_utils) {
-            return torch_utils;
-        }
-        const mobile = pytorch.Container.Mobile.open(context);
-        if (mobile) {
-            return mobile;
-        }
-        const index = pytorch.Container.Index.open(context);
-        if (index) {
-            return index;
-        }
-        const dynamo = pytorch.Container.ExportedProgram.open(context);
-        if (dynamo) {
-            return dynamo;
-        }
-        const executorch = pytorch.Container.ExecuTorch.open(context);
-        if (executorch) {
-            return executorch;
+        const types = [
+            pytorch.Container.Zip,
+            pytorch.Container.Pickle,
+            pytorch.Container.Tar,
+            pytorch.Container.data_pkl,
+            pytorch.Container.torch_utils,
+            pytorch.Container.Mobile,
+            pytorch.Container.Index,
+            pytorch.Container.ExportedProgram,
+            pytorch.Container.ExecuTorch,
+        ];
+        for (const type of types) {
+            const container = type.open(context);
+            if (container) {
+                return container;
+            }
         }
         return null;
     }
