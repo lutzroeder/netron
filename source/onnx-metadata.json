@@ -850,6 +850,7 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "Value of alpha"
       },
       {
@@ -896,6 +897,7 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "Value of alpha"
       },
       {
@@ -2422,6 +2424,7 @@
         "name": "direction",
         "type": "string",
         "required": false,
+        "default": "forward",
         "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional."
       },
       {
@@ -3396,7 +3399,8 @@
       {
         "name": "auto_pad",
         "type": "string",
-        "required": false
+        "required": false,
+        "default": "NOTSET"
       },
       {
         "name": "ceil_mode",
@@ -3475,6 +3479,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding."
       },
       {
@@ -3550,6 +3555,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding."
       },
       {
@@ -3631,6 +3637,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that `output_shape[i] = ceil(input_shape[i] / strides[i])` for each axis `i`. The padding is split between the two sides equally or almost equally (depending on whether it is even or odd). In case the padding is an odd number, the extra padding is added at the end for SAME_UPPER and at the beginning for SAME_LOWER."
       },
       {
@@ -3712,6 +3719,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that `output_shape[i] = ceil(input_shape[i] / strides[i])` for each axis `i`. The padding is split between the two sides equally or almost equally (depending on whether it is even or odd). In case the padding is an odd number, the extra padding is added at the end for SAME_UPPER and at the beginning for SAME_LOWER."
       },
       {
@@ -4500,18 +4508,21 @@
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999747378752e-06,
         "description": "The epsilon value to use to avoid division by zero."
       },
       {
         "name": "momentum",
         "type": "float32",
         "required": false,
+        "default": 0.8999999761581421,
         "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum)."
       },
       {
         "name": "spatial",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "If true, compute the mean and variance across per activation. If false, compute the mean and variance across per feature over each mini-batch."
       }
     ],
@@ -4600,12 +4611,14 @@
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999747378752e-06,
         "description": "The epsilon value to use to avoid division by zero."
       },
       {
         "name": "momentum",
         "type": "float32",
         "required": false,
+        "default": 0.8999999761581421,
         "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum)."
       }
     ],
@@ -4694,12 +4707,14 @@
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999747378752e-06,
         "description": "The epsilon value to use to avoid division by zero."
       },
       {
         "name": "momentum",
         "type": "float32",
         "required": false,
+        "default": 0.8999999761581421,
         "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum)."
       },
       {
@@ -4795,12 +4810,14 @@
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999747378752e-06,
         "description": "The epsilon value to use to avoid division by zero."
       },
       {
         "name": "momentum",
         "type": "float32",
         "required": false,
+        "default": 0.8999999761581421,
         "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum)."
       },
       {
@@ -4902,6 +4919,7 @@
         "name": "decoder_start_token_id",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "The id of the token that indicates decoding starts."
       },
       {
@@ -4950,6 +4968,7 @@
         "name": "vocab_size",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "Size of the vocabulary. If not provided, it will be inferred from the decoder subgraph's output shape"
       }
     ],
@@ -5401,6 +5420,7 @@
         "name": "axis",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "apply softmax to elements for dimensions axis or higher"
       },
       {
@@ -5486,12 +5506,14 @@
         "name": "max_ngram_size",
         "type": "int64",
         "required": false,
+        "default": 3,
         "description": "The maximum NGram size for suffix matching."
       },
       {
         "name": "min_ngram_size",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "The minimum NGram size for suffix matching."
       }
     ],
@@ -6139,6 +6161,7 @@
         "name": "metric",
         "type": "string",
         "required": false,
+        "default": "sqeuclidean",
         "description": "The distance metric to use. If a string, the distance function can be \"braycurtis\", \"canberra\", \"chebyshev\", \"cityblock\", \"correlation\", \"cosine\", \"dice\", \"euclidean\", \"hamming\", \"jaccard\", \"jensenshannon\", \"kulsinski\", \"mahalanobis\", \"matching\", \"minkowski\", \"rogerstanimoto\", \"russellrao\", \"seuclidean\", \"sokalmichener\", \"sokalsneath\", \"sqeuclidean\", \"wminkowski\", \"yule\"."
       }
     ],
@@ -9509,7 +9532,8 @@
       {
         "name": "auto_pad",
         "type": "string",
-        "required": false
+        "required": false,
+        "default": "NOTSET"
       },
       {
         "name": "dilations",
@@ -9519,7 +9543,8 @@
       {
         "name": "group",
         "type": "int64",
-        "required": false
+        "required": false,
+        "default": 1
       },
       {
         "name": "kernel_shape",
@@ -9598,6 +9623,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding."
       },
       {
@@ -9610,6 +9636,7 @@
         "name": "group",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "number of groups input channels and output channels are divided into."
       },
       {
@@ -9689,6 +9716,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that `output_shape[i] = ceil(input_shape[i] / strides[i])` for each axis `i`. The padding is split between the two sides equally or almost equally (depending on whether it is even or odd). In case the padding is an odd number, the extra padding is added at the end for SAME_UPPER and at the beginning for SAME_LOWER."
       },
       {
@@ -9701,6 +9729,7 @@
         "name": "group",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "number of groups input channels and output channels are divided into."
       },
       {
@@ -10289,6 +10318,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding."
       },
       {
@@ -10301,6 +10331,7 @@
         "name": "group",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "number of groups input channels and output channels are divided into."
       },
       {
@@ -10392,6 +10423,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that `output_shape[i] = input_shape[i] * strides[i]` for each axis `i`. The padding is split between the two sides equally or almost equally (depending on whether it is even or odd). In case the padding is an odd number, the extra padding is added at the end for SAME_UPPER and at the beginning for SAME_LOWER."
       },
       {
@@ -10404,6 +10436,7 @@
         "name": "group",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "number of groups input channels and output channels are divided into."
       },
       {
@@ -10484,7 +10517,8 @@
       {
         "name": "auto_pad",
         "type": "string",
-        "required": false
+        "required": false,
+        "default": "NOTSET"
       },
       {
         "name": "dilations",
@@ -10494,7 +10528,8 @@
       {
         "name": "group",
         "type": "int64",
-        "required": false
+        "required": false,
+        "default": 1
       },
       {
         "name": "kernel_shape",
@@ -10830,6 +10865,7 @@
         "name": "mode",
         "type": "string",
         "required": false,
+        "default": "bilinear",
         "description": "The pooling method. Two modes are supported: 'bilinear' and 'nearest'. Default is 'bilinear'."
       }
     ],
@@ -12102,6 +12138,7 @@
         "name": "mode",
         "type": "string",
         "required": false,
+        "default": "DCR",
         "description": "DCR (default) for depth-column-row order re-arrangement. Use CRD for column-row-depth order."
       }
     ],
@@ -12160,6 +12197,7 @@
         "name": "mode",
         "type": "string",
         "required": false,
+        "default": "DCR",
         "description": "DCR (default) for depth-column-row order re-arrangement. Use CRD for column-row-depth order."
       }
     ],
@@ -12219,12 +12257,14 @@
         "name": "block_dim",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "Each bounding box spans this dimension.Typically, the block dimension corresponds to the reduction dimension of the matrix multipication that consumes the output of this operator.For example, for a 2D matrix multiplication A@W, QuantizeBFP(A) would use block_dim 1 and QuantizeBFP(W) would use block_dim 0.The default is the last dimension."
       },
       {
         "name": "dtype",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "The datatype to dequantize to."
       }
     ],
@@ -14221,6 +14261,7 @@
         "name": "direction",
         "type": "string",
         "required": false,
+        "default": "forward",
         "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional."
       },
       {
@@ -14629,6 +14670,7 @@
         "name": "embed_mode",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "1: indicate ep_cache_context is the context content. 0: indicate ep_cache_context is the file path to the context content.The path is relative to this Onnx file. Default is 1."
       },
       {
@@ -14653,6 +14695,7 @@
         "name": "main_context",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "Usually each single EPContext associate with a graph partition.But for some case like QNN, it has single EPContext contains all partitions.In that case, the node with ep_cache_context should set main_context=1. Other nodes set main_context=0 and skip ep_cache_context.The path is relative to this Onnx file. Default is 1."
       },
       {
@@ -15067,6 +15110,7 @@
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999960041972e-13,
         "description": "The epsilon value to use to avoid division by zero."
       },
       {
@@ -16698,7 +16742,8 @@
       {
         "name": "auto_pad",
         "type": "string",
-        "required": false
+        "required": false,
+        "default": "NOTSET"
       },
       {
         "name": "dilations",
@@ -16708,7 +16753,8 @@
       {
         "name": "group",
         "type": "int64",
-        "required": false
+        "required": false,
+        "default": 1
       },
       {
         "name": "kernel_shape",
@@ -16799,12 +16845,14 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "Scalar multiplier for the product of input tensors A * B."
       },
       {
         "name": "beta",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "Scalar multiplier for input tensor C."
       },
       {
@@ -16871,6 +16919,7 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "Scalar multiplier for the product of the input tensors."
       },
       {
@@ -16965,6 +17014,7 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "Scalar multiplier for the product of the input tensors."
       },
       {
@@ -19525,6 +19575,7 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "Scalar multiplier for the product of input tensors A * B."
       },
       {
@@ -19537,6 +19588,7 @@
         "name": "dtype",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "Output Type. Same definition as attribute 'to' for operator Cast."
       },
       {
@@ -20116,6 +20168,7 @@
         "name": "p",
         "type": "int64",
         "required": false,
+        "default": 2,
         "description": "p value of the Lp norm used to pool over the input data."
       }
     ],
@@ -20812,6 +20865,7 @@
         "name": "decoder_start_token_id",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "The id of the token that indicates decoding starts."
       },
       {
@@ -20854,6 +20908,7 @@
         "name": "vocab_size",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "Size of the vocabulary. If not provided, it will be inferred from the decoder subgraph's output shape"
       }
     ],
@@ -21240,12 +21295,14 @@
         "name": "mode",
         "type": "string",
         "required": false,
+        "default": "bilinear",
         "description": "Three interpolation modes: bilinear (default), nearest and bicubic."
       },
       {
         "name": "padding_mode",
         "type": "string",
         "required": false,
+        "default": "zeros",
         "description": "Support padding modes for outside grid values: `zeros`(default), `border`, `reflection`. zeros: use 0 for out-of-bound grid locations, border: use border values for out-of-bound grid locations, reflection: use values at locations reflected by the border for out-of-bound grid locations."
       }
     ],
@@ -21317,12 +21374,14 @@
         "name": "mode",
         "type": "string",
         "required": false,
+        "default": "bilinear",
         "description": "Three interpolation modes: bilinear (default), nearest and bicubic."
       },
       {
         "name": "padding_mode",
         "type": "string",
         "required": false,
+        "default": "zeros",
         "description": "Support padding modes for outside grid values: `zeros`(default), `border`, `reflection`. zeros: use 0 for out-of-bound grid locations, border: use border values for out-of-bound grid locations, reflection: use values at locations reflected by the border for out-of-bound grid locations. If index 0 represents the margin pixel, the reflected value at index -1 will be the same as the value at index 1. For location far away from the border, it will keep being reflected until becoming in bound. If pixel location x = -3.5 reflects by border -1 and becomes x' = 1.5, then reflects by border 1 and becomes x'' = 0.5."
       }
     ],
@@ -21394,12 +21453,14 @@
         "name": "mode",
         "type": "string",
         "required": false,
+        "default": "linear",
         "description": "Three interpolation modes: linear (default), nearest and cubic. The \"linear\" mode includes linear and N-linear interpolation modes depending on the number of spatial dimensions of the input tensor (i.e. linear for 1 spatial dimension, bilinear for 2 spatial dimensions, etc.). The \"cubic\" mode also includes N-cubic interpolation modes following the same rules. The \"nearest\" mode rounds to the nearest even index when the sampling point falls halfway between two indices."
       },
       {
         "name": "padding_mode",
         "type": "string",
         "required": false,
+        "default": "zeros",
         "description": "Support padding modes for outside grid values: `zeros`(default), `border`, `reflection`. zeros: use 0 for out-of-bound grid locations, border: use border values for out-of-bound grid locations, reflection: use values at locations reflected by the border for out-of-bound grid locations. If index 0 represents the margin pixel, the reflected value at index -1 will be the same as the value at index 1. For location far away from the border, it will keep being reflected until becoming in bound. If pixel location x = -3.5 reflects by border -1 and becomes x' = 1.5, then reflects by border 1 and becomes x'' = 0.5."
       }
     ],
@@ -21471,12 +21532,14 @@
         "name": "channels_last",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "1 if the input and output are in the NHWC layout, 0 if it is in the NCHW layout. Defaults to 1."
       },
       {
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999747378752e-06,
         "description": "The epsilon value to use to avoid division by zero"
       },
       {
@@ -21699,6 +21762,7 @@
         "name": "local_window_size",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "left_window_size for local attention (like Mistral). Default value is -1 meaning unused."
       },
       {
@@ -23718,6 +23782,7 @@
         "name": "scale",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "The scale to apply."
       }
     ],
@@ -23765,6 +23830,7 @@
         "name": "scale",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "The scale to apply."
       }
     ],
@@ -24068,6 +24134,7 @@
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999747378752e-06,
         "description": "The epsilon value to use to avoid division by zero."
       }
     ],
@@ -24155,6 +24222,7 @@
         "name": "onesided",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "must be 1, only one sided FFTs supported"
       },
       {
@@ -24725,18 +24793,21 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 9.999999747378752e-05,
         "description": "Scaling parameter."
       },
       {
         "name": "beta",
         "type": "float32",
         "required": false,
+        "default": 0.75,
         "description": "The exponent."
       },
       {
         "name": "bias",
         "type": "float32",
-        "required": false
+        "required": false,
+        "default": 1.0
       },
       {
         "name": "size",
@@ -24783,18 +24854,21 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 9.999999747378752e-05,
         "description": "Scaling parameter."
       },
       {
         "name": "beta",
         "type": "float32",
         "required": false,
+        "default": 0.75,
         "description": "The exponent."
       },
       {
         "name": "bias",
         "type": "float32",
-        "required": false
+        "required": false,
+        "default": 1.0
       },
       {
         "name": "size",
@@ -25828,18 +25902,21 @@
         "name": "axis",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "The first normalization dimension: normalization will be performed along dimensions axis : rank(inputs)."
       },
       {
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999747378752e-06,
         "description": "The epsilon value to use to avoid division by zero."
       },
       {
         "name": "stash_type",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "type used for stash mean/inv_std_var"
       }
     ],
@@ -28566,6 +28643,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that `output_shape[i] = ceil(input_shape[i] / strides[i])` for each axis `i`. The padding is split between the two sides equally or almost equally (depending on whether it is even or odd). In case the padding is an odd number, the extra padding is added at the end for SAME_UPPER and at the beginning for SAME_LOWER."
       },
       {
@@ -28578,6 +28656,7 @@
         "name": "p",
         "type": "int64",
         "required": false,
+        "default": 2,
         "description": "p value of the Lp norm used to pool over the input data."
       },
       {
@@ -28631,6 +28710,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that `output_shape[i] = ceil(input_shape[i] / strides[i])` for each axis `i`. The padding is split between the two sides equally or almost equally (depending on whether it is even or odd). In case the padding is an odd number, the extra padding is added at the end for SAME_UPPER and at the beginning for SAME_LOWER."
       },
       {
@@ -28655,6 +28735,7 @@
         "name": "p",
         "type": "int64",
         "required": false,
+        "default": 2,
         "description": "p value of the Lp norm used to pool over the input data."
       },
       {
@@ -28885,6 +28966,7 @@
         "name": "transB",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "Whether B should be transposed on the last two dimensions before doing multiplication. Default to be 1."
       }
     ],
@@ -28940,6 +29022,7 @@
         "name": "blk_quant_type",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "Quantization type"
       }
     ],
@@ -30564,7 +30647,8 @@
       {
         "name": "auto_pad",
         "type": "string",
-        "required": false
+        "required": false,
+        "default": "NOTSET"
       },
       {
         "name": "ceil_mode",
@@ -30643,6 +30727,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding."
       },
       {
@@ -30712,6 +30797,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding."
       },
       {
@@ -30800,6 +30886,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding."
       },
       {
@@ -30900,6 +30987,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding."
       },
       {
@@ -31000,6 +31088,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that `output_shape[i] = ceil(input_shape[i] / strides[i])` for each axis `i`. The padding is split between the two sides equally or almost equally (depending on whether it is even or odd). In case the padding is an odd number, the extra padding is added at the end for SAME_UPPER and at the beginning for SAME_LOWER."
       },
       {
@@ -31615,7 +31704,8 @@
       {
         "name": "auto_pad",
         "type": "string",
-        "required": false
+        "required": false,
+        "default": "NOTSET"
       },
       {
         "name": "kernel_shape",
@@ -31864,6 +31954,7 @@
         "name": "normalize_variance",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "If 0, normalize the mean only.  Default is 1."
       }
     ],
@@ -32569,12 +32660,14 @@
         "name": "activation_type",
         "type": "string",
         "required": false,
+        "default": "relu",
         "description": "Activation function to use. Choose from relu, gelu, silu and identity. Default is relu"
       },
       {
         "name": "k",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "Number of top experts to select from expert pool"
       },
       {
@@ -33644,6 +33737,7 @@
         "name": "positive",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "If value is 1, output type is uint32_t, else int32_t. Default value is 1."
       },
       {
@@ -34323,7 +34417,8 @@
       {
         "name": "auto_pad",
         "type": "string",
-        "required": false
+        "required": false,
+        "default": "NOTSET"
       },
       {
         "name": "dilations",
@@ -34335,6 +34430,7 @@
         "name": "group",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "number of groups input channels and output channels are divided into."
       },
       {
@@ -34411,7 +34507,8 @@
       {
         "name": "auto_pad",
         "type": "string",
-        "required": false
+        "required": false,
+        "default": "NOTSET"
       },
       {
         "name": "dilations",
@@ -34421,7 +34518,8 @@
       {
         "name": "group",
         "type": "int64",
-        "required": false
+        "required": false,
+        "default": 1
       },
       {
         "name": "kernel_shape",
@@ -34488,7 +34586,8 @@
       {
         "name": "auto_pad",
         "type": "string",
-        "required": false
+        "required": false,
+        "default": "NOTSET"
       },
       {
         "name": "ceil_mode",
@@ -36961,6 +37060,7 @@
         "name": "mode",
         "type": "string",
         "required": false,
+        "default": "constant",
         "description": "Three modes: `constant`(default) - pads with a given constant value, `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis, `edge` - pads with the edge values of array"
       }
     ],
@@ -37644,6 +37744,7 @@
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999960041972e-13,
         "description": "The epsilon value to use to avoid division by zero."
       }
     ],
@@ -37774,6 +37875,7 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "Scalar multiplier for the product of input tensors A * B."
       },
       {
@@ -37963,6 +38065,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding."
       },
       {
@@ -38057,6 +38160,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that the output spatial size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding."
       },
       {
@@ -38360,7 +38464,8 @@
       {
         "name": "auto_pad",
         "type": "string",
-        "required": false
+        "required": false,
+        "default": "NOTSET"
       },
       {
         "name": "channels_last",
@@ -38375,7 +38480,8 @@
       {
         "name": "group",
         "type": "int64",
-        "required": false
+        "required": false,
+        "default": 1
       },
       {
         "name": "kernel_shape",
@@ -38486,6 +38592,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that `output_shape[i] = ceil(input_shape[i] / strides[i])` for each axis `i`. The padding is split between the two sides equally or almost equally (depending on whether it is even or odd). In case the padding is an odd number, the extra padding is added at the end for SAME_UPPER and at the beginning for SAME_LOWER."
       },
       {
@@ -38498,6 +38605,7 @@
         "name": "group",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "number of groups input channels and output channels are divided into. default is 1."
       },
       {
@@ -38612,6 +38720,7 @@
         "name": "auto_pad",
         "type": "string",
         "required": false,
+        "default": "NOTSET",
         "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET"
       },
       {
@@ -38624,6 +38733,7 @@
         "name": "group",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "number of groups input channels and output channels are divided into."
       },
       {
@@ -38804,6 +38914,7 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 0.009999999776482582,
         "description": "Coefficient of leakage."
       }
     ],
@@ -39242,6 +39353,7 @@
         "name": "axis",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "apply softmax to elements for dimensions axis,or all dims along with axis according to op-version"
       },
       {
@@ -39381,12 +39493,14 @@
         "name": "activation_type",
         "type": "string",
         "required": false,
+        "default": "relu",
         "description": "Activation function to use. Choose from relu, gelu, silu and identity. Default is relu"
       },
       {
         "name": "k",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "Number of top experts to select from expert pool"
       },
       {
@@ -39707,24 +39821,28 @@
         "name": "axis",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "The first normalization dimension: normalization will be performed along dimensions axis : rank(inputs)."
       },
       {
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999747378752e-06,
         "description": "The epsilon value to use to avoid division by zero."
       },
       {
         "name": "order_X",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "cublasLt order of input X. Default is ROW MAJOR. See the schema of QuantizeWithOrder for order definition."
       },
       {
         "name": "order_Y",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "cublasLt order of matrix Y, must be same as order_X. Default is ROW MAJOR."
       }
     ],
@@ -40031,6 +40149,7 @@
         "name": "block_dim",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "Each bounding box spans this dimension.Typically, the block dimension corresponds to the reduction dimension of the matrix multipication that consumes the output of this operator.For example, for a 2D matrix multiplication A@W, QuantizeBFP(A) would use block_dim 1 and QuantizeBFP(W) would use block_dim 0.The default is the last dimension."
       }
     ],
@@ -40668,6 +40787,7 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 1.7020000219345093,
         "description": "Alpha value."
       }
     ],
@@ -47787,12 +47907,14 @@
         "name": "coordinate_transformation_mode",
         "type": "string",
         "required": false,
+        "default": "half_pixel",
         "description": "\nThis attribute describes how to transform the coordinate in the resized tensor to the coordinate in the original tensor. <br/>\n\nThe coordinate of each dimension is transformed individually. Let's describe a case using axis x as an example.\nDenote x_resized as the coordinate of axis x in the resized tensor, x_original as the coordinate of axis x in the original tensor, length_original as the length of the original tensor in axis x, length_resized as the length of the resized tensor in axis x, roi_x = (start_x, end_x) of the axis x in input \"roi\", scale = length_resized / length_original, <br/>\n\nif coordinate_transformation_mode is \"half_pixel\", <br/>\nx_original = (x_resized + 0.5) / scale - 0.5, <br/>\n\nif coordinate_transformation_mode is \"pytorch_half_pixel\", <br/>\nx_original = length_resized > 1 ? (x_resized + 0.5) / scale - 0.5 : 0, <br/>\n\nif coordinate_transformation_mode is \"align_corners\", <br/>\nx_original = x_resized * (length_original - 1) / (length_resized - 1), <br/>\n\nif coordinate_transformation_mode is \"asymmetric\", <br/>\nx_original = x_resized / scale, <br/>\n\nif coordinate_transformation_mode is \"tf_half_pixel_for_nn\", <br/>\nx_original = (x_resized + 0.5) / scale, <br/>\n\nif coordinate_transformation_mode is \"tf_crop_and_resize\", <br/>\nx_original = length_resized > 1 ? start_x * (length_original - 1) + x_resized * (end_x - start_x) * (length_original - 1) / (length_resized - 1) : 0.5 * (start_x + end_x) * (length_original - 1)."
       },
       {
         "name": "cubic_coeff_a",
         "type": "float32",
         "required": false,
+        "default": -0.75,
         "description": "The coefficient 'a' used in cubic interpolation. Two common choice are -0.5 (in some cases of TensorFlow) and -0.75 (in PyTorch). Check out Equation (4) in https://ieeexplore.ieee.org/document/1163711 for the details. This attribute is valid only if \"mode\" is \"cubic\"."
       },
       {
@@ -47811,12 +47933,14 @@
         "name": "mode",
         "type": "string",
         "required": false,
+        "default": "nearest",
         "description": "Three interpolation modes: nearest (default), linear and cubic. The \"linear\" mode includes linear interpolation for 1D tensor and N-linear interpolation for N-D tensor (for example, bilinear interpolation for 2D tensor). The \"cubic\" mode includes cubic interpolation for 1D tensor and N-cubic interpolation for N-D tensor (for example, bicubic interpolation for 2D tensor)."
       },
       {
         "name": "nearest_mode",
         "type": "string",
         "required": false,
+        "default": "round_prefer_floor",
         "description": "Four modes: round_prefer_floor (default, as known as round half down), round_prefer_ceil (as known as round half up), floor, ceil. Only used by nearest interpolation. It indicates how to get \"nearest\" pixel in input tensor from x_original, so this attribute is valid only if \"mode\" is \"nearest\"."
       }
     ],
@@ -47892,12 +48016,14 @@
         "name": "coordinate_transformation_mode",
         "type": "string",
         "required": false,
+        "default": "half_pixel",
         "description": "\nThis attribute describes how to transform the coordinate in the resized tensor to the coordinate in the original tensor. <br/>\n\nThe coordinate of each dimension is transformed individually. Let's describe a case using axis x as an example.\nDenote x_resized as the coordinate of axis x in the resized tensor, x_original as the coordinate of axis x in the original tensor, length_original as the length of the original tensor in axis x, length_resized as the length of the resized tensor in axis x, roi_x = (start_x, end_x) of the axis x in input \"roi\", scale = length_resized / length_original, <br/>\n\nif coordinate_transformation_mode is \"half_pixel\", <br/>\nx_original = (x_resized + 0.5) / scale - 0.5, <br/>\n\nif coordinate_transformation_mode is \"pytorch_half_pixel\", <br/>\nx_original = length_resized > 1 ? (x_resized + 0.5) / scale - 0.5 : 0, <br/>\n\nif coordinate_transformation_mode is \"align_corners\", <br/>\nx_original = x_resized * (length_original - 1) / (length_resized - 1), <br/>\n\nif coordinate_transformation_mode is \"asymmetric\", <br/>\nx_original = x_resized / scale, <br/>\n\nif coordinate_transformation_mode is \"tf_crop_and_resize\", <br/>\nx_original = length_resized > 1 ? start_x * (length_original - 1) + x_resized * (end_x - start_x) * (length_original - 1) / (length_resized - 1) : 0.5 * (start_x + end_x) * (length_original - 1)."
       },
       {
         "name": "cubic_coeff_a",
         "type": "float32",
         "required": false,
+        "default": -0.75,
         "description": "The coefficient 'a' used in cubic interpolation. Two common choice are -0.5 (in some cases of TensorFlow) and -0.75 (in PyTorch). Check out Equation (4) in https://ieeexplore.ieee.org/document/1163711 for the details. This attribute is valid only if \"mode\" is \"cubic\"."
       },
       {
@@ -47916,12 +48042,14 @@
         "name": "mode",
         "type": "string",
         "required": false,
+        "default": "nearest",
         "description": "Three interpolation modes: nearest (default), linear and cubic. The \"linear\" mode includes linear interpolation for 1D tensor and N-linear interpolation for N-D tensor (for example, bilinear interpolation for 2D tensor). The \"cubic\" mode includes cubic interpolation for 1D tensor and N-cubic interpolation for N-D tensor (for example, bicubic interpolation for 2D tensor)."
       },
       {
         "name": "nearest_mode",
         "type": "string",
         "required": false,
+        "default": "round_prefer_floor",
         "description": "Four modes: round_prefer_floor (default, as known as round half down), round_prefer_ceil (as known as round half up), floor, ceil. Only used by nearest interpolation. It indicates how to get \"nearest\" pixel in input tensor from x_original, so this attribute is valid only if \"mode\" is \"nearest\"."
       }
     ],
@@ -48012,12 +48140,14 @@
         "name": "coordinate_transformation_mode",
         "type": "string",
         "required": false,
+        "default": "half_pixel",
         "description": "\nThis attribute describes how to transform the coordinate in the resized tensor to the coordinate in the original tensor. <br/>\n\nThe coordinate of each dimension is transformed individually. Let's describe a case using axis x as an example.\nDenote x_resized as the coordinate of axis x in the resized tensor, x_original as the coordinate of axis x in the original tensor, `length_original` as the length of the original tensor in axis x, length_resized as the length of the resized tensor in axis x, roi_x = (start_x, end_x) of the axis x in input \"roi\", `scale = length_resized / length_original`, <br/>\n\nif coordinate_transformation_mode is `\"half_pixel\"`, <br/>\n`x_original = (x_resized + 0.5) / scale - 0.5` <br/>\n\nif coordinate_transformation_mode is `\"pytorch_half_pixel\"`, <br/>\n`x_original = length_resized > 1 ? (x_resized + 0.5) / scale - 0.5 : 0` <br/>\n\nif coordinate_transformation_mode is `\"align_corners\"`, <br/>\n`x_original = x_resized * (length_original - 1) / (length_resized - 1)` <br/>\n\nif coordinate_transformation_mode is `\"asymmetric\"`, <br/>\n`x_original = x_resized / scale` <br/>\n\nif coordinate_transformation_mode is `\"tf_crop_and_resize\"`, <br/>\n`x_original = length_resized > 1 ? start_x * (length_original - 1) + x_resized * (end_x - start_x) * (length_original - 1) / (length_resized - 1) : 0.5 * (start_x + end_x) * (length_original - 1)`\n."
       },
       {
         "name": "cubic_coeff_a",
         "type": "float32",
         "required": false,
+        "default": -0.75,
         "description": "The coefficient 'a' used in cubic interpolation. Two common choice are -0.5 (in some cases of TensorFlow) and -0.75 (in PyTorch). Check out Equation (4) in https://ieeexplore.ieee.org/document/1163711 for the details. This attribute is valid only if mode is \"cubic\"."
       },
       {
@@ -48036,18 +48166,21 @@
         "name": "keep_aspect_ratio_policy",
         "type": "string",
         "required": false,
+        "default": "stretch",
         "description": "\nThis attribute describes how to interpret the `sizes` input with regard to keeping the original aspect ratio of the input, and it is not applicable when\nthe `scales` input is used. <br/>\n\nGiven a set of `sizes`, associated with a subset of `axes` (explicitly provided or default), and assuming `d = axes[i]`, with `i` being the index of the provided `sizes`. <br/>\n\nIf `keep_aspect_ratio_policy` is `\"stretch\"`, the original aspect ratio is disregarded, and the input is resized to the specified size: <br/>\n`out_size[d] = sizes[i]` <br/>\n\nIf `keep_aspect_ratio_policy` is `\"not_larger\"`, the sizes are adjusted so that no extent of the output is larger than the specified size, while keeping the original aspect ratio: <br/>\n`scale = Min(sizes[i] / in_size[d])` <br/>\n`out_size[d] = round_int(scale * in_size[i])` <br/>\n\nIf `keep_aspect_ratio_policy` is `\"not_smaller\"`, the sizes are adjusted so that no extent of the output is smaller than the specified size, while keeping the original aspect ratio: <br/>\n`scale = Max(sizes[i] / in_size[d])` <br/>\n`out_size[d] = round_int(scale * in_size[i])` <br/>\n\nFor non-resizable axes (those not specified in `axes`), the output size will be equal to the input size.\n\nNote: `round_int` stands for computing the nearest integer value, rounding halfway cases up."
       },
       {
         "name": "mode",
         "type": "string",
         "required": false,
+        "default": "nearest",
         "description": "Three interpolation modes: \"nearest\" (default), \"linear\" and \"cubic\". The \"linear\" mode includes linear interpolation for 1D tensor and N-linear interpolation for N-D tensor (for example, bilinear interpolation for 2D tensor). The \"cubic\" mode includes cubic interpolation for 1D tensor and N-cubic interpolation for N-D tensor (for example, bicubic interpolation for 2D tensor)."
       },
       {
         "name": "nearest_mode",
         "type": "string",
         "required": false,
+        "default": "round_prefer_floor",
         "description": "Four modes: \"round_prefer_floor\" (default, as known as round half down), \"round_prefer_ceil\" (as known as round half up), \"floor\", \"ceil\". Only used by nearest interpolation. It indicates how to get \"nearest\" pixel in input tensor from x_original, so this attribute is valid only if \"mode\" is \"nearest\"."
       }
     ],
@@ -48138,12 +48271,14 @@
         "name": "coordinate_transformation_mode",
         "type": "string",
         "required": false,
+        "default": "half_pixel",
         "description": "\nThis attribute describes how to transform the coordinate in the resized tensor to the coordinate in the original tensor.\n\nThe coordinate of each dimension is transformed individually. Let's describe a case using axis x as an example.\nDenote `x_resized` as the coordinate of axis x in the resized tensor,\n `x_original` as the coordinate of axis x in the original tensor,\n `length_original` as the length of the original tensor in axis x,\n `length_resized` as the length of the resized tensor in axis x,\n `scale = length_resized / length_original`,\n `output_width` the target length on the axis x which can be a fractional number when it is calculated out of a scale factor,\n and `output_width_int` the effective output width as an integer.\n\nif coordinate_transformation_mode is `\"half_pixel\"`,\n```\nx_original = (x_resized + 0.5) / scale - 0.5\n```\n\nif coordinate_transformation_mode is `\"half_pixel_symmetric\"`,\n```\nadjustment = output_width_int / output_width\ncenter = input_width / 2\noffset = center * (1 - adjustment)\nx_ori = offset + (x + 0.5) / scale - 0.5\n```\n\nif coordinate_transformation_mode is `\"pytorch_half_pixel\"`,\n```\nx_original = length_resized > 1 ? (x_resized + 0.5) / scale - 0.5 : 0\n```\n\nif coordinate_transformation_mode is `\"align_corners\"`,\n```\nx_original = x_resized * (length_original - 1) / (length_resized - 1)\n```\n\nif coordinate_transformation_mode is `\"asymmetric\"`,\n```\nx_original = x_resized / scale\n```\n\nif coordinate_transformation_mode is `\"tf_crop_and_resize\"`,\n```\nx_original = length_resized > 1 ? start_x * (length_original - 1) + x_resized * (end_x - start_x) * (length_original - 1) / (length_resized - 1) : 0.5 * (start_x + end_x) * (length_original - 1)\n```\n."
       },
       {
         "name": "cubic_coeff_a",
         "type": "float32",
         "required": false,
+        "default": -0.75,
         "description": "The coefficient 'a' used in cubic interpolation. Two common choice are -0.5 (in some cases of TensorFlow) and -0.75 (in PyTorch). Check out Equation (4) in https://ieeexplore.ieee.org/document/1163711 for the details. This attribute is valid only if mode is \"cubic\"."
       },
       {
@@ -48162,18 +48297,21 @@
         "name": "keep_aspect_ratio_policy",
         "type": "string",
         "required": false,
+        "default": "stretch",
         "description": "\nThis attribute describes how to interpret the `sizes` input with regard to keeping the original aspect ratio of the input, and it is not applicable when\nthe `scales` input is used.\n\nGiven a set of `sizes`, associated with a subset of `axes` (explicitly provided or default), and assuming `d = axes[i]`, with `i` being the index of the provided `sizes`.\n\nIf `keep_aspect_ratio_policy` is `\"stretch\"`, the original aspect ratio is disregarded, and the input is resized to the specified size:\n`out_size[d] = sizes[i]`\n\nIf `keep_aspect_ratio_policy` is `\"not_larger\"`, the sizes are adjusted so that no extent of the output is larger than the specified size, while keeping the original aspect ratio:\n```\nscale = Min(sizes[i] / in_size[d])\nout_size[d] = round_int(scale * in_size[i])\n```\n\nIf `keep_aspect_ratio_policy` is `\"not_smaller\"`, the sizes are adjusted so that no extent of the output is smaller than the specified size, while keeping the original aspect ratio:\n```\nscale = Max(sizes[i] / in_size[d])\nout_size[d] = round_int(scale * in_size[i])\n```\n\nFor non-resizable axes (those not specified in `axes`), the output size will be equal to the input size.\n\nNote: `round_int` stands for computing the nearest integer value, rounding halfway cases up."
       },
       {
         "name": "mode",
         "type": "string",
         "required": false,
+        "default": "nearest",
         "description": "Three interpolation modes: \"nearest\" (default), \"linear\" and \"cubic\". The \"linear\" mode includes linear interpolation for 1D tensor and N-linear interpolation for N-D tensor (for example, bilinear interpolation for 2D tensor). The \"cubic\" mode includes cubic interpolation for 1D tensor and N-cubic interpolation for N-D tensor (for example, bicubic interpolation for 2D tensor)."
       },
       {
         "name": "nearest_mode",
         "type": "string",
         "required": false,
+        "default": "round_prefer_floor",
         "description": "Four modes: \"round_prefer_floor\" (default, as known as round half down), \"round_prefer_ceil\" (as known as round half up), \"floor\", \"ceil\". Only used by nearest interpolation. It indicates how to get \"nearest\" pixel in input tensor from x_original, so this attribute is valid only if \"mode\" is \"nearest\"."
       }
     ],
@@ -48377,12 +48515,14 @@
         "name": "onesided",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "must be 1, only one sided FFTs supported"
       },
       {
         "name": "signal_ndim",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "number of dimensions comprising the signal, collected in reverse order (e.g. 1 = last dimension is the signal)"
       }
     ],
@@ -49232,6 +49372,7 @@
         "name": "decoder_start_token_id",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "The id of the token that indicates decoding starts."
       },
       {
@@ -49250,6 +49391,7 @@
         "name": "filter_value",
         "type": "float32",
         "required": false,
+        "default": -1.0000000200408773e+20,
         "description": "All filtered values will be set to this float value."
       },
       {
@@ -49292,6 +49434,7 @@
         "name": "temperature",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "The value used to module the next token probabilities."
       },
       {
@@ -49304,6 +49447,7 @@
         "name": "vocab_size",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "Size of the vocabulary. If not provided, it will be inferred from the decoder subgraph's output shape"
       }
     ],
@@ -49395,6 +49539,7 @@
         "name": "scale",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "The scale to apply."
       }
     ],
@@ -49435,6 +49580,7 @@
         "name": "scale",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "The scale to apply."
       }
     ],
@@ -52522,18 +52668,21 @@
         "name": "axis",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "The first normalization dimension: normalization will be performed along dimensions axis : rank(inputs)."
       },
       {
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999747378752e-06,
         "description": "The epsilon value to use to avoid division by zero."
       },
       {
         "name": "stash_type",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "type used for stash mean/inv_std_var"
       }
     ],
@@ -53029,12 +53178,14 @@
         "name": "channels_last",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "1 if the input and output are in the NHWC layout, 0 if it is in the NCHW layout. Defaults to 1."
       },
       {
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999747378752e-06,
         "description": "The epsilon value to use to avoid division by zero"
       },
       {
@@ -53112,6 +53263,7 @@
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999960041972e-13,
         "description": "The epsilon value to use to avoid division by zero."
       }
     ],
@@ -53193,6 +53345,7 @@
         "name": "epsilon",
         "type": "float32",
         "required": false,
+        "default": 9.999999960041972e-13,
         "description": "The epsilon value to use to avoid division by zero."
       }
     ],
@@ -54777,6 +54930,7 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "Scalar multiplier for the product of the input tensors."
       },
       {
@@ -56939,6 +57093,7 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "Threshold value"
       }
     ],
@@ -57867,6 +58022,7 @@
         "name": "alpha",
         "type": "float32",
         "required": false,
+        "default": 1.0,
         "description": "Scalar multiplier for the product of the input tensors."
       },
       {
@@ -59190,6 +59346,7 @@
         "name": "upper",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "Boolean. Indicates whether upper or lower part of matrix is retained. Default is true."
       }
     ],
@@ -59246,6 +59403,7 @@
         "name": "dim",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "specify the dimension to unfold"
       },
       {
@@ -59258,6 +59416,7 @@
         "name": "step",
         "type": "int64",
         "required": false,
+        "default": 1,
         "description": "specify the step."
       }
     ],
@@ -60051,12 +60210,14 @@
       {
         "name": "coordinate_transformation_mode",
         "type": "string",
-        "required": false
+        "required": false,
+        "default": "asymmetric"
       },
       {
         "name": "mode",
         "type": "string",
-        "required": false
+        "required": false,
+        "default": "nearest"
       },
       {
         "name": "scales",
@@ -60267,6 +60428,7 @@
         "name": "decoder_start_token_id",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "The id of the token that indicates decoding starts (i.e. the start of transcription token id)"
       },
       {
@@ -60297,6 +60459,7 @@
         "name": "model_type",
         "type": "int64",
         "required": false,
+        "default": 2,
         "description": "Must be 2 for whisper"
       },
       {
@@ -60345,6 +60508,7 @@
         "name": "vocab_size",
         "type": "int64",
         "required": false,
+        "default": -1,
         "description": "Size of the vocabulary. If not provided, it will be inferred from the decoder subgraph's output shape"
       }
     ],
