@@ -3576,11 +3576,11 @@ python.Execution = class {
                     return execution.__import__(import_name);
                 }
                 return execution.resolve(import_name);
-            } catch (err) {
+            } catch (error) {
                 if (safe) {
                     return null;
                 }
-                throw err;
+                throw error;
             }
         });
         this.registerFunction('dill._dill._load_type', (name) => {

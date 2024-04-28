@@ -668,9 +668,9 @@ const next = async () => {
             case 'forge': await forge(); break;
             default: throw new Error(`Unsupported task '${task}'.`);
         }
-    } catch (err) {
+    } catch (error) {
         if (process.stdout.write) {
-            process.stdout.write(err.message + os.EOL);
+            process.stdout.write(error.message + os.EOL);
         }
         process.exit(1);
     }

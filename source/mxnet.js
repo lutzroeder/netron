@@ -148,8 +148,8 @@ mxnet.ModelFactory = class {
                         }
                     }
                     return manifest;
-                } catch (err) {
-                    throw new mxnet.Error(`Failed to read manifest. ${err.message}`);
+                } catch (error) {
+                    throw new mxnet.Error(`Failed to read manifest. ${error.message}`);
                 }
             };
             try {
