@@ -130,7 +130,7 @@
   {
     "name": "Dequantize",
     "operator": 19,
-    "category": "Quantization",
+    "category": "Quantization"
   },
   {
     "name": "DetectionOutput",
