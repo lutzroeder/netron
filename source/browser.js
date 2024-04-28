@@ -145,7 +145,8 @@ host.BrowserHost = class {
         if (this._meta.file) {
             const [url] = this._meta.file;
             if (this._view.accept(url)) {
-                const status = await this._openModel(this._url(url), this._meta.identifier || null);
+                const identifier = Array.isArray(this._meta.identifier) && this._meta.identifier.length === 1 ? this._meta.identifier[0] : null;
+                const status = await this._openModel(this._url(url), identifier || null);
                 if (status === '') {
                     return;
                 }
