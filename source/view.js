@@ -205,8 +205,8 @@ view.View = class {
                 });
             }
             await this._host.start();
-        } catch (err) {
-            this.error(err, null, null);
+        } catch (error) {
+            this.error(error, null, null);
         }
     }
 
@@ -587,7 +587,6 @@ view.View = class {
         const knowns = [
             { name: '', message: /^Invalid value identifier/, url: 'https://github.com/lutzroeder/netron/issues/540' },
             { name: '', message: /^Cannot read property/, url: 'https://github.com/lutzroeder/netron/issues/647' },
-            { name: '', message: /^Failed to render tensor/, url: 'https://github.com/lutzroeder/netron/issues/681' },
             { name: 'Error', message: /^EPERM: operation not permitted/, url: 'https://github.com/lutzroeder/netron/issues/551' },
             { name: 'Error', message: /^EACCES: permission denied/, url: 'https://github.com/lutzroeder/netron/issues/504' },
             { name: 'RangeError', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
@@ -809,7 +808,7 @@ view.View = class {
         if (nodes.length > 3000) {
             layout.ranker = 'longest-path';
         }
-        const viewGraph = new view.Graph(this, model, options, groups, layout);
+        const viewGraph = new view.Graph(this, this._host, model, options, groups, layout);
         viewGraph.add(graph, signature);
         // Workaround for Safari background drag/zoom issue:
         // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
@@ -1034,11 +1033,11 @@ view.View = class {
                         }
                     });
                 });
-                nodeSidebar.on('error', (sender, error) => {
+                nodeSidebar.on('exception', (sender, error) => {
                     if (this._model) {
                         error.context = this._model.identifier;
                     }
-                    this.error(error, null, null);
+                    this._host.exception(error, false);
                 });
                 nodeSidebar.on('activate', (sender, value) => {
                     this._graph.select([value]);
@@ -1074,11 +1073,11 @@ view.View = class {
             connectionSidebar.on('select', (sender, value) => {
                 this.scrollTo(this._graph.activate(value));
             });
-            connectionSidebar.on('error', (sender, error) => {
+            connectionSidebar.on('exception', (sender, error) => {
                 if (this._model) {
                     error.context = this._model.identifier;
                 }
-                this.error(error, null, null);
+                this._host.exception(error, false);
             });
             this._sidebar.open(connectionSidebar.render(), 'Connection Properties');
         } catch (error) {
@@ -1632,9 +1631,10 @@ view.Menu.Separator = class {
 
 view.Graph = class extends grapher.Graph {
 
-    constructor(view, model, options, compound, layout) {
+    constructor(view, host, model, options, compound, layout) {
         super(compound, layout);
         this.view = view;
+        this.host = host;
         this.model = model;
         this.options = options;
         this._nodeKey = 0;
@@ -1962,18 +1962,11 @@ view.Node = class extends grapher.Node {
                                 }
                                 separator = ' = ';
                             }
-                        } catch (err) {
-                            let type = '?';
-                            try {
-                                type = value.initializer.type.toString();
-                            } catch {
-                                // continue regardless of error
-                            }
-                            const error = new view.Error(`Failed to render tensor of type '${type}' (${err.message}).`);
+                        } catch (error) {
                             if (this.context.view.model && this.context.view.model.identifier) {
                                 error.context = this.context.view.model.identifier;
                             }
-                            throw error;
+                            this.context.host.exception(error, false);
                         }
                     }
                 }
@@ -2023,7 +2016,7 @@ view.Node = class extends grapher.Node {
 
     toggle() {
         this._expand.content = '-';
-        this._graph = new view.Graph(this.context.view, this.context.model, this.context.options, false, {});
+        this._graph = new view.Graph(this.context.view, this.context.view.host, this.context.model, this.context.options, false, {});
         this._graph.add(this.value);
         // const document = this.element.ownerDocument;
         // const parent = this.element.parentElement;
@@ -2455,7 +2448,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             case 'tensor': {
                 value = new view.ValueView(this._host, { type: attribute.value.type, initializer: attribute.value }, '');
                 value.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
-                value.on('error', (sender, value) => this.emit('error', value));
+                value.on('exception', (sender, value) => this.emit('exception', value));
                 break;
             }
             case 'tensor[]': {
@@ -2482,7 +2475,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         if (input.value.length > 0) {
             const value = new view.ArgumentView(this._host, input);
             value.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
-            value.on('error', (sender, value) => this.emit('error', value));
+            value.on('exception', (sender, value) => this.emit('exception', value));
             value.on('activate', (sender, value) => this.emit('activate', value));
             value.on('deactivate', (sender, value) => this.emit('deactivate', value));
             value.on('select', (sender, value) => this.emit('select', value));
@@ -2708,7 +2701,7 @@ view.ArgumentView = class extends view.Control {
         for (const value of argument.value) {
             const item = new view.ValueView(host, value);
             item.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
-            item.on('error', (sender, value) => this.emit('error', value));
+            item.on('exception', (sender, value) => this.emit('exception', value));
             item.on('activate', (sender, value) => this.emit('activate', value));
             item.on('deactivate', (sender, value) => this.emit('deactivate', value));
             item.on('select', (sender, value) => this.emit('select', value));
@@ -2902,9 +2895,9 @@ view.ValueView = class extends view.Control {
                     this._element.appendChild(this._saveButton);
                 }
             }
-        } catch (err) {
-            contentLine.innerHTML = err.toString();
-            this.emit('error', err);
+        } catch (error) {
+            contentLine.innerHTML = error.toString();
+            this.emit('exception', error);
         }
         const valueLine = this.createElement('div', 'sidebar-item-value-line-border');
         valueLine.appendChild(contentLine);
