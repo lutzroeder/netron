@@ -5050,6 +5050,7 @@ python.Execution = class {
         this.registerFunction('torch.is_grad_enabled', () => {
             return false;
         });
+        this.registerFunction('torch.isfinite');
         this.registerFunction('torch.set_grad_enabled', (/* value */) => {
         });
         this.registerFunction('torch.serialization._get_layout', (name) => {
@@ -5426,6 +5427,8 @@ python.Execution = class {
         });
         this.registerFunction('torch.functional.einsum');
         this.registerFunction('torch.functional.split');
+        this.registerFunction('torch.nn.init.constant_');
+        this.registerFunction('torch.nn.init.xavier_uniform_');
         this.registerFunction('torch.nn.functional.adaptive_avg_pool2d');
         this.registerFunction('torch.nn.functional.cross_entropy');
         this.registerFunction('torch.nn.functional.elu');
