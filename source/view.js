@@ -2805,17 +2805,14 @@ view.ValueView = class extends view.Control {
                         throw new view.Error('Unsupported quantization value.');
                     }
                     const value = new view.Quantization(quantization).toString();
-                    if (value && value !== 'q') {
+                    if (quantization.type && (quantization.type !== 'linear' || (value && value !== 'q'))) {
                         const line = this.createElement('div', 'sidebar-item-value-line-border');
                         const content = [
-                            "<span class='sidebar-item-value-line-content'>",
-                            "quantization: ",
-                            `<b>${quantization.type}</b>`,
-                            "</span>",
-                            "<pre style='margin: 4px 0 2px 0'>",
-                            value,
-                            "</pre>"
+                            `<span class='sidebar-item-value-line-content'>quantization: <b>${quantization.type}</b></span>`
                         ];
+                        if (value) {
+                            content.push(`<pre style='margin: 4px 0 2px 0'>${value}</pre>`);
+                        }
                         line.innerHTML = content.join('');
                         this._element.appendChild(line);
                     }
@@ -3909,26 +3906,26 @@ view.Quantization = class {
             for (let i = 0; i < length; i++) {
                 let s = 'q';
                 let bracket = false;
-                if (i < offset.length && offset[i] !== undefined && offset[i] !== 0) {
+                if (i < offset.length && offset[i] !== undefined && offset[i] !== 0 && offset[i] !== 0n) {
                     const value = offset[i];
                     s = value > 0 ? `${s} - ${value}` : `${s} + ${-value}`;
                     bracket = true;
                 }
-                if (i < scale.length && scale[i] !== undefined && scale[i] !== 1) {
+                if (i < scale.length && scale[i] !== undefined && scale[i] !== 1 && scale[i] !== 1n) {
                     const value = scale[i];
                     s = bracket ? `(${s})` : s;
                     s = `${value} * ${s}`;
                     bracket = true;
                 }
-                if (i < bias.length && bias[i] !== undefined && bias[i] !== 0) {
+                if (i < bias.length && bias[i] !== undefined && bias[i] !== 0 && bias[i] !== 0n) {
                     const value = bias[i];
                     s = bracket ? `(${s})` : s;
                     s = value < 0 ? `${s} - ${-value}` : `${s} + ${value}`;
                 }
-                if (i < min.length && min[i] !== undefined && min[i] !== 0) {
+                if (i < min.length && min[i] !== undefined && min[i] !== 0 && min[i] !== 0n) {
                     s = `${min[i]} \u2264 ${s}`;
                 }
-                if (i < max.length && max[i] !== undefined && max[i] !== 0) {
+                if (i < max.length && max[i] !== undefined && max[i] !== 0 && max[i] !== 0n) {
                     s = `${s} \u2264 ${max[i]}`;
                 }
                 content.push(length > 1 ? `${i.toString().padStart(size, ' ')}: ${s}` : `${s}`);
@@ -3939,7 +3936,7 @@ view.Quantization = class {
             return this.value.map((value, index) => `${index.toString().padStart(size, ' ')}: ${value}`).join('\n');
         } else if (this.type === 'annotation') {
             return Array.from(this.value).map(([name, value]) => `${name} = ${value}`).join('\n');
-        } else if (/^q\d_[01k]$/.test(this.type)) {
+        } else if (/^q\d_[01k]$/.test(this.type) || /^iq\d_[xsnlm]+$/.test(this.type)) {
             return '';
         }
         throw new view.Error(`Unknown quantization type '${this.type}'.`);

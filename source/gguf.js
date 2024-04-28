@@ -103,7 +103,7 @@ gguf.Value = class {
     constructor(name, tensor) {
         this.name = name;
         this.type = tensor.type;
-        this.quantization = tensor.quantization;
+        this.quantization = tensor.quantization || null;
         this.initializer = tensor;
     }
 };
@@ -210,23 +210,34 @@ gguf.Reader = class {
         this.context = context;
         const QK_K = 256;
         gguf.Reader.GGML_QUANT_SIZES = gguf.Reader.GGML_QUANT_SIZES || new Map([
-            [gguf.QuantizationType.F32,  [1, 4, 'float32']],
-            [gguf.QuantizationType.F16,  [1, 2, 'float16']],
-            [gguf.QuantizationType.Q4_0, [32, 2 + 16, '']],
-            [gguf.QuantizationType.Q4_1, [32, 2 + 2 + 16, '']],
-            [gguf.QuantizationType.Q5_0, [32, 2 + 4 + 16, '']],
-            [gguf.QuantizationType.Q5_1, [32, 2 + 2 + 4 + 16, '']],
-            [gguf.QuantizationType.Q8_0, [32, 2 + 32, '']],
-            [gguf.QuantizationType.Q8_1, [32, 4 + 4 + 32, '']],
-            [gguf.QuantizationType.Q2_K, [256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4), '']],
-            [gguf.QuantizationType.Q3_K, [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12, '']],
-            [gguf.QuantizationType.Q4_K, [256, 2 + 2 + Math.floor(QK_K / 2) + 12, '']],
-            [gguf.QuantizationType.Q5_K, [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 8) + 12, '']],
-            [gguf.QuantizationType.Q6_K, [256, 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '']],
-            [gguf.QuantizationType.Q8_K, [256, 4 + QK_K + Math.floor(QK_K / 8), '']],
-            [gguf.QuantizationType.I8,   [1, 4, 'int8']],
-            [gguf.QuantizationType.I16,  [1, 2, 'int16']],
-            [gguf.QuantizationType.I32,  [1, 4, 'int32']]
+            [gguf.QuantizationType.F32,     [1, 4, 'float32']],
+            [gguf.QuantizationType.F16,     [1, 2, 'float16']],
+            [gguf.QuantizationType.Q4_0,    [32, 2 + 16, '']],
+            [gguf.QuantizationType.Q4_1,    [32, 2 + 2 + 16, '']],
+            [gguf.QuantizationType.Q5_0,    [32, 2 + 4 + 16, '']],
+            [gguf.QuantizationType.Q5_1,    [32, 2 + 2 + 4 + 16, '']],
+            [gguf.QuantizationType.Q8_0,    [32, 2 + 32, '']],
+            [gguf.QuantizationType.Q8_1,    [32, 4 + 4 + 32, '']],
+            [gguf.QuantizationType.Q2_K,    [256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4), '']],
+            [gguf.QuantizationType.Q3_K,    [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12, '']],
+            [gguf.QuantizationType.Q4_K,    [256, 2 + 2 + Math.floor(QK_K / 2) + 12, '']],
+            [gguf.QuantizationType.Q5_K,    [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 8) + 12, '']],
+            [gguf.QuantizationType.Q6_K,    [256, 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '']],
+            [gguf.QuantizationType.Q8_K,    [256, 4 + QK_K + Math.floor(QK_K / 8), '']],
+            [gguf.QuantizationType.IQ2_XXS, [256, 2 + Math.floor(QK_K / 4), '']],
+            [gguf.QuantizationType.IQ2_XS,  [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 32), '']],
+            [gguf.QuantizationType.IQ3_XXS, [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8), '']],
+            [gguf.QuantizationType.IQ1_S,   [256, 2 + Math.floor(QK_K / 8) + Math.floor(QK_K / 16), '']],
+            [gguf.QuantizationType.IQ4_NL,  [32, 2 + 16, '']],
+            [gguf.QuantizationType.IQ3_S,   [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + Math.floor(QK_K / 32) + 4, '']],
+            [gguf.QuantizationType.IQ2_S,   [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '']],
+            [gguf.QuantizationType.IQ4_XS,  [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 64), '']],
+            [gguf.QuantizationType.I8,      [1, 1, 'int8']],
+            [gguf.QuantizationType.I16,     [1, 2, 'int16']],
+            [gguf.QuantizationType.I32,     [1, 4, 'int32']],
+            [gguf.QuantizationType.I64,     [1, 8, 'int64']],
+            [gguf.QuantizationType.F64,     [1, 8, 'float64']],
+            [gguf.QuantizationType.IQ1_M,   [256, Math.floor(QK_K / 8) + Math.floor(QK_K / 16)  + Math.floor(QK_K / 32)]]
         ]);
     }
 
@@ -258,16 +269,16 @@ gguf.Reader = class {
                     reader.skip(context.alignment - offset_pad);
                 }
                 context.offset = reader.position;
-                if (context.offset < reader.length) {
-                    for (const tensor of this.tensors.values()) {
-                        reader.seek(context.offset + tensor.offset);
-                        if (!gguf.Reader.GGML_QUANT_SIZES.has(tensor.type)) {
-                            throw new gguf.Error(`Unsupported tensor quantization type '${tensor.type}'.`);
-                        }
-                        const [block_size, type_size, dtype] = gguf.Reader.GGML_QUANT_SIZES.get(tensor.type);
+                for (const tensor of this.tensors.values()) {
+                    if (!gguf.Reader.GGML_QUANT_SIZES.has(tensor.type)) {
+                        throw new gguf.Error(`Unsupported tensor quantization type '${tensor.type}'.`);
+                    }
+                    const [block_size, type_size, dtype] = gguf.Reader.GGML_QUANT_SIZES.get(tensor.type);
+                    tensor.dtype = dtype || '?';
+                    if (context.offset < reader.length) {
                         const n_elems = tensor.ne.reduce((a, b) => a * b, 1);
                         const n_bytes = Math.floor(n_elems * type_size / block_size);
-                        tensor.dtype = dtype || '?';
+                        reader.seek(context.offset + tensor.offset);
                         tensor.data = reader.stream(n_bytes);
                     }
                 }
@@ -284,8 +295,24 @@ gguf.BinaryReader = class {
         this._reader = context.read('binary');
     }
 
+    get length() {
+        return this._reader.length;
+    }
+
+    get position() {
+        return this._reader.position;
+    }
+
+    seek(position) {
+        this._reader.seek(position);
+    }
+
     skip(offset) {
         this._reader.skip(offset);
+    }
+
+    stream(length) {
+        return this._reader.stream(length);
     }
 
     read(length) {
@@ -402,9 +429,20 @@ gguf.QuantizationType = {
     Q5_K: 13,
     Q6_K: 14,
     Q8_K: 15,
-    I8: 16,
-    I16: 17,
-    I32: 18,
+    IQ2_XXS: 16,
+    IQ2_XS: 17,
+    IQ3_XXS: 18,
+    IQ1_S: 19,
+    IQ4_NL: 20,
+    IQ3_S: 21,
+    IQ2_S: 22,
+    IQ4_XS: 23,
+    I8: 24,
+    I16: 25,
+    I32: 26,
+    I64: 27,
+    F64: 28,
+    IQ1_M: 29
 };
 
 gguf.Utility = class {
