@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import re
 import google.protobuf # pylint: disable=import-error
 
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
@@ -87,6 +88,7 @@ def _pbtxt_from_multiline(multiline_pbtxt):
 def _read_op_list(file):
     op_list = op_def_pb2.OpList() # pylint: disable=no-member
     content = _read(file)
+    content = re.sub(r'^go/[a-z]+\s*', '', content)
     google.protobuf.text_format.Merge(content, op_list)
     return op_list
 
