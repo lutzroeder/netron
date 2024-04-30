@@ -253,37 +253,32 @@ host.ElectronHost = class {
         return new this.window.Worker(`${id}.js`, { type: 'module' });
     }
 
-    save(name, extension, defaultPath, callback) {
-        const selectedFile = electron.ipcRenderer.sendSync('show-save-dialog', {
+    async save(name, extension, defaultPath) {
+        return electron.ipcRenderer.sendSync('show-save-dialog', {
             title: 'Export Tensor',
             defaultPath,
             buttonLabel: 'Export',
             filters: [{ name, extensions: [extension] }]
         });
-        if (selectedFile) {
-            callback(selectedFile);
-        }
     }
 
     async export(file, blob) {
         const reader = new FileReader();
         reader.onload = (e) => {
             const data = new Uint8Array(e.target.result);
-            fs.writeFile(file, data, null, (err) => {
+            fs.writeFile(file, data, null, async (err) => {
                 if (err) {
                     this.exception(err, false);
-                    this.error('Error writing file.', err.message);
+                    await this.error('Error writing file.', err.message);
                 }
             });
         };
-
         let err = null;
         if (!blob) {
             err = new Error(`Export blob is '${JSON.stringify(blob)}'.`);
         } else if (!(blob instanceof Blob)) {
             err = new Error(`Export blob type is '${typeof blob}'.`);
         }
-
         if (err) {
             this.exception(err, false);
             await this.error('Error exporting image.', err.message);

@@ -231,11 +231,11 @@ host.BrowserHost = class {
         return new this.window.Worker(`${id}.js`, { type: 'module' });
     }
 
-    save(name, extension, defaultPath, callback) {
-        callback(`${defaultPath}.${extension}`);
+    async save(name, extension, defaultPath) {
+        return `${defaultPath}.${extension}`;
     }
 
-    export(file, blob) {
+    async export(file, blob) {
         const element = this.document.createElement('a');
         element.download = file;
         element.href = URL.createObjectURL(blob);
@@ -458,12 +458,12 @@ host.BrowserHost = class {
             const text = await this._request(url, { 'Content-Type': 'application/json' }, 'utf-8');
             const json = JSON.parse(text);
             if (json.message) {
-                this.error('Error while loading Gist.', json.message);
+                await this.error('Error while loading Gist.', json.message);
                 return;
             }
             const file = Object.values(json.files).find((file) => this._view.accept(file.filename));
             if (!file) {
-                this.error('Error while loading Gist.', 'Gist does not contain a model file.');
+                await this.error('Error while loading Gist.', 'Gist does not contain a model file.');
                 return;
             }
             const identifier = file.filename;

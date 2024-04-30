@@ -103,13 +103,13 @@ view.View = class {
                     file.add({
                         label: 'Export as &PNG',
                         accelerator: 'CmdOrCtrl+Shift+E',
-                        execute: () => this.export(`${this._host.document.title}.png`),
+                        execute: async () => await this.export(`${this._host.document.title}.png`),
                         enabled: () => this.activeGraph
                     });
                     file.add({
                         label: 'Export as &SVG',
                         accelerator: 'CmdOrCtrl+Alt+E',
-                        execute: () => this.export(`${this._host.document.title}.svg`),
+                        execute: async () => await this.export(`${this._host.document.title}.svg`),
                         enabled: () => this.activeGraph
                     });
                 }
@@ -655,9 +655,7 @@ view.View = class {
             }
             return await this._updateGraph(model, stack);
         } catch (error) {
-            if (error && context.identifier) {
-                error.context = context.identifier;
-            }
+            error.context = !error.context && context && context.identifier ? context.identifier : error.context || '';
             throw error;
         }
     }
@@ -902,7 +900,7 @@ view.View = class {
         }
     }
 
-    export(file) {
+    async export(file) {
         const lastIndex = file.lastIndexOf('.');
         const extension = lastIndex === -1 ? 'png' : file.substring(lastIndex + 1).toLowerCase();
         if (this.activeGraph && (extension === 'png' || extension === 'svg')) {
@@ -922,7 +920,6 @@ view.View = class {
             origin.setAttribute('transform', 'translate(0,0) scale(1)');
             background.removeAttribute('width');
             background.removeAttribute('height');
-
             const parent = canvas.parentElement;
             parent.insertBefore(clone, canvas);
             const size = clone.getBBox();
@@ -938,37 +935,43 @@ view.View = class {
             background.setAttribute('width', width);
             background.setAttribute('height', height);
             background.setAttribute('fill', '#fff');
-
             const data = new XMLSerializer().serializeToString(clone);
-
             if (extension === 'svg') {
                 const blob = new Blob([data], { type: 'image/svg' });
-                this._host.export(file, blob);
+                await this._host.export(file, blob);
             }
-
             if (extension === 'png') {
-                const image = new Image();
-                image.onload = () => {
-                    const max = Math.max(width, height);
-                    const scale = Math.min(24000.0 / max, 2.0);
-                    const canvas = this._host.document.createElement('canvas');
-                    canvas.width = Math.ceil(width * scale);
-                    canvas.height = Math.ceil(height * scale);
-                    const context = canvas.getContext('2d');
-                    context.scale(scale, scale);
-                    context.drawImage(image, 0, 0);
-                    canvas.toBlob((blob) => {
-                        if (blob) {
-                            this._host.export(file, blob);
-                        } else {
-                            const error = new Error('Image may be too large to render as PNG.');
-                            error.name = 'Error exporting image.';
-                            this._host.exception(error, false);
-                            this._host.error(error.name, error.message);
-                        }
-                    }, 'image/png');
-                };
-                image.src = `data:image/svg+xml;base64,${this._host.window.btoa(unescape(encodeURIComponent(data)))}`;
+                try {
+                    const blob = await new Promise((resolve, reject) => {
+                        const image = new Image();
+                        image.onload = async () => {
+                            const max = Math.max(width, height);
+                            const scale = Math.min(24000.0 / max, 2.0);
+                            const canvas = this._host.document.createElement('canvas');
+                            canvas.width = Math.ceil(width * scale);
+                            canvas.height = Math.ceil(height * scale);
+                            const context = canvas.getContext('2d');
+                            context.scale(scale, scale);
+                            context.drawImage(image, 0, 0);
+                            canvas.toBlob((blob) => {
+                                if (blob) {
+                                    resolve(blob);
+                                } else {
+                                    const error = new Error('Image may be too large to render as PNG.');
+                                    error.name = 'Error exporting image.';
+                                    reject(error);
+                                }
+                            }, 'image/png');
+                        };
+                        image.onerror = (error) => {
+                            reject(error);
+                        };
+                        image.src = `data:image/svg+xml;base64,${this._host.window.btoa(unescape(encodeURIComponent(data)))}`;
+                    });
+                    await this._host.export(file, blob);
+                } catch (error) {
+                    await this.error(error);
+                }
             }
         }
     }
@@ -994,9 +997,7 @@ view.View = class {
                 const content = modelSidebar.render();
                 this._sidebar.open(content, 'Model Properties');
             } catch (error) {
-                if (error) {
-                    error.context = this._model.identifier;
-                }
+                this._context(error);
                 this.error(error, 'Error showing model properties.', null);
             }
         }
@@ -1012,14 +1013,13 @@ view.View = class {
                 nodeSidebar.on('show-documentation', async (/* sender, e */) => {
                     await this.showDefinition(node.type);
                 });
-                nodeSidebar.on('export-tensor', (sender, tensor) => {
+                nodeSidebar.on('export-tensor', async (sender, tensor) => {
                     const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
-                    this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
+                    const file = await this._host.save('NumPy Array', 'npy', defaultPath);
+                    if (file) {
                         try {
                             let data_type = tensor.type.dataType;
-                            if (data_type === 'boolean') {
-                                data_type = 'bool';
-                            }
+                            data_type = data_type === 'boolean' ? 'bool' : data_type;
                             const execution = new python.Execution();
                             const bytes = execution.invoke('io.BytesIO', []);
                             const dtype = execution.invoke('numpy.dtype', [data_type]);
@@ -1027,16 +1027,14 @@ view.View = class {
                             execution.invoke('numpy.save', [bytes, array]);
                             bytes.seek(0);
                             const blob = new Blob([bytes.read()], { type: 'application/octet-stream' });
-                            this._host.export(file, blob);
+                            await this._host.export(file, blob);
                         } catch (error) {
                             this.error(error, 'Error saving NumPy tensor.', null);
                         }
-                    });
+                    }
                 });
                 nodeSidebar.on('exception', (sender, error) => {
-                    if (this._model) {
-                        error.context = this._model.identifier;
-                    }
+                    this._context(error);
                     this._host.exception(error, false);
                 });
                 nodeSidebar.on('activate', (sender, value) => {
@@ -1050,9 +1048,7 @@ view.View = class {
                 });
                 this._sidebar.open(nodeSidebar.render(), 'Node Properties');
             } catch (error) {
-                if (error) {
-                    error.context = this._model.identifier;
-                }
+                this._context(error);
                 this.error(error, 'Error showing node properties.', null);
             }
         }
@@ -1074,17 +1070,19 @@ view.View = class {
                 this.scrollTo(this._graph.activate(value));
             });
             connectionSidebar.on('exception', (sender, error) => {
-                if (this._model) {
-                    error.context = this._model.identifier;
-                }
+                this._context(error);
                 this._host.exception(error, false);
             });
             this._sidebar.open(connectionSidebar.render(), 'Connection Properties');
         } catch (error) {
-            if (error) {
-                error.context = this._model.identifier;
-            }
+            this._context(error);
             this.error(error, 'Error showing connection properties.', null);
+        }
+    }
+
+    _context(error) {
+        if (error && !error.context) {
+            error.context = this._model && this._model.identifier ? this._model.identifier : '';
         }
     }
 
@@ -1733,7 +1731,7 @@ view.Graph = class extends grapher.Graph {
                 for (const value of output.value) {
                     if (!value) {
                         const error = new view.Error('Invalid null argument.');
-                        error.context = this.model.identifier;
+                        this._context(error);
                         throw error;
                     }
                     if (value.name !== '') {
