@@ -709,7 +709,7 @@ host.ElectronHost.Context = class {
         return await this._host.require(id);
     }
 
-    exception(error, fatal) {
+    error(error, fatal) {
         this._host.exception(error, fatal);
     }
 };

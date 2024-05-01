@@ -18,7 +18,7 @@ torch.ModelFactory = class {
         const reader = context.target;
         reader.callback = (name) => {
             if (name && name !== 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
-                context.exception(new torch.Error(`Unsupported type '${name}'.`));
+                context.error(new torch.Error(`Unsupported type '${name}'.`));
             }
             return null;
         };

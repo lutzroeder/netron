@@ -283,7 +283,7 @@ tf.ModelFactory = class {
                 const bundle = await tf.TensorBundle.open(stream, identifier, context);
                 return openModel(null, `TensorFlow Tensor Bundle v${bundle.format}`, null, bundle);
             } catch (error) {
-                context.exception(error, false);
+                context.error(error, false);
                 throw error;
             }
         };
@@ -1309,7 +1309,7 @@ tf.TensorBundle = class {
             const streams = contexts.map((context) => context.stream);
             return new tf.TensorBundle(format, table.entries, streams);
         } catch (error) {
-            context.exception(error, false);
+            context.error(error, false);
             return new tf.TensorBundle(format, table.entries, null);
         }
     }

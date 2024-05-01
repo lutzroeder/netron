@@ -26,15 +26,15 @@ pickle.ModelFactory = class {
         let format = 'Pickle';
         const obj = context.target;
         if (obj === null || obj === undefined) {
-            context.exception(new pickle.Error("Unsupported Pickle null object."));
+            context.error(new pickle.Error("Unsupported Pickle null object."));
         } else if (obj instanceof Error) {
             throw obj;
         } else if (Array.isArray(obj)) {
             if (obj.length > 0 && obj[0] && obj.every((item) => item && item.__class__ && obj[0].__class__ && item.__class__.__module__ === obj[0].__class__.__module__ && item.__class__.__name__ === obj[0].__class__.__name__)) {
                 const type = `${obj[0].__class__.__module__}.${obj[0].__class__.__name__}`;
-                context.exception(new pickle.Error(`Unsupported Pickle '${type}' array object.`));
+                context.error(new pickle.Error(`Unsupported Pickle '${type}' array object.`));
             } else if (obj.length > 0) {
-                context.exception(new pickle.Error("Unsupported Pickle array object."));
+                context.error(new pickle.Error("Unsupported Pickle array object."));
             }
         } else if (obj && obj.__class__) {
             const formats = new Map([
@@ -44,10 +44,10 @@ pickle.ModelFactory = class {
             if (formats.has(type)) {
                 format = formats.get(type);
             } else {
-                context.exception(new pickle.Error(`Unsupported Pickle type '${type}'.`));
+                context.error(new pickle.Error(`Unsupported Pickle type '${type}'.`));
             }
         } else {
-            context.exception(new pickle.Error('Unsupported Pickle object.'));
+            context.error(new pickle.Error('Unsupported Pickle object.'));
         }
         return new pickle.Model(obj, format);
     }

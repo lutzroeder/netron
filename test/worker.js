@@ -136,7 +136,7 @@ host.TestHost.Context = class {
         return this._host.require(id);
     }
 
-    exception(error, fatal) {
+    error(error, fatal) {
         this._host.exception(error, fatal);
     }
 };
@@ -164,7 +164,7 @@ class DOMTokenList {
 
     add(...tokens) {
         const value = this._element.getAttribute('class') || '';
-        tokens = new Set(value.split(' ').contact(tokens));
+        tokens = new Set(value.split(' ').concat(tokens));
         this._element.setAttribute('class', Array.from(tokens).join(' '));
     }
 
@@ -190,6 +190,10 @@ class HTMLElement {
 
     }
 
+    get childNodes() {
+        return this._childNodes;
+    }
+
     get lastChild() {
         const index = this._childNodes.length - 1;
         if (index >= 0) {
@@ -200,6 +204,13 @@ class HTMLElement {
 
     appendChild(node) {
         this._childNodes.push(node);
+    }
+
+    insertBefore(newNode, referenceNode) {
+        const index = this._childNodes.indexOf(referenceNode);
+        if (index !== -1) {
+            this._childNodes.splice(index, 0, newNode);
+        }
     }
 
     removeChild(node) {
@@ -711,8 +722,11 @@ export class Target {
                         chain.name.length;
                     }
                 }
-                // new dialog.NodeSidebar(host, node);
+                // const sidebar = new view.NodeSidebar(this.host, node);
+                // sidebar.render();
             }
+            const sidebar = new view.ModelSidebar(this.host, this.model, graph);
+            sidebar.render();
         };
         /* eslint-enable no-unused-expressions */
         for (const graph of this.model.graphs) {
