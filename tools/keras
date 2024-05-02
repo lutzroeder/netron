@@ -43,7 +43,7 @@ metadata() {
     echo "keras metadata"
     venv
     if [[ $(grep -U $'\x0D' ./source/keras-metadata.json) ]]; then crlf=1; else crlf=; fi
-    ${python} ./tools/keras_metadata.py
+    ${python} ./tools/keras_script.py
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/keras-metadata.json ./source/keras-metadata.json
     fi

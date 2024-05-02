@@ -110,4 +110,4 @@ const main = async () => {
     await fs.writeFile(file, output, 'utf-8');
 };
 
-main();
+await main();

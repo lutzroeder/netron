@@ -30,7 +30,7 @@ schema() {
 metadata() {
     echo "megengine metadata"
     if [[ $(grep -U $'\x0D' ./source/megengine-metadata.json) ]]; then crlf=1; else crlf=; fi
-    node ./tools/megengine_script.js
+    node ./tools/megengine-script.js
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/megengine-metadata.json ./source/megengine-metadata.json
     fi

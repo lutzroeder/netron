@@ -68,7 +68,7 @@ metadata() {
     echo "tflite metadata"
     export TF_CPP_MIN_LOG_LEVEL=2
     if [[ $(grep -U $'\x0D' ./source/tflite-metadata.json) ]]; then crlf=1; else crlf=; fi
-    node ./tools/tflite_metadata.js
+    node ./tools/tflite-script.js
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/tflite-metadata.json ./source/tflite-metadata.json
     fi
@@ -76,7 +76,7 @@ metadata() {
     venv
     if [[ $(grep -U $'\x0D' ./source/tf-metadata.json) ]]; then crlf=1; else crlf=; fi
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} ./tools/tf_metadata.py
+    ${python} ./tools/tf_script.py
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/tf-metadata.json ./source/tf-metadata.json
     fi
