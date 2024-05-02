@@ -648,7 +648,8 @@ const version = async () => {
     await exec('git push --tags');
 };
 
-const next = async () => {
+const main = async () => {
+    await load();
     try {
         const task = read();
         switch (task) {
@@ -676,4 +677,4 @@ const next = async () => {
     }
 };
 
-load().then(() => next());
+await main();
