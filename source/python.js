@@ -2619,6 +2619,7 @@ python.Execution = class {
         this.registerType('sklearn.ensemble._forest.ExtraTreesClassifier', class {});
         this.registerType('sklearn.ensemble._forest.ExtraTreesRegressor', class {});
         this.registerType('sklearn.ensemble._gb_losses.BinomialDeviance', class {});
+        this.registerType('sklearn.ensemble._gb_losses.ExponentialLoss', class {});
         this.registerType('sklearn.ensemble._gb_losses.LeastSquaresError', class {});
         this.registerType('sklearn.ensemble._gb_losses.MultinomialDeviance', class {});
         this.registerType('sklearn.ensemble._gb.GradientBoostingClassifier', class {});
