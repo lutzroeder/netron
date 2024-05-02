@@ -1313,7 +1313,7 @@ if (typeof process === 'object' &&
     Array.isArray(process.argv) && process.argv.length > 1 &&
     path.basename(process.argv[1]) === 'flatc.js') {
     const args = process.argv.slice(2);
-    main(args);
+    await main(args);
 }
 
 export const Root = flatc.Root;
