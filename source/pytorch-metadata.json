@@ -1209,6 +1209,30 @@
     ]
   },
   {
+    "name": "aten::addcdiv",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "tensor1", "type": "Tensor" },
+      { "name": "tensor2", "type": "Tensor" },
+      { "name": "value", "type": "Scalar", "default": 1 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::addcdiv.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "tensor1", "type": "Tensor" },
+      { "name": "tensor2", "type": "Tensor" },
+      { "name": "value", "type": "Scalar", "default": 1 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::addcmul",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -6066,6 +6090,30 @@
       { "name": "self", "type": "Tensor" },
       { "name": "min_val", "type": "Scalar" },
       { "name": "max_val", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::histc",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "bins", "type": "int64", "default": 100 },
+      { "name": "min", "type": "Scalar", "default": 0 },
+      { "name": "max", "type": "Scalar", "default": 0 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::histc.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "bins", "type": "int64", "default": 100 },
+      { "name": "min", "type": "Scalar", "default": 0 },
+      { "name": "max", "type": "Scalar", "default": 0 }
     ],
     "outputs": [
       { "type": "Tensor" }
