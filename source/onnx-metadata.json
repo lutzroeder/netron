@@ -12399,7 +12399,7 @@
       },
       {
         "summary": "int4",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.INT4, [5], [0, 1, 7, -4, -8])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"zero_point\", TensorProto.INT4, (1,), [1])\ny = np.array([-2, 0, 12, -10, -18], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_int4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.INT4, [5], [0, 1, 7, -4, -8])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"x_zero_point\", TensorProto.INT4, (1,), [1])\ny = np.array([-2, 0, 12, -10, -18], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_int4\",\n)"
       },
       {
         "summary": "uint16",
@@ -12407,7 +12407,7 @@
       },
       {
         "summary": "uint4",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.UINT4, [5], [0, 1, 7, 10, 15])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"zero_point\", TensorProto.UINT4, (1,), [1])\ny = np.array([-2, 0, 12, 18, 28], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_uint4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.UINT4, [5], [0, 1, 7, 10, 15])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"x_zero_point\", TensorProto.UINT4, (1,), [1])\ny = np.array([-2, 0, 12, 18, 28], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_uint4\",\n)"
       }
     ]
   },
@@ -12501,7 +12501,7 @@
       },
       {
         "summary": "int4",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.INT4, [5], [0, 1, 7, -4, -8])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"zero_point\", TensorProto.INT4, (1,), [1])\ny = np.array([-2, 0, 12, -10, -18], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_int4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.INT4, [5], [0, 1, 7, -4, -8])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"x_zero_point\", TensorProto.INT4, (1,), [1])\ny = np.array([-2, 0, 12, -10, -18], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_int4\",\n)"
       },
       {
         "summary": "uint16",
@@ -12509,7 +12509,7 @@
       },
       {
         "summary": "uint4",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.UINT4, [5], [0, 1, 7, 10, 15])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"zero_point\", TensorProto.UINT4, (1,), [1])\ny = np.array([-2, 0, 12, 18, 28], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_uint4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.UINT4, [5], [0, 1, 7, 10, 15])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"x_zero_point\", TensorProto.UINT4, (1,), [1])\ny = np.array([-2, 0, 12, 18, 28], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_uint4\",\n)"
       }
     ]
   },
@@ -12616,7 +12616,7 @@
       },
       {
         "summary": "int4",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.INT4, [5], [0, 1, 7, -4, -8])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"zero_point\", TensorProto.INT4, (1,), [1])\ny = np.array([-2, 0, 12, -10, -18], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_int4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.INT4, [5], [0, 1, 7, -4, -8])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"x_zero_point\", TensorProto.INT4, (1,), [1])\ny = np.array([-2, 0, 12, -10, -18], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_int4\",\n)"
       },
       {
         "summary": "uint16",
@@ -12624,7 +12624,7 @@
       },
       {
         "summary": "uint4",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.UINT4, [5], [0, 1, 7, 10, 15])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"zero_point\", TensorProto.UINT4, (1,), [1])\ny = np.array([-2, 0, 12, 18, 28], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_uint4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.UINT4, [5], [0, 1, 7, 10, 15])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"x_zero_point\", TensorProto.UINT4, (1,), [1])\ny = np.array([-2, 0, 12, 18, 28], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_uint4\",\n)"
       }
     ]
   },
@@ -12741,7 +12741,7 @@
       },
       {
         "summary": "int4",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.INT4, [5], [0, 1, 7, -4, -8])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"zero_point\", TensorProto.INT4, (1,), [1])\ny = np.array([-2, 0, 12, -10, -18], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_int4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.INT4, [5], [0, 1, 7, -4, -8])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"x_zero_point\", TensorProto.INT4, (1,), [1])\ny = np.array([-2, 0, 12, -10, -18], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_int4\",\n)"
       },
       {
         "summary": "uint16",
@@ -12749,7 +12749,7 @@
       },
       {
         "summary": "uint4",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.UINT4, [5], [0, 1, 7, 10, 15])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"zero_point\", TensorProto.UINT4, (1,), [1])\ny = np.array([-2, 0, 12, 18, 28], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_uint4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.UINT4, [5], [0, 1, 7, 10, 15])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"x_zero_point\", TensorProto.UINT4, (1,), [1])\ny = np.array([-2, 0, 12, 18, 28], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_uint4\",\n)"
       }
     ]
   },
@@ -40271,11 +40271,11 @@
       },
       {
         "summary": "e4m3fn",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e4m3fn\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"y_zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e4m3fn\",\n)"
       },
       {
         "summary": "e5m2",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E5M2, [1], [0.0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e5m2\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"y_zero_point\", TensorProto.FLOAT8E5M2, [1], [0.0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e5m2\",\n)"
       },
       {
         "summary": "int16",
@@ -40283,7 +40283,7 @@
       },
       {
         "summary": "int4",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"zero_point\", TensorProto.INT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.INT4, x.shape, [1, 2, 3, 5, -8, -6, 3, 4, 4, 5, 5, 7]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_int4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"y_zero_point\", TensorProto.INT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.INT4, x.shape, [1, 2, 3, 5, -8, -6, 3, 4, 4, 5, 5, 7]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_int4\",\n)"
       },
       {
         "summary": "quantizelinear",
@@ -40295,7 +40295,7 @@
       },
       {
         "summary": "uint4",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"zero_point\", TensorProto.UINT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.UINT4, x.shape, [1, 2, 3, 5, -1, -1, 3, 4, 4, 5, 5, 11]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_uint4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"y_zero_point\", TensorProto.UINT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.UINT4, x.shape, [1, 2, 3, 5, -1, -1, 3, 4, 4, 5, 5, 11]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_uint4\",\n)"
       }
     ]
   },
@@ -40376,11 +40376,11 @@
       },
       {
         "summary": "e4m3fn",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e4m3fn\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"y_zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e4m3fn\",\n)"
       },
       {
         "summary": "e5m2",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E5M2, [1], [0.0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e5m2\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"y_zero_point\", TensorProto.FLOAT8E5M2, [1], [0.0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e5m2\",\n)"
       },
       {
         "summary": "int16",
@@ -40388,7 +40388,7 @@
       },
       {
         "summary": "int4",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"zero_point\", TensorProto.INT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.INT4, x.shape, [1, 2, 3, 5, -8, -6, 3, 4, 4, 5, 5, 7]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_int4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"y_zero_point\", TensorProto.INT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.INT4, x.shape, [1, 2, 3, 5, -8, -6, 3, 4, 4, 5, 5, 7]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_int4\",\n)"
       },
       {
         "summary": "quantizelinear",
@@ -40400,7 +40400,7 @@
       },
       {
         "summary": "uint4",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"zero_point\", TensorProto.UINT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.UINT4, x.shape, [1, 2, 3, 5, -1, -1, 3, 4, 4, 5, 5, 11]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_uint4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"y_zero_point\", TensorProto.UINT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.UINT4, x.shape, [1, 2, 3, 5, -1, -1, 3, 4, 4, 5, 5, 11]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_uint4\",\n)"
       }
     ]
   },
@@ -40494,11 +40494,11 @@
       },
       {
         "summary": "e4m3fn",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e4m3fn\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"y_zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e4m3fn\",\n)"
       },
       {
         "summary": "e5m2",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E5M2, [1], [0.0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e5m2\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"y_zero_point\", TensorProto.FLOAT8E5M2, [1], [0.0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e5m2\",\n)"
       },
       {
         "summary": "int16",
@@ -40506,7 +40506,7 @@
       },
       {
         "summary": "int4",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"zero_point\", TensorProto.INT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.INT4, x.shape, [1, 2, 3, 5, -8, -6, 3, 4, 4, 5, 5, 7]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_int4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"y_zero_point\", TensorProto.INT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.INT4, x.shape, [1, 2, 3, 5, -8, -6, 3, 4, 4, 5, 5, 7]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_int4\",\n)"
       },
       {
         "summary": "quantizelinear",
@@ -40518,7 +40518,7 @@
       },
       {
         "summary": "uint4",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"zero_point\", TensorProto.UINT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.UINT4, x.shape, [1, 2, 3, 5, -1, -1, 3, 4, 4, 5, 5, 11]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_uint4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"y_zero_point\", TensorProto.UINT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.UINT4, x.shape, [1, 2, 3, 5, -1, -1, 3, 4, 4, 5, 5, 11]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_uint4\",\n)"
       }
     ]
   },
@@ -40628,11 +40628,11 @@
       },
       {
         "summary": "e4m3fn",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e4m3fn\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"y_zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e4m3fn\",\n)"
       },
       {
         "summary": "e5m2",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E5M2, [1], [0.0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e5m2\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"y_zero_point\", TensorProto.FLOAT8E5M2, [1], [0.0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e5m2\",\n)"
       },
       {
         "summary": "int16",
@@ -40640,7 +40640,7 @@
       },
       {
         "summary": "int4",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"zero_point\", TensorProto.INT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.INT4, x.shape, [1, 2, 3, 5, -8, -6, 3, 4, 4, 5, 5, 7]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_int4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"y_zero_point\", TensorProto.INT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.INT4, x.shape, [1, 2, 3, 5, -8, -6, 3, 4, 4, 5, 5, 7]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_int4\",\n)"
       },
       {
         "summary": "quantizelinear",
@@ -40652,7 +40652,7 @@
       },
       {
         "summary": "uint4",
-        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"zero_point\", TensorProto.UINT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.UINT4, x.shape, [1, 2, 3, 5, -1, -1, 3, 4, 4, 5, 5, 11]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_uint4\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"y_zero_point\", TensorProto.UINT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.UINT4, x.shape, [1, 2, 3, 5, -1, -1, 3, 4, 4, 5, 5, 11]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_uint4\",\n)"
       }
     ]
   },
@@ -54917,6 +54917,133 @@
           "tensor(bool)",
           "tensor(complex64)",
           "tensor(complex128)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "SparseAttention",
+    "module": "com.microsoft",
+    "version": 1,
+    "attributes": [
+      {
+        "name": "do_rotary",
+        "type": "int64",
+        "required": false,
+        "description": "Whether to use rotary position embedding. Default value is 0."
+      },
+      {
+        "name": "kv_num_heads",
+        "type": "int64",
+        "required": true,
+        "description": "Number of attention heads for key and value"
+      },
+      {
+        "name": "num_heads",
+        "type": "int64",
+        "required": true,
+        "description": "Number of attention heads for query"
+      },
+      {
+        "name": "rotary_interleaved",
+        "type": "int64",
+        "required": false,
+        "description": "Rotary use interleaved pattern or not. Default value is 0."
+      },
+      {
+        "name": "scale",
+        "type": "float32",
+        "required": false,
+        "description": "Scaling factor applied prior to softmax. The default value is 1/sqrt(head_size)"
+      },
+      {
+        "name": "sparse_block_size",
+        "type": "int64",
+        "required": true,
+        "description": "Number of tokens per sparse block. Choices: 16, 32, 64, 128"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "query",
+        "type": "T"
+      },
+      {
+        "name": "key",
+        "type": "T",
+        "option": "optional"
+      },
+      {
+        "name": "value",
+        "type": "T",
+        "option": "optional"
+      },
+      {
+        "name": "past_key",
+        "type": "T",
+        "option": "optional"
+      },
+      {
+        "name": "past_value",
+        "type": "T",
+        "option": "optional"
+      },
+      {
+        "name": "block_mask",
+        "type": "M"
+      },
+      {
+        "name": "total_sequence_length",
+        "type": "M"
+      },
+      {
+        "name": "key_total_sequence_lengths",
+        "type": "M"
+      },
+      {
+        "name": "cos_cache",
+        "type": "T",
+        "option": "optional"
+      },
+      {
+        "name": "sin_cache",
+        "type": "T",
+        "option": "optional"
+      }
+    ],
+    "min_input": 8,
+    "max_input": 10,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T"
+      },
+      {
+        "name": "present_key",
+        "type": "T"
+      },
+      {
+        "name": "present_value",
+        "type": "T"
+      }
+    ],
+    "min_output": 3,
+    "max_output": 3,
+    "inputs_range": "8 - 10",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain integer type.",
+        "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(int32)"
         ]
       }
     ]
