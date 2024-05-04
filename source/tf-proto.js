@@ -6271,6 +6271,9 @@ tensorflow.GPUOptions.Experimental = class Experimental {
                 case 18:
                     message.node_id = reader.int32();
                     break;
+                case 19:
+                    message.stream_merge_options = tensorflow.GPUOptions.Experimental.StreamMergeOptions.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -6336,6 +6339,9 @@ tensorflow.GPUOptions.Experimental = class Experimental {
                 case "node_id":
                     message.node_id = reader.int32();
                     break;
+                case "stream_merge_options":
+                    message.stream_merge_options = tensorflow.GPUOptions.Experimental.StreamMergeOptions.decodeText(reader);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -6361,6 +6367,7 @@ tensorflow.GPUOptions.Experimental.prototype.gpu_host_mem_disallow_growth = fals
 tensorflow.GPUOptions.Experimental.prototype.gpu_system_memory_size_in_mb = 0;
 tensorflow.GPUOptions.Experimental.prototype.populate_pjrt_gpu_client_creation_info = false;
 tensorflow.GPUOptions.Experimental.prototype.node_id = 0;
+tensorflow.GPUOptions.Experimental.prototype.stream_merge_options = null;
 
 tensorflow.GPUOptions.Experimental.VirtualDevices = class VirtualDevices {
 
@@ -6416,6 +6423,59 @@ tensorflow.GPUOptions.Experimental.VirtualDevices = class VirtualDevices {
         return message;
     }
 };
+
+tensorflow.GPUOptions.Experimental.StreamMergeOptions = class StreamMergeOptions {
+
+    static decode(reader, length) {
+        const message = new tensorflow.GPUOptions.Experimental.StreamMergeOptions();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.merge_host_to_device_stream = reader.bool();
+                    break;
+                case 2:
+                    message.merge_device_to_host_stream = reader.bool();
+                    break;
+                case 3:
+                    message.merge_device_to_device_stream = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new tensorflow.GPUOptions.Experimental.StreamMergeOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "merge_host_to_device_stream":
+                    message.merge_host_to_device_stream = reader.bool();
+                    break;
+                case "merge_device_to_host_stream":
+                    message.merge_device_to_host_stream = reader.bool();
+                    break;
+                case "merge_device_to_device_stream":
+                    message.merge_device_to_device_stream = reader.bool();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+tensorflow.GPUOptions.Experimental.StreamMergeOptions.prototype.merge_host_to_device_stream = false;
+tensorflow.GPUOptions.Experimental.StreamMergeOptions.prototype.merge_device_to_host_stream = false;
+tensorflow.GPUOptions.Experimental.StreamMergeOptions.prototype.merge_device_to_device_stream = false;
 
 tensorflow.OptimizerOptions = class OptimizerOptions {
 
