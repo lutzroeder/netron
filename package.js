@@ -199,7 +199,7 @@ const fork = async (organization, repository) => {
 const pullrequest = async (organization, repository, body) => {
     writeLine(`github push ${repository}`);
     await exec(`git -C dist/${repository} push`);
-    writeLine('github pullrequest homebrew-cask');
+    writeLine(`github pullrequest ${repository}`);
     const headers = {
         Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
     };
