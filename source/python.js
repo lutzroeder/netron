@@ -4369,6 +4369,7 @@ python.Execution = class {
         this.registerType('torch.nn.utils.prune.CustomFromMask', class {});
         this.registerType('torch.nn.utils.prune.L1Unstructured', class {});
         this.registerType('torch.nn.utils.prune.LnStructured', class {});
+        this.registerType('torch.nn.utils.prune.PruningContainer', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNorm', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormStateDictHook', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook', class {});
@@ -4382,6 +4383,7 @@ python.Execution = class {
         this.registerType('torch.optim.adadelta.Adadelta', class {});
         this.registerType('torch.optim.lbfgs.LBFGS', class {});
         this.registerType('torch.optim.lr_scheduler.CosineAnnealingLR', class {});
+        this.registerType('torch.optim.lr_scheduler.CosineAnnealingWarmRestarts', class {});
         this.registerType('torch.optim.lr_scheduler.CyclicLR', class {});
         this.registerType('torch.optim.lr_scheduler.ExponentialLR', class {});
         this.registerType('torch.optim.lr_scheduler.LambdaLR', class {});
