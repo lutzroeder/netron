@@ -4318,6 +4318,14 @@
   },
   {
     "type":     "onnx",
+    "target":   "yolov8n.onnx.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/15214443/yolov8n.onnx.zip",
+    "format":   "ONNX v7",
+    "producer": "pytorch 2.1.2",
+    "link":     "https://github.com/lutzroeder/netron/issues/1208"
+  },
+  {
+    "type":     "onnx",
     "target":   "vgg19.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/6558105/vgg19.onnx.zip",
     "format":   "ONNX v3",
