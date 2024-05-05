@@ -3722,8 +3722,8 @@
   },
   {
     "type":     "onnx",
-    "target":   "candy.json",
-    "source":   "https://github.com/lutzroeder/netron/files/12329067/candy.json.zip[candy.json]",
+    "target":   "candy.json.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/12329067/candy.json.zip",
     "assert":   [ "model.graphs[0].nodes[2].attributes[1].visible == false" ],
     "format":   "ONNX JSON v3",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
@@ -3917,8 +3917,8 @@
   },
   {
     "type":     "onnx",
-    "target":   "inception_v1_opset_9.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/11991504/inception_v1_opset_9.onnx.zip[inception_v1_opset_9.onnx]",
+    "target":   "inception_v1_opset_9.onnx.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/15214459/inception_v1_opset_9.onnx.zip",
     "format":   "ONNX v3",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
