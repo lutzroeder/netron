@@ -194,6 +194,10 @@ class HTMLElement {
         return this._childNodes;
     }
 
+    get firstChild() {
+        return this._childNodes.length > 0 ? this._childNodes[0] : null;
+    }
+
     get lastChild() {
         const index = this._childNodes.length - 1;
         if (index >= 0) {

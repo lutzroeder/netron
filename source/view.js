@@ -29,7 +29,7 @@ view.View = class {
         this._stack = [];
         this._selection = [];
         this._sidebar = new view.Sidebar(this._host);
-        this._searchText = '';
+        this._find = null;
         this._modelFactoryService = new view.ModelFactoryService(this._host);
     }
 
@@ -266,8 +266,8 @@ view.View = class {
         if (this._graph) {
             this._graph.select(null);
             const sidebar = new view.FindSidebar(this._host, this.activeGraph, this.activeSignature);
-            sidebar.on('search-text-changed', (sender, text) => {
-                this._searchText = text;
+            sidebar.on('state-changed', (sender, state) => {
+                this._find = state;
             });
             sidebar.on('select', (sender, selection) => {
                 this.scrollTo(this._graph.select([selection]));
@@ -279,7 +279,7 @@ view.View = class {
                 this._graph.blur([selection]);
             });
             this._sidebar.open(sidebar, 'Find');
-            sidebar.focus(this._searchText);
+            sidebar.focus(this._find);
         }
     }
 
@@ -3268,6 +3268,17 @@ view.FindSidebar = class extends view.Control {
         super(host);
         this._graph = graph;
         this._signature = signature;
+        this._state = {
+            query: '',
+            node: true,
+            connection: true,
+            weight: true
+        };
+        this._toggles = {
+            node: { hide: 'Hide Nodes', show: 'Show Nodes' },
+            connection: { hide: 'Hide Connections', show: 'Show Connections' },
+            weight: { hide: 'Hide Weights', show: 'Show Weights' }
+        };
     }
 
     on(event, callback) {
@@ -3284,171 +3295,216 @@ view.FindSidebar = class extends view.Control {
         }
     }
 
-    focus(searchText) {
-        this._searchElement.focus();
-        this._searchElement.value = '';
-        this._searchElement.value = searchText;
-        this.update(searchText);
+    focus(state) {
+        this._state = state || this._state;
+        this._query.focus();
+        this._query.value = '';
+        this._query.value = this._state.query;
+        for (const [name, toggle] of Object.entries(this._toggles)) {
+            toggle.checkbox.checked = this._state[name];
+            toggle.element.setAttribute('title', this._state[name] ? toggle.hide : toggle.show);
+        }
+        this._update();
     }
 
-    update(searchText) {
-        while (this._contentElement.lastChild) {
-            this._contentElement.removeChild(this._contentElement.lastChild);
+    _clear() {
+        this._table.clear();
+        this._index = 0;
+        const unquote = this._state.query.match(new RegExp(/^'(.*)'|"(.*)"$/));
+        if (unquote) {
+            this._exact = true;
+            const term = unquote[1] || unquote[2];
+            this._terms = [term];
+        } else {
+            this._exact = false;
+            this._terms = this._state.query.trim().toLowerCase().split(' ').map((term) => term.trim()).filter((term) => term.length > 0);
         }
-        try {
-            this._table.clear();
-            let index = 0;
-            const add = (value, content) => {
-                const key = index.toString();
-                index++;
-                this._table.set(key, value);
-                const element = this.createElement('li');
-                element.innerText = content;
-                element.setAttribute('data', key);
-                element.addEventListener('pointerover', (e) => {
-                    const identifier = e.target.getAttribute('data');
-                    if (this._table.has(identifier)) {
-                        this.emit('focus', this._table.get(identifier));
+    }
+
+    _term(value) {
+        return this._exact ?
+            value === this._terms[0] :
+            this._terms.every((term) => value && value.toLowerCase().indexOf(term) !== -1);
+    }
+
+    _value(value) {
+        if (this._terms.length === 0) {
+            return true;
+        }
+        if (value.name && this._term(value.name.split('\n').shift())) {
+            return true;
+        }
+        if (value.location && this._term(value.location)) {
+            return true;
+        }
+        if (value.type && !this._exact) {
+            for (const term of this._terms) {
+                if (value.type.dataType && term === value.type.dataType.toLowerCase()) {
+                    return true;
+                }
+                if (value.type.shape) {
+                    if (term === value.type.shape.toString().toLowerCase()) {
+                        return true;
                     }
-                });
-                element.addEventListener('pointerleave', (e) => {
-                    const identifier = e.target.getAttribute('data');
-                    if (this._table.has(identifier)) {
-                        this.emit('blur', this._table.get(identifier));
-                    }
-                });
-                this._contentElement.appendChild(element);
-            };
-            let terms = null;
-            let match = null;
-            const unquote = searchText.match(new RegExp(/^'(.*)'|"(.*)"$/));
-            if (unquote) {
-                const term = unquote[1] || unquote[2];
-                terms = [term];
-                match = (name) => {
-                    return term === name;
-                };
-            } else {
-                terms = searchText.trim().toLowerCase().split(' ').map((term) => term.trim()).filter((term) => term.length > 0);
-                match = (name) => {
-                    return terms.every((term) => name && name.toLowerCase().indexOf(term) !== -1);
-                };
-            }
-            const edges = new Set();
-            const matchValue = (value) => {
-                if (terms.length === 0) {
-                    return true;
-                }
-                if (value.name && match(value.name.split('\n').shift())) {
-                    return true;
-                }
-                if (value.location && match(value.location)) {
-                    return true;
-                }
-                if (value.type) {
-                    for (const term of terms) {
-                        if (value.type.dataType && term === value.type.dataType.toLowerCase()) {
+                    if (value.type.shape && Array.isArray(value.type.shape.dimensions)) {
+                        const dimensions = value.type.shape.dimensions.map((dimension) => dimension ? dimension.toString().toLowerCase() : '');
+                        if (term === dimensions.join(',')) {
                             return true;
                         }
-                        if (value.type.shape) {
-                            if (term === value.type.shape.toString().toLowerCase()) {
-                                return true;
-                            }
-                            if (value.type.shape && Array.isArray(value.type.shape.dimensions)) {
-                                const dimensions = value.type.shape.dimensions.map((dimension) => dimension ? dimension.toString().toLowerCase() : '');
-                                if (term === dimensions.join(',')) {
-                                    return true;
-                                }
-                                if (dimensions.some((dimension) => term === dimension)) {
-                                    return true;
-                                }
-                            }
+                        if (dimensions.some((dimension) => term === dimension)) {
+                            return true;
                         }
                     }
                 }
-                return false;
-            };
+            }
+        }
+        return false;
+    }
+
+    _add(value, content, icon) {
+        const key = this._index.toString();
+        this._index++;
+        this._table.set(key, value);
+        const element = this.createElement('li');
+        element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-find-icon-${icon}"></use></svg>`;
+        const text = this.createElement('span');
+        text.innerText = content;
+        element.appendChild(text);
+        element.setAttribute('data', key);
+        element.addEventListener('pointerover', (e) => {
+            const identifier = e.target.getAttribute('data');
+            if (this._table.has(identifier)) {
+                this.emit('focus', this._table.get(identifier));
+            }
+        });
+        element.addEventListener('pointerleave', (e) => {
+            const identifier = e.target.getAttribute('data');
+            if (this._table.has(identifier)) {
+                this.emit('blur', this._table.get(identifier));
+            }
+        });
+        this._content.appendChild(element);
+    }
+
+    _update() {
+        this._content.innerHTML = '';
+        try {
+            this._clear();
+            const edges = new Set();
             const edge = (value) => {
-                if (value.name && !edges.has(value.name) && matchValue(value)) {
-                    add(value, `\u2192 ${value.name.split('\n').shift()}`); // split custom argument id
+                if (value.name && !edges.has(value.name) && this._value(value)) {
+                    const content = `${value.name.split('\n').shift()}`;
+                    this._add(value, content, 'connection'); // split custom argument id
                     edges.add(value.name);
                 }
             };
             const inputs = this._signature ? this._signature.inputs : this._graph.inputs;
-            for (const input of inputs) {
-                for (const value of input.value) {
-                    edge(value);
+            if (this._state.connection) {
+                for (const input of inputs) {
+                    for (const value of input.value) {
+                        edge(value);
+                    }
                 }
             }
             for (const node of this._graph.nodes) {
-                const initializers = [];
-                for (const input of node.inputs) {
-                    for (const value of input.value) {
-                        if (value.initializer) {
-                            initializers.push(value);
-                        } else {
-                            edge(value);
+                if (this._state.connection) {
+                    for (const input of node.inputs) {
+                        for (const value of input.value) {
+                            if (!value.initializer) {
+                                edge(value);
+                            }
                         }
                     }
                 }
-                const name = node.name;
-                const type = node.type.name;
-                const location = node.location;
-                if ((name && match(name)) || (type && match(type)) || (location && match(location))) {
-                    add(node, `\u25A2 ${name || `[${type}]`}`);
+                if (this._state.node) {
+                    const name = node.name;
+                    const type = node.type.name;
+                    const location = node.location;
+                    if ((name && this._term(name)) || (type && this._term(type)) || (location && this._term(location))) {
+                        const content = `${name || `[${type}]`}`;
+                        this._add(node, content, 'node');
+                    }
                 }
-                for (const value of initializers) {
-                    if (value.name && !edges.has(value.name) && matchValue(value)) {
-                        add(node, `\u25CF ${value.name.split('\n').shift()}`); // split custom argument id
+                if (this._state.weight) {
+                    for (const input of node.inputs) {
+                        for (const value of input.value) {
+                            if (value.initializer && value.name && !edges.has(value.name) && this._value(value)) {
+                                const content = `${value.name.split('\n').shift()}`;
+                                this._add(node, content, 'weight'); // split custom argument id
+                            }
+                        }
                     }
                 }
             }
-            const outputs = this._signature ? this._signature.outputs : this._graph.inputs;
-            for (const output of outputs) {
-                for (const value of output.value) {
-                    edge(value);
+            if (this._state.connection) {
+                const outputs = this._signature ? this._signature.outputs : this._graph.inputs;
+                for (const output of outputs) {
+                    for (const value of output.value) {
+                        edge(value);
+                    }
                 }
             }
         } catch (error) {
             this.error(error, false);
         }
-        this._contentElement.style.display = this._contentElement.childNodes.length === 0 ? 'none' : 'block';
     }
 
     render() {
         this._table = new Map();
-        this._searchElement = this.createElement('input', 'sidebar-find-search');
-        this._contentElement = this.createElement('ol', 'sidebar-find-content');
-        this._searchElement.setAttribute('id', 'search');
-        this._searchElement.setAttribute('type', 'text');
-        this._searchElement.setAttribute('spellcheck', 'false');
-        this._searchElement.setAttribute('placeholder', 'Search');
-        this._searchElement.addEventListener('input', (e) => {
-            this.update(e.target.value);
-            this.emit('search-text-changed', e.target.value);
+        this._search = this.createElement('div', 'sidebar-find-search');
+        this._query = this.createElement('input', 'sidebar-find-query');
+        this._search.appendChild(this._query);
+        this._content = this.createElement('ol', 'sidebar-find-content');
+        this._elements = [this._query, this._content];
+        this._query.setAttribute('id', 'search');
+        this._query.setAttribute('type', 'text');
+        this._query.setAttribute('spellcheck', 'false');
+        this._query.setAttribute('placeholder', 'Search');
+        this._query.addEventListener('input', (e) => {
+            this._state.query = e.target.value;
+            this.emit('state-changed', this._state);
+            this._update();
         });
-        this._searchElement.addEventListener('keydown', (e) => {
+        this._query.addEventListener('keydown', (e) => {
             if (e.keyCode === 0x08 && !e.altKey && !e.ctrlKey && !e.shiftKey && !e.metaKey) {
                 e.stopPropagation();
             }
         });
-        this._contentElement.addEventListener('click', (e) => {
-            const identifier = e.target.getAttribute('data');
-            if (this._table.has(identifier)) {
-                this.emit('select', this._table.get(identifier));
+        for (const [name, toggle] of Object.entries(this._toggles)) {
+            toggle.element = this.createElement('label', 'sidebar-find-toggle');
+            toggle.element.innerHTML = `<svg class='sidebar-find-toggle-icon'><use href="#sidebar-find-icon-${name}"></use></svg>`;
+            toggle.element.setAttribute('title', this._state[name] ? toggle.hide : toggle.show);
+            toggle.checkbox = this.createElement('input');
+            toggle.checkbox.setAttribute('type', 'checkbox');
+            toggle.checkbox.setAttribute('data', name);
+            toggle.checkbox.addEventListener('change', (e) => {
+                const name = e.target.getAttribute('data');
+                this._state[name] = e.target.checked;
+                const toggle = this._toggles[name];
+                toggle.element.setAttribute('title', e.target.checked ? toggle.hide : toggle.show);
+                this.emit('state-changed', this._state);
+                this._update();
+            });
+            toggle.element.insertBefore(toggle.checkbox, toggle.element.firstChild);
+            this._search.appendChild(toggle.element);
+        }
+        this._content.addEventListener('click', (e) => {
+            const name = e.target.getAttribute('data');
+            if (this._table.has(name)) {
+                this.emit('select', this._table.get(name));
             }
         });
     }
 
     get element() {
-        return [this._searchElement, this._contentElement];
+        return [this._search, this._content];
     }
 
     error(error, fatal) {
         super.error(error, fatal);
         const element = this.createElement('li');
         element.innerHTML = `<b>ERROR:</b> ${error.message}`;
-        this._contentElement.appendChild(element);
+        this._content.appendChild(element);
     }
 };
 
