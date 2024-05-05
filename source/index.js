@@ -104,7 +104,16 @@ window.addEventListener('error', function (event) {
 window.addEventListener('load', function() {
     if (typeof Symbol !== 'function' || typeof Symbol.asyncIterator !== 'symbol' ||
         typeof BigInt !== 'function' || typeof BigInt.asIntN !== 'function' || typeof BigInt.asUintN !== 'function' || typeof DataView.prototype.getBigInt64 !== 'function') {
-        throw new Error('Your browser is not supported.');
+        throw new Error('Please update your browser to use this application.');
+    }
+    var ua = window.navigator.userAgent;
+    var chrome = ua.match(/Chrom(e|ium)\/([0-9]+)\./);
+    if (Array.isArray(chrome) && parseInt(chrome[1], 10) < 80) {
+        throw new Error('Please update your browser to use this application.');
+    }
+    var safari = ua.match(/Version\/(\d+).*Safari/);
+    if (Array.isArray(safari) && parseInt(safari[1], 10) < 15) {
+        throw new Error('Please update your browser to use this application.');
     }
     window.exports.preload(function(value, error) {
         if (error) {
