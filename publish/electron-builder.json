@@ -1,0 +1,104 @@
+{
+    "appId": "com.lutzroeder.netron",
+    "productName": "Netron",
+    "files": [ "source/**/*" ],
+    "directories": { "buildResources": "./publish" },
+    "fileAssociations": [
+        { "ext": "armnn",       "name": "Arm NN Model"             },
+        { "ext": "caffemodel",  "name": "Caffe Model"              },
+        { "ext": "circle",      "name": "Circle Model"             },
+        { "ext": "ckpt",        "name": "Model Checkpoint"         },
+        { "ext": "cmf",         "name": "CNTK Model"               },
+        { "ext": "dlc",         "name": "DLC Model"                },
+        { "ext": "dnn",         "name": "CNTK Model"               },
+        { "ext": "gguf",        "name": "GGUF Model"               },
+        { "ext": "h5",          "name": "Keras Model"              },
+        { "ext": "har",         "name": "Hailo Model"              },
+        { "ext": "hd5",         "name": "Keras Model"              },
+        { "ext": "hdf5",        "name": "Keras Model"              },
+        { "ext": "hn",          "name": "Hailo Model"              },
+        { "ext": "keras",       "name": "Keras Model"              },
+        { "ext": "kmodel",      "name": "Kendryte Model"           },
+        { "ext": "lite",        "name": "TensorFlow Lite Model"    },
+        { "ext": "mar",         "name": "MXNet Model"              },
+        { "ext": "maxviz",      "name": "Modular Model"            },
+        { "ext": "meta",        "name": "TensorFlow Meta Graph"    },
+        { "ext": "mge",         "name": "MegEngine Mge Model"      },
+        { "ext": "mlmodel",     "name": "Core ML Model"            },
+        { "ext": "mlnet",       "name": "ML.NET Model"             },
+        { "ext": "mlpackage",   "name": "Core ML Model Package", "isPackage": true },
+        { "ext": "mnn",         "name": "MNN Model"                },
+        { "ext": "model",       "name": "Model"                    },
+        { "ext": "nb",          "name": "Paddle Lite Model"        },
+        { "ext": "ngf",         "name": "ONNX Model"               },
+        { "ext": "nn",          "name": "Barracuda Model"          },
+        { "ext": "nnp",         "name": "Neural Network Libraries" },
+        { "ext": "npy",         "name": "NumPy Array"              },
+        { "ext": "npz",         "name": "NumPy Archive"            },
+        { "ext": "om",          "name": "DaVinci OM Model"         },
+        { "ext": "onnx",        "name": "ONNX Model"               },
+        { "ext": "ort",         "name": "ONNX Runtime Model"       },
+        { "ext": "paddle",      "name": "PaddlePaddle Model"       },
+        { "ext": "param",       "name": "NCNN Model"               },
+        { "ext": "pb",          "name": "Protocol Buffer"          },
+        { "ext": "pbtxt",       "name": "Text Protocol Buffer"     },
+        { "ext": "pdiparams",   "name": "PaddlePaddle Model"       },
+        { "ext": "pdmodel",     "name": "PaddlePaddle Model"       },
+        { "ext": "pdopt",       "name": "PaddlePaddle Model"       },
+        { "ext": "pdparams",    "name": "PaddlePaddle Model"       },
+        { "ext": "pkl",         "name": "Pickle Model"             },
+        { "ext": "prototxt",    "name": "Text Protocol Buffer"     },
+        { "ext": "pt",          "name": "PyTorch Model"            },
+        { "ext": "pt2",         "name": "PyTorch Model"            },
+        { "ext": "pth",         "name": "PyTorch Model"            },
+        { "ext": "ptl",         "name": "PyTorch Model"            },
+        { "ext": "rknn",        "name": "RKNN Model"               },
+        { "ext": "safetensors", "name": "Safetensors Checkpoint"   },
+        { "ext": "t7",          "name": "Torch Model"              },
+        { "ext": "tfl",         "name": "TensorFlow Lite Model"    },
+        { "ext": "tflite",      "name": "TensorFlow Lite Model"    },
+        { "ext": "tmfile",      "name": "Tengine Model"            },
+        { "ext": "tm",          "name": "MegEngine Traced Model"   },
+        { "ext": "tnnproto",    "name": "TNN Model"                },
+        { "ext": "torchscript", "name": "PyTorch Model"            },
+        { "ext": "uff",         "name": "UFF Model"                },
+        { "ext": "xmodel",      "name": "Vitis AI Model"           }
+    ],
+    "publish": [
+        { "provider": "github", "releaseType": "release" }
+    ],
+    "linux": {
+        "target": [ "AppImage", "snap" ]
+    },
+    "mac": {
+        "artifactName": "${productName}-${version}-mac.${ext}",
+        "category": "public.app-category.developer-tools",
+        "darkModeSupport": true,
+        "gatekeeperAssess": false,
+        "hardenedRuntime": true,
+        "notarize": true,
+        "target": [ "dmg", "zip" ]
+    },
+    "win": {
+        "target": [ "nsis" ],
+        "signingHashAlgorithms": [ "sha256" ],
+        "verifyUpdateCodeSignature": false
+    },
+    "dmg": {
+        "artifactName": "${productName}-${version}.${ext}",
+        "title": "${productName} ${version}",
+        "writeUpdateInfo": false,
+        "iconSize": 160,
+        "contents": [
+            { "x": 180, "y": 170 },
+            { "x": 480, "y": 170, "type": "link", "path": "/Applications" }
+        ]
+    },
+    "nsis": {
+        "differentialPackage": false
+    },
+    "snap": {
+        "plugs": [ "default", "removable-media" ],
+        "publish": [ { "provider": "snapStore", "channels": [ "stable" ] } ]
+    }
+}

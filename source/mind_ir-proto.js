@@ -1,3 +1,4 @@
+export const protobuf = {};
 const $root = protobuf.get('mind_ir');
 
 $root.mind_ir = {};
@@ -21,7 +22,7 @@ $root.mind_ir.AttributeProto = class AttributeProto {
 
     static decode(reader, length) {
         const message = new $root.mind_ir.AttributeProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -141,7 +142,7 @@ $root.mind_ir.ValueInfoProto = class ValueInfoProto {
 
     static decode(reader, length) {
         const message = new $root.mind_ir.ValueInfoProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -184,7 +185,7 @@ $root.mind_ir.NodeProto = class NodeProto {
 
     static decode(reader, length) {
         const message = new $root.mind_ir.NodeProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -232,7 +233,7 @@ $root.mind_ir.ModelProto = class ModelProto {
 
     static decode(reader, length) {
         const message = new $root.mind_ir.ModelProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -304,7 +305,7 @@ $root.mind_ir.PreprocessorProto = class PreprocessorProto {
 
     static decode(reader, length) {
         const message = new $root.mind_ir.PreprocessorProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -322,12 +323,9 @@ $root.mind_ir.PreprocessorProto = class PreprocessorProto {
 
 $root.mind_ir.PreprocessOpProto = class PreprocessOpProto {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new $root.mind_ir.PreprocessOpProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -377,7 +375,7 @@ $root.mind_ir.GraphProto = class GraphProto {
 
     static decode(reader, length) {
         const message = new $root.mind_ir.GraphProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -439,7 +437,7 @@ $root.mind_ir.TensorProto = class TensorProto {
 
     static decode(reader, length) {
         const message = new $root.mind_ir.TensorProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -544,12 +542,9 @@ $root.mind_ir.TensorProto.CompressionType = {
 
 $root.mind_ir.TensorProto.ExternalDataProto = class ExternalDataProto {
 
-    constructor() {
-    }
-
     static decode(reader, length) {
         const message = new $root.mind_ir.TensorProto.ExternalDataProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -587,7 +582,7 @@ $root.mind_ir.TensorProto.QuantParamProto = class QuantParamProto {
 
     static decode(reader, length) {
         const message = new $root.mind_ir.TensorProto.QuantParamProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -619,7 +614,7 @@ $root.mind_ir.ParallelProto = class ParallelProto {
 
     static decode(reader, length) {
         const message = new $root.mind_ir.ParallelProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -645,7 +640,7 @@ $root.mind_ir.LayoutProto = class LayoutProto {
 
     static decode(reader, length) {
         const message = new $root.mind_ir.LayoutProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
@@ -692,7 +687,7 @@ $root.mind_ir.PrimitiveProto = class PrimitiveProto {
 
     static decode(reader, length) {
         const message = new $root.mind_ir.PrimitiveProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
+        const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
