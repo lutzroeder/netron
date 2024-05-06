@@ -361,11 +361,16 @@ base.BufferReader = class {
         }
     }
 
-    align(mod) {
-        const remainder = this.position % mod;
+    align(size) {
+        const remainder = this.position % size;
         if (remainder !== 0) {
-            this.skip(mod - remainder);
+            this.skip(size - remainder);
         }
+    }
+
+    stream(length) {
+        const buffer = this.read(length);
+        return new base.BinaryStream(buffer);
     }
 
     peek(length) {
@@ -488,10 +493,10 @@ base.StreamReader = class {
         this._stream.skip(offset);
     }
 
-    align(mod) {
-        const remainder = this.position % mod;
+    align(size) {
+        const remainder = this.position % size;
         if (remainder !== 0) {
-            this.skip(mod - remainder);
+            this.skip(size - remainder);
         }
     }
 
