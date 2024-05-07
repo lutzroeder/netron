@@ -12524,7 +12524,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "(Optional) The axis of the dequantizing dimension of the input tensor. Ignored for per-tensor quantization. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input)."
+        "description": "(Optional) The axis of the dequantizing dimension of the input tensor. Used only for per-axis quantization. Negative value means counting dimensions from the back. Accepted range is `[-r, r-1]` where `r = rank(input)`. When the rank of the input is 1, per-tensor quantization is applied, rendering the axis unnecessary in this scenario."
       }
     ],
     "inputs": [
@@ -25986,7 +25986,8 @@
           "tensor(bfloat16)"
         ]
       }
-    ]
+    ],
+    "category": "Normalization"
   },
   {
     "name": "LayerNormalization",
@@ -26096,7 +26097,8 @@
         "summary": "layernormalization",
         "code": "X = np.random.randn(2, 3, 4, 5).astype(np.float32)\n\ndef case(axis: int) -> None:\n    normalized_shape = calculate_normalized_shape(X.shape, axis)\n    W = np.random.randn(*normalized_shape).astype(np.float32)\n    B = np.random.randn(*normalized_shape).astype(np.float32)\n    Y, mean, inv_std_dev = _layer_normalization(X, W, B, axis)\n\n    node = onnx.helper.make_node(\n        \"LayerNormalization\",\n        inputs=[\"X\", \"W\", \"B\"],\n        outputs=[\"Y\", \"Mean\", \"InvStdDev\"],\n        axis=axis,\n    )\n\n    if axis < 0:\n        name = f\"test_layer_normalization_4d_axis_negative_{-axis}\"\n    else:\n        name = f\"test_layer_normalization_4d_axis{axis}\"\n\n    expect(node, inputs=[X, W, B], outputs=[Y, mean, inv_std_dev], name=name)\n\nfor i in range(len(X.shape)):\n    case(i)\n    case(i - len(X.shape))"
       }
-    ]
+    ],
+    "category": "Normalization"
   },
   {
     "name": "LeakyRelu",
@@ -40533,7 +40535,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "(Optional) The axis of the dequantizing dimension of the input tensor. Used for per-axis and blocked quantization. Negative value means counting dimensions from the back. Accepted range is `[-r, r-1]` where `r = rank(input)`."
+        "description": "(Optional) The axis of the dequantizing dimension of the input tensor. Used only for per-axis and blocked quantization. Negative value means counting dimensions from the back. Accepted range is `[-r, r-1]` where `r = rank(input)`. When the rank of the input is 1, per-tensor quantization is applied, rendering the axis unnecessary in this scenario."
       },
       {
         "name": "block_size",

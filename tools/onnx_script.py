@@ -31,6 +31,7 @@ categories = {
     'Sigmoid': 'Activation',
     'Tanh': 'Activation',
     'LogSoftmax': 'Activation',
+    'LayerNormalization': 'Normalization',
     'SimplifiedLayerNormalization': 'Normalization',
     'SkipSimplifiedLayerNormalization': 'Normalization',
     'Softmax': 'Activation',
