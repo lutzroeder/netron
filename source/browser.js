@@ -57,12 +57,14 @@ host.BrowserHost = class {
         const age = async () => {
             const days = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
             if (days > 180) {
+                const link = this._element('logo-github').href;
                 this.document.body.classList.remove('spinner');
-                this.window.exports.terminate('Please update to the newest version.', 'Download', () => {
-                    const link = this._element('logo-github').href;
+                for (;;) {
+                    /* eslint-disable no-await-in-loop */
+                    await this.message('Please update to the newest version.', 'Download');
+                    /* eslint-enable no-await-in-loop */
                     this.openURL(link);
-                });
-                return new Promise(() => {});
+                }
             }
             return Promise.resolve();
         };
@@ -552,6 +554,7 @@ host.BrowserHost = class {
 
     message(message, action) {
         return new Promise((resolve) => {
+            const type = this.document.body.getAttribute('class');
             this._element('message-text').innerText = message;
             const button = this._element('message-button');
             if (action) {
@@ -559,7 +562,7 @@ host.BrowserHost = class {
                 button.innerText = action;
                 button.onclick = () => {
                     button.onclick = null;
-                    this._document.body.classList.remove('message');
+                    this.document.body.setAttribute('class', type);
                     resolve(0);
                 };
                 button.focus();
@@ -567,11 +570,9 @@ host.BrowserHost = class {
                 button.style.display = 'none';
                 button.onclick = null;
             }
-            if (message || action) {
-                this._document.body.classList.add('message');
-            } else {
-                this._document.body.classList.remove('message');
-            }
+            this.document.body.classList.add('welcome');
+            this.document.body.classList.add('message');
+            this.document.body.classList.remove('default');
         });
     }
 };

@@ -17,9 +17,9 @@ host.ElectronHost = class {
         this._window = window;
         this._global = global;
         this._telemetry = new base.Telemetry(this._window);
-        process.on('uncaughtException', (err) => {
-            this.exception(err, true);
-            this._terminate(err.message);
+        process.on('uncaughtException', (error) => {
+            this.exception(error, true);
+            this.message(error.message);
         });
         this._global.eval = () => {
             throw new Error('eval.eval() not supported.');
@@ -68,12 +68,14 @@ host.ElectronHost = class {
         const age = async () => {
             const days = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
             if (days > 180) {
-                this._view.show('welcome');
-                this._terminate('Please update to the newest version.', 'Download', () => {
-                    const link = this._element('logo-github').href;
+                this.document.body.classList.remove('spinner');
+                const link = this._element('logo-github').href;
+                for (;;) {
+                    /* eslint-disable no-await-in-loop */
+                    await this.message('Please update to the newest version.', 'Download');
+                    /* eslint-enable no-await-in-loop */
                     this.openURL(link);
-                });
-                return new Promise(() => {});
+                }
             }
             return Promise.resolve();
         };
@@ -92,6 +94,7 @@ host.ElectronHost = class {
                     // continue regardless of error
                 }
                 if (consent) {
+                    this.document.body.classList.remove('spinner');
                     await this.message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
                 }
                 this.set('consent', Date.now());
@@ -535,30 +538,9 @@ host.ElectronHost = class {
         electron.ipcRenderer.send('window-update', data);
     }
 
-    _terminate(message, action, callback) {
-        this._element('message-text').innerText = message;
-        const button = this._element('message-button');
-        if (action && callback) {
-            button.style.removeProperty('display');
-            button.innerText = action;
-            button.onclick = () => callback(0);
-            button.focus();
-        } else {
-            button.style.display = 'none';
-            button.onclick = null;
-        }
-        if (this._view) {
-            try {
-                this._view.show('welcome message');
-            } catch {
-                // continue regardless of error
-            }
-        }
-        this._document.body.setAttribute('class', 'welcome message');
-    }
-
     message(message, action) {
         return new Promise((resolve) => {
+            const type = this.document.body.getAttribute('class');
             this._element('message-text').innerText = message;
             const button = this._element('message-button');
             if (action) {
@@ -566,7 +548,7 @@ host.ElectronHost = class {
                 button.innerText = action;
                 button.onclick = () => {
                     button.onclick = null;
-                    this._document.body.classList.remove('message');
+                    this.document.body.setAttribute('class', type);
                     resolve(0);
                 };
                 button.focus();
@@ -574,11 +556,9 @@ host.ElectronHost = class {
                 button.style.display = 'none';
                 button.onclick = null;
             }
-            if (message || action) {
-                this._document.body.classList.add('message');
-            } else {
-                this._document.body.classList.remove('message');
-            }
+            this.document.body.classList.add('welcome');
+            this.document.body.classList.add('message');
+            this.document.body.classList.remove('default');
         });
     }
 };

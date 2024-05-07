@@ -70,20 +70,12 @@ window.exports.preload = function(callback) {
     next();
 };
 
-window.exports.terminate = function(message, action, callback) {
+window.exports.terminate = function(message) {
     document.getElementById('message-text').innerText = message;
     var button = document.getElementById('message-button');
-    if (action) {
-        button.style.removeProperty('display');
-        button.innerText = action;
-        button.onclick = function() {
-            callback();
-        };
-        button.focus();
-    } else {
-        button.style.display = 'none';
-        button.onclick = null;
-    }
+    button.style.display = 'none';
+    button.onclick = null;
+    document.body.setAttribute('class', 'welcome message');
     if (window.__view__) {
         /* eslint-disable no-unused-vars */
         try {
@@ -93,7 +85,6 @@ window.exports.terminate = function(message, action, callback) {
         }
         /* eslint-enable no-unused-vars */
     }
-    document.body.setAttribute('class', 'welcome message');
 };
 
 window.addEventListener('error', function (event) {
