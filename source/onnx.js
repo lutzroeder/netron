@@ -1182,7 +1182,9 @@ onnx.Context.Graph = class {
             const shape = type.shape && type.shape.dim ? type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value || null) : [];
             return this.createTensorType(type.elem_type, shape, 'sparse', denotation);
         } else if (type.map_type) {
-            return this.createMapType(type.map_type.key_type, this.createType(type.map_type.value_type), denotation);
+            const keyType = this.createDataType(type.map_type.key_type);
+            const valueType = this.createType(type.map_type.value_type);
+            return new onnx.MapType(keyType, valueType, denotation);
         } else if (type.sequence_type) {
             return new onnx.SequenceType(this.createType(type.sequence_type.elem_type), denotation);
         } else if (type.opaque_type) {
@@ -1198,11 +1200,6 @@ onnx.Context.Graph = class {
     createTensorType(dataType, shape, layout, denotation) {
         dataType = this.createDataType(dataType);
         return new onnx.TensorType(dataType, new onnx.TensorShape(shape), layout, denotation);
-    }
-
-    createMapType(keyType, valueType, denotation) {
-        keyType = this.createDataType(keyType);
-        return new onnx.MapType(keyType, valueType, denotation);
     }
 
     createDataType(value) {
@@ -1241,8 +1238,12 @@ onnx.Context.Graph = class {
         const inputMap = new Map();
         const outputMap = new Map();
         for (const node of nodes) {
-            node.input.every((input) => inputMap.set(input.name, (inputMap.get(input) || 0) + 1));
-            node.output.every((output) => outputMap.set(output.name, (outputMap.get(output) || 0) + 1));
+            for (const input of node.input) {
+                inputMap.set(input.name, (inputMap.get(input) || 0) + 1);
+            }
+            for (const output of node.output) {
+                outputMap.set(output.name, (outputMap.get(output) || 0) + 1);
+            }
         }
         inputs.every((input) => inputMap.delete(input.name));
         outputs.every((output) => outputMap.delete(output.name));
