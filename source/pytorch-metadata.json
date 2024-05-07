@@ -11123,6 +11123,19 @@
     ]
   },
   {
+    "name": "aten::rrelu",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "lower", "type": "Scalar", "default": 0.125 },
+      { "name": "upper", "type": "Scalar", "default": 0.3333333333333333 },
+      { "name": "training", "type": "boolean", "default": false },
+      { "name": "generator", "type": "Generator", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::rsqrt",
     "inputs": [
       { "name": "self", "type": "Tensor" }
