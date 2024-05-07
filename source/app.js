@@ -145,7 +145,7 @@ app.Application = class {
     }
 
     _ready() {
-        this._configuration.load();
+        this._configuration.open();
         if (this._openQueue) {
             const queue = this._openQueue;
             this._openQueue = null;
@@ -955,15 +955,15 @@ app.ConfigurationService = class {
         }
     }
 
-    load() {
-        this._data = { 'recents': [] };
+    open() {
+        this._content = { 'recents': [] };
         if (this._file && fs.existsSync(this._file)) {
             const data = fs.readFileSync(this._file, 'utf-8');
             if (data) {
                 try {
-                    this._data = JSON.parse(data);
-                    if (Array.isArray(this._data.recents)) {
-                        this._data.recents = this._data.recents.map((recent) => typeof recent !== 'string' && recent && recent.path ? recent.path : recent);
+                    this._content = JSON.parse(data);
+                    if (Array.isArray(this._content.recents)) {
+                        this._content.recents = this._content.recents.map((recent) => typeof recent !== 'string' && recent && recent.path ? recent.path : recent);
                     }
                 } catch {
                     // continue regardless of error
@@ -973,26 +973,26 @@ app.ConfigurationService = class {
     }
 
     save() {
-        if (this._data && this._file) {
-            const data = JSON.stringify(this._data, null, 2);
+        if (this._content && this._file) {
+            const data = JSON.stringify(this._content, null, 2);
             fs.writeFileSync(this._file, data);
         }
     }
 
     has(name) {
-        return this._data && Object.prototype.hasOwnProperty.call(this._data, name);
+        return this._content && Object.prototype.hasOwnProperty.call(this._content, name);
     }
 
     set(name, value) {
-        this._data[name] = value;
+        this._content[name] = value;
     }
 
     get(name) {
-        return this._data[name];
+        return this._content[name];
     }
 
     delete(name) {
-        delete this._data[name];
+        delete this._content[name];
     }
 };
 
@@ -1073,13 +1073,11 @@ app.MenuService = class {
     }
 };
 
-const main = async () => {
+try {
     global.application = new app.Application();
     await global.application.start();
-};
-
-main().catch((error) => {
+} catch (error) {
     /* eslint-disable no-console */
     console.error(error.message);
     /* eslint-enable no-console */
-});
+}
