@@ -2523,6 +2523,10 @@
       {
         "description": "Expected key corresponding to this input when passing data as\n        a dictionary.",
         "name": "name"
+      },
+      {
+        "name": "optional",
+        "description": "Boolean, whether the input is optional or not.\n        An optional input can accept `None` values."
       }
     ],
     "examples": [
