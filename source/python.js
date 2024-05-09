@@ -2590,6 +2590,7 @@ python.Execution = class {
         this.registerFunction('sklearn._loss._loss.__pyx_unpickle_CyHalfSquaredError');
         this.registerType('sklearn._loss.loss.BaseLoss', class {});
         this.registerType('sklearn._loss.loss.HalfMultinomialLoss', class extends sklearn._loss.loss.BaseLoss {});
+        this.registerType('sklearn._loss.loss.HalfSquaredError', class extends sklearn._loss.loss.BaseLoss {});
         this.registerType('sklearn.base.BaseEstimator', class {});
         this.registerType('sklearn.base.TransformerMixin', class {});
         this.registerType('sklearn.calibration._CalibratedClassifier', class {});
@@ -6527,6 +6528,7 @@ python.Execution = class {
         this.registerType('fastai.data.core.DataLoaders', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.data.core.Datasets', class {});
         this.registerType('fastai.data.load.DataLoader', class extends fastcore.basics.GetAttr {});
+        this.registerType('fastai.data.core.FilteredBase', class {});
         this.registerType('fastai.data.core.TfmdDL', class extends fastai.data.load.DataLoader {});
         this.registerType('fastai.data.core.TfmdLists', class {});
         this.registerType('fastai.data.load._FakeLoader', class {});
