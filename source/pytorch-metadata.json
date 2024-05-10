@@ -5032,6 +5032,30 @@
     ]
   },
   {
+    "name": "aten::fft_irfft",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "n", "type": "SymInt", "optional": true, "default": null },
+      { "name": "dim", "type": "int64", "default": -1 },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::fft_irfft.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "n", "type": "SymInt", "optional": true, "default": null },
+      { "name": "dim", "type": "int64", "default": -1 },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::fft_irfft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
