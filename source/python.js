@@ -4401,6 +4401,7 @@ python.Execution = class {
         this.registerType('torch.optim.swa_utils.SWALR', class {});
         torch.optim.RAdam = torch.optim.radam.RAdam;
         this.registerType('torch.quantization.fake_quantize.FakeQuantize', class {});
+        this.registerFunction('torch.quantization.fx.graph_module._save_packed_weight');
         this.registerType('torch.quantization.observer._PartialWrapper', class {});
         this.registerType('torch.quantization.observer.HistogramObserver', class {});
         this.registerType('torch.quantization.observer.MinMaxObserver', class {});
