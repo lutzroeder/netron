@@ -49,20 +49,6 @@ schema_source_files = [
         re.compile(r'(aten::.*->\s*.*)"', re.MULTILINE)),
     ('torch/csrc/jit/runtime/register_special_ops.cpp',
         re.compile(r'(aten::.*->\s*.*)"', re.MULTILINE)),
-    ('caffe2/operators/copy_op.cc',
-        re.compile(r'(_caffe2::.*->\s*Tensor)', re.MULTILINE)),
-    ('caffe2/operators/batch_permutation_op.cc',
-        re.compile(r'(_caffe2::.*->\s*Tensor)', re.MULTILINE)),
-    ('caffe2/operators/collect_and_distribute_fpn_rpn_proposals_op.cc',
-        re.compile(r'"(_caffe2::[\w+]*\([\w"\s\[\],]*\)\s*->\s*\([\w"\s\[\],]*\))"', re.MULTILINE)),
-    ('caffe2/operators/box_with_nms_limit_op.cc',
-        re.compile(r'"(_caffe2::[\w+]*\([\w"\s\[\],]*\)\s*->\s*\([\w"\s\[\],]*\))"', re.MULTILINE)),
-    ('caffe2/operators/bbox_transform_op.cc',
-        re.compile(r'"(_caffe2::[\w+]*\([\w"\s\[\],]*\)\s*->\s*\([\w"\s\[\],]*\))"', re.MULTILINE)),
-    ('caffe2/operators/generate_proposals_op.cc',
-        re.compile(r'"(_caffe2::[\w+]*\([\w"\s\[\],]*\)\s*->\s*\([\w"\s\[\],]*\))"', re.MULTILINE)),
-    ('caffe2/operators/roi_align_op.cc',
-        re.compile(r'"(_caffe2::[\w+]*\([\w"\s\[\],]*\)\s*->.*)"', re.MULTILINE))
 ]
 
 known_schema_definitions = [
@@ -142,9 +128,13 @@ def _check_types(types, schemas):
            key.startswith('torchaudio::') or \
            key.startswith('neuron::'):
             types.pop(key)
+        if key.startswith('_caffe2::'):
+            types.pop(key)
     types.pop('aten::fft')
     types.pop('aten::mul.ScalarT')
     types.pop('aten::classes._nnapi.Compilation')
+
+
     if len(types) > 0:
         raise Exception('\n'.join(list(types.keys()))) # pylint: disable=broad-exception-raised
 
