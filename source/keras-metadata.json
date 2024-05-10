@@ -3327,6 +3327,10 @@
       {
         "description": "Constraint for dense layer kernels.",
         "name": "bias_constraint"
+      },
+      {
+        "name": "seed",
+        "description": "Optional integer to seed the dropout layer."
       }
     ],
     "examples": [
