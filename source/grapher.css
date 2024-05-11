@@ -36,6 +36,7 @@
 .node-item-type-transform path { fill: rgb(51, 85, 68); }
 .node-item-type-data path { fill: rgb(85, 85, 85); }
 .node-item-type-quantization path { fill: rgb(80, 40, 0); }
+.node-item-type-attention path { fill: rgb(120, 60, 0); }
 .node-item-type-custom path { fill: rgb(128, 128, 128); }
 
 .node-item-input path { fill: #fff; }
@@ -138,5 +139,6 @@
     .node-item-type-transform path { fill: rgba(51, 85, 68, 0.7); }
     .node-item-type-data path { fill: rgba(85, 85, 85, 0.7); }
     .node-item-type-quantization path { fill: rgb(80, 40, 0, 0.7); }
+    .node-item-type-attention path { fill: rgb(100, 50, 0, 0.7); }
     .node-item-type-custom path { fill: rgb(64, 64, 64, 0.7); }
 }

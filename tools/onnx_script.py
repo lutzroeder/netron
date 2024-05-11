@@ -9,63 +9,6 @@ import onnx.defs # pylint: disable=import-error
 import onnx.onnx_ml_pb2 # pylint: disable=import-error
 import onnxruntime # pylint: disable=import-error
 
-categories = {
-    'Constant': 'Constant',
-    'Conv': 'Layer',
-    'ConvInteger': 'Layer',
-    'ConvTranspose': 'Layer',
-    'FC': 'Layer',
-    'RNN': 'Layer',
-    'LSTM': 'Layer',
-    'GRU': 'Layer',
-    'Gemm': 'Layer',
-    'FusedConv': 'Layer',
-    'Dropout': 'Dropout',
-    'Elu': 'Activation',
-    'HardSigmoid': 'Activation',
-    'LeakyRelu': 'Activation',
-    'PRelu': 'Activation',
-    'ThresholdedRelu': 'Activation',
-    'Relu': 'Activation',
-    'Selu': 'Activation',
-    'Sigmoid': 'Activation',
-    'Tanh': 'Activation',
-    'LogSoftmax': 'Activation',
-    'LayerNormalization': 'Normalization',
-    'SimplifiedLayerNormalization': 'Normalization',
-    'SkipSimplifiedLayerNormalization': 'Normalization',
-    'Softmax': 'Activation',
-    'Softplus': 'Activation',
-    'Softsign': 'Activation',
-    'Clip': 'Activation',
-    'BatchNormalization': 'Normalization',
-    'InstanceNormalization': 'Normalization',
-    'LpNormalization': 'Normalization',
-    'LRN': 'Normalization',
-    'Flatten': 'Shape',
-    'Reshape': 'Shape',
-    'RotaryEmbedding': 'Transform',
-    'Tile': 'Shape',
-    'AveragePool': 'Pool',
-    'GlobalAveragePool': 'Pool',
-    'GlobalLpPool': 'Pool',
-    'GlobalMaxPool': 'Pool',
-    'LpPool': 'Pool',
-    'MaxPool': 'Pool',
-    'MaxRoiPool': 'Pool',
-    'Concat': 'Tensor',
-    'Slice': 'Tensor',
-    'Split': 'Tensor',
-    'Pad': 'Tensor',
-    'ImageScaler': 'Data',
-    'Crop': 'Data',
-    'Upsample': 'Data',
-    'Transpose': 'Transform',
-    'Gather': 'Transform',
-    'Unsqueeze': 'Transform',
-    'Squeeze': 'Transform',
-}
-
 attribute_type_table = [
     'undefined',
     'float32',
@@ -223,8 +166,6 @@ class OnnxSchema: # pylint: disable=too-few-public-methods
             self._update_type_constraints(value, self.schema.type_constraints)
         if self.name in self.snippets:
             self._update_snippets(value, self.snippets[self.name])
-        if self.name in categories:
-            value['category'] = categories[self.name]
         return value
 
 class OnnxRuntimeSchema: # pylint: disable=too-few-public-methods
@@ -337,11 +278,19 @@ class OnnxRuntimeSchema: # pylint: disable=too-few-public-methods
                 + _format_range(self.schema.max_output)
         if self.schema.type_constraints:
             self._update_type_constraints(value, self.schema.type_constraints)
-        if self.name in categories:
-            value['category'] = categories[self.name]
         return value
 
 def _metadata():
+    root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    file = os.path.join(root_dir, 'source', 'onnx-metadata.json')
+    with open(file, 'r', encoding='utf-8') as handle:
+        content = handle.read()
+    categories = {}
+    content = json.loads(content)
+    for schema in content:
+        if 'category' in schema:
+            name = schema['name']
+            categories[name] = schema['category']
     types = collections.OrderedDict()
     numpy = __import__('numpy')
     with numpy.errstate(all='ignore'):
@@ -354,15 +303,22 @@ def _metadata():
         schema = OnnxRuntimeSchema(schema)
         if not schema.key in types:
             types[schema.key] = schema.to_dict()
-    root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    file = os.path.join(root_dir, 'source', 'onnx-metadata.json')
-    with open(file, 'r', encoding='utf-8') as handle:
-        content = handle.read()
-    for schema in json.loads(content):
+    for schema in content:
         key = schema['name'] + ':' + schema['module'] + ':' + str(schema['version']).zfill(4)
         if not key in types:
             types[key] = schema
     types = [types[key] for key in sorted(types)]
+    for schema in types:
+        name = schema['name']
+        # copy = schema.copy()
+        # schema.clear()
+        # schema['name'] = name
+        # schema['module'] = copy['module']
+        if name in categories:
+            schema['category'] = categories[name]
+        # for key, value in copy.items():
+        #     if key not in schema:
+        #         schema[key] = value
     content = json.dumps(types, indent=2)
     with open(file, 'w', encoding='utf-8') as handle:
         handle.write(content)

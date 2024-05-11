@@ -13,6 +13,11 @@
     "category": "Transform"
   },
   {
+    "name": "Attention",
+    "operator": 299,
+    "category": "Attention"
+  },
+  {
     "name": "BatchMatMul",
     "operator": 106
   },

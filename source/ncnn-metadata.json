@@ -579,7 +579,7 @@
   {
     "name": "MultiHeadAttention",
     "identifier": 79,
-    "category": "Layer",
+    "category": "Attention",
     "attributes": [
       { "name": "embed_dim", "default": 0 },
       { "name": "num_head", "default": 1 },

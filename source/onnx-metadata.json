@@ -2389,7 +2389,8 @@
           "tensor(int32)"
         ]
       }
-    ]
+    ],
+    "category": "Attention"
   },
   {
     "name": "AttnLSTM",
@@ -11379,7 +11380,8 @@
           "tensor(bool)"
         ]
       }
-    ]
+    ],
+    "category": "Attention"
   },
   {
     "name": "DecoderMaskedMultiHeadAttention",
@@ -11523,7 +11525,8 @@
           "tensor(int32)"
         ]
       }
-    ]
+    ],
+    "category": "Attention"
   },
   {
     "name": "DecoderMaskedSelfAttention",
@@ -11634,7 +11637,8 @@
           "tensor(int32)"
         ]
       }
-    ]
+    ],
+    "category": "Attention"
   },
   {
     "name": "DeformConv",
@@ -21864,7 +21868,8 @@
           "tensor(int32)"
         ]
       }
-    ]
+    ],
+    "category": "Attention"
   },
   {
     "name": "HammingWindow",
@@ -27198,7 +27203,8 @@
           "tensor(int32)"
         ]
       }
-    ]
+    ],
+    "category": "Attention"
   },
   {
     "name": "Loop",
@@ -33531,7 +33537,8 @@
           "tensor(int32)"
         ]
       }
-    ]
+    ],
+    "category": "Attention"
   },
   {
     "name": "MultilevelCropAndResize_TRT",
@@ -36331,7 +36338,8 @@
           "tensor(int32)"
         ]
       }
-    ]
+    ],
+    "category": "Attention"
   },
   {
     "name": "PackedMultiHeadAttention",
@@ -36418,7 +36426,8 @@
           "tensor(int32)"
         ]
       }
-    ]
+    ],
+    "category": "Attention"
   },
   {
     "name": "Pad",
@@ -37734,7 +37743,8 @@
           "tensor(int32)"
         ]
       }
-    ]
+    ],
+    "category": "Attention"
   },
   {
     "name": "QEmbedLayerNormalization",
@@ -39753,7 +39763,8 @@
           "tensor(int32)"
         ]
       }
-    ]
+    ],
+    "category": "Attention"
   },
   {
     "name": "QOrderedGelu",
@@ -40045,7 +40056,8 @@
           "tensor(float16)"
         ]
       }
-    ]
+    ],
+    "category": "Attention"
   },
   {
     "name": "QOrderedMatMul",
@@ -55050,7 +55062,8 @@
           "tensor(int32)"
         ]
       }
-    ]
+    ],
+    "category": "Attention"
   },
   {
     "name": "SparseToDenseMatMul",

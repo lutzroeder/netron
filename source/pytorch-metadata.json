@@ -11262,6 +11262,7 @@
   },
   {
     "name": "aten::scaled_dot_product_attention",
+    "category": "Attention",
     "inputs": [
       { "name": "query", "type": "Tensor" },
       { "name": "key", "type": "Tensor" },
