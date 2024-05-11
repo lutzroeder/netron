@@ -5648,7 +5648,8 @@ view.ModelFactoryService = class {
                     { name: 'Custom Vision metadata', tags: ['CustomVision.Metadata.Version'] },
                     { name: 'W&B metadata', tags: ['program', 'host', 'executable'] },
                     { name: 'TypeScript configuration data', tags: ['compilerOptions'] },
-                    { name: 'CatBoost model', tags: ['features_info', 'model_info'] }
+                    { name: 'CatBoost model', tags: ['features_info', 'model_info'] },
+                    { name: 'TPU-MLIR tensor location data', tags: ['file-line', 'subnet_id', 'core_id'] } // https://github.com/sophgo/tpu-mlir/blob/master/lib/Dialect/Tpu/Transforms/Codegen/TensorLocation.cpp
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
