@@ -3593,7 +3593,7 @@ pytorch.Utility = class {
                 'state_dict', 'state_dict_stylepredictor', 'state_dict_ghiasi',
                 'state', 'model_state', 'model', 'model_state_dict', 'model_dict', 'net_dict',
                 'generator', 'discriminator',  'g_state', 'module', 'params',
-                'weights', 'network_weights', 'network', 'net', 'netG', 'net_states',
+                'weight', 'weights', 'network_weights', 'network', 'net', 'netG', 'net_states',
                 'EMA_generator', 'runner', ''
             ]);
             for (const key of keys) {
