@@ -1666,6 +1666,7 @@ MNN.OpType = {
     BatchNorm: 267,
     ConvTranspose3D: 268,
     ZeroGrad: 269,
+    Attention: 299,
     FmhaV2: 300,
     Fmhca: 301,
     SeqLen2Spatial: 302,
@@ -1712,6 +1713,15 @@ MNN.StringVec = class StringVec {
     static decode(reader, position) {
         const $ = new MNN.StringVec();
         $.data = reader.strings_(position, 4);
+        return $;
+    }
+};
+
+MNN.AttentionParam = class AttentionParam {
+
+    static decode(reader, position) {
+        const $ = new MNN.AttentionParam();
+        $.kv_cache = reader.bool_(position, 4, true);
         return $;
     }
 };
@@ -1891,6 +1901,7 @@ MNN.OpParameter = class {
             case 95: return MNN.GroupNorm.decode(reader, position);
             case 96: return MNN.FmhaV2Param.decode(reader, position);
             case 97: return MNN.FmhcaParam.decode(reader, position);
+            case 98: return MNN.AttentionParam.decode(reader, position);
             default: return undefined;
         }
     }
