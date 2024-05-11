@@ -8,19 +8,23 @@ nnef.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'nnef') {
-            const stream = context.stream;
-            if (nnef.TextReader.open(stream)) {
-                context.type = 'nnef.graph';
-            }
-        } else if (extension === 'dat') {
-            const stream = context.stream;
-            if (stream && stream.length > 2) {
-                const buffer = stream.peek(2);
-                if (buffer[0] === 0x4E && buffer[1] === 0xEF) {
-                    context.type = 'nnef.dat';
+        const stream = context.stream;
+        switch (extension) {
+            case 'nnef':
+                if (nnef.TextReader.open(stream)) {
+                    context.type = 'nnef.graph';
                 }
-            }
+                break;
+            case 'dat':
+                if (stream && stream.length > 2) {
+                    const buffer = stream.peek(2);
+                    if (buffer[0] === 0x4E && buffer[1] === 0xEF) {
+                        context.type = 'nnef.dat';
+                    }
+                }
+                break;
+            default:
+                break;
         }
     }
 

@@ -3537,10 +3537,10 @@
   {
     "type":     "nnef",
     "target":   "squeezenet_v1.0.onnx.nnef.tgz",
-    "source":   "https://sfo2.digitaloceanspaces.com/nnef-public/squeezenet_v1.0.onnx.nnef.tgz",
+    "source":   "https://github.com/user-attachments/files/15283489/squeezenet_v1.0.onnx.nnef.tgz",
     "format":   "NNEF v1.0",
     "error":    "NNEF v1.0 support not implemented.",
-    "link":     "https://github.com/lutzroeder/netron/issues/992"
+    "link":     "https://github.com/lutzroeder/netron/issues/1274"
   },
   {
     "type":     "nnc",
