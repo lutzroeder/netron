@@ -21479,6 +21479,18 @@
     ]
   },
   {
+    "name": "GetTpuTaskId",
+    "summary": "An op returns the TPU task ID from TPU topology.",
+    "description": "This op is to return the TPU task ID from TPU topology.",
+    "outputs": [
+      {
+        "name": "tpu_task_id",
+        "description": "The TPU task ID from TPU topology.",
+        "type": 3
+      }
+    ]
+  },
+  {
     "name": "GlobalIterId",
     "outputs": [
       {
@@ -63839,6 +63851,27 @@
       {
         "name": "output_handle",
         "type": 21
+      }
+    ]
+  },
+  {
+    "name": "UpdateTaskIdAndGlobalCoreArray",
+    "summary": "An op to update the task ID and global core array.",
+    "description": "This op is to update the task ID and global core array.",
+    "attributes": [
+      {
+        "name": "task_count",
+        "type": "int64",
+        "description": "The number of tasks.",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "tpu_task_id_to_shard_id",
+        "description": "An array of int32 that maps TPU task ID to shard ID.",
+        "numberAttr": "task_count",
+        "type": 3
       }
     ]
   },
