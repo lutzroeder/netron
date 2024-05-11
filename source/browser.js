@@ -61,7 +61,7 @@ host.BrowserHost = class {
                 this.document.body.classList.remove('spinner');
                 for (;;) {
                     /* eslint-disable no-await-in-loop */
-                    await this.message('Please update to the newest version.', 'Download');
+                    await this.message('Please update to the newest version.', 'Update');
                     /* eslint-enable no-await-in-loop */
                     this.openURL(link);
                 }
