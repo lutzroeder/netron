@@ -54982,16 +54982,18 @@
       },
       {
         "name": "past_key",
-        "type": "T",
-        "option": "optional"
+        "type": "T"
       },
       {
         "name": "past_value",
-        "type": "T",
-        "option": "optional"
+        "type": "T"
       },
       {
-        "name": "block_mask",
+        "name": "block_row_indices",
+        "type": "M"
+      },
+      {
+        "name": "block_col_indices",
         "type": "M"
       },
       {
@@ -55013,8 +55015,8 @@
         "option": "optional"
       }
     ],
-    "min_input": 8,
-    "max_input": 10,
+    "min_input": 9,
+    "max_input": 11,
     "outputs": [
       {
         "name": "output",
@@ -55031,7 +55033,7 @@
     ],
     "min_output": 3,
     "max_output": 3,
-    "inputs_range": "8 - 10",
+    "inputs_range": "9 - 11",
     "type_constraints": [
       {
         "description": "Constrain input and output to float tensors.",
