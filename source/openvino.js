@@ -318,7 +318,9 @@ openvino.Graph = class {
             });
         };
         const body = net.body;
-        const layers = new Map(body.layers.map((entry) => [entry.id, entry]));
+        const body_layers = body && Array.isArray(body.layers) ? body.layers : [];
+        const body_edges = body && body.edges ? body.edges : {};
+        const layers = new Map(body_layers.map((entry) => [entry.id, entry]));
         const ports = new Map();
         if (Array.isArray(net.input)) {
             for (const input of net.input) {
@@ -336,7 +338,7 @@ openvino.Graph = class {
                 ports.set(output.id, value);
             }
         }
-        for (const layer of body.layers) {
+        for (const layer of body_layers) {
             for (const output of layer.output) {
                 if (!output.precision) {
                     output.precision = layer.precision;
@@ -371,7 +373,7 @@ openvino.Graph = class {
                 }
             }
         }
-        const layer_list = constant(body.layers, body.edges);
+        const layer_list = constant(body_layers, body_edges);
         for (const layer of layer_list) {
             for (const input of layer.input) {
                 if (input.blob) {
@@ -429,15 +431,11 @@ openvino.Graph = class {
             const createMapLayer = (obj) => {
                 const data = {};
                 for (const [name, value] of Object.entries(obj)) {
-                    if (name === 'external_port_id' || name === 'internal_layer_id' || name === 'internal_port_id') {
-                        continue;
+                    if (name !== 'external_port_id' && name !== 'internal_layer_id' && name !== 'internal_port_id') {
+                        data[name] = value;
                     }
-                    data[name] = value;
                 }
-                const layer = {};
-                layer.type = '-';
-                layer.data = data;
-                return layer;
+                return { type: '-', data };
             };
             for (const input of net.port_map.input) {
                 const internal_port = layers.get(input.internal_layer_id).input.find((v) => v.id === input.internal_port_id);

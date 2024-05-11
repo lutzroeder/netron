@@ -4455,6 +4455,7 @@
     "target":   "int4-model.xml,int4-model.bin",
     "source":   "https://github.com/lutzroeder/netron/files/6273773/int4-model.zip[int4-model.xml,int4-model.bin]",
     "format":   "OpenVINO IR",
+    "assert":   [ "model.graphs[0].nodes.length == 223" ],
     "link":     "https://github.com/lutzroeder/netron/pull/715"
   },
   {
