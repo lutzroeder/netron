@@ -1433,6 +1433,9 @@ onnx.ProtoReader = class {
                 if (producers.some((producer) => Array.from(producer).every((ch, index) => index + 4 < buffer.length && ch.charCodeAt(0) === buffer[index + 4]))) {
                     return new onnx.ProtoReader(context, 'binary', 'model');
                 }
+                if (buffer[3] === 0x00 && buffer[4] === 0x1A && buffer[5] === 0x00) {
+                    return new onnx.ProtoReader(context, 'binary', 'model');
+                }
             }
         }
         if (stream && stream.length > 8) {
