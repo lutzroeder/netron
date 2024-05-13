@@ -232,14 +232,14 @@ grapher.Graph = class {
                     update(message.nodes, message.edges);
                     if (timeout >= 0) {
                         clearTimeout(timeout);
-                        host.message('');
+                        host.message();
                     }
                     resolve('');
                 });
                 const message = { type: 'dagre.layout', nodes, edges, layout };
                 worker.postMessage(message);
                 timeout = setTimeout(async () => {
-                    await host.message('This large graph layout might take a very long time to complete.', 'Cancel');
+                    await host.message('This large graph layout might take a very long time to complete.', null, 'Cancel');
                     worker.terminate();
                     resolve('graph-layout-cancelled');
                 }, 2500);

@@ -61,7 +61,7 @@ host.BrowserHost = class {
                 this.document.body.classList.remove('spinner');
                 for (;;) {
                     /* eslint-disable no-await-in-loop */
-                    await this.message('Please update to the newest version.', 'Update');
+                    await this.message('Please update to the newest version.', null, 'Update');
                     /* eslint-enable no-await-in-loop */
                     this.openURL(link);
                 }
@@ -85,7 +85,7 @@ host.BrowserHost = class {
             }
             if (consent) {
                 this.document.body.classList.remove('spinner');
-                await this.message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
+                await this.message('This app uses cookies to report errors and anonymous usage information.', null, 'Accept');
             }
             this._setCookie('consent', Date.now().toString(), 30);
         };
@@ -220,9 +220,11 @@ host.BrowserHost = class {
         return this._environment[name];
     }
 
-    async error(message, detail /*, cancel */) {
-        alert((message === 'Error' ? '' : `${message} `) + detail);
+    async error(message /*, name , cancel */) {
+        alert(message);
         return 0;
+        // await this.message(message, true, 'OK');
+        // return 1;
     }
 
     async require(id) {
@@ -552,7 +554,7 @@ host.BrowserHost = class {
         return this.document.getElementById(id);
     }
 
-    message(message, action) {
+    async message(message, alert, action) {
         return new Promise((resolve) => {
             const type = this.document.body.getAttribute('class');
             this._element('message-text').innerText = message;
@@ -570,9 +572,15 @@ host.BrowserHost = class {
                 button.style.display = 'none';
                 button.onclick = null;
             }
-            this.document.body.classList.add('welcome');
-            this.document.body.classList.add('message');
-            this.document.body.classList.remove('default');
+            if (alert) {
+                this.document.body.setAttribute('alert');
+            } else {
+                this.document.body.classList.add('notification');
+                this.document.body.classList.remove('default');
+            }
+            if (action) {
+                button.focus();
+            }
         });
     }
 };

@@ -72,7 +72,7 @@ host.ElectronHost = class {
                 const link = this._element('logo-github').href;
                 for (;;) {
                     /* eslint-disable no-await-in-loop */
-                    await this.message('Please update to the newest version.', 'Download');
+                    await this.message('Please update to the newest version.', null, 'Download');
                     /* eslint-enable no-await-in-loop */
                     this.openURL(link);
                 }
@@ -95,7 +95,7 @@ host.ElectronHost = class {
                 }
                 if (consent) {
                     this.document.body.classList.remove('spinner');
-                    await this.message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
+                    await this.message('This app uses cookies to report errors and anonymous usage information.', null, 'Accept');
                 }
                 this.set('consent', Date.now());
             }
@@ -237,15 +237,16 @@ host.ElectronHost = class {
         return this._environment[name];
     }
 
-    async error(message, detail, cancel) {
+    async error(message, name, cancel) {
         const options = {
             type: 'error',
-            message,
-            detail,
+            detail: message,
+            message: name,
             buttons: cancel ? ['Report', 'Cancel'] : ['Report']
         };
         return electron.ipcRenderer.sendSync('show-message-box', options);
-        // return await this.message(message + ': ' + detail, 'Report');
+        // await this.message(message, true, 'OK');
+        // return 0;
     }
 
     async require(id) {
@@ -538,7 +539,7 @@ host.ElectronHost = class {
         electron.ipcRenderer.send('window-update', data);
     }
 
-    message(message, action) {
+    async message(message, alert, action) {
         return new Promise((resolve) => {
             const type = this.document.body.getAttribute('class');
             this._element('message-text').innerText = message;
@@ -551,14 +552,19 @@ host.ElectronHost = class {
                     this.document.body.setAttribute('class', type);
                     resolve(0);
                 };
-                button.focus();
             } else {
                 button.style.display = 'none';
                 button.onclick = null;
             }
-            this.document.body.classList.add('welcome');
-            this.document.body.classList.add('message');
-            this.document.body.classList.remove('default');
+            if (alert) {
+                this.document.body.setAttribute('class', 'alert');
+            } else {
+                this.document.body.classList.add('notification');
+                this.document.body.classList.remove('default');
+            }
+            if (action) {
+                button.focus();
+            }
         });
     }
 };
