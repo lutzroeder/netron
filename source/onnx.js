@@ -1421,7 +1421,7 @@ onnx.ProtoReader = class {
                     'darknet to ONNX example',
                     'Novatek Caffe2Onnx Converter', 'Novatek NovaOnnx Converter', 'htshinichi',
                     'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'ML.NET', 'MVTec Software', 'Novaic',
-                    'onnx-caffe2', 'onnx.compose.merge_models', 'onnx-example', 'onnx-fix-nodes', 'onnx-TIDL', 'onnx-typecast', 'onnx_test', 'onnx_tool', 'onnx_translator', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'OnnxRuntime', 'onnxruntime-genai', 'onnxruntime-sample', 'onnxruntime-test', 'onnxruntime-tools', 'onnxruntime.transformers', 'optimum-onnx', 'optimum-onnxruntime',
+                    'onnx', 'onnx-caffe2', 'onnx.compose.merge_models', 'onnx-example', 'onnx-fix-nodes', 'onnx-TIDL', 'onnx-typecast', 'onnx_test', 'onnx_tool', 'onnx_translator', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'OnnxRuntime', 'onnxruntime-genai', 'onnxruntime-sample', 'onnxruntime-test', 'onnxruntime-tools', 'onnxruntime.transformers', 'optimum-onnx', 'optimum-onnxruntime',
                     'PaddlePaddle', 'pmml2onnx', 'PPL Quantization Tool', 'prune_model_weight', 'Pulsar2', 'pytorch',
                     'rk',
                     'sclblonnx', 'sequencer_save', 'SNPS MWNN Optimizer', 'SNPS MWNN Quantizer', 'SNPS NNAC Compiler', 'SNPS NNAC Legalizer', 'SNPS NNAC Optimizer', 'SNPS NNAC Quantizer', 'skl2onnx', 'SubMConv3dCube',
