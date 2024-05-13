@@ -691,10 +691,8 @@ view.View = class {
                 this._model = null;
                 this._stack = [];
                 this._activeGraph = null;
-                this.show(null);
-            } else if (this._page !== 'default') {
-                this.show('default');
             }
+            this.show(null);
             const path = this._element('toolbar-path');
             const back = this._element('toolbar-path-back-button');
             while (path.children.length > 1) {
@@ -721,8 +719,9 @@ view.View = class {
                             if (i > 0) {
                                 this._stack = this._stack.slice(i);
                                 await this._updateGraph(this._model, this._stack);
+                            } else {
+                                await this.showDefinition(graph);
                             }
-                            await this.showDefinition(this._stack[0]);
                         });
                         let name = '';
                         if (graph && graph.identifier) {
@@ -756,11 +755,10 @@ view.View = class {
     async pushGraph(graph) {
         if (graph && graph !== this.activeGraph && Array.isArray(graph.nodes)) {
             this._sidebar.close();
-            const entry = {
-                graph,
-                signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
-            };
-            await this._updateGraph(this._model, [entry].concat(this._stack));
+            const signature = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null;
+            const entry = { graph, signature };
+            const stack = [entry].concat(this._stack);
+            await this._updateGraph(this._model, stack);
         }
     }
 
