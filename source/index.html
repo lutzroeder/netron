@@ -40,21 +40,9 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .toolbar-icon .border { stroke: #fff; }
 .toolbar-icon .stroke { stroke: #808080; }
 .toolbar-icon:hover .stroke { stroke: #000000; }
-.notification body { background-color: #ececec; }
-.welcome body { background-color: #ececec; }
-.welcome { background-color: #ececec; color: #242424; }
-.welcome .message-name { display: none; opacity: 0; }
-.welcome .message-text { display: none; opacity: 0; }
-.welcome .message-button { display: none; opacity: 0; }
-.notification .message-name { display: inline-flex; opacity: 1; }
-.notification .message-text { display: inline-flex; opacity: 1; }
-.notification .message-button { display: block; opacity: 1; }
-.message { display: none; opacity: 0; }
-.notification .message { display: block; opacity: 1; }
-.alert .message { display: block; opacity: 1; background-color: #ececec; color: #242424; }
-.alert .message-name { display: block; opacity: 1; top: -100px; }
-.alert .message-text { display: block; opacity: 1; top: -50px; width: 50%; }
-.alert .message-button { display: block; opacity: 1; top: 100px }
+.message { display: none; opacity: 0; position: absolute; top: 0; left: 0; width: 100%; height: 100%; flex-direction: column; justify-content: flex-start; }
+.message-text { display: inline; text-align: center; width: 562px; font-size: 13px; line-height: 20px; margin-top: 50vh; padding-top: 56px; padding-bottom: 20px; margin-left: auto; margin-right: auto; }
+.message-button { display: inline; text-align: center; width: 125px; margin-left: auto; margin-right: auto; }
 .logo-text { top: -57px; width: 582px; transition: 0.1s; }
 .logo-name { top: -170px; width: 582px; transition: 0.1s; }
 .logo-icon { left: 248px; top: -18px; width: 106px; height: 106px; transition: 0.1s; }
@@ -71,20 +59,30 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .open-file-button { top: 170px; left: 0px; width: 10.5em; }
 .progress { top: 120px; height: 2px; width: 400px; }
 .progress-bar { height: 100%; width: 0%; background-color: #444444; }
-#dialog { display: none; color: #444444; }
-.message-name { display: inline-flex; align-items: center; justify-content: center; text-align: center; top: 0px; height: 0px; font-size: 13px; font-weight: bold; line-height: 20px; }
-.message-text { display: inline-flex; align-items: center; justify-content: center; text-align: center; top: 132px; height: 0px; font-size: 13px; line-height: 20px; }
-.message-button { top: 224px; left: 0px; width: 125px; }
-.notification .logo-name { display:none; }
-.notification .open-file-button { display:none; }
-.notification .progress { display:none; }
+.notification .logo-name { display: none; }
+.notification .open-file-button { display: none; }
+.notification .progress { display: none; }
+.welcome body { background-color: #ececec; }
+.welcome { background-color: #ececec; color: #242424; }
+.welcome .message-text { display: none; opacity: 0; }
+.welcome .message-button { display: none; opacity: 0; }
 .welcome .graph { display: none; opacity: 0; }
 .welcome .menu { background-color: #ffffff; }
 .welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
 .welcome.spinner .menu-button { display: none; }
 .welcome.notification .menu-button { display: none; }
+.notification body { background-color: #ececec; }
+.notification .message { display: flex; opacity: 1; }
+.notification .message-text { display: inline; opacity: 1; }
+.notification .message-button { display: inline; opacity: 1; }
+.alert { background-color: #ececec; color: #242424; }
 .alert .graph { display: none; opacity: 0; }
-.alert .logo-name { display: none; opacity: 0; }
+.alert .toolbar { display: none; opacity: 0; }
+.alert .menu { display: none; opacity: 0; }
+.alert .logo { display: none; opacity: 0; }
+.alert .message { display: flex; opacity: 1; }
+.alert .message-text { display: inline; opacity: 1; width: 50%; padding-top: 0px; }
+.alert .message-button { display: inline; opacity: 1; }
 .about { overflow: hidden; }
 .about .toolbar { display: none; }
 .about .logo { display: block; background-color: #ececec; color: #666666; }
@@ -129,14 +127,13 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome.spinner .open-file-button { display: none; }
 .welcome.spinner .graph { display: flex; opacity: 0; }
 .welcome .notification .logo-name { display: none; }
-.welcome .notification .open-file-button { display: none; }
 .welcome .toolbar { display: none; }
 @media (prefers-color-scheme: dark) {
 :root { color-scheme: dark; }
 .default { background-color: #404040; }
 .graph { background-color: #404040; }
 .welcome { background-color: #1e1e1e; color: #888888; }
-.alert .message { background-color: #1e1e1e; color: #888888; }
+.alert { background-color: #1e1e1e; color: #888888; }
 .logo-stroke { stroke: #888888; }
 .logo-fill { fill: #888888; }
 .logo-border { stroke: #000000; }
@@ -176,11 +173,10 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .logo { width: 240px; }
 .logo-text { opacity: 0; }
 .logo-name { opacity: 0; }
-.logo-icon { left: 0; }
-.logo-spinner { left: 0; }
+.logo-icon { left: 0; width: 128px; height: 128px;  }
+.logo-spinner { left: 0; width: 128px; height: 128px; }
 .logo .open-file-button { top: 204px; left: 0; }
-.alert .message-button { top: 304px; }
-.alert .message-text { top: 190px; width: 240px; }
+.message-text { padding-top: 68px; width: 320px; }
 .progress { top: 160px; height: 2px; width: 100px; }
 .about .logo { width: 100%; padding-left: 0; padding-right: 0; }
 .about .logo-message { top: 175px; font-size: 12px; }
@@ -513,10 +509,9 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
     <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
 </div>
-<div id="message" class="center message">
-    <span id="message-name" class="center message-name"></span>
-    <span id="message-text" class="center message-text"></span>
-    <button id="message-button" class="center logo-button message-button" tabindex="0">OK</button>
+<div id="message" class="message">
+    <span id="message-text" class="message-text"></span>
+    <button id="message-button" class="logo-button message-button" tabindex="0">OK</button>
 </div>
 <div id="titlebar" class="titlebar">
     <svg style="position: absolute; width: 0px; height: 0px; overflow: hidden;" aria-hidden="true">

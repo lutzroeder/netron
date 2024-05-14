@@ -220,13 +220,6 @@ host.BrowserHost = class {
         return this._environment[name];
     }
 
-    async error(message /*, name , cancel */) {
-        alert(message);
-        return 0;
-        // await this.message(message, true, 'OK');
-        // return 1;
-    }
-
     async require(id) {
         return import(`${id}.js`);
     }
@@ -573,7 +566,7 @@ host.BrowserHost = class {
                 button.onclick = null;
             }
             if (alert) {
-                this.document.body.setAttribute('alert');
+                this.document.body.setAttribute('class', 'alert');
             } else {
                 this.document.body.classList.add('notification');
                 this.document.body.classList.remove('default');

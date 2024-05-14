@@ -607,8 +607,8 @@ view.View = class {
         const url = known && known.url ? known.url : null;
         const message = err.message;
         name = name || err.name;
-        const button = await this._host.error(message, name, url === null);
-        if (button === 0 && (url || this._host.type === 'Electron')) {
+        await this._host.message(message, true, 'OK');
+        if (url) {
             this._host.openURL(url || `${this._host.environment('repository')}/issues`);
         }
         this.show(screen);

@@ -642,7 +642,7 @@ app.View = class {
         const options = {
             show: false,
             title: electron.app.name,
-            backgroundColor: electron.nativeTheme.shouldUseDarkColors ? '#1d1d1d' : '#e6e6e6',
+            backgroundColor: electron.nativeTheme.shouldUseDarkColors ? '#1e1e1e' : '#ececec',
             icon: electron.nativeImage.createFromPath(path.join(dirname, 'icon.png')),
             minWidth: 600,
             minHeight: 600,

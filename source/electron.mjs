@@ -237,16 +237,8 @@ host.ElectronHost = class {
         return this._environment[name];
     }
 
-    async error(message, name, cancel) {
-        const options = {
-            type: 'error',
-            detail: message,
-            message: name,
-            buttons: cancel ? ['Report', 'Cancel'] : ['Report']
-        };
-        return electron.ipcRenderer.sendSync('show-message-box', options);
-        // await this.message(message, true, 'OK');
-        // return 0;
+    async error(message) {
+        await this.message(message, true, 'OK');
     }
 
     async require(id) {
