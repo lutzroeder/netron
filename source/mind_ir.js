@@ -5,6 +5,7 @@
  * The Model class represents a mind_ir model and contains information about the model's format, name, and graphs.
  * The Graph class represents a graph within a mind_ir model and contains information about the graph's inputs, outputs, and nodes.
  */
+export const protobuf = {};
 const mind_ir = {
     ModelFactory: class {},
     Model: class {},
@@ -225,12 +226,11 @@ mind_ir.Argument = class {
         if (Array.isArray(tensor)) {
             [tensor] = tensor;
         }
-        if (!(tensor && tensor.dims)) {
-            this._type = null;
-        } else {
+        if (tensor && tensor.dims) {
             this._type = initializer ? initializer._type : new mind_ir.TensorType(tensor.data_type, tensor.dims);
+        } else {
+            this._type = null;
         }
-
         this._quantization = quantization || null;
         this._visible = visible || false;
     }
@@ -460,10 +460,10 @@ mind_ir.Attribute = class {
                 this._type = 'int32';
                 break;
             case mind_ir.AttributeType.INT64:
-                if (attribute.ints !== 0) {
-                    this._value = attribute.ints;
-                } else {
+                if (attribute.ints === 0) {
                     this._value = attribute.i;
+                } else {
+                    this._value = attribute.ints;
                 }
                 this._type = 'int64';
                 break;
