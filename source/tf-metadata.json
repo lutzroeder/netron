@@ -57672,7 +57672,7 @@
       {
         "name": "out_type",
         "type": "type",
-        "description": "The numeric type to interpret each string in `string_tensor` as. Must be one of the following: `float32`, `float64`, `int32`, `int64`.",
+        "description": "The numeric type to interpret each string in `string_tensor` as. Must be one of the following: `float32`, `float64`, `int32`, `int64`, `uint32`, `uint64`.",
         "default": {
           "type": "type",
           "value": 1
