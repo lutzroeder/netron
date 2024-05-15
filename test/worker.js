@@ -367,6 +367,9 @@ export class Target {
         await zip.Archive.import();
         this.window = this.window || new Window();
         this.host = await new host.TestHost(this.window);
+        this.view = new view.View(this.host);
+        this.view.options.attributes = true;
+        this.view.options.initializers = true;
         const time = async (method) => {
             const start = process.hrtime.bigint();
             let err = null;
@@ -729,7 +732,7 @@ export class Target {
                 // const sidebar = new view.NodeSidebar(this.host, node);
                 // sidebar.render();
             }
-            const sidebar = new view.ModelSidebar(this.host, this.model, graph);
+            const sidebar = new view.ModelSidebar(this.view, this.model, graph);
             sidebar.render();
         };
         /* eslint-enable no-unused-expressions */
@@ -739,14 +742,11 @@ export class Target {
     }
 
     async render() {
-        const current = new view.View(this.host);
-        current.options.attributes = true;
-        current.options.initializers = true;
         for (const graph of this.model.graphs) {
             const signatures = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures : [graph];
             for (const signature of signatures) {
                 /* eslint-disable no-await-in-loop */
-                await current.renderGraph(this.model, graph, signature, current.options);
+                await this.view.renderGraph(this.model, graph, signature, this.view.options);
                 /* eslint-enable no-await-in-loop */
             }
         }

@@ -210,6 +210,10 @@ view.View = class {
         }
     }
 
+    get host() {
+        return this._host;
+    }
+
     show(page) {
         if (!page) {
             page = (!this._model && !this.activeGraph) ? 'welcome' : 'default';
@@ -265,7 +269,7 @@ view.View = class {
     find() {
         if (this._graph) {
             this._graph.select(null);
-            const sidebar = new view.FindSidebar(this._host, this.activeGraph, this.activeSignature);
+            const sidebar = new view.FindSidebar(this, this.activeGraph, this.activeSignature);
             sidebar.on('state-changed', (sender, state) => {
                 this._find = state;
             });
@@ -579,11 +583,11 @@ view.View = class {
         }
     }
 
-    async error(err, name, screen) {
+    async error(error, name, screen) {
         if (this._sidebar) {
             this._sidebar.close();
         }
-        this._host.exception(err, false);
+        this.exception(error, false);
         const knowns = [
             { name: '', message: /^Invalid value identifier/, url: 'https://github.com/lutzroeder/netron/issues/540' },
             { name: '', message: /^Cannot read property/, url: 'https://github.com/lutzroeder/netron/issues/647' },
@@ -603,10 +607,10 @@ view.View = class {
             { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto \(Cannot read properties of undefined \(reading 'ModelProto'\)\)\./, url: 'https://github.com/lutzroeder/netron/issues/1156' },
             { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto/, url: 'https://github.com/lutzroeder/netron/issues/549' }
         ];
-        const known = knowns.find((known) => (known.name.length === 0 || known.name === err.name) && err.message.match(known.message));
+        const known = knowns.find((known) => (known.name.length === 0 || known.name === error.name) && error.message.match(known.message));
         const url = known && known.url ? known.url : null;
-        const message = err.message;
-        name = name || err.name;
+        const message = error.message;
+        name = name || error.name;
         await this._host.message(message, true, 'OK');
         if (url) {
             this._host.openURL(url || `${this._host.environment('repository')}/issues`);
@@ -970,7 +974,7 @@ view.View = class {
     showModelProperties() {
         if (this._model) {
             try {
-                const sidebar = new view.ModelSidebar(this._host, this._model, this.activeGraph, this.activeSignature);
+                const sidebar = new view.ModelSidebar(this, this.model, this.activeGraph, this.activeSignature);
                 sidebar.on('update-active-graph', (sender, graph) => {
                     const entry = {
                         graph,
@@ -987,7 +991,6 @@ view.View = class {
                 });
                 this._sidebar.open(sidebar, 'Model Properties');
             } catch (error) {
-                this._context(error);
                 this.error(error, 'Error showing model properties.', null);
             }
         }
@@ -999,7 +1002,7 @@ view.View = class {
                 if (this._menu) {
                     this._menu.close();
                 }
-                const sidebar = new view.NodeSidebar(this._host, node);
+                const sidebar = new view.NodeSidebar(this, node);
                 sidebar.on('show-documentation', async (/* sender, e */) => {
                     await this.showDefinition(node.type);
                 });
@@ -1034,7 +1037,6 @@ view.View = class {
                 });
                 this._sidebar.open(sidebar, 'Node Properties');
             } catch (error) {
-                this._context(error);
                 this.error(error, 'Error showing node properties.', null);
             }
         }
@@ -1045,7 +1047,7 @@ view.View = class {
             if (this._menu) {
                 this._menu.close();
             }
-            const sidebar = new view.ConnectionSidebar(this._host, value, from, to);
+            const sidebar = new view.ConnectionSidebar(this, value, from, to);
             sidebar.on('activate', (sender, value) => {
                 this._graph.select([value]);
             });
@@ -1057,15 +1059,15 @@ view.View = class {
             });
             this._sidebar.open(sidebar, 'Connection Properties');
         } catch (error) {
-            this._context(error);
             this.error(error, 'Error showing connection properties.', null);
         }
     }
 
-    _context(error) {
-        if (error && !error.context) {
-            error.context = this._model && this._model.identifier ? this._model.identifier : '';
+    exception(error, fatal) {
+        if (error && !error.context && this._model && this._model.identifier) {
+            error.context = this._model.identifier;
         }
+        this._host.exception(error, fatal);
     }
 
     async showDefinition(type) {
@@ -1073,7 +1075,7 @@ view.View = class {
             if (type.nodes && type.nodes.length > 0) {
                 await this.pushGraph(type);
             }
-            const sidebar = new view.DocumentationSidebar(this._host, type);
+            const sidebar = new view.DocumentationSidebar(this, type);
             sidebar.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });
@@ -1712,9 +1714,7 @@ view.Graph = class extends grapher.Graph {
             for (const output of outputs) {
                 for (const value of output.value) {
                     if (!value) {
-                        const error = new view.Error('Invalid null argument.');
-                        this._context(error);
-                        throw error;
+                        throw new view.Error('Invalid null argument.');
                     }
                     if (value.name !== '') {
                         this.createValue(value).from = viewNode;
@@ -1943,10 +1943,7 @@ view.Node = class extends grapher.Node {
                                 separator = ' = ';
                             }
                         } catch (error) {
-                            if (this.context.view.model && this.context.view.model.identifier) {
-                                error.context = this.context.view.model.identifier;
-                            }
-                            this.context.host.exception(error, false);
+                            this.context.view.exception(error, false);
                         }
                     }
                 }
@@ -2301,8 +2298,9 @@ view.Sidebar = class {
 
 view.Control = class {
 
-    constructor(host) {
-        this._host = host;
+    constructor(context) {
+        this._view = context;
+        this._host = context.host;
     }
 
     createElement(tagName, className) {
@@ -2328,25 +2326,25 @@ view.Control = class {
     }
 
     error(error, fatal) {
-        this._host.exception(error, fatal || false);
+        this._view.exception(error, fatal || false);
     }
 };
 
 view.ObjectSidebar = class extends view.Control {
 
-    constructor(host) {
-        super(host);
+    constructor(context) {
+        super(context);
         this.element = this.createElement('div', 'sidebar-object');
     }
 
     add(name, item) {
-        const entry = new view.NameValueView(this._host, name, item);
+        const entry = new view.NameValueView(this._view, name, item);
         const element = entry.render();
         this.element.appendChild(element);
     }
 
     addProperty(name, value, style) {
-        const item = new view.ValueTextView(this._host, value, style);
+        const item = new view.ValueTextView(this._view, value, style);
         this.add(name, item);
         return item;
     }
@@ -2367,8 +2365,8 @@ view.ObjectSidebar = class extends view.Control {
 
 view.NodeSidebar = class extends view.ObjectSidebar {
 
-    constructor(host, node) {
-        super(host);
+    constructor(context, node) {
+        super(context);
         this._node = node;
         this._attributes = [];
         this._inputs = [];
@@ -2451,7 +2449,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         let value = null;
         switch (attribute.type) {
             case 'tensor': {
-                value = new view.ValueView(this._host, { type: attribute.value.type, initializer: attribute.value }, '');
+                value = new view.ValueView(this._view, { type: attribute.value.type, initializer: attribute.value }, '');
                 value.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
                 break;
             }
@@ -2459,30 +2457,30 @@ view.NodeSidebar = class extends view.ObjectSidebar {
                 const values = attribute.value.map((value) => {
                     return { type: value.type, initializer: value };
                 });
-                value = new view.ArgumentView(this._host, { value: values }, '');
+                value = new view.ArgumentView(this._view, { value: values }, '');
                 break;
             }
             default: {
-                value = new view.AttributeView(this._host, attribute);
+                value = new view.AttributeView(this._view, attribute);
                 value.on('activate', (sender, graph) => {
                     this.emit('activate', graph);
                 });
                 break;
             }
         }
-        const item = new view.NameValueView(this._host, name, value);
+        const item = new view.NameValueView(this._view, name, value);
         this._attributes.push(item);
         this.element.appendChild(item.render());
     }
 
     _addInput(name, input) {
         if (input.value.length > 0) {
-            const value = new view.ArgumentView(this._host, input);
+            const value = new view.ArgumentView(this._view, input);
             value.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
             value.on('activate', (sender, value) => this.emit('activate', value));
             value.on('deactivate', (sender, value) => this.emit('deactivate', value));
             value.on('select', (sender, value) => this.emit('select', value));
-            const item = new view.NameValueView(this._host, name, value);
+            const item = new view.NameValueView(this._view, name, value);
             this._inputs.push(item);
             this.element.appendChild(item.render());
         }
@@ -2490,11 +2488,11 @@ view.NodeSidebar = class extends view.ObjectSidebar {
 
     _addOutput(name, output) {
         if (output.value.length > 0) {
-            const value = new view.ArgumentView(this._host, output);
+            const value = new view.ArgumentView(this._view, output);
             value.on('activate', (sender, value) => this.emit('activate', value));
             value.on('deactivate', (sender, value) => this.emit('deactivate', value));
             value.on('select', (sender, value) => this.emit('select', value));
-            const item = new view.NameValueView(this._host, name, value);
+            const item = new view.NameValueView(this._view, name, value);
             this._outputs.push(item);
             this.element.appendChild(item.render());
         }
@@ -2503,9 +2501,8 @@ view.NodeSidebar = class extends view.ObjectSidebar {
 
 view.NameValueView = class extends view.Control {
 
-    constructor(host, name, value) {
-        super(host);
-        this._host = host;
+    constructor(context, name, value) {
+        super(context);
         this._name = name;
         this._value = value;
         const nameElement = this.createElement('div', 'sidebar-item-name');
@@ -2539,9 +2536,8 @@ view.NameValueView = class extends view.Control {
 
 view.SelectView = class extends view.Control {
 
-    constructor(host, entries, selected) {
-        super();
-        this._host = host;
+    constructor(context, entries, selected) {
+        super(context);
         this._elements = [];
         this._entries = Array.from(entries);
 
@@ -2567,8 +2563,8 @@ view.SelectView = class extends view.Control {
 
 view.ValueTextView = class extends view.Control {
 
-    constructor(host, value, style) {
-        super(host);
+    constructor(context, value, style) {
+        super(context);
         this._element = this.createElement('div', 'sidebar-item-value');
         if (value) {
             const list = Array.isArray(value) ? value : [value];
@@ -2615,8 +2611,8 @@ view.ValueTextView = class extends view.Control {
 
 view.AttributeView = class extends view.Control {
 
-    constructor(host, attribute) {
-        super(host);
+    constructor(context, attribute) {
+        super(context);
         this._attribute = attribute;
         this._element = this.createElement('div', 'sidebar-item-value');
         const type = this._attribute.type;
@@ -2696,13 +2692,13 @@ view.AttributeView = class extends view.Control {
 
 view.ArgumentView = class extends view.Control {
 
-    constructor(host, argument) {
-        super();
+    constructor(context, argument) {
+        super(context);
         this._argument = argument;
         this._elements = [];
         this._items = [];
         for (const value of argument.value) {
-            const item = new view.ValueView(host, value);
+            const item = new view.ValueView(context, value);
             item.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
             item.on('activate', (sender, value) => this.emit('activate', value));
             item.on('deactivate', (sender, value) => this.emit('deactivate', value));
@@ -2727,8 +2723,8 @@ view.ArgumentView = class extends view.Control {
 
 view.ValueView = class extends view.Control {
 
-    constructor(host, value, name) {
-        super(host);
+    constructor(context, value, name) {
+        super(context);
         this._value = value;
         this._element = this.createElement('div', 'sidebar-item-value');
         try {
@@ -2922,8 +2918,8 @@ view.ValueView = class extends view.Control {
 
 view.NodeView = class extends view.Control {
 
-    constructor(host, node) {
-        super(host);
+    constructor(context, node) {
+        super(context);
         this._node = node;
         this._element = this.createElement('div', 'sidebar-item-value');
         const name = node.name;
@@ -2984,12 +2980,11 @@ view.NodeView = class extends view.Control {
 
 view.NodeListView = class extends view.Control {
 
-    constructor(host, list) {
-        super();
-        this._host = host;
+    constructor(context, list) {
+        super(context);
         this._elements = [];
         for (const node of list) {
-            const item = new view.NodeView(host, node);
+            const item = new view.NodeView(this._view, node);
             item.on('activate', (sender, value) => this.emit('activate', value));
             item.on('deactivate', (sender, value) => this.emit('deactivate', value));
             item.on('select', (sender, value) => this.emit('select', value));
@@ -3007,9 +3002,8 @@ view.NodeListView = class extends view.Control {
 
 view.ConnectionSidebar = class extends view.ObjectSidebar {
 
-    constructor(host, value, from, to) {
-        super(host);
-        this._host = host;
+    constructor(context, value, from, to) {
+        super(context);
         this._value = value;
         this._from = from;
         this._to = to;
@@ -3022,26 +3016,26 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
         const [name] = value.name.split('\n');
         this.addProperty('name', name);
         if (value.type) {
-            const item = new view.ValueView(this._host, value, '');
+            const item = new view.ValueView(this._view, value, '');
             this.add('type', item);
             item.toggle();
         }
         if (from) {
             this.addHeader('Inputs');
-            const list = new view.NodeListView(this._host, [from]);
+            const list = new view.NodeListView(this._view, [from]);
             list.on('activate', (sender, value) => this.emit('activate', value));
             list.on('deactivate', (sender, value) => this.emit('deactivate', value));
             list.on('select', (sender, value) => this.emit('select', value));
-            const item = new view.NameValueView(this._host, 'from', list);
+            const item = new view.NameValueView(this._view, 'from', list);
             this.element.appendChild(item.render());
         }
         if (Array.isArray(to) && to.length > 0) {
             this.addHeader('Outputs');
-            const list = new view.NodeListView(this._host, to);
+            const list = new view.NodeListView(this._view, to);
             list.on('activate', (sender, value) => this.emit('activate', value));
             list.on('deactivate', (sender, value) => this.emit('deactivate', value));
             list.on('select', (sender, value) => this.emit('select', value));
-            const item = new view.NameValueView(this._host, 'to', list);
+            const item = new view.NameValueView(this._view, 'to', list);
             this.element.appendChild(item.render());
         }
     }
@@ -3049,8 +3043,8 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
 
 view.ModelSidebar = class extends view.ObjectSidebar {
 
-    constructor(host, model, graph, signature) {
-        super(host);
+    constructor(context, model, graph, signature) {
+        super(context);
         this._model = model;
         this._graph = graph;
         this._signature = signature;
@@ -3095,7 +3089,7 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             for (const graph of model.graphs) {
                 entries.set(graph.name, graph);
             }
-            const selector = new view.SelectView(this._host, entries, graph);
+            const selector = new view.SelectView(this._view, entries, graph);
             selector.on('change', (sender, data) => this.emit('update-active-graph', data));
             this.add('graph', selector);
         }
@@ -3105,7 +3099,7 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             for (const signature of graph.signatures) {
                 entries.set(signature.name, signature);
             }
-            const selector = new view.SelectView(this._host, entries, signature || graph);
+            const selector = new view.SelectView(this._view, entries, signature || graph);
             selector.on('change', (sender, data) => this.emit('update-active-graph-signature', data));
             this.add('signature', selector);
         }
@@ -3149,18 +3143,17 @@ view.ModelSidebar = class extends view.ObjectSidebar {
     }
 
     addArgument(name, argument) {
-        const value = new view.ArgumentView(this._host, argument);
+        const value = new view.ArgumentView(this._view, argument);
         value.toggle();
-        const item = new view.NameValueView(this._host, name, value);
+        const item = new view.NameValueView(this._view, name, value);
         this.element.appendChild(item.render());
     }
 };
 
 view.DocumentationSidebar = class extends view.Control {
 
-    constructor(host, type) {
-        super();
-        this._host = host;
+    constructor(context, type) {
+        super(context);
         this._type = type;
     }
 
@@ -3255,8 +3248,8 @@ view.DocumentationSidebar = class extends view.Control {
 
 view.FindSidebar = class extends view.Control {
 
-    constructor(host, graph, signature) {
-        super(host);
+    constructor(context, graph, signature) {
+        super(context);
         this._graph = graph;
         this._signature = signature;
         this._state = {
@@ -5588,9 +5581,7 @@ view.ModelFactoryService = class {
             }
             return model;
         } catch (error) {
-            if (error && context.identifier) {
-                error.context = context.identifier;
-            }
+            error.context = !error.context && context && context.identifier ? context.identifier : error.context || '';
             throw error;
         }
     }
