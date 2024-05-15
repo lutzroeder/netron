@@ -1549,6 +1549,15 @@
   },
   {
     "type":     "coreml",
+    "target":   "segmentation.mlmodelc.zip",
+    "source":   "https://github.com/user-attachments/files/15315833/segmentation.mlmodelc.zip",
+    "error":    "Core ML Model Archive format is not supported.",
+    "format":   "Core ML Model Archive",
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
+  },
+
+  {
+    "type":     "coreml",
     "target":   "SentimentPolarity.mlmodel",
     "source":   "https://github.com/cocoa-ai/SentimentCoreMLDemo/raw/master/SentimentPolarity/Resources/SentimentPolarity.mlmodel",
     "link":     "https://github.com/SwiftBrain/awesome-CoreML-models"

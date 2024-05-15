@@ -35,8 +35,9 @@ openvino.ModelFactory = class {
             const identifiers = new Set(['config.bin', 'model.bin', '__model__.bin', 'weights.bin', 'programs.bin', 'best.bin', 'ncnn.bin']);
             if (!identifiers.has(identifier)) {
                 const size = Math.min(stream.length, 1024) & 0xFFFC;
-                const buffer = stream.peek(size);
-                const array = new Float32Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                const buffer = stream.peek(size).slice(0);
+                const length = buffer.length / 4;
+                const array = new Float32Array(buffer.buffer, buffer.byteOffset, length);
                 const values = Array.from(array);
                 if (values.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -10.0 && value < 10.0)) {
                     context.type = 'openvino.bin';

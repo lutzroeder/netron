@@ -1,5 +1,6 @@
 
 import * as base from './base.js';
+import * as text from './text.js';
 
 const coreml = {};
 
@@ -45,6 +46,24 @@ coreml.ModelFactory = class {
                 context.type = 'coreml.metadata';
                 return;
             }
+            if (Array.isArray(obj) && obj.some((item) => item && item.metadataOutputVersion && item.specificationVersion)) {
+                context.type = 'coreml.metadata.mlmodelc';
+                return;
+            }
+        }
+        if (identifier === 'model.mil') {
+            try {
+                const reader = text.Reader.open(context.stream, 2048);
+                const signature = reader.read();
+                if (signature !== undefined) {
+                    if (signature.trim().startsWith('program')) {
+                        context.type = 'coreml.mil';
+                        return;
+                    }
+                }
+            } catch {
+                // continue regardless of error
+            }
         }
         if (identifier === 'featuredescriptions.json') {
             const obj = context.peek('json');
@@ -63,6 +82,10 @@ coreml.ModelFactory = class {
                 }
             }
         }
+    }
+
+    filter(context, type) {
+        return context.type !== 'coreml.manifest.mlmodelc' && type !== 'coreml.mil';
     }
 
     async open(context) {
@@ -170,6 +193,12 @@ coreml.ModelFactory = class {
             case 'coreml.featuredescriptions':
             case 'coreml.metadata': {
                 return openManifestStream(context, '../../');
+            }
+            case 'coreml.metadata.mlmodelc': {
+                throw new coreml.Error('Core ML Model Archive format is not supported.');
+            }
+            case 'coreml.mil': {
+                throw new coreml.Error('Core ML MIL format is not supported.');
             }
             case 'coreml.weights': {
                 return openManifestStream(context, '../../../');
