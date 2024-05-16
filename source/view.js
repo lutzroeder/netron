@@ -63,6 +63,14 @@ view.View = class {
                     this._graph.select(null);
                 }
             });
+            if (this._host.type === 'Electron') {
+                this._host.update({ 'can-copy': false });
+                this._host.document.addEventListener('selectionchange', () => {
+                    const selection = this._host.document.getSelection();
+                    const selected = selection.rangeCount === 0 || selection.toString().trim() !== '';
+                    this._host.update({ 'can-copy': selected });
+                });
+            }
             const platform = this._host.environment('platform');
             this._menu = new view.Menu(this._host);
             this._menu.add({
@@ -611,8 +619,9 @@ view.View = class {
         const url = known && known.url ? known.url : null;
         const message = error.message;
         name = name || error.name;
-        await this._host.message(message, true, 'OK');
-        if (url) {
+        const report = url ? true : false;
+        await this._host.message(message, true, report ? 'Report' : 'OK');
+        if (report) {
             this._host.openURL(url || `${this._host.environment('repository')}/issues`);
         }
         this.show(screen);
@@ -796,7 +805,7 @@ view.View = class {
         const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.value.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
         const horizontal = rotate ? options.direction === 'vertical' : options.direction !== 'vertical';
         if (horizontal) {
-            layout.rankdir = "LR";
+            layout.rankdir = 'LR';
         }
         if (nodes.length > 3000) {
             layout.ranker = 'longest-path';

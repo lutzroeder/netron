@@ -162,7 +162,7 @@ host.ElectronHost = class {
         });
         electron.ipcRenderer.on('toggle', (sender, name) => {
             this._view.toggle(name);
-            this._update({ ...this._view.options });
+            this.update({ ...this._view.options });
         });
         electron.ipcRenderer.on('zoom-in', () => {
             this._element('zoom-in-button').click();
@@ -415,7 +415,7 @@ host.ElectronHost = class {
                 this._telemetry.set('session_engaged', 1);
             } catch (error) {
                 await this._view.error(error, 'Error while reading file.', null);
-                this._update({ path: null });
+                this.update({ path: null });
                 return;
             }
             try {
@@ -429,13 +429,13 @@ host.ElectronHost = class {
                     options.path = path;
                     this._title('');
                 }
-                this._update(options);
+                this.update(options);
             } catch (error) {
                 const options = { ...this._view.options };
                 if (error) {
                     await this._view.error(error, null, null);
                 }
-                this._update(options);
+                this.update(options);
             }
         }
     }
@@ -527,7 +527,7 @@ host.ElectronHost = class {
         return this.document.getElementById(id);
     }
 
-    _update(data) {
+    update(data) {
         electron.ipcRenderer.send('window-update', data);
     }
 

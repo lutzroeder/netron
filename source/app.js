@@ -72,10 +72,6 @@ app.Application = class {
             this._dropPaths(event.sender, paths);
             event.returnValue = null;
         });
-        electron.ipcMain.on('show-message-box', (event, options) => {
-            const owner = event.sender.getOwnerBrowserWindow();
-            event.returnValue = electron.dialog.showMessageBoxSync(owner, options);
-        });
         electron.ipcMain.on('show-save-dialog', (event, options) => {
             const owner = event.sender.getOwnerBrowserWindow();
             event.returnValue = electron.dialog.showSaveDialogSync(owner, options);
@@ -566,7 +562,7 @@ app.Application = class {
                 enabled: (view) => view && view.path ? true : false
             });
             commandTable.set('edit.copy', {
-                enabled: (view) => view && view.path ? true : false
+                enabled: (view) => view && (view.path || view.get('can-copy')) ? true : false
             });
             commandTable.set('edit.paste', {
                 enabled: (view) => view && view.path ? true : false
@@ -862,7 +858,8 @@ app.ViewCollection = class {
         electron.ipcMain.on('window-update', (event, data) => {
             const window = event.sender.getOwnerBrowserWindow();
             if (this._views.has(window)) {
-                this._views.get(window).update(data);
+                const view = this._views.get(window);
+                view.update(data);
             }
             event.returnValue = null;
         });
