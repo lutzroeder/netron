@@ -130,8 +130,6 @@ def _check_types(types, schemas):
             types.pop(key)
         if key.startswith('_caffe2::'):
             types.pop(key)
-    types.pop('aten::_aminmax')
-    types.pop('aten::_aminmax.dim')
     types.pop('aten::fft')
     types.pop('aten::mul.ScalarT')
     types.pop('aten::classes._nnapi.Compilation')
