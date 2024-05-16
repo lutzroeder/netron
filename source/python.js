@@ -4782,6 +4782,7 @@ python.Execution = class {
             tensor._shape = size;
             return tensor;
         });
+        this.registerFunction('torch._utils._rebuild_meta_tensor_no_storage');
         this.registerFunction('torch._utils._rebuild_tensor', (storage, storage_offset, size, stride) => {
             if (Array.isArray(storage) && storage.length === 5 && storage[0] === 'storage') {
                 const [, storage_type, , ,size] = storage;
