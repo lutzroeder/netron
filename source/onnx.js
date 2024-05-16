@@ -116,8 +116,10 @@ onnx.Model = class {
             imageFormat = [imageMetadata['Image.BitmapPixelFormat'], imageMetadata['Image.ColorSpaceGamma'], imageMetadata['Image.NominalPixelRange']].filter((item) => item);
         }
         const context = new onnx.Context.Model(metadata, target.locations, imageFormat, imports, model.functions);
-        const graph = new onnx.Graph(context, model.graph);
-        this._graphs = [graph];
+        if (model.graph) {
+            const graph = new onnx.Graph(context, model.graph);
+            this._graphs.push(graph);
+        }
     }
 
     get format() {
@@ -165,7 +167,7 @@ onnx.Graph = class {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
-        this._name = graph.name || null;
+        this._name = graph && graph.name || null;
         this._description = graph.doc_string || '';
         context = new onnx.Context.Graph(context, graph);
         if (Array.isArray(graph.quantization_annotation)) {
@@ -1407,33 +1409,13 @@ onnx.ProtoReader = class {
         }
         const stream = context.stream;
         if (stream && stream.length > 5) {
-            const buffer = stream.peek(Math.min(stream.length, 32));
-            if (buffer[0] === 0x08 && buffer[1] < 0x0B && buffer[2] === 0x12) {
-                const producers = [
-                    'backend-test', 'BrainwaveCompiler',
-                    'caffe', 'CNTK', 'customvision', 'Cube.AI', 'cvflowbackend',
-                    'DEEPX', 'DEEPX-IR', 'dmp2x', 'dx-dl',
-                    'eva_tool', 'eytorch',
-                    'fuse_model',
-                    'GE',
-                    'horizon_nn',
-                    'keras2onnx', 'Kneron', 'Kneron Piano', 'kneron_formatter', 'kneron_kl530_test_case',
-                    'darknet to ONNX example',
-                    'Novatek Caffe2Onnx Converter', 'Novatek NovaOnnx Converter', 'htshinichi',
-                    'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'ML.NET', 'MVTec Software', 'Novaic',
-                    'onnx', 'onnx-caffe2', 'onnx.compose.merge_models', 'onnx-example', 'onnx-fix-nodes', 'onnx-TIDL', 'onnx-typecast', 'onnx_test', 'onnx_tool', 'onnx_translator', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'OnnxRuntime', 'onnxruntime-genai', 'onnxruntime-sample', 'onnxruntime-test', 'onnxruntime-tools', 'onnxruntime.transformers', 'optimum-onnx', 'optimum-onnxruntime',
-                    'PaddlePaddle', 'pmml2onnx', 'PPL Quantization Tool', 'prune_model_weight', 'Pulsar2', 'pytorch',
-                    'rk',
-                    'sclblonnx', 'sequencer_save', 'SNPS MWNN Optimizer', 'SNPS MWNN Quantizer', 'SNPS NNAC Compiler', 'SNPS NNAC Legalizer', 'SNPS NNAC Optimizer', 'SNPS NNAC Quantizer', 'skl2onnx', 'SubMConv3dCube',
-                    'Tencent YouTu', 'TensorRT', 'tf2onnx', 'tflite2onnx',
-                    'Updated Producer',
-                    'vai_q_onnx',
-                    'WinMLTools'
-                ];
-                if (producers.some((producer) => Array.from(producer).every((ch, index) => index + 4 < buffer.length && ch.charCodeAt(0) === buffer[index + 4]))) {
-                    return new onnx.ProtoReader(context, 'binary', 'model');
-                }
-                if (buffer[3] === 0x00 && buffer[4] === 0x1A && buffer[5] === 0x00) {
+            const buffer = stream.peek(Math.min(stream.length, 256));
+            if (buffer[0] === 0x08 && buffer[1] < 0x0B && buffer[2] === 0x12 && buffer[3] < 64 && (buffer[3] + 4) <= stream.length) {
+                const producers = ['vai_q_onnx'];
+                const producer = String.fromCharCode.apply(null, buffer.subarray(4, 4 + buffer[3]));
+                if (producers.includes(producer) ||
+                    producer.match(/^[A-Za-z][A-Za-z23]+([-_. ][A-Za-z][A-Za-z2350]+)*$/) ||
+                    buffer[3] === 0x00 && buffer[4] === 0x1A && buffer[5] === 0x00) {
                     return new onnx.ProtoReader(context, 'binary', 'model');
                 }
             }
@@ -1569,7 +1551,7 @@ onnx.ProtoReader = class {
             }
         };
         const model = this.model;
-        const queue = [model.graph];
+        const queue = model.graph ? [model.graph] : [];
         while (queue.length > 0) {
             const graph = queue.shift();
             if (Array.isArray(graph.initializer)) {
