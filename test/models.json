@@ -4067,22 +4067,6 @@
   },
   {
     "type":     "onnx",
-    "target":   "test_mi_overloaded_function.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/14812772/test_mi_overloaded_function.zip[test_mi_overloaded_function.onnx]",
-    "assert":   [ "model.graphs[0].nodes[0].type.identifier == 'cast:to_int32'" ],
-    "format":   "ONNX v10",
-    "tags":     "validation",
-    "link":     "https://github.com/lutzroeder/netron/issues/884"
-  },
-  {
-    "type":     "onnx",
-    "target":   "test_mi_overloaded_function.txt",
-    "source":   "https://github.com/lutzroeder/netron/files/14812772/test_mi_overloaded_function.zip[test_mi_overloaded_function.txt]",
-    "format":   "ONNX Text v10",
-    "link":     "https://github.com/lutzroeder/netron/issues/884"
-  },
-  {
-    "type":     "onnx",
     "target":   "mnist.onnx",
     "source":   "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/MNIST/Tutorial/cs/Assets/mnist.onnx",
     "format":   "ONNX v3",
@@ -4114,6 +4098,15 @@
     "target":   "nms_base_component.json",
     "source":   "https://github.com/lutzroeder/netron/files/12306626/nms_base_component.json.zip[nms_base_component.json]",
     "format":   "ONNX JSON v8",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
+    "target":   "null_graph.onnx",
+    "source":   "https://github.com/user-attachments/files/15336270/null_graph.onnx.zip[null_graph.onnx]",
+    "assert":   [ "model.graphs.length == 0" ],
+    "format":   "ONNX v3",
+    "producer": "OnnxMLTools 0.1.0.0000",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -4280,6 +4273,22 @@
     "source":   "https://raw.githubusercontent.com/microsoft/onnxruntime/master/onnxruntime/test/testdata/CNTK/test_LSTM.tanh.bidirectional//model.onnx",
     "format":   "ONNX v3",
     "link":     "https://github.com/microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
+  },
+  {
+    "type":     "onnx",
+    "target":   "test_mi_overloaded_function.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/14812772/test_mi_overloaded_function.zip[test_mi_overloaded_function.onnx]",
+    "assert":   [ "model.graphs[0].nodes[0].type.identifier == 'cast:to_int32'" ],
+    "format":   "ONNX v10",
+    "tags":     "validation",
+    "link":     "https://github.com/lutzroeder/netron/issues/884"
+  },
+  {
+    "type":     "onnx",
+    "target":   "test_mi_overloaded_function.txt",
+    "source":   "https://github.com/lutzroeder/netron/files/14812772/test_mi_overloaded_function.zip[test_mi_overloaded_function.txt]",
+    "format":   "ONNX Text v10",
+    "link":     "https://github.com/lutzroeder/netron/issues/884"
   },
   {
     "type":     "onnx",
