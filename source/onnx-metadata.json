@@ -29339,10 +29339,15 @@
         "name": "g_idx",
         "type": "T4",
         "option": "optional"
+      },
+      {
+        "name": "bias",
+        "type": "T1",
+        "option": "optional"
       }
     ],
     "min_input": 3,
-    "max_input": 5,
+    "max_input": 6,
     "outputs": [
       {
         "name": "Y",
@@ -29351,7 +29356,7 @@
     ],
     "min_output": 1,
     "max_output": 1,
-    "inputs_range": "3 - 5",
+    "inputs_range": "3 - 6",
     "type_constraints": [
       {
         "description": "Constrain input and output types to float/half_float tensors.",
