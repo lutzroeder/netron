@@ -48,7 +48,8 @@ ncnn.ModelFactory = class {
                     case 0x00000001: {
                         const size = Math.min(stream.length, 1024) & 0xFFFC;
                         const buffer = stream.peek(size);
-                        const array = new Float32Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                        const length = size >> 2;
+                        const array = new Float32Array(buffer.buffer, buffer.byteOffset, length);
                         const values = Array.from(array).slice(1);
                         if (values.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -10.0 && value < 10.0)) {
                             context.type = 'ncnn.weights';
