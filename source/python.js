@@ -3606,6 +3606,7 @@ python.Execution = class {
             }
             return _dill._reverse_typemap.get(name);
         });
+        this.registerFunction('dill._dill.loads');
         this.registerFunction('keras.saving.pickle_utils.deserialize_model_from_bytecode', (/* serialized_model */) => {
             return null; // throw new python.Error("'keras.saving.pickle_utils.deserialize_model_from_bytecode' not implemented.");
         });
