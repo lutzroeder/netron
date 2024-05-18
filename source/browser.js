@@ -428,7 +428,7 @@ host.BrowserHost = class {
             context = new host.BrowserHost.Context(this, url, identifier, stream);
             this._telemetry.set('session_engaged', 1);
         } catch (error) {
-            await this.error('Model load request failed.', error.message);
+            await this._view.error(error, 'Model load request failed.');
             this._view.show('welcome');
             return null;
         }
@@ -442,9 +442,7 @@ host.BrowserHost = class {
             await context.open();
             await this._openContext(context);
         } catch (error) {
-            if (error) {
-                this._view.error(error, error.name, null);
-            }
+            await this._view.error(error);
         }
     }
 
@@ -454,14 +452,18 @@ host.BrowserHost = class {
         try {
             const text = await this._request(url, { 'Content-Type': 'application/json' }, 'utf-8');
             const json = JSON.parse(text);
-            if (json.message) {
-                await this.error('Error while loading Gist.', json.message);
-                return;
+            let message = json.message;
+            let file = null;
+            if (!message) {
+                file = Object.values(json.files).find((file) => this._view.accept(file.filename));
+                if (!file) {
+                    message = 'Gist does not contain a model file.';
+                }
             }
-            const file = Object.values(json.files).find((file) => this._view.accept(file.filename));
-            if (!file) {
-                await this.error('Error while loading Gist.', 'Gist does not contain a model file.');
-                return;
+            if (message) {
+                const error = new Error(message);
+                error.name = 'Error while loading Gist.';
+                throw error;
             }
             const identifier = file.filename;
             const encoder = new TextEncoder();
@@ -470,7 +472,8 @@ host.BrowserHost = class {
             const context = new host.BrowserHost.Context(this, '', identifier, stream);
             await this._openContext(context);
         } catch (error) {
-            this._view.error(error, 'Model load request failed.', 'welcome');
+            await this._view.error(error, 'Error while loading Gist.');
+            this._view.show('welcome');
         }
     }
 
@@ -485,9 +488,7 @@ host.BrowserHost = class {
             this.document.title = '';
             return 'context-open-failed';
         } catch (error) {
-            if (error) {
-                this._view.error(error, error.name, null);
-            }
+            await this._view.error(error, error.name);
             return 'context-open-error';
         }
     }
@@ -563,7 +564,6 @@ host.BrowserHost = class {
                     this.document.body.setAttribute('class', type);
                     resolve(0);
                 };
-                button.focus();
             } else {
                 button.style.display = 'none';
                 button.onclick = null;
