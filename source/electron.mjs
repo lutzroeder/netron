@@ -262,22 +262,20 @@ host.ElectronHost = class {
         const reader = new FileReader();
         reader.onload = (e) => {
             const data = new Uint8Array(e.target.result);
-            fs.writeFile(file, data, null, async (err) => {
-                if (err) {
-                    this.exception(err, false);
-                    await this.error('Error writing file.', err.message);
+            fs.writeFile(file, data, null, async (error) => {
+                if (error) {
+                    await this._view.error(error, 'Error writing file.');
                 }
             });
         };
-        let err = null;
+        let error = null;
         if (!blob) {
-            err = new Error(`Export blob is '${JSON.stringify(blob)}'.`);
+            error = new Error(`Export blob is '${JSON.stringify(blob)}'.`);
         } else if (!(blob instanceof Blob)) {
-            err = new Error(`Export blob type is '${typeof blob}'.`);
+            error = new Error(`Export blob type is '${typeof blob}'.`);
         }
-        if (err) {
-            this.exception(err, false);
-            await this.error('Error exporting image.', err.message);
+        if (error) {
+            await this._view.error(error, 'Error exporting image.');
         } else {
             reader.readAsArrayBuffer(blob);
         }
@@ -414,7 +412,7 @@ host.ElectronHost = class {
                 context = await this._context(path);
                 this._telemetry.set('session_engaged', 1);
             } catch (error) {
-                await this._view.error(error, 'Error while reading file.', null);
+                await this._view.error(error, 'Error while reading file.');
                 this.update({ path: null });
                 return;
             }
@@ -433,7 +431,7 @@ host.ElectronHost = class {
             } catch (error) {
                 const options = { ...this._view.options };
                 if (error) {
-                    await this._view.error(error, null, null);
+                    await this._view.error(error);
                 }
                 this.update(options);
             }
