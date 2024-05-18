@@ -32,7 +32,11 @@ openvino.ModelFactory = class {
                 /^.*param\.bin$/.test(identifier)) {
                 return;
             }
-            const identifiers = new Set(['config.bin', 'model.bin', '__model__.bin', 'weights.bin', 'programs.bin', 'best.bin', 'ncnn.bin']);
+            const identifiers = new Set([
+                'config.bin', 'model.bin', '__model__.bin', 'weights.bin',
+                'programs.bin', 'best.bin', 'ncnn.bin',
+                'stories15M.bin','stories42M.bin','stories110M.bin','stories260K.bin'
+            ]);
             if (!identifiers.has(identifier)) {
                 const size = Math.min(stream.length, 1024) & 0xFFFC;
                 const buffer = stream.peek(size).slice(0);
