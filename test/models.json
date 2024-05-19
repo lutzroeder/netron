@@ -4139,6 +4139,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "phi3-mini-128k-instruct-cuda-fp16.onnx",
+    "source":   "https://github.com/user-attachments/files/15370204/phi3-mini-128k-instruct-cuda-fp16.onnx.zip[phi3-mini-128k-instruct-cuda-fp16.onnx]",
+    "format":   "ONNX v7",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "resnet50_opset_9.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/5296268/resnet50_opset_9.onnx.zip",
     "format":   "ONNX v3",
