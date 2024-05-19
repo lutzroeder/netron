@@ -4345,6 +4345,8 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantized.modules.Quantize', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.modules.DeQuantize', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.modules.dropout.Dropout', class extends torch.nn.modules.dropout.Dropout {});
+        this.registerType('torch.ao.nn.quantized.modules.embedding_ops.Embedding', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.embedding_ops.EmbeddingPackedParams', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.modules.functional_modules.FloatFunctional', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.modules.functional_modules.QFunctional', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.modules.functional_modules.FXFloatFunctional', class extends torch.nn.modules.module.Module {});
