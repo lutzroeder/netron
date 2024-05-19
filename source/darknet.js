@@ -813,7 +813,7 @@ darknet.Node = class {
 
     constructor(metadata, net, section) {
         this._name = section.name || '';
-        this._location = section.line === undefined ? undefined : section.line.toString();
+        this._identifier = section.line === undefined ? undefined : section.line.toString();
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
@@ -847,8 +847,8 @@ darknet.Node = class {
         return this._name;
     }
 
-    get location() {
-        return this._location;
+    get identifier() {
+        return this._identifier;
     }
 
     get type() {

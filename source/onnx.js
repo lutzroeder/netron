@@ -603,6 +603,7 @@ onnx.Tensor = class {
                             external_data[entry.key] = entry.value;
                         }
                         if (external_data.location && external_data.offset && external_data.length) {
+                            this._location = external_data.location.toString();
                             const offset = parseInt(external_data.offset, 10);
                             const length = parseInt(external_data.length, 10);
                             if (Number.isInteger(offset) && Number.isInteger(length)) {
@@ -630,6 +631,10 @@ onnx.Tensor = class {
 
     get encoding() {
         return this._encoding;
+    }
+
+    get location() {
+        return this._location;
     }
 
     get type() {
@@ -1222,9 +1227,9 @@ onnx.Context.Graph = class {
 
     createLocation(value) {
         switch (value) {
-            case onnx.DataLocation.DEFAULT: return 'default';
+            case onnx.DataLocation.DEFAULT: return '';
             case onnx.DataLocation.EXTERNAL: return 'external';
-            default: return 'UNDEFINED';
+            default: return 'undefined';
         }
     }
 

@@ -1268,12 +1268,13 @@ keras.Attribute = class {
 
 keras.Tensor = class {
 
-    constructor(name, shape, type, stride, quantization, encoding, data) {
+    constructor(name, shape, type, stride, quantization, encoding, data, location) {
         this.name = name;
         this.type = new keras.TensorType(type, new keras.TensorShape(shape));
         this.stride = stride;
         this.encoding = encoding;
         this._data = data;
+        this.location = location;
         if (quantization && (quantization.scale !== 0 || quantization.min !== 0)) {
             this.quantization = {
                 type: 'linear',
@@ -1494,8 +1495,10 @@ tfjs.Container = class {
         ]);
         for (const manifest of manifests) {
             let buffer = null;
+            let location = '';
             if (Array.isArray(manifest.paths) && manifest.paths.length > 0 && manifest.paths.every((path) => shards.has(path))) {
                 const list = manifest.paths.map((path) => shards.get(path));
+                location = manifest.paths.join(', ');
                 const size = list.reduce((a, b) => a + b.length, 0);
                 buffer = new Uint8Array(size);
                 let offset = 0;
@@ -1514,7 +1517,8 @@ tfjs.Container = class {
                 const size = weight.shape.reduce((a, b) => a * b, 1);
                 const length = itemsize * size;
                 const data = buffer ? buffer.slice(offset, offset + length) : null;
-                this._weights.add(weight.identifier, new keras.Tensor(weight.name, weight.shape, dtype, null, weight.quantization, '<', data));
+                const tensor = new keras.Tensor(weight.name, weight.shape, dtype, null, weight.quantization, '<', data, location);
+                this._weights.add(weight.identifier, tensor);
                 offset += length;
             }
         }

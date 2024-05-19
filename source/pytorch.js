@@ -2756,17 +2756,16 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                                 }
                             } else if (Object(obj) === obj) {
                                 for (const [key, value] of Object.entries(obj)) {
-                                    if (key === 'location') {
-                                        continue;
-                                    }
-                                    if (Array.isArray(value)) {
-                                        for (const item of value) {
-                                            if (Array.isArray(item) || (Object(item) === item && item.type)) {
-                                                queue.push(item);
+                                    if (key !== 'identifier') {
+                                        if (Array.isArray(value)) {
+                                            for (const item of value) {
+                                                if (Array.isArray(item) || (Object(item) === item && item.type)) {
+                                                    queue.push(item);
+                                                }
                                             }
+                                        } else if (Object(value) === value && value.type) {
+                                            queue.push(value);
                                         }
-                                    } else if (Object(value) === value && value.type) {
-                                        queue.push(value);
                                     }
                                 }
                             }
@@ -3856,7 +3855,7 @@ pytorch.nnapi.SerializedModel = class {
         for (let i = 0; i < this.operations.length; i++) {
             this.operations[i] = {
                 index: reader.int32(),
-                location: i,
+                identifier: i,
                 inputs: new Array(reader.uint32()),
                 outputs: new Array(reader.uint32())
             };
@@ -4023,8 +4022,8 @@ pytorch.nnapi.Node = class {
         this.outputs = [];
         this.attributes = [];
         this.chain = [];
-        if (operation.location !== undefined) {
-            this.location = operation.location.toString();
+        if (operation.identifier !== undefined) {
+            this.identifier = operation.identifier.toString();
         }
         const inputs = this.type.inputs.concat(this.type.attributes);
         if (operation.inputs) {

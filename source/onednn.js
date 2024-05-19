@@ -134,7 +134,7 @@ onednn.Node = class {
         this._outputs = [];
         this._type = metadata.type(node.kind) || { name: node.kind };
         this._device = device;
-        this._location = node.id;
+        this._identifier = node.id;
         const attrs = node.attrs;
         if (attrs) {
             for (const [name, value] of Object.entries(attrs)) {
@@ -179,8 +179,8 @@ onednn.Node = class {
         return this._attributes;
     }
 
-    get location() {
-        return this._location;
+    get identifier() {
+        return this._identifier;
     }
 
     get device() {

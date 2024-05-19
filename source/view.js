@@ -2404,8 +2404,8 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         if (node.name) {
             this.addProperty('name', node.name, 'nowrap');
         }
-        if (node.location) {
-            this.addProperty('location', node.location, 'nowrap');
+        if (node.identifier) {
+            this.addProperty('identifier', node.identifier, 'nowrap');
         }
         if (node.description) {
             this.addProperty('description', node.description);
@@ -2835,9 +2835,9 @@ view.ValueView = class extends view.Control {
                             this._element.appendChild(line);
                         }
                     }
-                    const location = this._value.location;
-                    if (location !== undefined) {
-                        this._bold('location', location);
+                    const identifier = this._value.identifier;
+                    if (identifier !== undefined) {
+                        this._bold('identifier', identifier);
                     }
                     const layout = this._value.type ? this._value.type.layout : null;
                     if (layout) {
@@ -2852,6 +2852,9 @@ view.ValueView = class extends view.Control {
                         this._bold('layout', layouts.get(layout));
                     }
                     if (initializer) {
+                        if (initializer.location) {
+                            this._bold('location', initializer.location);
+                        }
                         this._tensor(initializer);
                     }
                 } catch (error) {

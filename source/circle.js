@@ -259,8 +259,8 @@ circle.Signature = class {
 
 circle.Node = class {
 
-    constructor(metadata, node, type, location, tensors) {
-        this._location = location;
+    constructor(metadata, node, type, identifier, tensors) {
+        this._identifier = identifier;
         this._type = type.custom ? { name: type.name } : metadata.type(type.name);
         this._inputs = [];
         this._outputs = [];
@@ -366,8 +366,8 @@ circle.Node = class {
         return '';
     }
 
-    get location() {
-        return this._location;
+    get identifier() {
+        return this._identifier;
     }
 
     get inputs() {
@@ -445,7 +445,7 @@ circle.Value = class {
     constructor(index, tensor, initializer, description, denotation) {
         const name = tensor.name || '';
         this.name = `${name}\n${index}`;
-        this.location = index.toString();
+        this.identifier = index.toString();
         this.type = tensor.type !== undefined && tensor.shape !== undefined ? new circle.TensorType(tensor, denotation) : null;
         this.initializer = initializer;
         this.description = description;
@@ -466,7 +466,7 @@ circle.Value = class {
 circle.Tensor = class {
 
     constructor(index, tensor, buffer, stream, is_variable) {
-        this.location = index.toString();
+        this.identifier = index.toString();
         this.name = tensor.name;
         this.type = new circle.TensorType(tensor);
         this.category = is_variable ? 'Variable' : '';
