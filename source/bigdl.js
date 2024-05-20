@@ -81,9 +81,10 @@ bigdl.Graph = class {
 
 bigdl.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
     }
 };
 
@@ -132,107 +133,103 @@ bigdl.Node = class {
                 ]));
             }
         }
-        for (const [key, value] of Object.entries(module.attr)) {
+        for (const [key, obj] of Object.entries(module.attr)) {
             if (key === 'module_numerics' || key === 'module_tags') {
                 continue;
             }
-            if (value.dataType === bigdl.proto.DataType.TENSOR) {
-                if (value.value) {
-                    this.inputs.push(new bigdl.Argument(key, [new bigdl.Value('', null, new bigdl.Tensor(value.tensorValue, tensors))]));
+            if (obj.dataType === bigdl.proto.DataType.TENSOR) {
+                if (obj.value) {
+                    this.inputs.push(new bigdl.Argument(key, [new bigdl.Value('', null, new bigdl.Tensor(obj.tensorValue, tensors))]));
                 }
                 continue;
             }
-            if (value.dataType === bigdl.proto.DataType.REGULARIZER && value.value === undefined) {
+            if (obj.dataType === bigdl.proto.DataType.REGULARIZER && obj.value === undefined) {
                 continue;
             }
-            if (value.dataType === bigdl.proto.DataType.ARRAY_VALUE && value.arrayValue.datatype === bigdl.proto.DataType.TENSOR) {
-                this.inputs.push(new bigdl.Argument(key, value.arrayValue.tensor.map((tensor) => new bigdl.Value('', null, new bigdl.Tensor(tensor, tensors)))));
+            if (obj.dataType === bigdl.proto.DataType.ARRAY_VALUE && obj.arrayValue.datatype === bigdl.proto.DataType.TENSOR) {
+                this.inputs.push(new bigdl.Argument(key, obj.arrayValue.tensor.map((tensor) => new bigdl.Value('', null, new bigdl.Tensor(tensor, tensors)))));
                 continue;
             }
-            this.attributes.push(new bigdl.Attribute(key, value));
+            let type = null;
+            let value = null;
+            switch (obj.dataType) {
+                case bigdl.proto.DataType.INT32: {
+                    type = 'int32';
+                    value = obj.int32Value;
+                    break;
+                }
+                case bigdl.proto.DataType.FLOAT: {
+                    type = 'float32';
+                    value = obj.floatValue;
+                    break;
+                }
+                case bigdl.proto.DataType.DOUBLE: {
+                    type = 'float64';
+                    value = obj.doubleValue;
+                    break;
+                }
+                case bigdl.proto.DataType.BOOL: {
+                    type = 'boolean';
+                    value = obj.boolValue;
+                    break;
+                }
+                case bigdl.proto.DataType.REGULARIZER: {
+                    value = obj.value;
+                    break;
+                }
+                case bigdl.proto.DataType.MODULE: {
+                    value = obj.bigDLModule;
+                    break;
+                }
+                case bigdl.proto.DataType.NAME_ATTR_LIST: {
+                    value = value.nameAttrListValue;
+                    break;
+                }
+                case bigdl.proto.DataType.ARRAY_VALUE: {
+                    switch (obj.arrayValue.datatype) {
+                        case bigdl.proto.DataType.INT32: {
+                            type = 'int32[]';
+                            value = obj.arrayValue.i32;
+                            break;
+                        }
+                        case bigdl.proto.DataType.FLOAT: {
+                            type = 'float32[]';
+                            value = obj.arrayValue.flt;
+                            break;
+                        }
+                        case bigdl.proto.DataType.STRING: {
+                            type = 'string[]';
+                            value = obj.arrayValue.str;
+                            break;
+                        }
+                        case bigdl.proto.DataType.TENSOR: {
+                            type = 'tensor[]';
+                            value = obj.arrayValue.tensor;
+                            break;
+                        }
+                        default: {
+                            throw new bigdl.Error(`Unsupported attribute array data type '${obj.arrayValue.datatype}'.`);
+                        }
+                    }
+                    break;
+                }
+                case bigdl.proto.DataType.DATA_FORMAT: {
+                    switch (obj.dataFormatValue) {
+                        case 0: value = 'NCHW'; break;
+                        case 1: value = 'NHWC'; break;
+                        default: throw new bigdl.Error(`Unsupported data format '${obj.dataFormatValue}'.`);
+                    }
+                    break;
+                }
+                default: {
+                    throw new bigdl.Error(`Unsupported attribute data type '${obj.dataType}'.`);
+                }
+            }
+            const argument = new bigdl.Argument(key, value, type);
+            this.attributes.push(argument);
         }
         const output = this.name || this.type + module.namePostfix;
         this.outputs.push(new bigdl.Argument('output', [values.map(output)]));
-    }
-};
-
-bigdl.Attribute = class {
-
-    constructor(name, value) {
-        this.name = name;
-        switch (value.dataType) {
-            case bigdl.proto.DataType.INT32: {
-                this.type = 'int32';
-                this.value = value.int32Value;
-                break;
-            }
-            case bigdl.proto.DataType.FLOAT: {
-                this.type = 'float32';
-                this.value = value.floatValue;
-                break;
-            }
-            case bigdl.proto.DataType.DOUBLE: {
-                this.type = 'float64';
-                this.value = value.doubleValue;
-                break;
-            }
-            case bigdl.proto.DataType.BOOL: {
-                this.type = 'boolean';
-                this.value = value.boolValue;
-                break;
-            }
-            case bigdl.proto.DataType.REGULARIZER: {
-                this.value = value.value;
-                break;
-            }
-            case bigdl.proto.DataType.MODULE: {
-                this.value = value.bigDLModule;
-                break;
-            }
-            case bigdl.proto.DataType.NAME_ATTR_LIST: {
-                this.value = value.nameAttrListValue;
-                break;
-            }
-            case bigdl.proto.DataType.ARRAY_VALUE: {
-                switch (value.arrayValue.datatype) {
-                    case bigdl.proto.DataType.INT32: {
-                        this.type = 'int32[]';
-                        this.value = value.arrayValue.i32;
-                        break;
-                    }
-                    case bigdl.proto.DataType.FLOAT: {
-                        this.type = 'float32[]';
-                        this.value = value.arrayValue.flt;
-                        break;
-                    }
-                    case bigdl.proto.DataType.STRING: {
-                        this.type = 'string[]';
-                        this.value = value.arrayValue.str;
-                        break;
-                    }
-                    case bigdl.proto.DataType.TENSOR: {
-                        this.type = 'tensor[]';
-                        this.value = value.arrayValue.tensor;
-                        break;
-                    }
-                    default: {
-                        throw new bigdl.Error(`Unsupported attribute array data type '${value.arrayValue.datatype}'.`);
-                    }
-                }
-                break;
-            }
-            case bigdl.proto.DataType.DATA_FORMAT: {
-                switch (value.dataFormatValue) {
-                    case 0: this.value = 'NCHW'; break;
-                    case 1: this.value = 'NHWC'; break;
-                    default: throw new bigdl.Error(`Unsupported data format '${value.dataFormatValue}'.`);
-                }
-                break;
-            }
-            default: {
-                throw new bigdl.Error(`Unsupported attribute data type '${value.dataType}'.`);
-            }
-        }
     }
 };
 

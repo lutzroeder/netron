@@ -256,11 +256,11 @@ coreml.Graph = class {
         }
         this.inputs = context.inputs.map((argument) => {
             const values = argument.value.map((value) => value.obj);
-            return new coreml.Argument(argument.name, values, argument.visible);
+            return new coreml.Argument(argument.name, values, null, argument.visible);
         });
         this.outputs = context.outputs.map((argument) => {
             const values = argument.value.map((value) => value.obj);
-            return new coreml.Argument(argument.name, values, argument.visible);
+            return new coreml.Argument(argument.name, values, null, argument.visible);
         });
         for (const obj of context.nodes) {
             const attributes = obj.attributes;
@@ -283,9 +283,10 @@ coreml.Graph = class {
 
 coreml.Argument = class {
 
-    constructor(name, value, visible) {
+    constructor(name, value, type, visible) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
         this.visible = visible !== false;
     }
 };
@@ -320,51 +321,43 @@ coreml.Node = class {
         this.description = obj.description || '';
         this.inputs = (obj.inputs || []).map((argument) => {
             const values = argument.value.map((value) => value.obj);
-            return new coreml.Argument(argument.name, values, argument.visible);
+            return new coreml.Argument(argument.name, values, null, argument.visible);
         });
         this.outputs = (obj.outputs || []).map((argument) => {
             const values = argument.value.map((value) => value.obj);
-            return new coreml.Argument(argument.name, values, argument.visible);
+            return new coreml.Argument(argument.name, values, null, argument.visible);
         });
         this.attributes = Object.entries(obj.attributes).map(([name, value]) => {
             const metadata = context.metadata.attribute(obj.type, name);
-            return new coreml.Attribute(metadata, name, value);
+            let type = null;
+            let visible = true;
+            if (value instanceof coreml.Tensor) {
+                type = 'tensor';
+            }
+            if (value instanceof coreml.Graph) {
+                type = 'graph';
+            }
+            if (metadata) {
+                type = metadata.type ? metadata.type : type;
+                if (type && coreml.proto) {
+                    value = coreml.Utility.enum(type, value);
+                }
+                if (metadata.visible === false) {
+                    visible = false;
+                } else if (metadata.default !== undefined) {
+                    if (Array.isArray(value)) {
+                        value = value.map((item) => Number(item));
+                    }
+                    if (typeof value === 'bigint') {
+                        value = Number(value);
+                    }
+                    if (JSON.stringify(metadata.default) === JSON.stringify(value)) {
+                        visible = false;
+                    }
+                }
+            }
+            return new coreml.Argument(name, value, type, visible);
         });
-    }
-};
-
-coreml.Attribute = class {
-
-    constructor(metadata, name, value) {
-        this.name = name;
-        this.value = value;
-        if (this.value instanceof coreml.Tensor) {
-            this.type = 'tensor';
-        }
-        if (metadata) {
-            if (metadata.type) {
-                this.type = metadata.type;
-            }
-            if (this.type && coreml.proto) {
-                this.value = coreml.Utility.enum(this.type, this.value);
-            }
-            if (metadata.visible === false) {
-                this.visible = false;
-            } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
-                if (Array.isArray(value)) {
-                    value = value.map((item) => Number(item));
-                }
-                if (typeof value === 'bigint') {
-                    value = Number(value);
-                }
-                if (JSON.stringify(metadata.default) === JSON.stringify(value)) {
-                    this.visible = false;
-                }
-            }
-        }
-        if (this.value instanceof coreml.Graph) {
-            this.type = 'graph';
-        }
     }
 };
 

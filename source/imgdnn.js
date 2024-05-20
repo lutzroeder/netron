@@ -20,37 +20,17 @@ imgdnn.ModelFactory = class {
 imgdnn.Model = class {
 
     constructor(metadata, model) {
-        this._format = 'IMGDNN';
-        this._graphs = [new imgdnn.Graph(metadata, model)];
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.format = 'IMGDNN';
+        this.graphs = [new imgdnn.Graph(metadata, model)];
     }
 };
 
 imgdnn.Graph = class {
 
     constructor(/* metadata, model */) {
-        this._inputs = [];
-        this._outputs = [];
-        this._nodes = [];
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
     }
 };
 

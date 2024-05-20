@@ -180,9 +180,11 @@ torch.Graph = class {
 
 torch.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type, visible) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
+        this.visible = visible !== false;
     }
 };
 
@@ -306,24 +308,34 @@ torch.Node = class {
         }
         this.attributes = [];
         if (module.__class__) {
-            for (const [key, obj] of Object.entries(module)) {
-                if (key === '_type') {
+            for (const [name, obj] of Object.entries(module)) {
+                if (name === '_type') {
                     continue;
                 }
                 if (Array.isArray(obj) && obj.every(((item) => item && item.__class__ && item.__class__.__module__ === 'nn'))) {
                     continue;
                 }
                 if (obj.__class__ && obj.__class__.__module__ === 'torch' && obj.__class__.__name__.endsWith('Tensor')) {
-                    initializers.push(new torch.Argument(key, [values.map('', null, new torch.Tensor(obj))]));
+                    const argument = new torch.Argument(name, [values.map('', null, new torch.Tensor(obj))]);
+                    initializers.push(argument);
                     continue;
                 }
-                if (key === 'modules') {
+                if (name === 'modules') {
                     continue;
                 }
                 if (obj.__class__ && obj.__class__.__module__ !== '' && obj.__class__.__name__ !== 'LuaFunction') {
                     continue;
                 }
-                const attribute = new torch.Attribute(metadata, type, key, obj);
+                let visible = name === 'train' ? false : true;
+                const schema = metadata.attribute(type, name);
+                if (schema) {
+                    if (schema.visible === false) {
+                        visible = false;
+                    } else if (schema.default !== undefined && Object.prototype.hasOwnProperty.call(schema, 'default')) {
+                        visible = false;
+                    }
+                }
+                const attribute = new torch.Argument(name, obj, null, visible);
                 this.attributes.push(attribute);
             }
         }
@@ -373,27 +385,6 @@ torch.Node = class {
             delete module[`${name}_r`];
             delete module[`${name}_b`];
             delete module[`${name}_l`];
-        }
-    }
-};
-
-torch.Attribute = class {
-
-    constructor(metadata, type, name, value) {
-        this.name = name;
-        this.value = value;
-        if (name === 'train') {
-            this.visible = false;
-        }
-        metadata = metadata.attribute(type, name);
-        if (metadata) {
-            if (metadata.visible === false) {
-                this.visible = false;
-            } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
-                if (JSON.stringify(metadata.default) === JSON.stringify(this.value)) {
-                    this.visible = false;
-                }
-            }
         }
     }
 };

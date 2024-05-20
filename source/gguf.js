@@ -130,18 +130,10 @@ gguf.Node = class {
         }
         if (layer.metadata) {
             for (const [name, value] of layer.metadata) {
-                const attribute = new gguf.Attribute(name, value);
+                const attribute = new gguf.Argument(name, value);
                 this.attributes.push(attribute);
             }
         }
-    }
-};
-
-gguf.Attribute = class {
-
-    constructor(name, value) {
-        this.name = name;
-        this.value = value;
     }
 };
 

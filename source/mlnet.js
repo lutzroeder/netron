@@ -116,9 +116,10 @@ mlnet.Graph = class {
 
 mlnet.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
     }
 };
 
@@ -161,43 +162,16 @@ mlnet.Node = class {
                 i++;
             }
         }
-        for (const key of Object.keys(transformer).filter((key) => !key.startsWith('_') && key !== 'inputs' && key !== 'outputs')) {
-            const attribute = new mlnet.Attribute(metadata.attribute(type, this.name), key, transformer[key]);
+        for (const [name, obj] of Object.entries(transformer).filter(([key]) => !key.startsWith('_') && key !== 'inputs' && key !== 'outputs')) {
+            const schema = metadata.attribute(transformer.__type__, name);
+            let value = obj;
+            let type = null;
+            if (schema) {
+                type = schema.type ? schema.type : null;
+                value = mlnet.Utility.enum(type, value);
+            }
+            const attribute = new mlnet.Argument(name, value, type);
             this.attributes.push(attribute);
-        }
-    }
-};
-
-mlnet.Attribute = class {
-
-    constructor(schema, name, value) {
-        this.name = name;
-        this.value = value;
-        if (schema) {
-            if (schema.type) {
-                this.type = schema.type;
-            }
-            if (this.type) {
-                let type = mlnet;
-                const id = this.type.split('.');
-                while (type && id.length > 0) {
-                    type = type[id.shift()];
-                }
-                if (type) {
-                    mlnet.Attribute._reverseMap = mlnet.Attribute._reverseMap || {};
-                    let reverse = mlnet.Attribute._reverseMap[this.type];
-                    if (!reverse) {
-                        reverse = {};
-                        for (const key of Object.keys(type)) {
-                            reverse[type[key.toString()]] = key;
-                        }
-                        mlnet.Attribute._reverseMap[this.type] = reverse;
-                    }
-                    if (Object.prototype.hasOwnProperty.call(reverse, this.value)) {
-                        this.value = reverse[this.value];
-                    }
-                }
-            }
         }
     }
 };
@@ -2263,6 +2237,33 @@ mlnet.CdfColumnFunction = class {
 mlnet.MultiClassNetPredictor = class {};
 
 mlnet.ProtonNNMCPred = class {};
+
+mlnet.Utility = class {
+
+    static enum(type, value) {
+        if (type) {
+            mlnet.Utility._enums = mlnet.Utility._enums || new Map();
+            if (!mlnet.Utility._enums.has(type)) {
+                let obj = mlnet;
+                const id = type.split('.');
+                while (obj && id.length > 0) {
+                    obj = obj[id.shift()];
+                }
+                if (obj) {
+                    const entries = new Map(Object.entries(obj).map(([key, value]) => [value, key]));
+                    mlnet.Utility._enums.set(type, entries);
+                } else {
+                    mlnet.Utility._enums.set(type, new Map());
+                }
+            }
+            const map = mlnet.Utility._enums.get(type);
+            if (map.has(value)) {
+                return map.get(value);
+            }
+        }
+        return value;
+    }
+};
 
 mlnet.Error = class extends Error {
 

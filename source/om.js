@@ -144,120 +144,113 @@ om.Node = class {
                 this.outputs.push(argument);
             }
         }
-        for (const [name, value] of Object.entries(op.attr || {})) {
+        for (const [name, obj] of Object.entries(op.attr || {})) {
             if (name === 'device') {
-                this.device = value;
+                this.device = obj;
                 continue;
             }
             if (name === 'original_op_names') {
                 continue;
             }
-            if (name === 'relu_flag' && value.b) {
-                this.chain.push(new om.Node(context, { type: 'ReLU' }, graph, value));
+            if (name === 'relu_flag' && obj.b) {
+                const node = new om.Node(context, { type: 'ReLU' }, graph, obj);
+                this.chain.push(node);
                 continue;
             }
-            const attribute = new om.Attribute(context, name, value);
+            let value = obj;
+            let type = null;
+            switch (obj.value) {
+                case 'i': {
+                    value = obj.i;
+                    type = 'int64';
+                    break;
+                }
+                case 'f': {
+                    value = obj.f;
+                    type = 'float32';
+                    break;
+                }
+                case 'b': {
+                    value = obj.b;
+                    type = 'boolean';
+                    break;
+                }
+                case 'bt': {
+                    value = null;
+                    if (obj.bt.length !== 0) {
+                        type = 'tensor';
+                        const shape = new om.TensorShape([obj.bt.length / 4]);
+                        value = new om.Tensor('Constant', new om.TensorType('float32', shape), obj.bt);
+                    }
+                    break;
+                }
+                case 'dt': {
+                    type = 'DataType';
+                    value = om.Utility.dtype(Number(obj.dt));
+                    break;
+                }
+                case 's': {
+                    if (typeof obj.s === 'string') {
+                        value = obj.s;
+                    } else if (obj.s.filter((c) => c <= 32 && c >= 128).length === 0) {
+                        value = om.Utility.decodeText(obj.s);
+                    } else {
+                        value = obj.s;
+                    }
+                    type = 'string';
+                    break;
+                }
+                case 'g': {
+                    type = 'graph';
+                    value = new om.Graph(context, obj.g);
+                    break;
+                }
+                case 'func': {
+                    break;
+                }
+                case 'list': {
+                    const list = obj.list;
+                    value = [];
+                    if (list.s && list.s.length > 0) {
+                        value = list.s.map((v) => String.fromCharCode.apply(null, new Uint16Array(v))).join(', ');
+                        type = 'string[]';
+                    } else if (list.b && list.b.length > 0) {
+                        value = list.b;
+                        type = 'boolean[]';
+                    } else if (list.i && list.i.length > 0) {
+                        value = list.i;
+                        type = 'int64[]';
+                    } else if (list.f && list.f.length > 0) {
+                        value = list.f;
+                        type = 'float32[]';
+                    } else if (list.type && list.type.length > 0) {
+                        type = 'type[]';
+                        value = list.type.map((type) => om.Node.enum2Dtype(type) || '?');
+                    } else if (list.shape && list.shape.length > 0) {
+                        type = 'shape[]';
+                        value = list.shape.map((shape) => new om.TensorShape(shape));
+                    }
+                    break;
+                }
+                case 'list_list_int': {
+                    value = obj.list_list_int.list_list_i.map((list) => list.list_i);
+                    break;
+                }
+                case 't': {
+                    type = 'tensor';
+                    value = new om.Tensor('Constant', om.Utility.tensorType(obj.t.desc), obj.t.bytes);
+                    break;
+                }
+                case undefined: {
+                    value = null;
+                    break;
+                }
+                default: {
+                    throw new om.Error(`Unsupported attribute type '${JSON.stringify(obj).substring(0, 32)}'.`);
+                }
+            }
+            const attribute = new om.Argument(name, value, type);
             this.attributes.push(attribute);
-        }
-    }
-};
-
-om.Attribute = class {
-
-    constructor(context, name, value) {
-        this.name = name;
-        this.value = value;
-        switch (value.value) {
-            case 'i': {
-                this.value = value.i;
-                this.type = 'int64';
-                break;
-            }
-            case 'f': {
-                this.value = value.f;
-                this.type = 'float32';
-                break;
-            }
-            case 'b': {
-                this.value = value.b;
-                this.type = 'boolean';
-                break;
-            }
-            case 'bt': {
-                this.value = null;
-                if (value.bt.length !== 0) {
-                    this.type = 'tensor';
-                    const shape = new om.TensorShape([value.bt.length / 4]);
-                    const type = new om.TensorType('float32', shape);
-                    this.value = new om.Tensor('Constant', type, value.bt);
-                }
-                break;
-            }
-            case 'dt': {
-                this.type = 'DataType';
-                this.value = om.Utility.dtype(Number(value.dt));
-                break;
-            }
-            case 's': {
-                if (typeof value.s === 'string') {
-                    this.value = value.s;
-                } else if (value.s.filter((c) => c <= 32 && c >= 128).length === 0) {
-                    this.value = om.Utility.decodeText(value.s);
-                } else {
-                    this.value = value.s;
-                }
-                this.type = 'string';
-                break;
-            }
-            case 'g': {
-                this.type = 'graph';
-                this.value = new om.Graph(context, value.g);
-                break;
-            }
-            case 'func': {
-                break;
-            }
-            case 'list': {
-                const list = value.list;
-                this.value = [];
-                if (list.s && list.s.length > 0) {
-                    this.value = list.s.map((v) => String.fromCharCode.apply(null, new Uint16Array(v))).join(', ');
-                    this.type = 'string[]';
-                } else if (list.b && list.b.length > 0) {
-                    this.value = list.b;
-                    this.type = 'boolean[]';
-                } else if (list.i && list.i.length > 0) {
-                    this.value = list.i;
-                    this.type = 'int64[]';
-                } else if (list.f && list.f.length > 0) {
-                    this.value = list.f;
-                    this.type = 'float32[]';
-                } else if (list.type && list.type.length > 0) {
-                    this.type = 'type[]';
-                    this.value = list.type.map((type) => om.Node.enum2Dtype(type) || '?');
-                } else if (list.shape && list.shape.length > 0) {
-                    this.type = 'shape[]';
-                    this.value = list.shape.map((shape) => new om.TensorShape(shape));
-                }
-                break;
-            }
-            case 'list_list_int': {
-                this.value = value.list_list_int.list_list_i.map((list) => list.list_i);
-                break;
-            }
-            case 't': {
-                const type = om.Utility.tensorType(value.t.desc);
-                this.value = new om.Tensor('Constant', type, value.t.bytes);
-                this.type = 'tensor';
-                break;
-            }
-            case undefined: {
-                this.value = null;
-                break;
-            }
-            default: {
-                throw new om.Error(`Unsupported attribute type '${JSON.stringify(value).substring(0, 32)}'.`);
-            }
         }
     }
 };

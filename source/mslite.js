@@ -113,9 +113,17 @@ mslite.Node = class {
         if (data && data.constructor) {
             const type = data.constructor.name;
             this.type = metadata.type(type);
-            this.attributes = Object.keys(data).map((key) => new mslite.Attribute(metadata.attribute(type, key), key.toString(), data[key]));
+            this.attributes = Object.entries(data).map(([key, obj]) => {
+                let value = ArrayBuffer.isView(obj) ? Array.from(obj) : obj;
+                let type = null;
+                const schema = metadata.attribute(this.type.name, key);
+                if (schema && schema.type) {
+                    type = schema.type;
+                    value = type ? mslite.Utility.enum(type, value) : value;
+                }
+                return new mslite.Argument(key.toString(), value, type);
+            });
         }
-
         const input_num = op.inputIndex.length;
         let i = 0;
         if (this.type && this.type.inputs) {
@@ -124,15 +132,16 @@ mslite.Node = class {
                     break;
                 }
                 const index = op.inputIndex[i];
-                this.inputs.push(new mslite.Argument(input.name, [values[index]]));
+                const argument = new mslite.Argument(input.name, [values[index]]);
+                this.inputs.push(argument);
                 i += 1;
             }
         }
         for (let j = i; j < input_num; j++) {
             const index = op.inputIndex[j];
-            this.inputs.push(new mslite.Argument(j.toString(), [values[index]]));
+            const argument = new mslite.Argument(j.toString(), [values[index]]);
+            this.inputs.push(argument);
         }
-
         const output_num = op.outputIndex.length;
         i = 0;
         if (this.type && this.type.outputs) {
@@ -154,27 +163,12 @@ mslite.Node = class {
     }
 };
 
-mslite.Attribute = class {
-
-    constructor(metadata, name, value) {
-        this.type = null;
-        this.name = name;
-        this.visible = false;
-        this.value = ArrayBuffer.isView(value) ? Array.from(value) : value;
-        if (metadata && metadata.type) {
-            this.type = metadata.type;
-            if (this.type) {
-                this.value = mslite.Utility.enum(this.type, this.value);
-            }
-        }
-    }
-};
-
 mslite.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
     }
 };
 

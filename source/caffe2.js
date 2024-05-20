@@ -330,9 +330,11 @@ caffe2.Graph = class {
 
 caffe2.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type, visible) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
+        this.visible = visible !== false;
     }
 };
 
@@ -357,7 +359,40 @@ caffe2.Node = class {
         this.metadata = metadata;
         this.chain = [];
         this.type = metadata.type(op.type);
-        this.attributes = op.arg.map((arg) => new caffe2.Attribute(metadata, this.type.name, arg));
+        this.attributes = op.arg.map((arg) => {
+            const schema = metadata.attribute(op.type, arg.name);
+            const name = arg.name;
+            let value = null;
+            let type = null;
+            let visible = true;
+            if (arg.floats && arg.floats.length > 0) {
+                value = arg.floats;
+            } else if (arg.ints && arg.ints.length > 0) {
+                value = arg.ints;
+            } else if (arg.nets && arg.nets.length > 0) {
+                value = arg.nets.map((net) => new caffe2.Graph(metadata, net, null));
+                type = 'graph[]';
+            } else if (arg.n) {
+                value = new caffe2.Graph(metadata, arg.n, null);
+                type = 'graph';
+            } else {
+                value = arg.i;
+            }
+            if (schema) {
+                type = !type && schema.type ? schema.type : type;
+                if (type === 'boolean') {
+                    value = value !== 0 && value.toString() !== '0' ? true : false;
+                }
+                if (schema.visible === false) {
+                    visible = false;
+                } else if (schema.default !== undefined) {
+                    if (value === metadata.default || (value && value.toString() === schema.default.toString())) {
+                        visible = false;
+                    }
+                }
+            }
+            return new caffe2.Argument(name, value, type, visible);
+        });
         const inputs = op.input;
         const outputs = op.output;
         this.inputs = [];
@@ -393,45 +428,6 @@ caffe2.Node = class {
                 const outputName = ((outputIndex + index) === 0) ? 'output' : (outputIndex + index).toString();
                 return new caffe2.Argument(outputName, [values.map(output)]);
             }));
-        }
-    }
-};
-
-caffe2.Attribute = class {
-
-    constructor(metadata, type, arg) {
-        this.name = arg.name;
-        if (arg.floats && arg.floats.length > 0) {
-            this.value = arg.floats;
-        } else if (arg.ints && arg.ints.length > 0) {
-            this.value = arg.ints;
-        } else if (arg.nets && arg.nets.length > 0) {
-            this.value = arg.nets.map((net) => new caffe2.Graph(metadata, net, null));
-            this.type = 'graph[]';
-        } else if (arg.n) {
-            this.value = new caffe2.Graph(metadata, arg.n, null);
-            this.type = 'graph';
-        } else {
-            this.value = arg.i;
-        }
-        metadata = metadata.attribute(type, arg.name);
-        if (metadata) {
-            if (Object.prototype.hasOwnProperty.call(metadata, 'type')) {
-                this.type = metadata.type;
-                if (this.type === 'boolean') {
-                    this.value = this.value !== 0 && this.value.toString() !== '0' ? true : false;
-                }
-            }
-        }
-
-        if (metadata) {
-            if (metadata.visible === false) {
-                this.visible = false;
-            } else if (metadata.default !== undefined) {
-                if (this.value === metadata.default || (this.value && this.value.toString() === metadata.default.toString())) {
-                    this.visible = false;
-                }
-            }
         }
     }
 };

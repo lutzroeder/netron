@@ -80,9 +80,11 @@ xmodel.Graph = class {
 
 xmodel.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type, visible) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
+        this.visible = visible !== false;
     }
 };
 
@@ -120,61 +122,38 @@ xmodel.Node = class {
             for (const [name, obj] of Object.entries(op_node.op_attr)) {
                 if (name === 'device') {
                     this.device = obj.string_value;
-                    continue;
-                }
-                if (name === 'workload') {
-                    continue;
-                }
-                if (name.startsWith('quant_in_') || name.startsWith('quant_out_')) {
-                    continue;
-                }
-                const value = xmodel.Utility.attribute(obj);
-                if (name === 'nonlinear' && value.value && value.value !== 'NONE' && value.value !== 0) {
-                    let activation = value.value;
-                    if (typeof activation === 'string') {
-                        activation = activation.toLowerCase();
-                    } else if (Number.isInteger(activation) && activation < 5) {
-                        activation = ['none', 'relu', 'prelu', 'leakyrelu', 'relu6'][activation];
+                } else if (name !== 'workload' && !name.startsWith('quant_in_') && !name.startsWith('quant_out_')) {
+                    const attr = xmodel.Utility.attribute(obj);
+                    if (name === 'nonlinear' && attr.value && attr.value !== 'NONE' && attr.value !== 0) {
+                        let activation = attr.value;
+                        if (typeof activation === 'string') {
+                            activation = activation.toLowerCase();
+                        } else if (Number.isInteger(activation) && activation < 5) {
+                            activation = ['none', 'relu', 'prelu', 'leakyrelu', 'relu6'][activation];
+                        } else {
+                            activation = JSON.stringify(activation);
+                        }
+                        const node = new xmodel.Node(metadata, { op_type: activation }, values);
+                        this.chain.push(node);
                     } else {
-                        activation = JSON.stringify(activation);
+                        const schema = metadata.attribute(this.type.name, name);
+                        const visible = (schema && schema.default !== undefined && schema.default === attr.value) ||
+                            (schema && Array.isArray(schema.default) && Array.isArray(this.value) && schema.default.length === attr.value.length && schema.default.every((value, index) => value === attr.value[index])) ? false : true;
+                        const attribute = new xmodel.Argument(name, attr.value, attr.type, visible);
+                        this.attributes.push(attribute);
                     }
-                    this.chain.push(new xmodel.Node(metadata, { op_type: activation }, values));
-                    continue;
                 }
-                const attribute = new xmodel.Attribute(metadata.attribute(this.type, name), name, value);
-                this.attributes.push(attribute);
             }
         }
         if (op_node.args) {
             for (const input of op_node.args) {
-                const args = input.arg_ops.map((arg_op) => values.map(arg_op));
-                const argument = new xmodel.Argument(input.arg_name, args);
+                const argument = new xmodel.Argument(input.arg_name, input.arg_ops.map((arg_op) => values.map(arg_op)));
                 this.inputs.push(argument);
             }
         }
         if (op_node.op_name) {
             const argument = new xmodel.Argument('output', [values.map(op_node.op_name)]);
             this.outputs.push(argument);
-        }
-    }
-};
-
-xmodel.Attribute = class {
-
-    constructor(metadata, name, attribute) {
-        this.name = name;
-        this.type = attribute.type;
-        this.value = attribute.value;
-        if (metadata) {
-            if (metadata.default !== undefined) {
-                if (metadata.default === this.value) {
-                    this.visible = false;
-                }
-                if (Array.isArray(metadata.default) && Array.isArray(this.value) &&
-                    metadata.default.length === this.value.length && metadata.default.every((value, index) => value === this.value[index])) {
-                    this.visible = false;
-                }
-            }
         }
     }
 };

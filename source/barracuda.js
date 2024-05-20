@@ -78,9 +78,10 @@ barracuda.Graph = class {
 
 barracuda.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
     }
 };
 
@@ -134,37 +135,25 @@ barracuda.Node = class {
             const node = new barracuda.Node(metadata, {}, { name: type, category: 'Activation' }, values);
             this.chain = [node];
         }
-        const attribute = (name, type, value, defaultValue) => {
-            if (value === undefined) {
-                return;
+        const attributes = [
+            ['strides', 'int32[]', []],
+            ['pads', 'int32[]', (value) => Array.isArray(value) && (value.every((v) => v === 0) || value.every((v) => v === -1))],
+            ['pool_size', 'int32[]', []],
+            ['alpha', 'float32', 1],
+            ['beta', 'float32', 0],
+            ['axis', 'int32', -1]
+        ];
+        for (const [name, type, defaultValue] of attributes) {
+            const value = layer[name];
+            if ((value === undefined) ||
+                (Array.isArray(defaultValue) && Array.isArray(value) && value.length === defaultValue.length && value.every((v, i) => v === defaultValue[i])) ||
+                (typeof defaultValue === 'function' && defaultValue(value)) ||
+                (defaultValue === value)) {
+                continue;
             }
-            if (Array.isArray(defaultValue) && Array.isArray(value) && value.length === defaultValue.length && value.every((v, i) => v === defaultValue[i])) {
-                return;
-            }
-            if (typeof defaultValue === 'function' && defaultValue(value)) {
-                return;
-            }
-            if (defaultValue === value) {
-                return;
-            }
-            const attribute = new barracuda.Attribute(name, type, value);
+            const attribute = new barracuda.Argument(name, value, type);
             this.attributes.push(attribute);
-        };
-        attribute('strides', 'int32[]', layer.strides, []);
-        attribute('pads', 'int32[]', layer.pads, (value) => Array.isArray(value) && (value.every((v) => v === 0) || value.every((v) => v === -1)));
-        attribute('size', 'int32[]', layer.pool_size, []);
-        attribute('alpha', 'float32', layer.alpha, 1);
-        attribute('beta', 'float32', layer.beta, 0);
-        attribute('axis', 'int32', layer.axis, -1);
-    }
-};
-
-barracuda.Attribute = class {
-
-    constructor(name, type, value) {
-        this.name = name;
-        this.type = type;
-        this.value = value;
+        }
     }
 };
 

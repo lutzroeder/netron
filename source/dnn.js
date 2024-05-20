@@ -171,7 +171,7 @@ dnn.Node = class {
                 return new dnn.Argument(inputName, [output]);
             });
         }
-        for (const key of Object.keys(layer)) {
+        for (const [key, obj] of Object.entries(layer)) {
             switch (key) {
                 case 'name':
                 case 'type':
@@ -180,20 +180,12 @@ dnn.Node = class {
                 case 'quantization':
                     break;
                 default: {
-                    const attribute = new dnn.Attribute(metadata.attribute(type, key), key, layer[key]);
+                    const attribute = new dnn.Argument(key, obj);
                     this.attributes.push(attribute);
                     break;
                 }
             }
         }
-    }
-};
-
-dnn.Attribute = class {
-
-    constructor(metadata, name, value) {
-        this.name = name;
-        this.value = value;
     }
 };
 
@@ -203,13 +195,13 @@ dnn.Tensor = class {
         const shape = new dnn.TensorShape([weight.dim0, weight.dim1, weight.dim2, weight.dim3]);
         this.values = quantization ? weight.quantized_data : weight.data;
         const size = shape.dimensions.reduce((a, b) => a * b, 1);
-        const itemSize = Math.floor(this.values.length / size);
-        const remainder = this.values.length - (itemSize * size);
-        if (remainder < 0 || remainder > itemSize) {
+        const itemsize = Math.floor(this.values.length / size);
+        const remainder = this.values.length - (itemsize * size);
+        if (remainder < 0 || remainder > itemsize) {
             throw new dnn.Error('Invalid tensor data size.');
         }
         let dataType = '?';
-        switch (itemSize) {
+        switch (itemsize) {
             case 1: dataType = 'int8'; break;
             case 2: dataType = 'float16'; break;
             case 4: dataType = 'float32'; break;

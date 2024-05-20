@@ -99,11 +99,8 @@ safetensors.Value = class {
 
     constructor(name, value) {
         this.name = name;
+        this.type = value.type;
         this.initializer = value;
-    }
-
-    get type() {
-        return this.initializer.type;
     }
 };
 

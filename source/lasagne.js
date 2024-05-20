@@ -74,9 +74,10 @@ lasagne.Graph = class {
 
 lasagne.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
     }
 };
 
@@ -110,7 +111,8 @@ lasagne.Node = class {
                 params.set(value.name, key);
                 continue;
             }
-            const attribute = new lasagne.Attribute(null, key, value);
+            const type = value && value.__class__ ? `${value.__class__.__module__}.${value.__class__.__name__}` : null;
+            const attribute = new lasagne.Argument(key, value, type);
             this.attributes.push(attribute);
         }
         if (layer.input_layer && layer.input_layer.name) {
@@ -129,17 +131,6 @@ lasagne.Node = class {
             }
         }
         this.outputs.push(new lasagne.Argument('output', [values.map(this.name)]));
-    }
-};
-
-lasagne.Attribute = class {
-
-    constructor(metadata, name, value) {
-        this.name = name;
-        this.value = value;
-        if (value && value.__class__) {
-            this.type = `${value.__class__.__module__}.${value.__class__.__name__}`;
-        }
     }
 };
 

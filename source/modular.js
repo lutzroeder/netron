@@ -19,52 +19,25 @@ modular.ModelFactory = class {
 modular.Model = class {
 
     constructor(obj) {
-        this._graphs = obj.graphs.map((graph) => new modular.Graph(graph));
-    }
-
-    get format() {
-        return 'Modular';
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.format = 'Modular';
+        this.graphs = obj.graphs.map((graph) => new modular.Graph(graph));
     }
 };
 
 modular.Graph = class {
 
     constructor(graph) {
-        this._nodes = Array.from(graph.nodes.map((node) => new modular.Node(node)));
-        this._inputs = [];
-        this._outputs = [];
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
+        this.nodes = Array.from(graph.nodes.map((node) => new modular.Node(node)));
+        this.inputs = [];
+        this.outputs = [];
     }
 };
 
 modular.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = Array.from(value.map((value) => new modular.Value(value.toString(), name)));
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -74,72 +47,26 @@ modular.Value = class {
         if (typeof name !== 'string') {
             throw new modular.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
 modular.Node = class {
 
     constructor(node) {
-        this._name = node.type.name;
+        this.name = '';
+        this.type = { name: node.type.name };
         if (node.type.category === 'List') {
-            this._category = 'Data';
+            this.type.category = 'Data';
         } else if (node.type.category === 'ControlFlow') {
-            this._category = 'Control';
+            this.type.category = 'Control';
         } else {
-            this._category = node.type.category;
+            this.type.category = node.type.category;
         }
-        this._type = { name: this._name, category: this._category };
-        this._attributes = node.attributes ?
-            Array.from(node.attributes).map((attribute) => new modular.Attribute(attribute.name, attribute.value)) :
-            [];
-        this._inputs = Array.from(node.inputs.map((input) => new modular.Argument(input.name, input.arguments)));
-        this._outputs = Array.from(node.outputs.map((output) => new modular.Argument(output.name, output.arguments)));
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-};
-
-modular.Attribute = class {
-
-    constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.attributes = Array.isArray(node.attributes) ? Array.from(node.attributes).map((attribute) => new modular.Argument(attribute.name, attribute.value)) : [];
+        this.inputs = Array.from(node.inputs.map((input) => new modular.Argument(input.name, Array.from(input.arguments.map((value) => new modular.Value(value.toString(), input.name))))));
+        this.outputs = Array.from(node.outputs.map((output) => new modular.Argument(output.name, Array.from(output.arguments.map((value) => new modular.Value(value.toString(), output.name))))));
     }
 };
 

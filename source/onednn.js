@@ -21,44 +21,27 @@ onednn.Model = class {
 
     constructor(metadata, symbol) {
         const version = symbol.version;
-        this._format = `oneDNN Graph${version ? ` v${version}` : ''}`;
-        this._runtime = `${symbol.engine_kind} ${symbol.fpmath_mode}`;
-        this._graphs = [new onednn.Graph(metadata, symbol)];
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get version() {
-        return this._version;
-    }
-
-    get runtime() {
-        return this._runtime;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.format = `oneDNN Graph${version ? ` v${version}` : ''}`;
+        this.runtime = `${symbol.engine_kind} ${symbol.fpmath_mode}`;
+        this.graphs = [new onednn.Graph(metadata, symbol)];
     }
 };
 
 onednn.Graph = class {
 
     constructor(metadata, symbol) {
-        this._metadata = metadata;
-        this._nodes = [];
-        this._inputs = [];
-        this._outputs = [];
-        const nodes = [];
+        this.nodes = [];
+        this.inputs = [];
+        this.outputs = [];
+        const layers = [];
         const tensors = new Set();
-        for (const node of symbol.graph) {
-            if (node.kind === 'Wildcard' && node.inputs.length === 0) {
-                for (const output of node.outputs) {
+        for (const layer of symbol.graph) {
+            if (layer.kind === 'Wildcard' && layer.inputs.length === 0) {
+                for (const output of layer.outputs) {
                     tensors.add(output.id);
                 }
             } else {
-                nodes.push(node);
+                layers.push(layer);
             }
         }
         const values = new Map();
@@ -74,225 +57,152 @@ onednn.Graph = class {
             }
             return values.get(id);
         };
-        for (const node of nodes) {
-            for (const input of node.inputs) {
+        for (const layer of layers) {
+            for (const input of layer.inputs) {
                 value(input);
             }
-            for (const output of node.outputs) {
+            for (const output of layer.outputs) {
                 value(output);
             }
         }
         const engine = symbol.engine_kind;
-        for (const node of nodes) {
-            this._nodes.push(new onednn.Node(this._metadata, node, engine, value, tensors));
+        for (const layer of layers) {
+            const node = new onednn.Node(metadata, layer, engine, value, tensors);
+            this.nodes.push(node);
         }
         const inputs = symbol.input_ports || [];
-        for (let i = 0; i < inputs.length; i++) {
-            const id = inputs[i];
-            const value = values.get(id);
+        for (const input of inputs) {
+            const value = values.get(input);
             if (value) {
-                this._inputs.push(new onednn.Argument(id.toString(), [value]));
+                const argument = new onednn.Argument(input.toString(), [value]);
+                this.inputs.push(argument);
             }
         }
         const outputs = symbol.output_ports || [];
-        for (let i = 0; i < outputs.length; i++) {
-            const id = outputs[i];
-            const value = values.get(id);
+        for (const output of outputs) {
+            const value = values.get(output);
             if (value) {
-                this._outputs.push(new onednn.Argument(id.toString(), [value]));
+                const argument = new onednn.Argument(output.toString(), [value]);
+                this.outputs.push(argument);
             }
         }
-    }
-
-    get name() {
-        return '';
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
     }
 };
 
 onednn.Node = class {
 
     constructor(metadata, node, device, value) {
-        this._name = node.name;
-        this._attributes = [];
-        this._inputs = [];
-        this._outputs = [];
-        this._type = metadata.type(node.kind) || { name: node.kind };
-        this._device = device;
-        this._identifier = node.id;
+        this.name = node.name;
+        this.attributes = [];
+        this.inputs = [];
+        this.outputs = [];
+        this.type = metadata.type(node.kind) || { name: node.kind };
+        this.device = device;
+        this.identifier = node.id;
         const attrs = node.attrs;
         if (attrs) {
-            for (const [name, value] of Object.entries(attrs)) {
-                this._attributes.push(new onednn.Attribute(name, value.type, value.value));
+            for (const [name, obj] of Object.entries(attrs)) {
+                let type = obj.type;
+                let value = obj.value;
+                switch (type) {
+                    case 'bool':
+                        type = 'boolean';
+                        switch (value) {
+                            case 1: value = true; break;
+                            case 0: value = false; break;
+                            default: throw new onednn.Error(`Unsupported attribute boolean value '${value}'.`);
+                        }
+                        break;
+                    case 's64': {
+                        type = 'int64';
+                        const number = Number.parseInt(value, 10);
+                        value = Number.isNaN(value - number) ? value : number;
+                        break;
+                    }
+                    case 's64[]':
+                        type = 'int64[]';
+                        if (value.length > 2 && value.toString().startsWith('[') && value.toString().endsWith(']')) {
+                            let array = [];
+                            const items = value.substring(1, value.length - 1).split(',')
+                                .map((item) => item.trim())
+                                .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
+                            for (const item of items) {
+                                const value = Number.parseInt(item, 10);
+                                if (Number.isNaN(item - value)) {
+                                    array = null;
+                                } else if (array !== null) {
+                                    array.push(value);
+                                }
+                            }
+                            if (array !== null) {
+                                value = array;
+                            }
+                        }
+                        break;
+                    case 'f32': {
+                        type = 'float32';
+                        const number = Number.parseFloat(value);
+                        value = Number.isNaN(value - number) ? value : number;
+                        break;
+                    }
+                    case 'f32[]':
+                        type = 'float32[]';
+                        if (value.length > 2 && value.toString().startsWith('[') && value.toString().endsWith(']')) {
+                            let array = [];
+                            const items = value.substring(1, value.length - 1).split(',')
+                                .map((item) => item.trim())
+                                .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
+                            for (const item of items) {
+                                const value = Number.parseFloat(item);
+                                if (Number.isNaN(item - value)) {
+                                    array = null;
+                                } else if (array !== null) {
+                                    array.push(value);
+                                }
+                            }
+                            if (array !== null) {
+                                value = array;
+                            }
+                        }
+                        break;
+                    case 'string':
+                        type = 'string';
+                        break;
+                    default: {
+                        throw new onednn.Error(`Unsupported attribute array data type '${type}'.`);
+                    }
+                }
+                const attribute = new onednn.Argument(name, value, type);
+                this.attributes.push(attribute);
             }
         }
         const inputs = node.inputs || [];
         for (let i = 0; i < inputs.length; i++) {
             let name = inputs.length === 1 ? 'input' : i.toString();
-            if (this._type && this._type.inputs && this._type.inputs.length > 0) {
-                name = this._type.inputs[i].name;
+            if (this.type && this.type.inputs && this.type.inputs.length > 0) {
+                name = this.type.inputs[i].name;
             }
-            this._inputs.push(new onednn.Argument(name, [value(inputs[i])]));
+            const argument = new onednn.Argument(name, [value(inputs[i])]);
+            this.inputs.push(argument);
         }
         const outputs = node.outputs || [];
         for (let i = 0; i < outputs.length; i++) {
             let name = outputs.length === 1 ? 'output' : i.toString();
-            if (this._type && this._type.outputs && this._type.outputs.length > 0) {
-                name = this._type.outputs[i].name;
+            if (this.type && this.type.outputs && this.type.outputs.length > 0) {
+                name = this.type.outputs[i].name;
             }
-            this._outputs.push(new onednn.Argument(name, [value(outputs[i])]));
+            const argument = new onednn.Argument(name, [value(outputs[i])]);
+            this.outputs.push(argument);
         }
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-
-    get identifier() {
-        return this._identifier;
-    }
-
-    get device() {
-        return this._device;
-    }
-};
-
-onednn.Attribute = class {
-
-    constructor(name, type, value) {
-        this._name = name;
-        this._value = value;
-        switch (type) {
-            case 'bool':
-                this._type = 'boolean';
-                switch (value) {
-                    case 1: this._value = true; break;
-                    case 0: this._value = false; break;
-                    default: throw new onednn.Error(`Unsupported attribute boolean value '${value}'.`);
-                }
-                break;
-            case 's64': {
-                this._type = 'int64';
-                const number = Number.parseInt(this._value, 10);
-                this._value = Number.isNaN(this._value - number) ? value : number;
-                break;
-            }
-            case 's64[]':
-                this._type = 'int64[]';
-                if (this._value.length > 2 && this._value.toString().startsWith('[') && this._value.toString().endsWith(']')) {
-                    let array = [];
-                    const items = this._value.substring(1, this._value.length - 1).split(',')
-                        .map((item) => item.trim())
-                        .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
-                    for (const item of items) {
-                        const value = Number.parseInt(item, 10);
-                        if (Number.isNaN(item - value)) {
-                            array = null;
-                        } else if (array !== null) {
-                            array.push(value);
-                        }
-                    }
-                    if (array !== null) {
-                        this._value = array;
-                    }
-                }
-                break;
-            case 'f32': {
-                this._type = 'float32';
-                const number = Number.parseFloat(this._value);
-                this._value = Number.isNaN(this._value - number) ? value : number;
-                break;
-            }
-            case 'f32[]':
-                this._type = 'float32[]';
-                if (this._value.length > 2 && this._value.toString().startsWith('[') && this._value.toString().endsWith(']')) {
-                    let array = [];
-                    const items = this._value.substring(1, this._value.length - 1).split(',')
-                        .map((item) => item.trim())
-                        .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
-                    for (const item of items) {
-                        const value = Number.parseFloat(item);
-                        if (Number.isNaN(item - value)) {
-                            array = null;
-                        } else if (array !== null) {
-                            array.push(value);
-                        }
-                    }
-                    if (array !== null) {
-                        this._value = array;
-                    }
-                }
-                break;
-            case 'string':
-                this._type = 'string';
-                break;
-            default: {
-                throw new onednn.Error(`Unsupported attribute array data type '${type}'.`);
-            }
-        }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    get visible() {
-        return this._visible !== false;
     }
 };
 
 onednn.Argument = class {
 
-    constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+    constructor(name, value, type) {
+        this.name = name;
+        this.value = value;
+        this.type = type || null;
     }
 };
 
@@ -302,21 +212,9 @@ onednn.Value = class {
         if (typeof name !== 'string') {
             throw new onednn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
-        this._name = name;
-        this._type = type || null;
-        this._initializer = initializer || null;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name = name;
+        this.type = type || null;
+        this.initializer = initializer || null;
     }
 };
 
@@ -324,77 +222,57 @@ onednn.TensorType = class {
 
     constructor(dataType, shape) {
         switch (dataType) {
-            case 'f8_e4m3': this._dataType = 'float8e4m3'; break;
-            case 'f8_e5m2': this._dataType = 'float8e5m2'; break;
-            case 'f16': this._dataType = 'float16'; break;
-            case 'f32': this._dataType = 'float32'; break;
-            case 's8': this._dataType = 'int8'; break;
-            case 's32': this._dataType = 'int32'; break;
-            case 'u8': this._dataType = 'uint8'; break;
-            case 'bf16': this._dataType = 'bfloat16'; break;
-            case 'boolean': this._dataType = 'boolean'; break;
-            case 'undef': this._dataType = '?'; break;
+            case 'f8_e4m3': this.dataType = 'float8e4m3'; break;
+            case 'f8_e5m2': this.dataType = 'float8e5m2'; break;
+            case 'f16': this.dataType = 'float16'; break;
+            case 'f32': this.dataType = 'float32'; break;
+            case 's8': this.dataType = 'int8'; break;
+            case 's32': this.dataType = 'int32'; break;
+            case 'u8': this.dataType = 'uint8'; break;
+            case 'bf16': this.dataType = 'bfloat16'; break;
+            case 'boolean': this.dataType = 'boolean'; break;
+            case 'undef': this.dataType = '?'; break;
             default: throw new onednn.Error(`Unsupported tensor data type '${dataType}'.`);
         }
-        this._shape = shape;
-    }
-
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
+        this.shape = shape;
     }
 
     equals(obj) {
-        return obj && this._dataType === obj.dataType &&
-            ((this._shape && this._shape.equals(obj.shape)) || (this._shape === null && obj.shape === null));
+        return obj && this.dataType === obj.dataType &&
+            ((this.shape && this.shape.equals(obj.shape)) || (this.shape === null && obj.shape === null));
     }
 
     toString() {
-        return this._dataType + (this._shape ? this._shape.toString() : '[?]');
+        return this.dataType + (this.shape ? this.shape.toString() : '[?]');
     }
 };
 
 onednn.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = dimensions;
     }
 
     equals(obj) {
         return obj && Array.isArray(obj.dimensions) &&
-            Array.isArray(this._dimensions) && this._dimensions.length === obj.dimensions.length
-            && obj.dimensions.every((value, index) => this._dimensions[index] === value);
+            Array.isArray(this.dimensions) && this.dimensions.length === obj.dimensions.length
+            && obj.dimensions.every((value, index) => this.dimensions[index] === value);
     }
 
     toString() {
-        return this._dimensions ? (`[${this._dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`) : '';
+        return this.dimensions ? (`[${this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`) : '';
     }
 };
 
 onednn.Tensor = class {
 
     constructor(type, property_type) {
-        this._type = type;
-        this._category = property_type;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get category() {
-        return this._category;
+        this.type = type;
+        this.category = property_type;
     }
 
     equals(obj) {
-        return obj && this._type.equals(obj.type) && this.category === obj.category;
+        return obj && this.type.equals(obj.type) && this.category === obj.category;
     }
 };
 
@@ -407,4 +285,3 @@ onednn.Error = class extends Error {
 };
 
 export const ModelFactory = onednn.ModelFactory;
-

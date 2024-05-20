@@ -190,35 +190,17 @@ numpy.Value = class {
 numpy.Node = class {
 
     constructor(layer) {
-        this._name = layer.name || '';
-        this._type = { name: layer.type || 'Object' };
-        this._inputs = [];
+        this.name = layer.name || '';
+        this.type = { name: layer.type || 'Object' };
+        this.inputs = [];
+        this.outputs = [];
+        this.attributes = [];
         for (const parameter of layer.parameters) {
             const initializer = new numpy.Tensor(parameter.tensor.array);
             const value = new numpy.Value(parameter.tensor.name || '', initializer);
             const argument = new numpy.Argument(parameter.name, [value]);
-            this._inputs.push(argument);
+            this.inputs.push(argument);
         }
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return [];
-    }
-
-    get attributes() {
-        return [];
     }
 };
 

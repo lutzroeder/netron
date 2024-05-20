@@ -173,9 +173,11 @@ sklearn.Graph = class {
 
 sklearn.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type, visible) {
         this.name = name;
         this.value = value;
+        this.type = type;
+        this.visible = visible !== false;
     }
 };
 
@@ -186,15 +188,8 @@ sklearn.Value = class {
             throw new sklearn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
-        this._type = type || null;
+        this.type = initializer ? initializer.type : type;
         this.initializer = initializer || null;
-    }
-
-    get type() {
-        if (this.initializer) {
-            return this.initializer.type;
-        }
-        return this._type;
     }
 };
 
@@ -226,25 +221,25 @@ sklearn.Node = class {
                 continue;
             } else if (value && isArray(value)) {
                 const tensor = new sklearn.Tensor(value);
-                const attribute = new sklearn.Attribute(name, tensor, 'tensor');
+                const attribute = new sklearn.Argument(name, tensor, 'tensor');
                 this.attributes.push(attribute);
             } else if (Array.isArray(value) && value.length > 0 && value.every((obj) => isArray(obj))) {
                 const tensors = value.map((obj) => new sklearn.Tensor(obj));
-                const attribute = new sklearn.Attribute(name, tensors, 'tensor[]');
+                const attribute = new sklearn.Argument(name, tensors, 'tensor[]');
                 this.attributes.push(attribute);
             } else {
                 stack = stack || new Set();
                 if (value && Array.isArray(value) && value.every((obj) => typeof obj === 'string')) {
-                    const attribute = new sklearn.Attribute(name, value, 'string[]');
+                    const attribute = new sklearn.Argument(name, value, 'string[]');
                     this.attributes.push(attribute);
                 } else if (value && Array.isArray(value) && value.every((obj) => typeof obj === 'number')) {
-                    const attribute = new sklearn.Attribute(name, value);
+                    const attribute = new sklearn.Argument(name, value);
                     this.attributes.push(attribute);
                 } else if (value && value.__class__ && value.__class__.__module__ === 'builtins' && (value.__class__.__name__ === 'function' || value.__class__.__name__ === 'type')) {
                     const obj = {};
                     obj.__class__ = value;
                     const node = new sklearn.Node(metadata, group, '', obj, [], [], null, stack);
-                    const attribute = new sklearn.Attribute(name, node, 'object');
+                    const attribute = new sklearn.Argument(name, node, 'object');
                     this.attributes.push(attribute);
                 } else if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj && (obj.__class__ || obj === Object(obj)))) {
                     const values = value.filter((value) => !stack.has(value));
@@ -254,13 +249,13 @@ sklearn.Node = class {
                         stack.delete(value);
                         return node;
                     });
-                    const attribute = new sklearn.Attribute(name, nodes, 'object[]');
+                    const attribute = new sklearn.Argument(name, nodes, 'object[]');
                     this.attributes.push(attribute);
                 } else if (value && (value.__class__ || isObject(value))) {
                     if (!stack.has(value)) {
                         stack.add(value);
                         const node = new sklearn.Node(metadata, group, '', value, [], [], null, stack);
-                        const attribute = new sklearn.Attribute(name, node, 'object');
+                        const attribute = new sklearn.Argument(name, node, 'object');
                         this.attributes.push(attribute);
                         stack.delete(value);
                     }
@@ -285,25 +280,15 @@ sklearn.Node = class {
                                 visible = value !== schema.default;
                             }
                         }
-                        const attribute = new sklearn.Attribute(name, value, type, visible);
+                        const attribute = new sklearn.Argument(name, value, type, visible);
                         this.attributes.push(attribute);
                     } else {
-                        const attribute = new sklearn.Attribute(name, value);
+                        const attribute = new sklearn.Argument(name, value);
                         this.attributes.push(attribute);
                     }
                 }
             }
         }
-    }
-};
-
-sklearn.Attribute = class {
-
-    constructor(name, value, type, visible) {
-        this.name = name;
-        this.value = value;
-        this.type = type;
-        this.visible = visible !== false;
     }
 };
 

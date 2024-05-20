@@ -120,21 +120,13 @@ flax.Node = class {
                 const argument = new flax.Argument(name, [new flax.Value('', tensor)]);
                 this.inputs.push(argument);
             } else if (Array.isArray(value)) {
-                const attribute = new flax.Attribute(name, value);
+                const attribute = new flax.Argument(name, value);
                 this.attributes.push(attribute);
             } else {
-                const attribute = new flax.Attribute(name, value);
+                const attribute = new flax.Argument(name, value);
                 this.attributes.push(attribute);
             }
         }
-    }
-};
-
-flax.Attribute = class {
-
-    constructor(name, value) {
-        this.name = name;
-        this.value = value;
     }
 };
 

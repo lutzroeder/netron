@@ -218,9 +218,10 @@ mlir.Graph = class {
 
 mlir.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
     }
 };
 
@@ -253,21 +254,11 @@ mlir.Node = class {
         this.outputs = outputs || [];          // [mlir.Parameter]
         this.attributes = [];                  // [mlir.Attribute]
         if (attributes) {
-            for (const key of Object.keys(attributes)) {
-                const value = attributes[key];
-                const attribute = new mlir.Attribute(key, value);
+            for (const [name, value] of Object.entries(attributes)) {
+                const attribute = new mlir.Argument(name, value, 'string');
                 this.attributes.push(attribute);
             }
         }
-    }
-};
-
-mlir.Attribute = class {
-
-    constructor(name, value) {
-        this.name = name;
-        this.type = 'string';
-        this.value = value;
     }
 };
 

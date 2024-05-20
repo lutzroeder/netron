@@ -30,58 +30,34 @@ message.ModelFactory = class {
 message.Model = class {
 
     constructor(data) {
-        this._format = data.format || '';
-        this._producer = data.producer || '';
-        this._version = data.version || '';
-        this._description = data.description || '';
-        this._metadata = (data.metadata || []).map((entry) => {
+        this.format = data.format || '';
+        this.producer = data.producer || '';
+        this.version = data.version || '';
+        this.description = data.description || '';
+        this.metadata = (data.metadata || []).map((entry) => {
             return { name: entry.name, value: entry.value };
         });
-        this._graphs = (data.graphs || []).map((graph) => new message.Graph(graph));
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get producer() {
-        return this._producer;
-    }
-
-    get version() {
-        return this._version;
-    }
-
-    get description() {
-        return this._description;
-    }
-
-    get metadata() {
-        return this._metadata;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.graphs = (data.graphs || []).map((graph) => new message.Graph(graph));
     }
 };
 
 message.Graph = class {
 
     constructor(data) {
-        this._inputs = [];
-        this._outputs = [];
-        this._nodes = [];
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
         const args = data.arguments ? data.arguments.map((argument) => new message.Value(argument)) : [];
         for (const parameter of data.inputs || []) {
             parameter.arguments = parameter.arguments.map((index) => args[index]).filter((argument) => !argument.initializer);
             if (parameter.arguments.filter((argument) => !argument.initializer).length > 0) {
-                this._inputs.push(new message.Argument(parameter));
+                this.inputs.push(new message.Argument(parameter));
             }
         }
         for (const parameter of data.outputs || []) {
             parameter.arguments = parameter.arguments.map((index) => args[index]);
             if (parameter.arguments.filter((argument) => !argument.initializer).length > 0) {
-                this._outputs.push(new message.Argument(parameter));
+                this.outputs.push(new message.Argument(parameter));
             }
         }
         for (const node of data.nodes || []) {
@@ -91,147 +67,64 @@ message.Graph = class {
             for (const parameter of node.outputs || []) {
                 parameter.arguments = parameter.arguments.map((index) => args[index]);
             }
-            this._nodes.push(new message.Node(node));
+            this.nodes.push(new message.Node(node));
         }
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
     }
 };
 
 message.Argument = class {
 
     constructor(data) {
-        this._name = data.name || '';
-        this._value = (data.arguments || []);
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = data.name || '';
+        this.value = (data.arguments || []);
+        this.type = data.type || '';
     }
 };
 
 message.Value = class {
 
     constructor(data) {
-        this._name = data.name || '';
-        this._type = data.type ? new message.TensorType(data.type) : null;
-        this._initializer = data.initializer ? new message.Tensor(data.initializer) : null;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        if (this._initializer && this._initializer.type) {
-            return this._initializer.type;
+        this.name = data.name || '';
+        this.initializer = data.initializer ? new message.Tensor(data.initializer) : null;
+        if (this.initializer && this.initializer.type) {
+            this.type = this.initializer.type;
+        } else {
+            this.type = data.type ? new message.TensorType(data.type) : null;
         }
-        return this._type;
-    }
-
-    get initializer() {
-        return this._initializer;
     }
 };
 
 message.Node = class {
 
     constructor(data) {
-        this._type = { name: data.type.name, category: data.type.category };
-        this._name = data.name;
-        this._inputs = (data.inputs || []).map((input) => new message.Argument(input));
-        this._outputs = (data.outputs || []).map((output) => new message.Argument(output));
-        this._attributes = (data.attributes || []).map((attribute) => new message.Attribute(attribute));
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-};
-
-message.Attribute = class {
-
-    constructor(data) {
-        this._type = data.type || '';
-        this._name = data.name;
-        this._value = data.value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    get type() {
-        return this._type;
+        this.type = { name: data.type.name, category: data.type.category };
+        this.name = data.name;
+        this.inputs = (data.inputs || []).map((input) => new message.Argument(input));
+        this.outputs = (data.outputs || []).map((output) => new message.Argument(output));
+        this.attributes = (data.attributes || []).map((attribute) => new message.Argument(attribute));
     }
 };
 
 message.TensorType = class {
 
     constructor(data) {
-        this._dataType = data.dataType;
-        this._shape = new message.TensorShape(data.shape);
-    }
-
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
+        this.dataType = data.dataType;
+        this.shape = new message.TensorShape(data.shape);
     }
 
     toString() {
-        return this._dataType + this._shape.toString();
+        return this.dataType + this.shape.toString();
     }
 };
 
 message.TensorShape = class {
 
     constructor(data) {
-        this._dimensions = data.dimensions;
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = data.dimensions;
     }
 
     toString() {
-        return `[${this._dimensions}]`;
+        return `[${this.dimensions}]`;
     }
 };
 

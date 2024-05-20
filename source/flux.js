@@ -55,16 +55,8 @@ flux.ModelFactory = class {
 flux.Model = class {
 
     constructor(/* root */) {
-        this._format = 'Flux';
-        this._graphs = [];
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.format = 'Flux';
+        this.graphs = [];
     }
 };
 

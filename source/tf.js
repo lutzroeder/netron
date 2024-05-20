@@ -814,9 +814,11 @@ tf.Signature = class {
 
 tf.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type, visible) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
+        this.visible = visible !== false;
     }
 };
 
@@ -911,8 +913,117 @@ tf.Node = class {
                 this.device = node.device;
             }
             if (node.attr) {
-                this.attributes = Object.entries(node.attr).map(([name, value]) => {
-                    return new tf.Attribute(metadata, node.op, name, value);
+                this.attributes = Object.entries(node.attr).map(([name, obj]) => {
+                    const schema = obj && obj.metadata ? obj.metadata : metadata.attribute(node.op, name);
+                    let value = null;
+                    let type = schema && schema.type ? schema.type : null;
+                    let visible = metadata.visible(node.op, name);
+                    switch (obj.value) {
+                        case undefined:
+                            type = '';
+                            value = null;
+                            break;
+                        case 'type':
+                            type = 'type';
+                            value = tf.Utility.dataType(obj.type);
+                            break;
+                        case 'i':
+                            value = obj.i;
+                            break;
+                        case 'f':
+                            value = obj.f;
+                            break;
+                        case 'b':
+                            value = obj.b;
+                            break;
+                        case 'shape':
+                            type = 'shape';
+                            value = new tf.TensorShape(obj.shape);
+                            break;
+                        case 's':
+                            value = tf.Utility.decodeText(obj.s);
+                            break;
+                        case 'tensor': {
+                            type = 'tensor';
+                            value = new tf.Tensor(obj.tensor);
+                            break;
+                        }
+                        case 'func': {
+                            type = 'function';
+                            value = new tf.Node(metadata, { op: obj.func.name, attr: obj.func.attr }, null, new tf.Context());
+                            break;
+                        }
+                        case 'placeholder': {
+                            type = 'placeholder';
+                            value = obj;
+                            break;
+                        }
+                        case 'list': {
+                            const list = obj.list;
+                            if (list.s && list.s.length > 0) {
+                                value = list.s.map((s) => tf.Utility.decodeText(s));
+                            } else if (list.i && list.i.length > 0) {
+                                value = list.i;
+                            } else if (list.f && list.f.length > 0) {
+                                value = list.f;
+                            } else if (list.type && list.type.length > 0) {
+                                type = 'type[]';
+                                value = list.type.map((type) => tf.Utility.dataType(type));
+                            } else if (list.shape && list.shape.length > 0) {
+                                type = 'shape[]';
+                                value = list.shape.map((shape) => new tf.TensorShape(shape));
+                            } else if (list.func && list.func.length > 0) {
+                                type = 'function[]';
+                                value = list.func.map((func) => new tf.Node(metadata, { op: func.name, attr: func.attr }));
+                            } else {
+                                value = [];
+                            }
+                            break;
+                        }
+                        default: {
+                            throw new tf.Error(`Unsupported attribute value type '${JSON.stringify(value).substring(0, 32)}'.`);
+                        }
+                    }
+                    if (schema) {
+                        if (schema.visible === false) {
+                            visible = false;
+                        } else if (schema.default !== undefined) {
+                            const equals = (value, defaultValue) => {
+                                if (!Array.isArray(defaultValue) && defaultValue === Object(defaultValue)) {
+                                    switch (defaultValue.type) {
+                                        case 'type':
+                                            defaultValue = tf.Utility.dataType(defaultValue.value);
+                                            break;
+                                        case 'shape':
+                                        case 'tensor':
+                                            defaultValue = defaultValue.value;
+                                            break;
+                                        default:
+                                            throw new tf.Error(JSON.stringify(defaultValue));
+                                    }
+                                }
+                                if (typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string') {
+                                    return value === defaultValue;
+                                }
+                                if (typeof value === 'bigint') {
+                                    return Number(value) === defaultValue;
+                                }
+                                return false;
+                            };
+                            const defaultValue = schema.default;
+                            if (Array.isArray(value) && Array.isArray(defaultValue)) {
+                                if (value.length === defaultValue.length && value.every((item, index) => equals(item, defaultValue[index]))) {
+                                    visible = false;
+                                }
+                            } else if (equals(value, defaultValue)) {
+                                visible = false;
+                            }
+                        }
+                    }
+                    if (name === '_class' || name === '_output_shapes' || visible === false) {
+                        visible = false;
+                    }
+                    return new tf.Argument(name, value, type, visible);
                 });
             }
             let inputIndex = 0;
@@ -973,132 +1084,6 @@ tf.Node = class {
             }));
             const controlDependencies = node.controlDependencies || [];
             this.controlDependencies = controlDependencies.map((input) => context.value(input.name));
-        }
-    }
-};
-
-tf.Attribute = class {
-
-    constructor(metadata, op, name, value) {
-        this.name = name;
-        this.value = null;
-        this.type = null;
-        const schema = value && value.metadata ? value.metadata : metadata.attribute(op, name);
-        const visible = metadata.visible(op, name);
-        if (schema && schema.type) {
-            this.type = schema.type;
-        }
-        switch (value.value) {
-            case undefined:
-                this.type = '';
-                this.value = null;
-                break;
-            case 'type':
-                this.type = 'type';
-                this.value = tf.Utility.dataType(value.type);
-                break;
-            case 'i':
-                this.value = value.i;
-                break;
-            case 'f':
-                this.value = value.f;
-                break;
-            case 'b':
-                this.value = value.b;
-                break;
-            case 'shape':
-                this.type = 'shape';
-                this.value = new tf.TensorShape(value.shape);
-                break;
-            case 's':
-                this.value = tf.Utility.decodeText(value.s);
-                break;
-            case 'tensor': {
-                this.type = 'tensor';
-                this.value = new tf.Tensor(value.tensor);
-                break;
-            }
-            case 'func': {
-                this.type = 'function';
-                this.value = new tf.Node(metadata, { op: value.func.name, attr: value.func.attr }, null, new tf.Context());
-                break;
-            }
-            case 'placeholder': {
-                this.type = 'placeholder';
-                this.value = value;
-                break;
-            }
-            case 'list': {
-                const list = value.list;
-                if (list.s && list.s.length > 0) {
-                    this.value = list.s.map((s) => tf.Utility.decodeText(s));
-                } else if (list.i && list.i.length > 0) {
-                    this.value = list.i;
-                } else if (list.f && list.f.length > 0) {
-                    this.value = list.f;
-                } else if (list.type && list.type.length > 0) {
-                    this.type = 'type[]';
-                    this.value = list.type.map((type) => tf.Utility.dataType(type));
-                } else if (list.shape && list.shape.length > 0) {
-                    this.type = 'shape[]';
-                    this.value = list.shape.map((shape) => new tf.TensorShape(shape));
-                } else if (list.func && list.func.length > 0) {
-                    this.type = 'function[]';
-                    this.value = list.func.map((func) => new tf.Node(metadata, { op: func.name, attr: func.attr }));
-                } else {
-                    this.value = [];
-                }
-                break;
-            }
-            default: {
-                throw new tf.Error(`Unsupported attribute value type '${JSON.stringify(value).substring(0, 32)}'.`);
-            }
-        }
-        if (schema) {
-            if (schema.visible === false) {
-                this.visible = false;
-            } else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                const equals = (value, defaultValue) => {
-                    if (!Array.isArray(defaultValue) && defaultValue === Object(defaultValue)) {
-                        switch (defaultValue.type) {
-                            case 'type':
-                                defaultValue = tf.Utility.dataType(defaultValue.value);
-                                break;
-                            case 'shape':
-                            case 'tensor':
-                                defaultValue = defaultValue.value;
-                                break;
-                            default:
-                                throw new tf.Error(JSON.stringify(defaultValue));
-                        }
-                    }
-                    if (typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string') {
-                        return value === defaultValue;
-                    }
-                    if (typeof value === 'bigint') {
-                        return Number(value) === defaultValue;
-                    }
-                    return false;
-                };
-                const value = this.value;
-                const defaultValue = schema.default;
-                if (Array.isArray(value) && Array.isArray(defaultValue)) {
-                    if (value.length === defaultValue.length && value.every((item, index) => equals(item, defaultValue[index]))) {
-                        this.visible = false;
-                    }
-                } else if (equals(value, defaultValue)) {
-                    this.visible = false;
-                }
-            }
-        }
-        if (name === '_output_shapes') {
-            this.visible = false;
-        }
-        if (name === '_class') {
-            this.visible = false;
-        }
-        if (visible === false) {
-            this.visible = false;
         }
     }
 };

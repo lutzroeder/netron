@@ -206,7 +206,7 @@ kmodel.Node = class {
             if (name === 'type' || name === 'location' || name === 'inputs' || name === 'outputs' || name === 'chain') {
                 continue;
             }
-            const attribute = new kmodel.Attribute(name, value);
+            const attribute = new kmodel.Argument(name, value);
             this.attributes.push(attribute);
         }
         for (const input of layer.inputs || []) {
@@ -223,14 +223,6 @@ kmodel.Node = class {
             const node = new kmodel.Node(chain, value);
             this.chain.push(node);
         }
-    }
-};
-
-kmodel.Attribute = class {
-
-    constructor(name, value) {
-        this.name = name;
-        this.value = value;
     }
 };
 

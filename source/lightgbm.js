@@ -75,9 +75,10 @@ lightgbm.Graph = class {
 
 lightgbm.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
     }
 };
 
@@ -122,29 +123,20 @@ lightgbm.Node = class {
                     stack.delete(obj);
                     return node;
                 });
-                const attribute = new lightgbm.Attribute('object[]', key, nodes);
+                const attribute = new lightgbm.Argument(key, nodes, 'object[]');
                 this.attributes.push(attribute);
                 continue;
             } else if (isObject(value) && !stack.has(value)) {
                 stack.add(obj);
                 const node = new lightgbm.Node(obj, null, stack);
                 stack.delete(obj);
-                const attribute = new lightgbm.Attribute('object', key, node);
+                const attribute = new lightgbm.Argument(key, node, 'object');
                 this.attributes.push(attribute);
             } else {
-                const attribute = new lightgbm.Attribute(null, key, value);
+                const attribute = new lightgbm.Argument(key, value);
                 this.attributes.push(attribute);
             }
         }
-    }
-};
-
-lightgbm.Attribute = class {
-
-    constructor(type, name, value) {
-        this.type = type;
-        this.name = name;
-        this.value = value;
     }
 };
 

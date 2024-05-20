@@ -30,37 +30,17 @@ tensorrt.ModelFactory = class {
 tensorrt.Model = class {
 
     constructor(metadata, model) {
-        this._format = model.format;
-        this._graphs = [new tensorrt.Graph(metadata, model)];
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.format = model.format;
+        this.graphs = [new tensorrt.Graph(metadata, model)];
     }
 };
 
 tensorrt.Graph = class {
 
     constructor(/* metadata, model */) {
-        this._inputs = [];
-        this._outputs = [];
-        this._nodes = [];
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
     }
 };
 
@@ -129,7 +109,7 @@ tensorrt.Engine = class {
             }
         }
         // const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-        // buffer = this._stream.read(24 + size);
+        // buffer = this.stream.read(24 + size);
         // reader = new tensorrt.BinaryReader(buffer);
         throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT engine data.');
     }
@@ -172,7 +152,7 @@ tensorrt.Container = class {
 
     read() {
         delete this.stream;
-        // const buffer = this._stream.peek(Math.min(24, this._stream.length));
+        // const buffer = this.stream.peek(Math.min(24, this.stream.length));
         // const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
         throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT data.');
     }

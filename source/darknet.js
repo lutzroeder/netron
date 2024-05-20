@@ -68,24 +68,17 @@ darknet.ModelFactory = class {
 darknet.Model = class {
 
     constructor(metadata, reader, weights) {
-        this._graphs = [new darknet.Graph(metadata, reader, weights)];
-    }
-
-    get format() {
-        return 'Darknet';
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.format = 'Darknet';
+        this.graphs = [new darknet.Graph(metadata, reader, weights)];
     }
 };
 
 darknet.Graph = class {
 
     constructor(metadata, reader, weights) {
-        this._inputs = [];
-        this._outputs = [];
-        this._nodes = [];
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
         const params = {};
         const sections = reader.read();
         const globals = new Map();
@@ -120,7 +113,7 @@ darknet.Graph = class {
             const type = new darknet.TensorType('float32', make_shape(shape, 'load_weights'));
             const initializer = new darknet.Tensor(type, data);
             const value = new darknet.Value('', null, initializer);
-            return new darknet.Argument(name, visible !== false, [value]);
+            return new darknet.Argument(name, [value], null, visible !== false);
         };
         const load_batch_normalize_weights = (layer, prefix, size) => {
             layer.weights.push(load_weights(`${prefix}scale`, [size], prefix === ''));
@@ -187,7 +180,7 @@ darknet.Graph = class {
             new darknet.TensorType('float32', make_shape([params.inputs], 'params-else'));
         const inputName = 'input';
         params.value = [new darknet.Value(inputName, inputType, null)];
-        this._inputs.push(new darknet.Argument(inputName, true, params.value));
+        this.inputs.push(new darknet.Argument(inputName, params.value));
         for (let i = 0; i < sections.length; i++) {
             const section = sections[i];
             section.name = i.toString();
@@ -733,45 +726,23 @@ darknet.Graph = class {
         }
 
         for (let i = 0; i < sections.length; i++) {
-            this._nodes.push(new darknet.Node(metadata, net, sections[i]));
+            this.nodes.push(new darknet.Node(metadata, net, sections[i]));
         }
 
         if (weights) {
             weights.validate();
         }
     }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
-    }
 };
 
 darknet.Argument = class {
 
-    constructor(name, visible, value) {
-        this._name = name;
-        this._visible = visible;
-        this._value = value;
-    }
+    constructor(name, value, type, visible) {
+        this.name = name;
+        this.value = value;
+        this.type = type || null;
+        this.visible = visible !== false;
 
-    get name() {
-        return this._name;
-    }
-
-    get visible() {
-        return this._visible;
-    }
-
-    get value() {
-        return this._value;
     }
 };
 
@@ -781,198 +752,103 @@ darknet.Value = class {
         if (typeof name !== 'string') {
             throw new darknet.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
-        this._name = name;
-        this._type = type;
-        this._initializer = initializer;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return this._type;
-    }
-
-    set type(value) {
-        if (this._type) {
-            throw new darknet.Error('Invalid argument type set operation.');
-        }
-        this._type = value;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name = name;
+        this.type = initializer && initializer.type ? initializer.type : type;
+        this.initializer = initializer;
     }
 };
 
 darknet.Node = class {
 
     constructor(metadata, net, section) {
-        this._name = section.name || '';
-        this._identifier = section.line === undefined ? undefined : section.line.toString();
-        this._attributes = [];
-        this._inputs = [];
-        this._outputs = [];
-        this._chain = [];
+        this.name = section.name || '';
+        this.identifier = section.line === undefined ? undefined : section.line.toString();
+        this.attributes = [];
+        this.inputs = [];
+        this.outputs = [];
+        this.chain = [];
         const type = section.type;
-        this._type = metadata.type(type) || { name: type };
+        this.type = metadata.type(type) || { name: type };
         const layer = section.layer;
         if (layer && layer.inputs && layer.inputs.length > 0) {
-            this._inputs.push(new darknet.Argument(layer.inputs.length <= 1 ? 'input' : 'inputs', true, layer.inputs));
+            this.inputs.push(new darknet.Argument(layer.inputs.length <= 1 ? 'input' : 'inputs', layer.inputs));
         }
         if (layer && layer.weights && layer.weights.length > 0) {
-            this._inputs = this._inputs.concat(layer.weights);
+            this.inputs = this.inputs.concat(layer.weights);
         }
         if (layer && layer.outputs && layer.outputs.length > 0) {
-            this._outputs.push(new darknet.Argument(layer.outputs.length <= 1 ? 'output' : 'outputs', true, layer.outputs));
+            this.outputs.push(new darknet.Argument(layer.outputs.length <= 1 ? 'output' : 'outputs', layer.outputs));
         }
         if (layer && layer.chain) {
             for (const chain of layer.chain) {
-                this._chain.push(new darknet.Node(metadata, net, chain, ''));
+                this.chain.push(new darknet.Node(metadata, net, chain, ''));
             }
         }
         const options = section.options;
         if (options) {
-            for (const key of Object.keys(options)) {
-                this._attributes.push(new darknet.Attribute(metadata.attribute(type, key), key, options[key]));
+            for (const [name, obj] of Object.entries(options)) {
+                const schema = metadata.attribute(section.type, name);
+                let type = null;
+                let value = obj;
+                let visible = true;
+                if (schema) {
+                    type = schema.type || '';
+                    switch (type) {
+                        case '':
+                        case 'string': {
+                            break;
+                        }
+                        case 'int32': {
+                            const number = parseInt(value, 10);
+                            if (Number.isInteger(number)) {
+                                value = number;
+                            }
+                            break;
+                        }
+                        case 'float32': {
+                            const number = parseFloat(value);
+                            if (!isNaN(number)) {
+                                value = number;
+                            }
+                            break;
+                        }
+                        case 'int32[]': {
+                            const numbers = value.split(',').map((item) => parseInt(item.trim(), 10));
+                            if (numbers.every((number) => Number.isInteger(number))) {
+                                value = numbers;
+                            }
+                            break;
+                        }
+                        default: {
+                            throw new darknet.Error(`Unsupported attribute type '${type}'.`);
+                        }
+                    }
+                    visible = (schema.visible === false || value === schema.default);
+                }
+                const attribute = new darknet.Argument(name, value, type, visible);
+                this.attributes.push(attribute);
             }
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get identifier() {
-        return this._identifier;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get chain() {
-        return this._chain;
-    }
-};
-
-darknet.Attribute = class {
-
-    constructor(metadata, name, value) {
-        this._name = name;
-        this._value = value;
-        if (metadata) {
-            this._type = metadata.type || '';
-            switch (this._type) {
-                case '':
-                case 'string': {
-                    break;
-                }
-                case 'int32': {
-                    const number = parseInt(this._value, 10);
-                    if (Number.isInteger(number)) {
-                        this._value = number;
-                    }
-                    break;
-                }
-                case 'float32': {
-                    const number = parseFloat(this._value);
-                    if (!isNaN(number)) {
-                        this._value = number;
-                    }
-                    break;
-                }
-                case 'int32[]': {
-                    const numbers = this._value.split(',').map((item) => parseInt(item.trim(), 10));
-                    if (numbers.every((number) => Number.isInteger(number))) {
-                        this._value = numbers;
-                    }
-                    break;
-                }
-                default: {
-                    throw new darknet.Error(`Unsupported attribute type '${this._type}'.`);
-                }
-            }
-            if (metadata && metadata.visible === false) {
-                this._visible = false;
-            } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
-                if (this._value === metadata.default) {
-                    this._visible = false;
-                }
-            }
-        }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    get visible() {
-        return this._visible !== false;
     }
 };
 
 darknet.Tensor = class {
 
     constructor(type, data) {
-        this._type = type;
-        this._values = data;
-    }
-
-    get name() {
-        return '';
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get values() {
-        return this._values;
+        this.type = type;
+        this.values = data;
     }
 };
 
 darknet.TensorType = class {
 
     constructor(dataType, shape) {
-        this._dataType = dataType;
-        this._shape = shape;
-    }
-
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
+        this.dataType = dataType;
+        this.shape = shape;
     }
 
     toString() {
-        return (this._dataType || '?') + this._shape.toString();
+        return (this.dataType || '?') + this.shape.toString();
     }
 };
 
@@ -982,19 +858,15 @@ darknet.TensorShape = class {
         if (dimensions.some((dimension) => dimension === 0 || dimension === undefined || isNaN(dimension))) {
             throw new darknet.Error(`Invalid tensor shape '${JSON.stringify(dimensions)}'.`);
         }
-        this._dimensions = dimensions;
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = dimensions;
     }
 
     toString() {
-        if (this._dimensions) {
-            if (this._dimensions.length === 0) {
+        if (this.dimensions) {
+            if (this.dimensions.length === 0) {
                 return '';
             }
-            return `[${this._dimensions.map((dimension) => dimension.toString()).join(',')}]`;
+            return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
         }
         return '';
     }

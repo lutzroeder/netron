@@ -142,7 +142,18 @@ nnabla.Graph = class {
         this.nodes = network.function.map((func) => {
             const parameters = get_parameters(func) || [];
             const attributes = Object.entries(parameters).map(([name, value]) => {
-                return new nnabla.Attribute(metadata, func.type, name, value);
+                const attribute = metadata.attribute(func.type, name);
+                let type = attribute.type;
+                switch (type) {
+                    case 'shape':
+                        type = "int64[]";
+                        value = value.dim;
+                        break;
+                    default:
+                        break;
+                }
+                const visible = attribute.default !== undefined && value === attribute.default ? false : true;
+                return new nnabla.Argument(name, value, type, visible);
             });
             const func_type = metadata.type(func.type);
             const inputs = [];
@@ -170,36 +181,20 @@ nnabla.Graph = class {
 
 nnabla.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type, visible) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
+        this.visible = visible !== false;
     }
 };
 
 nnabla.Value = class {
 
     constructor(name, type, initializer) {
-        this._name = name;
-        this._type = type || null;
-        this._initializer = initializer || null;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        if (this._type) {
-            return this._type;
-        }
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return null;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name = name;
+        this.type = !type && initializer && initializer.type ? initializer.type : type;
+        this.initializer = initializer || null;
     }
 };
 
@@ -254,41 +249,16 @@ nnabla.Node = class {
     }
 };
 
-nnabla.Attribute = class {
-
-    constructor(metadata, type, name, value) {
-        this.name = name;
-        const attribute = metadata.attribute(type, name);
-        this.description = attribute.description;
-        switch (attribute.type) {
-            case "shape":
-                this.type = "int64[]";
-                this.value = value.dim;
-                break;
-            default:
-                this.type = attribute.type;
-                this.value = value;
-                break;
-        }
-        if (Object.prototype.hasOwnProperty.call(attribute, 'default') && this.value === attribute.default) {
-            this.visible = false;
-        }
-    }
-};
-
 nnabla.Tensor = class {
 
     constructor(name, type, values) {
         this.name = name;
         this.type = type;
         this.encoding = '|';
-        this._values = values;
-    }
-
-    get values() {
+        this.values = values;
         const dataType = this.type.dataType;
         switch (dataType) {
-            case 'float32': return new Float32Array(this._values);
+            case 'float32': this.values = new Float32Array(this.values); break;
             default: throw new nnabla.Error(`Unsupported data type '${dataType}'.`);
         }
     }

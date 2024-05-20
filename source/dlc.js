@@ -121,9 +121,10 @@ dlc.Graph = class {
 
 dlc.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
     }
 };
 
@@ -174,7 +175,23 @@ dlc.Node = class {
                 if (attr.name === 'OutputDims') {
                     continue;
                 }
-                const attribute = new dlc.Attribute(metadata.attribute(type, attr.name), version, attr);
+                const schema = metadata.attribute(node.type, attr.name);
+                let type = attr.type;
+                switch (type) {
+                    case 'tensor': {
+                        const type = new dlc.TensorType(attr.data.dtype, attr.data.shape);
+                        value = new dlc.Tensor(type, attr.data.data);
+                        break;
+                    }
+                    default: {
+                        value = attr.data;
+                    }
+                }
+                if (schema && schema.type) {
+                    type = schema.type;
+                    value = dlc.Utility.enum(version, type, value);
+                }
+                const attribute = new dlc.Argument(attr.name, value, type);
                 this.attributes.push(attribute);
             }
         }
@@ -184,30 +201,6 @@ dlc.Node = class {
                 const value = new dlc.Value('', type, new dlc.Tensor(type, tensor.data));
                 this.inputs.push(new dlc.Argument(tensor.name, [value]));
             }
-        }
-    }
-};
-
-dlc.Attribute = class {
-
-    constructor(metadata, version, attribute) {
-        this.name = attribute.name;
-        this.type = attribute.type;
-        switch (this.type) {
-            case 'tensor': {
-                const tensor = attribute.data;
-                const type = new dlc.TensorType(tensor.dtype, tensor.shape);
-                const data = tensor.data;
-                this.value = new dlc.Tensor(type, data);
-                break;
-            }
-            default: {
-                this.value = attribute.data;
-            }
-        }
-        if (metadata && metadata.type) {
-            this.type = metadata.type;
-            this.value = dlc.Utility.enum(version, this.type, this.value);
         }
     }
 };

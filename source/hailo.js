@@ -105,9 +105,11 @@ hailo.Graph = class {
 
 hailo.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type, visible) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
+        this.visible = visible !== false;
     }
 };
 
@@ -163,8 +165,15 @@ hailo.Node = class {
             name = `${layer.name}\n${name}`;
             return new hailo.Argument("output", [values.map(name, type, null)]);
         });
+        this.attributes = [];
         const attrs = Object.assign(layer.params || {}, { original_names: layer.original_names || [] });
-        this.attributes = Object.entries(attrs).map(([name, value]) => new hailo.Attribute(metadata.attribute(layer.type, name), name, value));
+        for (const [name, value] of Object.entries(attrs)) {
+            const schema = metadata.attribute(layer.type, name);
+            const type = schema && schema.type ? schema.type : '';
+            const visible = name === 'original_names' || (schema && schema.visible === false) ? false : true;
+            const attribute = new hailo.Argument(name, value, type, visible);
+            this.attributes.push(attribute);
+        }
         this.chain = [];
         if (layer && layer.params && layer.params.activation && layer.params.activation !== 'linear' && layer.type !== 'activation') {
             const activation = {
@@ -175,21 +184,6 @@ hailo.Node = class {
             };
             const node = new hailo.Node(metadata, activation, values.map);
             this.chain.push(node);
-        }
-    }
-};
-
-hailo.Attribute = class {
-
-    constructor(metadata, name, value) {
-        this.name = name;
-        this.value = value;
-        this.type = metadata && metadata.type ? metadata.type : '';
-        if (metadata && metadata.visible === false) {
-            this.visible = false;
-        }
-        if (name === 'original_names') {
-            this.visible = false;
         }
     }
 };

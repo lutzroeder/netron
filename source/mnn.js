@@ -187,12 +187,27 @@ mnn.Node = class {
             }
             while (parameters.length > 0) {
                 const parameter = parameters.shift();
-                for (const [key, value] of Object.entries(parameter)) {
-                    if (Object.keys(mnn.schema).find((key) => mnn.schema[key].prototype && value instanceof mnn.schema[key])) {
-                        parameters.push(value);
+                const node_type = type;
+                for (const [key, obj] of Object.entries(parameter)) {
+                    if (Object.keys(mnn.schema).find((key) => mnn.schema[key].prototype && obj instanceof mnn.schema[key])) {
+                        parameters.push(obj);
                         continue;
                     }
-                    const attribute = new mnn.Attribute(metadata.attribute(type, key), key, value);
+                    const schema = metadata.attribute(node_type, key);
+                    let value = ArrayBuffer.isView(obj) ? Array.from(obj) : obj;
+                    let type = null;
+                    if (schema && schema.type) {
+                        type = schema.type;
+                        switch (type) {
+                            case 'DataType':
+                                value = mnn.Utility.dataType(value);
+                                break;
+                            default:
+                                value = mnn.Utility.enum(type, value);
+                                break;
+                        }
+                    }
+                    const attribute = new mnn.Argument(key, value, type);
                     this.attributes.push(attribute);
                 }
             }
@@ -208,32 +223,12 @@ mnn.Node = class {
     }
 };
 
-mnn.Attribute = class {
-
-    constructor(metadata, name, value, visible) {
-        this.type = null;
-        this.value = ArrayBuffer.isView(value) ? Array.from(value) : value;
-        this.name = name;
-        this.visible = visible ? true : false;
-        if (metadata && metadata.type) {
-            this.type = metadata.type;
-            switch (this.type) {
-                case 'DataType':
-                    this.value = mnn.Utility.dataType(this.value);
-                    break;
-                default:
-                    this.value = mnn.Utility.enum(this.type, this.value);
-                    break;
-            }
-        }
-    }
-};
-
 mnn.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type) {
         this.name = name;
         this.value = value;
+        this.type = type || null;
     }
 };
 
