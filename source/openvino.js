@@ -41,10 +41,23 @@ openvino.ModelFactory = class {
                 const size = Math.min(stream.length, 1024) & 0xFFFC;
                 const buffer = stream.peek(size).slice(0);
                 const length = buffer.length / 4;
-                const array = new Float32Array(buffer.buffer, buffer.byteOffset, length);
-                const values = Array.from(array);
-                if (values.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -10.0 && value < 10.0)) {
-                    context.type = 'openvino.bin';
+                if (length >= 1) {
+                    switch (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24) {
+                        case 0x00000001:
+                        case 0x01306B47:
+                        case 0x000D4B38:
+                        case 0x0002C056: {
+                            break;
+                        }
+                        default: {
+                            const array = new Float32Array(buffer.buffer, buffer.byteOffset, length);
+                            const values = Array.from(array);
+                            if (values.every((x) => x === 0) ||
+                                (array[0] !== 0 && values.every((x) => !Number.isNaN(x) && Number.isFinite(x) && x > -10.0 && x < 10.0))) {
+                                context.type = 'openvino.bin';
+                            }
+                        }
+                    }
                 }
             }
             return;
