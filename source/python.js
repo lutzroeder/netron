@@ -1751,15 +1751,16 @@ python.Execution = class {
             }
         });
         this.registerType('builtins.staticmethod', class {});
-        this.registerFunction('builtins.long', this.builtins.int);
-        this.registerFunction('builtins.print', () => {});
-        this.registerFunction('builtins.unicode');
         this.registerType('builtins.Warning', class {});
         this.registerType('builtins.FutureWarning', class extends builtins.Warning {});
         this.registerType('builtins.BaseException', class {});
         this.registerType('builtins.Exception', class extends builtins.BaseException {});
         this.registerType('builtins.AttributeError', class extends builtins.Exception {});
         this.registerType('builtins.SyntaxError', class extends builtins.Exception {});
+        this.registerFunction('builtins.long', this.builtins.int);
+        this.registerFunction('builtins.print', () => {});
+        this.registerFunction('builtins.unicode');
+        builtins.Ellipsis = new builtins.ellipsis();
         this.registerType('typing._Final', class {});
         this.registerType('typing._SpecialForm', class extends typing._Final {});
         this.registerType('typing._BaseGenericAlias', class extends typing._Final {});
@@ -6520,6 +6521,26 @@ python.Execution = class {
         this.registerType('fastcore.transform.Pipeline', class {});
         this.registerType('fastcore.transform.Transform', class {});
         this.registerType('fastcore.transform.ItemTransform', class extends fastcore.transform.Transform {});
+        this.registerFunction('fastai.torch_core._fa_rebuild_tensor', (cls, ...args) => {
+            const tensor = self.invoke('torch._utils._rebuild_tensor_v2', args);
+            return self.invoke(cls, tensor);
+        });
+        this.registerFunction('fastai.torch_core.trainable_params');
+        this.registerFunction('fastai.torch_core._rebuild_from_type', (func, type, args, dict) => {
+            const tensor = self.invoke(type, [func(...args)]);
+            Object.assign(tensor, dict);
+            return tensor;
+        });
+        this.registerType('fastai.torch_core.Module', class extends torch.nn.modules.module.Module {});
+        this.registerType('fastai.torch_core.TensorBase', class extends torch.Tensor {
+            constructor(x) {
+                super();
+                Object.assign(this, x);
+            }
+        });
+        this.registerType('fastai.torch_core.TensorCategory', class {});
+        this.registerType('fastai.torch_core.TensorImage', class {});
+        this.registerType('fastai.torch_core.TensorMask', class {});
         this.registerType('fastai.callback.core.Callback', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.callback.core.TrainEvalCallback', class {});
         this.registerType('fastai.callback.fp16.AMPMode', class extends this._enum.Enum {});
@@ -6569,7 +6590,9 @@ python.Execution = class {
         this.registerType('fastai.learner.Learner', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.learner.Recorder', class {});
         this.registerType('fastai.losses.BaseLoss', class {});
-        this.registerType('fastai.losses.CrossEntropyLossFlat', class {});
+        this.registerType('fastai.losses.CrossEntropyLossFlat', class extends fastai.losses.BaseLoss {});
+        this.registerType('fastai.losses.FocalLoss', class extends fastai.torch_core.Module {});
+        this.registerType('fastai.losses.FocalLossFlat', class extends fastai.losses.BaseLoss {});
         this.registerType('fastai.metrics.AccumMetric', class extends fastai.learner.Metric {});
         this.registerFunction('fastai.metrics._rmse');
         this.registerFunction('fastai.metrics.accuracy');
@@ -6581,6 +6604,8 @@ python.Execution = class {
         this.registerFunction('fastai.optimizer.Adam');
         this.registerFunction('fastai.optimizer.adam_step');
         this.registerFunction('fastai.optimizer.average_grad');
+        this.registerFunction('fastai.optimizer.average_sqr_grad');
+        this.registerFunction('fastai.optimizer.step_stat');
         this.registerFunction('fastai.optimizer.weight_decay');
         this.registerType('fastai.tabular.core.Categorify', class {});
         this.registerType('fastai.tabular.core.FillMissing', class {});
@@ -6592,25 +6617,6 @@ python.Execution = class {
         this.registerType('fastai.tabular.core.TabularPandas', class extends fastai.tabular.core.Tabular {});
         this.registerType('fastai.tabular.learner.TabularLearner', class extends fastai.learner.Learner {});
         this.registerType('fastai.tabular.model.TabularModel', class {});
-        this.registerFunction('fastai.torch_core._fa_rebuild_tensor', (cls, ...args) => {
-            const tensor = self.invoke('torch._utils._rebuild_tensor_v2', args);
-            return self.invoke(cls, tensor);
-        });
-        this.registerType('fastai.torch_core.TensorBase', class extends torch.Tensor {
-            constructor(x) {
-                super();
-                Object.assign(this, x);
-            }
-        });
-        this.registerType('fastai.torch_core.TensorCategory', class {});
-        this.registerType('fastai.torch_core.TensorImage', class {});
-        this.registerType('fastai.torch_core.TensorMask', class {});
-        this.registerFunction('fastai.torch_core.trainable_params');
-        this.registerFunction('fastai.torch_core._rebuild_from_type', (func, type, args, dict) => {
-            const tensor = self.invoke(type, [func(...args)]);
-            Object.assign(tensor, dict);
-            return tensor;
-        });
         this.registerFunction('fastai.vision.augment.aug_transforms');
         this.registerType('fastai.vision.augment._BrightnessLogit', class {});
         this.registerType('fastai.vision.augment._ContrastLogit', class {});
