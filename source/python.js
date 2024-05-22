@@ -1739,7 +1739,11 @@ python.Execution = class {
             }
         });
         this.registerType('builtins.NoneType', class {});
-        this.registerType('builtins.object', class {});
+        this.registerType('builtins.object', class {
+            static __new__(cls, ...args) {
+                return execution.invoke(cls, args);
+            }
+        });
         this.registerType('builtins.tuple', class extends Array {
             constructor(items) {
                 super(items ? items.length : 0);
@@ -2699,9 +2703,13 @@ python.Execution = class {
         this.registerType('sklearn.linear_model.sgd_fast.Log', class {});
         this.registerType('sklearn.linear_model.stochastic_gradient.SGDClassifier', class {});
         this.registerType('sklearn.manifold._t_sne.TSNE', class {});
-        this.registerType('sklearn.metrics._dist_metrics.EuclideanDistance', class {});
-        this.registerType('sklearn.metrics._dist_metrics.EuclideanDistance64', class {});
-        this.registerType('sklearn.metrics._dist_metrics.ManhattanDistance', class {});
+        this.registerType('sklearn.metrics._dist_metrics.DistanceMetric', class extends builtins.object {});
+        this.registerType('sklearn.metrics._dist_metrics.DistanceMetric32', class extends sklearn.metrics._dist_metrics.DistanceMetric {});
+        this.registerType('sklearn.metrics._dist_metrics.DistanceMetric64', class extends sklearn.metrics._dist_metrics.DistanceMetric {});
+        this.registerType('sklearn.metrics._dist_metrics.EuclideanDistance', class extends sklearn.metrics._dist_metrics.DistanceMetric {});
+        this.registerType('sklearn.metrics._dist_metrics.EuclideanDistance32', class extends sklearn.metrics._dist_metrics.DistanceMetric32 {});
+        this.registerType('sklearn.metrics._dist_metrics.EuclideanDistance64', class extends sklearn.metrics._dist_metrics.DistanceMetric64 {});
+        this.registerType('sklearn.metrics._dist_metrics.ManhattanDistance', class extends sklearn.metrics._dist_metrics.DistanceMetric {});
         this.registerType('sklearn.metrics._scorer._PassthroughScorer', class {});
         this.registerType('sklearn.metrics._scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics.scorer._PredictScorer', class {});

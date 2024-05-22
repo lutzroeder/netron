@@ -6256,6 +6256,13 @@
   },
   {
     "type":     "sklearn",
+    "target":   "knn_model.pkl",
+    "source":   "https://github.com/user-attachments/files/15396883/knn_model.pkl.zip[knn_model.pkl]",
+    "format":   "scikit-learn v1.2.2",
+    "link":     "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
+    "type":     "sklearn",
     "target":   "forest_iris_ExtraTreesClassifier.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/2592356/forest_iris_models.zip[forest_iris_ExtraTreesClassifier.pkl]",
     "format":   "scikit-learn v0.19.2",
