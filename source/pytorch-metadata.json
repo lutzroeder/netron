@@ -457,6 +457,16 @@
     ]
   },
   {
+    "name": "aten::_adaptive_avg_pool2d",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "SymInt[2]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::_add_relu.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
