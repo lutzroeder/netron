@@ -50,21 +50,21 @@ window.exports.preload = function(callback) {
     var next = function() {
         if (modules.length === 0) {
             callback();
-            return;
-        }
-        var ids = modules.pop();
-        var resolved = ids.length;
-        for (var i = 0; i < ids.length; i++) {
-            window.exports.require(ids[i], function(module, error) {
-                if (error) {
-                    callback(null, error);
-                    return;
-                }
-                resolved--;
-                if (resolved === 0) {
-                    next();
-                }
-            }, true);
+        } else {
+            var ids = modules.pop();
+            var resolved = ids.length;
+            for (var i = 0; i < ids.length; i++) {
+                window.exports.require(ids[i], function(module, error) {
+                    if (error) {
+                        callback(null, error);
+                    } else {
+                        resolved--;
+                        if (resolved === 0) {
+                            next();
+                        }
+                    }
+                }, true);
+            }
         }
     };
     next();
@@ -99,7 +99,7 @@ window.addEventListener('load', function() {
     }
     var ua = window.navigator.userAgent;
     var chrome = ua.match(/Chrom(e|ium)\/([0-9]+)\./);
-    if (Array.isArray(chrome) && parseInt(chrome[1], 10) < 80) {
+    if (Array.isArray(chrome) && parseInt(chrome[2], 10) < 80) {
         throw new Error('Please update your browser to use this application.');
     }
     var safari = ua.match(/Version\/(\d+).*Safari/);
