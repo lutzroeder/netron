@@ -878,7 +878,7 @@
   },
   {
     "type":     "caffe2",
-    "target":   "onnx_while/predict_net.pb,onnx_while/inits_net.pb",
+    "target":   "onnx_while/predict_net.pb,onnx_while/init_net.pb",
     "source":   "https://github.com/lutzroeder/netron/files/2522635/onnxwhile.zip[predict_net.pb,init_net.pb]",
     "format":   "Caffe2",
     "link":     "https://github.com/lutzroeder/netron/issues/168"
