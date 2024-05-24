@@ -2266,6 +2266,7 @@ view.Sidebar = class {
 
     _update(stack) {
         const sidebar = this._element('sidebar');
+        const content = this._element('sidebar-content');
         const container = this._element('graph');
         const closeButton = this._element('sidebar-closebutton');
         closeButton.removeEventListener('click', this._closeSidebarHandler);
@@ -2279,7 +2280,6 @@ view.Sidebar = class {
             const item = this._stack[this._stack.length - 1];
             this._element('sidebar-title').innerHTML = item.title || '';
             closeButton.addEventListener('click', this._closeSidebarHandler);
-            const content = this._element('sidebar-content');
             if (typeof item.content === 'string') {
                 content.innerHTML = item.content;
             } else if (item.content instanceof Array) {
@@ -2299,6 +2299,8 @@ view.Sidebar = class {
         } else {
             sidebar.style.right = 'calc(0px - min(calc(100% * 0.6), 42em))';
             sidebar.style.opacity = 0;
+            const clone = content.cloneNode(true);
+            content.parentNode.replaceChild(clone, content);
             container.style.width = '100%';
             container.focus();
         }
@@ -2763,18 +2765,18 @@ view.ValueView = class extends view.Control {
             this._hasCategory = initializer && initializer.category ? true : false;
             if (this._hasId || (!this._hasCategory && !type && !tensor)) {
                 this._hasId = true;
-                const nameLine = this.createElement('div', 'sidebar-item-value-line');
+                const element = this.createElement('div', 'sidebar-item-value-line');
                 if (typeof name !== 'string') {
                     throw new Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
                 }
-                nameLine.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name || ' '}</b></span>`;
-                nameLine.addEventListener('pointerenter', () => this.emit('activate', this._value));
-                nameLine.addEventListener('pointerleave', () => this.emit('deactivate', this._value));
+                element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name || ' '}</b></span>`;
+                element.addEventListener('pointerenter', () => this.emit('activate', this._value));
+                element.addEventListener('pointerleave', () => this.emit('deactivate', this._value));
                 if (!initializer) {
-                    nameLine.style.cursor = 'pointer';
-                    nameLine.addEventListener('click', () => this.emit('select', this._value));
+                    element.style.cursor = 'pointer';
+                    element.addEventListener('click', () => this.emit('select', this._value));
                 }
-                this._element.appendChild(nameLine);
+                this._element.appendChild(element);
             } else if (this._hasCategory) {
                 this._bold('category', initializer.category);
             } else if (type) {
