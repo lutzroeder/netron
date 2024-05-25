@@ -729,7 +729,7 @@ export class Target {
                         chain.name.length;
                     }
                 }
-                // const sidebar = new view.NodeSidebar(this.host, node);
+                // const sidebar = new view.NodeSidebar(this.view, node);
                 // sidebar.render();
             }
             const sidebar = new view.ModelSidebar(this.view, this.model, graph);

@@ -2425,17 +2425,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         const attributes = node.attributes;
         if (Array.isArray(attributes) && attributes.length > 0) {
             this.addHeader('Attributes');
-            attributes.sort((a, b) => {
-                const au = a.name.toUpperCase();
-                const bu = b.name.toUpperCase();
-                if (au < bu) {
-                    return -1;
-                }
-                if (au > bu) {
-                    return +1;
-                }
-                return 0;
-            });
+            attributes.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
             for (const attribute of attributes) {
                 this._addAttribute(attribute.name, attribute);
             }
