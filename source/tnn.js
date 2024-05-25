@@ -142,27 +142,25 @@ tnn.Node = class {
         this.attributes = [];
         this.name = layer.name;
         this.type = metadata.type(layer.type);
-        const attributeSchemas = this.type && this.type.attributes ? this.type && this.type.attributes.slice() : [];
-        const attributes = layer.attributes.slice();
-        while (attributes.length > 0) {
-            const metadata = attributeSchemas.shift();
+        for (let i = 0; i < layer.attributes.length;) {
+            const metadata = this.type && Array.isArray(this.type.attributes) ? this.type.attributes[i] : null;
             let name = '';
             let value = null;
             let type = '';
             let visible = true;
             if (metadata && metadata.type === 'int32[]' && metadata.size) {
-                const size = layer.attr[metadata.size];
-                value = attributes.splice(0, size).map((attribute) => parseInt(attribute.value, 10));
+                const size = parseInt(layer.attr[metadata.size], 10);
+                value = layer.attributes.slice(i, i + size).map((attribute) => parseInt(attribute.value, 10));
+                i += size;
             } else {
-                const attribute = attributes.shift();
-                name = attribute.key;
+                const attribute = layer.attributes[i];
+                name = attribute.key.toString();
                 value = attribute.value;
+                i += 1;
             }
             if (metadata) {
-                name = metadata.name;
-                if (metadata.type) {
-                    type = metadata.type;
-                }
+                name = metadata.name ? metadata.name : name;
+                type = metadata.type ? metadata.type : type;
                 switch (type) {
                     case '':
                         break;
@@ -178,13 +176,7 @@ tnn.Node = class {
                     default:
                         throw new tnn.Error(`Unsupported attribute type '${type}'.`);
                 }
-                if (metadata && metadata.visible === false) {
-                    visible = false;
-                } else if (metadata.default !== undefined) {
-                    if (value === metadata.default || (value && value.toString() === metadata.default.toString())) {
-                        visible = false;
-                    }
-                }
+                visible = (metadata.visible === false) || (metadata.default !== undefined && (value === metadata.default || (value && value.toString() === metadata.default.toString()))) ? false : visible;
             }
             const argument = new tnn.Argument(name, value, type, visible);
             this.attributes.push(argument);
