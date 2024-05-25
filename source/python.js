@@ -4753,6 +4753,7 @@ python.Execution = class {
             throw new python.Error(`Unsupported range(${JSON.stringify(start)}, ${JSON.stringify(stop)}, ${JSON.stringify(step)})`);
         });
         this.registerFunction('torch._C._nn.gelu');
+        this.registerFunction('torch._native_multi_head_attention');
         this.registerFunction('torch._utils._rebuild_sparse_tensor', (layout, data) => {
             if (layout === torch.sparse_coo) {
                 return self.invoke('torch._sparse_coo_tensor_unsafe', data);
@@ -4794,7 +4795,9 @@ python.Execution = class {
             tensor._shape = size;
             return tensor;
         });
-        this.registerFunction('torch._utils._rebuild_meta_tensor_no_storage');
+        this.registerFunction('torch._utils._rebuild_meta_tensor_no_storage', (dtype, size, stride, requires_grad) => {
+            return torch.empty_strided(size, stride, dtype, null, 'meta', false, requires_grad);
+        });
         this.registerFunction('torch._utils._rebuild_tensor', (storage, storage_offset, size, stride) => {
             if (Array.isArray(storage) && storage.length === 5 && storage[0] === 'storage') {
                 const [, storage_type, , ,size] = storage;
@@ -4931,8 +4934,24 @@ python.Execution = class {
         this.registerFunction('torch._unwrap_optional', (value) => {
             return value;
         });
-        this.registerFunction('torch.empty_strided', (/* size, stride, dtype, layout, device, pin_memory, requires_grad */) => {
-            return null;
+        this.registerFunction('torch.get_default_dtype', () => {
+            torch._default_type = torch._default_type || torch.float32;
+            return torch._default_type;
+        });
+        this.registerFunction('torch.set_default_dtype', (value) => {
+            torch._default_type = value;
+        });
+        this.registerFunction('torch._prims_common.dtype_or_default', (value) => {
+            return value || torch.get_default_dtype();
+        });
+        this.registerFunction('torch.empty_strided', (size, stride, dtype /*, layout, device, pin_memory, requires_grad */) => {
+            const shape = size;
+            dtype = torch._prims_common.dtype_or_default(dtype);
+            size = shape.reduce((a, b) => a * b, 1);
+            const storage = execution.invoke('torch.storage._TypedStorage', [size, dtype]);
+            const tensor = execution.invoke('torch.Tensor', []);
+            tensor.__setstate__([storage, 0, shape, stride]);
+            return tensor;
         });
         this.registerFunction('torch.add', (left, right) => {
             if (typeof left === 'number' && typeof right === 'number') {
@@ -6017,7 +6036,7 @@ python.Execution = class {
                 const strides = tensor_meta.strides.map((val) => this.deserialize_sym_int(val));
                 const device = this.deserialize_device(tensor_meta.device);
                 const dtype = null; // _SERIALIZE_TO_TORCH_DTYPE[tensor_meta.dtype],
-                return torch.empty_strided(sizes, strides, device, dtype);
+                return torch.empty_strided(sizes, strides, dtype, null, device);
             }
             deserialize_sym_int(s) {
                 if (s.as_expr !== undefined && s.as_expr !== null) {
@@ -6043,9 +6062,14 @@ python.Execution = class {
                         */
                     }
                     const hint = s.as_expr.hint || null;
+                    if (hint && hint.$type === 'as_int') {
+                        return this.deserialize_sym_int(hint);
+                    }
                     return this.shape_env.create_symintnode(sym, hint);
                 } else if (s.as_int !== undefined && s.as_int !== null) {
                     return s.as_int;
+                } else if (s.$type === 'as_int') {
+                    return s.$value;
                 }
                 throw new python.Error('SymInt has invalid field type.');
             }
