@@ -1647,6 +1647,9 @@ dagre.layout = (nodes, edges, layout, state) => {
                             min = Math.min(min, xs[e.w] - e.label);
                         }
                         const label = g.node(v).label;
+                        if (label.dummy) {
+                            continue;
+                        }
                         if (min !== Number.POSITIVE_INFINITY && label.borderType !== borderType) {
                             xs[v] = Math.max(xs[v], min);
                         }
