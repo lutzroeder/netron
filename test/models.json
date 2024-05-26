@@ -6263,6 +6263,13 @@
   },
   {
     "type":     "sklearn",
+    "target":   "decision_tree_model.pkl",
+    "source":   "https://github.com/user-attachments/files/15449095/decision_tree_model.zip[decision_tree_model.pkl]",
+    "format":   "scikit-learn v1.5.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
+    "type":     "sklearn",
     "target":   "encoder.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/8506805/encoder.pkl.zip[encoder.pkl]",
     "format":   "scikit-learn v0.22.2.post1",
