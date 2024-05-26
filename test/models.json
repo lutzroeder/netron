@@ -4655,6 +4655,13 @@
   },
   {
     "type":     "pickle",
+    "target":   "bytearray.pkl",
+    "source":   "https://github.com/user-attachments/files/15448319/bytearray.pkl.zip[bytearray.pkl]",
+    "format":   "Pickle",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
     "target":   "bloom_dataset.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/15046492/bloom_dataset.pkl.zip[bloom_dataset.pkl]",
     "format":   "Pickle",
