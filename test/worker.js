@@ -88,8 +88,7 @@ host.TestHost = class {
             throw new Error(`The file '${file}' does not exist.`);
         }
         if (encoding) {
-            const buffer = await fs.readFile(pathname, encoding);
-            return buffer;
+            return await fs.readFile(pathname, encoding);
         }
         const buffer = await fs.readFile(pathname, null);
         return new base.BinaryStream(buffer);
@@ -128,11 +127,11 @@ host.TestHost.Context = class {
         return this._entries;
     }
 
-    request(file, encoding, base) {
+    async request(file, encoding, base) {
         return this._host.request(file, encoding, base === undefined ? this._folder : base);
     }
 
-    require(id) {
+    async require(id) {
         return this._host.require(id);
     }
 

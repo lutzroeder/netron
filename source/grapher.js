@@ -173,8 +173,8 @@ grapher.Graph = class {
         }
     }
 
-    async layout(host) {
-        const nodes = [];
+    async layout(worker) {
+        let nodes = [];
         for (const node of this.nodes.values()) {
             nodes.push({
                 v: node.v,
@@ -182,7 +182,7 @@ grapher.Graph = class {
                 height: node.label.height || 0,
                 parent: this.parent(node.v) });
         }
-        const edges = [];
+        let edges = [];
         for (const edge of this.edges.values()) {
             edges.push({
                 v: edge.v,
@@ -196,59 +196,42 @@ grapher.Graph = class {
             });
         }
         const layout = this._layout;
-        const update = (nodes, edges) => {
-            for (const node of nodes) {
-                const label = this.node(node.v).label;
-                label.x = node.x;
-                label.y = node.y;
-                if (this.children(node.v).length) {
-                    label.width = node.width;
-                    label.height = node.height;
-                }
+        if (worker) {
+            const message = await worker.request({ type: 'dagre.layout', nodes, edges, layout }, 2500, 'This large graph layout might take a very long time to complete.');
+            if (message.type === 'cancel') {
+                return 'graph-layout-cancelled';
             }
-            for (const edge of edges) {
-                const label = this.edge(edge.v, edge.w).label;
-                label.points = edge.points;
-                if ('x' in edge) {
-                    label.x = edge.x;
-                    label.y = edge.y;
-                }
-            }
-            for (const key of this.nodes.keys()) {
-                const entry = this.node(key);
-                if (this.children(key).length === 0) {
-                    const node = entry.label;
-                    node.layout();
-                }
-            }
-        };
-        if (host && host.worker) {
-            return new Promise((resolve) => {
-                let timeout = -1;
-                const worker = host.worker('./worker');
-                worker.addEventListener('message', (e) => {
-                    const message = e.data;
-                    worker.terminate();
-                    update(message.nodes, message.edges);
-                    if (timeout >= 0) {
-                        clearTimeout(timeout);
-                        host.message();
-                    }
-                    resolve('');
-                });
-                const message = { type: 'dagre.layout', nodes, edges, layout };
-                worker.postMessage(message);
-                timeout = setTimeout(async () => {
-                    await host.message('This large graph layout might take a very long time to complete.', null, 'Cancel');
-                    worker.terminate();
-                    resolve('graph-layout-cancelled');
-                }, 2500);
-            });
+            nodes = message.nodes;
+            edges = message.edges;
+        } else {
+            const dagre = await import('./dagre.js');
+            dagre.layout(nodes, edges, layout, {});
         }
-        const dagre = await import('./dagre.js');
-        dagre.layout(nodes, edges, layout, {});
-        update(nodes, edges);
-        return Promise.resolve('');
+        for (const node of nodes) {
+            const label = this.node(node.v).label;
+            label.x = node.x;
+            label.y = node.y;
+            if (this.children(node.v).length) {
+                label.width = node.width;
+                label.height = node.height;
+            }
+        }
+        for (const edge of edges) {
+            const label = this.edge(edge.v, edge.w).label;
+            label.points = edge.points;
+            if ('x' in edge) {
+                label.x = edge.x;
+                label.y = edge.y;
+            }
+        }
+        for (const key of this.nodes.keys()) {
+            const entry = this.node(key);
+            if (this.children(key).length === 0) {
+                const node = entry.label;
+                node.layout();
+            }
+        }
+        return '';
     }
 
     update() {

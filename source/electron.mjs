@@ -678,11 +678,11 @@ host.ElectronHost.Context = class {
     }
 
     async request(file, encoding, base) {
-        return await this._host.request(file, encoding, base === undefined ? this._folder : base);
+        return this._host.request(file, encoding, base === undefined ? this._folder : base);
     }
 
     async require(id) {
-        return await this._host.require(id);
+        return this._host.require(id);
     }
 
     error(error, fatal) {

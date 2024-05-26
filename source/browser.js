@@ -265,8 +265,17 @@ host.BrowserHost = class {
         }
     }
 
-    request(file, encoding, base) {
+    async request(file, encoding, base) {
         const url = base ? (`${base}/${file}`) : this._url(file);
+        if (base === null) {
+            this._requests = this._requests || new Map();
+            const key = `${url}:${encoding}`;
+            if (!this._requests.has(key)) {
+                const promise = this._request(url, null, encoding);
+                this._requests.set(key, promise);
+            }
+            return this._requests.get(key);
+        }
         return this._request(url, null, encoding);
     }
 
@@ -332,7 +341,7 @@ host.BrowserHost = class {
         }
     }
 
-    _request(url, headers, encoding, callback, timeout) {
+    async _request(url, headers, encoding, callback, timeout) {
         return new Promise((resolve, reject) => {
             const request = new XMLHttpRequest();
             if (!encoding) {
@@ -664,7 +673,7 @@ host.BrowserHost.BrowserFileContext = class {
     }
 
     async require(id) {
-        return await this._host.require(id);
+        return this._host.require(id);
     }
 
     error(error, fatal) {
@@ -806,11 +815,12 @@ host.BrowserHost.Context = class {
         return this._stream;
     }
 
-    request(file, encoding, base) {
-        return this._host.request(file, encoding, base === undefined ? this._base : base);
+    async request(file, encoding, base) {
+        base = base === undefined ? this._base : base;
+        return this._host.request(file, encoding, base);
     }
 
-    require(id) {
+    async require(id) {
         return this._host.require(id);
     }
 

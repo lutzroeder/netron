@@ -31,6 +31,8 @@ view.View = class {
         this._sidebar = new view.Sidebar(this._host);
         this._find = null;
         this._modelFactoryService = new view.ModelFactoryService(this._host);
+        this._modelFactoryService.import();
+        this._worker = new view.Worker(this._host);
     }
 
     async start() {
@@ -825,8 +827,7 @@ view.View = class {
         viewGraph.build(this._host.document, origin);
         await this._timeout(20);
         viewGraph.measure();
-        // await viewGraph.layout(null);
-        const status = await viewGraph.layout(this._host);
+        const status = await viewGraph.layout(this._worker);
         if (status === '') {
             viewGraph.update();
             const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
@@ -1617,6 +1618,74 @@ view.Menu.Separator = class {
     constructor() {
         this.type = 'separator';
         this.enabled = false;
+    }
+};
+
+view.Worker = class {
+
+    constructor(host) {
+        this._host = host;
+        const type = this._host.type;
+        this._browser = type === 'Browser' || type === 'Python';
+        if (this._browser) {
+            this._create();
+        }
+    }
+
+    async request(message, delay, notification) {
+        this._timeout = -1;
+        return new Promise((resolve, reject) => {
+            this._resolve = resolve;
+            this._reject = reject;
+            if (!this._worker) {
+                this._create();
+            }
+            this._worker.postMessage(message);
+            this._timeout = setTimeout(async () => {
+                await this._host.message(notification, null, 'Cancel');
+                this._cancel(true);
+                this._create();
+                delete this._resolve;
+                delete this._reject;
+                resolve({ type: 'cancel' });
+            }, delay);
+        });
+    }
+
+    _create() {
+        this._worker = this._host.worker('./worker');
+        this._worker.addEventListener('message', (e) => {
+            this._cancel(false);
+            const message = e.data;
+            if (message.type === 'error') {
+                this._reject(new Error(message.message));
+            } else {
+                this._resolve(message);
+            }
+            delete this._resolve;
+            delete this._reject;
+        });
+        this._worker.addEventListener('error', (e) => {
+            this._cancel(true);
+            if (this._reject) {
+                this._reject(new Error(`Unknown worker error type '${e.type}'.`));
+                delete this._resolve;
+                delete this._reject;
+            }
+        });
+    }
+
+    _cancel(terminate) {
+        terminate = terminate || !this._browser;
+        if (this._worker && terminate) {
+            this._worker.terminate();
+            this._worker = null;
+        }
+        if (this._timeout >= 0) {
+            clearTimeout(this._timeout);
+            this._timeout = -1;
+            this._host.message();
+        }
     }
 };
 
@@ -5484,12 +5553,12 @@ view.ModelFactoryService = class {
         this.register('./server', ['.netron']);
         this.register('./pytorch', ['.pt', '.pth', '.ptl', '.pt1', '.pyt', '.pyth', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel', '.torchscript', '.pytorch', '.ot', '.params', '.trt', '.ff', '.ptmf', '.jit', '.pte', '.bin.index.json', 'serialized_exported_program.json'], ['.model', '.pt2']);
         this.register('./onnx', ['.onnx', '.onnx.data', '.onn', '.pb', '.onnxtxt', '.pbtxt', '.prototxt', '.txt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx', '.ngf', '.json', '.bin', 'onnxmodel']);
+        this.register('./tflite', ['.tflite', '.lite', '.tfl', '.bin', '.pb', '.tmfile', '.h5', '.model', '.json', '.txt', '.dat', '.nb', '.ckpt']);
         this.register('./mxnet', ['.json', '.params'], ['.mar']);
         this.register('./coreml', ['.mlmodel', '.bin', 'manifest.json', 'metadata.json', 'featuredescriptions.json', '.pb', '.pbtxt', '.mil'], ['.mlpackage', '.mlmodelc']);
         this.register('./caffe', ['.caffemodel', '.pbtxt', '.prototxt', '.pt', '.txt']);
         this.register('./caffe2', ['.pb', '.pbtxt', '.prototxt']);
         this.register('./torch', ['.t7', '.net']);
-        this.register('./tflite', ['.tflite', '.lite', '.tfl', '.bin', '.pb', '.tmfile', '.h5', '.model', '.json', '.txt', '.dat', '.nb', '.ckpt']);
         this.register('./tf', ['.pb', '.meta', '.pbtxt', '.prototxt', '.txt', '.pt', '.json', '.index', '.ckpt', '.graphdef', '.pbmm', /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/, /^events.out.tfevents./], ['.zip']);
         this.register('./tensorrt', ['.trt', '.trtmodel', '.engine', '.model', '.txt', '.uff', '.pb', '.tmfile', '.onnx', '.pth', '.dnn', '.plan', '.pt', '.dat']);
         this.register('./keras', ['.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt', '.pb', 'model.weights.npz'], ['.zip']);
@@ -5996,6 +6065,29 @@ view.ModelFactoryService = class {
                 if (content.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
                     throw new view.Error(`Invalid file content. File contains ${entry.name}.`);
                 }
+            }
+        }
+    }
+
+    async import() {
+        if (this._host.type === 'Browser' || this._host.type === 'Python') {
+            const files = [
+                './server', './onnx', './pytorch', './tflite', './mlnet',
+                './onnx-proto', './onnx-schema', './tflite-schema',
+                'onnx-metadata.json', 'pytorch-metadata.json', 'tflite-metadata.json'
+            ];
+            for (const file of files) {
+                /* eslint-disable no-await-in-loop */
+                try {
+                    if (file.startsWith('./')) {
+                        await this._host.require(file);
+                    } else if (file.endsWith('.json')) {
+                        await this._host.request(file, 'utf-8', null);
+                    }
+                } catch {
+                    // continue regardless of error
+                }
+                /* eslint-enable no-await-in-loop */
             }
         }
     }

@@ -45,7 +45,7 @@ window.exports.preload = function(callback) {
     var modules = [
         ['view'],
         ['json', 'xml', 'protobuf', 'hdf5', 'grapher', 'browser'],
-        ['base', 'text', 'flatbuffers', 'flexbuffers', 'zip',  'tar', 'python', 'dagre']
+        ['base', 'text', 'flatbuffers', 'flexbuffers', 'zip',  'tar', 'python']
     ];
     var next = function() {
         if (modules.length === 0) {
