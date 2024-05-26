@@ -4710,6 +4710,13 @@
   },
   {
     "type":     "pickle",
+    "target":   "sgd_explainer.pkl",
+    "source":   "https://github.com/user-attachments/files/15448193/sgd_explainer.pkl.zip[sgd_explainer.pkl]",
+    "format":   "SHAP",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
     "target":   "vec_normalize.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/14981937/vec_normalize.pkl.zip[vec_normalize.pkl]",
     "format":   "Pickle",

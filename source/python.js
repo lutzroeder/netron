@@ -1670,6 +1670,8 @@ python.Execution = class {
         this.register('pandas._libs.tslib');
         this.register('pandas._libs.internals');
         const pickle = this.register('pickle');
+        const shap = this.register('shap');
+        this.register('shap.explainers.linear');
         const sklearn = this.register('sklearn');
         this.register('sklearn.externals.joblib.numpy_pickle');
         const torch = this.register('torch');
@@ -2586,6 +2588,11 @@ python.Execution = class {
         this.registerType('pathlib.Path', class {});
         this.registerType('pathlib.PosixPath', class {});
         this.registerType('pathlib.WindowsPath', class {});
+        this.registerType('shap._serializable.Serializable', class {});
+        this.registerType('shap.explainers._explainer.Explainer', class extends shap._serializable.Serializable {});
+        this.registerType('shap.explainers._linear.LinearExplainer', class extends shap.explainers._explainer.Explainer {});
+        shap.explainers.LinearExplainer = shap.explainers._linear.LinearExplainer;
+        shap.explainers.linear.LinearExplainer = shap.explainers._linear.LinearExplainer;
         this.registerType('sklearn._loss.link.BaseLink', class {});
         this.registerType('sklearn._loss.link.IdentityLink', class extends sklearn._loss.link.BaseLink {});
         this.registerType('sklearn._loss.link.Interval', class {});

@@ -38,7 +38,8 @@ pickle.ModelFactory = class {
             }
         } else if (obj && obj.__class__) {
             const formats = new Map([
-                ['cuml.ensemble.randomforestclassifier.RandomForestClassifier', 'cuML']
+                ['cuml.ensemble.randomforestclassifier.RandomForestClassifier', 'cuML'],
+                ['shap.explainers._linear.LinearExplainer', 'SHAP']
             ]);
             const type = `${obj.__class__.__module__}.${obj.__class__.__name__}`;
             if (formats.has(type)) {
