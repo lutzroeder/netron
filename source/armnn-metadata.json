@@ -149,8 +149,7 @@
   },
   {
     "name": "GreaterLayer",
-    "category": "Layer",
-    "attributes": []
+    "category": "Layer"
   },
   {
     "name": "InputLayer"

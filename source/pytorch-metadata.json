@@ -15713,38 +15713,31 @@
   },
   {
     "name": "torch.nn.modules.activation.ELU",
-    "category": "Activation",
-    "inputs": []
+    "category": "Activation"
   },
   {
     "name": "torch.nn.modules.activation.GELU",
-    "category": "Activation",
-    "inputs": []
+    "category": "Activation"
   },
   {
     "name": "torch.nn.modules.activation.GLU",
-    "category": "Activation",
-    "inputs": []
+    "category": "Activation"
   },
   {
     "name": "torch.nn.modules.activation.Hardsigmoid",
-    "category": "Activation",
-    "inputs": []
+    "category": "Activation"
   },
   {
     "name": "torch.nn.modules.activation.Hardswish",
-    "category": "Activation",
-    "inputs": []
+    "category": "Activation"
   },
   {
     "name": "torch.nn.modules.activation.Hardtanh",
-    "category": "Activation",
-    "inputs": []
+    "category": "Activation"
   },
   {
     "name": "torch.nn.modules.activation.LeakyReLU",
-    "category": "Activation",
-    "inputs": []
+    "category": "Activation"
   },
   {
     "name": "torch.nn.modules.activation.LogSoftmax",
@@ -15752,8 +15745,7 @@
   },
   {
     "name": "torch.nn.modules.activation.PReLU",
-    "category": "Activation",
-    "inputs": []
+    "category": "Activation"
   },
   {
     "name": "torch.nn.modules.activation.ReLU",
@@ -15794,8 +15786,7 @@
   },
   {
     "name": "torch.nn.modules.batchnorm.BatchNorm1d",
-    "category": "Normalization",
-    "inputs": []
+    "category": "Normalization"
   },
   {
     "name": "torch.nn.modules.batchnorm.BatchNorm2d",
@@ -15916,8 +15907,7 @@
   },
   {
     "name": "torch.nn.modules.linear.Linear",
-    "category": "Layer",
-    "inputs": []
+    "category": "Layer"
   },
   {
     "name": "torch.nn.modules.normalization.CrossMapLRN2d",

@@ -19,67 +19,54 @@
   },
   {
     "name": "Dense",
-    "category": "Layer",
-    "attributes": []
+    "category": "Layer"
   },
   {
     "name": "Dropout",
-    "category": "Dropout",
-    "attributes": []
+    "category": "Dropout"
   },
   {
     "name": "GlobalPooling",
-    "category": "Pool",
-    "attributes": []
+    "category": "Pool"
   },
   {
     "name": "LReLU",
-    "category": "Activation",
-    "attributes": []
+    "category": "Activation"
   },
   {
     "name": "Merge",
-    "category": "Tensor",
-    "attributes": []
+    "category": "Tensor"
   },
   {
     "name": "Output",
-    "category": "Layer",
-    "attributes": []
+    "category": "Layer"
   },
   {
     "name": "ReLU",
-    "category": "Activation",
-    "attributes": []
+    "category": "Activation"
   },
   {
     "name": "SeparableConvolution2D",
-    "category": "Layer",
-    "attributes": []
+    "category": "Layer"
   },
   {
     "name": "Sigmoid",
-    "category": "Activation",
-    "attributes": []
+    "category": "Activation"
   },
   {
     "name": "Softmax",
-    "category": "Activation",
-    "attributes": []
+    "category": "Activation"
   },
   {
     "name": "Subsampling",
-    "category": "Layer",
-    "attributes": []
+    "category": "Layer"
   },
   {
     "name": "TanH",
-    "category": "Activation",
-    "attributes": []
+    "category": "Activation"
   },
   {
     "name": "Upsampling2D",
-    "category": "Layer",
-    "attributes": []
+    "category": "Layer"
   }
 ]

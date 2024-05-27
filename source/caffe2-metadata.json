@@ -14,11 +14,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AbsGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Accumulate",
@@ -42,7 +42,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AccumulateHistogram",
@@ -80,7 +80,7 @@
         "name": "AccHist"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Accuracy",
@@ -108,7 +108,7 @@
         "name": "accuracy"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Acos",
@@ -125,11 +125,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AcosGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Adadelta",
@@ -182,7 +182,7 @@
         "name": "output_moment_delta"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Adagrad",
@@ -235,7 +235,7 @@
         "name": "output_update"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Adam",
@@ -301,7 +301,7 @@
         "name": "output_grad"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Add",
@@ -338,11 +338,11 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AddGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AddPadding",
@@ -389,7 +389,7 @@
         "name": "lengths_out"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AffineChannel",
@@ -415,11 +415,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AffineChannelGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Alias",
@@ -436,7 +436,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AliasWithName",
@@ -465,7 +465,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Allgather",
@@ -486,7 +486,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Allreduce",
@@ -507,7 +507,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "And",
@@ -544,7 +544,7 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "APMeter",
@@ -572,7 +572,7 @@
         "name": "AP"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Append",
@@ -593,7 +593,7 @@
         "name": "A"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ArgMax",
@@ -626,7 +626,7 @@
         "name": "Indices"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ArgMin",
@@ -659,7 +659,7 @@
         "name": "Indices"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Asin",
@@ -676,11 +676,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AsinGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Assert",
@@ -698,7 +698,7 @@
         "name": "X"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AsyncNetBarrier",
@@ -710,7 +710,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Atan",
@@ -727,19 +727,19 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AtanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ATen",
-    "support_level": "contribution"
+    "status": "contribution"
   },
   {
     "name": "AtomicAppend",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AtomicFetchAdd",
@@ -768,7 +768,7 @@
         "name": "fetched_value"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AtomicFetchAdd64",
@@ -797,7 +797,7 @@
         "name": "fetched_value"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AtomicIter",
@@ -812,7 +812,7 @@
         "name": "iter"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AveragedLoss",
@@ -829,11 +829,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AveragedLossGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AveragePool",
@@ -851,7 +851,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AveragePool1D",
@@ -868,11 +868,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AveragePool1DGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AveragePool2D",
@@ -889,11 +889,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AveragePool2DGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AveragePool3D",
@@ -910,15 +910,15 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AveragePool3DGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AveragePoolGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "AveragePut",
@@ -951,7 +951,7 @@
         "name": "value"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Barrier",
@@ -962,7 +962,7 @@
         "name": "comm_world"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchBoxCox",
@@ -987,7 +987,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchBucketize",
@@ -1016,7 +1016,7 @@
         "name": "bucktized_feat"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchBucketOneHot",
@@ -1041,7 +1041,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchDenseToSparse",
@@ -1066,7 +1066,7 @@
         "name": "values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchGather",
@@ -1087,11 +1087,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchGatherGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchMatMul",
@@ -1129,15 +1129,15 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchMoments",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchMomentsGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchOneHot",
@@ -1162,7 +1162,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchPermutation",
@@ -1183,11 +1183,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchPermutationGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchSparseToDense",
@@ -1228,7 +1228,7 @@
         "name": "dense"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchToSpace",
@@ -1262,7 +1262,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BBoxTransform",
@@ -1333,7 +1333,7 @@
         "name": "roi_batch_splits"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BernoulliJSD",
@@ -1350,11 +1350,11 @@
         "name": "L"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BernoulliJSDGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BisectPercentile",
@@ -1398,7 +1398,7 @@
         "name": "percentile"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BitwiseAnd",
@@ -1435,7 +1435,7 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BitwiseOr",
@@ -1472,7 +1472,7 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BitwiseXor",
@@ -1509,7 +1509,7 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BooleanMask",
@@ -1534,11 +1534,11 @@
         "name": "masked_indices"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BooleanMaskGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BooleanMaskLengths",
@@ -1559,7 +1559,7 @@
         "name": "masked_lengths"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BooleanUnmask",
@@ -1580,7 +1580,7 @@
         "name": "unmasked_data"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BoxWithNMSLimit",
@@ -1667,11 +1667,11 @@
         "name": "keeps_size"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BRGNCHWCToPackedInt8BGRAStylizerDeprocess",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Broadcast",
@@ -1699,7 +1699,7 @@
         "name": "X"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Bucketize",
@@ -1723,11 +1723,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ByteWeightDequant",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Cast",
@@ -1752,7 +1752,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Cbrt",
@@ -1768,11 +1768,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CbrtGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Ceil",
@@ -1789,7 +1789,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ChannelBackpropStats",
@@ -1822,15 +1822,15 @@
         "name": "bias_grad"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ChannelShuffle",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ChannelShuffleGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ChannelStats",
@@ -1851,7 +1851,7 @@
         "name": "sumsq"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CheckAtomicBool",
@@ -1868,7 +1868,7 @@
         "name": "value"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CheckCounterDone",
@@ -1885,7 +1885,7 @@
         "name": "done"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CheckDatasetConsistency",
@@ -1903,7 +1903,7 @@
         "name": "field_0"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Checkpoint",
@@ -1930,7 +1930,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Clip",
@@ -1961,11 +1961,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ClipGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ClipTensorByScaling",
@@ -1997,7 +1997,7 @@
         "name": "clipped"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CloneCommonWorld",
@@ -2014,11 +2014,11 @@
         "name": "comm_world"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CloseBlobsQueue",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CloseRebatchingQueue",
@@ -2029,11 +2029,11 @@
         "name": "queue"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Col2Im",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CollectAndDistributeFpnRpnProposals",
@@ -2143,7 +2143,7 @@
         "name": "rois_idx_restore"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CollectRpnProposals",
@@ -2213,7 +2213,7 @@
         "name": "rois"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CollectTensor",
@@ -2225,7 +2225,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ColwiseMax",
@@ -2242,11 +2242,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ColwiseMaxGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ComputeOffset",
@@ -2267,7 +2267,7 @@
         "name": "field_0"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Concat",
@@ -2314,11 +2314,11 @@
         "name": "split_info"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ConcatBatchMatMulBatchGatherOp",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ConcatTensorVector",
@@ -2335,7 +2335,7 @@
         "name": "tensor"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Conditional",
@@ -2360,7 +2360,7 @@
         "name": "DataO"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ConditionalSetAtomicBool",
@@ -2375,7 +2375,7 @@
         "name": "condition"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ConstantFill",
@@ -2420,7 +2420,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Conv",
@@ -2461,7 +2461,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Conv1D",
@@ -2486,11 +2486,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Conv1DGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Conv2D",
@@ -2515,11 +2515,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Conv2DGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Conv3D",
@@ -2544,19 +2544,19 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Conv3DGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ConvGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ConvRelu",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ConvTranspose",
@@ -2635,11 +2635,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ConvTransposeGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Copy",
@@ -2656,7 +2656,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CopyFromCPUInput",
@@ -2673,7 +2673,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CopyOnDeviceLike",
@@ -2694,7 +2694,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CopyRowsToTensor",
@@ -2719,11 +2719,11 @@
         "name": "output_tensor"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CopyRowsToTensorGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Cos",
@@ -2740,11 +2740,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CosGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Cosh",
@@ -2761,11 +2761,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CoshGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CosineEmbeddingCriterion",
@@ -2786,11 +2786,11 @@
         "name": "loss"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CosineEmbeddingCriterionGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CosineSimilarity",
@@ -2811,11 +2811,11 @@
         "name": "Z"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CosineSimilarityGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CountDown",
@@ -2832,7 +2832,7 @@
         "name": "done"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CountUp",
@@ -2849,7 +2849,7 @@
         "name": "previous_count"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CreateAtomicBool",
@@ -2860,11 +2860,11 @@
         "name": "atomic_bool"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CreateBlobsQueue",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CreateBlobsQueueDB",
@@ -2898,7 +2898,7 @@
         "name": "reader"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CreateCommonWorld",
@@ -2927,7 +2927,7 @@
         "name": "comm_world"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CreateCounter",
@@ -2947,11 +2947,11 @@
         "name": "counter"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CreateDB",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CreateMap",
@@ -2974,7 +2974,7 @@
         "name": "map blob"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CreateMutex",
@@ -2985,7 +2985,7 @@
         "name": "mutex_ptr"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CreateRebatchingQueue",
@@ -3008,17 +3008,17 @@
         "name": "queue"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CreateScope",
     "description": "\n'CreateScope' operator initializes and outputs empty scope that is used\nby Do operator to store local blobs\n    ",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CreateTensorVector",
     "description": "Create a std::unique_ptr<std::vector<Tensor> >",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CreateTextFileReader",
@@ -3046,7 +3046,7 @@
         "name": "handler"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CreateTreeCursor",
@@ -3064,7 +3064,7 @@
         "name": "cursor"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CrossEntropy",
@@ -3085,11 +3085,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CrossEntropyGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CTCBeamSearchDecoder",
@@ -3130,7 +3130,7 @@
         "name": "OUTPUT_PROB"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CTCGreedyDecoder",
@@ -3162,7 +3162,7 @@
         "name": "VALUES"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Cube",
@@ -3178,16 +3178,16 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CubeGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DataCouple",
     "description": "\n\nA one to one operator that takes an arbitrary number of input and output blobs\nsuch that each input blob is inplace with it's matching output blob. It then proceedes\nto do nothing with each of these operators. This serves two purposes. It can make it\nappear as if a blob has been written to, as well as can tie together different blobs\nin a data dependency\n\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DBExists",
@@ -3219,7 +3219,7 @@
         "name": "exists"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DenseVectorToIdList",
@@ -3240,17 +3240,17 @@
         "name": "out_values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DepthConcat",
     "description": "Backward compatible operator name for Concat.",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DepthSplit",
     "description": "Backward compatible operator name for Split.",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DequeueBlobs",
@@ -3274,7 +3274,7 @@
         "name": "blob"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DequeueRebatchingQueue",
@@ -3296,7 +3296,7 @@
         "name": "tensor"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DestroyCommonWorld",
@@ -3307,7 +3307,7 @@
         "name": "common_world"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DiagonalFill",
@@ -3351,7 +3351,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DistributeFpnProposals",
@@ -3406,7 +3406,7 @@
         "name": "rois_idx_restore"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Div",
@@ -3443,11 +3443,11 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DivGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Do",
@@ -3479,7 +3479,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DotProduct",
@@ -3500,11 +3500,11 @@
         "name": "Z"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DotProductGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DotProductWithPadding",
@@ -3537,11 +3537,11 @@
         "name": "Z"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DotProductWithPaddingGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Dropout",
@@ -3586,11 +3586,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DropoutGrad",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ElementwiseLinear",
@@ -3624,11 +3624,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ElementwiseLinearGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Elu",
@@ -3654,12 +3654,12 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "EluGradient",
     "description": "\nEluGradient takes both Y and dY and uses this to update dX according to the\nchain rule and derivatives of the rectified linear function.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "EnforceFinite",
@@ -3670,11 +3670,11 @@
         "name": "input"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "EnqueueBlobs",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "EnqueueRebatchingQueue",
@@ -3696,7 +3696,7 @@
         "name": "tensor"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "EnsureClipped",
@@ -3721,7 +3721,7 @@
         "name": "output_param"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "EnsureCPUOutput",
@@ -3738,7 +3738,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "EnsureDense",
@@ -3755,7 +3755,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "EQ",
@@ -3792,7 +3792,7 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Erf",
@@ -3809,11 +3809,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ErfGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Exp",
@@ -3830,7 +3830,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Expand",
@@ -3851,7 +3851,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ExpandDims",
@@ -3876,20 +3876,20 @@
         "name": "expanded"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ExpandGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Fail",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FbFCPacked",
     "description": "Same as FC,\n      but the weight is prepacked as a fbgemm::PackedGemmMatrixFP16",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FbGemmPack",
@@ -3906,7 +3906,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FbGemmPackTranspose",
@@ -3923,7 +3923,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FC",
@@ -3972,20 +3972,20 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FCGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FCTransposed",
     "description": "\nSame as FC, but weight matrix is supposed to be already pretransposed.\nFCTransposed stands for calling blass with no noTrans, noTrans\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FCTransposedGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FeedBlob",
@@ -3997,7 +3997,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FileStoreHandlerCreate",
@@ -4020,7 +4020,7 @@
         "name": "handler"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Find",
@@ -4048,7 +4048,7 @@
         "name": "query_indices"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FindDuplicateElements",
@@ -4065,7 +4065,7 @@
         "name": "indices"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Flatten",
@@ -4091,7 +4091,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FlattenToVec",
@@ -4108,7 +4108,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FlexibleTopK",
@@ -4133,11 +4133,11 @@
         "name": "Flatten indices"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FlexibleTopKGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Float16ConstantFill",
@@ -4159,7 +4159,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Float16SparseNormalize",
@@ -4196,7 +4196,7 @@
         "name": "output_param"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Float16UniformFill",
@@ -4218,7 +4218,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FloatToFused2BitFakeRowwiseQuantized",
@@ -4235,7 +4235,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FloatToFused2BitRowwiseQuantized",
@@ -4252,7 +4252,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FloatToFused4BitFakeRowwiseQuantized",
@@ -4269,7 +4269,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FloatToFused4BitRowwiseQuantized",
@@ -4286,7 +4286,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FloatToFused8BitRowwiseQuantized",
@@ -4303,7 +4303,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FloatToFused8BitRowwiseQuantizedHalfScaleBias",
@@ -4320,7 +4320,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FloatToFusedRandRowwiseQuantized",
@@ -4349,11 +4349,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FloatToHalf",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FloatToRowwiseQuantized8Bits",
@@ -4374,7 +4374,7 @@
         "name": "scale_bias"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Floor",
@@ -4391,16 +4391,16 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Free",
     "description": "\nFrees the content of the blobs. The input and output blobs should be\none-to-one inplace.",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Ftrl",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Fused2BitRowwiseQuantizedToFloat",
@@ -4417,7 +4417,7 @@
         "name": "float_output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Fused2BitRowwiseQuantizedToHalf",
@@ -4434,7 +4434,7 @@
         "name": "float16_output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Fused4BitRowwiseQuantizedToFloat",
@@ -4451,7 +4451,7 @@
         "name": "float_output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Fused4BitRowwiseQuantizedToHalf",
@@ -4468,7 +4468,7 @@
         "name": "float16_output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Fused8BitRowwiseQuantizedHalfScaleBiasToFloat",
@@ -4485,7 +4485,7 @@
         "name": "float_output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Fused8BitRowwiseQuantizedHalfScaleBiasToHalfFloat",
@@ -4502,7 +4502,7 @@
         "name": "float_output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Fused8BitRowwiseQuantizedToFloat",
@@ -4519,7 +4519,7 @@
         "name": "float_output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Fused8BitRowwiseQuantizedToHalfFloat",
@@ -4536,7 +4536,7 @@
         "name": "float16_output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "FusedRandRowwiseQuantizedToFloat",
@@ -4553,7 +4553,7 @@
         "name": "float_input"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Gather",
@@ -4575,7 +4575,7 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GatherByKey",
@@ -4596,7 +4596,7 @@
         "name": "values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GatherFused8BitRowwise",
@@ -4617,7 +4617,7 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GatherPadding",
@@ -4654,7 +4654,7 @@
         "name": "end_padding_sum"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GatherRanges",
@@ -4679,7 +4679,7 @@
         "name": "LENGTHS"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GatherRangesToDense",
@@ -4731,7 +4731,7 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GaussianFill",
@@ -4783,7 +4783,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GE",
@@ -4820,7 +4820,7 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Gelu",
@@ -4844,11 +4844,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GeluGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GenerateProposals",
@@ -4933,11 +4933,11 @@
         "name": "rois_probs"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GenerateProposalsCPP",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GetAllBlobNames",
@@ -4955,7 +4955,7 @@
         "name": "blob_names"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GetCursorOffset",
@@ -4972,11 +4972,11 @@
         "name": "offsets"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GFtrl",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GivenTensorBoolFill",
@@ -5001,7 +5001,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GivenTensorByteStringToUInt8Fill",
@@ -5027,7 +5027,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GivenTensorDoubleFill",
@@ -5052,7 +5052,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GivenTensorFill",
@@ -5099,7 +5099,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GivenTensorInt16Fill",
@@ -5124,7 +5124,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GivenTensorInt64Fill",
@@ -5149,7 +5149,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GivenTensorIntFill",
@@ -5174,7 +5174,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GivenTensorStringFill",
@@ -5199,7 +5199,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Glu",
@@ -5216,7 +5216,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GroupNorm",
@@ -5261,11 +5261,11 @@
         "name": "std"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GroupNormGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GRUUnit",
@@ -5288,7 +5288,7 @@
         "name": "hidden"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GRUUnitGradient",
@@ -5299,7 +5299,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GT",
@@ -5336,7 +5336,7 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HalfFloatToFused8BitRowwiseQuantized",
@@ -5353,7 +5353,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HalfFloatToFused8BitRowwiseQuantizedHalfScaleBias",
@@ -5370,11 +5370,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HalfToFloat",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HalfToFused2BitFakeRowwiseQuantized",
@@ -5391,7 +5391,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HalfToFused2BitRowwiseQuantized",
@@ -5408,7 +5408,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HalfToFused4BitFakeRowwiseQuantized",
@@ -5425,7 +5425,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HalfToFused4BitRowwiseQuantized",
@@ -5442,7 +5442,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HardSigmoid",
@@ -5471,12 +5471,12 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HardSigmoidGradient",
     "description": "\nHardSigmoidGradient takes both Y and dY as well as an argument alpha and uses\nthis to update dX according to the chain rule and derivatives of the hard\nsigmoid function.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HasElements",
@@ -5497,16 +5497,16 @@
         "name": "has_elements"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HasScope",
     "description": "\nChecks whether scope blob has any saved scopes left\n    ",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HeatmapMaxKeypoint",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Histogram",
@@ -5530,7 +5530,7 @@
         "name": "histogram"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HSoftmax",
@@ -5570,11 +5570,11 @@
         "name": "intermediate_output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HSoftmaxGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HSoftmaxSearch",
@@ -5620,7 +5620,7 @@
         "name": "Y_scores"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "HuffmanTreeHierarchy",
@@ -5644,7 +5644,7 @@
         "name": "Hierarch"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "If",
@@ -5667,7 +5667,7 @@
         "name": "condition"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Im2Col",
@@ -5684,7 +5684,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "IncrementPut",
@@ -5717,7 +5717,7 @@
         "name": "value"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "IndexFreeze",
@@ -5734,7 +5734,7 @@
         "name": "handle"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "IndexGet",
@@ -5755,7 +5755,7 @@
         "name": "indices"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "IndexHash",
@@ -5784,7 +5784,7 @@
         "name": "HashedIndices"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "IndexLoad",
@@ -5812,7 +5812,7 @@
         "name": "handle"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "IndexSize",
@@ -5829,7 +5829,7 @@
         "name": "items"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "IndexStore",
@@ -5846,7 +5846,7 @@
         "name": "items"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "InferenceLSTM",
@@ -5886,7 +5886,7 @@
         "name": "cell"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "InstanceNorm",
@@ -5935,11 +5935,11 @@
         "name": "saved_inv_stdev"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "InstanceNormGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8Add",
@@ -5972,7 +5972,7 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8AddRelu",
@@ -6005,7 +6005,7 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8AveragePool",
@@ -6041,7 +6041,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8AveragePoolRelu",
@@ -6070,7 +6070,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8ChannelShuffle",
@@ -6086,7 +6086,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8Concat",
@@ -6123,7 +6123,7 @@
         "name": "split_info"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8Conv",
@@ -6175,7 +6175,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8ConvRelu",
@@ -6212,7 +6212,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8ConvTranspose",
@@ -6249,7 +6249,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8Dequantize",
@@ -6265,7 +6265,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8FC",
@@ -6321,7 +6321,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8FCPackWeight",
@@ -6368,7 +6368,7 @@
         "name": "B_q"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8Flatten",
@@ -6402,7 +6402,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8GenQuantParams",
@@ -6423,7 +6423,7 @@
         "name": "quant_param"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8GivenIntTensorFill",
@@ -6456,7 +6456,7 @@
         "name": "Tensor"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8GivenTensorFill",
@@ -6489,7 +6489,7 @@
         "name": "Tensor"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8LeakyRelu",
@@ -6523,7 +6523,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8MaxPool",
@@ -6552,7 +6552,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8MaxPoolRelu",
@@ -6581,7 +6581,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8Quantize",
@@ -6630,7 +6630,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8Relu",
@@ -6666,7 +6666,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8Reshape",
@@ -6708,7 +6708,7 @@
         "name": "old_shape"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8ResizeNearest",
@@ -6752,7 +6752,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8RoIAlign",
@@ -6805,7 +6805,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8Sigmoid",
@@ -6834,7 +6834,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8Slice",
@@ -6896,7 +6896,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8Softmax",
@@ -6937,7 +6937,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8Sum",
@@ -6959,7 +6959,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8SumRelu",
@@ -6975,7 +6975,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Int8Transpose",
@@ -7009,7 +7009,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "IntegralImage",
@@ -7026,11 +7026,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "IntegralImageGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "IntIndexCreate",
@@ -7048,7 +7048,7 @@
         "name": "handler"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "IsEmpty",
@@ -7065,7 +7065,7 @@
         "name": "is_empty"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "IsMemberOf",
@@ -7094,7 +7094,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "IsNaN",
@@ -7111,16 +7111,16 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Iter",
     "description": "\nStores a singe integer, that gets incremented on each call to Run().\nUseful for tracking the iteration count during SGD, for example.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "KeySplit",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "KeyValueToMap",
@@ -7141,7 +7141,7 @@
         "name": "map blob"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "L1Distance",
@@ -7162,11 +7162,11 @@
         "name": "Z"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "L1DistanceGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LabelCrossEntropy",
@@ -7187,20 +7187,20 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LabelCrossEntropyGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LambdaRankNdcg",
     "description": "\nIt implements the LambdaRank as appeared in Wu, Qiang, et al. \"Adapting boosting\nfor information retrieval measures.\" Information Retrieval 13.3 (2010): 254-270.\n\nThis method heuristically optimizes the NDCG.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LambdaRankNdcgGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Lars",
@@ -7245,7 +7245,7 @@
         "name": "lr_rescaled"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LastNWindowCollector",
@@ -7293,7 +7293,7 @@
         "name": "NUM_VISITED"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LayerNorm",
@@ -7343,11 +7343,11 @@
         "name": "stddev"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LayerNormGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LC",
@@ -7371,7 +7371,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LC1D",
@@ -7395,11 +7395,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LC1DGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LC2D",
@@ -7423,11 +7423,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LC2DGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LC3D",
@@ -7451,15 +7451,15 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LC3DGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LCGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LE",
@@ -7496,7 +7496,7 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LeakyRelu",
@@ -7522,7 +7522,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LeakyReluGradient",
@@ -7533,7 +7533,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LearningRate",
@@ -7717,7 +7717,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LearningRateAdaption",
@@ -7754,7 +7754,7 @@
         "name": "output_lr"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsGather",
@@ -7779,15 +7779,15 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsIndicesInGradientMeanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsIndicesInGradientSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsMax",
@@ -7808,11 +7808,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsMaxWithMainInputAndForwardOutputGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsMean",
@@ -7833,11 +7833,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsMeanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsPad",
@@ -7870,7 +7870,7 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsPartition",
@@ -7894,7 +7894,7 @@
         "name": "partitions"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsRangeFill",
@@ -7911,7 +7911,7 @@
         "name": "range_sequence"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsSplit",
@@ -7939,7 +7939,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsSum",
@@ -7960,11 +7960,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsTile",
@@ -7985,7 +7985,7 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsToOffsets",
@@ -8002,7 +8002,7 @@
         "name": "offsets"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsTopK",
@@ -8034,11 +8034,11 @@
         "name": "TopKIndices"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsTopKGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsToRanges",
@@ -8055,7 +8055,7 @@
         "name": "ranges"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsToSegmentIds",
@@ -8072,7 +8072,7 @@
         "name": "segment_ids"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsToShape",
@@ -8089,7 +8089,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsToWeights",
@@ -8113,7 +8113,7 @@
         "name": "a vector of weights"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsWeightedSum",
@@ -8145,15 +8145,15 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsWeightedSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LengthsWeightedSumWithMainInputGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Load",
@@ -8231,7 +8231,7 @@
         "name": "X, Y, ..."
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Log",
@@ -8248,11 +8248,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LogFatal",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Logit",
@@ -8276,7 +8276,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LogitGradient",
@@ -8303,7 +8303,7 @@
         "name": "dX"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LongIndexCreate",
@@ -8321,7 +8321,7 @@
         "name": "handler"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LpNorm",
@@ -8354,7 +8354,7 @@
         "name": "Z"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LpNormGradient",
@@ -8387,7 +8387,7 @@
         "name": "dx"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LpPool",
@@ -8436,11 +8436,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LpPoolGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LRN",
@@ -8499,11 +8499,11 @@
         "name": "Y_scale"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LRNGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LSTMUnit",
@@ -8520,7 +8520,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LSTMUnitGradient",
@@ -8531,7 +8531,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "LT",
@@ -8568,7 +8568,7 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MakeTwoClass",
@@ -8585,11 +8585,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MakeTwoClassGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MapToKeyValue",
@@ -8610,7 +8610,7 @@
         "name": "value blob"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MarginRankingCriterion",
@@ -8642,12 +8642,12 @@
         "name": "loss"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MarginRankingCriterionGradient",
     "description": "\nMarginRankingCriterionGradient takes both X1, X2, Y and dY and\nuses them to update dX1, and dX2 according to the chain rule\nand derivatives of the loss function.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MatMul",
@@ -8698,7 +8698,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Max",
@@ -8715,11 +8715,11 @@
         "name": "M"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MaxGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MaxPool",
@@ -8752,7 +8752,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MaxPool1D",
@@ -8769,11 +8769,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MaxPool1DGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MaxPool2D",
@@ -8790,11 +8790,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MaxPool2DGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MaxPool3D",
@@ -8811,15 +8811,15 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MaxPool3DGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MaxPoolGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Mean",
@@ -8836,11 +8836,11 @@
         "name": "M"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MeanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeDenseFeatureTensors",
@@ -8876,7 +8876,7 @@
         "name": "out_values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeDim",
@@ -8893,7 +8893,7 @@
         "name": "reshaped"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeIdLists",
@@ -8918,7 +8918,7 @@
         "name": "merged_values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeMultiListFeatureTensors",
@@ -8959,7 +8959,7 @@
         "name": "out_values_values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeMultiListFeatureTensorsGradient",
@@ -8984,7 +8984,7 @@
         "name": "in1_values_values_grad"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeMultiMapFeatureTensors",
@@ -9033,7 +9033,7 @@
         "name": "out_values_values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeMultiMapFeatureTensorsGradient",
@@ -9058,7 +9058,7 @@
         "name": "in1_values_values_grad"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeMultiScalarFeatureTensors",
@@ -9091,7 +9091,7 @@
         "name": "out_values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeMultiScalarFeatureTensorsGradient",
@@ -9112,7 +9112,7 @@
         "name": "in1_values_grad"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeSingleListFeatureTensors",
@@ -9156,7 +9156,7 @@
         "name": "out_values_values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeSingleListFeatureTensorsGradient",
@@ -9181,7 +9181,7 @@
         "name": "out1_values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeSingleMapFeatureTensors",
@@ -9233,7 +9233,7 @@
         "name": "out_values_values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeSingleMapFeatureTensorsGradient",
@@ -9258,7 +9258,7 @@
         "name": "in1_values_grad"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeSingleScalarFeatureTensors",
@@ -9294,7 +9294,7 @@
         "name": "out_values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MergeSingleScalarFeatureTensorsGradient",
@@ -9315,7 +9315,7 @@
         "name": "in1_grad"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Min",
@@ -9332,11 +9332,11 @@
         "name": "M"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MinGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Mish",
@@ -9353,12 +9353,12 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MishGradient",
     "description": "\nMishGradient takes X, Y and dY and uses this to update dX according to the\nchain rule and derivatives of the Mish function.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Mod",
@@ -9391,7 +9391,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Moments",
@@ -9424,25 +9424,25 @@
         "name": "variance"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MomentsGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MomentumSGD",
     "description": "\n\nComputes a momentum SGD update for an input gradient and momentum\nparameters. Concretely, given inputs (grad, m, lr) and parameters\n(momentum, nesterov), computes:\n\n    if not nesterov:\n        adjusted_gradient = lr * grad + momentum * m\n        return (adjusted_gradient, adjusted_gradient)\n    else:\n        m_new = momentum * m + lr * grad\n        return ((1 + momentum) * m_new - momentum * m, m_new)\n\nOutput is (grad, momentum)\n\nNote the difference to MomemtumSGDUpdate, which actually performs the\nparameter update (and is thus faster).\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MomentumSGDUpdate",
     "description": "\n\nPerforms a momentum SGD update for an input gradient and momentum\nparameters. Concretely, given inputs (grad, m, lr, param) and arguments\n(momentum, nesterov), computes:\n\n    if not nesterov:\n        adjusted_gradient = lr * grad + momentum * m\n        param = param - adjusted_gradient\n        return (adjusted_gradient, adjusted_gradient, param)\n    else:\n        m_new = momentum * m + lr * grad\n        param = param - ((1 + momentum) * m_new - momentum * m),\n        return ((1 + momentum) * m_new - momentum * m, m_new, param)\n\nOutput is (grad, momentum, parameter).\n\nNote the difference to MomentumSGD, which returns a new gradient\nbut does not perform the parameter update.\n\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MSRAFill",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Mul",
@@ -9479,11 +9479,11 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MulGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "MultiClassAccuracy",
@@ -9508,7 +9508,7 @@
         "name": "amounts"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "NanCheck",
@@ -9525,7 +9525,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "NCHW2NHWC",
@@ -9542,7 +9542,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "NE",
@@ -9579,12 +9579,12 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "NegateGradient",
     "description": "\nNegagteGradient operator in forward pass simply copies input to the\noutput, and in backward pass, flips the sign of the output gradient\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Negative",
@@ -9601,11 +9601,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "NGramFromCategorical",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "NHWC2NCHW",
@@ -9622,7 +9622,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Normalize",
@@ -9634,7 +9634,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "NormalizeGradient",
@@ -9645,7 +9645,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "NormalizeL1",
@@ -9657,11 +9657,11 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "NormalizePlanarYUV",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Not",
@@ -9678,7 +9678,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "NumpyTile",
@@ -9698,7 +9698,7 @@
         "name": "tiled_data"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "OneHot",
@@ -9719,7 +9719,7 @@
         "name": "one_hots"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Onnxifi",
@@ -9741,7 +9741,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ONNXWhile",
@@ -9796,7 +9796,7 @@
         "option": "variadic"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Or",
@@ -9833,11 +9833,11 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PackedInt8BGRANHWCToNCHWCStylizerPreprocess",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PackRecords",
@@ -9855,7 +9855,7 @@
         "name": "tensor"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PackRNNSequence",
@@ -9876,7 +9876,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PackSegments",
@@ -9918,7 +9918,7 @@
         "name": "presence_mask"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PadEmptySamples",
@@ -9935,7 +9935,7 @@
         "name": "out_lengths"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PadImage",
@@ -9952,11 +9952,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PadImageGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PairWiseLoss",
@@ -9981,11 +9981,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PairWiseLossGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Partition",
@@ -10009,7 +10009,7 @@
         "name": "partitions"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Percentile",
@@ -10034,7 +10034,7 @@
         "name": "percentile_values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Perplexity",
@@ -10051,7 +10051,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PiecewiseLinearTransform",
@@ -10102,7 +10102,7 @@
         "name": "transforms"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Pow",
@@ -10144,7 +10144,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PRelu",
@@ -10166,12 +10166,12 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PReluGradient",
     "description": "\n\nPReluGradient takes both Y and dY and uses this to update dX and dW according\nto the chain rule and derivatives of the rectified linear function.\n\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PrependDim",
@@ -10195,7 +10195,7 @@
         "name": "reshaped"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Print",
@@ -10223,23 +10223,23 @@
         "name": "tensor"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Python",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PythonDLPack",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PythonDLPackGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PythonGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "QuantDecode",
@@ -10276,11 +10276,11 @@
         "name": "decoded_n"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "QuantDecodeGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Quantile",
@@ -10309,7 +10309,7 @@
         "name": "quantile_value"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Range",
@@ -10334,11 +10334,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RangeFill",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReadNextBatch",
@@ -10366,7 +10366,7 @@
         "name": "field_0"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReadRandomBatch",
@@ -10407,7 +10407,7 @@
         "name": "field_0"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReceiveTensor",
@@ -10461,7 +10461,7 @@
         "name": "tag"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Reciprocal",
@@ -10478,16 +10478,16 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReciprocalGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RecurrentNetwork",
     "description": "\nRun the input network in a recurrent fashion. This can be used to\nimplement fairly general recurrent neural networks (RNNs).\n\nThe operator proceeds as follows.\n\n- First, initialized the states from the input recurrent states\n- For each timestep T, apply the links (that map offsets from input/output\ntensors into the inputs/outputs for the `step` network)\n- Finally, alias the recurrent states to the specified output blobs.\n\nThis is a fairly special-case meta-operator, and so the implementation\nis somewhat complex. It trades of generality (and frankly usability)\nagainst performance and control (compared to e.g. TF\ndynamic_rnn, Theano scan, etc).\n\nSee the usage examples for a flavor of how to use it.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RecurrentNetworkBlobFetcher",
@@ -10511,11 +10511,11 @@
         "name": "blob_names"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RecurrentNetworkGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Reduce",
@@ -10543,7 +10543,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceBackMax",
@@ -10571,11 +10571,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceBackMaxGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceBackMean",
@@ -10603,11 +10603,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceBackMeanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceBackSum",
@@ -10635,11 +10635,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceBackSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceFrontMax",
@@ -10667,11 +10667,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceFrontMaxGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceFrontMean",
@@ -10699,11 +10699,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceFrontMeanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceFrontSum",
@@ -10731,11 +10731,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceFrontSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceFrontWeightedSum",
@@ -10763,11 +10763,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceFrontWeightedSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceL1",
@@ -10796,11 +10796,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceL1Gradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceL2",
@@ -10829,11 +10829,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceL2Gradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceMax",
@@ -10862,11 +10862,11 @@
         "name": "reduced"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceMaxGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceMean",
@@ -10895,11 +10895,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceMeanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceMin",
@@ -10928,11 +10928,11 @@
         "name": "reduced"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceMinGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceScatter",
@@ -10953,7 +10953,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceSum",
@@ -10982,11 +10982,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceTailSum",
@@ -11003,7 +11003,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Relu",
@@ -11028,12 +11028,12 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReluGradient",
     "description": "\nReluGradient takes both Y and dY and uses this to update dX according to the\nchain rule and derivatives of the rectified linear function.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReluN",
@@ -11057,7 +11057,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReluNGradient",
@@ -11069,7 +11069,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RemoveDataBlocks",
@@ -11090,7 +11090,7 @@
         "name": "shrunk data"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RemovePadding",
@@ -11129,7 +11129,7 @@
         "name": "lengths_out"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReplaceNaN",
@@ -11151,7 +11151,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReservoirSampling",
@@ -11211,7 +11211,7 @@
         "name": "POS_TO_OBJECT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ResetCounter",
@@ -11237,7 +11237,7 @@
         "name": "previous_value"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ResetCursor",
@@ -11248,7 +11248,7 @@
         "name": "cursor"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Reshape",
@@ -11281,7 +11281,7 @@
         "name": "old_shape"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ResizeLike",
@@ -11302,7 +11302,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ResizeNearest",
@@ -11335,7 +11335,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ResizeNearest3D",
@@ -11369,7 +11369,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ResizeNearest3DGradient",
@@ -11390,7 +11390,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ResizeNearestGradient",
@@ -11406,7 +11406,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RetrieveCount",
@@ -11423,7 +11423,7 @@
         "name": "count"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReversePackedSegs",
@@ -11444,7 +11444,7 @@
         "name": "reversed data"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RMACRegions",
@@ -11473,7 +11473,7 @@
         "name": "RMAC_REGIONS"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RMSNorm",
@@ -11513,26 +11513,26 @@
         "name": "rrms"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RMSNormGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RmsProp",
     "description": "\nComputes the RMSProp update\n(http://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf).\nConcretely, given inputs (grad, mean_squares, mom, lr), computes:\n\n    mean_squares_o = mean_squares + (1 - decay) * (square(grad) - mean_squares)\n    mom_o = momentum * mom + lr * grad / sqrt(epsilon + mean_squares_o)\n    grad_o = mom_o\n\nReturns (grad_o, mean_squares_o, mom_o).\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "rnn_internal_accumulate_gradient_input",
     "description": "\nInternal RNN operator.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "rnn_internal_apply_link",
     "description": "\nInternal RNN operator.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RoIAlign",
@@ -11575,7 +11575,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RoIAlignGradient",
@@ -11599,7 +11599,7 @@
         "name": "dX"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RoIAlignRotated",
@@ -11642,7 +11642,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RoIPool",
@@ -11694,11 +11694,11 @@
         "name": "argmaxes"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RoIPoolGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RowMul",
@@ -11719,7 +11719,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Rowwise8BitQuantizedToFloat",
@@ -11743,7 +11743,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RowWiseCounter",
@@ -11783,7 +11783,7 @@
         "name": "output_update_counter"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RowwiseMax",
@@ -11800,11 +11800,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RowwiseMaxGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RowWiseSparseAdagrad",
@@ -11862,7 +11862,7 @@
         "name": "output_moment_1"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RowWiseSparseAdagradFusedWithSparseLengthsMeanGradient",
@@ -11914,7 +11914,7 @@
         "name": "output_moment"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RowWiseSparseAdagradFusedWithSparseLengthsMeanGradientApprox",
@@ -11971,7 +11971,7 @@
         "name": "output_moment"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RowWiseSparseAdagradFusedWithSparseLengthsSumGradient",
@@ -12028,7 +12028,7 @@
         "name": "output_moment"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RowWiseSparseAdagradFusedWithSparseLengthsSumGradientApprox",
@@ -12085,7 +12085,7 @@
         "name": "output_moment"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RowWiseSparseAdagradFusedWithSparseLengthsWeightedSumGradient",
@@ -12145,7 +12145,7 @@
         "name": "aux_grad"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RowWiseSparseAdagradFusedWithSparseLengthsWeightedSumGradientApprox",
@@ -12205,7 +12205,7 @@
         "name": "aux_grad"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RowWiseSparseAdam",
@@ -12275,7 +12275,7 @@
         "name": "output_grad"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Rsqrt",
@@ -12292,11 +12292,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "RsqrtGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SafeDequeueBlobs",
@@ -12324,7 +12324,7 @@
         "name": "status"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SafeEnqueueBlobs",
@@ -12335,7 +12335,7 @@
         "name": "queue"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Save",
@@ -12387,7 +12387,7 @@
         "name": "X"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Scale",
@@ -12399,7 +12399,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ScaleBlobs",
@@ -12411,7 +12411,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Scatter",
@@ -12445,7 +12445,7 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ScatterAssign",
@@ -12470,7 +12470,7 @@
         "name": "DATA"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ScatterWeightedSum",
@@ -12503,7 +12503,7 @@
         "name": "X_0"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SegmentIdsToLengths",
@@ -12524,7 +12524,7 @@
         "name": "lengths"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SegmentIdsToRanges",
@@ -12545,7 +12545,7 @@
         "name": "lengths"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SegmentOneHot",
@@ -12570,7 +12570,7 @@
         "name": "one_hots"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SelfBinningHistogram",
@@ -12613,7 +12613,7 @@
         "name": "histogram_counts"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Selu",
@@ -12646,7 +12646,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SeluGradient",
@@ -12673,7 +12673,7 @@
         "name": "dY"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SendTensor",
@@ -12713,7 +12713,7 @@
         "name": "tag"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SequenceMask",
@@ -12766,7 +12766,7 @@
         "name": "masked_tensor"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Shape",
@@ -12791,7 +12791,7 @@
         "name": "shape"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Sigmoid",
@@ -12809,7 +12809,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SigmoidCrossEntropyWithLogits",
@@ -12842,16 +12842,16 @@
         "name": "xentropy"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SigmoidCrossEntropyWithLogitsGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SigmoidGradient",
     "description": "\nSigmoidGradient takes both Y and dY and uses this to update dX according to the\nchain rule and derivatives of the sigmoid function.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Sign",
@@ -12868,7 +12868,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Sin",
@@ -12885,11 +12885,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SinGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Sinh",
@@ -12906,11 +12906,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SinhGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SinusoidPositionEncoding",
@@ -12944,7 +12944,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Size",
@@ -12961,7 +12961,7 @@
         "name": "size"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Slice",
@@ -12999,15 +12999,15 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SliceGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Snapshot",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Softmax",
@@ -13042,11 +13042,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SoftmaxGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SoftmaxWithLoss",
@@ -13104,11 +13104,11 @@
         "name": "loss"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SoftmaxWithLossGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Softplus",
@@ -13125,11 +13125,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SoftplusGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Softsign",
@@ -13146,7 +13146,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SoftsignGradient",
@@ -13163,7 +13163,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortAndShuffle",
@@ -13184,7 +13184,7 @@
         "name": "indices"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentMean",
@@ -13205,11 +13205,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentMeanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentRangeLogMeanExp",
@@ -13230,11 +13230,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentRangeLogMeanExpGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentRangeLogSumExp",
@@ -13255,11 +13255,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentRangeLogSumExpGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentRangeMax",
@@ -13280,11 +13280,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentRangeMaxGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentRangeMean",
@@ -13305,11 +13305,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentRangeMeanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentRangeSum",
@@ -13330,11 +13330,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentRangeSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentSum",
@@ -13355,11 +13355,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentWeightedSum",
@@ -13391,11 +13391,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SortedSegmentWeightedSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SpaceToBatch",
@@ -13429,7 +13429,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseAdadelta",
@@ -13486,7 +13486,7 @@
         "name": "output_moment_delta"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseAdagrad",
@@ -13530,7 +13530,7 @@
         "name": "output_moment_1"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseAdagradFusedWithSparseLengthsMeanGradient",
@@ -13578,7 +13578,7 @@
         "name": "output_moment"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseAdagradFusedWithSparseLengthsMeanGradientApprox",
@@ -13626,7 +13626,7 @@
         "name": "output_moment"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseAdagradFusedWithSparseLengthsSumGradient",
@@ -13674,7 +13674,7 @@
         "name": "output_moment"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseAdagradFusedWithSparseLengthsSumGradientApprox",
@@ -13722,7 +13722,7 @@
         "name": "output_moment"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseAdagradFusedWithSparseLengthsWeightedSumGradient",
@@ -13778,7 +13778,7 @@
         "name": "aux_grad"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseAdagradFusedWithSparseLengthsWeightedSumGradientApprox",
@@ -13834,7 +13834,7 @@
         "name": "aux_grad"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseAdam",
@@ -13909,7 +13909,7 @@
         "name": "output_grad"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseDropoutWithReplacement",
@@ -13950,27 +13950,27 @@
         "name": "OutputLengths"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseFtrl",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsIndicesInGradientMeanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsIndicesInGradientSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsIndicesInGradientWeightedSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsIndicesInGradientWeightedSumWithMainInputGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsMean",
@@ -13995,7 +13995,7 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsMean2BitRowwiseSparse",
@@ -14024,7 +14024,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsMean4BitRowwiseSparse",
@@ -14053,7 +14053,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsMean8BitRowwiseSparse",
@@ -14082,7 +14082,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsMean8BitsRowwise",
@@ -14111,7 +14111,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsMeanFused2BitRowwise",
@@ -14136,7 +14136,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsMeanFused4BitRowwise",
@@ -14161,7 +14161,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsMeanFused8BitRowwise",
@@ -14186,11 +14186,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsMeanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsPositionalWeightedSum",
@@ -14219,7 +14219,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsSum",
@@ -14244,7 +14244,7 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsSum2BitRowwiseSparse",
@@ -14273,7 +14273,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsSum4BitRowwiseSparse",
@@ -14302,7 +14302,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsSum8BitRowwiseSparse",
@@ -14331,7 +14331,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsSum8BitsRowwise",
@@ -14360,7 +14360,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsSumFused2BitRowwise",
@@ -14385,7 +14385,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsSumFused4BitRowwise",
@@ -14410,7 +14410,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsSumFused8BitRowwise",
@@ -14435,11 +14435,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsSumSparseLookup",
@@ -14476,7 +14476,7 @@
         "name": "output_weights"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsWeightedMean8BitsRowwise",
@@ -14509,7 +14509,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsWeightedSum",
@@ -14545,7 +14545,7 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsWeightedSum2BitRowwiseSparse",
@@ -14578,7 +14578,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsWeightedSum4BitRowwiseSparse",
@@ -14611,7 +14611,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsWeightedSum8BitRowwiseSparse",
@@ -14644,7 +14644,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsWeightedSum8BitsRowwise",
@@ -14677,7 +14677,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsWeightedSumFused2BitRowwise",
@@ -14706,7 +14706,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsWeightedSumFused4BitRowwise",
@@ -14735,7 +14735,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsWeightedSumFused8BitRowwise",
@@ -14764,15 +14764,15 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsWeightedSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLengthsWeightedSumWithMainInputGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseLpRegularizer",
@@ -14809,7 +14809,7 @@
         "name": "output_param"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseMomentumSGDUpdate",
@@ -14862,7 +14862,7 @@
         "name": "output_param"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseNormalize",
@@ -14899,7 +14899,7 @@
         "name": "output_param"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseSortedSegmentMean",
@@ -14924,11 +14924,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseSortedSegmentMeanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseSortedSegmentSum",
@@ -14953,11 +14953,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseSortedSegmentSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseSortedSegmentWeightedSum",
@@ -14993,11 +14993,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseSortedSegmentWeightedSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseStorm",
@@ -15054,7 +15054,7 @@
         "name": "output_grad_sq_sum"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseToDense",
@@ -15079,7 +15079,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseToDenseMask",
@@ -15129,12 +15129,12 @@
         "name": "presence_mask"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseToDenseMaskGradient",
     "description": "\nThe output is the gradient of the input value from SparseToDenseMask. The\ngradient for default_value has not been implemented.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseUnsortedSegmentMean",
@@ -15159,11 +15159,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseUnsortedSegmentMeanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseUnsortedSegmentSum",
@@ -15188,11 +15188,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseUnsortedSegmentSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseUnsortedSegmentWeightedSum",
@@ -15228,11 +15228,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseUnsortedSegmentWeightedSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseWngrad",
@@ -15276,7 +15276,7 @@
         "name": "output_seq_b"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SpatialBN",
@@ -15373,11 +15373,11 @@
         "name": "saved_var"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SpatialBNGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SpatialSoftmaxWithLoss",
@@ -15406,11 +15406,11 @@
         "name": "loss"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SpatialSoftmaxWithLossGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Split",
@@ -15454,7 +15454,7 @@
         "name": "[output_0, output_1, ...]"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SplitByLengths",
@@ -15486,7 +15486,7 @@
         "name": "legnths"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Sqr",
@@ -15503,7 +15503,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Sqrt",
@@ -15520,7 +15520,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SquaredL2Distance",
@@ -15541,16 +15541,16 @@
         "name": "Z"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SquaredL2DistanceGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SquareRootDivide",
     "description": "\nGiven DATA tensor with first dimension N and SCALE vector of the same size N\nproduces an output tensor with same dimensions as DATA. Which consists of DATA\nslices. i-th slice is divided by sqrt(SCALE[i]) elementwise. If SCALE[i] == 0\noutput slice is identical to the input one (no scaling)\n\nExample:\n\n  Data = [\n    [2.0, 4.0],\n    [9.0, 12.0]\n  ]\n\n  SCALE = [4, 9]\n\n  OUTPUT = [\n    [1.0, 2.0],\n    [3.0, 4.0]\n  ]\n\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Squeeze",
@@ -15576,7 +15576,7 @@
         "name": "squeezed"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StatRegistryCreate",
@@ -15587,7 +15587,7 @@
         "name": "handle"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StatRegistryExport",
@@ -15618,7 +15618,7 @@
         "name": "timestamps"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StatRegistryUpdate",
@@ -15637,7 +15637,7 @@
         "name": "handle"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StdDevPut",
@@ -15670,12 +15670,12 @@
         "name": "value"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StopGradient",
     "description": "\nStopGradient is a helper operator that does no actual numerical computation,\nand in the gradient computation phase stops the gradient from being computed\nthrough it.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StoreAdd",
@@ -15704,7 +15704,7 @@
         "name": "value"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StoreGet",
@@ -15728,7 +15728,7 @@
         "name": "data"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StoreSet",
@@ -15750,7 +15750,7 @@
         "name": "data"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StoreWait",
@@ -15772,7 +15772,7 @@
         "name": "names"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Storm",
@@ -15825,7 +15825,7 @@
         "name": "output_grad_sq_sum"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StringEndsWith",
@@ -15849,7 +15849,7 @@
         "name": "bools"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StringEquals",
@@ -15873,7 +15873,7 @@
         "name": "bools"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StringIndexCreate",
@@ -15891,7 +15891,7 @@
         "name": "handle"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StringJoin",
@@ -15920,7 +15920,7 @@
         "name": "strings"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StringPrefix",
@@ -15944,7 +15944,7 @@
         "name": "prefixes"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StringStartsWith",
@@ -15968,7 +15968,7 @@
         "name": "bools"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StringSuffix",
@@ -15992,7 +15992,7 @@
         "name": "suffixes"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StumpFunc",
@@ -16009,7 +16009,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "StumpFuncIndex",
@@ -16030,7 +16030,7 @@
         "name": "Index_High"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Sub",
@@ -16067,11 +16067,11 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SubGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Sum",
@@ -16100,7 +16100,7 @@
         "name": "sum"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SumElements",
@@ -16124,11 +16124,11 @@
         "name": "sum"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SumElementsGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SumElementsInt",
@@ -16145,11 +16145,11 @@
         "name": "sum"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SumInt",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Summarize",
@@ -16173,7 +16173,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SumReduceLike",
@@ -16211,7 +16211,7 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SumRelu",
@@ -16227,7 +16227,7 @@
         "name": "sum"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SumSqrElements",
@@ -16251,7 +16251,7 @@
         "name": "sum"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SwapBestPath",
@@ -16272,7 +16272,7 @@
         "name": "new_predictions"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Swish",
@@ -16289,12 +16289,12 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SwishGradient",
     "description": "\nSwishGradient takes X, Y and dY and uses this to update dX according to the\nchain rule and derivatives of the swish function.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Tan",
@@ -16311,11 +16311,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Tanh",
@@ -16332,11 +16332,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TanhGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TensorProtosDBInput",
@@ -16360,7 +16360,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TensorVectorSize",
@@ -16377,7 +16377,7 @@
         "name": "size"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TextFileReaderRead",
@@ -16395,7 +16395,7 @@
         "name": "handler"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ThresholdedRelu",
@@ -16419,20 +16419,20 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ThresholdedReluGradient",
     "description": "\nThresholdedReluGradient takes both Y and dY and uses this to update dX\naccording to the chain rule and derivatives of the rectified linear function.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ThrowChildThreadException",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ThrowException",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Tile",
@@ -16469,11 +16469,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TileGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TimerBegin",
@@ -16491,7 +16491,7 @@
         "name": "timer"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TimerEnd",
@@ -16502,7 +16502,7 @@
         "name": "timer"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TimerGet",
@@ -16519,7 +16519,7 @@
         "name": "nanos"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TimerGetAndEnd",
@@ -16536,7 +16536,7 @@
         "name": "nanos"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TopK",
@@ -16565,11 +16565,11 @@
         "name": "Flattened_indices"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TopKGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Transpose",
@@ -16594,7 +16594,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TrimDataset",
@@ -16606,7 +16606,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TT",
@@ -16648,11 +16648,11 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TTLinearGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TTSparseLengthsSum",
@@ -16719,11 +16719,11 @@
         "name": "indices"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "TTSparseLengthsSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UniformFill",
@@ -16770,7 +16770,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UniformIntFill",
@@ -16817,7 +16817,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Unique",
@@ -16838,7 +16838,7 @@
         "name": "remapping"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UniqueUniformFill",
@@ -16891,7 +16891,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UnPackRecords",
@@ -16909,7 +16909,7 @@
         "name": "packed_tensor"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UnpackRNNSequence",
@@ -16930,7 +16930,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UnpackSegments",
@@ -16958,12 +16958,12 @@
         "name": "packed_tensor"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UnsafeCoalesce",
     "description": "\nCoalesce the N inputs into N outputs and a single coalesced output blob.\nThis allows operations that operate over multiple small kernels (e.g.\nbiases in a deep CNN) to be coalesced into a single larger operation,\namortizing the kernel launch overhead, synchronization costs for\ndistributed computation, etc.\nThe operator:\n- computes the total size of the coalesced blob by summing the input sizes\n- allocates the coalesced output blob as the total size\n- copies the input vectors into the coalesced blob, at the correct offset.\n- aliases each Output(i) to- point into the coalesced blob, at the corresponding offset for Input(i).\nThis is 'unsafe' as the output vectors are aliased, so use with\ncaution.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UnsortedSegmentMean",
@@ -16991,11 +16991,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UnsortedSegmentMeanGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UnsortedSegmentSum",
@@ -17023,11 +17023,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UnsortedSegmentSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UnsortedSegmentWeightedSum",
@@ -17064,11 +17064,11 @@
         "name": "OUTPUT"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UnsortedSegmentWeightedSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UpsampleBilinear",
@@ -17101,7 +17101,7 @@
         "name": "Y"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "UpsampleBilinearGradient",
@@ -17117,12 +17117,12 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "VariableLengthSequencePadding",
     "description": "\nSuper special-case operator. Used to pad a tensor to mimic pytorch's\npad_packed_sequence.\n\nGiven an input tensor INPUT of size NxBxM and an input tensor LENS\nof size B, where\n\nN = maximum sequence length\nB = batch size\nM = hidden size\n\nset each element of INPUT to zero if it is is past the end of the\ncorresponding sequence (i.e. if LENS[j] > i for an index (i,j,k)).\n\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ViterbiPath",
@@ -17143,7 +17143,7 @@
         "name": "viterbi_path"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "WallClockTime",
@@ -17154,7 +17154,7 @@
         "name": "time"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "WeightedMultiSampling",
@@ -17182,7 +17182,7 @@
         "name": "sampled_indexes"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "WeightedSample",
@@ -17207,7 +17207,7 @@
         "name": "sampled_values"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "WeightedSampleDequeueBlobs",
@@ -17224,7 +17224,7 @@
         "option": "optional"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "WeightedSigmoidCrossEntropyWithLogits",
@@ -17249,11 +17249,11 @@
         "name": "xentropy"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "WeightedSigmoidCrossEntropyWithLogitsGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "WeightedSum",
@@ -17270,11 +17270,11 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "WeightedSumGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "WeightScale",
@@ -17312,7 +17312,7 @@
         "name": "nw"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Where",
@@ -17337,7 +17337,7 @@
         "name": "Z"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "While",
@@ -17360,7 +17360,7 @@
         "name": "condition"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Wngrad",
@@ -17408,7 +17408,7 @@
         "name": "output_update"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "XavierFill",
@@ -17446,7 +17446,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Xor",
@@ -17483,7 +17483,7 @@
         "name": "C"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "YellowFin",
@@ -17591,12 +17591,12 @@
         "name": "output_scalars_memory"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ZeroGradient",
     "description": "\nZeroGradient operators doesn't produce any output blobs. One can use\nthis operator to produce 0 gradient for the input blob.\n",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DecayAdagrad",
@@ -17668,7 +17668,7 @@
         "description": "Updated second moment"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Log1p",
@@ -17685,11 +17685,11 @@
         "description": "Output data blob with same shape as input"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Log1pGradient",
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SparseItemwiseDropoutWithReplacement",
@@ -17730,7 +17730,7 @@
         "description": "*(type: Tensor`<int32_t>`)* Output tensor."
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "EstimateAllBlobSizes",
@@ -17757,7 +17757,7 @@
         "description": "1D tensor of int64_t containing blob sizes."
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "SmartDecaySparseAdam",
@@ -17831,6 +17831,6 @@
         "description": "Updated minibatch index when each weight was last seen"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   }
 ]

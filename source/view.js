@@ -4261,8 +4261,8 @@ view.Documentation = class {
             if (source.package !== undefined) {
                 target.package = source.package;
             }
-            if (source.support_level !== undefined) {
-                target.support_level = source.support_level;
+            if (source.status !== undefined) {
+                target.status = source.status;
             }
             if (source.min_input !== undefined) {
                 target.min_input = source.min_input;

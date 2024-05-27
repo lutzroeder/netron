@@ -15,7 +15,7 @@
         "type": "float32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Add",
@@ -53,7 +53,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BatchNormalization",
@@ -68,7 +68,7 @@
         "type": "float32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "BinaryConvolution",
@@ -109,7 +109,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Concat",
@@ -129,7 +129,7 @@
         "type": "Tensor[]"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Concatenation",
@@ -306,7 +306,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Crop",
@@ -328,7 +328,7 @@
         "type": "int32[]"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "CTCGreadyDecoder",
@@ -343,7 +343,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Deconvolution",
@@ -442,7 +442,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "DetectionOutput",
@@ -522,7 +522,7 @@
         "type": "float32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Eltwise",
@@ -547,7 +547,7 @@
         "name": "output"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Flatten",
@@ -598,7 +598,7 @@
         "name": "bias"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Gather",
@@ -622,7 +622,7 @@
         "type": "float32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "GroupConvolution",
@@ -709,7 +709,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Minimum",
@@ -756,7 +756,7 @@
         "type": "float32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Norm",
@@ -792,7 +792,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Normalize",
@@ -819,7 +819,7 @@
         "type": "float32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "NormalizeL2",
@@ -862,7 +862,7 @@
         "type": "int32[]"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Pooling",
@@ -989,13 +989,12 @@
         "required": true
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Power",
     "description": "*Power* layer computes the output as (shift + scale * x) ^ power for each input element x.\n**Parameters**: Power layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n\\f[\np = (shift + scale * x)^{power}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Power\" ... >\n    <data power=\"2\" scale=\"0.1\" shift=\"5\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
-    "attributes": [],
-    "support_level": "default",
+    "status": "default",
     "inputs": [
       { "name": "A" },
       { "name": "B" }
@@ -1044,7 +1043,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default",
+    "status": "default",
     "inputs": [
       { "name": "data" },
       { "name": "slope" }
@@ -1112,7 +1111,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PriorBoxClustered",
@@ -1184,7 +1183,7 @@
         "type": "float32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Proposal",
@@ -1241,7 +1240,7 @@
         "type": "float32[]"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "PriorBox",
@@ -1277,7 +1276,7 @@
         "type": "float32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Range",
@@ -1356,7 +1355,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReLU",
@@ -1371,7 +1370,7 @@
         "type": "float64"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReorgYolo",
@@ -1386,7 +1385,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Resample",
@@ -1406,7 +1405,7 @@
         "required": true
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ReduceMax",
@@ -1457,7 +1456,7 @@
       { "name": "data" },
       { "name": "shape" }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ROIPooling",
@@ -1486,14 +1485,13 @@
         "type": "float32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "ScaleShift",
     "category": "Layer",
     "description": "*ScaleShift* layer performs linear transformation of the input blobs. Weights denote scaling parameter, biases - a shift.\n**Parameters**: *ScaleShift* layer does not have additional parameters.\n**Mathematical Formulation**\n\\f[\no_{i} =\\gamma b_{i} + \\beta\n\\f]\n**Example**\n\n```\n<layer ... type=\"ScaleShift\" ... >\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
-    "attributes": [],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Sigmoid",
@@ -1547,7 +1545,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Subtract",
@@ -1571,7 +1569,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Split",
@@ -1583,7 +1581,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Squeeze",
@@ -1635,7 +1633,7 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "status": "default"
   },
   {
     "name": "Transpose",

@@ -431,31 +431,26 @@
   },
   {
     "name": "megengine.functional.loss.l1_loss",
-    "attributes": [],
     "category": "Layer",
     "varargs": "args"
   },
   {
     "name": "megengine.functional.loss.square_loss",
-    "attributes": [],
     "category": "Layer",
     "varargs": "args"
   },
   {
     "name": "megengine.functional.loss.cross_entropy",
-    "attributes": [],
     "category": "Layer",
     "varargs": "args"
   },
   {
     "name": "megengine.functional.loss.binary_cross_entropy",
-    "attributes": [],
     "category": "Layer",
     "varargs": "args"
   },
   {
     "name": "megengine.functional.loss.hinge_loss",
-    "attributes": [],
     "category": "Layer",
     "varargs": "args"
   },
@@ -637,7 +632,6 @@
   },
   {
     "name": "megengine.functional.math.topk",
-    "attributes": [],
     "category": "Layer",
     "varargs": "args"
   },
@@ -1097,7 +1091,6 @@
   },
   {
     "name": "megengine.functional.debug_param.get_execution_strategy",
-    "attributes": [],
     "category": "Layer"
   },
   {

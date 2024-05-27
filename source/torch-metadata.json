@@ -227,13 +227,11 @@
   },
   {
     "name": "nn.Normalize",
-    "category": "Normalization",
-    "attributes": []
+    "category": "Normalization"
   },
   {
     "name": "nn.Normalize2",
-    "category": "Normalization",
-    "attributes": []
+    "category": "Normalization"
   },
   {
     "name": "nn.PReLU",
@@ -339,8 +337,7 @@
   },
   {
     "name": "nn.SpatialCrossMapLRN",
-    "category": "Normalization",
-    "attributes": []
+    "category": "Normalization"
   },
   {
     "name": "nn.SpatialDilatedConvolution",
@@ -399,13 +396,11 @@
   },
   {
     "name": "nn.SpatialReflectionPadding",
-    "category": "Tensor",
-    "attributes": []
+    "category": "Tensor"
   },
   {
     "name": "nn.SpatialReplicationPadding",
-    "category": "Tensor",
-    "attributes": []
+    "category": "Tensor"
   },
   {
     "name": "nn.SpatialSubtractiveNormalization",
@@ -413,8 +408,7 @@
   },
   {
     "name": "nn.SpatialZeroPadding",
-    "category": "Tensor",
-    "attributes": []
+    "category": "Tensor"
   },
   {
     "name": "nn.SplitTable"
