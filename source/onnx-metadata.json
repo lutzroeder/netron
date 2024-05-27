@@ -14709,6 +14709,12 @@
         "description": "(Optional) Some notes for the model"
       },
       {
+        "name": "onnx_model_filename",
+        "type": "string",
+        "required": false,
+        "description": "(Optional) Filename of the original ONNX model."
+      },
+      {
         "name": "partition_name",
         "type": "string",
         "required": false,
