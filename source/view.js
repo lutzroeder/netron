@@ -1644,7 +1644,6 @@ view.Worker = class {
             this._timeout = setTimeout(async () => {
                 await this._host.message(notification, null, 'Cancel');
                 this._cancel(true);
-                this._create();
                 delete this._resolve;
                 delete this._reject;
                 resolve({ type: 'cancel' });
