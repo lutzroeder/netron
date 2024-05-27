@@ -4139,6 +4139,14 @@
   },
   {
     "type":     "onnx",
+    "target":   "Phi-3-medium-128k-instruct-onnx-directml.onnx",
+    "source":   "https://huggingface.co/microsoft/Phi-3-medium-128k-instruct-onnx-directml/resolve/main/directml-int4-awq-block-128/model.onnx?download=true",
+    "format":   "ONNX v8",
+    "tags":     "skip-render",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "phi3-mini-128k-instruct-cuda-fp16.onnx",
     "source":   "https://github.com/user-attachments/files/15370204/phi3-mini-128k-instruct-cuda-fp16.onnx.zip[phi3-mini-128k-instruct-cuda-fp16.onnx]",
     "format":   "ONNX v7",
