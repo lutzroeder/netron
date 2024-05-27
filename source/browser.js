@@ -563,7 +563,7 @@ host.BrowserHost = class {
     async message(message, alert, action) {
         return new Promise((resolve) => {
             const type = this.document.body.getAttribute('class');
-            this._element('message-text').innerText = message;
+            this._element('message-text').innerText = message || '';
             const button = this._element('message-button');
             if (action) {
                 button.style.removeProperty('display');
