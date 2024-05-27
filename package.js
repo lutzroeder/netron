@@ -514,9 +514,9 @@ const lint = async () => {
 };
 
 const validate = async() => {
-    await lint();
     writeLine('test');
     await exec('node test/models.js tag:validation');
+    await lint();
 };
 
 const update = async () => {
