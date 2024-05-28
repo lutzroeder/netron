@@ -277,12 +277,17 @@
         "description": "If True, :meth:`ColumnTransformer.get_feature_names_out` will prefix\nall feature names with the name of the transformer that generated that\nfeature.\nIf False, :meth:`ColumnTransformer.get_feature_names_out` will not\nprefix any feature names and will error if feature names are not\nunique.\n\n.. versionadded:: 1.0\n",
         "type": "boolean",
         "default": true
+      },
+      {
+        "name": "force_int_remainder_cols",
+        "default": true,
+        "description": "Force the columns of the last entry of `transformers_`, which\ncorresponds to the \"remainder\" transformer, to always be stored as\nindices (int) rather than column names (str). See description of the\n`transformers_` attribute for details.\n\n.. note::\nIf you do not access the list of columns for the remainder columns\nin the `transformers_` fitted attribute, you do not need to set\nthis parameter.\n\n.. versionadded:: 1.5\n\n.. versionchanged:: 1.7\nThe default value for `force_int_remainder_cols` will change from\n`True` to `False` in version 1.7.\n"
       }
     ]
   },
   {
     "name": "sklearn.decomposition._pca.PCA",
-    "description": "Principal component analysis (PCA).\n\nLinear dimensionality reduction using Singular Value Decomposition of the\ndata to project it to a lower dimensional space. The input data is centered\nbut not scaled for each feature before applying the SVD.\n\nIt uses the LAPACK implementation of the full SVD or a randomized truncated\nSVD by the method of Halko et al. 2009, depending on the shape of the input\ndata and the number of components to extract.\n\nIt can also use the scipy.sparse.linalg ARPACK implementation of the\ntruncated SVD.\n\nNotice that this class does not support sparse input. See\n:class:`TruncatedSVD` for an alternative with sparse data.\n\nFor a usage example, see\n:ref:`sphx_glr_auto_examples_decomposition_plot_pca_iris.py`\n\nRead more in the :ref:`User Guide <PCA>`.\n",
+    "description": "Principal component analysis (PCA).\n\nLinear dimensionality reduction using Singular Value Decomposition of the\ndata to project it to a lower dimensional space. The input data is centered\nbut not scaled for each feature before applying the SVD.\n\nIt uses the LAPACK implementation of the full SVD or a randomized truncated\nSVD by the method of Halko et al. 2009, depending on the shape of the input\ndata and the number of components to extract.\n\nWith sparse inputs, the ARPACK implementation of the truncated SVD can be\nused (i.e. through :func:`scipy.sparse.linalg.svds`). Alternatively, one\nmay consider :class:`TruncatedSVD` where the data are not centered.\n\nNotice that this class only supports sparse inputs for some solvers such as\n\"arpack\" and \"covariance_eigh\". See :class:`TruncatedSVD` for an\nalternative with sparse data.\n\nFor a usage example, see\n:ref:`sphx_glr_auto_examples_decomposition_plot_pca_iris.py`\n\nRead more in the :ref:`User Guide <PCA>`.\n",
     "attributes": [
       {
         "default": null,
@@ -305,7 +310,7 @@
       },
       {
         "default": "auto",
-        "description": "If auto :\nThe solver is selected by a default policy based on `X.shape` and\n`n_components`: if the input data is larger than 500x500 and the\nnumber of components to extract is lower than 80% of the smallest\ndimension of the data, then the more efficient 'randomized'\nmethod is enabled. Otherwise the exact full SVD is computed and\noptionally truncated afterwards.\nIf full :\nrun exact full SVD calling the standard LAPACK solver via\n`scipy.linalg.svd` and select the components by postprocessing\nIf arpack :\nrun SVD truncated to n_components calling ARPACK solver via\n`scipy.sparse.linalg.svds`. It requires strictly\n0 < n_components < min(X.shape)\nIf randomized :\nrun randomized SVD by the method of Halko et al.\n\n.. versionadded:: 0.18.0\n",
+        "description": "\"auto\" :\nThe solver is selected by a default 'auto' policy is based on `X.shape` and\n`n_components`: if the input data has fewer than 1000 features and\nmore than 10 times as many samples, then the \"covariance_eigh\"\nsolver is used. Otherwise, if the input data is larger than 500x500\nand the number of components to extract is lower than 80% of the\nsmallest dimension of the data, then the more efficient\n\"randomized\" method is selected. Otherwise the exact \"full\" SVD is\ncomputed and optionally truncated afterwards.\n\"full\" :\nRun exact full SVD calling the standard LAPACK solver via\n`scipy.linalg.svd` and select the components by postprocessing\n\"covariance_eigh\" :\nPrecompute the covariance matrix (on centered data), run a\nclassical eigenvalue decomposition on the covariance matrix\ntypically using LAPACK and select the components by postprocessing.\nThis solver is very efficient for n_samples >> n_features and small\nn_features. It is, however, not tractable otherwise for large\nn_features (large memory footprint required to materialize the\ncovariance matrix). Also note that compared to the \"full\" solver,\nthis solver effectively doubles the condition number and is\ntherefore less numerical stable (e.g. on input data with a large\nrange of singular values).\n\"arpack\" :\nRun SVD truncated to `n_components` calling ARPACK solver via\n`scipy.sparse.linalg.svds`. It requires strictly\n`0 < n_components < min(X.shape)`\n\"randomized\" :\nRun randomized SVD by the method of Halko et al.\n\n.. versionadded:: 0.18.0\n\n.. versionchanged:: 1.5\nAdded the 'covariance_eigh' solver.\n",
         "name": "svd_solver"
       },
       {
@@ -390,7 +395,7 @@
   },
   {
     "name": "sklearn.decomposition.PCA",
-    "description": "Principal component analysis (PCA).\n\nLinear dimensionality reduction using Singular Value Decomposition of the\ndata to project it to a lower dimensional space. The input data is centered\nbut not scaled for each feature before applying the SVD.\n\nIt uses the LAPACK implementation of the full SVD or a randomized truncated\nSVD by the method of Halko et al. 2009, depending on the shape of the input\ndata and the number of components to extract.\n\nIt can also use the scipy.sparse.linalg ARPACK implementation of the\ntruncated SVD.\n\nNotice that this class does not support sparse input. See\n:class:`TruncatedSVD` for an alternative with sparse data.\n\nFor a usage example, see\n:ref:`sphx_glr_auto_examples_decomposition_plot_pca_iris.py`\n\nRead more in the :ref:`User Guide <PCA>`.\n",
+    "description": "Principal component analysis (PCA).\n\nLinear dimensionality reduction using Singular Value Decomposition of the\ndata to project it to a lower dimensional space. The input data is centered\nbut not scaled for each feature before applying the SVD.\n\nIt uses the LAPACK implementation of the full SVD or a randomized truncated\nSVD by the method of Halko et al. 2009, depending on the shape of the input\ndata and the number of components to extract.\n\nWith sparse inputs, the ARPACK implementation of the truncated SVD can be\nused (i.e. through :func:`scipy.sparse.linalg.svds`). Alternatively, one\nmay consider :class:`TruncatedSVD` where the data are not centered.\n\nNotice that this class only supports sparse inputs for some solvers such as\n\"arpack\" and \"covariance_eigh\". See :class:`TruncatedSVD` for an\nalternative with sparse data.\n\nFor a usage example, see\n:ref:`sphx_glr_auto_examples_decomposition_plot_pca_iris.py`\n\nRead more in the :ref:`User Guide <PCA>`.\n",
     "attributes": [
       {
         "default": null,
@@ -413,7 +418,7 @@
       },
       {
         "default": "auto",
-        "description": "If auto :\nThe solver is selected by a default policy based on `X.shape` and\n`n_components`: if the input data is larger than 500x500 and the\nnumber of components to extract is lower than 80% of the smallest\ndimension of the data, then the more efficient 'randomized'\nmethod is enabled. Otherwise the exact full SVD is computed and\noptionally truncated afterwards.\nIf full :\nrun exact full SVD calling the standard LAPACK solver via\n`scipy.linalg.svd` and select the components by postprocessing\nIf arpack :\nrun SVD truncated to n_components calling ARPACK solver via\n`scipy.sparse.linalg.svds`. It requires strictly\n0 < n_components < min(X.shape)\nIf randomized :\nrun randomized SVD by the method of Halko et al.\n\n.. versionadded:: 0.18.0\n",
+        "description": "\"auto\" :\nThe solver is selected by a default 'auto' policy is based on `X.shape` and\n`n_components`: if the input data has fewer than 1000 features and\nmore than 10 times as many samples, then the \"covariance_eigh\"\nsolver is used. Otherwise, if the input data is larger than 500x500\nand the number of components to extract is lower than 80% of the\nsmallest dimension of the data, then the more efficient\n\"randomized\" method is selected. Otherwise the exact \"full\" SVD is\ncomputed and optionally truncated afterwards.\n\"full\" :\nRun exact full SVD calling the standard LAPACK solver via\n`scipy.linalg.svd` and select the components by postprocessing\n\"covariance_eigh\" :\nPrecompute the covariance matrix (on centered data), run a\nclassical eigenvalue decomposition on the covariance matrix\ntypically using LAPACK and select the components by postprocessing.\nThis solver is very efficient for n_samples >> n_features and small\nn_features. It is, however, not tractable otherwise for large\nn_features (large memory footprint required to materialize the\ncovariance matrix). Also note that compared to the \"full\" solver,\nthis solver effectively doubles the condition number and is\ntherefore less numerical stable (e.g. on input data with a large\nrange of singular values).\n\"arpack\" :\nRun SVD truncated to `n_components` calling ARPACK solver via\n`scipy.sparse.linalg.svds`. It requires strictly\n`0 < n_components < min(X.shape)`\n\"randomized\" :\nRun randomized SVD by the method of Halko et al.\n\n.. versionadded:: 0.18.0\n\n.. versionchanged:: 1.5\nAdded the 'covariance_eigh' solver.\n",
         "name": "svd_solver",
         "type": "string"
       },
@@ -451,7 +456,7 @@
   },
   {
     "name": "sklearn.discriminant_analysis.LinearDiscriminantAnalysis",
-    "description": "Linear Discriminant Analysis.\n\nA classifier with a linear decision boundary, generated by fitting class\nconditional densities to the data and using Bayes' rule.\n\nThe model fits a Gaussian density to each class, assuming that all classes\nshare the same covariance matrix.\n\nThe fitted model can also be used to reduce the dimensionality of the input\nby projecting it to the most discriminative directions, using the\n`transform` method.\n\n.. versionadded:: 0.17\n*LinearDiscriminantAnalysis*.\n\nRead more in the :ref:`User Guide <lda_qda>`.\n",
+    "description": "Linear Discriminant Analysis.\n\nA classifier with a linear decision boundary, generated by fitting class\nconditional densities to the data and using Bayes' rule.\n\nThe model fits a Gaussian density to each class, assuming that all classes\nshare the same covariance matrix.\n\nThe fitted model can also be used to reduce the dimensionality of the input\nby projecting it to the most discriminative directions, using the\n`transform` method.\n\n.. versionadded:: 0.17\n\nFor a comparison between\n:class:`~sklearn.discriminant_analysis.LinearDiscriminantAnalysis`\nand :class:`~sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis`, see\n:ref:`sphx_glr_auto_examples_classification_plot_lda_qda.py`.\n\nRead more in the :ref:`User Guide <lda_qda>`.\n",
     "attributes": [
       {
         "default": "svd",
@@ -459,7 +464,7 @@
         "name": "solver"
       },
       {
-        "description": "Shrinkage parameter, possible values:\n- None: no shrinkage (default).\n- 'auto': automatic shrinkage using the Ledoit-Wolf lemma.\n- float between 0 and 1: fixed shrinkage parameter.\n\nThis should be left to None if `covariance_estimator` is used.\nNote that shrinkage works only with 'lsqr' and 'eigen' solvers.\n",
+        "description": "Shrinkage parameter, possible values:\n- None: no shrinkage (default).\n- 'auto': automatic shrinkage using the Ledoit-Wolf lemma.\n- float between 0 and 1: fixed shrinkage parameter.\n\nThis should be left to None if `covariance_estimator` is used.\nNote that shrinkage works only with 'lsqr' and 'eigen' solvers.\n\nFor a usage example, see\n:ref:`sphx_glr_auto_examples_classification_plot_lda.py`.\n",
         "name": "shrinkage",
         "default": null
       },
@@ -470,7 +475,7 @@
       },
       {
         "default": null,
-        "description": "Number of components (<= min(n_classes - 1, n_features)) for\ndimensionality reduction. If None, will be set to\nmin(n_classes - 1, n_features). This parameter only affects the\n`transform` method.\n",
+        "description": "Number of components (<= min(n_classes - 1, n_features)) for\ndimensionality reduction. If None, will be set to\nmin(n_classes - 1, n_features). This parameter only affects the\n`transform` method.\n\nFor a usage example, see\n:ref:`sphx_glr_auto_examples_decomposition_plot_pca_vs_lda.py`.\n",
         "name": "n_components",
         "type": "int32"
       },
@@ -854,7 +859,7 @@
   },
   {
     "name": "sklearn.feature_extraction.text.TfidfVectorizer",
-    "description": "Convert a collection of raw documents to a matrix of TF-IDF features.\n\nEquivalent to :class:`CountVectorizer` followed by\n:class:`TfidfTransformer`.\n\nFor an example of usage, see\n:ref:`sphx_glr_auto_examples_text_plot_document_classification_20newsgroups.py`.\n\nFor an efficiency comparison of the different feature extractors, see\n:ref:`sphx_glr_auto_examples_text_plot_hashing_vs_dict_vectorizer.py`.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
+    "description": "Convert a collection of raw documents to a matrix of TF-IDF features.\n\nEquivalent to :class:`CountVectorizer` followed by\n:class:`TfidfTransformer`.\n\nFor an example of usage, see\n:ref:`sphx_glr_auto_examples_text_plot_document_classification_20newsgroups.py`.\n\nFor an efficiency comparison of the different feature extractors, see\n:ref:`sphx_glr_auto_examples_text_plot_hashing_vs_dict_vectorizer.py`.\n\nFor an example of document clustering and comparison with\n:class:`~sklearn.feature_extraction.text.HashingVectorizer`, see\n:ref:`sphx_glr_auto_examples_text_plot_document_clustering.py`.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
     "attributes": [
       {
         "default": "content",
@@ -1002,7 +1007,7 @@
       },
       {
         "default": "mean",
-        "description": "The imputation strategy.\n\n- If \"mean\", then replace missing values using the mean along\neach column. Can only be used with numeric data.\n- If \"median\", then replace missing values using the median along\neach column. Can only be used with numeric data.\n- If \"most_frequent\", then replace missing using the most frequent\nvalue along each column. Can be used with strings or numeric data.\nIf there is more than one such value, only the smallest is returned.\n- If \"constant\", then replace missing values with fill_value. Can be\nused with strings or numeric data.\n\n.. versionadded:: 0.20\nstrategy=\"constant\" for fixed value imputation.\n",
+        "description": "The imputation strategy.\n\n- If \"mean\", then replace missing values using the mean along\neach column. Can only be used with numeric data.\n- If \"median\", then replace missing values using the median along\neach column. Can only be used with numeric data.\n- If \"most_frequent\", then replace missing using the most frequent\nvalue along each column. Can be used with strings or numeric data.\nIf there is more than one such value, only the smallest is returned.\n- If \"constant\", then replace missing values with fill_value. Can be\nused with strings or numeric data.\n- If an instance of Callable, then replace missing values using the\nscalar statistic returned by running the callable over a dense 1d\narray containing non-missing values of each column.\n\n.. versionadded:: 0.20\nstrategy=\"constant\" for fixed value imputation.\n\n.. versionadded:: 1.5\nstrategy=callable for custom value imputation.\n",
         "name": "strategy",
         "type": "string"
       },
@@ -1088,7 +1093,7 @@
       },
       {
         "default": "lbfgs",
-        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' is limited to one-versus-rest schemes.\n- 'newton-cholesky' is a good choice for `n_samples` >> `n_features`,\nespecially with one-hot encoded categorical features with rare\ncategories. Note that it is limited to binary classification and the\none-versus-rest reduction for multiclass classification. Be aware that\nthe memory usage of this solver has a quadratic dependency on\n`n_features` because it explicitly computes the Hessian matrix.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen.\nSupported penalties by solver:\n\n- 'lbfgs'           -   ['l2', None]\n- 'liblinear'       -   ['l1', 'l2']\n- 'newton-cg'       -   ['l2', None]\n- 'newton-cholesky' -   ['l2', None]\n- 'sag'             -   ['l2', None]\n- 'saga'            -   ['elasticnet', 'l1', 'l2', None]\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on features\nwith approximately the same scale. You can preprocess the data with\na scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n:ref:`Table <Logistic_regression>`\nsummarizing solver/penalty supports.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n.. versionadded:: 1.2\nnewton-cholesky solver.\n",
+        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' and 'newton-cholesky' can only handle binary classification\nby default. To apply a one-versus-rest scheme for the multiclass setting\none can wrapt it with the `OneVsRestClassifier`.\n- 'newton-cholesky' is a good choice for `n_samples` >> `n_features`,\nespecially with one-hot encoded categorical features with rare\ncategories. Be aware that the memory usage of this solver has a quadratic\ndependency on `n_features` because it explicitly computes the Hessian\nmatrix.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen and on\n(multinomial) multiclass support:\n\n================= ============================== ======================\nsolver            penalty                        multinomial multiclass\n================= ============================== ======================\n'lbfgs'           'l2', None                     yes\n'liblinear'       'l1', 'l2'                     no\n'newton-cg'       'l2', None                     yes\n'newton-cholesky' 'l2', None                     no\n'sag'             'l2', None                     yes\n'saga'            'elasticnet', 'l1', 'l2', None yes\n================= ============================== ======================\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on features\nwith approximately the same scale. You can preprocess the data with\na scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n:ref:`Table <Logistic_regression>`\nsummarizing solver/penalty supports.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n.. versionadded:: 1.2\nnewton-cholesky solver.\n",
         "name": "solver"
       },
       {
@@ -1099,7 +1104,7 @@
       },
       {
         "default": "auto",
-        "description": "If the option chosen is 'ovr', then a binary problem is fit for each\nlabel. For 'multinomial' the loss minimised is the multinomial loss fit\nacross the entire probability distribution, *even when the data is\nbinary*. 'multinomial' is unavailable when solver='liblinear'.\n'auto' selects 'ovr' if the data is binary, or if solver='liblinear',\nand otherwise selects 'multinomial'.\n\n.. versionadded:: 0.18\nStochastic Average Gradient descent solver for 'multinomial' case.\n.. versionchanged:: 0.22\nDefault changed from 'ovr' to 'auto' in 0.22.\n",
+        "description": "If the option chosen is 'ovr', then a binary problem is fit for each\nlabel. For 'multinomial' the loss minimised is the multinomial loss fit\nacross the entire probability distribution, *even when the data is\nbinary*. 'multinomial' is unavailable when solver='liblinear'.\n'auto' selects 'ovr' if the data is binary, or if solver='liblinear',\nand otherwise selects 'multinomial'.\n\n.. versionadded:: 0.18\nStochastic Average Gradient descent solver for 'multinomial' case.\n.. versionchanged:: 0.22\nDefault changed from 'ovr' to 'auto' in 0.22.\n.. deprecated:: 1.5\n``multi_class`` was deprecated in version 1.5 and will be removed in 1.7.\nFrom then on, the recommended 'multinomial' will always be used for\n`n_classes >= 3`.\nSolvers that do not support 'multinomial' will raise an error.\nUse `sklearn.multiclass.OneVsRestClassifier(LogisticRegression())` if you\nstill want to use OvR.\n",
         "name": "multi_class"
       },
       {
@@ -1310,7 +1315,7 @@
       },
       {
         "default": "lbfgs",
-        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' is limited to one-versus-rest schemes.\n- 'newton-cholesky' is a good choice for `n_samples` >> `n_features`,\nespecially with one-hot encoded categorical features with rare\ncategories. Note that it is limited to binary classification and the\none-versus-rest reduction for multiclass classification. Be aware that\nthe memory usage of this solver has a quadratic dependency on\n`n_features` because it explicitly computes the Hessian matrix.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen.\nSupported penalties by solver:\n\n- 'lbfgs'           -   ['l2', None]\n- 'liblinear'       -   ['l1', 'l2']\n- 'newton-cg'       -   ['l2', None]\n- 'newton-cholesky' -   ['l2', None]\n- 'sag'             -   ['l2', None]\n- 'saga'            -   ['elasticnet', 'l1', 'l2', None]\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on features\nwith approximately the same scale. You can preprocess the data with\na scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n:ref:`Table <Logistic_regression>`\nsummarizing solver/penalty supports.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n.. versionadded:: 1.2\nnewton-cholesky solver.\n",
+        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' and 'newton-cholesky' can only handle binary classification\nby default. To apply a one-versus-rest scheme for the multiclass setting\none can wrapt it with the `OneVsRestClassifier`.\n- 'newton-cholesky' is a good choice for `n_samples` >> `n_features`,\nespecially with one-hot encoded categorical features with rare\ncategories. Be aware that the memory usage of this solver has a quadratic\ndependency on `n_features` because it explicitly computes the Hessian\nmatrix.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen and on\n(multinomial) multiclass support:\n\n================= ============================== ======================\nsolver            penalty                        multinomial multiclass\n================= ============================== ======================\n'lbfgs'           'l2', None                     yes\n'liblinear'       'l1', 'l2'                     no\n'newton-cg'       'l2', None                     yes\n'newton-cholesky' 'l2', None                     no\n'sag'             'l2', None                     yes\n'saga'            'elasticnet', 'l1', 'l2', None yes\n================= ============================== ======================\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on features\nwith approximately the same scale. You can preprocess the data with\na scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n:ref:`Table <Logistic_regression>`\nsummarizing solver/penalty supports.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n.. versionadded:: 1.2\nnewton-cholesky solver.\n",
         "name": "solver",
         "optional": true
       },
@@ -1323,7 +1328,7 @@
       },
       {
         "default": "auto",
-        "description": "If the option chosen is 'ovr', then a binary problem is fit for each\nlabel. For 'multinomial' the loss minimised is the multinomial loss fit\nacross the entire probability distribution, *even when the data is\nbinary*. 'multinomial' is unavailable when solver='liblinear'.\n'auto' selects 'ovr' if the data is binary, or if solver='liblinear',\nand otherwise selects 'multinomial'.\n\n.. versionadded:: 0.18\nStochastic Average Gradient descent solver for 'multinomial' case.\n.. versionchanged:: 0.22\nDefault changed from 'ovr' to 'auto' in 0.22.\n",
+        "description": "If the option chosen is 'ovr', then a binary problem is fit for each\nlabel. For 'multinomial' the loss minimised is the multinomial loss fit\nacross the entire probability distribution, *even when the data is\nbinary*. 'multinomial' is unavailable when solver='liblinear'.\n'auto' selects 'ovr' if the data is binary, or if solver='liblinear',\nand otherwise selects 'multinomial'.\n\n.. versionadded:: 0.18\nStochastic Average Gradient descent solver for 'multinomial' case.\n.. versionchanged:: 0.22\nDefault changed from 'ovr' to 'auto' in 0.22.\n.. deprecated:: 1.5\n``multi_class`` was deprecated in version 1.5 and will be removed in 1.7.\nFrom then on, the recommended 'multinomial' will always be used for\n`n_classes >= 3`.\nSolvers that do not support 'multinomial' will raise an error.\nUse `sklearn.multiclass.OneVsRestClassifier(LogisticRegression())` if you\nstill want to use OvR.\n",
         "name": "multi_class",
         "optional": true
       },
@@ -1805,6 +1810,11 @@
         "description": "If True, the time elapsed while fitting each transformer will be\nprinted as it is completed.\n",
         "name": "verbose",
         "type": "boolean"
+      },
+      {
+        "name": "verbose_feature_names_out",
+        "default": true,
+        "description": "If True, :meth:`get_feature_names_out` will prefix all feature names\nwith the name of the transformer that generated that feature.\nIf False, :meth:`get_feature_names_out` will not prefix any feature\nnames and will error if feature names are not unique.\n\n.. versionadded:: 1.5\n"
       }
     ]
   },
@@ -2024,7 +2034,7 @@
     "attributes": [
       {
         "default": 1.0,
-        "description": "Regularization parameter. The strength of the regularization is\ninversely proportional to C. Must be strictly positive. The penalty\nis a squared l2 penalty.\n",
+        "description": "Regularization parameter. The strength of the regularization is\ninversely proportional to C. Must be strictly positive. The penalty\nis a squared l2 penalty. For an intuitive visualization of the effects\nof scaling the regularization parameter C, see\n:ref:`sphx_glr_auto_examples_svm_plot_svm_scale_c.py`.\n",
         "name": "C",
         "optional": true,
         "type": "float32"
@@ -2131,7 +2141,7 @@
     "attributes": [
       {
         "default": 1.0,
-        "description": "Regularization parameter. The strength of the regularization is\ninversely proportional to C. Must be strictly positive. The penalty\nis a squared l2 penalty.\n",
+        "description": "Regularization parameter. The strength of the regularization is\ninversely proportional to C. Must be strictly positive. The penalty\nis a squared l2 penalty. For an intuitive visualization of the effects\nof scaling the regularization parameter C, see\n:ref:`sphx_glr_auto_examples_svm_plot_svm_scale_c.py`.\n",
         "name": "C",
         "optional": true,
         "type": "float32"
