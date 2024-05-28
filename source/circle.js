@@ -350,7 +350,7 @@ circle.Node = class {
                         this.chain = [node];
                     }
                     const schema = metadata.attribute(type.name, name);
-                    this.attributes.push([schema, name, value]);
+                    attributes.push([schema, name, value]);
                 }
             }
             this.attributes = attributes.map(([metadata, name, value]) => {
