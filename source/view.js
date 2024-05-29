@@ -5703,14 +5703,23 @@ view.ModelFactoryService = class {
                     { name: 'W&B metadata', tags: ['program', 'host', 'executable'] },
                     { name: 'TypeScript configuration data', tags: ['compilerOptions'] },
                     { name: 'CatBoost model', tags: ['features_info', 'model_info'] },
-                    { name: 'TPU-MLIR tensor location data', tags: ['file-line', 'subnet_id', 'core_id'] } // https://github.com/sophgo/tpu-mlir/blob/master/lib/Dialect/Tpu/Transforms/Codegen/TensorLocation.cpp
+                    { name: 'TPU-MLIR tensor location data', tags: ['file-line', 'subnet_id', 'core_id'] }, // https://github.com/sophgo/tpu-mlir/blob/master/lib/Dialect/Tpu/Transforms/Codegen/TensorLocation.cpp
+                    { name: 'HTTP Archive data', tags: ['log.version', 'log.creator', 'log.entries'] } // https://w3c.github.io/web-performance/specs/HAR/Overview.html
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
                         tag = tag.substring(3);
                         return (Array.isArray(obj) && obj.some((item) => Object.prototype.hasOwnProperty.call(item, tag)));
                     }
-                    return Object.prototype.hasOwnProperty.call(obj, tag);
+                    tag = tag.split('.');
+                    while (tag.length > 1) {
+                        const key = tag.shift();
+                        obj = obj[key];
+                        if (!obj) {
+                            return false;
+                        }
+                    }
+                    return Object.prototype.hasOwnProperty.call(obj, tag[0]);
                 };
                 for (const format of formats) {
                     if (format.tags.every((tag) => match(obj, tag))) {

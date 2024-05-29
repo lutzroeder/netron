@@ -13,7 +13,6 @@
         { "ext": "dnn",         "name": "CNTK Model"               },
         { "ext": "gguf",        "name": "GGUF Model"               },
         { "ext": "h5",          "name": "Keras Model"              },
-        { "ext": "har",         "name": "Hailo Model"              },
         { "ext": "hd5",         "name": "Keras Model"              },
         { "ext": "hdf5",        "name": "Keras Model"              },
         { "ext": "hn",          "name": "Hailo Model"              },
