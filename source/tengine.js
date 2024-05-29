@@ -163,7 +163,7 @@ tengine.TensorType = class {
             case 3: this.dataType = 'uint8'; break;
             case 4: this.dataType = 'int32'; break;
             case 5: this.dataType = 'int16'; break;
-            default: throw new tengine.Error(`Unsupported data type'${dataType}'.`);
+            default: throw new tengine.Error(`Unsupported data type '${dataType}'.`);
         }
         this.shape = shape;
     }
