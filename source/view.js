@@ -5704,7 +5704,12 @@ view.ModelFactoryService = class {
                     { name: 'TypeScript configuration data', tags: ['compilerOptions'] },
                     { name: 'CatBoost model', tags: ['features_info', 'model_info'] },
                     { name: 'TPU-MLIR tensor location data', tags: ['file-line', 'subnet_id', 'core_id'] }, // https://github.com/sophgo/tpu-mlir/blob/master/lib/Dialect/Tpu/Transforms/Codegen/TensorLocation.cpp
-                    { name: 'HTTP Archive data', tags: ['log.version', 'log.creator', 'log.entries'] } // https://w3c.github.io/web-performance/specs/HAR/Overview.html
+                    { name: 'HTTP Archive data', tags: ['log.version', 'log.creator', 'log.entries'] }, // https://w3c.github.io/web-performance/specs/HAR/Overview.html
+                    { name: 'Trace Event data', tags: ['traceEvents'] },
+                    { name: 'Trace Event data', tags: ['[].pid', '[].ph'] },
+                    { name: 'Diffusers configuration', tags: ['_class_name', '_diffusers_version'] },
+                    { name: 'Transformers configuration', tags: ['architectures', 'model_type'] }, // https://huggingface.co/docs/transformers/en/create_a_model
+                    { name: 'Transformers configuration', tags: ['transformers_version'] }
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
