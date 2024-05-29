@@ -9,18 +9,41 @@ mnn.ModelFactory = class {
             context.type = 'mnn.flatbuffers';
             context.target = reader;
         }
+        const obj = context.peek('json');
+        if (obj && obj.sourceType && Array.isArray(obj.oplists) && Array.isArray(obj.tensorName)) {
+            context.type = 'mnn.flatbuffers.json';
+            context.target = obj;
+        }
     }
 
     async open(context) {
         mnn.schema = await context.require('./mnn-schema');
         mnn.schema = mnn.schema.MNN;
         let net = null;
-        try {
-            const reader = context.target;
-            net = mnn.schema.Net.create(reader);
-        } catch (error) {
-            const message = error && error.message ? error.message : error.toString();
-            throw new mnn.Error(`File format is not mnn.Net (${message.replace(/\.$/, '')}).`);
+        switch (context.type) {
+            case 'mnn.flatbuffers': {
+                try {
+                    const reader = context.target;
+                    net = mnn.schema.Net.create(reader);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new mnn.Error(`File format is not mnn.Net (${message.replace(/\.$/, '')}).`);
+                }
+                break;
+            }
+            case 'mnn.flatbuffers.json': {
+                try {
+                    const reader = context.read('flatbuffers.text');
+                    net = mnn.schema.Net.createText(reader);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new mnn.Error(`File format is not mnn.Net (${message.replace(/\.$/, '')}).`);
+                }
+                break;
+            }
+            default: {
+                throw new mnn.Error(`Unsupported TensorFlow Lite format '${context.type}'.`);
+            }
         }
         const metadata = await context.metadata('mnn-metadata.json');
         return new mnn.Model(metadata, net);

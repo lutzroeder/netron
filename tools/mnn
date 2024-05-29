@@ -24,7 +24,7 @@ sync() {
 schema() {
     echo "mnn schema"
     [[ $(grep -U $'\x0D' ./source/mnn-schema.js) ]] && crlf=1
-    node ./tools/flatc.js --root mnn --out ./source/mnn-schema.js ./third_party/source/mnn/schema/default/MNN.fbs
+    node ./tools/flatc.js --text --root mnn --out ./source/mnn-schema.js ./third_party/source/mnn/schema/default/MNN.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/mnn-schema.js ./source/mnn-schema.js
     fi
