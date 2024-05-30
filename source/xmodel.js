@@ -161,15 +161,17 @@ xmodel.Node = class {
 xmodel.TensorType = class {
 
     constructor(tensor) {
+        let type = '';
         switch (tensor.data_type) {
-            case 0: this.dataType = 'int'; break;
-            case 1: this.dataType = 'uint'; break;
-            case 2: this.dataType = 'xint'; break;
-            case 4: this.dataType = 'float'; break;
-            case 3: this.dataType = 'xuint'; break;
+            case 0: type = 'int'; break;
+            case 1: type = 'uint'; break;
+            case 2: type = 'xint'; break;
+            case 3: type = 'xuint'; break;
+            case 4: type = 'float'; break;
+            case 5: type = 'bfloat'; break;
             default: throw new xmodel.Error(`Unsupported data type '${tensor.data_type}'.`);
         }
-        this.dataType += tensor.tensor_bit_width.toString();
+        this.dataType = type + tensor.tensor_bit_width.toString();
         this.shape = new xmodel.TensorShape(tensor.tensor_dim);
         if (tensor.tensor_attr) {
             const attr = {};
