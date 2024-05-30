@@ -20845,6 +20845,11 @@
         "name": "Tindices",
         "type": "type",
         "description": "Must be one of the following: `int16`, `int32`, `int64`."
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
