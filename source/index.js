@@ -99,11 +99,11 @@ window.addEventListener('load', function() {
     }
     var ua = window.navigator.userAgent;
     var chrome = ua.match(/Chrom(e|ium)\/([0-9]+)\./);
-    if (Array.isArray(chrome) && parseInt(chrome[2], 10) < 80) {
-        throw new Error('Please update your browser to use this application.');
-    }
     var safari = ua.match(/Version\/(\d+).*Safari/);
-    if (Array.isArray(safari) && parseInt(safari[1], 10) < 15) {
+    var firefox = ua.match(/Firefox\/([0-9]+)\./);
+    if ((Array.isArray(chrome) && parseInt(chrome[2], 10) < 80) ||
+        (Array.isArray(safari) && parseInt(safari[1], 10) < 15) ||
+        (Array.isArray(firefox) && parseInt(firefox[1], 10) < 114)) {
         throw new Error('Please update your browser to use this application.');
     }
     window.exports.preload(function(value, error) {
