@@ -1803,13 +1803,16 @@ python.Execution = class {
             }
         });
         this.registerType('catboost.core._CatBoostBase', class {});
-        this.registerType('catboost.core.CatBoost', class extends catboost.core._CatBoostBase {});
-        this.registerType('catboost.core.CatBoostClassifier', class extends catboost.core.CatBoost {
+        this.registerType('catboost.core.CatBoost', class extends catboost.core._CatBoostBase {
             load_model() {
                 throw new python.Error("'catboost.core.CatBoostClassifier.load_model' not implemented.");
             }
         });
+        this.registerType('catboost.core.CatBoostClassifier', class extends catboost.core.CatBoost {});
+        this.registerType('catboost.core.CatBoostRegressor', class extends catboost.core.CatBoost {});
         catboost.CatBoostClassifier = catboost.core.CatBoostClassifier;
+        catboost.CatBoostRegressor = catboost.core.CatBoostRegressor;
+        catboost.CatBoost = catboost.core.CatBoost;
         this.registerType('collections.deque', class extends Array {
             constructor(iterable) {
                 super();
@@ -6580,6 +6583,7 @@ python.Execution = class {
         this.registerType('fastai.torch_core.TensorCategory', class {});
         this.registerType('fastai.torch_core.TensorImage', class {});
         this.registerType('fastai.torch_core.TensorMask', class {});
+        this.registerType('fastai.torch_core.TensorMultiCategory', class {});
         this.registerType('fastai.callback.core.Callback', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.callback.core.TrainEvalCallback', class {});
         this.registerType('fastai.callback.fp16.AMPMode', class extends this._enum.Enum {});
@@ -6603,8 +6607,10 @@ python.Execution = class {
         this.registerType('fastai.data.transforms.CategoryMap', class {});
         this.registerType('fastai.data.transforms.ColReader', class {});
         this.registerType('fastai.data.transforms.IntToFloatTensor', class {});
+        this.registerType('fastai.data.transforms.MultiCategorize', class {});
         this.registerType('fastai.data.transforms.Normalize', class {});
         this.registerType('fastai.data.transforms.parent_label', class {});
+        this.registerType('fastai.data.transforms.OneHotEncode', class {});
         this.registerType('fastai.data.transforms.RegressionSetup', class {});
         this.registerType('fastai.data.transforms.ToTensor', class {});
         this.registerType('fastai.imports.noop', class {});
@@ -6629,12 +6635,14 @@ python.Execution = class {
         this.registerType('fastai.learner.Learner', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.learner.Recorder', class {});
         this.registerType('fastai.losses.BaseLoss', class {});
+        this.registerType('fastai.losses.BCEWithLogitsLossFlat', class {});
         this.registerType('fastai.losses.CrossEntropyLossFlat', class extends fastai.losses.BaseLoss {});
         this.registerType('fastai.losses.FocalLoss', class extends fastai.torch_core.Module {});
         this.registerType('fastai.losses.FocalLossFlat', class extends fastai.losses.BaseLoss {});
         this.registerType('fastai.metrics.AccumMetric', class extends fastai.learner.Metric {});
         this.registerFunction('fastai.metrics._rmse');
         this.registerFunction('fastai.metrics.accuracy');
+        this.registerFunction('fastai.metrics.accuracy_multi');
         this.registerFunction('fastai.metrics.foreground_acc');
         this.registerFunction('fastai.metrics.mse');
         this.registerFunction('fastai.metrics.error_rate');
