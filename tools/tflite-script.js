@@ -17,7 +17,7 @@ BigInt.prototype.toNumber = function() {
 
 const main = async () => {
     const dirname = path.dirname(url.fileURLToPath(import.meta.url));
-    const schema = path.join(dirname, '..', 'third_party', 'source', 'tensorflow', 'tensorflow', 'lite', 'schema', 'schema.fbs');
+    const schema = path.join(dirname, '..', 'third_party', 'source', 'tensorflow', 'tensorflow', 'compiler', 'mlir', 'lite', 'schema', 'schema.fbs');
     const file = path.join(dirname, '..', 'source', 'tflite-metadata.json');
     const input = await fs.readFile(file, 'utf-8');
     const json = JSON.parse(input);
