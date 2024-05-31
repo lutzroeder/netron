@@ -1,0 +1,45 @@
+[
+  {
+    "name": "Conv2d",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "DepthWiseConv2d",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "FullyConnected",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "PoolAvg2d",
+    "category": "Pool"
+  },
+  {
+    "name": "Pool",
+    "category": "Pool"
+  },
+  {
+    "name": "Transpose",
+    "category": "Transform"
+  },
+  {
+    "name": "Neuron",
+    "category": "Activation"
+  }
+]

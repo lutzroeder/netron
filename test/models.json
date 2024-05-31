@@ -4654,6 +4654,20 @@
     "link":     "https://github.com/lutzroeder/netron/issues/246"
   },
   {
+    "type":     "qnn",
+    "target":   "mobilenetv2-12_net.json",
+    "source":   "https://github.com/user-attachments/files/15507409/mobilenetv2-12_net.json",
+    "format":   "QNN",
+    "link":     "https://github.com/lutzroeder/netron/issues/1283"
+  },
+  {
+    "type":     "qnn",
+    "target":   "resnet18_fp32.bin,resnet18_fp32_net.json",
+    "source":   "https://github.com/xLPMG/efficient-machine-learning/raw/main/submissions/submission_24_06_05/11-1-GPU/model/resnet18_fp32.bin,https://github.com/xLPMG/efficient-machine-learning/raw/main/submissions/submission_24_06_05/11-1-GPU/model/resnet18_fp32_net.json",
+    "format":   "QNN",
+    "link":     "https://github.com/lutzroeder/netron/issues/1283"
+  },
+  {
     "type":     "pickle",
     "target":   "batches.meta",
     "source":   "https://raw.githubusercontent.com/MadryLab/cifar10_challenge/master/cifar10_data/batches.meta",
