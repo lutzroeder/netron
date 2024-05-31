@@ -5710,7 +5710,8 @@ view.ModelFactoryService = class {
                     { name: 'Trace Event data', tags: ['[].pid', '[].ph'] },
                     { name: 'Diffusers configuration', tags: ['_class_name', '_diffusers_version'] },
                     { name: 'Transformers configuration', tags: ['architectures', 'model_type'] }, // https://huggingface.co/docs/transformers/en/create_a_model
-                    { name: 'Transformers configuration', tags: ['transformers_version'] },
+                    { name: 'Transformers generation configuration', tags: ['transformers_version'] },
+                    { name: 'Transformers tokenizer configuration', tags: ['tokenizer_class'] },
                     { name: 'Kaggle credentials', tags: ['username','key'] }
                 ];
                 const match = (obj, tag) => {
