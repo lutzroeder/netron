@@ -142,15 +142,15 @@ dlc.Value = class {
 
 dlc.Node = class {
 
-    constructor(metadata, version, node, value) {
-        const type = `${node.type}:v${version}`;
+    constructor(metadata, version, obj, value) {
+        const type = `${obj.type}:v${version}`;
         this.type = { ...metadata.type(type) };
-        this.type.name = node.type;
-        this.name = node.name;
+        this.type.name = obj.type;
+        this.name = obj.name;
         this.inputs = [];
         this.outputs = [];
         this.attributes = [];
-        const inputs = Array.isArray(node.inputs) ? Array.from(node.inputs).map((input) => value(input)) : [];
+        const inputs = Array.isArray(obj.inputs) ? Array.from(obj.inputs).map((name) => value(name)) : [];
         if (Array.isArray(this.type.inputs) && inputs.length === this.type.inputs.length) {
             for (let i = 0; i < inputs.length; i++) {
                 const argument = new dlc.Argument(this.type.inputs[i].name, [inputs[i]]);
@@ -160,7 +160,7 @@ dlc.Node = class {
             const argument = new dlc.Argument(inputs.length === 1 ? 'input' : 'inputs', inputs);
             this.inputs.push(argument);
         }
-        const outputs = Array.isArray(node.outputs) ? Array.from(node.outputs).map((output) => value(output)) : [];
+        const outputs = Array.isArray(obj.outputs) ? Array.from(obj.outputs).map((name) => value(name)) : [];
         if (Array.isArray(this.type.outputs) && outputs.length === this.type.outputs.length) {
             for (let i = 0; i < outputs.length; i++) {
                 const argument = new dlc.Argument(this.type.outputs[i].name, [outputs[i]]);
@@ -170,12 +170,12 @@ dlc.Node = class {
             const argument = new dlc.Argument(outputs.length === 1 ? 'output' : 'outputs', outputs);
             this.outputs.push(argument);
         }
-        if (node.attributes) {
-            for (const attr of node.attributes) {
+        if (obj.attributes) {
+            for (const attr of obj.attributes) {
                 if (attr.name === 'OutputDims') {
                     continue;
                 }
-                const schema = metadata.attribute(node.type, attr.name);
+                const schema = metadata.attribute(obj.type, attr.name);
                 let type = attr.type;
                 switch (type) {
                     case 'tensor': {
@@ -195,8 +195,8 @@ dlc.Node = class {
                 this.attributes.push(attribute);
             }
         }
-        if (node.weights) {
-            for (const tensor of node.weights) {
+        if (obj.weights) {
+            for (const tensor of obj.weights) {
                 const type = new dlc.TensorType(tensor.data.dtype, tensor.shape);
                 const value = new dlc.Value('', type, new dlc.Tensor(type, tensor.data));
                 this.inputs.push(new dlc.Argument(tensor.name, [value]));
