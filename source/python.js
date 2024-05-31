@@ -6580,17 +6580,18 @@ python.Execution = class {
                 Object.assign(this, x);
             }
         });
-        this.registerType('fastai.torch_core.TensorCategory', class {});
-        this.registerType('fastai.torch_core.TensorImage', class {});
-        this.registerType('fastai.torch_core.TensorMask', class {});
-        this.registerType('fastai.torch_core.TensorMultiCategory', class {});
+        this.registerType('fastai.torch_core.TensorCategory', class extends fastai.torch_core.TensorBase {});
+        this.registerType('fastai.torch_core.TensorImageBase', class extends fastai.torch_core.TensorBase {});
+        this.registerType('fastai.torch_core.TensorImage', class extends fastai.torch_core.TensorImageBase {});
+        this.registerType('fastai.torch_core.TensorMask', class extends fastai.torch_core.TensorImageBase {});
+        this.registerType('fastai.torch_core.TensorMultiCategory', class extends fastai.torch_core.TensorCategory {});
         this.registerType('fastai.callback.core.Callback', class extends fastcore.basics.GetAttr {});
-        this.registerType('fastai.callback.core.TrainEvalCallback', class {});
+        this.registerType('fastai.callback.core.TrainEvalCallback', class extends fastai.callback.core.Callback {});
         this.registerType('fastai.callback.fp16.AMPMode', class extends this._enum.Enum {});
         this.registerType('fastai.callback.fp16.MixedPrecision', class {});
-        this.registerType('fastai.callback.hook._hook_inner', class {});
-        this.registerType('fastai.callback.hook.Hook', class {});
-        this.registerType('fastai.callback.hook.Hooks', class {});
+        this.registerFunction('fastai.callback.hook._hook_inner');
+        this.registerType('fastai.callback.hook.Hook', class extends builtins.object {});
+        this.registerType('fastai.callback.hook.Hooks', class extends builtins.object {});
         this.registerType('fastai.callback.progress.ProgressCallback', class {});
         this.registerType('fastai.callback.progress.ShowGraphCallback', class {});
         this.registerType('fastai.callback.tracker.EarlyStoppingCallback', class {});
