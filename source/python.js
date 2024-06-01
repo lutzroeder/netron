@@ -2085,6 +2085,7 @@ python.Execution = class {
         sklearn.externals.joblib.numpy_pickle.NDArrayWrapper = joblib.numpy_pickle.NDArrayWrapper;
         sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper = joblib.numpy_pickle.NumpyArrayWrapper;
         this.registerType('keras.engine.sequential.Sequential', class {});
+        this.registerType('keras.src.legacy.preprocessing.text.Tokenizer', class {});
         this.registerType('lasagne.layers.conv.Conv2DLayer', class {});
         this.registerType('lasagne.layers.dense.DenseLayer', class {});
         this.registerType('lasagne.layers.input.InputLayer', class {});
@@ -3264,6 +3265,7 @@ python.Execution = class {
         this.registerType('theano.scalar.basic.LT', class {});
         this.registerType('theano.scalar.basic.Mul', class {});
         this.registerType('theano.scalar.basic.Neg', class {});
+        this.registerType('theano.scalar.basic.Pow', class {});
         this.registerType('theano.scalar.basic.Scalar', class {});
         this.registerType('theano.scalar.basic.ScalarConstant', class {});
         this.registerType('theano.scalar.basic.ScalarVariable', class {});
