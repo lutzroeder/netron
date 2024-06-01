@@ -12804,7 +12804,9 @@
           "tensor(uint8)",
           "tensor(int16)",
           "tensor(uint16)",
-          "tensor(int32)"
+          "tensor(int32)",
+          "tensor(int4)",
+          "tensor(uint4)"
         ]
       },
       {
@@ -40735,7 +40737,9 @@
           "tensor(int8)",
           "tensor(uint8)",
           "tensor(int16)",
-          "tensor(uint16)"
+          "tensor(uint16)",
+          "tensor(int4)",
+          "tensor(uint4)"
         ]
       }
     ]
