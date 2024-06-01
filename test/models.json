@@ -3634,28 +3634,28 @@
     "type":     "onednn",
     "target":   "f8_matmul.json",
     "source":   "https://github.com/lutzroeder/netron/files/14018893/f8_matmul.json.zip[f8_matmul.json]",
-    "format":   "oneDNN Graph v3.3.0",
+    "format":   "oneDNN v3.3.0",
     "link":     "https://github.com/lutzroeder/netron/issues/1006"
   },
   {
     "type":     "onednn",
     "target":   "sample-graph-100001.json",
     "source":   "https://github.com/lutzroeder/netron/files/10037438/sample-graph-100001.json.zip[sample-graph-100001.json]",
-    "format":   "oneDNN Graph v3.0.0",
+    "format":   "oneDNN v3.0.0",
     "link":     "https://github.com/lutzroeder/netron/issues/1006"
   },
   {
     "type":     "onednn",
     "target":   "resnet50-sample-graph.json",
     "source":   "https://github.com/lutzroeder/netron/files/10065168/resnet50-sample-graph.json.zip[resnet50-sample-graph.json]",
-    "format":   "oneDNN Graph v3.0.0",
+    "format":   "oneDNN v3.0.0",
     "link":     "https://github.com/lutzroeder/netron/issues/1006"
   },
   {
     "type":     "onednn",
     "target":   "sample-graph-with-ports-100001.json",
     "source":   "https://github.com/lutzroeder/netron/files/11544591/sample-graph-with-ports-100001.json.zip[sample-graph-with-ports-100001.json]",
-    "format":   "oneDNN Graph v3.1.0",
+    "format":   "oneDNN v3.1.0",
     "link":     "https://github.com/lutzroeder/netron/issues/1006"
   },
   {

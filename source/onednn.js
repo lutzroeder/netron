@@ -21,7 +21,7 @@ onednn.Model = class {
 
     constructor(metadata, symbol) {
         const version = symbol.version;
-        this.format = `oneDNN Graph${version ? ` v${version}` : ''}`;
+        this.format = `oneDNN${version ? ` v${version}` : ''}`;
         this.runtime = `${symbol.engine_kind} ${symbol.fpmath_mode}`;
         this.graphs = [new onednn.Graph(metadata, symbol)];
     }
