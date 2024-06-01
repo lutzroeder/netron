@@ -4658,6 +4658,7 @@
     "target":   "mobilenetv2-12_net.json",
     "source":   "https://github.com/user-attachments/files/15507409/mobilenetv2-12_net.json",
     "format":   "QNN",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/1283"
   },
   {
