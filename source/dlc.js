@@ -428,6 +428,7 @@ dlc.Container = class {
                 case 0x0008: return 'int8';
                 case 0x0016: return 'int16';
                 case 0x0032: return 'int32';
+                case 0x0064: return 'int64';
                 case 0x0108: return 'int8';
                 case 0x0132: return 'int32';
                 case 0x0216: return 'float16';
