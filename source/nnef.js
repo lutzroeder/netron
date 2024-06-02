@@ -1,6 +1,4 @@
 
-import * as text from './text.js';
-
 const nnef = {};
 
 nnef.ModelFactory = class {
@@ -8,21 +6,26 @@ nnef.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        const stream = context.stream;
         switch (extension) {
-            case 'nnef':
-                if (nnef.TextReader.open(stream)) {
+            case 'nnef': {
+                const reader = nnef.TextReader.open(context);
+                if (reader) {
                     context.type = 'nnef.graph';
+                    context.target = reader;
                 }
                 break;
-            case 'dat':
+            }
+            case 'dat': {
+                const stream = context.stream;
                 if (stream && stream.length > 2) {
                     const buffer = stream.peek(2);
                     if (buffer[0] === 0x4E && buffer[1] === 0xEF) {
                         context.type = 'nnef.dat';
+                        context.target = stream;
                     }
                 }
                 break;
+            }
             default:
                 break;
         }
@@ -35,8 +38,7 @@ nnef.ModelFactory = class {
     async open(context) {
         switch (context.type) {
             case 'nnef.graph': {
-                const stream = context.stream;
-                const reader = nnef.TextReader.open(stream);
+                const reader = context.target;
                 throw new nnef.Error(`NNEF v${reader.version} support not implemented.`);
             }
             case 'nnef.dat': {
@@ -51,13 +53,13 @@ nnef.ModelFactory = class {
 
 nnef.TextReader = class {
 
-    static open(stream) {
-        const reader = text.Reader.open(stream);
+    static open(context) {
+        const reader = context.read('text', 65536);
         for (let i = 0; i < 32; i++) {
-            const line = reader.read();
+            const line = reader.read('\n');
             const match = /version\s*(\d+\.\d+);/.exec(line);
             if (match) {
-                return new nnef.TextReader(stream, match[1]);
+                return new nnef.TextReader(context, match[1]);
             }
             if (line === undefined) {
                 break;
@@ -66,13 +68,9 @@ nnef.TextReader = class {
         return null;
     }
 
-    constructor(stream, version) {
-        this._stream = stream;
-        this._version = version;
-    }
-
-    get version() {
-        return this._version;
+    constructor(context, version) {
+        this.context = context;
+        this.version = version;
     }
 };
 

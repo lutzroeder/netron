@@ -1,6 +1,4 @@
 
-import * as text from './text.js';
-
 const darknet = {};
 
 darknet.ModelFactory = class {
@@ -16,19 +14,21 @@ darknet.ModelFactory = class {
             }
             return;
         }
-        try {
-            const reader = text.Reader.open(context.stream, 65536);
-            for (let line = reader.read(); line !== undefined; line = reader.read()) {
-                const content = line.trim();
-                if (content.length > 0 && !content.startsWith('#')) {
-                    if (content.startsWith('[') && content.endsWith(']')) {
-                        context.type = 'darknet.model';
+        const reader = context.read('text', 65536);
+        if (reader) {
+            try {
+                for (let line = reader.read('\n'); line !== undefined; line = reader.read('\n')) {
+                    const content = line.trim();
+                    if (content.length > 0 && !content.startsWith('#')) {
+                        if (content.startsWith('[') && content.endsWith(']')) {
+                            context.type = 'darknet.model';
+                        }
+                        return;
                     }
-                    return;
                 }
+            } catch {
+                // continue regardless of error
             }
-        } catch {
-            // continue regardless of error
         }
     }
 
@@ -43,19 +43,22 @@ darknet.ModelFactory = class {
                 const weights = context.target;
                 const name = `${basename}.cfg`;
                 const content = await context.fetch(name);
-                const reader = new darknet.Reader(content.stream, content.identifier);
-                return new darknet.Model(metadata, reader, weights);
+                const reader = content.read('text');
+                const configuration = new darknet.Configuration(reader, content.identifier);
+                return new darknet.Model(metadata, configuration, weights);
             }
             case 'darknet.model': {
                 try {
                     const name = `${basename}.weights`;
                     const content = await context.fetch(name);
                     const weights = darknet.Weights.open(content);
-                    const reader = new darknet.Reader(context.stream, context.identifier);
-                    return new darknet.Model(metadata, reader, weights);
+                    const reader = context.read('text');
+                    const configuration = new darknet.Configuration(reader, context.identifier);
+                    return new darknet.Model(metadata, configuration, weights);
                 } catch {
-                    const reader = new darknet.Reader(context.stream, context.identifier);
-                    return new darknet.Model(metadata, reader, null);
+                    const reader = context.read('text');
+                    const configuration = new darknet.Configuration(reader, context.identifier);
+                    return new darknet.Model(metadata, configuration, null);
                 }
             }
             default: {
@@ -67,20 +70,20 @@ darknet.ModelFactory = class {
 
 darknet.Model = class {
 
-    constructor(metadata, reader, weights) {
+    constructor(metadata, configuration, weights) {
         this.format = 'Darknet';
-        this.graphs = [new darknet.Graph(metadata, reader, weights)];
+        this.graphs = [new darknet.Graph(metadata, configuration, weights)];
     }
 };
 
 darknet.Graph = class {
 
-    constructor(metadata, reader, weights) {
+    constructor(metadata, configuration, weights) {
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];
         const params = {};
-        const sections = reader.read();
+        const sections = configuration.read();
         const globals = new Map();
         const net = sections.shift();
         const option_find_int = (options, key, defaultValue) => {
@@ -872,10 +875,10 @@ darknet.TensorShape = class {
     }
 };
 
-darknet.Reader = class {
+darknet.Configuration = class {
 
-    constructor(stream, identifier) {
-        this.stream = stream;
+    constructor(reader, identifier) {
+        this.reader = reader;
         this.identifier = identifier;
     }
 
@@ -883,10 +886,10 @@ darknet.Reader = class {
         // read_cfg
         const sections = [];
         let section = null;
-        const reader = text.Reader.open(this.stream);
+        const reader = this.reader;
         let lineNumber = 0;
         const setup = /^setup.*\.cfg$/.test(this.identifier);
-        for (let content = reader.read(); content !== undefined; content = reader.read()) {
+        for (let content = reader.read('\n'); content !== undefined; content = reader.read('\n')) {
             lineNumber++;
             const line = content.replace(/\s/g, '');
             if (line.length > 0) {

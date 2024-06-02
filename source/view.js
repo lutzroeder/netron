@@ -3,6 +3,7 @@ import * as base from './base.js';
 import * as zip from './zip.js';
 import * as tar from './tar.js';
 import * as json from './json.js';
+import * as text from './text.js';
 import * as xml from './xml.js';
 import * as protobuf from './protobuf.js';
 import * as flatbuffers from './flatbuffers.js';
@@ -5382,7 +5383,7 @@ view.Context = class {
         return this._content.get(type);
     }
 
-    read(type) {
+    read(type, ...args) {
         if (!this._content.has(type)) {
             switch (type) {
                 case 'json': {
@@ -5419,11 +5420,22 @@ view.Context = class {
                 case 'protobuf.text': {
                     return protobuf.TextReader.open(this._stream);
                 }
+                case 'binary.big-endian': {
+                    return base.BinaryReader.open(this._stream, false);
+                }
                 case 'binary': {
                     return base.BinaryReader.open(this._stream);
                 }
-                case 'binary.big-endian': {
-                    return base.BinaryReader.open(this._stream, false);
+                case 'text': {
+                    if (typeof args[0] === 'number') {
+                        const length = Math.min(this._stream.length, args[0]);
+                        const buffer = this._stream.peek(length);
+                        text.Reader.open(buffer);
+                    }
+                    return text.Reader.open(this._stream);
+                }
+                case 'text.decoder': {
+                    return text.Decoder.open(this._stream);
                 }
                 default: {
                     break;
@@ -5599,7 +5611,7 @@ view.ModelFactoryService = class {
         this.register('./hickle', ['.h5', '.hkl']);
         this.register('./nnef', ['.nnef', '.dat']);
         this.register('./onednn', ['.json']);
-        this.register('./mlir', ['.mlir']);
+        this.register('./mlir', ['.mlir', '.mlir.txt']);
         this.register('./sentencepiece', ['.model']);
         this.register('./hailo', ['.hn', '.har', '.metadata.json']);
         this.register('./nnc', ['.nnc']);

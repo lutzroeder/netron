@@ -2,19 +2,26 @@
 // Experimental
 // contributor @tucan9389
 
-import * as text from './text.js';
-
 const mlir = {};
 
 mlir.ModelFactory = class {
 
     match(context) {
-        context.type = 'mlir';
+        try {
+            const reader = context.read('text', 0x10000);
+            for (let line = reader.read('\n'); line !== undefined; line = reader.read('\n')) {
+                if (/module\s+(\w+\s+)?{/.test(line) || /tensor<\w+>/.test(line)) {
+                    context.type = 'mlir';
+                    return;
+                }
+            }
+        } catch {
+            // continue regardless of error
+        }
     }
 
     async open(context) {
-        const stream = context.stream;
-        const decoder = text.Decoder.open(stream);
+        const decoder = context.read('text.decoder');
         const parser = new mlir.Parser(decoder);
         const obj = parser.read();
         return new mlir.Model(obj);

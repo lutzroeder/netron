@@ -193,8 +193,8 @@ text.Decoder.Utf16LE = class {
                 return String.fromCharCode(c);
             }
             if (c >= 0xD800 && c < 0xDBFF) {
-                if (this._position + 1 < this._length) {
-                    const c2 = this._buffer[this._position++] | (this._buffer[this._position++] << 8);
+                if (this.position + 1 < this.length) {
+                    const c2 = this.buffer[this.position++] | (this.buffer[this.position++] << 8);
                     if (c >= 0xDC00 || c < 0xDFFF) {
                         return String.fromCodePoint(0x10000 + ((c & 0x3ff) << 10) + (c2 & 0x3ff));
                     }
@@ -225,8 +225,8 @@ text.Decoder.Utf16BE = class {
                 return String.fromCharCode(c);
             }
             if (c >= 0xD800 && c < 0xDBFF) {
-                if (this._position + 1 < this._length) {
-                    const c2 = (this._buffer[this._position++] << 8) | this._buffer[this._position++];
+                if (this.position + 1 < this.length) {
+                    const c2 = (this.buffer[this.position++] << 8) | this.buffer[this.position++];
                     if (c >= 0xDC00 || c < 0xDFFF) {
                         return String.fromCodePoint(0x10000 + ((c & 0x3ff) << 10) + (c2 & 0x3ff));
                     }
@@ -288,37 +288,34 @@ text.Decoder.Utf32BE = class {
 
 text.Reader = class {
 
-    constructor(data, length) {
-        this._decoder = text.Decoder.open(data);
-        this._position = 0;
-        this._length = length || Number.MAX_SAFE_INTEGER;
+    constructor(data) {
+        this.decoder = text.Decoder.open(data);
+        this.position = 0;
+        this.length = Number.MAX_SAFE_INTEGER;
     }
 
     static open(data, length) {
         return new text.Reader(data, length);
     }
 
-    read() {
-        if (this._position >= this._length) {
+    read(terminal) {
+        if (this.position >= this.length) {
             return undefined;
         }
         let line = '';
         let buffer = null;
         for (;;) {
-            const c = this._decoder.decode();
+            const c = this.decoder.decode();
             if (c === undefined) {
-                this._length = this._position;
+                this.length = this.position;
                 break;
             }
-            this._position++;
-            if (this._position > this._length) {
-                break;
-            }
-            if (c === '\n') {
+            this.position++;
+            if (c === terminal || this.position > this.length) {
                 break;
             }
             line += c;
-            if (line.length >= 32) {
+            if (line.length >= 64) {
                 buffer = buffer || [];
                 buffer.push(line);
                 line = '';

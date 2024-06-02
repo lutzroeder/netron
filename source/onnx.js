@@ -1,6 +1,5 @@
 
 import * as protobuf from './protobuf.js';
-import * as text from './text.js';
 
 const onnx = {};
 
@@ -2010,14 +2009,13 @@ onnx.TextReader = class {
     static open(context) {
         try {
             const stream = context.stream;
-            if (stream && stream.length > 0) {
-                const size = Math.min(0x10000, stream.length);
-                const buffer = stream.peek(size);
+            if (stream && stream.length > 2) {
+                const buffer = stream.peek(2);
                 if (buffer[0] < 0x80 || buffer[0] >= 0xFE) {
-                    const reader = text.Reader.open(buffer);
+                    const reader = context.read('text', 0x10000);
                     const lines = [];
                     for (let i = 0; i < 32; i++) {
-                        const line = reader.read();
+                        const line = reader.read('\n');
                         if (line === undefined) {
                             break;
                         }
@@ -2047,8 +2045,7 @@ onnx.TextReader = class {
         onnx.proto = await this._context.require('./onnx-proto');
         onnx.proto = onnx.proto.onnx;
         try {
-            const stream = this._context.stream;
-            this._decoder = text.Decoder.open(stream);
+            this._decoder = this._context.read('text.decoder');
             this._position = 0;
             this._char = this._decoder.decode();
             this.model = this._parseModel();

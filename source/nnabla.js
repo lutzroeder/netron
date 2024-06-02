@@ -1,6 +1,4 @@
 
-import * as text from './text.js';
-
 const nnabla = {};
 
 nnabla.ModelFactory = class {
@@ -29,10 +27,9 @@ nnabla.ModelFactory = class {
                 let version = '';
                 if (contexts.has('nnp_version.txt')) {
                     const context = contexts.get('nnp_version.txt');
-                    const stream = context.stream;
-                    const reader = text.Reader.open(stream);
-                    version = reader.read();
-                    version = version.split('\r').shift();
+                    const reader = context.read('text');
+                    const line = reader.read('\n');
+                    version = line.split('\r').shift();
                 }
                 if (contexts.has('parameter.protobuf')) {
                     const context = contexts.get('parameter.protobuf');

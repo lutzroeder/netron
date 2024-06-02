@@ -1,6 +1,4 @@
 
-import * as text from './text.js';
-
 const tnn = {};
 
 tnn.ModelFactory = class {
@@ -10,9 +8,8 @@ tnn.ModelFactory = class {
         const stream = context.stream;
         if (stream && identifier.endsWith('.tnnproto')) {
             try {
-                const buffer = stream.peek();
-                const reader = text.Reader.open(buffer, 2048);
-                const content = reader.read();
+                const reader = context.read('text', 0x10000);
+                const content = reader.read('\n');
                 if (content !== undefined) {
                     const line = content.trim();
                     if (line.startsWith('"') && line.endsWith('"')) {
@@ -42,17 +39,19 @@ tnn.ModelFactory = class {
         switch (context.type) {
             case 'tnn.model': {
                 const name = `${context.identifier.substring(0, context.identifier.length - 9)}.tnnmodel`;
+                const reader = context.read('text');
                 try {
                     const content = await context.fetch(name);
-                    return new tnn.Model(metadata, context, content);
+                    return new tnn.Model(metadata, reader, content);
                 } catch {
-                    return new tnn.Model(metadata, context, null);
+                    return new tnn.Model(metadata, reader, null);
                 }
             }
             case 'tnn.params': {
                 const name = `${context.identifier.substring(0, context.identifier.length - 9)}.tnnproto`;
                 const content = await context.fetch(name, null);
-                return new tnn.Model(metadata, content, context);
+                const reader = content.read('text');
+                return new tnn.Model(metadata, reader, context);
             }
             default: {
                 throw new tnn.Error(`Unsupported TNN format '${context.type}'.`);
@@ -81,8 +80,8 @@ tnn.Graph = class {
         if (tnnmodel) {
             resources.read(tnnmodel);
         }
-        const reader = new tnn.TextProtoReader(tnnproto.stream);
-        reader.read();
+        const reader = new tnn.TextProtoReader(tnnproto);
+        reader.read('\n');
         const values = new Map();
         values.map = (name, type, tensor) => {
             if (name.length === 0) {
@@ -381,19 +380,18 @@ tnn.TensorShape = class {
 
 tnn.TextProtoReader = class {
 
-    constructor(stream) {
-        this.stream = stream;
+    constructor(reader) {
+        this.reader = reader;
         this.inputs = [];
         this.outputs = [];
         this.layers = [];
     }
 
     read() {
-        if (this.stream) {
-            const reader = text.Reader.open(this.stream);
+        if (this.reader) {
             let lines = [];
             for (;;) {
-                const line = reader.read();
+                const line = this.reader.read('\n');
                 if (line === undefined) {
                     break;
                 }
@@ -469,7 +467,7 @@ tnn.TextProtoReader = class {
                     this.layers.push(layer);
                 }
             }
-            delete this.stream;
+            delete this.reader;
         }
     }
 };

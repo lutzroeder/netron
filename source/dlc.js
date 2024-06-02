@@ -350,7 +350,7 @@ dlc.Container = class {
             delete this._metadata;
             const reader = text.Reader.open(stream);
             for (;;) {
-                const line = reader.read();
+                const line = reader.read('\n');
                 if (line === undefined) {
                     break;
                 }

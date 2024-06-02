@@ -1,6 +1,5 @@
 
 import * as base from './base.js';
-import * as text from './text.js';
 
 const ncnn = {};
 
@@ -22,21 +21,23 @@ ncnn.ModelFactory = class {
                 }
             }
         } else if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
-            try {
-                const reader = text.Reader.open(context.stream, 2048);
-                const signature = reader.read();
-                if (signature !== undefined) {
-                    if (signature.trim() === '7767517') {
-                        context.type = 'ncnn.model';
-                        return;
+            const reader = context.read('text', 0x10000);
+            if (reader) {
+                try {
+                    const signature = reader.read('\n');
+                    if (signature !== undefined) {
+                        if (signature.trim() === '7767517') {
+                            context.type = 'ncnn.model';
+                            return;
+                        }
+                        const header = signature.trim().split(' ');
+                        if (header.length === 2 && header.every((value) => value >>> 0 === parseFloat(value))) {
+                            context.type = 'ncnn.model';
+                        }
                     }
-                    const header = signature.trim().split(' ');
-                    if (header.length === 2 && header.every((value) => value >>> 0 === parseFloat(value))) {
-                        context.type = 'ncnn.model';
-                    }
+                } catch {
+                    // continue regardless of error
                 }
-            } catch {
-                // continue regardless of error
             }
         } else if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
             const stream = context.stream;
@@ -80,8 +81,8 @@ ncnn.ModelFactory = class {
             const reader = new ncnn.BinaryParamReader(param);
             return new ncnn.Model(metadata, reader, bin);
         };
-        const openText = (param, bin) => {
-            const reader = new ncnn.TextParamReader(param);
+        const openText = (reader, bin) => {
+            reader = new ncnn.TextParamReader(reader);
             return new ncnn.Model(metadata, reader, bin);
         };
         const identifier = context.identifier.toLowerCase();
@@ -93,12 +94,13 @@ ncnn.ModelFactory = class {
                 } else if (identifier.endsWith('.cfg.ncnn')) {
                     bin = `${context.identifier.substring(0, context.identifier.length - 9)}.weights.ncnn`;
                 }
+                const reader = context.read('text');
                 try {
                     const content = await context.fetch(bin);
                     const buffer = content.stream.peek();
-                    return openText(context.stream.peek(), buffer);
+                    return openText(reader, buffer);
                 } catch {
-                    return openText(context.stream.peek(), null);
+                    return openText(reader, null);
                 }
             }
             case 'ncnn.model.bin': {
@@ -120,8 +122,8 @@ ncnn.ModelFactory = class {
                 }
                 try {
                     const content = await context.fetch(file);
-                    const buffer = content.stream.peek();
-                    return openText(buffer, context.stream.peek());
+                    const reader = content.read('text');
+                    return openText(reader, context.stream.peek());
                 } catch {
                     const content = await context.fetch(`${file}.bin`);
                     const buffer = content.stream.peek();
@@ -634,15 +636,11 @@ ncnn.Utility = class {
 
 ncnn.TextParamReader = class {
 
-    constructor(buffer) {
-        const reader = text.Reader.open(buffer);
+    constructor(reader) {
         const lines = [];
-        for (;;) {
-            const line = reader.read();
-            if (line === undefined) {
-                break;
-            }
-            lines.push(line.trim());
+        for (let line = reader.read('\n'); line !== undefined; line = reader.read('\n')) {
+            line = line.trim();
+            lines.push(line);
         }
         const signature = lines.shift();
         const header = (signature === '7767517' ? lines.shift() : signature).split(' ');

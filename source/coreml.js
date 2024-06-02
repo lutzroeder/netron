@@ -1,6 +1,5 @@
 
 import * as base from './base.js';
-import * as text from './text.js';
 
 const coreml = {};
 
@@ -53,13 +52,11 @@ coreml.ModelFactory = class {
         }
         if (identifier === 'model.mil') {
             try {
-                const reader = text.Reader.open(context.stream, 2048);
-                const signature = reader.read();
-                if (signature !== undefined) {
-                    if (signature.trim().startsWith('program')) {
-                        context.type = 'coreml.mil';
-                        return;
-                    }
+                const reader = context.read('text', 2048);
+                const signature = reader.read('\n');
+                if (signature && signature.trim().startsWith('program')) {
+                    context.type = 'coreml.mil';
+                    return;
                 }
             } catch {
                 // continue regardless of error
