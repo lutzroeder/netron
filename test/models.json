@@ -3050,6 +3050,13 @@
   },
   {
     "type":     "mlir",
+    "target":   "1043.mlir",
+    "source":   "https://github.com/lutzroeder/netron/files/14074683/1043.mlir.zip[1043.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "examples.mnist_xla.mlir",
     "source":   "https://github.com/lutzroeder/netron/files/10672271/examples.mnist_xla.mlir.zip[examples.mnist_xla.mlir]",
     "format":   "MLIR",
@@ -3057,8 +3064,9 @@
   },
   {
     "type":     "mlir",
-    "target":   "1043.mlir",
-    "source":   "https://github.com/lutzroeder/netron/files/14074683/1043.mlir.zip[1043.mlir]",
+    "target":   "embedding_bm1684x_f16_tpu.mlir",
+    "source":   "https://github.com/user-attachments/files/15525787/embedding_bm1684x_f16_tpu.mlir.txt",
+    "error":    "Unexpected operation '#' at 1:1.",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },

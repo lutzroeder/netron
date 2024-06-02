@@ -1007,7 +1007,7 @@ mlir.Parser = class {
                 }
                 break;
             default:
-                throw new mlir.Error(`Unexpected operation name '${JSON.stringify(this._current)}' ${this._tokenizer.location()}`);
+                throw new mlir.Error(`Unexpected operation '${this._current.value}' ${this._tokenizer.location()}`);
         }
         return value;
     }
