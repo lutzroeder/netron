@@ -493,5 +493,69 @@
   {
     "name": "program:layer_norm",
     "category": "Normalization"
+  },
+  {
+    "name": "espresso:convolution",
+    "category": "Layer"
+  },
+  {
+    "name": "espresso:inner_product",
+    "category": "Layer"
+  },
+  {
+    "name": "espresso:activation",
+    "category": "Activation"
+  },
+  {
+    "name": "espresso:softmax",
+    "category": "Activation"
+  },
+  {
+    "name": "espresso:transpose",
+    "category": "Transform"
+  },
+  {
+    "name": "espresso:pool",
+    "category": "Pool"
+  },
+  {
+    "name": "espresso:instancenorm_1d",
+    "category": "Normalization"
+  },
+  {
+    "name": "espresso:batch_norm",
+    "category": "Normalization"
+  },
+  {
+    "name": "espresso:reshape",
+    "category": "Shape"
+  },
+  {
+    "name": "espresso:dynamic_quantize",
+    "category": "Quantization"
+  },
+  {
+    "name": "espresso:dynamic_dequantize",
+    "category": "Quantization"
+  },
+  {
+    "name": "espresso:concat",
+    "category": "Tensor"
+  },
+  {
+    "name": "espresso:upsample",
+    "category": "Data"
+  },
+  {
+    "name": "espresso:relu",
+    "category": "Activation"
+  },
+  {
+    "name": "espresso:prelu",
+    "category": "Activation"
+  },
+  {
+    "name": "espresso:tanh",
+    "category": "Activation"
   }
 ]

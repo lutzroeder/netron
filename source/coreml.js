@@ -39,17 +39,6 @@ coreml.ModelFactory = class {
                 }
             }
         }
-        if (identifier === 'metadata.json') {
-            const obj = context.peek('json');
-            if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
-                context.type = 'coreml.metadata';
-                return;
-            }
-            if (Array.isArray(obj) && obj.some((item) => item && item.metadataOutputVersion && item.specificationVersion)) {
-                context.type = 'coreml.metadata.mlmodelc';
-                return;
-            }
-        }
         if (identifier === 'model.mil') {
             try {
                 const reader = context.read('text', 2048);
@@ -69,6 +58,38 @@ coreml.ModelFactory = class {
                 return;
             }
         }
+        if (identifier.endsWith('.espresso.net')) {
+            const obj = context.peek('json');
+            if (obj && Array.isArray(obj.layers) && obj.format_version) {
+                context.type = 'espresso.net';
+                context.target = obj;
+                return;
+            }
+        }
+        if (identifier.endsWith('.espresso.shape')) {
+            const obj = context.peek('json');
+            if (obj && obj.layer_shapes) {
+                context.type = 'espresso.shape';
+                context.target = obj;
+                return;
+            }
+        }
+        if (identifier.endsWith('.espresso.weights')) {
+            context.type = 'espresso.weights';
+            context.target = context.read('binary');
+            return;
+        }
+        if (identifier === 'metadata.json') {
+            const obj = context.peek('json');
+            if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
+                context.type = 'coreml.metadata';
+                return;
+            }
+            if (Array.isArray(obj) && obj.some((item) => item && item.metadataOutputVersion && item.specificationVersion)) {
+                context.type = 'coreml.metadata.mlmodelc';
+                return;
+            }
+        }
         if (extension === 'bin' && stream.length > 16) {
             const buffer = stream.peek(Math.min(256, stream.length));
             for (let i = 0; i < buffer.length - 4; i++) {
@@ -82,7 +103,16 @@ coreml.ModelFactory = class {
     }
 
     filter(context, type) {
-        return context.type !== 'coreml.manifest.mlmodelc' && type !== 'coreml.mil';
+        if (context.type === 'coreml.metadata.mlmodelc' && (type === 'coreml.mil')) {
+            return false;
+        }
+        if (context.type === 'espresso.net' && (type === 'espresso.weights' || type === 'espresso.shape' || type === 'coreml.metadata.mlmodelc')) {
+            return false;
+        }
+        if (context.type === 'espresso.shape' && (type === 'espresso.weights' || type === 'coreml.metadata.mlmodelc')) {
+            return false;
+        }
+        return true;
     }
 
     async open(context) {
@@ -147,7 +177,10 @@ coreml.ModelFactory = class {
                     // continue regardless of error
                 }
             }
-            return new coreml.Model(metadata, format, model, weights);
+            format = format || 'Core ML';
+            format = `${format} v${model.specificationVersion}`;
+            context = new coreml.Context.Model(metadata, format, model, weights);
+            return new coreml.Model(context);
         };
         const openText = async (context) => {
             let model = null;
@@ -158,8 +191,9 @@ coreml.ModelFactory = class {
                 const message = error && error.message ? error.message : error.toString();
                 throw new coreml.Error(`File format is not coreml.Model (${message.replace(/\.$/, '')}).`);
             }
-            const weights = new Map();
-            return new coreml.Model(metadata, null, model, weights);
+            const format = `Core ML v${model.specificationVersion}`;
+            context = new coreml.Context.Model(metadata, format, model);
+            return new coreml.Model(context, null);
         };
         const openManifest = async (obj, context, path) => {
             const entries = Object.values(obj.itemInfoEntries).filter((entry) => entry.path.toLowerCase().endsWith('.mlmodel'));
@@ -200,6 +234,21 @@ coreml.ModelFactory = class {
             case 'coreml.weights': {
                 return openManifestStream(context, '../../../');
             }
+            case 'espresso.net': {
+                const reader = new coreml.Context.Espresso(metadata, context.target, null, null);
+                await reader.read(context);
+                return new coreml.Model(reader);
+            }
+            case 'espresso.weights': {
+                const reader = new coreml.Context.Espresso(metadata, null, context.target, null);
+                await reader.read(context);
+                return new coreml.Model(reader);
+            }
+            case 'espresso.shape': {
+                const reader = new coreml.Context.Espresso(metadata, null, null, context.target);
+                await reader.read(context);
+                return new coreml.Model(reader);
+            }
             default: {
                 throw new coreml.Error(`Unsupported Core ML format '${context.type}'.`);
             }
@@ -209,29 +258,18 @@ coreml.ModelFactory = class {
 
 coreml.Model = class {
 
-    constructor(metadata, format, model, weights) {
-        this.format = `${format || 'Core ML'} v${model.specificationVersion}`;
+    constructor(context) {
+        this.format = context.format;
         this.metadata = [];
-        const context = new coreml.Context(metadata, model, weights);
-        const graph = new coreml.Graph(context);
-        this.graphs = [graph];
-        if (model.description && model.description.metadata) {
-            const properties = model.description.metadata;
-            if (properties.versionString) {
-                this.version = properties.versionString;
-            }
-            if (properties.shortDescription) {
-                this.description = properties.shortDescription;
-            }
-            if (properties.author) {
-                this.metadata.push(new coreml.Argument('author', properties.author));
-            }
-            if (properties.license) {
-                this.metadata.push(new coreml.Argument('license', properties.license));
-            }
-            if (metadata.userDefined && Object.keys(properties.userDefined).length > 0) {
-                /* empty */
-            }
+        this.graphs = [new coreml.Graph(context)];
+        if (context.version) {
+            this.version = context.version;
+        }
+        if (context.description) {
+            this.description = context.description;
+        }
+        for (const argument of context.properties) {
+            this.metadata.push(argument);
         }
     }
 };
@@ -247,16 +285,16 @@ coreml.Graph = class {
             const type = value.type;
             const description = value.description;
             const initializer = value.initializer;
-            if (!value.obj) {
-                value.obj = new coreml.Value(name, type, description, initializer);
+            if (!value.value) {
+                value.value = new coreml.Value(name, type, description, initializer);
             }
         }
         this.inputs = context.inputs.map((argument) => {
-            const values = argument.value.map((value) => value.obj);
+            const values = argument.value.map((value) => value.value);
             return new coreml.Argument(argument.name, values, null, argument.visible);
         });
         this.outputs = context.outputs.map((argument) => {
-            const values = argument.value.map((value) => value.obj);
+            const values = argument.value.map((value) => value.value);
             return new coreml.Argument(argument.name, values, null, argument.visible);
         });
         for (const obj of context.nodes) {
@@ -317,14 +355,14 @@ coreml.Node = class {
         this.name = obj.name || '';
         this.description = obj.description || '';
         this.inputs = (obj.inputs || []).map((argument) => {
-            const values = argument.value.map((value) => value.obj);
+            const values = argument.value.map((value) => value.value);
             return new coreml.Argument(argument.name, values, null, argument.visible);
         });
         this.outputs = (obj.outputs || []).map((argument) => {
-            const values = argument.value.map((value) => value.obj);
+            const values = argument.value.map((value) => value.value);
             return new coreml.Argument(argument.name, values, null, argument.visible);
         });
-        this.attributes = Object.entries(obj.attributes).map(([name, value]) => {
+        this.attributes = Object.entries(obj.attributes || []).map(([name, value]) => {
             const metadata = context.metadata.attribute(obj.type, name);
             let type = null;
             let visible = true;
@@ -355,6 +393,9 @@ coreml.Node = class {
             }
             return new coreml.Argument(name, value, type, visible);
         });
+        if (Array.isArray(obj.chain)) {
+            this.chain = obj.chain.map((obj) => new coreml.Node(context, obj));
+        }
     }
 };
 
@@ -364,9 +405,8 @@ coreml.Tensor = class {
         this.type = type;
         this.values = values;
         this.category = category;
-        this._quantization = quantization;
         if (type.dataType === 'float32') {
-            this.encoding = '|';
+            this.encoding = values instanceof Uint8Array ? '<' : '|';
         } else if ((type.dataType.startsWith('uint') && type.dataType.length === 5) ||
                    (type.dataType.startsWith('int')  && type.dataType.length === 4)) {
             this.encoding = '>';
@@ -522,11 +562,15 @@ coreml.OptionalType = class {
     }
 };
 
-coreml.Context = class {
+coreml.Context = {};
 
-    constructor(metadata, model, weights, values) {
+coreml.Context.Model = class {
+
+    constructor(metadata, format, model, weights, values) {
         this.metadata = metadata;
-        this.weights = weights;
+        this.properties = [];
+        this.format = format;
+        this.weights = weights || new Map();
         this.values = values || new Map();
         this.nodes = [];
         this.inputs = [];
@@ -546,11 +590,29 @@ coreml.Context = class {
                 this.update(value, description);
                 this.outputs.push({ name: description.name, visible: true, value: [value] });
             }
+            if (description && description.metadata) {
+                const properties = description.metadata;
+                if (properties.versionString) {
+                    this.version = properties.versionString;
+                }
+                if (properties.shortDescription) {
+                    this.description = properties.shortDescription;
+                }
+                if (properties.author) {
+                    this.properties.push(new coreml.Argument('author', properties.author));
+                }
+                if (properties.license) {
+                    this.properties.push(new coreml.Argument('license', properties.license));
+                }
+                if (properties.userDefined && Object.keys(properties.userDefined).length > 0) {
+                    /* empty */
+                }
+            }
         }
     }
 
     context() {
-        return new coreml.Context(this.metadata, null, this.weights, this.values);
+        return new coreml.Context.Model(this.metadata, this.format, null, this.weights, this.values);
     }
 
     network(obj) {
@@ -650,7 +712,7 @@ coreml.Context = class {
             const tensor = new coreml.Tensor(tensorType, values, quantization, 'Weights');
             const input = this.metadata.input(type, name);
             const visible = input && input.visible === false ? false : true;
-            const value = { obj: new coreml.Value('', null, null, tensor) };
+            const value = { value: new coreml.Value('', null, null, tensor) };
             initializers.push({ name, visible, value: [value] });
         };
         const vector = (value) => {
@@ -1369,6 +1431,183 @@ coreml.Context = class {
             this.nodes.push(op);
         }
         return 'ML Program';
+    }
+};
+
+coreml.Context.Espresso = class {
+
+    constructor(metadata, net, weights, shape) {
+        this.metadata = metadata;
+        this.targets = { net, shape, weights };
+    }
+
+    async read(context) {
+        this.format = 'Espresso';
+        this.properties = [];
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
+        if (!this.targets.net) {
+            const name = context.identifier.replace(/\.espresso\.(net|weights|shape)$/i, '.espresso.net');
+            const content = await context.fetch(name);
+            this.targets.net = content.read('json');
+        }
+        if (!this._shapes) {
+            this._shapes = new Map();
+            if (!this.targets.shape) {
+                const name = context.identifier.replace(/\.espresso\.(net|weights|shape)$/i, '.espresso.shape');
+                try {
+                    const content = await context.fetch(name);
+                    this.targets.shape = content.read('json');
+                } catch {
+                    // continue regardless of error
+                }
+            }
+            if (this.targets.shape && this.targets.shape.layer_shapes) {
+                for (const [name, value] of Object.entries(this.targets.shape.layer_shapes)) {
+                    const dimenstions = [value.n, value.k, value.w, value.h];
+                    const shape = new coreml.TensorShape(dimenstions);
+                    this._shapes.set(name, shape);
+                }
+            }
+            delete this.targets.shape;
+        }
+        if (!this._blobs) {
+            this._blobs = new Map();
+            if (!this.targets.weights) {
+                const name = this.targets.net && this.targets.net.storage ?
+                    this.targets.net.storage :
+                    context.identifier.replace(/\.espresso\.(net|weights|shape)$/i, '.espresso.weights');
+                try {
+                    const content = await context.fetch(name);
+                    this.targets.weights = content.read('binary');
+                } catch {
+                    // continue regardless of error
+                }
+            }
+            if (this.targets.weights) {
+                const reader = this.targets.weights;
+                const length = reader.uint64().toNumber();
+                for (let i = 0; i < length; i++) {
+                    const key = reader.uint64().toNumber();
+                    const size = reader.uint64().toNumber();
+                    this._blobs.set(key, size);
+                }
+                for (const [key, size] of this._blobs) {
+                    const buffer = reader.read(size);
+                    this._blobs.set(key, buffer);
+                }
+            }
+            delete this.targets.weights;
+        }
+        if (!this.values) {
+            this.values = new Map();
+            if (this.targets.net.format_version) {
+                const major = Math.floor(this.targets.net.format_version / 100);
+                const minor = this.targets.net.format_version % 100;
+                this.format += ` v${major}.${minor}`;
+            }
+            if (this.targets.net && Array.isArray(this.targets.net.layers)) {
+                for (const layer of this.targets.net.layers) {
+                    const type = layer.type;
+                    const data = { ...layer };
+                    const top = layer.top.split(',').map((name) => this._value(name));
+                    const bottom = layer.bottom.split(',').map((name) => this._value(name));
+                    const obj = {};
+                    obj.type = `espresso:${type}`;
+                    obj.name = layer.name;
+                    obj.attributes = data;
+                    obj.inputs = [{ name: 'inputs', value: bottom }];
+                    obj.outputs = [{ name: 'outputs', value: top }];
+                    obj.chain = [];
+                    switch (type) {
+                        case 'convolution': {
+                            obj.inputs.push(this._initializer('weights', data.blob_weights, 'float32', [data.C, data.K, data.Nx, data.Ny]));
+                            if (data.has_biases) {
+                                obj.inputs.push(this._initializer('biases', data.blob_biases, 'float32', [data.C]));
+                            }
+                            delete data.has_biases;
+                            delete data.blob_weights;
+                            delete data.blob_biases;
+                            if (obj.inputs.length === 1) {
+                                throw new coreml.Error('Missing weights.');
+                            }
+                            break;
+                        }
+                        case 'inner_product': {
+                            if (data.blob_weights !== undefined) {
+                                obj.inputs.push(this._initializer('weights', data.blob_weights, 'float32', [data.nC, data.nB]));
+                            } else if (data.weights && data.weights.W_t_int8 !== undefined) {
+                                obj.inputs.push(this._initializer('weights', data.weights.W_t_int8, 'int8', [data.nC, data.nB]));
+                            } else if (data.weights && data.weights.W_int8 !== undefined) {
+                                obj.inputs.push(this._initializer('weights', data.weights.W_int8, 'int8', [data.nC, data.nB]));
+                            }
+                            if (data.has_biases) {
+                                obj.inputs.push(this._initializer('biases', data.blob_biases, 'float32', [data.nC]));
+                            }
+                            if (obj.inputs.length === 1) {
+                                throw new coreml.Error('Missing weights.');
+                            }
+                            delete data.has_biases;
+                            delete data.blob_weights;
+                            delete data.blob_biases;
+                            break;
+                        }
+                        default: {
+                            break;
+                        }
+                    }
+                    if (Object.keys(data).some((key) => key.startsWith('blob_'))) {
+                        throw new coreml.Error('Unknown blob.');
+                    }
+                    if (data.has_prelu) {
+                        obj.chain.push({ type: 'espresso:prelu' });
+                    }
+                    if (data.fused_relu || data.has_relu) {
+                        obj.chain.push({ type: 'espresso:relu' });
+                    }
+                    if (data.fused_tanh || data.has_tanh) {
+                        obj.chain.push({ type: 'espresso:tanh' });
+                    }
+                    if (data.has_batch_norm) {
+                        obj.chain.push({ type: 'espresso:batch_norm' });
+                    }
+                    delete data.name;
+                    delete data.type;
+                    delete data.top;
+                    delete data.bottom;
+                    delete data.fused_tanh;
+                    delete data.fused_relu;
+                    delete data.has_prelu;
+                    delete data.has_relu;
+                    delete data.has_tanh;
+                    delete data.has_batch_norm;
+                    this.nodes.push(obj);
+                }
+            }
+            delete this.targets.net;
+        }
+        delete this.targets;
+    }
+
+    _value(name) {
+        if (!this.values.has(name)) {
+            const shape = this._shapes.get(name);
+            const type = shape ? new coreml.TensorType('float32', shape) : null;
+            this.values.set(name, { name, type });
+        }
+        return this.values.get(name);
+    }
+
+    _initializer(name, identifier, dataType, dimensions) {
+        const shape = new coreml.TensorShape(dimensions);
+        const type = new coreml.TensorType(dataType, shape);
+        const blob = this._blobs.get(identifier);
+        identifier = `${identifier}\nblob`;
+        const value = {};
+        const initializer = new coreml.Tensor(type, blob, null, 'Blob');
+        value.value = new coreml.Value(identifier, type, null, initializer);
+        return { name, value: [value] };
     }
 };
 
