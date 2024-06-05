@@ -531,7 +531,7 @@ const update = async () => {
     const targets = process.argv.length > 3 ? process.argv.slice(3) : [
         'armnn',
         'bigdl',
-        'caffe', 'circle', 'cntk', 'coreml',
+        'caffe', 'caffe2', 'circle', 'cntk', 'coreml',
         'dlc', 'dnn',
         'gguf',
         'keras',
