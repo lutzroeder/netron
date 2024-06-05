@@ -577,6 +577,7 @@
   },
   {
     "name": "transpose",
+    "category": "Transform",
     "inputs": [
       { "name": "input" }
     ],

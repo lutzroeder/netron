@@ -2951,7 +2951,7 @@
   },
   {
     "name": "Transpose",
-    "category": "Shape",
+    "category": "Transform",
     "inputs": [
       { "name": "x" },
       { "name": "w" }

@@ -1827,7 +1827,7 @@
     "attributes": [
       { "name": "self" }
     ],
-    "category": "Shape",
+    "category": "Transform",
     "varargs": "args"
   },
   {
