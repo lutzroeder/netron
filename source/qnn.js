@@ -115,7 +115,7 @@ qnn.Graph = class {
                     break;
                 }
                 default: {
-                    throw new qnn.Error(`Unsupported tensor type 'type'.`);
+                    throw new qnn.Error(`Unsupported tensor type '${obj.type}'.`);
                 }
             }
         }
