@@ -61771,6 +61771,7 @@
   },
   {
     "name": "Transpose",
+    "category": "Transform",
     "summary": "Shuffle dimensions of x according to a permutation.",
     "description": "The output `y` has the same rank as `x`. The shapes of `x` and `y` satisfy:\n  `y.shape[i] == x.shape[perm[i]] for i in [0, 1, ..., rank(x) - 1]`",
     "attributes": [

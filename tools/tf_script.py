@@ -375,6 +375,7 @@ categories = {
     'Squeeze': 'Transform',
     'StridedSlice': 'Tensor',
     'swish_f32': 'Activation',
+    'Transpose': 'Transform',
     'Variable': 'Control',
     'VariableV2': 'Control',
 }
