@@ -4765,6 +4765,7 @@ python.Execution = class {
             throw new python.Error(`Unsupported range(${JSON.stringify(start)}, ${JSON.stringify(stop)}, ${JSON.stringify(step)})`);
         });
         this.registerFunction('torch._C._nn.gelu');
+        this.registerFunction('torch._C._nn.avg_pool2d');
         this.registerFunction('torch._native_multi_head_attention');
         this.registerFunction('torch._utils._rebuild_sparse_tensor', (layout, data) => {
             if (layout === torch.sparse_coo) {
