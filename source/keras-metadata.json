@@ -3378,7 +3378,7 @@
     "description": "Permutes the dimensions of the input according to a given pattern.\n\nUseful e.g. connecting RNNs and convnets.",
     "attributes": [
       {
-        "description": "Tuple of integers. Permutation pattern does not include the\n        batch dimension. Indexing starts at 1.\n        For instance, `(2, 1)` permutes the first and second dimensions\n        of the input.",
+        "description": "Tuple of integers. Permutation pattern does not include the\n        batch dimension. Indexing starts at 1.\n        For instance, `(1, 3, 2)` permutes the second and third dimensions\n        of the input.",
         "name": "dims"
       }
     ],
