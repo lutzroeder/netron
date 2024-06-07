@@ -4114,9 +4114,12 @@ python.Execution = class {
         this.registerType('torch.ao.quantization.stubs.DeQuantStub', class {});
         this.registerType('torch.ao.quantization.stubs.QuantStub', class {});
         this.registerType('torch.ao.quantization.stubs.QuantWrapper', class {});
+        this.registerFunction('torch.ao.quantization.qconfig._activation_is_memoryless');
+        this.registerFunction('torch.ao.quantization.qconfig._add_module_to_qconfig_obs_ctr');
         this.registerFunction('torch.ao.quantization.fx.graph_module._save_packed_weight');
         this.registerFunction('torch.ao.quantization.fx._lower_to_native_backend._load_packed_weight');
         this.registerFunction('torch.ao.quantization.fx._lower_to_native_backend._save_packed_weight');
+        this.registerFunction('torch.ao.quantization.observer._is_activation_post_process');
         this.registerFunction('torch.ao.quantization.quantization_mappings._get_special_act_post_process');
         this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_dynamic_quant_module_mappings');
         this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_qat_module_mappings');
@@ -4379,6 +4382,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.PackedParameter', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.RNNBase', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.GRU', class extends torch.ao.nn.quantized.dynamic.modules.rnn.RNNBase {});
+        this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.LSTM', class extends torch.ao.nn.quantized.dynamic.modules.rnn.RNNBase {});
         this.registerType('torch.ao.nn.quantized.reference.modules.conv.Conv1d', class {});
         this.registerType('torch.ao.nn.quantized.reference.modules.conv.Conv2d', class {});
         this.registerType('torch.ao.nn.quantized.reference.modules.linear.Linear', class {});
@@ -5476,6 +5480,7 @@ python.Execution = class {
             throw new python.Error("Unsupported 'torch.sub' expression type.");
         });
         this.registerFunction('torch.functional.einsum');
+        this.registerFunction('torch.functional.norm');
         this.registerFunction('torch.functional.split');
         this.registerFunction('torch.nn.init.constant_');
         this.registerFunction('torch.nn.init.xavier_uniform_');
@@ -6644,6 +6649,8 @@ python.Execution = class {
         this.registerType('fastai.losses.FocalLoss', class extends fastai.torch_core.Module {});
         this.registerType('fastai.losses.FocalLossFlat', class extends fastai.losses.BaseLoss {});
         this.registerType('fastai.metrics.AccumMetric', class extends fastai.learner.Metric {});
+        this.registerType('fastai.metrics.Dice', class {});
+        this.registerType('fastai.metrics.JaccardCoeff', class {});
         this.registerFunction('fastai.metrics._rmse');
         this.registerFunction('fastai.metrics.accuracy');
         this.registerFunction('fastai.metrics.accuracy_multi');
