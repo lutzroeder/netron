@@ -101,15 +101,26 @@ circle.Model = class {
         let modelMetadata = null;
         for (const metadata of model.metadata) {
             const buffer = model.buffers[metadata.buffer];
+            let data = null;
+            const position = stream.position;
             if (buffer && buffer.data && buffer.data.length > 0) {
+                data = buffer.data;
+            } else if (buffer && buffer.offset !== 0n && buffer.size !== 0n) {
+                const offset = buffer.offset.toNumber();
+                const size = buffer.size.toNumber();
+                stream.seek(offset);
+                data = stream.read(size);
+            }
+            stream.seek(position);
+            if (data) {
                 switch (metadata.name) {
                     case 'min_runtime_version': {
                         const decoder = new TextDecoder();
-                        this.runtime = decoder.decode(buffer.data);
+                        this.runtime = decoder.decode(data);
                         break;
                     }
                     case 'TFLITE_METADATA': {
-                        const reader = flatbuffers.BinaryReader.open(buffer.data);
+                        const reader = flatbuffers.BinaryReader.open(data);
                         if (!reader || !circle.schema.ModelMetadata.identifier(reader)) {
                             throw new circle.Error('Invalid TensorFlow Lite metadata.');
                         }
@@ -132,6 +143,9 @@ circle.Model = class {
                         break;
                     }
                     default: {
+                        const value = data.length < 256 && data.every((c) => c >= 32 && c < 128) ? String.fromCharCode.apply(null, data) : '?';
+                        const argument = new circle.Argument(metadata.name, value);
+                        this.metadata.push(argument);
                         break;
                     }
                 }
