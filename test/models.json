@@ -1549,14 +1549,6 @@
   },
   {
     "type":     "coreml",
-    "target":   "segmentation.mlmodelc.zip",
-    "source":   "https://github.com/user-attachments/files/15315833/segmentation.mlmodelc.zip",
-    "format":   "Espresso v2.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/193"
-  },
-
-  {
-    "type":     "coreml",
     "target":   "SentimentPolarity.mlmodel",
     "source":   "https://github.com/cocoa-ai/SentimentCoreMLDemo/raw/master/SentimentPolarity/Resources/SentimentPolarity.mlmodel",
     "link":     "https://github.com/SwiftBrain/awesome-CoreML-models"
@@ -1581,13 +1573,6 @@
     "source":   "https://docs-assets.developer.apple.com/coreml/models/Image/ImageClassification/SqueezeNet/SqueezeNet.mlmodel",
     "format":   "Core ML v1",
     "link":     "https://developer.apple.com/machine-learning/models"
-  },
-  {
-    "type":     "coreml",
-    "target":   "SqueezeNet.mlmodelc.zip",
-    "source":   "https://github.com/user-attachments/files/15535445/SqueezeNet.mlmodelc.zip",
-    "format":   "Espresso v2.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":     "coreml",
@@ -2081,6 +2066,20 @@
     "source":   "https://github.com/lutzroeder/netron/files/5118426/brows_model.zip[brows_model.dnn]",
     "format":   "SnapML v1",
     "link":     "https://github.com/lutzroeder/netron/issues/581"
+  },
+  {
+    "type":     "espresso",
+    "target":   "segmentation.mlmodelc.zip",
+    "source":   "https://github.com/user-attachments/files/15315833/segmentation.mlmodelc.zip",
+    "format":   "Espresso v2.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
+  },
+  {
+    "type":     "espresso",
+    "target":   "SqueezeNet.mlmodelc.zip",
+    "source":   "https://github.com/user-attachments/files/15535445/SqueezeNet.mlmodelc.zip",
+    "format":   "Espresso v2.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":     "flax",

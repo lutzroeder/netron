@@ -1,0 +1,74 @@
+[
+ {
+    "name": "convolution",
+    "category": "Layer"
+  },
+  {
+    "name": "inner_product",
+    "category": "Layer"
+  },
+  {
+    "name": "activation",
+    "category": "Activation"
+  },
+  {
+    "name": "softmax",
+    "category": "Activation"
+  },
+  {
+    "name": "transpose",
+    "category": "Transform"
+  },
+  {
+    "name": "pool",
+    "category": "Pool"
+  },
+  {
+    "name": "instancenorm_1d",
+    "category": "Normalization"
+  },
+  {
+    "name": "batch_norm",
+    "category": "Normalization"
+  },
+  {
+    "name": "reshape",
+    "category": "Shape"
+  },
+  {
+    "name": "dynamic_quantize",
+    "category": "Quantization"
+  },
+  {
+    "name": "dynamic_dequantize",
+    "category": "Quantization"
+  },
+  {
+    "name": "concat",
+    "category": "Tensor"
+  },
+  {
+    "name": "general_concat",
+    "category": "Tensor"
+  },
+  {
+    "name": "upsample",
+    "category": "Data"
+  },
+  {
+    "name": "relu",
+    "category": "Activation"
+  },
+  {
+    "name": "prelu",
+    "category": "Activation"
+  },
+  {
+    "name": "tanh",
+    "category": "Activation"
+  },
+  {
+    "name": "squeeze",
+    "category": "Transform"
+  }
+]
