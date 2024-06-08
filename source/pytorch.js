@@ -3419,32 +3419,34 @@ pytorch.Utility = class {
             case 'Tensor[]':
                 return Array.isArray(obj) && obj.length > 0 && obj.every((tensor) => pytorch.Utility.isTensor(tensor) || tensor === null);
             case 'Scalar':
-                return (obj !== null && obj !== Object(obj)) || (pytorch.Utility.isTensor(obj) && Array.isArray(obj.size()) && obj.size().length === 0);
+                return (obj !== null && (obj !== Object(obj) || obj instanceof Number)) || (pytorch.Utility.isTensor(obj) && Array.isArray(obj.size()) && obj.size().length === 0);
             case 'boolean':
                 return obj === true || obj === false;
             case 'string':
                 return obj === null || typeof obj === 'string';
             case 'SymInt':
             case 'int64':
-                return Number.isInteger(obj) || typeof obj === 'bigint' || (typeof obj === 'number' && isNaN(obj));
+                return Number.isInteger(obj) || typeof obj === 'bigint' ||
+                    (typeof obj === 'number' && isNaN(obj)) || (obj instanceof Number);
             case 'SymInt[]':
             case 'SymInt[2]':
             case 'SymInt[3]':
             case 'SymInt[4]':
             case 'SymInt[5]':
             case 'SymInt[6]':
+                return Array.isArray(obj) && obj.every((item) => pytorch.Utility.isType(item, 'SymInt') || item === undefined || (item.__class__ === 'number' && isNaN(item)));
             case 'int64[]':
             case 'int64[2]':
             case 'int64[3]':
-                return Array.isArray(obj) && obj.every((item) => Number.isInteger(item) || (typeof item === 'number' && isNaN(item)) || item === undefined);
+                return Array.isArray(obj) && obj.every((item) => pytorch.Utility.isType(item, 'int64') || item === undefined || (item.__class__ === 'number' && isNaN(item)));
             case 'int64[1]':
             case 'SymInt[1]':
                 return pytorch.Utility.isType(obj, 'int64') || pytorch.Utility.isType(obj, 'int64[]');
             case 'float32':
             case 'float64':
-                return obj !== null && obj !== Object(obj);
+                return obj !== null && (typeof obj === 'number' || obj instanceof Number);
             case 'float32[]':
-                return Array.isArray(obj) && obj.every((item) => typeof item === 'number' && !isNaN(item));
+                return Array.isArray(obj) && obj.every((item) => (typeof item === 'number' || item instanceof Number) && !isNaN(item));
             case 'string[][]':
                 return Array.isArray(obj) && obj.every((item) => Array.isArray(item) && item.every((item) => typeof item === 'string'));
             case 'Layout':
@@ -3452,7 +3454,7 @@ pytorch.Utility = class {
             case 'MemoryFormat':
                 return Number.isInteger(obj) || obj === null;
             case 'Dimname':
-                return obj === null || typeof obj === 'string';
+                return obj === null || (typeof obj === 'string' || obj instanceof String);
             case 'Dimname[]':
                 return Array.isArray(obj) && obj.every((item) => item === null || typeof item === 'string');
             case 'Device':

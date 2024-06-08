@@ -1695,44 +1695,57 @@ python.Execution = class {
         this.registerFunction('builtins.__import__', (name, globals, locals, fromlist, level) => {
             return execution.__import__(name, globals, locals, fromlist, level);
         });
-        this.registerFunction('builtins.bool', (value) => {
-            if (value) {
-                if (value.__bool__) {
-                    return value.__bool__();
+        this.registerType('builtins.bool', class extends Boolean {
+            constructor(value) {
+                if (value && value.__bool__) {
+                    value = value.__bool__();
+                } else if (value && value.__len__) {
+                    value = value.__len__() > 0;
+                } else {
+                    value = value ? true : false;
                 }
-                if (value.__len__) {
-                    return value.__len__() > 0;
-                }
+                super(value);
             }
-            return false;
         });
-        this.registerFunction('builtins.int', (value) => {
-            if (value) {
-                if (value.__int__) {
-                    return value.__int__();
+        this.registerType('builtins.int', class extends Number {
+            constructor(value) {
+                if (value && value.__int__) {
+                    value = value.__int__();
+                } else if (!Number.isInteger(value)) {
+                    value = NaN;
                 }
-                if (Number.isInteger(value)) {
-                    return value;
-                }
+                super(value);
             }
-            return NaN;
         });
-        this.registerFunction('builtins.float', (value) => {
-            if (value) {
-                if (value.__float__) {
-                    return value.__float__();
+        this.registerType('builtins.float', class extends Number {
+            constructor(value) {
+                if (value && value.__float__) {
+                    value = value.__float__();
+                } else if (Number(value) !== value) {
+                    value = NaN;
                 }
-                if (Number(value) === value) {
-                    return value;
-                }
+                super(value);
             }
-            return NaN;
         });
-        this.registerFunction('builtins.str', (value) => {
-            if (value && value.__str__) {
-                return value.__str__();
+        this.registerType('builtins.long', class extends Number {
+            constructor(value) {
+                if (value && value.__int__) {
+                    value = value.__int__();
+                } else if (!Number.isInteger(value)) {
+                    value = NaN;
+                }
+                super(value);
             }
-            return JSON.stringify(value);
+        });
+        this.registerType('builtins.str', class extends String {
+            constructor(value) {
+                if (value && value.__str__) {
+                    value = value.__str__();
+                } else if (typeof value !== 'string') {
+                    value = JSON.stringify(value);
+                }
+                super(value);
+            }
         });
         this.registerType('builtins.complex', class {
             constructor(real, imaginary) {
@@ -1763,7 +1776,6 @@ python.Execution = class {
         this.registerType('builtins.Exception', class extends builtins.BaseException {});
         this.registerType('builtins.AttributeError', class extends builtins.Exception {});
         this.registerType('builtins.SyntaxError', class extends builtins.Exception {});
-        this.registerFunction('builtins.long', this.builtins.int);
         this.registerFunction('builtins.print', () => {});
         this.registerFunction('builtins.unicode');
         builtins.Ellipsis = new builtins.ellipsis();
@@ -3613,8 +3625,7 @@ python.Execution = class {
                 for (const name of ['__builtin__', 'types']) {
                     const module = self.register(name);
                     for (const [name, obj] of Object.entries(module)) {
-                        if (obj.__module__ === 'builtins' &&
-                        obj.__class__ === builtins.type) {
+                        if (obj.__module__ === 'builtins' && obj.__class__ === builtins.type) {
                             _dill._reverse_typemap.set(name, obj);
                         }
                     }
@@ -4971,8 +4982,8 @@ python.Execution = class {
             return tensor;
         });
         this.registerFunction('torch.add', (left, right) => {
-            if (typeof left === 'number' && typeof right === 'number') {
-                return left * right;
+            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
+                return left + right;
             }
             if (Array.isArray(left) && Array.isArray(right)) {
                 return left.concat(right);
@@ -5039,7 +5050,7 @@ python.Execution = class {
             if (typeof left === 'string' && typeof right === 'string') {
                 return left === right;
             }
-            if (typeof left === 'number' && typeof right === 'number') {
+            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 if (isNaN(left) && isNaN(right)) {
                     return true;
                 }
@@ -5076,7 +5087,7 @@ python.Execution = class {
             }).join('');
         });
         this.registerFunction('torch.gt', (left, right) => {
-            if (typeof left === 'number' && typeof right === 'number') {
+            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 if (!isNaN(left) && !isNaN(right)) {
                     return left > right;
                 }
@@ -5087,7 +5098,7 @@ python.Execution = class {
             throw new python.Error("Unsupported 'torch.gt' expression type.");
         });
         this.registerFunction('torch.ge', (left, right) => {
-            if (typeof left === 'number' && typeof right === 'number') {
+            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 if (!isNaN(left) && !isNaN(right)) {
                     return left > right;
                 }
@@ -5145,7 +5156,7 @@ python.Execution = class {
             return NaN;
         });
         this.registerFunction('torch.le', (left, right) => {
-            if (typeof left === 'number' && typeof right === 'number') {
+            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 if (isNaN(left) || isNaN(right)) {
                     return false;
                 }
@@ -5352,25 +5363,25 @@ python.Execution = class {
         });
         this.registerFunction('torch.log10');
         this.registerFunction('torch.lt', (left, right) => {
-            if (typeof left === 'number' && typeof right === 'number') {
+            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 return left < right;
             }
             throw new python.Error("Unsupported 'torch.lt' expression type.");
         });
         this.registerFunction('torch.mul', (left, right) => {
-            if (typeof left === 'number' && typeof right === 'number') {
+            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 return left * right;
             }
             if (isNaN(left) || isNaN(right)) {
                 return NaN;
             }
-            if (Array.isArray(left) && left.every((value) => typeof value === 'number') && typeof right === 'number') {
+            if (Array.isArray(left) && left.every((value) => typeof value === 'number' || value instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 return left.map((value) => value * right);
             }
             throw new python.Error("Unsupported 'torch.mul' expression type.");
         });
         this.registerFunction('torch.div', (left, right) => {
-            if (typeof left === 'number' && typeof right === 'number') {
+            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 return left / right;
             }
             if (isNaN(left) || isNaN(right)) {
@@ -5379,7 +5390,7 @@ python.Execution = class {
             throw new python.Error("Unsupported 'torch.div' expression type.");
         });
         this.registerFunction('torch.round', (value) => {
-            if (typeof value === 'number') {
+            if (typeof value === 'number' || value instanceof Number) {
                 return Math.round(value);
             }
             if (isNaN(value)) {
@@ -5388,7 +5399,7 @@ python.Execution = class {
             throw new python.Error("Unsupported 'torch.round' expression type.");
         });
         this.registerFunction('torch.remainder', (left, right) => {
-            if (typeof left === 'number' && typeof right === 'number') {
+            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 return left % right;
             }
             if (isNaN(left) || isNaN(right)) {
@@ -5400,7 +5411,7 @@ python.Execution = class {
             if (typeof left === 'boolean' && typeof right === 'boolean') {
                 return left !== right;
             }
-            if (typeof left === 'number' && typeof right === 'number') {
+            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 if (isNaN(left) || isNaN(right)) {
                     return false;
                 }
@@ -5424,7 +5435,7 @@ python.Execution = class {
             throw new python.Error("Unsupported 'torch.neg' expression type.");
         });
         this.registerFunction('torch.pow', (left, right) => {
-            if (typeof left === 'number' && typeof right === 'number') {
+            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 return Math.pow(left, right);
             }
             throw new python.Error("Unsupported 'torch.pow' expression type.");
@@ -5474,7 +5485,7 @@ python.Execution = class {
             return l.slice(start, end);
         });
         this.registerFunction('torch.sub', (left, right) => {
-            if (typeof left === 'number' && typeof right === 'number') {
+            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 return left - right;
             }
             throw new python.Error("Unsupported 'torch.sub' expression type.");
@@ -6909,7 +6920,7 @@ python.Execution = class {
         const func = name ? callTarget[name] : callTarget;
         if (func.__class__ === this._builtins.type) {
             if (func.prototype && func.prototype.__class__ === func) {
-                return Reflect.construct(func, args);
+                return Reflect.construct(func, callArguments);
             }
             const obj = Object.create(func);
             obj.__class__ = func;
