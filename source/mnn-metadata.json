@@ -617,6 +617,7 @@
   },
   {
     "name": "Unsqueeze",
+    "category": "Transform",
     "operator": 107
   },
   {

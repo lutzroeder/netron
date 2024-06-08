@@ -2169,6 +2169,7 @@
   },
   {
     "name": "squeeze",
+    "category": "Transform",
     "attributes": [
       { "name": "axis_list", "default": null },
       { "name": "name", "default": null }

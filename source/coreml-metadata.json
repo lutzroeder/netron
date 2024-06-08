@@ -557,5 +557,9 @@
   {
     "name": "espresso:tanh",
     "category": "Activation"
+  },
+  {
+    "name": "espresso:squeeze",
+    "category": "Transform"
   }
 ]

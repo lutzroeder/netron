@@ -764,7 +764,7 @@
   {
     "name": "Unsqueeze",
     "identifier": 85,
-    "category": "Shape",
+    "category": "Transform",
     "attributes": [
       { "name": "axes_size", "default": 0 },
       { "name": "axes", "type": "int32[]", "size": "0" }

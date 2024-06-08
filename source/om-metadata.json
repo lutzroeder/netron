@@ -2726,7 +2726,7 @@
   },
   {
     "name": "Squeeze",
-    "category": "Shape",
+    "category": "Transform",
     "inputs": [
       { "name": "x" }
     ],

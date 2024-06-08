@@ -960,7 +960,7 @@
   {
     "name": "Squeeze",
     "identifier": 44,
-    "category": "Shape",
+    "category": "Transform",
     "attributes": [
       { "name": "squeeze_w", "default": 0 },
       { "name": "squeeze_h", "default": 0 },
