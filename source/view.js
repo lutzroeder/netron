@@ -322,7 +322,7 @@ view.View = class {
                 this._options.mousewheel = this._options.mousewheel === 'scroll' ? 'zoom' : 'scroll';
                 break;
             default:
-                throw new view.Error(`Unsupported toogle '${name}'.`);
+                throw new view.Error(`Unsupported toggle '${name}'.`);
         }
         const options = {};
         for (const [name, value] of Object.entries(this._options)) {
