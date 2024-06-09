@@ -1838,11 +1838,14 @@ python.Execution = class {
         this.registerType('collections.OrderedDict', class extends dict {});
         this.registerType('cuml.common.array_descriptor.CumlArrayDescriptorMeta', class {});
         this.registerType('cuml.ensemble.randomforestclassifier.RandomForestClassifier', class {});
+        this.registerType('cuml.internals.array.CumlArray', class {});
+        this.registerType('cuml.internals.mem_type.MemoryType', class {});
         this.registerType('cuml.raft.common.handle.Handle', class {
             __setstate__(state) {
                 this._handle = state;
             }
         });
+        this.registerType('cuml.svm.svr.SVR', class {});
         this.registerType('datetime.date', class {});
         this.registerType('datetime.datetime', class extends datetime.date {});
         this.registerType('datetime.timedelta', class {});
@@ -2557,6 +2560,7 @@ python.Execution = class {
             return new cls(d);
         });
         this.registerType('pandas.core.arrays.datetimes.DatetimeArray', class {});
+        this.registerType('pandas.core.arrays.integer.IntegerArray', class {});
         this.registerType('pandas.core.indexes.datetimes._new_DatetimeIndex', class {});
         this.registerType('pandas.core.indexes.datetimes.DatetimeIndex', class {});
         this.registerType('pandas.core.indexes.base.Index', class {});
@@ -2610,13 +2614,19 @@ python.Execution = class {
         shap.explainers.LinearExplainer = shap.explainers._linear.LinearExplainer;
         shap.explainers.linear.LinearExplainer = shap.explainers._linear.LinearExplainer;
         this.registerType('sklearn._loss.link.BaseLink', class {});
+        this.registerType('sklearn._loss._loss.__pyx_unpickle_CyHalfBinomialLoss', class {});
+        this.registerType('sklearn._loss._loss.__pyx_unpickle_CyHalfMultinomialLoss', class {});
+        this.registerType('sklearn._loss._loss.CyLossFunction', class {});
+        this.registerType('sklearn._loss._loss.CyHalfBinomialLoss', class {});
+        this.registerType('sklearn._loss._loss.CyHalfMultinomialLoss', class {});
+        this.registerType('sklearn._loss._loss.CyHalfSquaredError', class extends sklearn._loss._loss.CyLossFunction {});
         this.registerType('sklearn._loss.link.IdentityLink', class extends sklearn._loss.link.BaseLink {});
         this.registerType('sklearn._loss.link.Interval', class {});
+        this.registerType('sklearn._loss.link.LogitLink', class {});
         this.registerType('sklearn._loss.link.MultinomialLogit', class extends sklearn._loss.link.BaseLink {});
-        this.registerType('sklearn._loss._loss.CyLossFunction', class {});
-        this.registerType('sklearn._loss._loss.CyHalfSquaredError', class extends sklearn._loss._loss.CyLossFunction {});
         this.registerFunction('sklearn._loss._loss.__pyx_unpickle_CyHalfSquaredError');
         this.registerType('sklearn._loss.loss.BaseLoss', class {});
+        this.registerType('sklearn._loss.loss.HalfBinomialLoss', class {});
         this.registerType('sklearn._loss.loss.HalfMultinomialLoss', class extends sklearn._loss.loss.BaseLoss {});
         this.registerType('sklearn._loss.loss.HalfSquaredError', class extends sklearn._loss.loss.BaseLoss {});
         this.registerType('sklearn.base.BaseEstimator', class {});
@@ -2628,6 +2638,7 @@ python.Execution = class {
         this.registerType('sklearn.cluster._dbscan.DBSCAN', class {});
         this.registerType('sklearn.cluster._kmeans.KMeans', class {});
         this.registerType('sklearn.cluster.k_means_.MiniBatchKMeans', class {});
+        this.registerType('sklearn.compose._column_transformer._RemainderColsList', class {});
         this.registerType('sklearn.compose._column_transformer.ColumnTransformer', class {});
         this.registerType('sklearn.compose._target.TransformedTargetRegressor', class {});
         this.registerType('sklearn.cross_decomposition._pls.PLSRegression', class {});
@@ -2649,6 +2660,7 @@ python.Execution = class {
         this.registerType('sklearn.ensemble._forest.ExtraTreesRegressor', class {});
         this.registerType('sklearn.ensemble._gb_losses.BinomialDeviance', class {});
         this.registerType('sklearn.ensemble._gb_losses.ExponentialLoss', class {});
+        this.registerType('sklearn.ensemble._gb_losses.LeastAbsoluteError', class {});
         this.registerType('sklearn.ensemble._gb_losses.LeastSquaresError', class {});
         this.registerType('sklearn.ensemble._gb_losses.MultinomialDeviance', class {});
         this.registerType('sklearn.ensemble._gb.GradientBoostingClassifier', class {});
@@ -2683,6 +2695,7 @@ python.Execution = class {
         this.registerType('sklearn.feature_selection._univariate_selection.SelectKBest', class {});
         this.registerType('sklearn.feature_selection._univariate_selection.SelectPercentile', class {});
         this.registerType('sklearn.feature_selection._variance_threshold.VarianceThreshold', class {});
+        this.registerType('sklearn.feature_selection._rfe.RFE', class {});
         this.registerType('sklearn.feature_selection.univariate_selection.SelectKBest', class {});
         this.registerType('sklearn.feature_selection.variance_threshold.VarianceThreshold', class {});
         this.registerType('sklearn.gaussian_process._gpc.GaussianProcessClassifier', class {});
@@ -2698,8 +2711,10 @@ python.Execution = class {
         this.registerType('sklearn.grid_search.GridSearchCV', class {});
         this.registerType('sklearn.impute._base.SimpleImputer', class {});
         this.registerType('sklearn.impute._iterative.IterativeImputer', class {});
+        this.registerType('sklearn.impute._iterative._ImputerTriplet', class {});
         this.registerType('sklearn.impute.SimpleImputer', class {});
         this.registerType('sklearn.isotonic.IsotonicRegression', class {});
+        this.registerType('sklearn.kernel_ridge.KernelRidge', class {});
         this.registerType('sklearn.linear_model._base.LinearRegression', class {});
         this.registerType('sklearn.linear_model._bayes.BayesianRidge', class {});
         this.registerType('sklearn.linear_model._coordinate_descent.ElasticNetCV', class {});
@@ -3541,8 +3556,12 @@ python.Execution = class {
         this.registerFunction('cloudpickle.cloudpickle._builtin_type', (name) => {
             return name;
         });
-        this.registerFunction('cloudpickle.cloudpickle._make_skeleton_class');
+        this.registerFunction('cloudpickle.cloudpickle._make_cell');
+        this.registerFunction('cloudpickle.cloudpickle._make_empty_cell');
         this.registerFunction('cloudpickle.cloudpickle._make_function');
+        this.registerFunction('cloudpickle.cloudpickle._make_skeleton_class');
+        this.registerFunction('cloudpickle.cloudpickle.subimport');
+        this.registerFunction('cloudpickle.cloudpickle_fast._class_setstate');
         this.registerFunction('cloudpickle.cloudpickle_fast._function_setstate');
         this.registerType('collections.Counter', class {});
         this.registerFunction('collections.defaultdict', (/* default_factory */) => {
@@ -3815,6 +3834,9 @@ python.Execution = class {
                 }
             }
         });
+        this.registerFunction('numpy.core._multiarray_umath.cbrt');
+        this.registerFunction('numpy.core._multiarray_umath.greater');
+        this.registerFunction('numpy.core._multiarray_umath.less');
         this.registerFunction('numpy.core._multiarray_umath.scalar', (dtype, rawData) => {
             let data = rawData;
             if (typeof rawData === 'string') {
@@ -4062,6 +4084,7 @@ python.Execution = class {
             return {};
         });
         this.registerFunction('sklearn.feature_selection._univariate_selection.f_classif');
+        this.registerFunction('sklearn.feature_selection._univariate_selection.f_regression');
         this.registerFunction('sklearn.metrics.scorer._passthrough_scorer');
         this.registerFunction('sklearn.metrics._classification.accuracy_score');
         this.registerFunction('sklearn.metrics._classification.f1_score');
@@ -4131,6 +4154,7 @@ python.Execution = class {
         this.registerFunction('torch.ao.quantization.fx._lower_to_native_backend._load_packed_weight');
         this.registerFunction('torch.ao.quantization.fx._lower_to_native_backend._save_packed_weight');
         this.registerFunction('torch.ao.quantization.observer._is_activation_post_process');
+        this.registerFunction('torch.ao.quantization.quantize._observer_forward_hook');
         this.registerFunction('torch.ao.quantization.quantization_mappings._get_special_act_post_process');
         this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_dynamic_quant_module_mappings');
         this.registerFunction('torch.ao.quantization.quantization_mappings.get_default_qat_module_mappings');
@@ -4141,6 +4165,7 @@ python.Execution = class {
         this.registerFunction('torch.ao.quantization.quantization_mappings._has_special_act_post_process');
         this.registerFunction('torch.ao.quantization.utils.get_qparam_dict');
         this.registerFunction('torch.ao.quantization.utils.has_no_children_ignoring_parametrizations');
+        this.registerFunction('torch.amp.grad_scaler._refresh_per_optimizer_state');
         this.registerType('torch.autograd.variable.Variable', class {});
         this.registerType('torch.backends.cudnn.rnn.Unserializable', class {});
         this.registerFunction('torch.distributed._shard.sharded_tensor.pre_load_state_dict_hook');
@@ -4153,6 +4178,7 @@ python.Execution = class {
         this.registerType('torch.distributions.constraints._LowerCholesky', class {});
         this.registerType('torch.distributions.constraints._Real', class {});
         this.registerType('torch.distributions.dirichlet.Dirichlet', class {});
+        this.registerType('torch.distributions.mixture_same_family.MixtureSameFamily', class {});
         this.registerType('torch.distributions.multivariate_normal.MultivariateNormal', class {});
         this.registerType('torch.distributions.normal.Normal', class {});
         this.registerType('torch.distributions.transforms._InverseTransform', class {});
@@ -4169,7 +4195,9 @@ python.Execution = class {
         this.registerType('torch.nn.intrinsic.qat.modules.conv_fused.ConvBn2d', class {});
         this.registerType('torch.nn.intrinsic.qat.modules.conv_fused.ConvBnReLU2d', class {});
         this.registerType('torch.nn.intrinsic.qat.modules.conv_fused.ConvReLU2d', class {});
+        this.registerType('torch.nn.intrinsic.quantized.modules.conv_relu.ConvReLU1d', class {});
         this.registerType('torch.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class {});
+
         this.registerType('torch.nn.intrinsic.quantized.modules.linear_relu.LinearReLU', class {});
         this.registerType('torch.nn.modules.activation.CELU', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.activation.ELU', class extends torch.nn.modules.module.Module {});
@@ -4210,6 +4238,7 @@ python.Execution = class {
         this.registerType('torch.nn.modules.batchnorm.LazyBatchNorm2d', class {});
         this.registerType('torch.nn.modules.batchnorm.LazyBatchNorm3d', class {});
         this.registerType('torch.nn.modules.batchnorm.SyncBatchNorm', class {});
+        this.registerType('torch.nn.modules.byted_batchnorm.BytedBatchNorm2d', class {});
         this.registerType('torch.nn.modules.channelshuffle.ChannelShuffle', class {});
         this.registerType('torch.nn.modules.container.ModuleDict', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.container.ModuleList', class extends torch.nn.modules.module.Module {});
@@ -4366,7 +4395,9 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantizable.modules.rnn._LSTMSingleLayer', class {});
         this.registerType('torch.ao.nn.quantizable.modules.rnn.LSTM', class {});
         this.registerType('torch.ao.nn.quantizable.modules.rnn.LSTMCell', class {});
+        this.registerType('torch.ao.nn.quantized.modules.activation.Hardswish', class extends torch.nn.modules.activation.Hardswish {});
         this.registerType('torch.ao.nn.quantized.modules.activation.MultiheadAttention', class extends torch.ao.nn.quantizable.modules.activation.MultiheadAttention {});
+        this.registerType('torch.ao.nn.quantized.modules.activation.PReLU', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.modules.activation.ReLU6', class extends torch.nn.modules.activation.ReLU {});
         this.registerType('torch.ao.nn.quantized.modules.activation.LeakyReLU', class extends torch.nn.modules.activation.LeakyReLU {});
         this.registerType('torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule', class extends torch.nn.modules.module.Module {});
@@ -4376,6 +4407,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantized.modules.conv.Conv2d', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.modules.conv._ConvNd', class extends torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule {});
         this.registerType('torch.ao.nn.quantized.modules.conv._ConvTransposeNd', class extends torch.ao.nn.quantized.modules.conv._ConvNd {});
+        this.registerType('torch.ao.nn.quantized.modules.conv.ConvTranspose1d', class extends torch.ao.nn.quantized.modules.conv._ConvTransposeNd {});
         this.registerType('torch.ao.nn.quantized.modules.conv.ConvTranspose2d', class extends torch.ao.nn.quantized.modules.conv._ConvTransposeNd {});
         this.registerType('torch.ao.nn.quantized.modules.Quantize', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.modules.DeQuantize', class extends torch.nn.modules.module.Module {});
@@ -4398,6 +4430,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantized.reference.modules.conv.Conv2d', class {});
         this.registerType('torch.ao.nn.quantized.reference.modules.linear.Linear', class {});
         this.registerType('torch.ao.nn.qat.modules.conv.Conv2d', class {});
+        this.registerType('torch.ao.nn.qat.modules.linear.Linear', class {});
         this.registerType('torch.ao.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class extends torch.ao.nn.quantized.modules.conv.Conv2d {});
         this.registerType('torch.ao.nn.intrinsic.quantized.modules.linear_relu.LinearReLU', class extends torch.ao.nn.quantized.modules.linear.Linear {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused._FusedModule', class extends torch.nn.modules.container.Sequential {});
@@ -4406,6 +4439,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.intrinsic.modules.fused.ConvReLU2d', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused.LinearReLU', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused.ConvBnReLU2d', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
+        this.registerType('torch.ao.nn.intrinsic.qat.modules.conv_fused.ConvBnReLU2d', class {});
         this.registerType('torch.nn.utils.prune.CustomFromMask', class {});
         this.registerType('torch.nn.utils.prune.L1Unstructured', class {});
         this.registerType('torch.nn.utils.prune.LnStructured', class {});
@@ -4451,9 +4485,10 @@ python.Execution = class {
         this.registerType('torch.quantization.stubs.QuantStub', class {});
         this.registerType('torch.utils._pytree.LeafSpec', class {});
         this.registerType('torch.utils._pytree.TreeSpec', class {});
-        this.registerFunction('torch.utils.data._utils.collate.default_collate');
         this.registerType('torch.utils.data.dataloader._MultiProcessingDataLoaderIter', class {});
         this.registerType('torch.utils.data.dataloader.DataLoader', class {});
+        this.registerFunction('torch.utils.data._utils.collate.default_collate');
+        torch.utils.data.dataloader.default_collate = torch.utils.data._utils.collate.default_collate;
         this.registerType('torch.utils.data.dataset.Subset', class {});
         this.registerType('torch.utils.data.dataset.ConcatDataset', class {});
         this.registerType('torch.utils.data.dataset.TensorDataset', class {});
@@ -4573,6 +4608,9 @@ python.Execution = class {
         this.registerType('torchvision.models.quantization.mobilenet.QuantizableMobileNetV2', class {});
         this.registerType('torchvision.models.quantization.mobilenetv2.QuantizableInvertedResidual', class {});
         this.registerType('torchvision.models.quantization.mobilenetv2.QuantizableMobileNetV2', class {});
+        this.registerType('torchvision.models.quantization.mobilenetv3.QuantizableMobileNetV3', class {});
+        this.registerType('torchvision.models.quantization.mobilenetv3.QuantizableInvertedResidual', class {});
+        this.registerType('torchvision.models.quantization.mobilenetv3.QuantizableSqueezeExcitation', class {});
         this.registerType('torchvision.models.quantization.resnet.QuantizableBasicBlock', class {});
         this.registerType('torchvision.models.quantization.resnet.QuantizableBottleneck', class {});
         this.registerType('torchvision.models.quantization.resnet.QuantizableResNet', class {});
@@ -4583,11 +4621,18 @@ python.Execution = class {
         this.registerType('torchvision.models.segmentation.deeplabv3.DeepLabV3', class {});
         this.registerType('torchvision.models.segmentation.fcn.FCN', class {});
         this.registerType('torchvision.models.segmentation.fcn.FCNHead', class {});
+        this.registerType('torchvision.models.segmentation.lraspp.LRASPP', class {});
         this.registerType('torchvision.models.segmentation.lraspp.LRASPPHead', class {});
         this.registerType('torchvision.models.shufflenetv2.ShuffleNetV2', class {});
         this.registerType('torchvision.models.shufflenetv2.InvertedResidual', class {});
         this.registerType('torchvision.models.squeezenet.Fire', class {});
         this.registerType('torchvision.models.squeezenet.SqueezeNet', class {});
+        this.registerType('torchvision.models.swin_transformer.PatchMerging', class {});
+        this.registerType('torchvision.models.swin_transformer.PatchMergingV2', class {});
+        this.registerType('torchvision.models.swin_transformer.ShiftedWindowAttention', class {});
+        this.registerType('torchvision.models.swin_transformer.ShiftedWindowAttentionV2', class {});
+        this.registerType('torchvision.models.swin_transformer.SwinTransformer', class {});
+        this.registerType('torchvision.models.swin_transformer.SwinTransformerBlockV2', class {});
         this.registerType('torchvision.models.resnet.ResNet', class {});
         this.registerType('torchvision.models.vgg.VGG', class {});
         this.registerType('torchvision.models.video.resnet.BasicBlock', class {});
@@ -4602,12 +4647,21 @@ python.Execution = class {
         this.registerType('torchvision.models.vision_transformer.MLPBlock', class extends torchvision.ops.misc.MLP {});
         this.registerType('torchvision.models.vision_transformer.VisionTransformer', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.models._utils.IntermediateLayerGetter', class {});
-        this.registerType('torchvision.transforms._presets.ImageClassification', class {});
+        this.registerType('torchvision.transforms._presets.ImageClassification', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.autoaugment.AutoAugment', class {});
+        this.registerType('torchvision.transforms.autoaugment.AutoAugmentPolicy', class {});
         this.registerType('torchvision.transforms.functional.InterpolationMode', class {});
+        this.registerFunction('torchvision.transforms.functional.adjust_brightness');
+        this.registerFunction('torchvision.transforms.functional.adjust_contrast');
+        this.registerFunction('torchvision.transforms.functional.adjust_brightness');
+        this.registerFunction('torchvision.transforms.functional.adjust_contrast');
+        this.registerFunction('torchvision.transforms.functional.adjust_gamma');
+        this.registerFunction('torchvision.transforms.functional.adjust_hue');
+        this.registerFunction('torchvision.transforms.functional.adjust_saturation');
         this.registerType('torchvision.transforms.transforms.ColorJitter', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.Compose', class {});
         this.registerType('torchvision.transforms.transforms.CenterCrop', class extends torch.nn.modules.module.Module {});
+        this.registerType('torchvision.transforms.transforms.GaussianBlur', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.Grayscale', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.Lambda', class {});
         this.registerType('torchvision.transforms.transforms.Normalize', class extends torch.nn.modules.module.Module {});
@@ -4624,8 +4678,12 @@ python.Execution = class {
         this.registerType('torchvision.transforms.transforms.ToTensor', class {});
         this.registerType('torchvision.transforms.v2._container.Compose', class {});
         this.registerType('torchvision.transforms.v2._misc.Normalize', class {});
+        this.registerType('torchvision.transforms.v2._misc.ToDtype', class {});
         this.registerType('torchvision.transforms.v2._geometry.CenterCrop', class {});
         this.registerType('torchvision.transforms.v2._geometry.Resize', class {});
+        this.registerType('torchvision.transforms.v2._geometry.RandomCrop', class {});
+        this.registerType('torchvision.transforms.v2._transform.Transform', class extends torch.nn.modules.module.Module {});
+        this.registerType('torchvision.transforms.v2._type_conversion.ToImage', class extends torchvision.transforms.v2._transform.Transform {});
         this.registerFunction('torchvision.models.resnet.resnet18', () => {});
         this.registerFunction('torchvision.models.resnet.resnet34', () => {});
         this.registerFunction('torchvision.models.resnet.resnet50', () => {});
@@ -4779,8 +4837,10 @@ python.Execution = class {
             }
             throw new python.Error(`Unsupported range(${JSON.stringify(start)}, ${JSON.stringify(stop)}, ${JSON.stringify(step)})`);
         });
+        builtins.xrange = builtins.range;
         this.registerFunction('torch._C._nn.gelu');
         this.registerFunction('torch._C._nn.avg_pool2d');
+        this.registerFunction('torch._C._nn.scaled_dot_product_attention');
         this.registerFunction('torch._native_multi_head_attention');
         this.registerFunction('torch._utils._rebuild_sparse_tensor', (layout, data) => {
             if (layout === torch.sparse_coo) {
@@ -4842,6 +4902,7 @@ python.Execution = class {
             tensor.backward_hooks = backward_hooks;
             return tensor;
         });
+        this.registerFunction('torch._utils._rebuild_tensor_v3');
         this.registerFunction('torch._utils._rebuild_parameter', (data, requires_grad, backward_hooks) => {
             const param = self.invoke('torch.nn.parameter.Parameter', [data, requires_grad]);
             param.backward_hooks = backward_hooks;
@@ -5504,6 +5565,7 @@ python.Execution = class {
         this.registerFunction('torch.nn.functional.hardtanh');
         this.registerFunction('torch.nn.functional.interpolate');
         this.registerFunction('torch.nn.functional.leaky_relu');
+        this.registerFunction('torch.nn.functional.l1_loss');
         this.registerFunction('torch.nn.functional.linear');
         this.registerFunction('torch.nn.functional._max_pool2d');
         this.registerFunction('torch.nn.functional.max_pool2d_with_indices');
@@ -6527,8 +6589,13 @@ python.Execution = class {
         this.registerType('torch.QUInt8Tensor', class extends torch.Tensor {});
         this.registerType('torch.QInt32Tensor', class extends torch.Tensor {});
         this.registerType('torch.BFloat16Tensor', class extends torch.Tensor {});
+        this.registerType('torch.cuda._CudaLegacyStorage', class extends torch.storage._LegacyStorage {});
+        this.registerType('torch.cuda.FloatStorage', class extends torch.cuda._CudaLegacyStorage {});
         this.registerType('torch.cuda.FloatTensor', class extends torch.Tensor {});
+        this.registerType('torch.cuda.DoubleStorage', class extends torch.cuda._CudaLegacyStorage {});
         this.registerType('torch.cuda.DoubleTensor', class extends torch.Tensor {});
+        this.registerType('torch.cuda.amp.grad_scaler.GradScaler', class {});
+        this.registerFunction('torch.cuda.amp.grad_scaler._refresh_per_optimizer_state');
         this.registerType('torch.SymInt', class {
             constructor(node) {
                 this.node = node;
@@ -6541,6 +6608,7 @@ python.Execution = class {
         this.register('torch.nn').ReLU = this.register('torch.nn.modules.activation').ReLU;
         this.register('sklearn.utils').Bunch = this.register('sklearn.utils._bunch').Bunch;
         /* eslint-disable no-multi-assign */
+        // https://github.com/pytorch/pytorch/blob/main/c10/core/ScalarType.h
         torch.uint8 = torch.ByteStorage.dtype = new torch.dtype(0, 'uint8', 1);
         torch.int8 = torch.CharStorage.dtype = new torch.dtype(1, 'int8', 1);
         torch.int16 = torch.ShortStorage.dtype = new torch.dtype(2, 'int16', 2);
@@ -6557,8 +6625,21 @@ python.Execution = class {
         torch.quint8 = torch.QUInt8Storage.dtype = new torch.dtype(13, 'quint8', 1);
         torch.qint32 = torch.QInt32Storage.dtype = new torch.dtype(14, 'qint32', 4);
         torch.bfloat16 = torch.BFloat16Storage.dtype = new torch.dtype(15, 'bfloat16', 2);
-        /* eslint-enable no-multi-assign */
         torch.quint4x2 = new torch.dtype(16, 'quint4x2');
+        torch.quint2x4 = new torch.dtype(17, 'quint2x4');
+        torch.bits1x8 = new torch.dtype(18, 'bits1x8');
+        torch.bits2x4 = new torch.dtype(19, 'bits2x4');
+        torch.bits2x4 = new torch.dtype(20, 'bits2x4');
+        torch.bits8 = new torch.dtype(21, 'bits8');
+        torch.bits16 = new torch.dtype(22, 'bits16');
+        torch.float8_e5m2 = new torch.dtype(23, 'float8_e5m2', 1);
+        torch.float8_e5m2fnuz = new torch.dtype(24, 'float8_e5m2fnuz', 1);
+        torch.float8_e4m3fn = new torch.dtype(25, 'float8_e4m3fn', 1);
+        torch.float8_e4m3fnuz = new torch.dtype(26, 'float8_e4m3fnuz', 1);
+        torch.uint16 = new torch.dtype(27, 'uint16', 2);
+        torch.uint32 = new torch.dtype(28, 'uint32', 4);
+        torch.uint64 = new torch.dtype(29, 'uint64', 8);
+        /* eslint-enable no-multi-assign */
         torch.strided = new torch.layout('torch.strided');
         torch.sparse_coo = new torch.layout('torch.sparse_coo');
         torch.sparse_csr = new torch.layout('torch.sparse_csr');
@@ -6582,6 +6663,8 @@ python.Execution = class {
         this.registerType('fastcore.transform.Pipeline', class {});
         this.registerType('fastcore.transform.Transform', class {});
         this.registerType('fastcore.transform.ItemTransform', class extends fastcore.transform.Transform {});
+        this.registerType('fastai.basic_train.Learner', class {});
+        this.registerType('fastai.basic_train.Recorder', class {});
         this.registerFunction('fastai.torch_core._fa_rebuild_tensor', (cls, ...args) => {
             const tensor = self.invoke('torch._utils._rebuild_tensor_v2', args);
             return self.invoke(cls, tensor);
@@ -6604,6 +6687,7 @@ python.Execution = class {
         this.registerType('fastai.torch_core.TensorImage', class extends fastai.torch_core.TensorImageBase {});
         this.registerType('fastai.torch_core.TensorMask', class extends fastai.torch_core.TensorImageBase {});
         this.registerType('fastai.torch_core.TensorMultiCategory', class extends fastai.torch_core.TensorCategory {});
+        this.registerFunction('fastai.torch_core.uniform');
         this.registerType('fastai.callback.core.Callback', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.callback.core.TrainEvalCallback', class extends fastai.callback.core.Callback {});
         this.registerType('fastai.callback.fp16.AMPMode', class extends this._enum.Enum {});
@@ -6633,11 +6717,14 @@ python.Execution = class {
         this.registerType('fastai.data.transforms.OneHotEncode', class {});
         this.registerType('fastai.data.transforms.RegressionSetup', class {});
         this.registerType('fastai.data.transforms.ToTensor', class {});
+        this.registerType('fastai.data_block.CategoryList', class {});
+        this.registerType('fastai.data_block.CategoryProcessor', class {});
         this.registerType('fastai.imports.noop', class {});
         this.registerType('fastai.layers.AdaptiveConcatPool2d', class {});
         this.registerType('fastai.layers.ConvLayer', class {});
         this.registerType('fastai.layers.Embedding', class {});
         this.registerType('fastai.layers.Flatten', class {});
+        this.registerType('fastai.layers.FlattenedLoss', class {});
         this.registerType('fastai.layers.LinBnDrop', class {});
         this.registerType('fastai.layers.MergeLayer', class {});
         this.registerType('fastai.layers.PixelShuffle_ICNR', class {});
@@ -6646,6 +6733,7 @@ python.Execution = class {
         this.registerType('fastai.layers.SigmoidRange', class {});
         this.registerType('fastai.layers.TimeDistributed', class {});
         this.registerType('fastai.layers.ToTensorBase', class {});
+        this.registerType('fastai.learner._ConstantFunc', class {});
         this.registerType('fastai.learner.Metric', class {});
         this.registerType('fastai.learner.AvgLoss', class extends fastai.learner.Metric {});
         this.registerType('fastai.learner.AvgMetric', class extends fastai.learner.Metric {});
@@ -6687,6 +6775,7 @@ python.Execution = class {
         this.registerType('fastai.tabular.learner.TabularLearner', class extends fastai.learner.Learner {});
         this.registerType('fastai.tabular.model.TabularModel', class {});
         this.registerFunction('fastai.vision.augment.aug_transforms');
+        this.registerFunction('fastai.vision.augment.dihedral_mat');
         this.registerType('fastai.vision.augment._BrightnessLogit', class {});
         this.registerType('fastai.vision.augment._ContrastLogit', class {});
         this.registerType('fastai.vision.augment._WarpCoord', class {});
@@ -6701,13 +6790,18 @@ python.Execution = class {
         this.registerType('fastai.vision.core.PILImage', class {});
         this.registerType('fastai.vision.core.PILMask', class {});
         this.registerType('fastai.vision.core.AddMaskCodes', class {});
+        this.registerType('fastai.vision.data.ImageList', class {});
+        this.registerType('fastai.vision.image.Image', class {});
+        this.registerType('fastai.vision.image.RandTransform', class {});
+        this.registerType('fastai.vision.image.TfmCrop', class {});
         this.registerFunction('fastai.vision.learner._resnet_split');
         this.registerFunction('fastai.vision.learner.default_split');
-        this.registerType('fastai.learner._ConstantFunc', class {});
+        this.registerFunction('fastai.vision.learner.default_split');
         this.registerType('fastai.vision.learner.TimmBody', class {});
         this.registerType('fastai.vision.models.unet.DynamicUnet', class {});
         this.registerType('fastai.vision.models.unet.ResizeToOrig', class {});
         this.registerType('fastai.vision.models.unet.UnetBlock', class {});
+        this.registerFunction('fastai.vision.transform._crop_pad');
     }
 
     get builtins() {
