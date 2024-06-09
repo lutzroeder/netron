@@ -3607,6 +3607,15 @@ view.FindSidebar = class extends view.Control {
     }
 };
 
+view.Argument = class {
+
+    constructor(name, value, type) {
+        this.name = name;
+        this.value = value;
+        this.type = type;
+    }
+};
+
 view.Tensor = class {
 
     constructor(tensor) {
@@ -4093,6 +4102,15 @@ view.Tensor = class {
                 }
                 return `${indentation}(undefined)`;
         }
+    }
+
+    get metrics() {
+        const entries = this._tensor.metrics || [];
+        const metrics = new Map(entries.map((entry) => [entry.name, entry]));
+        if (!metrics.has('sparisity')) {
+            // this.metrics.set('sparisity', new view.Argument('sparisity', 0, 'float32'));
+        }
+        return Array.from(metrics);
     }
 };
 
