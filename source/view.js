@@ -322,7 +322,7 @@ view.View = class {
                 this._options.mousewheel = this._options.mousewheel === 'scroll' ? 'zoom' : 'scroll';
                 break;
             default:
-                throw new view.Error(`Unsupported toogle '${name}'.`);
+                throw new view.Error(`Unsupported toggle '${name}'.`);
         }
         const options = {};
         for (const [name, value] of Object.entries(this._options)) {
@@ -1074,6 +1074,27 @@ view.View = class {
         }
     }
 
+    showTensorProperties(value) {
+        try {
+            if (this._menu) {
+                this._menu.close();
+            }
+            const sidebar = new view.TensorSidebar(this, value);
+            sidebar.on('activate', (sender, value) => {
+                this._graph.select([value]);
+            });
+            sidebar.on('deactivate', () => {
+                this._graph.select(null);
+            });
+            sidebar.on('select', (sender, value) => {
+                this.scrollTo(this._graph.activate(value));
+            });
+            this._sidebar.open(sidebar, 'Tensor Properties');
+        } catch (error) {
+            this.error(error, 'Error showing tensor properties.', null);
+        }
+    }
+
     exception(error, fatal) {
         if (error && !error.context && this._model && this._model.identifier) {
             error.context = this._model.identifier;
@@ -1705,43 +1726,48 @@ view.Graph = class extends grapher.Graph {
 
     createNode(node, type) {
         if (type) {
-            const value = new view.Node(this, { type });
-            value.name = (this._nodeKey++).toString();
-            this._table.set(type, value);
-            return value;
+            const obj = new view.Node(this, { type });
+            obj.name = (this._nodeKey++).toString();
+            this._table.set(type, obj);
+            return obj;
         }
-        const value = new view.Node(this, node);
-        value.name = (this._nodeKey++).toString();
-        this._table.set(node, value);
-        return value;
+        const obj = new view.Node(this, node);
+        obj.name = (this._nodeKey++).toString();
+        this._table.set(node, obj);
+        return obj;
     }
 
     createInput(input) {
-        const value = new view.Input(this, input);
-        value.name = (this._nodeKey++).toString();
-        this._table.set(input, value);
-        return value;
+        const obj = new view.Input(this, input);
+        obj.name = (this._nodeKey++).toString();
+        this._table.set(input, obj);
+        return obj;
     }
 
     createOutput(output) {
-        const value = new view.Output(this, output);
-        value.name = (this._nodeKey++).toString();
-        this._table.set(output, value);
-        return value;
+        const obj = new view.Output(this, output);
+        obj.name = (this._nodeKey++).toString();
+        this._table.set(output, obj);
+        return obj;
     }
 
-    createValue(argument) {
-        const name = argument.name;
+    createValue(value) {
+        const name = value.name;
         if (this._values.has(name)) {
             // duplicate argument name
-            const value = this._values.get(name);
-            this._table.set(argument, value);
+            const obj = this._values.get(name);
+            this._table.set(value, obj);
         } else {
-            const value = new view.Value(this, argument);
-            this._values.set(name, value);
-            this._table.set(argument, value);
+            const obj = new view.Value(this, value);
+            this._values.set(name, obj);
+            this._table.set(value, obj);
         }
         return this._values.get(name);
+    }
+
+    createTensor(value) {
+        const obj = new view.Value(this, value);
+        this._table.set(value, obj);
     }
 
     add(graph, signature) {
@@ -1779,6 +1805,8 @@ view.Graph = class extends grapher.Graph {
                 for (const value of input.value) {
                     if (value.name !== '' && !value.initializer) {
                         this.createValue(value).to.push(viewNode);
+                    } else if (value.initializer) {
+                        this.createTensor(value);
                     }
                 }
             }
@@ -2170,9 +2198,9 @@ view.Output = class extends grapher.Node {
 
 view.Value = class {
 
-    constructor(context, argument) {
+    constructor(context, value) {
         this.context = context;
-        this.value = argument;
+        this.value = value;
         this.from = null;
         this.to = [];
     }
@@ -2237,11 +2265,12 @@ view.Value = class {
     }
 
     activate() {
-        if (this.value && this.from && Array.isArray(this.to)) {
-            const value = this.value;
+        if (this.value && this.value.initializer) {
+            this.context.view.showTensorProperties(this.value);
+        } else if (this.value && this.from && Array.isArray(this.to)) {
             const from = this.from.value;
             const to = this.to.map((node) => node.value);
-            this.context.view.showConnectionProperties(value, from, to);
+            this.context.view.showConnectionProperties(this.value, from, to);
         }
     }
 };
@@ -2503,14 +2532,33 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         if (Array.isArray(inputs) && inputs.length > 0) {
             this.addHeader('Inputs');
             for (const input of inputs) {
-                this._addInput(input.name, input);
+                const name = input.name;
+                if (input.value.length > 0) {
+                    const value = new view.ArgumentView(this._view, input);
+                    value.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
+                    value.on('activate', (sender, value) => this.emit('activate', value));
+                    value.on('deactivate', (sender, value) => this.emit('deactivate', value));
+                    value.on('select', (sender, value) => this.emit('select', value));
+                    const item = new view.NameValueView(this._view, name, value);
+                    this._inputs.push(item);
+                    this.element.appendChild(item.render());
+                }
             }
         }
         const outputs = node.outputs;
         if (Array.isArray(outputs) && outputs.length > 0) {
             this.addHeader('Outputs');
             for (const output of outputs) {
-                this._addOutput(output.name, output);
+                const name = output.name;
+                if (output.value.length > 0) {
+                    const value = new view.ArgumentView(this._view, output);
+                    value.on('activate', (sender, value) => this.emit('activate', value));
+                    value.on('deactivate', (sender, value) => this.emit('deactivate', value));
+                    value.on('select', (sender, value) => this.emit('select', value));
+                    const item = new view.NameValueView(this._view, name, value);
+                    this._outputs.push(item);
+                    this.element.appendChild(item.render());
+                }
             }
         }
     }
@@ -2541,31 +2589,6 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         const item = new view.NameValueView(this._view, name, value);
         this._attributes.push(item);
         this.element.appendChild(item.render());
-    }
-
-    _addInput(name, input) {
-        if (input.value.length > 0) {
-            const value = new view.ArgumentView(this._view, input);
-            value.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
-            value.on('activate', (sender, value) => this.emit('activate', value));
-            value.on('deactivate', (sender, value) => this.emit('deactivate', value));
-            value.on('select', (sender, value) => this.emit('select', value));
-            const item = new view.NameValueView(this._view, name, value);
-            this._inputs.push(item);
-            this.element.appendChild(item.render());
-        }
-    }
-
-    _addOutput(name, output) {
-        if (output.value.length > 0) {
-            const value = new view.ArgumentView(this._view, output);
-            value.on('activate', (sender, value) => this.emit('activate', value));
-            value.on('deactivate', (sender, value) => this.emit('deactivate', value));
-            value.on('select', (sender, value) => this.emit('select', value));
-            const item = new view.NameValueView(this._view, name, value);
-            this._outputs.push(item);
-            this.element.appendChild(item.render());
-        }
     }
 };
 
@@ -2831,10 +2854,10 @@ view.ValueView = class extends view.Control {
                 element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name || ' '}</b></span>`;
                 element.addEventListener('pointerenter', () => this.emit('activate', this._value));
                 element.addEventListener('pointerleave', () => this.emit('deactivate', this._value));
-                if (!initializer) {
-                    element.style.cursor = 'pointer';
-                    element.addEventListener('click', () => this.emit('select', this._value));
-                }
+                // if (!initializer) {
+                element.style.cursor = 'pointer';
+                element.addEventListener('click', () => this.emit('select', this._value));
+                // }
                 this._element.appendChild(element);
             } else if (this._hasCategory) {
                 this._bold('category', initializer.category);
@@ -3110,6 +3133,25 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
             list.on('select', (sender, value) => this.emit('select', value));
             const item = new view.NameValueView(this._view, 'to', list);
             this.element.appendChild(item.render());
+        }
+    }
+};
+
+view.TensorSidebar = class extends view.ObjectSidebar {
+
+    constructor(context, value) {
+        super(context);
+        this._value = value;
+    }
+
+    render() {
+        const value = this._value;
+        const [name] = value.name.split('\n');
+        this.addProperty('name', name);
+        if (value.type) {
+            const item = new view.ValueView(this._view, value, '');
+            this.add('type', item);
+            item.toggle();
         }
     }
 };
