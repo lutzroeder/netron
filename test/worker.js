@@ -7,6 +7,7 @@ import * as worker_threads from 'worker_threads';
 import * as base from '../source/base.js';
 import * as zip from '../source/zip.js';
 import * as tar from '../source/tar.js';
+import * as python from '../source/python.js';
 import * as view from '../source/view.js';
 
 const access = async (path) => {
@@ -558,7 +559,7 @@ export class Target {
         this.model = await modelFactoryService.open(context);
     }
 
-    validate() {
+    async validate() {
         if (!this.model.format || (this.format && this.format !== this.model.format)) {
             throw new Error(`Invalid model format '${this.model.format}'.`);
         }
@@ -636,21 +637,17 @@ export class Target {
                             throw new Error('Tensor shape is not defined.');
                         } else {
                             tensor.toString();
-                            /*
-                            const python = await import('../source/python.js');
-                            const tensor = argument.initializer;
-                            if (tensor.type && tensor.type.dataType !== '?') {
-                                let data_type = tensor.type.dataType;
-                                switch (data_type) {
-                                    case 'boolean': data_type = 'bool'; break;
+                            if (this.tags.has('export-tensor')) {
+                                if (tensor.type && tensor.type.dataType !== '?') {
+                                    let dataType = tensor.type.dataType;
+                                    dataType = dataType === 'boolean' ? 'bool' : dataType;
+                                    const execution = new python.Execution();
+                                    const bytes = execution.invoke('io.BytesIO', []);
+                                    const dtype = execution.invoke('numpy.dtype', [dataType]);
+                                    const array = execution.invoke('numpy.asarray', [tensor.value, dtype]);
+                                    execution.invoke('numpy.save', [bytes, array]);
                                 }
-                                const execution = new python.Execution();
-                                const bytes = execution.invoke('io.BytesIO', []);
-                                const dtype = execution.invoke('numpy.dtype', [ data_type ]);
-                                const array = execution.invoke('numpy.asarray', [ tensor.value, dtype ]);
-                                execution.invoke('numpy.save', [ bytes, array ]);
                             }
-                            */
                         }
                     }
                 } else if (value.name.length === 0) {
@@ -728,15 +725,19 @@ export class Target {
                         chain.name.length;
                     }
                 }
-                // const sidebar = new view.NodeSidebar(this.view, node);
-                // sidebar.render();
+                if (this.tags.has('node-sidebar')) {
+                    const sidebar = new view.NodeSidebar(this.view, node);
+                    sidebar.render();
+                }
             }
             const sidebar = new view.ModelSidebar(this.view, this.model, graph);
             sidebar.render();
         };
         /* eslint-enable no-unused-expressions */
         for (const graph of this.model.graphs) {
-            validateGraph(graph);
+            /* eslint-disable no-await-in-loop */
+            await validateGraph(graph);
+            /* eslint-enable no-await-in-loop */
         }
     }
 
