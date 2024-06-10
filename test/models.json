@@ -4898,6 +4898,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "cup_wild_vit_l_1img.ckpt",
+    "source":   "https://github.com/user-attachments/files/15752923/cup_wild_vit_l_1img.ckpt.zip[cup_wild_vit_l_1img.ckpt]",
+    "format":   "PyTorch v1.6",
+    "assert":   [ "model.graphs[1].name == 'ema_model'" ],
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "data.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/9795497/data.pkl.zip[data.pkl]",
     "format":   "PyTorch Pickle",

@@ -3591,7 +3591,7 @@ pytorch.Utility = class {
                 keys.splice(0, keys.length);
             }
             keys.push(...[
-                'state_dict', 'state_dict_stylepredictor', 'state_dict_ghiasi',
+                'state_dict', 'state_dicts', 'state_dict_stylepredictor', 'state_dict_ghiasi',
                 'state', 'model_state', 'model', 'model_state_dict', 'model_dict', 'net_dict',
                 'generator', 'discriminator',  'g_state', 'module', 'params',
                 'weight', 'weights', 'network_weights', 'network', 'net', 'netG', 'net_states',
@@ -3677,6 +3677,9 @@ pytorch.Utility = class {
         };
         const validate = (entries) => {
             let count = 0;
+            if (entries instanceof Map === false && Object(entries) === entries) {
+                entries = new Map(Object.entries(entries));
+            }
             if (entries && entries instanceof Map) {
                 entries.delete('_extra_state');
                 for (const [key, value] of entries) {
@@ -3745,7 +3748,11 @@ pytorch.Utility = class {
             map.set('', flatten(obj));
         } else if (Object(obj) === obj && Object.entries(obj).every(([, value]) => validate(value))) {
             for (const [name, value] of Object.entries(obj)) {
-                map.set(name, value);
+                if (Object(value) === value) {
+                    map.set(name, new Map(Object.entries(value)));
+                } else {
+                    map.set(name, value);
+                }
             }
         } else if (Object(obj) === obj && Object.entries(obj).every(([, value]) => pytorch.Utility.isTensor(value))) {
             map.set('', new Map(Object.entries(obj).map(([key, value]) => [key, value])));
