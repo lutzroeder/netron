@@ -48916,6 +48916,12 @@
         "description": "Rotate using interleaved pattern. Default value is 0 (False)."
       },
       {
+        "name": "is_packed_batching",
+        "type": "int64",
+        "required": false,
+        "description": "ragged batch inputs or not. Default value is 0"
+      },
+      {
         "name": "num_heads",
         "type": "int64",
         "required": false,
