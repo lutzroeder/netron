@@ -1000,6 +1000,15 @@ view.View = class {
                     stack[0].signature = signature;
                     this._updateActive(stack);
                 });
+                sidebar.on('activate', (sender, value) => {
+                    this._graph.select([value]);
+                });
+                sidebar.on('deactivate', () => {
+                    this._graph.select(null);
+                });
+                sidebar.on('select', (sender, value) => {
+                    this.scrollTo(this._graph.activate(value));
+                });
                 this._sidebar.open(sidebar, 'Model Properties');
             } catch (error) {
                 this.error(error, 'Error showing model properties.', null);
@@ -3259,6 +3268,9 @@ view.ModelSidebar = class extends view.ObjectSidebar {
 
     addArgument(name, argument) {
         const value = new view.ArgumentView(this._view, argument);
+        value.on('activate', (sender, value) => this.emit('activate', value));
+        value.on('deactivate', (sender, value) => this.emit('deactivate', value));
+        value.on('select', (sender, value) => this.emit('select', value));
         value.toggle();
         const item = new view.NameValueView(this._view, name, value);
         this.element.appendChild(item.render());
