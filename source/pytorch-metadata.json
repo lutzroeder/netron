@@ -11236,6 +11236,15 @@
     ]
   },
   {
+    "name": "aten::rsqrt_",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::rsub.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
