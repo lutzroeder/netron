@@ -252,11 +252,90 @@ CoreML.Specification.Metadata.prototype.versionString = "";
 CoreML.Specification.Metadata.prototype.author = "";
 CoreML.Specification.Metadata.prototype.license = "";
 
-CoreML.Specification.ModelDescription = class ModelDescription {
+CoreML.Specification.FunctionDescription = class FunctionDescription {
 
     constructor() {
         this.input = [];
         this.output = [];
+        this.state = [];
+    }
+
+    static decode(reader, length) {
+        const message = new CoreML.Specification.FunctionDescription();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 2:
+                    message.input.push(CoreML.Specification.FeatureDescription.decode(reader, reader.uint32()));
+                    break;
+                case 3:
+                    message.output.push(CoreML.Specification.FeatureDescription.decode(reader, reader.uint32()));
+                    break;
+                case 6:
+                    message.state.push(CoreML.Specification.FeatureDescription.decode(reader, reader.uint32()));
+                    break;
+                case 4:
+                    message.predictedFeatureName = reader.string();
+                    break;
+                case 5:
+                    message.predictedProbabilitiesName = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new CoreML.Specification.FunctionDescription();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "name":
+                    message.name = reader.string();
+                    break;
+                case "input":
+                    message.input.push(CoreML.Specification.FeatureDescription.decodeText(reader));
+                    break;
+                case "output":
+                    message.output.push(CoreML.Specification.FeatureDescription.decodeText(reader));
+                    break;
+                case "state":
+                    message.state.push(CoreML.Specification.FeatureDescription.decodeText(reader));
+                    break;
+                case "predictedFeatureName":
+                    message.predictedFeatureName = reader.string();
+                    break;
+                case "predictedProbabilitiesName":
+                    message.predictedProbabilitiesName = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+CoreML.Specification.FunctionDescription.prototype.name = "";
+CoreML.Specification.FunctionDescription.prototype.predictedFeatureName = "";
+CoreML.Specification.FunctionDescription.prototype.predictedProbabilitiesName = "";
+
+CoreML.Specification.ModelDescription = class ModelDescription {
+
+    constructor() {
+        this.functions = [];
+        this.input = [];
+        this.output = [];
+        this.state = [];
         this.trainingInput = [];
     }
 
@@ -266,11 +345,23 @@ CoreML.Specification.ModelDescription = class ModelDescription {
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
+                case 20:
+                    message.functions.push(CoreML.Specification.FunctionDescription.decode(reader, reader.uint32()));
+                    break;
+                case 21:
+                    message.defaultFunctionName = reader.string();
+                    break;
+                case 100:
+                    message.metadata = CoreML.Specification.Metadata.decode(reader, reader.uint32());
+                    break;
                 case 1:
                     message.input.push(CoreML.Specification.FeatureDescription.decode(reader, reader.uint32()));
                     break;
                 case 10:
                     message.output.push(CoreML.Specification.FeatureDescription.decode(reader, reader.uint32()));
+                    break;
+                case 13:
+                    message.state.push(CoreML.Specification.FeatureDescription.decode(reader, reader.uint32()));
                     break;
                 case 11:
                     message.predictedFeatureName = reader.string();
@@ -280,9 +371,6 @@ CoreML.Specification.ModelDescription = class ModelDescription {
                     break;
                 case 50:
                     message.trainingInput.push(CoreML.Specification.FeatureDescription.decode(reader, reader.uint32()));
-                    break;
-                case 100:
-                    message.metadata = CoreML.Specification.Metadata.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -298,11 +386,23 @@ CoreML.Specification.ModelDescription = class ModelDescription {
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
+                case "functions":
+                    message.functions.push(CoreML.Specification.FunctionDescription.decodeText(reader));
+                    break;
+                case "defaultFunctionName":
+                    message.defaultFunctionName = reader.string();
+                    break;
+                case "metadata":
+                    message.metadata = CoreML.Specification.Metadata.decodeText(reader);
+                    break;
                 case "input":
                     message.input.push(CoreML.Specification.FeatureDescription.decodeText(reader));
                     break;
                 case "output":
                     message.output.push(CoreML.Specification.FeatureDescription.decodeText(reader));
+                    break;
+                case "state":
+                    message.state.push(CoreML.Specification.FeatureDescription.decodeText(reader));
                     break;
                 case "predictedFeatureName":
                     message.predictedFeatureName = reader.string();
@@ -313,9 +413,6 @@ CoreML.Specification.ModelDescription = class ModelDescription {
                 case "trainingInput":
                     message.trainingInput.push(CoreML.Specification.FeatureDescription.decodeText(reader));
                     break;
-                case "metadata":
-                    message.metadata = CoreML.Specification.Metadata.decodeText(reader);
-                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -325,9 +422,10 @@ CoreML.Specification.ModelDescription = class ModelDescription {
     }
 };
 
+CoreML.Specification.ModelDescription.prototype.defaultFunctionName = "";
+CoreML.Specification.ModelDescription.prototype.metadata = null;
 CoreML.Specification.ModelDescription.prototype.predictedFeatureName = "";
 CoreML.Specification.ModelDescription.prototype.predictedProbabilitiesName = "";
-CoreML.Specification.ModelDescription.prototype.metadata = null;
 
 CoreML.Specification.SerializedModel = class SerializedModel {
 
@@ -2431,10 +2529,52 @@ CoreML.Specification.SequenceFeatureType = class SequenceFeatureType {
 
 CoreML.Specification.SequenceFeatureType.prototype.sizeRange = null;
 
+CoreML.Specification.StateFeatureType = class StateFeatureType {
+
+    get Type() {
+        CoreML.Specification.StateFeatureType.TypeSet = CoreML.Specification.StateFeatureType.TypeSet || new Set(["arrayType"]);
+        return Object.keys(this).find((key) => CoreML.Specification.StateFeatureType.TypeSet.has(key) && this[key] !== null);
+    }
+
+    static decode(reader, length) {
+        const message = new CoreML.Specification.StateFeatureType();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.arrayType = CoreML.Specification.ArrayFeatureType.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new CoreML.Specification.StateFeatureType();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "arrayType":
+                    message.arrayType = CoreML.Specification.ArrayFeatureType.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
 CoreML.Specification.FeatureType = class FeatureType {
 
     get Type() {
-        CoreML.Specification.FeatureType.TypeSet = CoreML.Specification.FeatureType.TypeSet || new Set(["int64Type", "doubleType", "stringType", "imageType", "multiArrayType", "dictionaryType", "sequenceType"]);
+        CoreML.Specification.FeatureType.TypeSet = CoreML.Specification.FeatureType.TypeSet || new Set(["int64Type", "doubleType", "stringType", "imageType", "multiArrayType", "dictionaryType", "sequenceType", "stateType"]);
         return Object.keys(this).find((key) => CoreML.Specification.FeatureType.TypeSet.has(key) && this[key] !== null);
     }
 
@@ -2464,6 +2604,9 @@ CoreML.Specification.FeatureType = class FeatureType {
                     break;
                 case 7:
                     message.sequenceType = CoreML.Specification.SequenceFeatureType.decode(reader, reader.uint32());
+                    break;
+                case 8:
+                    message.stateType = CoreML.Specification.StateFeatureType.decode(reader, reader.uint32());
                     break;
                 case 1000:
                     message.isOptional = reader.bool();
@@ -2502,6 +2645,9 @@ CoreML.Specification.FeatureType = class FeatureType {
                     break;
                 case "sequenceType":
                     message.sequenceType = CoreML.Specification.SequenceFeatureType.decodeText(reader);
+                    break;
+                case "stateType":
+                    message.stateType = CoreML.Specification.StateFeatureType.decodeText(reader);
                     break;
                 case "isOptional":
                     message.isOptional = reader.bool();
@@ -4424,7 +4570,7 @@ CoreML.Specification.MILSpec.NamedValueType.prototype.type = null;
 CoreML.Specification.MILSpec.ValueType = class ValueType {
 
     get type() {
-        CoreML.Specification.MILSpec.ValueType.typeSet = CoreML.Specification.MILSpec.ValueType.typeSet || new Set(["tensorType", "listType", "tupleType", "dictionaryType"]);
+        CoreML.Specification.MILSpec.ValueType.typeSet = CoreML.Specification.MILSpec.ValueType.typeSet || new Set(["tensorType", "listType", "tupleType", "dictionaryType", "stateType"]);
         return Object.keys(this).find((key) => CoreML.Specification.MILSpec.ValueType.typeSet.has(key) && this[key] !== null);
     }
 
@@ -4445,6 +4591,9 @@ CoreML.Specification.MILSpec.ValueType = class ValueType {
                     break;
                 case 4:
                     message.dictionaryType = CoreML.Specification.MILSpec.DictionaryType.decode(reader, reader.uint32());
+                    break;
+                case 5:
+                    message.stateType = CoreML.Specification.MILSpec.StateType.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -4472,6 +4621,9 @@ CoreML.Specification.MILSpec.ValueType = class ValueType {
                 case "dictionaryType":
                     message.dictionaryType = CoreML.Specification.MILSpec.DictionaryType.decodeText(reader);
                     break;
+                case "stateType":
+                    message.stateType = CoreML.Specification.MILSpec.StateType.decodeText(reader);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -4485,6 +4637,8 @@ CoreML.Specification.MILSpec.DataType = {
     "UNUSED_TYPE": 0,
     "BOOL": 1,
     "STRING": 2,
+    "FLOAT8E4M3FN": 40,
+    "FLOAT8E5M2": 41,
     "FLOAT16": 10,
     "FLOAT32": 11,
     "FLOAT64": 12,
@@ -4493,10 +4647,16 @@ CoreML.Specification.MILSpec.DataType = {
     "INT16": 22,
     "INT32": 23,
     "INT64": 24,
+    "INT4": 25,
     "UINT8": 31,
     "UINT16": 32,
     "UINT32": 33,
-    "UINT64": 34
+    "UINT64": 34,
+    "UINT4": 35,
+    "UINT2": 36,
+    "UINT1": 37,
+    "UINT6": 38,
+    "UINT3": 39
 };
 
 CoreML.Specification.MILSpec.TensorType = class TensorType {
@@ -4694,6 +4854,45 @@ CoreML.Specification.MILSpec.DictionaryType = class DictionaryType {
 
 CoreML.Specification.MILSpec.DictionaryType.prototype.keyType = null;
 CoreML.Specification.MILSpec.DictionaryType.prototype.valueType = null;
+
+CoreML.Specification.MILSpec.StateType = class StateType {
+
+    static decode(reader, length) {
+        const message = new CoreML.Specification.MILSpec.StateType();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.wrappedType = CoreML.Specification.MILSpec.ValueType.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new CoreML.Specification.MILSpec.StateType();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "wrappedType":
+                    message.wrappedType = CoreML.Specification.MILSpec.ValueType.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+CoreML.Specification.MILSpec.StateType.prototype.wrappedType = null;
 
 CoreML.Specification.MILSpec.Dimension = class Dimension {
 
