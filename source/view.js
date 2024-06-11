@@ -1972,8 +1972,8 @@ view.Node = class extends grapher.Node {
             }
             throw error;
         }
-        let content = options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
-        const tooltip = options.names && (node.name || node.location) ? type.name : (node.name || node.location);
+        let content = options.names && (node.name || node.identifier) ? (node.name || node.identifier) : type.name.split('.').pop();
+        const tooltip = options.names && (node.name || node.identifier) ? type.name : (node.name || node.identifier);
         if (content.length > 24) {
             content = `${content.substring(0, 12)}\u2026${content.substring(content.length - 12, content.length)}`;
         }
@@ -3433,7 +3433,7 @@ view.FindSidebar = class extends view.Control {
         if (value.name && this._term(value.name.split('\n').shift())) {
             return true;
         }
-        if (value.location && this._term(value.location)) {
+        if (value.identifier && this._term(value.identifier)) {
             return true;
         }
         if (value.type && !this._exact) {
@@ -3518,8 +3518,8 @@ view.FindSidebar = class extends view.Control {
                 if (this._state.node) {
                     const name = node.name;
                     const type = node.type.name;
-                    const location = node.location;
-                    if ((name && this._term(name)) || (type && this._term(type)) || (location && this._term(location))) {
+                    const identifier = node.identifier;
+                    if ((name && this._term(name)) || (type && this._term(type)) || (identifier && this._term(identifier))) {
                         const content = `${name || `[${type}]`}`;
                         this._add(node, content, 'node');
                     }
