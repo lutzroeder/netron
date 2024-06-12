@@ -1101,6 +1101,13 @@
   },
   {
     "type":     "coreml",
+    "target":   "accumulator_example_state_model.mlpackage.zip",
+    "source":   "https://github.com/user-attachments/files/15793987/accumulator_example_state_model.mlpackage.zip",
+    "format":   "Core ML Package v9",
+    "link":     "https://github.com/lutzroeder/netron/issues/1291"
+  },
+  {
+    "type":     "coreml",
     "target":   "BERTSQUADFP16.mlmodel",
     "source":   "https://docs-assets.developer.apple.com/coreml/models/Text/QuestionAnswering/BERT_SQUAD/BERTSQUADFP16.mlmodel",
     "format":   "Core ML v4",

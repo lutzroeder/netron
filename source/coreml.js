@@ -520,6 +520,21 @@ coreml.OptionalType = class {
     }
 };
 
+coreml.StateType = class {
+
+    constructor(type) {
+        this.type = type;
+    }
+
+    equals(obj) {
+        return obj instanceof coreml.StateType && this.type.equals(obj.type);
+    }
+
+    toString() {
+        return `state<${this.type}>`;
+    }
+};
+
 coreml.Context = class {
 
     constructor(metadata, format, model, weights, values) {
@@ -535,6 +550,12 @@ coreml.Context = class {
             const description = model.description;
             const inputs = description && Array.isArray(description.input) ? description.input : [];
             for (const description of inputs) {
+                const value = this.output(description.name);
+                this.update(value, description);
+                this.inputs.push({ name: description.name, visible: true, value: [value] });
+            }
+            const state = description && Array.isArray(description.state) ? description.state : [];
+            for (const description of state) {
                 const value = this.output(description.name);
                 this.update(value, description);
                 this.inputs.push({ name: description.name, visible: true, value: [value] });
@@ -1416,14 +1437,16 @@ coreml.Utility = class {
         let result = '?';
         if (type) {
             switch (type.Type) {
+                case 'arrayType':
                 case 'multiArrayType': {
+                    const arrayType = type[type.Type];
                     let shape = new coreml.TensorShape([]);
-                    if (type.multiArrayType.shape && type.multiArrayType.shape.length > 0) {
-                        shape = new coreml.TensorShape(type.multiArrayType.shape.map((dim) => Number(dim)));
+                    if (arrayType.shape && arrayType.shape.length > 0) {
+                        shape = new coreml.TensorShape(arrayType.shape.map((dim) => Number(dim)));
                     }
                     let dataType = '';
                     const ArrayDataType = coreml.proto.ArrayFeatureType.ArrayDataType;
-                    switch (type.multiArrayType.dataType) {
+                    switch (arrayType.dataType) {
                         case ArrayDataType.INVALID_ARRAY_DATA_TYPE:
                             dataType = '?';
                             break;
@@ -1440,7 +1463,7 @@ coreml.Utility = class {
                             dataType = 'int32';
                             break;
                         default:
-                            throw new coreml.Error(`Unsupported array data type '${type.multiArrayType.dataType}'.`);
+                            throw new coreml.Error(`Unsupported array data type '${arrayType.dataType}'.`);
                     }
                     result = new coreml.TensorType(dataType, shape);
                     break;
@@ -1467,6 +1490,10 @@ coreml.Utility = class {
                 }
                 case 'imageType': {
                     result = new coreml.ImageType(type.imageType.colorSpace, type.imageType.width, type.imageType.height);
+                    break;
+                }
+                case 'stateType': {
+                    result = new coreml.StateType(coreml.Utility.featureType(type.stateType));
                     break;
                 }
                 default: {
