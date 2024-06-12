@@ -2129,7 +2129,7 @@ dagre.Graph = class {
                 node.label = label;
             }
         } else {
-            const node = { label: label ? label : this._defaultNodeLabelFn(v), in: [], out: [], predecessors: {}, successors: {}, v };
+            const node = { label: label ? label : this._defaultNodeLabelFn(v), in: [], out: [], predecessors: new Map(), successors: new Map(), v };
             this.nodes.set(v, node);
             if (this.compound) {
                 this._parent[v] = '\x00';
@@ -2209,15 +2209,18 @@ dagre.Graph = class {
     }
 
     predecessors(v) {
-        return Object.keys(this.nodes.get(v).predecessors);
+        return this.nodes.get(v).predecessors.keys().toArray();
     }
 
     successors(v) {
-        return Object.keys(this.nodes.get(v).successors);
+        return this.nodes.get(v).successors.keys().toArray();
     }
 
     neighbors(v) {
-        return Array.from(new Set(this.predecessors(v).concat(this.successors(v))));
+        const n = this.nodes.get(v);
+        const p = n.predecessors.keys();
+        const s = n.successors.keys();
+        return [...new Set([...p, ...s])];
     }
 
     edge(v, w) {
@@ -2244,11 +2247,8 @@ dagre.Graph = class {
             edge.wNode = wNode;
             edge.vNode = vNode;
             const incrementOrInitEntry = (map, k) => {
-                if (map[k]) {
-                    map[k]++;
-                } else {
-                    map[k] = 1;
-                }
+                let v = map.has(k) ? map.get(k) : 0;
+                map.set(k, v + 1);
             };
             incrementOrInitEntry(wNode.predecessors, v);
             incrementOrInitEntry(vNode.successors, w);
@@ -2263,11 +2263,21 @@ dagre.Graph = class {
         const w = edge.w;
         const wNode = edge.wNode;
         const vNode = edge.vNode;
-        if (--wNode.predecessors[v] === 0) {
-            delete wNode.predecessors[v];
+        if (wNode.predecessors.has(v)) {
+            const tmp = wNode.predecessors.get(v);
+            if (tmp == 1) {
+                wNode.predecessors.delete(v);
+            } else {
+                wNode.predecessors.set(v, tmp - 1);
+            }
         }
-        if (--vNode.successors[w] === 0) {
-            delete vNode.successors[w];
+        if (vNode.successors.has(w)) {
+            const tmp = vNode.successors.get(w);
+            if (tmp == 1) {
+                vNode.successors.delete(w);
+            } else {
+                vNode.successors.set(w, tmp - 1);
+            }
         }
         wNode.in = wNode.in.filter((edge) => edge.key !== key);
         vNode.out = vNode.out.filter((edge) => edge.key !== key);
