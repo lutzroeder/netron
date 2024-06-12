@@ -195,9 +195,10 @@ grapher.Graph = class {
                 labelpos: edge.label.labelpos || 'r'
             });
         }
+        const identifier = this.identifier;
         const layout = this._layout;
         if (worker) {
-            const message = await worker.request({ type: 'dagre.layout', nodes, edges, layout }, 2500, 'This large graph layout might take a very long time to complete.');
+            const message = await worker.request({ type: 'dagre.layout', identifier, nodes, edges, layout }, 2500, 'This large graph layout might take a very long time to complete.');
             if (message.type === 'cancel') {
                 return 'graph-layout-cancelled';
             }
@@ -205,7 +206,7 @@ grapher.Graph = class {
             edges = message.edges;
         } else {
             const dagre = await import('./dagre.js');
-            dagre.layout(nodes, edges, layout, {});
+            dagre.layout(identifier, nodes, edges, layout, {});
         }
         for (const node of nodes) {
             const label = this.node(node.v).label;

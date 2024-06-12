@@ -1780,6 +1780,8 @@ view.Graph = class extends grapher.Graph {
     }
 
     add(graph, signature) {
+        this.identifier = this.model.identifier;
+        this.identifier += graph && graph.name ? `.${graph.name.replace(/\/|\\/, '.')}` : '';
         const clusters = new Set();
         const clusterParentMap = new Map();
         const groups = graph.groups;

@@ -5,7 +5,7 @@ const dagre = {};
 // https://github.com/dagrejs/dagre
 // https://github.com/dagrejs/graphlib
 
-dagre.layout = (nodes, edges, layout, state) => {
+dagre.layout = (identifier, nodes, edges, layout, state) => {
 
     let uniqueIdCounter = 0;
     const uniqueId = (prefix) => {
@@ -327,28 +327,41 @@ dagre.layout = (nodes, edges, layout, state) => {
                 return graph;
             };
             const initLowLimValues = (tree, root) => {
-                const dfs = (tree, visited, nextLim, v, parent) => {
-                    const low = nextLim;
-                    const label = tree.node(v).label;
-                    visited.add(v);
-                    for (const w of tree.neighbors(v)) {
-                        if (!visited.has(w)) {
-                            nextLim = dfs(tree, visited, nextLim, w, v);
+                const dfs = (tree, visited, start) => {
+                    let nextLim = 1;
+                    const nodes = new Map();
+                    const stack = [[start, null, 0]];
+                    while (stack.length > 0) {
+                        const [v, parent, state] = stack.pop();
+                        if (state === 0) {
+                            if (!visited.has(v)) {
+                                visited.add(v);
+                                const label = tree.node(v).label;
+                                const low = nextLim;
+                                nodes.set(v, { label, low, parent, lim: null });
+                                stack.push([v, parent, 1]);
+                                for (const w of tree.neighbors(v)) {
+                                    if (!visited.has(w)) {
+                                        stack.push([w, v, 0]);
+                                    }
+                                }
+                            }
+                        } else {
+                            const data = nodes.get(v);
+                            const label = data.label;
+                            label.low = data.low;
+                            label.lim = nextLim++;
+                            if (data.parent) {
+                                label.parent = data.parent;
+                            } else {
+                                delete label.parent;
+                            }
                         }
                     }
-                    label.low = low;
-                    label.lim = nextLim++;
-                    if (parent) {
-                        label.parent = parent;
-                    } else {
-                        // should be able to remove this when we incrementally update low lim
-                        delete label.parent;
-                    }
-                    return nextLim;
                 };
                 root = tree.nodes.keys().next().value;
                 const visited = new Set();
-                dfs(tree, visited, 1, root);
+                dfs(tree, visited, root);
             };
             // Initializes cut values for all edges in the tree.
             const initCutValues = (t, g) => {
