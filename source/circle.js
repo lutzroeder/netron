@@ -485,8 +485,9 @@ circle.Tensor = class {
 circle.TensorType = class {
 
     constructor(tensor, denotation) {
+        const shape = tensor.shape_signature && tensor.shape_signature.length > 0 ? tensor.shape_signature : tensor.shape;
         this.dataType = circle.Utility.dataType(tensor.type);
-        this.shape = new circle.TensorShape(Array.from(tensor.shape || []));
+        this.shape = new circle.TensorShape(Array.from(shape || []));
         this.denotation = denotation;
     }
 
