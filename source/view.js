@@ -2686,6 +2686,9 @@ view.ValueTextView = class extends view.Control {
                         line.innerText = item;
                         line.style.whiteSpace = style;
                         break;
+                    case 'percentage':
+                        line.innerText = `${(item * 100).toFixed(3)}%`;
+                        break;
                     default:
                         line.innerText = item;
                         break;
@@ -3162,7 +3165,16 @@ view.TensorSidebar = class extends view.ObjectSidebar {
         if (value.type) {
             const item = new view.ValueView(this._view, value, '');
             this.add('type', item);
-            item.toggle();
+        }
+
+        if (value.initializer && value.initializer.category == 'Initializer') {
+            this.addHeader('Metrics');
+
+            const tensor = new view.Tensor(value.initializer);
+            const metrics = tensor.metrics;
+            for (const metric of metrics) {
+                this.addProperty(metric.name, [metric.value], metric.style);
+            }
         }
     }
 };
@@ -3623,10 +3635,11 @@ view.FindSidebar = class extends view.Control {
 
 view.Argument = class {
 
-    constructor(name, value, type) {
+    constructor(name, value, type, style) {
         this.name = name;
         this.value = value;
         this.type = type;
+        this.style = style
     }
 };
 
@@ -4123,7 +4136,7 @@ view.Tensor = class {
 
         const metrics = Array.from(this._tensor.metrics || []);
         const keys = new Set(metrics.map((metrics) => metrics.name));
-        if (!keys.has('sparisity')) {
+        if (!keys.has('sparsity')) {
             let num_zeros = 0;
             let num_parameters = 0;
             let stack = [value];
@@ -4140,9 +4153,9 @@ view.Tensor = class {
             }
 
             if (num_parameters > 0) {
-                metrics.push(new view.Argument('sparisity', num_zeros / num_parameters, 'float32'));
+                metrics.push(new view.Argument('sparsity', num_zeros / num_parameters, 'float32', 'percentage'));
             } else {
-                metrics.push(new view.Argument('sparisity', 0, 'float32'));
+                metrics.push(new view.Argument('sparsity', 0, 'float32', 'percentage'));
             }
         }
 
