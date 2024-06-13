@@ -2687,7 +2687,7 @@ view.ValueTextView = class extends view.Control {
                         line.style.whiteSpace = style;
                         break;
                     case 'percentage':
-                        line.innerText = `${(item * 100).toFixed(3)}%`;
+                        line.innerText = `${(item * 100).toFixed(1)}%`;
                         break;
                     default:
                         line.innerText = item;
@@ -3167,7 +3167,7 @@ view.TensorSidebar = class extends view.ObjectSidebar {
             this.add('type', item);
         }
 
-        if (value.initializer && value.initializer.category == 'Initializer') {
+        if (value.initializer && value.initializer.category === 'Initializer') {
             this.addHeader('Metrics');
 
             const tensor = new view.Tensor(value.initializer);
@@ -3639,7 +3639,7 @@ view.Argument = class {
         this.name = name;
         this.value = value;
         this.type = type;
-        this.style = style
+        this.style = style;
     }
 };
 
@@ -4139,7 +4139,7 @@ view.Tensor = class {
         if (!keys.has('sparsity')) {
             let num_zeros = 0;
             let num_parameters = 0;
-            let stack = [value];
+            const stack = [value];
             while (stack.length > 0) {
                 const val = stack.pop();
                 if (Array.isArray(val)) {
@@ -4147,7 +4147,7 @@ view.Tensor = class {
                         stack.push(element);
                     }
                 } else {
-                    num_zeros += Number(val == 0);
+                    num_zeros += Number(val === 0);
                     num_parameters += 1;
                 }
             }
