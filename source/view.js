@@ -3170,6 +3170,8 @@ view.TensorSidebar = class extends view.ObjectSidebar {
         if (value.initializer && value.initializer.category === 'Initializer') {
             this.addHeader('Metrics');
 
+            // view.Tensor is also initialized in view.ValueView
+            // future work could cache the first initialization 
             const tensor = new view.Tensor(value.initializer);
             const metrics = tensor.metrics;
             for (const metric of metrics) {
