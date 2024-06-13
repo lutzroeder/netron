@@ -2247,7 +2247,7 @@ dagre.Graph = class {
             edge.wNode = wNode;
             edge.vNode = vNode;
             const incrementOrInitEntry = (map, k) => {
-                let v = map.has(k) ? map.get(k) : 0;
+                const v = map.has(k) ? map.get(k) : 0;
                 map.set(k, v + 1);
             };
             incrementOrInitEntry(wNode.predecessors, v);
@@ -2265,7 +2265,7 @@ dagre.Graph = class {
         const vNode = edge.vNode;
         if (wNode.predecessors.has(v)) {
             const tmp = wNode.predecessors.get(v);
-            if (tmp == 1) {
+            if (tmp === 1) {
                 wNode.predecessors.delete(v);
             } else {
                 wNode.predecessors.set(v, tmp - 1);
@@ -2273,7 +2273,7 @@ dagre.Graph = class {
         }
         if (vNode.successors.has(w)) {
             const tmp = vNode.successors.get(w);
-            if (tmp == 1) {
+            if (tmp === 1) {
                 vNode.successors.delete(w);
             } else {
                 vNode.successors.set(w, tmp - 1);
