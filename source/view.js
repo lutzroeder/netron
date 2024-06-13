@@ -4119,11 +4119,33 @@ view.Tensor = class {
     }
 
     get metrics() {
+        const value = this.value;
+
         const metrics = Array.from(this._tensor.metrics || []);
         const keys = new Set(metrics.map((metrics) => metrics.name));
         if (!keys.has('sparisity')) {
-            // metrics.push(new view.Argument('sparisity', 0, 'float32'));
+            let num_zeros = 0;
+            let num_parameters = 0;
+            let stack = [value];
+            while (stack.length > 0) {
+                const val = stack.pop();
+                if (Array.isArray(val)) {
+                    for (const element of val) {
+                        stack.push(element);
+                    }
+                } else {
+                    num_zeros += Number(val == 0);
+                    num_parameters += 1;
+                }
+            }
+
+            if (num_parameters > 0) {
+                metrics.push(new view.Argument('sparisity', num_zeros / num_parameters, 'float32'));
+            } else {
+                metrics.push(new view.Argument('sparisity', 0, 'float32'));
+            }
         }
+
         return metrics;
     }
 };
