@@ -218,16 +218,13 @@ coreml.Model = class {
 
     constructor(context) {
         this.format = context.format;
-        this.metadata = [];
-        this.graphs = [new coreml.Graph(context)];
+        this.metadata = Array.from(context.metadata);
+        this.graphs = context.graphs.map((context) => new coreml.Graph(context));
         if (context.version) {
             this.version = context.version;
         }
         if (context.description) {
             this.description = context.description;
-        }
-        for (const argument of context.properties) {
-            this.metadata.push(argument);
         }
     }
 };
@@ -235,7 +232,7 @@ coreml.Model = class {
 coreml.Graph = class {
 
     constructor(context) {
-        this.name = '';
+        this.name = context.name || '';
         this.type = context.type;
         this.groups = context.groups;
         for (const value of context.values.values()) {
@@ -538,16 +535,57 @@ coreml.StateType = class {
 coreml.Context = class {
 
     constructor(metadata, format, model, weights, values) {
-        this.metadata = metadata;
-        this.properties = [];
         this.format = format;
+        this.metadata = [];
+        this.graphs = [];
+        const description = model.description;
+        for (const func of description.functions) {
+            const graph = new coreml.Context.Graph(metadata, func.name, model, func, weights, values);
+            this.graphs.push(graph);
+        }
+        if (description && description.defaultFunctionName) {
+            const graph = this.graphs.find((graph) => graph.name === description.defaultFunctionName);
+            if (graph) {
+                this.graphs.splice(this.graphs.indexOf(graph), 1);
+                this.graphs.unshift(graph);
+            }
+        }
+        if (model && !model.mlProgram || (model.mlProgram.functions && model.mlProgram.functions.main)) {
+            const graph = new coreml.Context.Graph(metadata, '', model, description, weights, values);
+            this.graphs.push(graph);
+        }
+        if (description && description.metadata) {
+            const metadata = description.metadata;
+            if (metadata.versionString) {
+                this.version = metadata.versionString;
+            }
+            if (metadata.shortDescription) {
+                this.description = metadata.shortDescription;
+            }
+            if (metadata.author) {
+                this.metadata.push(new coreml.Argument('author', metadata.author));
+            }
+            if (metadata.license) {
+                this.metadata.push(new coreml.Argument('license', metadata.license));
+            }
+            if (metadata.userDefined && Object.keys(metadata.userDefined).length > 0) {
+                /* empty */
+            }
+        }
+    }
+};
+
+coreml.Context.Graph = class {
+
+    constructor(metadata, name, model, description, weights, values) {
+        this.metadata = metadata;
+        this.name = name;
         this.weights = weights || new Map();
         this.values = values || new Map();
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];
-        if (model) {
-            const description = model.description;
+        if (description) {
             const inputs = description && Array.isArray(description.input) ? description.input : [];
             for (const description of inputs) {
                 const value = this.output(description.name);
@@ -567,29 +605,11 @@ coreml.Context = class {
                 this.update(value, description);
                 this.outputs.push({ name: description.name, visible: true, value: [value] });
             }
-            if (description && description.metadata) {
-                const properties = description.metadata;
-                if (properties.versionString) {
-                    this.version = properties.versionString;
-                }
-                if (properties.shortDescription) {
-                    this.description = properties.shortDescription;
-                }
-                if (properties.author) {
-                    this.properties.push(new coreml.Argument('author', properties.author));
-                }
-                if (properties.license) {
-                    this.properties.push(new coreml.Argument('license', properties.license));
-                }
-                if (properties.userDefined && Object.keys(properties.userDefined).length > 0) {
-                    /* empty */
-                }
-            }
         }
     }
 
     context() {
-        return new coreml.Context(this.metadata, this.format, null, this.weights, this.values);
+        return new coreml.Context.Graph(this.metadata, '', null, null, this.weights, this.values);
     }
 
     network(obj) {
@@ -1222,7 +1242,8 @@ coreml.Context = class {
 
     program(program, group) {
         // need to handle functions other than main?
-        const main = program.functions.main;
+        const name = this.name || 'main';
+        const main = program.functions[name];
         // need to handle more than one block specialization?
         const block_specializations = main.block_specializations;
         const key = Object.keys(block_specializations).filter((key) => key.startsWith('CoreML')).shift();

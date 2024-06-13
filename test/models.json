@@ -1115,6 +1115,13 @@
   },
   {
     "type":     "coreml",
+    "target":   "combined_adpater_models.mlpackage.zip",
+    "source":   "https://github.com/user-attachments/files/15793898/combined_adpater_models.mlpackage.zip",
+    "format":   "Core ML Package v9",
+    "link":     "https://github.com/lutzroeder/netron/issues/1290"
+  },
+  {
+    "type":     "coreml",
     "target":   "DeepLabV3.pb",
     "source":   "https://docs-assets.developer.apple.com/coreml/models/Image/ImageSegmentation/DeepLabV3/DeepLabV3.mlmodel",
     "format":   "Core ML v3",
