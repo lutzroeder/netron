@@ -378,9 +378,9 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                         if (!visited.has(v)) {
                             visited.add(v);
                             const children = t.neighbors(v);
-                            if (children.length > 0) {
+                            if (children.size > 0) {
                                 stack.push(v);
-                                stack.push(children.reverse());
+                                stack.push(Array.from(children).reverse());
                             } else {
                                 vs.push(v);
                             }
@@ -472,7 +472,7 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                     const v = stack.pop();
                     if (!visited.has(v)) {
                         visited.add(v);
-                        const neighbors = t.neighbors(v);
+                        const neighbors = Array.from(t.neighbors(v));
                         for (let i = neighbors.length - 1; i >= 0; i--) {
                             stack.push(neighbors[i]);
                         }
@@ -752,7 +752,7 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
             const e = label.edgeObj;
             g.setEdge(e.v, e.w, edgeLabel, e.name);
             while (label.dummy) {
-                const [w] = g.successors(v);
+                const w = g.successors(v).keys().next().value;
                 g.removeNode(v);
                 edgeLabel.points.push({ x: label.x, y: label.y });
                 if (label.dummy === 'edge-label') {
@@ -841,7 +841,7 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                     pathV = path[pathIdx];
                 }
                 g.setParent(v, pathV);
-                [v] = g.successors(v);
+                v = g.successors(v).keys().next().value;
             }
         }
     };
@@ -1075,9 +1075,10 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
             const result = sort(entries, biasRight);
             if (bl) {
                 result.vs = flat([bl, result.vs, br]);
-                if (g.predecessors(bl).length) {
-                    const blPred = g.node(g.predecessors(bl)[0]).label;
-                    const brPred = g.node(g.predecessors(br)[0]).label;
+                const predecessors = g.predecessors(bl);
+                if (predecessors.size > 0) {
+                    const blPred = g.node(predecessors.keys().next().value).label;
+                    const brPred = g.node(g.predecessors(br).keys().next().value).label;
                     if (!('barycenter' in result)) {
                         result.barycenter = 0;
                         result.weight = 0;
@@ -1217,9 +1218,7 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                         visited.add(v);
                         const rank = g.node(v).label.rank;
                         layers[rank].push(v);
-                        for (const w of g.successors(v)) {
-                            queue.push(w);
-                        }
+                        queue.push(...g.successors(v).keys());
                     }
                 }
                 return layers;
@@ -1602,7 +1601,8 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                 let prevIdx = -1;
                 for (const v of layer) {
                     let ws = neighborFn(v);
-                    if (ws.length > 0) {
+                    if (ws.size > 0) {
+                        ws = Array.from(ws.keys());
                         ws = ws.sort((a, b) => pos[a] - pos[b]);
                         const mp = (ws.length - 1) / 2.0;
                         const il = Math.ceil(mp);
@@ -1642,9 +1642,7 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                     } else {
                         visited.add(v);
                         stack.push(v);
-                        for (const w of blockG.predecessors(v)) {
-                            stack.push(w);
-                        }
+                        stack.push(...blockG.predecessors(v).keys());
                     }
                 }
             }
@@ -1669,9 +1667,7 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                     } else {
                         visited.add(v);
                         stack.push(v);
-                        for (const w of blockG.successors(v)) {
-                            stack.push(w);
-                        }
+                        stack.push(...blockG.successors(v).keys());
                     }
                 }
             }
@@ -1708,16 +1704,19 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                     const lastNode = layer[layer.length - 1];
                     for (let i = 0; i < layer.length; i++) {
                         const v = layer[i];
-                        const w = g.node(v).label.dummy ? g.predecessors(v).find((u) => g.node(u).label.dummy) : null;
+                        const w = g.node(v).label.dummy ? Array.from(g.predecessors(v).keys()).find((u) => g.node(u).label.dummy) : null;
                         if (w || v === lastNode) {
                             const k1 = w ? g.node(w).label.order : prevLayerLength;
                             for (const scanNode of layer.slice(scanPos, i + 1)) {
                             // for (const scanNode of layer.slice(scanPos, scanPos + 1)) {
-                                for (const u of g.predecessors(scanNode)) {
-                                    const uLabel = g.node(u).label;
-                                    const uPos = uLabel.order;
-                                    if ((uPos < k0 || k1 < uPos) && !(uLabel.dummy && g.node(scanNode).label.dummy)) {
-                                        addConflict(conflicts, u, scanNode);
+                                const predecessors = g.predecessors(scanNode);
+                                if (predecessors.size > 0) {
+                                    for (const u of g.predecessors(scanNode).keys()) {
+                                        const uLabel = g.node(u).label;
+                                        const uPos = uLabel.order;
+                                        if ((uPos < k0 || k1 < uPos) && !(uLabel.dummy && g.node(scanNode).label.dummy)) {
+                                            addConflict(conflicts, u, scanNode);
+                                        }
                                     }
                                 }
                             }
@@ -1737,7 +1736,7 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                 for (let i = southPos; i < southEnd; i++) {
                     const v = south[i];
                     if (g.node(v).labeldummy) {
-                        for (const u of g.predecessors(v)) {
+                        for (const u of g.predecessors(v).keys()) {
                             const uNode = g.node(u).label;
                             if (uNode.dummy && (uNode.order < prevNorthBorder || uNode.order > nextNorthBorder)) {
                                 addConflict(conflicts, u, v);
@@ -1756,8 +1755,8 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                     south.forEach((v, southLookahead) => {
                         if (g.node(v).label.dummy === 'border') {
                             const predecessors = g.predecessors(v);
-                            if (predecessors.length) {
-                                nextNorthPos = g.node(predecessors[0]).label.order;
+                            if (predecessors.size > 0) {
+                                nextNorthPos = g.node(predecessors.keys().next().value).label.order;
                                 scan(south, southPos, southLookahead, prevNorthPos, nextNorthPos);
                                 southPos = southLookahead;
                                 prevNorthPos = nextNorthPos;
@@ -2129,7 +2128,7 @@ dagre.Graph = class {
                 node.label = label;
             }
         } else {
-            const node = { label: label ? label : this._defaultNodeLabelFn(v), in: [], out: [], predecessors: {}, successors: {}, v };
+            const node = { label: label ? label : this._defaultNodeLabelFn(v), in: [], out: [], predecessors: new Map(), successors: new Map(), v };
             this.nodes.set(v, node);
             if (this.compound) {
                 this._parent[v] = '\x00';
@@ -2209,15 +2208,25 @@ dagre.Graph = class {
     }
 
     predecessors(v) {
-        return Object.keys(this.nodes.get(v).predecessors);
+        return this.nodes.get(v).predecessors;
     }
 
     successors(v) {
-        return Object.keys(this.nodes.get(v).successors);
+        return this.nodes.get(v).successors;
     }
 
     neighbors(v) {
-        return Array.from(new Set(this.predecessors(v).concat(this.successors(v))));
+        const n = this.nodes.get(v);
+        const p = n.predecessors.keys();
+        const s = n.successors.keys();
+        const set = new Set();
+        for (const k of p) {
+            set.add(k);
+        }
+        for (const k of s) {
+            set.add(k);
+        }
+        return set;
     }
 
     edge(v, w) {
@@ -2244,11 +2253,7 @@ dagre.Graph = class {
             edge.wNode = wNode;
             edge.vNode = vNode;
             const incrementOrInitEntry = (map, k) => {
-                if (map[k]) {
-                    map[k]++;
-                } else {
-                    map[k] = 1;
-                }
+                map.set(k, map.has(k) ? map.get(k) + 1 : 1);
             };
             incrementOrInitEntry(wNode.predecessors, v);
             incrementOrInitEntry(vNode.successors, w);
@@ -2263,11 +2268,21 @@ dagre.Graph = class {
         const w = edge.w;
         const wNode = edge.wNode;
         const vNode = edge.vNode;
-        if (--wNode.predecessors[v] === 0) {
-            delete wNode.predecessors[v];
+        if (wNode.predecessors.has(v)) {
+            const value = wNode.predecessors.get(v);
+            if (value === 1) {
+                wNode.predecessors.delete(v);
+            } else {
+                wNode.predecessors.set(v, value - 1);
+            }
         }
-        if (--vNode.successors[w] === 0) {
-            delete vNode.successors[w];
+        if (vNode.successors.has(w)) {
+            const value = vNode.successors.get(w);
+            if (value === 1) {
+                vNode.successors.delete(w);
+            } else {
+                vNode.successors.set(w, value - 1);
+            }
         }
         wNode.in = wNode.in.filter((edge) => edge.key !== key);
         vNode.out = vNode.out.filter((edge) => edge.key !== key);
