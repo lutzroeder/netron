@@ -212,8 +212,8 @@ host.ElectronHost = class {
         electron.ipcRenderer.sendSync('update-window-state', {});
         const openFileButton = this._element('open-file-button');
         if (openFileButton) {
-            openFileButton.addEventListener('click', () => {
-                this.execute('open');
+            openFileButton.addEventListener('click', async () => {
+                await this.execute('open');
             });
         }
         this.document.addEventListener('dragover', (e) => {
@@ -250,11 +250,22 @@ host.ElectronHost = class {
     }
 
     async save(name, extension, defaultPath) {
-        return electron.ipcRenderer.sendSync('show-save-dialog', {
-            title: 'Export Tensor',
-            defaultPath,
-            buttonLabel: 'Export',
-            filters: [{ name, extensions: [extension] }]
+        return new Promise((resolve, reject) => {
+            electron.ipcRenderer.once('show-save-dialog-complete', (event, data) => {
+                if (data.error) {
+                    reject(new Error(data.error));
+                } else if (data.canceled) {
+                    resolve(null);
+                } else {
+                    resolve(data.filePath);
+                }
+            });
+            electron.ipcRenderer.send('show-save-dialog', {
+                title: 'Export Tensor',
+                defaultPath,
+                buttonLabel: 'Export',
+                filters: [{ name, extensions: [extension] }]
+            });
         });
     }
 
@@ -281,8 +292,17 @@ host.ElectronHost = class {
         }
     }
 
-    execute(name, value) {
-        electron.ipcRenderer.send('execute', { name, value });
+    async execute(name, value) {
+        return new Promise((resolve, reject) => {
+            electron.ipcRenderer.once('execute-complete', (event, data) => {
+                if (data.error) {
+                    reject(new Error(data.error));
+                } else {
+                    resolve(data.value);
+                }
+            });
+            electron.ipcRenderer.send('execute', { name, value });
+        });
     }
 
     async request(file, encoding, basename) {
