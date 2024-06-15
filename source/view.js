@@ -3162,8 +3162,23 @@ view.TensorSidebar = class extends view.ObjectSidebar {
         if (value.type) {
             const item = new view.ValueView(this._view, value, '');
             this.add('type', item);
-            item.toggle();
+            // item.toggle();
         }
+
+        /*
+        // TODO
+        if (value.initializer) {
+            const tensor = new view.Tensor(value.initializer);
+            if (!tensor.empty) {
+                this.addHeader('Metrics');
+                const metrics = tensor.metrics;
+                for (const metric of metrics) {
+                    const value = metric.type === 'percentage' ? `${(metric.value * 100).toFixed(1)}%` : metric.value;
+                    this.addProperty(metric.name, [value]);
+                }
+            }
+        }
+        */
     }
 };
 
@@ -4119,12 +4134,31 @@ view.Tensor = class {
     }
 
     get metrics() {
-        const metrics = Array.from(this._tensor.metrics || []);
-        const keys = new Set(metrics.map((metrics) => metrics.name));
-        if (!keys.has('sparisity')) {
-            // metrics.push(new view.Argument('sparisity', 0, 'float32'));
+        if (!this._metrics) {
+            const data = this.value;
+            this._metrics = Array.from(this._tensor.metrics || []);
+            const keys = new Set(this._metrics.map((metrics) => metrics.name));
+            if (!keys.has('sparsity')) {
+                let zeros = 0;
+                let parameters = 0;
+                const stack = [data];
+                while (stack.length > 0) {
+                    const data = stack.pop();
+                    if (Array.isArray(data)) {
+                        for (const element of data) {
+                            stack.push(element);
+                        }
+                    } else {
+                        zeros += data === 0 || data === 0n || data === '';
+                        parameters += 1;
+                    }
+                }
+                const value = parameters > 0 ? zeros / parameters : 0;
+                const argument = new view.Argument('sparsity', value, 'percentage');
+                this._metrics.push(argument);
+            }
         }
-        return metrics;
+        return this._metrics;
     }
 };
 
