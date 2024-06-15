@@ -1077,7 +1077,7 @@ view.View = class {
             sidebar.on('select', (sender, value) => {
                 this.scrollTo(this._graph.activate(value));
             });
-            this._sidebar.open(sidebar, 'Connection Properties');
+            this._sidebar.push(sidebar, 'Connection Properties');
         } catch (error) {
             this.error(error, 'Error showing connection properties.', null);
         }
@@ -1098,7 +1098,7 @@ view.View = class {
             sidebar.on('select', (sender, value) => {
                 this.scrollTo(this._graph.activate(value));
             });
-            this._sidebar.open(sidebar, 'Tensor Properties');
+            this._sidebar.push(sidebar, 'Tensor Properties');
         } catch (error) {
             this.error(error, 'Error showing tensor properties.', null);
         }
