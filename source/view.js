@@ -3651,6 +3651,7 @@ view.Tensor = class {
         this._encoding = tensor.encoding;
         this._layout = tensor.type.layout;
         this._stride = tensor.stride;
+        this._metrics = null;
         switch (this._encoding) {
             case undefined:
             case '':
@@ -4132,34 +4133,38 @@ view.Tensor = class {
     }
 
     get metrics() {
-        const value = this.value;
+        if (this._metrics === null) {
+            const value = this.value;
 
-        const metrics = Array.from(this._tensor.metrics || []);
-        const keys = new Set(metrics.map((metrics) => metrics.name));
-        if (!keys.has('sparsity')) {
-            let num_zeros = 0;
-            let num_parameters = 0;
-            const stack = [value];
-            while (stack.length > 0) {
-                const val = stack.pop();
-                if (Array.isArray(val)) {
-                    for (const element of val) {
-                        stack.push(element);
+            const metrics = Array.from(this._tensor.metrics || []);
+            const keys = new Set(metrics.map((metrics) => metrics.name));
+            if (!keys.has('sparsity')) {
+                let num_zeros = 0;
+                let num_parameters = 0;
+                const stack = [value];
+                while (stack.length > 0) {
+                    const val = stack.pop();
+                    if (Array.isArray(val)) {
+                        for (const element of val) {
+                            stack.push(element);
+                        }
+                    } else {
+                        num_zeros += Number(val === 0);
+                        num_parameters += 1;
                     }
+                }
+
+                if (num_parameters > 0) {
+                    metrics.push(new view.Argument('sparsity', num_zeros / num_parameters, 'float32', 'percentage'));
                 } else {
-                    num_zeros += Number(val === 0);
-                    num_parameters += 1;
+                    metrics.push(new view.Argument('sparsity', 0, 'float32', 'percentage'));
                 }
             }
 
-            if (num_parameters > 0) {
-                metrics.push(new view.Argument('sparsity', num_zeros / num_parameters, 'float32', 'percentage'));
-            } else {
-                metrics.push(new view.Argument('sparsity', 0, 'float32', 'percentage'));
-            }
+            this._metrics = metrics;
         }
 
-        return metrics;
+        return this._metrics;
     }
 };
 
