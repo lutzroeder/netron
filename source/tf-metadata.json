@@ -17428,6 +17428,11 @@
         "name": "preserve_cardinality",
         "type": "boolean",
         "default": false
+      },
+      {
+        "name": "force_synchronous",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
@@ -26611,6 +26616,11 @@
       },
       {
         "name": "preserve_cardinality",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "name": "force_synchronous",
         "type": "boolean",
         "default": false
       },

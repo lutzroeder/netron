@@ -6814,6 +6814,18 @@
     ]
   },
   {
+    "name": "aten::kl_div",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "target", "type": "Tensor" },
+      { "name": "reduction", "type": "int64", "default": "Mean" },
+      { "name": "log_target", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::kthvalue",
     "inputs": [
       { "name": "self", "type": "Tensor" },

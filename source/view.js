@@ -33,7 +33,7 @@ view.View = class {
         this._find = null;
         this._modelFactoryService = new view.ModelFactoryService(this._host);
         this._modelFactoryService.import();
-        this._worker = new view.Worker(this._host);
+        this._worker = this._host.environment('measure') ? null : new view.Worker(this._host);
     }
 
     async start() {
@@ -78,7 +78,7 @@ view.View = class {
             this._menu = new view.Menu(this._host);
             this._menu.add({
                 accelerator: platform === 'darwin' ? 'Ctrl+Cmd+F' : 'F11',
-                execute: () => this._host.execute('fullscreen')
+                execute: async () => await this._host.execute('fullscreen')
             });
             this._menu.add({
                 accelerator: 'Backspace',
@@ -90,25 +90,25 @@ view.View = class {
                 file.add({
                     label: '&Open...',
                     accelerator: 'CmdOrCtrl+O',
-                    execute: () => this._host.execute('open')
+                    execute: async () => await this._host.execute('open')
                 });
                 if (this._host.type === 'Electron') {
                     this._recents = file.group('Open &Recent');
                     file.add({
                         label: '&Export...',
                         accelerator: 'CmdOrCtrl+Shift+E',
-                        execute: () => this._host.execute('export'),
+                        execute: async () => await this._host.execute('export'),
                         enabled: () => this.activeGraph
                     });
                     file.add({
                         label: platform === 'darwin' ? '&Close Window' : '&Close',
                         accelerator: 'CmdOrCtrl+W',
-                        execute: () => this._host.execute('close'),
+                        execute: async () => await this._host.execute('close'),
                     });
                     file.add({
                         label: platform === 'win32' ? 'E&xit' : '&Quit',
                         accelerator: platform === 'win32' ? '' : 'CmdOrCtrl+Q',
-                        execute: () => this._host.execute('quit'),
+                        execute: async () => await this._host.execute('quit'),
                     });
                 } else {
                     file.add({
@@ -167,7 +167,7 @@ view.View = class {
                     view.add({
                         label: '&Reload',
                         accelerator: platform === 'darwin' ? 'CmdOrCtrl+R' : 'F5',
-                        execute: () => this._host.execute('reload'),
+                        execute: async () => await this._host.execute('reload'),
                         enabled: () => this.activeGraph
                     });
                     view.add({});
@@ -202,17 +202,17 @@ view.View = class {
                     view.add({
                         label: '&Developer Tools...',
                         accelerator: 'CmdOrCtrl+Alt+I',
-                        execute: () => this._host.execute('toggle-developer-tools')
+                        execute: async () => await this._host.execute('toggle-developer-tools')
                     });
                 }
                 const help = this._menu.group('&Help');
                 help.add({
                     label: 'Report &Issue',
-                    execute: () => this._host.execute('report-issue')
+                    execute: async () => await this._host.execute('report-issue')
                 });
                 help.add({
                     label: `&About ${this._host.environment('name')}`,
-                    execute: () => this._host.execute('about')
+                    execute: async () => await this._host.execute('about')
                 });
             }
             await this._host.start();
@@ -2234,7 +2234,7 @@ view.Value = class {
                     type.shape.dimensions &&
                     type.shape.dimensions.length > 0 &&
                     type.shape.dimensions.every((dim) => !dim || Number.isInteger(dim) || typeof dim === 'bigint' || (typeof dim === 'string'))) {
-                    content = type.shape.dimensions.map((dim) => (dim !== null && dim !== undefined) ? dim : '?').join('\u00D7');
+                    content = type.shape.dimensions.map((dim) => (dim !== null && dim !== undefined && dim !== -1) ? dim : '?').join('\u00D7');
                     content = content.length > 16 ? '' : content;
                 }
                 if (this.context.options.names) {

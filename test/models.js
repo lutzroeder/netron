@@ -256,23 +256,29 @@ class Worker {
 const main = async () => {
     try {
         const args = process.argv.length > 2 ? process.argv.slice(2) : [];
+        const measure = args.length > 0 && args[0] === 'measure' ? args.shift() : null;
         const exists = await Promise.all(args.map((pattern) => access(pattern)));
         const paths = exists.length > 0 && exists.every((value) => value);
         const patterns = paths ? [] : args;
         const targets = paths ? args.map((path) => ({ target: path })) : await configuration();
         const queue = new Queue(targets, patterns);
-        const threads = inspector.url() ? 1 : undefined;
+        const threads = measure || inspector.url() ? 1 : undefined;
         const logger = new Logger(threads);
         const measures = new Table(['name', 'download', 'load', 'validate', 'render']);
-        // await measures.log(dirname('..', 'dist', 'test', 'measures.csv'));
+        if (measure) {
+            await measures.log(dirname('..', 'dist', 'test', 'measures.csv'));
+        }
         if (threads === 1) {
             const worker = await import('./worker.js');
             for (let item = queue.pop(); item; item = queue.pop()) {
                 const target = new worker.Target(item);
+                target.measures = measure ? new Map([['name', item.name]]) : null;
                 target.on('status', (_, message) => logger.update('', message));
                 /* eslint-disable no-await-in-loop */
                 await target.execute();
-                await measures.add(target.measures);
+                if (target.measures) {
+                    await measures.add(target.measures);
+                }
                 /* eslint-enable no-await-in-loop */
             }
         } else {

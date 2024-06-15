@@ -241,7 +241,7 @@ host.BrowserHost = class {
         this.document.body.removeChild(element);
     }
 
-    execute(name /*, value */) {
+    async execute(name /*, value */) {
         switch (name) {
             case 'open': {
                 const openFileDialog = this._element('open-file-dialog');
