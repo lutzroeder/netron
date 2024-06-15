@@ -45,10 +45,10 @@ const host = {};
 
 host.TestHost = class {
 
-    constructor(window) {
-        this.errors = [];
-        this.window = window;
-        this.document = window.document;
+    constructor(window, environment) {
+        this._window = window;
+        this._environment = environment;
+        this._errors = [];
         host.TestHost.source = host.TestHost.source || dirname('..', 'source');
     }
 
@@ -58,11 +58,20 @@ host.TestHost = class {
     async start() {
     }
 
+    get window() {
+        return this._window;
+    }
+
+    get document() {
+        return this._window.document;
+    }
+
+    get errors() {
+        return this._errors;
+    }
+
     environment(name) {
-        if (name === 'zoom') {
-            return 'none';
-        }
-        return null;
+        return this._environment[name];
     }
 
     screen(/* name */) {
@@ -99,7 +108,7 @@ host.TestHost = class {
     }
 
     exception(error /*, fatal */) {
-        this.errors.push(error);
+        this._errors.push(error);
     }
 
     message() {
@@ -343,7 +352,6 @@ export class Target {
         this.events = {};
         this.tags = new Set(this.tags);
         this.folder = item.type ? path.normalize(dirname('..', 'third_party' , 'test', item.type)) : process.cwd();
-        this.measures = new Map([['name', this.name]]);
     }
 
     on(event, callback) {
@@ -366,7 +374,11 @@ export class Target {
     async execute() {
         await zip.Archive.import();
         this.window = this.window || new Window();
-        this.host = await new host.TestHost(this.window);
+        const environment = {
+            zoom: 'none',
+            measure: this.measures ? true : false
+        };
+        this.host = await new host.TestHost(this.window, environment);
         this.view = new view.View(this.host);
         this.view.options.attributes = true;
         this.view.options.initializers = true;
@@ -379,7 +391,9 @@ export class Target {
                 err = error;
             }
             const duration = Number(process.hrtime.bigint() - start) / 1e9;
-            this.measures.set(method.name, duration);
+            if (this.measures) {
+                this.measures.set(method.name, duration);
+            }
             if (err) {
                 throw err;
             }
