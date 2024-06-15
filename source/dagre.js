@@ -1511,10 +1511,10 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
             }
             let conflictsV = conflicts[v];
             if (!conflictsV) {
-                conflictsV = {};
+                conflictsV = new Set();
                 conflicts[v] = conflictsV;
             }
-            conflictsV[w] = true;
+            conflictsV.add(w);
         };
         const hasConflict = (conflicts, v, w) => {
             if (v > w) {
@@ -1522,7 +1522,7 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                 v = w;
                 w = tmp;
             }
-            return conflicts[v] && w in conflicts[v];
+            return conflicts[v] && conflicts[v].has(w);
         };
         const buildBlockGraph = (g, layout, layering, root, reverseSep) => {
             const nodeSep = layout.nodesep;
@@ -1626,7 +1626,7 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
             // Instead of their algorithm we construct a new block graph and do two sweeps.
             const blockG = buildBlockGraph(g, layout, layering, root, reverseSep);
             const borderType = reverseSep ? 'borderLeft' : 'borderRight';
-            const xs = {};
+            const xs = new Map();
             // First pass, places blocks with the smallest possible coordinates.
             if (blockG.nodes.size > 0) {
                 const stack = Array.from(blockG.nodes.keys());
@@ -1636,9 +1636,9 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                     if (visited.has(v)) {
                         let max = 0;
                         for (const e of blockG.node(v).in) {
-                            max = Math.max(max, xs[e.v] + e.label);
+                            max = Math.max(max, xs.get(e.v) + e.label);
                         }
-                        xs[v] = max;
+                        xs.set(v, max);
                     } else {
                         visited.add(v);
                         stack.push(v);
@@ -1655,14 +1655,14 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                     if (visited.has(v)) {
                         let min = Number.POSITIVE_INFINITY;
                         for (const e of blockG.node(v).out) {
-                            min = Math.min(min, xs[e.w] - e.label);
+                            min = Math.min(min, xs.get(e.w) - e.label);
                         }
                         const label = g.node(v).label;
                         if (label.dummy) {
                             continue;
                         }
                         if (min !== Number.POSITIVE_INFINITY && label.borderType !== borderType) {
-                            xs[v] = Math.max(xs[v], min);
+                            xs.set(v, Math.max(xs.get(v), min));
                         }
                     } else {
                         visited.add(v);
@@ -1673,7 +1673,7 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
             }
             // Assign x coordinates to all nodes
             for (const v of Object.values(align)) {
-                xs[v] = xs[root[v]];
+                xs.set(v, xs.get(root[v]));
             }
             return xs;
         };
@@ -1795,8 +1795,8 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                 const align = verticalAlignment(adjustedLayering, conflicts, neighborFn);
                 const xs = horizontalCompaction(g, layout, adjustedLayering, align.root, align.align, horizontal === 'r');
                 if (horizontal === 'r') {
-                    for (const entry of Object.entries(xs)) {
-                        xs[entry[0]] = -entry[1];
+                    for (const [key, value] of xs.entries(xs)) {
+                        xs.set(key, -value);
                     }
                 }
                 xss[vertical + horizontal] = xs;
@@ -1808,7 +1808,7 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
         for (const xs of Object.values(xss)) {
             let max = Number.NEGATIVE_INFINITY;
             let min = Number.POSITIVE_INFINITY;
-            for (const [v, x] of Object.entries(xs)) {
+            for (const [v, x] of xs.entries()) {
                 const halfWidth = g.node(v).label.width / 2;
                 max = Math.max(x + halfWidth, max);
                 min = Math.min(x - halfWidth, min);
@@ -1838,18 +1838,18 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
             }
             return [min, max];
         };
-        const alignToRange = range(Object.values(alignTo));
+        const alignToRange = range(alignTo.values(alignTo));
         for (const vertical of ['u', 'd']) {
             for (const horizontal of ['l', 'r']) {
                 const alignment = vertical + horizontal;
                 const xs = xss[alignment];
                 if (xs !== alignTo) {
-                    const vsValsRange = range(Object.values(xs));
+                    const vsValsRange = range(xs.values());
                     const delta = horizontal === 'l' ? alignToRange[0] - vsValsRange[0] : alignToRange[1] - vsValsRange[1];
                     if (delta) {
-                        const list = {};
-                        for (const key of Object.keys(xs)) {
-                            list[key] = xs[key] + delta;
+                        const list = new Map();
+                        for (const [key, value] of xs.entries()) {
+                            list.set(key, value + delta);
                         }
                         xss[alignment] = list;
                     }
@@ -1860,12 +1860,12 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
         const align = layout.align;
         if (align) {
             const xs = xss[align.toLowerCase()];
-            for (const v of Object.keys(xss.ul)) {
-                g.node(v).label.x = xs[v];
+            for (const v of xss.ul.keys()) {
+                g.node(v).label.x = xs.get(v);
             }
         } else {
-            for (const v of Object.keys(xss.ul)) {
-                const xs = [xss.ul[v], xss.ur[v], xss.dl[v], xss.dr[v]].sort((a, b) => a - b);
+            for (const v of xss.ul.keys()) {
+                const xs = [xss.ul.get(v), xss.ur.get(v), xss.dl.get(v), xss.dr.get(v)].sort((a, b) => a - b);
                 g.node(v).label.x = (xs[1] + xs[2]) / 2;
             }
         }
