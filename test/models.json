@@ -1456,13 +1456,6 @@
   },
   {
     "type":     "coreml",
-    "target":   "iris.mlmodel",
-    "source":   "https://raw.githubusercontent.com/gavi/Iris/master/Iris/iris.mlmodel",
-    "format":   "Core ML v1",
-    "link":     "https://github.com/gavi/Iris"
-  },
-  {
-    "type":     "coreml",
     "target":   "LinkedUpdatableTinyDrawingClassifier.mlmodel",
     "source":   "https://github.com/lutzroeder/netron/files/4500539/LinkedUpdatableTinyDrawingClassifier.zip[LinkedUpdatableTinyDrawingClassifier.mlmodel]",
     "format":   "Core ML v4",
@@ -1584,24 +1577,24 @@
   {
     "type":     "coreml",
     "target":   "SqueezeNet.mlmodel",
-    "source":   "https://docs-assets.developer.apple.com/coreml/models/Image/ImageClassification/SqueezeNet/SqueezeNet.mlmodel",
+    "source":   "https://github.com/user-attachments/files/15855618/SqueezeNet.mlmodel.zip[SqueezeNet.mlmodel]",
     "format":   "Core ML v1",
-    "link":     "https://developer.apple.com/machine-learning/models"
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":     "coreml",
     "target":   "SqueezeNetFP16.mlmodel",
-    "source":   "https://docs-assets.developer.apple.com/coreml/models/Image/ImageClassification/SqueezeNet/SqueezeNetFP16.mlmodel",
+    "source":   "https://github.com/user-attachments/files/15855621/SqueezeNetFP16.mlmodel.zip[SqueezeNetFP16.mlmodel]",
     "format":   "Core ML v2",
-    "link":     "https://developer.apple.com/machine-learning/models"
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":     "coreml",
     "target":   "SqueezeNetInt8LUT.mlmodel",
-    "source":   "https://docs-assets.developer.apple.com/coreml/models/Image/ImageClassification/SqueezeNet/SqueezeNetInt8LUT.mlmodel",
+    "source":   "https://github.com/user-attachments/files/15855649/SqueezeNetInt8LUT.mlmodel.zip[SqueezeNetInt8LUT.mlmodel]",
     "format":   "Core ML v3",
     "tags":     "quantization",
-    "link":     "https://developer.apple.com/machine-learning/models"
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":     "coreml",
