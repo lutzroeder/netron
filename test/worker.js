@@ -372,6 +372,9 @@ export class Target {
     }
 
     async execute() {
+        if (this.measures) {
+            this.measures.set('name', this.name);
+        }
         await zip.Archive.import();
         this.window = this.window || new Window();
         const environment = {
@@ -779,6 +782,9 @@ if (!worker_threads.isMainThread) {
                 message = { type: 'status', ...message };
                 worker_threads.parentPort.postMessage(message);
             });
+            if (message.measures) {
+                target.measures = new Map();
+            }
             await target.execute();
             response.measures = target.measures;
         } catch (error) {
