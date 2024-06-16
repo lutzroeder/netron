@@ -2007,29 +2007,33 @@ onnx.JsonReader = class {
 onnx.TextReader = class {
 
     static open(context) {
-        try {
-            const stream = context.stream;
-            if (stream && stream.length > 2) {
-                const buffer = stream.peek(2);
-                if (buffer[0] < 0x80 || buffer[0] >= 0xFE) {
-                    const reader = context.read('text', 0x10000);
-                    const lines = [];
-                    for (let i = 0; i < 32; i++) {
-                        const line = reader.read('\n');
-                        if (line === undefined) {
-                            break;
+        const extension = context.identifier.split('.').pop().toLowerCase();
+        const extensions = new Set(['onnx', 'bin', 'data', 'onnxmodel', 'pt', 'pth']);
+        if (!extensions.has(extension)) {
+            try {
+                const stream = context.stream;
+                if (stream && stream.length > 2) {
+                    const buffer = stream.peek(2);
+                    if (buffer[0] < 0x80 || buffer[0] >= 0xFE) {
+                        const reader = context.read('text', 0x10000);
+                        const lines = [];
+                        for (let i = 0; i < 32; i++) {
+                            const line = reader.read('\n');
+                            if (line === undefined) {
+                                break;
+                            }
+                            lines.push(line);
                         }
-                        lines.push(line);
-                    }
-                    const content = lines.join('\n');
-                    if (/^\s*<\s*ir_version\s*:/m.exec(content) ||
-                        /^\s*[a-zA-Z][a-zA-Z0-9]*\s*\(.*\)\s=>\s\(/m.exec(content)) {
-                        return new onnx.TextReader(context);
+                        const content = lines.join('\n');
+                        if (/^\s*<\s*ir_version\s*:/m.exec(content) ||
+                            /^\s*[a-zA-Z][a-zA-Z0-9]*\s*\(.*\)\s=>\s\(/m.exec(content)) {
+                            return new onnx.TextReader(context);
+                        }
                     }
                 }
+            } catch {
+                // continue regardless of error
             }
-        } catch {
-            // continue regardless of error
         }
         return null;
     }

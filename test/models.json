@@ -4809,7 +4809,7 @@
     "target":   "alexnet.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6096605/alexnet.pt.zip[alexnet.pt]",
     "format":   "TorchScript v1.6",
-    "tags":     "export-tensor",
+    "tags":     "export-tensor,skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/281"
   },
   {
@@ -4911,6 +4911,7 @@
     "target":   "cup_wild_vit_l_1img.ckpt",
     "source":   "https://github.com/user-attachments/files/15752923/cup_wild_vit_l_1img.ckpt.zip[cup_wild_vit_l_1img.ckpt]",
     "format":   "PyTorch v1.6",
+    "tags":     "skip-tensor-value",
     "assert":   [ "model.graphs[1].name == 'ema_model'" ],
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
@@ -5770,6 +5771,7 @@
     "target":   "stable_diffusion_safety_checker.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10199037/stable_diffusion.zip[stable_diffusion_safety_checker.pt]",
     "format":   "TorchScript v1.6",
+    "tags":     "skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5777,6 +5779,7 @@
     "target":   "stable_diffusion_text_encoder.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10199037/stable_diffusion.zip[stable_diffusion_text_encoder.pt]",
     "format":   "TorchScript v1.6",
+    "tags":     "skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5784,7 +5787,7 @@
     "target":   "stable_diffusion_unet.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10199037/stable_diffusion.zip[stable_diffusion_unet.pt]",
     "format":   "TorchScript v1.12",
-    "tags":     "skip-render",
+    "tags":     "skip-render,skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5792,6 +5795,7 @@
     "target":   "stable_diffusion_vae_decoder.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10199037/stable_diffusion.zip[stable_diffusion_vae_decoder.pt]",
     "format":   "TorchScript v1.6",
+    "tags":     "skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -6003,6 +6007,7 @@
     "target":   "vicuna-7b.zip",
     "source":   "https://github.com/lutzroeder/netron/files/13935467/vicuna-7b.zip",
     "format":   "PyTorch v1.6",
+    "tags":     "skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
