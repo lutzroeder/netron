@@ -5,7 +5,7 @@ const dagre = {};
 // https://github.com/dagrejs/dagre
 // https://github.com/dagrejs/graphlib
 
-dagre.layout = (identifier, nodes, edges, layout, state) => {
+dagre.layout = (nodes, edges, layout, state) => {
 
     let uniqueIdCounter = 0;
     const uniqueId = (prefix) => {
@@ -2097,6 +2097,9 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
             edge.x = label.x;
             edge.y = label.y;
         }
+    }
+    if (state.log) {
+        state.log = g.toString();
     }
 };
 

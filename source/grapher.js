@@ -195,18 +195,23 @@ grapher.Graph = class {
                 labelpos: edge.label.labelpos || 'r'
             });
         }
-        const identifier = this.identifier;
+        const state = { /* log: true */ };
         const layout = this._layout;
         if (worker) {
-            const message = await worker.request({ type: 'dagre.layout', identifier, nodes, edges, layout }, 2500, 'This large graph layout might take a very long time to complete.');
+            const message = await worker.request({ type: 'dagre.layout', nodes, edges, layout, state }, 2500, 'This large graph layout might take a very long time to complete.');
             if (message.type === 'cancel') {
                 return 'graph-layout-cancelled';
             }
             nodes = message.nodes;
             edges = message.edges;
+            state.log = message.state.log;
         } else {
             const dagre = await import('./dagre.js');
-            dagre.layout(identifier, nodes, edges, layout, {});
+            dagre.layout(nodes, edges, layout, state);
+        }
+        if (state.log) {
+            const fs = await import('fs');
+            fs.writeFileSync(`dist/test/${this.identifier}.log`, state.log);
         }
         for (const node of nodes) {
             const label = this.node(node.v).label;
