@@ -1292,7 +1292,7 @@ dagre.layout = (identifier, nodes, edges, layout, state) => {
                 }
             } else {
                 // When label.borderTop isn't set, labels don't have minRank and maxRank properties so checking them can be skipped.
-                // And in that case, iterating nodes can be sped up by presorting nodes and using start indexes of each ranks.
+                // And in that case, iterating nodes can be sped up by presorting nodes and using start indexes of each rank.
                 let i = rankIndexes.get(rank);
                 while (i < length) {
                     const node = nodes[i++];
