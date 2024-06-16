@@ -617,6 +617,7 @@ dagre.layout = (nodes, edges, layout, state) => {
             const top = addDummyNode(g, 'border', { width: 0, height: 0 }, '_bt');
             const bottom = addDummyNode(g, 'border', { width: 0, height: 0 }, '_bb');
             const label = g.node(v).label;
+            g.hasBorder = true;
             g.setParent(top, v);
             label.borderTop = top;
             g.setParent(bottom, v);
@@ -679,12 +680,14 @@ dagre.layout = (nodes, edges, layout, state) => {
             }
         }
         let maxRank = 0;
-        for (const node of g.nodes.values()) {
-            const label = node.label;
-            if (label.borderTop) {
-                label.minRank = g.node(label.borderTop).label.rank;
-                label.maxRank = g.node(label.borderBottom).label.rank;
-                maxRank = Math.max(maxRank, label.maxRank);
+        if (g.hasBorder) {
+            for (const node of g.nodes.values()) {
+                const label = node.label;
+                if (label.borderTop) {
+                    label.minRank = g.node(label.borderTop).label.rank;
+                    label.maxRank = g.node(label.borderBottom).label.rank;
+                    maxRank = Math.max(maxRank, label.maxRank);
+                }
             }
         }
         state.maxRank = maxRank;
@@ -1247,7 +1250,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         //       relationship parameter, are included in the graph (without hierarchy).
         //    4. Edges incident on movable nodes, selected by the relationship parameter, are added to the output graph.
         //    5. The weights for copied edges are aggregated as need, since the output graph is not a multi-graph.
-        const buildLayerGraph = (g, nodes, rank, relationship) => {
+        const buildLayerGraph = (g, nodes, rankIndexes, rank, relationship) => {
             let root = '';
             while (g.hasNode((root = uniqueId('_root')))) {
                 // continue
@@ -1259,11 +1262,44 @@ dagre.layout = (nodes, edges, layout, state) => {
                 return node ? node.label : undefined;
             });
             const length = nodes.length;
-            let i = 0;
-            while (i < length) {
-                const node = nodes[i++];
-                const label = node.label;
-                if (label.rank === rank || 'minRank' in label && 'maxRank' in label && label.minRank <= rank && rank <= label.maxRank) {
+            if (g.hasBorder) {
+                let i = 0;
+                while (i < length) {
+                    const node = nodes[i++];
+                    const label = node.label;
+                    if (label.rank === rank || 'minRank' in label && 'maxRank' in label && label.minRank <= rank && rank <= label.maxRank) {
+                        const v = node.v;
+                        graph.setNode(v);
+                        const parent = g.parent(v);
+                        graph.setParent(v, parent || root);
+                        // This assumes we have only short edges!
+                        if (relationship) {
+                            for (const e of node.in) {
+                                graph.setEdge(e.v, v, { weight: e.label.weight });
+                            }
+                        } else {
+                            for (const e of node.out) {
+                                graph.setEdge(e.w, v, { weight: e.label.weight });
+                            }
+                        }
+                        if ('minRank' in label) {
+                            graph.setNode(v, {
+                                borderLeft: label.borderLeft[rank],
+                                borderRight: label.borderRight[rank]
+                            });
+                        }
+                    }
+                }
+            } else {
+                // When label.borderTop isn't set, labels don't have minRank and maxRank properties so checking them can be skipped.
+                // And in that case, iterating nodes can be sped up by presorting nodes and using start indexes of each rank.
+                let i = rankIndexes.get(rank);
+                while (i < length) {
+                    const node = nodes[i++];
+                    const label = node.label;
+                    if (label.rank !== rank) {
+                        break;
+                    }
                     const v = node.v;
                     graph.setNode(v);
                     const parent = g.parent(v);
@@ -1277,12 +1313,6 @@ dagre.layout = (nodes, edges, layout, state) => {
                         for (const e of node.out) {
                             graph.setEdge(e.w, v, { weight: e.label.weight });
                         }
-                    }
-                    if ('minRank' in label) {
-                        graph.setNode(v, {
-                            borderLeft: label.borderLeft[rank],
-                            borderRight: label.borderRight[rank]
-                        });
                     }
                 }
             }
@@ -1301,9 +1331,23 @@ dagre.layout = (nodes, edges, layout, state) => {
         const downLayerGraphs = new Array(rank);
         const upLayerGraphs = new Array(rank);
         const nodes = Array.from(g.nodes.values());
+        let rankIndexes = null;
+        if (!g.hasBorder) {
+            nodes.sort((a, b) => {
+                return a.label.rank - b.label.rank;
+            });
+            rankIndexes = new Map();
+            for (let i = 0; i < nodes.length; ++i) {
+                const node = nodes[i];
+                const rank = node.label.rank;
+                if (!rankIndexes.has(rank)) {
+                    rankIndexes.set(rank, i);
+                }
+            }
+        }
         for (let i = 0; i < rank; i++) {
-            downLayerGraphs[i] = buildLayerGraph(g, nodes, i + 1, true);
-            upLayerGraphs[i] = buildLayerGraph(g, nodes, rank - i - 1, false);
+            downLayerGraphs[i] = buildLayerGraph(g, nodes, rankIndexes, i + 1, true);
+            upLayerGraphs[i] = buildLayerGraph(g, nodes, rankIndexes, rank - i - 1, false);
         }
         let bestCC = Number.POSITIVE_INFINITY;
         let best = [];
