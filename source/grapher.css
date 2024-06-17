@@ -69,6 +69,10 @@
 
 .edge-path { stroke: #000; stroke-width: 1px; fill: none; marker-end: url("#arrowhead"); }
 .edge-path-hit-test { pointer-events: stroke; stroke-width: 0.5em; fill: none; stroke: #000; stroke-opacity: 0.001; }
+.edge-path-b4 { stroke: #70e; stroke-width: 1x; fill: none; marker-end: url("#arrowhead"); }
+.edge-path-b8 { stroke: #04e; stroke-width: 1px; fill: none; marker-end: url("#arrowhead"); }
+.edge-path-b16 { stroke: #080; stroke-width: 1px; fill: none; marker-end: url("#arrowhead"); }
+.edge-path-b32 { stroke: #992; stroke-width: 1px; fill: none; marker-end: url("#arrowhead"); }
 
 .select > .node.node-border { stroke: #e00; stroke-width: 2px; }
 .select.edge-path { stroke: #e00; stroke-width: 1px; marker-end: url("#arrowhead-select"); }
@@ -83,6 +87,10 @@
 @media (prefers-color-scheme: dark) {
 
     .edge-path { stroke: #888; }
+    .edge-path-b4 { stroke: #a0f; stroke-width: 1x; fill: none; marker-end: url("#arrowhead"); }
+    .edge-path-b8 { stroke: #05f; stroke-width: 1px; fill: none; marker-end: url("#arrowhead"); }
+    .edge-path-b16 { stroke: #090; stroke-width: 1px; fill: none; marker-end: url("#arrowhead"); }
+    .edge-path-b32 { stroke: #aa3; stroke-width: 1px; fill: none; marker-end: url("#arrowhead"); }
 
     .node path { stroke: #1d1d1d; }
     .node line { stroke: #1d1d1d; }

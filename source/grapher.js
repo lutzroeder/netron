@@ -737,11 +737,50 @@ grapher.Edge = class {
         const createElement = (name) => {
             return document.createElementNS('http://www.w3.org/2000/svg', name);
         };
+        const getDatatype = (from) => {
+            if (from && from.value) {
+                const from_value = from.value;
+                let from_value_src = undefined;
+                if (from_value.outputs && from_value.outputs[0].value) {
+                    from_value_src = from_value.outputs[0].value;
+                }
+                else if (from_value.value) {
+                    from_value_src = from_value.value;
+                }
+                if (from_value_src) {
+                    for (let i = 0; i < from_value_src.length; i++) {
+                        let value = from_value_src[i];
+                        if (value.type && value.type.dataType) {
+                            return value.type.dataType;
+                        }
+                        if (value._type && value._type._dataType) {
+                            return value._type._dataType;
+                        }
+                    }
+                }
+            }
+            return '';
+        };
+        const edgePathClass = (dataType) => {
+            const dt = dataType.toLowerCase();
+            if (dt === 'uint8' || dt === 'int8')
+                return 'edge-path-b8';
+            if (dt === 'uint4' || dt === 'int4')
+                return 'edge-path-b4';
+            if (dt === 'uint16' || dt === 'int16')
+                return 'edge-path-b16';
+            if (dt === 'uint32' || dt === 'int32')
+                return 'edge-path-b32';
+            return 'edge-path';
+        };
         this.element = createElement('path');
         if (this.id) {
             this.element.setAttribute('id', this.id);
         }
-        this.element.setAttribute('class', this.class ? `edge-path ${this.class}` : 'edge-path');
+        const edge_dtype = getDatatype(this.from);
+        const edge_path_class = edgePathClass(edge_dtype);
+        const add_class = this.class ? `${edge_path_class} ${this.class}` : edge_path_class;
+        this.element.setAttribute('class', add_class);
         edgePathGroupElement.appendChild(this.element);
         this.hitTest = createElement('path');
         this.hitTest.setAttribute('class', 'edge-path-hit-test');
