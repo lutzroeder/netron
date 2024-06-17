@@ -2479,7 +2479,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             const type = node.type;
             const item = this.addProperty('type', node.type.identifier || node.type.name);
             if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
-                item.action(type.nodes ? '\u0192' : '?', () => {
+                item.action(type.nodes ? '\u0192' : '?', 'Show Definition', () => {
                     this.emit('show-documentation', null);
                 });
             }
@@ -2674,8 +2674,9 @@ view.ValueTextView = class extends view.Control {
         }
     }
 
-    action(text, callback) {
+    action(text, description, callback) {
         this._action = this.createElement('div', 'sidebar-item-value-expander');
+        this._action.setAttribute('title', description);
         this._action.innerHTML = text;
         this._action.addEventListener('click', () => {
             callback();
@@ -2807,6 +2808,7 @@ view.ValueView = class extends view.Control {
     constructor(context, value, name) {
         super(context);
         this._value = value;
+        this._count = 2;
         this._element = this.createElement('div', 'sidebar-item-value');
         try {
             const type = this._value.type;
@@ -2814,7 +2816,7 @@ view.ValueView = class extends view.Control {
             const quantization = this._value.quantization;
             const location = this._value.location !== undefined;
             if (initializer) {
-                this._element.classList.add('sidebar-item-value-dark');
+                this._element.classList.add('sidebar-item-value-fill');
             }
             if (type || initializer || quantization || location || name !== undefined) {
                 this._expander = this.createElement('div', 'sidebar-item-value-expander');
@@ -2829,6 +2831,14 @@ view.ValueView = class extends view.Control {
                 });
                 this._element.appendChild(this._expander);
             }
+            if (initializer) {
+                const element = this.createElement('div', 'sidebar-item-value-button');
+                element.setAttribute('title', 'Show Tensor');
+                element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-weight"></use></svg>`;
+                element.addEventListener('click', () => this.emit('select', this._value));
+                this._element.appendChild(element);
+                this._count = 3;
+            }
             const tensor = name !== undefined;
             name = this._value.name ? this._value.name.split('\n').shift() : ''; // custom argument id
             this._hasId = name && !tensor ? true : false;
@@ -2842,10 +2852,8 @@ view.ValueView = class extends view.Control {
                 element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name || ' '}</b></span>`;
                 element.addEventListener('pointerenter', () => this.emit('activate', this._value));
                 element.addEventListener('pointerleave', () => this.emit('deactivate', this._value));
-                // if (!initializer) {
                 element.style.cursor = 'pointer';
                 element.addEventListener('click', () => this.emit('select', this._value));
-                // }
                 this._element.appendChild(element);
             } else if (this._hasCategory) {
                 this._bold('category', initializer.category);
@@ -2924,8 +2932,8 @@ view.ValueView = class extends view.Control {
                         if (Array.isArray(stride) && stride.length > 0) {
                             this._code('stride', stride.join(','));
                         }
-                        const tensor = new view.TensorView(this._view, initializer);
-                        tensor.tensor(this._element);
+                        // const tensor = new view.TensorView(this._view, initializer);
+                        // tensor.tensor(this._element);
                     }
                 } catch (error) {
                     super.error(error, false);
@@ -2933,7 +2941,7 @@ view.ValueView = class extends view.Control {
                 }
             } else {
                 this._expander.innerText = '+';
-                while (this._element.childElementCount > 2) {
+                while (this._element.childElementCount > this._count) {
                     this._element.removeChild(this._element.lastChild);
                 }
             }
@@ -2959,7 +2967,7 @@ view.ValueView = class extends view.Control {
     }
 
     _add(child) {
-        child.className = this._element.childNodes.length < 2 ? 'sidebar-item-value-line' : 'sidebar-item-value-line-border';
+        child.className = this._element.childNodes.length < this._count ? 'sidebar-item-value-line' : 'sidebar-item-value-line-border';
         this._element.appendChild(child);
     }
 };
@@ -3208,7 +3216,9 @@ view.TensorSidebar = class extends view.ObjectSidebar {
         const value = this._value;
         const tensor = value.initializer;
         const [name] = value.name.split('\n');
-        this.addProperty('name', name);
+        if (name) {
+            this.addProperty('name', name);
+        }
         const category = tensor.category;
         if (category) {
             this.addProperty('category', category);
@@ -3575,7 +3585,7 @@ view.FindSidebar = class extends view.Control {
         this._index++;
         this._table.set(key, value);
         const element = this.createElement('li');
-        element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-find-icon-${icon}"></use></svg>`;
+        element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-${icon}"></use></svg>`;
         const text = this.createElement('span');
         text.innerText = content;
         element.appendChild(text);
@@ -3681,7 +3691,7 @@ view.FindSidebar = class extends view.Control {
         });
         for (const [name, toggle] of Object.entries(this._toggles)) {
             toggle.element = this.createElement('label', 'sidebar-find-toggle');
-            toggle.element.innerHTML = `<svg class='sidebar-find-toggle-icon'><use href="#sidebar-find-icon-${name}"></use></svg>`;
+            toggle.element.innerHTML = `<svg class='sidebar-find-toggle-icon'><use href="#sidebar-icon-${name}"></use></svg>`;
             toggle.element.setAttribute('title', this._state[name] ? toggle.hide : toggle.show);
             toggle.checkbox = this.createElement('input');
             toggle.checkbox.setAttribute('type', 'checkbox');
