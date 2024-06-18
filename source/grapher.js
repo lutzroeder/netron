@@ -740,16 +740,15 @@ grapher.Edge = class {
         const getDatatype = (from) => {
             if (from && from.value) {
                 const from_value = from.value;
-                let from_value_src = undefined;
+                let from_value_src;
                 if (from_value.outputs && from_value.outputs[0].value) {
                     from_value_src = from_value.outputs[0].value;
-                }
-                else if (from_value.value) {
+                } else if (from_value.value) {
                     from_value_src = from_value.value;
                 }
                 if (from_value_src) {
                     for (let i = 0; i < from_value_src.length; i++) {
-                        let value = from_value_src[i];
+                        const value = from_value_src[i];
                         if (value.type && value.type.dataType) {
                             return value.type.dataType;
                         }
@@ -763,14 +762,18 @@ grapher.Edge = class {
         };
         const edgePathClass = (dataType) => {
             const dt = dataType.toLowerCase();
-            if (dt === 'uint8' || dt === 'int8')
+            if (dt === 'uint8' || dt === 'int8') {
                 return 'edge-path-b8';
-            if (dt === 'uint4' || dt === 'int4')
+            }
+            if (dt === 'uint4' || dt === 'int4') {
                 return 'edge-path-b4';
-            if (dt === 'uint16' || dt === 'int16')
+            }
+            if (dt === 'uint16' || dt === 'int16') {
                 return 'edge-path-b16';
-            if (dt === 'uint32' || dt === 'int32')
+            }
+            if (dt === 'uint32' || dt === 'int32') {
                 return 'edge-path-b32';
+            }
             return 'edge-path';
         };
         this.element = createElement('path');
