@@ -5814,6 +5814,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "tensor-and-integer-in-tuple.pt",
+    "source":   "https://github.com/user-attachments/files/15879202/tensor-and-integer-in-tuple.pt.zip[tensor-and-integer-in-tuple.pt]",
+    "format":   "PyTorch v1.6",
+    "assert":   [ "model.graphs[0].nodes[0].attributes[0].value == 234" ],
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
     "target":   "tensors.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/14733021/tensors.pkl.zip[tensors.pkl]",
     "format":   "PyTorch Pickle",
