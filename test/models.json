@@ -5070,6 +5070,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "hrnet_posenet_FP32.pth",
+    "source":   "https://github.com/user-attachments/files/15894705/hrnet_posenet_FP32.pth.zip[hrnet_posenet_FP32.pth]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "inception_v3_traced.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6096627/inception_v3_traced.pt.zip[inception_v3_traced.pt]",
     "format":   "TorchScript v1.6",
