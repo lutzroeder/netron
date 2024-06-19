@@ -2835,6 +2835,11 @@ view.ValueView = class extends view.Control {
                 const element = this.createElement('div', 'sidebar-item-value-button');
                 element.setAttribute('title', 'Show Tensor');
                 element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-weight"></use></svg>`;
+                element.addEventListener('pointerenter', () => {
+                    this.emit('activate', this._value);
+                });
+                element.addEventListener('pointerleave', () => this.emit('deactivate', this._value));
+                element.style.cursor = 'pointer';
                 element.addEventListener('click', () => this.emit('select', this._value));
                 this._element.appendChild(element);
                 this._count = 3;
@@ -2988,13 +2993,13 @@ view.TensorView = class extends view.Control {
                 try {
                     this.toggle();
                 } catch (error) {
-                    super.error(error, false);
-                    this._info('ERROR', error.message);
+                    this.error(error, false);
                 }
             });
             this._element.appendChild(this._expander);
-            this._style = 'sidebar-item-value-line';
-            this._collapse();
+            this._container = this.createElement('div', 'sidebar-item-value-line');
+            this._container.innerHTML = '\u2026';
+            this._element.appendChild(this._container);
         }
         return [this._element];
     }
@@ -3007,40 +3012,36 @@ view.TensorView = class extends view.Control {
             if (this._expander.innerText === '+') {
                 this._expander.innerText = '-';
                 try {
-                    this.tensor(this._element);
+                    this._container.innerHTML = '';
+                    this._tensor(this._element);
+                    this._element.appendChild(this._container);
                 } catch (error) {
-                    super.error(error, false);
-                    this._info('ERROR', error.message);
+                    this.error(error, false);
                 }
             } else {
                 this._expander.innerText = '+';
-                this._collapse();
+                this._container.innerHTML = '\u2026';
+                this._element.appendChild(this._container);
             }
         }
     }
 
-    _collapse() {
-        const line = this.createElement('div', this._style);
-        line.innerHTML = '\u2026';
-        this._element.appendChild(line);
-    }
-
-    tensor(element) {
+    _tensor(element) {
         const value = this._value;
-        const contentLine = this.createElement('pre');
+        const code = this.createElement('pre');
         const tensor = new view.Tensor(value);
         if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
-            contentLine.innerHTML = `Tensor encoding '${tensor.layout}' is not implemented.`;
+            code.innerHTML = `Tensor encoding '${tensor.layout}' is not implemented.`;
         } else if (tensor.layout && (tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo')) {
-            contentLine.innerHTML = `Tensor layout '${tensor.layout}' is not implemented.`;
+            code.innerHTML = `Tensor layout '${tensor.layout}' is not implemented.`;
         } else if (tensor.empty) {
-            contentLine.innerHTML = 'Tensor data is empty.';
+            code.innerHTML = 'Tensor data is empty.';
         } else if (tensor.type && tensor.type.dataType === '?') {
-            contentLine.innerHTML = 'Tensor data type is not defined.';
+            code.innerHTML = 'Tensor data type is not defined.';
         } else if (tensor.type && !tensor.type.shape) {
-            contentLine.innerHTML = 'Tensor shape is not defined.';
+            code.innerHTML = 'Tensor shape is not defined.';
         } else {
-            contentLine.innerHTML = tensor.toString();
+            code.innerHTML = tensor.toString();
             if (this._host.save &&
                 value.type.shape && value.type.shape.dimensions &&
                 value.type.shape.dimensions.length > 0) {
@@ -3052,9 +3053,14 @@ view.TensorView = class extends view.Control {
                 element.appendChild(this._saveButton);
             }
         }
-        const valueLine = this.createElement('div', this._style || 'sidebar-item-value-line-border');
-        valueLine.appendChild(contentLine);
-        element.appendChild(valueLine);
+        this._container.appendChild(code);
+    }
+
+    error(error, fatal) {
+        super.error(error, fatal);
+        const element = this.createElement('div', 'sidebar-item-value-line');
+        element.innerHTML = `<b>ERROR:</b> ${error.message}`;
+        this._element.appendChild(element);
     }
 
     async export() {
@@ -3215,46 +3221,54 @@ view.TensorSidebar = class extends view.ObjectSidebar {
     render() {
         const value = this._value;
         const tensor = value.initializer;
-        const [name] = value.name.split('\n');
+        const [name] = tensor && tensor.name ? tensor : value.name.split('\n');
         if (name) {
             this.addProperty('name', name);
         }
-        const category = tensor.category;
-        if (category) {
-            this.addProperty('category', category);
-        }
-        const description = tensor.description;
-        if (description) {
-            this.addProperty('description', description);
-        }
-        const type = tensor.type;
-        if (type) {
-            const value = type.toString().split('<').join('&lt;').split('>').join('&gt;');
-            const denotation = type.denotation;
-            const layout = type.layout;
-            this.addProperty('type', `${value}`, 'code');
-            if (denotation) {
-                this.addProperty('denotation', denotation, 'code');
-            }
-            if (layout) {
-                this.addProperty('layout', layout.replace('.', ' '));
-            }
-        }
-        const identifier = this._value.identifier;
-        if (identifier !== undefined) {
-            this.addProperty('identifier', tensor.identifier);
-        }
-        const location = tensor.location;
-        if (location) {
-            this.addProperty('location', tensor.location);
-        }
-        const stride = tensor.stride;
-        if (Array.isArray(stride) && stride.length > 0) {
-            this.addProperty('stride', stride.join(','), 'code');
-        }
         if (tensor) {
+            const category = tensor.category;
+            if (category) {
+                this.addProperty('category', category);
+            }
+            const description = tensor.description;
+            if (description) {
+                this.addProperty('description', description);
+            }
+            const type = tensor.type;
+            if (type) {
+                const value = type.toString().split('<').join('&lt;').split('>').join('&gt;');
+                const denotation = type.denotation;
+                const layout = type.layout;
+                this.addProperty('type', `${value}`, 'code');
+                if (denotation) {
+                    this.addProperty('denotation', denotation, 'code');
+                }
+                if (layout) {
+                    this.addProperty('layout', layout.replace('.', ' '));
+                }
+            }
+            const identifier = this._value.identifier;
+            if (identifier !== undefined) {
+                this.addProperty('identifier', tensor.identifier);
+            }
+            const location = tensor.location;
+            if (location) {
+                this.addProperty('location', tensor.location);
+            }
+            const stride = tensor.stride;
+            if (Array.isArray(stride) && stride.length > 0) {
+                this.addProperty('stride', stride.join(','), 'code');
+            }
             const value = new view.TensorView(this._view, tensor);
             this.add('value', value);
+
+            const metadata = tensor.metadata;
+            if (Array.isArray(metadata) && metadata.length > 0) {
+                this.addHeader('Metadata');
+                for (const argument of tensor.metadata) {
+                    this.addProperty(argument.name, argument.value);
+                }
+            }
         }
         /*
         // TODO
