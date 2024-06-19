@@ -436,6 +436,7 @@ dlc.Container = class {
                 case 0x0308: return 'qint8';
                 case 0x0316: return 'qint16';
                 case 0x0332: return 'qint32';
+                case 0x0404: return 'uint4';
                 case 0x0408: return 'uint8';
                 case 0x0416: return 'uint16';
                 case 0x0432: return 'uint32';
