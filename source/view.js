@@ -13,6 +13,7 @@ import * as grapher from './grapher.js';
 
 const view =  {};
 const markdown = {};
+const metrics = {};
 
 view.View = class {
 
@@ -1755,7 +1756,7 @@ view.Graph = class extends grapher.Graph {
     }
 
     createTensor(value) {
-        const obj = new view.Value(this, value);
+        const obj = new view.Tensor(this, value);
         this._table.set(value, obj);
     }
 
@@ -2029,8 +2030,7 @@ view.Node = class extends grapher.Node {
                     shape = `\u3008${type.shape.dimensions.map((d) => (d !== null && d !== undefined) ? d : '?').join('\u00D7')}\u3009`;
                     if (type.shape.dimensions.length === 0 && value.initializer) {
                         try {
-                            const initializer = value.initializer;
-                            const tensor = new view.Tensor(initializer);
+                            const tensor = new base.Tensor(value.initializer);
                             const encoding = tensor.encoding;
                             if ((encoding === '<' || encoding === '>' || encoding === '|') && !tensor.empty && tensor.type.dataType !== '?') {
                                 shape = tensor.toString();
@@ -2256,13 +2256,30 @@ view.Value = class {
     }
 
     activate() {
-        if (this.value && this.value.initializer) {
-            this.context.view.showTensorProperties(this.value);
-        } else if (this.value && this.from && Array.isArray(this.to)) {
+        if (this.value && this.from && Array.isArray(this.to)) {
             const from = this.from.value;
             const to = this.to.map((node) => node.value);
             this.context.view.showConnectionProperties(this.value, from, to);
         }
+    }
+};
+
+view.Tensor = class {
+
+    constructor(context, value) {
+        this.context = context;
+        this.value = value;
+    }
+
+    select() {
+        return [];
+    }
+
+    deselect() {
+    }
+
+    activate() {
+        this.context.view.showTensorProperties(this.value);
     }
 };
 
@@ -2557,7 +2574,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         let value = null;
         switch (attribute.type) {
             case 'tensor': {
-                value = new view.ValueView(this._view, { type: attribute.value.type, initializer: attribute.value }, '');
+                value = new view.ValueView(this._view, { type: attribute.value.type, initializer: attribute.value }, '', true);
                 break;
             }
             case 'tensor[]': {
@@ -2805,7 +2822,7 @@ view.ArgumentView = class extends view.Control {
 
 view.ValueView = class extends view.Control {
 
-    constructor(context, value, name) {
+    constructor(context, value, name, attribute) {
         super(context);
         this._value = value;
         this._count = 2;
@@ -2831,7 +2848,7 @@ view.ValueView = class extends view.Control {
                 });
                 this._element.appendChild(this._expander);
             }
-            if (initializer) {
+            if (initializer && !attribute) {
                 const element = this.createElement('div', 'sidebar-item-value-button');
                 element.setAttribute('title', 'Show Tensor');
                 element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-weight"></use></svg>`;
@@ -2937,8 +2954,11 @@ view.ValueView = class extends view.Control {
                         if (Array.isArray(stride) && stride.length > 0) {
                             this._code('stride', stride.join(','));
                         }
-                        // const tensor = new view.TensorView(this._view, initializer);
-                        // tensor.tensor(this._element);
+                        const tensor = new view.TensorView(this._view, initializer);
+                        const content = tensor.content(this._element);
+                        const line = this.createElement('div', 'sidebar-item-value-line-border');
+                        line.appendChild(content);
+                        this._element.appendChild(line);
                     }
                 } catch (error) {
                     super.error(error, false);
@@ -2979,9 +2999,10 @@ view.ValueView = class extends view.Control {
 
 view.TensorView = class extends view.Control {
 
-    constructor(context, value) {
+    constructor(context, value, tensor) {
         super(context);
         this._value = value;
+        this._tensor = tensor || new base.Tensor(value);
     }
 
     render() {
@@ -3013,7 +3034,8 @@ view.TensorView = class extends view.Control {
                 this._expander.innerText = '-';
                 try {
                     this._container.innerHTML = '';
-                    this._tensor(this._element);
+                    const content = this.content(this._element);
+                    this._container.appendChild(content);
                     this._element.appendChild(this._container);
                 } catch (error) {
                     this.error(error, false);
@@ -3026,22 +3048,22 @@ view.TensorView = class extends view.Control {
         }
     }
 
-    _tensor(element) {
+    content(element) {
+        const content = this.createElement('pre');
         const value = this._value;
-        const code = this.createElement('pre');
-        const tensor = new view.Tensor(value);
+        const tensor = this._tensor;
         if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
-            code.innerHTML = `Tensor encoding '${tensor.layout}' is not implemented.`;
+            content.innerHTML = `Tensor encoding '${tensor.layout}' is not implemented.`;
         } else if (tensor.layout && (tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo')) {
-            code.innerHTML = `Tensor layout '${tensor.layout}' is not implemented.`;
+            content.innerHTML = `Tensor layout '${tensor.layout}' is not implemented.`;
         } else if (tensor.empty) {
-            code.innerHTML = 'Tensor data is empty.';
+            content.innerHTML = 'Tensor data is empty.';
         } else if (tensor.type && tensor.type.dataType === '?') {
-            code.innerHTML = 'Tensor data type is not defined.';
+            content.innerHTML = 'Tensor data type is not defined.';
         } else if (tensor.type && !tensor.type.shape) {
-            code.innerHTML = 'Tensor shape is not defined.';
+            content.innerHTML = 'Tensor shape is not defined.';
         } else {
-            code.innerHTML = tensor.toString();
+            content.innerHTML = tensor.toString();
             if (this._host.save &&
                 value.type.shape && value.type.shape.dimensions &&
                 value.type.shape.dimensions.length > 0) {
@@ -3053,7 +3075,7 @@ view.TensorView = class extends view.Control {
                 element.appendChild(this._saveButton);
             }
         }
-        this._container.appendChild(code);
+        return content;
     }
 
     error(error, fatal) {
@@ -3064,7 +3086,7 @@ view.TensorView = class extends view.Control {
     }
 
     async export() {
-        const tensor = new view.Tensor(this._value);
+        const tensor = this._tensor;
         const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
         const file = await this._host.save('NumPy Array', 'npy', defaultPath);
         if (file) {
@@ -3213,15 +3235,16 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
 
 view.TensorSidebar = class extends view.ObjectSidebar {
 
-    constructor(context, value) {
+    constructor(context, value, tensor) {
         super(context);
         this._value = value;
+        this._tensor = tensor || new base.Tensor(value.initializer);
     }
 
     render() {
         const value = this._value;
         const tensor = value.initializer;
-        const [name] = tensor && tensor.name ? tensor : value.name.split('\n');
+        const name = tensor && tensor.name ? tensor.name : value.name.split('\n')[0];
         if (name) {
             this.addProperty('name', name);
         }
@@ -3247,10 +3270,6 @@ view.TensorSidebar = class extends view.ObjectSidebar {
                     this.addProperty('layout', layout.replace('.', ' '));
                 }
             }
-            const identifier = this._value.identifier;
-            if (identifier !== undefined) {
-                this.addProperty('identifier', tensor.identifier);
-            }
             const location = tensor.location;
             if (location) {
                 this.addProperty('location', tensor.location);
@@ -3259,9 +3278,8 @@ view.TensorSidebar = class extends view.ObjectSidebar {
             if (Array.isArray(stride) && stride.length > 0) {
                 this.addProperty('stride', stride.join(','), 'code');
             }
-            const value = new view.TensorView(this._view, tensor);
+            const value = new view.TensorView(this._view, tensor, this._tensor);
             this.add('value', value);
-
             const metadata = tensor.metadata;
             if (Array.isArray(metadata) && metadata.length > 0) {
                 this.addHeader('Metadata');
@@ -3271,12 +3289,14 @@ view.TensorSidebar = class extends view.ObjectSidebar {
             }
         }
         /*
-        // TODO
+        // Metrics
         if (value.initializer) {
-            const tensor = new view.Tensor(value.initializer);
             if (!tensor.empty) {
+                if (!this._metrics) {
+                    this._metrics = new metrics.Tensor(this._tensor);
+                }
                 this.addHeader('Metrics');
-                const metrics = tensor.metrics;
+                const metrics = this._metrics.metrics;
                 for (const metric of metrics) {
                     const value = metric.type === 'percentage' ? `${(metric.value * 100).toFixed(1)}%` : metric.value;
                     this.addProperty(metric.name, [value]);
@@ -3747,545 +3767,6 @@ view.Argument = class {
         this.name = name;
         this.value = value;
         this.type = type;
-    }
-};
-
-view.Tensor = class {
-
-    constructor(tensor) {
-        this._tensor = tensor;
-        this._type = tensor.type;
-        this._layout = tensor.type.layout;
-        this._stride = tensor.stride;
-        view.Tensor.dataTypes = view.Tensor.dataTypeSizes || new Map([
-            ['boolean', 1],
-            ['qint8', 1], ['qint16', 2], ['qint32', 4],
-            ['quint8', 1], ['quint16', 2], ['quint32', 4],
-            ['xint8', 1],
-            ['int8', 1], ['int16', 2], ['int32', 4], ['int64', 8],
-            ['uint8', 1], ['uint16', 2], ['uint32', 4,], ['uint64', 8],
-            ['float16', 2], ['float32', 4], ['float64', 8], ['bfloat16', 2],
-            ['complex64', 8], ['complex128', 16],
-            ['float8e4m3fn', 1], ['float8e4m3fnuz', 1], ['float8e5m2', 1], ['float8e5m2fnuz', 1]
-        ]);
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get layout() {
-        return this._layout;
-    }
-
-    get stride() {
-        return this._stride;
-    }
-
-    get encoding() {
-        this._read();
-        return this._encoding;
-    }
-
-    get values() {
-        this._read();
-        return this._values;
-    }
-
-    get indices() {
-        this._read();
-        return this._indices;
-    }
-
-    get data() {
-        this._read();
-        return this._data;
-    }
-
-    get empty() {
-        switch (this._layout) {
-            case 'sparse':
-            case 'sparse.coo': {
-                return !this.values || this.indices || this.values.values === null || this.values.values.length === 0;
-            }
-            default: {
-                switch (this._encoding) {
-                    case '<':
-                    case '>':
-                        return !(Array.isArray(this.data) || this.data instanceof Uint8Array || this.data instanceof Int8Array) || this.data.length === 0;
-                    case '|':
-                        return !(Array.isArray(this.values) || ArrayBuffer.isView(this.values)) || this.values.length === 0;
-                    default:
-                        throw new Error(`Unsupported tensor encoding '${this._encoding}'.`);
-                }
-            }
-        }
-    }
-
-    get value() {
-        const context = this._context();
-        context.limit = Number.MAX_SAFE_INTEGER;
-        switch (context.encoding) {
-            case '<':
-            case '>': {
-                return this._decodeData(context, 0, 0);
-            }
-            case '|': {
-                return this._decodeValues(context, 0, 0);
-            }
-            default: {
-                throw new Error(`Unsupported tensor encoding '${context.encoding}'.`);
-            }
-        }
-    }
-
-    toString() {
-        const context = this._context();
-        context.limit = 10000;
-        switch (context.encoding) {
-            case '<':
-            case '>': {
-                const value = this._decodeData(context, 0, 0);
-                return view.Tensor._stringify(value, '', '    ');
-            }
-            case '|': {
-                const value = this._decodeValues(context, 0, 0);
-                return view.Tensor._stringify(value, '', '    ');
-            }
-            default: {
-                throw new Error(`Unsupported tensor encoding '${context.encoding}'.`);
-            }
-        }
-    }
-
-    _context() {
-        if (this._encoding !== '<' && this._encoding !== '>' && this._encoding !== '|') {
-            throw new Error(`Tensor encoding '${this._encoding}' is not supported.`);
-        }
-        if (this._layout && (this._layout !== 'sparse' && this._layout !== 'sparse.coo')) {
-            throw new Error(`Tensor layout '${this._layout}' is not supported.`);
-        }
-        const dataType = this._type.dataType;
-        const context = {};
-        context.encoding = this._encoding;
-        context.dimensions = this._type.shape.dimensions.map((value) => typeof value === 'bigint' ? value.toNumber() : value);
-        context.dataType = dataType;
-        const shape = context.dimensions;
-        context.stride = this._stride;
-        if (!Array.isArray(context.stride)) {
-            context.stride = new Array(shape.length);
-            let value = 1;
-            for (let i = shape.length - 1; i >= 0; i--) {
-                context.stride[i] = value;
-                value *= shape[i];
-            }
-        }
-        switch (this._layout) {
-            case 'sparse': {
-                const indices = new view.Tensor(this._indices).value;
-                const values = new view.Tensor(this._values).value;
-                context.data = this._decodeSparse(dataType, context.dimensions, indices, values);
-                context.encoding = '|';
-                break;
-            }
-            case 'sparse.coo': {
-                const values = new view.Tensor(this._values).value;
-                const data = new view.Tensor(this._indices).value;
-                const dimensions = context.dimensions.length;
-                let stride = 1;
-                const strides = context.dimensions.slice().reverse().map((dim) => {
-                    const value = stride;
-                    stride *= dim;
-                    return value;
-                }).reverse();
-                const indices = new Uint32Array(values.length);
-                for (let i = 0; i < dimensions; i++) {
-                    const stride = strides[i];
-                    const dimension = data[i];
-                    for (let i = 0; i < indices.length; i++) {
-                        indices[i] += dimension[i].toNumber() * stride;
-                    }
-                }
-                context.data = this._decodeSparse(dataType, context.dimensions, indices, values);
-                context.encoding = '|';
-                break;
-            }
-            default: {
-                switch (this._encoding) {
-                    case '<':
-                    case '>': {
-                        context.data = (this._data instanceof Uint8Array || this._data instanceof Int8Array) ? this._data : this._data.peek();
-                        context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
-                        if (view.Tensor.dataTypes.has(dataType)) {
-                            const itemsize = view.Tensor.dataTypes.get(dataType);
-                            const length = context.data.length;
-                            const stride = context.stride;
-                            if (length < (itemsize * shape.reduce((a, v) => a * v, 1))) {
-                                const max = stride.reduce((a, v, i) => v > stride[i] ? i : a, 0);
-                                if (length !== (itemsize * stride[max] * shape[max])) {
-                                    throw new Error('Invalid tensor data size.');
-                                }
-                            }
-                            context.itemsize = itemsize;
-                            context.stride = stride.map((v) => v * itemsize);
-                        } else if (dataType.startsWith('uint') && !isNaN(parseInt(dataType.substring(4), 10))) {
-                            context.dataType = 'uint';
-                            context.bits = parseInt(dataType.substring(4), 10);
-                            context.itemsize = 1;
-                        } else if (dataType.startsWith('int') && !isNaN(parseInt(dataType.substring(3), 10))) {
-                            context.dataType = 'int';
-                            context.bits = parseInt(dataType.substring(3), 10);
-                            context.itemsize = 1;
-                        } else {
-                            throw new Error(`Tensor data type '${dataType}' is not implemented.`);
-                        }
-                        break;
-                    }
-                    case '|': {
-                        context.data = this._values;
-                        if (!view.Tensor.dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object') {
-                            throw new Error(`Tensor data type '${dataType}' is not implemented.`);
-                        }
-                        const size = context.dimensions.reduce((a, v) => a * v, 1);
-                        if (size !== this._values.length) {
-                            throw new Error('Invalid tensor data length.');
-                        }
-                        break;
-                    }
-                    default: {
-                        throw new view.Tensor(`Unsupported tensor encoding '${this._encoding}'.`);
-                    }
-                }
-            }
-        }
-        context.index = 0;
-        context.count = 0;
-        return context;
-    }
-
-    _decodeSparse(dataType, dimensions, indices, values) {
-        const size = dimensions.reduce((a, b) => a * b, 1);
-        const array = new Array(size);
-        switch (dataType) {
-            case 'boolean':
-                array.fill(false);
-                break;
-            default:
-                array.fill(0);
-                break;
-        }
-        if (indices.length > 0) {
-            if (Object.prototype.hasOwnProperty.call(indices[0], 'low')) {
-                for (let i = 0; i < indices.length; i++) {
-                    const index = indices[i].toNumber();
-                    array[index] = values[i];
-                }
-            } else {
-                for (let i = 0; i < indices.length; i++) {
-                    array[indices[i]] = values[i];
-                }
-            }
-        }
-        return array;
-    }
-
-    _decodeData(context, dimension, offset) {
-        const results = [];
-        const shape = context.dimensions.length === 0 ? [1] : context.dimensions;
-        const size = shape[dimension];
-        const dataType = context.dataType;
-        const view = context.view;
-        const stride = context.stride[dimension];
-        if (dimension === shape.length - 1) {
-            const ellipsis = (context.count + size) > context.limit;
-            const length = ellipsis ? context.limit - context.count : size;
-            const max = offset + (length * context.itemsize);
-            switch (dataType) {
-                case 'boolean':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getUint8(offset) !== 0);
-                    }
-                    break;
-                case 'qint8':
-                case 'xint8':
-                case 'int8':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getInt8(offset));
-                    }
-                    break;
-                case 'qint16':
-                case 'int16':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getInt16(offset, this._littleEndian));
-                    }
-                    break;
-                case 'qint32':
-                case 'int32':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getInt32(offset, this._littleEndian));
-                    }
-                    break;
-                case 'int64':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getBigInt64(offset, this._littleEndian));
-                    }
-                    break;
-                case 'int':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getIntBits(offset, context.bits, this._littleEndian));
-                    }
-                    break;
-                case 'quint8':
-                case 'uint8':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getUint8(offset));
-                    }
-                    break;
-                case 'quint16':
-                case 'uint16':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getUint16(offset, true));
-                    }
-                    break;
-                case 'quint32':
-                case 'uint32':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getUint32(offset, true));
-                    }
-                    break;
-                case 'uint64':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getBigUint64(offset, true));
-                    }
-                    break;
-                case 'uint':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getUintBits(offset, context.bits, this._littleEndian));
-                    }
-                    break;
-                case 'float16':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getFloat16(offset, this._littleEndian));
-                    }
-                    break;
-                case 'float32':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getFloat32(offset, this._littleEndian));
-                    }
-                    break;
-                case 'float64':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getFloat64(offset, this._littleEndian));
-                    }
-                    break;
-                case 'bfloat16':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getBfloat16(offset, this._littleEndian));
-                    }
-                    break;
-                case 'complex64':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getComplex64(offset, this._littleEndian));
-                    }
-                    break;
-                case 'complex128':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getComplex128(offset, this._littleEndian));
-                    }
-                    break;
-                case 'float8e4m3fn':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getFloat8e4m3(offset, true, false));
-                    }
-                    break;
-                case 'float8e4m3fnuz':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getFloat8e4m3(offset, true, true));
-                    }
-                    break;
-                case 'float8e5m2':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getFloat8e5m2(offset, false, false));
-                    }
-                    break;
-                case 'float8e5m2fnuz':
-                    for (; offset < max; offset += stride) {
-                        results.push(view.getFloat8e5m2(offset, true, true));
-                    }
-                    break;
-                default:
-                    throw new Error(`Unsupported tensor data type '${dataType}'.`);
-            }
-            context.count += length;
-            if (ellipsis) {
-                results.push('...');
-            }
-        } else {
-            for (let j = 0; j < size; j++) {
-                if (context.count >= context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                const nextOffset = offset + (j * stride);
-                results.push(this._decodeData(context, dimension + 1, nextOffset));
-            }
-        }
-        if (context.dimensions.length === 0) {
-            return results[0];
-        }
-        return results;
-    }
-
-    _decodeValues(context, dimension, position) {
-        const results = [];
-        const shape = (context.dimensions.length === 0) ? [1] : context.dimensions;
-        const size = shape[dimension];
-        const dataType = context.dataType;
-        const stride = context.stride[dimension];
-        if (dimension === shape.length - 1) {
-            const ellipsis = (context.count + size) > context.limit;
-            const length = ellipsis ? context.limit - context.count : size;
-            const data = context.data;
-            for (let i = 0; i < length; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (dataType) {
-                    case 'boolean':
-                        results.push(data[position] === 0 ? false : true);
-                        break;
-                    default:
-                        results.push(data[position]);
-                        break;
-                }
-                position += stride;
-                context.count++;
-            }
-        } else {
-            for (let i = 0; i < size; i++) {
-                if (context.count >= context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                const nextPosition = position + (i * stride);
-                results.push(this._decodeValues(context, dimension + 1, nextPosition));
-            }
-        }
-        if (context.dimensions.length === 0) {
-            return results[0];
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push(`${indentation}[`);
-            const items = value.map((item) => view.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(`${indentation}]`);
-            return result.join('\n');
-        }
-        if (value === null) {
-            return `${indentation}null`;
-        }
-        switch (typeof value) {
-            case 'boolean':
-                return indentation + value.toString();
-            case 'string':
-                return `${indentation}"${value}"`;
-            case 'number':
-                if (value === Infinity) {
-                    return `${indentation}Infinity`;
-                }
-                if (value === -Infinity) {
-                    return `${indentation}-Infinity`;
-                }
-                if (isNaN(value)) {
-                    return `${indentation}NaN`;
-                }
-                return indentation + value.toString();
-            case 'bigint':
-                return indentation + value.toString();
-            default:
-                if (value && value.toString) {
-                    return indentation + value.toString();
-                }
-                return `${indentation}(undefined)`;
-        }
-    }
-
-    _read() {
-        if (this._encoding === undefined) {
-            this._encoding = this._tensor.encoding;
-            this._values = null;
-            switch (this._encoding) {
-                case undefined:
-                case '':
-                case '<': {
-                    this._data = this._tensor.values;
-                    this._encoding = '<';
-                    this._littleEndian = true;
-                    break;
-                }
-                case '>': {
-                    this._data = this._tensor.values;
-                    this._encoding = '>';
-                    this._littleEndian = false;
-                    break;
-                }
-                case '|': {
-                    this._values = this._tensor.values;
-                    this._encoding = '|';
-                    break;
-                }
-                default: {
-                    throw new view.Error(`Unsupported tensor encoding '${this._encoding}'.`);
-                }
-            }
-            switch (this._layout) {
-                case 'sparse':
-                case 'sparse.coo': {
-                    this._indices = this._tensor.indices;
-                    this._values = this._tensor.values;
-                    break;
-                }
-                default: {
-                    break;
-                }
-            }
-        }
-    }
-
-    get metrics() {
-        if (!this._metrics) {
-            const data = this.value;
-            this._metrics = Array.from(this._tensor.metrics || []);
-            const keys = new Set(this._metrics.map((metrics) => metrics.name));
-            if (!keys.has('sparsity')) {
-                let zeros = 0;
-                let parameters = 0;
-                const stack = [data];
-                while (stack.length > 0) {
-                    const data = stack.pop();
-                    if (Array.isArray(data)) {
-                        for (const element of data) {
-                            stack.push(element);
-                        }
-                    } else {
-                        zeros += data === 0 || data === 0n || data === '';
-                        parameters += 1;
-                    }
-                }
-                const value = parameters > 0 ? zeros / parameters : 0;
-                const argument = new view.Argument('sparsity', value, 'percentage');
-                this._metrics.push(argument);
-            }
-        }
-        return this._metrics;
     }
 };
 
@@ -5365,6 +4846,42 @@ markdown.Generator = class {
             return content.replace(this._escapeReplaceNoEncodeRegExp, (ch) => this._escapeReplacementsMap[ch]);
         }
         return content;
+    }
+};
+
+metrics.Tensor = class {
+
+    constructor(tensor) {
+        this._tensor = tensor;
+    }
+
+    get metrics() {
+        if (!this._metrics) {
+            const tensor = this._tensor;
+            const data = tensor.value;
+            this._metrics = Array.from(tensor.metrics || []);
+            const keys = new Set(this._metrics.map((metrics) => metrics.name));
+            if (!keys.has('sparsity')) {
+                let zeros = 0;
+                let parameters = 0;
+                const stack = [data];
+                while (stack.length > 0) {
+                    const data = stack.pop();
+                    if (Array.isArray(data)) {
+                        for (const element of data) {
+                            stack.push(element);
+                        }
+                    } else {
+                        zeros += data === 0 || data === 0n || data === '';
+                        parameters += 1;
+                    }
+                }
+                const value = parameters > 0 ? zeros / parameters : 0;
+                const argument = new view.Argument('sparsity', value, 'percentage');
+                this._metrics.push(argument);
+            }
+        }
+        return this._metrics;
     }
 };
 

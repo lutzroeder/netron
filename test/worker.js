@@ -640,7 +640,7 @@ export class Target {
                 }
                 if (value.initializer) {
                     value.initializer.type.toString();
-                    const tensor = new view.Tensor(value.initializer);
+                    const tensor = new base.Tensor(value.initializer);
                     if (!this.tags.has('skip-tensor-value')) {
                         if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
                             throw new Error(`Tensor encoding '${tensor.encoding}' is not implemented.`);
