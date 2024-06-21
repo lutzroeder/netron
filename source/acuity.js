@@ -515,7 +515,8 @@ acuity.Inference = class {
                         callback = operators.get('broadcast');
                     } else if (reduces.has(layer.op)) {
                         callback = operators.get('reduce');
-                    } else {
+                    }
+                    if (!callback) {
                         callback = () => [];
                     }
                     const parameters = layer.parameters;
