@@ -482,8 +482,9 @@ onnx.Group = class {
 
 onnx.Tensor = class {
 
-    constructor(context, tensor, category) {
+    constructor(context, tensor, category, zero) {
         this._category = category || null;
+        this._zero = zero || null;
         if (tensor.indices && tensor.values) {
             this._name = tensor.values.name || '';
             this._type = context.createTensorType(tensor.values.data_type, tensor.dims, 'sparse');
@@ -618,6 +619,14 @@ onnx.Tensor = class {
                 }
             }
         }
+    }
+
+    setZero(zero) {
+        this._zero = zero;
+    }
+
+    get zero() {
+        return this._zero;
     }
 
     get name() {
@@ -1300,6 +1309,17 @@ onnx.Context.Graph = class {
             }
             node = new onnx.Node(this, node, inputs, outputs);
             this._nodes.push(node);
+
+            switch (op_type) {
+                case 'ConvInteger':
+                    const zero = inputs.find(input => input.name == 'w_zero_point')
+                    const weight = inputs.find(input => input.name == 'w')
+                    if (zero?.value?.[0] && weight?.value?.[0]) {
+                        console.log(zero.value[0])
+                        weight.value[0].initializer.setZero(zero.value[0]);
+                    }
+                    break;
+            }
 
             // const path = (node.name || '').split('/');
             // path.pop();
