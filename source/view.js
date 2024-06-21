@@ -4860,7 +4860,8 @@ metrics.Tensor = class {
             this._metrics = Array.from(tensor.metrics || []);
             const keys = new Set(this._metrics.map((metrics) => metrics.name));
             if (!keys.has('sparsity')) {
-                const zero = tensor.zero.initializer?.values?.[0];
+                // TODO: support channel-wise zeros
+                const zero = tensor.zero != null ? tensor.zero.values[0] : null;
 
                 let zeros = 0;
                 let parameters = 0;

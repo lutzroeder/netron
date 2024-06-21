@@ -1310,14 +1310,34 @@ onnx.Context.Graph = class {
             node = new onnx.Node(this, node, inputs, outputs);
             this._nodes.push(node);
 
+            const setZero = (inputs, weightName, zeroName) => {
+                const weight = inputs.find(input => input.name == weightName);
+                const zero = inputs.find(input => input.name == zeroName);
+                if (
+                    weight && weight.value.length === 1 && weight.value[0].initializer &&
+                    zero && zero.value.length === 1 && zero.value[0].initializer
+                ) {
+                    weight.value[0].initializer.setZero(zero.value[0].initializer);
+                }
+            }
             switch (op_type) {
                 case 'ConvInteger':
-                    const zero = inputs.find(input => input.name == 'w_zero_point')
-                    const weight = inputs.find(input => input.name == 'w')
-                    if (zero?.value?.[0] && weight?.value?.[0]) {
-                        console.log(zero.value[0])
-                        weight.value[0].initializer.setZero(zero.value[0]);
-                    }
+                    setZero(inputs, 'w', 'w_zero_point');
+                    break;
+
+                case 'MatMulInteger':
+                    setZero(inputs, 'A', 'a_zero_point');
+                    setZero(inputs, 'B', 'b_zero_point');
+                    break;
+
+                case 'QLinearConv':
+                    setZero(inputs, 'w', 'w_zero_point');
+                    // bias zero point is always 0
+                    break;
+
+                case 'QLinearMatMul':
+                    setZero(inputs, 'a', 'a_zero_point');
+                    setZero(inputs, 'b', 'b_zero_point');
                     break;
             }
 
