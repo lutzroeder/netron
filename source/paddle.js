@@ -783,10 +783,15 @@ paddle.Utility = class {
         if (!paddle.Utility._dataTypes) {
             const length = Math.max.apply(null, Object.entries(paddle.DataType).map(([, value]) => value));
             paddle.Utility._dataTypes = new Array(length);
-            const map = new Map([['bool', 'boolean'], ['bf16', 'bfloat16'], ['fp16', 'float16'], ['fp32', 'float32'], ['fp64', 'float64']]);
+            const types = new Map([
+                ['bool', 'boolean'],
+                ['bf16', 'bfloat16'],
+                ['fp16', 'float16'], ['fp32', 'float32'], ['fp64', 'float64'],
+                ['fp8_e4m3fn', 'float8e4m3fn'], ['fp8_e5m2', 'float8e5m2']
+            ]);
             for (const [name, index] of Object.entries(paddle.DataType)) {
                 const key = name.toLowerCase();
-                paddle.Utility._dataTypes[index] = map.has(key) ? map.get(key) : key;
+                paddle.Utility._dataTypes[index] = types.has(key) ? types.get(key) : key;
             }
         }
         const dataType = data_type < paddle.Utility._dataTypes.length ? paddle.Utility._dataTypes[data_type] : '?';

@@ -87,10 +87,7 @@ qnn.Graph = class {
         };
         const tensors = Object.entries(obj.tensors);
         for (const [name, obj] of tensors) {
-            const shape = new qnn.TensorShape(obj.dims);
-            const dataType = qnn.Utility.dataType(obj.data_type);
-            const denotation = obj.axis_format ? obj.axis_format : '';
-            const type = new qnn.TensorType(dataType, shape, denotation);
+            const type = new qnn.TensorType(obj);
             switch (obj.type) {
                 case 0: {
                     const value = values.map(name, type, null, obj.quant_params);
@@ -110,7 +107,7 @@ qnn.Graph = class {
                 }
                 case 4: {
                     const reader = weights.get(`${name}.raw`);
-                    const tensor = new qnn.Tensor(name, obj, reader);
+                    const tensor = new qnn.Tensor(name, type, obj, reader);
                     values.map(name, type, tensor, obj.quant_params);
                     break;
                 }
@@ -196,7 +193,7 @@ qnn.Node = class {
         for (const [name, value] of Object.entries(obj.tensor_params)) {
             const entries = Object.entries(value);
             if (entries.length === 1 && name !== 'packageName') {
-                const tensor = new qnn.Tensor(name, entries[0][1]);
+                const tensor = new qnn.Tensor(name, null, entries[0][1]);
                 const argument = new qnn.Argument(name, tensor, 'tensor');
                 this.attributes.push(argument);
             }
@@ -206,16 +203,14 @@ qnn.Node = class {
 
 qnn.Tensor = class {
 
-    constructor(name, obj, data) {
-        const shape = new qnn.TensorShape(obj.dims);
-        const dataType = qnn.Utility.dataType(obj.data_type);
-        this.type = new qnn.TensorType(dataType, shape);
+    constructor(name, type, obj, data) {
+        this.type = type || new qnn.TensorType(obj);
         this.data = obj.data ? obj.data.flat() : data;
         this.encoding = Array.isArray(this.data) ? '|' : '<';
     }
 
     get values() {
-        if (this.data && this.data.peak) {
+        if (this.data && this.data.peek) {
             return this.data.peek();
         }
         return this.data;
@@ -224,10 +219,10 @@ qnn.Tensor = class {
 
 qnn.TensorType = class {
 
-    constructor(dataType, shape, denotation) {
-        this.dataType = dataType;
-        this.shape = shape;
-        this.denotation = denotation;
+    constructor(obj) {
+        this.dataType = qnn.Utility.dataType(obj.data_type);
+        this.shape = new qnn.TensorShape(obj.dims);
+        this.denotation = obj.axis_format && obj.axis_format !== 'ANY' ? obj.axis_format : '';
     }
 
     toString() {

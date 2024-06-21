@@ -1456,13 +1456,6 @@
   },
   {
     "type":     "coreml",
-    "target":   "iris.mlmodel",
-    "source":   "https://raw.githubusercontent.com/gavi/Iris/master/Iris/iris.mlmodel",
-    "format":   "Core ML v1",
-    "link":     "https://github.com/gavi/Iris"
-  },
-  {
-    "type":     "coreml",
     "target":   "LinkedUpdatableTinyDrawingClassifier.mlmodel",
     "source":   "https://github.com/lutzroeder/netron/files/4500539/LinkedUpdatableTinyDrawingClassifier.zip[LinkedUpdatableTinyDrawingClassifier.mlmodel]",
     "format":   "Core ML v4",
@@ -1584,24 +1577,24 @@
   {
     "type":     "coreml",
     "target":   "SqueezeNet.mlmodel",
-    "source":   "https://docs-assets.developer.apple.com/coreml/models/Image/ImageClassification/SqueezeNet/SqueezeNet.mlmodel",
+    "source":   "https://github.com/user-attachments/files/15855618/SqueezeNet.mlmodel.zip[SqueezeNet.mlmodel]",
     "format":   "Core ML v1",
-    "link":     "https://developer.apple.com/machine-learning/models"
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":     "coreml",
     "target":   "SqueezeNetFP16.mlmodel",
-    "source":   "https://docs-assets.developer.apple.com/coreml/models/Image/ImageClassification/SqueezeNet/SqueezeNetFP16.mlmodel",
+    "source":   "https://github.com/user-attachments/files/15855621/SqueezeNetFP16.mlmodel.zip[SqueezeNetFP16.mlmodel]",
     "format":   "Core ML v2",
-    "link":     "https://developer.apple.com/machine-learning/models"
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":     "coreml",
     "target":   "SqueezeNetInt8LUT.mlmodel",
-    "source":   "https://docs-assets.developer.apple.com/coreml/models/Image/ImageClassification/SqueezeNet/SqueezeNetInt8LUT.mlmodel",
+    "source":   "https://github.com/user-attachments/files/15855649/SqueezeNetInt8LUT.mlmodel.zip[SqueezeNetInt8LUT.mlmodel]",
     "format":   "Core ML v3",
     "tags":     "quantization",
-    "link":     "https://developer.apple.com/machine-learning/models"
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":     "coreml",
@@ -4816,7 +4809,7 @@
     "target":   "alexnet.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6096605/alexnet.pt.zip[alexnet.pt]",
     "format":   "TorchScript v1.6",
-    "tags":     "export-tensor",
+    "tags":     "export-tensor,skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/281"
   },
   {
@@ -4918,6 +4911,7 @@
     "target":   "cup_wild_vit_l_1img.ckpt",
     "source":   "https://github.com/user-attachments/files/15752923/cup_wild_vit_l_1img.ckpt.zip[cup_wild_vit_l_1img.ckpt]",
     "format":   "PyTorch v1.6",
+    "tags":     "skip-tensor-value",
     "assert":   [ "model.graphs[1].name == 'ema_model'" ],
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
@@ -5073,6 +5067,13 @@
     "format":   "PyTorch Export",
     "error":    "'torch.export' not supported.",
     "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "hrnet_posenet_FP32.pth",
+    "source":   "https://github.com/user-attachments/files/15894705/hrnet_posenet_FP32.pth.zip[hrnet_posenet_FP32.pth]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
     "type":     "pytorch",
@@ -5777,6 +5778,7 @@
     "target":   "stable_diffusion_safety_checker.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10199037/stable_diffusion.zip[stable_diffusion_safety_checker.pt]",
     "format":   "TorchScript v1.6",
+    "tags":     "skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5784,6 +5786,7 @@
     "target":   "stable_diffusion_text_encoder.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10199037/stable_diffusion.zip[stable_diffusion_text_encoder.pt]",
     "format":   "TorchScript v1.6",
+    "tags":     "skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5791,7 +5794,7 @@
     "target":   "stable_diffusion_unet.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10199037/stable_diffusion.zip[stable_diffusion_unet.pt]",
     "format":   "TorchScript v1.12",
-    "tags":     "skip-render",
+    "tags":     "skip-render,skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5799,6 +5802,7 @@
     "target":   "stable_diffusion_vae_decoder.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10199037/stable_diffusion.zip[stable_diffusion_vae_decoder.pt]",
     "format":   "TorchScript v1.6",
+    "tags":     "skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5814,6 +5818,14 @@
     "source":   "https://github.com/lutzroeder/netron/files/14733020/tensor.pkl.zip[tensor.pkl]",
     "format":   "PyTorch Pickle",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "tensor-and-integer-in-tuple.pt",
+    "source":   "https://github.com/user-attachments/files/15879202/tensor-and-integer-in-tuple.pt.zip[tensor-and-integer-in-tuple.pt]",
+    "format":   "PyTorch v1.6",
+    "assert":   [ "model.graphs[0].nodes[0].attributes[0].value == 234" ],
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
     "type":     "pytorch",
@@ -6010,6 +6022,7 @@
     "target":   "vicuna-7b.zip",
     "source":   "https://github.com/lutzroeder/netron/files/13935467/vicuna-7b.zip",
     "format":   "PyTorch v1.6",
+    "tags":     "skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {

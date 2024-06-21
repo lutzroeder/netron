@@ -15,7 +15,7 @@ require().then((self) => {
             case 'dagre.layout': {
                 try {
                     const dagre = await import('./dagre.js');
-                    dagre.layout(message.identifier, message.nodes, message.edges, message.layout, {});
+                    dagre.layout(message.nodes, message.edges, message.layout, message.state);
                     self.postMessage(message);
                 } catch (error) {
                     self.postMessage({ type: 'error', message: error.message });

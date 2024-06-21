@@ -326,7 +326,6 @@ espresso.Reader = class {
                             obj.inputs.push(this._initializer('biases', data.blob_biases, 'float32', [data.C]));
                         }
                         delete data.has_biases;
-                        delete data.blob_weights;
                         delete data.blob_biases;
                         if (obj.inputs.length === 1) {
                             throw new espresso.Error('Missing weights.');
@@ -339,7 +338,6 @@ espresso.Reader = class {
                             obj.inputs.push(this._initializer('biases', data.blob_biases, 'float32', [data.nC]));
                         }
                         delete data.has_biases;
-                        delete data.blob_weights;
                         delete data.blob_biases;
                         break;
                     }
@@ -352,8 +350,9 @@ espresso.Reader = class {
                         break;
                     }
                 }
-                if (Object.keys(data).some((key) => key.startsWith('blob_'))) {
-                    throw new espresso.Error('Unknown blob.');
+                const blobs = Object.keys(data).filter((key) => key.startsWith('blob_'));
+                if (blobs.length > 0) {
+                    throw new espresso.Error(`Unknown blob '${blobs.join(',')}' for type '${type}'.`);
                 }
                 if (data.has_prelu) {
                     obj.chain.push({ type: 'prelu' });

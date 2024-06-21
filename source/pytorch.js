@@ -350,32 +350,34 @@ pytorch.Node = class {
             const entries = [];
             const attributes = new Map();
             stack = stack || new Set();
-            for (const [name, value] of Object.entries(obj)) {
-                if (name === '__class__') {
-                    continue;
-                } else if (name === '_parameters' && value instanceof Map) {
-                    for (const [name, parameter] of Array.from(value)) {
-                        parameters.set(name, parameter);
+            if (obj) {
+                for (const [name, value] of Object.entries(obj)) {
+                    if (name === '__class__') {
+                        continue;
+                    } else if (name === '_parameters' && value instanceof Map) {
+                        for (const [name, parameter] of Array.from(value)) {
+                            parameters.set(name, parameter);
+                        }
+                    } else if (name === '_buffers' && value instanceof Map) {
+                        for (const [name, buffer] of Array.from(value)) {
+                            parameters.set(name, buffer);
+                        }
+                    } else if (Array.isArray(value) && value.every((tensor) => pytorch.Utility.isTensor(tensor))) {
+                        parameters.set(name, value);
+                    } else if (pytorch.Utility.isTensor(value)) {
+                        parameters.set(name, value);
+                    } else if (value && value.__class__ && value.__class__.__module__ === 'collections' && value.__class__.__name__ === 'OrderedDict' &&
+                        value instanceof Map && value.size === 0) {
+                        continue;
+                    } else if (value && value.__class__ && value.__class__.__module__ === 'builtins' && value.__class__.__name__ === 'set' &&
+                        value instanceof Set && value.size === 0) {
+                        continue;
+                    } else if (value && value.__class__ && value.__class__.__module__ === 'builtins' && value.__class__.__name__ === 'list' &&
+                        Array.isArray(value) && value.length === 0) {
+                        continue;
+                    } else {
+                        entries.push([name, value]);
                     }
-                } else if (name === '_buffers' && value instanceof Map) {
-                    for (const [name, buffer] of Array.from(value)) {
-                        parameters.set(name, buffer);
-                    }
-                } else if (Array.isArray(value) && value.every((tensor) => pytorch.Utility.isTensor(tensor))) {
-                    parameters.set(name, value);
-                } else if (pytorch.Utility.isTensor(value)) {
-                    parameters.set(name, value);
-                } else if (value && value.__class__ && value.__class__.__module__ === 'collections' && value.__class__.__name__ === 'OrderedDict' &&
-                    value instanceof Map && value.size === 0) {
-                    continue;
-                } else if (value && value.__class__ && value.__class__.__module__ === 'builtins' && value.__class__.__name__ === 'set' &&
-                    value instanceof Set && value.size === 0) {
-                    continue;
-                } else if (value && value.__class__ && value.__class__.__module__ === 'builtins' && value.__class__.__name__ === 'list' &&
-                    Array.isArray(value) && value.length === 0) {
-                    continue;
-                } else {
-                    entries.push([name, value]);
                 }
             }
             for (const [name, value] of entries) {
@@ -408,15 +410,11 @@ pytorch.Node = class {
                 } else if (Array.isArray(value) && value.every((value) => typeof value === 'number')) {
                     return new pytorch.Argument(name, value);
                 } else if (name === '_modules' && value && value.__class__ && value.__class__.__module__ === 'collections' && value.__class__.__name__ === 'OrderedDict' &&
-                    value instanceof Map && Array.from(value).every(([, value]) => value.__class__)) {
-                    const values = Array.from(value).filter(([, value]) => !stack.has(value)).map(([name, value]) => {
+                    value instanceof Map && Array.from(value).every(([, value]) => value === null || value.__class__)) {
+                    const values = Array.from(value).filter(([, value]) => !stack.has(value)).map(([name, obj]) => {
                         stack.add(value);
-                        const item = {
-                            name,
-                            type: `${value.__class__.__module__}.${value.__class__.__name__}`,
-                            obj: value
-                        };
-                        const node = new pytorch.Node(metadata, group, item);
+                        const type = obj === null ? 'builtins.NoneType' : `${obj.__class__.__module__}.${obj.__class__.__name__}`;
+                        const node = new pytorch.Node(metadata, group, { name, type, obj });
                         stack.delete(value);
                         return node;
                     });
@@ -3623,58 +3621,6 @@ pytorch.Utility = class {
     }
 
     static _convertStateDict(obj) {
-        const clean = (obj) => {
-            if (obj && Array.isArray(obj)) {
-                return obj;
-            }
-            if (obj && obj instanceof Map) {
-                obj.delete('_ema');
-                return obj;
-            }
-            if (obj && Object(obj) === obj) {
-                const target = {};
-                const map_count = Object.entries(obj).filter(([, value]) => value instanceof Map).length;
-                for (const [key, value] of Object.entries(obj)) {
-                    if (key.indexOf('optim') !== -1 || key.indexOf('opt') !== -1) {
-                        if (value === null || (value.state && value.param_groups)) {
-                            continue;
-                        }
-                    }
-                    if (map_count > 2 && key.endsWith('_avg') && pytorch.Utility.isTensor(value)) {
-                        continue;
-                    }
-                    if (typeof value === 'number' || typeof value === 'string' || typeof value === 'boolean') {
-                        continue;
-                    }
-                    if (key === '__class__' && value.__module__ && value.__name__) {
-                        continue;
-                    }
-                    if (Array.isArray(value) && (key.indexOf('loss') !== -1 || value.length === 0)) {
-                        continue;
-                    }
-                    if (value && value.__class__ && value.__class__.__module__ === 'datetime' && value.__class__.__name__ === 'datetime') {
-                        continue;
-                    }
-                    if (value && Number.isInteger(value.epoch) && value.state_dict) {
-                        target[key] = value.state_dict;
-                        continue;
-                    }
-                    if ((key.startsWith('dico_') && Object(value) === value) ||
-                        (key.startsWith('best_metrics') && Object(value) === value) ||
-                        (key === 'args' && Object(value) === value) ||
-                        (key.startsWith('params') && Object(value) === value && (value.id2lang || value.lang2id)) ||
-                        (key.startsWith('spk_dict_') && Object(value) === value && Object.keys(value).length === 0) ||
-                        (key === 'blk_det') ||
-                        (key === 'random_state') ||
-                        (key === 'train_cfg' || key === 'test_cfg' || key === '_is_full_backward_hook')) {
-                        continue;
-                    }
-                    target[key] = value;
-                }
-                return target;
-            }
-            return obj;
-        };
         const validate = (entries) => {
             let count = 0;
             if (entries instanceof Map === false && Object(entries) === entries) {
@@ -3685,7 +3631,9 @@ pytorch.Utility = class {
                 for (const [key, value] of entries) {
                     const separator = key.indexOf('.') === -1 && key.indexOf('|') !== -1 ? '|' : '.';
                     const keys = key.split(separator);
-                    if (keys[keys.length - 1] === '_metadata') {
+                    if (key === '__class__') {
+                        continue;
+                    } else if (keys[keys.length - 1] === '_metadata') {
                         continue;
                     } else if (keys.length >= 2 && keys[keys.length - 2] === '_packed_params') {
                         continue;
@@ -3738,9 +3686,8 @@ pytorch.Utility = class {
         if (!obj) {
             return null;
         }
-        obj = clean(obj);
         const map = new Map();
-        if (Array.isArray(obj) && obj.every((item) => validate(item))) {
+        if (Array.isArray(obj) && obj.some((item) => validate(item))) {
             for (let i = 0; i < obj.length; i++) {
                 map.set(i.toString(), flatten(obj[i]));
             }
@@ -3754,7 +3701,7 @@ pytorch.Utility = class {
                     map.set(name, value);
                 }
             }
-        } else if (Object(obj) === obj && Object.entries(obj).every(([, value]) => pytorch.Utility.isTensor(value))) {
+        } else if (Object(obj) === obj && Object.entries(obj).some(([, value]) => pytorch.Utility.isTensor(value))) {
             map.set('', new Map(Object.entries(obj).map(([key, value]) => [key, value])));
         } else {
             const value = flatten(obj);
@@ -3770,6 +3717,9 @@ pytorch.Utility = class {
                     let layer_name = '';
                     let parameter = '';
                     const separator = key.indexOf('.') === -1 && key.indexOf('|') !== -1 ? '|' : '.';
+                    if (key === '__class__') {
+                        continue;
+                    }
                     const keys = key.split(separator);
                     if (keys[keys.length - 1] === '_metadata') {
                         continue;
@@ -3799,6 +3749,8 @@ pytorch.Utility = class {
                     } else if (value && Array.isArray(value) && value.every((item) => pytorch.Utility.isTensor(item))) {
                         layer._parameters = layer._parameters || new Map();
                         layer._parameters.set(parameter, value);
+                    } else if (value && Array.isArray(value) && value.every((item) => typeof item === 'string' || typeof item === 'number')) {
+                        layer[parameter] = value;
                     } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
                         layer[parameter] = value;
                     }

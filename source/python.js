@@ -2690,6 +2690,7 @@ python.Execution = class {
         this.registerType('sklearn.feature_extraction.text.TfidfTransformer', class {});
         this.registerType('sklearn.feature_extraction.text.TfidfVectorizer', class {});
         this.registerType('sklearn.feature_selection._from_model.SelectFromModel', class {});
+        this.registerFunction('sklearn.feature_selection._mutual_info.mutual_info_classif');
         this.registerFunction('sklearn.feature_selection._univariate_selection.chi2');
         this.registerType('sklearn.feature_selection._univariate_selection.GenericUnivariateSelect', class {});
         this.registerType('sklearn.feature_selection._univariate_selection.SelectKBest', class {});
@@ -6775,6 +6776,7 @@ python.Execution = class {
         this.registerType('fastai.tabular.data.TabularDataLoaders', class extends fastai.data.core.DataLoaders {});
         this.registerType('fastai.tabular.core.Tabular', class {});
         this.registerType('fastai.tabular.core.TabularPandas', class extends fastai.tabular.core.Tabular {});
+        this.registerType('fastai.tabular.core.TabWeightedDL', class {});
         this.registerType('fastai.tabular.learner.TabularLearner', class extends fastai.learner.Learner {});
         this.registerType('fastai.tabular.model.TabularModel', class {});
         this.registerFunction('fastai.vision.augment.aug_transforms');
@@ -7472,15 +7474,15 @@ python.Execution = class {
     }
 
     registerFunction(name, value) {
-        const parts = name.split('.');
+        const index = name.lastIndexOf('.');
         if (!value) {
             value = () => {
                 throw new python.Error(`'${name}' is not implemented.`);
             };
         }
         value.__class__ = this._builtins.function;
-        value.__name__ = parts.pop();
-        value.__module__ = parts.join('.');
+        value.__name__ = index === -1 ? name : name.substring(index + 1);
+        value.__module__ = index === -1 ? '' : name.substring(0, index);
         const module = this.register(value.__module__);
         if (module[name]) {
             throw new python.Error(`Function '${name}' is already registered.`);
@@ -7490,10 +7492,10 @@ python.Execution = class {
     }
 
     _createType(name, value) {
-        const parts = name.split('.');
+        const index = name.lastIndexOf('.');
         value.__class__ = this._builtins.type;
-        value.__name__ = parts.pop();
-        value.__module__ = parts.join('.');
+        value.__name__ = index === -1 ? name : name.substring(index + 1);
+        value.__module__ = index === -1 ? '' : name.substring(0, index);
         value.prototype.__class__ = value;
         return value;
     }

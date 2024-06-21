@@ -240,11 +240,11 @@ hdf5.Variable = class {
                 const data_size = data_shape.reduce((a, b) => a * b, 1);
                 const max_dim = data_shape.length - 1;
                 let data_stride = 1;
-                const data_strides = data_shape.slice().reverse().map((d2) => {
-                    const s = data_stride;
-                    data_stride *= d2;
-                    return s;
-                }).reverse();
+                const data_strides = new Array(data_shape.length);
+                for (let i = data_shape.length - 1; i >= 0; i--) {
+                    data_strides[i] = data_stride;
+                    data_stride *= data_shape[i];
+                }
                 const data = new Uint8Array(data_size * item_size);
                 for (const node of tree.nodes) {
                     if (node.filterMask !== 0) {
@@ -256,9 +256,10 @@ hdf5.Variable = class {
                             chunk = filter.decode(chunk);
                         }
                     }
-                    const chunk_offset = node.fields;
+                    const chunk_offset = node.fields.map((x) => x.toNumber());
                     const data_pos = chunk_offset.slice();
-                    const chunk_pos = data_pos.map(() => 0);
+                    const chunk_pos = new Array(data_pos.length).fill(0);
+                    const length = data_pos.length - 1;
                     for (let chunk_index = 0; chunk_index < chunk_size; chunk_index++) {
                         for (let i = max_dim; i >= 0; i--) {
                             if (chunk_pos[i] >= chunk_shape[i]) {
@@ -274,11 +275,13 @@ hdf5.Variable = class {
                         }
                         let index = 0;
                         let inbounds = true;
-                        const length = data_pos.length - 1;
                         for (let i = 0; i < length; i++) {
-                            const pos = data_pos[i];
-                            inbounds = inbounds && pos < data_shape[i];
-                            index += Number(pos) * data_strides[i];
+                            const position = data_pos[i];
+                            if (position >= data_shape[i]) {
+                                inbounds = false;
+                                break;
+                            }
+                            index += position * data_strides[i];
                         }
                         if (inbounds) {
                             let chunk_offset = chunk_index * item_size;

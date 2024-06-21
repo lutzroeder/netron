@@ -4395,7 +4395,7 @@
     ],
     "examples": [
       {
-        "code": ">>> input_shape = (2, 2, 3)\n>>> x = np.arange(np.prod(input_shape)).reshape(input_shape)\n>>> x\n[[[ 0  1  2]\n  [ 3  4  5]]\n [[ 6  7  8]\n  [ 9 10 11]]]\n>>> y = keras.layers.UpSampling1D(size=2)(x)\n>>> y\n[[[ 0.  1.  2.]\n  [ 0.  1.  2.]\n  [ 3.  4.  5.]\n  [ 3.  4.  5.]]"
+        "code": ">>> input_shape = (2, 2, 3)\n>>> x = np.arange(np.prod(input_shape)).reshape(input_shape)\n>>> x\n[[[ 0  1  2]\n  [ 3  4  5]]\n [[ 6  7  8]\n  [ 9 10 11]]]\n>>> y = keras.layers.UpSampling1D(size=2)(x)\n>>> y\n[[[ 0.  1.  2.]\n  [ 0.  1.  2.]\n  [ 3.  4.  5.]\n  [ 3.  4.  5.]]\n [[ 6.  7.  8.]\n  [ 6.  7.  8.]\n  [ 9. 10. 11.]\n  [ 9. 10. 11.]]]"
       }
     ]
   },

@@ -43,6 +43,14 @@
     "category": "Pool"
   },
   {
+    "name": "Prelu:v4",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weight" }
+    ]
+  },
+  {
     "name": "SoftMax:v3",
     "category": "Activation"
   },
@@ -112,6 +120,15 @@
   {
     "name": "Transpose:v4",
     "category": "Transform"
+  },
+  {
+    "name": "TransposeConv2d:v4",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" }
+    ]
   },
   {
     "name": "StridedSlice:v4",

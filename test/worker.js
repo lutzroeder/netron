@@ -372,6 +372,9 @@ export class Target {
     }
 
     async execute() {
+        if (this.measures) {
+            this.measures.set('name', this.name);
+        }
         await zip.Archive.import();
         this.window = this.window || new Window();
         const environment = {
@@ -637,29 +640,31 @@ export class Target {
                 }
                 if (value.initializer) {
                     value.initializer.type.toString();
-                    const tensor = new view.Tensor(value.initializer);
-                    if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
-                        throw new Error(`Tensor encoding '${tensor.encoding}' is not implemented.`);
-                    }
-                    if (tensor.layout && (tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo')) {
-                        throw new Error(`Tensor layout '${tensor.layout}' is not implemented.`);
-                    }
-                    if (!tensor.empty) {
-                        if (tensor.type && tensor.type.dataType === '?') {
-                            throw new Error('Tensor data type is not defined.');
-                        } else if (tensor.type && !tensor.type.shape) {
-                            throw new Error('Tensor shape is not defined.');
-                        } else {
-                            tensor.toString();
-                            if (this.tags.has('export-tensor')) {
-                                if (tensor.type && tensor.type.dataType !== '?') {
-                                    let dataType = tensor.type.dataType;
-                                    dataType = dataType === 'boolean' ? 'bool' : dataType;
-                                    const execution = new python.Execution();
-                                    const bytes = execution.invoke('io.BytesIO', []);
-                                    const dtype = execution.invoke('numpy.dtype', [dataType]);
-                                    const array = execution.invoke('numpy.asarray', [tensor.value, dtype]);
-                                    execution.invoke('numpy.save', [bytes, array]);
+                    const tensor = new base.Tensor(value.initializer);
+                    if (!this.tags.has('skip-tensor-value')) {
+                        if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
+                            throw new Error(`Tensor encoding '${tensor.encoding}' is not implemented.`);
+                        }
+                        if (tensor.layout && (tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo')) {
+                            throw new Error(`Tensor layout '${tensor.layout}' is not implemented.`);
+                        }
+                        if (!tensor.empty) {
+                            if (tensor.type && tensor.type.dataType === '?') {
+                                throw new Error('Tensor data type is not defined.');
+                            } else if (tensor.type && !tensor.type.shape) {
+                                throw new Error('Tensor shape is not defined.');
+                            } else {
+                                tensor.toString();
+                                if (this.tags.has('export-tensor')) {
+                                    if (tensor.type && tensor.type.dataType !== '?') {
+                                        let dataType = tensor.type.dataType;
+                                        dataType = dataType === 'boolean' ? 'bool' : dataType;
+                                        const execution = new python.Execution();
+                                        const bytes = execution.invoke('io.BytesIO', []);
+                                        const dtype = execution.invoke('numpy.dtype', [dataType]);
+                                        const array = execution.invoke('numpy.asarray', [tensor.value, dtype]);
+                                        execution.invoke('numpy.save', [bytes, array]);
+                                    }
                                 }
                             }
                         }
@@ -779,6 +784,9 @@ if (!worker_threads.isMainThread) {
                 message = { type: 'status', ...message };
                 worker_threads.parentPort.postMessage(message);
             });
+            if (message.measures) {
+                target.measures = new Map();
+            }
             await target.execute();
             response.measures = target.measures;
         } catch (error) {
