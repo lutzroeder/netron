@@ -2769,17 +2769,28 @@ python.Execution = class {
         this.registerType('sklearn.naive_bayes.GaussianNB', class {});
         this.registerType('sklearn.naive_bayes.MultinomialNB', class {});
         this.registerType('sklearn.neighbors.ball_tree.BallTree', class {});
+        this.registerFunction('sklearn.neighbors.ball_tree.newObj', (obj) => {
+            return obj.__new__(obj);
+        });
         this.registerType('sklearn.neighbors._classification.KNeighborsClassifier', class {});
-        this.registerType('sklearn.neighbors._dist_metrics.newObj', class {});
+        this.registerFunction('sklearn.neighbors._dist_metrics.newObj');
         this.registerType('sklearn.neighbors._dist_metrics.EuclideanDistance', class {});
-        this.registerType('sklearn.neighbors._kd_tree.KDTree', class {});
-        this.registerType('sklearn.neighbors._kd_tree.newObj', class {});
+        this.registerType('sklearn.neighbors._kd_tree.BinaryTree64', class extends builtins.object {});
+        this.registerType('sklearn.neighbors._kd_tree.KDTree64', class extends sklearn.neighbors._kd_tree.BinaryTree64 {});
+        this.registerType('sklearn.neighbors._kd_tree.KDTree', class extends sklearn.neighbors._kd_tree.KDTree64 {});
+        this.registerFunction('sklearn.neighbors._kd_tree.newObj', (obj) => {
+            return obj.__new__(obj);
+        });
         this.registerType('sklearn.neighbors._regression.KNeighborsRegressor', class {});
         this.registerType('sklearn.neighbors._unsupervised.NearestNeighbors', class {});
         this.registerType('sklearn.neighbors.classification.KNeighborsClassifier', class {});
-        this.registerType('sklearn.neighbors.dist_metrics.newObj', class {});
+        this.registerFunction('sklearn.neighbors.dist_metrics.newObj', (obj) => {
+            return obj.__new__(obj);
+        });
         this.registerType('sklearn.neighbors.dist_metrics.EuclideanDistance', class {});
-        this.registerType('sklearn.neighbors.kd_tree.newObj', class {});
+        this.registerFunction('sklearn.neighbors.kd_tree.newObj', (obj) => {
+            return obj.__new__(obj);
+        });
         this.registerType('sklearn.neighbors.kd_tree.KDTree', class {});
         this.registerType('sklearn.neighbors.KNeighborsClassifier', class {});
         this.registerType('sklearn.neighbors.KNeighborsRegressor', class {});
@@ -4096,7 +4107,6 @@ python.Execution = class {
         this.registerFunction('sklearn.metrics._classification.recall_score');
         this.registerFunction('sklearn.metrics._dist_metrics.newObj', (obj) => {
             return obj.__new__(obj);
-
         });
         this.registerFunction('sklearn.metrics._regression.mean_absolute_error');
         this.registerFunction('sklearn.metrics._regression.mean_squared_error');
