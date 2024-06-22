@@ -2637,6 +2637,7 @@ python.Execution = class {
         this.registerType('sklearn.cluster._agglomerative.FeatureAgglomeration', class {});
         this.registerType('sklearn.cluster._dbscan.DBSCAN', class {});
         this.registerType('sklearn.cluster._kmeans.KMeans', class {});
+        this.registerType('sklearn.cluster._kmeans.MiniBatchKMeans', class {});
         this.registerType('sklearn.cluster.k_means_.MiniBatchKMeans', class {});
         this.registerType('sklearn.compose._column_transformer._RemainderColsList', class {});
         this.registerType('sklearn.compose._column_transformer.ColumnTransformer', class {});
@@ -5571,6 +5572,7 @@ python.Execution = class {
         this.registerFunction('torch.nn.init.constant_');
         this.registerFunction('torch.nn.init.xavier_uniform_');
         this.registerFunction('torch.nn.functional.adaptive_avg_pool2d');
+        this.registerFunction('torch.nn.functional.binary_cross_entropy_with_logits');
         this.registerFunction('torch.nn.functional.cross_entropy');
         this.registerFunction('torch.nn.functional.elu');
         this.registerFunction('torch.nn.functional.gelu');
@@ -6712,6 +6714,8 @@ python.Execution = class {
         this.registerType('fastai.callback.progress.ProgressCallback', class {});
         this.registerType('fastai.callback.progress.ShowGraphCallback', class {});
         this.registerType('fastai.callback.tracker.EarlyStoppingCallback', class {});
+        this.registerType('fastai.callback.tracker.TrackerCallback', class {});
+        this.registerType('fastai.callback.tracker.SaveModelCallback', class extends fastai.callback.tracker.TrackerCallback {});
         this.registerType('fastai.data.core.DataLoaders', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.data.core.Datasets', class {});
         this.registerType('fastai.data.load.DataLoader', class extends fastcore.basics.GetAttr {});
