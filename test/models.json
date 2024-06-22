@@ -3369,6 +3369,13 @@
   },
   {
     "type":     "ncnn",
+    "target":   "ch_recv4.ncnn.param,ch_recv4.ncnn.bin",
+    "source":   "https://github.com/user-attachments/files/15937032/ch_recv4.ncnn.param.zip[ch_recv4.ncnn.param,ch_recv4.ncnn.bin]",
+    "format":   "ncnn",
+    "link":     "https://github.com/lutzroeder/netron/issues/296"
+  },
+  {
+    "type":     "ncnn",
     "target":   "darknet_yolov2.cfg.ncnn,darknet_yolov2.weights.ncnn",
     "source":   "https://github.com/00liujj/gen-ncnn-models/raw/master/tests/darknet_yolov2.cfg.ncnn,https://github.com/00liujj/gen-ncnn-models/raw/master/tests/darknet_yolov2.weights.ncnn",
     "format":   "ncnn",
@@ -3407,7 +3414,7 @@
     "target":   "mnet.25.zip",
     "source":   "https://github.com/lutzroeder/netron/files/6813063/mnet.25.zip",
     "format":   "ncnn",
-    "link":     "https://github.com/MirrorYuChen/ncnn_example"
+    "link":     "https://github.com/lutzroeder/netron/issues/768"
   },
   {
     "type":     "ncnn",
