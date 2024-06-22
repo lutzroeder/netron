@@ -1028,10 +1028,10 @@ view.View = class {
                     await this.showDefinition(node.type);
                 });
                 sidebar.on('activate', (sender, value) => {
-                    this._graph.select([value]);
+                    this._graph.focus([value]);
                 });
-                sidebar.on('deactivate', () => {
-                    this._graph.select(null);
+                sidebar.on('deactivate', (sender, value) => {
+                    this._graph.blur([value]);
                 });
                 sidebar.on('select', (sender, value) => {
                     this.scrollTo(this._graph.activate(value));
@@ -1050,10 +1050,10 @@ view.View = class {
             }
             const sidebar = new view.ConnectionSidebar(this, value, from, to);
             sidebar.on('activate', (sender, value) => {
-                this._graph.select([value]);
+                this._graph.focus([value]);
             });
-            sidebar.on('deactivate', () => {
-                this._graph.select(null);
+            sidebar.on('deactivate', (sender, value) => {
+                this._graph.blur([value]);
             });
             sidebar.on('select', (sender, value) => {
                 this.scrollTo(this._graph.activate(value));
@@ -1082,6 +1082,12 @@ view.View = class {
             this._sidebar.push(sidebar, 'Tensor Properties');
         } catch (error) {
             this.error(error, 'Error showing tensor properties.', null);
+        }
+    }
+
+    select(value) {
+        if (this._graph) {
+            this._graph.select([value]);
         }
     }
 
@@ -2327,6 +2333,7 @@ view.Sidebar = class {
         this._closeSidebarHandler = () => pop();
         this._closeSidebarKeyDownHandler = (e) => {
             if (e.keyCode === 27) {
+                e.stopPropagation();
                 e.preventDefault();
                 pop();
             }
@@ -2345,8 +2352,8 @@ view.Sidebar = class {
     }
 
     open(content, title) {
-        content = this._render(content);
-        const entry = { title, content };
+        const element = this._render(content);
+        const entry = { title, element, content };
         this._update([entry]);
     }
 
@@ -2355,8 +2362,8 @@ view.Sidebar = class {
     }
 
     push(content, title) {
-        content = this._render(content);
-        const entry = { title, content };
+        const element = this._render(content);
+        const entry = { title, content, element };
         this._update(this._stack.concat(entry));
     }
 
@@ -2377,25 +2384,32 @@ view.Sidebar = class {
         const closeButton = this._element('sidebar-closebutton');
         closeButton.removeEventListener('click', this._closeSidebarHandler);
         this._host.document.removeEventListener('keydown', this._closeSidebarKeyDownHandler);
+        if (this._stack.length > 0) {
+            const entry = this._stack.pop();
+            if (entry.content && entry.content.deactivate) {
+                entry.content.deactivate();
+            }
+        }
         if (stack) {
             this._stack = stack;
-        } else if (this._stack.length > 0) {
-            this._stack.pop();
         }
         if (this._stack.length > 0) {
-            const item = this._stack[this._stack.length - 1];
-            this._element('sidebar-title').innerHTML = item.title || '';
+            const entry = this._stack[this._stack.length - 1];
+            this._element('sidebar-title').innerHTML = entry.title || '';
             closeButton.addEventListener('click', this._closeSidebarHandler);
-            if (typeof item.content === 'string') {
-                content.innerHTML = item.content;
-            } else if (item.content instanceof Array) {
+            if (typeof entry.content === 'string') {
+                content.innerHTML = entry.element;
+            } else if (entry.element instanceof Array) {
                 content.innerHTML = '';
-                for (const element of item.content) {
+                for (const element of entry.element) {
                     content.appendChild(element);
                 }
             } else {
                 content.innerHTML = '';
-                content.appendChild(item.content);
+                content.appendChild(entry.element);
+            }
+            if (entry.content && entry.content.activate) {
+                entry.content.activate();
             }
             sidebar.style.width = 'min(calc(100% * 0.6), 42em)';
             sidebar.style.right = 0;
@@ -2595,6 +2609,10 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         const item = new view.NameValueView(this._view, name, value);
         this._attributes.push(item);
         this.element.appendChild(item.render());
+    }
+
+    activate() {
+        this._view.select(this._node);
     }
 };
 
@@ -3231,6 +3249,10 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
             this.element.appendChild(item.render());
         }
     }
+
+    activate() {
+        this._view.select(this._value);
+    }
 };
 
 view.TensorSidebar = class extends view.ObjectSidebar {
@@ -3304,6 +3326,10 @@ view.TensorSidebar = class extends view.ObjectSidebar {
             }
         }
         */
+    }
+
+    activate() {
+        this._view.select(this._value);
     }
 };
 
@@ -3561,6 +3587,9 @@ view.FindSidebar = class extends view.Control {
     }
 
     _clear() {
+        for (const identifier in this._highlighted) {
+            this._blur(identifier);
+        }
         this._table.clear();
         this._index = 0;
         const unquote = this._state.query.match(new RegExp(/^'(.*)'|"(.*)"$/));
@@ -3626,17 +3655,26 @@ view.FindSidebar = class extends view.Control {
         element.setAttribute('data', key);
         element.addEventListener('pointerover', (e) => {
             const identifier = e.target.getAttribute('data');
-            if (this._table.has(identifier)) {
-                this.emit('focus', this._table.get(identifier));
-            }
+            this._focus(identifier);
         });
         element.addEventListener('pointerleave', (e) => {
             const identifier = e.target.getAttribute('data');
-            if (this._table.has(identifier)) {
-                this.emit('blur', this._table.get(identifier));
-            }
+            this._blur(identifier);
         });
         this._content.appendChild(element);
+    }
+
+    _focus(identifier) {
+        if (this._table.has(identifier)) {
+            this.emit('focus', this._table.get(identifier));
+            this._highlighted.push(identifier);
+        }
+    }
+
+    _blur(identifier) {
+        if (this._table.has(identifier)) {
+            this.emit('blur', this._table.get(identifier));
+        }
     }
 
     _update() {
@@ -3704,6 +3742,7 @@ view.FindSidebar = class extends view.Control {
 
     render() {
         this._table = new Map();
+        this._highlighted = [];
         this._search = this.createElement('div', 'sidebar-find-search');
         this._query = this.createElement('input', 'sidebar-find-query');
         this._search.appendChild(this._query);
@@ -3751,6 +3790,12 @@ view.FindSidebar = class extends view.Control {
 
     get element() {
         return [this._search, this._content];
+    }
+
+    deactivate() {
+        for (const identifier of this._highlighted) {
+            this._blur(identifier);
+        }
     }
 
     error(error, fatal) {
