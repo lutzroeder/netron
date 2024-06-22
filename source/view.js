@@ -1027,13 +1027,16 @@ view.View = class {
                 sidebar.on('show-documentation', async (/* sender, e */) => {
                     await this.showDefinition(node.type);
                 });
-                sidebar.on('activate', (sender, value) => {
+                sidebar.on('focus', (sender, value) => {
                     this._graph.focus([value]);
                 });
-                sidebar.on('deactivate', (sender, value) => {
+                sidebar.on('blur', (sender, value) => {
                     this._graph.blur([value]);
                 });
                 sidebar.on('select', (sender, value) => {
+                    this.scrollTo(this._graph.select([value]));
+                });
+                sidebar.on('activate', (sender, value) => {
                     this.scrollTo(this._graph.activate(value));
                 });
                 this._sidebar.open(sidebar, 'Node Properties');
@@ -1049,13 +1052,16 @@ view.View = class {
                 this._menu.close();
             }
             const sidebar = new view.ConnectionSidebar(this, value, from, to);
-            sidebar.on('activate', (sender, value) => {
+            sidebar.on('focus', (sender, value) => {
                 this._graph.focus([value]);
             });
-            sidebar.on('deactivate', (sender, value) => {
+            sidebar.on('blur', (sender, value) => {
                 this._graph.blur([value]);
             });
             sidebar.on('select', (sender, value) => {
+                this.scrollTo(this._graph.select([value]));
+            });
+            sidebar.on('activate', (sender, value) => {
                 this.scrollTo(this._graph.activate(value));
             });
             this._sidebar.push(sidebar, 'Connection Properties');
@@ -1070,24 +1076,21 @@ view.View = class {
                 this._menu.close();
             }
             const sidebar = new view.TensorSidebar(this, value);
-            sidebar.on('activate', (sender, value) => {
-                this._graph.select([value]);
+            sidebar.on('focus', (sender, value) => {
+                this._graph.focus([value]);
             });
-            sidebar.on('deactivate', () => {
-                this._graph.select(null);
+            sidebar.on('blur', () => {
+                this._graph.blur(null);
             });
             sidebar.on('select', (sender, value) => {
+                this.scrollTo(this._graph.select([value]));
+            });
+            sidebar.on('activate', (sender, value) => {
                 this.scrollTo(this._graph.activate(value));
             });
             this._sidebar.push(sidebar, 'Tensor Properties');
         } catch (error) {
             this.error(error, 'Error showing tensor properties.', null);
-        }
-    }
-
-    select(value) {
-        if (this._graph) {
-            this._graph.select([value]);
         }
     }
 
@@ -2557,9 +2560,10 @@ view.NodeSidebar = class extends view.ObjectSidebar {
                 const name = input.name;
                 if (input.value.length > 0) {
                     const value = new view.ArgumentView(this._view, input);
-                    value.on('activate', (sender, value) => this.emit('activate', value));
-                    value.on('deactivate', (sender, value) => this.emit('deactivate', value));
+                    value.on('focus', (sender, value) => this.emit('focus', value));
+                    value.on('blur', (sender, value) => this.emit('blur', value));
                     value.on('select', (sender, value) => this.emit('select', value));
+                    value.on('activate', (sender, value) => this.emit('activate', value));
                     const item = new view.NameValueView(this._view, name, value);
                     this._inputs.push(item);
                     this.element.appendChild(item.render());
@@ -2573,9 +2577,10 @@ view.NodeSidebar = class extends view.ObjectSidebar {
                 const name = output.name;
                 if (output.value.length > 0) {
                     const value = new view.ArgumentView(this._view, output);
-                    value.on('activate', (sender, value) => this.emit('activate', value));
-                    value.on('deactivate', (sender, value) => this.emit('deactivate', value));
+                    value.on('focus', (sender, value) => this.emit('focus', value));
+                    value.on('blur', (sender, value) => this.emit('blur', value));
                     value.on('select', (sender, value) => this.emit('select', value));
+                    value.on('activate', (sender, value) => this.emit('activate', value));
                     const item = new view.NameValueView(this._view, name, value);
                     this._outputs.push(item);
                     this.element.appendChild(item.render());
@@ -2600,9 +2605,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             }
             default: {
                 value = new view.AttributeView(this._view, attribute);
-                value.on('activate', (sender, graph) => {
-                    this.emit('activate', graph);
-                });
+                value.on('activate', (sender, graph) => this.emit('activate', graph));
                 break;
             }
         }
@@ -2612,7 +2615,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
     }
 
     activate() {
-        this._view.select(this._node);
+        this.emit('select', this._node);
     }
 };
 
@@ -2817,8 +2820,9 @@ view.ArgumentView = class extends view.Control {
         this._items = [];
         for (const value of argument.value) {
             const item = new view.ValueView(context, value);
+            item.on('focus', (sender, value) => this.emit('focus', value));
+            item.on('blur', (sender, value) => this.emit('blur', value));
             item.on('activate', (sender, value) => this.emit('activate', value));
-            item.on('deactivate', (sender, value) => this.emit('deactivate', value));
             item.on('select', (sender, value) => this.emit('select', value));
             this._items.push(item);
             for (const element of item.render()) {
@@ -2870,12 +2874,10 @@ view.ValueView = class extends view.Control {
                 const element = this.createElement('div', 'sidebar-item-value-button');
                 element.setAttribute('title', 'Show Tensor');
                 element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-weight"></use></svg>`;
-                element.addEventListener('pointerenter', () => {
-                    this.emit('activate', this._value);
-                });
-                element.addEventListener('pointerleave', () => this.emit('deactivate', this._value));
+                element.addEventListener('pointerenter', () => this.emit('focus', this._value));
+                element.addEventListener('pointerleave', () => this.emit('blur', this._value));
                 element.style.cursor = 'pointer';
-                element.addEventListener('click', () => this.emit('select', this._value));
+                element.addEventListener('click', () => this.emit('activate', this._value));
                 this._element.appendChild(element);
                 this._count = 3;
             }
@@ -2890,10 +2892,10 @@ view.ValueView = class extends view.Control {
                     throw new Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
                 }
                 element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name || ' '}</b></span>`;
-                element.addEventListener('pointerenter', () => this.emit('activate', this._value));
-                element.addEventListener('pointerleave', () => this.emit('deactivate', this._value));
+                element.addEventListener('pointerenter', () => this.emit('focus', this._value));
+                element.addEventListener('pointerleave', () => this.emit('blur', this._value));
                 element.style.cursor = 'pointer';
-                element.addEventListener('click', () => this.emit('select', this._value));
+                element.addEventListener('click', () => this.emit('activate', this._value));
                 this._element.appendChild(element);
             } else if (this._hasCategory) {
                 this._bold('category', initializer.category);
@@ -3146,17 +3148,17 @@ view.NodeView = class extends view.Control {
             const type = node.type.name;
             const element = this.createElement('div', 'sidebar-item-value-line');
             element.innerHTML = `<span class='sidebar-item-value-line-content'>node: <b>${type || ' '}</b></span>`;
-            element.addEventListener('pointerenter', () => this.emit('activate', this._node));
-            element.addEventListener('pointerleave', () => this.emit('deactivate', this._node));
-            element.addEventListener('click', () => this.emit('select', this._node));
+            element.addEventListener('pointerenter', () => this.emit('focus', this._node));
+            element.addEventListener('pointerleave', () => this.emit('blur', this._node));
+            element.addEventListener('click', () => this.emit('activate', this._node));
             element.style.cursor = 'pointer';
             this._element.appendChild(element);
         } else {
             const element = this.createElement('div', 'sidebar-item-value-line');
             element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name || ' '}</b></span>`;
-            element.addEventListener('pointerenter', () => this.emit('activate', this._node));
-            element.addEventListener('pointerleave', () => this.emit('deactivate', this._node));
-            element.addEventListener('click', () => this.emit('select', this._node));
+            element.addEventListener('pointerenter', () => this.emit('focus', this._node));
+            element.addEventListener('pointerleave', () => this.emit('blur', this._node));
+            element.addEventListener('click', () => this.emit('activate', this._node));
             element.style.cursor = 'pointer';
             this._element.appendChild(element);
         }
@@ -3173,8 +3175,8 @@ view.NodeView = class extends view.Control {
                 const name = this._node.name;
                 const element = this.createElement('div', 'sidebar-item-value-line-border');
                 element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name}</b></span>`;
-                element.addEventListener('pointerenter', () => this.emit('activate', this._node));
-                element.addEventListener('pointerleave', () => this.emit('deactivate', this._node));
+                element.addEventListener('pointerenter', () => this.emit('focus', this._node));
+                element.addEventListener('pointerleave', () => this.emit('blur', this._node));
                 element.addEventListener('click', () => this.emit('select', this._node));
                 element.style.cursor = 'pointer';
                 this._element.appendChild(element);
@@ -3233,25 +3235,27 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
         if (from) {
             this.addHeader('Inputs');
             const list = new view.NodeListView(this._view, [from]);
-            list.on('activate', (sender, value) => this.emit('activate', value));
-            list.on('deactivate', (sender, value) => this.emit('deactivate', value));
+            list.on('focus', (sender, value) => this.emit('focus', value));
+            list.on('blur', (sender, value) => this.emit('blur', value));
             list.on('select', (sender, value) => this.emit('select', value));
+            list.on('activate', (sender, value) => this.emit('activate', value));
             const item = new view.NameValueView(this._view, 'from', list);
             this.element.appendChild(item.render());
         }
         if (Array.isArray(to) && to.length > 0) {
             this.addHeader('Outputs');
             const list = new view.NodeListView(this._view, to);
-            list.on('activate', (sender, value) => this.emit('activate', value));
-            list.on('deactivate', (sender, value) => this.emit('deactivate', value));
+            list.on('focus', (sender, value) => this.emit('focus', value));
+            list.on('blur', (sender, value) => this.emit('blur', value));
             list.on('select', (sender, value) => this.emit('select', value));
+            list.on('activate', (sender, value) => this.emit('activate', value));
             const item = new view.NameValueView(this._view, 'to', list);
             this.element.appendChild(item.render());
         }
     }
 
     activate() {
-        this._view.select(this._value);
+        this.emit('select', this._value);
     }
 };
 
@@ -3329,7 +3333,7 @@ view.TensorSidebar = class extends view.ObjectSidebar {
     }
 
     activate() {
-        this._view.select(this._value);
+        this.emit('select', this._value);
     }
 };
 
@@ -3587,9 +3591,10 @@ view.FindSidebar = class extends view.Control {
     }
 
     _clear() {
-        for (const identifier in this._highlighted) {
+        for (const identifier in this._focused) {
             this._blur(identifier);
         }
+        this._focused.clear();
         this._table.clear();
         this._index = 0;
         const unquote = this._state.query.match(new RegExp(/^'(.*)'|"(.*)"$/));
@@ -3667,13 +3672,14 @@ view.FindSidebar = class extends view.Control {
     _focus(identifier) {
         if (this._table.has(identifier)) {
             this.emit('focus', this._table.get(identifier));
-            this._highlighted.push(identifier);
+            this._focused.add(identifier);
         }
     }
 
     _blur(identifier) {
         if (this._table.has(identifier)) {
             this.emit('blur', this._table.get(identifier));
+            this._focused.delete(identifier);
         }
     }
 
@@ -3742,7 +3748,7 @@ view.FindSidebar = class extends view.Control {
 
     render() {
         this._table = new Map();
-        this._highlighted = [];
+        this._focused = new Set();
         this._search = this.createElement('div', 'sidebar-find-search');
         this._query = this.createElement('input', 'sidebar-find-query');
         this._search.appendChild(this._query);
@@ -3793,7 +3799,7 @@ view.FindSidebar = class extends view.Control {
     }
 
     deactivate() {
-        for (const identifier of this._highlighted) {
+        for (const identifier of this._focused) {
             this._blur(identifier);
         }
     }
