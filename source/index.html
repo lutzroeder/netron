@@ -199,7 +199,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .sidebar-item-name input { color: #777; font-family: inherit; font-size: inherit; color: inherit; background-color: inherit; width: 100%; text-align: right; margin: 0; padding: 0; border: 0; outline: none; text-overflow: ellipsis; }
 .sidebar-item-value-list { margin: 0; margin-left: 105px; overflow: hidden; display: block; padding: 0; }
 .sidebar-item-value { font-size: 11px; background-color: #fcfcfc; border-radius: 2px; border: 1px solid #fcfcfc; margin-top: 3px; margin-bottom: 3px; overflow: auto; }
-.sidebar-item-value-fill { background-color: #f8f8f8; border: 1px solid #f8f8f8; }
+.sidebar-item-value-content { background-color: #f8f8f8; border: 1px solid #f8f8f8; }
 .sidebar-item-value b { font-weight: bold; }
 .sidebar-item-value code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; overflow: auto; white-space: pre-wrap; word-wrap: break-word; }
 .sidebar-item-value pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; margin: 0; overflow: auto; white-space: pre; word-wrap: normal; display: block; }
@@ -210,10 +210,12 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .sidebar-item-value-line-content { white-space: pre; word-wrap: normal; overflow: auto; display: block; }
 .sidebar-item-value-expander { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; float: right; color: #aaa; cursor: pointer; user-select: none; -webkit-user-select: none; -moz-user-select: none; padding: 4px 6px 4px 4px; }
 .sidebar-item-value-expander:hover { color: #333; }
-.sidebar-item-value-button { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; float: right; color: #aaa; cursor: pointer; user-select: none; -webkit-user-select: none; -moz-user-select: none; padding: 0 3px 0 3px; }
+.sidebar-item-value-button { display: flex; justify-content: center; align-items: center; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; width: 22px; height: 22px; cursor: pointer; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #aaa; }
 .sidebar-item-value-button svg use { fill: #aaa; stroke: #aaa; }
 .sidebar-item-value-button:hover svg use { fill: #333; stroke: #333; }
-.sidebar-item-select {
+.sidebar-item-value-button-tool { float: right; padding-left: 3px; }
+.sidebar-item-value-button-context { float: right; }
+.sidebar-item-selector {
     font-family: inherit; font-size: 12px;
     background-color: #fcfcfc; border: #fcfcfc; color: #333;
     border-radius: 2px; width: 100%; height: 23px; padding: 3px 12px 3px 7px;
@@ -258,9 +260,10 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     .sidebar-closebutton { padding: 8px 8px 8px 32px; text-decoration: none; font-size: 25px; color: #777777; opacity: 1.0; display: block; transition: 0.2s; position: absolute; top: 0; right: 15px; margin-left: 50px; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
     .sidebar-closebutton:hover { color: #ffffff; }
     .sidebar-item-value { background-color: #383838; border-color: #383838; }
-    .sidebar-item-value-fill { background-color: #3e3e3e; border-color: #3e3e3e; }
+    .sidebar-item-value-content { background-color: #3e3e3e; border-color: #3e3e3e; }
     .sidebar-item-value-line-border { border-color: rgba(0, 0, 0, 0.09); }
-    .sidebar-item-select { background-color: #383838; border: #383838; color: #dfdfdf; background-image: linear-gradient(45deg, transparent 50%, #aaa 50%), linear-gradient(135deg, #aaa 50%, transparent 50%); }
+    .sidebar-item-selector { background-color: #383838; border: #383838; color: #dfdfdf; background-image: linear-gradient(45deg, transparent 50%, #aaa 50%), linear-gradient(135deg, #aaa 50%, transparent 50%); }
+    .sidebar-item-disable-select { user-select: none; -webkit-user-select: none; -moz-user-select: none; }
     .sidebar-header { border-bottom-color: #2d2d2d; color: #dfdfdf; }
     .sidebar-documentation h1 { border-bottom: 1px solid #424242; color: #dfdfdf; }
     .sidebar-documentation h2 { color: #dfdfdf; }

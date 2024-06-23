@@ -2660,8 +2660,7 @@ view.SelectView = class extends view.Control {
         super(context);
         this._elements = [];
         this._entries = Array.from(entries);
-
-        const selectElement = this.createElement('select', 'sidebar-item-select');
+        const selectElement = this.createElement('select', 'sidebar-item-selector');
         selectElement.addEventListener('change', (e) => {
             this.emit('change', this._entries[e.target.selectedIndex][1]);
         });
@@ -2855,7 +2854,7 @@ view.ValueView = class extends view.Control {
             const quantization = this._value.quantization;
             const location = this._value.location !== undefined;
             if (initializer) {
-                this._element.classList.add('sidebar-item-value-fill');
+                this._element.classList.add('sidebar-item-value-content');
             }
             if (type || initializer || quantization || location || name !== undefined) {
                 this._expander = this.createElement('div', 'sidebar-item-value-expander');
@@ -2872,6 +2871,7 @@ view.ValueView = class extends view.Control {
             }
             if (initializer && !attribute) {
                 const element = this.createElement('div', 'sidebar-item-value-button');
+                element.classList.add('sidebar-item-value-button-tool');
                 element.setAttribute('title', 'Show Tensor');
                 element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-weight"></use></svg>`;
                 element.addEventListener('pointerenter', () => this.emit('focus', this._value));
@@ -2975,7 +2975,7 @@ view.ValueView = class extends view.Control {
                             this._code('stride', stride.join(','));
                         }
                         const tensor = new view.TensorView(this._view, initializer);
-                        const content = tensor.content(this._element);
+                        const content = tensor.content;
                         const line = this.createElement('div', 'sidebar-item-value-line-border');
                         line.appendChild(content);
                         this._element.appendChild(line);
@@ -3038,37 +3038,47 @@ view.TensorView = class extends view.Control {
                 }
             });
             this._element.appendChild(this._expander);
-            this._container = this.createElement('div', 'sidebar-item-value-line');
-            this._container.innerHTML = '\u2026';
-            this._element.appendChild(this._container);
+            const line = this.createElement('div', 'sidebar-item-value-line');
+            line.classList.add('sidebar-item-disable-select');
+            line.innerHTML = '&nbsp';
+            this._button = this.createElement('div', 'sidebar-item-value-button');
+            this._button.setAttribute('style', 'float: left;');
+            this._button.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-weight"></use></svg>`;
+            this._button.addEventListener('click', () => {
+                try {
+                    this.toggle();
+                } catch (error) {
+                    this.error(error, false);
+                }
+            });
+            this._element.appendChild(this._button);
+            this._element.appendChild(line);
         }
         return [this._element];
     }
 
     toggle() {
         if (this._expander) {
-            while (this._element.childElementCount > 1) {
+            while (this._element.childElementCount > 3) {
                 this._element.removeChild(this._element.lastChild);
             }
             if (this._expander.innerText === '+') {
                 this._expander.innerText = '-';
                 try {
-                    this._container.innerHTML = '';
-                    const content = this.content(this._element);
-                    this._container.appendChild(content);
-                    this._element.appendChild(this._container);
+                    const content = this.content;
+                    const container = this.createElement('div', 'sidebar-item-value-line-border');
+                    container.appendChild(content);
+                    this._element.appendChild(container);
                 } catch (error) {
                     this.error(error, false);
                 }
             } else {
                 this._expander.innerText = '+';
-                this._container.innerHTML = '\u2026';
-                this._element.appendChild(this._container);
             }
         }
     }
 
-    content(element) {
+    get content() {
         const content = this.createElement('pre');
         const value = this._value;
         const tensor = this._tensor;
@@ -3084,15 +3094,15 @@ view.TensorView = class extends view.Control {
             content.innerHTML = 'Tensor shape is not defined.';
         } else {
             content.innerHTML = tensor.toString();
-            if (this._host.save &&
-                value.type.shape && value.type.shape.dimensions &&
-                value.type.shape.dimensions.length > 0) {
-                this._saveButton = this.createElement('div', 'sidebar-item-value-expander');
+            if (this._host.save && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length > 0) {
+                this._saveButton = this.createElement('div', 'sidebar-item-value-button');
+                this._saveButton.classList.add('sidebar-item-value-button-context');
+                this._saveButton.setAttribute('style', 'float: right;');
                 this._saveButton.innerHTML = '&#x1F4BE;';
                 this._saveButton.addEventListener('click', async () => {
                     await this.export();
                 });
-                element.appendChild(this._saveButton);
+                content.insertBefore(this._saveButton, content.firstChild);
             }
         }
         return content;
