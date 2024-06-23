@@ -3177,7 +3177,7 @@ view.NodeView = class extends view.Control {
                 element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name}</b></span>`;
                 element.addEventListener('pointerenter', () => this.emit('focus', this._node));
                 element.addEventListener('pointerleave', () => this.emit('blur', this._node));
-                element.addEventListener('click', () => this.emit('select', this._node));
+                element.addEventListener('click', () => this.emit('activate', this._node));
                 element.style.cursor = 'pointer';
                 this._element.appendChild(element);
             } else {
@@ -3609,9 +3609,11 @@ view.FindSidebar = class extends view.Control {
     }
 
     _term(value) {
-        return this._exact ?
-            value === this._terms[0] :
-            this._terms.every((term) => value && value.toLowerCase().indexOf(term) !== -1);
+        if (this._exact) {
+            return value === this._terms[0];
+        }
+        value = value.toLowerCase();
+        return this._terms.every((term) => value.indexOf(term) !== -1);
     }
 
     _value(value) {
