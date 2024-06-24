@@ -331,13 +331,6 @@
   },
   {
     "type":     "caffe",
-    "target":   "caffenet.prototxt",
-    "source":   "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/caffenet.prototxt",
-    "format":   "Caffe v2",
-    "link":     "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "type":     "caffe",
     "target":   "cifar10_full_sigmoid_solver_bn.prototxt,cifar10_full_sigmoid_train_test_bn.prototxt",
     "source":   "https://raw.githubusercontent.com/BVLC/caffe/master/examples/cifar10/cifar10_full_sigmoid_solver_bn.prototxt,https://raw.githubusercontent.com/BVLC/caffe/master/examples/cifar10/cifar10_full_sigmoid_train_test_bn.prototxt",
     "format":   "Caffe v2",
@@ -349,13 +342,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/6543206/cityscapes_713_pspnet.prototxt.zip[cityscapes_713_pspnet.prototxt]",
     "format":   "Caffe v2",
     "link":     "https://github.com/lutzroeder/netron/issues/276"
-  },
-  {
-    "type":     "caffe",
-    "target":   "conv.prototxt",
-    "source":   "https://raw.githubusercontent.com/BVLC/caffe/master/examples/net_surgery/conv.prototxt",
-    "format":   "Caffe v2",
-    "link":     "https://github.com/BVLC/caffe/tree/master/examples/net_surgery"
   },
   {
     "type":     "caffe",
@@ -396,13 +382,6 @@
     "type":     "caffe",
     "target":   "fasterRCNN_ResNet.prototxt",
     "source":   "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/fasterRCNN_ResNet.prototxt",
-    "format":   "Caffe v2",
-    "link":     "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "type":     "caffe",
-    "target":   "fasterRCNN_VGG.prototxt",
-    "source":   "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/fasterRCNN_VGG.prototxt",
     "format":   "Caffe v2",
     "link":     "https://github.com/cwlacewe/netscope"
   },
@@ -450,22 +429,8 @@
   },
   {
     "type":     "caffe",
-    "target":   "inceptionv3_orig.prototxt",
-    "source":   "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv3_orig.prototxt",
-    "format":   "Caffe v2",
-    "link":     "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "type":     "caffe",
     "target":   "inceptionv4.prototxt",
     "source":   "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv4.prototxt",
-    "format":   "Caffe v2",
-    "link":     "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "type":     "caffe",
-    "target":   "inceptionv4_resnet.prototxt",
-    "source":   "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv4_resnet.prototxt",
     "format":   "Caffe v2",
     "link":     "https://github.com/cwlacewe/netscope"
   },
@@ -481,13 +446,6 @@
     "target":   "lenet_consolidated_solver.prototxt",
     "source":   "https://raw.githubusercontent.com/BVLC/caffe/master/examples/mnist/lenet_consolidated_solver.prototxt",
     "format":   "Caffe v1",
-    "link":     "https://github.com/BVLC/caffe/tree/master/examples/mnist"
-  },
-  {
-    "type":     "caffe",
-    "target":   "lenet.prototxt",
-    "source":   "https://raw.githubusercontent.com/BVLC/caffe/master/examples/mnist/lenet.prototxt",
-    "format":   "Caffe v2",
     "link":     "https://github.com/BVLC/caffe/tree/master/examples/mnist"
   },
   {

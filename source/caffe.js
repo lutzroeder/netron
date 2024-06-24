@@ -151,8 +151,9 @@ caffe.Model = class {
 
     constructor(metadata, net) {
         this.name = net.name;
-        let version = -1;
         this.format = 'Caffe';
+        this.graphs = [];
+        let version = -1;
         if (net.layers && net.layers.length > 0) {
             if (net.layers.every((layer) => Object.prototype.hasOwnProperty.call(layer, 'layer'))) {
                 version = 0;
@@ -176,7 +177,6 @@ caffe.Model = class {
         if (phases.size === 0) {
             phases.add(-1);
         }
-        this.graphs = [];
         for (const phase of phases) {
             const graph = new caffe.Graph(metadata, phase, net, version);
             this.graphs.push(graph);
@@ -254,15 +254,16 @@ caffe.Graph = class {
                 lastLayer.chain = lastLayer.chain || [];
                 lastLayer.chain.push(layer);
             } else {
-                if (layer.type === 'Input' || layer.type === 'Data') {
-                    if (layer.input.length === 0 && layer.output.length === 1 &&
-                        layer.input_param && layer.input_param.shape &&
-                        layer.input_param.shape.length === 1 && layer.input_param.shape[0].dim) {
-                        const shape = new caffe.TensorShape(layer.input_param.shape[0].dim.map((dim) => dim.toNumber()));
-                        const type = new caffe.TensorType(null, shape);
-                        this.inputs.push(new caffe.Argument(layer.output[0], [value(layer.output[0], type)]));
-                        layer = null;
+                if (layer.type === 'Input' && layer.input.length === 0) {
+                    for (let i = 0; i < layer.output.length; i++) {
+                        const output = layer.output[i];
+                        const dim = layer.input_param && layer.input_param.shape && i < layer.input_param.shape.length ? layer.input_param.shape[i].dim : null;
+                        const shape = dim ? new caffe.TensorShape(dim.map((dim) => dim.toNumber())) : null;
+                        const type = shape ? new caffe.TensorType(null, shape) : null;
+                        const argument = new caffe.Argument(output, [value(output, type)]);
+                        this.inputs.push(argument);
                     }
+                    layer = null;
                 }
                 if (layer) {
                     nodes.push(layer);
