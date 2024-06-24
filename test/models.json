@@ -1467,9 +1467,9 @@
   {
     "type":     "coreml",
     "target":   "MovieRecommender.mlmodel",
-    "source":   "https://raw.githubusercontent.com/anupamchugh/iowncode/master/CoreMLRecommender/CoreMLRecommender/MovieRecommender.mlmodel",
+    "source":   "https://github.com/user-attachments/files/15949637/MovieRecommender.mlmodel.zip[MovieRecommender.mlmodel]",
     "format":   "Core ML v4",
-    "link":     "https://github.com/anupamchugh/iowncode/tree/master/CoreMLRecommender"
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
   },
   {
     "type":     "coreml",
