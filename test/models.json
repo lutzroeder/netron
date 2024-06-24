@@ -4272,9 +4272,9 @@
   {
     "type":     "onnx",
     "target":   "test_LSTM_tanh_bidirectional.onnx",
-    "source":   "https://raw.githubusercontent.com/microsoft/onnxruntime/master/onnxruntime/test/testdata/CNTK/test_LSTM.tanh.bidirectional//model.onnx",
+    "source":   "https://github.com/user-attachments/files/15957377/test_LSTM_tanh_bidirectional.onnx.zip[test_LSTM_tanh_bidirectional.onnx]",
     "format":   "ONNX v3",
-    "link":     "https://github.com/microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
@@ -4295,9 +4295,9 @@
   {
     "type":     "onnx",
     "target":   "test_RNN_bidirectional_one_layer_relu.onnx",
-    "source":   "https://raw.githubusercontent.com/microsoft/onnxruntime/master/onnxruntime/test/testdata/CNTK/test_RNN.bidirectional.one_layer.relu//model.onnx",
+    "source":   "https://github.com/user-attachments/files/15957378/test_RNN_bidirectional_one_layer_relu.onnx.zip[test_RNN_bidirectional_one_layer_relu.onnx]",
     "format":   "ONNX v3",
-    "link":     "https://github.com/microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
