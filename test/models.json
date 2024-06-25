@@ -7053,7 +7053,7 @@
   {
     "type":     "tfjs",
     "target":   "translation_en_fr_v1/model.json",
-    "source":   "https://storage.googleapis.com/tfjs-models/tfjs/translation_en_fr_v1/model.json",
+    "source":   "https://github.com/user-attachments/files/15957620/translation_en_fr_v1.zip[model.json]",
     "format":   "TensorFlow.js Keras v2.1.4",
     "link":     "https://github.com/tensorflow/tfjs-examples"
   },
