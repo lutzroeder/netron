@@ -229,7 +229,8 @@ ncnn.Node = class {
         this.chain = [];
         this.name = layer.name || '';
         const type = layer.type;
-        this.type = metadata.type(type);
+        this.type = { ...metadata.type(type) };
+        delete this.type.identifier;
         const attributeMetadata = this.type && this.type.attributes ? this.type.attributes : [];
         const attributes = layer.attributes;
         const inputs = layer.inputs || [];
