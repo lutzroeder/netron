@@ -126,6 +126,13 @@
   },
   {
     "type":     "_",
+    "target":   "preloaded_data.pb",
+    "source":   "https://github.com/user-attachments/files/15981013/preloaded_data.pb.zip[preloaded_data.pb]",
+    "error":    "Invalid file content. File contains chrome_browser_media.PreloadedData.",
+    "link":     "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":     "_",
     "target":   "python-import.pt",
     "source":   "https://github.com/lutzroeder/netron/files/12139921/python-import.pt.zip[python-import.pt]",
     "error":    "Invalid file content. File contains Python source code.",
