@@ -3295,13 +3295,15 @@ view.TensorSidebar = class extends view.ObjectSidebar {
             }
             const type = tensor.type;
             if (type) {
-                const value = type.toString().split('<').join('&lt;').split('>').join('&gt;');
+                const dataType = type.dataType;
+                this.addProperty('type', `${dataType}`, 'code');
+                const shape = type.shape.dimensions.toString(', ');
+                this.addProperty('shape', `${shape}`, 'code');
                 const denotation = type.denotation;
-                const layout = type.layout;
-                this.addProperty('type', `${value}`, 'code');
                 if (denotation) {
                     this.addProperty('denotation', denotation, 'code');
                 }
+                const layout = type.layout;
                 if (layout) {
                     this.addProperty('layout', layout.replace('.', ' '));
                 }
