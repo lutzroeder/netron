@@ -610,6 +610,11 @@
     ]
   },
   {
+    "name": "Gelu",
+    "category": "Activation",
+    "description": "Gaussian error linear unit element-wise activation function."
+  },
+  {
     "name": "GRN",
     "category": "Normalization",
     "description": "*GRN* is Global Response Normalization with L2 norm (across channels only).\n**Parameters**: GRN layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*GRN* computes L2 norm by channels for input blob. *GRN* generally does the following with the input blob:\n\\f[\noutput_{i} = \\frac{input_{i}}{\\sqrt{\\sum_{i}^{C} input_{i}}}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"GRN\" ... >\n    <data bias=\"1.0\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
