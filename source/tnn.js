@@ -140,7 +140,8 @@ tnn.Node = class {
         this.outputs = [];
         this.attributes = [];
         this.name = layer.name;
-        this.type = metadata.type(layer.type);
+        this.type = { ...metadata.type(layer.type) };
+        delete this.type.identifier;
         for (let i = 0; i < layer.attributes.length;) {
             const metadata = this.type && Array.isArray(this.type.attributes) ? this.type.attributes[i] : null;
             let name = '';
