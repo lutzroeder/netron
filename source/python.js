@@ -4512,6 +4512,185 @@ python.Execution = class {
         this.registerType('torch.utils.data.sampler.BatchSampler', class {});
         this.registerType('torch.utils.data.sampler.RandomSampler', class {});
         this.registerType('torch.utils.data.sampler.SequentialSampler', class {});
+        this.registerType('torch.fx.experimental.symbolic_shapes.ShapeEnv', class {
+            create_symintnode(/* sym, hint, source */) {
+                return new torch.SymInt();
+            }
+        });
+        this.registerFunction('torch.fx.graph_module._deserialize_graph_module', (/* forward, body */) => {
+            return execution.invoke('torch.fx.graph_module.GraphModule', []);
+        });
+        this.registerFunction('torch.fx.graph_module._forward_from_src', (src, globals /*, co_fields */) => {
+            globals = { ...globals };
+            const context = new python.Execution.Context(globals, null);
+            execution.exec(src, context);
+            const forward_fn = globals.forward;
+            delete globals.forward;
+            return forward_fn;
+        });
+        this.registerFunction('torch.fx.graph_module.reduce_graph_module', (body, import_block) => {
+            // https://github.com/pytorch/pytorch/blob/master/torch/fx/graph_module.py
+            const fn_src = body._code || body.code;
+            const forward = execution.invoke('torch.fx.graph_module._forward_from_src', [import_block + fn_src, {}]);
+            return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [forward, body]);
+        });
+        this.registerFunction('torch.fx.graph_module.reduce_package_graph_module', (importer, body, generated_module_name) => {
+            const forward = importer.import_module(generated_module_name).forward;
+            return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [forward, body]);
+        });
+        this.registerType('torch.fx.graph.CodeGen', class {});
+        this.registerType('torch.fx.graph._Namespace', class {
+            constructor() {
+                this._obj_to_name = new Map();
+                this._unassociated_names = new Set();
+                this._used_names = new Set();
+                this._base_count = {};
+            }
+            create_name(candidate, obj) {
+                if (obj && this._obj_to_name.has(obj)) {
+                    return self._obj_to_name.get(obj);
+                }
+                candidate = candidate || '_unnamed';
+                candidate = /^\d+$/.test(candidate) ? `_${candidate}` : candidate;
+                candidate = candidate.replace(/[^0-9a-zA-Z_]+/, '_');
+                const match = candidate.match(/(.*)_(\d+)$"/);
+                let base = candidate;
+                let num = null;
+                if (match) {
+                    [, base] = match;
+                    num = parseInt(match[2], 10);
+                }
+                candidate = num ? `${base}_${num}` : base;
+                if (!num) {
+                    num = this._base_count[base] || 0;
+                }
+                while (this._used_names.has(candidate) || this._is_illegal_name(candidate, obj)) {
+                    num += 1;
+                    candidate = `${base}_${num}`;
+                }
+                this._used_names.add(candidate);
+                this._base_count[base] = num;
+                if (obj) {
+                    this._obj_to_name[obj] = candidate;
+                } else {
+                    this._unassociated_names.add(candidate);
+                }
+                return candidate;
+            }
+            _is_illegal_name(/* name, obj */) {
+                /*
+                if name in keyword.kwlist:
+                    return True
+                if name in builtins.__dict__:
+                    return obj is not builtins.__dict__[name]
+                if name in _custom_builtins:
+                    return obj is not _custom_builtins[name].obj
+                */
+                return false;
+            }
+            associate_name_with_obj() {
+
+            }
+        });
+        this.registerType('torch.fx.node.Node', class {
+            constructor(graph, name, op, target, args, kwargs, return_type) {
+                this.graph = graph;
+                this.name = name;
+                this.op = op;
+                this.target = target;
+                this._input_nodes = new Map();
+                this.users = new Map();
+                this.type = return_type;
+                this._prev = this;
+                this._next = this;
+                this._erased = false;
+                this._repr_fn = null;
+                this.meta = {};
+            }
+            prepend(x) {
+                x._remove_from_list();
+                const p = this._prev;
+                p._next = x;
+                x._prev = p;
+                x._next = this;
+                this._prev = x;
+            }
+            _remove_from_list() {
+                const p = this._prev;
+                const n = this._next;
+                p._next = n;
+                n._prev = p;
+            }
+        });
+        torch.fx.Node = torch.fx.node.Node;
+        this.registerType('torch.fx.graph.Graph', class {
+            constructor() {
+                this._root = new torch.fx.node.Node(self, '', 'root', '', [], {});
+                this._used_names = new Map();
+                this._len = 0;
+                this._graph_namespace = new torch.fx.graph._Namespace();
+                // this._owning_module = owning_module
+                // this._tracer_cls = tracer_cls
+                // this._tracer_extras = tracer_extras
+                // this._codegen = CodeGen()
+                // this._co_fields = {}
+            }
+            placeholder(name, type_expr /*, default_value */) {
+                const args = []; // () if default_value is inspect.Signature.empty else (default_value,)
+                return this.create_node('placeholder', name, args, type_expr);
+            }
+            create_node(op, target, args, kwargs, name, type_expr) {
+                args = args || [];
+                kwargs = kwargs || {};
+                const candidate = name || this._target_to_str(target);
+                name = this._graph_namespace.create_name(candidate, null);
+                const n = new torch.fx.Node(this, name, op, target, args, kwargs, type_expr);
+                this._graph_namespace.associate_name_with_obj(name, n);
+                this._insert(n);
+                this._len += 1;
+                return n;
+            }
+            _insert(n) {
+                this._root.prepend(n);
+            }
+            _target_to_str(target) {
+                if (typeof target === 'string') {
+                    if (target.startsWith('__') && target.endswith('__')) {
+                        target = target.substring(2, target.length - 2);
+                    }
+                } else {
+                    target = target.__name__;
+                }
+                return this._snake_case(target);
+            }
+            _snake_case(s) {
+                const chars = [];
+                let prev_lower = false;
+                for (const c of s) {
+                    const x = c.toLowerCase();
+                    if (prev_lower && x !== c) {
+                        chars.push('_');
+                    } else {
+                        prev_lower = true;
+                    }
+                    chars.push(x);
+                }
+                return chars.join('');
+            }
+        });
+        torch.fx.Graph = torch.fx.graph.Graph;
+        this.registerType('torch.fx.graph_module.GraphModule', class extends torch.nn.modules.module.Module {
+            constructor(root, graph) {
+                super();
+                this.graph = graph;
+            }
+        });
+        this.registerType('torch.fx.immutable_collections.immutable_dict', class extends builtins.dict {});
+        this.registerFunction('torch.fx._symbolic_trace.wrap', (fn_or_name) => {
+            return fn_or_name;
+        });
+        this.registerType('torch.fx.proxy.TracerBase', class extends builtins.object {});
+        this.registerType('torch.fx._symbolic_trace.Tracer', class extends torch.fx.proxy.TracerBase {});
         this.registerFunction('torchvision.datasets.folder.default_loader');
         this.registerType('torchvision.datasets.folder.ImageFolder', class {});
         this.registerType('torchvision.datasets.mnist.FashionMNIST', class {});
@@ -4583,6 +4762,8 @@ python.Execution = class {
         this.registerType('torchvision.models.efficientnet.EfficientNet', class {});
         this.registerType('torchvision.models.efficientnet.FusedMBConv', class {});
         this.registerType('torchvision.models.efficientnet.MBConv', class {});
+        this.registerType('torchvision.models.feature_extraction.LeafModuleAwareTracer', class extends torch.fx._symbolic_trace.Tracer {});
+        this.registerType('torchvision.models.feature_extraction.NodePathTracer', class extends torchvision.models.feature_extraction.LeafModuleAwareTracer {});
         this.registerType('torchvision.models.googlenet.BasicConv2d', class {});
         this.registerType('torchvision.models.googlenet.GoogLeNet', class {});
         this.registerType('torchvision.models.googlenet.Inception', class {});
@@ -5616,183 +5797,6 @@ python.Execution = class {
                 this.constants = constants;
             }
         });
-        this.registerType('torch.fx.experimental.symbolic_shapes.ShapeEnv', class {
-            create_symintnode(/* sym, hint, source */) {
-                return new torch.SymInt();
-            }
-        });
-        this.registerFunction('torch.fx.graph_module._deserialize_graph_module', (/* forward, body */) => {
-            return execution.invoke('torch.fx.graph_module.GraphModule', []);
-        });
-        this.registerFunction('torch.fx.graph_module._forward_from_src', (src, globals /*, co_fields */) => {
-            globals = { ...globals };
-            const context = new python.Execution.Context(globals, null);
-            execution.exec(src, context);
-            const forward_fn = globals.forward;
-            delete globals.forward;
-            return forward_fn;
-        });
-        this.registerFunction('torch.fx.graph_module.reduce_graph_module', (body, import_block) => {
-            // https://github.com/pytorch/pytorch/blob/master/torch/fx/graph_module.py
-            const fn_src = body._code || body.code;
-            const forward = execution.invoke('torch.fx.graph_module._forward_from_src', [import_block + fn_src, {}]);
-            return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [forward, body]);
-        });
-        this.registerFunction('torch.fx.graph_module.reduce_package_graph_module', (importer, body, generated_module_name) => {
-            const forward = importer.import_module(generated_module_name).forward;
-            return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [forward, body]);
-        });
-        this.registerType('torch.fx.graph.CodeGen', class {});
-        this.registerType('torch.fx.graph._Namespace', class {
-            constructor() {
-                this._obj_to_name = new Map();
-                this._unassociated_names = new Set();
-                this._used_names = new Set();
-                this._base_count = {};
-            }
-            create_name(candidate, obj) {
-                if (obj && this._obj_to_name.has(obj)) {
-                    return self._obj_to_name.get(obj);
-                }
-                candidate = candidate || '_unnamed';
-                candidate = /^\d+$/.test(candidate) ? `_${candidate}` : candidate;
-                candidate = candidate.replace(/[^0-9a-zA-Z_]+/, '_');
-                const match = candidate.match(/(.*)_(\d+)$"/);
-                let base = candidate;
-                let num = null;
-                if (match) {
-                    [, base] = match;
-                    num = parseInt(match[2], 10);
-                }
-                candidate = num ? `${base}_${num}` : base;
-                if (!num) {
-                    num = this._base_count[base] || 0;
-                }
-                while (this._used_names.has(candidate) || this._is_illegal_name(candidate, obj)) {
-                    num += 1;
-                    candidate = `${base}_${num}`;
-                }
-                this._used_names.add(candidate);
-                this._base_count[base] = num;
-                if (obj) {
-                    this._obj_to_name[obj] = candidate;
-                } else {
-                    this._unassociated_names.add(candidate);
-                }
-                return candidate;
-            }
-            _is_illegal_name(/* name, obj */) {
-                /*
-                if name in keyword.kwlist:
-                    return True
-                if name in builtins.__dict__:
-                    return obj is not builtins.__dict__[name]
-                if name in _custom_builtins:
-                    return obj is not _custom_builtins[name].obj
-                */
-                return false;
-            }
-            associate_name_with_obj() {
-
-            }
-        });
-        this.registerType('torch.fx.node.Node', class {
-            constructor(graph, name, op, target, args, kwargs, return_type) {
-                this.graph = graph;
-                this.name = name;
-                this.op = op;
-                this.target = target;
-                this._input_nodes = new Map();
-                this.users = new Map();
-                this.type = return_type;
-                this._prev = this;
-                this._next = this;
-                this._erased = false;
-                this._repr_fn = null;
-                this.meta = {};
-            }
-            prepend(x) {
-                x._remove_from_list();
-                const p = this._prev;
-                p._next = x;
-                x._prev = p;
-                x._next = this;
-                this._prev = x;
-            }
-            _remove_from_list() {
-                const p = this._prev;
-                const n = this._next;
-                p._next = n;
-                n._prev = p;
-            }
-        });
-        torch.fx.Node = torch.fx.node.Node;
-        this.registerType('torch.fx.graph.Graph', class {
-            constructor() {
-                this._root = new torch.fx.node.Node(self, '', 'root', '', [], {});
-                this._used_names = new Map();
-                this._len = 0;
-                this._graph_namespace = new torch.fx.graph._Namespace();
-                // this._owning_module = owning_module
-                // this._tracer_cls = tracer_cls
-                // this._tracer_extras = tracer_extras
-                // this._codegen = CodeGen()
-                // this._co_fields = {}
-            }
-            placeholder(name, type_expr /*, default_value */) {
-                const args = []; // () if default_value is inspect.Signature.empty else (default_value,)
-                return this.create_node('placeholder', name, args, type_expr);
-            }
-            create_node(op, target, args, kwargs, name, type_expr) {
-                args = args || [];
-                kwargs = kwargs || {};
-                const candidate = name || this._target_to_str(target);
-                name = this._graph_namespace.create_name(candidate, null);
-                const n = new torch.fx.Node(this, name, op, target, args, kwargs, type_expr);
-                this._graph_namespace.associate_name_with_obj(name, n);
-                this._insert(n);
-                this._len += 1;
-                return n;
-            }
-            _insert(n) {
-                this._root.prepend(n);
-            }
-            _target_to_str(target) {
-                if (typeof target === 'string') {
-                    if (target.startsWith('__') && target.endswith('__')) {
-                        target = target.substring(2, target.length - 2);
-                    }
-                } else {
-                    target = target.__name__;
-                }
-                return this._snake_case(target);
-            }
-            _snake_case(s) {
-                const chars = [];
-                let prev_lower = false;
-                for (const c of s) {
-                    const x = c.toLowerCase();
-                    if (prev_lower && x !== c) {
-                        chars.push('_');
-                    } else {
-                        prev_lower = true;
-                    }
-                    chars.push(x);
-                }
-                return chars.join('');
-            }
-        });
-        torch.fx.Graph = torch.fx.graph.Graph;
-        this.registerType('torch.fx.graph_module.GraphModule', class extends torch.nn.modules.module.Module {
-            constructor(root, graph) {
-                super();
-                this.graph = graph;
-            }
-        });
-        this.registerFunction('torch.fx._symbolic_trace.wrap', (fn_or_name) => {
-            return fn_or_name;
-        });
-        this.registerType('torch.fx._symbolic_trace.Tracer', class {});
         this.registerFunction('torch._export.load', (f, expected_opset_version) => {
             const serialized_exported_program = f.get('serialized_exported_program.json');
             const serialized_state_dict = f.get('serialized_state_dict.pt');
