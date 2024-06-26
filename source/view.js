@@ -4954,8 +4954,11 @@ view.Context = class {
         this._context = context;
         this._tags = new Map();
         this._content = new Map();
-        this._identifier = typeof identifier === 'string' ? identifier : context.identifier;
         this._stream = stream || context.stream;
+        identifier = typeof identifier === 'string' ? identifier : context.identifier;
+        const index = Math.max(identifier.lastIndexOf('/'), identifier.lastIndexOf('\\'));
+        this._base = index === -1 ? undefined : identifier.substring(0, index);
+        this._identifier = index === -1 ? identifier : identifier.substring(index + 1);
     }
 
     get identifier() {
@@ -4971,7 +4974,7 @@ view.Context = class {
     }
 
     async fetch(file) {
-        const stream = await this._context.request(file, null);
+        const stream = await this._context.request(file, null, this._base);
         return new view.Context(this, file, stream, new Map());
     }
 
@@ -5337,20 +5340,25 @@ view.EntryContext = class {
     }
 
     async request(file, encoding, base) {
-        if (base === undefined) {
-            const stream = this._entries.get(file);
-            if (!stream) {
-                throw new view.Error('File not found.');
-            }
-            if (encoding) {
-                const decoder = new TextDecoder(encoding);
-                const buffer = stream.peek();
-                const value = decoder.decode(buffer);
-                return value;
-            }
-            return stream;
+        if (base === null) {
+            return this._host.request(file, encoding, base);
         }
-        return this._host.request(file, encoding, base);
+        let stream = null;
+        if (typeof base === 'string') {
+            stream = this._entries.get(`${base}/${file}`) || this._entries.get(`${base}\\${file}`);
+        } else {
+            stream = this._entries.get(file);
+        }
+        if (!stream) {
+            throw new view.Error('File not found.');
+        }
+        if (encoding) {
+            const decoder = new TextDecoder(encoding);
+            const buffer = stream.peek();
+            const value = decoder.decode(buffer);
+            return value;
+        }
+        return stream;
     }
 
     async require(id) {
@@ -5638,7 +5646,7 @@ view.ModelFactoryService = class {
                     return true;
                 };
                 for (const format of formats) {
-                    if (match(tags, format.tags)) {
+                    if (match(tags, format.tags) && (!format.identifier || identifier === context.identifier)) {
                         const error = new view.Error(`Invalid file content. File contains ${format.name}.`);
                         error.context = context.identifier;
                         throw error;

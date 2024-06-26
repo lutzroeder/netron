@@ -3334,6 +3334,14 @@
   },
   {
     "type":     "ncnn",
+    "target":   "darknet_yolov2.zip",
+    "source":   "https://github.com/user-attachments/files/15981002/darknet_yolov2.zip",
+    "format":   "ncnn",
+    "assert":   [ "model.graphs[0].nodes[0].inputs[1].value[0].initializer.type.dataType == 'float32'" ],
+    "link":     "https://github.com/lutzroeder/netron/issues/296"
+  },
+  {
+    "type":     "ncnn",
     "target":   "darknet_yolov2.cfg.ncnn,darknet_yolov2.weights.ncnn",
     "source":   "https://github.com/00liujj/gen-ncnn-models/raw/master/tests/darknet_yolov2.cfg.ncnn,https://github.com/00liujj/gen-ncnn-models/raw/master/tests/darknet_yolov2.weights.ncnn",
     "format":   "ncnn",
