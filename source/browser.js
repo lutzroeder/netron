@@ -350,12 +350,6 @@ host.BrowserHost = class {
             if (timeout) {
                 request.timeout = timeout;
             }
-            const error = (status) => {
-                const err = new Error(`The web request failed with status code ${status} at '${url}'.`);
-                err.type = 'error';
-                err.url = url;
-                return err;
-            };
             const progress = (value) => {
                 if (callback) {
                     callback(value);
@@ -364,30 +358,32 @@ host.BrowserHost = class {
             request.onload = () => {
                 progress(0);
                 if (request.status === 200) {
+                    let value = null;
                     if (request.responseType === 'arraybuffer') {
                         const buffer = new Uint8Array(request.response);
-                        const stream = new base.BinaryStream(buffer);
-                        resolve(stream);
+                        value = new base.BinaryStream(buffer);
                     } else {
-                        resolve(request.responseText);
+                        value = request.responseText;
                     }
+                    resolve(value);
                 } else {
-                    reject(error(request.status));
+                    const error = new Error(`The web request failed with status code '${request.status}'.`);
+                    error.context = url;
+                    reject(error);
                 }
             };
-            request.onerror = (e) => {
+            request.onerror = () => {
                 progress(0);
-                const err = error(request.status);
-                err.type = e.type;
-                reject(err);
+                const error = new Error(`The web request failed.`);
+                error.context = url;
+                reject(error);
             };
             request.ontimeout = () => {
                 progress(0);
                 request.abort();
-                const err = new Error(`The web request timed out in '${url}'.`);
-                err.type = 'timeout';
-                err.url = url;
-                reject(err);
+                const error = new Error('The web request timed out.', 'timeout', url);
+                error.context = url;
+                reject(error);
             };
             request.onprogress = (e) => {
                 if (e && e.lengthComputable) {
