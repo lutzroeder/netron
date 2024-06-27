@@ -4502,6 +4502,7 @@ python.Execution = class {
         this.registerType('torch.quantization.stubs.QuantStub', class {});
         this.registerType('torch.utils._pytree.LeafSpec', class {});
         this.registerType('torch.utils._pytree.TreeSpec', class {});
+        this.registerFunction('torch.utils.checkpoint.checkpoint');
         this.registerType('torch.utils.data.dataloader._MultiProcessingDataLoaderIter', class {});
         this.registerType('torch.utils.data.dataloader.DataLoader', class {});
         this.registerFunction('torch.utils.data._utils.collate.default_collate');
@@ -5766,6 +5767,7 @@ python.Execution = class {
         this.registerFunction('torch.nn.functional.leaky_relu');
         this.registerFunction('torch.nn.functional.l1_loss');
         this.registerFunction('torch.nn.functional.linear');
+        this.registerFunction('torch.nn.functional.log_softmax');
         this.registerFunction('torch.nn.functional._max_pool2d');
         this.registerFunction('torch.nn.functional.max_pool2d_with_indices');
         this.registerFunction('torch.nn.functional.mse_loss');
