@@ -971,7 +971,7 @@
     "target":   "DRNN.model",
     "source":   "https://github.com/lutzroeder/netron/files/9128732/DRNN.model.zip[DRNN.model]",
     "format":   "CNTK v2",
-    "assert":   [ "model.graphs[0].nodes[3].type.name == 'Convolution'" ],
+    "assert":   "model.graphs[0].nodes[3].type.name == 'Convolution'",
     "link":     "https://github.com/lutzroeder/netron/issues/153"
   },
   {
@@ -3329,7 +3329,7 @@
     "target":   "centerface.param,centerface.bin",
     "source":   "https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.param,https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.bin",
     "format":   "ncnn",
-    "assert":   [ "model.graphs[0].nodes[0].type.name == 'Convolution'" ],
+    "assert":   "model.graphs[0].nodes[0].type.name == 'Convolution'",
     "tags":     "validation",
     "link":     "https://github.com/MirrorYuChen/ncnn_example"
   },
@@ -3345,7 +3345,7 @@
     "target":   "darknet_yolov2.zip",
     "source":   "https://github.com/user-attachments/files/15981002/darknet_yolov2.zip",
     "format":   "ncnn",
-    "assert":   [ "model.graphs[0].nodes[0].inputs[1].value[0].initializer.type.dataType == 'float32'" ],
+    "assert":   "model.graphs[0].nodes[0].inputs[1].value[0].initializer.type.dataType == 'float32'",
     "link":     "https://github.com/lutzroeder/netron/issues/296"
   },
   {
@@ -3409,7 +3409,7 @@
     "target":   "MobileNetSSD_deploy.param.bin,MobileNetSSD_deploy.bin",
     "source":   "https://raw.githubusercontent.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.param.bin,https://raw.githubusercontent.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.bin",
     "format":   "ncnn",
-    "assert":   [ "model.graphs[0].nodes[1].type.name == 'Convolution'" ],
+    "assert":   "model.graphs[0].nodes[1].type.name == 'Convolution'",
     "tags":     "validation",
     "link":     "https://github.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd"
   },
@@ -3743,7 +3743,7 @@
     "type":     "onnx",
     "target":   "candy.json.zip",
     "source":   "https://github.com/lutzroeder/netron/files/12329067/candy.json.zip",
-    "assert":   [ "model.graphs[0].nodes[2].attributes[1].visible == false" ],
+    "assert":   "model.graphs[0].nodes[2].attributes[1].visible == false",
     "format":   "ONNX JSON v3",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
@@ -3752,7 +3752,7 @@
     "type":     "onnx",
     "target":   "candy.onnx",
     "source":   "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/FNSCandyStyleTransfer/UWP/cs/Assets/candy.onnx",
-    "assert":   [ "model.graphs[0].nodes[2].attributes[1].visible == false" ],
+    "assert":   "model.graphs[0].nodes[2].attributes[1].visible == false",
     "format":   "ONNX v3",
     "tags":     "validation",
     "link":     "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/FNSCandyStyleTransfer/UWP/cs/Assets"
@@ -3813,7 +3813,7 @@
     "target":   "denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx]",
     "format":   "ONNX v3",
-    "assert":   [ "model.graphs[0].nodes[0].outputs[0].value[0].type.denotation == 'Image(Bgr8,SRGB,NominalRange_0_255)'" ],
+    "assert":   "model.graphs[0].nodes[0].outputs[0].value[0].type.denotation == 'Image(Bgr8,SRGB,NominalRange_0_255)'",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/183"
   },
@@ -4114,7 +4114,7 @@
     "type":     "onnx",
     "target":   "null_graph.onnx",
     "source":   "https://github.com/user-attachments/files/15336270/null_graph.onnx.zip[null_graph.onnx]",
-    "assert":   [ "model.graphs.length == 0" ],
+    "assert":   "model.graphs.length == 0",
     "format":   "ONNX v3",
     "producer": "OnnxMLTools 0.1.0.0000",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
@@ -4216,7 +4216,7 @@
     "target":   "sparse_initializer_as_output.json",
     "source":   "https://github.com/lutzroeder/netron/files/12444489/sparse_initializer_as_output.json.zip[sparse_initializer_as_output.json]",
     "format":   "ONNX JSON v7",
-    "assert":   [ "model.graphs[0].outputs[0].value[0].type.layout == 'sparse'" ],
+    "assert":   "model.graphs[0].outputs[0].value[0].type.layout == 'sparse'",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/741"
   },
@@ -4232,7 +4232,7 @@
     "target":   "sparse_to_dense_matmul.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/12444490/sparse_to_dense_matmul.onnx.zip[sparse_to_dense_matmul.onnx]",
     "format":   "ONNX v7",
-    "assert":   [ "model.graphs[0].nodes[0].inputs[0].value[0].type.layout == 'sparse'" ],
+    "assert":   "model.graphs[0].nodes[0].inputs[0].value[0].type.layout == 'sparse'",
     "link":     "https://github.com/lutzroeder/netron/issues/741"
   },
   {
@@ -4303,7 +4303,7 @@
     "type":     "onnx",
     "target":   "test_mi_overloaded_function.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/14812772/test_mi_overloaded_function.zip[test_mi_overloaded_function.onnx]",
-    "assert":   [ "model.graphs[0].nodes[0].type.identifier == 'cast:to_int32'" ],
+    "assert":   "model.graphs[0].nodes[0].type.identifier == 'cast:to_int32'",
     "format":   "ONNX v10",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/884"
@@ -4504,7 +4504,7 @@
     "target":   "int4-model.xml,int4-model.bin",
     "source":   "https://github.com/lutzroeder/netron/files/6273773/int4-model.zip[int4-model.xml,int4-model.bin]",
     "format":   "OpenVINO IR",
-    "assert":   [ "model.graphs[0].nodes.length == 223" ],
+    "assert":   "model.graphs[0].nodes.length == 223",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/pull/715"
   },
@@ -4900,7 +4900,7 @@
     "source":   "https://github.com/user-attachments/files/15752923/cup_wild_vit_l_1img.ckpt.zip[cup_wild_vit_l_1img.ckpt]",
     "format":   "PyTorch v1.6",
     "tags":     "skip-tensor-value",
-    "assert":   [ "model.graphs[1].name == 'ema_model'" ],
+    "assert":   "model.graphs[1].name == 'ema_model'",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
@@ -5744,7 +5744,7 @@
     "target":   "sparse_coo.pth",
     "source":   "https://github.com/lutzroeder/netron/files/9541426/sparse_coo.pth.zip[sparse_coo.pth]",
     "format":   "PyTorch v1.6",
-    "assert":   [ "model.graphs[0].nodes[0].inputs[0].value[0].type.layout == 'sparse.coo'" ],
+    "assert":   "model.graphs[0].nodes[0].inputs[0].value[0].type.layout == 'sparse.coo'",
     "tag":      "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
@@ -5813,7 +5813,7 @@
     "target":   "tensor-and-integer-in-tuple.pt",
     "source":   "https://github.com/user-attachments/files/15879202/tensor-and-integer-in-tuple.pt.zip[tensor-and-integer-in-tuple.pt]",
     "format":   "PyTorch v1.6",
-    "assert":   [ "model.graphs[0].nodes[0].attributes[0].value == 234" ],
+    "assert":   "model.graphs[0].nodes[0].attributes[0].value == 234",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
@@ -6251,7 +6251,7 @@
     "target":   "simple.safetensors",
     "source":   "https://github.com/lutzroeder/netron/files/14323612/simple.safetensors.zip[simple.safetensors]",
     "format":   "Safetensors",
-    "assert":   [ "model.graphs[0].nodes[0].inputs[0].name == 'uint64'" ],
+    "assert":   "model.graphs[0].nodes[0].inputs[0].name == 'uint64'",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/1113"
   },
@@ -6260,7 +6260,7 @@
     "target":   "model.safetensors.index.json,model.safetensors",
     "source":   "https://github.com/lutzroeder/netron/files/13689293/model.safetensors.index.json.zip[model.safetensors.index.json,model.safetensors]",
     "format":   "Safetensors",
-    "assert":   [ "model.graphs[0].nodes[0].inputs[0].name == 'float32'" ],
+    "assert":   "model.graphs[0].nodes[0].inputs[0].name == 'float32'",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/1113"
   },
@@ -6701,7 +6701,7 @@
     "source":   "https://github.com/lutzroeder/netron/files/5613448/events.out.tfevents.1606692323.b5c8f88cc7ee.58.2.zip[events.out.tfevents.1606692323.b5c8f88cc7ee.58.2]",
     "format":   "TensorFlow Event File v2",
     "producer": "PyTorch",
-    "assert":   [ "model.graphs[0].nodes[0].type.name == 'aten::_convolution'" ],
+    "assert":   "model.graphs[0].nodes[0].type.name == 'aten::_convolution'",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/638"
   },
@@ -7138,7 +7138,7 @@
     "target":   "complex64.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/9507072/complex64.tflite.zip[complex64.tflite]",
     "format":   "TensorFlow Lite v3",
-    "assert":   [ "model.graphs[0].nodes[6].attributes[0].name == 'T'" ],
+    "assert":   "model.graphs[0].nodes[6].attributes[0].name == 'T'",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/964"
   },
@@ -7163,7 +7163,7 @@
     "target":   "densenet.tflite",
     "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.tflite]",
     "format":   "TensorFlow Lite v3",
-    "assert":   [ "model.graphs[0].nodes[0].type.name == 'Conv2D'" ],
+    "assert":   "model.graphs[0].nodes[0].type.name == 'Conv2D'",
     "tags":     "quantization",
     "link":     "https://www.tensorflow.org/lite/guide/hosted_models"
   },
@@ -7323,7 +7323,7 @@
     "type":     "tflite",
     "target":   "signature_concrete_functions.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/13687443/signature_tflite_samples.zip[signature_concrete_functions.tflite]",
-    "assert":   [ "model.graphs[0].nodes[0].attributes[0].value[0] == 'StringToNumber'" ],
+    "assert":   "model.graphs[0].nodes[0].attributes[0].value[0] == 'StringToNumber'",
     "format":   "TensorFlow Lite v3",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/783"
@@ -7429,7 +7429,7 @@
      "target":   "instance_normalization.tnnproto",
      "source":   "https://github.com/lutzroeder/netron/files/5124180/instance_normalization.zip[instance_normalization.tnnproto]",
      "format":   "TNN",
-     "assert":   [ "model.graphs[0].nodes[0].inputs.length == 1" ],
+     "assert":   "model.graphs[0].nodes[0].inputs.length == 1",
      "tags":     "validation",
      "link":     "https://github.com/lutzroeder/netron/pull/583"
   },
@@ -7452,7 +7452,7 @@
     "target":   "youtu_face_alignment_phase1.tnnproto,youtu_face_alignment_phase1.tnnmodel",
     "source":   "https://github.com/lutzroeder/netron/files/15048808/youtu_face_alignment_phase1.zip[youtu_face_alignment_phase1.tnnproto,youtu_face_alignment_phase1.tnnmodel]",
     "format":   "TNN",
-    "assert":   [ "model.graphs[0].nodes[0].inputs[1].name == 'filter'" ],
+    "assert":   "model.graphs[0].nodes[0].inputs[1].name == 'filter'",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/521"
   },

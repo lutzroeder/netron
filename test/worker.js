@@ -352,6 +352,7 @@ export class Target {
         this.events = {};
         this.tags = new Set(this.tags);
         this.folder = item.type ? path.normalize(dirname('..', 'third_party' , 'test', item.type)) : process.cwd();
+        this.assert = !this.assert || Array.isArray(this.assert) ? this.assert : [this.assert];
     }
 
     on(event, callback) {
