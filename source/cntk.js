@@ -177,13 +177,13 @@ cntk.Graph = class {
                 for (const input of obj.inputs) {
                     const value = values.map(input.uid, version, input);
                     // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
-                    if (input.kind === 0) {
+                    if (input.kind === 0n) {
                         const inputName = input.name || input.uid;
                         this.inputs.push(new cntk.Argument(inputName, [value]));
                     }
                 }
                 for (const block of obj.primitive_functions) {
-                    if (block.op === 57 && block.block_function_composite) {
+                    if (block.op === 57n && block.block_function_composite) {
                         const list = [block.block_function_composite.root];
                         const output = map.get(block.block_function_composite.root);
                         const keys = block.block_function_composite_arguments_map_keys;
@@ -308,7 +308,7 @@ cntk.Node = class {
             case 2: {
                 this.name = obj.name || obj.uid || null;
                 const output = obj.uid;
-                if (obj.op === 57) {
+                if (obj.op === 57n) {
                     this.type = { name: obj.uid, ...metadata.type(obj.uid) };
                     delete this.type.identifier;
                 } else if (Object.prototype.hasOwnProperty.call(obj, 'op')) {
@@ -501,7 +501,7 @@ cntk.TensorShape = class {
                 this.dimensions = shape.dims;
                 break;
             case 2:
-                this.dimensions = shape.shape_dim.map((dimension) => Number(dimension));
+                this.dimensions = shape.shape_dim.map((dimension) => dimension.toNumber());
                 break;
             default:
                 throw new cntk.Error(`Unsupported CNTK version '${version}'.`);

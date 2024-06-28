@@ -971,6 +971,7 @@
     "target":   "DRNN.model",
     "source":   "https://github.com/lutzroeder/netron/files/9128732/DRNN.model.zip[DRNN.model]",
     "format":   "CNTK v2",
+    "assert":   [ "model.graphs[0].nodes[3].type.name == 'Convolution'" ],
     "link":     "https://github.com/lutzroeder/netron/issues/153"
   },
   {
