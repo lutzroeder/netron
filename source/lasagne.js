@@ -174,6 +174,7 @@ lasagne.Tensor = class {
 
     constructor(storage) {
         this.type = new lasagne.TensorType(storage.dtype.__name__, new lasagne.TensorShape(storage.shape));
+        this.values = storage.data;
     }
 };
 
