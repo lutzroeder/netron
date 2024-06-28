@@ -257,9 +257,10 @@ om.Node = class {
 
 om.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type) {
         this.name = name;
         this.value = value;
+        this.type = type;
     }
 };
 
@@ -280,7 +281,7 @@ om.Tensor = class {
     constructor(category, type, value) {
         this.category = category;
         this.type = type;
-        this.data = value;
+        this.values = value;
     }
 };
 
