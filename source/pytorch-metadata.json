@@ -1905,6 +1905,18 @@
     ]
   },
   {
+    "name": "aten::argsort.stable_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "stable", "type": "boolean" },
+      { "name": "dim", "type": "int64", "default": -1 },
+      { "name": "descending", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::as_strided",
     "inputs": [
       { "name": "self", "type": "Tensor" },
