@@ -3121,8 +3121,17 @@ view.TensorView = class extends view.Control {
         const file = await this._host.save('NumPy Array', 'npy', defaultPath);
         if (file) {
             try {
-                let data_type = tensor.type.dataType;
-                data_type = data_type === 'boolean' ? 'bool' : data_type;
+                let data_type = '?';
+                switch (tensor.type.dataType) {
+                    case 'boolean': data_type = 'bool'; break;
+                    case 'bfloat16': data_type = 'float32'; break;
+                    case 'float8e5m2': data_type = 'float16'; break;
+                    case 'float8e5m2fnuz': data_type = 'float16'; break;
+                    case 'float8e4m3fn': data_type = 'float16'; break;
+                    case 'float8e4m3fnuz': data_type = 'float16'; break;
+                    case 'int4': data_type = 'int8'; break;
+                    default: data_type = tensor.type.dataType; break;
+                }
                 const execution = new python.Execution();
                 const bytes = execution.invoke('io.BytesIO', []);
                 const dtype = execution.invoke('numpy.dtype', [data_type]);

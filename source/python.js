@@ -1906,6 +1906,7 @@ python.Execution = class {
                     case 'u2': case 'uint16': this.itemsize = 2; this.kind = 'u'; break;
                     case 'u4': case 'uint32': this.itemsize = 4; this.kind = 'u'; break;
                     case 'u8': case 'uint64': case 'uint': this.itemsize = 8; this.kind = 'u'; break;
+                    case 'f1': case 'float8_e5m2': this.itemsize = 1; this.kind = 'f'; break;
                     case 'f2': case 'float16': this.itemsize = 2; this.kind = 'f'; break;
                     case 'f4': case 'float32': this.itemsize = 4; this.kind = 'f'; break;
                     case 'f8': case 'float64': case 'float': this.itemsize = 8; this.kind = 'f'; break;
@@ -1994,6 +1995,7 @@ python.Execution = class {
                         }
                     case 'f':
                         switch (this.itemsize) {
+                            case 1: return 'float8e5m2';
                             case 2: return 'float16';
                             case 4: return 'float32';
                             case 8: return 'float64';

@@ -3583,6 +3583,13 @@
   },
   {
     "type":     "numpy",
+    "target":   "float8_e5m2.npy",
+    "source":   "https://github.com/user-attachments/files/16022842/float8_e5m2.npy.zip[float8_e5m2.npy]",
+    "format":   "NumPy Array",
+    "link":     "https://github.com/lutzroeder/netron/issues/711"
+  },
+  {
+    "type":     "numpy",
     "target":   "mlp.npz",
     "source":   "https://github.com/lutzroeder/netron/files/6225731/mlp.zip[mlp.npz]",
     "format":   "NumPy Zip",
@@ -3754,7 +3761,7 @@
     "target":   "candy.ort",
     "source":   "https://github.com/lutzroeder/netron/files/6844795/candy.ort.zip[candy.ort]",
     "format":   "ONNX Runtime v3",
-    "tags":     "export-tensor",
+    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/767"
   },
   {
@@ -3878,7 +3885,7 @@
     "target":   "Exermote.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/2592478/Exermote.onnx.zip[Exermote.onnx]",
     "format":   "ONNX v3",
-    "tags":     "node-sidebar",
+    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -4789,7 +4796,7 @@
     "target":   "alexnet.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6096605/alexnet.pt.zip[alexnet.pt]",
     "format":   "TorchScript v1.6",
-    "tags":     "export-tensor,skip-tensor-value",
+    "tags":     "skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/281"
   },
   {
@@ -4797,7 +4804,7 @@
     "target":   "alexnet.ptl",
     "source":   "https://github.com/lutzroeder/netron/files/7340000/alexnet.ptl.zip[alexnet.ptl]",
     "format":   "TorchScript v1.6",
-    "tags":     "validation",
+    "tags":     "skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/827"
   },
   {
@@ -5694,6 +5701,7 @@
     "target":   "squeezenet1_1_traced.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6096661/squeezenet1_1_traced.pt.zip[squeezenet1_1_traced.pt]",
     "format":   "TorchScript v1.6",
+    "tags":     "skip-tensor-value",
     "link":     "https://github.com/lutzroeder/netron/issues/281"
   },
   {
@@ -7308,7 +7316,6 @@
     "target":   "quicknet.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/5184953/quicknet.zip[quicknet.tflite]",
     "format":   "TensorFlow Lite v3",
-    "tags":     "export-tensor",
     "link":     "https://github.com/lutzroeder/netron/issues/499"
   },
   {

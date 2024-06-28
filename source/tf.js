@@ -1247,7 +1247,10 @@ tf.TensorShape = class {
                 } else if (shape.dim.length === 1 && !shape.dim[0].size) {
                     this.dimensions = [0];
                 } else {
-                    this.dimensions = shape.dim.map((dim) => (dim.size && dim.size !== -1) ? dim.size : '?');
+                    this.dimensions = shape.dim.map((dim) => {
+                        const size = dim.size && dim.size.toNumber ? dim.size.toNumber() : dim.size;
+                        return size && size !== -1 ? size : '?';
+                    });
                 }
             }
         }
