@@ -806,7 +806,7 @@ view.View = class {
         const layout = {};
         layout.nodesep = 20;
         layout.ranksep = 20;
-        const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.value.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
+        const rotate = graph.nodes.every((node) => node.inputs.filter((input) => !input.type || !input.type.endsWith('*') || input.value.every((value) => !value.initializer)).length === 0 && node.outputs.length === 0);
         const horizontal = rotate ? options.direction === 'vertical' : options.direction !== 'vertical';
         if (horizontal) {
             layout.rankdir = 'LR';
@@ -1803,11 +1803,13 @@ view.Graph = class extends grapher.Graph {
             this.setNode(viewNode);
             const inputs = node.inputs;
             for (const input of inputs) {
-                for (const value of input.value) {
-                    if (value.name !== '' && !value.initializer) {
-                        this.createValue(value).to.push(viewNode);
-                    } else if (value.initializer) {
-                        this.createTensor(value);
+                if (!input.type || input.type.endsWith('*')) {
+                    for (const value of input.value) {
+                        if (value.name !== '' && !value.initializer) {
+                            this.createValue(value).to.push(viewNode);
+                        } else if (value.initializer) {
+                            this.createTensor(value);
+                        }
                     }
                 }
             }
@@ -1999,7 +2001,7 @@ view.Node = class extends grapher.Node {
                         initializers.push(input);
                     }
                     if ((input.visible === false || input.value.length > 1) &&
-                        input.value.some((argument) => argument.initializer)) {
+                        (!input.type || input.type.endsWith('*')) && input.value.some((value) => value.initializer)) {
                         hiddenInitializers = true;
                     }
                 }
@@ -2301,7 +2303,7 @@ view.Edge = class extends grapher.Edge {
     }
 
     get minlen() {
-        if (this.from.inputs.every((argument) => argument.value.every((value) => value.initializer))) {
+        if (this.from.inputs.every((argument) => (!argument.type || argument.type.endsWith('*')) && argument.value.every((value) => value.initializer))) {
             return 2;
         }
         return 1;
@@ -2469,7 +2471,7 @@ view.Expander = class extends view.Control {
     constructor(context) {
         super(context);
         this.element = this.createElement('div', 'sidebar-item-value');
-        this._count = 2;
+        this._count = -1;
     }
 
     render() {
@@ -2480,15 +2482,19 @@ view.Expander = class extends view.Control {
         this._expander = this.createElement('div', 'sidebar-item-value-expander');
         this._expander.innerText = '+';
         this._expander.addEventListener('click', () => this.toggle());
-        this.element.appendChild(this._expander);
+        this.add(this._expander);
+    }
+
+    add(element) {
+        this.element.appendChild(element);
     }
 
     control(element) {
-        this.element.appendChild(element);
-        this._count++;
+        this.add(element);
     }
 
     toggle() {
+        this._count = this._count === -1 ? this.element.childElementCount : this._count;
         if (this._expander) {
             while (this.element.childElementCount > this._count) {
                 this.element.removeChild(this.element.lastChild);
@@ -2517,15 +2523,15 @@ view.ObjectSidebar = class extends view.Control {
         this.element = this.createElement('div', 'sidebar-object');
     }
 
-    add(name, item) {
+    addEntry(name, item) {
         const entry = new view.NameValueView(this._view, name, item);
         const element = entry.render();
         this.element.appendChild(element);
     }
 
     addProperty(name, value, style) {
-        const item = new view.ValueTextView(this._view, value, style);
-        this.add(name, item);
+        const item = new view.TextView(this._view, value, style);
+        this.addEntry(name, item);
         return item;
     }
 
@@ -2601,9 +2607,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             this.addHeader('Inputs');
             for (const input of inputs) {
                 const name = input.name;
-                if (input.value.length > 0) {
-                    this.addArgument(name, input);
-                }
+                this.addArgument(name, input);
             }
         }
         const outputs = node.outputs;
@@ -2611,9 +2615,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             this.addHeader('Outputs');
             for (const output of outputs) {
                 const name = output.name;
-                if (output.value.length > 0) {
-                    this.addArgument(name, output);
-                }
+                this.addArgument(name, output);
             }
         }
     }
@@ -2624,7 +2626,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         value.on('blur', (sender, value) => this.emit('blur', value));
         value.on('select', (sender, value) => this.emit('select', value));
         value.on('activate', (sender, value) => this.emit('activate', value));
-        this.add(name, value);
+        this.addEntry(name, value);
     }
 
     activate() {
@@ -2693,14 +2695,14 @@ view.SelectView = class extends view.Control {
     }
 };
 
-view.ValueTextView = class extends view.Control {
+view.TextView = class extends view.Control {
 
     constructor(context, value, style) {
         super(context);
         this._element = this.createElement('div', 'sidebar-item-value');
+        let className = 'sidebar-item-value-line';
         if (value) {
             const list = Array.isArray(value) ? value : [value];
-            let className = 'sidebar-item-value-line';
             for (const item of list) {
                 const line = this.createElement('div', className);
                 switch (style) {
@@ -2721,6 +2723,11 @@ view.ValueTextView = class extends view.Control {
                 this._element.appendChild(line);
                 className = 'sidebar-item-value-line-border';
             }
+        } else {
+            const line = this.createElement('div', className);
+            line.classList.add('sidebar-item-disable-select');
+            line.innerHTML = '&nbsp';
+            this._element.appendChild(line);
         }
     }
 
@@ -2753,63 +2760,31 @@ view.ArgumentView = class extends view.Control {
         const type = argument.type;
         let value = argument.value;
         if (argument.type === 'tensor') {
-            value = { type: value.type, initializer: value };
-            value = [value];
+            value = [{ type: value.type, initializer: value }];
         } else if (argument.type === 'tensor[]') {
-            value = value.map((value) => {
-                return { type: value.type, initializer: value };
-            });
+            value = value.map((value) => ({ type: value.type, initializer: value }));
         }
+        source = type && !type.endsWith('*') ? 'attribute' : source;
         if (source === 'attribute' && type !== 'tensor' && type !== 'tensor[]') {
-            this._element = this.createElement('div', 'sidebar-item-value');
-            this._elements = [this._element];
-            if (type) {
-                this._expander = this.createElement('div', 'sidebar-item-value-expander');
-                this._expander.innerText = '+';
-                this._expander.addEventListener('click', () => this.toggle());
-                this._element.appendChild(this._expander);
-            }
-            switch (type) {
-                case 'graph': {
-                    const line = this.createElement('div', 'sidebar-item-value-line-link');
-                    line.innerHTML = value.name || '&nbsp;';
-                    line.addEventListener('click', () => this.emit('activate', value));
-                    this._element.appendChild(line);
-                    break;
-                }
-                case 'function': {
-                    const line = this.createElement('div', 'sidebar-item-value-line-link');
-                    line.innerHTML = value.type.name;
-                    line.addEventListener('click', () => this.emit('activate', value));
-                    this._element.appendChild(line);
-                    break;
-                }
-                default: {
-                    let content = new view.Formatter(value, type).toString();
-                    if (content && content.length > 1000) {
-                        content = `${content.substring(0, 1000)}\u2026`;
-                    }
-                    if (content && typeof content === 'string') {
-                        content = content.split('<').join('&lt;').split('>').join('&gt;');
-                    }
-                    const line = this.createElement('div', 'sidebar-item-value-line');
-                    line.innerHTML = content ? content : '&nbsp;';
-                    this._element.appendChild(line);
-                }
-            }
+            this._source = 'attribute';
+            const item = new view.PrimitiveView(context, argument);
+            this._items.push(item);
+        } else if (value.length === 0) {
+            const item = new view.TextView(this._view, null);
+            this._items.push(item);
         } else {
             const values = value;
             for (const value of values) {
-                const item = new view.ValueView(context, value, undefined, this._source);
+                const item = new view.ValueView(context, value, this._source);
                 item.on('focus', (sender, value) => this.emit('focus', value));
                 item.on('blur', (sender, value) => this.emit('blur', value));
                 item.on('activate', (sender, value) => this.emit('activate', value));
                 item.on('select', (sender, value) => this.emit('select', value));
                 this._items.push(item);
-                for (const element of item.render()) {
-                    this._elements.push(element);
-                }
             }
+        }
+        for (const item of this._items) {
+            this._elements.push(...item.render());
         }
     }
 
@@ -2821,18 +2796,6 @@ view.ArgumentView = class extends view.Control {
         if (this._source === 'attribute') {
             if (this._expander.innerText === '+') {
                 this._expander.innerText = '-';
-                const type = this._argument.type;
-                const value = this._argument.value;
-                const content = type === 'tensor' && value && value.type ? value.type.toString() : this._argument.type;
-                const line = this.createElement('div', 'sidebar-item-value-line-border');
-                line.innerHTML = `type: <code><b>${content}</b></code>`;
-                this._element.appendChild(line);
-                const description = this._argument.description;
-                if (description) {
-                    const line = this.createElement('div', 'sidebar-item-value-line-border');
-                    line.innerHTML = description;
-                    this._element.appendChild(line);
-                }
             } else {
                 this._expander.innerText = '+';
                 while (this._element.childElementCount > 2) {
@@ -2847,12 +2810,97 @@ view.ArgumentView = class extends view.Control {
     }
 };
 
+view.PrimitiveView = class extends view.Expander {
+
+    constructor(context, argument) {
+        super(context);
+        try {
+            this._argument = argument;
+            const type = argument.type;
+            const value = argument.value;
+            if (type) {
+                this.enable();
+            }
+            switch (type) {
+                case 'graph': {
+                    const line = this.createElement('div', 'sidebar-item-value-line-link');
+                    line.innerHTML = value.name || '&nbsp;';
+                    line.addEventListener('click', () => this.emit('activate', value));
+                    this.add(line);
+                    break;
+                }
+                case 'function': {
+                    const line = this.createElement('div', 'sidebar-item-value-line-link');
+                    line.innerHTML = value.type.name;
+                    line.addEventListener('click', () => this.emit('activate', value));
+                    this.add(line);
+                    break;
+                }
+                case 'object[]': {
+                    for (const obj of argument.value) {
+                        const line = this.createElement('div', 'sidebar-item-value-line');
+                        line.innerHTML = obj.type.name;
+                        this.add(line);
+                    }
+                    break;
+                }
+                default: {
+                    let content = new view.Formatter(value, type).toString();
+                    if (content && content.length > 1000) {
+                        content = `${content.substring(0, 1000)}\u2026`;
+                    }
+                    if (content && typeof content === 'string') {
+                        content = content.split('<').join('&lt;').split('>').join('&gt;');
+                    }
+                    const line = this.createElement('div', 'sidebar-item-value-line');
+                    line.innerHTML = content ? content : '&nbsp;';
+                    this.add(line);
+                }
+            }
+        } catch (error) {
+            super.error(error, false);
+            this._info('ERROR', error.message);
+        }
+    }
+
+    expand() {
+        try {
+            const type = this._argument.type;
+            const value = this._argument.value;
+            const content = type === 'tensor' && value && value.type ? value.type.toString() : this._argument.type;
+            const line = this.createElement('div', 'sidebar-item-value-line-border');
+            line.innerHTML = `type: <code><b>${content}</b></code>`;
+            this.add(line);
+            const description = this._argument.description;
+            if (description) {
+                const line = this.createElement('div', 'sidebar-item-value-line-border');
+                line.innerHTML = description;
+                this.add(line);
+            }
+        } catch (error) {
+            super.error(error, false);
+            this._info('ERROR', error.message);
+        }
+    }
+
+    _info(name, value) {
+        const line = this.createElement('div');
+        line.innerHTML = `<b>${name}:</b> ${value}`;
+        this._add(line);
+    }
+
+    _add(child) {
+        child.className = this._first === false ? 'sidebar-item-value-line-border' : 'sidebar-item-value-line';
+        this.add(child);
+        this._first = false;
+    }
+};
+
 view.ValueView = class extends view.Expander {
 
-    constructor(context, value, name, attribute) {
+    constructor(context, value, source) {
         super(context);
         this._value = value;
-        this._count = 2;
         try {
             const type = this._value.type;
             const initializer = this._value.initializer;
@@ -2861,10 +2909,10 @@ view.ValueView = class extends view.Expander {
             if (initializer) {
                 this.element.classList.add('sidebar-item-value-content');
             }
-            if (type || initializer || quantization || location || name !== undefined) {
+            if (type || initializer || quantization || location || source === 'attribute') {
                 this.enable();
             }
-            if (initializer && !attribute) {
+            if (initializer && source !== 'attribute') {
                 const element = this.createElement('div', 'sidebar-item-value-button');
                 element.classList.add('sidebar-item-value-button-tool');
                 element.setAttribute('title', 'Show Tensor');
@@ -2875,11 +2923,10 @@ view.ValueView = class extends view.Expander {
                 element.addEventListener('click', () => this.emit('activate', this._value));
                 this.control(element);
             }
-            const tensor = name !== undefined;
-            name = this._value.name ? this._value.name.split('\n').shift() : ''; // custom argument id
-            this._hasId = name && !tensor ? true : false;
-            this._hasCategory = initializer && initializer.category ? true : false;
-            if (this._hasId || (!this._hasCategory && !type && !tensor)) {
+            const name = this._value.name ? this._value.name.split('\n').shift() : ''; // custom argument id
+            this._hasId = name && source !== 'attribute' ? true : false;
+            this._hasCategory = initializer && initializer.category && source !== 'attribute' ? true : false;
+            if (this._hasId || (!this._hasCategory && !type && source !== 'attribute')) {
                 this._hasId = true;
                 const element = this.createElement('div', 'sidebar-item-value-line');
                 if (typeof name !== 'string') {
@@ -2890,7 +2937,7 @@ view.ValueView = class extends view.Expander {
                 element.addEventListener('pointerleave', () => this.emit('blur', this._value));
                 element.style.cursor = 'pointer';
                 element.addEventListener('click', () => this.emit('activate', this._value));
-                this.element.appendChild(element);
+                this._add(element);
             } else if (this._hasCategory) {
                 this._bold('category', initializer.category);
             } else if (type) {
@@ -2929,7 +2976,7 @@ view.ValueView = class extends view.Expander {
             if (description) {
                 const line = this.createElement('div', 'sidebar-item-value-line-border');
                 line.innerHTML = description;
-                this.element.appendChild(line);
+                this.add(line);
             }
             const identifier = this._value.identifier;
             if (identifier !== undefined) {
@@ -2954,7 +3001,7 @@ view.ValueView = class extends view.Expander {
                         content.push(`<pre style='margin: 4px 0 2px 0'>${value}</pre>`);
                     }
                     line.innerHTML = content.join('');
-                    this.element.appendChild(line);
+                    this._add(line);
                 }
             }
             if (initializer) {
@@ -2969,7 +3016,7 @@ view.ValueView = class extends view.Expander {
                 const content = tensor.content;
                 const line = this.createElement('div', 'sidebar-item-value-line-border');
                 line.appendChild(content);
-                this.element.appendChild(line);
+                this._add(line);
             }
         } catch (error) {
             super.error(error, false);
@@ -2996,8 +3043,9 @@ view.ValueView = class extends view.Expander {
     }
 
     _add(child) {
-        child.className = this.element.childNodes.length < this._count ? 'sidebar-item-value-line' : 'sidebar-item-value-line-border';
-        this.element.appendChild(child);
+        child.className = this._first === false ? 'sidebar-item-value-line-border' : 'sidebar-item-value-line';
+        this.add(child);
+        this._first = false;
     }
 };
 
@@ -3010,7 +3058,7 @@ view.TensorView = class extends view.Expander {
     }
 
     render() {
-        if (!this._expander) {
+        if (!this._button) {
             this.enable();
             this._button = this.createElement('div', 'sidebar-item-value-button');
             this._button.setAttribute('style', 'float: left;');
@@ -3185,8 +3233,8 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
         const [name] = value.name.split('\n');
         this.addProperty('name', name);
         if (value.type) {
-            const item = new view.ValueView(this._view, value, '');
-            this.add('type', item);
+            const item = new view.ValueView(this._view, value);
+            this.addEntry('type', item);
             item.toggle();
         }
         if (from) {
@@ -3196,7 +3244,7 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
             list.on('blur', (sender, value) => this.emit('blur', value));
             list.on('select', (sender, value) => this.emit('select', value));
             list.on('activate', (sender, value) => this.emit('activate', value));
-            this.add('from', list);
+            this.addEntry('from', list);
         }
         if (Array.isArray(to) && to.length > 0) {
             this.addHeader('Outputs');
@@ -3205,7 +3253,7 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
             list.on('blur', (sender, value) => this.emit('blur', value));
             list.on('select', (sender, value) => this.emit('select', value));
             list.on('activate', (sender, value) => this.emit('activate', value));
-            this.add('to', list);
+            this.addEntry('to', list);
         }
     }
 
@@ -3242,7 +3290,7 @@ view.TensorSidebar = class extends view.ObjectSidebar {
             if (type) {
                 const dataType = type.dataType;
                 this.addProperty('type', `${dataType}`, 'code');
-                const shape = type.shape.dimensions.toString(', ');
+                const shape = type.shape ? type.shape.dimensions.toString(', ') : '?';
                 this.addProperty('shape', `${shape}`, 'code');
                 const denotation = type.denotation;
                 if (denotation) {
@@ -3262,7 +3310,7 @@ view.TensorSidebar = class extends view.ObjectSidebar {
                 this.addProperty('stride', stride.join(','), 'code');
             }
             const value = new view.TensorView(this._view, tensor, this._tensor);
-            this.add('value', value);
+            this.addEntry('value', value);
             const metadata = tensor.metadata;
             if (Array.isArray(metadata) && metadata.length > 0) {
                 this.addHeader('Metadata');
@@ -3344,7 +3392,7 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             }
             const selector = new view.SelectView(this._view, entries, graph);
             selector.on('change', (sender, data) => this.emit('update-active-graph', data));
-            this.add('graph', selector);
+            this.addEntry('graph', selector);
         }
         if (graph && Array.isArray(graph.signatures) && graph.signatures.length > 0) {
             const entries = new Map();
@@ -3354,7 +3402,7 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             }
             const selector = new view.SelectView(this._view, entries, signature || graph);
             selector.on('change', (sender, data) => this.emit('update-active-graph-signature', data));
-            this.add('signature', selector);
+            this.addEntry('signature', selector);
         }
         const metadata = model.metadata instanceof Map ?
             Array.from(model.metadata).map(([name, value]) => ({ name, value })) :
@@ -3401,7 +3449,7 @@ view.ModelSidebar = class extends view.ObjectSidebar {
         value.on('deactivate', (sender, value) => this.emit('deactivate', value));
         value.on('select', (sender, value) => this.emit('select', value));
         value.toggle();
-        this.add(name, value);
+        this.addEntry(name, value);
     }
 };
 

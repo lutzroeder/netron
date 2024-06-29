@@ -578,7 +578,8 @@ pytorch.Node = class {
                                 this.inputs.push(argument);
                             } else {
                                 const attribute = createAttribute(metadata, metadata.name, input.value);
-                                this.attributes.push(attribute);
+                                // this.attributes.push(attribute);
+                                this.inputs.push(attribute);
                             }
                             break;
                         }

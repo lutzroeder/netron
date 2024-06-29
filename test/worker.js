@@ -739,15 +739,19 @@ export class Target {
                 for (const input of node.inputs) {
                     input.name.toString();
                     input.name.length;
-                    for (const value of input.value) {
-                        validateValue(value);
+                    if (!input.type || input.type.endsWith('*')) {
+                        for (const value of input.value) {
+                            validateValue(value);
+                        }
                     }
                 }
                 for (const output of node.outputs) {
                     output.name.toString();
                     output.name.length;
-                    for (const value of output.value) {
-                        validateValue(value);
+                    if (!output.type || output.type.endsWith('*')) {
+                        for (const value of output.value) {
+                            validateValue(value);
+                        }
                     }
                 }
                 if (node.chain) {
