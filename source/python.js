@@ -1814,10 +1814,34 @@ python.Execution = class {
                 this.args = args;
             }
         });
-        this.registerType('catboost.core._CatBoostBase', class {});
+        this.registerType('catboost._catboost._CatBoost', class {
+            _deserialize_model(/* serialized_model_str */) {
+            }
+        });
+        this.registerType('catboost.core._CatBoostBase', class {
+            constructor() {
+                this._object = new catboost._catboost._CatBoost();
+            }
+            __setstate__(state) {
+                for (const [key, value] of Object.entries(state)) {
+                    if (key === '__model') {
+                        this._load_from_string(value);
+                        continue;
+                    }
+                    this[key] = value;
+                }
+            }
+            _load_from_string(dump_model_str) {
+                this._deserialize_model(dump_model_str);
+            }
+            _deserialize_model(dump_model_str) {
+                this._object._deserialize_model(dump_model_str);
+            }
+        });
         this.registerType('catboost.core.CatBoost', class extends catboost.core._CatBoostBase {
-            load_model() {
+            load_model(/* blob */) {
                 throw new python.Error("'catboost.core.CatBoostClassifier.load_model' not implemented.");
+                // this._load_from_string(blob);
             }
         });
         this.registerType('catboost.core.CatBoostClassifier', class extends catboost.core.CatBoost {});
