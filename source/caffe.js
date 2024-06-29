@@ -455,6 +455,7 @@ caffe.Node = class {
         }));
         this.attributes = attributes.map(([metadata, name, value, defaultValue]) => {
             let visible = true;
+            let type = null;
             if (metadata && metadata.type) {
                 type = metadata.type;
             }
