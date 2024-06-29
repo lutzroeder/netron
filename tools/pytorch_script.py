@@ -49,6 +49,8 @@ schema_source_files = [
         re.compile(r'(aten::.*->\s*.*)"', re.MULTILINE)),
     ('torch/csrc/jit/runtime/register_special_ops.cpp',
         re.compile(r'(aten::.*->\s*.*)"', re.MULTILINE)),
+    ('torch/jit/_shape_functions.py',
+        re.compile(r'(prim::.*->\s*.*)"', re.MULTILINE))
 ]
 
 known_schema_definitions = [
@@ -70,7 +72,7 @@ def _parse_schemas():
             definition = entry[2] + value if len(entry) > 2 else value
             schema = pytorch.Schema(definition)
             if schema.name in schemas:
-                raise KeyError()
+                raise KeyError(schema.name)
             schemas[schema.name] = schema
     for definition in known_schema_definitions:
         schema = pytorch.Schema(definition)
@@ -124,7 +126,8 @@ def _check_types(types, schemas):
     for key in list(types.keys()):
         if key.startswith('torch.nn'):
             types.pop(key)
-        if key.startswith('torchvision::') or \
+        if key.startswith('prim::') or \
+           key.startswith('torchvision::') or \
            key.startswith('torchaudio::') or \
            key.startswith('neuron::'):
             types.pop(key)

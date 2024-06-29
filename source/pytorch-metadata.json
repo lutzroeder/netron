@@ -145,6 +145,142 @@
     ]
   },
   {
+    "name": "aten::Bool.Tensor",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::Bool.float",
+    "inputs": [
+      { "name": "a", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::Bool.int",
+    "inputs": [
+      { "name": "a", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::Complex.Scalar",
+    "inputs": [
+      { "name": "a", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.Tensor_Tensor",
+    "inputs": [
+      { "name": "a", "type": "Tensor" },
+      { "name": "b", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Float.Scalar",
+    "inputs": [
+      { "name": "a", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "float32" }
+    ]
+  },
+  {
+    "name": "aten::Float.Tensor",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "float32" }
+    ]
+  },
+  {
+    "name": "aten::Float.bool",
+    "inputs": [
+      { "name": "a", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "float32" }
+    ]
+  },
+  {
+    "name": "aten::Float.int",
+    "inputs": [
+      { "name": "a", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "float32" }
+    ]
+  },
+  {
+    "name": "aten::Float.str",
+    "inputs": [
+      { "name": "a", "type": "string" }
+    ],
+    "outputs": [
+      { "type": "float32" }
+    ]
+  },
+  {
+    "name": "aten::Int.Scalar",
+    "inputs": [
+      { "name": "a", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
+    "name": "aten::Int.Tensor",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
+    "name": "aten::Int.bool",
+    "inputs": [
+      { "name": "a", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
+    "name": "aten::Int.float",
+    "inputs": [
+      { "name": "a", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
+    "name": "aten::Int.str",
+    "inputs": [
+      { "name": "a", "type": "string" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
     "name": "aten::__and__.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -12675,6 +12811,15 @@
     ]
   },
   {
+    "name": "aten::str",
+    "inputs": [
+      { "name": "elem", "type": "t" }
+    ],
+    "outputs": [
+      { "type": "string" }
+    ]
+  },
+  {
     "name": "aten::stride",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -14521,6 +14666,27 @@
     ],
     "outputs": [
       { "name": "Y", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "prim::NumToTensor"
+  },
+  {
+    "name": "prim::NumToTensor.Scalar",
+    "inputs": [
+      { "name": "a", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "prim::NumToTensor.bool",
+    "inputs": [
+      { "name": "a", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {

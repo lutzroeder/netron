@@ -2471,9 +2471,9 @@ pytorch.jit.Execution = class extends pytorch.Execution {
 
     _overload(target, name, args, context) {
         let moduleName = pytorch.Utility.target(target);
-        if (moduleName && name) {
+        if (moduleName) {
             let outputTypes = null;
-            let type = `${moduleName}.${name}`;
+            let type = name ? `${moduleName}.${name}` : moduleName;
             if (type === 'ops.prim.NumToTensor' && args.length === 1 && args[0].type === 'call' && args[0].target.member.type === 'id') {
                 const [arg] = args;
                 moduleName = pytorch.Utility.target(arg.target.target);
@@ -2486,6 +2486,19 @@ pytorch.jit.Execution = class extends pytorch.Execution {
             let overloads = null;
             if (type.startsWith('torch.')) {
                 overloads = this._types.get(`aten::${type.substring(6)}`);
+            /* } else if (type.startsWith('ops.prim.')) {
+                overloads = this._types.get(`prim::${type.substring(9)}`);
+            } else if (type === 'int') {
+                overloads = this._types.get(`aten::Int`);
+                // "bool": "aten::Bool"
+                // "int": "aten::Int"
+                // "float": "aten::Float"
+                // "complex": "aten::Complex"
+                // "abs": "prim::abs"
+                // "max": "prim::max"
+                // "min": "prim::min"
+                // "range": "fake::does_not_exist"
+            */
             } else if (type.startsWith('ops.') && !type.startsWith('ops.prim.')) {
                 const path = type.split('.');
                 if (path.length === 3) {
@@ -2612,6 +2625,8 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                             case 'Tensor':
                             case 'Tensor[]':
                                 break;
+                            // case 'int64':
+                            //     break;
                             case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
                             case '__torch__.torch.classes.xnnpack.LinearOpContext':
                                 break;
