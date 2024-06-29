@@ -2710,6 +2710,7 @@ python.Execution = class {
         this.registerType('sklearn.ensemble.gradient_boosting.LogOddsEstimator', class {});
         this.registerType('sklearn.ensemble.gradient_boosting.MultinomialDeviance', class {});
         this.registerType('sklearn.ensemble.gradient_boosting.PriorProbabilityEstimator', class {});
+        this.registerType('sklearn.ensemble.voting_classifier.VotingClassifier', class {});
         this.registerType('sklearn.ensemble.weight_boosting.AdaBoostClassifier', class {});
         this.registerType('sklearn.feature_extraction._hashing.FeatureHasher', class {});
         this.registerType('sklearn.feature_extraction.text.CountVectorizer', class {});
@@ -3814,6 +3815,9 @@ python.Execution = class {
         this.registerFunction('nolearn.lasagne.base.objective');
         this.registerFunction('numpy.core._DType_reconstruct');
         this.registerFunction('numpy.core._ufunc_reconstruct');
+        this.registerFunction('numpy.core.numeric._frombuffer', (/* buf, dtype, shape, order */) => {
+            return {};
+        });
         this.registerFunction('numpy.core.multiarray._reconstruct', (subtype, shape, dtype) => {
             return numpy.ndarray.__new__(subtype, shape, dtype);
         });
@@ -3907,6 +3911,7 @@ python.Execution = class {
                     throw new python.Error(`Unsupported scalar type '${dtype.__name__}'.`);
             }
         });
+        numpy._core = numpy.core;
         this.registerFunction('numpy.load', (file) => {
             // https://github.com/numpy/numpy/blob/main/numpy/lib/format.py
             const signature = [0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59];
@@ -4124,9 +4129,6 @@ python.Execution = class {
             return new numpy.random._generator.Generator(bit_generator_ctor(bit_generator_name));
         });
         this.registerFunction('numpy.reshape');
-        this.registerFunction('numpy.core.numeric._frombuffer', (/* buf, dtype, shape, order */) => {
-            return {};
-        });
         this.registerFunction('sklearn.feature_selection._univariate_selection.f_classif');
         this.registerFunction('sklearn.feature_selection._univariate_selection.f_regression');
         this.registerFunction('sklearn.metrics.scorer._passthrough_scorer');
@@ -4738,6 +4740,7 @@ python.Execution = class {
         this.registerType('torchvision.ops.poolers.LevelMapper', class {});
         this.registerType('torchvision.ops.poolers.MultiScaleRoIAlign', class {});
         this.registerType('torchvision.ops.stochastic_depth.StochasticDepth', class {});
+        this.registerType('torchvision.models._api.Weights', class {});
         this.registerType('torchvision.models.alexnet.AlexNet', class {});
         this.registerType('torchvision.models.convnext.ConvNeXt', class {});
         this.registerType('torchvision.models.convnext.CNBlock', class {});
@@ -4787,6 +4790,7 @@ python.Execution = class {
         this.registerType('torchvision.models.detection.ssdlite.SSDLiteRegressionHead', class {});
         this.registerType('torchvision.models.detection.transform.GeneralizedRCNNTransform', class {});
         this.registerType('torchvision.models.efficientnet.EfficientNet', class {});
+        this.registerType('torchvision.models.efficientnet.EfficientNet_B3_Weights', class {});
         this.registerType('torchvision.models.efficientnet.FusedMBConv', class {});
         this.registerType('torchvision.models.efficientnet.MBConv', class {});
         this.registerType('torchvision.models.feature_extraction.LeafModuleAwareTracer', class extends torch.fx._symbolic_trace.Tracer {});
