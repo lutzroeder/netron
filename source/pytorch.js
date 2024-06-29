@@ -3216,7 +3216,7 @@ pytorch.jit.FlatBuffersLoader = class {
         const data = this._module.storage_data[index].data;
         const dtype = this._dtypes.get(metadata.scalar_type);
         const size = data.length / dtype.itemsize();
-        const storage = this._cu.execution.invoke('torch.storage._TypedStorage', [size, dtype]);
+        const storage = this._cu.execution.invoke('torch.storage.TypedStorage', [size, dtype]);
         storage._set_cdata(data);
         const tensor = this._cu.execution.invoke('torch.Tensor', []);
         const shape = Array.from(metadata.sizes);

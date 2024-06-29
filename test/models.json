@@ -5980,6 +5980,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "v1_lj_8000.jit",
+    "source":   "https://github.com/user-attachments/files/16041474/v1_lj_8000.jit.zip[v1_lj_8000.jit]",
+    "format":   "TorchScript v1.6",
+    "error":    "Cannot read properties of undefined (reading 'position')",
+    "link":     "https://github.com/lutzroeder/netron/issues/1061"
+  },
+  {
+    "type":     "pytorch",
     "target":   "v3_1_ru.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9075630/v3_1_ru.pt.zip[v3_1_ru.pt]",
     "format":   "PyTorch Package v1.9",

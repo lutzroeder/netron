@@ -8064,6 +8064,7 @@
   },
   {
     "name": "aten::lstm_cell",
+    "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "hx", "type": "Tensor[]" },

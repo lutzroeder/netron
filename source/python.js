@@ -5088,7 +5088,7 @@ python.Execution = class {
             }
             const dtype = dtypes.get(obj.dtype.str);
             const strides = obj.strides.map((stride) => stride / obj.itemsize);
-            const storage = execution.invoke('torch.storage._TypedStorage', [obj.size, dtype]);
+            const storage = execution.invoke('torch.storage.TypedStorage', [obj.size, dtype]);
             storage._set_cdata(obj.data);
             const tensor = execution.invoke('torch.Tensor', []);
             tensor.__setstate__([storage, 0, obj.shape, strides]);
@@ -5262,7 +5262,7 @@ python.Execution = class {
             const shape = size;
             dtype = torch._prims_common.dtype_or_default(dtype);
             size = shape.reduce((a, b) => a * b, 1);
-            const storage = execution.invoke('torch.storage._TypedStorage', [size, dtype]);
+            const storage = execution.invoke('torch.storage.TypedStorage', [size, dtype]);
             const tensor = execution.invoke('torch.Tensor', []);
             tensor.__setstate__([storage, 0, shape, stride]);
             return tensor;
@@ -6348,13 +6348,13 @@ python.Execution = class {
                 return storage;
             }
         });
-        this.registerType('torch.storage._UntypedStorage', class extends torch.storage._StorageBase {
+        this.registerType('torch.storage.UntypedStorage', class extends torch.storage._StorageBase {
             constructor() {
                 super();
-                throw new python.Error('_UntypedStorage not implemented.');
+                throw new python.Error('UntypedStorage not implemented.');
             }
         });
-        this.registerType('torch.storage._TypedStorage', class {
+        this.registerType('torch.storage.TypedStorage', class {
             constructor(...args) {
                 if (args.length >= 2 && Number.isInteger(args[0]) && args[1] instanceof torch.dtype) {
                     if (args[3] instanceof torch.device) {
@@ -6363,7 +6363,7 @@ python.Execution = class {
                         [this._size, this._dtype] = args;
                     }
                 } else {
-                    throw new python.Error(`Unsupported _TypedStorage arguments '${JSON.stringify(args)}'.`);
+                    throw new python.Error(`Unsupported TypedStorage arguments '${JSON.stringify(args)}'.`);
                 }
             }
             get device() {
@@ -6408,7 +6408,7 @@ python.Execution = class {
                 return storage;
             }
         });
-        this.registerType('torch.storage._LegacyStorage', class extends torch.storage._TypedStorage {
+        this.registerType('torch.storage._LegacyStorage', class extends torch.storage.TypedStorage {
             constructor() {
                 super();
                 throw new python.Error('_LegacyStorage not implemented.');
