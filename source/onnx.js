@@ -1881,7 +1881,7 @@ onnx.JsonReader = class {
                 value.int64_data = value.int64Data.map((value) => parseInt(value, 10));
                 delete value.int64Data;
             } else {
-                throw new onnx.Error(`Unsupported ONNX JSON tensor data '${JSON.stringify(value.data_type)}.`);
+                throw new onnx.Error(`Unsupported ONNX JSON tensor data type '${JSON.stringify(value.data_type)}'.`);
             }
             return value;
         };
