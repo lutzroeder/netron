@@ -3710,9 +3710,11 @@ view.FindSidebar = class extends view.Control {
             for (const node of this._graph.nodes) {
                 if (this._state.connection) {
                     for (const input of node.inputs) {
-                        for (const value of input.value) {
-                            if (!value.initializer) {
-                                edge(value);
+                        if (!input.type || input.type.endsWith('*')) {
+                            for (const value of input.value) {
+                                if (!value.initializer) {
+                                    edge(value);
+                                }
                             }
                         }
                     }
@@ -3728,10 +3730,12 @@ view.FindSidebar = class extends view.Control {
                 }
                 if (this._state.weight) {
                     for (const input of node.inputs) {
-                        for (const value of input.value) {
-                            if (value.initializer && value.name && !edges.has(value.name) && this._value(value)) {
-                                const content = `${value.name.split('\n').shift()}`;
-                                this._add(node, content, 'weight'); // split custom argument id
+                        if (!input.type || input.type.endsWith('*')) {
+                            for (const value of input.value) {
+                                if (value.initializer && value.name && !edges.has(value.name) && this._value(value)) {
+                                    const content = `${value.name.split('\n').shift()}`;
+                                    this._add(node, content, 'weight'); // split custom argument id
+                                }
                             }
                         }
                     }
@@ -3740,8 +3744,10 @@ view.FindSidebar = class extends view.Control {
             if (this._state.connection) {
                 const outputs = this._signature ? this._signature.outputs : this._graph.inputs;
                 for (const output of outputs) {
-                    for (const value of output.value) {
-                        edge(value);
+                    if (!output.type || output.type.endsWith('*')) {
+                        for (const value of output.value) {
+                            edge(value);
+                        }
                     }
                 }
             }
