@@ -56,7 +56,7 @@ class _Graph: # pylint: disable=too-few-public-methods
         import torch # pylint: disable=import-outside-toplevel,import-error
         graph = self.value
         json_graph = {
-            'arguments': [],
+            'values': [],
             'nodes': [],
             'inputs': [],
             'outputs': []
@@ -73,59 +73,61 @@ class _Graph: # pylint: disable=too-few-public-methods
                 selector = node.kindOf('value')
                 return getattr(node, selector)('value')
             return None
-        arguments_map = {}
+        values_index = {}
         def argument(value):
-            if not value in arguments_map:
-                json_argument = {}
-                json_argument['name'] = str(value.unique())
+            if not value in values_index:
+                json_value = {}
+                json_value['name'] = str(value.unique())
                 node = value.node()
                 if node.kind() == "prim::GetAttr":
                     tensor, name = self._getattr(node)
                     if tensor is not None and len(name) > 0 and \
                         isinstance(tensor, torch.Tensor):
-                        json_argument['name'] = name
-                        json_argument['initializer'] = {}
                         json_tensor_shape = {
                             'dimensions': list(tensor.shape)
                         }
-                        json_argument['type'] = {
+                        tensor_type = {
                             'dataType': data_type_map[tensor.dtype],
                             'shape': json_tensor_shape
                         }
+                        json_value['name'] = name
+                        json_value['type'] = tensor_type
+                        json_value['initializer'] = { 'type': tensor_type }
                 elif node.kind() == "prim::Constant":
                     tensor = constant_value(node)
                     if tensor and isinstance(tensor, torch.Tensor):
-                        json_argument['initializer'] = {}
                         json_tensor_shape = {
                             'dimensions': list(tensor.shape)
                         }
-                        json_argument['type'] = {
+                        tensor_type = {
                             'dataType': data_type_map[tensor.dtype],
                             'shape': json_tensor_shape
                         }
+                        json_value['type'] = tensor_type
+                        json_value['initializer'] = { 'type': tensor_type }
                 elif value.isCompleteTensor():
                     json_tensor_shape = {
                         'dimensions': value.type().sizes()
                     }
-                    json_argument['type'] = {
+                    json_value['type'] = {
                         'dataType': data_type_map[value.type().dtype()],
                         'shape': json_tensor_shape
                     }
-                arguments = json_graph['arguments']
-                arguments_map[value] = len(arguments)
-                arguments.append(json_argument)
-            return arguments_map[value]
+                values = json_graph['values']
+                values_index[value] = len(values)
+                values.append(json_value)
+            return values_index[value]
 
         for value in graph.inputs():
             if len(value.uses()) != 0 and value.type().kind() != 'ClassType':
                 json_graph['inputs'].append({
                     'name': value.debugName(),
-                    'arguments': [ argument(value) ]
+                    'value': [ argument(value) ]
                 })
         for value in graph.outputs():
             json_graph['outputs'].append({
                 'name': value.debugName(),
-                'arguments': [ argument(value) ]
+                'value': [ argument(value) ]
             })
         constants = {}
         for node in graph.nodes():
@@ -163,7 +165,7 @@ class _Graph: # pylint: disable=too-few-public-methods
                 if torch.is_tensor(value):
                     json_node['inputs'].append({
                         'name': name,
-                        'arguments': []
+                        'value': []
                     })
                 else:
                     json_node['attributes'].append(json_attribute)
@@ -177,7 +179,7 @@ class _Graph: # pylint: disable=too-few-public-methods
                     if parameter_type == 'Tensor' or value.type().kind() == 'TensorType':
                         json_node['inputs'].append({
                             'name': parameter_name,
-                            'arguments': [ argument(value) ]
+                            'value': [ argument(value) ]
                         })
                     else:
                         json_attribute = {
@@ -203,7 +205,7 @@ class _Graph: # pylint: disable=too-few-public-methods
                     continue
                 json_node['inputs'].append({
                     'name': parameter_name,
-                    'arguments': [ argument(value) ]
+                    'value': [ argument(value) ]
                 })
 
             for i, value in enumerate(node.outputs()):
@@ -211,7 +213,7 @@ class _Graph: # pylint: disable=too-few-public-methods
                 name = parameter['name'] if parameter and 'name' in parameter else 'output'
                 json_node['outputs'].append({
                     'name': name,
-                    'arguments': [ argument(value) ]
+                    'value': [ argument(value) ]
                 })
 
         for node in graph.nodes():

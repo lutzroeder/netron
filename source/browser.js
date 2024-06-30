@@ -148,7 +148,8 @@ host.BrowserHost = class {
             const [url] = this._meta.file;
             if (this._view.accept(url)) {
                 const identifier = Array.isArray(this._meta.identifier) && this._meta.identifier.length === 1 ? this._meta.identifier[0] : null;
-                const status = await this._openModel(this._url(url), identifier || null);
+                const name = this._meta.name || null;
+                const status = await this._openModel(this._url(url), identifier || null, name);
                 if (status === '') {
                     return;
                 }
@@ -413,7 +414,7 @@ host.BrowserHost = class {
         return `${location.protocol}//${location.host}${pathname}${file}`;
     }
 
-    async _openModel(url, identifier) {
+    async _openModel(url, identifier, name) {
         url = url.startsWith('data:') ? url : `${url + ((/\?/).test(url) ? '&' : '?')}cb=${(new Date()).getTime()}`;
         this._view.show('welcome spinner');
         let context = null;
@@ -430,7 +431,7 @@ host.BrowserHost = class {
                     stream = await this._request(url, null, null, progress);
                 }
             }
-            context = new host.BrowserHost.Context(this, url, identifier, stream);
+            context = new host.BrowserHost.Context(this, url, identifier, name, stream);
             this._telemetry.set('session_engaged', 1);
         } catch (error) {
             await this._view.error(error, 'Model load request failed.');
@@ -474,7 +475,7 @@ host.BrowserHost = class {
             const encoder = new TextEncoder();
             const buffer = encoder.encode(file.content);
             const stream = new base.BinaryStream(buffer);
-            const context = new host.BrowserHost.Context(this, '', identifier, stream);
+            const context = new host.BrowserHost.Context(this, '', identifier, null, stream);
             await this._openContext(context);
         } catch (error) {
             await this._view.error(error, 'Error while loading Gist.');
@@ -487,7 +488,7 @@ host.BrowserHost = class {
         try {
             const model = await this._view.open(context);
             if (model) {
-                this.document.title = context.identifier;
+                this.document.title = context.name || context.identifier;
                 return '';
             }
             this.document.title = '';
@@ -787,8 +788,9 @@ host.BrowserHost.FileStream = class {
 
 host.BrowserHost.Context = class {
 
-    constructor(host, url, identifier, stream) {
+    constructor(host, url, identifier, name, stream) {
         this._host = host;
+        this._name = name;
         this._stream = stream;
         if (identifier) {
             this._identifier = identifier;
@@ -805,6 +807,10 @@ host.BrowserHost.Context = class {
 
     get identifier() {
         return this._identifier;
+    }
+
+    get name() {
+        return this._name;
     }
 
     get stream() {
