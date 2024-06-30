@@ -5252,6 +5252,7 @@
     "target":   "model.ptl",
     "source":   "https://github.com/lutzroeder/netron/files/11149538/model.ptl.zip[model.ptl]",
     "format":   "TorchScript v1.6",
+    "assert":   "model.graphs[0].nodes[0].inputs[1].value[0].initializer.name == 'CONSTANTS.c0.weight'",
     "link":     "https://github.com/lutzroeder/netron/issues/1067"
   },
   {

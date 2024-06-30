@@ -160,7 +160,7 @@ pytorch.Graph = class {
                             case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase': {
                                 for (const [key, tensor] of Object.entries(value)) {
                                     if (pytorch.Utility.isTensor(tensor)) {
-                                        initializers.set(value, new pytorch.Tensor(`${name}.${key}`, tensor));
+                                        initializers.set(tensor, new pytorch.Tensor(`${name}.${key}`, tensor));
                                     }
                                 }
                                 break;
