@@ -2651,9 +2651,9 @@ view.NameValueView = class extends view.Control {
         for (const element of value.render()) {
             valueElement.appendChild(element);
         }
-        this._element = this.createElement('div', 'sidebar-item');
-        this._element.appendChild(nameElement);
-        this._element.appendChild(valueElement);
+        this.element = this.createElement('div', 'sidebar-item');
+        this.element.appendChild(nameElement);
+        this.element.appendChild(valueElement);
     }
 
     get name() {
@@ -2661,7 +2661,7 @@ view.NameValueView = class extends view.Control {
     }
 
     render() {
-        return this._element;
+        return this.element;
     }
 
     toggle() {
@@ -2699,7 +2699,7 @@ view.TextView = class extends view.Control {
 
     constructor(context, value, style) {
         super(context);
-        this._element = this.createElement('div', 'sidebar-item-value');
+        this.element = this.createElement('div', 'sidebar-item-value');
         let className = 'sidebar-item-value-line';
         if (value) {
             const list = Array.isArray(value) ? value : [value];
@@ -2720,29 +2720,27 @@ view.TextView = class extends view.Control {
                         line.innerText = item;
                         break;
                 }
-                this._element.appendChild(line);
+                this.element.appendChild(line);
                 className = 'sidebar-item-value-line-border';
             }
         } else {
             const line = this.createElement('div', className);
             line.classList.add('sidebar-item-disable-select');
             line.innerHTML = '&nbsp';
-            this._element.appendChild(line);
+            this.element.appendChild(line);
         }
     }
 
     action(text, description, callback) {
-        this._action = this.createElement('div', 'sidebar-item-value-expander');
-        this._action.setAttribute('title', description);
-        this._action.innerHTML = text;
-        this._action.addEventListener('click', () => {
-            callback();
-        });
-        this._element.insertBefore(this._action, this._element.childNodes[0]);
+        const action = this.createElement('div', 'sidebar-item-value-expander');
+        action.setAttribute('title', description);
+        action.addEventListener('click', () => callback());
+        action.innerHTML = text;
+        this.element.insertBefore(action, this.element.childNodes[0]);
     }
 
     render() {
-        return [this._element];
+        return [this.element];
     }
 
     toggle() {
@@ -3118,7 +3116,7 @@ view.TensorView = class extends view.Expander {
         super.error(error, fatal);
         const element = this.createElement('div', 'sidebar-item-value-line');
         element.innerHTML = `<b>ERROR:</b> ${error.message}`;
-        this._element.appendChild(element);
+        this.element.appendChild(element);
     }
 
     async export() {
@@ -3290,7 +3288,7 @@ view.TensorSidebar = class extends view.ObjectSidebar {
             if (type) {
                 const dataType = type.dataType;
                 this.addProperty('type', `${dataType}`, 'code');
-                const shape = type.shape ? type.shape.dimensions.toString(', ') : '?';
+                const shape = type.shape && Array.isArray(type.shape.dimensions) ? type.shape.dimensions.toString(', ') : '?';
                 this.addProperty('shape', `${shape}`, 'code');
                 const denotation = type.denotation;
                 if (denotation) {
