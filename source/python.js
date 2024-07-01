@@ -2096,16 +2096,16 @@ python.Execution = class {
         });
         this.registerType('joblib.numpy_pickle.NumpyArrayWrapper', class {
 
-            __setstate__(state) {
-                this.subclass = state.subclass;
-                this.dtype = state.dtype;
-                this.shape = state.shape;
-                this.order = state.order;
-                this.allow_mmap = state.allow_mmap;
-            }
             __read__(unpickler) {
                 if (this.dtype.__name__ === 'object') {
                     return unpickler.load();
+                }
+                if (this.numpy_array_alignment_bytes) {
+                    const [size] = unpickler.read(1);
+                    unpickler.read(size);
+                }
+                if (this.order === 'F') {
+                    throw new python.Error('Fortran order not implemented.');
                 }
                 const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
                 this.data = unpickler.read(size);

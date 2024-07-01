@@ -6411,6 +6411,13 @@
   },
   {
     "type":     "sklearn",
+    "target":   "numpy_array_alignment_bytes.pkl",
+    "source":   "https://github.com/user-attachments/files/16054844/numpy_array_alignment_bytes.pkl.zip[numpy_array_alignment_bytes.pkl]",
+    "format":   "scikit-learn",
+    "link":     "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
+    "type":     "sklearn",
     "target":   "phoenix_ml_classifier.pkl",
     "source":   "https://raw.githubusercontent.com/imeraj/Phoenix_Playground/master/1.4/phoenix_ml/lib/phoenix_ml/model/classifier.pkl",
     "format":   "scikit-learn v0.19.1",
