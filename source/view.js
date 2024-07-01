@@ -806,7 +806,7 @@ view.View = class {
         const layout = {};
         layout.nodesep = 20;
         layout.ranksep = 20;
-        const rotate = graph.nodes.every((node) => node.inputs.filter((input) => !input.type || !input.type.endsWith('*') || input.value.every((value) => !value.initializer)).length === 0 && node.outputs.length === 0);
+        const rotate = graph.nodes.every((node) => node.inputs.filter((input) => (input.type && !input.type.endsWith('*')) || input.value.every((value) => !value.initializer)).length === 0 && node.outputs.length === 0);
         const horizontal = rotate ? options.direction === 'vertical' : options.direction !== 'vertical';
         if (horizontal) {
             layout.rankdir = 'LR';
