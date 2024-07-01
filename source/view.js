@@ -2029,6 +2029,23 @@ view.Node = class extends grapher.Node {
             }
             attributes.sort((a, b) => a.name.toUpperCase().localeCompare(b.name.toUpperCase()));
         }
+        if (Array.isArray(node.inputs)) {
+            for (const input of node.inputs) {
+                switch (input.type) {
+                    case 'graph':
+                    case 'object':
+                    case 'object[]':
+                    case 'function':
+                    case 'function[]': {
+                        objects.push(input);
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+            }
+        }
         if (initializers.length > 0 || hiddenInitializers || attributes.length > 0 || objects.length > 0) {
             const list = this.list();
             list.on('click', () => this.context.activate(node));

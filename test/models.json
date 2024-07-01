@@ -4930,6 +4930,7 @@
     "target":   "deeplabv3_scripted.ptl",
     "source":   "https://github.com/lutzroeder/netron/files/9562007/deeplabv3_scripted.ptl.zip[deeplabv3_scripted.ptl]",
     "format":   "TorchScript v1.6",
+    "assert":   "model.graphs[0].nodes[0].inputs[1].value.type.name == '__torch__.torch.classes.xnnpack.Conv2dOpContext'",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5252,7 +5253,7 @@
     "target":   "model.ptl",
     "source":   "https://github.com/lutzroeder/netron/files/11149538/model.ptl.zip[model.ptl]",
     "format":   "TorchScript v1.6",
-    "assert":   "model.graphs[0].nodes[0].inputs[1].value[0].initializer.name == 'CONSTANTS.c0.weight'",
+    "assert":   "model.graphs[0].nodes[0].inputs[1].type == 'object'",
     "link":     "https://github.com/lutzroeder/netron/issues/1067"
   },
   {
@@ -5465,6 +5466,7 @@
     "target":   "quant_3d.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5877566/quant_3d.pt.zip[quant_3d.pt]",
     "format":   "TorchScript v1.6",
+    "assert":   "model.graphs[0].nodes[1].inputs[1].value.type.name == '__torch__.torch.classes.quantized.Conv3dPackedParamsBase'",
     "link":     "https://github.com/lutzroeder/netron/issues/546"
   },
   {
@@ -5836,6 +5838,7 @@
     "target":   "test.8bit.pth",
     "source":   "https://github.com/lutzroeder/netron/files/5238524/test.8bit.pth.zip[test.8bit.pth]",
     "format":   "TorchScript v1.6",
+    "assert":   "model.graphs[0].nodes[8].type.name == 'conv1d_prepack'",
     "link":     "https://github.com/lutzroeder/netron/issues/546"
   },
   {
