@@ -3279,10 +3279,11 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
 
 view.TensorSidebar = class extends view.ObjectSidebar {
 
-    constructor(context, value, tensor) {
+    constructor(context, value, tensor, metrics) {
         super(context);
         this._value = value;
         this._tensor = tensor || new base.Tensor(value.initializer);
+        this._metrics = metrics;
     }
 
     render() {
@@ -3334,22 +3335,19 @@ view.TensorSidebar = class extends view.ObjectSidebar {
                 }
             }
         }
-        /*
-        // Metrics
-        if (value.initializer) {
-            if (!tensor.empty) {
-                if (!this._metrics) {
-                    this._metrics = new metrics.Tensor(this._tensor);
-                }
-                this.addHeader('Metrics');
-                const metrics = this._metrics.metrics;
-                for (const metric of metrics) {
-                    const value = metric.type === 'percentage' ? `${(metric.value * 100).toFixed(1)}%` : metric.value;
-                    this.addProperty(metric.name, [value]);
-                }
+        ///* TODO
+        if (!tensor.empty) {
+            if (!this._metrics) {
+                this._metrics = new metrics.Tensor(this._tensor);
+            }
+            this.addHeader('Metrics');
+            const metricsArguments = this._metrics.metrics;
+            for (const metric of metricsArguments) {
+                const value = metric.type === 'percentage' ? `${(metric.value * 100).toFixed(1)}%` : metric.value;
+                this.addProperty(metric.name, [value]);
             }
         }
-        */
+        //*/
     }
 
     activate() {
@@ -4940,6 +4938,9 @@ metrics.Tensor = class {
             this._metrics = Array.from(tensor.metrics || []);
             const keys = new Set(this._metrics.map((metrics) => metrics.name));
             if (!keys.has('sparsity')) {
+                // TODO: support channel-wise zeros
+                const zero = tensor.zero != null ? tensor.zero.values[0] : null;
+
                 let zeros = 0;
                 let parameters = 0;
                 const stack = [data];
@@ -4950,7 +4951,7 @@ metrics.Tensor = class {
                             stack.push(element);
                         }
                     } else {
-                        zeros += data === 0 || data === 0n || data === '';
+                        zeros += zero != null ? data === zero : data === 0 || data === 0n || data === '';
                         parameters += 1;
                     }
                 }

@@ -585,6 +585,7 @@ base.Tensor = class {
         this.type = tensor.type;
         this.layout = tensor.type.layout;
         this.stride = tensor.stride;
+        this._zero = tensor.zero || null;
         base.Tensor.dataTypes = base.Tensor.dataTypeSizes || new Map([
             ['boolean', 1],
             ['qint8', 1], ['qint16', 2], ['qint32', 4],
@@ -611,6 +612,10 @@ base.Tensor = class {
     get data() {
         this._read();
         return this._data;
+    }
+
+    get zero() {
+        return this._zero;
     }
 
     get metrics() {
