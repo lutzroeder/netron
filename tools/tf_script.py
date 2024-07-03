@@ -4,14 +4,23 @@ import json
 import logging
 import os
 import re
+import sys
 import google.protobuf # pylint: disable=import-error
 
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+dup_stderr = os.dup(sys.stderr.fileno())
+null = os.open(os.devnull, os.O_WRONLY)
+os.dup2(null, sys.stderr.fileno())
+os.close(null)
+
 from tensorflow.core.framework import api_def_pb2 # pylint: disable=import-error,no-name-in-module,wrong-import-position
 from tensorflow.core.framework import op_def_pb2 # pylint: disable=import-error,no-name-in-module,wrong-import-position
 from tensorflow.core.framework import types_pb2 # pylint: disable=import-error,no-name-in-module,wrong-import-position
+
+os.dup2(dup_stderr, sys.stderr.fileno())
+os.close(dup_stderr)
 
 def _read(path):
     with open(path, 'r', encoding='utf-8') as file:
