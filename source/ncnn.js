@@ -800,23 +800,23 @@ ncnn.BlobReader = class {
                     this._buffer = null;
                 }
             }
-            let data = null;
-            let size = 1;
-            if (shape) {
-                for (const dimension of shape) {
-                    size *= dimension;
-                }
-            } else {
+            if (!shape) {
                 this._buffer = null;
             }
+            let data = null;
             if (this._buffer) {
                 if (dataType) {
-                    const position = this._position;
                     const dataTypes = new Map([['float32', 4], ['float16', 2], ['int8', 1], ['qint8', 1]]);
                     if (!dataTypes.has(dataType)) {
                         throw new ncnn.Error(`Unsupported weight type '${dataType}'.`);
                     }
-                    size *= dataTypes.get(dataType);
+                    const itemsize = dataTypes.get(dataType);
+                    const size = shape.reduce((a, b) => a * b, 1) * itemsize;
+                    const remainder = this._position % itemsize;
+                    if (remainder !== 0) {
+                        this._position += remainder;
+                    }
+                    const position = this._position;
                     if (dataType === 'qint8') {
                         this._position += size + 1024;
                         data = null;
