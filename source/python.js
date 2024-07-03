@@ -4246,6 +4246,11 @@ python.Execution = class {
         this.registerFunction('torch.distributed._shard.sharded_tensor.pre_load_state_dict_hook');
         this.registerFunction('torch.distributed._shard.sharded_tensor.state_dict_hook');
         this.registerType('torch.distributed.algorithms.join._JoinConfig', class {});
+        this.registerType('torch.distributed._tensor.api.DTensor', class {});
+        this.registerType('torch.distributed._tensor.placement_types.DTensorSpec', class {});
+        this.registerType('torch.distributed._tensor.placement_types.Shard', class {});
+        this.registerType('torch.distributed._tensor.placement_types.TensorMeta', class {});
+        this.registerType('torch.distributed.device_mesh.DeviceMesh', class {});
         this.registerType('torch.distributions.bernoulli.Bernoulli', class {});
         this.registerType('torch.distributions.beta.Beta', class {});
         this.registerType('torch.distributions.binomial.Binomial', class {});
@@ -4769,6 +4774,7 @@ python.Execution = class {
         this.registerType('torchvision.ops.misc.SqueezeExcitation', class {});
         this.registerType('torchvision.ops.poolers.LevelMapper', class {});
         this.registerType('torchvision.ops.poolers.MultiScaleRoIAlign', class {});
+        this.registerType('torchvision.ops.roi_align.RoIAlign', class {});
         this.registerType('torchvision.ops.stochastic_depth.StochasticDepth', class {});
         this.registerType('torchvision.models._api.Weights', class {});
         this.registerType('torchvision.models.alexnet.AlexNet', class {});
