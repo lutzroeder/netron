@@ -1914,7 +1914,7 @@ python.Execution = class {
         });
         this.registerType('numpy.dtype', class {
             constructor(obj, align, copy) {
-                if (typeof obj === 'string' && (obj.startsWith('<') || obj.startsWith('>'))) {
+                if (typeof obj === 'string' && (obj.startsWith('<') || obj.startsWith('>') || obj.startsWith('|'))) {
                     this.byteorder = obj.substring(0, 1);
                     obj = obj.substring(1);
                 } else {
@@ -1937,6 +1937,7 @@ python.Execution = class {
                     case 'c8': case 'complex64': this.itemsize = 8; this.kind = 'c'; break;
                     case 'c16': case 'complex128': case 'complex': this.itemsize = 16; this.kind = 'c'; break;
                     case 'M8': case 'M': this.itemsize = 8; this.kind = 'M'; break;
+                    case 'V': case 'void': this.itemsize = 0; this.kind = 'V'; break;
                     default:
                         if (obj.startsWith('V')) {
                             this.itemsize = parseInt(obj.substring(1), 10);
@@ -1950,6 +1951,9 @@ python.Execution = class {
                         } else if (obj.startsWith('U')) { // Unicode string
                             this.kind = 'U';
                             this.itemsize = 4 * parseInt(obj.substring(1), 10);
+                        } else if (obj.startsWith('T')) {
+                            this.kind = 'T';
+                            this.itemsize = parseInt(obj.substring(1), 10);
                         } else {
                             throw new python.Error(`Unsupported dtype '${obj}'.`);
                         }
@@ -1970,6 +1974,7 @@ python.Execution = class {
                     case 'V': return `void${this.itemsize === 0 ? '' : (this.itemsize * 8)}`;
                     case 'S': return `bytes${this.itemsize === 0 ? '' : (this.itemsize * 8)}`;
                     case 'U': return `str${this.itemsize === 0 ? '' : (this.itemsize * 8)}`;
+                    case 'T': return `StringDType${this.itemsize === 0 ? '' : (this.itemsize * 8)}`;
                     case 'M': return 'datetime64';
                     case 'b': return 'bool';
                     default: return this.__name__;
@@ -2032,6 +2037,8 @@ python.Execution = class {
                             default: throw new python.Error(`Unsupported complex itemsize '${this.itemsize}'.`);
                         }
                     case 'S':
+                    case 'T':
+                        return 'string';
                     case 'U':
                         return 'string';
                     case 'M':
@@ -2065,6 +2072,11 @@ python.Execution = class {
         this.registerType('numpy.uint32', class extends numpy.unsignedinteger {});
         this.registerType('numpy.uint64', class extends numpy.unsignedinteger {});
         this.registerType('numpy.datetime64', class extends numpy.generic {});
+        this.registerType('numpy.dtypes.StringDType', class extends numpy.dtype {
+            constructor() {
+                super('|T16');
+            }
+        });
         this.registerType('gensim.models.doc2vec.Doctag', class {});
         this.registerType('gensim.models.doc2vec.Doc2Vec', class {});
         this.registerType('gensim.models.doc2vec.Doc2VecTrainables', class {});
@@ -2437,6 +2449,19 @@ python.Execution = class {
                             offset += itemsize;
                         }
                         return list;
+                    }
+                    case 'V': {
+                        const data = this.data;
+                        const itemsize = this.dtype.itemsize;
+                        let offset = 0;
+                        for (let i = 0; i < size; i++) {
+                            list[i] = data.slice(offset, offset + itemsize);
+                            offset += itemsize;
+                        }
+                        return list;
+                    }
+                    case 'T': {
+                        return this.data;
                     }
                     case 'O': {
                         return this.data;
@@ -3821,6 +3846,12 @@ python.Execution = class {
         this.registerFunction('numpy.core.multiarray._reconstruct', (subtype, shape, dtype) => {
             return numpy.ndarray.__new__(subtype, shape, dtype);
         });
+        this.registerFunction('numpy._core.multiarray._reconstruct', (subtype, shape, dtype) => {
+            return numpy.ndarray.__new__(subtype, shape, dtype);
+        });
+        this.registerFunction('numpy._core._internal._convert_to_stringdtype_kwargs', () => {
+            return new numpy.dtypes.StringDType();
+        });
         numpy.core._multiarray_umath._reconstruct = numpy.core.multiarray._reconstruct;
         this.registerFunction('numpy.core.multiarray.scalar', (dtype, rawData) => {
             let data = rawData;
@@ -3911,7 +3942,6 @@ python.Execution = class {
                     throw new python.Error(`Unsupported scalar type '${dtype.__name__}'.`);
             }
         });
-        numpy._core = numpy.core;
         this.registerFunction('numpy.load', (file) => {
             // https://github.com/numpy/numpy/blob/main/numpy/lib/format.py
             const signature = [0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59];

@@ -585,7 +585,7 @@ base.Tensor = class {
         this.type = tensor.type;
         this.layout = tensor.type.layout;
         this.stride = tensor.stride;
-        base.Tensor.dataTypes = base.Tensor.dataTypeSizes || new Map([
+        base.Tensor._dataTypes = base.Tensor._dataTypes || new Map([
             ['boolean', 1],
             ['qint8', 1], ['qint16', 2], ['qint32', 4],
             ['quint8', 1], ['quint16', 2], ['quint32', 4],
@@ -732,8 +732,8 @@ base.Tensor = class {
                     case '>': {
                         context.data = (this.data instanceof Uint8Array || this.data instanceof Int8Array) ? this.data : this.data.peek();
                         context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
-                        if (base.Tensor.dataTypes.has(dataType)) {
-                            const itemsize = base.Tensor.dataTypes.get(dataType);
+                        if (base.Tensor._dataTypes.has(dataType)) {
+                            const itemsize = base.Tensor._dataTypes.get(dataType);
                             const length = context.data.length;
                             const stride = context.stride;
                             if (length < (itemsize * shape.reduce((a, v) => a * v, 1))) {
@@ -759,7 +759,7 @@ base.Tensor = class {
                     }
                     case '|': {
                         context.data = this.values;
-                        if (!base.Tensor.dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object') {
+                        if (!base.Tensor._dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object' && dataType !== 'void') {
                             throw new Error(`Tensor data type '${dataType}' is not implemented.`);
                         }
                         const size = context.dimensions.reduce((a, v) => a * v, 1);
@@ -1027,6 +1027,14 @@ base.Tensor = class {
             case 'bigint':
                 return indentation + value.toString();
             default:
+                if (value instanceof Uint8Array) {
+                    let content = '';
+                    for (let i = 0; i < value.length; i++) {
+                        const x = value[i];
+                        content += x >= 32 && x <= 126 ? String.fromCharCode(x) : `\\x${x.toString(16).padStart(2, '0')}`;
+                    }
+                    return  `${indentation}"${content}"`;
+                }
                 if (value && value.toString) {
                     return indentation + value.toString();
                 }

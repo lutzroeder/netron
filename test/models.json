@@ -3633,8 +3633,30 @@
   },
   {
     "type":     "numpy",
+    "target":   "StringDType.npy",
+    "source":   "https://github.com/user-attachments/files/16061374/StringDType.npy.zip[StringDType.npy]",
+    "format":   "NumPy Array",
+    "link":     "https://github.com/lutzroeder/netron/issues/711"
+  },
+  {
+    "type":     "numpy",
+    "target":   "struct.npy",
+    "source":   "https://github.com/user-attachments/files/16075809/struct.npy.zip[struct.npy]",
+    "format":   "NumPy Array",
+    "error":    "Unexpected token '(', ...\" \"<U10\"], (\"age\", \"<\"... is not valid JSON",
+    "link":     "https://github.com/lutzroeder/netron/issues/711"
+  },
+  {
+    "type":     "numpy",
     "target":   "tensor.npy",
     "source":   "https://github.com/lutzroeder/netron/files/6225732/tensor.npy.zip[tensor.npy]",
+    "format":   "NumPy Array",
+    "link":     "https://github.com/lutzroeder/netron/issues/711"
+  },
+  {
+    "type":     "numpy",
+    "target":   "void.npy",
+    "source":   "https://github.com/user-attachments/files/16075808/void.npy.zip[void.npy]",
     "format":   "NumPy Array",
     "link":     "https://github.com/lutzroeder/netron/issues/711"
   },
