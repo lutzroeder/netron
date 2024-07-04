@@ -7124,6 +7124,42 @@
     ]
   },
   {
+    "name": "aten::len.Tensor",
+    "inputs": [
+      { "name": "t", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
+    "name": "aten::len.any",
+    "inputs": [
+      { "name": "a", "type": "Any[]" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
+    "name": "aten::len.str",
+    "inputs": [
+      { "name": "s", "type": "string" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
+    "name": "aten::len.t",
+    "inputs": [
+      { "name": "a", "type": "t[]" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
     "name": "aten::lift_fresh",
     "inputs": [
       { "name": "self", "type": "Tensor" }
