@@ -4209,6 +4209,9 @@ python.Execution = class {
         });
         torch.nn.Module = torch.nn.modules.module.Module;
         torch.nn.modules.Module = torch.nn.modules.module.Module;
+        this.registerType('torch._C._TensorBase', class extends builtins.object {});
+        this.registerType('torch._C._TensorMeta', class extends builtins.type {});
+        this.registerType('torch._C._VariableFunctionsClass', class extends builtins.object {});
         this.registerType('torch.ao.quantization.fake_quantize.FakeQuantize', class {});
         this.registerType('torch.ao.quantization.fake_quantize.FusedMovingAvgObsFakeQuantize', class {});
         this.registerType('torch.ao.quantization.observer._PartialWrapper', class {});
@@ -4246,7 +4249,7 @@ python.Execution = class {
         this.registerFunction('torch.distributed._shard.sharded_tensor.pre_load_state_dict_hook');
         this.registerFunction('torch.distributed._shard.sharded_tensor.state_dict_hook');
         this.registerType('torch.distributed.algorithms.join._JoinConfig', class {});
-        this.registerType('torch.distributed._tensor.api.DTensor', class {});
+        this.registerType('torch.distributed._tensor.api.DTensor', class extends torch._C._TensorMeta {});
         this.registerType('torch.distributed._tensor.placement_types.DTensorSpec', class {});
         this.registerType('torch.distributed._tensor.placement_types.Shard', class {});
         this.registerType('torch.distributed._tensor.placement_types.TensorMeta', class {});
@@ -4560,6 +4563,7 @@ python.Execution = class {
         this.registerType('torch.quantization.observer.MinMaxObserver', class {});
         this.registerType('torch.quantization.observer.MovingAverageMinMaxObserver', class {});
         this.registerType('torch.quantization.observer.MovingAveragePerChannelMinMaxObserver', class {});
+        this.registerFunction('torch.quantization.observer._with_args');
         this.registerType('torch.quantization.qconfig.QConfig', class {});
         this.registerType('torch.quantization.stubs.DeQuantStub', class {});
         this.registerType('torch.quantization.stubs.QuantStub', class {});
@@ -6696,8 +6700,6 @@ python.Execution = class {
                 this.node = node;
             }
         });
-        this.registerType('torch._C._TensorBase', class {});
-        this.registerType('torch._C._VariableFunctionsClass', class {});
         this.register('torch.nn').Module = this.register('torch.nn.modules.module').Module;
         this.register('torch.optim').Adam = this.register('torch.optim.adam').Adam;
         this.register('torch.nn').ReLU = this.register('torch.nn.modules.activation').ReLU;
