@@ -3749,9 +3749,14 @@ view.FindSidebar = class extends view.Control {
                     for (const input of node.inputs) {
                         if (!input.type || input.type.endsWith('*')) {
                             for (const value of input.value) {
-                                if (value.initializer && value.name && !edges.has(value.name) && this._value(value)) {
-                                    const content = `${value.name.split('\n').shift()}`;
-                                    this._add(node, content, 'weight'); // split custom argument id
+                                if (value.initializer && this._value(value)) {
+                                    if (value.name && !edges.has(value.name)) {
+                                        const content = `${value.name.split('\n').shift()}`; // split custom argument id
+                                        this._add(node, content, 'weight');
+                                    } else if (value.type && value.type.shape && Array.isArray(value.type.shape.dimensions) && value.type.shape.dimensions.length > 0) {
+                                        const content = `${value.type.shape.dimensions.map((d) => (d !== null && d !== undefined) ? d : '?').join('\u00D7')}`;
+                                        this._add(node, content, 'weight');
+                                    }
                                 }
                             }
                         }
