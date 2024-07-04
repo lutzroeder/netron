@@ -5323,6 +5323,22 @@
   },
   {
     "type":     "pytorch",
+    "target":   "model_static_cpu.pt",
+    "source":   "https://github.com/user-attachments/files/16091311/model_static_cpu.pt.zip[model_static_cpu.pt]",
+    "format":   "TorchScript v1.6",
+    "tags":     "skip-render",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "model_dynamic_cpu.pt",
+    "source":   "https://github.com/user-attachments/files/16091313/model_dynamic_cpu.pt.zip[model_dynamic_cpu.pt]",
+    "format":   "TorchScript v1.6",
+    "tags":     "skip-render",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
     "target":   "module_000007.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9075631/module_000007.pt.zip[module_000007.pt]",
     "error":    "ValueError: not enough values to unpack (expected 4, actual 0).",

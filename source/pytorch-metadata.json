@@ -11067,6 +11067,18 @@
     ]
   },
   {
+    "name": "aten::replace",
+    "inputs": [
+      { "name": "self", "type": "string" },
+      { "name": "old", "type": "string" },
+      { "name": "new", "type": "string" },
+      { "name": "max", "type": "int64", "default": -1 }
+    ],
+    "outputs": [
+      { "type": "string" }
+    ]
+  },
+  {
     "name": "aten::replication_pad1d",
     "category": "Tensor",
     "inputs": [
@@ -12846,6 +12858,16 @@
     ],
     "outputs": [
       { "type": "int64" }
+    ]
+  },
+  {
+    "name": "aten::strip",
+    "inputs": [
+      { "name": "self", "type": "string" },
+      { "name": "chars", "type": "string", "default": " \\\\n\\\\t\\\\f\\\\v" }
+    ],
+    "outputs": [
+      { "type": "string" }
     ]
   },
   {
@@ -15564,6 +15586,7 @@
   },
   {
     "name": "quantized::layer_norm",
+    "category": "Normalization",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "normalized_shape", "type": "int64[]" },

@@ -241,11 +241,11 @@ python.Parser = class {
             node.expression = this._expression(-1, [], true);
             return node;
         }
-        node = this._eat('id', 'print');
-        if (node) {
-            node.expression = this._expression(-1, [], true);
-            return node;
-        }
+        // node = this._eat('id', 'print');
+        // if (node) {
+        //     node.expression = this._expression(-1, [], true);
+        //     return node;
+        // }
         node = this._eat('id', 'if');
         if (node) {
             node.condition = this._expression();
@@ -5338,8 +5338,8 @@ python.Execution = class {
             list.splice(index, 0, value);
             return value;
         });
-        this.registerFunction('torch.replace', (value) => {
-            return value;
+        this.registerFunction('torch.replace', (value, oldvalue, newvalue /*, max */) => {
+            return value.replace(oldvalue, newvalue);
         });
         this.registerFunction('torch.dict', (args) => {
             const obj = {};
@@ -5411,6 +5411,11 @@ python.Execution = class {
                 }
                 return text;
             }).join('');
+        });
+        this.registerFunction('torch.strip', (self, chars) => {
+            chars = chars || '\\n\\t\\f\\v';
+            const regex = new RegExp(`[${chars}]`, 'g');
+            return self.replace(regex, '');
         });
         this.registerFunction('torch.gt', (left, right) => {
             if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {

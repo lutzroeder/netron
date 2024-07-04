@@ -154,7 +154,7 @@ pytorch.Graph = class {
                     } else if (pytorch.Utility.isObject(value)) {
                         initializers.set(value, value);
                     } else {
-                        throw new pytorch.Error('Unsupported constant.');
+                        // throw new pytorch.Error('Unsupported constant.');
                     }
                 }
             }
