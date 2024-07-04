@@ -2779,7 +2779,7 @@ view.ArgumentView = class extends view.Control {
         } else if (argument.type === 'tensor[]') {
             value = value.map((value) => ({ type: value.type, initializer: value }));
         }
-        source = type && !type.endsWith('*') ? 'attribute' : source;
+        source = typeof type === 'string' && !type.endsWith('*') ? 'attribute' : source;
         if (source === 'attribute' && type !== 'tensor' && type !== 'tensor[]') {
             this._source = 'attribute';
             const item = new view.PrimitiveView(context, argument);
@@ -5568,6 +5568,8 @@ view.ModelFactoryService = class {
                     { name: 'Transformers configuration', tags: ['architectures', 'model_type'] }, // https://huggingface.co/docs/transformers/en/create_a_model
                     { name: 'Transformers generation configuration', tags: ['transformers_version'] },
                     { name: 'Transformers tokenizer configuration', tags: ['tokenizer_class'] },
+                    { name: 'Transformers tokenizer configuration', tags: ['<|im_start|>'] },
+                    { name: 'Jupyter Notebook data', tags: ['cells', 'nbformat'] },
                     { name: 'Kaggle credentials', tags: ['username','key'] }
                 ];
                 const match = (obj, tag) => {
