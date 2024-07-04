@@ -277,7 +277,7 @@ grapher.Node = class {
     }
 
     list() {
-        const block = new grapher.Node.List();
+        const block = new grapher.ArgumentList();
         this._blocks.push(block);
         return block;
     }
@@ -359,16 +359,7 @@ grapher.Node = class {
         r2 = r2 ? radius : 0;
         r3 = r3 ? radius : 0;
         r4 = r4 ? radius : 0;
-        return `M${x + r1},${y
-        }h${width - r1 - r2
-        }a${r2},${r2} 0 0 1 ${r2},${r2
-        }v${height - r2 - r3
-        }a${r3},${r3} 0 0 1 ${-r3},${r3
-        }h${r3 + r4 - width
-        }a${r4},${r4} 0 0 1 ${-r4},${-r4
-        }v${-height + r4 + r1
-        }a${r1},${r1} 0 0 1 ${r1},${-r1
-        }z`;
+        return `M${x + r1},${y}h${width - r1 - r2}a${r2},${r2} 0 0 1 ${r2},${r2}v${height - r2 - r3}a${r3},${r3} 0 0 1 ${-r3},${r3}h${r3 + r4 - width}a${r4},${r4} 0 0 1 ${-r4},${-r4}v${-height + r4 + r1}a${r1},${r1} 0 0 1 ${r1},${-r1}z`;
     }
 };
 
@@ -524,17 +515,19 @@ grapher.Node.Header.Entry = class {
     }
 };
 
-grapher.Node.List = class {
+grapher.ArgumentList = class {
 
     constructor() {
         this._items = [];
         this._events = {};
     }
 
-    add(name, value, tooltip, separator) {
-        const item = new grapher.Node.List.Item(name, value, tooltip, separator);
-        this._items.push(item);
-        return item;
+    argument(name, value) {
+        return new grapher.Argument(name, value);
+    }
+
+    add(value) {
+        this._items.push(value);
     }
 
     on(event, callback) {
@@ -553,7 +546,7 @@ grapher.Node.List = class {
     build(document, parent) {
         this._document = document;
         this.element = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        this.element.setAttribute('class', 'node-attribute-list');
+        this.element.setAttribute('class', 'node-argument-list');
         if (this._events.click) {
             this.element.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -564,38 +557,7 @@ grapher.Node.List = class {
         this.element.appendChild(this.background);
         parent.appendChild(this.element);
         for (const item of this._items) {
-            const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            group.setAttribute('class', 'node-attribute');
-            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            text.setAttribute('xml:space', 'preserve');
-            if (item.tooltip) {
-                const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-                title.textContent = item.tooltip;
-                text.appendChild(title);
-            }
-            const colon = item.type === 'node' || item.type === 'node[]';
-            const name = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-            name.textContent =  colon ? `${item.name}:` : item.name;
-            if (item.separator.trim() !== '=' && !colon) {
-                name.style.fontWeight = 'bold';
-            }
-            text.appendChild(name);
-            group.appendChild(text);
-            this.element.appendChild(group);
-            item.group = group;
-            item.text = text;
-            if (item.type === 'node') {
-                const node = item.value;
-                node.build(document, item.group);
-            } else if (item.type === 'node[]') {
-                for (const node of item.value) {
-                    node.build(document, item.group);
-                }
-            } else {
-                const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-                tspan.textContent = item.separator + item.value;
-                item.text.appendChild(tspan);
-            }
+            item.build(document, this.element);
         }
         if (!this.first) {
             this.line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -607,62 +569,31 @@ grapher.Node.List = class {
     measure() {
         this.width = 75;
         this.height = 3;
-        const yPadding = 1;
-        const xPadding = 6;
         for (let i = 0; i < this._items.length; i++) {
             const item = this._items[i];
-            const size = item.text.getBBox();
-            item.width = xPadding + size.width + xPadding;
-            item.height = yPadding + size.height + yPadding;
-            item.offset = size.y;
+            item.measure();
             this.height += item.height;
-            if (item.type === 'node') {
-                const node = item.value;
-                node.measure();
-                this.width = Math.max(150, this.width, node.width + (2 * xPadding));
-                this.height += node.height + yPadding + yPadding + yPadding + yPadding;
-                if (i === this._items.length - 1) {
-                    this.height += 3;
-                }
-            } else if (item.type === 'node[]') {
-                for (const node of item.value) {
-                    node.measure();
-                    this.width = Math.max(150, this.width, node.width + (2 * xPadding));
-                    this.height += node.height + yPadding + yPadding + yPadding + yPadding;
-                }
+            this.width = Math.max(this.width, item.width);
+            if (item.type === 'node' || item.type === 'node[]') {
                 if (i === this._items.length - 1) {
                     this.height += 3;
                 }
             }
-            this.width = Math.max(this.width, item.width);
+        }
+        for (const item of this._items) {
+            item.width = this.width;
         }
         this.height += 3;
     }
 
     layout() {
-        const yPadding = 1;
-        const xPadding = 6;
         let y = 3;
         for (const item of this._items) {
-            item.x = this.x + xPadding;
-            item.y = y + yPadding - item.offset;
+            item.x = this.x;
+            item.y = y;
+            item.width = this.width;
+            item.layout();
             y += item.height;
-            if (item.type === 'node') {
-                const node = item.value;
-                node.width = this.width - xPadding - xPadding;
-                node.layout();
-                node.x = this.x + xPadding + (node.width / 2);
-                node.y = y + (node.height / 2) + yPadding + yPadding;
-                y += node.height + yPadding + yPadding + yPadding + yPadding;
-            } else if (item.type === 'node[]') {
-                for (const node of item.value) {
-                    node.width = this.width - xPadding - xPadding;
-                    node.layout();
-                    node.x = this.x + xPadding + (node.width / 2);
-                    node.y = y + (node.height / 2) + yPadding + yPadding;
-                    y += node.height + yPadding + yPadding + yPadding + yPadding;
-                }
-            }
         }
     }
 
@@ -670,17 +601,7 @@ grapher.Node.List = class {
         this.element.setAttribute('transform', `translate(${this.x},${this.y})`);
         this.background.setAttribute('d', grapher.Node.roundedRect(0, 0, this.width, this.height, this.first, this.first, this.last, this.last));
         for (const item of this._items) {
-            const text = item.text;
-            text.setAttribute('x', item.x);
-            text.setAttribute('y', item.y);
-            if (item.type === 'node') {
-                const node = item.value;
-                node.update();
-            } else if (item.type === 'node[]') {
-                for (const node of item.value) {
-                    node.update();
-                }
-            }
+            item.update();
         }
         if (this.line) {
             this.line.setAttribute('x1', 0);
@@ -688,26 +609,156 @@ grapher.Node.List = class {
             this.line.setAttribute('y1', 0);
             this.line.setAttribute('y2', 0);
         }
-        for (const item of this._items) {
-            if (item.value instanceof grapher.Node) {
-                const node = item.value;
+    }
+};
+
+grapher.Argument = class {
+
+    constructor(name, content) {
+        this.name = name;
+        this.content = content;
+        this.tooltip = '';
+        this.separator = '';
+        if (content instanceof grapher.Node) {
+            this.type = 'node';
+        } else if (Array.isArray(content) && content.every((value) => value instanceof grapher.Node)) {
+            this.type = 'node[]';
+        }
+    }
+
+    build(document, parent) {
+        this.element = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        this.element.setAttribute('class', 'node-argument');
+        this.border = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        this.border.setAttribute('rx', 3);
+        this.border.setAttribute('ry', 3);
+        this.element.appendChild(this.border);
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('xml:space', 'preserve');
+        if (this.tooltip) {
+            const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+            title.textContent = this.tooltip;
+            text.appendChild(title);
+        }
+        const colon = this.type === 'node' || this.type === 'node[]';
+        const name = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+        name.textContent =  colon ? `${this.name}:` : this.name;
+        if (this.separator.trim() !== '=' && !colon) {
+            name.style.fontWeight = 'bold';
+        }
+        if (this.focus) {
+            this.element.addEventListener('pointerover', (e) => {
+                this.focus();
+                e.stopPropagation();
+            });
+        }
+        if (this.blur) {
+            this.element.addEventListener('pointerleave', (e) => {
+                this.blur();
+                e.stopPropagation();
+            });
+        }
+        if (this.activate) {
+            this.element.addEventListener('click', (e) => {
+                this.activate();
+                e.stopPropagation();
+            });
+        }
+        text.appendChild(name);
+        this.element.appendChild(text);
+        parent.appendChild(this.element);
+        this.text = text;
+        switch (this.type) {
+            case 'node': {
+                const node = this.content;
+                node.build(document, this.element);
+                break;
+            }
+            case 'node[]': {
+                for (const node of this.content) {
+                    node.build(document, this.element);
+                }
+                break;
+            }
+            default: {
+                const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+                tspan.textContent = (this.separator || '') + this.content;
+                this.text.appendChild(tspan);
+                break;
+            }
+        }
+    }
+
+    measure() {
+        const yPadding = 1;
+        const xPadding = 6;
+        const size = this.text.getBBox();
+        this.width = xPadding + size.width + xPadding;
+        this.bottom = yPadding + size.height + yPadding;
+        this.offset = size.y;
+        this.height = this.bottom;
+        if (this.type === 'node') {
+            const node = this.content;
+            node.measure();
+            this.width = Math.max(150, this.width, node.width + (2 * xPadding));
+            this.height += node.height + yPadding + yPadding + yPadding + yPadding;
+        } else if (this.type === 'node[]') {
+            for (const node of this.content) {
+                node.measure();
+                this.width = Math.max(150, this.width, node.width + (2 * xPadding));
+                this.height += node.height + yPadding + yPadding + yPadding + yPadding;
+            }
+        }
+    }
+
+    layout() {
+        const yPadding = 1;
+        const xPadding = 6;
+        if (this.type === 'node') {
+            const node = this.content;
+            node.width = this.width - xPadding - xPadding;
+            node.layout();
+            node.x = this.x + xPadding + (node.width / 2);
+            node.y = this.y + this.bottom + (node.height / 2) + yPadding + yPadding;
+        } else if (this.type === 'node[]') {
+            for (const node of this.content) {
+                node.layout();
+                node.x = this.x + xPadding + (node.width / 2);
+                node.y = this.y + (node.height / 2) + yPadding + yPadding;
+            }
+        }
+    }
+
+    update() {
+        const yPadding = 1;
+        const xPadding = 6;
+        this.text.setAttribute('x', this.x + xPadding);
+        this.text.setAttribute('y', this.y + yPadding - this.offset);
+        this.border.setAttribute('x', this.x + 3);
+        this.border.setAttribute('y', this.y);
+        this.border.setAttribute('width', this.width - 6);
+        this.border.setAttribute('height', this.height);
+        if (this.type === 'node') {
+            const node = this.content;
+            node.update();
+        } else if (this.type === 'node[]') {
+            for (const node of this.content) {
                 node.update();
             }
         }
     }
-};
 
-grapher.Node.List.Item = class {
+    select() {
+        if (this.element) {
+            this.element.classList.add('select');
+            return [this.element];
+        }
+        return [];
+    }
 
-    constructor(name, value, tooltip, separator) {
-        this.name = name;
-        this.value = value;
-        this.tooltip = tooltip;
-        this.separator = separator;
-        if (value instanceof grapher.Node) {
-            this.type = 'node';
-        } else if (Array.isArray(value) && value.every((value) => value instanceof grapher.Node)) {
-            this.type = 'node[]';
+    deselect() {
+        if (this.element) {
+            this.element.classList.remove('select');
         }
     }
 };
@@ -745,9 +796,24 @@ grapher.Edge = class {
         edgePathGroupElement.appendChild(this.element);
         this.hitTest = createElement('path');
         this.hitTest.setAttribute('class', 'edge-path-hit-test');
-        this.hitTest.addEventListener('pointerover', () => this.emit('pointerover'));
-        this.hitTest.addEventListener('pointerleave', () => this.emit('pointerleave'));
-        this.hitTest.addEventListener('click', () => this.emit('click'));
+        if (this.focus) {
+            this.hitTest.addEventListener('pointerover', (e) => {
+                this.focus();
+                e.stopPropagation();
+            });
+        }
+        if (this.blur) {
+            this.hitTest.addEventListener('pointerleave', (e) => {
+                this.blur();
+                e.stopPropagation();
+            });
+        }
+        if (this.activate) {
+            this.hitTest.addEventListener('click', (e) => {
+                this.activate();
+                e.stopPropagation();
+            });
+        }
         edgePathGroupElement.appendChild(this.hitTest);
         if (this.label) {
             const tspan = createElement('tspan');
@@ -947,4 +1013,4 @@ grapher.Edge.Path = class {
     }
 };
 
-export const { Graph, Node, Edge } = grapher;
+export const { Graph, Node, Edge, Argument } = grapher;

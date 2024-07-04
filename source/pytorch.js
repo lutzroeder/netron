@@ -291,7 +291,7 @@ pytorch.Node = class {
             return type;
         };
         const createAttribute = (metadata, name, value) => {
-            let visible = false;
+            let visible = true;
             let type = null;
             if (name === 'training') {
                 visible = false;
