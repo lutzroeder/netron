@@ -274,7 +274,13 @@ mslite.TensorType = class {
             case 42: this.dataType = "float16"; break;
             case 43: this.dataType = "float32"; break;
             case 44: this.dataType = "float64"; break;
-            case 45: this.dataType = "complex64"; break;
+            case 45: this.dataType = "bfloat16"; break;
+            case 46: this.dataType = "double"; break;
+            case 47: this.dataType = "complex"; break;
+            case 48: this.dataType = "complex64"; break;
+            case 49: this.dataType = "complex128"; break;
+            case 50: this.dataType = "int4"; break;
+            case 51: this.dataType = "gluint"; break;
             default: throw new mslite.Error(`Unsupported data type '${dataType}'.`);
         }
         this.shape = new mslite.TensorShape(Array.from(dimensions));
