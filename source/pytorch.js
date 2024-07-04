@@ -1807,6 +1807,11 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 [this.weight, this.bias, this.output_min, this.output_max] = state;
             }
         });
+        this.registerType('__torch__.torch.classes.xnnpack.TransposeConv2dOpContext', class {
+            __setstate__(state) {
+                [this.weight, this.bias, this.stride, this.padding, this.output_padding, this.dilation, this.groups, this.output_min, this.output_max] = state;
+            }
+        });
         this.registerType('torch.Graph', class {
             constructor() {
                 this._unique = 1;
@@ -2135,7 +2140,8 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                                 case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':
                                 case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
                                 case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
-                                case '__torch__.torch.classes.xnnpack.LinearOpContext': {
+                                case '__torch__.torch.classes.xnnpack.LinearOpContext':
+                                case '__torch__.torch.classes.xnnpack.TransposeConv2dOpContext': {
                                     const value = this.variable(argument);
                                     value.value = argument;
                                     node.addInput(value);
@@ -2409,7 +2415,8 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                         case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':
                         case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
                         case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
-                        case '__torch__.torch.classes.xnnpack.LinearOpContext': {
+                        case '__torch__.torch.classes.xnnpack.LinearOpContext':
+                        case '__torch__.torch.classes.xnnpack.TransposeConv2dOpContext': {
                             const value = this.invoke(parameter.type, []);
                             this.variable(value, node);
                             result.push(value);
@@ -2597,6 +2604,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                             //     break;
                             case '__torch__.torch.classes.xnnpack.LinearOpContext':
                             case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
+                            case '__torch__.torch.classes.xnnpack.TransposeConv2dOpContext':
                             case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
                             case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
                             case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':
@@ -3379,6 +3387,7 @@ pytorch.Utility = class {
         switch (type) {
             case '__torch__.torch.classes.xnnpack.LinearOpContext':
             case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
+            case '__torch__.torch.classes.xnnpack.TransposeConv2dOpContext':
             case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
             case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
             case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':

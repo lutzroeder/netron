@@ -14646,6 +14646,17 @@
     ]
   },
   {
+    "name": "prepacked::conv2d_transpose_clamp_run",
+    "category": "Layer",
+    "inputs": [
+      { "name": "X", "type": "Tensor" },
+      { "name": "W_prepack", "type": "__torch__.torch.classes.xnnpack.TransposeConv2dOpContext" }
+    ],
+    "outputs": [
+      { "name": "Y", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "prepacked::linear_clamp_prepack",
     "inputs": [
       { "name": "W", "type": "Tensor" },

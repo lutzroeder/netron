@@ -4889,6 +4889,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "coco128-yolov8n-seg_output.torchscript.ptl",
+    "source":   "https://github.com/user-attachments/files/16091260/coco128-yolov8n-seg_output.torchscript.ptl.zip[coco128-yolov8n-seg_output.torchscript.ptl]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/1067"
+  },
+  {
+    "type":     "pytorch",
     "target":   "ckpt.t7",
     "source":   "https://raw.githubusercontent.com/babajide07/Redundant-Feature-Pruning-Pytorch-Implementation/master/checkpoint/ckpt.t7",
     "format":   "PyTorch v0.1.10",
