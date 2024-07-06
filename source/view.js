@@ -2320,7 +2320,7 @@ view.Argument = class extends grapher.Argument {
     }
 
     activate() {
-        this.context.view.showTensorProperties(this.value.value[0]);
+        this.context.view.showTensorProperties(this.value);
     }
 };
 
@@ -2814,11 +2814,18 @@ view.ArgumentView = class extends view.Control {
         } else {
             const values = value;
             for (const value of values) {
-                const target = values.length === 1 && value.initializer ? argument : value;
+                const emit = values.length === 1 && value.initializer;
+                const target = emit ? argument : value;
                 const item = new view.ValueView(context, value, this._source);
                 item.on('focus', () => this.emit('focus', target));
                 item.on('blur', () => this.emit('blur', target));
-                item.on('activate', () => this.emit('activate', target));
+                item.on('activate', () => {
+                    if (emit) {
+                        this.emit('activate', target);
+                    } else {
+                        this._view.showTensorProperties({ value: [value] });
+                    }
+                });
                 item.on('select', () => this.emit('select', target));
                 this._items.push(item);
             }
@@ -3323,14 +3330,14 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
 
 view.TensorSidebar = class extends view.ObjectSidebar {
 
-    constructor(context, value, tensor) {
+    constructor(context, value) {
         super(context);
         this._value = value;
-        this._tensor = tensor || new base.Tensor(value.initializer);
+        this._tensor = new base.Tensor(value.value[0].initializer);
     }
 
     render() {
-        const value = this._value;
+        const [value] = this._value.value;
         const tensor = value.initializer;
         const name = tensor && tensor.name ? tensor.name : value.name.split('\n')[0];
         if (name) {
@@ -3398,6 +3405,10 @@ view.TensorSidebar = class extends view.ObjectSidebar {
 
     activate() {
         this.emit('select', this._value);
+    }
+
+    deactivate() {
+        this.emit('select', null);
     }
 };
 
