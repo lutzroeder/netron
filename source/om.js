@@ -505,7 +505,7 @@ om.Utility = class {
     }
 
     static tensorType(desc) {
-        if (desc.shape && Array.isArray(desc.shape.dim)) {
+        if (desc && desc.shape && Array.isArray(desc.shape.dim)) {
             const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
             const shape = new om.TensorShape(desc.shape.dim);
             return new om.TensorType(dataType, shape, desc.layout);
