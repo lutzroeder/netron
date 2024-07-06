@@ -11,16 +11,16 @@ def _summarize(summary_df, measures_df, column, threshold):
     total = measures_df[column].sum()
     column_df = measures_df[measures_df[column] > threshold]
     top = column_df[column].sum()
-    summary_df.loc[len(summary_df)] = [ column, total, top, len(column_df), top / total ]
+    summary_df.loc[len(summary_df)] = [ column, total, top, len(column_df), 100 * (top / total) ]
     return column_df.to_string(index=False) + '\n'
 
 def main(): # pylint: disable=missing-function-docstring
     measures_df = pandas.read_csv('dist/test/measures.csv')
     measures_df.fillna(0, inplace=True)
-    summary_df = pandas.DataFrame(columns=[ 'Name', 'Total', 'Top', 'Count', 'Percentage' ])
-    print(_summarize(summary_df, measures_df, 'load', 2))
-    print(_summarize(summary_df, measures_df, 'validate', 2))
-    print(_summarize(summary_df, measures_df, 'render', 2))
+    summary_df = pandas.DataFrame(columns=[ 'Name', 'Total', 'Top', 'Count', 'Ratio' ])
+    print(_summarize(summary_df, measures_df, 'load', 1))
+    print(_summarize(summary_df, measures_df, 'validate', 1))
+    print(_summarize(summary_df, measures_df, 'render', 1))
     print(summary_df.to_string(index=False))
 
 if __name__ == '__main__':
