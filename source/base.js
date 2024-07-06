@@ -998,8 +998,13 @@ base.Tensor = class {
         if (Array.isArray(value)) {
             const result = [];
             result.push(`${indentation}[`);
-            const items = value.map((item) => base.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
+            const length = value.length;
+            if (length > 0) {
+                const items = new Array(length);
+                const space = indentation + indent;
+                for (let i = 0; i < length; i++) {
+                    items[i] = base.Tensor._stringify(value[i], space, indent);
+                }
                 result.push(items.join(',\n'));
             }
             result.push(`${indentation}]`);

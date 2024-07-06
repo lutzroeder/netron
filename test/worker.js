@@ -717,7 +717,7 @@ export class Target {
                 if (Array.isArray(type.nodes)) {
                     validateGraph(type);
                 }
-                view.Documentation.format(type);
+                view.Documentation.open(type);
                 node.name.toString();
                 node.description;
                 node.attributes.slice();

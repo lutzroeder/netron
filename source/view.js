@@ -3522,7 +3522,7 @@ view.DocumentationSidebar = class extends view.Control {
     render() {
         if (!this.element) {
             this.element = this.createElement('div', 'sidebar-documentation');
-            const type = view.Documentation.format(this._type);
+            const type = view.Documentation.open(this._type);
             this._append(this.element, 'h1', type.name);
             if (type.summary) {
                 this._append(this.element, 'p', type.summary);
@@ -3947,9 +3947,9 @@ view.Quantization = class {
 
 view.Documentation = class {
 
-    static format(source) {
+    static open(source) {
         if (source) {
-            const generator = new markdown.Generator();
+            const generator = markdown.Generator.open();
             const target = {};
             if (source.name) {
                 target.name = source.name;
@@ -4129,7 +4129,7 @@ view.Documentation = class {
             }
             return target;
         }
-        return '';
+        return null;
     }
 };
 
@@ -4271,6 +4271,13 @@ view.Formatter = class {
 
 markdown.Generator = class {
 
+    static open() {
+        if (!markdown.Generator.generator) {
+            markdown.Generator.generator = new markdown.Generator();
+        }
+        return markdown.Generator.generator;
+    }
+
     constructor() {
         this._newlineRegExp = /^\n+/;
         this._codeRegExp = /^( {4}[^\n]+\n*)+/;
@@ -4319,14 +4326,24 @@ markdown.Generator = class {
         this._escapeTestNoEncodeRegExp = /[<>"']|&(?!#?\w+;)/;
         this._escapeReplaceNoEncodeRegExp = /[<>"']|&(?!#?\w+;)/g;
         this._escapeReplacementsMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+        this._cache = new Map();
     }
 
     html(source) {
+        if (this._cache.has(source)) {
+            return this._cache.get(source);
+        }
         const tokens = [];
         const links = new Map();
         source = source.replace(/\r\n|\r/g, '\n').replace(/\t/g, '    ');
         this._tokenize(source, tokens, links, true);
         this._tokenizeBlock(tokens, links);
+        const target = this._render(tokens, true);
+        if (this._cache.size > 256) {
+            this._cache.delete(this._cache.keys().next().value);
+        }
+        this._cache.set(source, target);
+        return target;
     }
 
     _tokenize(source, tokens, links, top) {
