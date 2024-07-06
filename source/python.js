@@ -4163,6 +4163,7 @@ python.Execution = class {
         this.registerFunction('sklearn.feature_selection._univariate_selection.f_regression');
         this.registerFunction('sklearn.metrics.scorer._passthrough_scorer');
         this.registerFunction('sklearn.metrics._classification.accuracy_score');
+        this.registerFunction('sklearn.metrics._classification.balanced_accuracy_score');
         this.registerFunction('sklearn.metrics._classification.f1_score');
         this.registerFunction('sklearn.metrics._classification.precision_score');
         this.registerFunction('sklearn.metrics._classification.recall_score');
@@ -6757,8 +6758,9 @@ python.Execution = class {
         this.registerType('fastcore.dispatch._TypeDict', class {});
         this.registerType('fastcore.dispatch.TypeDispatch', class {});
         this.registerType('fastcore.foundation.L', class {});
-        this.registerType('fastcore.transform.Pipeline', class {});
-        this.registerType('fastcore.transform.Transform', class {});
+        this.registerType('fastcore.transform.Pipeline', class extends builtins.object {});
+        this.registerType('fastcore.transform.Transform', class extends builtins.object {});
+        this.registerType('fastcore.transform.DisplayedTransform', class extends fastcore.transform.Transform {});
         this.registerType('fastcore.transform.ItemTransform', class extends fastcore.transform.Transform {});
         this.registerType('fastai.basic_train.Learner', class {});
         this.registerType('fastai.basic_train.Recorder', class {});
@@ -6792,6 +6794,8 @@ python.Execution = class {
         this.registerFunction('fastai.callback.hook._hook_inner');
         this.registerType('fastai.callback.hook.Hook', class extends builtins.object {});
         this.registerType('fastai.callback.hook.Hooks', class extends builtins.object {});
+        this.registerType('fastai.callback.mixup.MixHandler', class extends fastai.callback.core.Callback {});
+        this.registerType('fastai.callback.mixup.CutMix', class extends fastai.callback.mixup.MixHandler {});
         this.registerType('fastai.callback.progress.ProgressCallback', class {});
         this.registerType('fastai.callback.progress.ShowGraphCallback', class {});
         this.registerType('fastai.callback.tracker.EarlyStoppingCallback', class {});
@@ -6846,6 +6850,7 @@ python.Execution = class {
         this.registerType('fastai.losses.CrossEntropyLossFlat', class extends fastai.losses.BaseLoss {});
         this.registerType('fastai.losses.FocalLoss', class extends fastai.torch_core.Module {});
         this.registerType('fastai.losses.FocalLossFlat', class extends fastai.losses.BaseLoss {});
+        this.registerType('fastai.losses.LabelSmoothingCrossEntropy', class extends fastai.torch_core.Module {});
         this.registerType('fastai.metrics.AccumMetric', class extends fastai.learner.Metric {});
         this.registerType('fastai.metrics.Dice', class {});
         this.registerType('fastai.metrics.JaccardCoeff', class {});
@@ -6861,6 +6866,7 @@ python.Execution = class {
         this.registerFunction('fastai.optimizer.adam_step');
         this.registerFunction('fastai.optimizer.average_grad');
         this.registerFunction('fastai.optimizer.average_sqr_grad');
+        this.registerFunction('fastai.optimizer.RAdam');
         this.registerFunction('fastai.optimizer.step_stat');
         this.registerFunction('fastai.optimizer.weight_decay');
         this.registerType('fastai.tabular.core.Categorify', class {});
@@ -6879,6 +6885,8 @@ python.Execution = class {
         this.registerType('fastai.vision.augment._BrightnessLogit', class {});
         this.registerType('fastai.vision.augment._ContrastLogit', class {});
         this.registerType('fastai.vision.augment._WarpCoord', class {});
+        this.registerType('fastai.vision.augment.RandTransform', class extends fastcore.transform.DisplayedTransform {});
+        this.registerType('fastai.vision.augment.AffineCoordTfm', class extends fastai.vision.augment.RandTransform {});
         this.registerType('fastai.vision.augment.Brightness', class {});
         this.registerType('fastai.vision.augment.flip_mat', class {});
         this.registerType('fastai.vision.augment.Flip', class {});
@@ -6886,6 +6894,7 @@ python.Execution = class {
         this.registerType('fastai.vision.augment.Resize', class {});
         this.registerType('fastai.vision.augment.rotate_mat', class {});
         this.registerFunction('fastai.vision.augment.TensorImage.lighting');
+        this.registerType('fastai.vision.augment.Warp', class extends fastai.vision.augment.AffineCoordTfm {});
         this.registerType('fastai.vision.augment.zoom_mat', class {});
         this.registerType('fastai.vision.core.PILImage', class {});
         this.registerType('fastai.vision.core.PILMask', class {});
