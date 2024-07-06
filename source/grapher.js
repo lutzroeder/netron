@@ -714,17 +714,20 @@ grapher.Argument = class {
     layout() {
         const yPadding = 1;
         const xPadding = 6;
+        let y = this.y + this.bottom;
         if (this.type === 'node') {
             const node = this.content;
             node.width = this.width - xPadding - xPadding;
             node.layout();
             node.x = this.x + xPadding + (node.width / 2);
-            node.y = this.y + this.bottom + (node.height / 2) + yPadding + yPadding;
+            node.y = y + (node.height / 2) + yPadding + yPadding;
         } else if (this.type === 'node[]') {
             for (const node of this.content) {
+                node.width = this.width - xPadding - xPadding;
                 node.layout();
                 node.x = this.x + xPadding + (node.width / 2);
-                node.y = this.y + (node.height / 2) + yPadding + yPadding;
+                node.y = y + (node.height / 2) + yPadding + yPadding;
+                y += node.height + yPadding + yPadding + yPadding + yPadding;
             }
         }
     }
