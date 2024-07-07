@@ -1810,12 +1810,12 @@ view.Graph = class extends grapher.Graph {
             const viewNode = this.createNode(node);
             this.setNode(viewNode);
             const inputs = node.inputs;
-            for (const input of inputs) {
-                if (!input.type || input.type.endsWith('*')) {
-                    if (Array.isArray(input.value) && input.value.length === 1 && input.value[0].initializer) {
-                        this.createArgument(input);
+            for (const argument of inputs) {
+                if (!argument.type || argument.type.endsWith('*')) {
+                    if (Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
+                        this.createArgument(argument);
                     } else {
-                        for (const value of input.value) {
+                        for (const value of argument.value) {
                             if (value.name !== '' && !value.initializer) {
                                 this.createValue(value).to.push(viewNode);
                             }
@@ -2008,90 +2008,62 @@ view.Node = class extends grapher.Node {
             return current;
         };
         let hiddenTensors = false;
-        const tensors = [];
         const objects = [];
-        const attributes = [];
+        const attribute = (argument) => {
+            let content = new view.Formatter(argument.value, argument.type).toString();
+            if (content && content.length > 12) {
+                content = `${content.substring(0, 12)}\u2026`;
+            }
+            const item = list().argument(argument.name, content);
+            item.tooltip = argument.type;
+            item.separator = ' = ';
+            return item;
+        };
         if (Array.isArray(node.inputs)) {
-            for (const input of node.inputs) {
-                switch (input.type) {
-                    case 'graph':
-                    case 'object':
-                    case 'object[]':
-                    case 'function':
-                    case 'function[]': {
-                        objects.push(input);
-                        break;
-                    }
-                    default: {
-                        if (options.weights && input.visible !== false && input.value.length === 1 && input.value[0].initializer) {
-                            tensors.push(input);
-                        } else if (options.weights && (input.visible === false || input.value.length > 1) && (!input.type || input.type.endsWith('*')) && input.value.some((value) => value.initializer)) {
-                            hiddenTensors = true;
-                        } else if (options.attributes && input.visible !== false && input.type && !input.type.endsWith('*')) {
-                            attributes.push(input);
-                        }
-                    }
+            for (const argument of node.inputs) {
+                const type = argument.type;
+                if (type === 'graph' || type === 'object' || type === 'object[]' || type === 'function' || type === 'function[]') {
+                    objects.push(argument);
+                } else if (options.weights && argument.visible !== false && Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
+                    const item = this.context.createArgument(argument);
+                    list().add(item);
+                } else if (options.weights && (argument.visible === false || Array.isArray(argument.value) && argument.value.length > 1) && (!argument.type || argument.type.endsWith('*')) && argument.value.some((value) => value.initializer)) {
+                    hiddenTensors = true;
+                } else if (options.attributes && argument.visible !== false && argument.type && !argument.type.endsWith('*')) {
+                    const item = attribute(argument);
+                    list().add(item);
                 }
             }
         }
         if (Array.isArray(node.attributes)) {
-            for (const attribute of node.attributes) {
-                switch (attribute.type) {
-                    case 'graph':
-                    case 'object':
-                    case 'object[]':
-                    case 'function':
-                    case 'function[]': {
-                        objects.push(attribute);
-                        break;
-                    }
-                    default: {
-                        if (options.attributes && attribute.visible !== false) {
-                            attributes.push(attribute);
-                        }
-                    }
+            const attributes = node.attributes.slice();
+            attributes.sort((a, b) => a.name.toUpperCase().localeCompare(b.name.toUpperCase()));
+            for (const argument of node.attributes) {
+                const type = argument.type;
+                if (type === 'graph' || type === 'object' || type === 'object[]' || type === 'function' || type === 'function[]') {
+                    objects.push(argument);
+                } else if (options.attributes && argument.visible !== false) {
+                    const item = attribute(argument);
+                    list().add(item);
                 }
             }
-        }
-        if (attributes.length > 0) {
-            attributes.sort((a, b) => a.name.toUpperCase().localeCompare(b.name.toUpperCase()));
-        }
-        for (const argument of tensors) {
-            const item = this.context.createArgument(argument);
-            list().add(item);
         }
         if (hiddenTensors) {
             const item = list().argument('\u3008\u2026\u3009', '');
             list().add(item);
         }
-        for (const attribute of attributes) {
-            if (attribute.visible !== false) {
-                let value = new view.Formatter(attribute.value, attribute.type).toString();
-                if (value && value.length > 12) {
-                    value = `${value.substring(0, 12)}\u2026`;
-                }
-                const item = list().argument(attribute.name, value);
-                item.tooltip = attribute.type;
-                item.separator = ' = ';
-                list().add(item);
-            }
-        }
         for (const argument of objects) {
-            if (argument.type === 'graph') {
-                const node = this.context.createNode(null, argument.value);
-                const item = list().argument(argument.name, node);
-                list().add(item);
+            const type = argument.type;
+            let content = null;
+            if (type === 'graph') {
+                content = this.context.createNode(null, argument.value);
+            } else if (type === 'function' || argument.type === 'object') {
+                content = this.context.createNode(argument.value);
+            } else if (type === 'function[]' || argument.type === 'object[]') {
+                content = argument.value.map((value) => this.context.createNode(value));
             }
-            if (argument.type === 'function' || argument.type === 'object') {
-                const node = this.context.createNode(argument.value);
-                const item = list().argument(argument.name, node);
-                list().add(item);
-            }
-            if (argument.type === 'function[]' || argument.type === 'object[]') {
-                const nodes = argument.value.map((value) => this.context.createNode(value));
-                const item = list().argument(argument.name, nodes);
-                list().add(item);
-            }
+            const item = list().argument(argument.name, content);
+            list().add(item);
         }
         if (Array.isArray(node.nodes) && node.nodes.length > 0) {
             // this.canvas = this.canvas();
@@ -2796,19 +2768,22 @@ view.ArgumentView = class extends view.Control {
         this._source = source;
         this._elements = [];
         this._items = [];
-        const type = argument.type;
+        const type = argument.type === 'attribute' ? null : argument.type;
         let value = argument.value;
+        if (argument.type === 'attribute') {
+            this._source = 'attribute';
+        }
         if (argument.type === 'tensor') {
             value = [{ type: value.type, initializer: value }];
         } else if (argument.type === 'tensor[]') {
             value = value.map((value) => ({ type: value.type, initializer: value }));
         }
-        source = typeof type === 'string' && !type.endsWith('*') ? 'attribute' : source;
-        if (source === 'attribute' && type !== 'tensor' && type !== 'tensor[]') {
+        this._source = typeof type === 'string' && !type.endsWith('*') ? 'attribute' : this._source;
+        if (this._source === 'attribute' && type !== 'tensor' && type !== 'tensor[]') {
             this._source = 'attribute';
             const item = new view.PrimitiveView(context, argument);
             this._items.push(item);
-        } else if (value.length === 0) {
+        } else if (Array.isArray(value) && value.length === 0) {
             const item = new view.TextView(this._view, null);
             this._items.push(item);
         } else {
@@ -2863,7 +2838,7 @@ view.PrimitiveView = class extends view.Expander {
         super(context);
         try {
             this._argument = argument;
-            const type = argument.type;
+            const type = argument.type === 'attribute' ? null : argument.type;
             const value = argument.value;
             if (type) {
                 this.enable();

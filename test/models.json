@@ -5861,7 +5861,7 @@
     "target":   "tensor-and-integer-in-tuple.pt",
     "source":   "https://github.com/user-attachments/files/15879202/tensor-and-integer-in-tuple.pt.zip[tensor-and-integer-in-tuple.pt]",
     "format":   "PyTorch v1.6",
-    "assert":   "model.graphs[0].nodes[0].attributes[0].value == 234",
+    "assert":   "model.graphs[0].nodes[0].inputs[1].value == 234",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {

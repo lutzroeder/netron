@@ -720,20 +720,22 @@ export class Target {
                 view.Documentation.open(type);
                 node.name.toString();
                 node.description;
-                node.attributes.slice();
-                for (const attribute of node.attributes) {
-                    attribute.name.toString();
-                    attribute.name.length;
-                    const type = attribute.type;
-                    const value = attribute.value;
-                    if ((type === 'graph' || type === 'function') && value && Array.isArray(value.nodes)) {
-                        validateGraph(value);
-                    } else {
-                        let text = new view.Formatter(attribute.value, attribute.type).toString();
-                        if (text && text.length > 1000) {
-                            text = `${text.substring(0, 1000)}...`;
+                const attributes = node.attributes;
+                if (attributes) {
+                    for (const attribute of attributes) {
+                        attribute.name.toString();
+                        attribute.name.length;
+                        const type = attribute.type;
+                        const value = attribute.value;
+                        if ((type === 'graph' || type === 'function') && value && Array.isArray(value.nodes)) {
+                            validateGraph(value);
+                        } else {
+                            let text = new view.Formatter(attribute.value, attribute.type).toString();
+                            if (text && text.length > 1000) {
+                                text = `${text.substring(0, 1000)}...`;
+                            }
+                            /* value = */ text.split('<');
                         }
-                        /* value = */ text.split('<');
                     }
                 }
                 for (const input of node.inputs) {
