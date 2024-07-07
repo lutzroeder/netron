@@ -5460,30 +5460,16 @@
   {
     "type":     "pytorch",
     "target":   "pedestrian_interaction_position_embedding.pt",
-    "source":   "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/pedestrian_interaction_position_embedding.pt",
+    "source":   "https://github.com/user-attachments/files/16120032/pedestrian_interaction_position_embedding.pt.zip[pedestrian_interaction_position_embedding.pt]",
     "format":   "TorchScript v1.0",
-    "link":     "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "pedestrian_interaction_prediction_layer.pt",
-    "source":   "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/pedestrian_interaction_prediction_layer.pt",
-    "format":   "TorchScript v1.0",
-    "link":     "https://github.com/ApolloAuto/apollo"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
     "target":   "pedestrian_interaction_single_lstm.pt",
-    "source":   "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/pedestrian_interaction_single_lstm.pt",
+    "source":   "https://github.com/user-attachments/files/16120033/pedestrian_interaction_single_lstm.pt.zip[pedestrian_interaction_single_lstm.pt]",
     "format":   "TorchScript v1.0",
-    "link":     "https://github.com/ApolloAuto/apollo"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "pedestrian_interaction_social_embedding.pt",
-    "source":   "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/pedestrian_interaction_social_embedding.pt",
-    "format":   "TorchScript v1.1",
-    "link":     "https://github.com/ApolloAuto/apollo"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
