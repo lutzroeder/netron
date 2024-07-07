@@ -1752,17 +1752,17 @@ view.Graph = class extends grapher.Graph {
     }
 
     createValue(value) {
-        const name = value.name;
-        if (this._values.has(name)) {
+        const key = value && value.name && !value.initializer ? value.name : value;
+        if (this._values.has(key)) {
             // duplicate argument name
-            const obj = this._values.get(name);
+            const obj = this._values.get(key);
             this._table.set(value, obj);
         } else {
             const obj = new view.Value(this, value);
-            this._values.set(name, obj);
+            this._values.set(key, obj);
             this._table.set(value, obj);
         }
-        return this._values.get(name);
+        return this._values.get(key);
     }
 
     createArgument(value) {
@@ -1818,6 +1818,8 @@ view.Graph = class extends grapher.Graph {
                         for (const value of argument.value) {
                             if (value.name !== '' && !value.initializer) {
                                 this.createValue(value).to.push(viewNode);
+                            } else if (value.initializer) {
+                                this.createValue(value);
                             }
                         }
                     }
@@ -2038,7 +2040,7 @@ view.Node = class extends grapher.Node {
         if (Array.isArray(node.attributes)) {
             const attributes = node.attributes.slice();
             attributes.sort((a, b) => a.name.toUpperCase().localeCompare(b.name.toUpperCase()));
-            for (const argument of node.attributes) {
+            for (const argument of attributes) {
                 const type = argument.type;
                 if (type === 'graph' || type === 'object' || type === 'object[]' || type === 'function' || type === 'function[]') {
                     objects.push(argument);
@@ -2248,10 +2250,12 @@ view.Value = class {
     }
 
     activate() {
-        if (this.value && this.from && Array.isArray(this.to)) {
+        if (this.value && this.from && Array.isArray(this.to) && !this.value.initializer) {
             const from = this.from.value;
             const to = this.to.map((node) => node.value);
             this.context.view.showConnectionProperties(this.value, from, to);
+        } else if (this.value && this.value.initializer) {
+            this.context.view.showTensorProperties({ value: [this.value] });
         }
     }
 };
@@ -2794,13 +2798,7 @@ view.ArgumentView = class extends view.Control {
                 const item = new view.ValueView(context, value, this._source);
                 item.on('focus', () => this.emit('focus', target));
                 item.on('blur', () => this.emit('blur', target));
-                item.on('activate', () => {
-                    if (emit) {
-                        this.emit('activate', target);
-                    } else {
-                        this._view.showTensorProperties({ value: [value] });
-                    }
-                });
+                item.on('activate', () => this.emit('activate', target));
                 item.on('select', () => this.emit('select', target));
                 this._items.push(item);
             }
