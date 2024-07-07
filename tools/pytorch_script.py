@@ -124,7 +124,7 @@ def _check_types(types, schemas):
         if schema.name in types:
             types.pop(schema.name)
     for key in list(types.keys()):
-        if key.startswith('torch.nn'):
+        if key.startswith('torch.nn') or key.startswith('__torch__.'):
             types.pop(key)
         if key.startswith('prim::') or \
            key.startswith('torchvision::') or \

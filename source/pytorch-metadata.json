@@ -1,5 +1,27 @@
 [
   {
+    "name": "__torch__.torch.classes.xnnpack.Conv2dOpContext",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "groups", "type": "int64" },
+      { "name": "output_min", "type": "int64[]", "optional": true },
+      { "name": "output_max", "type": "int64[]", "optional": true }
+    ]
+  },
+  {
+    "name": "__torch__.torch.classes.xnnpack.LinearOpContext",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "output_min", "type": "int64[]", "optional": true },
+      { "name": "output_max", "type": "int64[]", "optional": true }
+    ]
+  },
+  {
     "name": "_caffe2::BBoxTransform",
     "inputs": [
       { "name": "rois", "type": "Tensor" },
