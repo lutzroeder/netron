@@ -49,6 +49,8 @@ schema_source_files = [
         re.compile(r'(aten::.*->\s*.*)"', re.MULTILINE)),
     ('torch/csrc/jit/runtime/register_special_ops.cpp',
         re.compile(r'(aten::.*->\s*.*)"', re.MULTILINE)),
+    ('aten/src/ATen/native/RNN.cpp',
+        re.compile(r'TORCH_SELECTIVE_SCHEMA\("(.*)"', re.MULTILINE)),
     ('torch/jit/_shape_functions.py',
         re.compile(r'(prim::.*->\s*.*)"', re.MULTILINE))
 ]
@@ -67,6 +69,9 @@ def _parse_schemas():
     for entry in schema_source_files:
         path = os.path.join(pytorch_source_dir, entry[0])
         content = _read(path)
+        content = content.splitlines()
+        content = filter(lambda _: not _.startswith('#'), content)
+        content = '\n'.join(content)
         for value in entry[1].findall(content):
             value = re.sub(r'\n|\r|\s*"', '', value) if value.startswith('_caffe2::') else value
             definition = entry[2] + value if len(entry) > 2 else value
@@ -136,6 +141,8 @@ def _check_types(types, schemas):
     types.pop('aten::fft')
     types.pop('aten::mul.ScalarT')
     types.pop('aten::classes._nnapi.Compilation')
+    types.pop('aten::arange.start_out_')
+    types.pop('aten::mean.dtype_out')
     if len(types) > 0:
         raise Exception('\n'.join(list(types.keys()))) # pylint: disable=broad-exception-raised
 

@@ -5874,10 +5874,19 @@
   },
   {
     "type":     "pytorch",
+    "target":   "TestSerialization.test_lstm.traced.pt",
+    "source":   "https://github.com/user-attachments/files/16121906/TestSerialization.test_lstm.traced.pt.zip[TestSerialization.test_lstm.traced.pt]",
+    "format":   "TorchScript v1.6",
+    "assert":   "model.graphs[0].nodes.length == 3",
+    "link":     "https://github.com/lutzroeder/netron/issues/1067"
+  },
+  {
+    "type":     "pytorch",
     "target":   "TFModel_traced_eager_quant.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10867120/TFModel_traced_eager_quant.pt.zip[TFModel_traced_eager_quant.pt]",
-    "error":    "Unknown type name '__torch__.torch.classes.rnn.CellParamsBase'.",
-    "link":     "https://github.com/lutzroeder/netron/issues/969"
+    "format":   "TorchScript v1.6",
+    "assert":   "model.graphs[0].nodes.length == 35",
+    "link":     "https://github.com/lutzroeder/netron/issues/1067"
   },
   {
     "type":     "pytorch",

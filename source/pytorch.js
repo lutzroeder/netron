@@ -145,7 +145,7 @@ pytorch.Graph = class {
             return submodules;
         };
         const loadScriptModule = (module, initializers) => {
-            if (module) {
+            if (module && !pytorch.Utility.isObject(module)) {
                 if (pytorch.Graph._getParameters(module).size > 0 && !module.__hide__) {
                     const item = { module };
                     this.nodes.push(new pytorch.Node(metadata, '', item, initializers, values));
@@ -527,13 +527,21 @@ pytorch.Node = class {
                     const input = inputs[i];
                     const schema = this.type && this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i] : null;
                     const name = schema && schema.name ? schema.name : i.toString();
-                    const type = schema && schema.type ? schema.type : null;
+                    let type = schema && schema.type ? schema.type : null;
+                    let array = false;
+                    if (type && type.endsWith('[]')) {
+                        array = true;
+                        type = type.slice(0, -2);
+                    }
                     let argument = null;
                     if (pytorch.Utility.isObjectType(type)) {
                         const obj = input.value;
-                        if (initializers.has(obj)) {
+                        if (!array && initializers.has(obj)) {
                             const node = new pytorch.Node(metadata, group, { name, type, obj }, initializers, values);
                             argument = new pytorch.Argument(name, node, 'object');
+                        } else if (array && Array.isArray(obj) && obj.every((obj) => initializers.has(obj))) {
+                            const node = obj.map((obj) => new pytorch.Node(metadata, group, { name, type, obj }, initializers, values));
+                            argument = new pytorch.Argument(name, node, 'object[]');
                         } else {
                             const identifier = input.unique().toString();
                             const value = values.map(identifier);
@@ -1799,6 +1807,11 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 [this.weight, this.bias] = state;
             }
         });
+        this.registerType('__torch__.torch.classes.rnn.CellParamsBase', class {
+            __setstate__(state) {
+                [this.type, this.tensors, this.doubles, this.longs, this.packed_params] = state;
+            }
+        });
         this.registerType('__torch__.torch.classes.xnnpack.Conv2dOpContext', class {
             __setstate__(state) {
                 [this.weight, this.bias, this.stride, this.padding, this.dilation, this.groups, this.output_min, this.output_max] = state;
@@ -2137,33 +2150,9 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                         } else {
                             copyArgs.shift();
                             copyEvalArgs.shift();
-                            switch (parameter.type) {
-                                case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
-                                case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':
-                                case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
-                                case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
-                                case '__torch__.torch.classes.xnnpack.LinearOpContext':
-                                case '__torch__.torch.classes.xnnpack.TransposeConv2dOpContext': {
-                                    const value = this.variable(argument);
-                                    value.value = argument;
-                                    node.addInput(value);
-                                    /*
-                                    for (const [, value] of Object.entries(argument)) {
-                                        if (pytorch.Utility.isTensor(value)) {
-                                            const tensor = value;
-                                            referencedParameters.push(tensor);
-                                        }
-                                    }
-                                    */
-                                    break;
-                                }
-                                default: {
-                                    const value = this.variable(argument);
-                                    node.addInput(value);
-                                    value.value = argument;
-                                    break;
-                                }
-                            }
+                            const value = this.variable(argument);
+                            node.addInput(value);
+                            value.value = argument;
                         }
                     }
                 }
@@ -2416,6 +2405,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                         case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
                         case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':
                         case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
+                        case '__torch__.torch.classes.rnn.CellParamsBase':
                         case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
                         case '__torch__.torch.classes.xnnpack.LinearOpContext':
                         case '__torch__.torch.classes.xnnpack.TransposeConv2dOpContext': {
@@ -2607,6 +2597,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                             case '__torch__.torch.classes.xnnpack.LinearOpContext':
                             case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
                             case '__torch__.torch.classes.xnnpack.TransposeConv2dOpContext':
+                            case '__torch__.torch.classes.rnn.CellParamsBase':
                             case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
                             case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
                             case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':
@@ -3390,6 +3381,8 @@ pytorch.Utility = class {
             case '__torch__.torch.classes.xnnpack.LinearOpContext':
             case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
             case '__torch__.torch.classes.xnnpack.TransposeConv2dOpContext':
+            case '__torch__.torch.classes.rnn.CellParamsBase':
+            case '__torch__.torch.classes.rnn.CellParamsBase[]':
             case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
             case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
             case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':
