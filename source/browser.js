@@ -148,7 +148,8 @@ host.BrowserHost = class {
             const [url] = this._meta.file;
             if (this._view.accept(url)) {
                 const identifier = Array.isArray(this._meta.identifier) && this._meta.identifier.length === 1 ? this._meta.identifier[0] : null;
-                const status = await this._openModel(this._url(url), identifier || null);
+                const name = this._meta.name || null;
+                const status = await this._openModel(this._url(url), identifier || null, name);
                 if (status === '') {
                     return;
                 }
@@ -350,12 +351,6 @@ host.BrowserHost = class {
             if (timeout) {
                 request.timeout = timeout;
             }
-            const error = (status) => {
-                const err = new Error(`The web request failed with status code ${status} at '${url}'.`);
-                err.type = 'error';
-                err.url = url;
-                return err;
-            };
             const progress = (value) => {
                 if (callback) {
                     callback(value);
@@ -364,30 +359,32 @@ host.BrowserHost = class {
             request.onload = () => {
                 progress(0);
                 if (request.status === 200) {
+                    let value = null;
                     if (request.responseType === 'arraybuffer') {
                         const buffer = new Uint8Array(request.response);
-                        const stream = new base.BinaryStream(buffer);
-                        resolve(stream);
+                        value = new base.BinaryStream(buffer);
                     } else {
-                        resolve(request.responseText);
+                        value = request.responseText;
                     }
+                    resolve(value);
                 } else {
-                    reject(error(request.status));
+                    const error = new Error(`The web request failed with status code '${request.status}'.`);
+                    error.context = url;
+                    reject(error);
                 }
             };
-            request.onerror = (e) => {
+            request.onerror = () => {
                 progress(0);
-                const err = error(request.status);
-                err.type = e.type;
-                reject(err);
+                const error = new Error(`The web request failed.`);
+                error.context = url;
+                reject(error);
             };
             request.ontimeout = () => {
                 progress(0);
                 request.abort();
-                const err = new Error(`The web request timed out in '${url}'.`);
-                err.type = 'timeout';
-                err.url = url;
-                reject(err);
+                const error = new Error('The web request timed out.', 'timeout', url);
+                error.context = url;
+                reject(error);
             };
             request.onprogress = (e) => {
                 if (e && e.lengthComputable) {
@@ -417,7 +414,7 @@ host.BrowserHost = class {
         return `${location.protocol}//${location.host}${pathname}${file}`;
     }
 
-    async _openModel(url, identifier) {
+    async _openModel(url, identifier, name) {
         url = url.startsWith('data:') ? url : `${url + ((/\?/).test(url) ? '&' : '?')}cb=${(new Date()).getTime()}`;
         this._view.show('welcome spinner');
         let context = null;
@@ -434,7 +431,7 @@ host.BrowserHost = class {
                     stream = await this._request(url, null, null, progress);
                 }
             }
-            context = new host.BrowserHost.Context(this, url, identifier, stream);
+            context = new host.BrowserHost.Context(this, url, identifier, name, stream);
             this._telemetry.set('session_engaged', 1);
         } catch (error) {
             await this._view.error(error, 'Model load request failed.');
@@ -478,7 +475,7 @@ host.BrowserHost = class {
             const encoder = new TextEncoder();
             const buffer = encoder.encode(file.content);
             const stream = new base.BinaryStream(buffer);
-            const context = new host.BrowserHost.Context(this, '', identifier, stream);
+            const context = new host.BrowserHost.Context(this, '', identifier, null, stream);
             await this._openContext(context);
         } catch (error) {
             await this._view.error(error, 'Error while loading Gist.');
@@ -491,7 +488,7 @@ host.BrowserHost = class {
         try {
             const model = await this._view.open(context);
             if (model) {
-                this.document.title = context.identifier;
+                this.document.title = context.name || context.identifier;
                 return '';
             }
             this.document.title = '';
@@ -791,8 +788,9 @@ host.BrowserHost.FileStream = class {
 
 host.BrowserHost.Context = class {
 
-    constructor(host, url, identifier, stream) {
+    constructor(host, url, identifier, name, stream) {
         this._host = host;
+        this._name = name;
         this._stream = stream;
         if (identifier) {
             this._identifier = identifier;
@@ -809,6 +807,10 @@ host.BrowserHost.Context = class {
 
     get identifier() {
         return this._identifier;
+    }
+
+    get name() {
+        return this._name;
     }
 
     get stream() {

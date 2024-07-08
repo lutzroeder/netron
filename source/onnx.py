@@ -75,19 +75,19 @@ class _Model: # pylint: disable=too-few-public-methods
 class _Graph:
     def __init__(self, graph, metadata):
         self.metadata = metadata
-        self.value = graph
-        self.arguments_index = {}
-        self.arguments = []
+        self.graph = graph
+        self.values_index = {}
+        self.values = []
 
     def _tensor(self, tensor): # pylint: disable=unused-argument
         return {}
 
-    def argument(self, name, tensor_type=None, initializer=None): # pylint: disable=missing-function-docstring
-        if not name in self.arguments_index:
-            argument = _Argument(name, tensor_type, initializer)
-            self.arguments_index[name] = len(self.arguments)
-            self.arguments.append(argument)
-        index = self.arguments_index[name]
+    def value(self, name, tensor_type=None, initializer=None): # pylint: disable=missing-function-docstring
+        if not name in self.values_index:
+            argument = _Value(name, tensor_type, initializer)
+            self.values_index[name] = len(self.values)
+            self.values.append(argument)
+        index = self.values_index[name]
         # argument.set_initializer(initializer)
         return index
 
@@ -138,17 +138,17 @@ class _Graph:
         return json_attribute
 
     def to_json(self): # pylint: disable=missing-function-docstring
-        graph = self.value
+        graph = self.graph
         json_graph = {
             'nodes': [],
             'inputs': [],
             'outputs': [],
-            'arguments': []
+            'values': []
         }
         for value_info in graph.value_info:
-            self.argument(value_info.name)
+            self.value(value_info.name)
         for initializer in graph.initializer:
-            self.argument(initializer.name, None, initializer)
+            self.value(initializer.name, None, initializer)
         for node in graph.node:
             op_type = node.op_type
             json_node = {}
@@ -164,24 +164,24 @@ class _Graph:
             for value in node.input:
                 json_node['inputs'].append({
                         'name': 'X',
-                        'arguments': [ self.argument(value) ]
+                        'value': [ self.value(value) ]
                     })
             json_node['outputs'] = []
             for value in node.output:
                 json_node['outputs'].append({
                         'name': 'X',
-                        'arguments': [ self.argument(value) ]
+                        'value': [ self.value(value) ]
                     })
             json_node['attributes'] = []
             for _ in node.attribute:
                 json_attribute = self.attribute(_, op_type)
                 json_node['attributes'].append(json_attribute)
             json_graph['nodes'].append(json_node)
-        for _ in self.arguments:
-            json_graph['arguments'].append(_.to_json())
+        for _ in self.values:
+            json_graph['values'].append(_.to_json())
         return json_graph
 
-class _Argument: # pylint: disable=too-few-public-methods
+class _Value: # pylint: disable=too-few-public-methods
     def __init__(self, name, tensor_type=None, initializer=None):
         self.name = name
         self.type = tensor_type
@@ -190,8 +190,8 @@ class _Argument: # pylint: disable=too-few-public-methods
     def to_json(self): # pylint: disable=missing-function-docstring
         target = {}
         target['name'] = self.name
-        if self.initializer:
-            target['initializer'] = {}
+        # if self.initializer:
+        #     target['initializer'] = {}
         return target
 
 class _Metadata: # pylint: disable=too-few-public-methods

@@ -348,7 +348,7 @@ protobuf.BinaryReader = class {
             const length = size >>> 3;
             obj = size > 1048576 ? new Float64Array(length) : new Array(length);
             for (let i = 0; i < length; i++) {
-                obj[i] = this.doubles();
+                obj[i] = this.double();
             }
             this._position = end;
         } else if (obj !== undefined && obj.length < 1000000) {

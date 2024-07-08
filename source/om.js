@@ -257,9 +257,10 @@ om.Node = class {
 
 om.Argument = class {
 
-    constructor(name, value) {
+    constructor(name, value, type) {
         this.name = name;
         this.value = value;
+        this.type = type;
     }
 };
 
@@ -280,7 +281,7 @@ om.Tensor = class {
     constructor(category, type, value) {
         this.category = category;
         this.type = type;
-        this.data = value;
+        this.values = value;
     }
 };
 
@@ -504,7 +505,7 @@ om.Utility = class {
     }
 
     static tensorType(desc) {
-        if (desc.shape && Array.isArray(desc.shape.dim)) {
+        if (desc && desc.shape && Array.isArray(desc.shape.dim)) {
             const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
             const shape = new om.TensorShape(desc.shape.dim);
             return new om.TensorType(dataType, shape, desc.layout);

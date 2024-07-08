@@ -3,7 +3,6 @@
 import json
 import os
 import pydoc
-import pathlib
 import re
 
 os.environ["KERAS_BACKEND"] = "jax"
@@ -169,11 +168,6 @@ def _update_headers(schema, docstring):
 
 
 def _metadata():
-
-    file = pathlib.Path('third_party/env/keras/lib/python3.12/site-packages/keras/__init__.py')
-    content = file.read_text(encoding='utf-8')
-    content = content.replace('from keras.api import _tf_keras', 'from keras import _tf_keras')
-    file.write_text(content, encoding='utf-8')
 
     root = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     json_path = os.path.join(root, 'source', 'keras-metadata.json')

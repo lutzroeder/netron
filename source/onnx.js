@@ -1368,6 +1368,7 @@ onnx.Context.Graph = class {
 onnx.ProtoReader = class {
 
     static open(context) {
+        const identifier = context.identifier;
         const binaryTags = context.tags('pb');
         if (binaryTags.size > 0) {
             const tags = binaryTags;
@@ -1414,7 +1415,7 @@ onnx.ProtoReader = class {
                     }
                 }
                 // GraphProto
-                if (tags.get(1) === 2) {
+                if (tags.get(1) === 2 && (identifier !== 'preloaded_data.pb' || tags.size !== 1)) {
                     const schema = [[1,2],[2,2],[3,2],[4,2],[5,2],[6,0],[7,0],[8,2],[9,2],[10,2],[11,2],[12,2],[13,2],[14,2]];
                     if (schema.every(([key, value]) => !tags.has(key) || tags.get(key) === value)) {
                         const decode = (buffer, value) => {
@@ -1920,7 +1921,7 @@ onnx.JsonReader = class {
                 value.int64_data = value.int64Data.map((value) => parseInt(value, 10));
                 delete value.int64Data;
             } else {
-                throw new onnx.Error(`Unsupported ONNX JSON tensor data '${JSON.stringify(value.data_type)}.`);
+                throw new onnx.Error(`Unsupported ONNX JSON tensor data type '${JSON.stringify(value.data_type)}'.`);
             }
             return value;
         };

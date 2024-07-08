@@ -177,13 +177,13 @@ cntk.Graph = class {
                 for (const input of obj.inputs) {
                     const value = values.map(input.uid, version, input);
                     // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
-                    if (input.kind === 0) {
+                    if (input.kind === 0n) {
                         const inputName = input.name || input.uid;
                         this.inputs.push(new cntk.Argument(inputName, [value]));
                     }
                 }
                 for (const block of obj.primitive_functions) {
-                    if (block.op === 57 && block.block_function_composite) {
+                    if (block.op === 57n && block.block_function_composite) {
                         const list = [block.block_function_composite.root];
                         const output = map.get(block.block_function_composite.root);
                         const keys = block.block_function_composite_arguments_map_keys;
@@ -264,8 +264,8 @@ cntk.Value = class {
             case 2:
                 if (obj.value) {
                     this.name = obj.name || obj.uid;
-                    this.type = null;
                     this.initializer = new cntk.Tensor(version, obj);
+                    this.type = this.initializer.type;
                 } else {
                     this.name = obj.uid;
                     if (obj.data_type && obj.shape) {
@@ -292,7 +292,8 @@ cntk.Node = class {
         switch (version) {
             case 1: {
                 const type = obj.__type__;
-                this.type = metadata.type(type) || { name: type };
+                this.type = { name: type, ...metadata.type(type) };
+                delete this.type.identifier;
                 this.name = obj.name;
                 for (const [name, value] of Object.entries(obj)) {
                     if (name !== '__type__' && name !== 'name' && name !== 'inputs' && name !== 'precision') {
@@ -307,15 +308,18 @@ cntk.Node = class {
             case 2: {
                 this.name = obj.name || obj.uid || null;
                 const output = obj.uid;
-                if (obj.op === 57) {
-                    this.type = metadata.type(obj.uid) || { name: obj.uid };
+                if (obj.op === 57n) {
+                    this.type = { name: obj.uid, ...metadata.type(obj.uid) };
+                    delete this.type.identifier;
                 } else if (Object.prototype.hasOwnProperty.call(obj, 'op')) {
                     // cntk/Source/CNTKv2LibraryDll/API/Internals/PrimitiveOpType.h
                     const op = Number(obj.op);
-                    this.type = metadata.type(op);
+                    this.type = { ...metadata.type(op) };
+                    delete this.type.identifier;
                 } else {
                     const type = obj.type;
-                    this.type = metadata.type(type) || { name: type };
+                    this.type = { name: type, ...metadata.type(type) };
+                    delete this.type.identifier;
                     if (obj.user_defined_state) {
                         for (const [name, value] of Object.entries(obj.user_defined_state)) {
                             const schema = metadata.attribute(type, name);
@@ -339,38 +343,39 @@ cntk.Node = class {
         }
         let inputIndex = 0;
         if (this.type && this.type.inputs) {
-            for (const inputSchema of this.type.inputs) {
-                if (inputIndex < inputs.length || inputSchema.option !== 'optional') {
-                    const inputCount = inputSchema.type === 'Tensor[]' ? (inputs.length - inputIndex) : 1;
-                    const inputArguments = [];
-                    for (const inputArgument of inputs.slice(inputIndex, inputIndex + inputCount)) {
-                        if (inputArgument.name !== '' || inputSchema.option !== 'optional') {
-                            inputArguments.push(inputArgument);
+            for (const schema of this.type.inputs) {
+                if (inputIndex < inputs.length || schema.option !== 'optional') {
+                    const count = schema.type === 'Tensor[]' ? (inputs.length - inputIndex) : 1;
+                    const values = [];
+                    for (const value of inputs.slice(inputIndex, inputIndex + count)) {
+                        if (value.name !== '' || schema.option !== 'optional') {
+                            values.push(value);
                         }
                     }
-                    this.inputs.push(new cntk.Argument(inputSchema.name, inputArguments));
-                    inputIndex += inputCount;
+                    const argument = new cntk.Argument(schema.name, values);
+                    this.inputs.push(argument);
+                    inputIndex += count;
                 }
             }
         }
         this.inputs.push(...inputs.slice(inputIndex).map((argument, index) => {
             return new cntk.Argument((inputIndex + index).toString(), [argument]);
         }));
-
         let outputIndex = 0;
         if (this.type && this.type.outputs) {
-            for (const outputSchema of this.type.outputs) {
-                if (outputIndex < outputs.length || !outputSchema.optional) {
-                    const outputCount = outputSchema.type === 'Tensor[]' ? (outputs.length - outputIndex) : 1;
-                    this.outputs.push(new cntk.Argument(outputSchema.name, outputs.slice(outputIndex, outputIndex + outputCount)));
-                    outputIndex += outputCount;
+            for (const schema of this.type.outputs) {
+                if (outputIndex < outputs.length || !schema.optional) {
+                    const count = schema.type === 'Tensor[]' ? (outputs.length - outputIndex) : 1;
+                    const values = outputs.slice(outputIndex, outputIndex + count);
+                    const argument = new cntk.Argument(schema.name, values);
+                    this.outputs.push(argument);
+                    outputIndex += count;
                 }
             }
         }
         this.outputs.push(...outputs.slice(outputIndex).map((argument) => {
             return new cntk.Argument(outputIndex.toString(), [argument]);
         }));
-
         this.attributes = attributes.map(([metadata, name, value]) => {
             let type = null;
             let visible = true;
@@ -496,7 +501,7 @@ cntk.TensorShape = class {
                 this.dimensions = shape.dims;
                 break;
             case 2:
-                this.dimensions = shape.shape_dim.map((dimension) => Number(dimension));
+                this.dimensions = shape.shape_dim.map((dimension) => dimension.toNumber());
                 break;
             default:
                 throw new cntk.Error(`Unsupported CNTK version '${version}'.`);

@@ -352,6 +352,7 @@ export class Target {
         this.events = {};
         this.tags = new Set(this.tags);
         this.folder = item.type ? path.normalize(dirname('..', 'third_party' , 'test', item.type)) : process.cwd();
+        this.assert = !this.assert || Array.isArray(this.assert) ? this.assert : [this.assert];
     }
 
     on(event, callback) {
@@ -655,13 +656,24 @@ export class Target {
                                 throw new Error('Tensor shape is not defined.');
                             } else {
                                 tensor.toString();
-                                if (this.tags.has('export-tensor')) {
-                                    if (tensor.type && tensor.type.dataType !== '?') {
-                                        let dataType = tensor.type.dataType;
-                                        dataType = dataType === 'boolean' ? 'bool' : dataType;
-                                        const execution = new python.Execution();
+                                if (this.tags.has('validation')) {
+                                    const size = tensor.type.shape.dimensions.reduce((a, b) => a * b, 1);
+                                    if (tensor.type && tensor.type.dataType !== '?' && size < 8192) {
+                                        let data_type = '?';
+                                        switch (tensor.type.dataType) {
+                                            case 'boolean': data_type = 'bool'; break;
+                                            case 'bfloat16': data_type = 'float32'; break;
+                                            case 'float8e5m2': data_type = 'float16'; break;
+                                            case 'float8e5m2fnuz': data_type = 'float16'; break;
+                                            case 'float8e4m3fn': data_type = 'float16'; break;
+                                            case 'float8e4m3fnuz': data_type = 'float16'; break;
+                                            case 'int4': data_type = 'int8'; break;
+                                            default: data_type = tensor.type.dataType; break;
+                                        }
+                                        Target.execution = Target.execution || new python.Execution();
+                                        const execution = Target.execution;
                                         const bytes = execution.invoke('io.BytesIO', []);
-                                        const dtype = execution.invoke('numpy.dtype', [dataType]);
+                                        const dtype = execution.invoke('numpy.dtype', [data_type]);
                                         const array = execution.invoke('numpy.asarray', [tensor.value, dtype]);
                                         execution.invoke('numpy.save', [bytes, array]);
                                     }
@@ -705,37 +717,43 @@ export class Target {
                 if (Array.isArray(type.nodes)) {
                     validateGraph(type);
                 }
-                view.Documentation.format(type);
+                view.Documentation.open(type);
                 node.name.toString();
                 node.description;
-                node.attributes.slice();
-                for (const attribute of node.attributes) {
-                    attribute.name.toString();
-                    attribute.name.length;
-                    const type = attribute.type;
-                    const value = attribute.value;
-                    if ((type === 'graph' || type === 'function') && value && Array.isArray(value.nodes)) {
-                        validateGraph(value);
-                    } else {
-                        let text = new view.Formatter(attribute.value, attribute.type).toString();
-                        if (text && text.length > 1000) {
-                            text = `${text.substring(0, 1000)}...`;
+                const attributes = node.attributes;
+                if (attributes) {
+                    for (const attribute of attributes) {
+                        attribute.name.toString();
+                        attribute.name.length;
+                        const type = attribute.type;
+                        const value = attribute.value;
+                        if ((type === 'graph' || type === 'function') && value && Array.isArray(value.nodes)) {
+                            validateGraph(value);
+                        } else {
+                            let text = new view.Formatter(attribute.value, attribute.type).toString();
+                            if (text && text.length > 1000) {
+                                text = `${text.substring(0, 1000)}...`;
+                            }
+                            /* value = */ text.split('<');
                         }
-                        /* value = */ text.split('<');
                     }
                 }
                 for (const input of node.inputs) {
                     input.name.toString();
                     input.name.length;
-                    for (const value of input.value) {
-                        validateValue(value);
+                    if (!input.type || input.type.endsWith('*')) {
+                        for (const value of input.value) {
+                            validateValue(value);
+                        }
                     }
                 }
                 for (const output of node.outputs) {
                     output.name.toString();
                     output.name.length;
-                    for (const value of output.value) {
-                        validateValue(value);
+                    if (!output.type || output.type.endsWith('*')) {
+                        for (const value of output.value) {
+                            validateValue(value);
+                        }
                     }
                 }
                 if (node.chain) {
@@ -744,10 +762,8 @@ export class Target {
                         chain.name.length;
                     }
                 }
-                if (this.tags.has('node-sidebar')) {
-                    const sidebar = new view.NodeSidebar(this.view, node);
-                    sidebar.render();
-                }
+                const sidebar = new view.NodeSidebar(this.view, node);
+                sidebar.render();
             }
             const sidebar = new view.ModelSidebar(this.view, this.model, graph);
             sidebar.render();

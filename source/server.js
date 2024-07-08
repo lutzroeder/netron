@@ -47,25 +47,25 @@ message.Graph = class {
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];
-        const args = data.arguments ? data.arguments.map((argument) => new message.Value(argument)) : [];
-        for (const parameter of data.inputs || []) {
-            parameter.arguments = parameter.arguments.map((index) => args[index]).filter((argument) => !argument.initializer);
-            if (parameter.arguments.filter((argument) => !argument.initializer).length > 0) {
-                this.inputs.push(new message.Argument(parameter));
+        const values = data.values ? data.values.map((value) => new message.Value(value)) : [];
+        for (const argument of data.inputs || []) {
+            argument.value = argument.value.map((index) => values[index]).filter((argument) => !argument.initializer);
+            if (argument.value.filter((argument) => !argument.initializer).length > 0) {
+                this.inputs.push(new message.Argument(argument));
             }
         }
-        for (const parameter of data.outputs || []) {
-            parameter.arguments = parameter.arguments.map((index) => args[index]);
-            if (parameter.arguments.filter((argument) => !argument.initializer).length > 0) {
-                this.outputs.push(new message.Argument(parameter));
+        for (const argument of data.outputs || []) {
+            argument.value = argument.value.map((index) => values[index]);
+            if (argument.value.filter((argument) => !argument.initializer).length > 0) {
+                this.outputs.push(new message.Argument(argument));
             }
         }
         for (const node of data.nodes || []) {
-            for (const parameter of node.inputs || []) {
-                parameter.arguments = parameter.arguments.map((index) => args[index]);
+            for (const argument of node.inputs || []) {
+                argument.value = argument.value.map((index) => values[index]);
             }
-            for (const parameter of node.outputs || []) {
-                parameter.arguments = parameter.arguments.map((index) => args[index]);
+            for (const argument of node.outputs || []) {
+                argument.value = argument.value.map((index) => values[index]);
             }
             this.nodes.push(new message.Node(node));
         }
@@ -76,7 +76,7 @@ message.Argument = class {
 
     constructor(data) {
         this.name = data.name || '';
-        this.value = (data.arguments || []);
+        this.value = data.value || [];
         this.type = data.type || '';
     }
 };
@@ -129,6 +129,10 @@ message.TensorShape = class {
 };
 
 message.Tensor = class {
+
+    constructor(data) {
+        this.type = new message.TensorType(data.type);
+    }
 };
 
 message.Error = class extends Error {

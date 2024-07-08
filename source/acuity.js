@@ -264,12 +264,12 @@ acuity.Inference = class {
         });
         operators.set('convolution', (inputs, params) => {
             if (params.padding === 'VALID') {
-                const out_h = ~~((inputs[0][1] + params.stride_h + params.pad[0] + params.pad[1] - params.ksize_h) / params.stride_h);
-                const out_w = ~~((inputs[0][2] + params.stride_w + params.pad[2] + params.pad[3] - params.ksize_w) / params.stride_w);
+                const out_h = Math.floor((inputs[0][1] + params.stride_h + 2 * params.pad_h - params.ksize_h) / params.stride_h);
+                const out_w = Math.floor((inputs[0][2] + params.stride_w + 2 * params.pad_w - params.ksize_w) / params.stride_w);
                 return [[inputs[0][0], out_h, out_w, params.weights]];
             } else if (params.padding === 'SAME') {
-                const out_h = ~~((inputs[0][1] + params.stride_h - 1) / params.stride_h);
-                const out_w = ~~((inputs[0][2] + params.stride_w - 1) / params.stride_w);
+                const out_h = Math.floor((inputs[0][1] + params.stride_h - 1) / params.stride_h);
+                const out_w = Math.floor((inputs[0][2] + params.stride_w - 1) / params.stride_w);
                 return [[inputs[0][0], out_h, out_w, params.weights]];
             }
             return null;

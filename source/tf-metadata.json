@@ -3845,6 +3845,12 @@
         "default": "low_priority_padding_with_max_batch_size"
       },
       {
+        "name": "batch_padding_policy",
+        "type": "string",
+        "description": "Must be one of the following: `PAD_UP`.",
+        "default": "PAD_UP"
+      },
+      {
         "name": "Tin",
         "type": "type[]",
         "description": "the types of tensors to be batched.",
@@ -18795,7 +18801,7 @@
     "outputs": [
       {
         "name": "backprops",
-        "description": "Backpropagated gradients below the FakeQuantWithMinMaxArgs operation:\n`gradients * (inputs >= min && inputs <= max)`.",
+        "description": "Backpropagated gradients below the FakeQuantWithMinMaxArgs operation:\n`gradients * (inputs >= min && inputs <= max)`.\n\n```\nimport tensorflow as tf\n\n# Define some sample data\ngradients = tf.random.uniform((2, 3), minval=-5.0, maxval=5.0, dtype=tf.float32)\ninputs = tf.random.uniform((2, 3), minval=-10.0, maxval=10.0, dtype=tf.float32)\n\n# Define quantization parameters (adjust as needed)\nmin_val = -2.0\nmax_val = 8.0\nnum_bits = 4  # Number of bits for quantization\n\n# Calculate gradients for fake quantization with specified parameters\noutput_gradients = tf.quantization.fake_quant_with_min_max_args_gradient(\n    gradients=gradients, inputs=inputs, min=min_val, max=max_val, num_bits=num_bits, narrow_range = False, name=None\n)\n\n# Print the original gradients and the gradients after the fake-quant operation\nprint(\"Original Gradients:\")\nprint(gradients)\nprint(\"\\nGradients after Fake-Quantization:\")\nprint(output_gradients)\n\n```\n#Original Gradients:\n#tf.Tensor(\n#[[ 1.242547    3.217492    3.568469  ]\n#[-0.55371046  0.23130894  2.608243  ]], shape=(2, 3), dtype=float32)\n\n#Gradients after Fake-Quantization:\n#tf.Tensor(\n#[[ 0.          3.217492    3.568469  ]\n# [-0.55371046  0.23130894  2.608243  ]], shape=(2, 3), dtype=float32)\n",
         "type": 1
       }
     ]
@@ -18803,7 +18809,7 @@
   {
     "name": "FakeQuantWithMinMaxVars",
     "summary": "Fake-quantize the 'inputs' tensor of type float via global float scalars",
-    "description": "Fake-quantize the `inputs` tensor of type float via global float scalars\n`min` and `max` to `outputs` tensor of same shape as `inputs`.\n\nAttributes\n\n*   `[min; max]` define the clamping range for the `inputs` data.\n*   `inputs` values are quantized into the quantization range (\n`[0; 2^num_bits - 1]` when `narrow_range` is false and `[1; 2^num_bits - 1]`\nwhen it is true) and then de-quantized and output as floats in `[min; max]`\ninterval.\n*   `num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\n\n*   If `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\n*   If `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\n*   If `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\nThis operation has a gradient and thus allows for training `min` and `max`\nvalues.",
+    "description": "Fake-quantize the `inputs` tensor of type float via global float scalars\n`min` and `max` to `outputs` tensor of same shape as `inputs`.\n\nAttributes\n\n*   `[min; max]` define the clamping range for the `inputs` data.\n*   `inputs` values are quantized into the quantization range (\n`[0; 2^num_bits - 1]` when `narrow_range` is false and `[1; 2^num_bits - 1]`\nwhen it is true) and then de-quantized and output as floats in `[min; max]`\ninterval.\n*   `num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\n\n*   If `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\n*   If `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\n*   If `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\nThis operation has a gradient and thus allows for training `min` and `max`\nvalues.\n\n>>> constant_input = tf.constant([[1.2, -0.3, 0.7], [2.1, 0.5, -1.0]], dtype=tf.float32)\n>>>\n>>> min_val = -0.5\n>>> max_val = 0.8\n>>> num_bits = 8\n>>> narrow_range = False #False:for the quantization range [0; 2^num_bits - 1]\n>>>\n>>> quantized_data = tf.quantization.fake_quant_with_min_max_vars(\n...   inputs=constant_input, min=min_val, max=max_val, num_bits=num_bits, narrow_range=narrow_range\n... )\n>>>\n>>> print(\"Input:\\n\", constant_input.numpy())\nInput:\n[[ 1.2 -0.3  0.7]\n[ 2.1  0.5 -1. ]]\n>>> print(\"Output:\\n\", quantized_data.numpy())\nOutput:\n[[ 0.8003921 -0.3007843  0.6984313]\n[ 0.8003921  0.4996078 -0.4996078]]\n",
     "attributes": [
       {
         "name": "num_bits",

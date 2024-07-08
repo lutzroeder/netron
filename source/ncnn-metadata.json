@@ -425,7 +425,21 @@
       { "name": "alpha", "type": "float32", "default": 1 },
       { "name": "beta", "type": "float32", "default": 1 },
       { "name": "transA", "type": "int32", "default": 0 },
-      { "name": "transB", "type": "int32", "default": 0 }
+      { "name": "transB", "type": "int32", "default": 0 },
+      { "name": "constantA", "type": "int32", "default": 0 },
+      { "name": "constantB", "type": "int32", "default": 0 },
+      { "name": "constantC", "type": "int32", "default": 0 },
+      { "name": "constantM", "type": "int32", "default": 0 },
+      { "name": "constantN", "type": "int32", "default": 0 },
+      { "name": "constantK", "type": "int32", "default": 0 },
+      { "name": "constant_broadcast_type_C", "type": "int32", "default": 0 },
+      { "name": "output_N1M", "type": "int32", "default": 0 },
+      { "name": "output_elempack", "type": "int32", "default": 0 },
+      { "name": "output_elemtype", "type": "int32", "default": 0 },
+      { "name": "output_transpose", "type": "int32", "default": 0 },
+      { "name": "constant_TILE_M", "type": "int32", "default": 0 },
+      { "name": "constant_TILE_N", "type": "int32", "default": 0 },
+      { "name": "constant_TILE_K", "type": "int32", "default": 0 }
     ]
   },
   {

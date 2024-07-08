@@ -480,11 +480,9 @@ host.ElectronHost = class {
                         resolve(data);
                     });
                 } else {
-                    const err = new Error(`The web request failed with status code ${response.statusCode} at '${location}'.`);
-                    err.type = 'error';
-                    err.url = location;
-                    err.status = response.statusCode;
-                    reject(err);
+                    const error = new Error(`The web request failed with status code '${response.statusCode}'.`);
+                    error.context = location;
+                    reject(error);
                 }
             });
             request.on("error", (err) => {
@@ -492,9 +490,8 @@ host.ElectronHost = class {
             });
             request.on("timeout", () => {
                 request.destroy();
-                const error = new Error(`The web request timed out at '${location}'.`);
-                error.type = 'timeout';
-                error.url = url;
+                const error = new Error('The web request timed out.');
+                error.context = url;
                 reject(error);
             });
             request.end();
