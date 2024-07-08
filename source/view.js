@@ -4999,8 +4999,8 @@ metrics.Tensor = class {
             this._metrics = Array.from(tensor.metrics || []);
             const keys = new Set(this._metrics.map((metrics) => metrics.name));
             if (!keys.has('sparsity')) {
-                // TODO: support channel-wise zeros
-                const zero = tensor.zero != null ? tensor.zero.values[0] : null;
+                // need to support channel-wise zeros in the future
+                const zero = tensor.zero === null ? null : tensor.zero.values[0];
 
                 let zeros = 0;
                 let parameters = 0;
@@ -5012,7 +5012,7 @@ metrics.Tensor = class {
                             stack.push(element);
                         }
                     } else {
-                        zeros += zero != null ? data === zero : data === 0 || data === 0n || data === '';
+                        zeros += zero === null ? data === 0 || data === 0n || data === '' : data === zero;
                         parameters += 1;
                     }
                 }
