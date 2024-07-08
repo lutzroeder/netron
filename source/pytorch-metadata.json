@@ -1,5 +1,15 @@
 [
   {
+    "name": "__torch__.torch.classes.rnn.CellParamsBase",
+    "inputs": [
+      { "name": "type", "type": "string" },
+      { "name": "tensors", "type": "Tensor[]" },
+      { "name": "doubles", "type": "float64[]" },
+      { "name": "longs", "type": "int64[]" },
+      { "name": "packed_params", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase[]" }
+    ]
+  },
+  {
     "name": "__torch__.torch.classes.xnnpack.Conv2dOpContext",
     "inputs": [
       { "name": "weight", "type": "Tensor" },
@@ -10400,11 +10410,132 @@
     ]
   },
   {
-    "name": "aten::quantized_lstm",
+    "name": "aten::quantized_gru.data",
+    "category": "Layer",
+    "inputs": [
+      { "name": "data", "type": "Tensor" },
+      { "name": "batch_sizes", "type": "Tensor" },
+      { "name": "hx", "type": "Tensor" },
+      { "name": "params", "type": "__torch__.torch.classes.rnn.CellParamsBase[]" },
+      { "name": "has_biases", "type": "boolean" },
+      { "name": "num_layers", "type": "int64" },
+      { "name": "dropout", "type": "float32" },
+      { "name": "train", "type": "boolean" },
+      { "name": "bidirectional", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::quantized_gru.data_legacy",
+    "category": "Layer",
+    "inputs": [
+      { "name": "data", "type": "Tensor" },
+      { "name": "batch_sizes", "type": "Tensor" },
+      { "name": "hx", "type": "Tensor" },
+      { "name": "params", "type": "Tensor[]" },
+      { "name": "has_biases", "type": "boolean" },
+      { "name": "num_layers", "type": "int64" },
+      { "name": "dropout", "type": "float32" },
+      { "name": "train", "type": "boolean" },
+      { "name": "bidirectional", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::quantized_gru.input",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "hx", "type": "Tensor" },
+      { "name": "params", "type": "__torch__.torch.classes.rnn.CellParamsBase[]" },
+      { "name": "has_biases", "type": "boolean" },
+      { "name": "num_layers", "type": "int64" },
+      { "name": "dropout", "type": "float32" },
+      { "name": "train", "type": "boolean" },
+      { "name": "bidirectional", "type": "boolean" },
+      { "name": "batch_first", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::quantized_gru.input_legacy",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "hx", "type": "Tensor" },
+      { "name": "params", "type": "Tensor[]" },
+      { "name": "has_biases", "type": "boolean" },
+      { "name": "num_layers", "type": "int64" },
+      { "name": "dropout", "type": "float32" },
+      { "name": "train", "type": "boolean" },
+      { "name": "bidirectional", "type": "boolean" },
+      { "name": "batch_first", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::quantized_lstm.data",
+    "category": "Layer",
+    "inputs": [
+      { "name": "data", "type": "Tensor" },
+      { "name": "batch_sizes", "type": "Tensor" },
+      { "name": "hx", "type": "Tensor[]" },
+      { "name": "params", "type": "__torch__.torch.classes.rnn.CellParamsBase[]" },
+      { "name": "has_biases", "type": "boolean" },
+      { "name": "num_layers", "type": "int64" },
+      { "name": "dropout", "type": "float32" },
+      { "name": "train", "type": "boolean" },
+      { "name": "bidirectional", "type": "boolean" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "use_dynamic", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::quantized_lstm.data_legacy",
+    "category": "Layer",
+    "inputs": [
+      { "name": "data", "type": "Tensor" },
+      { "name": "batch_sizes", "type": "Tensor" },
+      { "name": "hx", "type": "Tensor[]" },
+      { "name": "params", "type": "Tensor[]" },
+      { "name": "has_biases", "type": "boolean" },
+      { "name": "num_layers", "type": "int64" },
+      { "name": "dropout", "type": "float32" },
+      { "name": "train", "type": "boolean" },
+      { "name": "bidirectional", "type": "boolean" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "use_dynamic", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::quantized_lstm.input",
+    "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "hx", "type": "Tensor[]" },
-      { "name": "params", "type": "Tensor[]" },
+      { "name": "params", "type": "__torch__.torch.classes.rnn.CellParamsBase[]" },
       { "name": "has_biases", "type": "boolean" },
       { "name": "num_layers", "type": "int64" },
       { "name": "dropout", "type": "float32" },
@@ -10421,10 +10552,10 @@
     ]
   },
   {
-    "name": "aten::quantized_lstm.data",
+    "name": "aten::quantized_lstm.input_legacy",
+    "category": "Layer",
     "inputs": [
-      { "name": "data", "type": "Tensor" },
-      { "name": "batch_sizes", "type": "Tensor" },
+      { "name": "input", "type": "Tensor" },
       { "name": "hx", "type": "Tensor[]" },
       { "name": "params", "type": "Tensor[]" },
       { "name": "has_biases", "type": "boolean" },
@@ -10432,6 +10563,7 @@
       { "name": "dropout", "type": "float32" },
       { "name": "train", "type": "boolean" },
       { "name": "bidirectional", "type": "boolean" },
+      { "name": "batch_first", "type": "boolean" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "use_dynamic", "type": "boolean", "default": false }
     ],
@@ -15743,6 +15875,41 @@
     ]
   },
   {
+    "name": "quantized::make_quantized_cell_params",
+    "inputs": [
+      { "name": "w_ih", "type": "Tensor" },
+      { "name": "w_hh", "type": "Tensor" },
+      { "name": "b_ih", "type": "Tensor" },
+      { "name": "b_hh", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.rnn.CellParamsBase" }
+    ]
+  },
+  {
+    "name": "quantized::make_quantized_cell_params_dynamic",
+    "inputs": [
+      { "name": "w_ih", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase" },
+      { "name": "w_hh", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase" },
+      { "name": "bias_ih", "type": "Tensor" },
+      { "name": "bias_hh", "type": "Tensor" },
+      { "name": "reduce_range", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.rnn.CellParamsBase" }
+    ]
+  },
+  {
+    "name": "quantized::make_quantized_cell_params_fp16",
+    "inputs": [
+      { "name": "w_ih", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase" },
+      { "name": "w_hh", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase" }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.rnn.CellParamsBase" }
+    ]
+  },
+  {
     "name": "quantized::mul",
     "inputs": [
       { "name": "qa", "type": "Tensor" },
@@ -15963,6 +16130,63 @@
       { "name": "weight", "type": "Tensor" },
       { "name": "output_scale", "type": "float32" },
       { "name": "output_zero_point", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "quantized::quantized_gru_cell_dynamic",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "hx", "type": "Tensor" },
+      { "name": "w_ih", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase" },
+      { "name": "w_hh", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase" },
+      { "name": "b_ih", "type": "Tensor" },
+      { "name": "b_hh", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "quantized::quantized_lstm_cell_dynamic",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "hx", "type": "Tensor[]" },
+      { "name": "w_ih", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase" },
+      { "name": "w_hh", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase" },
+      { "name": "bias_ih", "type": "Tensor" },
+      { "name": "bias_hh", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "quantized::quantized_rnn_relu_cell_dynamic",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "hx", "type": "Tensor" },
+      { "name": "w_ih", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase" },
+      { "name": "w_hh", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase" },
+      { "name": "b_ih", "type": "Tensor" },
+      { "name": "b_hh", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "quantized::quantized_rnn_tanh_cell_dynamic",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "hx", "type": "Tensor" },
+      { "name": "w_ih", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase" },
+      { "name": "w_hh", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase" },
+      { "name": "b_ih", "type": "Tensor" },
+      { "name": "b_hh", "type": "Tensor" }
     ],
     "outputs": [
       { "type": "Tensor" }
