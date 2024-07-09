@@ -2680,6 +2680,26 @@
     ]
   },
   {
+    "name": "aten::bitwise_or_.Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_or_.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::block_diag",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" }
@@ -4699,6 +4719,24 @@
   },
   {
     "name": "aten::erf.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::erfc",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::erfc.out",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
