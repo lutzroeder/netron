@@ -77,8 +77,16 @@ hailo.Graph = class {
                         const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
                         const output = layer.output[i];
                         const name = `${layer.name}\n${output}`;
-                        const argument = new hailo.Argument('input', [values.map(name, type)]);
-                        this.inputs.push(argument);
+                        const savedInput = this.inputs.find((input) => {
+                            return input.value.some((value) => {
+                                return value.name.split('\n')[0] === layer.name
+                            });
+                        });
+                        if(savedInput){
+                            savedInput.value.push(new hailo.Value(name, type || null));
+                        } else {
+                            this.inputs.push(new hailo.Argument('input', [values.map(name, type)]));
+                        }
                     }
                     break;
                 }
@@ -100,6 +108,7 @@ hailo.Graph = class {
                 }
             }
         }
+
     }
 };
 
