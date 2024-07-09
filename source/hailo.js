@@ -108,7 +108,6 @@ hailo.Graph = class {
                 }
             }
         }
-
     }
 };
 
