@@ -1246,7 +1246,7 @@ base.Metadata = class {
             'gguf',
             'hd5', 'hdf5', 'keras',
             'tfl', 'circle', 'lite',
-            'mlnet', 'mar', 'maxviz', 'meta', 'nn', 'ngf', 'hn',
+            'mlnet', 'mar', 'maxviz', 'meta', 'nn', 'ngf', 'hn', 'har',
             'param', 'params',
             'paddle', 'pdiparams', 'pdmodel', 'pdopt', 'pdparams', 'nb',
             'pkl', 'joblib', 'safetensors',
