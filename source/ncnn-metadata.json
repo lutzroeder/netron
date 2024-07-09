@@ -537,6 +537,10 @@
     ]
   },
   {
+    "name": "LeakyReLU",
+    "category": "Activation"
+  },
+  {
     "name": "Log",
     "identifier": 17,
     "attributes": [
