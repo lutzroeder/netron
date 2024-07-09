@@ -5989,7 +5989,7 @@ view.ModelFactoryService = class {
                 { name: 'Git LFS header', value: /^version https:\/\/git-lfs.github.com/ },
                 { name: 'Git LFS header', value: /^\s*oid sha256:/ },
                 { name: 'GGML data', value: /^lmgg|fmgg|tjgg|algg|fugg/ },
-                { name: 'HTML markup', value: /^\s*<html>/ },
+                { name: 'HTML markup', value: /^\s*<html(\s+[^>]+)?>/ },
                 { name: 'HTML markup', value: /^\s*<!doctype\s*html>/ },
                 { name: 'HTML markup', value: /^\s*<!DOCTYPE\s*html>/ },
                 { name: 'HTML markup', value: /^\s*<!DOCTYPE\s*HTML>/ },
