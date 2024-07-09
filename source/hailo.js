@@ -70,7 +70,6 @@ hailo.Graph = class {
         });
         for (const layer of layers) {
             switch (layer.type) {
-                case 'const_input':
                 case 'input_layer': {
                     for (let i = 0; i < layer.output.length; i++) {
                         const shape = Array.isArray(layer.output_shapes) && layer.output_shapes.length > 0 ? layer.output_shapes[0] : null;
