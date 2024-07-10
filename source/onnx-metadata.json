@@ -55096,6 +55096,7 @@
         "description": "Constrain input and output to float tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
+          "tensor(float)",
           "tensor(float16)",
           "tensor(bfloat16)"
         ]
