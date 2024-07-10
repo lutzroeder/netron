@@ -6973,6 +6973,9 @@ tensorflow.ConfigProto.Experimental = class Experimental {
                 case 27:
                     message.enable_multi_host = reader.bool();
                     break;
+                case 32:
+                    message.tfrt_use_ifrt = reader.bool();
+                    break;
                 case 28:
                     message.backend_server_port = reader.int32();
                     break;
@@ -7068,6 +7071,9 @@ tensorflow.ConfigProto.Experimental = class Experimental {
                 case "enable_multi_host":
                     message.enable_multi_host = reader.bool();
                     break;
+                case "tfrt_use_ifrt":
+                    message.tfrt_use_ifrt = reader.bool();
+                    break;
                 case "backend_server_port":
                     message.backend_server_port = reader.int32();
                     break;
@@ -7122,6 +7128,7 @@ tensorflow.ConfigProto.Experimental.prototype.disable_output_partition_graphs = 
 tensorflow.ConfigProto.Experimental.prototype.xla_fusion_autotuner_thresh = 0n;
 tensorflow.ConfigProto.Experimental.prototype.use_tfrt = false;
 tensorflow.ConfigProto.Experimental.prototype.enable_multi_host = false;
+tensorflow.ConfigProto.Experimental.prototype.tfrt_use_ifrt = false;
 tensorflow.ConfigProto.Experimental.prototype.backend_server_port = 0;
 tensorflow.ConfigProto.Experimental.prototype.target_tpu = false;
 tensorflow.ConfigProto.Experimental.prototype.target_gpu = false;
