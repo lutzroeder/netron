@@ -1039,6 +1039,10 @@
     "category": "Activation"
   },
   {
+    "name": "leaky",
+    "category": "Activation"
+  },
+  {
     "name": "layer_normalization",
     "category": "Normalization"
   }

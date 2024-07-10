@@ -2123,6 +2123,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/1058"
   },
   {
+    "type":     "hailo",
+    "target":   "VD_M_sRGB_4k_Apr03.har",
+    "source":   "https://github.com/user-attachments/files/16163445/VD_M_sRGB_4k_Apr03.har.zip[VD_M_sRGB_4k_Apr03.har]",
+    "format":   "Hailo Archive v3.26.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1058"
+  },
+  {
     "type":     "hickle",
     "target":   "googlenet.h5",
     "source":   "https://github.com/vadimkantorov/metriclearningbench/releases/download/data/googlenet.h5",

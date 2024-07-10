@@ -68,6 +68,7 @@ hailo.Graph = class {
             value.name = name;
             return value;
         });
+        const inputs = new Set();
         for (const layer of layers) {
             switch (layer.type) {
                 case 'input_layer': {
@@ -75,9 +76,12 @@ hailo.Graph = class {
                         const shape = Array.isArray(layer.output_shapes) && layer.output_shapes.length > 0 ? layer.output_shapes[0] : null;
                         const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
                         const output = layer.output[i];
-                        const name = `${layer.name}\n${output}`;
-                        const argument = new hailo.Argument('input', [values.map(name, type)]);
-                        this.inputs.push(argument);
+                        if (!inputs.has(output)) {
+                            const name = `${layer.name}\n${output}`;
+                            const argument = new hailo.Argument('input', [values.map(name, type)]);
+                            this.inputs.push(argument);
+                            inputs.add(output);
+                        }
                     }
                     break;
                 }
