@@ -111,7 +111,8 @@
     ]
   },
   {
-    "name": "Const"
+    "name": "Const",
+    "category": "Constant"
   },
   {
     "name": "Convolution",

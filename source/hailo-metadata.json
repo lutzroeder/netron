@@ -1016,6 +1016,7 @@
   },
   {
     "name": "const_input",
+    "category": "Constant",
     "description": "Constant input",
     "attributes": [
       {
@@ -1024,6 +1025,22 @@
         "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
         "visible": false
       }]
+  },
+  {
+    "name": "inv_pos",
+    "category": "Activation"
+  },
+  {
+    "name": "exp",
+    "category": "Activation"
+  },
+  {
+    "name": "silu",
+    "category": "Activation"
+  },
+  {
+    "name": "layer_normalization",
+    "category": "Normalization"
   }
 ]
 

@@ -2102,6 +2102,14 @@
   },
   {
     "type":     "hailo",
+    "target":   "llama.hn",
+    "source":   "https://github.com/user-attachments/files/16163387/llama.hn.zip[llama.hn]",
+    "format":   "Hailo NN",
+    "tags":     "skip-render",
+    "link":     "https://github.com/lutzroeder/netron/issues/1058"
+  },
+  {
+    "type":     "hailo",
     "target":   "resnet_v1_8.hn",
     "source":   "https://github.com/lutzroeder/netron/files/11015765/resnet_v1_8.zip[resnet_v1_8.hn]",
     "format":   "Hailo NN",
