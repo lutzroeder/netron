@@ -5647,8 +5647,11 @@ view.ModelFactoryService = class {
                     { name: 'Transformers generation configuration', tags: ['transformers_version'] },
                     { name: 'Transformers tokenizer configuration', tags: ['tokenizer_class'] },
                     { name: 'Transformers tokenizer configuration', tags: ['<|im_start|>'] },
+                    { name: 'Transformers preprocessor configuration', tags: ['crop_size', 'do_center_crop', 'image_mean', 'image_std', 'do_resize'] },
                     { name: 'Jupyter Notebook data', tags: ['cells', 'nbformat'] },
-                    { name: 'Kaggle credentials', tags: ['username','key'] }
+                    { name: 'Kaggle credentials', tags: ['username','key'] },
+                    { name: '.NET runtime configuration', tags: ['runtimeOptions.configProperties'] },
+                    { name: '.NET dependency manifest', tags: ['runtimeTarget', 'targets', 'libraries'] }
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
