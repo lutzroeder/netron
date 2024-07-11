@@ -7353,6 +7353,28 @@
     ]
   },
   {
+    "name": "aten::linalg_qr",
+    "inputs": [
+      { "name": "A", "type": "Tensor" },
+      { "name": "mode", "type": "string", "default": "reduced" }
+    ],
+    "outputs": [
+      { "name": "Q", "type": "Tensor" },
+      { "name": "R", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::linalg_qr.out",
+    "inputs": [
+      { "name": "A", "type": "Tensor" },
+      { "name": "mode", "type": "string", "default": "reduced" }
+    ],
+    "outputs": [
+      { "name": "Q", "type": "Tensor" },
+      { "name": "R", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::linalg_solve",
     "inputs": [
       { "name": "A", "type": "Tensor" },
@@ -7424,6 +7446,32 @@
     ],
     "outputs": [
       { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::linalg_svd",
+    "inputs": [
+      { "name": "A", "type": "Tensor" },
+      { "name": "full_matrices", "type": "boolean", "default": true },
+      { "name": "driver", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "U", "type": "Tensor" },
+      { "name": "S", "type": "Tensor" },
+      { "name": "Vh", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::linalg_svd.U",
+    "inputs": [
+      { "name": "A", "type": "Tensor" },
+      { "name": "full_matrices", "type": "boolean", "default": true },
+      { "name": "driver", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "U", "type": "Tensor" },
+      { "name": "S", "type": "Tensor" },
+      { "name": "Vh", "type": "Tensor" }
     ]
   },
   {
