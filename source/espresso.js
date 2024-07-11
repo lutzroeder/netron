@@ -404,6 +404,11 @@ espresso.Reader = class {
             delete data.blob_weights;
             return;
         }
+        if (data.blob_weights_f16 !== undefined) {
+            obj.inputs.push(this._initializer('weights', data.blob_weights_f16, 'float16', dimensions));
+            delete data.blob_weights_f16;
+            return;
+        }
         const keys = ['wBeta', 'wGamma', 'W_S8', 'W_int8', 'W_t_int8'];
         for (const key of keys) {
             if (data.weights && data.weights[key] !== undefined) {

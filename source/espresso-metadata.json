@@ -70,5 +70,9 @@
   {
     "name": "squeeze",
     "category": "Transform"
+  },
+  {
+    "name": "rnn_arch",
+    "category": "layer"
   }
 ]
