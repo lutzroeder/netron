@@ -785,12 +785,13 @@ ncnn.BlobReader = class {
                     const f2 = this._buffer[this._position++];
                     const f3 = this._buffer[this._position++];
                     const type = f0 | f1 << 8 | f2 << 16 | f3 << 24;
+                    // https://github.com/Tencent/ncnn/blob/c59885aeac6cec0dbfa010efc0b5c25bed5208b7/src/modelbin.cpp#L197
                     switch (type) {
                         case 0x00000000: dataType = 'float32'; break;
                         case 0x01306B47: dataType = 'float16'; break;
                         case 0x000D4B38: dataType = 'int8'; break;
                         case 0x00000001: dataType = 'qint8'; break;
-                        case 0x0002C056: // size * sizeof(float) - raw data with extra scaling
+                        // case 0x0002C056: size * sizeof(float) - raw data with extra scaling
                         default: {
                             const hex = (type >>> 0).toString(16).padStart(8, '0');
                             throw new ncnn.Error(`Unsupported weight type '${hex}'.`);
@@ -812,10 +813,6 @@ ncnn.BlobReader = class {
                     }
                     const itemsize = dataTypes.get(dataType);
                     const size = shape.reduce((a, b) => a * b, 1) * itemsize;
-                    const remainder = this._position % itemsize;
-                    if (remainder !== 0) {
-                        this._position += remainder;
-                    }
                     const position = this._position;
                     if (dataType === 'qint8') {
                         this._position += size + 1024;
@@ -823,6 +820,10 @@ ncnn.BlobReader = class {
                     } else {
                         this._position += size;
                         data = this._buffer.subarray(position, this._position);
+                    }
+                    const remainder = this._position % 4;
+                    if (remainder !== 0) {
+                        this._position += 4 - remainder;
                     }
                 }
             }
