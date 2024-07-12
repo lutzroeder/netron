@@ -2090,6 +2090,8 @@ python.Execution = class {
         this.registerType('gensim.models.keyedvectors.KeyedVectors', class {});
         this.registerType('gensim.models.keyedvectors.Vocab', class {});
         this.registerType('gensim.models.keyedvectors.Word2VecKeyedVectors', class {});
+        this.registerType('gensim.models.ldamodel.LdaState', class {});
+        this.registerType('gensim.models.ldamulticore.LdaMulticore', class {});
         this.registerType('gensim.models.phrases.Phrases', class {});
         this.registerType('gensim.models.tfidfmodel.TfidfModel', class {});
         this.registerType('gensim.models.word2vec.Vocab', class {});
@@ -4024,6 +4026,9 @@ python.Execution = class {
             file.write(encoder.encode(header));
             file.write(arr.tobytes());
         });
+        this.registerFunction('numpy.amin');
+        this.registerFunction('numpy.amax');
+        this.registerFunction('numpy.std');
         this.registerFunction('numpy.asarray', (a, dtype) => {
             const encode = (context, data, dim) => {
                 const size = context.shape[dim];
