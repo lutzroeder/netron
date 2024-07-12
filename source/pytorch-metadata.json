@@ -2218,6 +2218,24 @@
     ]
   },
   {
+    "name": "aten::asinh",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::asinh.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::atan",
     "inputs": [
       { "name": "self", "type": "Tensor" }
