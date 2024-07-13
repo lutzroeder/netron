@@ -149,7 +149,6 @@ json.TextReader = class {
                     switch (key) {
                         case '__proto__':
                         case 'constructor':
-                        case 'prototype':
                             throw new json.Error(`Invalid key '${key}' ${this._location()}`);
                         default:
                             break;

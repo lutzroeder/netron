@@ -5648,6 +5648,7 @@ view.ModelFactoryService = class {
                     { name: 'Transformers tokenizer configuration', tags: ['tokenizer_class'] },
                     { name: 'Transformers tokenizer configuration', tags: ['<|im_start|>'] },
                     { name: 'Transformers preprocessor configuration', tags: ['crop_size', 'do_center_crop', 'image_mean', 'image_std', 'do_resize'] },
+                    { name: 'Tokenizers data', tags: ['version', 'added_tokens', 'model'] }, // https://github.com/huggingface/tokenizers/blob/main/tokenizers/src/tokenizer/serialization.rs
                     { name: 'Jupyter Notebook data', tags: ['cells', 'nbformat'] },
                     { name: 'Kaggle credentials', tags: ['username','key'] },
                     { name: '.NET runtime configuration', tags: ['runtimeOptions.configProperties'] },
@@ -6013,7 +6014,8 @@ view.ModelFactoryService = class {
                 { name: 'SenseTime model', value: /^STEF/ },
                 { name: 'AES Crypt data', value: /^AES[\x01|\x02]\x00/ },
                 { name: 'BModel data', value: /^\xEE\xAA\x55\xFF/ }, // https://github.com/sophgo/tpu-mlir/blob/master/include/tpu_mlir/Builder/BM168x/bmodel.fbs
-                { name: 'CviModel data', value: /^CviModel/ } // https://github.com/sophgo/tpu-mlir/blob/master/include/tpu_mlir/Builder/CV18xx/proto/cvimodel.fbs
+                { name: 'CviModel data', value: /^CviModel/ }, // https://github.com/sophgo/tpu-mlir/blob/master/include/tpu_mlir/Builder/CV18xx/proto/cvimodel.fbs
+                { name: 'Tokenizer data', value: /^IQ== 0\n/ }
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));

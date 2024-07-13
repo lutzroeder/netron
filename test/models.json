@@ -154,6 +154,20 @@
   },
   {
     "type":     "_",
+    "target":   "tokenizer.json",
+    "source":   "https://github.com/user-attachments/files/16203071/tokenizer.json.zip[tokenizer.json]",
+    "error":    "Invalid file content. File contains Tokenizers data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":     "_",
+    "target":   "tokenizer.model",
+    "source":   "https://github.com/user-attachments/files/16203080/tokenizer.model.zip[tokenizer.model]",
+    "error":    "Invalid file content. File contains Tokenizer data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":     "_",
     "target":   "tflite.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/14879318/tflite.onnx.zip[tflite.onnx]",
     "error":    "Invalid file content. File contains TensorFlow Lite model data.",
