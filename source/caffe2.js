@@ -475,11 +475,14 @@ caffe2.TensorType = class {
 caffe2.TensorShape = class {
 
     constructor(dimensions) {
-        this.dimensions = dimensions;
+        this.dimensions = Array.isArray(dimensions) ? dimensions.map((dim) => typeof dim === 'bigint' ? dim.toNumber() : dim) : dimensions;
     }
 
     toString() {
-        return this.dimensions ? (`[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`) : '';
+        if (Array.isArray(this.dimensions) && this.dimensions.length > 0) {
+            return `[${this.dimensions.map((dim) => dim.toString()).join(',')}]`;
+        }
+        return '';
     }
 };
 
