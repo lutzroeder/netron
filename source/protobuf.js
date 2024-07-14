@@ -321,12 +321,12 @@ protobuf.BinaryReader = class {
                 this._unexpected();
             }
             const length = size >>> 2;
-            obj = size > 1048576 ? new Float32Array(length) : new Array(length);
+            obj = size > 0x100000 ? new Float32Array(length) : new Array(length);
             for (let i = 0; i < length; i++) {
                 obj[i] = this.float();
             }
             this._position = end;
-        } else if (obj !== undefined && obj.length < 1000000) {
+        } else if (obj !== undefined && obj.length <= 0x4000000) {
             obj.push(this.float());
         } else {
             obj = undefined;
