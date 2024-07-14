@@ -267,6 +267,7 @@ const main = async () => {
     try {
         const args = process.argv.length > 2 ? process.argv.slice(2) : [];
         const measure = args.length > 0 && args[0] === 'measure' ? args.shift() : null;
+        const profile = args.length > 0 && args[0] === 'profile' ? args.shift() : null;
         const exists = await Promise.all(args.map((pattern) => access(pattern)));
         const paths = exists.length > 0 && exists.every((value) => value);
         const patterns = paths ? [] : args;
@@ -278,6 +279,20 @@ const main = async () => {
         if (measure) {
             measures = new Table(['name', 'download', 'load', 'validate', 'render']);
             await measures.log(dirname('..', 'dist', 'test', 'measures.csv'));
+        }
+        let session = null;
+        if (profile) {
+            session = new inspector.Session();
+            session.connect();
+            await new Promise((resolve, reject) => {
+                session.post('Profiler.enable', (error) => error ? reject(error) : resolve());
+            });
+            await new Promise((resolve, reject) => {
+                session.post('Profiler.start', (error) => error ? reject(error) : resolve());
+            });
+            /* eslint-disable no-console */
+            console.profile();
+            /* eslint-enable no-console */
         }
         if (threads === 1) {
             const worker = await import('./worker.js');
@@ -316,6 +331,17 @@ const main = async () => {
                 write(`${key} ${value}\n`);
             }
             write('\n');
+        }
+        if (profile) {
+            /* eslint-disable no-console */
+            console.profileEnd();
+            /* eslint-enable no-console */
+            const data = await new Promise((resolve, reject) => {
+                session.post('Profiler.stop', (error, data) => error ? reject(error) : resolve(data));
+            });
+            session.disconnect();
+            const file = dirname('..', 'dist', 'test', 'profile.cpuprofile');
+            await fs.writeFile(file, JSON.stringify(data.profile), 'utf-8');
         }
     } catch (error) {
         exit(error);
