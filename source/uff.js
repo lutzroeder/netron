@@ -252,11 +252,12 @@ uff.TensorShape = class {
         if (shape.type !== 'i_list') {
             throw new uff.Error(`Unsupported shape format '${JSON.stringify(shape.type)}'.`);
         }
-        this.dimensions = shape.i_list.val;
+        const dimensions = shape.i_list.val;
+        this.dimensions = dimensions.map((dim) => typeof dim === 'bigint' ? dim.toNumber() : dim);
     }
 
     toString() {
-        if (this.dimensions && this.dimensions.length > 0) {
+        if (Array.isArray(this.dimensions) && this.dimensions.length > 0) {
             return `[${this.dimensions.join(',')}]`;
         }
         return '';
