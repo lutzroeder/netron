@@ -745,6 +745,12 @@ export class Target {
                         for (const value of input.value) {
                             validateValue(value);
                         }
+                        if (this.tags.has('validation')) {
+                            if (input.value.length === 1 && input.value[0].initializer) {
+                                const sidebar = new view.TensorSidebar(this.view, input);
+                                sidebar.render();
+                            }
+                        }
                     }
                 }
                 for (const output of node.outputs) {

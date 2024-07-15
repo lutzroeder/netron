@@ -5312,6 +5312,7 @@
     "source":   "https://github.com/lutzroeder/netron/files/11149538/model.ptl.zip[model.ptl]",
     "format":   "TorchScript v1.6",
     "assert":   "model.graphs[0].nodes[0].inputs[1].type == 'object'",
+    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/1067"
   },
   {
@@ -5808,7 +5809,7 @@
     "source":   "https://github.com/lutzroeder/netron/files/9541426/sparse_coo.pth.zip[sparse_coo.pth]",
     "format":   "PyTorch v1.6",
     "assert":   "model.graphs[0].nodes[0].inputs[0].value[0].type.layout == 'sparse.coo'",
-    "tag":      "validation",
+    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
@@ -7511,15 +7512,6 @@
     "format":   "TensorFlow Lite v3",
     "tags":     "quantization",
     "link":     "https://github.com/kosslab-kr/Tizen-NN-Runtime"
-  },
-  {
-     "type":     "tnn",
-     "target":   "instance_normalization.tnnproto",
-     "source":   "https://github.com/lutzroeder/netron/files/5124180/instance_normalization.zip[instance_normalization.tnnproto]",
-     "format":   "TNN",
-     "assert":   "model.graphs[0].nodes[0].inputs.length == 1",
-     "tags":     "validation",
-     "link":     "https://github.com/lutzroeder/netron/pull/583"
   },
   {
     "type":     "tnn",

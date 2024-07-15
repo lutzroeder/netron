@@ -3361,22 +3361,21 @@ view.TensorSidebar = class extends view.ObjectSidebar {
                 }
             }
         }
-        /*
         // Metrics
         if (value.initializer) {
-            if (!tensor.empty) {
+            if (!this._tensor.empty) {
                 if (!this._metrics) {
                     this._metrics = new metrics.Tensor(this._tensor);
                 }
-                this.addHeader('Metrics');
-                const metrics = this._metrics.metrics;
-                for (const metric of metrics) {
-                    const value = metric.type === 'percentage' ? `${(metric.value * 100).toFixed(1)}%` : metric.value;
-                    this.addProperty(metric.name, [value]);
+                if (this._metrics.metrics.length > 0) {
+                    this.addHeader('Metrics');
+                    for (const metric of this._metrics.metrics) {
+                        const value = metric.type === 'percentage' ? `${(metric.value * 100).toFixed(1)}%` : metric.value;
+                        this.addProperty(metric.name, [value]);
+                    }
                 }
             }
         }
-        */
     }
 
     activate() {
@@ -5014,17 +5013,24 @@ metrics.Tensor = class {
 
     constructor(tensor) {
         this._tensor = tensor;
+        this._metrics = null;
     }
 
     get metrics() {
-        if (!this._metrics) {
-            const tensor = this._tensor;
-            const data = tensor.value;
-            this._metrics = Array.from(tensor.metrics || []);
+        if (this._metrics === null) {
+            this._metrics = [];
+            this._metrics = Array.from(this._tensor.metrics || []);
             const keys = new Set(this._metrics.map((metrics) => metrics.name));
-            if (!keys.has('sparsity')) {
+            const type = this._tensor.type;
+            const shape = type.shape.dimensions;
+            const size = shape.reduce((a, b) => a * b, 1);
+            if (type.dataType.startsWith('float') && size < 0x800000 && (!keys.has('sparsity') || !keys.has('min') || !keys.has('max') && !keys.has('mean') || !keys.has('max') || !keys.has('std'))) {
+                const data = this._tensor.value;
                 let zeros = 0;
-                let parameters = 0;
+                let min = null;
+                let max = null;
+                let sum = 0;
+                let count = 0;
                 const stack = [data];
                 while (stack.length > 0) {
                     const data = stack.pop();
@@ -5034,12 +5040,40 @@ metrics.Tensor = class {
                         }
                     } else {
                         zeros += data === 0 || data === 0n || data === '';
-                        parameters += 1;
+                        min = Math.min(data, min === null ? data : min);
+                        max = Math.max(data, max === null ? data : max);
+                        sum += data;
+                        count += 1;
                     }
                 }
-                const value = parameters > 0 ? zeros / parameters : 0;
-                const argument = new metrics.Argument('sparsity', value, 'percentage');
-                this._metrics.push(argument);
+                const mean = sum / count;
+                if (!keys.has('sparsity')) {
+                    this._metrics.push(new metrics.Argument('min', min, type.dataType));
+                }
+                if (!keys.has('max')) {
+                    this._metrics.push(new metrics.Argument('max', max, type.dataType));
+                }
+                if (!keys.has('mean')) {
+                    this._metrics.push(new metrics.Argument('mean', mean, type.dataType));
+                }
+                if (!keys.has('std')) {
+                    let variance = 0;
+                    const stack = [data];
+                    while (stack.length > 0) {
+                        const data = stack.pop();
+                        if (Array.isArray(data)) {
+                            for (const element of data) {
+                                stack.push(element);
+                            }
+                        } else {
+                            variance += Math.pow(data - mean, 2);
+                        }
+                    }
+                    this._metrics.push(new metrics.Argument('std', Math.sqrt(variance / count)));
+                }
+                if (!keys.has('sparsity')) {
+                    this._metrics.push(new metrics.Argument('sparsity', count > 0 ? zeros / count : 0, 'percentage'));
+                }
             }
         }
         return this._metrics;
@@ -6135,6 +6169,7 @@ export const View = view.View;
 export const ModelFactoryService = view.ModelFactoryService;
 export const ModelSidebar = view.ModelSidebar;
 export const NodeSidebar = view.NodeSidebar;
+export const TensorSidebar = view.TensorSidebar;
 export const Documentation = view.Documentation;
 export const Formatter = view.Formatter;
 export const Tensor = view.Tensor;
