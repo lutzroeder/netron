@@ -107,7 +107,7 @@ paddle.ModelFactory = class {
                     }
                     const formatVersion = (version) => {
                         if (version && version.version !== undefined) {
-                            const number = Number(version.version);
+                            const number = version.version.toNumber();
                             if (number > 0) {
                                 const list = [Math.floor(number / 1000000) % 1000, Math.floor(number / 1000) % 1000, number % 1000];
                                 if (list.slice(-1).pop() === 0) {
@@ -810,7 +810,8 @@ paddle.Utility = class {
         const buffer = stream.read(length);
         const reader = protobuf.BinaryReader.open(buffer);
         const tensorDesc = paddle.proto.VarType.TensorDesc.decode(reader);
-        const size = tensorDesc.dims.reduce((a, b) => a * Number(b), 1);
+        const dims = tensorDesc.dims.map((dim) => dim.toNumber());
+        const size = dims.reduce((a, b) => a * b, 1);
         let itemsize = 0;
         switch (tensorDesc.data_type) {
             case paddle.DataType.FP16: itemsize = 2; break;

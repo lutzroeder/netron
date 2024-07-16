@@ -460,7 +460,7 @@ caffe.Node = class {
                 type = metadata.type;
             }
             if (value instanceof caffe.proto.BlobShape) {
-                value = new caffe.TensorShape(value.dim.map((dim) => Number(dim)));
+                value = new caffe.TensorShape(value.dim.map((dim) => dim.toNumber()));
                 type = 'shape';
             }
             if (metadata && metadata.visible === false) {

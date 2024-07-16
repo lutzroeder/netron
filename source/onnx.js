@@ -59,7 +59,7 @@ onnx.Model = class {
         if (model.opset_import && model.opset_import.length > 0) {
             for (const opset_import of model.opset_import) {
                 const domain = opset_import.domain || 'ai.onnx';
-                const version = typeof opset_import.version === 'bigint' ? Number(opset_import.version) : opset_import.version;
+                const version = typeof opset_import.version === 'bigint' ? opset_import.version.toNumber() : opset_import.version;
                 if (!imports.has(domain) || imports.get(domain) > version) {
                     imports.set(domain, version);
                 }
@@ -2056,7 +2056,7 @@ onnx.TextReader = class {
             this.model = this._parseModel();
             this.format = 'ONNX Text';
             if (this.model.ir_version !== undefined) {
-                const version = typeof this.model.ir_version === 'bigint' ? Number(this.model.ir_version) : this.model.ir_version;
+                const version = typeof this.model.ir_version === 'bigint' ? this.model.ir_version.toNumber() : this.model.ir_version;
                 this.format += ` v${version}`;
             }
             delete this._decoder;

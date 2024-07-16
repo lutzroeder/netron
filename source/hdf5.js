@@ -357,7 +357,7 @@ hdf5.Reader = class {
             case 0: return this.byte();
             case 1: return this.uint16();
             case 2: return this.uint32();
-            case 3: return Number(this.uint64());
+            case 3: return this.uint64().toNumber();
             default: throw new hdf5.Error(`Unsupported uint size '${size}'.`);
         }
     }
@@ -395,10 +395,7 @@ hdf5.Reader = class {
                 if (value === 0xffffffffffffffffn) {
                     return -1;
                 }
-                if (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) {
-                    throw new hdf5.Error('Unsigned 64-bit value exceeds safe integer.');
-                }
-                return Number(value);
+                return value.toNumber();
             }
             case 4: {
                 const value = this.uint32();
@@ -421,10 +418,7 @@ hdf5.Reader = class {
                 if (value === 0xffffffffffffffffn) {
                     return -1;
                 }
-                if (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) {
-                    throw new hdf5.Error('Unsigned 64-bit value exceeds safe integer.');
-                }
-                return Number(value);
+                return value.toNumber();
             }
             case 4: {
                 const value = this.uint32();

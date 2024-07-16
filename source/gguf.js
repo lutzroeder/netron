@@ -332,7 +332,7 @@ gguf.BinaryReader = class {
     }
 
     string() {
-        const size = Number(this.uint64());
+        const size = this.uint64().toNumber();
         const buffer = this.read(size);
         return String.fromCharCode.apply(null, buffer);
     }
@@ -356,7 +356,7 @@ gguf.BinaryReader = class {
             }
             case gguf.Type.ARRAY: {
                 const type = this.uint32();
-                const size = Number(this.uint64());
+                const size = this.uint64().toNumber();
                 const value = new Array(size);
                 for (let i = 0; i < size; i++) {
                     value[i] = this.value(type);
@@ -382,10 +382,10 @@ gguf.BinaryReader = class {
         const n_dims = this.uint32();
         tensor.ne = new Array(n_dims);
         for (let i = 0; i < n_dims; i++) {
-            tensor.ne[i] = Number(this.uint64());
+            tensor.ne[i] = this.uint64().toNumber();
         }
         tensor.type = this.uint32();
-        tensor.offset = Number(this.uint64());
+        tensor.offset = this.uint64().toNumber();
         return tensor;
     }
 };

@@ -181,7 +181,7 @@ espresso.Node = class {
                         value = value.map((item) => Number(item));
                     }
                     if (typeof value === 'bigint') {
-                        value = Number(value);
+                        value = value.toNumber();
                     }
                     if (JSON.stringify(schema.default) === JSON.stringify(value)) {
                         visible = false;

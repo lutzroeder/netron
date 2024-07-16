@@ -313,7 +313,7 @@ cntk.Node = class {
                     delete this.type.identifier;
                 } else if (Object.prototype.hasOwnProperty.call(obj, 'op')) {
                     // cntk/Source/CNTKv2LibraryDll/API/Internals/PrimitiveOpType.h
-                    const op = Number(obj.op);
+                    const op = obj.op.toNumber();
                     this.type = { ...metadata.type(op) };
                     delete this.type.identifier;
                 } else {
