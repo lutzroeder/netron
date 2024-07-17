@@ -1818,11 +1818,13 @@ view.Graph = class extends grapher.Graph {
         const inputs = signature ? signature.inputs : graph.inputs;
         const outputs = signature ? signature.outputs : graph.outputs;
         if (Array.isArray(inputs)) {
-            for (const input of inputs) {
-                const viewInput = this.createInput(input);
-                this.setNode(viewInput);
-                for (const value of input.value) {
-                    this.createValue(value).from = viewInput;
+            for (const argument of inputs) {
+                if (argument.visible !== false) {
+                    const viewInput = this.createInput(argument);
+                    this.setNode(viewInput);
+                    for (const value of argument.value) {
+                        this.createValue(value).from = viewInput;
+                    }
                 }
             }
         }
@@ -1836,8 +1838,8 @@ view.Graph = class extends grapher.Graph {
                     outputs = chainOutputs;
                 }
             }
-            for (const output of outputs) {
-                for (const value of output.value) {
+            for (const argument of outputs) {
+                for (const value of argument.value) {
                     if (!value) {
                         throw new view.Error('Invalid null argument.');
                     }
@@ -1884,11 +1886,13 @@ view.Graph = class extends grapher.Graph {
             }
         }
         if (Array.isArray(outputs)) {
-            for (const output of outputs) {
-                const viewOutput = this.createOutput(output);
-                this.setNode(viewOutput);
-                for (const value of output.value) {
-                    this.createValue(value).to.push(viewOutput);
+            for (const argument of outputs) {
+                if (argument.visible !== false) {
+                    const viewOutput = this.createOutput(argument);
+                    this.setNode(viewOutput);
+                    for (const value of argument.value) {
+                        this.createValue(value).to.push(viewOutput);
+                    }
                 }
             }
         }
