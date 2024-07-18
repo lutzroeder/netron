@@ -24,14 +24,14 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: latest
+          node-version: 22.4.1
 
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: 3.11
 
-      - name: Install npm packages 
+      - name: Install npm packages
         run: npm install
 
       - name: Validate
