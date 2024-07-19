@@ -3680,9 +3680,11 @@ python.Execution = class {
             }
             return undefined;
         });
-        this.registerFunction('dill._dill._create_type', (/* typeobj */) => {
-            // return execution.invoke(typeobj, Array.from(arguments).slice(1));
-            throw new python.Error("'dill._dill._create_type' not implemented.");
+        this.registerFunction('dill._dill._create_type', (typeobj, ...args) => {
+            const [name, bases, dict] = args;
+            const type = class extends bases[0] {};
+            const identifier = dict.__module__ ? `${dict.__module__}.${name}` : name;
+            return self.registerType(identifier, Object.assign(type, dict));
         });
         this.registerFunction('dill._dill._eval_repr');
         this.registerFunction('dill._dill._get_attr', (self, name) => {

@@ -4757,7 +4757,7 @@
     "target":   "dill_custom_class.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/13035743/dill_custom_class.pkl.zip[dill_custom_class.pkl]",
     "format":   "Pickle",
-    "error":    "'dill._dill._create_type' not implemented.\nUnknown type name '__builtin__.__main__'.",
+    "error":    "Unknown type name '__builtin__.__main__'.\nUnsupported Pickle type '__main__.CustomClass'.",
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
