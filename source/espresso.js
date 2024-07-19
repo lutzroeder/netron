@@ -320,7 +320,8 @@ espresso.Reader = class {
                 obj.outputs = [{ name: 'outputs', value: top }];
                 obj.chain = [];
                 switch (type) {
-                    case 'convolution': {
+                    case 'convolution':
+                    case 'deconvolution': {
                         this._weights(obj, data, [data.C, data.K, data.Nx, data.Ny]);
                         if (data.has_biases) {
                             obj.inputs.push(this._initializer('biases', data.blob_biases, 'float32', [data.C]));
@@ -330,6 +331,11 @@ espresso.Reader = class {
                         if (obj.inputs.length === 1) {
                             throw new espresso.Error('Missing weights.');
                         }
+                        break;
+                    }
+                    case 'batchnorm': {
+                        obj.inputs.push(this._initializer('params', data.blob_batchnorm_params, 'float32', [4, data.C]));
+                        delete data.blob_batchnorm_params;
                         break;
                     }
                     case 'inner_product': {

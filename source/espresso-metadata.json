@@ -32,6 +32,10 @@
     "category": "Normalization"
   },
   {
+    "name": "batchnorm",
+    "category": "Normalization"
+  },
+  {
     "name": "reshape",
     "category": "Shape"
   },
@@ -73,6 +77,10 @@
   },
   {
     "name": "rnn_arch",
-    "category": "layer"
+    "category": "Layer"
+  },
+  {
+    "name": "flatten",
+    "category": "Shape"
   }
 ]
