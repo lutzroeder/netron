@@ -65932,6 +65932,72 @@
     ]
   },
   {
+    "name": "XlaSparseDenseMatmulGradWithCsrInput",
+    "attributes": [
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "M",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "custom_computation",
+        "type": "function"
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "tables",
+        "numberAttr": "N",
+        "type": 1
+      },
+      {
+        "name": "hyperparameters",
+        "numberAttr": "M",
+        "type": 1
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_tables",
+        "numberAttr": "N",
+        "type": 1
+      }
+    ]
+  },
+  {
     "name": "XlaSparseDenseMatmulGradWithFtrlAndCsrInput",
     "attributes": [
       {
