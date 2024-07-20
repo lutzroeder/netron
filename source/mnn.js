@@ -275,6 +275,7 @@ mnn.Tensor = class {
                 this.encoding = '|';
                 this.values = data ? data.slice(0) : null;
                 break;
+            case 'int8':
             case 'uint8':
             case 'float16':
             case 'bfloat16':
