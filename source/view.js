@@ -5806,16 +5806,27 @@ view.ModelFactoryService = class {
             }
         };
         const flatbuffers = () => {
-            const reader = context.peek('flatbuffers.binary');
-            if (reader) {
-                const file_identifier = reader.identifier;
-                const formats = [
-                    { name: 'ONNX Runtime model data', identifier: 'ORTM' },
-                    { name: 'TensorFlow Lite model data', identifier: 'TFL3' }
-                ];
-                for (const format of formats) {
-                    if (file_identifier === format.identifier) {
-                        throw new view.Error(`Invalid file content. File contains ${format.name}.`);
+            const stream = context.stream;
+            if (stream && stream.length >= 8) {
+                let identifier = null;
+                const reader = context.peek('flatbuffers.binary');
+                if (reader) {
+                    identifier = reader.identifier;
+                } else {
+                    const data = stream.peek(8);
+                    if ((data[0] === 0x08 || data[0] === 0x18 || data[0] === 0x1C) && data[1] === 0x00 && data[2] === 0x00 && data[2] === 0x00) {
+                        identifier = String.fromCharCode.apply(null, data.slice(4, 8));
+                    }
+                }
+                if (identifier) {
+                    const formats = [
+                        { name: 'ONNX Runtime model data', identifier: 'ORTM' },
+                        { name: 'TensorFlow Lite model data', identifier: 'TFL3' }
+                    ];
+                    for (const format of formats) {
+                        if (identifier === format.identifier) {
+                            throw new view.Error(`Invalid file content. File contains ${format.name}.`);
+                        }
                     }
                 }
             }

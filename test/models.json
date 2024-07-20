@@ -91,6 +91,13 @@
   },
   {
     "type":     "_",
+    "target":   "invalid.tflite",
+    "source":   "https://github.com/user-attachments/files/16322406/invalid.tflite.zip[invalid.tflite]",
+    "error":    "Invalid file content. File contains TensorFlow Lite model data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":     "_",
     "target":   "invalid_git_lfs.mlmodel",
     "source":   "https://github.com/lutzroeder/netron/files/4432767/invalid_git_lfs.mlmodel.zip[invalid_git_lfs.mlmodel]",
     "error":    "Invalid file content. File contains Git LFS header.",
