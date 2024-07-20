@@ -1808,6 +1808,7 @@ python.Execution = class {
         this.registerFunction('operator.ne');
         this.registerFunction('operator.floordiv');
         this.registerFunction('operator.sub');
+        this.registerFunction('sys.path.append', () => {});
         this.registerFunction('sys.path.insert', () => {});
         this.registerType('argparse.Namespace', class {
             constructor(args) {
@@ -2311,6 +2312,7 @@ python.Execution = class {
         this.registerType('megengine.module.qat.elemwise.Elemwise', class {});
         this.registerType('megengine.module.sequential.Sequential', class {});
         this.registerType('megengine.quantization.fake_quant.FakeQuantize', class {});
+        this.registerType('megengine.quantization.fake_quant.LSQ', class {});
         this.registerType('megengine.quantization.fake_quant.TQT', class {});
         this.registerType('megengine.quantization.utils.QParams', class {});
         this.registerType('megengine.quantization.utils.QuantMode', class {});
