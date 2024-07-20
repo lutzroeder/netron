@@ -453,6 +453,16 @@
     ]
   },
   {
+    "name": "aten::__isnot__",
+    "inputs": [
+      { "name": "self", "type": "t1" },
+      { "name": "obj", "type": "t2" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
     "name": "aten::__ixor__.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -2079,6 +2089,15 @@
       { "name": "stable", "type": "boolean" },
       { "name": "dim", "type": "int64", "default": -1 },
       { "name": "descending", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::argwhere",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -6263,6 +6282,26 @@
     ]
   },
   {
+    "name": "aten::hardshrink",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "lambd", "type": "Scalar", "default": 0.5 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::hardshrink.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "lambd", "type": "Scalar", "default": 0.5 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::hardsigmoid",
     "category": "Activation",
     "inputs": [
@@ -9684,6 +9723,17 @@
     ]
   },
   {
+    "name": "aten::nested_to_padded_tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "padding", "type": "float32" },
+      { "name": "output_size", "type": "int64[]", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::new_empty",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -10391,6 +10441,18 @@
       { "name": "dim", "type": "int64" },
       { "name": "keepdim", "type": "boolean", "default": false },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::put_",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "index", "type": "Tensor" },
+      { "name": "source", "type": "Tensor" },
+      { "name": "accumulate", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -14996,7 +15058,106 @@
     ]
   },
   {
-    "name": "prim::NumToTensor"
+    "name": "prim::AutogradAdd",
+    "inputs": [
+      { "name": "a", "type": "Any" },
+      { "name": "b", "type": "Any" }
+    ],
+    "outputs": [
+      { "type": "Any" }
+    ]
+  },
+  {
+    "name": "prim::AutogradAllNonZero",
+    "inputs": [],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::AutogradAllZero",
+    "inputs": [],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::AutogradAnyNonZero",
+    "inputs": [],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::AutogradZero",
+    "inputs": [],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "prim::BroadcastSizes",
+    "inputs": [],
+    "outputs": [
+      { "type": "int64[]" }
+    ]
+  },
+  {
+    "name": "prim::EnumName",
+    "inputs": [
+      { "name": "enum", "type": "AnyEnumType" }
+    ],
+    "outputs": [
+      { "type": "string" }
+    ]
+  },
+  {
+    "name": "prim::EnumValue.float",
+    "inputs": [
+      { "name": "enum", "type": "AnyEnumType" }
+    ],
+    "outputs": [
+      { "type": "float32" }
+    ]
+  },
+  {
+    "name": "prim::EnumValue.int",
+    "inputs": [
+      { "name": "enum", "type": "AnyEnumType" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
+    "name": "prim::EnumValue.str",
+    "inputs": [
+      { "name": "enum", "type": "AnyEnumType" }
+    ],
+    "outputs": [
+      { "type": "string" }
+    ]
+  },
+  {
+    "name": "prim::IfThenElse",
+    "inputs": [
+      { "name": "cond", "type": "boolean" },
+      { "name": "x", "type": "Any" },
+      { "name": "y", "type": "Any" }
+    ],
+    "outputs": [
+      { "type": "Any" }
+    ]
+  },
+  {
+    "name": "prim::ModuleContainerIndex.list",
+    "inputs": [
+      { "name": "self", "type": "Any" },
+      { "name": "ind", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "Any" }
+    ]
   },
   {
     "name": "prim::NumToTensor.Scalar",
@@ -15014,6 +15175,357 @@
     ],
     "outputs": [
       { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "prim::Print",
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "name": "prim::RaiseException",
+    "inputs": [
+      { "name": "msg", "type": "string" },
+      { "name": "cls", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": []
+  },
+  {
+    "name": "prim::ReductionSizes",
+    "inputs": [
+      { "name": "size", "type": "int64[]" },
+      { "name": "red_axes", "type": "int64[]" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "int64[]" }
+    ]
+  },
+  {
+    "name": "prim::StringIndex",
+    "inputs": [
+      { "name": "string", "type": "string" },
+      { "name": "index", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "string" }
+    ]
+  },
+  {
+    "name": "prim::TupleIndex",
+    "inputs": [
+      { "name": "tup", "type": "Any" },
+      { "name": "i", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "Any" }
+    ]
+  },
+  {
+    "name": "prim::TupleUnpack",
+    "inputs": [
+      { "name": "tup", "type": "Any" }
+    ],
+    "outputs": []
+  },
+  {
+    "name": "prim::Uninitialized",
+    "inputs": [],
+    "outputs": [
+      { "type": "Any" }
+    ]
+  },
+  {
+    "name": "prim::VarConcat",
+    "inputs": [],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "prim::VarStack",
+    "inputs": [],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "prim::abs",
+    "inputs": [
+      { "name": "x", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "prim::data",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "prim::device",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Device" }
+    ]
+  },
+  {
+    "name": "prim::dtype",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
+    "name": "prim::grad",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "prim::id",
+    "inputs": [
+      { "name": "x", "type": "AnyClassType", "optional": true }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
+    "name": "prim::index",
+    "inputs": [
+      { "name": "self", "type": "Device" }
+    ],
+    "outputs": [
+      { "type": "int64", "optional": true }
+    ]
+  },
+  {
+    "name": "prim::is_cpu",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_cuda",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_ipu",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_maia",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_meta",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_mkldnn",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_mps",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_mtia",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_nested",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_quantized",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_sparse",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_sparse_csr",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_vulkan",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_xla",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::is_xpu",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::itemsize",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
+    "name": "prim::layout",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Layout" }
+    ]
+  },
+  {
+    "name": "prim::name",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "string", "optional": true }
+    ]
+  },
+  {
+    "name": "prim::nbytes",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
+    "name": "prim::rangelist",
+    "inputs": [
+      { "name": "n", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "int64[]" }
+    ]
+  },
+  {
+    "name": "prim::requires_grad",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "prim::type",
+    "inputs": [
+      { "name": "self", "type": "Device" }
+    ],
+    "outputs": [
+      { "type": "string" }
+    ]
+  },
+  {
+    "name": "prim::unchecked_cast",
+    "inputs": [
+      { "name": "x", "type": "t" }
+    ],
+    "outputs": [
+      { "type": "t" }
+    ]
+  },
+  {
+    "name": "prim::unchecked_unwrap_optional",
+    "inputs": [
+      { "name": "optional", "type": "t", "optional": true }
+    ],
+    "outputs": [
+      { "type": "t" }
     ]
   },
   {

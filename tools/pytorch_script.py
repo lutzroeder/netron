@@ -45,6 +45,8 @@ schema_source_files = [
         re.compile(r'TORCH_SELECTIVE_SCHEMA\("(.*)"', re.MULTILINE)),
     ('torch/csrc/jit/runtime/register_prim_ops.cpp',
         re.compile(r'(aten::.*->\s*.*)"', re.MULTILINE)),
+    ('torch/csrc/jit/runtime/register_prim_ops.cpp',
+        re.compile(r'(prim::.*->\s*.*)"', re.MULTILINE)),
     ('torch/csrc/jit/runtime/register_prim_ops_fulljit.cpp',
         re.compile(r'(aten::.*->\s*.*)"', re.MULTILINE)),
     ('torch/csrc/jit/runtime/register_special_ops.cpp',
@@ -66,6 +68,7 @@ known_schema_definitions = [
 
 def _parse_schemas():
     schemas = {}
+    definitions = set()
     for entry in schema_source_files:
         path = os.path.join(pytorch_source_dir, entry[0])
         content = _read(path)
@@ -75,10 +78,12 @@ def _parse_schemas():
         for value in entry[1].findall(content):
             value = re.sub(r'\n|\r|\s*"', '', value) if value.startswith('_caffe2::') else value
             definition = entry[2] + value if len(entry) > 2 else value
-            schema = pytorch.Schema(definition)
-            if schema.name in schemas:
-                raise KeyError(schema.name)
-            schemas[schema.name] = schema
+            if not definition in definitions:
+                definitions.add(definition)
+                schema = pytorch.Schema(definition)
+                if schema.name in schemas:
+                    raise KeyError(schema.name)
+                schemas[schema.name] = schema
     for definition in known_schema_definitions:
         schema = pytorch.Schema(definition)
         schemas[schema.name] = schema
@@ -92,6 +97,9 @@ def _filter_schemas(schemas, types):
         for key in keys:
             if schema.name == key or schema.name.startswith(key + '.'):
                 filtered_schemas.add(schema.name)
+    for schema in schemas.values():
+        if schema.name.startswith('aten::pop'):
+            filtered_schemas.add(schema.name)
     # filtered_schemas = set(types.keys())
     # content = _read('list.csv')
     # regex = re.compile(r'Unsupported function \'(.*)\' in', re.MULTILINE)
@@ -131,8 +139,7 @@ def _check_types(types, schemas):
     for key in list(types.keys()):
         if key.startswith('torch.nn') or key.startswith('__torch__.'):
             types.pop(key)
-        if key.startswith('prim::') or \
-           key.startswith('torchvision::') or \
+        if key.startswith('torchvision::') or \
            key.startswith('torchaudio::') or \
            key.startswith('neuron::'):
             types.pop(key)
