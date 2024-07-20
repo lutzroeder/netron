@@ -3534,6 +3534,13 @@
     "link":     "https://github.com/Tencent/ncnn"
   },
   {
+    "type":     "ncnn",
+    "target":   "v5lite-i8e.param,v5lite-i8e.bin",
+    "source":   "https://github.com/user-attachments/files/16321516/v5lite-i8e.zip[v5lite-i8e.param,v5lite-i8e.bin]",
+    "format":   "ncnn",
+    "link":     "https://github.com/Tencent/ncnn"
+  },
+  {
     "type":     "nnabla",
     "target":   "Resnet-18.nnp",
     "source":   "https://nnabla.org/pretrained-models/nnp_models/imagenet/Resnet-18/Resnet-18.nnp",
