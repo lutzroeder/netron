@@ -768,6 +768,9 @@ openvino.TensorType = class {
     constructor(precision, shape) {
         precision = precision ? precision.toLowerCase() : precision;
         switch (precision) {
+            case 'f4e2m1':  this.dataType = 'float4e2m1'; break;
+            case 'f8e4m3':  this.dataType = 'float8e4m3'; break;
+            case 'f8e5m2':  this.dataType = 'float8e5m2'; break;
             case 'f16':     this.dataType = 'float16'; break;
             case 'f32':     this.dataType = 'float32'; break;
             case 'f64':     this.dataType = 'float64'; break;
@@ -789,7 +792,6 @@ openvino.TensorType = class {
             case 'bool':    this.dataType = 'boolean'; break;
             case 'boolean': this.dataType = 'boolean'; break;
             case 'bin':     this.dataType = 'bit'; break;
-            case 'f8e4m3':  this.dataType = 'float8e4m3'; break;
             case 'string':  this.dataType = 'string'; break;
             case '':        this.dataType = '?'; break;
             case null:      this.dataType = '?'; break;
