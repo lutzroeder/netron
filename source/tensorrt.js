@@ -49,23 +49,21 @@ tensorrt.Engine = class {
     static open(context) {
         const stream = context.stream;
         if (stream && stream.length >= 24) {
-            const buffer = stream.peek(Math.min(stream.length, 1024));
-            const reader = base.BinaryReader.open(buffer);
-            const match = (reader) => {
-                const buffer = reader.peek(4);
-                const signature = String.fromCharCode.apply(null, buffer);
-                return signature === 'ptrt' || signature === 'ftrt';
-            };
-            if (match(reader)) {
-                return new tensorrt.Engine(context, 0);
-            }
-            const size = reader.uint32();
-            if (size < 1000 && size < (reader.length - 4)) {
-                reader.skip(size);
-                const position = reader.position;
-                if (match(reader)) {
-                    return new tensorrt.Engine(context, position);
+            let offset = 0;
+            let buffer = stream.peek(Math.min(stream.length, 24));
+            if (buffer[3] === 0x00 && buffer[4] === 0x7b) {
+                const reader = base.BinaryReader.open(buffer);
+                offset = reader.uint32() + 4;
+                if ((offset + 4) < stream.length) {
+                    const position = stream.position;
+                    stream.seek(offset);
+                    buffer = stream.peek(4);
+                    stream.seek(position);
                 }
+            }
+            const signature = String.fromCharCode.apply(null, buffer.slice(0, 4));
+            if (signature === 'ptrt' || signature === 'ftrt') {
+                return new tensorrt.Engine(context, offset);
             }
         }
         return null;

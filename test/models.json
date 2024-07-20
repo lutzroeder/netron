@@ -6656,6 +6656,14 @@
     "link":     "https://github.com/lutzroeder/netron/issues/725"
   },
   {
+    "type":     "tensorrt",
+    "target":   "yolov8n.engine",
+    "source":   "https://github.com/user-attachments/files/16322456/yolov8n.engine.zip[yolov8n.engine]",
+    "format":   "TensorRT Engine",
+    "error":    "Invalid file content. File contains undocumented TensorRT engine data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/725"
+  },
+  {
     "type":     "tf",
     "target":   "0110.pb",
     "source":   "https://github.com/lutzroeder/netron/files/14074382/0110.pb.zip[0110.pb]",
