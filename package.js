@@ -241,6 +241,12 @@ const install = async () => {
     if (!exists) {
         await exec('npm install');
     }
+    try {
+        await exec('python --version', 'utf-8');
+        await exec('python -m pip install --upgrade --quiet setuptools pylint');
+    } catch {
+        // continue regardless of error
+    }
 };
 
 const start = async () => {
@@ -509,7 +515,6 @@ const lint = async () => {
     writeLine('eslint');
     await exec('npx eslint --config publish/eslint.config.js *.*js source/*.*js test/*.*js publish/*.*js tools/*.js');
     writeLine('pylint');
-    await exec('python -m pip install --upgrade --quiet pylint');
     await exec('python -m pylint -sn --recursive=y source test publish tools *.py');
 };
 
