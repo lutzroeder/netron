@@ -2108,6 +2108,7 @@ python.Execution = class {
                 Object.assign(this, obj);
             }
         });
+        this.registerType('joblib._store_backends.FileSystemStoreBackend', class {});
         this.registerType('joblib.numpy_pickle.NumpyArrayWrapper', class {
 
             __read__(unpickler) {
@@ -2694,6 +2695,7 @@ python.Execution = class {
         this.registerType('sklearn.cluster.k_means_.MiniBatchKMeans', class {});
         this.registerType('sklearn.compose._column_transformer._RemainderColsList', class {});
         this.registerType('sklearn.compose._column_transformer.ColumnTransformer', class {});
+        this.registerType('sklearn.compose._column_transformer.make_column_selector', class {});
         this.registerType('sklearn.compose._target.TransformedTargetRegressor', class {});
         this.registerType('sklearn.cross_decomposition._pls.PLSRegression', class {});
         this.registerType('sklearn.decomposition._fastica.FastICA', class {});
@@ -3853,6 +3855,7 @@ python.Execution = class {
         this.registerFunction('numpy._core.multiarray._reconstruct', (subtype, shape, dtype) => {
             return numpy.ndarray.__new__(subtype, shape, dtype);
         });
+        this.registerFunction('numpy._core.multiarray.scalar');
         this.registerFunction('numpy._core._internal._convert_to_stringdtype_kwargs', () => {
             return new numpy.dtypes.StringDType();
         });
@@ -3918,6 +3921,7 @@ python.Execution = class {
         this.registerFunction('numpy.core._multiarray_umath.cbrt');
         this.registerFunction('numpy.core._multiarray_umath.greater');
         this.registerFunction('numpy.core._multiarray_umath.less');
+        this.registerFunction('numpy.core._multiarray_umath.log');
         this.registerFunction('numpy.core._multiarray_umath.scalar', (dtype, rawData) => {
             let data = rawData;
             if (typeof rawData === 'string') {
@@ -4588,6 +4592,7 @@ python.Execution = class {
         this.registerType('torch.utils.data.sampler.BatchSampler', class {});
         this.registerType('torch.utils.data.sampler.RandomSampler', class {});
         this.registerType('torch.utils.data.sampler.SequentialSampler', class {});
+        this.registerType('torch.utils.data.sampler.SubsetRandomSampler', class {});
         this.registerType('torch.fx.experimental.symbolic_shapes.ShapeEnv', class {
             create_symintnode(/* sym, hint, source */) {
                 return new torch.SymInt();
