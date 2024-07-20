@@ -74,8 +74,7 @@
 
 .select > .node.node-border { stroke: rgba(220, 0, 0, 0.9); stroke-width: 2px; }
 .select.edge-path { stroke: rgba(220, 0, 0, 0.9); stroke-width: 1px; marker-end: url("#arrowhead-select"); }
-.select.node-argument > rect { fill: rgba(220, 0, 0, 0.9); stroke: rgba(210, 0, 0, 0.9); }
-.select.node-argument > text { fill: #f6f6f6; }
+.select.node-argument > rect { fill: transparent; stroke: rgba(220, 0, 0, 0.9); }
 
 .edge-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 10px; }
 .edge-path-control-dependency { stroke-dasharray: 3, 2; }
@@ -91,14 +90,12 @@
     .node path { stroke: #1d1d1d; }
     .node line { stroke: #1d1d1d; }
 
-    .select > .node.node-border { stroke: rgba(150, 0, 0, 0.8); }
-    .select.edge-path { stroke: rgba(150, 0, 0, 0.8); }
-    .select.node-argument > rect { fill: rgba(150, 0, 0, 0.8); stroke: rgba(75, 0, 0, 0.8); }
-    .select.node-argument > text { fill: #b2b2b2; }
-
+    .select > .node.node-border { stroke: #ccc; }
+    .select.edge-path { stroke: #ccc; }
+    .select.node-argument > rect { fill: transparent; stroke: #ccc; }
     #arrowhead { fill: #888; }
-    #arrowhead-hover { fill: rgba(150, 0, 0, 0.8); }
-    #arrowhead-select { fill: rgba(150, 0, 0, 0.8) }
+    #arrowhead-hover { fill: #ccc; }
+    #arrowhead-select { fill: #ccc; }
 
     .edge-label { fill: #b2b2b2; }
 
