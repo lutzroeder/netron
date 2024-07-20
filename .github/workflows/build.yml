@@ -31,11 +31,8 @@ jobs:
         with:
           python-version: 3.x
 
-      - name: Install npm packages
-        run: npm install
-
-      - name: Install Python packages
-        run: python -m pip install setuptools
+      - name: Install Packages
+        run: npm run install
 
       - name: Validate
         run: npm run validate
