@@ -1064,10 +1064,6 @@ pytorch.Container.Zip = class extends pytorch.Container {
         delete this._model;
         delete this._entries;
     }
-
-    get producer() {
-        return this._producer || '';
-    }
 };
 
 pytorch.Container.ModelJson = class extends pytorch.Container {
