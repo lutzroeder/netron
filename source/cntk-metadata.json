@@ -445,7 +445,7 @@
   {
     "name": "Pad",
     "identifier": 83,
-    "category": "Shape",
+    "category": "Tensor",
     "inputs": [
       { "name": "input" }
     ],
