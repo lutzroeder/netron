@@ -48,6 +48,7 @@
   {
     "name": "Clip",
     "identifier": 54,
+    "category": "Activation",
     "attributes": [
       { "name": "min", "type": "float32" },
       { "name": "max", "type": "float32" }
@@ -651,7 +652,7 @@
   {
     "name": "Padding",
     "identifier": 43,
-    "category": "Layer",
+    "category": "Tensor",
     "attributes": [
       { "name": "top", "default": 0 },
       { "name": "bottom", "default": 0 },

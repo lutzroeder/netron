@@ -4837,6 +4837,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
+    "type":     "pnnx",
+    "target":   "demo_net.pnnx.param,demo_net.pnnx.bin",
+    "source":   "https://github.com/user-attachments/files/16325286/demo_net.pnnx.zip[demo_net.pnnx.param,demo_net.pnnx.bin]",
+    "format":   "PNNX",
+    "link":     "https://github.com/lutzroeder/netron/issues/296"
+  },
+  {
     "type":     "pytorch",
     "target":   "add.pte",
     "source":   "https://github.com/lutzroeder/netron/files/13156981/add.pte.zip[add.pte]",
