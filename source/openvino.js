@@ -90,10 +90,15 @@ openvino.ModelFactory = class {
                 break;
             }
             case 'openvino.bin': {
-                const file = `${base}.xml`;
-                const content = await context.fetch(file, null);
-                stream = content.stream;
-                bin = context.stream.peek();
+                try {
+                    const file = `${base}.xml`;
+                    const content = await context.fetch(file, null);
+                    stream = content.stream;
+                    bin = context.stream.peek();
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new openvino.Error(`OpenVINO model definition required (${message.replace(/\.$/, '')}).`);
+                }
                 break;
             }
             default: {
@@ -305,7 +310,7 @@ openvino.Graph = class {
             }
             for (const layer of layers) {
                 if (layer.blobs.length === 0) {
-                    for (let i = layer.input.length - 1; i > 0; i--) {
+                    for (let i = layer.input.length - 1; i >= 0; i--) {
                         const input = layer.input[i];
                         const to = `${layer.id}:${input.id}`;
                         const from = edges[to] || back_edges[to];
