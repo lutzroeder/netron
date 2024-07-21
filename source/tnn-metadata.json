@@ -373,6 +373,7 @@
   {
     "name": "Pad",
     "identifier": 43,
+    "category": "Tensor",
     "attributes": [
       { "name": " n1", "default": 0 },
       { "name": " n2", "default": 0 },
