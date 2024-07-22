@@ -5764,7 +5764,9 @@ view.ModelFactoryService = class {
                     { name: 'mind_ir.ModelProto', tags: [[1,2],[2,2],[5,2],[7,[]],[10,0],[12,[]],[13,0]] }, // https://github.com/mindspore-ai/mindspore/blob/master/mindspore/core/proto/mind_ir.proto
                     { name: 'mindspore.irpb.Checkpoint', tags: [[1,[[1,2],[2,[[1,0],[2,2],[3,2]]]]]] }, // https://github.com/mindspore-ai/mindspore/blob/master/mindspore/ccsrc/utils/checkpoint.proto
                     { name: 'optimization_guide.proto.PageTopicsOverrideList data', tags: [[1,[[1,2],[2,[]]]]] }, // https://github.com/chromium/chromium/blob/main/components/optimization_guide/proto/page_topics_override_list.proto
-                    { name: 'optimization_guide.proto.ModelInfo data', tags: [[1,0],[2,0],[4,0],[6,[]],[7,[]],[9,0]] } // https://github.com/chromium/chromium/blob/22b0d711657b451b61d50dd2e242b3c6e38e6ef5/components/optimization_guide/proto/models.proto#L80
+                    { name: 'optimization_guide.proto.ModelInfo data', tags: [[1,0],[2,0],[4,0],[6,false],[7,[]],[9,0]] }, // https://github.com/chromium/chromium/blob/22b0d711657b451b61d50dd2e242b3c6e38e6ef5/components/optimization_guide/proto/models.proto#L80
+                    { name: 'Hobot Dnn data', tags: [[1,0],[2,0],[4,[[1,2],[2,2]]]] }, // https://github.com/HorizonRDK/hobot_dnn
+                    { name: 'Hobot Dnn data', tags: [[1,0],[2,0],[6,[1,[[1,2],[2,2]]]]] }, // https://github.com/HorizonRDK/hobot_dnn
                 ];
                 const match = (tags, schema) => {
                     for (const [key, inner] of schema) {

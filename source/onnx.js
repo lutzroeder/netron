@@ -1368,7 +1368,7 @@ onnx.ProtoReader = class {
             if (Array.from(tags.keys()).every((tag) => tag <= 100) &&
                 Array.from(tags.values()).every((type) => type < 5)) {
                 // TensorProto
-                if (tags.get(1) === 0 && tags.get(2) === 0) {
+                if (tags.get(1) === 0 && tags.get(2) === 0 && [3, 4, 5, 6].filter((tag) => tags.get(tag)).length <= 1) {
                     const schema = [[1,0],[2,0],[4,2],[5,2],[7,2],[8,2],[9,2]];
                     if (schema.every(([key, value]) => !tags.has(key) || tags.get(key) === value)) {
                         return new onnx.ProtoReader(context, 'binary', 'tensor');
