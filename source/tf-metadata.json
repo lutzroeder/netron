@@ -42985,6 +42985,11 @@
         "type": "boolean",
         "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
         "default": true
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -43022,6 +43027,11 @@
         "type": "boolean",
         "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
         "default": true
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -43059,6 +43069,11 @@
         "type": "boolean",
         "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
         "default": true
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -43098,6 +43113,11 @@
         "type": "boolean",
         "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
         "default": true
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -43137,6 +43157,11 @@
         "type": "boolean",
         "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
         "default": true
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -47587,6 +47612,11 @@
         "type": "boolean",
         "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
         "default": false
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -47635,6 +47665,11 @@
         "type": "boolean",
         "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
         "default": false
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -47683,6 +47718,11 @@
         "type": "boolean",
         "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
         "default": false
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -47726,6 +47766,11 @@
         "name": "Tindices",
         "type": "type",
         "description": "Must be one of the following: `int32`, `int64`."
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -47773,6 +47818,11 @@
         "type": "boolean",
         "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
         "default": false
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -47821,6 +47871,11 @@
         "type": "boolean",
         "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
         "default": true
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -60900,7 +60955,7 @@
   {
     "name": "TensorScatterAdd",
     "summary": "Adds sparse `updates` to an existing tensor according to `indices`.",
-    "description": "This operation creates a new tensor by adding sparse `updates` to the passed\nin `tensor`.\nThis operation is very similar to `tf.compat.v1.scatter_nd_add`, except that the\nupdates are added onto an existing tensor (as opposed to a variable). If the\nmemory for the existing tensor cannot be re-used, a copy is made and updated.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`tensor.shape`.  The last dimension of `indices` can be at most the rank of\n`tensor.shape`:\n\n```\nindices.shape[-1] <= tensor.shape.rank\n```\n\nThe last dimension of `indices` corresponds to indices into elements\n(if `indices.shape[-1] = tensor.shape.rank`) or slices\n(if `indices.shape[-1] < tensor.shape.rank`) along dimension\n`indices.shape[-1]` of `tensor.shape`.  `updates` is a tensor with shape\n\n```\nindices.shape[:-1] + tensor.shape[indices.shape[-1]:]\n```\n\nThe simplest form of `tensor_scatter_nd_add` is to add individual elements to a\ntensor by index. For example, say we want to add 4 elements in a rank-1\ntensor with 8 elements.\n\nIn Python, this scatter add operation would look like this:\n\n>>> indices = tf.constant([[4], [3], [1], [7]])\n>>> updates = tf.constant([9, 10, 11, 12])\n>>> tensor = tf.ones([8], dtype=tf.int32)\n>>> updated = tf.tensor_scatter_nd_add(tensor, indices, updates)\n>>> updated\n<tf.Tensor: shape=(8,), dtype=int32,\nnumpy=array([ 1, 12,  1, 11, 10,  1,  1, 13], dtype=int32)>\n\nWe can also, insert entire slices of a higher rank tensor all at once. For\nexample, if we wanted to insert two slices in the first dimension of a\nrank-3 tensor with two matrices of new values.\n\nIn Python, this scatter add operation would look like this:\n\n>>> indices = tf.constant([[0], [2]])\n>>> updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n...                         [7, 7, 7, 7], [8, 8, 8, 8]],\n...                        [[5, 5, 5, 5], [6, 6, 6, 6],\n...                         [7, 7, 7, 7], [8, 8, 8, 8]]])\n>>> tensor = tf.ones([4, 4, 4],dtype=tf.int32)\n>>> updated = tf.tensor_scatter_nd_add(tensor, indices, updates)\n>>> updated\n<tf.Tensor: shape=(4, 4, 4), dtype=int32,\nnumpy=array([[[6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8], [9, 9, 9, 9]],\n             [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],\n             [[6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8], [9, 9, 9, 9]],\n             [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]], dtype=int32)>\n\nNote: on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, the index is ignored.",
+    "description": "This operation creates a new tensor by adding sparse `updates` to the passed\nin `tensor`.\nThis operation is very similar to `tf.compat.v1.scatter_nd_add`, except that the\nupdates are added onto an existing tensor (as opposed to a variable). If the\nmemory for the existing tensor cannot be re-used, a copy is made and updated.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`tensor.shape`.  The last dimension of `indices` can be at most the rank of\n`tensor.shape`:\n\n```\nindices.shape[-1] <= tensor.shape.rank\n```\n\nThe last dimension of `indices` corresponds to indices into elements\n(if `indices.shape[-1] = tensor.shape.rank`) or slices\n(if `indices.shape[-1] < tensor.shape.rank`) along dimension\n`indices.shape[-1]` of `tensor.shape`.  `updates` is a tensor with shape\n\n```\nindices.shape[:-1] + tensor.shape[indices.shape[-1]:]\n```\n\nThe simplest form of `tensor_scatter_nd_add` is to add individual elements to a\ntensor by index. For example, say we want to add 4 elements in a rank-1\ntensor with 8 elements.\n\nIn Python, this scatter add operation would look like this:\n\n>>> indices = tf.constant([[4], [3], [1], [7]])\n>>> updates = tf.constant([9, 10, 11, 12])\n>>> tensor = tf.ones([8], dtype=tf.int32)\n>>> updated = tf.tensor_scatter_nd_add(tensor, indices, updates)\n>>> updated\n<tf.Tensor: shape=(8,), dtype=int32,\nnumpy=array([ 1, 12,  1, 11, 10,  1,  1, 13], dtype=int32)>\n\nWe can also, insert entire slices of a higher rank tensor all at once. For\nexample, if we wanted to insert two slices in the first dimension of a\nrank-3 tensor with two matrices of new values.\n\nIn Python, this scatter add operation would look like this:\n\n>>> indices = tf.constant([[0], [2]])\n>>> updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n...                         [7, 7, 7, 7], [8, 8, 8, 8]],\n...                        [[5, 5, 5, 5], [6, 6, 6, 6],\n...                         [7, 7, 7, 7], [8, 8, 8, 8]]])\n>>> tensor = tf.ones([4, 4, 4],dtype=tf.int32)\n>>> updated = tf.tensor_scatter_nd_add(tensor, indices, updates)\n>>> updated\n<tf.Tensor: shape=(4, 4, 4), dtype=int32,\nnumpy=array([[[6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8], [9, 9, 9, 9]],\n             [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],\n             [[6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8], [9, 9, 9, 9]],\n             [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]], dtype=int32)>\n\n\nIf `indices` contains any out-of-bound indices, depending on\n`bad_indices_policy`, the op will either return an error or ignore the\nout-of-bound indices. `bad_indices_policy` can be one of the following values:\n1. \"\" or \"DEFAULT\": raises on CPU and ignore on GPU. This is because\n   historically on CPU and GPU we handle errors in different ways, and for\n   backward compatibility we keep the default behavior.\n2. \"ERROR\": raises error; GPU does not support this value.\n3. \"IGNORE\": ignore the bad indices; supported on both CPU and GPU.\n",
     "attributes": [
       {
         "name": "T",
@@ -60910,6 +60965,11 @@
         "name": "Tindices",
         "type": "type",
         "description": "Must be one of the following: `int32`, `int64`."
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -60950,6 +61010,11 @@
         "name": "Tindices",
         "type": "type",
         "description": "Must be one of the following: `int32`, `int64`."
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -60988,6 +61053,11 @@
         "name": "Tindices",
         "type": "type",
         "description": "Must be one of the following: `int32`, `int64`."
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -61028,6 +61098,11 @@
         "name": "Tindices",
         "type": "type",
         "description": "Must be one of the following: `int32`, `int64`."
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -61058,7 +61133,7 @@
   {
     "name": "TensorScatterUpdate",
     "summary": "Scatter `updates` into an existing tensor according to `indices`.",
-    "description": "This operation creates a new tensor by applying sparse `updates` to the passed\nin `tensor`.\nThis operation is very similar to `tf.scatter_nd`, except that the updates are\nscattered onto an existing tensor (as opposed to a zero-tensor). If the memory\nfor the existing tensor cannot be re-used, a copy is made and updated.\n\nIf `indices` contains duplicates, then we pick the last update for the index.\n\nIf an out of bound index is found on CPU, an error is returned.\n\n**WARNING**: There are some GPU specific semantics for this operation.\n- If an out of bound index is found, the index is ignored.\n- The order in which updates are applied is nondeterministic, so the output\nwill be nondeterministic if `indices` contains duplicates.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`shape`.\n\n* `indices` must have at least 2 axes: `(num_updates, index_depth)`.\n* The last axis of `indices` is how deep to index into `tensor` so  this index\n  depth must be less than the rank of `tensor`: `indices.shape[-1] <= tensor.ndim`\n\nif `indices.shape[-1] = tensor.rank` this Op indexes and updates scalar elements.\nif `indices.shape[-1] < tensor.rank` it indexes and updates slices of the input\n`tensor`.\n\nEach `update` has a rank of `tensor.rank - indices.shape[-1]`.\nThe overall shape of `updates` is:\n\n```\nindices.shape[:-1] + tensor.shape[indices.shape[-1]:]\n```\n\nFor usage examples see the python [tf.tensor_scatter_nd_update](\nhttps://www.tensorflow.org/api_docs/python/tf/tensor_scatter_nd_update) function\n",
+    "description": "This operation creates a new tensor by applying sparse `updates` to the passed\nin `tensor`.\nThis operation is very similar to `tf.scatter_nd`, except that the updates are\nscattered onto an existing tensor (as opposed to a zero-tensor). If the memory\nfor the existing tensor cannot be re-used, a copy is made and updated.\n\nIf `indices` contains duplicates, then we pick the last update for the index.\n\n**WARNING**: There are some GPU specific semantics for this operation.\n- If an out of bound index is found, the index is ignored.\n- The order in which updates are applied is nondeterministic, so the output\nwill be nondeterministic if `indices` contains duplicates.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`shape`.\n\n* `indices` must have at least 2 axes: `(num_updates, index_depth)`.\n* The last axis of `indices` is how deep to index into `tensor` so  this index\n  depth must be less than the rank of `tensor`: `indices.shape[-1] <= tensor.ndim`\n\nif `indices.shape[-1] = tensor.rank` this Op indexes and updates scalar elements.\nif `indices.shape[-1] < tensor.rank` it indexes and updates slices of the input\n`tensor`.\n\nEach `update` has a rank of `tensor.rank - indices.shape[-1]`.\nThe overall shape of `updates` is:\n\n```\nindices.shape[:-1] + tensor.shape[indices.shape[-1]:]\n```\n\nIf `indices` contains any out-of-bound indices, depending on\n`bad_indices_policy`, the op will either return an error or ignore the\nout-of-bound indices. `bad_indices_policy` can be one of the following values:\n1. \"\" or \"DEFAULT\": raises on CPU and ignore on GPU. This is because\n   historically on CPU and GPU we handle errors in different ways, and for\n   backward compatibility we keep the default behavior.\n2. \"ERROR\": raises error; GPU does not support this value.\n3. \"IGNORE\": ignore the bad indices; supported on both CPU and GPU.\n\nFor usage examples see the python [tf.tensor_scatter_nd_update](\nhttps://www.tensorflow.org/api_docs/python/tf/tensor_scatter_nd_update) function\n",
     "attributes": [
       {
         "name": "T",
@@ -61068,6 +61143,11 @@
         "name": "Tindices",
         "type": "type",
         "description": "Must be one of the following: `int16`, `int32`, `int64`, `uint16`."
+      },
+      {
+        "name": "bad_indices_policy",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
