@@ -647,7 +647,7 @@ host.ElectronHost.FileStream = class {
         }
         if (!this._buffer || this._position < this._offset || this._position + length > this._offset + this._buffer.length) {
             this._offset = this._position;
-            const length = Math.min(0x1000000, this._length - this._offset);
+            const length = Math.min(0x10000000, this._length - this._offset);
             if (!this._buffer || length !== this._buffer.length) {
                 this._buffer = new Uint8Array(length);
             }
