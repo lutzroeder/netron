@@ -4480,17 +4480,21 @@
       {
         "description": "Int, or tuple of int (length 2), or dictionary.\n        - If int: how many zeros to add at the beginning and end of\n          the padding dimension (axis 1).\n        - If tuple of 2 ints: how many zeros to add at the beginning and the\n          end of the padding dimension (`(left_pad, right_pad)`).",
         "name": "padding"
+      },
+      {
+        "name": "data_format",
+        "description": "A string, one of `\"channels_last\"` (default) or\n        `\"channels_first\"`. The ordering of the dimensions in the inputs.\n        `\"channels_last\"` corresponds to inputs with shape\n        `(batch_size, axis_to_pad, channels)` while `\"channels_first\"`\n        corresponds to inputs with shape\n        `(batch_size, channels, axis_to_pad)`.\n        When unspecified, uses `image_data_format` value found in your Keras\n        config file at `~/.keras/keras.json` (if exists). Defaults to\n        `\"channels_last\"`."
       }
     ],
     "inputs": [
       {
-        "description": "3D tensor with shape `(batch_size, axis_to_pad, features)`",
+        "description": "3D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n  `(batch_size, axis_to_pad, features)`\n- If `data_format` is `\"channels_first\"`:\n  `(batch_size, features, axis_to_pad)`",
         "name": "input"
       }
     ],
     "outputs": [
       {
-        "description": "3D tensor with shape `(batch_size, padded_axis, features)`",
+        "description": "3D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n  `(batch_size, padded_axis, features)`\n- If `data_format` is `\"channels_first\"`:\n  `(batch_size, features, padded_axis)`",
         "name": "output"
       }
     ],
