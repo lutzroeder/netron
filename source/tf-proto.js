@@ -9567,6 +9567,9 @@ tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case 12:
                     message.force_disable = reader.bool();
                     break;
+                case 13:
+                    message.poll_for_error_from_service_at_startup = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -9614,6 +9617,9 @@ tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case "force_disable":
                     message.force_disable = reader.bool();
                     break;
+                case "poll_for_error_from_service_at_startup":
+                    message.poll_for_error_from_service_at_startup = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -9632,6 +9638,7 @@ tensorflow.CoordinationServiceConfig.prototype.shutdown_barrier_timeout_in_ms = 
 tensorflow.CoordinationServiceConfig.prototype.agent_destruction_without_shutdown = false;
 tensorflow.CoordinationServiceConfig.prototype.allow_new_incarnation_to_reconnect = false;
 tensorflow.CoordinationServiceConfig.prototype.force_disable = false;
+tensorflow.CoordinationServiceConfig.prototype.poll_for_error_from_service_at_startup = false;
 
 tensorflow.MemmappedFileSystemDirectoryElement = class MemmappedFileSystemDirectoryElement {
 
