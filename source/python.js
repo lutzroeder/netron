@@ -1889,6 +1889,7 @@ python.Execution = class {
             }
         });
         this.registerType('hmmlearn.hmm.GaussianHMM', class {});
+        this.registerType('hmmlearn.hmm.GMMHMM', class {});
         this.registerType('hmmlearn.hmm.MultinomialHMM', class {});
         this.registerType('hmmlearn.base.ConvergenceMonitor', class {});
         this.registerType('io.BytesIO', class {
@@ -2110,6 +2111,7 @@ python.Execution = class {
             }
         });
         this.registerType('joblib._store_backends.FileSystemStoreBackend', class {});
+        this.registerType('joblib.memory.NotMemorizedFunc', class {});
         this.registerType('joblib.numpy_pickle.NumpyArrayWrapper', class {
 
             __read__(unpickler) {
@@ -2611,12 +2613,13 @@ python.Execution = class {
         });
         this.registerType('numpy.core.memmap.memmap', class extends numpy.ndarray {
         });
+        this.registerType('pandas.core.arrays.categorical.Categorical', class {});
+        this.registerType('pandas.core.arrays.datetimes.DatetimeArray', class {});
+        this.registerType('pandas.core.arrays.integer.IntegerArray', class {});
         this.registerType('pandas.core.frame.DataFrame', class {});
         this.registerFunction('pandas.core.indexes.base._new_Index', (cls, d) => {
             return new cls(d);
         });
-        this.registerType('pandas.core.arrays.datetimes.DatetimeArray', class {});
-        this.registerType('pandas.core.arrays.integer.IntegerArray', class {});
         this.registerType('pandas.core.indexes.datetimes._new_DatetimeIndex', class {});
         this.registerType('pandas.core.indexes.datetimes.DatetimeIndex', class {});
         this.registerType('pandas.core.indexes.base.Index', class {});
@@ -3952,6 +3955,7 @@ python.Execution = class {
                     throw new python.Error(`Unsupported scalar type '${dtype.__name__}'.`);
             }
         });
+        this.registerFunction('numpy.core._multiarray_umath.sqrt');
         this.registerFunction('numpy.load', (file) => {
             // https://github.com/numpy/numpy/blob/main/numpy/lib/format.py
             const signature = [0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59];
@@ -4126,7 +4130,9 @@ python.Execution = class {
             encode(context, a, 0);
             return self.invoke('numpy.ndarray', [shape, dtype, context.data]);
         });
+        this.registerFunction('numpy.max');
         this.registerFunction('numpy.mean');
+        this.registerFunction('numpy.min');
         this.registerFunction('numpy.ma.core._mareconstruct', (subtype, baseclass, baseshape, basetype) => {
             const data = self.invoke(baseclass, [baseshape, basetype]);
             // = ndarray.__new__(ndarray, baseshape, make_mask_descr(basetype))
@@ -4583,6 +4589,7 @@ python.Execution = class {
         this.registerType('torch.quantization.stubs.QuantStub', class {});
         this.registerType('torch.utils._pytree.LeafSpec', class {});
         this.registerType('torch.utils._pytree.TreeSpec', class {});
+        this.registerFunction('torch.utils._pytree.tree_map');
         this.registerFunction('torch.utils.checkpoint.checkpoint');
         this.registerType('torch.utils.data.dataloader._MultiProcessingDataLoaderIter', class {});
         this.registerType('torch.utils.data.dataloader.DataLoader', class {});
@@ -4965,6 +4972,7 @@ python.Execution = class {
         this.registerType('torchvision.transforms.v2._misc.ToDtype', class {});
         this.registerType('torchvision.transforms.v2._geometry.CenterCrop', class {});
         this.registerType('torchvision.transforms.v2._geometry.Resize', class {});
+        this.registerType('torchvision.transforms.v2._geometry.Pad', class {});
         this.registerType('torchvision.transforms.v2._geometry.RandomCrop', class {});
         this.registerType('torchvision.transforms.v2._transform.Transform', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.v2._type_conversion.ToImage', class extends torchvision.transforms.v2._transform.Transform {});
