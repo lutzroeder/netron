@@ -27,15 +27,7 @@ hdf5.File = class {
             // https://support.hdfgroup.org/HDF5/doc/H5.format.html
             const data = this.data;
             delete this.data;
-            let reader = null;
-            if (data instanceof Uint8Array) {
-                reader = new hdf5.BinaryReader(data);
-            } else if (data.length < 0x10000000) {
-                const buffer = data.peek();
-                reader = new hdf5.BinaryReader(buffer);
-            } else {
-                reader = new hdf5.StreamReader(data);
-            }
+            const reader = hdf5.Reader.open(data);
             reader.skip(8);
             this._globalHeap = new hdf5.GlobalHeap(reader);
             const version = reader.byte();
@@ -216,7 +208,7 @@ hdf5.Variable = class {
     get value() {
         const data = this.data;
         if (data) {
-            const reader = data instanceof hdf5.BinaryReader ? data : new hdf5.BinaryReader(data);
+            const reader = hdf5.Reader.open(data);
             const array = this._dataspace.read(this._datatype, reader);
             return this._dataspace.decode(this._datatype, array, array, this._globalHeap);
         }
@@ -306,6 +298,18 @@ hdf5.Variable = class {
 };
 
 hdf5.Reader = class {
+
+    static open(data) {
+        if (data instanceof hdf5.BinaryReader || data instanceof hdf5.StreamReader) {
+            return data;
+        } else if (data instanceof Uint8Array) {
+            return new hdf5.BinaryReader(data);
+        } else if (data.length < 0x10000000) {
+            const buffer = data.peek();
+            return new hdf5.BinaryReader(buffer);
+        }
+        return new hdf5.StreamReader(data);
+    }
 
     initialize() {
         this._offsetSize = this.byte();
