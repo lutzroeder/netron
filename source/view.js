@@ -1004,14 +1004,20 @@ view.View = class {
                     stack[0].signature = signature;
                     this._updateActive(stack);
                 });
-                sidebar.on('activate', (sender, value) => {
-                    this._graph.select([value]);
+                sidebar.on('focus', (sender, value) => {
+                    this._graph.focus([value]);
                 });
-                sidebar.on('deactivate', () => {
-                    this._graph.select(null);
+                sidebar.on('blur', (sender, value) => {
+                    this._graph.blur([value]);
                 });
                 sidebar.on('select', (sender, value) => {
                     this.scrollTo(this._graph.activate(value));
+                });
+                sidebar.on('activate', (sender, value) => {
+                    this.scrollTo(this._graph.select([value]));
+                });
+                sidebar.on('deactivate', () => {
+                    this._graph.select(null);
                 });
                 this._sidebar.open(sidebar, 'Model Properties');
             } catch (error) {
@@ -3494,6 +3500,8 @@ view.ModelSidebar = class extends view.ObjectSidebar {
 
     addArgument(name, argument) {
         const value = new view.ArgumentView(this._view, argument);
+        value.on('focus', (sender, value) => this.emit('focus', value));
+        value.on('blur', (sender, value) => this.emit('blur', value));
         value.on('activate', (sender, value) => this.emit('activate', value));
         value.on('deactivate', (sender, value) => this.emit('deactivate', value));
         value.on('select', (sender, value) => this.emit('select', value));
