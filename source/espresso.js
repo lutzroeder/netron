@@ -328,9 +328,6 @@ espresso.Reader = class {
                         }
                         delete data.has_biases;
                         delete data.blob_biases;
-                        if (obj.inputs.length === 1) {
-                            throw new espresso.Error('Missing weights.');
-                        }
                         break;
                     }
                     case 'batchnorm': {
