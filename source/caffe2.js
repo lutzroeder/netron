@@ -356,7 +356,6 @@ caffe2.Node = class {
     constructor(metadata, op, values) {
         this.name = op.name || '';
         this.device = op.engine || '';
-        this.metadata = metadata;
         this.chain = [];
         this.type = metadata.type(op.type);
         this.attributes = op.arg.map((arg) => {

@@ -215,6 +215,10 @@ onnx.Graph = class {
                 this._outputs.push(new onnx.Argument(output.name, [value]));
             }
         }
+        const metadata_props = graph.metadata_props || [];
+        this.metadata = metadata_props.map((metadata) => {
+            return new onnx.Argument(metadata.key, metadata.value);
+        });
     }
 
     get name() {

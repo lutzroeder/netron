@@ -2599,13 +2599,6 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         if (node.device) {
             this.addProperty('device', node.device);
         }
-        const metadata = node.metadata;
-        if (Array.isArray(metadata) && metadata.length > 0) {
-            this.addHeader('Metadata');
-            for (const entry of metadata) {
-                this.addArgument(entry.name, entry, 'attribute');
-            }
-        }
         const attributes = node.attributes;
         if (Array.isArray(attributes) && attributes.length > 0) {
             this.addHeader('Attributes');
@@ -2628,6 +2621,13 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             for (const output of outputs) {
                 const name = output.name;
                 this.addArgument(name, output);
+            }
+        }
+        const metadata = node.metadata;
+        if (Array.isArray(metadata) && metadata.length > 0) {
+            this.addHeader('Metadata');
+            for (const entry of metadata) {
+                this.addArgument(entry.name, entry, 'attribute');
             }
         }
     }
@@ -3459,12 +3459,10 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             selector.on('change', (sender, data) => this.emit('update-active-graph-signature', data));
             this.addEntry('signature', selector);
         }
-        const metadata = model.metadata instanceof Map ?
-            Array.from(model.metadata).map(([name, value]) => ({ name, value })) :
-            model.metadata;
+        const metadata = model.metadata;
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addHeader('Metadata');
-            for (const argument of model.metadata) {
+            for (const argument of metadata) {
                 this.addProperty(argument.name, argument.value);
             }
         }
@@ -3493,6 +3491,13 @@ view.ModelSidebar = class extends view.ObjectSidebar {
                 this.addHeader('Outputs');
                 for (const output of outputs) {
                     this.addArgument(output.name, output);
+                }
+            }
+            const metadata = graph.metadata;
+            if (Array.isArray(metadata) && metadata.length > 0) {
+                this.addHeader('Metadata');
+                for (const argument of metadata) {
+                    this.addProperty(argument.name, argument.value);
                 }
             }
         }
