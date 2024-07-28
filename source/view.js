@@ -2042,10 +2042,23 @@ view.Node = class extends grapher.Node {
             item.separator = ' = ';
             return item;
         };
+        const isObject = (node) => {
+            if (node.name || node.identifier || node.description ||
+                (Array.isArray(node.inputs) && node.inputs.length > 0) ||
+                (Array.isArray(node.outputs) && node.outputs.length > 0) ||
+                (Array.isArray(node.attributes) && node.attributes.length > 0) ||
+                (Array.isArray(node.chain) && node.chain.length > 0)) {
+                return true;
+            }
+
+            return false;
+        };
         if (Array.isArray(node.inputs)) {
             for (const argument of node.inputs) {
                 const type = argument.type;
-                if (type === 'graph' || type === 'object' || type === 'object[]' || type === 'function' || type === 'function[]') {
+                if (type === 'graph' ||
+                    (type === 'object' && isObject(argument.value)) ||
+                    type === 'object[]' || type === 'function' || type === 'function[]') {
                     objects.push(argument);
                 } else if (options.weights && argument.visible !== false && argument.type !== 'attribute' && Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
                     const item = this.context.createArgument(argument);

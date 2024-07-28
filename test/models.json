@@ -4899,6 +4899,7 @@
     "target":   "bad-hands-5.pt",
     "source":   "https://github.com/lutzroeder/netron/files/14471657/bad-hands-5.pt.zip[bad-hands-5.pt]",
     "format":   "PyTorch v1.6",
+    "assert":   "model.graphs[0].nodes[0].inputs.length == 6",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
@@ -4913,6 +4914,7 @@
     "target":   "best_mask.pth",
     "source":   "https://github.com/user-attachments/files/16401712/best_mask.pth.zip[best_mask.pth]",
     "format":   "PyTorch v1.6",
+    "assert":   "model.graphs.length == 0",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
@@ -5297,6 +5299,7 @@
     "target":   "mcunet-5fps.pkl",
     "source":   "https://github.com/user-attachments/files/16401553/mcunet-5fps.pkl.zip[mcunet-5fps.pkl]",
     "format":   "PyTorch v1.6",
+    "assert":   "model.graphs[0].nodes[0].inputs[0].value.inputs[9].value.inputs[0].value.type.dataType == 'int8'",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
@@ -5304,6 +5307,7 @@
     "target":   "mnist_bfloat16.pt",
     "source":   "https://github.com/lutzroeder/netron/files/8556403/mnist_bfloat16.pt.zip[mnist_bfloat16.pt]",
     "format":   "PyTorch v1.6",
+    "assert":   "model.graphs[0].nodes[0].inputs[0].value[0].initializer.type.dataType == 'bfloat16'",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
@@ -5809,6 +5813,7 @@
     "target":   "rng_state.pth",
     "source":   "https://github.com/user-attachments/files/16401709/rng_state.pth.zip[rng_state.pth]",
     "format":   "PyTorch v1.6",
+    "assert":   "model.graphs[0].nodes[0].inputs[3].name == 'numpy'",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
