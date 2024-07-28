@@ -214,7 +214,7 @@ export default [
             'semi': ['error', 'always'],
             // 'sort-imports': 'error',
             // 'sort-keys': 'error',
-            // 'sort-vars': 'error',
+            'sort-vars': 'error',
             'space-before-blocks': 'error',
             'space-in-parens': 'error',
             'space-infix-ops': 'error',
