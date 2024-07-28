@@ -250,19 +250,18 @@ caffe2.Graph = class {
             }
         }
         const scope = {};
-        let index = 0;
-        for (const op of netDef.op) {
+        for (let i = 0; i < netDef.op.length; i++) {
+            const op = netDef.op[i];
             op.input = op.input.map((input) => scope[input] ? scope[input] : input);
             op.output = op.output.map((output) => {
                 if (scope[output]) {
-                    const next = `${output}\n${index}`; // custom argument id
+                    const next = `${output}\n${i}`; // custom argument id
                     scope[output] = next;
                     return next;
                 }
                 scope[output] = output;
                 return output;
             });
-            index++;
         }
         const values = new Map();
         values.map = (name, type, tensor) => {

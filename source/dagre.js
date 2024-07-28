@@ -1790,6 +1790,7 @@ dagre.layout = (nodes, edges, layout, state) => {
                 }
             };
             if (layering.length > 0) {
+                /* eslint-disable no-loop-func */
                 let [north] = layering;
                 for (let i = 1; i < layering.length; i++) {
                     const south = layering[i];
@@ -1810,6 +1811,7 @@ dagre.layout = (nodes, edges, layout, state) => {
                     });
                     north = south;
                 }
+                /* eslint-enable no-loop-func */
             }
             return conflicts;
         };

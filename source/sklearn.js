@@ -251,11 +251,12 @@ sklearn.Node = class {
                         const argument = new sklearn.Argument(name, node, 'object');
                         this.inputs.push(argument);
                     } else if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj && (obj.__class__ || obj === Object(obj)))) {
-                        const values = value.filter((value) => !stack.has(value));
+                        const chain = stack;
+                        const values = value.filter((value) => !chain.has(value));
                         const nodes = values.map((value) => {
-                            stack.add(value);
-                            const node = new sklearn.Node(metadata, group, '', value, [], [], null, stack);
-                            stack.delete(value);
+                            chain.add(value);
+                            const node = new sklearn.Node(metadata, group, '', value, [], [], null, chain);
+                            chain.delete(value);
                             return node;
                         });
                         const argument = new sklearn.Argument(name, nodes, 'object[]');

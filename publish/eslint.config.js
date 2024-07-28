@@ -114,7 +114,7 @@ export default [
             'no-labels': 'error',
             'no-lone-blocks': 'error',
             'no-lonely-if': 'error',
-            // 'no-loop-func': 'error',
+            'no-loop-func': 'error',
             'no-loss-of-precision': 'error',
             // 'no-magic-numbers': 'error',
             'no-misleading-character-class': 'error',

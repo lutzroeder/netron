@@ -307,7 +307,7 @@ mxnet.Graph = class {
             return [nodeIndex, outputIndex];
         };
         if (symbol) {
-            let nodes = symbol.nodes;
+            const nodes = symbol.nodes;
             const inputs = {};
             if (manifest && manifest.signature && manifest.signature.inputs) {
                 for (const input of manifest.signature.inputs) {
@@ -344,9 +344,9 @@ mxnet.Graph = class {
                 const argument = new mxnet.Argument(name, [value]);
                 this.outputs.push(argument);
             }
-            nodes = nodes.filter((node, index) => !arg_nodes.has(index));
+            const filtered = nodes.filter((node, index) => !arg_nodes.has(index));
             const initializers = new Map();
-            for (const node of nodes) {
+            for (const node of filtered) {
                 if (node.op === 'RNN') {
                     node.inputs = node.inputs.filter((input) => {
                         const [index] = input;
@@ -413,7 +413,7 @@ mxnet.Graph = class {
                     this.inputs.push(argument);
                 }
             }
-            for (const node of nodes) {
+            for (const node of filtered) {
                 this.nodes.push(new mxnet.Node(metadata, node, initializers, values));
             }
         } else if (params) {
