@@ -4889,10 +4889,16 @@
   },
   {
     "type":     "pytorch",
+    "target":   "bad-base_libri.pt",
+    "source":   "https://github.com/user-attachments/files/16401716/base_libri.pt.zip[base_libri.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
     "target":   "bad-hands-5.pt",
     "source":   "https://github.com/lutzroeder/netron/files/14471657/bad-hands-5.pt.zip[bad-hands-5.pt]",
     "format":   "PyTorch v1.6",
-    "error":    "File does not contain root module or state dictionary.",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
@@ -4901,6 +4907,20 @@
     "source":   "https://github.com/lutzroeder/netron/files/7705212/bert-base-uncased.pt.zip[bert-base-uncased.pt]",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "best_mask.pth",
+    "source":   "https://github.com/user-attachments/files/16401712/best_mask.pth.zip[best_mask.pth]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "best.pt",
+    "source":   "https://github.com/user-attachments/files/16401713/best.pt.zip[best.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
     "type":     "pytorch",
@@ -4939,6 +4959,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "best.pt",
+    "source":   "https://github.com/user-attachments/files/16401547/best.pt.zip[best.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
     "target":   "coco128-yolov8n-seg_output.torchscript.ptl",
     "source":   "https://github.com/user-attachments/files/16091260/coco128-yolov8n-seg_output.torchscript.ptl.zip[coco128-yolov8n-seg_output.torchscript.ptl]",
     "format":   "TorchScript v1.6",
@@ -4946,10 +4973,31 @@
   },
   {
     "type":     "pytorch",
+    "target":   "checkpoint_best.pth",
+    "source":   "https://github.com/user-attachments/files/16401715/checkpoint_best.pth.zip[checkpoint_best.pth]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
     "target":   "ckpt.t7",
     "source":   "https://raw.githubusercontent.com/babajide07/Redundant-Feature-Pruning-Pytorch-Implementation/master/checkpoint/ckpt.t7",
     "format":   "PyTorch v0.1.10",
     "link":     "https://github.com/babajide07/Redundant-Feature-Pruning-Pytorch-Implementation"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "cpu_jit.pt",
+    "source":   "https://github.com/user-attachments/files/16401711/cpu_jit.pt.zip[cpu_jit.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "complex_tensor.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/9108149/complex_tensor.pt.zip[complex_tensor.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
     "type":     "pytorch",
@@ -4968,18 +5016,10 @@
   },
   {
     "type":     "pytorch",
-    "target":   "complex_tensor.pt",
-    "source":   "https://github.com/lutzroeder/netron/files/9108149/complex_tensor.pt.zip[complex_tensor.pt]",
-    "format":   "PyTorch v1.6",
-    "link":     "https://github.com/lutzroeder/netron/issues/720"
-  },
-  {
-    "type":     "pytorch",
     "target":   "cup_wild_vit_l_1img.ckpt",
     "source":   "https://github.com/user-attachments/files/15752923/cup_wild_vit_l_1img.ckpt.zip[cup_wild_vit_l_1img.ckpt]",
     "format":   "PyTorch v1.6",
     "tags":     "skip-tensor-value",
-    "assert":   "model.graphs[1].name == 'ema_model'",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
@@ -5062,6 +5102,7 @@
     "target":   "DRNL4x_dual_model.pth",
     "source":   "https://github.com/lutzroeder/netron/files/5505677/DRNL4x_dual_model.pth.zip[DRNL4x_dual_model.pth]",
     "format":   "PyTorch v0.1.10",
+    "assert":   "model.graphs[0].nodes[0].inputs.length == 1",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
@@ -5248,7 +5289,15 @@
     "target":   "mask_r_cnn.pth",
     "source":   "https://raw.githubusercontent.com/facebookresearch/kill-the-bits/master/src/models/compressed/mask_r_cnn.pth",
     "format":   "PyTorch v0.1.10",
+    "assert":   "model.graphs[0].nodes.length == 127",
     "link":     "https://github.com/facebookresearch/kill-the-bits/tree/master/src/models/compressed"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "mcunet-5fps.pkl",
+    "source":   "https://github.com/user-attachments/files/16401553/mcunet-5fps.pkl.zip[mcunet-5fps.pkl]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
     "type":     "pytorch",
@@ -5345,10 +5394,31 @@
   },
   {
     "type":     "pytorch",
+    "target":   "model_10_10_10.pth",
+    "source":   "https://github.com/user-attachments/files/16401752/model_10_10_10.pth.zip[model_10_10_10.pth]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "model_final.ckpt",
+    "source":   "https://github.com/user-attachments/files/16401708/model_final.ckpt.zip[model_final.ckpt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
     "target":   "model_fnet.pt",
     "source":   "https://github.com/lutzroeder/netron/files/8457286/model_fnet.pt.zip[model_fnet.pt]",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/882"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "model_trt.pth",
+    "source":   "https://github.com/user-attachments/files/16401618/model_trt.pth.zip[model_trt.pth]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
     "type":     "pytorch",
@@ -5401,6 +5471,20 @@
     "source":   "https://raw.githubusercontent.com/deepware/dFace/master/models/mtcnn.pt",
     "format":   "PyTorch v0.1.10",
     "link":     "https://github.com/deepware/dface/tree/master/dface"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "model_scripted.pt",
+    "source":   "https://github.com/user-attachments/files/16401554/model_scripted.pt.zip[model_scripted.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "muzero_models.pb",
+    "source":   "https://github.com/user-attachments/files/16401557/muzero_models.pb.zip[muzero_models.pb]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
     "type":     "pytorch",
@@ -5645,6 +5729,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "resnet18_cifar10_quantized.pt",
+    "source":   "https://github.com/user-attachments/files/16401717/resnet18_cifar10_quantized.pt.zip[resnet18_cifar10_quantized.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
     "target":   "resnet18_fbgemm_16fa66dd.pth",
     "source":   "https://download.pytorch.org/models/quantized/resnet18_fbgemm_16fa66dd.pth",
     "format":   "PyTorch v0.1.10",
@@ -5715,6 +5806,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "rng_state.pth",
+    "source":   "https://github.com/user-attachments/files/16401709/rng_state.pth.zip[rng_state.pth]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
     "target":   "rpn_model.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6186159/rpn_model.pt.zip[rpn_model.pt]",
     "format":   "TorchScript v1.3",
@@ -5736,9 +5834,16 @@
   },
   {
     "type":     "pytorch",
+    "target":   "s2a-q4-small-en+pl.model",
+    "source":   "https://github.com/user-attachments/files/16401714/s2a-q4-small-en%2Bpl.model.zip[s2a-q4-small-en+pl.model]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
     "target":   "segmentor.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7663953/segmentor.pt.zip[segmentor.pt]",
-    "format":   "TorchScript v1.6",
+    "format":   "PyTorch v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/686"
   },
   {
@@ -6144,6 +6249,13 @@
     "source":   "https://github.com/lutzroeder/netron/files/7447547/wav2vec2.ptl.zip[wav2vec2.ptl]",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/827"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "weigths_0000000.pth",
+    "source":   "https://github.com/user-attachments/files/16401710/weigths_0000000.pth.zip[weigths_0000000.pth]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
     "type":     "pytorch",

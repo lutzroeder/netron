@@ -809,7 +809,15 @@ view.View = class {
         const layout = {};
         layout.nodesep = 20;
         layout.ranksep = 20;
-        const rotate = graph.nodes.every((node) => node.inputs.filter((input) => (input.type && !input.type.endsWith('*')) || input.value.every((value) => !value.initializer)).length === 0 && node.outputs.length === 0);
+        const rotate = graph.nodes.every((node) => {
+            if (node.inputs.filter((input) => !input.type || input.type.endsWith('*')).some((input) => input.value.every((value) => !value.initializer))) {
+                return false;
+            }
+            if (node.outputs.length > 0) {
+                return false;
+            }
+            return true;
+        });
         const horizontal = rotate ? options.direction === 'vertical' : options.direction !== 'vertical';
         if (horizontal) {
             layout.rankdir = 'LR';
@@ -2039,7 +2047,7 @@ view.Node = class extends grapher.Node {
                 const type = argument.type;
                 if (type === 'graph' || type === 'object' || type === 'object[]' || type === 'function' || type === 'function[]') {
                     objects.push(argument);
-                } else if (options.weights && argument.visible !== false && Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
+                } else if (options.weights && argument.visible !== false && argument.type !== 'attribute' && Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
                     const item = this.context.createArgument(argument);
                     list().add(item);
                 } else if (options.weights && (argument.visible === false || Array.isArray(argument.value) && argument.value.length > 1) && (!argument.type || argument.type.endsWith('*')) && argument.value.some((value) => value.initializer)) {
