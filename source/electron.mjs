@@ -1,11 +1,11 @@
 
+import * as base from './base.js';
 import * as electron from 'electron';
 import * as fs from 'fs';
 import * as http from 'http';
 import * as https from 'https';
 import * as path from 'path';
 import * as url from 'url';
-import * as base from './base.js';
 import * as view from './view.js';
 
 const host = {};

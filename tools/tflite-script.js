@@ -1,8 +1,8 @@
 
-import * as path from 'path';
-import * as fs from 'fs/promises';
-import * as url from 'url';
 import * as flatc from './flatc.js';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import * as url from 'url';
 
 /* eslint-disable no-extend-native */
 

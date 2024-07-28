@@ -1,15 +1,15 @@
 
 import * as base from './base.js';
-import * as zip from './zip.js';
-import * as tar from './tar.js';
+import * as flatbuffers from './flatbuffers.js';
+import * as grapher from './grapher.js';
+import * as hdf5 from './hdf5.js';
 import * as json from './json.js';
+import * as protobuf from './protobuf.js';
+import * as python from './python.js';
+import * as tar from './tar.js';
 import * as text from './text.js';
 import * as xml from './xml.js';
-import * as protobuf from './protobuf.js';
-import * as flatbuffers from './flatbuffers.js';
-import * as hdf5 from './hdf5.js';
-import * as python from './python.js';
-import * as grapher from './grapher.js';
+import * as zip from './zip.js';
 
 const view =  {};
 const markdown = {};

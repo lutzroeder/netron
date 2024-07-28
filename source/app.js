@@ -1,11 +1,11 @@
 
+import * as base from './base.js';
 import * as electron from 'electron';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as process from 'process';
 import * as url from 'url';
-import * as base from './base.js';
 
 const app = {};
 

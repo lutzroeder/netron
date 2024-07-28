@@ -212,7 +212,7 @@ export default [
             // 'require-unicode-regexp': 'error',
             'require-yield': 'error',
             'semi': ['error', 'always'],
-            // 'sort-imports': 'error',
+            'sort-imports': 'error',
             // 'sort-keys': 'error',
             'sort-vars': 'error',
             'space-before-blocks': 'error',
