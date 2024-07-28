@@ -4,6 +4,7 @@
 /* eslint-disable prefer-arrow-callback */
 /* eslint-disable prefer-template */
 /* eslint-disable prefer-destructuring */
+/* eslint-disable vars-on-top */
 
 window.exports = {};
 

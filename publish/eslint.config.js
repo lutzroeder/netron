@@ -224,7 +224,7 @@ export default [
             'unicode-bom': 'error',
             'use-isnan': 'error',
             'valid-typeof': 'error',
-            // 'vars-on-top': 'error',
+            'vars-on-top': 'error',
             'yoda': 'error'
         }
     }
