@@ -5615,6 +5615,7 @@ view.ModelFactoryService = class {
         this.register('./cambricon', ['.cambricon']);
         this.register('./weka', ['.model']);
         this.register('./qnn', ['.json', '.bin']);
+        this.register('./kann', ['.kann', '.bin']);
     }
 
     register(module, factories, containers) {
