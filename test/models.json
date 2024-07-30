@@ -2251,6 +2251,38 @@
     "link":     "https://github.com/lutzroeder/netron/issues/998"
   },
   {
+    "type":     "kann",
+    "target":   "GoogLeNet-ILSVRC2014",
+    "source":   "https://github.com/kalray/netron-test-models/raw/main/GoogLeNet-ILSVRC2014-fp16-5c.kann",
+    "format":   "KaNN"
+  },
+  {
+    "type":     "kann",
+    "target":   "MobileNet-v2-ILSVRC2012",
+    "source":   "https://github.com/kalray/netron-test-models/raw/main/MobileNet_v2-ILSVRC2012-5c.kann",
+    "format":   "KaNN",
+    "tags":     "quantization"
+  },
+  {
+    "type":     "kann",
+    "target":   "ResNet50-v1.5-MLPerf",
+    "source":   "https://github.com/kalray/netron-test-models/raw/main/ResNet50v15_MLPerf_quantized-fp16-5c.kann",
+    "format":   "KaNN",
+    "tags":     "quantization"
+  },
+  {
+    "type":     "kann",
+    "target":   "SqueezeNet-v1.0-ILSVRC2012",
+    "source":   "https://github.com/kalray/netron-test-models/raw/main/SqueezeNetV1_0-ILSVRC2012-fp16-5c.kann",
+    "format":   "KaNN"
+  },
+  {
+    "type":     "kann",
+    "target":   "YOLO-v3-COCO",
+    "source":   "https://github.com/kalray/netron-test-models/raw/main/YOLO_v3-COCO_fp16_kv3_2_L2ON_onnx-fp16-5c.kann",
+    "format":   "KaNN"
+  },
+  {
     "type":     "keras",
     "target":   "0326.json",
     "source":   "https://github.com/lutzroeder/netron/files/13367043/0326.json.zip[0326.json]",

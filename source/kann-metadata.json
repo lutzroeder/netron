@@ -1,0 +1,182 @@
+[
+    {
+        "name": "Transpose",
+        "category": "Transform"
+    },
+    {
+        "name": "Substraction",
+        "category": "Transform"
+    },
+    {
+        "name": "Erf",
+        "category": "Layer"
+    },
+    {
+        "name": "LayerNorm",
+        "category": "Normalization"
+    },
+    {
+        "name": "Output",
+        "category": "Data"
+    },
+    {
+        "name": "MaxWithConstant",
+        "category": "Transform"
+    },
+    {
+        "name": "ConvolutionCV2",
+        "category": "Layer"
+    },
+    {
+        "name": "Reciprocal",
+        "category": "Layer"
+    },
+    {
+        "name": "ReLU",
+        "category": "Activation"
+    },
+    {
+        "name": "Resize",
+        "category": "Shape"
+    },
+    {
+        "name": "ResizeNearestAsymFloor",
+        "category": "Shape"
+    },
+    {
+        "name": "MulElementwise",
+        "category": "Transform"
+    },
+    {
+        "name": "Copy",
+        "category": "Transform"
+    },
+    {
+        "name": "Exp",
+        "category": "Activation"
+    },
+    {
+        "name": "Mish",
+        "category": "Activation"
+    },
+    {
+        "name": "Stddev",
+        "category": "Normalization"
+    },
+    {
+        "name": "Division",
+        "category": "Layer"
+    },
+    {
+        "name": "MatMul",
+        "category": "Transform"
+    },
+    {
+        "name": "AvgPooling",
+        "category": "Pool"
+    },
+    {
+        "name": "HardSigmoid",
+        "category": "Activation"
+    },
+    {
+        "name": "MaxElementwise",
+        "category": "Transform"
+    },
+    {
+        "name": "SeLU",
+        "category": "Activation"
+    },
+    {
+        "name": "LRN",
+        "category": "Activation"
+    },
+    {
+        "name": "MulWithConstant",
+        "category": "Transform"
+    },
+    {
+        "name": "Abs",
+        "category": "Transform"
+    },
+    {
+        "name": "Invert",
+        "category": "Transform"
+    },
+    {
+        "name": "Sqrt",
+        "category": "Transform"
+    },
+    {
+        "name": "MinElementwise",
+        "category": "Transform"
+    },
+    {
+        "name": "GeLU",
+        "category": "Activation"
+    },
+    {
+        "name": "Input",
+        "category": "Data"
+    },
+    {
+        "name": "Logistic",
+        "category": "Activation"
+    },
+    {
+        "name": "Reshape",
+        "category": "Shape"
+    },
+    {
+        "name": "AddElementwise",
+        "category": "Transform"
+    },
+    {
+        "name": "Saturate",
+        "category": "Transform"
+    },
+    {
+        "name": "Tanh",
+        "category": "Activation"
+    },
+    {
+        "name": "ScalingVector",
+        "category": "Transform"
+    },
+    {
+        "name": "MaxPooling",
+        "category": "Pool"
+    },
+    {
+        "name": "Convert",
+        "category": "Transform"
+    },
+    {
+        "name": "DepthwiseConvolution",
+        "category": "Layer"
+    },
+    {
+        "name": "Softmax",
+        "category": "Activation"
+    },
+    {
+        "name": "MinWithConstant",
+        "category": "Transform"
+    },
+    {
+        "name": "WriteValue",
+        "category": "Data"
+    },
+    {
+        "name": "SiLU",
+        "category": "Activation"
+    },
+    {
+        "name": "ImageSMEM",
+        "category": "Tensor"
+    },
+    {
+        "name": "ImageDDR",
+        "category": "Tensor"
+    }
+]
