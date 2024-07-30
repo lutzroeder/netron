@@ -4975,6 +4975,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "checkpoints_auc_classifier.pth",
+    "source":   "https://github.com/user-attachments/files/16405191/checkpoints_auc_classifier.pth.zip[checkpoints_auc_classifier.pth]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
     "target":   "checkpoint_best.pth",
     "source":   "https://github.com/user-attachments/files/16401715/checkpoint_best.pth.zip[checkpoint_best.pth]",
     "format":   "PyTorch v1.6",
@@ -5142,6 +5149,13 @@
     "source":   "https://github.com/lutzroeder/netron/files/7677467/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
     "error":    "Unsupported torch.add expression type.",
     "link":     "https://github.com/lutzroeder/netron/issues/689"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "final_89.pt",
+    "source":   "https://github.com/user-attachments/files/16405085/final_89.pt.zip[final_89.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
     "type":     "pytorch",

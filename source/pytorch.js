@@ -3742,7 +3742,7 @@ pytorch.Utility = class {
                         if (layer_name === '' && layer._parameters.length > 12) {
                             return null;
                         }
-                    } else if (value && Array.isArray(value) && value.every((item) => pytorch.Utility.isTensor(item))) {
+                    } else if (value && Array.isArray(value) && value.some((item) => pytorch.Utility.isTensor(item)) && value.every((item) => pytorch.Utility.isTensor(item) || item === null)) {
                         layer._parameters = layer._parameters || new Map();
                         layer._parameters.set(parameter, value);
                     } else {
