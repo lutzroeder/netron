@@ -64,7 +64,8 @@
         { "ext": "tnnproto",    "name": "TNN Model"                },
         { "ext": "torchscript", "name": "PyTorch Model"            },
         { "ext": "uff",         "name": "UFF Model"                },
-        { "ext": "xmodel",      "name": "Vitis AI Model"           }
+        { "ext": "xmodel",      "name": "Vitis AI Model"           },
+        { "ext": "kann",        "name": "KaNN Model"               }
     ],
     "publish": [
         { "provider": "github", "releaseType": "release" }

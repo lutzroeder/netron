@@ -1265,7 +1265,7 @@ base.Metadata = class {
             'pkl', 'pickle', 'joblib', 'safetensors',
             'ptl', 't7',
             'dlc', 'uff', 'armnn',
-            'mnn', 'ms', 'ncnn', 'om', 'tm', 'mge', 'tmfile', 'tnnproto', 'xmodel', 'kmodel', 'rknn',
+            'mnn', 'ms', 'ncnn', 'om', 'tm', 'mge', 'tmfile', 'tnnproto', 'xmodel', 'kmodel', 'rknn', 'kann',
             'tar', 'zip'
         ];
     }

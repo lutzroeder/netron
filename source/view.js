@@ -5816,6 +5816,7 @@ view.ModelFactoryService = class {
         this.register('./catboost', ['.cbm']);
         this.register('./weka', ['.model']);
         this.register('./qnn', ['.json', '.bin', '.serialized']);
+        this.register('./kann', ['.kann', '.bin']);
         this.register('', ['.cambricon', '.vnnmodel']);
     }
 

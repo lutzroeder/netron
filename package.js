@@ -548,7 +548,8 @@ const update = async () => {
         'sentencepiece', 'sklearn',
         'tf',
         'uff',
-        'xmodel'
+        'xmodel',
+        'kann'
     ];
     for (const target of targets) {
         /* eslint-disable no-await-in-loop */
