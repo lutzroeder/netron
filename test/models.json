@@ -44,6 +44,13 @@
   },
   {
     "type":     "_",
+    "target":   "FaceONNX.xml",
+    "source":   "https://github.com/user-attachments/files/16435065/FaceONNX.xml.zip[FaceONNX.xml]",
+    "error":    "Invalid file content. File contains .NET XML documentation.",
+    "link":     "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":     "_",
     "target":   "haarcascade_mcs_nose.xml",
     "source":   "https://github.com/lutzroeder/netron/files/7403702/haarcascade_mcs_nose.xml.zip[haarcascade_mcs_nose.xml]",
     "error":    "Invalid file content. File contains OpenCV storage data.",

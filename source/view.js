@@ -5173,7 +5173,7 @@ view.Context = class {
                     match(buffer, [0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19]) || // PyTorch
                     (type !== 'npz' && type !== 'zip' && match(buffer, [0x50, 0x4B, 0x03, 0x04])) || // Zip
                     (type !== 'hdf5' && match(buffer, [0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A])) || // \x89HDF\r\n\x1A\n
-                    Array.from(this._tags).some(([key, value]) => key !== 'flatbuffers' && value.size > 0) ||
+                    Array.from(this._tags).some(([key, value]) => key !== 'flatbuffers' && key !== 'xml' && value.size > 0) ||
                     Array.from(this._content.values()).some((obj) => obj !== undefined);
                 if (!skip) {
                     switch (type) {
@@ -5204,6 +5204,18 @@ view.Context = class {
                                         const obj = reader.read();
                                         this._content.set(type, obj);
                                     }
+                                }
+                            } catch {
+                                // continue regardless of error
+                            }
+                            break;
+                        }
+                        case 'xml': {
+                            try {
+                                const reader = xml.TextReader.open(this._stream);
+                                if (reader) {
+                                    const obj = reader.read();
+                                    this._content.set(type, obj);
                                 }
                             } catch {
                                 // continue regardless of error
@@ -5389,6 +5401,13 @@ view.Context = class {
                         return reader.read();
                     }
                     throw new view.Error('Invalid BSON content.');
+                }
+                case 'xml': {
+                    const reader = xml.TextReader.open(this._stream);
+                    if (reader) {
+                        return reader.read();
+                    }
+                    throw new view.Error(`Invalid XML content.`);
                 }
                 case 'flatbuffers.binary': {
                     const reader = flatbuffers.BinaryReader.open(this._stream);
@@ -5868,14 +5887,28 @@ view.ModelFactoryService = class {
             }
         };
         const xml = () => {
-            const tags = context.tags('xml');
-            if (tags.size > 0) {
+            const document = context.peek('xml');
+            if (document && document.documentElement) {
+                const tags = new Set();
+                const qualifiedName = (element) => {
+                    const namespaceURI = element.namespaceURI;
+                    const localName = element.localName;
+                    return namespaceURI ? `${namespaceURI}:${localName}` : localName;
+                };
+                const root = qualifiedName(document.documentElement);
+                tags.add(root);
+                for (const element of document.documentElement.childNodes) {
+                    const name = qualifiedName(element);
+                    tags.add(`${root}/${name}`);
+                }
                 const formats = [
                     { name: 'OpenCV storage data', tags: ['opencv_storage'] },
-                    { name: 'XHTML markup', tags: ['http://www.w3.org/1999/xhtml:html'] }
+                    { name: 'XHTML markup', tags: ['http://www.w3.org/1999/xhtml:html'] },
+                    { name: '.NET XML documentation', tags: ['doc', 'doc/assembly'] },
+                    { name: '.NET XML documentation', tags: ['doc', 'doc/members'] }
                 ];
                 for (const format of formats) {
-                    if (format.tags.some((tag) => tags.has(tag))) {
+                    if (format.tags.every((tag) => tags.has(tag))) {
                         const error = new view.Error(`Invalid file content. File contains ${format.name}.`);
                         error.content = context.identifier;
                         throw error;

@@ -1,6 +1,4 @@
 
-import * as xml from './xml.js';
-
 const openvino = {};
 
 openvino.ModelFactory = class {
@@ -75,11 +73,9 @@ openvino.ModelFactory = class {
     async open(context) {
         const identifier = context.identifier;
         const base = identifier.substring(0, identifier.length - 4);
-        let stream = null;
         let bin = null;
         switch (context.type) {
             case 'openvino.xml': {
-                stream = context.stream;
                 try {
                     const file = `${base}.bin`;
                     const content = await context.fetch(file);
@@ -92,9 +88,8 @@ openvino.ModelFactory = class {
             case 'openvino.bin': {
                 try {
                     const file = `${base}.xml`;
-                    const content = await context.fetch(file, null);
-                    stream = content.stream;
                     bin = context.stream.peek();
+                    context = await context.fetch(file, null);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
                     throw new openvino.Error(`OpenVINO model definition required (${message.replace(/\.$/, '')}).`);
@@ -106,12 +101,8 @@ openvino.ModelFactory = class {
             }
         }
         let document = null;
-        const reader = xml.TextReader.open(stream);
-        if (!reader) {
-            throw new openvino.Error(`File format is not OpenVINO XML.`);
-        }
         try {
-            document = reader.read();
+            document = context.read('xml');
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
             throw new openvino.Error(`File format is not OpenVINO XML (${message.replace(/\.$/, '')}).`);
