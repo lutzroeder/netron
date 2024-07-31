@@ -403,6 +403,16 @@ executorch_flatbuffer.TensorShapeDynamism = {
     DYNAMIC_UNBOUND: 2
 };
 
+executorch_flatbuffer.ExtraTensorInfo = class ExtraTensorInfo {
+
+    static decode(reader, position) {
+        const $ = new executorch_flatbuffer.ExtraTensorInfo();
+        $.mutable_data_segments_idx = reader.uint64_(position, 4, 0n);
+        $.fully_qualified_name = reader.string_(position, 6, null);
+        return $;
+    }
+};
+
 executorch_flatbuffer.Tensor = class Tensor {
 
     static decode(reader, position) {
@@ -412,10 +422,11 @@ executorch_flatbuffer.Tensor = class Tensor {
         $.sizes = reader.array(position, 8, Int32Array);
         $.dim_order = reader.array(position, 10, Uint8Array);
         $.requires_grad = reader.bool_(position, 12, false);
-        $.constant_buffer_idx = reader.uint32_(position, 14, 0);
+        $.data_buffer_idx = reader.uint32_(position, 14, 0);
         $.allocation_info = reader.table(position, 16, executorch_flatbuffer.AllocationDetails);
         $.layout = reader.int8_(position, 18, 0);
         $.shape_dynamism = reader.int8_(position, 20, 0);
+        $.extra_tensor_info = reader.table(position, 22, executorch_flatbuffer.ExtraTensorInfo);
         return $;
     }
 };
@@ -754,6 +765,7 @@ executorch_flatbuffer.Program = class Program {
         $.backend_delegate_data = reader.tables(position, 10, executorch_flatbuffer.BackendDelegateInlineData);
         $.segments = reader.tables(position, 12, executorch_flatbuffer.DataSegment);
         $.constant_segment = reader.table(position, 14, executorch_flatbuffer.SubsegmentOffsets);
+        $.mutable_data_segments = reader.tables(position, 16, executorch_flatbuffer.SubsegmentOffsets);
         return $;
     }
 };
