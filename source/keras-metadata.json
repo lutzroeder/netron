@@ -752,7 +752,7 @@
     "name": "Conv2D",
     "module": "keras.layers",
     "category": "Layer",
-    "description": "2D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a single spatial (or temporal) dimension to produce a tensor of\noutputs. If `use_bias` is True, a bias vector is created and added to the\noutputs. Finally, if `activation` is not `None`, it is applied to the\noutputs as well.",
+    "description": "2D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a 2D spatial (or temporal) dimension (height and width) to\nproduce a tensor of outputs. If `use_bias` is True, a bias vector is created\nand added to the outputs. Finally, if `activation` is not `None`, it is\napplied to the outputs as well.",
     "attributes": [
       {
         "default": "linear",
@@ -1005,7 +1005,7 @@
     "name": "Conv3D",
     "module": "keras.layers",
     "category": "Layer",
-    "description": "3D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a single spatial (or temporal) dimension to produce a tensor of\noutputs. If `use_bias` is True, a bias vector is created and added to the\noutputs. Finally, if `activation` is not `None`, it is applied to the\noutputs as well.",
+    "description": "3D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a 3D spatial (or temporal) dimension (width,height and depth) to\nproduce a tensor of outputs. If `use_bias` is True, a bias vector is created\nand added to the outputs. Finally, if `activation` is not `None`, it is\napplied to the outputs as well.",
     "attributes": [
       {
         "description": "int, the dimension of the output space (the number of filters\n        in the convolution).",
@@ -1259,7 +1259,7 @@
     "name": "Convolution2D",
     "module": "keras.layers",
     "category": "Layer",
-    "description": "2D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a single spatial (or temporal) dimension to produce a tensor of\noutputs. If `use_bias` is True, a bias vector is created and added to the\noutputs. Finally, if `activation` is not `None`, it is applied to the\noutputs as well.",
+    "description": "2D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a 2D spatial (or temporal) dimension (height and width) to\nproduce a tensor of outputs. If `use_bias` is True, a bias vector is created\nand added to the outputs. Finally, if `activation` is not `None`, it is\napplied to the outputs as well.",
     "attributes": [
       {
         "default": "linear",
