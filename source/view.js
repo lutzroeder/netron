@@ -5876,7 +5876,8 @@ view.ModelFactoryService = class {
                 if (identifier) {
                     const formats = [
                         { name: 'ONNX Runtime model data', identifier: 'ORTM' },
-                        { name: 'TensorFlow Lite model data', identifier: 'TFL3' }
+                        { name: 'TensorFlow Lite model data', identifier: 'TFL3' },
+                        { name: 'KaNN model data', identifier: 'KaNN' }
                     ];
                     for (const format of formats) {
                         if (identifier === format.identifier) {
@@ -6133,7 +6134,8 @@ view.ModelFactoryService = class {
                 { name: 'AES Crypt data', value: /^AES[\x01|\x02]\x00/ },
                 { name: 'BModel data', value: /^\xEE\xAA\x55\xFF/ }, // https://github.com/sophgo/tpu-mlir/blob/master/include/tpu_mlir/Builder/BM168x/bmodel.fbs
                 { name: 'CviModel data', value: /^CviModel/ }, // https://github.com/sophgo/tpu-mlir/blob/master/include/tpu_mlir/Builder/CV18xx/proto/cvimodel.fbs
-                { name: 'Tokenizer data', value: /^IQ== 0\n/ }
+                { name: 'Tokenizer data', value: /^IQ== 0\n/ },
+                { name: 'BCNN model', value: /^BCNN/ }
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
