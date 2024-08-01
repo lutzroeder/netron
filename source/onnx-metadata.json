@@ -40871,7 +40871,8 @@
           "tensor(bfloat16)"
         ]
       }
-    ]
+    ],
+    "category": "Activation"
   },
   {
     "name": "RNN",
@@ -53393,7 +53394,8 @@
           "tensor(float)"
         ]
       }
-    ]
+    ],
+    "category": "Normalization"
   },
   {
     "name": "SkipSimplifiedLayerNormalization",
