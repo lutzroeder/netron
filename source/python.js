@@ -3632,9 +3632,11 @@ python.Execution = class {
         this.registerFunction('cloudpickle.cloudpickle._builtin_type', (name) => {
             return name;
         });
+        this.registerFunction('cloudpickle.cloudpickle._fill_function');
         this.registerFunction('cloudpickle.cloudpickle._make_cell');
         this.registerFunction('cloudpickle.cloudpickle._make_empty_cell');
         this.registerFunction('cloudpickle.cloudpickle._make_function');
+        this.registerFunction('cloudpickle.cloudpickle._make_skel_func');
         this.registerFunction('cloudpickle.cloudpickle._make_skeleton_class');
         this.registerFunction('cloudpickle.cloudpickle.subimport');
         this.registerFunction('cloudpickle.cloudpickle_fast._class_setstate');
