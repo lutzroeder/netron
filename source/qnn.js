@@ -10,11 +10,21 @@ qnn.ModelFactory = class {
         if (obj && obj['model.cpp'] && obj.graph) {
             context.type = 'qnn.json';
             context.target = obj;
+            return;
         }
         const entries = context.peek('tar');
         if (entries && entries.size > 0 && Array.from(entries).every(([name]) => name.endsWith('.raw'))) {
             context.type = 'qnn.weights';
             context.target = entries;
+            return;
+        }
+        const identifier = context.identifier.toLowerCase();
+        if (identifier.endsWith('.bin') || identifier.endsWith('.serialized')) {
+            const stream = context.stream;
+            const signature = [0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+            if (stream.length >= signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+                context.type = 'qnn.serialized';
+            }
         }
     }
 
@@ -44,6 +54,9 @@ qnn.ModelFactory = class {
                 const content = await context.fetch(`${base}_net.json`);
                 const obj = content.read('json');
                 return new qnn.Model(metadata, obj, weights);
+            }
+            case 'qnn.serialized': {
+                throw new qnn.Error("File contains undocumented QNN serialized context.");
             }
             default: {
                 throw new qnn.Error(`Unsupported QNN format '${context.type}'.`);
