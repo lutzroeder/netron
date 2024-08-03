@@ -32132,6 +32132,11 @@
         "default": false
       },
       {
+        "name": "use_unbounded_threadpool",
+        "type": "boolean",
+        "default": false
+      },
+      {
         "name": "metadata",
         "type": "string",
         "default": ""
