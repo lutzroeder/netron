@@ -4925,6 +4925,7 @@ python.Execution = class {
         this.registerType('torchvision.models.swin_transformer.ShiftedWindowAttention', class {});
         this.registerType('torchvision.models.swin_transformer.ShiftedWindowAttentionV2', class {});
         this.registerType('torchvision.models.swin_transformer.SwinTransformer', class {});
+        this.registerType('torchvision.models.swin_transformer.SwinTransformerBlock', class {});
         this.registerType('torchvision.models.swin_transformer.SwinTransformerBlockV2', class {});
         this.registerType('torchvision.models.resnet.ResNet', class {});
         this.registerType('torchvision.models.vgg.VGG', class {});
