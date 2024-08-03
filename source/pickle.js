@@ -33,8 +33,6 @@ pickle.ModelFactory = class {
             if (obj.length > 0 && obj[0] && obj.every((item) => item && item.__class__ && obj[0].__class__ && item.__class__.__module__ === obj[0].__class__.__module__ && item.__class__.__name__ === obj[0].__class__.__name__)) {
                 const type = `${obj[0].__class__.__module__}.${obj[0].__class__.__name__}`;
                 context.error(new pickle.Error(`Unsupported Pickle '${type}' array object.`));
-            } else if (obj.length > 0) {
-                context.error(new pickle.Error("Unsupported Pickle array object."));
             }
         } else if (obj && obj.__class__) {
             const formats = new Map([
@@ -48,8 +46,6 @@ pickle.ModelFactory = class {
             } else {
                 context.error(new pickle.Error(`Unsupported Pickle type '${type}'.`));
             }
-        } else {
-            context.error(new pickle.Error('Unsupported Pickle object.'));
         }
         return new pickle.Model(obj, format);
     }
@@ -92,8 +88,7 @@ pickle.Node = class {
         const type = obj.__class__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : 'builtins.object';
         this.type = { name: type };
         this.name = name || '';
-        this.inputs = [];
-        this.outputs = [];
+        this.attributes = [];
         const isArray = (obj) => {
             return obj && obj.__class__ &&
                 ((obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray') ||
@@ -111,7 +106,7 @@ pickle.Node = class {
         };
         if (type === 'builtins.bytearray') {
             const argument = new pickle.Argument('value', Array.from(obj), 'byte[]');
-            this.inputs.push(argument);
+            this.attributes.push(argument);
         } else {
             const entries = obj instanceof Map ? Array.from(obj) : Object.entries(obj);
             for (const [name, value] of entries) {
@@ -120,28 +115,28 @@ pickle.Node = class {
                 } else if (value && isArray(value)) {
                     const tensor = new pickle.Tensor(value);
                     const argument = new pickle.Argument(name, tensor, 'tensor');
-                    this.inputs.push(argument);
+                    this.attributes.push(argument);
                 } else if (Array.isArray(value) && value.length > 0 && value.every((obj) => isArray(obj))) {
                     const tensors = value.map((obj) => new pickle.Tensor(obj));
                     const argument = new pickle.Argument(name, tensors, 'tensor[]');
-                    this.inputs.push(argument);
+                    this.attributes.push(argument);
                 } else if (value && value.__class__ && value.__class__.__module__ === 'builtins' && (value.__class__.__name__ === 'function' || value.__class__.__name__ === 'type')) {
                     const obj = {};
                     obj.__class__ = value;
                     const node = new pickle.Node(obj, '', stack);
                     const argument = new pickle.Argument(name, node, 'object');
-                    this.inputs.push(argument);
+                    this.attributes.push(argument);
                 } else if (isByteArray(value)) {
                     const argument = new pickle.Argument(name, Array.from(value), 'byte[]');
-                    this.inputs.push(argument);
+                    this.attributes.push(argument);
                 } else {
                     stack = stack || new Set();
                     if (value && Array.isArray(value) && value.every((obj) => typeof obj === 'string')) {
                         const argument = new pickle.Argument(name, value, 'string[]');
-                        this.inputs.push(argument);
+                        this.attributes.push(argument);
                     } else if (value && Array.isArray(value) && value.every((obj) => typeof obj === 'number')) {
                         const argument = new pickle.Argument(name, value, 'attribute');
-                        this.inputs.push(argument);
+                        this.attributes.push(argument);
                     } else if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj && (obj.__class__ || obj === Object(obj)))) {
                         const chain = stack;
                         const values = value.filter((value) => !chain.has(value));
@@ -152,16 +147,16 @@ pickle.Node = class {
                             return node;
                         });
                         const argument = new pickle.Argument(name, nodes, 'object[]');
-                        this.inputs.push(argument);
+                        this.attributes.push(argument);
                     } else if (value && (value.__class__ || isObject(value)) && !stack.has(value)) {
                         stack.add(value);
                         const node = new pickle.Node(value, '', stack);
                         const argument = new pickle.Argument(name, node, 'object');
-                        this.inputs.push(argument);
+                        this.attributes.push(argument);
                         stack.delete(value);
                     } else {
                         const argument = new pickle.Argument(name, value, 'attribute');
-                        this.inputs.push(argument);
+                        this.attributes.push(argument);
                     }
                 }
             }

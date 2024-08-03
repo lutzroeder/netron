@@ -810,10 +810,12 @@ view.View = class {
         layout.nodesep = 20;
         layout.ranksep = 20;
         const rotate = graph.nodes.every((node) => {
-            if (node.inputs.filter((input) => !input.type || input.type.endsWith('*')).some((input) => input.value.every((value) => !value.initializer))) {
+            const inputs = node.inputs;
+            if (Array.isArray(inputs) && (inputs.filter((input) => !input.type || input.type.endsWith('*')).some((input) => input.value.every((value) => !value.initializer)))) {
                 return false;
             }
-            if (node.outputs.length > 0) {
+            const outputs = node.outputs;
+            if (Array.isArray(outputs) && outputs.length > 0) {
                 return false;
             }
             return true;
@@ -1751,23 +1753,24 @@ view.Graph = class extends grapher.Graph {
         const obj = new view.Node(this, node);
         obj.name = (this._nodeKey++).toString();
         this._table.set(node, obj);
-
-        for (const argument of node.inputs) {
-            if (!argument.type || argument.type.endsWith('*')) {
-                if (Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
-                    this.createArgument(argument);
-                } else {
-                    for (const value of argument.value) {
-                        if (value.name !== '' && !value.initializer) {
-                            this.createValue(value).to.push(obj);
-                        } else if (value.initializer) {
-                            this.createValue(value);
+        const inputs = node.inputs;
+        if (Array.isArray(inputs)) {
+            for (const argument of inputs) {
+                if (!argument.type || argument.type.endsWith('*')) {
+                    if (Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
+                        this.createArgument(argument);
+                    } else {
+                        for (const value of argument.value) {
+                            if (value.name !== '' && !value.initializer) {
+                                this.createValue(value).to.push(obj);
+                            } else if (value.initializer) {
+                                this.createValue(value);
+                            }
                         }
                     }
                 }
             }
         }
-
         return obj;
     }
 
@@ -1852,17 +1855,19 @@ view.Graph = class extends grapher.Graph {
                     outputs = chainOutputs;
                 }
             }
-            for (const argument of outputs) {
-                for (const value of argument.value) {
-                    if (!value) {
-                        throw new view.Error('Invalid null argument.');
-                    }
-                    if (value.name !== '') {
-                        this.createValue(value).from = viewNode;
+            if (Array.isArray(outputs)) {
+                for (const argument of outputs) {
+                    for (const value of argument.value) {
+                        if (!value) {
+                            throw new view.Error('Invalid null argument.');
+                        }
+                        if (value.name !== '') {
+                            this.createValue(value).from = viewNode;
+                        }
                     }
                 }
             }
-            if (node.controlDependencies && node.controlDependencies.length > 0) {
+            if (Array.isArray(node.controlDependencies) && node.controlDependencies.length > 0) {
                 for (const value of node.controlDependencies) {
                     this.createValue(value).controlDependency(viewNode);
                 }
@@ -2053,8 +2058,9 @@ view.Node = class extends grapher.Node {
 
             return false;
         };
-        if (Array.isArray(node.inputs)) {
-            for (const argument of node.inputs) {
+        const inputs = node.inputs;
+        if (Array.isArray(inputs)) {
+            for (const argument of inputs) {
                 const type = argument.type;
                 if (type === 'graph' ||
                     (type === 'object' && isObject(argument.value)) ||
@@ -3748,11 +3754,14 @@ view.FindSidebar = class extends view.Control {
 
     _node(node) {
         if (this._state.connection) {
-            for (const input of node.inputs) {
-                if (!input.type || input.type.endsWith('*')) {
-                    for (const value of input.value) {
-                        if (!value.initializer) {
-                            this._edge(value);
+            const inputs = node.inputs;
+            if (Array.isArray(inputs)) {
+                for (const input of node.inputs) {
+                    if (!input.type || input.type.endsWith('*')) {
+                        for (const value of input.value) {
+                            if (!value.initializer) {
+                                this._edge(value);
+                            }
                         }
                     }
                 }
@@ -3768,27 +3777,30 @@ view.FindSidebar = class extends view.Control {
             }
         }
         if (this._state.weight) {
-            for (const argument of node.inputs) {
-                if (!argument.type || argument.type.endsWith('*')) {
-                    for (const value of argument.value) {
-                        if (value.initializer && this._value(value)) {
-                            let content = null;
-                            if (value.name) {
-                                content = `${value.name.split('\n').shift()}`; // split custom argument id
-                            } else if (value.type && value.type.shape && Array.isArray(value.type.shape.dimensions) && value.type.shape.dimensions.length > 0) {
-                                content = `${value.type.shape.dimensions.map((d) => (d !== null && d !== undefined) ? d : '?').join('\u00D7')}`;
-                            }
-                            if (content) {
-                                const target = argument.value.length === 1 ? argument : node;
-                                this._add(target, content, 'weight');
+            const inputs = node.inputs;
+            if (Array.isArray(inputs)) {
+                for (const argument of node.inputs) {
+                    if (!argument.type || argument.type.endsWith('*')) {
+                        for (const value of argument.value) {
+                            if (value.initializer && this._value(value)) {
+                                let content = null;
+                                if (value.name) {
+                                    content = `${value.name.split('\n').shift()}`; // split custom argument id
+                                } else if (value.type && value.type.shape && Array.isArray(value.type.shape.dimensions) && value.type.shape.dimensions.length > 0) {
+                                    content = `${value.type.shape.dimensions.map((d) => (d !== null && d !== undefined) ? d : '?').join('\u00D7')}`;
+                                }
+                                if (content) {
+                                    const target = argument.value.length === 1 ? argument : node;
+                                    this._add(target, content, 'weight');
+                                }
                             }
                         }
-                    }
-                } else if (argument.type === 'object') {
-                    this._node(argument.value);
-                } else if (argument.type === 'object[]') {
-                    for (const value of argument.value) {
-                        this._node(value);
+                    } else if (argument.type === 'object') {
+                        this._node(argument.value);
+                    } else if (argument.type === 'object[]') {
+                        for (const value of argument.value) {
+                            this._node(value);
+                        }
                     }
                 }
             }

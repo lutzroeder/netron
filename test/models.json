@@ -4755,7 +4755,6 @@
     "target":   "batches.meta",
     "source":   "https://raw.githubusercontent.com/MadryLab/cifar10_challenge/master/cifar10_data/batches.meta",
     "format":   "Pickle",
-    "error":    "Unsupported Pickle object.",
     "link":     "https://github.com/MadryLab/cifar10_challenge"
   },
   {
@@ -4775,10 +4774,24 @@
   },
   {
     "type":     "pickle",
+    "target":   "chlorophyta_module_names_062224.pkl",
+    "source":   "https://github.com/user-attachments/files/16482612/chlorophyta_module_names_062224.pkl.zip[chlorophyta_module_names_062224.pkl]",
+    "format":   "Pickle",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
     "target":   "dill_custom_class.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/13035743/dill_custom_class.pkl.zip[dill_custom_class.pkl]",
     "format":   "Pickle",
     "error":    "Unknown type name '__builtin__.__main__'.\nUnsupported Pickle type '__main__.CustomClass'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
+    "target":   "d8.pkl",
+    "source":   "https://github.com/user-attachments/files/16482242/d8.pkl.zip[d8.pkl]",
+    "format":   "Pickle",
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
@@ -4808,7 +4821,6 @@
     "type":     "pickle",
     "target":   "nfl_model.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/14547128/nfl_model.pkl.zip[nfl_model.pkl]",
-    "error":    "Unsupported Pickle object.",
     "format":   "Pickle",
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
@@ -4817,7 +4829,6 @@
     "target":   "robinhood-portfolio_data_user.pkl.pkl",
     "source":   "https://raw.githubusercontent.com/omdv/robinhood-portfolio/4622dc61e0556a85ce52c4de178d01a9838acbc5/data/user.pkl",
     "format":   "Pickle",
-    "error":    "Unsupported Pickle object.",
     "link":     "https://github.com/omdv/robinhood-portfolio/tree/4622dc61e0556a85ce52c4de178d01a9838acbc5"
   },
   {

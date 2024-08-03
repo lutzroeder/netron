@@ -743,27 +743,33 @@ export class Target {
                         }
                     }
                 }
-                for (const input of node.inputs) {
-                    input.name.toString();
-                    input.name.length;
-                    if (!input.type || input.type.endsWith('*')) {
-                        for (const value of input.value) {
-                            validateValue(value);
-                        }
-                        if (this.tags.has('validation')) {
-                            if (input.value.length === 1 && input.value[0].initializer) {
-                                const sidebar = new view.TensorSidebar(this.view, input);
-                                sidebar.render();
+                const inputs = node.inputs;
+                if (Array.isArray(inputs)) {
+                    for (const input of inputs) {
+                        input.name.toString();
+                        input.name.length;
+                        if (!input.type || input.type.endsWith('*')) {
+                            for (const value of input.value) {
+                                validateValue(value);
+                            }
+                            if (this.tags.has('validation')) {
+                                if (input.value.length === 1 && input.value[0].initializer) {
+                                    const sidebar = new view.TensorSidebar(this.view, input);
+                                    sidebar.render();
+                                }
                             }
                         }
                     }
                 }
-                for (const output of node.outputs) {
-                    output.name.toString();
-                    output.name.length;
-                    if (!output.type || output.type.endsWith('*')) {
-                        for (const value of output.value) {
-                            validateValue(value);
+                const outputs = node.outputs;
+                if (Array.isArray(outputs)) {
+                    for (const output of node.outputs) {
+                        output.name.toString();
+                        output.name.length;
+                        if (!output.type || output.type.endsWith('*')) {
+                            for (const value of output.value) {
+                                validateValue(value);
+                            }
                         }
                     }
                 }
