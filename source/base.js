@@ -621,7 +621,7 @@ base.Tensor = class {
         switch (this.layout) {
             case 'sparse':
             case 'sparse.coo': {
-                return !this.values || this.indices || this.values.values === null || this.values.values.length === 0;
+                return !this.values || !this.indices || this.values.values === null || this.values.values.length === 0;
             }
             default: {
                 switch (this.encoding) {
@@ -1070,7 +1070,7 @@ base.Tensor = class {
                     throw new Error(`Unsupported tensor encoding '${this._encoding}'.`);
                 }
             }
-            switch (this._layout) {
+            switch (this.layout) {
                 case 'sparse':
                 case 'sparse.coo': {
                     this._indices = this._tensor.indices;
