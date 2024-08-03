@@ -185,6 +185,7 @@ mlnet.TensorType = class {
             ['Single', 'float32'],
             ['Double', 'float64'],
             ['UInt32', 'uint32'],
+            ['Int32', 'int32'],
             ['Int64', 'int64'],
             ['TextSpan', 'string']
         ]);
