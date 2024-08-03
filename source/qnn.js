@@ -252,18 +252,23 @@ qnn.Utility = class {
             case 0x0016: return 'int16';
             case 0x0032: return 'int32';
             case 0x0064: return 'int64';
-            case 0x0108: return 'int8';
-            case 0x0132: return 'int32';
+            case 0x0108: return 'uint8';
+            case 0x0116: return 'uint16';
+            case 0x0132: return 'uint32';
+            case 0x0164: return 'uint64';
             case 0x0216: return 'float16';
             case 0x0232: return 'float32';
+            case 0x0304: return 'qint4';
             case 0x0308: return 'qint8';
             case 0x0316: return 'qint16';
             case 0x0332: return 'qint32';
-            case 0x0408: return 'uint8';
-            case 0x0416: return 'uint16';
-            case 0x0432: return 'uint32';
+            case 0x0404: return 'quint4';
+            case 0x0408: return 'quint8';
+            case 0x0416: return 'quint16';
+            case 0x0432: return 'quint32';
             case 0x0508: return 'boolean';
-            case 0x7fffffff: return 'string';
+            case 0x0608: return 'string';
+            case 0x7fffffff: return 'undefined';
             default: throw new qnn.Error(`Unsupported data type '${JSON.stringify(value)}'.`);
         }
     }
