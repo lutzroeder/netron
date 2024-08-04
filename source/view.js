@@ -2052,7 +2052,8 @@ view.Node = class extends grapher.Node {
                 (Array.isArray(node.inputs) && node.inputs.length > 0) ||
                 (Array.isArray(node.outputs) && node.outputs.length > 0) ||
                 (Array.isArray(node.attributes) && node.attributes.length > 0) ||
-                (Array.isArray(node.chain) && node.chain.length > 0)) {
+                (Array.isArray(node.chain) && node.chain.length > 0) ||
+                (node.type && Array.isArray(node.type.nodes) && node.type.nodes.length > 0)) {
                 return true;
             }
 
@@ -3786,6 +3787,8 @@ view.FindSidebar = class extends view.Control {
                                 let content = null;
                                 if (value.name) {
                                     content = `${value.name.split('\n').shift()}`; // split custom argument id
+                                } else if (Array.isArray(argument.value) && argument.value.length === 1 && argument.name.indexOf('.') !== -1) {
+                                    content = argument.name;
                                 } else if (value.type && value.type.shape && Array.isArray(value.type.shape.dimensions) && value.type.shape.dimensions.length > 0) {
                                     content = `${value.type.shape.dimensions.map((d) => (d !== null && d !== undefined) ? d : '?').join('\u00D7')}`;
                                 }
