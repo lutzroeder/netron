@@ -4850,8 +4850,7 @@
     "type":     "pickle",
     "target":   "word2vec.model",
     "source":   "https://github.com/lutzroeder/netron/files/13628139/word2vec.model.zip[word2vec.model]",
-    "format":   "Pickle",
-    "error":    "Unsupported Pickle type 'gensim.models.word2vec.Word2Vec'.",
+    "format":   "Gensim",
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {

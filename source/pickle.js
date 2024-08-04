@@ -38,6 +38,7 @@ pickle.ModelFactory = class {
             const formats = new Map([
                 ['cuml.ensemble.randomforestclassifier.RandomForestClassifier', 'cuML'],
                 ['shap.explainers._linear.LinearExplainer', 'SHAP'],
+                ['gensim.models.word2vec.Word2Vec', 'Gensim'],
                 ['builtins.bytearray', 'Pickle']
             ]);
             const type = `${obj.__class__.__module__}.${obj.__class__.__name__}`;
