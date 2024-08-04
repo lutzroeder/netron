@@ -2020,8 +2020,13 @@ view.Node = class extends grapher.Node {
             this.context.activate(node);
         });
         if (Array.isArray(node.type.nodes) && node.type.nodes.length > 0) {
-            const definition = header.add(null, styles, '\u0192', 'Show Function Definition');
-            definition.on('click', async () => await this.context.view.pushGraph(node.type));
+            if (node.type.type === 'weights') {
+                const definition = header.add(null, styles, '\u25CF', 'Show Weights');
+                definition.on('click', async () => await this.context.view.pushGraph(node.type));
+            } else {
+                const definition = header.add(null, styles, '\u0192', 'Show Function Definition');
+                definition.on('click', async () => await this.context.view.pushGraph(node.type));
+            }
         }
         if (Array.isArray(node.nodes)) {
             // this._expand = header.add(null, styles, '+', null);
