@@ -3438,6 +3438,7 @@
     "target":   "mobilefacenet.bin,mobilefacenet.param",
     "source":   "https://raw.githubusercontent.com/GRAYKEY/mobilefacenet_ncnn/master/models/mobilefacenet.bin,https://raw.githubusercontent.com/GRAYKEY/mobilefacenet_ncnn/master/models/mobilefacenet.param",
     "format":   "ncnn",
+    "tags":     "validation",
     "link":     "https://github.com/GRAYKEY/mobilefacenet_ncnn"
   },
   {
@@ -3453,7 +3454,6 @@
     "source":   "https://raw.githubusercontent.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.param.bin,https://raw.githubusercontent.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.bin",
     "format":   "ncnn",
     "assert":   "model.graphs[0].nodes[1].type.name == 'Convolution'",
-    "tags":     "validation",
     "link":     "https://github.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd"
   },
   {
@@ -3886,7 +3886,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx]",
     "format":   "ONNX v3",
     "assert":   "model.graphs[0].nodes[0].outputs[0].value[0].type.denotation == 'Image(Bgr8,SRGB,NominalRange_0_255)'",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/183"
   },
   {
@@ -3958,7 +3957,6 @@
     "target":   "Exermote.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/2592478/Exermote.onnx.zip[Exermote.onnx]",
     "format":   "ONNX v3",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -4755,6 +4753,7 @@
     "target":   "batches.meta",
     "source":   "https://raw.githubusercontent.com/MadryLab/cifar10_challenge/master/cifar10_data/batches.meta",
     "format":   "Pickle",
+    "tags":     "validation",
     "link":     "https://github.com/MadryLab/cifar10_challenge"
   },
   {
@@ -5086,6 +5085,7 @@
     "target":   "DCGAN2.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9075628/DCGAN2.pt.zip[DCGAN2.pt]",
     "format":   "PyTorch Package v1.9",
+    "assert":   "model.graphs.length == 2",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/928"
   },
@@ -6622,6 +6622,7 @@
     "target":   "decision_tree_model.pkl",
     "source":   "https://github.com/user-attachments/files/15449095/decision_tree_model.zip[decision_tree_model.pkl]",
     "format":   "scikit-learn v1.5.0",
+    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/182"
   },
   {
@@ -7742,7 +7743,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/15048808/youtu_face_alignment_phase1.zip[youtu_face_alignment_phase1.tnnproto,youtu_face_alignment_phase1.tnnmodel]",
     "format":   "TNN",
     "assert":   "model.graphs[0].nodes[0].inputs[1].name == 'filter'",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/521"
   },
   {
