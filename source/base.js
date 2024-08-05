@@ -996,19 +996,16 @@ base.Tensor = class {
 
     static _stringify(value, indentation, indent) {
         if (Array.isArray(value)) {
-            const result = [];
-            result.push(`${indentation}[`);
             const length = value.length;
             if (length > 0) {
-                const items = new Array(length);
+                const array = new Array(length);
                 const space = indentation + indent;
                 for (let i = 0; i < length; i++) {
-                    items[i] = base.Tensor._stringify(value[i], space, indent);
+                    array[i] = base.Tensor._stringify(value[i], space, indent);
                 }
-                result.push(items.join(',\n'));
+                return `${indentation}[\n${array.join(',\n')}\n${indentation}]`;
             }
-            result.push(`${indentation}]`);
-            return result.join('\n');
+            return `${indentation}[\n${indentation}]`;
         }
         if (value === null) {
             return `${indentation}null`;
