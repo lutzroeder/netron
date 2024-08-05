@@ -5131,7 +5131,7 @@
     "target":   "DRNL4x_dual_model.pth",
     "source":   "https://github.com/lutzroeder/netron/files/5505677/DRNL4x_dual_model.pth.zip[DRNL4x_dual_model.pth]",
     "format":   "PyTorch v0.1.10",
-    "assert":   "model.graphs[0].nodes[0].type.name == 'builtins.list'",
+    "assert":   "model.graphs[0].nodes.length == 2",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
@@ -5175,6 +5175,7 @@
     "target":   "final_89.pt",
     "source":   "https://github.com/user-attachments/files/16405085/final_89.pt.zip[final_89.pt]",
     "format":   "PyTorch v1.6",
+    "assert":   "model.graphs[0].nodes[3].inputs[3].value[1] == null",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
@@ -5452,6 +5453,13 @@
     "source":   "https://github.com/lutzroeder/netron/files/8457286/model_fnet.pt.zip[model_fnet.pt]",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/882"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "model_optim_rng.pt",
+    "source":   "https://github.com/user-attachments/files/16489187/model_optim_rng.pt.zip[model_optim_rng.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
     "type":     "pytorch",
@@ -5752,6 +5760,7 @@
     "target":   "resnet18.ot",
     "source":   "https://github.com/lutzroeder/netron/files/7664092/resnet18.ot.zip[resnet18.ot]",
     "format":   "TorchScript v1.0",
+    "assert":   "model.graphs[0].nodes.length == 42",
     "link":     "https://github.com/lutzroeder/netron/issues/686"
   },
   {

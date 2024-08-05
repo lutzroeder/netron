@@ -2826,7 +2826,7 @@ view.ArgumentView = class extends view.Control {
         if (argument.type === 'tensor') {
             value = [{ type: value.type, initializer: value }];
         } else if (argument.type === 'tensor[]') {
-            value = value.map((value) => ({ type: value.type, initializer: value }));
+            value = value.map((value) => value === null ? value : { type: value.type, initializer: value });
         }
         this._source = typeof type === 'string' && !type.endsWith('*') ? 'attribute' : this._source;
         if (this._source === 'attribute' && type !== 'tensor' && type !== 'tensor[]') {
@@ -2841,12 +2841,17 @@ view.ArgumentView = class extends view.Control {
             for (const value of values) {
                 const emit = values.length === 1 && value.initializer;
                 const target = emit ? argument : value;
-                const item = new view.ValueView(context, value, this._source);
-                item.on('focus', () => this.emit('focus', target));
-                item.on('blur', () => this.emit('blur', target));
-                item.on('activate', () => this.emit('activate', target));
-                item.on('select', () => this.emit('select', target));
-                this._items.push(item);
+                if (value === null) {
+                    const item = new view.TextView(this._view, null);
+                    this._items.push(item);
+                } else {
+                    const item = new view.ValueView(context, value, this._source);
+                    item.on('focus', () => this.emit('focus', target));
+                    item.on('blur', () => this.emit('blur', target));
+                    item.on('activate', () => this.emit('activate', target));
+                    item.on('select', () => this.emit('select', target));
+                    this._items.push(item);
+                }
             }
         }
         for (const item of this._items) {
@@ -4241,6 +4246,9 @@ view.Formatter = class {
             case 'graph[]':
                 return value ? value.map((graph) => graph.name).join(', ') : '(null)';
             case 'tensor': {
+                if (value === null) {
+                    return '(null)';
+                }
                 const type = value.type;
                 if (type && type.shape && type.shape.dimensions && Array.isArray(type.shape.dimensions) && type.shape.dimensions.length === 0) {
                     const tensor = new base.Tensor(value);

@@ -254,7 +254,7 @@ pytorch.Graph = class {
                 }
                 return inputs;
             };
-            const weights = pytorch.Utility.findWeights(module);
+            const weights = pytorch.Utility.weights(module);
             if (weights) {
                 for (const [name, module] of weights._modules) {
                     const item = { name, type: 'Weights', obj: module };
@@ -262,7 +262,7 @@ pytorch.Graph = class {
                     this.nodes.push(node);
                 }
             } else {
-                const modules = Array.isArray(module) && module.every((module) => module && module._modules !== undefined) ? module : [module];
+                const modules = Array.isArray(module) && module.every((module) => module && !pytorch.Utility.isTensor(module) && (module._modules !== undefined || module.__class__)) ? module : [module];
                 for (const module of modules) {
                     loadModule(module, [], []);
                 }
@@ -382,11 +382,11 @@ pytorch.Node = class {
             const attributes = new Map();
             stack = stack || new Set();
 
-            const weights = pytorch.Utility.findWeights(obj);
+            const weights = pytorch.Utility.weights(obj);
             if (weights) {
-                const graph = new pytorch.Graph(metadata, 'weights', '', weights);
-                graph.name = this.type.name;
-                this.type = graph;
+                const type = this.type.name;
+                this.type = new pytorch.Graph(metadata, 'weights', '', weights);
+                this.type.name = type;
             } else if (obj && pytorch.Utility.isInstance(obj, 'fastai.data.core.DataLoaders')) {
                 // continue
             } else if (obj && item.type === 'builtins.bytearray') {
@@ -450,8 +450,8 @@ pytorch.Node = class {
                     const node = new pytorch.Node(metadata, '', { type: value.toString() });
                     const argument = new pytorch.Argument(name, node, 'object');
                     this.inputs.push(argument);
-                } else if (Array.isArray(value) && value.every((value) => pytorch.Utility.isTensor(value))) {
-                    const tensors = value.map((value) => new pytorch.Tensor('', value));
+                } else if (Array.isArray(value) && value.some((value) => pytorch.Utility.isTensor(value)) && value.every((value) => pytorch.Utility.isTensor(value) || value === null)) {
+                    const tensors = value.map((value) => value === null ? value : new pytorch.Tensor('', value));
                     const argument = new pytorch.Argument(name, tensors, 'tensor[]');
                     this.inputs.push(argument);
                 } else if (isArray(value)) {
@@ -3560,9 +3560,9 @@ pytorch.Utility = class {
         return `${name} ${versions.get(value)}`;
     }
 
-    static findWeights(obj) {
+    static weights(obj) {
         const type = obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : null;
-        if (type && type !== 'builtins.dict' && type !== 'builtins.object' && type !== 'collections.OrderedDict') {
+        if (type && type !== 'builtins.dict' && type !== 'builtins.object' && type !== 'collections.OrderedDict' && type !== 'torch.nn.modules.module.Module') {
             return null;
         }
         if (pytorch.Utility.isTensor(obj)) {
@@ -3570,7 +3570,7 @@ pytorch.Utility = class {
         }
         if (obj instanceof Map === false && obj && !Array.isArray(obj) && Object(obj) === obj) {
             const entries = Object.entries(obj);
-            const named = entries.filter(([name, value]) => name.indexOf('.') !== -1 && pytorch.Utility.isTensor(value));
+            const named = entries.filter(([name, value]) => (name.indexOf('.') !== -1 || name.indexOf('|') !== -1) && pytorch.Utility.isTensor(value));
             if (named.length > 0 && (named.length / entries.length) > 0.9) {
                 obj = new Map(entries);
             }
