@@ -341,6 +341,7 @@ const main = async () => {
             });
             session.disconnect();
             const file = dirname('..', 'dist', 'test', 'profile.cpuprofile');
+            await fs.mkdir(path.dirname(file), { recursive: true });
             await fs.writeFile(file, JSON.stringify(data.profile), 'utf-8');
         }
     } catch (error) {
