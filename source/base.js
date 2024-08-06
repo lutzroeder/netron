@@ -1012,22 +1012,11 @@ base.Tensor = class {
         }
         switch (typeof value) {
             case 'boolean':
-                return indentation + value.toString();
+            case 'number':
+            case 'bigint':
+                return `${indentation}${value}`;
             case 'string':
                 return `${indentation}"${value}"`;
-            case 'number':
-                if (value === Infinity) {
-                    return `${indentation}Infinity`;
-                }
-                if (value === -Infinity) {
-                    return `${indentation}-Infinity`;
-                }
-                if (isNaN(value)) {
-                    return `${indentation}NaN`;
-                }
-                return indentation + value.toString();
-            case 'bigint':
-                return indentation + value.toString();
             default:
                 if (value instanceof Uint8Array) {
                     let content = '';
@@ -1035,10 +1024,10 @@ base.Tensor = class {
                         const x = value[i];
                         content += x >= 32 && x <= 126 ? String.fromCharCode(x) : `\\x${x.toString(16).padStart(2, '0')}`;
                     }
-                    return  `${indentation}"${content}"`;
+                    return `${indentation}"${content}"`;
                 }
                 if (value && value.toString) {
-                    return indentation + value.toString();
+                    return `${indentation}${value.toString()}`;
                 }
                 return `${indentation}(undefined)`;
         }
