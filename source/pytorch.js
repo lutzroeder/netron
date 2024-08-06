@@ -363,11 +363,6 @@ pytorch.Node = class {
             }
             return false;
         };
-        const isArray = (obj) => {
-            return obj && obj.__class__ &&
-                ((obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray') ||
-                 (obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'matrix'));
-        };
         if (!item.module && !item.node) {
             this.type = type(metadata, item.type);
             this.inputs = item.inputs || [];
@@ -433,7 +428,8 @@ pytorch.Node = class {
                 const list = Array.isArray(value) ? value.map((item) => pytorch.Utility.toTensor(item)) : [pytorch.Utility.toTensor(value)];
                 const visible = inputs.has(name) ? inputs.get(name).visible || true : true;
                 const values = list.filter((value) => value !== null).map((value) => {
-                    const identifier = value && value.name ? value.name : '';
+                    const name = value && value.name ? value.name : '';
+                    const identifier = list.length === 1 && value && value.__name__ ? value.__name__ : name;
                     const tensor = value ? new pytorch.Tensor(identifier, value) : null;
                     return new pytorch.Value(identifier, null, null, tensor);
                 });
@@ -454,7 +450,7 @@ pytorch.Node = class {
                     const tensors = value.map((value) => value === null ? value : new pytorch.Tensor('', value));
                     const argument = new pytorch.Argument(name, tensors, 'tensor[]');
                     this.inputs.push(argument);
-                } else if (isArray(value)) {
+                } else if (pytorch.Utility.isInstance(value, 'numpy.ndarray') || pytorch.Utility.isInstance(value, 'numpy.matrix')) {
                     const tensor = new numpy.Tensor(value);
                     const argument = new pytorch.Argument(name, tensor, 'tensor');
                     this.inputs.push(argument);
@@ -500,7 +496,8 @@ pytorch.Node = class {
                     };
                     const node = new pytorch.Node(metadata, group, item, initializers, values, stack);
                     stack.delete(value);
-                    const argument = new pytorch.Argument(name, node, 'object');
+                    const visible = name === '_metadata' && pytorch.Utility.isMetadataObject(value) ? false : true;
+                    const argument = new pytorch.Argument(name, node, 'object', visible);
                     this.inputs.push(argument);
                 } else {
                     const argument = createAttribute(metadata.attribute(type, name), name, value);
@@ -3523,7 +3520,7 @@ pytorch.Utility = class {
     }
 
     static isInstance(value, name) {
-        return value.__class__ ? pytorch.Utility.isSubclass(value.__class__, name) : false;
+        return value && value.__class__ ? pytorch.Utility.isSubclass(value.__class__, name) : false;
     }
 
     static isCall(expression, name, size) {
@@ -3571,14 +3568,14 @@ pytorch.Utility = class {
         if (obj instanceof Map === false && obj && !Array.isArray(obj) && Object(obj) === obj) {
             const entries = Object.entries(obj);
             const named = entries.filter(([name, value]) => (name.indexOf('.') !== -1 || name.indexOf('|') !== -1) && pytorch.Utility.isTensor(value));
-            if (named.length > 0 && (named.length / entries.length) > 0.9) {
+            if (named.length > 0 && (named.length / entries.length) >= 0.8) {
                 obj = new Map(entries);
             }
         }
         if (obj instanceof Map) {
             const entries = Array.from(obj).filter(([name]) => name !== '_metadata');
             const names = entries.filter(([name]) => name.indexOf('.') !== -1 || name.indexOf('|') !== -1);
-            if (names.length > 1 && (names.length / entries.length) > 0.9) {
+            if (names.length > 1 && (names.length / entries.length) >= 0.8) {
                 const modules = new Map();
                 for (const [name, value] of entries) {
                     const separator = name.indexOf('.') === -1 && name.indexOf('|') !== -1 ? '|' : '.';
@@ -3592,6 +3589,9 @@ pytorch.Utility = class {
                         modules.set(key, {});
                     }
                     const layer = modules.get(key);
+                    if (pytorch.Utility.isTensor(value)) {
+                        value.__name__ = name;
+                    }
                     layer[property] = value;
                 }
                 return { _modules: modules };
@@ -3623,6 +3623,7 @@ pytorch.Utility = class {
                             continue;
                         }
                         if (pytorch.Utility.isTensor(value)) {
+                            value.__name__ = name;
                             layer[name] = value;
                             tensor = true;
                         }
@@ -3635,6 +3636,21 @@ pytorch.Utility = class {
             }
         }
         return null;
+    }
+
+    static isMetadataObject(obj) {
+        if (pytorch.Utility.isInstance(obj, 'collections.OrderedDict')) {
+            for (const value of obj.values()) {
+                if (value && Object(value) === value) {
+                    const entries = Object.entries(value);
+                    if (entries.length !== 1 && entries[0] !== 'version' && entries[1] !== 1) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
     }
 };
 

@@ -5459,6 +5459,7 @@
     "target":   "model_optim_rng.pt",
     "source":   "https://github.com/user-attachments/files/16489187/model_optim_rng.pt.zip[model_optim_rng.pt]",
     "format":   "PyTorch v1.6",
+    "assert":   "model.graphs[0].nodes[0].inputs[0].value.inputs[2].value.inputs.length == 3",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
@@ -5466,6 +5467,7 @@
     "target":   "model_trt.pth",
     "source":   "https://github.com/user-attachments/files/16401618/model_trt.pth.zip[model_trt.pth]",
     "format":   "PyTorch v1.6",
+    "assert":   "model.graphs[0].nodes[0].inputs[3].visible == false",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
@@ -5760,7 +5762,7 @@
     "target":   "resnet18.ot",
     "source":   "https://github.com/lutzroeder/netron/files/7664092/resnet18.ot.zip[resnet18.ot]",
     "format":   "TorchScript v1.0",
-    "assert":   "model.graphs[0].nodes.length == 42",
+    "assert":   "model.graphs[0].nodes[1].inputs[0].value[0].name == 'conv1|weight'",
     "link":     "https://github.com/lutzroeder/netron/issues/686"
   },
   {

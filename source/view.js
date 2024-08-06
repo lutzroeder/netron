@@ -2047,9 +2047,10 @@ view.Node = class extends grapher.Node {
         if (Array.isArray(inputs)) {
             for (const argument of inputs) {
                 const type = argument.type;
-                if (type === 'graph' ||
+                if (argument.visible !== false &&
+                    ((type === 'graph') ||
                     (type === 'object' && isObject(argument.value)) ||
-                    type === 'object[]' || type === 'function' || type === 'function[]') {
+                    (type === 'object[]' || type === 'function' || type === 'function[]'))) {
                     objects.push(argument);
                 } else if (options.weights && argument.visible !== false && argument.type !== 'attribute' && Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
                     const item = this.context.createArgument(argument);
