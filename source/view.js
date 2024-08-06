@@ -5069,7 +5069,9 @@ metrics.Tensor = class {
             const type = this._tensor.type;
             const shape = type.shape.dimensions;
             const size = shape.reduce((a, b) => a * b, 1);
-            if (type.dataType.startsWith('float') && size < 0x800000 && (!keys.has('sparsity') || !keys.has('min') || !keys.has('max') && !keys.has('mean') || !keys.has('max') || !keys.has('std'))) {
+            if (size < 0x800000 &&
+                (type.dataType.startsWith('float') || type.dataType.startsWith('bfloat')) &&
+                (!keys.has('sparsity') || !keys.has('min') || !keys.has('max') && !keys.has('mean') || !keys.has('max') || !keys.has('std'))) {
                 const data = this._tensor.value;
                 let zeros = 0;
                 let min = null;
