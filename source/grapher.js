@@ -3,8 +3,7 @@ const grapher = {};
 
 grapher.Graph = class {
 
-    constructor(compound, layout) {
-        this._layout = layout;
+    constructor(compound) {
         this._compound = compound;
         this._nodes = new Map();
         this._edges = new Map();
@@ -195,8 +194,21 @@ grapher.Graph = class {
                 labelpos: edge.label.labelpos || 'r'
             });
         }
+        const layout = {};
+        layout.nodesep = 20;
+        layout.ranksep = 20;
+        const direction = this.options.direction;
+        const rotate = edges.length === 0 ? direction === 'vertical' : direction !== 'vertical';
+        if (rotate) {
+            layout.rankdir = 'LR';
+        }
+        if (edges.length === 0) {
+            nodes = nodes.reverse(); // rankdir workaround
+        }
+        if (nodes.length > 3000) {
+            layout.ranker = 'longest-path';
+        }
         const state = { /* log: true */ };
-        const layout = this._layout;
         if (worker) {
             const message = await worker.request({ type: 'dagre.layout', nodes, edges, layout, state }, 2500, 'This large graph layout might take a very long time to complete.');
             if (message.type === 'cancel') {

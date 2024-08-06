@@ -806,28 +806,7 @@ view.View = class {
             graph_node_count: nodes.length,
             graph_skip: 0
         });
-        const layout = {};
-        layout.nodesep = 20;
-        layout.ranksep = 20;
-        const rotate = graph.nodes.every((node) => {
-            const inputs = node.inputs;
-            if (Array.isArray(inputs) && (inputs.filter((input) => !input.type || input.type.endsWith('*')).some((input) => input.value.every((value) => !value.initializer)))) {
-                return false;
-            }
-            const outputs = node.outputs;
-            if (Array.isArray(outputs) && outputs.length > 0) {
-                return false;
-            }
-            return true;
-        });
-        const horizontal = rotate ? options.direction === 'vertical' : options.direction !== 'vertical';
-        if (horizontal) {
-            layout.rankdir = 'LR';
-        }
-        if (nodes.length > 3000) {
-            layout.ranker = 'longest-path';
-        }
-        const viewGraph = new view.Graph(this, this._host, model, options, groups, layout);
+        const viewGraph = new view.Graph(this, this._host, model, options, groups);
         viewGraph.add(graph, signature);
         // Workaround for Safari background drag/zoom issue:
         // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
@@ -1730,8 +1709,8 @@ view.Worker = class {
 
 view.Graph = class extends grapher.Graph {
 
-    constructor(view, host, model, options, compound, layout) {
-        super(compound, layout);
+    constructor(view, host, model, options, compound) {
+        super(compound);
         this.view = view;
         this.host = host;
         this.model = model;
