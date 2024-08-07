@@ -6565,6 +6565,20 @@
   },
   {
     "type":     "sentencepiece",
+    "target":   "grammar_bpe.model",
+    "source":   "https://github.com/user-attachments/files/16517075/grammar_bpe.model.zip[grammar_bpe.model]",
+    "format":   "SentencePiece",
+    "link":     "https://github.com/lutzroeder/netron/issues/748"
+  },
+  {
+    "type":     "sentencepiece",
+    "target":   "test_ja_model.model",
+    "source":   "https://github.com/user-attachments/files/16517076/test_ja_model.model.zip[test_ja_model.model]",
+    "format":   "SentencePiece",
+    "link":     "https://github.com/lutzroeder/netron/issues/748"
+  },
+  {
+    "type":     "sentencepiece",
     "target":   "tokenizer.model",
     "source":   "https://github.com/lutzroeder/netron/files/13935506/tokenizer.model.zip[tokenizer.model]",
     "format":   "SentencePiece",
