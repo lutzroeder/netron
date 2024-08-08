@@ -6145,7 +6145,8 @@ view.ModelFactoryService = class {
                 { name: 'BModel data', value: /^\xEE\xAA\x55\xFF/ }, // https://github.com/sophgo/tpu-mlir/blob/master/include/tpu_mlir/Builder/BM168x/bmodel.fbs
                 { name: 'CviModel data', value: /^CviModel/ }, // https://github.com/sophgo/tpu-mlir/blob/master/include/tpu_mlir/Builder/CV18xx/proto/cvimodel.fbs
                 { name: 'Tokenizer data', value: /^IQ== 0\n/ },
-                { name: 'BCNN model', value: /^BCNN/ }
+                { name: 'BCNN model', value: /^BCNN/ },
+                { name: 'base64 data', value: /^gAAAAAB/ }
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
