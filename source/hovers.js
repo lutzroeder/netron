@@ -1,5 +1,3 @@
-import {tensorsID, new_tensorsID, tensorsMETA, tensorsSTYLE, tensorsNAME, operatorsID, new_operatorsID, operatorsMETA, operatorsSTYLE} from './view.js';
-
 function functie() {
   let input = document.createElement('input');
   input.type = 'file';
@@ -11,6 +9,8 @@ function functie() {
       var lines = content.split('\n');
       var id, meta, style, specifier;
       var childmeta;
+      var nofb = 0;
+      var otherstring = JSON.stringify({});
       for (var line = 0; line < lines.length; line++) {
         var lineread = lines[line].split(":");
         var first = lineread[0] == undefined? '' : lineread[0].trim();
@@ -50,7 +50,24 @@ function functie() {
             obj["meta"] = meta;
             
           } else {
-            obj[first] = meta;
+            if (first.toLowerCase() == "add_button") {
+              if (otherstring !== JSON.stringify({})) {
+                obj["button_" + nofb] = otherstring;
+                nofb += 1;
+              }
+              otherstring = JSON.stringify({"id": obj["id"], "class": childmeta.className, "button_name": lineread[1] == undefined ? '' : lineread[1].trim().slice(0, -1)});
+            } else {
+              if (first.toLowerCase() == "cmd" || first.toLowerCase() == "script") {
+                var stri = JSON.parse(otherstring);
+                stri[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim().slice(0, -1);
+                otherstring = JSON.stringify(stri);
+              } else {
+                if (otherstring !== JSON.stringify({})) {
+                  obj["button_" + nofb] = otherstring;
+                }
+                obj[first] = meta;
+              }
+            }
           }
           childmeta.innerHTML = JSON.stringify(obj);
           continue;
@@ -141,9 +158,6 @@ function doubleclick() {
       console.log(id);
     }
   }
-  document.getElementById("node-id-3").children[0].addEventListener("dblclick", function() {
-    console.log("dublu click");
-  })
 }
 
 function metadata() {
@@ -180,7 +194,7 @@ function metadata() {
                 childmeta.innerText = "Metadata";
                 sidebarobj.appendChild(childmeta); 
                 for (var i = 0; i < keys.length; i++) {
-                  if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname") {
+                  if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_") {
                     var newchild = document.createElement('div');
                     newchild.className = "sidebar-item";
                     var newchild_2 = document.createElement('div');
@@ -217,6 +231,24 @@ function metadata() {
                     newchild.appendChild(newchild_2);
                     newchild.appendChild(newchild_3);
                     sidebarobj.appendChild(newchild);
+                  }
+                }
+                for (var i = 0; i < keys.length; i++) {
+                  if (keys[i].slice(0, 7) == "button_") {
+                    console.log(keys[i]);
+                    var stringnew = JSON.parse(inner[keys[i]]);
+                    console.log(stringnew);
+                    console.log(inner["id"]);
+                    console.log(stringnew["id"]);
+                    if (inner["id"] == stringnew["id"]) {
+                      console.log("am gasit buton");
+                      var newchild = document.createElement('button');
+                      newchild.type = "button";
+                      newchild.name = stringnew["button_name"];
+                      newchild.innerHTML = stringnew["cmd"];
+                      newchild.style = "position: relative;";
+                      sidebarobj.appendChild(newchild);
+                    }
                   }
                 }
               }

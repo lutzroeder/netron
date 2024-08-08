@@ -10,6 +10,7 @@ import * as flatbuffers from './flatbuffers.js';
 import * as hdf5 from './hdf5.js';
 import * as python from './python.js';
 import * as grapher from './grapher.js';
+import functie from './hovers.js';
 
 const view =  {};
 const markdown = {};
@@ -53,6 +54,9 @@ view.View = class {
             });
             this._element('zoom-out-button').addEventListener('click', () => {
                 this.zoomOut();
+            });
+            this._element('insert-file-button').addEventListener('click', () => {
+                functie();
             });
             this._element('toolbar-path-back-button').addEventListener('click', async () => {
                 await this.popGraph();
