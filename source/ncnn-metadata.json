@@ -31,6 +31,9 @@
       { "name": "op_type", "type": "BinaryOpType", "default": 0 },
       { "name": "with_scalar", "type": "int32", "default": 0 },
       { "name": "b", "type": "float32", "default": 0 }
+    ],
+    "inputs": [
+      { "name": "inputs", "type": "Tensor[]" }
     ]
   },
   {
@@ -62,7 +65,7 @@
       { "name": "axis", "type": "int32", "default": 0 }
     ],
     "inputs": [
-      { "name": "input", "option": "variadic" }
+      { "name": "input", "type": "Tensor[]" }
     ],
     "outputs": [
       { "name": "output" }
@@ -363,7 +366,7 @@
       { "name": "coeffs", "default": [] }
     ],
     "inputs": [
-      { "name": "inputs", "option": "variadic" }
+      { "name": "inputs", "type": "Tensor[]" }
     ]
   },
   {
@@ -943,7 +946,7 @@
       { "name": "input" }
     ],
     "outputs": [
-      { "name": "output", "option": "variadic" }
+      { "name": "output", "type": "Tensor[]" }
     ]
   },
   {
@@ -968,7 +971,7 @@
       { "name": "input" }
     ],
     "outputs": [
-      { "name": "output", "option": "variadic" }
+      { "name": "output", "type": "Tensor[]" }
     ]
   },
   {
@@ -1028,7 +1031,7 @@
       { "name": "biases" }
     ],
     "inputs": [
-      { "name": "input", "option": "variadic" }
+      { "name": "input", "type": "Tensor[]" }
     ]
   },
   {
@@ -1044,7 +1047,7 @@
       { "name": "anchors_scale", "type": "float32[]" }
     ],
     "inputs": [
-      { "name": "input", "option": "variadic" }
+      { "name": "input", "type": "Tensor[]" }
     ]
   }
 ]

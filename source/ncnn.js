@@ -236,21 +236,21 @@ ncnn.Node = class {
     constructor(metadata, format, blobs, layer, values) {
         this.inputs = [];
         this.outputs = [];
+        this.attributes = [];
         this.chain = [];
         this.name = layer.name || '';
-        const type = layer.type;
-        this.type = { ...metadata.type(type) };
+        this.type = { ...metadata.type(layer.type) };
         delete this.type.identifier;
-        const attributeMetadata = this.type && this.type.attributes ? this.type.attributes : [];
+        const attributeMetadata = this.type && Array.isArray(this.type.attributes) ? this.type.attributes : [];
         const attributes = layer.attributes;
         const inputs = layer.inputs || [];
         let inputIndex = 0;
         if (this.type && Array.isArray(this.type.inputs)) {
-            for (const inputDef of this.type.inputs) {
-                if (inputIndex < inputs.length || inputDef.option !== 'optional') {
-                    const count = (inputDef.option === 'variadic') ? (inputs.length - inputIndex) : 1;
-                    const inputArguments = inputs.slice(inputIndex, inputIndex + count).filter((id) => id !== '' || inputDef.option !== 'optional').map((id) => values.map(id));
-                    const argument = new ncnn.Argument(inputDef.name, inputArguments);
+            for (const input of this.type.inputs) {
+                if (inputIndex < inputs.length || input.optional === false) {
+                    const count = (input.type === 'Tensor[]') ? (inputs.length - inputIndex) : 1;
+                    const list = inputs.slice(inputIndex, inputIndex + count).filter((id) => id !== '' || input.option !== 'optional').map((id) => values.map(id));
+                    const argument = new ncnn.Argument(input.name, list);
                     this.inputs.push(argument);
                     inputIndex += count;
                 }
@@ -260,15 +260,14 @@ ncnn.Node = class {
             const name = ((inputIndex + index) === 0) ? 'input' : (inputIndex + index).toString();
             return new ncnn.Argument(name, [values.map(input)]);
         }));
-
         const outputs = layer.outputs || [];
         let outputIndex = 0;
-        if (this.type && this.type.outputs) {
-            for (const outputDef of this.type.outputs) {
-                if (outputIndex < outputs.length || outputDef.option !== 'optional') {
-                    const count = (outputDef.option === 'variadic') ? (outputs.length - outputIndex) : 1;
-                    const outputArguments = outputs.slice(outputIndex, outputIndex + count).map((id) => values.map(id));
-                    const argument = new ncnn.Argument(outputDef.name, outputArguments);
+        if (this.type && Array.isArray(this.type.outputs)) {
+            for (const output of this.type.outputs) {
+                if (outputIndex < outputs.length || output.option !== 'optional') {
+                    const count = (output.type === 'Tensor[]') ? (outputs.length - outputIndex) : 1;
+                    const list = outputs.slice(outputIndex, outputIndex + count).map((id) => values.map(id));
+                    const argument = new ncnn.Argument(output.name, list);
                     this.outputs.push(argument);
                     outputIndex += count;
                 }
@@ -298,14 +297,19 @@ ncnn.Node = class {
             }
             case 'InnerProduct': {
                 const num_output = parseInt(attributes.get('0') || 0, 10);
+                const bias_term = parseInt(attributes.get('1') || 0, 10);
                 const weight_data_size = parseInt(attributes.get('2') || 0, 10);
+                const int8_scale_term = parseInt(attributes.get('8') || 0, 10);
+                const activation_type = parseInt(attributes.get('9') || 0, 10);
                 blobs.weight('weight', [num_output, weight_data_size / num_output]);
-                if (parseInt(attributes.get('1') || 0, 10) === 1) {
+                if (bias_term) {
                     blobs.weight('bias', [num_output], 'float32');
                 }
-                attributes.delete('2');
+                if (int8_scale_term) {
+                    blobs.weight('weight_scales', [num_output], 'float32');
+                    blobs.weight('bottom_scales', [1], 'float32');
+                }
                 const activation_names = ['', 'ReLU', 'Leaky ReLU', 'Clip', 'Sigmoid', 'Mish', 'HardSwish'];
-                const activation_type = parseInt(attributes.get('9') || 0, 10);
                 if (activation_type > 0 && activation_type < activation_names.length) {
                     const layer = {
                         type: activation_names[activation_type],
@@ -313,6 +317,7 @@ ncnn.Node = class {
                     };
                     this.chain.push(new ncnn.Node(metadata, format, blobs, layer, values));
                 }
+                attributes.delete('2');
                 break;
             }
             case 'Bias': {
@@ -595,29 +600,30 @@ ncnn.Node = class {
                 break;
             }
         }
-        this.attributes = Array.from(attributes).map(([key, value]) => {
-            const metadata = attributeMetadata[key];
+        for (const [index, obj] of attributes) {
+            const metadata = attributeMetadata[index];
+            let name = index;
+            let value = obj;
             let type = '';
-            let name = key;
             let visible = true;
             if (metadata) {
                 name = metadata.name;
                 type = metadata.type ? metadata.type : type;
                 switch (type) {
                     case 'int32': {
-                        value = parseInt(value, 10);
+                        value = parseInt(obj, 10);
                         break;
                     }
                     case 'float32': {
-                        value = parseFloat(value);
+                        value = parseFloat(obj);
                         break;
                     }
                     case 'float32[]': {
-                        value = value.map((v) => parseFloat(v));
+                        value = obj.map((v) => parseFloat(v));
                         break;
                     }
                     default: {
-                        value = type ? ncnn.Utility.value(value, type) : value;
+                        value = type ? ncnn.Utility.value(obj, type) : obj;
                         break;
                     }
                 }
@@ -629,8 +635,9 @@ ncnn.Node = class {
                     }
                 }
             }
-            return new ncnn.Argument(name, value, type, visible);
-        });
+            const argument = new ncnn.Argument(name, value, type, visible);
+            this.attributes.push(argument);
+        }
     }
 };
 

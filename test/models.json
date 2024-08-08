@@ -3421,6 +3421,13 @@
   },
   {
     "type":     "ncnn",
+    "target":   "joiner_jit_trace-pnnx.ncnn.int8.param,joiner_jit_trace-pnnx.ncnn.int8.bin",
+    "source":   "https://github.com/user-attachments/files/16531037/joiner_jit_trace-pnnx.ncnn.int8.zip[joiner_jit_trace-pnnx.ncnn.int8.param,joiner_jit_trace-pnnx.ncnn.int8.bin]",
+    "format":   "ncnn",
+    "link":     "https://github.com/lutzroeder/netron/issues/296"
+  },
+  {
+    "type":     "ncnn",
     "target":   "mnet-opt.param,mnet-opt.bin",
     "source":   "https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/mnet-opt.param,https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/mnet-opt.bin",
     "format":   "ncnn",
