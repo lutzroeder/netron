@@ -3997,7 +3997,7 @@ python.Execution = class {
                 }
                 case '>':
                 case '<': {
-                    if (header.descr.length !== 3 && header.descr[1] !== 'U') {
+                    if (header.descr.length !== 3 && header.descr[1] !== 'U' && header.descr.substring(1) !== 'c16') {
                         throw new python.Error(`Unsupported data type '${header.descr}'.`);
                     }
                     const count = shape.length === 0 ? 1 : shape.reduce((a, b) => a * b, 1);
@@ -4018,7 +4018,7 @@ python.Execution = class {
             if (descr[0] !== '<' && descr[0] !== '>') {
                 throw new python.Error(`Unsupported byte order '${descr}'.`);
             }
-            if (descr.length !== 3 || (descr[1] !== 'f' && descr[1] !== 'i' && descr[1] !== 'u' && descr[1] !== 'c' && descr.substring(1) !== 'b1')) {
+            if ((descr.length !== 3 && descr.substring(1) !== 'c16') || (descr[1] !== 'f' && descr[1] !== 'i' && descr[1] !== 'u' && descr[1] !== 'c' && descr.substring(1) !== 'b1')) {
                 throw new python.Error(`Unsupported data type '${descr}'.`);
             }
             let shape = '';

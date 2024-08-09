@@ -3620,6 +3620,14 @@
   },
   {
     "type":     "numpy",
+    "target":   "complex128.npy",
+    "source":   "https://github.com/user-attachments/files/16554725/complex128.npy.zip[complex128.npy]",
+    "format":   "NumPy Array",
+    "assert":   "model.graphs[0].nodes[0].inputs[0].value[0].type.dataType == 'complex128'",
+    "link":     "https://github.com/lutzroeder/netron/issues/711"
+  },
+  {
+    "type":     "numpy",
     "target":   "cifar10-1w-1a.npz",
     "source":   "https://raw.githubusercontent.com/Xilinx/BNN-PYNQ/master/bnn/src/training/cifar10-1w-1a.npz",
     "format":   "NumPy Zip",
