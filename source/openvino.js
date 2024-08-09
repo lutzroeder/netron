@@ -6,14 +6,20 @@ openvino.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
+        if (/^.*pytorch_model.*\.bin$/.test(identifier) ||
+            /^.*group.+-shard.+of.+\.bin$/.test(identifier) ||
+            /^.*param\.bin$/.test(identifier)) {
+            return;
+        }
         if (extension === 'bin') {
             const stream = context.stream;
+            const length = stream.length;
             const signature = [0x21, 0xA8, 0xEF, 0xBE, 0xAD, 0xDE];
-            if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+            if (signature.length <= length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
                 return;
             }
-            if (stream.length > 4) {
-                const buffer = stream.peek(Math.min(256, stream.length));
+            if (length >= 4) {
+                const buffer = stream.peek(Math.min(256, length));
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
                     return;
@@ -24,41 +30,40 @@ openvino.ModelFactory = class {
                         return;
                     }
                 }
-            }
-            if (/^.*pytorch_model.*\.bin$/.test(identifier) ||
-                /^.*group.+-shard.+of.+\.bin$/.test(identifier) ||
-                /^.*param\.bin$/.test(identifier)) {
-                return;
-            }
-            const identifiers = new Set([
-                'config.bin', 'model.bin', '__model__.bin', 'weights.bin',
-                'programs.bin', 'best.bin', 'ncnn.bin',
-                'stories15M.bin','stories42M.bin','stories110M.bin','stories260K.bin'
-            ]);
-            if (!identifiers.has(identifier)) {
-                const size = Math.min(stream.length, 1024) & 0xFFFC;
-                const buffer = stream.peek(size).slice(0);
-                const length = buffer.length / 4;
-                if (length >= 1) {
-                    switch (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24) {
-                        case 0x00000001:
-                        case 0x01306B47:
-                        case 0x000D4B38:
-                        case 0x0002C056: {
-                            break;
+                const identifiers = new Set([
+                    'config.bin', 'model.bin', '__model__.bin', 'weights.bin',
+                    'programs.bin', 'best.bin', 'ncnn.bin',
+                    'stories15M.bin','stories42M.bin','stories110M.bin','stories260K.bin'
+                ]);
+                if (!identifiers.has(identifier)) {
+                    const size = Math.min(length, 1024) & 0xFFFC;
+                    const buffer = stream.peek(size).slice(0);
+                    if (signature === 0x00000001) {
+                        return;
+                    }
+                    const floats = Array.from(new Float32Array(buffer.buffer, buffer.byteOffset, buffer.length >> 2));
+                    if (floats.every((x) => x === 0)) {
+                        context.type = 'openvino.bin';
+                        return;
+                    }
+                    if (floats[0] !== 0 && floats.every((x) => !Number.isNaN(x) && Number.isFinite(x))) {
+                        if (floats.every((x) => x > -20.0 && x < 20.0)) {
+                            context.type = 'openvino.bin';
+                            return;
                         }
-                        default: {
-                            const array = new Float32Array(buffer.buffer, buffer.byteOffset, length);
-                            const values = Array.from(array);
-                            if (values.every((x) => x === 0) ||
-                                (array[0] !== 0 && values.every((x) => !Number.isNaN(x) && Number.isFinite(x) && x > -10.0 && x < 10.0))) {
-                                context.type = 'openvino.bin';
-                            }
+                        if (floats.every((x) => x > -100.0 && x < 100.0 && (x * 10) % 1 === 0)) {
+                            context.type = 'openvino.bin';
+                            return;
                         }
                     }
+                    const ints = Array.from(new Int32Array(buffer.buffer, buffer.byteOffset, buffer.length >> 2));
+                    if (ints.length > 32 && ints.slice(0, 32).every((x) => x === 0 || x === 1 || x === 2 || x === 0x7fffffff)) {
+                        context.type = 'openvino.bin';
+                        return;
+                    }
                 }
+                return;
             }
-            return;
         }
         const tags = context.tags('xml');
         if (tags.has('net')) {
