@@ -3847,7 +3847,7 @@
       {
         "name": "batch_padding_policy",
         "type": "string",
-        "description": "Must be one of the following: `PAD_UP`.",
+        "description": "Must be one of the following: `PAD_UP`, `BATCH_DOWN`, `MINIMIZE_TPU_COST_PER_REQUEST`.",
         "default": "PAD_UP"
       },
       {
