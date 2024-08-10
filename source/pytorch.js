@@ -107,7 +107,7 @@ pytorch.Graph = class {
             const queue = [module.data];
             while (queue.length > 0) {
                 const module = queue.shift();
-                if (module.__class__ && module.__class__.__module__ === '__torch__.torch.classes._nnapi' && module.__class__.__name__ === 'Compilation') {
+                if (pytorch.Utility.isInstance(module, '__torch__.torch.classes._nnapi.Compilation')) {
                     continue;
                 }
                 for (const [key, obj] of Object.entries(module)) {
@@ -161,110 +161,58 @@ pytorch.Graph = class {
                     node.outputs().every((output) => pytorch.Utility.isTensor(output.value))) {
                     continue;
                 }
-                const item = {
-                    type: node.kind(),
-                    node
-                };
-                this.nodes.push(new pytorch.Node(metadata, '', item, initializers, values));
+                this.nodes.push(new pytorch.Node(metadata, node, initializers, values));
             }
             if (module) {
-                const getSubmodules = (module) => {
-                    const submodules = [];
-                    if (module && module.__class__ && module.__class__.__module__ && module.__class__.__name__) {
-                        for (const [key, value] of Object.entries(module)) {
-                            if (!key.startsWith('__')) {
-                                if (value && value.__class__ && value.__class__.__module__ && value.__class__.__name__ && !pytorch.Utility.isTensor(value)) {
-                                    submodules.push(value);
+                const queue = [module.data];
+                while (queue.length > 0) {
+                    const module = queue.pop();
+                    if (module && !pytorch.Utility.isObject(module)) {
+                        if (!module.__hide__ && pytorch.Graph._getParameters(module).size > 0) {
+                            const item = { module };
+                            const node = new pytorch.Node(metadata, item, initializers, values);
+                            this.nodes.push(node);
+                        }
+                        const modules = [];
+                        if (module.__class__ && module.__class__.__module__ && module.__class__.__name__) {
+                            for (const [key, value] of Object.entries(module)) {
+                                if (!key.startsWith('__') && value && value.__class__ && value.__class__.__module__ && value.__class__.__name__ && !pytorch.Utility.isTensor(value)) {
+                                    modules.push(value);
                                 }
                             }
                         }
+                        queue.push(...modules.reverse());
                     }
-                    return submodules;
-                };
-                const loadScriptModule = (module, initializers) => {
-                    if (module && !pytorch.Utility.isObject(module)) {
-                        if (pytorch.Graph._getParameters(module).size > 0 && !module.__hide__) {
-                            const item = { module };
-                            this.nodes.push(new pytorch.Node(metadata, '', item, initializers, values));
-                        }
-                        const submodules = getSubmodules(module);
-                        for (const submodule of submodules) {
-                            loadScriptModule(submodule, initializers);
-                        }
-                    }
-                };
-                loadScriptModule(module.data, initializers);
+                }
             }
         } else if (pytorch.Utility.isTensor(module)) {
             const item = { type, obj: { value: module } };
-            const node = new pytorch.Node(metadata, '', item);
+            const node = new pytorch.Node(metadata, item);
             this.nodes.push(node);
         } else {
-            const createNode = (groups, key, obj, args, output) => {
-                let type = obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : null;
-                if (type === 'torch.jit._script.RecursiveScriptModule' && obj._c && obj._c.qualified_name) {
-                    type = obj._c.qualified_name;
-                }
-                if (!type) {
-                    type = this.type === 'weights' ? 'Weights' : 'builtins.dict';
-                }
-                const schema = metadata.type(type);
-                const inputSchema = schema && schema.inputs && schema.inputs.length > 0 ? schema.inputs.slice() : [{ name: 'input' }];
-                const inputName = inputSchema.shift().name;
-                const inputs = [];
-                if (args.length > 0) {
-                    const argument = new pytorch.Argument(inputName, args.map((argument) => values.map(argument)));
-                    inputs.push(argument);
-                }
-                const group = groups.join('/');
-                const name = group ? (`${group}/${key}`) : key;
-                const outputs = output ? [new pytorch.Argument('output', [values.map(name)])] : [];
-                const item = {
-                    name,
-                    type,
-                    obj,
-                    inputs,
-                    outputs
-                };
-                const node = new pytorch.Node(metadata, group, item, {}, values);
-                this.nodes.push(node);
-                return [node.name];
-            };
-            const loadModule = (current, groups, inputs) => {
-                if (!current._modules || current._modules.size === 0) {
-                    createNode(groups, '', current, inputs, false);
-                } else {
-                    const sequential = current.__class__ && current.__class__.__module__ === 'torch.nn.modules.container' && current.__class__.__name__ === 'Sequential';
-                    for (const [key, value] of current._modules) {
-                        if (value) {
-                            const type = value.__class__ ? `${value.__class__.__module__}.${value.__class__.__name__}` : null;
-                            switch (type) {
-                                case 'torch.nn.modules.container.Sequential':
-                                    groups.push(key);
-                                    inputs = loadModule(value, groups, sequential ? inputs : []);
-                                    groups.pop(key);
-                                    break;
-                                default: {
-                                    inputs = createNode(groups, key, value, sequential ? inputs : [], sequential);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                return inputs;
-            };
-            const weights = pytorch.Utility.weights(module);
+            const weights = this.type === 'weights' ? module : pytorch.Utility.weights(module);
             if (weights) {
-                for (const [name, module] of weights._modules) {
+                for (const [name, module] of weights) {
                     const item = { name, type: 'Weights', obj: module };
-                    const node = new pytorch.Node(metadata, '', item);
+                    const node = new pytorch.Node(metadata, item);
                     this.nodes.push(node);
                 }
             } else {
                 const modules = Array.isArray(module) && module.every((module) => module && !pytorch.Utility.isTensor(module) && (module._modules !== undefined || module.__class__)) ? module : [module];
                 for (const module of modules) {
-                    loadModule(module, [], []);
+                    let type = module.__class__ && module.__class__.__module__ && module.__class__.__name__ ? `${module.__class__.__module__}.${module.__class__.__name__}` : null;
+                    if (type === 'torch.jit._script.RecursiveScriptModule' && module._c && module._c.qualified_name) {
+                        type = module._c.qualified_name;
+                    }
+                    if (!type) {
+                        type = this.type === 'weights' ? 'Weights' : 'builtins.dict';
+                    }
+                    const item = {
+                        type,
+                        obj: module
+                    };
+                    const node = new pytorch.Node(metadata, item, {}, values);
+                    this.nodes.push(node);
                 }
             }
         }
@@ -312,10 +260,12 @@ pytorch.Value = class {
 
 pytorch.Node = class {
 
-    constructor(metadata, group, item, initializers, values, stack) {
-        this.group = group || '';
+    constructor(metadata, item, initializers, values, stack) {
         this.name = item.name || '';
         this.nodes = [];
+        this.attributes = [];
+        this.inputs = [];
+        this.outputs = [];
         const type = (metadata, name) => {
             if (name instanceof pytorch.nnapi.Graph) {
                 return name;
@@ -330,10 +280,8 @@ pytorch.Node = class {
         const createAttribute = (metadata, name, value) => {
             let visible = true;
             let type = 'attribute';
-            if (name === 'training') {
-                visible = false;
-                type = 'boolean';
-            } else if (metadata) {
+            metadata = name === 'training' ? { type: 'boolean', visible: false } : metadata;
+            if (metadata) {
                 if (metadata.type) {
                     type = metadata.type;
                 }
@@ -356,19 +304,145 @@ pytorch.Node = class {
             }
             return new pytorch.Argument(name, value, type, visible);
         };
-        const isObject = (obj) => {
-            if (obj && typeof obj === 'object') {
-                const proto = Object.getPrototypeOf(obj);
-                return proto === Object.prototype || proto === null;
+        let module = null;
+        if (pytorch.Utility.isInstance(item, 'torch.Node')) {
+            const node = item;
+            this.type = type(metadata, node.kind());
+            let match = true;
+            let count = 0;
+            for (const input of node.inputs()) {
+                const value = input.value;
+                let values = [];
+                if (pytorch.Utility.isObject(value)) {
+                    values = Object.values(value);
+                } else if (pytorch.Utility.isTensor(value)) {
+                    values = [value];
+                    if (input.node() &&
+                        input.node().kind() === 'prim::ListConstruct' &&
+                        input.uses().length === 1 &&
+                        input.node().inputs().every((input) => pytorch.Utility.isTensor(input.value))) {
+                        values = input.node().inputs().map((input) => input.value);
+                    }
+                }
+                for (const value of values) {
+                    const parameter = initializers.get(value);
+                    if (parameter) {
+                        if (value.__parent__ && (module === null || module === value.__parent__)) {
+                            module = value.__parent__;
+                            count++;
+                        } else if (value.__name__ && value.__name__.startsWith('CONSTANTS.c')) {
+                            count++;
+                        } else {
+                            match = false;
+                            break;
+                        }
+                    }
+                }
+                if (!match) {
+                    break;
+                }
             }
-            return false;
-        };
-        if (!item.module && !item.node) {
+            if (module) {
+                const parameters = pytorch.Graph._getParameters(module);
+                parameters.delete('num_batches_tracked');
+                if (parameters.size === count && match) {
+                    module.__hide__ = true;
+                } else {
+                    module = null;
+                }
+            }
+            const inputs = node.inputs();
+            for (let i = 0; i < inputs.length; i++) {
+                const input = inputs[i];
+                const schema = this.type && this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i] : null;
+                const name = schema && schema.name ? schema.name : i.toString();
+                let type = schema && schema.type ? schema.type : null;
+                let array = false;
+                if (type && type.endsWith('[]')) {
+                    array = true;
+                    type = type.slice(0, -2);
+                }
+                let argument = null;
+                if (pytorch.Utility.isObjectType(type)) {
+                    const obj = input.value;
+                    if (!array && initializers.has(obj)) {
+                        const node = new pytorch.Node(metadata, { name, type, obj }, initializers, values);
+                        argument = new pytorch.Argument(name, node, 'object');
+                    } else if (array && Array.isArray(obj) && obj.every((obj) => initializers.has(obj))) {
+                        const node = obj.map((obj) => new pytorch.Node(metadata, { name, type, obj }, initializers, values));
+                        argument = new pytorch.Argument(name, node, 'object[]');
+                    } else {
+                        const identifier = input.unique().toString();
+                        const value = values.map(identifier);
+                        argument = new pytorch.Argument(name, [value]);
+                    }
+                } else if (pytorch.Utility.isTensor(input.value) || input.value === undefined || input.value === null) {
+                    let list = [input];
+                    if (input.node() &&
+                        input.node().kind() === 'prim::ListConstruct' &&
+                        input.uses().length === 1 &&
+                        input.node().inputs().every((input) => pytorch.Utility.isTensor(input.value))) {
+                        list = input.node().inputs();
+                    }
+                    const args = list.map((input) => {
+                        let initializer = null;
+                        let identifier = input.unique().toString();
+                        if (input.value) {
+                            const value = input.value;
+                            const hide = value.__parent__ ? value.__parent__.__hide__ : true;
+                            initializer = hide ? initializers.get(value) : null;
+                            identifier = initializer ? initializer.name : identifier;
+                        }
+                        if (initializer) {
+                            return new pytorch.Value(identifier, null, null, initializer);
+                        }
+                        return values.map(identifier);
+                    });
+                    argument = new pytorch.Argument(name, args);
+                } else {
+                    argument = createAttribute(schema, schema.name, input.value);
+                }
+                this.inputs.push(argument);
+            }
+            const outputs = node.outputs();
+            for (let i = 0; i < outputs.length; i++) {
+                const output = outputs[i];
+                const metadata = this.type && this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i] : null;
+                let name = '';
+                if (metadata && metadata.name) {
+                    name = metadata.name;
+                } else {
+                    name = i === 0 ? 'output' : `output${i}`;
+                }
+                let list = [output];
+                if (output.uses().length === 1 &&
+                    output.uses()[0].user &&
+                    output.uses()[0].user.kind() === 'prim::ListUnpack' &&
+                    output.uses()[0].user.outputs().every((output) => pytorch.Utility.isTensor(output.value))) {
+                    list = output.uses()[0].user.outputs();
+                }
+                const args = list.map((output) => values.map(output.unique().toString()));
+                const argument = new pytorch.Argument(name, args);
+                this.outputs.push(argument);
+            }
+        } else if (item.module) {
+            module = item.module;
+            const type = module.__class__ ? `${module.__class__.__module__}.${module.__class__.__name__}` : 'torch.nn.modules.module.Module';
+            this.type = { name: type };
+            for (const [name, tensor] of pytorch.Graph._getParameters(module)) {
+                const initializer = initializers.get(tensor) || (tensor ? new pytorch.Tensor('', tensor) : null);
+                const value = values.map('', null, initializer || null);
+                this.inputs.push(new pytorch.Argument(name, [value]));
+                if (tensor.__variable__) {
+                    const value = values.map(tensor.__variable__);
+                    const argument = new pytorch.Argument(name, [value]);
+                    this.outputs.push(argument);
+                }
+            }
+        } else {
             this.type = type(metadata, item.type);
-            this.inputs = item.inputs || [];
-            this.outputs = item.outputs || [];
             let obj = item.obj;
-            if (obj && obj.__class__ && obj.__class__.__module__ === 'builtins' && obj.__class__.__name__ === 'function') {
+            if (pytorch.Utility.isInstance(obj, 'builtins.function')) {
                 this.type = { name: `${obj.__module__}.${obj.__name__}` };
                 obj = {};
             }
@@ -376,7 +450,6 @@ pytorch.Node = class {
             const entries = [];
             const attributes = new Map();
             stack = stack || new Set();
-
             const weights = pytorch.Utility.weights(obj);
             if (weights) {
                 const type = this.type.name;
@@ -443,7 +516,7 @@ pytorch.Node = class {
                     const argument = new pytorch.Argument(name, tensor, 'tensor');
                     this.inputs.push(argument);
                 } else if (value && pytorch.Utility.isInstance(value, 'torch.dtype')) {
-                    const node = new pytorch.Node(metadata, '', { type: value.toString() });
+                    const node = new pytorch.Node(metadata, { type: value.toString() });
                     const argument = new pytorch.Argument(name, node, 'object');
                     this.inputs.push(argument);
                 } else if (Array.isArray(value) && value.some((value) => pytorch.Utility.isTensor(value)) && value.every((value) => pytorch.Utility.isTensor(value) || value === null)) {
@@ -465,7 +538,7 @@ pytorch.Node = class {
                     const values = Array.from(value).filter(([, value]) => !stack.has(value)).map(([name, obj]) => {
                         stack.add(value);
                         const type = obj === null ? 'builtins.NoneType' : `${obj.__class__.__module__}.${obj.__class__.__name__}`;
-                        const node = new pytorch.Node(metadata, group, { name, type, obj });
+                        const node = new pytorch.Node(metadata, { name, type, obj });
                         stack.delete(value);
                         return node;
                     });
@@ -482,19 +555,19 @@ pytorch.Node = class {
                             type: value.__class__ ? `${value.__class__.__module__}.${value.__class__.__name__}` : 'builtins.object',
                             obj: value
                         };
-                        const node = new pytorch.Node(metadata, group, item, initializers, values, stack);
+                        const node = new pytorch.Node(metadata, item, initializers, values, stack);
                         stack.delete(value);
                         return node;
                     });
                     const argument = new pytorch.Argument(name, nodes, 'object[]');
                     this.inputs.push(argument);
-                } else if (value && (value.__class__ || isObject(value)) && !stack.has(value)) {
+                } else if (value && (value.__class__ || typeof value === 'object') && !stack.has(value)) {
                     stack.add(value);
                     const item = {
                         type: value.__class__ ? `${value.__class__.__module__}.${value.__class__.__name__}` : 'builtins.object',
                         obj: value
                     };
-                    const node = new pytorch.Node(metadata, group, item, initializers, values, stack);
+                    const node = new pytorch.Node(metadata, item, initializers, values, stack);
                     stack.delete(value);
                     const visible = name === '_metadata' && pytorch.Utility.isMetadataObject(value) ? false : true;
                     const argument = new pytorch.Argument(name, node, 'object', visible);
@@ -504,159 +577,13 @@ pytorch.Node = class {
                     this.inputs.push(argument);
                 }
             }
-        } else {
-            this.attributes = [];
-            this.inputs = [];
-            this.outputs = [];
-            let module = item.module;
-            if (module) {
-                this.type = { name: 'torch.nn.modules.module.Module' };
-                for (const [name, tensor] of pytorch.Graph._getParameters(module)) {
-                    const initializer = initializers.get(tensor) || (tensor ? new pytorch.Tensor('', tensor) : null);
-                    const value = values.map('', null, initializer || null);
-                    this.inputs.push(new pytorch.Argument(name, [value]));
-                    if (tensor.__variable__) {
-                        const value = values.map(tensor.__variable__);
-                        const argument = new pytorch.Argument(name, [value]);
-                        this.outputs.push(argument);
-                    }
-                }
-            }
-            const node = item.node;
-            if (node) {
-                this.type = type(metadata, item.type);
-                module = null;
-                let match = true;
-                let count = 0;
-                for (const input of node.inputs()) {
-                    const value = input.value;
-                    let values = [];
-                    if (pytorch.Utility.isObject(value)) {
-                        values = Object.values(value);
-                    } else if (pytorch.Utility.isTensor(value)) {
-                        values = [value];
-                        if (input.node() &&
-                            input.node().kind() === 'prim::ListConstruct' &&
-                            input.uses().length === 1 &&
-                            input.node().inputs().every((input) => pytorch.Utility.isTensor(input.value))) {
-                            values = input.node().inputs().map((input) => input.value);
-                        }
-                    }
-                    for (const value of values) {
-                        const parameter = initializers.get(value);
-                        if (parameter) {
-                            if (value.__parent__ && (module === null || module === value.__parent__)) {
-                                module = value.__parent__;
-                                count++;
-                            } else if (value.__name__ && value.__name__.startsWith('CONSTANTS.c')) {
-                                count++;
-                            } else {
-                                match = false;
-                                break;
-                            }
-                        }
-                    }
-                    if (!match) {
-                        break;
-                    }
-                }
-                if (module) {
-                    const parameters = pytorch.Graph._getParameters(module);
-                    parameters.delete('num_batches_tracked');
-                    if (parameters.size === count && match) {
-                        module.__hide__ = true;
-                    } else {
-                        module = null;
-                    }
-                }
-                const inputs = node.inputs();
-                for (let i = 0; i < inputs.length; i++) {
-                    const input = inputs[i];
-                    const schema = this.type && this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i] : null;
-                    const name = schema && schema.name ? schema.name : i.toString();
-                    let type = schema && schema.type ? schema.type : null;
-                    let array = false;
-                    if (type && type.endsWith('[]')) {
-                        array = true;
-                        type = type.slice(0, -2);
-                    }
-                    let argument = null;
-                    if (pytorch.Utility.isObjectType(type)) {
-                        const obj = input.value;
-                        if (!array && initializers.has(obj)) {
-                            const node = new pytorch.Node(metadata, group, { name, type, obj }, initializers, values);
-                            argument = new pytorch.Argument(name, node, 'object');
-                        } else if (array && Array.isArray(obj) && obj.every((obj) => initializers.has(obj))) {
-                            const node = obj.map((obj) => new pytorch.Node(metadata, group, { name, type, obj }, initializers, values));
-                            argument = new pytorch.Argument(name, node, 'object[]');
-                        } else {
-                            const identifier = input.unique().toString();
-                            const value = values.map(identifier);
-                            argument = new pytorch.Argument(name, [value]);
-                        }
-                    } else if (pytorch.Utility.isTensor(input.value) || input.value === undefined || input.value === null) {
-                        let list = [input];
-                        if (input.node() &&
-                            input.node().kind() === 'prim::ListConstruct' &&
-                            input.uses().length === 1 &&
-                            input.node().inputs().every((input) => pytorch.Utility.isTensor(input.value))) {
-                            list = input.node().inputs();
-                        }
-                        const args = list.map((input) => {
-                            let initializer = null;
-                            let identifier = input.unique().toString();
-                            if (input.value) {
-                                const value = input.value;
-                                const hide = value.__parent__ ? value.__parent__.__hide__ : true;
-                                initializer = hide ? initializers.get(value) : null;
-                                identifier = initializer ? initializer.name : identifier;
-                            }
-                            if (initializer) {
-                                return new pytorch.Value(identifier, null, null, initializer);
-                            }
-                            return values.map(identifier);
-                        });
-                        argument = new pytorch.Argument(name, args);
-                    } else {
-                        argument = createAttribute(schema, schema.name, input.value);
-                    }
-                    this.inputs.push(argument);
-                }
-                const outputs = node.outputs();
-                for (let i = 0; i < outputs.length; i++) {
-                    const output = outputs[i];
-                    const metadata = this.type && this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i] : null;
-                    let name = '';
-                    if (metadata && metadata.name) {
-                        name = metadata.name;
-                    } else if (i === 0) {
-                        name = 'output';
-                    } else {
-                        name = `output${i}`;
-                    }
-                    let list = [output];
-                    if (output.uses().length === 1 &&
-                        output.uses()[0].user &&
-                        output.uses()[0].user.kind() === 'prim::ListUnpack' &&
-                        output.uses()[0].user.outputs().every((output) => pytorch.Utility.isTensor(output.value))) {
-                        list = output.uses()[0].user.outputs();
-                    }
-                    const args = list.map((output) => values.map(output.unique().toString()));
-                    const argument = new pytorch.Argument(name, args);
-                    this.outputs.push(argument);
-                }
-            }
-            if (module) {
+        }
+        if (module && module.__name__) {
+            this.name = module.__name__;
+            while (module.__parent__) {
+                module = module.__parent__;
                 if (module.__name__) {
-                    let current = module;
-                    this.name = current.__name__;
-                    while (current.__parent__) {
-                        current = current.__parent__;
-                        if (!current.__parent__ && !current.__name__) {
-                            break;
-                        }
-                        this.name = [current.__name__, this.name].join('.');
-                    }
+                    this.name = `${module.__name__}.${this.name}`;
                 }
             }
         }
@@ -3594,7 +3521,7 @@ pytorch.Utility = class {
                     }
                     layer[property] = value;
                 }
-                return { _modules: modules };
+                return modules;
             }
         }
         if (obj && !Array.isArray(obj) && Object(obj) === obj) {
@@ -3632,7 +3559,7 @@ pytorch.Utility = class {
                         return null;
                     }
                 }
-                return { _modules: modules };
+                return modules;
             }
         }
         return null;
@@ -3782,7 +3709,6 @@ pytorch.nnapi.SerializedModel = class {
             const index = reader.uint32();
             this.outputs[i] = operands[index];
         }
-
         if (reader.position !== reader.length) {
             throw new pytorch.Error('Invalid NNAPI serialized model length.');
         }
@@ -3877,8 +3803,8 @@ pytorch.nnapi.Node = class {
         if (operation.identifier !== undefined) {
             this.identifier = operation.identifier.toString();
         }
-        const inputs = this.type.inputs.concat(this.type.attributes);
-        if (operation.inputs) {
+        if (Array.isArray(operation.inputs)) {
+            const inputs = this.type.inputs;
             for (let i = 0; i < operation.inputs.length; i++) {
                 const name = i < inputs.length ? inputs[i].name : i.toString();
                 const operand = operation.inputs[i];
@@ -3893,13 +3819,14 @@ pytorch.nnapi.Node = class {
                     }
                 } else {
                     const attribute = new pytorch.Argument(name, operand.value, operand.data_type, false);
-                    this.attributes.push(attribute);
+                    this.inputs.push(attribute);
                 }
             }
         }
-        if (operation.outputs) {
+        if (Array.isArray(operation.outputs)) {
+            const outputs = this.type.outputs;
             for (let i = 0; i < operation.outputs.length; i++) {
-                const name = i < inputs.length ? inputs[i].name : i.toString();
+                const name = i < outputs.length ? outputs[i].name : i.toString();
                 const operand = operation.outputs[i];
                 const value = values.map(operand);
                 const argument = new pytorch.Argument(name, [value]);
@@ -4023,11 +3950,14 @@ pytorch.nnapi.Metadata = class {
     }
 
     register(index, name, category, inputs, attributes, outputs) {
+        inputs = inputs || [];
+        outputs = outputs || [];
+        attributes = attributes || [];
         const type = {};
         type.name = name;
-        type.inputs = (inputs || []).map((name) => ({ name, type: 'Tensor' }));
-        type.outputs = (outputs || []).map((name) => ({ name, type: 'Tensor' }));
-        type.attributes = (attributes || []).map(([name, type]) => ({ name, type }));
+        type.inputs = inputs.map((name) => ({ name, type: 'Tensor' }));
+        type.inputs = type.inputs.concat(attributes.map(([name, type]) => ({ name, type })));
+        type.outputs = outputs.map((name) => ({ name, type: 'Tensor' }));
         if (category) {
             type.category = category;
         }
@@ -4043,7 +3973,7 @@ pytorch.nnapi.Metadata = class {
         }
         const types = this._types.get(index);
         for (const type of types) {
-            const inputs = type.inputs.concat(type.attributes);
+            const inputs = type.inputs;
             if (signature.length < inputs.length) {
                 if (inputs.every((input, i) => input.type === undefined || input.type === 'Tensor' || input.type === signature[i])) {
                     return type;
