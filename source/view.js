@@ -448,9 +448,6 @@ view.View = class {
             return;
         }
         const container = this._element('graph');
-        if (e.target === container) {
-            return;
-        }
         e.target.setPointerCapture(e.pointerId);
         this._mousePosition = {
             left: container.scrollLeft,
