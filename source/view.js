@@ -3834,14 +3834,6 @@ view.FindSidebar = class extends view.Control {
         text.innerText = content;
         element.appendChild(text);
         element.setAttribute('data', key);
-        element.addEventListener('pointerover', (e) => {
-            const identifier = e.target.getAttribute('data');
-            this._focus(identifier);
-        });
-        element.addEventListener('pointerleave', (e) => {
-            const identifier = e.target.getAttribute('data');
-            this._blur(identifier);
-        });
         this._content.appendChild(element);
     }
 
@@ -3941,6 +3933,12 @@ view.FindSidebar = class extends view.Control {
             if (this._table.has(name)) {
                 this.emit('activate', this._table.get(name));
             }
+        });
+        this._content.addEventListener('pointerover', (e) => {
+            for (const identifier of this._focused) {
+                this._blur(identifier);
+            }
+            this._focus(e.target.getAttribute('data'));
         });
     }
 
