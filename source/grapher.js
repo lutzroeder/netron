@@ -133,6 +133,26 @@ grapher.Graph = class {
             element.appendChild(markerPath);
             return element;
         };
+        edgePathGroup.addEventListener('pointerover', (e) => {
+            if (e.target && e.target._var && e.target._var.focus) {
+                e.target._var.focus();
+                this._focusedEdge = e.target._var;
+                e.stopPropagation();
+            }
+        });
+        edgePathGroup.addEventListener('pointerleave', (e) => {
+            if (this._focusedEdge && this._focusedEdge.blur) {
+                this._focusedEdge.blur();
+                this._focusedEdge = null;
+                e.stopPropagation();
+            }
+        });
+        edgePathGroup.addEventListener('click', (e) => {
+            if (e.target && e.target._var && e.target._var.activate) {
+                e.target._var.activate();
+                e.stopPropagation();
+            }
+        });
         edgePathGroupDefs.appendChild(marker("arrowhead"));
         edgePathGroupDefs.appendChild(marker("arrowhead-select"));
         edgePathGroupDefs.appendChild(marker("arrowhead-hover"));
@@ -811,24 +831,7 @@ grapher.Edge = class {
         edgePathGroupElement.appendChild(this.element);
         this.hitTest = createElement('path');
         this.hitTest.setAttribute('class', 'edge-path-hit-test');
-        if (this.focus) {
-            this.hitTest.addEventListener('pointerover', (e) => {
-                this.focus();
-                e.stopPropagation();
-            });
-        }
-        if (this.blur) {
-            this.hitTest.addEventListener('pointerleave', (e) => {
-                this.blur();
-                e.stopPropagation();
-            });
-        }
-        if (this.activate) {
-            this.hitTest.addEventListener('click', (e) => {
-                this.activate();
-                e.stopPropagation();
-            });
-        }
+        this.hitTest._var = this;
         edgePathGroupElement.appendChild(this.hitTest);
         if (this.label) {
             const tspan = createElement('tspan');
