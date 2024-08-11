@@ -18282,6 +18282,90 @@
     "category": "Transform"
   },
   {
+    "name": "GatherBlockQuantized",
+    "module": "com.microsoft",
+    "version": 1,
+    "attributes": [
+      {
+        "name": "block_size",
+        "type": "int64",
+        "required": false,
+        "default": 128,
+        "description": "(Optional) block size used for weight quantization. It needs to be a power of 2 and not smaller than 16."
+      },
+      {
+        "name": "gather_axis",
+        "type": "int64",
+        "required": false,
+        "description": "(Optional) Which axis to gather on. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data)."
+      },
+      {
+        "name": "quantize_axis",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "(Optional) Which axis to block-wise quantize. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data)."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "data",
+        "type": "T1"
+      },
+      {
+        "name": "indices",
+        "type": "Tind"
+      },
+      {
+        "name": "scales",
+        "type": "T2"
+      },
+      {
+        "name": "zero_points",
+        "type": "T1",
+        "option": "optional"
+      }
+    ],
+    "min_input": 3,
+    "max_input": 4,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T2"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "3 - 4",
+    "type_constraints": [
+      {
+        "description": "Constrain quantized types.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(int4)",
+          "tensor(uint4)"
+        ]
+      },
+      {
+        "description": "Constrain dequantized types.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain indices to integer types.",
+        "type_param_str": "Tind",
+        "allowed_type_strs": [
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "GatherElements",
     "module": "ai.onnx",
     "version": 11,
