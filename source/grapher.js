@@ -134,9 +134,10 @@ grapher.Graph = class {
             return element;
         };
         edgePathGroup.addEventListener('pointerover', (e) => {
-            if (e.target && e.target._var && e.target._var.focus) {
-                e.target._var.focus();
-                this._focusedEdge = e.target._var;
+            let edge = this._edges.get(e.target.getAttribute('key'));
+            if (edge && edge.label && edge.label.focus) {
+                edge.label.focus();
+                this._focusedEdge = edge.label;
                 e.stopPropagation();
             }
         });
@@ -148,8 +149,9 @@ grapher.Graph = class {
             }
         });
         edgePathGroup.addEventListener('click', (e) => {
-            if (e.target && e.target._var && e.target._var.activate) {
-                e.target._var.activate();
+            let edge = this._edges.get(e.target.getAttribute('key'));
+            if (edge && edge.label && edge.label.activate) {
+                edge.label.activate();
                 e.stopPropagation();
             }
         });
@@ -831,7 +833,7 @@ grapher.Edge = class {
         edgePathGroupElement.appendChild(this.element);
         this.hitTest = createElement('path');
         this.hitTest.setAttribute('class', 'edge-path-hit-test');
-        this.hitTest._var = this;
+        this.hitTest.setAttribute('key', `${this.v}:${this.w}`);
         edgePathGroupElement.appendChild(this.hitTest);
         if (this.label) {
             const tspan = createElement('tspan');
