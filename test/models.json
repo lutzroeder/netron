@@ -4923,6 +4923,7 @@
     "target":   "bad-base_libri.pt",
     "source":   "https://github.com/user-attachments/files/16401716/base_libri.pt.zip[base_libri.pt]",
     "format":   "PyTorch v1.6",
+    "assert":   "model.graphs[0].nodes[0].inputs[7].value.inputs[0].value.type.name == 'builtins.object' == null",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
@@ -5372,7 +5373,7 @@
     "target":   "mnist_linear_dynamic_quantized.pt",
     "source":   "https://github.com/lutzroeder/netron/files/4774023/mnist_linear_dynamic_quantized.zip[mnist_linear_dynamic_quantized.pt]",
     "format":   "PyTorch v0.1.10",
-    "assert":   "model.graphs[0].nodes[0].inputs[3].value.type.name == 'torch.qint8'",
+    "assert":   "model.graphs[0].nodes[0].inputs[2].value.type.name == 'torch.qint8'",
     "link":     "https://github.com/lutzroeder/netron/issues/519"
   },
   {
@@ -5879,7 +5880,7 @@
     "target":   "rng_state.pth",
     "source":   "https://github.com/user-attachments/files/16401709/rng_state.pth.zip[rng_state.pth]",
     "format":   "PyTorch v1.6",
-    "assert":   "model.graphs[0].nodes[0].inputs[3].name == 'numpy'",
+    "assert":   "model.graphs[0].nodes[0].inputs[1].name == 'numpy'",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
@@ -6266,7 +6267,6 @@
     "target":   "v1_lj_8000.jit",
     "source":   "https://github.com/user-attachments/files/16041474/v1_lj_8000.jit.zip[v1_lj_8000.jit]",
     "format":   "TorchScript v1.6",
-    "error":    "Cannot read properties of undefined (reading 'position')",
     "link":     "https://github.com/lutzroeder/netron/issues/1061"
   },
   {
