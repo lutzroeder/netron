@@ -97,6 +97,11 @@ view.View = class {
                     accelerator: 'CmdOrCtrl+O',
                     execute: async () => await this._host.execute('open')
                 });
+                file.add({
+                    label: '&Insert...',
+                    accelerator: 'CmdOrCtrl+T',
+                    execute: async () => await functie()
+                });
                 if (this._host.type === 'Electron') {
                     this._recents = file.group('Open &Recent');
                     file.add({

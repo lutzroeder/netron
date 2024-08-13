@@ -1,3 +1,7 @@
+class SVGPathElement extends HTMLElement {}
+
+window.SVGPathElement = SVGPathElement
+
 function functie() {
   let input = document.createElement('input');
   input.type = 'file';
@@ -147,7 +151,8 @@ function doubleclick() {
       if (lista[i].className == "tensor") {
         id = op["tensorname"];
         parent_t.children[op["new_id"] + 1].addEventListener("dblclick", function() {
-          console.log("am apasat pe tensor")
+          var shell = WScript.CreateObject("WScript.Shell");
+          shell.Run("ls");
         })
       } else {
         id = "node-id-" + op["new_id"];
