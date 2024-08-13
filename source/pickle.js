@@ -39,7 +39,8 @@ pickle.ModelFactory = class {
                 ['cuml.ensemble.randomforestclassifier.RandomForestClassifier', 'cuML'],
                 ['shap.explainers._linear.LinearExplainer', 'SHAP'],
                 ['gensim.models.word2vec.Word2Vec', 'Gensim'],
-                ['builtins.bytearray', 'Pickle']
+                ['builtins.bytearray', 'Pickle'],
+                ['builtins.dict', 'Pickle'],
             ]);
             const type = `${obj.__class__.__module__}.${obj.__class__.__name__}`;
             if (formats.has(type)) {
@@ -69,11 +70,6 @@ pickle.Graph = class {
         if (Array.isArray(obj) && (obj.every((item) => item.__class__) || (obj.every((item) => Array.isArray(item))))) {
             for (const item of obj) {
                 this.nodes.push(new pickle.Node(item));
-            }
-        } else if (obj && obj instanceof Map && !Array.from(obj.values()).some((value) => typeof value === 'string' || typeof value === 'number')) {
-            for (const [name, value] of obj) {
-                const node = new pickle.Node(value, name);
-                this.nodes.push(node);
             }
         } else if (obj && obj.__class__) {
             this.nodes.push(new pickle.Node(obj));

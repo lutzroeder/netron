@@ -1622,6 +1622,9 @@ python.Execution = class {
             __getitem__(key) {
                 return this.get(key);
             }
+            get(key, defaultValue) {
+                return super.get(key) || defaultValue;
+            }
         };
         this._modules = new dict();
         this._registry = new Map();
@@ -1824,7 +1827,7 @@ python.Execution = class {
                 this._object = new catboost._catboost._CatBoost();
             }
             __setstate__(state) {
-                for (const [key, value] of Object.entries(state)) {
+                for (const [key, value] of state) {
                     if (key === '__model') {
                         this._load_from_string(value);
                         continue;
@@ -2133,9 +2136,9 @@ python.Execution = class {
         this.registerType('joblib.numpy_pickle.NDArrayWrapper', class {
 
             __setstate__(state) {
-                this.subclass = state.subclass;
-                this.filename = state.state;
-                this.allow_mmap = state.allow_mmap;
+                this.subclass = state.get('subclass');
+                this.filename = state.get('state');
+                this.allow_mmap = state.get('allow_mmap');
             }
             __read__(/* unpickler */) {
                 return this; // return execution.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
@@ -2158,11 +2161,14 @@ python.Execution = class {
                 this.loaded_parameter = '';
             }
             __setstate__(state) {
-                if (typeof state.handle === 'string') {
-                    this.LoadModelFromString(state.handle);
+                const model_str = state.get('_handle', state.get('handle', null));
+                if (model_str) {
+                    this.LoadModelFromString(model_str);
                     return;
                 }
-                Object.assign(this, state);
+                for (const [key, value] of state) {
+                    this[key] = value;
+                }
             }
             LoadModelFromString(model_str) {
                 const lines = model_str.split('\n');
@@ -2919,10 +2925,10 @@ python.Execution = class {
                 this.n_outputs = n_outputs;
             }
             __setstate__(state) {
-                this.max_depth = state.max_depth;
-                this.node_count = state.node_count;
-                this.nodes = state.nodes;
-                this.values = state.values;
+                this.max_depth = state.get('max_depth');
+                this.node_count = state.get('node_count');
+                this.nodes = state.get('nodes');
+                this.values = state.get('values');
             }
         });
         this.registerType('sklearn.tree.tree.DecisionTreeClassifier', class {});
@@ -2945,7 +2951,7 @@ python.Execution = class {
                 let size = 0;
                 while (reader.position < reader.length) {
                     const opcode = reader.byte();
-                    // console.log((reader.position - 1).toString() + ' ' + Object.entries(OpCode).find(([, value]) => value === opcode)[0]);
+                    // console.log(`${(reader.position - 1).toString()} ${opcode}`);
                     // https://svn.python.org/projects/python/trunk/Lib/pickletools.py
                     // https://github.com/python/cpython/blob/master/Lib/pickle.py
                     switch (opcode) {
@@ -3090,7 +3096,7 @@ python.Execution = class {
                             break;
                         }
                         case 93: // EMPTY_LIST ']'
-                            stack.push(execution.invoke('builtins.list', []));
+                            stack.push(new builtins.list());
                             break;
                         case 41: // EMPTY_TUPLE ')'
                             stack.push([]);
@@ -3116,9 +3122,9 @@ python.Execution = class {
                         case 100: { // DICT 'd'
                             const items = stack;
                             stack = marker.pop();
-                            const dict = {};
+                            const dict = new builtins.dict();
                             for (let i = 0; i < items.length; i += 2) {
-                                dict[items[i]] = items[i + 1];
+                                dict.__setitem__(items[i], items[i + 1]);
                             }
                             stack.push(dict);
                             break;
@@ -3167,17 +3173,19 @@ python.Execution = class {
                             const items = stack;
                             stack = marker.pop();
                             const obj = stack[stack.length - 1];
-                            for (let i = 0; i < items.length; i += 2) {
-                                if (obj.__setitem__) {
+                            if (obj.__setitem__) {
+                                for (let i = 0; i < items.length; i += 2) {
                                     obj.__setitem__(items[i], items[i + 1]);
-                                } else {
+                                }
+                            } else {
+                                for (let i = 0; i < items.length; i += 2) {
                                     obj[items[i]] = items[i + 1];
                                 }
                             }
                             break;
                         }
                         case 125: // EMPTY_DICT '}'
-                            stack.push({});
+                            stack.push(new builtins.dict());
                             break;
                         case 97: { // APPEND 'a'
                             const append = stack.pop();
@@ -3222,9 +3230,17 @@ python.Execution = class {
                                 }
                             } else if (ArrayBuffer.isView(state) || Object(state) !== state) {
                                 obj.__state__ = state;
+                            } else if (obj instanceof Map && state instanceof Map) {
+                                for (const [key, value] of state) {
+                                    obj.set(key, value);
+                                }
                             } else if (obj instanceof Map) {
                                 for (const key in state) {
                                     obj.set(key, state[key]);
+                                }
+                            } else if (state instanceof Map) {
+                                for (const [key, value] of state) {
+                                    obj[key] = value;
                                 }
                             } else {
                                 Object.assign(obj, state);
@@ -3609,16 +3625,26 @@ python.Execution = class {
             return obj.__class__ ? builtins.issubclass(obj.__class__, type) : false;
         });
         this.registerFunction('builtins.hasattr', (obj, name) => {
+            if (obj instanceof Map && obj.__contains__) {
+                return obj.__contains__(name);
+            }
             return Object.prototype.hasOwnProperty.call(obj, name);
         });
         this.registerFunction('builtins.getattr', (obj, name, defaultValue) => {
+            if (obj instanceof Map && obj.__contains__ && obj.__getitem__) {
+                return obj.__contains__(name) ? obj.__getitem__(name) : defaultValue;
+            }
             if (Object.prototype.hasOwnProperty.call(obj, name)) {
                 return obj[name];
             }
             return defaultValue;
         });
         this.registerFunction('builtins.setattr', (obj, name, value) => {
-            obj[name] = value;
+            if (obj instanceof Map && obj.__setitem__) {
+                obj.__setitem__(name, value);
+            } else {
+                obj[name] = value;
+            }
         });
         this.registerType('builtins.set', class extends Set {});
         this.registerType('builtins.slice', class {
@@ -3692,7 +3718,7 @@ python.Execution = class {
         this.registerFunction('dill._dill._create_type', (typeobj, ...args) => {
             const [name, bases, dict] = args;
             const type = class extends bases[0] {};
-            const identifier = dict.__module__ ? `${dict.__module__}.${name}` : name;
+            const identifier = builtins.hasattr(dict, '__module__') ? `${builtins.getattr(dict, '__module__')}.${name}` : name;
             return self.registerType(identifier, Object.assign(type, dict));
         });
         this.registerFunction('dill._dill._eval_repr');
@@ -5274,7 +5300,7 @@ python.Execution = class {
             return left && right;
         });
         this.registerFunction('torch.__contains__', (dict, key) => {
-            return dict[key] !== undefined;
+            return builtins.hasattr(dict, key);
         });
         this.registerFunction('torch.__derive_index', (index, start, step) => {
             return start + index * step;
@@ -5627,10 +5653,10 @@ python.Execution = class {
                     throw new python.Error(`Unsupported protocol version '${protocol_version}'.`);
                 }
                 const sys_info = unpickler.load();
-                if (sys_info.protocol_version !== 1001) {
+                if (sys_info.get('protocol_version') !== 1001) {
                     throw new python.Error(`Unsupported protocol version '${sys_info.protocol_version}'.`);
                 }
-                if (sys_info.little_endian === false) {
+                if (sys_info.get('little_endian') === false) {
                     throw new python.Error("Unsupported big-endian storage data.");
                 }
                 const module_source_map = new Map();

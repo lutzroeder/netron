@@ -1103,7 +1103,7 @@ pytorch.Container.Index = class extends pytorch.Container {
         });
         const entries = new Map();
         for (const shard of shards) {
-            for (const [key, value] of Object.entries(shard)) {
+            for (const [key, value] of Array.from(shard)) {
                 if (keys.has(key)) {
                     entries.set(key, value);
                 }
@@ -3474,8 +3474,10 @@ pytorch.Utility = class {
         }
         if (obj instanceof Map) {
             const entries = Array.from(obj).filter(([name]) => name !== '_metadata');
-            const names = entries.filter(([name]) => name.indexOf('.') !== -1 || name.indexOf('|') !== -1);
-            if (names.length > 1 && (names.length / entries.length) >= 0.8) {
+            const names = entries.filter(([name]) => typeof name === 'string' && (name.indexOf('.') !== -1 || name.indexOf('|') !== -1));
+            if (names.length > 1 &&
+                (names.length / entries.length) >= 0.8 &&
+                entries.every(([, value]) => !pytorch.Utility.isInstance(value, 'builtins.dict') || Array.from(value.values()).every((value) => !pytorch.Utility.isTensor(value)))) {
                 const modules = new Map();
                 for (const [name, value] of entries) {
                     const separator = name.indexOf('.') === -1 && name.indexOf('|') !== -1 ? '|' : '.';
@@ -3488,21 +3490,21 @@ pytorch.Utility = class {
                     if (!modules.has(key)) {
                         modules.set(key, {});
                     }
-                    const layer = modules.get(key);
+                    const module = modules.get(key);
                     if (pytorch.Utility.isTensor(value)) {
                         value.__name__ = name;
                     }
-                    layer[property] = value;
+                    module[property] = value;
                 }
                 return modules;
             }
         }
         if (obj && !Array.isArray(obj) && Object(obj) === obj) {
             const modules = new Map();
-            const entries = Object.entries(obj);
-            if (entries.length > 0) {
+            const entries = obj instanceof Map ? Array.from(obj) : Object.entries(obj);
+            if (entries.length > 0 && entries) {
                 for (const [name, value] of entries) {
-                    if (!value || Object(value) !== value || pytorch.Utility.isTensor(value)) {
+                    if (!value || Object(value) !== value || pytorch.Utility.isTensor(value) || ArrayBuffer.isView(value)) {
                         return null;
                     }
                     if (!modules.has(name)) {
@@ -3512,6 +3514,9 @@ pytorch.Utility = class {
                     let tensor = false;
                     const entries = value instanceof Map ? value : new Map(Object.entries(value));
                     for (const [name, value] of entries) {
+                        if (typeof name !== 'string') {
+                            return null;
+                        }
                         if (name.indexOf('.') !== -1) {
                             return null;
                         }
@@ -3541,8 +3546,8 @@ pytorch.Utility = class {
     static isMetadataObject(obj) {
         if (pytorch.Utility.isInstance(obj, 'collections.OrderedDict')) {
             for (const value of obj.values()) {
-                if (value && Object(value) === value) {
-                    const entries = Object.entries(value);
+                if (pytorch.Utility.isInstance(value, 'builtins.dict')) {
+                    const entries = Array.from(value);
                     if (entries.length !== 1 && entries[0] !== 'version' && entries[1] !== 1) {
                         return false;
                     }
