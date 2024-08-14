@@ -1019,7 +1019,7 @@ view.View = class {
                     this._menu.close();
                 }
                 const sidebar = new view.NodeSidebar(this, node);
-                sidebar.on('show-documentation', async (/* sender, e */) => {
+                sidebar.on('show-definition', async (/* sender, e */) => {
                     await this.showDefinition(node.type);
                 });
                 sidebar.on('focus', (sender, value) => {
@@ -1101,12 +1101,14 @@ view.View = class {
             if (type.nodes && type.nodes.length > 0) {
                 await this.pushGraph(type);
             }
-            const sidebar = new view.DocumentationSidebar(this, type);
-            sidebar.on('navigate', (sender, e) => {
-                this._host.openURL(e.link);
-            });
-            const title = type.type === 'function' ? 'Function' : 'Documentation';
-            this._sidebar.push(sidebar, title);
+            if (type.type !== 'weights') {
+                const sidebar = new view.DocumentationSidebar(this, type);
+                sidebar.on('navigate', (sender, e) => {
+                    this._host.openURL(e.link);
+                });
+                const title = type.type === 'function' ? 'Function' : 'Documentation';
+                this._sidebar.push(sidebar, title);
+            }
         }
     }
 
@@ -1996,13 +1998,14 @@ view.Node = class extends grapher.Node {
             this.context.activate(node);
         });
         if (Array.isArray(node.type.nodes) && node.type.nodes.length > 0) {
+            let icon = '\u0192';
+            let tooltip = 'Show Function Definition';
             if (node.type.type === 'weights') {
-                const definition = header.add(null, styles, '\u25CF', 'Show Weights');
-                definition.on('click', async () => await this.context.view.pushGraph(node.type));
-            } else {
-                const definition = header.add(null, styles, '\u0192', 'Show Function Definition');
-                definition.on('click', async () => await this.context.view.pushGraph(node.type));
+                icon = '\u25CF';
+                tooltip = 'Show Weights';
             }
+            const definition = header.add(null, styles, icon, tooltip);
+            definition.on('click', async () => await this.context.view.pushGraph(node.type));
         }
         if (Array.isArray(node.nodes)) {
             // this._expand = header.add(null, styles, '+', null);
@@ -2584,8 +2587,16 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             const type = node.type;
             const item = this.addProperty('type', node.type.identifier || node.type.name);
             if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
-                item.action(type.nodes ? '\u0192' : '?', 'Show Definition', () => {
-                    this.emit('show-documentation', null);
+                let icon = '?';
+                let tooltip = 'Show Definition';
+                if (type.type === 'weights') {
+                    icon = '\u25CF';
+                    tooltip = 'Show Weights';
+                } else if (Array.isArray(type.nodes)) {
+                    icon = '\u0192';
+                }
+                item.action(icon, tooltip, () => {
+                    this.emit('show-definition', null);
                 });
             }
             const module = node.type.module;
