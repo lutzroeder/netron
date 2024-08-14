@@ -1303,10 +1303,8 @@ coreml.Context.Graph = class {
                                     break;
                                 }
                                 case 'float16':
-                                case 'int4':
-                                case 'int8':
-                                case 'uint4':
-                                case 'uint8': {
+                                case 'int1': case 'int2': case 'int3': case 'int4': case 'int6': case 'int8':
+                                case 'uint1': case 'uint2': case 'uint3': case 'uint4': case 'uint6': case 'uint8': {
                                     data = stream.read(size);
                                     break;
                                 }

@@ -493,5 +493,9 @@
   {
     "name": "program:layer_norm",
     "category": "Normalization"
+  },
+  {
+    "name": "program:max_pool",
+    "category": "Pool"
   }
 ]
