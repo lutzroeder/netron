@@ -78,8 +78,9 @@ gguf.Model = class {
 
 gguf.Graph = class {
 
-    constructor(graph) {
+    constructor(graph, type) {
         this.name = graph.type;
+        this.type = type || '';
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];
@@ -112,7 +113,7 @@ gguf.Node = class {
 
     constructor(layer) {
         if (Array.isArray(layer.layers) && layer.layers.length > 0) {
-            this.type = new gguf.Graph(layer);
+            this.type = new gguf.Graph(layer, 'weights');
         } else {
             this.type = { name: layer.type };
         }
