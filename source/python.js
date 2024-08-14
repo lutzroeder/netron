@@ -110,9 +110,9 @@ python.Parser = class {
         }
         node = this._eat('id', 'assert');
         if (node) {
-            node.condition = this._expression(-1, [',']);
+            node.test = this._expression(-1, [',']);
             if (this._tokenizer.eat(',')) {
-                node.message = this._expression();
+                node.msg = this._expression();
             }
             return node;
         }
@@ -223,7 +223,7 @@ python.Parser = class {
                 decorator_list = null;
             }
             this._tokenizer.expect('(');
-            node.parameters = this._parameters(')');
+            node.args = this._parameters(')');
             if (this._tokenizer.eat('->')) {
                 node.returnType = this._type();
             }
@@ -248,33 +248,33 @@ python.Parser = class {
         // }
         node = this._eat('id', 'if');
         if (node) {
-            node.condition = this._expression();
+            node.test = this._expression();
             this._tokenizer.expect(':');
-            node.then = this._suite();
+            node.body = this._suite();
             let current = node;
             this._tokenizer.eat('\n');
             while (this._tokenizer.eat('id', 'elif')) {
-                current.else = this._node('if');
-                current = current.else;
-                current.condition = this._expression();
+                current.orelse = this._node('if');
+                current = current.orelse;
+                current.test = this._expression();
                 this._tokenizer.expect(':');
-                current.then = this._suite();
+                current.body = this._suite();
                 this._tokenizer.eat('\n');
             }
             if (this._tokenizer.eat('id', 'else')) {
                 this._tokenizer.expect(':');
-                current.else = this._suite();
+                current.orelse = this._suite();
             }
             return node;
         }
         node = this._eat('id', 'while');
         if (node) {
-            node.condition = this._expression();
+            node.test = this._expression();
             this._tokenizer.expect(':');
             node.body = this._suite();
             if (this._tokenizer.eat('id', 'else')) {
                 this._tokenizer.expect(':');
-                node.else = this._suite();
+                node.orelse = this._suite();
             }
             return node;
         }
@@ -284,30 +284,30 @@ python.Parser = class {
         }
         node = this._eat('id', 'for');
         if (node) {
-            node.variable = [];
-            node.variable.push(this._expression(-1, ['in']));
+            node.target = [];
+            node.target.push(this._expression(-1, ['in']));
             while (this._tokenizer.eat(',')) {
                 if (this._tokenizer.match('id', 'in')) {
-                    node.variable.push({});
-                    break;
-                }
-                node.variable.push(this._expression(-1, ['in']));
-            }
-            this._tokenizer.expect('id', 'in');
-            node.target = [];
-            node.target.push(this._expression());
-            while (this._tokenizer.eat(',')) {
-                if (this._tokenizer.match(':')) {
                     node.target.push({});
                     break;
                 }
                 node.target.push(this._expression(-1, ['in']));
             }
+            this._tokenizer.expect('id', 'in');
+            node.iter = [];
+            node.iter.push(this._expression());
+            while (this._tokenizer.eat(',')) {
+                if (this._tokenizer.match(':')) {
+                    node.iter.push({});
+                    break;
+                }
+                node.iter.push(this._expression(-1, ['in']));
+            }
             this._tokenizer.expect(':');
             node.body = this._suite();
             if (this._tokenizer.eat('id', 'else')) {
                 this._tokenizer.expect(':');
-                node.else = this._suite();
+                node.orelse = this._suite();
             }
             return node;
         }
@@ -356,10 +356,10 @@ python.Parser = class {
                 node.except.push(except);
             }
             if (this._tokenizer.match('id', 'else')) {
-                node.else = this._node('else');
+                node.orelse = this._node('else');
                 this._tokenizer.expect('id', 'else');
                 this._tokenizer.expect(':');
-                node.else.body = this._suite();
+                node.orelse.body = this._suite();
             }
             if (this._tokenizer.match('id', 'finally')) {
                 node.finally = this._node('finally');
@@ -537,10 +537,10 @@ python.Parser = class {
             }
             node = this._eat('id', 'if');
             if (node) {
-                node.then = stack.pop();
-                node.condition = this._expression();
+                node.body = stack.pop();
+                node.test = this._expression();
                 this._tokenizer.expect('id', 'else');
-                node.else = this._expression();
+                node.orelse = this._expression();
                 stack.push(node);
                 continue;
             }
@@ -559,15 +559,15 @@ python.Parser = class {
                     this._tokenizer.expect('id', 'in');
                     node.target = this._expression(-1, ['for', 'if'], true);
                     while (this._tokenizer.eat('id', 'if')) {
-                        node.condition = node.condition || [];
-                        node.condition.push(this._expression(-1, ['for', 'if']));
+                        node.test = node.test || [];
+                        node.test.push(this._expression(-1, ['for', 'if']));
                     }
                     stack.push(node);
                 }
             }
             node = this._eat('id', 'lambda');
             if (node) {
-                node.parameters = this._parameters(':');
+                node.args = this._parameters(':');
                 node.body = this._expression(-1, terminal, false);
                 stack.push(node);
                 continue;
@@ -4220,6 +4220,7 @@ python.Execution = class {
         this.registerFunction('sklearn.metrics._regression.mean_absolute_error');
         this.registerFunction('sklearn.metrics._regression.mean_squared_error');
         this.registerFunction('sklearn.metrics._regression.root_mean_squared_error');
+        this.registerFunction('sklearn.metrics._scorer._passthrough_scorer');
         this.registerFunction('re._compile', (pattern, flags) => {
             return self.invoke('re.Pattern', [pattern, flags]);
         });
@@ -7202,12 +7203,12 @@ python.Execution = class {
     apply(method, args, context) {
         const locals = Array.prototype.slice.call(args);
         context = new python.Execution.Context(context.globals, {});
-        for (const parameter of method.parameters) {
+        for (const argument of method.args) {
             let value = locals.shift();
-            if (value === undefined && parameter.initializer) {
-                value = this.expression(parameter.initializer, context);
+            if (value === undefined && argument.initializer) {
+                value = this.expression(argument.initializer, context);
             }
-            context.set(parameter.name, value);
+            context.set(argument.name, value);
         }
         return this.block(method.body.statements, context);
     }
@@ -7272,16 +7273,16 @@ python.Execution = class {
                 break;
             }
             case 'if': {
-                const condition = this.expression(statement.condition, context);
-                if (condition === true || condition) {
-                    const value = this.block(statement.then.statements, context);
+                const test = this.expression(statement.test, context);
+                if (test === true || test) {
+                    const value = this.block(statement.body.statements, context);
                     if (value !== undefined) {
                         return value;
                     }
                     break;
-                } else if (condition === false) {
-                    if (statement.else) {
-                        const value = this.block(statement.else.statements, context);
+                } else if (test === false) {
+                    if (statement.orelse) {
+                        const value = this.block(statement.orelse.statements, context);
                         if (value !== undefined) {
                             return value;
                         }
@@ -7291,10 +7292,10 @@ python.Execution = class {
                 throw new python.Error("Unsupported condition.");
             }
             case 'for': {
-                if (statement.target.length === 1 &&
-                    statement.variable.length === 1 && statement.variable[0].type === 'id') {
-                    const range = this.expression(statement.target[0], context);
-                    const [variable] = statement.variable;
+                if (statement.iter.length === 1 &&
+                    statement.target.length === 1 && statement.target[0].type === 'id') {
+                    const range = this.expression(statement.iter[0], context);
+                    const [variable] = statement.target;
                     for (const current of range) {
                         this.statement({ type: '=', target: variable, expression: { type: 'number', value: current } }, context);
                         const value = this.block(statement.body.statements, context);
@@ -7307,8 +7308,8 @@ python.Execution = class {
                 throw new python.Error("Unsupported 'for' statement.");
             }
             case 'while': {
-                const condition = this.expression(statement.condition, context);
-                if (condition) {
+                const test = this.expression(statement.test, context);
+                if (test) {
                     const value = this.block(statement.body.statements, context);
                     if (value !== undefined) {
                         return value;
