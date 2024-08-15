@@ -5645,7 +5645,7 @@ view.ModelFactoryService = class {
         this.register('./mlir', ['.mlir', '.mlir.txt']);
         this.register('./sentencepiece', ['.model']);
         this.register('./hailo', ['.hn', '.har', '.metadata.json']);
-        this.register('./nnc', ['.nnc']);
+        this.register('./nnc', ['.nnc','.tflite']);
         this.register('./safetensors', ['.safetensors', '.safetensors.index.json']);
         this.register('./modular', ['.maxviz']);
         this.register('./catboost', ['.cbm']);
@@ -5895,6 +5895,7 @@ view.ModelFactoryService = class {
                     const formats = [
                         { name: 'ONNX Runtime model data', identifier: 'ORTM' },
                         { name: 'TensorFlow Lite model data', identifier: 'TFL3' },
+                        { name: 'NNC model data', identifier: 'ENNC' },
                         { name: 'KaNN model data', identifier: 'KaNN' }
                     ];
                     for (const format of formats) {
