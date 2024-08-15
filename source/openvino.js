@@ -30,6 +30,16 @@ openvino.ModelFactory = class {
                         return;
                     }
                 }
+                if (identifier.endsWith('.bin') || identifier.endsWith('.serialized')) {
+                    const stream = context.stream;
+                    const signatures = [
+                        [0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+                        [0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01]
+                    ];
+                    if (stream.length >= 16 && signatures.some((signature) => stream.peek(signature.length).every((value, index) => value === signature[index]))) {
+                        return;
+                    }
+                }
                 const identifiers = new Set([
                     'config.bin', 'model.bin', '__model__.bin', 'weights.bin',
                     'programs.bin', 'best.bin', 'ncnn.bin',

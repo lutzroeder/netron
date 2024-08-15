@@ -21,8 +21,11 @@ qnn.ModelFactory = class {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.bin') || identifier.endsWith('.serialized')) {
             const stream = context.stream;
-            const signature = [0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-            if (stream.length >= signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+            const signatures = [
+                [0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+                [0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01]
+            ];
+            if (stream.length >= 16 && signatures.some((signature) => stream.peek(signature.length).every((value, index) => value === signature[index]))) {
                 context.type = 'qnn.serialized';
             }
         }

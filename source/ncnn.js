@@ -51,28 +51,17 @@ ncnn.ModelFactory = class {
             if (stream.length > 4) {
                 const buffer = stream.peek(4);
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
-                switch (signature) {
-                    case 0x00000000:
-                    case 0x00000001: {
-                        const size = Math.min(stream.length, 1024) & 0xFFFC;
-                        const buffer = stream.peek(size);
-                        const length = size >> 2;
-                        const array = new Float32Array(buffer.buffer, buffer.byteOffset, length);
-                        const values = Array.from(array).slice(1);
-                        if (values.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -20.0 && value < 20.0)) {
-                            context.type = 'ncnn.weights';
-                        }
-                        break;
-                    }
-                    case 0x01306B47:
-                    case 0x000D4B38:
-                    case 0x0002C056: {
+                if (signature === 0x00000000 || signature === 0x00000001) {
+                    const size = Math.min(stream.length, 1024) & 0xFFFC;
+                    const buffer = stream.peek(size);
+                    const length = size >> 2;
+                    const array = new Float32Array(buffer.buffer, buffer.byteOffset, length);
+                    const values = Array.from(array).slice(1);
+                    if (values.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -20.0 && value < 20.0)) {
                         context.type = 'ncnn.weights';
-                        break;
                     }
-                    default: {
-                        break;
-                    }
+                } else if (signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
+                    context.type = 'ncnn.weights';
                 }
             }
         }
