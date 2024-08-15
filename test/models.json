@@ -182,13 +182,6 @@
   },
   {
     "type":     "_",
-    "target":   "tflite.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/14879318/tflite.onnx.zip[tflite.onnx]",
-    "error":    "Invalid file content. File contains TensorFlow Lite model data.",
-    "link":     "https://github.com/lutzroeder/netron/issues/458"
-  },
-  {
-    "type":     "_",
     "target":   "vk_swiftshader_icd.json",
     "source":   "https://github.com/lutzroeder/netron/files/5398770/vk_swiftshader_icd.json.zip[vk_swiftshader_icd.json]",
     "error":    "Invalid file content. File contains Vulkan SwiftShader ICD manifest.",
@@ -7740,6 +7733,13 @@
     "format":   "TensorFlow Lite v3",
     "tags":     "quantization",
     "link":     "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/g3doc/models/text_classification/overview.md"
+  },
+  {
+    "type":     "tflite",
+    "target":   "tflite.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/14879318/tflite.onnx.zip[tflite.onnx]",
+    "format":   "TensorFlow Lite v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/34"
   },
   {
     "type":     "tflite",
