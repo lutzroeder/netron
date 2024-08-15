@@ -8,8 +8,8 @@ setuptools.setup(
     description="Viewer for neural network, deep learning, and machine learning models",
     long_description=
         'Netron is a viewer for neural network, deep learning, and machine learning models.\n\n'
-        'Netron supports ONNX, TensorFlow Lite, Core ML, Keras, Caffe, Darknet, MXNet, PaddlePaddle, ncnn, MNN and TensorFlow.js.' # pylint: disable=line-too-long
-        'Netron has experimental support for PyTorch, TorchScript, TensorFlow, OpenVINO, RKNN, MediaPipe, ML.NET and scikit-learn.', # pylint: disable=line-too-long
+        'Netron supports ONNX, TensorFlow Lite, Core ML, Keras, Caffe, Darknet, MXNet, PaddlePaddle, ncnn, MNN, TensorFlow.js, Safetensors and NumPy.' # pylint: disable=line-too-long
+        'Netron has experimental support for PyTorch, TorchScript, TensorFlow, OpenVINO, RKNN, ML.NET, GGUF and scikit-learn.', # pylint: disable=line-too-long
     keywords=[
         'onnx', 'keras', 'tensorflow', 'tflite', 'coreml', 'mxnet', 'caffe', 'caffe2',
         'torchscript', 'pytorch', 'ncnn', 'mnn', 'openvino', 'darknet', 'paddlepaddle', 'chainer',
