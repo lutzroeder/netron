@@ -46,6 +46,8 @@ ncnn.ModelFactory = class {
                 context.type = 'pnnx.weights';
                 context.target = entries;
             }
+        } else if (identifier.endsWith('.ncnn.bin')) {
+            context.type = 'ncnn.weights';
         } else if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
             const stream = context.stream;
             if (stream.length > 4) {
