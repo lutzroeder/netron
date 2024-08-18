@@ -2346,7 +2346,7 @@
         "option": "optional"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "T",
         "option": "optional"
       },
@@ -11464,7 +11464,7 @@
         "option": "optional"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "T",
         "option": "optional"
       },
@@ -11611,7 +11611,7 @@
         "type": "T"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "T",
         "option": "optional"
       },
@@ -33605,7 +33605,7 @@
         "option": "optional"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "T",
         "option": "optional"
       },
@@ -36427,7 +36427,7 @@
         "type": "M"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "T",
         "option": "optional"
       }
@@ -36515,7 +36515,7 @@
         "type": "M"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "T",
         "option": "optional"
       }
@@ -39846,7 +39846,7 @@
         "option": "optional"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "S",
         "option": "optional"
       }
