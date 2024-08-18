@@ -1376,6 +1376,20 @@ dagre.layout = (nodes, edges, layout, state) => {
             const layer0 = best[i];
             const layer1 = best[i + 1];
             const layer2 = best[i + 2];
+            for (let j = 0; j < layer0.length; ++j) {
+                const node0 = g.nodes.get(layer0[j]);
+                if (node0.out && node0.out.length >= 2) {
+                    for (let k = 0; k < node0.out.length - 1; ++k) {
+                        const node1d = node0.out[k].wNode;
+                        const node2d = node0.out[k + 1].wNode;
+                        const node1 = node1d.out[0].wNode;
+                        const node2 = node2d.out[0].wNode;
+                        if ((layer1.indexOf(node1d.v) < layer1.indexOf(node2d.v)) ^ (layer2.indexOf(node1.v) < layer2.indexOf(node2.v))) {
+                            exchange(layer1, node1d, node2d);
+                        }
+                    }
+                }
+            }
             for (let j = 0; j < layer2.length; ++j) {
                 const node0 = g.nodes.get(layer2[j]);
                 if (node0.in && node0.in.length >= 2) {
