@@ -1402,7 +1402,6 @@ dagre.layout = (nodes, edges, layout, state) => {
                             exchange(layer1, node1d, node2d);
                         }
                     }else {
-                        let indexes = [];
                         let indexes1 = [];
                         for (let k = 0; k < node0.in.length; ++k) {
                             const node1 = node0.in[k].vNode;
@@ -1410,17 +1409,12 @@ dagre.layout = (nodes, edges, layout, state) => {
                             const idx0 = layer0.indexOf(node2.v);
                             const idx1 = layer1.indexOf(node1.v);
                             node0.in[k].idx0 = idx0;
-                            indexes.push({
-                                "v" : node1.v,
-                                "idx0" : idx0,
-                            });
                             indexes1.push(idx1);
                         }
                         node0.in.sort((a, b) => a.idx0 - b.idx0);
-                        indexes.sort((a, b) => a.idx0 - b.idx0);
                         indexes1.sort((a, b) => a - b);
                         for (let k = 0; k < indexes1.length; ++k) {
-                            layer1[indexes1[k]] = indexes[k].v;
+                            layer1[indexes1[k]] = node0.in[k].v;
                         }
                     }
                 }
