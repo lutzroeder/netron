@@ -16,7 +16,7 @@ ncnn.ModelFactory = class {
             if (stream.length > 4) {
                 const buffer = stream.peek(4);
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
-                if (signature === 0x007685DD) {
+                if (signature === 0x007685dd) {
                     context.type = 'ncnn.model.bin';
                 }
             }
@@ -40,20 +40,21 @@ ncnn.ModelFactory = class {
                     // continue regardless of error
                 }
             }
+        } else if (identifier.endsWith('.ncnn.bin')) {
+            context.type = 'ncnn.weights';
         } else if (identifier.endsWith('.pnnx.bin')) {
             const entries = context.peek('zip');
-            if (entries.size > 0) {
+            if (entries && entries.size > 0) {
                 context.type = 'pnnx.weights';
                 context.target = entries;
             }
-        } else if (identifier.endsWith('.ncnn.bin')) {
-            context.type = 'ncnn.weights';
         } else if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
             const stream = context.stream;
-            if (stream.length > 4) {
+            const length = stream.length;
+            if (length > 4) {
                 const buffer = stream.peek(4);
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
-                if (signature === 0x00000000 || signature === 0x00000001) {
+                if (signature === 0x00000000) {
                     const size = Math.min(stream.length, 1024) & 0xFFFC;
                     const buffer = stream.peek(size);
                     const length = size >> 2;
@@ -62,8 +63,18 @@ ncnn.ModelFactory = class {
                     if (values.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -20.0 && value < 20.0)) {
                         context.type = 'ncnn.weights';
                     }
-                } else if (signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
-                    context.type = 'ncnn.weights';
+                } else {
+                    const buffer = stream.peek(Math.min(0x20000, length));
+                    for (let i = 0; i < buffer.length - 4; i++) {
+                        const signature = (buffer[i] | buffer[i + 1] << 8 | buffer[i + 2] << 16 | buffer [i + 3] << 24) >>> 0;
+                        if (signature === 0xdeadbeef) { // Core ML
+                            return;
+                        }
+                        if (signature === 0x01306b47 || signature === 0x000d4b38 || signature === 0x0002c056) {
+                            context.type = 'ncnn.weights';
+                            return;
+                        }
+                    }
                 }
             }
         }
@@ -742,7 +753,7 @@ ncnn.BinaryParamReader = class {
 
     constructor(buffer) {
         const reader = base.BinaryReader.open(buffer);
-        if (reader.int32() !== 0x007685DD) {
+        if (reader.int32() !== 0x007685dd) {
             throw new ncnn.Error('Invalid signature.');
         }
         const layerCount = reader.int32();
@@ -804,8 +815,8 @@ ncnn.BlobReader = class {
                     // https://github.com/Tencent/ncnn/blob/c59885aeac6cec0dbfa010efc0b5c25bed5208b7/src/modelbin.cpp#L197
                     switch (type) {
                         case 0x00000000: dataType = 'float32'; break;
-                        case 0x01306B47: dataType = 'float16'; break;
-                        case 0x000D4B38: dataType = 'int8'; break;
+                        case 0x01306b47: dataType = 'float16'; break;
+                        case 0x000d4b38: dataType = 'int8'; break;
                         case 0x00000001: dataType = 'qint8'; break;
                         // case 0x0002C056: size * sizeof(float) - raw data with extra scaling
                         default: {
