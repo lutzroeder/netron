@@ -1376,16 +1376,45 @@ dagre.layout = (nodes, edges, layout, state) => {
             const layer0 = best[i];
             const layer1 = best[i + 1];
             const layer2 = best[i + 2];
+            for (let j = 0; j < layer0.length; ++j) {
+                const node0 = g.nodes.get(layer0[j]);
+                if (node0.out && node0.out.length >= 2) {
+                    for (let k = 0; k < node0.out.length - 1; ++k) {
+                        const node1d = node0.out[k].wNode;
+                        const node2d = node0.out[k + 1].wNode;
+                        const node1 = node1d.out[0].wNode;
+                        const node2 = node2d.out[0].wNode;
+                        if ((layer1.indexOf(node1d.v) < layer1.indexOf(node2d.v)) ^ (layer2.indexOf(node1.v) < layer2.indexOf(node2.v))) {
+                            exchange(layer1, node1d, node2d);
+                        }
+                    }
+                }
+            }
             for (let j = 0; j < layer2.length; ++j) {
                 const node0 = g.nodes.get(layer2[j]);
                 if (node0.in && node0.in.length >= 2) {
-                    for (let k = 0; k < node0.in.length - 1; ++k) {
-                        const node1d = node0.in[k].vNode;
-                        const node2d = node0.in[k + 1].vNode;
+                    if (node0.in.length === 2) {
+                        const node1d = node0.in[0].vNode;
+                        const node2d = node0.in[1].vNode;
                         const node1 = node1d.in[0].vNode;
                         const node2 = node2d.in[0].vNode;
                         if ((layer1.indexOf(node1d.v) < layer1.indexOf(node2d.v)) ^ (layer0.indexOf(node1.v) < layer0.indexOf(node2.v))) {
                             exchange(layer1, node1d, node2d);
+                        }
+                    } else {
+                        const indexes1 = [];
+                        for (let k = 0; k < node0.in.length; ++k) {
+                            const node1 = node0.in[k].vNode;
+                            const node2 = node1.in[0].vNode;
+                            const idx0 = layer0.indexOf(node2.v);
+                            const idx1 = layer1.indexOf(node1.v);
+                            node0.in[k].idx0 = idx0;
+                            indexes1.push(idx1);
+                        }
+                        node0.in.sort((a, b) => a.idx0 - b.idx0);
+                        indexes1.sort((a, b) => a - b);
+                        for (let k = 0; k < indexes1.length; ++k) {
+                            layer1[indexes1[k]] = node0.in[k].v;
                         }
                     }
                 }
@@ -1648,7 +1677,7 @@ dagre.layout = (nodes, edges, layout, state) => {
                     if (ws.size > 0) {
                         ws = Array.from(ws.keys());
                         ws = ws.sort((a, b) => pos[a] - pos[b]);
-                        const mp = (ws.length - 1) / 2.0;
+                        const mp = (ws.length - 1) / 2.0000001;
                         const il = Math.ceil(mp);
                         for (let i = Math.floor(mp); i <= il; i++) {
                             const w = ws[i];
