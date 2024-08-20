@@ -489,6 +489,10 @@ dlc.Container = class {
                                     attribute.data = value.int32_value !== 0;
                                     attribute.type = 'boolean';
                                     break;
+                                case 0x0608:
+                                    attribute.data = value.string_value;
+                                    attribute.type = 'string';
+                                    break;
                                 default:
                                     throw new dlc.Error(`Unknown attribute value kind '${value.kind}'.`);
                             }
