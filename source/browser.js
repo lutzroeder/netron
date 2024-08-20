@@ -763,7 +763,10 @@ host.BrowserHost.FileStream = class {
         }
         if (!this._buffer || this._position < this._offset || this._position + length > this._offset + this._buffer.length) {
             this._offset = this._start + this._position;
-            this._buffer = new Uint8Array(Math.min(0x10000000, this._start + this._length - this._offset));
+            const length = Math.min(0x10000000, this._start + this._length - this._offset);
+            if (!this._buffer || length !== this._buffer.length) {
+                this._buffer = new Uint8Array(length);
+            }
             this._read(this._buffer, this._offset);
         }
         const position = this._start + this._position - this._offset;
