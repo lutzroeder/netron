@@ -6,7 +6,9 @@ openvino.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (/^.*pytorch_model.*\.bin$/.test(identifier) ||
+        if (/^.*\.ncnn\.bin$/.test(identifier) ||
+            /^.*\.pnnx\.bin$/.test(identifier) ||
+            /^.*pytorch_model.*\.bin$/.test(identifier) ||
             /^.*group.+-shard.+of.+\.bin$/.test(identifier) ||
             /^.*param\.bin$/.test(identifier)) {
             return;
@@ -19,14 +21,12 @@ openvino.ModelFactory = class {
                 return;
             }
             if (length >= 4) {
-                const buffer = stream.peek(Math.min(256, length));
+                const buffer = stream.peek(Math.min(0x20000, length));
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
-                if (signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
-                    return;
-                }
                 for (let i = 0; i < buffer.length - 4; i++) {
                     const signature = (buffer[i] | buffer[i + 1] << 8 | buffer[i + 2] << 16 | buffer [i + 3] << 24) >>> 0;
-                    if (signature === 0xdeadbeef) {
+                    if (signature === 0xdeadbeef || // Core ML
+                        signature === 0x01306b47 || signature === 0x000d4b38 || signature === 0x0002c056) { // ncnn
                         return;
                     }
                 }
@@ -57,7 +57,7 @@ openvino.ModelFactory = class {
                         return;
                     }
                     if (floats[0] !== 0 && floats.every((x) => !Number.isNaN(x) && Number.isFinite(x))) {
-                        if (floats.every((x) => x > -20.0 && x < 20.0)) {
+                        if (floats.every((x) => x > -20.0 && x < 20.0 && (x >= 0 || x < -0.0000001) && (x <= 0 || x > 0.0000001))) {
                             context.type = 'openvino.bin';
                             return;
                         }
@@ -68,6 +68,10 @@ openvino.ModelFactory = class {
                     }
                     const ints = Array.from(new Int32Array(buffer.buffer, buffer.byteOffset, buffer.length >> 2));
                     if (ints.length > 32 && ints.slice(0, 32).every((x) => x === 0 || x === 1 || x === 2 || x === 0x7fffffff)) {
+                        context.type = 'openvino.bin';
+                        return;
+                    }
+                    if (identifier.indexOf('openvino') !== -1) {
                         context.type = 'openvino.bin';
                         return;
                     }
