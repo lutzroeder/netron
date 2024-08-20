@@ -225,12 +225,8 @@ pytorch.Argument = class {
     constructor(name, value, type, visible) {
         this.name = name;
         this.value = value;
-        if (type) {
-            this.type = type;
-        }
-        if (visible === false) {
-            this.visible = visible;
-        }
+        this.type = type || null;
+        this.visible = visible !== false;
     }
 };
 
@@ -540,7 +536,7 @@ pytorch.Node = class {
                         stack.add(value);
                         const node = new pytorch.Node(metadata, null, null, value, initializers, values, stack);
                         stack.delete(value);
-                        const visible = name === '_metadata' && pytorch.Utility.isMetadataObject(value) ? false : true;
+                        const visible = name !== '_metadata' || !pytorch.Utility.isMetadataObject(value);
                         const argument = new pytorch.Argument(name, node, 'object', visible);
                         this.inputs.push(argument);
                     } else {
@@ -3402,19 +3398,10 @@ pytorch.Utility = class {
     }
 
     static isSubclass(value, name) {
-        if (value) {
-            if (value.__module__ && value.__name__) {
-                if (name === `${value.__module__}.${value.__name__}`) {
-                    return true;
-                }
-            }
-            if (value.__bases__) {
-                for (const base of value.__bases__) {
-                    if (pytorch.Utility.isSubclass(base, name)) {
-                        return true;
-                    }
-                }
-            }
+        if (value && value.__module__ && value.__name__) {
+            return name === `${value.__module__}.${value.__name__}`;
+        } else if (value && value.__bases__) {
+            return value.__bases__.some((obj) => pytorch.Utility.isSubclass(obj, name));
         }
         return false;
     }
@@ -3467,7 +3454,7 @@ pytorch.Utility = class {
         }
         if (obj instanceof Map === false && obj && !Array.isArray(obj) && Object(obj) === obj) {
             const entries = Object.entries(obj);
-            const named = entries.filter(([name, value]) => (name.indexOf('.') !== -1 || name.indexOf('|') !== -1) && pytorch.Utility.isTensor(value));
+            const named = entries.filter(([name, value]) => (typeof name === 'string' && (name.indexOf('.') !== -1 || name.indexOf('|') !== -1)) && pytorch.Utility.isTensor(value));
             if (named.length > 0 && (named.length / entries.length) >= 0.8) {
                 obj = new Map(entries);
             }
