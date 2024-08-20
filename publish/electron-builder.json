@@ -64,8 +64,7 @@
         { "ext": "xmodel",      "name": "Vitis AI Model"           }
     ],
     "publish": [
-        { "provider": "github", "releaseType": "release" },
-        { "provider": "snapStore", "channels": "stable" }
+        { "provider": "github", "releaseType": "release" }
     ],
     "linux": {
         "target": [ "AppImage", "snap" ]
@@ -98,6 +97,7 @@
         "differentialPackage": false
     },
     "snap": {
-        "plugs": [ "default", "removable-media" ]
+        "plugs": [ "default", "removable-media" ],
+        "publish": { "provider": "snapStore", "channels": "stable" }
     }
 }
