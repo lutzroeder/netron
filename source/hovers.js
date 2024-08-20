@@ -1,7 +1,3 @@
-class SVGPathElement extends HTMLElement {}
-
-window.SVGPathElement = SVGPathElement
-
 function functie() {
   let input = document.createElement('input');
   input.type = 'file';
@@ -122,7 +118,6 @@ function functie() {
             var new_obj = JSON.parse(lista.children[i].innerHTML);
             new_obj["new_id"] = counter;
             lista.children[i].innerHTML = JSON.stringify(new_obj);
-            console.log(lista.children[i].innerHTML);
             var operator = document.getElementById("node-id-" + counter);
             operator.children[0].children[0].innerHTML = '<title>' + obj["meta"].match(/.{1,20}/g).join("\n") + '</title>';
             operator.children[0].children[0].style.fill = obj["style"];
@@ -142,17 +137,53 @@ function doubleclick() {
   if (document.getElementById("list-attributes").children) {
     var parent_t = document.getElementById("edge-paths");
     var lista = document.getElementById("list-attributes").children;
-    console.log("se verifica");
     console.log(lista.length);
     for (var i = 0; i < lista.length; i++) {
-      console.log("se verifica 2")
       var op = JSON.parse(lista[i].innerHTML);
       var id;
       if (lista[i].className == "tensor") {
         id = op["tensorname"];
-        parent_t.children[op["new_id"] + 1].addEventListener("dblclick", function() {
-          var shell = WScript.CreateObject("WScript.Shell");
-          shell.Run("ls");
+        (parent_t.children[op["new_id"] + 1]).addEventListener("dblclick", function() {
+          // se adauga dinamic modulele
+          // eval("import('./newjs.js').then(module => {console.log(module.a);}).catch(error => {console.log(\"eroare\")});");
+
+          // define(['child_process'], function(process) {
+          //   process.exec('ipconfig',function (err,stdout,stderr) {
+          //     if (err) {
+          //         console.log("\n"+stderr);
+          //     } else {
+          //         console.log(stdout);
+          //     }
+          // }); 
+          // })
+        //   define(function(require, exports, module) {
+            // require(["node:child_process"], 
+            //   function(cp) {
+            //   cp.exec('ipconfig',function (err,stdout,stderr) {
+            //     if (err) {
+            //         console.log("\n"+stderr);
+            //     } else {
+            //         console.log(stdout);
+            //     }
+            // });
+            // })
+
+            const { spawn } = require(['node:child_process']);
+            const ls = spawn('dir', []);
+
+            ls.stdout.on('data', (data) => {
+              console.log(`stdout: ${data}`);
+            });
+
+            ls.stderr.on('data', (data) => {
+              console.log(`stderr: ${data}`);
+            });
+
+            ls.on('close', (code) => {
+              console.log(`child process exited with code ${code}`);
+            });
+        // })
+
         })
       } else {
         id = "node-id-" + op["new_id"];
