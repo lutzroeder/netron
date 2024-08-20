@@ -224,7 +224,8 @@ host.ElectronHost = class {
         });
         this.document.body.addEventListener('drop', (e) => {
             e.preventDefault();
-            const paths = Array.from(e.dataTransfer.files).map(((file) => file.path));
+            const files = Array.from(e.dataTransfer.files);
+            const paths = files.map((file) => electron.webUtils.getPathForFile(file));
             if (paths.length > 0) {
                 electron.ipcRenderer.send('drop-paths', { paths });
             }
