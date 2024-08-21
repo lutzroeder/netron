@@ -2068,7 +2068,10 @@ view.Node = class extends grapher.Node {
             attributes.sort((a, b) => a.name.toUpperCase().localeCompare(b.name.toUpperCase()));
             for (const argument of attributes) {
                 const type = argument.type;
-                if (type === 'graph' || type === 'object' || type === 'object[]' || type === 'function' || type === 'function[]') {
+                if (argument.visible !== false &&
+                    ((type === 'graph') ||
+                    (type === 'object') ||
+                    type === 'object[]' || type === 'function' || type === 'function[]')) {
                     objects.push(argument);
                 } else if (options.attributes && argument.visible !== false) {
                     const item = attribute(argument);
