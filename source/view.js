@@ -2994,7 +2994,12 @@ view.ValueView = class extends view.Expander {
                 if (typeof name !== 'string') {
                     throw new Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
                 }
-                element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name || ' '}</b></span>`;
+                const text = this.createElement('b');
+                text.innerText = name || ' ';
+                const line = this.createElement('span', 'sidebar-item-value-line-content');
+                line.innerText = 'name: ';
+                line.appendChild(text);
+                element.appendChild(line);
                 element.addEventListener('pointerenter', () => this.emit('focus', this._value));
                 element.addEventListener('pointerleave', () => this.emit('blur', this._value));
                 element.style.cursor = 'pointer';
