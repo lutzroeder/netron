@@ -12458,6 +12458,20 @@
     ]
   },
   {
+    "name": "aten::slice_scatter",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "src", "type": "Tensor" },
+      { "name": "dim", "type": "int64", "default": 0 },
+      { "name": "start", "type": "SymInt", "optional": true, "default": null },
+      { "name": "end", "type": "SymInt", "optional": true, "default": null },
+      { "name": "step", "type": "SymInt", "default": 1 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::smooth_l1_loss",
     "inputs": [
       { "name": "self", "type": "Tensor" },
