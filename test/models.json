@@ -3978,8 +3978,16 @@
   },
   {
     "type":     "onnx",
-    "target":   "fp8.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/11702419/fp8.onnx.zip[fp8.onnx]",
+    "target":   "float4e2m1.pb",
+    "source":   "https://github.com/user-attachments/files/16737906/float4e2m1.pb.zip[float4e2m1.pb]",
+    "format":   "ONNX Tensor",
+    "assert":   "model.graphs[0].nodes[0].attributes[0].value.type.dataType == 'float4e2m1'",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
+    "target":   "float8.onnx",
+    "source":   "https://github.com/user-attachments/files/16737904/float8.onnx.zip[float8.onnx]",
     "format":   "ONNX v9",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },

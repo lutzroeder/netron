@@ -106,6 +106,13 @@ if (!DataView.prototype.getBfloat16) {
     DataView.__bfloat16_get_uint16_be = new Uint16Array(DataView.__bfloat16_get_float32_be.buffer, DataView.__bfloat16_get_float32_be.byteOffset, 2);
 }
 
+DataView.__float4e2m1_float32 = new Float32Array([0, 0.5, 1, 1.5, 2, 3, 4, 6, -0, -0.5, -1, -1.5, -2, -3, -4, -6]);
+DataView.prototype.getFloat4e2m1 = function(byteOffset) {
+    let value = this.getUint8(byteOffset >> 1);
+    value = byteOffset & 1 ? value >> 4 : value & 0x0F;
+    return DataView.__float4e2m1_float32[value];
+};
+
 DataView.__float8e4m3_float32 = new Float32Array(1);
 DataView.__float8e4m3_uint32 = new Uint32Array(DataView.__float8e4m3_float32.buffer, DataView.__float8e4m3_float32.byteOffset, 1);
 DataView.prototype.getFloat8e4m3 = function(byteOffset, fn, uz) {
@@ -752,6 +759,10 @@ base.Tensor = class {
                             context.dataType = 'int';
                             context.bits = parseInt(dataType.substring(3), 10);
                             context.itemsize = 1;
+                        } else if (dataType === 'float4e2m1') {
+                            context.dataType = 'float4e2m1';
+                            context.bits = 4;
+                            context.itemsize = 1;
                         } else {
                             throw new Error(`Tensor data type '${dataType}' is not implemented.`);
                         }
@@ -907,6 +918,11 @@ base.Tensor = class {
                 case 'complex128':
                     for (; offset < max; offset += stride) {
                         results.push(view.getComplex128(offset, this._littleEndian));
+                    }
+                    break;
+                case 'float4e2m1':
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getFloat4e2m1(offset));
                     }
                     break;
                 case 'float8e4m3fn':

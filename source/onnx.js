@@ -571,6 +571,7 @@ onnx.Tensor = class {
                                 this._encoding = '<';
                             }
                             break;
+                        case onnx.DataType.FLOAT4E2M1:
                         case onnx.DataType.FLOAT8E4M3FN:
                         case onnx.DataType.FLOAT8E4M3FNUZ:
                         case onnx.DataType.FLOAT8E5M2:
@@ -1019,7 +1020,8 @@ onnx.DataType = {
     FLOAT8E5M2: 19,
     FLOAT8E5M2FNUZ: 20,
     UINT4: 21,
-    INT4: 22
+    INT4: 22,
+    FLOAT4E2M1: 23
 };
 
 onnx.AttributeType = {
