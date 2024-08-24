@@ -1366,6 +1366,61 @@ dagre.layout = (nodes, edges, layout, state) => {
             }
         }
         // Reduce crossings
+        const calcDir = (idx0, idx1) => (idx0 < idx1) ? 1 : 2;
+        for (let i = 4; i < best.length; i += 2) {
+            const layer = best[i];
+            for (let j = 0; j < layer.length; ++j) {
+                const node = g.nodes.get(layer[j]);
+                if (node.in && node.in.length === 2) {
+                    let n0 = node.in[0].vNode.in[0].vNode;
+                    let n1 = node.in[1].vNode.in[0].vNode;
+                    const indexes = [];
+                    let dirTotal = 0;
+                    for (let k = i - 2; k >= 0; k -= 2) {
+                        const layer0 = best[k];
+                        const idx0 = layer0.indexOf(n0.v);
+                        const idx1 = layer0.indexOf(n1.v);
+                        const dir = calcDir(idx0, idx1);
+                        dirTotal |= dir;
+                        if (idx0 === idx1
+                            || Math.abs(idx0 - idx1) != 1
+                            || n0.in.length !== 1
+                            || n1.in.length !== 1
+                            || n0.out.length !== 1
+                            || n1.out.length !== 1
+                        ) {
+                            if (dirTotal === 3) {
+                                const topDir = dir;
+                                let l = k + 2;
+                                while (indexes.length !== 0) {
+                                    const idx1 = indexes.pop();
+                                    const idx0 = indexes.pop();
+                                    const layer1 = best[l];
+                                    const layer2 = best[l - 1];
+                                    const idx2 = layer2.indexOf(g.node(layer1[idx0]).in[0].v);
+                                    const idx3 = layer2.indexOf(g.node(layer1[idx1]).in[0].v);
+                                    if (calcDir(idx0, idx1) !== topDir) {
+                                        const tmp = layer1[idx1];
+                                        layer1[idx1] = layer1[idx0];
+                                        layer1[idx0] = tmp;
+                                    }
+                                    if (calcDir(idx2, idx3) !== topDir) {
+                                        const tmp = layer2[idx3];
+                                        layer2[idx3] = layer2[idx2];
+                                        layer2[idx2] = tmp;
+                                    }
+                                    l += 2;
+                                }
+                            }
+                            break;
+                        }
+                        indexes.push(idx0, idx1);
+                        n0 = n0.in[0].vNode.in[0].vNode;
+                        n1 = n1.in[0].vNode.in[0].vNode;
+                    }
+                }
+            }
+        }
         const exchange = (layer, node0, node1) => {
             const index0 = layer.indexOf(node0.v);
             const index1 = layer.indexOf(node1.v);
