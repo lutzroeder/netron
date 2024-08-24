@@ -1383,7 +1383,7 @@ dagre.layout = (nodes, edges, layout, state) => {
                         const dir = calcDir(idx0, idx1);
                         dirTotal |= dir;
                         if (idx0 === idx1
-                            || Math.abs(idx0 - idx1) != 1
+                            || Math.abs(idx0 - idx1) !== 1
                             || n0.in.length !== 1
                             || n1.in.length !== 1
                             || n0.out.length !== 1
