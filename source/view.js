@@ -1989,8 +1989,8 @@ view.Node = class extends grapher.Node {
         }
         let content = options.names && (node.name || node.identifier) ? (node.name || node.identifier) : type.name.split('.').pop();
         const tooltip = options.names && (node.name || node.identifier) ? type.name : (node.name || node.identifier);
-        if (content.length > 24) {
-            content = `${content.substring(0, 12)}\u2026${content.substring(content.length - 12, content.length)}`;
+        if (content.length > 18) {
+            content = `${content.substring(0, 9)}\u2026${content.substring(content.length - 9, content.length)}`;
         }
         const styles = category ? ['node-item-type', `node-item-type-${category.toLowerCase()}`] : ['node-item-type'];
         const title = header.add(null, styles, content, tooltip);
