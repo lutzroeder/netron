@@ -1656,6 +1656,10 @@ python.Execution = class {
         this.register('gensim');
         this.register('io');
         const joblib = this.register('joblib');
+        const jax = this.register('jax');
+        this.register('jax.numpy');
+        this.register('jax._src.array');
+        this.register('jax._src.device_array');
         const functools = this.register('functools');
         this.registerType('functools.partial', class {});
         const keras = this.register('keras');
@@ -3765,6 +3769,50 @@ python.Execution = class {
             return _dill._reverse_typemap.get(name);
         });
         this.registerFunction('dill._dill.loads');
+        this.registerFunction('jax._src.array._reconstruct_array', (fun, args, arr_state, aval_state) => {
+            const np_value = fun(...args);
+            np_value.__setstate__(arr_state);
+            const jnp_value = jax.device_put(np_value);
+            jnp_value.aval = jnp_value.aval.update(aval_state);
+            return jnp_value;
+        });
+        jax._src.device_array.reconstruct_device_array = jax._src.array._reconstruct_array;
+        this.registerFunction('jax.device_put', (x) => {
+            const aval = new jax._src.core.ShapedArray(x.shape, x.dtype);
+            return new jax.Array(aval, x.data);
+        });
+        this.registerType('jax._src.core.AbstractValue', class {});
+        this.registerType('jax._src.core.UnshapedArray',  class extends jax._src.core.AbstractValue {});
+        this.registerType('jax._src.core.ShapedArray', class extends jax._src.core.UnshapedArray {
+            constructor(shape, dtype, weak_type) {
+                super();
+                this.shape = shape;
+                this.dtype = dtype;
+                this.weak_type = weak_type || false;
+            }
+            update(dict) {
+                const shape = dict.get('shape') || this.shape;
+                const dtype = dict.get('dtype') || this.dtype;
+                const weak_type = dict.get('weak_type') || this.weak_type;
+                return new jax._src.core.ShapedArray(shape, dtype, weak_type);
+            }
+        });
+        this.registerType('jax.Array', class {
+            constructor(aval, data) {
+                this.aval = aval;
+                this.data = data;
+            }
+            get dtype() {
+                return this.aval.dtype;
+            }
+            get shape() {
+                return this.aval.shape;
+            }
+            tobytes() {
+                return this.data;
+            }
+        });
+        jax.numpy.ndarray = jax.Array;
         this.registerFunction('keras.saving.pickle_utils.deserialize_model_from_bytecode', (/* serialized_model */) => {
             return null; // throw new python.Error("'keras.saving.pickle_utils.deserialize_model_from_bytecode' not implemented.");
         });

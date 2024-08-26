@@ -4813,6 +4813,14 @@
   },
   {
     "type":     "pickle",
+    "target":   "file.pickle",
+    "source":   "https://github.com/user-attachments/files/16745249/file.pickle.zip[file.pickle]",
+    "format":   "Pickle",
+    "error":    "Unsupported Pickle type '__main__.A'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
     "target":   "model_final_checkpoint.model.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/11707359/model_final_checkpoint.model.pkl.zip[model_final_checkpoint.model.pkl]",
     "format":   "Pickle",

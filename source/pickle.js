@@ -89,7 +89,8 @@ pickle.Node = class {
         const isArray = (obj) => {
             return obj && obj.__class__ &&
                 ((obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray') ||
-                 (obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'matrix'));
+                 (obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'matrix') ||
+                 (obj.__class__.__module__ === 'jax' && obj.__class__.__name__ === 'Array'));
         };
         const isByteArray = (obj) => {
             return obj && obj.__class__ && obj.__class__.__module__ === 'builtins' && obj.__class__.__name__ === 'bytearray';
@@ -176,7 +177,7 @@ pickle.Tensor = class {
 
     constructor(array) {
         this.type = new pickle.TensorType(array.dtype.__name__, new pickle.TensorShape(array.shape));
-        this.stride = array.strides.map((stride) => stride / array.itemsize);
+        this.stride = Array.isArray(array.strides) ? array.strides.map((stride) => stride / array.itemsize) : null;
         this.encoding = this.type.dataType === 'string' || this.type.dataType === 'object' ? '|' : array.dtype.byteorder;
         this.values = this.type.dataType === 'string' || this.type.dataType === 'object' || this.type.dataType === 'void' ? array.flatten().tolist() : array.tobytes();
     }

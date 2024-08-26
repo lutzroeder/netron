@@ -304,7 +304,7 @@ sklearn.Tensor = class {
 
     constructor(array) {
         this.type = new sklearn.TensorType(array.dtype.__name__, new sklearn.TensorShape(array.shape));
-        this.stride = array.strides.map((stride) => stride / array.itemsize);
+        this.stride = Array.isArray(array.strides) ? array.strides.map((stride) => stride / array.itemsize) : null;
         this.encoding = this.type.dataType === 'string' || this.type.dataType === 'object' ? '|' : array.dtype.byteorder;
         this.values = this.type.dataType === 'string' || this.type.dataType === 'object' || this.type.dataType === 'void' ? array.flatten().tolist() : array.tobytes();
     }
