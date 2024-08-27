@@ -3630,20 +3630,6 @@
   },
   {
     "type":     "numpy",
-    "target":   "datasplit.pkl",
-    "source":   "https://github.com/lutzroeder/netron/files/10099644/datasplit.pkl.zip[datasplit.pkl]",
-    "format":   "NumPy Weights",
-    "link":     "https://github.com/lutzroeder/netron/issues/711"
-  },
-  {
-    "type":     "numpy",
-    "target":   "dill_array.pkl",
-    "source":   "https://github.com/lutzroeder/netron/files/13031222/dill_array.pkl.zip[dill_array.pkl]",
-    "format":   "NumPy NDArray",
-    "link":     "https://github.com/lutzroeder/netron/issues/711"
-  },
-  {
-    "type":     "numpy",
     "target":   "float8_e5m2.npy",
     "source":   "https://github.com/user-attachments/files/16022842/float8_e5m2.npy.zip[float8_e5m2.npy]",
     "format":   "NumPy Array",
@@ -3658,31 +3644,10 @@
   },
   {
     "type":     "numpy",
-    "target":   "mobilenet_v2_normal_72820.pkl",
-    "source":   "https://data.megengine.org.cn/models/weights/mobilenet_v2_normal_72820.pkl",
-    "format":   "NumPy Weights",
-    "link":     "https://github.com/MegEngine/Models/tree/master/official/quantization"
-  },
-  {
-    "type":     "numpy",
-    "target":   "numpy.array.pkl",
-    "source":   "https://github.com/lutzroeder/netron/files/6233588/numpy.array.pkl.zip[numpy.array.pkl]",
-    "format":   "NumPy NDArray",
-    "link":     "https://github.com/lutzroeder/netron/issues/711"
-  },
-  {
-    "type":     "numpy",
     "target":   "object.npy",
     "source":   "https://github.com/lutzroeder/netron/files/9485289/object.npy.zip[object.npy]",
     "format":   "NumPy Array",
     "link":     "https://github.com/lutzroeder/netron/issues/711"
-  },
-  {
-    "type":     "numpy",
-    "target":   "R-50.pkl",
-    "source":   "https://dl.fbaipublicfiles.com/detectron/ImageNetPretrained/MSRA/R-50.pkl",
-    "format":   "NumPy Weights",
-    "link":     "https://github.com/facebookresearch/Detectron"
   },
   {
     "type":     "numpy",
@@ -4798,17 +4763,34 @@
   },
   {
     "type":     "pickle",
-    "target":   "dill_custom_class.pkl",
-    "source":   "https://github.com/lutzroeder/netron/files/13035743/dill_custom_class.pkl.zip[dill_custom_class.pkl]",
+    "target":   "d8.pkl",
+    "source":   "https://github.com/user-attachments/files/16482242/d8.pkl.zip[d8.pkl]",
     "format":   "Pickle",
-    "error":    "Unknown type name '__builtin__.__main__'.\nUnsupported Pickle type '__main__.CustomClass'.",
+    "assert":   "model.graphs[0].nodes[0].inputs[2].value.length == 275",
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
     "type":     "pickle",
-    "target":   "d8.pkl",
-    "source":   "https://github.com/user-attachments/files/16482242/d8.pkl.zip[d8.pkl]",
+    "target":   "datasplit.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/10099644/datasplit.pkl.zip[datasplit.pkl]",
     "format":   "Pickle",
+    "assert":   "model.graphs[0].nodes[3].type.name == 'collections.OrderedDict'",
+    "link":     "https://github.com/lutzroeder/netron/issues/711"
+  },
+  {
+    "type":     "pickle",
+    "target":   "dill_array.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/13031222/dill_array.pkl.zip[dill_array.pkl]",
+    "format":   "NumPy NDArray",
+    "assert":   "model.graphs[0].nodes[0].inputs[0].value[0].type.dataType == 'int64'",
+    "link":     "https://github.com/lutzroeder/netron/issues/711"
+  },
+  {
+    "type":     "pickle",
+    "target":   "dill_custom_class.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/13035743/dill_custom_class.pkl.zip[dill_custom_class.pkl]",
+    "format":   "Pickle",
+    "error":    "Unknown type name '__builtin__.__main__'.\nUnsupported Pickle type '__main__.CustomClass'.",
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
@@ -4821,10 +4803,25 @@
   },
   {
     "type":     "pickle",
+    "target":   "mobilenet_v2_normal_72820.pkl",
+    "source":   "https://data.megengine.org.cn/models/weights/mobilenet_v2_normal_72820.pkl",
+    "format":   "Pickle",
+    "assert":   "model.graphs[0].nodes.length == 105",
+    "link":     "https://github.com/MegEngine/Models/tree/master/official/quantization"
+  },
+  {
+    "type":     "pickle",
+    "target":   "model_final_0d68be.pkl.zip",
+    "source":   "https://github.com/user-attachments/files/16759433/model_final_0d68be.pkl.zip",
+    "format":   "Pickle",
+    "assert":   "model.graphs[0].nodes[0].inputs[0].value.type.nodes[357].inputs[0].value[0].name == 'criterion.empty_weight'",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
     "target":   "model_final_checkpoint.model.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/11707359/model_final_checkpoint.model.pkl.zip[model_final_checkpoint.model.pkl]",
     "format":   "Pickle",
-    "error":    "Unsupported Pickle type 'collections.OrderedDict'.",
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
@@ -4847,6 +4844,29 @@
     "target":   "nfl_model.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/14547128/nfl_model.pkl.zip[nfl_model.pkl]",
     "format":   "Pickle",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
+    "target":   "numpy.array.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/6233588/numpy.array.pkl.zip[numpy.array.pkl]",
+    "format":   "NumPy NDArray",
+    "link":     "https://github.com/lutzroeder/netron/issues/711"
+  },
+  {
+    "type":     "pickle",
+    "target":   "R-50.pkl",
+    "source":   "https://dl.fbaipublicfiles.com/detectron/ImageNetPretrained/MSRA/R-50.pkl",
+    "format":   "Pickle",
+    "assert":   "model.graphs[0].nodes.length == 107",
+    "link":     "https://github.com/facebookresearch/Detectron"
+  },
+  {
+    "type":     "pickle",
+    "target":   "result_model_1_multimer_v2_pred_0.pkl.zip",
+    "source":   "https://github.com/user-attachments/files/16763962/result_model_1_multimer_v2_pred_0.pkl.zip",
+    "format":   "Pickle",
+    "assert":   "model.graphs[0].nodes[0].inputs[0].value.inputs[0].name == 'bin_edges'",
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {

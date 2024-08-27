@@ -1671,6 +1671,7 @@ python.Execution = class {
         const math = this.register('math');
         math.inf = Infinity;
         const numpy = this.register('numpy');
+        this.register('numpy.core.multiarray');
         this.register('numpy.core._multiarray_umath');
         this.register('numpy.matrixlib.defmatrix');
         const pandas = this.register('pandas');
@@ -3932,18 +3933,14 @@ python.Execution = class {
         this.registerFunction('numpy.core.numeric._frombuffer', (/* buf, dtype, shape, order */) => {
             return {};
         });
-        this.registerFunction('numpy.core.multiarray._reconstruct', (subtype, shape, dtype) => {
-            return numpy.ndarray.__new__(subtype, shape, dtype);
-        });
         this.registerFunction('numpy._core.multiarray._reconstruct', (subtype, shape, dtype) => {
             return numpy.ndarray.__new__(subtype, shape, dtype);
         });
-        this.registerFunction('numpy._core.multiarray.scalar');
+        this.registerFunction('numpy._core.numeric._frombuffer');
         this.registerFunction('numpy._core._internal._convert_to_stringdtype_kwargs', () => {
             return new numpy.dtypes.StringDType();
         });
-        numpy.core._multiarray_umath._reconstruct = numpy.core.multiarray._reconstruct;
-        this.registerFunction('numpy.core.multiarray.scalar', (dtype, rawData) => {
+        this.registerFunction('numpy._core.multiarray.scalar', (dtype, rawData) => {
             let data = rawData;
             if (typeof rawData === 'string' || rawData instanceof String) {
                 data = new Uint8Array(rawData.length);
@@ -4001,6 +3998,9 @@ python.Execution = class {
                 }
             }
         });
+        numpy.core.multiarray._reconstruct = numpy._core.multiarray._reconstruct;
+        numpy.core.multiarray.scalar = numpy._core.multiarray.scalar;
+        numpy.core._multiarray_umath._reconstruct = numpy.core.multiarray._reconstruct;
         this.registerFunction('numpy.core._multiarray_umath.cbrt');
         this.registerFunction('numpy.core._multiarray_umath.greater');
         this.registerFunction('numpy.core._multiarray_umath.less');
@@ -6381,13 +6381,16 @@ python.Execution = class {
             const module = execution.invoke('types.ModuleType', [name]);
             execution.register('sys').modules.set(name, module);
             const context = new python.Execution.Context(module, null);
-            execution.exec(meta.module_src, context);
-            const obj = execution.invoke(`${name}.${meta.class_name}`, []);
-            if (meta.state) {
+            execution.exec(meta.get('module_src'), context);
+            const obj = execution.invoke(`${name}.${meta.get('class_name')}`, []);
+            const state = meta.get('state');
+            if (state) {
                 if (obj.__setstate__) {
-                    obj.__setstate__(meta.state);
+                    obj.__setstate__(state);
                 } else {
-                    Object.assign(obj, meta.state);
+                    for (const [key, value] of state) {
+                        obj[key] = value;
+                    }
                 }
             }
             return obj;
