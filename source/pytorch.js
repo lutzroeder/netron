@@ -3490,14 +3490,15 @@ pytorch.Utility = class {
             const modules = new Map();
             const entries = obj instanceof Map ? Array.from(obj) : Object.entries(obj);
             if (entries.length > 0 && entries) {
-                for (const [name, value] of entries) {
+                for (const [key, value] of entries) {
+                    const name = key.toString();
                     if (!value || Object(value) !== value || pytorch.Utility.isTensor(value) || ArrayBuffer.isView(value)) {
                         return null;
                     }
                     if (!modules.has(name)) {
                         modules.set(name, {});
                     }
-                    const layer = modules.get(name);
+                    const module = modules.get(name);
                     let tensor = false;
                     const entries = value instanceof Map ? value : new Map(Object.entries(value));
                     for (const [name, value] of entries) {
@@ -3511,12 +3512,12 @@ pytorch.Utility = class {
                             continue;
                         }
                         if (typeof value === 'string' || typeof value === 'number') {
-                            layer[name] = value;
+                            module[name] = value;
                             continue;
                         }
                         if (pytorch.Utility.isTensor(value)) {
                             value.__name__ = name;
-                            layer[name] = value;
+                            module[name] = value;
                             tensor = true;
                         }
                     }
