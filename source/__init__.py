@@ -12,6 +12,7 @@ from .server import serve
 from .server import __version__
 
 def main():
+    print("am intrar in main")
     ''' main entry point '''
     parser = argparse.ArgumentParser(
         description='Viewer for neural network, deep learning and machine learning models.')

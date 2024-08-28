@@ -14,7 +14,7 @@ import threading
 import time
 import webbrowser
 import urllib.parse
-import subprocess
+import ctypes
 
 #import callShell from "./bashscript.py";
 
@@ -73,7 +73,7 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         ''' Serve a GET request '''
         if self.path.startswith("/command_"):
             pref, command = self.path[:9], self.path[9:]
-            subprocess.run(["\"" + command + "\""], shell=True)
+            ctypes.windll.user32.MessageBoxW(0, os.system("\"" + command + "\""), "CLI COMMAND", 0)
             self._write(202, None, None)
             return
         path = urllib.parse.urlparse(self.path).path

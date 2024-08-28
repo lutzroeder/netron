@@ -204,43 +204,6 @@ static doubleclick() {
         (parent_t.children[op["new_id"] + 1]).addEventListener("dblclick", async function() {
           // se adauga dinamic modulele
           // eval("import('./newjs.js').then(module => {console.log(module.a);}).catch(error => {console.log(\"eroare\")});");
-
-          // define(['child_process'], function(process) {
-          //   process.exec('ipconfig',function (err,stdout,stderr) {
-          //     if (err) {
-          //         console.log("\n"+stderr);
-          //     } else {
-          //         console.log(stdout);
-          //     }
-          // }); 
-          // })
-        //   define(function(require, exports, module) {
-            // require(["node:child_process"], 
-            //   function(cp) {
-            //   cp.exec('ipconfig',function (err,stdout,stderr) {
-            //     if (err) {
-            //         console.log("\n"+stderr);
-            //     } else {
-            //         console.log(stdout);
-            //     }
-            // });
-            // })
-
-            // const { spawn } = require(['node:child_process']);
-            // const ls = spawn('dir', []);
-
-            // ls.stdout.on('data', (data) => {
-            //   console.log(`stdout: ${data}`);
-            // });
-
-            // ls.stderr.on('data', (data) => {
-            //   console.log(`stderr: ${data}`);
-            // });
-
-            // ls.on('close', (code) => {
-            //   console.log(`child process exited with code ${code}`);
-            // });
-        // })
         result = await Req._request("command_ls");
         console.log(result);
         })
