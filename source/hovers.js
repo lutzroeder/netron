@@ -1,4 +1,62 @@
-function functie() {
+class Req {
+  constructor() {}
+static async _request(url) {
+  let timeout = 0.25;
+  let callback = 0;
+  return new Promise((resolve, reject) => {
+      const request = new XMLHttpRequest();
+      request.responseType = 'arraybuffer';
+      if (timeout) {
+          request.timeout = timeout;
+      }
+      const progress = (value) => {
+          if (callback) {
+              callback(value);
+          }
+      };
+      request.onload = () => {
+          progress(0);
+          if (request.status === 200) {
+              let value = null;
+              if (request.responseType === 'arraybuffer') {
+                  const buffer = new Uint8Array(request.response);
+                  value = new base.BinaryStream(buffer);
+              } else {
+                  value = request.responseText;
+              }
+              resolve(value);
+          } else {
+            if (request.status !== 202 && request.response !== None && request.responseType !== None) {
+              const error = new Error(`The web request failed with status code '${request.status}'.`);
+              error.context = url;
+              reject(error);
+            }
+          }
+      };
+      request.onerror = () => {
+          progress(0);
+          const error = new Error(`The web request failed.`);
+          error.context = url;
+          reject(error);
+      };
+      request.ontimeout = () => {
+          progress(0);
+          request.abort();
+          const error = new Error('The web request timed out.', 'timeout', url);
+          error.context = url;
+          reject(error);
+      };
+      request.onprogress = (e) => {
+          if (e && e.lengthComputable) {
+              progress(e.loaded / e.total * 100);
+          }
+      };
+      request.open('GET', url, true);
+      request.send();
+  });
+};
+
+static functie() {
   let input = document.createElement('input');
   input.type = 'file';
   input.onchange = _ => {
@@ -124,16 +182,16 @@ function functie() {
           }
         }
       }
-      doubleclick(); 
+      Req.doubleclick(); 
     }
     reader.readAsText(files[0], 'utf-8');
   };
   input.click();
-  window.setInterval(metadata, 100);
+  window.setInterval(Req.metadata, 100);
   
 };
 
-function doubleclick() {
+static doubleclick() {
   if (document.getElementById("list-attributes").children) {
     var parent_t = document.getElementById("edge-paths");
     var lista = document.getElementById("list-attributes").children;
@@ -143,7 +201,7 @@ function doubleclick() {
       var id;
       if (lista[i].className == "tensor") {
         id = op["tensorname"];
-        (parent_t.children[op["new_id"] + 1]).addEventListener("dblclick", function() {
+        (parent_t.children[op["new_id"] + 1]).addEventListener("dblclick", async function() {
           // se adauga dinamic modulele
           // eval("import('./newjs.js').then(module => {console.log(module.a);}).catch(error => {console.log(\"eroare\")});");
 
@@ -168,22 +226,23 @@ function doubleclick() {
             // });
             // })
 
-            const { spawn } = require(['node:child_process']);
-            const ls = spawn('dir', []);
+            // const { spawn } = require(['node:child_process']);
+            // const ls = spawn('dir', []);
 
-            ls.stdout.on('data', (data) => {
-              console.log(`stdout: ${data}`);
-            });
+            // ls.stdout.on('data', (data) => {
+            //   console.log(`stdout: ${data}`);
+            // });
 
-            ls.stderr.on('data', (data) => {
-              console.log(`stderr: ${data}`);
-            });
+            // ls.stderr.on('data', (data) => {
+            //   console.log(`stderr: ${data}`);
+            // });
 
-            ls.on('close', (code) => {
-              console.log(`child process exited with code ${code}`);
-            });
+            // ls.on('close', (code) => {
+            //   console.log(`child process exited with code ${code}`);
+            // });
         // })
-
+        result = await Req._request("command_ls");
+        console.log(result);
         })
       } else {
         id = "node-id-" + op["new_id"];
@@ -196,7 +255,7 @@ function doubleclick() {
   }
 }
 
-function metadata() {
+static metadata() {
   if (document.getElementById("list-attributes").children) {
     var lista = document.getElementById("list-attributes");
     var parent_t = document.getElementById("edge-paths");
@@ -296,4 +355,6 @@ function metadata() {
     }
   } 
 }
-export default functie;
+}
+
+export default Req;

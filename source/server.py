@@ -14,8 +14,12 @@ import threading
 import time
 import webbrowser
 import urllib.parse
+import subprocess
+
+#import callShell from "./bashscript.py";
 
 __version__ = '0.0.0'
+
 
 class _ContentProvider: # pylint: disable=too-few-public-methods
     data = bytearray()
@@ -42,6 +46,7 @@ class _ContentProvider: # pylint: disable=too-few-public-methods
         return None
 
 class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
+    variable = 0
     content = None
     verbosity = 1
     mime_types = {
@@ -66,6 +71,11 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         self.do_GET()
     def do_GET(self): # pylint: disable=invalid-name
         ''' Serve a GET request '''
+        if self.path.startswith("/command_"):
+            pref, command = self.path[:9], self.path[9:]
+            subprocess.run(["\"" + command + "\""], shell=True)
+            self._write(202, None, None)
+            return
         path = urllib.parse.urlparse(self.path).path
         path = '/index.html' if path == '/' else path
         status_code = 404
@@ -131,6 +141,9 @@ class _HTTPServerThread(threading.Thread):
         self.verbosity = verbosity
         self.address = address
         self.url = 'http://' + address[0] + ':' + str(address[1])
+        f = open("address.txt", 'w')
+        f.write(self.url)
+        f.close()
         self.server = _ThreadedHTTPServer(address, _HTTPRequestHandler)
         self.server.timeout = 0.25
         self.server.block_on_close = False
@@ -139,6 +152,9 @@ class _HTTPServerThread(threading.Thread):
         self.terminate_event = threading.Event()
         self.terminate_event.set()
         self.stop_event = threading.Event()
+
+    def geturl(self):
+        return self.url;
 
     def run(self):
         self.stop_event.clear()
