@@ -190,11 +190,48 @@ pickle.Value = class {
 
 pickle.Tensor = class {
 
-    constructor(array) {
-        this.type = new pickle.TensorType(array.dtype.__name__, new pickle.TensorShape(array.shape));
-        this.stride = Array.isArray(array.strides) ? array.strides.map((stride) => stride / array.itemsize) : null;
-        this.encoding = this.type.dataType === 'string' || this.type.dataType === 'object' ? '|' : array.dtype.byteorder;
-        this.values = this.type.dataType === 'string' || this.type.dataType === 'object' || this.type.dataType === 'void' ? array.flatten().tolist() : array.tobytes();
+    constructor(obj) {
+        if (obj.__class__ && (obj.__class__.__module__ === 'torch' || obj.__class__.__module__ === 'torch.nn.parameter')) {
+            // PyTorch tensor
+            const tensor = obj.__class__.__module__ === 'torch.nn.parameter' && obj.__class__.__name__ === 'Parameter' ? obj.data : obj;
+            const layout = tensor.layout ? tensor.layout.__str__() : null;
+            const storage = tensor.storage();
+            const size = tensor.size() || [];
+            if (!layout || layout === 'torch.strided') {
+                this.type = new pickle.TensorType(storage.dtype.__reduce__(), new pickle.TensorShape(size));
+                this.values = storage.data;
+                this.encoding = '<';
+                this.indices = null;
+                this.stride = tensor.stride();
+                const stride = this.stride;
+                const offset = tensor.storage_offset();
+                let length = 0;
+                if (!Array.isArray(stride)) {
+                    length = storage.size();
+                } else if (size.every((v) => v !== 0)) {
+                    length = size.reduce((a, v, i) => a + stride[i] * (v - 1), 1);
+                }
+                if (offset !== 0 || length !== storage.size()) {
+                    const itemsize = storage.dtype.itemsize();
+                    const stream = this.values;
+                    const position = stream.position;
+                    stream.seek(itemsize * offset);
+                    this.values = stream.peek(itemsize * length);
+                    stream.seek(position);
+                } else {
+                    this.values = this.values.peek();
+                }
+            } else {
+                throw new pickle.Error(`Unsupported tensor layout '${layout}'.`);
+            }
+        } else {
+            // NumPy array
+            const array = obj;
+            this.type = new pickle.TensorType(array.dtype.__name__, new pickle.TensorShape(array.shape));
+            this.stride = Array.isArray(array.strides) ? array.strides.map((stride) => stride / array.itemsize) : null;
+            this.encoding = this.type.dataType === 'string' || this.type.dataType === 'object' ? '|' : array.dtype.byteorder;
+            this.values = this.type.dataType === 'string' || this.type.dataType === 'object' || this.type.dataType === 'void' ? array.flatten().tolist() : array.tobytes();
+        }
     }
 };
 
@@ -264,10 +301,12 @@ pickle.Utility = class {
     }
 
     static isTensor(obj) {
-        return obj && obj.__class__ &&
+        return obj && obj.__class__ && obj.__class__.__name__ &&
             ((obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray') ||
              (obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'matrix') ||
-             (obj.__class__.__module__ === 'jax' && obj.__class__.__name__ === 'Array'));
+             (obj.__class__.__module__ === 'jax' && obj.__class__.__name__ === 'Array') ||
+             (obj.__class__.__module__ === 'torch.nn.parameter' && obj.__class__.__name__ === 'Parameter') ||
+             (obj.__class__.__module__ === 'torch' && obj.__class__.__name__.endsWith('Tensor')));
     }
 
     static weights(obj) {

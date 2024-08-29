@@ -4795,6 +4795,13 @@
   },
   {
     "type":     "pickle",
+    "target":   "easy-khair-180-gpc0.8-trans10-025000.pkl.zip",
+    "source":   "https://github.com/user-attachments/files/16783181/easy-khair-180-gpc0.8-trans10-025000.pkl.zip",
+    "format":   "Pickle",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
     "target":   "file.pickle",
     "source":   "https://github.com/user-attachments/files/16745249/file.pickle.zip[file.pickle]",
     "format":   "Pickle",
@@ -4855,11 +4862,11 @@
   },
   {
     "type":     "pickle",
-    "target":   "R-50.pkl",
-    "source":   "https://dl.fbaipublicfiles.com/detectron/ImageNetPretrained/MSRA/R-50.pkl",
+    "target":   "R-50.pkl.zip",
+    "source":   "https://github.com/user-attachments/files/16783222/R-50.pkl.zip",
     "format":   "Pickle",
     "assert":   "model.graphs[0].nodes.length == 107",
-    "link":     "https://github.com/facebookresearch/Detectron"
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
     "type":     "pickle",
