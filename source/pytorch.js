@@ -192,6 +192,7 @@ pytorch.Graph = class {
         } else {
             const weights = this.type === 'weights' ? module : pytorch.Utility.weights(module);
             if (weights) {
+                this.name = !this.name && typeof module.__name__ === 'string' ? module.__name__ : this.name;
                 for (const [name, module] of weights) {
                     const node = new pytorch.Node(metadata, name, 'Weights', module);
                     this.nodes.push(node);
