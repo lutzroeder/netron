@@ -4271,6 +4271,9 @@ python.Execution = class {
         this.registerFunction('sklearn.metrics._ranking.roc_auc_score');
         this.registerFunction('sklearn.metrics._regression.mean_absolute_error');
         this.registerFunction('sklearn.metrics._regression.mean_squared_error');
+        this.registerFunction('sklearn.metrics._regression.r2_score');
+        sklearn.metrics.regression = sklearn.metrics._regression;
+        sklearn.metrics.r2_score = sklearn.metrics._regression.r2_score;
         this.registerFunction('sklearn.metrics._regression.root_mean_squared_error');
         this.registerFunction('sklearn.metrics._scorer._passthrough_scorer');
         this.registerFunction('re._compile', (pattern, flags) => {
@@ -4350,6 +4353,8 @@ python.Execution = class {
         this.registerFunction('torch.distributed._shard.sharded_tensor.pre_load_state_dict_hook');
         this.registerFunction('torch.distributed._shard.sharded_tensor.state_dict_hook');
         this.registerType('torch.distributed.algorithms.join._JoinConfig', class {});
+        this.registerFunction('torch.distributed._sharded_tensor.state_dict_hook');
+        this.registerFunction('torch.distributed._sharded_tensor.pre_load_state_dict_hook');
         this.registerType('torch.distributed._tensor.api.DTensor', class extends torch._C._TensorMeta {});
         this.registerType('torch.distributed._tensor.placement_types.DTensorSpec', class {});
         this.registerType('torch.distributed._tensor.placement_types.Shard', class {});
@@ -4688,6 +4693,10 @@ python.Execution = class {
                 return new torch.SymInt();
             }
         });
+        this.registerType('torch.fx.proxy.TracerBase', class {});
+        this.registerType('torch.fx._symbolic_trace.Tracer', class extends torch.fx.proxy.TracerBase {});
+        this.registerType('torch.fx.experimental.proxy_tensor.PythonKeyTracer', class extends torch.fx._symbolic_trace.Tracer {});
+        this.registerType('torch.fx.experimental.proxy_tensor._ModuleStackTracer', class extends torch.fx.experimental.proxy_tensor.PythonKeyTracer {});
         this.registerFunction('torch.fx.graph_module._deserialize_graph_module', (/* forward, body */) => {
             return execution.invoke('torch.fx.graph_module.GraphModule', []);
         });
@@ -4860,8 +4869,6 @@ python.Execution = class {
         this.registerFunction('torch.fx._symbolic_trace.wrap', (fn_or_name) => {
             return fn_or_name;
         });
-        this.registerType('torch.fx.proxy.TracerBase', class extends builtins.object {});
-        this.registerType('torch.fx._symbolic_trace.Tracer', class extends torch.fx.proxy.TracerBase {});
         this.registerFunction('torchvision.datasets.folder.default_loader');
         this.registerType('torchvision.datasets.folder.ImageFolder', class {});
         this.registerType('torchvision.datasets.mnist.FashionMNIST', class {});
@@ -5968,7 +5975,14 @@ python.Execution = class {
         this.registerType('torch._ops.HigherOrderOperator', class extends torch._ops.OperatorBase {});
         this.registerType('torch._ops.OpOverload', class extends torch._ops.OperatorBase {});
         this.registerType('torch.export.unflatten.UnflattenedModule', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.export.graph_signature.InputKind', class extends this._enum.Enum {});
+        this.registerType('torch.export.graph_signature.InputSpec', class extends this._enum.Enum {});
+        this.registerType('torch.export.graph_signature.OutputKind', class extends this._enum.Enum {});
+        this.registerType('torch.export.graph_signature.OutputSpec', class extends this._enum.Enum {});
+        this.registerType('torch.export.graph_signature.TensorArgument', class {});
         this.registerType('torch.export.exported_program.ExportedProgram', class {});
+        this.registerType('torch.export.exported_program.ModuleCallEntry', class {});
+        this.registerType('torch.export.exported_program.ModuleCallSignature', class {});
         this.registerFunction('torch.export.unflatten');
         this.registerFunction('torch._export.exported_program._create_graph_module_for_export', (root, graph) => {
             return new torch.fx.graph_module.GraphModule(root, graph);
@@ -6376,6 +6390,7 @@ python.Execution = class {
                 return new torch.device(d.type);
             }
         });
+        this.registerType('torch._export.verifier.Verifier', class {});
         this.registerFunction('torch_utils.persistence._reconstruct_persistent_obj', (meta) => {
             const name = `_imported_module_${Math.floor(Math.random() * 10000)}`;
             const module = execution.invoke('types.ModuleType', [name]);
