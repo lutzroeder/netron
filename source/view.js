@@ -2028,7 +2028,9 @@ view.Node = class extends grapher.Node {
             }
             const item = list().argument(argument.name, content);
             item.tooltip = argument.type;
-            item.separator = ' = ';
+            if (!content.startsWith('\u3008')) {
+                item.separator = ' = ';
+            }
             return item;
         };
         const isObject = (node) => {
@@ -2299,14 +2301,10 @@ view.Argument = class extends grapher.Argument {
         if (Array.isArray(value.value) && value.value.length === 1 && value.value[0].initializer) {
             const tensor = value.value[0].initializer;
             const type = value.value[0].type;
-            if (type && type.shape && type.shape.dimensions && Array.isArray(type.shape.dimensions)) {
-                tooltip = type.toString();
-                content = `\u3008${type.shape.dimensions.map((d) => (d !== null && d !== undefined) ? d : '?').join('\u00D7')}\u3009`;
-                if (type.shape.dimensions.length === 0) {
-                    const formatter = new view.Formatter(tensor, 'tensor');
-                    content = formatter.toString();
-                    separator = ' = ';
-                }
+            tooltip = type.toString();
+            content = view.Formatter.tensor(tensor);
+            if (!content.startsWith('\u3008')) {
+                separator = ' = ';
             }
         }
         super(name, content);
@@ -4245,19 +4243,7 @@ view.Formatter = class {
                 if (value === null) {
                     return '(null)';
                 }
-                const type = value.type;
-                if (type && type.shape && type.shape.dimensions && Array.isArray(type.shape.dimensions) && type.shape.dimensions.length === 0) {
-                    const tensor = new base.Tensor(value);
-                    const encoding = tensor.encoding;
-                    if ((encoding === '<' || encoding === '>' || encoding === '|') && !tensor.empty && tensor.type.dataType !== '?') {
-                        let content = tensor.toString();
-                        if (content && content.length > 10) {
-                            content = `${content.substring(0, 10)}\u2026`;
-                        }
-                        return content;
-                    }
-                }
-                return '[\u2026]';
+                return view.Formatter.tensor(value);
             }
             case 'object':
             case 'function':
@@ -4335,6 +4321,26 @@ view.Formatter = class {
             default:
                 return quote ? ['(', list.join(', '), ')'].join(' ') : list.join(', ');
         }
+    }
+
+    static tensor(value) {
+        const type = value.type;
+        if (type && type.shape && type.shape.dimensions && Array.isArray(type.shape.dimensions)) {
+            if (type.shape.dimensions.length === 0) {
+                const tensor = new base.Tensor(value);
+                const encoding = tensor.encoding;
+                if ((encoding === '<' || encoding === '>' || encoding === '|') && !tensor.empty && tensor.type.dataType !== '?') {
+                    let content = tensor.toString();
+                    if (content && content.length > 10) {
+                        content = `${content.substring(0, 10)}\u2026`;
+                    }
+                    return content;
+                }
+            }
+            const content = type.shape.dimensions.map((d) => (d !== null && d !== undefined) ? d : '?').join('\u00D7');
+            return `\u3008${content}\u3009`;
+        }
+        return '\u3008\u2026\u3009';
     }
 };
 
