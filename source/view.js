@@ -858,11 +858,11 @@ view.View = class {
             canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
             canvas.setAttribute('width', width);
             canvas.setAttribute('height', height);
-            this._zoom = ('zoom' in this._stack[0]) ? this._stack[0].zoom : 1;
+            this._zoom = (this._stack && this._stack.length > 0 && 'zoom' in this._stack[0]) ? this._stack[0].zoom : 1;
             this._updateZoom(this._zoom);
             const container = this._element('graph');
             if (elements && elements.length > 0) {
-                const e = ('nodeElementId' in this._stack[0]) ? canvas.getElementById(this._stack[0].nodeElementId) : null;
+                const e = (this._stack && this._stack.length > 0 && 'nodeElementId' in this._stack[0]) ? canvas.getElementById(this._stack[0].nodeElementId) : null;
                 if (e) {
                     this.scrollTo([e], 'instant');
                 } else {
