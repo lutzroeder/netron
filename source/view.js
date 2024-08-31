@@ -586,7 +586,7 @@ view.View = class {
         }
     }
 
-    scrollTo(selection) {
+    scrollTo(selection, behavior) {
         if (selection && selection.length > 0) {
             const container = this._element('graph');
             let x = 0;
@@ -601,7 +601,7 @@ view.View = class {
             const rect = container.getBoundingClientRect();
             const left = (container.scrollLeft + x - rect.left) - (rect.width / 2);
             const top = (container.scrollTop + y - rect.top) - (rect.height / 2);
-            container.scrollTo({ left, top, behavior: 'smooth' });
+            container.scrollTo({ left, top, 'behavior': behavior || 'smooth' });
         }
     }
 
@@ -779,10 +779,15 @@ view.View = class {
         }
     }
 
-    async pushGraph(graph) {
+    async pushGraph(graph, nodeElementId) {
         if (graph && graph !== this.activeGraph && Array.isArray(graph.nodes)) {
             this._sidebar.close();
             const signature = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null;
+            if (nodeElementId !== undefined) {
+                // save these to restore scroll position and zoom when going back from function
+                this._stack[0].nodeElementId = nodeElementId;
+                this._stack[0].zoom = this._zoom;
+            }
             const entry = { graph, signature };
             const stack = [entry].concat(this._stack);
             await this._updateGraph(this._model, stack);
@@ -814,6 +819,7 @@ view.View = class {
             graph_skip: 0
         });
         const viewGraph = new view.Graph(this, this._host, model, options, groups);
+        view.Node.counter = 0;
         viewGraph.add(graph, signature);
         // Workaround for Safari background drag/zoom issue:
         // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
@@ -852,28 +858,33 @@ view.View = class {
             canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
             canvas.setAttribute('width', width);
             canvas.setAttribute('height', height);
-            this._zoom = 1;
+            this._zoom = ('zoom' in this._stack[0]) ? this._stack[0].zoom : 1;
             this._updateZoom(this._zoom);
             const container = this._element('graph');
             if (elements && elements.length > 0) {
-                // Center view based on input elements
-                const xs = [];
-                const ys = [];
-                for (let i = 0; i < elements.length; i++) {
-                    const element = elements[i];
-                    const rect = element.getBoundingClientRect();
-                    xs.push(rect.left + (rect.width / 2));
-                    ys.push(rect.top + (rect.height / 2));
+                const e = ('nodeElementId' in this._stack[0]) ? canvas.getElementById(this._stack[0].nodeElementId) : null;
+                if (e) {
+                    this.scrollTo([e], 'instant');
+                } else {
+                    // Center view based on input elements
+                    const xs = [];
+                    const ys = [];
+                    for (let i = 0; i < elements.length; i++) {
+                        const element = elements[i];
+                        const rect = element.getBoundingClientRect();
+                        xs.push(rect.left + (rect.width / 2));
+                        ys.push(rect.top + (rect.height / 2));
+                    }
+                    let [x] = xs;
+                    const [y] = ys;
+                    if (ys.every((y) => y === ys[0])) {
+                        x = xs.reduce((a, b) => a + b, 0) / xs.length;
+                    }
+                    const graphRect = container.getBoundingClientRect();
+                    const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
+                    const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
+                    container.scrollTo({ left, top, behavior: 'auto' });
                 }
-                let [x] = xs;
-                const [y] = ys;
-                if (ys.every((y) => y === ys[0])) {
-                    x = xs.reduce((a, b) => a + b, 0) / xs.length;
-                }
-                const graphRect = container.getBoundingClientRect();
-                const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
-                const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
-                container.scrollTo({ left, top, behavior: 'auto' });
             } else {
                 const canvasRect = canvas.getBoundingClientRect();
                 const graphRect = container.getBoundingClientRect();
@@ -2015,7 +2026,7 @@ view.Node = class extends grapher.Node {
                 tooltip = 'Show Weights';
             }
             const definition = header.add(null, styles, icon, tooltip);
-            definition.on('click', async () => await this.context.view.pushGraph(node.type));
+            definition.on('click', async () => await this.context.view.pushGraph(node.type, this.id));
         }
         if (Array.isArray(node.nodes)) {
             // this._expand = header.add(null, styles, '+', null);
