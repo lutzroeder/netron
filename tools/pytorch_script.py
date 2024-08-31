@@ -25,8 +25,13 @@ def _write(path, content):
         file.write(content)
 
 def _read_metadata():
-    metadata: list[dict[str,object]] = json.loads(_read(metadata_file))
-    return dict(map(lambda _: ( _['name'], _ ), metadata))
+    metadata = {}
+    for value in json.loads(_read(metadata_file)):
+        key = value['name']
+        if key in metadata:
+            raise ValueError(f"Duplicate key '{key}'")
+        metadata[key] = value
+    return metadata
 
 def _write_metadata(value):
     metadata = list(collections.OrderedDict(sorted(value.items())).values())
