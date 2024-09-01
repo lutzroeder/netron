@@ -1674,9 +1674,9 @@ view.Worker = class {
         this._worker.addEventListener('message', (e) => {
             this._cancel(false);
             const message = e.data;
-            if (message.type === 'error') {
+            if (this._reject && message.type === 'error') {
                 this._reject(new Error(message.message));
-            } else {
+            } else if (this._resolve) {
                 this._resolve(message);
             }
             delete this._resolve;
