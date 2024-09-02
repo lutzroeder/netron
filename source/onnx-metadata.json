@@ -22525,6 +22525,12 @@
         "required": false,
         "default": -1,
         "description": "Use a smooth factor in softmax."
+      },
+      {
+        "name": "softcap",
+        "type": "float32",
+        "required": false,
+        "description": "Softcap value for attention weights. Default value is 0."
       }
     ],
     "inputs": [
