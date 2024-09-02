@@ -1717,6 +1717,7 @@ view.Graph = class extends grapher.Graph {
         this.host = host;
         this.model = model;
         this.options = options;
+        this.counter = 0;
         this._nodeKey = 0;
         this._values = new Map();
         this._tensors = new Map();
@@ -1961,8 +1962,7 @@ view.Node = class extends grapher.Node {
         super();
         this.context = context;
         this.value = value;
-        view.Node.counter = view.Node.counter || 0;
-        this.id = `node-${value.name ? `name-${value.name}` : `id-${(view.Node.counter++)}`}`;
+        this.id = `node-${value.name ? `name-${value.name}` : `id-${(context.counter++)}`}`;
         this._add(this.value);
     }
 
