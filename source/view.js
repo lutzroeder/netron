@@ -447,10 +447,24 @@ view.View = class {
         if (e.pointerType === 'touch' || e.buttons !== 1) {
             return;
         }
-        const container = this._element('graph');
-        if (e.target === container) {
-            return;
+
+        // This workaround is for Firefox emitting 'pointerdown' event when a scollbar is clicked
+        // Event: originalTarget property is Non-standard
+        // https://developer.mozilla.org/en-US/docs/Web/API/Event/originalTarget
+        if ('originalTarget' in e) {
+            try {
+                // When a scrollbar is clicked, originalTarget property is Restricted
+                // so accessing its property causes an exception
+                if ('id' in e.originalTarget) {
+                    ;
+                }
+            } catch (error) {
+                // If the exception is thrown, a scrolbar is clicked
+                return;
+            }
         }
+
+        const container = this._element('graph');
         e.target.setPointerCapture(e.pointerId);
         this._mousePosition = {
             left: container.scrollLeft,
