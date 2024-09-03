@@ -447,10 +447,17 @@ view.View = class {
         if (e.pointerType === 'touch' || e.buttons !== 1) {
             return;
         }
-        const container = this._element('graph');
-        if (e.target === container) {
-            return;
+        // Workaround for Firefox emitting 'pointerdown' event when scrollbar is pressed
+        if (e.originalTarget) {
+            try {
+                /* eslint-disable no-unused-expressions */
+                e.originalTarget.id;
+                /* eslint-enable no-unused-expressions */
+            } catch {
+                return;
+            }
         }
+        const container = this._element('graph');
         e.target.setPointerCapture(e.pointerId);
         this._mousePosition = {
             left: container.scrollLeft,
