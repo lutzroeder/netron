@@ -459,7 +459,7 @@ view.View = class {
                     // empty
                 }
             } catch {
-                // If the exception is thrown, a scrolbar is clicked
+                // If an exception is thrown, then a scrolbar is clicked
                 return;
             }
         }
