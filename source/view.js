@@ -456,9 +456,9 @@ view.View = class {
                 // When a scrollbar is clicked, originalTarget property is Restricted
                 // so accessing its property causes an exception
                 if ('id' in e.originalTarget) {
-                    ;
+                    // empty
                 }
-            } catch (error) {
+            } catch {
                 // If the exception is thrown, a scrolbar is clicked
                 return;
             }
