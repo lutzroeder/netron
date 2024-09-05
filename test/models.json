@@ -3725,6 +3725,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/1006"
   },
   {
+    "type":     "onednn",
+    "target":   "int4-matmul.json",
+    "source":   "https://github.com/user-attachments/files/16884596/int4-matmul.json.zip[int4-matmul.json]",
+    "format":   "oneDNN v3.6.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1006"
+  },
+  {
     "type":     "onnx",
     "target":   "arcface-resnet100.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/11943519/arcface-resnet100.onnx.zip",
