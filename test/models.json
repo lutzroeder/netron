@@ -3395,6 +3395,15 @@
   },
   {
     "type":     "ncnn",
+    "target":   "encoder_jit_trace-pnnx.ncnn.param,encoder_jit_trace-pnnx.ncnn.bin",
+    "source":   "https://huggingface.co/bookbot/sherpa-ncnn-pruned-transducer-stateless7-streaming-id/resolve/main/encoder_jit_trace-pnnx.ncnn.param?download=true,https://huggingface.co/bookbot/sherpa-ncnn-pruned-transducer-stateless7-streaming-id/resolve/main/encoder_jit_trace-pnnx.ncnn.bin?download=true",
+    "format":   "ncnn",
+    "assert":   "model.graphs[0].nodes[845].inputs[1].value[0].quantization.type == 'lookup'",
+    "tags":     "quantization,skip-render",
+    "link":     "https://www.deepdetect.com/models/faces_embedded_ncnn"
+  },
+  {
+    "type":     "ncnn",
     "target":   "faces_wider_squeezenet.param,faces_wider_squeezenet.bin",
     "source":   "https://deepdetect.com/models/init/embedded/images/detection/squeezenet_ssd_faces_ncnn.tar.gz[faces_wider_squeezenet.param,faces_wider_squeezenet.bin]",
     "format":   "ncnn",
@@ -3419,6 +3428,7 @@
     "target":   "joiner_jit_trace-pnnx.ncnn.int8.param,joiner_jit_trace-pnnx.ncnn.int8.bin",
     "source":   "https://github.com/user-attachments/files/16531037/joiner_jit_trace-pnnx.ncnn.int8.zip[joiner_jit_trace-pnnx.ncnn.int8.param,joiner_jit_trace-pnnx.ncnn.int8.bin]",
     "format":   "ncnn",
+    "assert":   "model.graphs[0].nodes[0].inputs[1].value[0].type.dataType == 'int8'",
     "link":     "https://github.com/lutzroeder/netron/issues/296"
   },
   {
@@ -3426,6 +3436,7 @@
     "target":   "mnet-opt.param,mnet-opt.bin",
     "source":   "https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/mnet-opt.param,https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/mnet-opt.bin",
     "format":   "ncnn",
+    "assert":   "model.graphs[0].nodes[0].inputs[1].value[0].type.dataType == 'float16'",
     "link":     "https://github.com/MirrorYuChen/ncnn_example"
   },
   {

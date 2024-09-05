@@ -826,7 +826,7 @@
     "name": "Reduction",
     "identifier": 25,
     "attributes": [
-      { "name": "op_type", "type": "ReductionOpType", "default": 0 },
+      { "name": "operation", "type": "ReductionOpType", "default": 0 },
       { "name": "reduce_all", "type": "int32", "default": 1 },
       { "name": "coeff", "type": "float32", "default": 1.0 },
       { "name": "axes", "default": [] },
@@ -1045,6 +1045,15 @@
       { "name": "biases", "type": "float32[]" },
       { "name": "mask", "type": "float32[]" },
       { "name": "anchors_scale", "type": "float32[]" }
+    ],
+    "inputs": [
+      { "name": "input", "type": "Tensor[]" }
+    ]
+  },
+  {
+    "name": "Stack",
+    "attributes": [
+      { "name": "axis", "type": "int32" }
     ],
     "inputs": [
       { "name": "input", "type": "Tensor[]" }
