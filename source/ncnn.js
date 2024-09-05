@@ -13,9 +13,10 @@ ncnn.ModelFactory = class {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.param.bin') || identifier.endsWith('.ncnnmodel')) {
             const stream = context.stream;
-            if (stream.length > 4) {
+            if (stream.length >= 4) {
                 const buffer = stream.peek(4);
-                const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
+                const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                const signature = view.getUint32(0, true);
                 if (signature === 0x007685dd) {
                     context.type = 'ncnn.model.bin';
                 }
@@ -53,7 +54,8 @@ ncnn.ModelFactory = class {
             const length = stream.length;
             if (length > 4) {
                 const buffer = stream.peek(4);
-                const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
+                const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                const signature = view.getUint32(0, true);
                 if (signature === 0x00000000) {
                     const size = Math.min(stream.length, 1024) & 0xFFFC;
                     const buffer = stream.peek(size);
@@ -232,6 +234,7 @@ ncnn.Value = class {
         this.name = name;
         this.type = initializer ? initializer.type : type;
         this.initializer = initializer || null;
+        this.quantization = initializer ? initializer.quantization : null;
     }
 };
 
@@ -280,22 +283,23 @@ ncnn.Node = class {
             const name = ((outputIndex + index) === 0) ? 'output' : (outputIndex + index).toString();
             return new ncnn.Argument(name, [values.map(output)]);
         }));
-        blobs.weight = (name, dimensions, dataType) => {
-            const blob = blobs.read(dimensions, dataType);
-            dataType = blob ? (blob.dataType || '?') : (dataType || '?');
+        blobs.weight = (name, shape, code) => {
+            const blob = blobs.read(shape, code || 0);
+            const dataType = blob ? (blob.dataType || '?') : (code || 0).toString();
             const data = blob ? blob.data : null;
-            const type = new ncnn.TensorType(dataType, new ncnn.TensorShape(dimensions));
-            const tensor = new ncnn.Tensor(type, data);
+            const quantization = blob && blob.quantization ? blob.quantization : null;
+            const type = new ncnn.TensorType(dataType, new ncnn.TensorShape(shape));
+            const tensor = new ncnn.Tensor(type, data, quantization);
             const argument = new ncnn.Argument(name, [values.map('', null, tensor)]);
             this.inputs.push(argument);
         };
         switch (this.type.name) {
             case 'BatchNorm': {
                 const channels = parseInt(params.get('0') || 0, 10);
-                blobs.weight('slope', [channels], 'float32');
-                blobs.weight('mean', [channels], 'float32');
-                blobs.weight('variance', [channels], 'float32');
-                blobs.weight('bias', [channels], 'float32');
+                blobs.weight('slope', [channels], 1);
+                blobs.weight('mean', [channels], 1);
+                blobs.weight('variance', [channels], 1);
+                blobs.weight('bias', [channels], 1);
                 break;
             }
             case 'InnerProduct': {
@@ -306,11 +310,11 @@ ncnn.Node = class {
                 const activation_type = parseInt(params.get('9') || 0, 10);
                 blobs.weight('weight', [num_output, weight_data_size / num_output]);
                 if (bias_term) {
-                    blobs.weight('bias', [num_output], 'float32');
+                    blobs.weight('bias', [num_output], 1);
                 }
                 if (int8_scale_term) {
-                    blobs.weight('weight_scales', [num_output], 'float32');
-                    blobs.weight('bottom_scales', [1], 'float32');
+                    blobs.weight('weight_scales', [num_output], 1);
+                    blobs.weight('bottom_scales', [1], 1);
                 }
                 const activation_names = ['', 'ReLU', 'Leaky ReLU', 'Clip', 'Sigmoid', 'Mish', 'HardSwish'];
                 if (activation_type > 0 && activation_type < activation_names.length) {
@@ -322,7 +326,7 @@ ncnn.Node = class {
             }
             case 'Bias': {
                 const bias_data_size = parseInt(params.get('0') || 0, 10);
-                blobs.weight('bias', [bias_data_size], 'float32');
+                blobs.weight('bias', [bias_data_size], 1);
                 break;
             }
             case 'Embed': {
@@ -330,7 +334,7 @@ ncnn.Node = class {
                 const weight_data_size = parseInt(params.get('3') || 0, 10);
                 blobs.weight('weight', [weight_data_size / num_output, num_output]);
                 if (parseInt(params.get('2') || 0, 10) === 1) {
-                    blobs.weight('bias', [num_output], 'float32');
+                    blobs.weight('bias', [num_output], 1);
                 }
                 params.get('3');
                 break;
@@ -345,28 +349,28 @@ ncnn.Node = class {
                 const weight_data_size = parseInt(params.get('6') || 0, 10);
                 blobs.weight('weight', [num_output, weight_data_size / (num_output * kernel_w * kernel_h), kernel_h, kernel_w]);
                 if (parseInt(params.get('5') || 0, 10) === 1) {
-                    blobs.weight('bias', [num_output], 'float32');
+                    blobs.weight('bias', [num_output], 1);
                 }
                 const int8_scale_term = parseInt(params.get('8') || 0, 10);
                 if (this.type.name === 'Convolution') {
                     if (int8_scale_term) {
-                        blobs.weight('weight_scales', [num_output], 'float32');
-                        blobs.weight('bottom_scales', [1], 'float32');
+                        blobs.weight('weight_scales', [num_output], 1);
+                        blobs.weight('bottom_scales', [1], 1);
                     }
                     if (int8_scale_term > 100) {
-                        blobs.weight('top_scales', [1], 'float32');
+                        blobs.weight('top_scales', [1], 1);
                     }
                 } else if (this.type.name === 'ConvolutionDepthWise') {
                     const group =  parseInt(params.get('7') || 1, 10);
                     if (int8_scale_term === 1 || int8_scale_term === 101) {
-                        blobs.weight('weight_scales', [group], 'float32');
-                        blobs.weight('bottom_scales', [1], 'float32');
+                        blobs.weight('weight_scales', [group], 1);
+                        blobs.weight('bottom_scales', [1], 1);
                     } else if (int8_scale_term === 2 || int8_scale_term === 102) {
-                        blobs.weight('weight_scales', [1], 'float32');
-                        blobs.weight('bottom_scales', [1], 'float32');
+                        blobs.weight('weight_scales', [1], 1);
+                        blobs.weight('bottom_scales', [1], 1);
                     }
                     if (int8_scale_term > 100) {
-                        blobs.weight('top_scales', [1], 'float32');
+                        blobs.weight('top_scales', [1], 1);
                     }
                 }
                 params.delete('6');
@@ -389,12 +393,15 @@ ncnn.Node = class {
                 }
                 const num_output = parseInt(params.get('0') || 0, 10);
                 const kernel_w = parseInt(params.get('1') || 0, 10);
-                const weight_data_size = parseInt(params.get('6') || 0, 10);
-                blobs.weight('weight', [num_output, weight_data_size / (num_output * kernel_w), kernel_w]);
-                if (parseInt(params.get('5') || 0, 10) === 1) {
-                    blobs.weight('bias', [num_output], 'float32');
+                const dynamic_weight = parseInt(params.get('19') || 0, 10);
+                if (!dynamic_weight) {
+                    const weight_data_size = parseInt(params.get('6') || 0, 10);
+                    blobs.weight('weight', [num_output, weight_data_size / (num_output * kernel_w), kernel_w]);
+                    if (parseInt(params.get('5') || 0, 10) === 1) {
+                        blobs.weight('bias', [num_output], 1);
+                    }
+                    params.delete('6');
                 }
-                params.delete('6');
                 break;
             }
             case 'Convolution3D':
@@ -412,64 +419,64 @@ ncnn.Node = class {
                 const weight_data_size = parseInt(params.get('6') || 0, 10);
                 blobs.weight('weight', [num_output, weight_data_size / (num_output * kernel_w * kernel_h * kernel_d), kernel_d, kernel_h, kernel_w]);
                 if (parseInt(params.get('5') || 0, 10) === 1) {
-                    blobs.weight('bias', [num_output], 'float32');
+                    blobs.weight('bias', [num_output], 1);
                 }
                 params.delete('6');
                 break;
             }
             case 'Quantize': {
                 const scale_data_size = parseInt(params.get('0') || 1, 10);
-                blobs.weight('scale', [scale_data_size], 'float32');
+                blobs.weight('scale', [scale_data_size], 1);
                 break;
             }
             case 'Dequantize': {
                 const scale_data_size = parseInt(params.get('0') || 1, 10);
                 const bias_data_size = parseInt(params.get('1') || 0, 10);
-                blobs.weight('scale', [scale_data_size], 'float32');
-                blobs.weight('bias', [bias_data_size], 'float32');
+                blobs.weight('scale', [scale_data_size], 1);
+                blobs.weight('bias', [bias_data_size], 1);
                 break;
             }
             case 'Requantize': {
                 const scale_in_data_size = parseInt(params.get('0') || 1, 10);
                 const scale_out_data_size = parseInt(params.get('1') || 1, 10);
                 const bias_data_size = parseInt(params.get('2') || 0, 10);
-                blobs.weight('scale_in', [scale_in_data_size], 'float32');
-                blobs.weight('scale_out', [scale_out_data_size], 'float32');
-                blobs.weight('bias', [bias_data_size], 'float32');
+                blobs.weight('scale_in', [scale_in_data_size], 1);
+                blobs.weight('scale_out', [scale_out_data_size], 1);
+                blobs.weight('bias', [bias_data_size], 1);
                 break;
             }
             case 'InstanceNorm': {
                 const affine = parseInt(params.get('2') || 1, 10);
                 if (affine === 1) {
                     const channels = parseInt(params.get('0') || 0, 10);
-                    blobs.weight('gamma', [channels], 'float32');
-                    blobs.weight('beta', [channels], 'float32');
+                    blobs.weight('gamma', [channels], 1);
+                    blobs.weight('beta', [channels], 1);
                 }
                 break;
             }
             case 'Scale': {
                 const scale_data_size = parseInt(params.get('0') || 0, 10);
                 if (scale_data_size !== -233) {
-                    blobs.weight('scale', [scale_data_size], 'float32');
+                    blobs.weight('scale', [scale_data_size], 1);
                     if (params.get('1') === '1') {
-                        blobs.weight('bias', [scale_data_size], 'float32');
+                        blobs.weight('bias', [scale_data_size], 1);
                     }
                 }
                 break;
             }
             case 'Normalize': {
                 const scale_data_size = parseInt(params.get('3') || 0, 10);
-                blobs.weight('scale', [scale_data_size], 'float32');
+                blobs.weight('scale', [scale_data_size], 1);
                 break;
             }
             case 'PReLU': {
                 const num_slope = parseInt(params.get('0') || 0, 10);
-                blobs.weight('slope', [num_slope], 'float32');
+                blobs.weight('slope', [num_slope], 1);
                 break;
             }
             case 'Padding': {
                 const per_channel_pad_data_size = parseInt(params.get('6') || 0, 10);
-                blobs.weight('per_channel_pad_data', [per_channel_pad_data_size], 'float32');
+                blobs.weight('per_channel_pad_data', [per_channel_pad_data_size], 1);
                 break;
             }
             case 'MemoryData': {
@@ -477,17 +484,18 @@ ncnn.Node = class {
                 const h = parseInt(params.get('1') || 0, 10);
                 const d = parseInt(params.get('11') || 0, 10);
                 const c = parseInt(params.get('2') || 0, 10);
+                const load_type = parseInt(params.get('21') || 1, 10);
                 /* eslint-disable no-negated-condition */
                 if (d !== 0) {
-                    blobs.weight('data', [c, d, h, w], 'float32');
+                    blobs.weight('data', [w, h, d, c], load_type);
                 } else if (c !== 0) {
-                    blobs.weight('data', [c, h, w], 'float32');
+                    blobs.weight('data', [w, h, c], load_type);
                 } else if (h !== 0) {
-                    blobs.weight('data', [h, w], 'float32');
+                    blobs.weight('data', [w, h], load_type);
                 } else if (w !== 0) {
-                    blobs.weight('data', [w], 'float32');
+                    blobs.weight('data', [w], load_type);
                 } else {
-                    blobs.weight('data', [1], 'float32');
+                    blobs.weight('data', [1], load_type);
                 }
                 /* eslint-enable no-negated-condition */
                 break;
@@ -496,15 +504,15 @@ ncnn.Node = class {
                 const affine = parseInt(params.get('3') || 1, 10);
                 if (affine === 1) {
                     const channels = parseInt(params.get('1') || 0, 10);
-                    blobs.weight('gamma', [channels], 'float32');
-                    blobs.weight('beta', [channels], 'float32');
+                    blobs.weight('gamma', [channels], 1);
+                    blobs.weight('beta', [channels], 1);
                 }
                 break;
             }
             case 'LayerNorm': {
                 const channels = parseInt(params.get('0') || 0, 10);
-                blobs.weight('gamma', [channels], 'float32');
-                blobs.weight('beta', [channels], 'float32');
+                blobs.weight('gamma', [channels], 1);
+                blobs.weight('beta', [channels], 1);
                 break;
             }
             case 'RNN': {
@@ -545,13 +553,13 @@ ncnn.Node = class {
                 // const num_head = parseInt(params.get('1') || 0, 10);
                 // const weight_data_size = parseInt(params.get('2') || 0, 10);
                 blobs.weight('weight_q', [embed_dim, embed_dim]);
-                blobs.weight('bias_q', [embed_dim], 'float32');
+                blobs.weight('bias_q', [embed_dim], 1);
                 blobs.weight('weight_k', [embed_dim, embed_dim]);
-                blobs.weight('bias_k', [embed_dim], 'float32');
+                blobs.weight('bias_k', [embed_dim], 1);
                 blobs.weight('weight_v', [embed_dim, embed_dim]);
-                blobs.weight('bias_v', [embed_dim], 'float32');
+                blobs.weight('bias_v', [embed_dim], 1);
                 blobs.weight('weight_out', [embed_dim, embed_dim]);
-                blobs.weight('bias_out', [embed_dim], 'float32');
+                blobs.weight('bias_out', [embed_dim], 1);
                 params.delete('2');
                 break;
             }
@@ -637,9 +645,10 @@ ncnn.Node = class {
 
 ncnn.Tensor = class {
 
-    constructor(type, values) {
+    constructor(type, values, quantization) {
         this.type = type;
         this.values = values;
+        this.quantization = quantization;
     }
 };
 
@@ -803,60 +812,72 @@ ncnn.BlobReader = class {
         this._position = 0;
     }
 
-    read(shape, dataType) {
-        if (this._buffer) {
-            if (!dataType) {
-                if (this._buffer && this._position + 4 < this._buffer.length) {
-                    const f0 = this._buffer[this._position++];
-                    const f1 = this._buffer[this._position++];
-                    const f2 = this._buffer[this._position++];
-                    const f3 = this._buffer[this._position++];
-                    const type = f0 | f1 << 8 | f2 << 16 | f3 << 24;
-                    // https://github.com/Tencent/ncnn/blob/c59885aeac6cec0dbfa010efc0b5c25bed5208b7/src/modelbin.cpp#L197
-                    switch (type) {
-                        case 0x00000000: dataType = 'float32'; break;
-                        case 0x01306b47: dataType = 'float16'; break;
-                        case 0x000d4b38: dataType = 'int8'; break;
-                        case 0x00000001: dataType = 'qint8'; break;
-                        // case 0x0002C056: size * sizeof(float) - raw data with extra scaling
-                        default: {
-                            const hex = (type >>> 0).toString(16).padStart(8, '0');
-                            throw new ncnn.Error(`Unsupported weight type '${hex}'.`);
-                        }
+    read(shape, type) {
+        if (!this._buffer) {
+            return null;
+        }
+        let dataType = null;
+        if (type === 0) {
+            if (this._buffer && this._position + 4 < this._buffer.length) {
+                const f0 = this._buffer[this._position++];
+                const f1 = this._buffer[this._position++];
+                const f2 = this._buffer[this._position++];
+                const f3 = this._buffer[this._position++];
+                const type = f0 | f1 << 8 | f2 << 16 | f3 << 24;
+                // https://github.com/Tencent/ncnn/blob/c59885aeac6cec0dbfa010efc0b5c25bed5208b7/src/modelbin.cpp#L197
+                switch (type) {
+                    case 0x00000000: dataType = 'float32'; break;
+                    case 0x01306b47: dataType = 'float16'; break;
+                    case 0x000d4b38: dataType = 'int8'; break;
+                    case 0x00000001: dataType = 'qint8'; break;
+                    // case 0x0002C056: size * sizeof(float) - raw data with extra scaling
+                    default: {
+                        const size = shape.reduce((a, b) => a * b, 1);
+                        const position = this._position;
+                        const index = this._position + 1024;
+                        this._position = index + size;
+                        const buffer = this._buffer.subarray(position, index);
+                        const quantization = {
+                            type: 'lookup',
+                            value: Array.from(new Float32Array(buffer.buffer, buffer.bufferOffset, buffer.length / 4))
+                        };
+                        const data = this._buffer.subarray(index, this._position);
+                        return { dataType: 'uint8', data, quantization };
                     }
-                } else {
-                    this._buffer = null;
                 }
-            }
-            if (!shape) {
+            } else {
                 this._buffer = null;
             }
-            let data = null;
-            if (this._buffer) {
-                if (dataType) {
-                    const dataTypes = new Map([['float32', 4], ['float16', 2], ['int8', 1], ['qint8', 1]]);
-                    if (!dataTypes.has(dataType)) {
-                        throw new ncnn.Error(`Unsupported weight type '${dataType}'.`);
-                    }
-                    const itemsize = dataTypes.get(dataType);
-                    const size = shape.reduce((a, b) => a * b, 1) * itemsize;
-                    const position = this._position;
-                    if (dataType === 'qint8') {
-                        this._position += size + 1024;
-                        data = null;
-                    } else {
-                        this._position += size;
-                        data = this._buffer.subarray(position, this._position);
-                    }
-                    const remainder = this._position % 4;
-                    if (remainder !== 0) {
-                        this._position += 4 - remainder;
-                    }
+        } else if (type === 1) {
+            dataType = 'float32';
+        }
+        if (!shape) {
+            this._buffer = null;
+        }
+        let data = null;
+        if (this._buffer) {
+            if (dataType) {
+                const dataTypes = new Map([['float32', 4], ['float16', 2], ['int8', 1], ['qint8', 1]]);
+                if (!dataTypes.has(dataType)) {
+                    throw new ncnn.Error(`Unsupported weight type '${dataType}'.`);
+                }
+                const itemsize = dataTypes.get(dataType);
+                const size = shape.reduce((a, b) => a * b, 1) * itemsize;
+                const position = this._position;
+                if (dataType === 'qint8') {
+                    this._position += size + 1024;
+                    data = null;
+                } else {
+                    this._position += size;
+                    data = this._buffer.subarray(position, this._position);
+                }
+                const remainder = this._position % 4;
+                if (remainder !== 0) {
+                    this._position += 4 - remainder;
                 }
             }
-            return { dataType, data };
         }
-        return null;
+        return { dataType, data };
     }
 };
 
