@@ -450,7 +450,8 @@ tflite.BuiltinOperator = {
     DILATE: 203,
     STABLEHLO_RNG_BIT_GENERATOR: 204,
     REDUCE_WINDOW: 205,
-    STABLEHLO_COMPOSITE: 206
+    STABLEHLO_COMPOSITE: 206,
+    STABLEHLO_SHIFT_LEFT: 207
 };
 
 tflite.BuiltinOptions = class {
@@ -745,6 +746,7 @@ tflite.BuiltinOptions2 = class {
             case 19: return tflite.StablehloRngBitGeneratorOptions.decode(reader, position);
             case 20: return tflite.ReduceWindowOptions.decode(reader, position);
             case 21: return tflite.StableHLOCompositeOptions.decode(reader, position);
+            case 22: return tflite.StablehloShiftLeftOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -772,6 +774,7 @@ tflite.BuiltinOptions2 = class {
             case 'StablehloRngBitGeneratorOptions': return tflite.StablehloRngBitGeneratorOptions.decodeText(reader, json);
             case 'ReduceWindowOptions': return tflite.ReduceWindowOptions.decodeText(reader, json);
             case 'StableHLOCompositeOptions': return tflite.StableHLOCompositeOptions.decodeText(reader, json);
+            case 'StablehloShiftLeftOptions': return tflite.StablehloShiftLeftOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -3237,6 +3240,19 @@ tflite.StableHLOCompositeOptions = class StableHLOCompositeOptions {
         $.composite_attributes = reader.array(json.composite_attributes, Uint8Array);
         $.composite_attributes_format = tflite.CustomOptionsFormat[json.composite_attributes_format];
         $.version = reader.value(json.version, 0);
+        return $;
+    }
+};
+
+tflite.StablehloShiftLeftOptions = class StablehloShiftLeftOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new tflite.StablehloShiftLeftOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new tflite.StablehloShiftLeftOptions();
         return $;
     }
 };
