@@ -3954,17 +3954,15 @@ pytorch.nnapi.Metadata = class {
 pytorch.Metadata = class {
 
     static async open(context) {
-        if (pytorch.Metadata._metadata) {
-            return pytorch.Metadata._metadata;
+        if (!pytorch.Metadata._metadata) {
+            try {
+                const data = await context.request('pytorch-metadata.json');
+                pytorch.Metadata._metadata = new pytorch.Metadata(data);
+            } catch {
+                pytorch.Metadata._metadata = new pytorch.Metadata(null);
+            }
         }
-        try {
-            const data = await context.request('pytorch-metadata.json');
-            pytorch.Metadata._metadata = new pytorch.Metadata(data);
-            return pytorch.Metadata._metadata;
-        } catch {
-            pytorch.Metadata._metadata = new pytorch.Metadata(null);
-            return pytorch.Metadata._metadata;
-        }
+        return pytorch.Metadata._metadata;
     }
 
     constructor(data) {

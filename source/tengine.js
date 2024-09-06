@@ -187,17 +187,16 @@ tengine.TensorShape = class {
 tengine.Metadata = class {
 
     static async open(context) {
-        if (tengine.Metadata._metadata) {
-            return tengine.Metadata._metadata;
-        }
-        try {
-            const data = await context.request('tengine-metadata.json');
+        if (!tengine.Metadata._metadata) {
+            let data = null;
+            try {
+                data = await context.request('tengine-metadata.json');
+            } catch {
+                // continue regardless of error
+            }
             tengine.Metadata._metadata = new tengine.Metadata(data);
-            return tengine.Metadata._metadata;
-        } catch {
-            tengine.Metadata._metadata = new tengine.Metadata(null);
-            return tengine.Metadata._metadata;
         }
+        return tengine.Metadata._metadata;
     }
 
     constructor(data) {

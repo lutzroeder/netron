@@ -912,17 +912,16 @@ onnx.Context.Model = class {
 onnx.Metadata = class {
 
     static async open(context) {
-        if (onnx.Metadata._metadata) {
-            return onnx.Metadata._metadata;
-        }
-        try {
-            const data = await context.request('onnx-metadata.json');
+        if (!onnx.Metadata._metadata) {
+            let data = null;
+            try {
+                data = await context.request('onnx-metadata.json');
+            } catch {
+                // continue regardless of error
+            }
             onnx.Metadata._metadata = new onnx.Metadata(data);
-            return onnx.Metadata._metadata;
-        } catch {
-            onnx.Metadata._metadata = new onnx.Metadata(null);
-            return onnx.Metadata._metadata;
         }
+        return onnx.Metadata._metadata;
     }
 
     constructor(data) {
