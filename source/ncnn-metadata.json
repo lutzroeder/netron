@@ -126,6 +126,33 @@
     ]
   },
   {
+    "name": "Deconvolution1D",
+    "category": "Layer",
+    "attributes": [
+      { "name": "num_output", "type": "int32", "default": 0 },
+      { "name": "kernel_w", "type": "int32", "default": 0 },
+      { "name": "dilation_w", "type": "int32", "default": 1 },
+      { "name": "stride_w", "type": "int32", "default": 1 },
+      { "name": "pad_left", "type": "int32", "default": 0 },
+      { "name": "bias_term", "default": 0, "visible": false },
+      { "name": "weight_data_size", "type": "int32", "default": 0, "visible": false },
+      { "name": "" },
+      { "name": "" },
+      { "name": "activation_type", "default": 0 },
+      { "name": "activation_params", "default": [] },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "pad_right", "type": "int32", "default": 0 },
+      { "name": "" },
+      { "name": "" },
+      { "name": "output_pad_right", "type": "int32", "default": 0 },
+      { "name": "" },
+      { "name": "output_w", "type": "int32", "default": 0 }
+    ]
+  },
+  {
     "name": "Convolution3D",
     "identifier": 84,
     "category": "Layer",

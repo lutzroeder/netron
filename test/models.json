@@ -3400,7 +3400,7 @@
     "format":   "ncnn",
     "assert":   "model.graphs[0].nodes[845].inputs[1].value[0].quantization.type == 'lookup'",
     "tags":     "quantization,skip-render",
-    "link":     "https://www.deepdetect.com/models/faces_embedded_ncnn"
+    "link":     "https://huggingface.co/bookbot/sherpa-ncnn-pruned-transducer-stateless7-streaming-id"
   },
   {
     "type":     "ncnn",
