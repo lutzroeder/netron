@@ -539,6 +539,7 @@ const update = async () => {
         'caffe', 'caffe2', 'circle', 'cntk', 'coreml',
         'dlc', 'dnn',
         'gguf',
+        'kann',
         'keras',
         'mnn', 'mslite', 'megengine',
         'nnabla',
@@ -548,8 +549,7 @@ const update = async () => {
         'sentencepiece', 'sklearn',
         'tf',
         'uff',
-        'xmodel',
-        'kann'
+        'xmodel'
     ];
     for (const target of targets) {
         /* eslint-disable no-await-in-loop */

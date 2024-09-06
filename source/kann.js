@@ -6,25 +6,53 @@ kann.ModelFactory = class {
 
     // Check whether a KaNN file is processed and initialize the container
     match(context) {
-        // Context is an object providing necessary information to interact with the processed file
-        const container = kann.Container.open(context); // attempt to get a container from the context
-        // Container is the graph following FlatBuffers schema
-        if (container) {
-            context.type = 'kann';
-            context.target = container;
+        // context provide necessary information to interact with the processed file
+        const reader = context.peek('flatbuffers.binary');
+        // reader is the graph following FlatBuffers schema
+        if (reader && reader.identifier === 'KaNN') {
+            context.type = 'kann.flatbuffers';
+            context.target = reader;
+            return;
+        }
+        // If KaNN identifier not found, check if the file is '.kann'
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
+        if (extension === 'kann' && reader && reader.identifier === '') {
+            const version = reader.uint32_(reader.root, 4, 0);
+            if (version === 1) {
+                context.type = 'kann.flatbuffers';
+                context.target = reader;
+                return;
+            }
         }
     }
 
     // Open and initialize the KaNN model from the context
     async open(context) {
-        // Load the schema required for decoding the KaNN model
+        // Load the schema required for decoding KaNN model
         kann.schema = await context.require('./kann-schema');
         kann.schema = kann.schema.kann;
-        await context.target.read();
+        let model = null;
+        switch (context.type) {
+            case 'kann.flatbuffers': {
+                try {
+                    // Attempt to create the model using the FlatBuffers reader
+                    const reader = context.target;
+                    model = kann.schema.Model.create(reader);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new kann.Error(`File format is not kann.Model (${message.replace(/\.$/, '')}).`);
+                }
+                break;
+            }
+            default: {
+                throw new kann.Error(`Unsupported KaNN format '${context.type}'.`);
+            }
+        }
         // Load metadata related to the KaNN model
         const metadata = await context.metadata('kann-metadata.json');
         // Create and return a new KaNN model instance
-        return new kann.Model(metadata, context.target, context.identifier);
+        return new kann.Model(metadata, model, context.identifier);
     }
 };
 
@@ -41,7 +69,7 @@ kann.Model = class {
             this.name = identifier;
         }
         // Following FlatBuffers schema a new KaNN graph is created
-        this.graphs = model.graphs.map((graph) => new kann.Graph(metadata, graph));
+        this.graphs = model.graph.map((graph) => new kann.Graph(metadata, graph));
     }
 };
 
@@ -225,89 +253,6 @@ kann.Data = class {
             case /^string\[\]$/.test(value.type): return Array.from(value.list_string);
             default: throw new kann.Error(`${value.type} is not supported.`);
         }
-    }
-};
-
-kann.Container = class {
-
-    // Opens a Container based on the context provided
-    static open(context) {
-        // Check if the context contains a 'tar' entry and 'model' is present
-        const entries = context.peek('tar');
-        if (entries instanceof Map && entries.has('model')) {
-            return new kann.Container(context, entries.get('model'));
-        }
-        // If not found, check the stream's signature
-        const stream = context.stream;
-        const signature = kann.Container._signature(stream);
-        if (signature === 'KaNN') {
-            return new kann.Container(context, stream);
-        }
-        return null; // Return null if no valid container found
-    }
-
-    constructor(context, model) {
-        this.context = context;
-        this._model = model;
-    }
-
-    // Reads the container data and initializes properties
-    async read() {
-        if (this._model === undefined) {
-            this._model = await this._fetch('model'); // Fetch model if not already defined
-        }
-        delete this.context;
-        if (this._model) {
-            this.format = 'KaNN';
-            const stream = this._model;
-            delete this._model;
-            const signature = kann.Container._signature(stream);
-            // Validate the signature
-            if (signature !== 'KaNN') {
-                const buffer = stream.peek(Math.min(stream.length, 16));
-                const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                throw new kann.Error(`File contains undocumented '${content}' data.`);
-            }
-            this.model = kann.Container._model(stream); // Decode the model
-            this.graphs = this.model.graph; // Extract graphs
-        }
-    }
-
-    // Fetches data from the context
-    async _fetch(name) {
-        try {
-            const context = await this.context.fetch(name);
-            return context.stream; // Return the stream from fetched context
-        } catch {
-            return null; // Return null on fetch failure
-        }
-    }
-
-    // Checks the signature of the stream
-    static _signature(stream) {
-        if (stream) {
-            const buffer = stream.peek(8);
-            const match = (signature, offset) =>
-                buffer.length >= offset + signature.length && signature.every((value, index) => value === buffer[offset + index]);
-            if (match([0x4B, 0x61, 0x4E, 0x4E], 4)) { // 'KaNN' in ASCII
-                return 'KaNN';
-            }
-        }
-        return ''; // Return empty if no match
-    }
-
-    // Decodes the model from the stream
-    static _model(stream) {
-        let model = null;
-        try {
-            const buffer = new Uint8Array(stream.peek());
-            const reader = flatbuffers.BinaryReader.open(buffer);
-            model = kann.schema.Model.decode(reader, reader.root);  // Decode using FlatBuffers (functions in kann-schema.js)
-        } catch (error) {
-            const message = error && error.message ? error.message : error.toString();
-            throw new kann.Error(`File format is not kann.Model (${message.replace(/\.$/, '')}).`); // Error for invalid format
-        }
-        return model; // Return decoded model
     }
 };
 
