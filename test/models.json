@@ -86,7 +86,7 @@
     "type":     "_",
     "target":   "gzip_invalid_archive.tar.gz",
     "source":   "https://github.com/lutzroeder/netron/files/5468427/gzip_invalid_archive.tar.gz",
-    "error":    "Unsupported file content (ff000000000000000000000000000000) for extension '.gz'.",
+    "error":    "Unsupported file content 'ff000000000000000000000000000000'.",
     "link":     "https://github.com/lutzroeder/netron/issues/249"
   },
   {
@@ -163,7 +163,7 @@
     "type":     "_",
     "target":   "random.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/7449479/random.onnx.zip[random.onnx]",
-    "error":    "Unsupported file content (746d6c20786d6c6e733d22687474703a) for extension '.onnx'.",
+    "error":    "Unsupported file content '746d6c20786d6c6e733d22687474703a'.",
     "link":     "https://github.com/lutzroeder/netron/issues/458"
   },
   {
@@ -198,7 +198,7 @@
     "type":     "_",
     "target":   "zip_invalid_archive.zip",
     "source":   "https://github.com/lutzroeder/netron/files/5468425/zip_invalid_archive.zip",
-    "error":    "Unsupported file content (ff000000000000000000000000000000) for extension '.zip'.",
+    "error":    "Unsupported file content 'ff000000000000000000000000000000'.",
     "link":     "https://github.com/lutzroeder/netron/issues/250"
   },
   {

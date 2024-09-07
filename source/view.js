@@ -618,7 +618,7 @@ view.View = class {
             { name: 'RangeError', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
             { name: 'RangeError', message: /^Invalid string length/, url: 'https://github.com/lutzroeder/netron/issues/648' },
             { name: 'Python Error', message: /^Unknown function/, url: 'https://github.com/lutzroeder/netron/issues/546' },
-            { name: 'Error loading model.', message: /^Unsupported file content \(/, url: 'https://github.com/lutzroeder/netron/issues/550' },
+            { name: 'Error loading model.', message: /^Unsupported file content/, url: 'https://github.com/lutzroeder/netron/issues/550' },
             { name: 'Error loading model.', message: /^Unsupported Protocol Buffers content/, url: 'https://github.com/lutzroeder/netron/issues/593' },
             { name: 'Error loading model.', message: /^Unsupported Protocol Buffers text content/, url: 'https://github.com/lutzroeder/netron/issues/594' },
             { name: 'Error loading model.', message: /^Unsupported JSON content/, url: 'https://github.com/lutzroeder/netron/issues/595' },
@@ -5728,7 +5728,6 @@ view.ModelFactoryService = class {
 
     _unsupported(context) {
         const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
         const stream = context.stream;
         const callbacks = [
             (stream) => zip.Archive.open(stream, 'zip'),
@@ -5808,7 +5807,7 @@ view.ModelFactoryService = class {
                     }
                 }
                 const content = `${JSON.stringify(obj).substring(0, 100).replace(/\s/, '').substring(0, 48)}...`;
-                throw new view.Error(`Unsupported JSON content '${content.length > 64 ? `${content.substring(0, 100)}...` : content}' for extension '.${extension}'.`);
+                throw new view.Error(`Unsupported JSON content '${content.length > 64 ? `${content.substring(0, 100)}...` : content}'.`);
             }
         };
         const pbtxt = () => {
@@ -5844,7 +5843,7 @@ view.ModelFactoryService = class {
                 entries.push(...Array.from(tags).filter(([key]) => key.toString().indexOf('.') === -1));
                 entries.push(...Array.from(tags).filter(([key]) => key.toString().indexOf('.') !== -1));
                 const content = entries.map(([key, value]) => value === true ? key : `${key}:${JSON.stringify(value)}`).join(',');
-                throw new view.Error(`Unsupported Protocol Buffers text content '${content.length > 64 ? `${content.substring(0, 100)}...` : content}' for extension '.${extension}'.`);
+                throw new view.Error(`Unsupported Protocol Buffers text content '${content.length > 64 ? `${content.substring(0, 100)}...` : content}'.`);
             }
         };
         const pb = () => {
@@ -5899,7 +5898,7 @@ view.ModelFactoryService = class {
                     return content.join(',');
                 };
                 const content = format(tags);
-                throw new view.Error(`Unsupported Protocol Buffers content '${content.length > 64 ? `${content.substring(0, 100)}...` : content}' for extension '.${extension}'.`);
+                throw new view.Error(`Unsupported Protocol Buffers content '${content.length > 64 ? `${content.substring(0, 100)}...` : content}'.`);
             }
         };
         const flatbuffers = () => {
@@ -5974,9 +5973,8 @@ view.ModelFactoryService = class {
             if (stream) {
                 stream.seek(0);
                 const buffer = stream.peek(Math.min(16, stream.length));
-                const bytes = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                const content = stream.length > 268435456 ? `(${bytes}) [${stream.length}]` : `(${bytes})`;
-                throw new view.Error(`Unsupported file content ${content} for extension '.${extension}'.`);
+                const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                throw new view.Error(`Unsupported file content '${content}'.`);
             }
             throw new view.Error("Unsupported file directory.");
         };
