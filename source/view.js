@@ -5910,7 +5910,7 @@ view.ModelFactoryService = class {
                     identifier = reader.identifier;
                 } else {
                     const data = stream.peek(8);
-                    if ((data[0] === 0x08 || data[0] === 0x18 || data[0] === 0x1C) && data[1] === 0x00 && data[2] === 0x00 && data[2] === 0x00) {
+                    if ((data[0] === 0x08 || data[0] === 0x18 || data[0] === 0x1C || data[0] === 0x20 || data[0] === 0x28) && data[1] === 0x00 && data[2] === 0x00 && data[2] === 0x00) {
                         identifier = String.fromCharCode.apply(null, data.slice(4, 8));
                     }
                 }
@@ -5919,7 +5919,12 @@ view.ModelFactoryService = class {
                         { name: 'ONNX Runtime model data', identifier: 'ORTM' },
                         { name: 'TensorFlow Lite model data', identifier: 'TFL3' },
                         { name: 'NNC model data', identifier: 'ENNC' },
-                        { name: 'KaNN model data', identifier: 'KaNN' }
+                        { name: 'KaNN model data', identifier: 'KaNN' },
+                        { name: 'Circle model data', identifier: 'CIR0' },
+                        { name: 'MindSpore Lite model data', identifier: 'MSL0' },
+                        { name: 'MindSpore Lite model data', identifier: 'MSL1' },
+                        { name: 'MindSpore Lite model data', identifier: 'MSL2' },
+                        { name: 'MindSpore Lite model data', identifier: 'MSL3' },
                     ];
                     for (const format of formats) {
                         if (identifier === format.identifier) {
@@ -6178,7 +6183,7 @@ view.ModelFactoryService = class {
                 { name: 'Tokenizer data', value: /^IQ== 0\n/ },
                 { name: 'BCNN model', value: /^BCNN/ },
                 { name: 'base64 data', value: /^gAAAAAB/ },
-                { name: 'Mathematica Notebook data', value: /^\(\*\sContent-type:\sapplication\/vnd\.wolfram\.mathematica\s\*\)/ },
+                { name: 'Mathematica Notebook data', value: /^\(\*\sContent-type:\sapplication\/vnd\.wolfram\.mathematica\s\*\)/ }
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
