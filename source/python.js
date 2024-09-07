@@ -4446,7 +4446,8 @@ python.Execution = class {
         this.registerType('torch.nn.modules.conv.LazyConv2d', class {});
         this.registerType('torch.nn.modules.conv.LazyConv3d', class {});
         this.registerType('torch.nn.modules.conv.LazyConvTranspose2d', class {});
-        this.registerType('torch.nn.modules.distance.CosineSimilarity', class {});
+        this.registerType('torch.nn.modules.distance.CosineSimilarity', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.nn.modules.distance.PairwiseDistance', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.dropout._DropoutNd', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.dropout.AlphaDropout', class extends torch.nn.modules.dropout._DropoutNd {});
         this.registerType('torch.nn.modules.dropout.Dropout', class extends torch.nn.modules.dropout._DropoutNd {});
@@ -4454,8 +4455,8 @@ python.Execution = class {
         this.registerType('torch.nn.modules.dropout.Dropout2d', class extends torch.nn.modules.dropout._DropoutNd {});
         this.registerType('torch.nn.modules.dropout.Dropout3d', class extends torch.nn.modules.dropout._DropoutNd {});
         this.registerType('torch.nn.modules.dropout.FeatureAlphaDropout', class extends torch.nn.modules.dropout._DropoutNd {});
-        this.registerType('torch.nn.modules.fold.Fold', class {});
-        this.registerType('torch.nn.modules.fold.Unfold', class {});
+        this.registerType('torch.nn.modules.fold.Fold', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.nn.modules.fold.Unfold', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.flatten.Flatten', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.flatten.Unflatten', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.instancenorm.InstanceNorm1d', class {});
