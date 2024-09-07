@@ -218,7 +218,7 @@ pickle.Tensor = class {
                     stream.seek(itemsize * offset);
                     this.values = stream.peek(itemsize * length);
                     stream.seek(position);
-                } else {
+                } else if (this.values) {
                     this.values = this.values.peek();
                 }
             } else {
