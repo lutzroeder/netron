@@ -6392,6 +6392,16 @@ python.Execution = class {
             }
         });
         this.registerType('torch._export.verifier.Verifier', class {});
+        this.registerType('torch._dynamo.convert_frame.CatchErrorsWrapper', class {});
+        this.registerType('torch._dynamo.convert_frame.ConvertFrameAssert', class {});
+        this.registerType('torch._dynamo.convert_frame.ConvertFrame', class {});
+        this.registerType('torch._dynamo.eval_frame._TorchDynamoContext', class {});
+        this.registerType('torch._dynamo.eval_frame.OptimizedModule', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch._dynamo.eval_frame.OptimizeContext', class extends torch._dynamo.eval_frame._TorchDynamoContext {});
+        this.registerType('torch._dynamo.hooks.Hooks', class {});
+        this.registerType('torch._dynamo.repro.after_dynamo.WrapBackendDebug', class {});
+        this.registerType('torch._TorchCompileInductorWrapper', class {});
+        this.registerFunction('torch._inductor.compile_fx.compile_fx');
         this.registerFunction('torch_utils.persistence._reconstruct_persistent_obj', (meta) => {
             const name = `_imported_module_${Math.floor(Math.random() * 10000)}`;
             const module = execution.invoke('types.ModuleType', [name]);
