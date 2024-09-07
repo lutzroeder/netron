@@ -134,7 +134,7 @@ grapher.Graph = class {
             return element;
         };
         edgePathGroup.addEventListener('pointerover', (e) => {
-            let edge = this._edges.get(e.target.getAttribute('key'));
+            const edge = this._edges.get(e.target.getAttribute('key'));
             if (edge && edge.label && edge.label.focus) {
                 edge.label.focus();
                 this._focusedEdge = edge.label;
@@ -149,7 +149,7 @@ grapher.Graph = class {
             }
         });
         edgePathGroup.addEventListener('click', (e) => {
-            let edge = this._edges.get(e.target.getAttribute('key'));
+            const edge = this._edges.get(e.target.getAttribute('key'));
             if (edge && edge.label && edge.label.activate) {
                 edge.label.activate();
                 e.stopPropagation();
