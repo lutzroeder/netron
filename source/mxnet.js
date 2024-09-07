@@ -8,26 +8,19 @@ mxnet.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        switch (extension) {
-            case 'json': {
-                const obj = context.peek('json');
-                if (obj && obj.nodes && obj.arg_nodes && obj.heads) {
-                    context.type = 'mxnet.json';
-                    context.target = obj;
-                }
-                break;
+        if (extension === 'json') {
+            const obj = context.peek('json');
+            if (obj && Array.isArray(obj.nodes) && Array.isArray(obj.arg_nodes) && Array.isArray(obj.heads) /* &&
+                !obj.nodes.some((node) => node && node.op === 'tvm_op') */) {
+                context.type = 'mxnet.json';
+                context.target = obj;
+                return;
             }
-            case 'params': {
-                const stream = context.stream;
-                const signature = [0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-                if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                    context.type = 'mxnet.params';
-                }
-                break;
-            }
-            default: {
-                break;
-            }
+        }
+        const stream = context.stream;
+        const signature = [0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+        if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+            context.type = 'mxnet.params';
         }
     }
 
@@ -182,7 +175,7 @@ mxnet.ModelFactory = class {
                     manifest.format = `MXNet${version ? ` v${version}` : ''}`;
                 }
                 if (symbol.nodes && symbol.nodes.some((node) => node && node.op === 'tvm_op')) {
-                    manifest.producer  = 'TVM';
+                    manifest.format  = 'TVM';
                 }
             }
             return new mxnet.Model(metadata, manifest, symbol, parameters);

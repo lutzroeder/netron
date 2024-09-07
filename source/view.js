@@ -5671,6 +5671,7 @@ view.ModelFactoryService = class {
         this.register('./hailo', ['.hn', '.har', '.metadata.json']);
         this.register('./nnc', ['.nnc','.tflite']);
         this.register('./safetensors', ['.safetensors', '.safetensors.index.json']);
+        this.register('./tvm', ['.json', '.params']);
         this.register('./modular', ['.maxviz']);
         this.register('./catboost', ['.cbm']);
         this.register('./cambricon', ['.cambricon']);

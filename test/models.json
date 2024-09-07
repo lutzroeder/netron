@@ -3301,14 +3301,6 @@
   },
   {
     "type":     "mxnet",
-    "target":   "mobilenet-v1-tvm.json",
-    "source":   "https://github.com/lutzroeder/netron/files/2636924/mobilenet-v1-tvm.json.zip[mobilenet-v1-tvm.json]",
-    "format":   "MXNet",
-    "producer": "TVM",
-    "link":     "https://github.com/lutzroeder/netron/issues/199"
-  },
-  {
-    "type":     "mxnet",
     "target":   "nin.model",
     "source":   "https://s3.amazonaws.com/model-server/models/nin/nin.model",
     "format":   "MXNet Model Server v0.1",
@@ -7950,6 +7942,28 @@
     "source":   "https://raw.githubusercontent.com/cpra/fer-cnn-sota/master/models/vgg.t7",
     "format":   "Torch v7",
     "link":     "https://github.com/cpra/fer-cnn-sota"
+  },
+  {
+    "type":     "tvm",
+    "target":   "mobilenet-v1-tvm.json",
+    "source":   "https://github.com/lutzroeder/netron/files/2636924/mobilenet-v1-tvm.json.zip[mobilenet-v1-tvm.json]",
+    "format":   "TVM",
+    "link":     "https://github.com/lutzroeder/netron/issues/1342"
+  },
+  {
+    "type":     "tvm",
+    "target":   "squeezenet_opt_level_1.json,squeezenet_opt_level_1.params",
+    "source":   "https://github.com/user-attachments/files/16919287/squeezenet_opt_level_1.zip[squeezenet_opt_level_1.json,squeezenet_opt_level_1.params]",
+    "format":   "TVM",
+    "link":     "https://github.com/lutzroeder/netron/issues/1342"
+  },
+  {
+    "type":     "tvm",
+    "target":   "squeezenet_opt_level_3.params,squeezenet_opt_level_3.json",
+    "source":   "https://github.com/user-attachments/files/16919289/squeezenet_opt_level_3.zip[squeezenet_opt_level_3.params,squeezenet_opt_level_3.json]",
+    "format":   "TVM",
+    "error":    "Invalid file content. File contains TVN NDArray data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1342"
   },
   {
     "type":     "uff",
