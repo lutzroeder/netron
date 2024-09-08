@@ -180,13 +180,12 @@ tnn.Node = class {
             const argument = new tnn.Argument(name, value, type, visible);
             this.attributes.push(argument);
         }
-
         const inputs = layer.inputs;
         let inputIndex = 0;
         if (this.type && this.type.inputs) {
             for (const inputDef of this.type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option !== 'optional') {
-                    const inputCount = (inputDef.option === 'variadic') ? (inputs.length - inputIndex) : 1;
+                    const inputCount = (inputDef.type === 'Tensor[]') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id !== '' || inputDef.option !== 'optional').map((id) => values.map(id));
                     const argument = new tnn.Argument(inputDef.name, inputArguments);
                     this.inputs.push(argument);
@@ -199,7 +198,6 @@ tnn.Node = class {
                 return new tnn.Argument(inputName, [values.map(input)]);
             }));
         }
-
         const outputs = layer.outputs;
         let outputIndex = 0;
         if (this.type && this.type.outputs) {
