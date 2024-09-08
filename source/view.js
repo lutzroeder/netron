@@ -819,7 +819,6 @@ view.View = class {
             graph_skip: 0
         });
         const viewGraph = new view.Graph(this, this._host, model, options, groups);
-        view.Node.counter = 0;
         viewGraph.add(graph, signature);
         // Workaround for Safari background drag/zoom issue:
         // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
