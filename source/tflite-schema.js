@@ -451,7 +451,8 @@ tflite.BuiltinOperator = {
     STABLEHLO_RNG_BIT_GENERATOR: 204,
     REDUCE_WINDOW: 205,
     STABLEHLO_COMPOSITE: 206,
-    STABLEHLO_SHIFT_LEFT: 207
+    STABLEHLO_SHIFT_LEFT: 207,
+    STABLEHLO_CBRT: 208
 };
 
 tflite.BuiltinOptions = class {
