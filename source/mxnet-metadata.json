@@ -75,7 +75,7 @@
   {
     "name": "_Plus",
     "inputs": [
-      { "name": "inputs", "option": "variadic" }
+      { "name": "inputs", "type": "Tensor[]" }
     ],
     "outputs": [
       { "name": "output" }
@@ -191,7 +191,7 @@
       { "visible": false, "name": "num_args" }
     ],
     "inputs": [
-      { "name": "inputs", "option": "variadic" }
+      { "name": "inputs", "type": "Tensor[]" }
     ],
     "outputs": [
       { "name": "output" }
@@ -215,7 +215,7 @@
     "inputs": [
       { "name": "input" },
       { "name": "weight" },
-      { "name": "bias", "option": "optional" }
+      { "name": "bias", "optional": true }
     ],
     "outputs": [
       { "name": "output" }
@@ -267,7 +267,7 @@
     "name": "ElementWiseSum",
     "category": "Normalization",
     "inputs": [
-      { "name": "inputs", "option": "variadic" }
+      { "name": "inputs", "type": "Tensor[]" }
     ],
     "outputs": [
       { "name": "output" }
@@ -504,7 +504,7 @@
       { "name": "inputs" }
     ],
     "outputs": [
-      { "name": "outputs", "option": "variadic" }
+      { "name": "outputs", "type": "Tensor[]" }
     ]
   },
   {
