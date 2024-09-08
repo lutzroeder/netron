@@ -7952,6 +7952,13 @@
   },
   {
     "type":     "tvm",
+    "target":   "squeezenet.params",
+    "source":   "https://github.com/user-attachments/files/16922776/squeezenet.params.zip[squeezenet.params]",
+    "format":   "TVM",
+    "link":     "https://github.com/lutzroeder/netron/issues/1342"
+  },
+  {
+    "type":     "tvm",
     "target":   "squeezenet_opt_level_1.json,squeezenet_opt_level_1.params",
     "source":   "https://github.com/user-attachments/files/16919287/squeezenet_opt_level_1.zip[squeezenet_opt_level_1.json,squeezenet_opt_level_1.params]",
     "format":   "TVM",
@@ -7962,7 +7969,6 @@
     "target":   "squeezenet_opt_level_3.params,squeezenet_opt_level_3.json",
     "source":   "https://github.com/user-attachments/files/16919289/squeezenet_opt_level_3.zip[squeezenet_opt_level_3.params,squeezenet_opt_level_3.json]",
     "format":   "TVM",
-    "error":    "Invalid file content. File contains TVN NDArray data.",
     "link":     "https://github.com/lutzroeder/netron/issues/1342"
   },
   {
