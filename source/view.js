@@ -586,7 +586,7 @@ view.View = class {
         }
     }
 
-    scrollTo(selection) {
+    scrollTo(selection, behavior) {
         if (selection && selection.length > 0) {
             const container = this._element('graph');
             let x = 0;
@@ -601,7 +601,8 @@ view.View = class {
             const rect = container.getBoundingClientRect();
             const left = (container.scrollLeft + x - rect.left) - (rect.width / 2);
             const top = (container.scrollTop + y - rect.top) - (rect.height / 2);
-            container.scrollTo({ left, top, behavior: 'smooth' });
+            behavior = behavior || 'smooth';
+            container.scrollTo({ left, top, behavior });
         }
     }
 
@@ -779,9 +780,13 @@ view.View = class {
         }
     }
 
-    async pushGraph(graph) {
+    async pushGraph(graph, context) {
         if (graph && graph !== this.activeGraph && Array.isArray(graph.nodes)) {
             this._sidebar.close();
+            if (context) {
+                this._stack[0].context = context;
+                this._stack[0].zoom = this._zoom;
+            }
             const signature = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null;
             const entry = { graph, signature };
             const stack = [entry].concat(this._stack);
@@ -852,10 +857,13 @@ view.View = class {
             canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
             canvas.setAttribute('width', width);
             canvas.setAttribute('height', height);
-            this._zoom = 1;
+            this._zoom = this._stack && this._stack.length > 0 && this._stack[0].zoom ? this._stack[0].zoom : 1;
             this._updateZoom(this._zoom);
             const container = this._element('graph');
-            if (elements && elements.length > 0) {
+            const context = this._stack && this._stack.length > 0 && this._stack[0].context ? viewGraph.select([this._stack[0].context]) : [];
+            if (context.length > 0) {
+                this.scrollTo(context, 'instant');
+            } else if (elements && elements.length > 0) {
                 // Center view based on input elements
                 const xs = [];
                 const ys = [];
@@ -2015,7 +2023,7 @@ view.Node = class extends grapher.Node {
                 tooltip = 'Show Weights';
             }
             const definition = header.add(null, styles, icon, tooltip);
-            definition.on('click', async () => await this.context.view.pushGraph(node.type));
+            definition.on('click', async () => await this.context.view.pushGraph(node.type, this.value));
         }
         if (Array.isArray(node.nodes)) {
             // this._expand = header.add(null, styles, '+', null);
