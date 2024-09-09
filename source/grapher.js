@@ -7,6 +7,8 @@ grapher.Graph = class {
         this._compound = compound;
         this._nodes = new Map();
         this._edges = new Map();
+        this._focusable = new Map();
+        this._focused = [];
         this._children = {};
         this._children['\x00'] = {};
         this._parent = {};
@@ -133,6 +135,28 @@ grapher.Graph = class {
             element.appendChild(markerPath);
             return element;
         };
+        edgePathGroup.addEventListener('pointerover', (e) => {
+            const edge = this._focusable.get(e.target);
+            if (edge && edge.focus) {
+                edge.focus();
+                this._focused = edge;
+                e.stopPropagation();
+            }
+        });
+        edgePathGroup.addEventListener('pointerleave', (e) => {
+            if (this._focused) {
+                this._focused.blur();
+                this._focused = null;
+                e.stopPropagation();
+            }
+        });
+        edgePathGroup.addEventListener('click', (e) => {
+            const edge = this._focusable.get(e.target);
+            if (edge && edge.activate) {
+                edge.activate();
+                e.stopPropagation();
+            }
+        });
         edgePathGroupDefs.appendChild(marker("arrowhead"));
         edgePathGroupDefs.appendChild(marker("arrowhead-select"));
         edgePathGroupDefs.appendChild(marker("arrowhead-hover"));
@@ -157,8 +181,11 @@ grapher.Graph = class {
             }
         }
 
+        this._focusable.clear();
+        this._focused = [];
         for (const edge of this.edges.values()) {
             edge.label.build(document, edgePathGroup, edgeLabelGroup);
+            this._focusable.set(edge.label.hitTest, edge.label);
         }
     }
 
@@ -811,24 +838,6 @@ grapher.Edge = class {
         edgePathGroupElement.appendChild(this.element);
         this.hitTest = createElement('path');
         this.hitTest.setAttribute('class', 'edge-path-hit-test');
-        if (this.focus) {
-            this.hitTest.addEventListener('pointerover', (e) => {
-                this.focus();
-                e.stopPropagation();
-            });
-        }
-        if (this.blur) {
-            this.hitTest.addEventListener('pointerleave', (e) => {
-                this.blur();
-                e.stopPropagation();
-            });
-        }
-        if (this.activate) {
-            this.hitTest.addEventListener('click', (e) => {
-                this.activate();
-                e.stopPropagation();
-            });
-        }
         edgePathGroupElement.appendChild(this.hitTest);
         if (this.label) {
             const tspan = createElement('tspan');

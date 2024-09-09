@@ -3707,13 +3707,12 @@ view.FindSidebar = class extends view.Control {
     }
 
     _clear() {
-        for (const identifier of this._focused) {
-            this._blur(identifier);
+        for (const element of this._focused) {
+            this._blur(element);
         }
         this._focused.clear();
         this._table.clear();
         this._edges.clear();
-        this._index = 0;
         const unquote = this._state.query.match(new RegExp(/^'(.*)'|"(.*)"$/));
         if (unquote) {
             this._exact = true;
@@ -3833,37 +3832,26 @@ view.FindSidebar = class extends view.Control {
     }
 
     _add(value, content, icon) {
-        const key = this._index.toString();
-        this._index++;
-        this._table.set(key, value);
         const element = this.createElement('li');
         element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-${icon}"></use></svg>`;
         const text = this.createElement('span');
         text.innerText = content;
         element.appendChild(text);
-        element.setAttribute('data', key);
-        element.addEventListener('pointerover', (e) => {
-            const identifier = e.target.getAttribute('data');
-            this._focus(identifier);
-        });
-        element.addEventListener('pointerleave', (e) => {
-            const identifier = e.target.getAttribute('data');
-            this._blur(identifier);
-        });
+        this._table.set(element, value);
         this._content.appendChild(element);
     }
 
-    _focus(identifier) {
-        if (this._table.has(identifier)) {
-            this.emit('focus', this._table.get(identifier));
-            this._focused.add(identifier);
+    _focus(element) {
+        if (this._table.has(element)) {
+            this.emit('focus', this._table.get(element));
+            this._focused.add(element);
         }
     }
 
-    _blur(identifier) {
-        if (this._table.has(identifier)) {
-            this.emit('blur', this._table.get(identifier));
-            this._focused.delete(identifier);
+    _blur(element) {
+        if (this._table.has(element)) {
+            this.emit('blur', this._table.get(element));
+            this._focused.delete(element);
         }
     }
 
@@ -3939,16 +3927,20 @@ view.FindSidebar = class extends view.Control {
             this._search.appendChild(toggle.element);
         }
         this._content.addEventListener('click', (e) => {
-            const name = e.target.getAttribute('data');
-            if (this._table.has(name)) {
-                this.emit('select', this._table.get(name));
+            if (this._table.has(e.target)) {
+                this.emit('select', this._table.get(e.target));
             }
         });
         this._content.addEventListener('dblclick', (e) => {
-            const name = e.target.getAttribute('data');
-            if (this._table.has(name)) {
-                this.emit('activate', this._table.get(name));
+            if (this._table.has(e.target)) {
+                this.emit('activate', this._table.get(e.target));
             }
+        });
+        this._content.addEventListener('pointerover', (e) => {
+            for (const element of this._focused) {
+                this._blur(element);
+            }
+            this._focus(e.target);
         });
     }
 
@@ -3957,9 +3949,10 @@ view.FindSidebar = class extends view.Control {
     }
 
     deactivate() {
-        for (const identifier of this._focused) {
-            this._blur(identifier);
+        for (const element of this._focused) {
+            this._blur(element);
         }
+        this._table.clear();
         this._focused.clear();
     }
 
