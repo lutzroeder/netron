@@ -2,7 +2,6 @@
 export const circle = {};
 
 circle.TensorType = {
-    UINT4: -1,
     FLOAT32: 0,
     FLOAT16: 1,
     INT32: 2,
@@ -20,7 +19,12 @@ circle.TensorType = {
     VARIANT: 14,
     UINT32: 15,
     UINT16: 16,
-    INT4: 17
+    INT4: 17,
+    UINT4: -1,
+    GGML_Q4_0: -2,
+    GGML_Q4_1: -3,
+    GGML_Q8_0: -4,
+    GGML_Q8_1: -5
 };
 
 circle.CustomQuantization = class CustomQuantization {
@@ -210,6 +214,11 @@ circle.VariantSubType = class VariantSubType {
     }
 };
 
+circle.CompressionType = {
+    NONE: 0,
+    HUFFMAN: 1
+};
+
 circle.Tensor = class Tensor {
 
     static decode(reader, position) {
@@ -224,6 +233,7 @@ circle.Tensor = class Tensor {
         $.shape_signature = reader.array(position, 18, Int32Array);
         $.has_rank = reader.bool_(position, 20, false);
         $.variant_tensors = reader.tables(position, 22, circle.VariantSubType);
+        $.compression_type = reader.int8_(position, 24, 0);
         return $;
     }
 
@@ -239,6 +249,7 @@ circle.Tensor = class Tensor {
         $.shape_signature = reader.array(json.shape_signature, Int32Array);
         $.has_rank = reader.value(json.has_rank, false);
         $.variant_tensors = reader.objects(json.variant_tensors, circle.VariantSubType);
+        $.compression_type = circle.CompressionType[json.compression_type];
         return $;
     }
 };
