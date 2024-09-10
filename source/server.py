@@ -267,7 +267,7 @@ def wait():
         _log(True, '\n')
         stop()
 
-def serve(file, data, address=None, browse=False, verbosity=1):
+def serve(file, data=None, address=None, browse=False, verbosity=1):
     '''Start serving model from file or data buffer at address and open in web browser.
 
     Args:
@@ -324,3 +324,18 @@ def start(file=None, address=None, browse=True, verbosity=1):
         A (host, port) address tuple.
     '''
     return serve(file, None, browse=browse, address=address, verbosity=verbosity)
+
+def widget(address, height=800):
+    ''' Open address as Jupyter Notebook IFrame.
+
+    Args:
+        address (tuple, optional): A (host, port) tuple, or a port number.
+        height (int, optional): Height of the IFrame, Default: 800
+
+    Returns:
+        A Jupyter Notebook IFrame.
+    '''
+    address = _make_address(address)
+    url = f"http://{address[0]}:{address[1]}"
+    IPython = __import__('IPython') # pylint: disable=invalid-name
+    return IPython.display.IFrame(url, width="100%", height=height)

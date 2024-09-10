@@ -9,6 +9,7 @@ from .server import stop
 from .server import status
 from .server import wait
 from .server import serve
+from .server import widget
 from .server import __version__
 
 def main():
