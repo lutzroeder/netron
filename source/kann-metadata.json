@@ -170,13 +170,5 @@
     {
         "name": "SiLU",
         "category": "Activation"
-    },
-    {
-        "name": "ImageSMEM",
-        "category": "Tensor"
-    },
-    {
-        "name": "ImageDDR",
-        "category": "Tensor"
     }
 ]
