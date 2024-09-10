@@ -4204,6 +4204,7 @@
   },
   {
     "name": "BatchMatrixInverse",
+    "description": "DEPRECATED: This operation is deprecated and will be removed in a future version.\nUse tf.linalg.inv instead.\n\nComputes the inverse of one or more square invertible matrices or their\nadjoints (conjugate transposes).",
     "attributes": [
       {
         "name": "adjoint",
