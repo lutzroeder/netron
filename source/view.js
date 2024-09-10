@@ -2457,14 +2457,14 @@ view.Sidebar = class {
                 content.innerHTML = '';
                 content.appendChild(entry.element);
             }
-            if (entry.content && entry.content.activate) {
-                entry.content.activate();
-            }
             sidebar.style.width = 'min(calc(100% * 0.6), 42em)';
             sidebar.style.right = 0;
             sidebar.style.opacity = 1;
             this._host.document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
             container.style.width = 'max(40vw, calc(100vw - 42em))';
+            if (entry.content && entry.content.activate) {
+                entry.content.activate();
+            }
         } else {
             sidebar.style.right = 'calc(0px - min(calc(100% * 0.6), 42em))';
             sidebar.style.opacity = 0;
