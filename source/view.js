@@ -5279,7 +5279,11 @@ view.Context = class {
                                         data.seek(-1);
                                         const tail = data.peek(1);
                                         data.seek(0);
-                                        condition = tail[0] === 0x2e;
+                                        if (tail[0] === 0x2e) {
+                                            const buffer = data.peek(Math.min(data.length, 256));
+                                            const content = String.fromCharCode.apply(null, buffer);
+                                            condition = content.indexOf('ccopy_reg') !== -1;
+                                        }
                                     }
                                 }
                                 if (condition) {
