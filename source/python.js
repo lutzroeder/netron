@@ -5976,6 +5976,7 @@ python.Execution = class {
         this.registerType('torch._ops.HigherOrderOperator', class extends torch._ops.OperatorBase {});
         this.registerType('torch._ops.OpOverload', class extends torch._ops.OperatorBase {});
         this.registerType('torch.export.unflatten.UnflattenedModule', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.export.graph_signature.ExportGraphSignature', class {});
         this.registerType('torch.export.graph_signature.InputKind', class extends this._enum.Enum {});
         this.registerType('torch.export.graph_signature.InputSpec', class extends this._enum.Enum {});
         this.registerType('torch.export.graph_signature.OutputKind', class extends this._enum.Enum {});
