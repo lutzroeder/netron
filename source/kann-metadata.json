@@ -8,27 +8,11 @@
         "category": "Transform"
     },
     {
-        "name": "Erf",
-        "category": "Layer"
-    },
-    {
         "name": "LayerNorm",
         "category": "Normalization"
     },
     {
-        "name": "Output",
-        "category": "Data"
-    },
-    {
-        "name": "MaxWithConstant",
-        "category": "Transform"
-    },
-    {
         "name": "ConvolutionCV2",
-        "category": "Layer"
-    },
-    {
-        "name": "Reciprocal",
         "category": "Layer"
     },
     {
@@ -44,14 +28,6 @@
         "category": "Shape"
     },
     {
-        "name": "MulElementwise",
-        "category": "Transform"
-    },
-    {
-        "name": "Copy",
-        "category": "Transform"
-    },
-    {
         "name": "Exp",
         "category": "Activation"
     },
@@ -64,14 +40,6 @@
         "category": "Normalization"
     },
     {
-        "name": "Division",
-        "category": "Layer"
-    },
-    {
-        "name": "MatMul",
-        "category": "Transform"
-    },
-    {
         "name": "AvgPooling",
         "category": "Pool"
     },
@@ -80,47 +48,15 @@
         "category": "Activation"
     },
     {
-        "name": "MaxElementwise",
-        "category": "Transform"
-    },
-    {
         "name": "SeLU",
         "category": "Activation"
     },
     {
         "name": "LRN",
-        "category": "Activation"
-    },
-    {
-        "name": "MulWithConstant",
-        "category": "Transform"
-    },
-    {
-        "name": "Abs",
-        "category": "Transform"
-    },
-    {
-        "name": "Invert",
-        "category": "Transform"
-    },
-    {
-        "name": "Sqrt",
-        "category": "Transform"
-    },
-    {
-        "name": "MinElementwise",
-        "category": "Transform"
+        "category": "Normalization"
     },
     {
         "name": "GeLU",
-        "category": "Activation"
-    },
-    {
-        "name": "Input",
-        "category": "Data"
-    },
-    {
-        "name": "Logistic",
         "category": "Activation"
     },
     {
@@ -128,28 +64,12 @@
         "category": "Shape"
     },
     {
-        "name": "AddElementwise",
-        "category": "Transform"
-    },
-    {
-        "name": "Saturate",
-        "category": "Transform"
-    },
-    {
         "name": "Tanh",
         "category": "Activation"
     },
     {
-        "name": "ScalingVector",
-        "category": "Transform"
-    },
-    {
         "name": "MaxPooling",
         "category": "Pool"
-    },
-    {
-        "name": "Convert",
-        "category": "Transform"
     },
     {
         "name": "DepthwiseConvolution",
@@ -158,14 +78,6 @@
     {
         "name": "Softmax",
         "category": "Activation"
-    },
-    {
-        "name": "MinWithConstant",
-        "category": "Transform"
-    },
-    {
-        "name": "WriteValue",
-        "category": "Data"
     },
     {
         "name": "SiLU",

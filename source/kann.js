@@ -14,17 +14,6 @@ kann.ModelFactory = class {
             context.target = reader;
             return;
         }
-        // If KaNN identifier not found, check if the file is '.kann'
-        const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'kann' && reader && reader.identifier === '') {
-            const version = reader.uint32_(reader.root, 4, 0);
-            if (version === 1) {
-                context.type = 'kann.flatbuffers';
-                context.target = reader;
-                return;
-            }
-        }
     }
 
     // Open and initialize the KaNN model from the context
