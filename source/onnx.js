@@ -161,7 +161,6 @@ onnx.Model = class {
 onnx.Graph = class {
 
     constructor(context, graph) {
-        this._node = '';
         this._description = '';
         this._nodes = [];
         this._inputs = [];
