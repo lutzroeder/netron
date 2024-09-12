@@ -1740,34 +1740,17 @@ view.Graph = class extends grapher.Graph {
         this._selection = new Set();
     }
 
-    createNode(node, type) {
-        if (type) {
-            const obj = new view.Node(this, { type });
-            obj.name = (this._nodeKey++).toString();
-            this._table.set(type, obj);
-            return obj;
-        }
+    createNode(node) {
         const obj = new view.Node(this, node);
         obj.name = (this._nodeKey++).toString();
         this._table.set(node, obj);
-        const inputs = node.inputs;
-        if (Array.isArray(inputs)) {
-            for (const argument of inputs) {
-                if (!argument.type || argument.type.endsWith('*')) {
-                    if (Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
-                        this.createArgument(argument);
-                    } else {
-                        for (const value of argument.value) {
-                            if (value.name !== '' && !value.initializer) {
-                                this.createValue(value).to.push(obj);
-                            } else if (value.initializer) {
-                                this.createValue(value);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        return obj;
+    }
+
+    createGraph(graph) {
+        const obj = new view.Node(this, graph, 'graph');
+        obj.name = (this._nodeKey++).toString();
+        this._table.set(graph, obj);
         return obj;
     }
 
@@ -1973,12 +1956,30 @@ view.Graph = class extends grapher.Graph {
 
 view.Node = class extends grapher.Node {
 
-    constructor(context, value) {
+    constructor(context, value, type) {
         super();
         this.context = context;
         this.value = value;
         this.id = `node-${value.name ? `name-${value.name}` : `id-${(context.counter++)}`}`;
-        this._add(this.value);
+        this._add(value, type);
+        const inputs = value.inputs;
+        if (Array.isArray(inputs)) {
+            for (const argument of inputs) {
+                if (!argument.type || argument.type.endsWith('*')) {
+                    if (Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
+                        context.createArgument(argument);
+                    } else {
+                        for (const value of argument.value) {
+                            if (value.name !== '' && !value.initializer) {
+                                context.createValue(value).to.push(this);
+                            } else if (value.initializer) {
+                                context.createValue(value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     get class() {
@@ -1993,27 +1994,27 @@ view.Node = class extends grapher.Node {
         return this.value.outputs;
     }
 
-    _add(node) {
+    _add(value, type) {
+        const node = type === 'graph' ? { type: value } : value;
         const options = this.context.options;
         const header =  this.header();
-        const type = node.type;
-        const category = type && type.category ? type.category : '';
-        if (typeof type.name !== 'string' || !type.name.split) { // #416
-            const error = new view.Error(`Unsupported node type '${JSON.stringify(type.name)}'.`);
+        const category = node.type && node.type.category ? node.type.category : '';
+        if (node.type && typeof node.type.name !== 'string' || !node.type.name.split) { // #416
+            const error = new view.Error(`Unsupported node type '${JSON.stringify(node.type.name)}'.`);
             if (this.context.model && this.context.model.identifier) {
                 error.context = this.context.model.identifier;
             }
             throw error;
         }
-        let content = options.names && (node.name || node.identifier) ? (node.name || node.identifier) : type.name.split('.').pop();
-        const tooltip = options.names && (node.name || node.identifier) ? type.name : (node.name || node.identifier);
+        let content = options.names && (node.name || node.identifier) ? (node.name || node.identifier) : node.type.name.split('.').pop();
+        const tooltip = options.names && (node.name || node.identifier) ? node.type.name : (node.name || node.identifier);
         if (content.length > 18) {
             content = `${content.substring(0, 9)}\u2026${content.substring(content.length - 9, content.length)}`;
         }
         const styles = category ? ['node-item-type', `node-item-type-${category.toLowerCase()}`] : ['node-item-type'];
         const title = header.add(null, styles, content, tooltip);
         title.on('click', () => {
-            this.context.activate(node);
+            this.context.activate(value);
         });
         if (Array.isArray(node.type.nodes) && node.type.nodes.length > 0) {
             let icon = '\u0192';
@@ -2107,7 +2108,10 @@ view.Node = class extends grapher.Node {
             const type = argument.type;
             let content = null;
             if (type === 'graph') {
-                content = this.context.createNode(null, argument.value);
+                content = this.context.createGraph(argument.value);
+                this.context.setNode(content);
+            } else if (type === 'graph[]') {
+                content = argument.value.map((value) => this.context.createGraph(value));
             } else if (type === 'function' || argument.type === 'object') {
                 content = this.context.createNode(argument.value);
             } else if (type === 'function[]' || argument.type === 'object[]') {
