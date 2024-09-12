@@ -719,6 +719,13 @@
     ]
   },
   {
+    "name": "RmsNorm",
+    "attributes": [
+      { "name": "epsilon", "type": "float32", "default": 0 },
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+    ]
+  },
+  {
     "name": "RNN",
     "category": "Layer",
     "attributes": [
