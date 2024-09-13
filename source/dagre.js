@@ -45,7 +45,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         const graph = new dagre.Graph(true, false);
         for (const node of g.nodes.values()) {
             const v = node.v;
-            if (g.children(v).next().done) {
+            if (!g.hasChildren(v)) {
                 graph.setNode(v, node.label);
             }
         }
@@ -1051,7 +1051,7 @@ dagre.layout = (nodes, edges, layout, state) => {
             const movable = bl ? Array.from(g.children(v)).filter((w) => w !== bl && w !== br) : g.children(v);
             const barycenters = barycenter(g, movable);
             for (const entry of barycenters) {
-                if (!g.children(entry.v).next().done) {
+                if (g.hasChildren(entry.v)) {
                     const result = sortSubgraph(g, entry.v, cg, biasRight);
                     subgraphs[entry.v] = result;
                     if ('barycenter' in result) {
@@ -2014,7 +2014,7 @@ dagre.layout = (nodes, edges, layout, state) => {
     const removeBorderNodes = (g) => {
         for (const node of g.nodes.values()) {
             const v = node.v;
-            if (!g.children(v).next().done) {
+            if (g.hasChildren(v)) {
                 const label = node.label;
                 const t = g.node(label.borderTop).label;
                 const b = g.node(label.borderBottom).label;
@@ -2200,7 +2200,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         const label = g.node(node.v).label;
         node.x = label.x;
         node.y = label.y;
-        if (!g.children(node.v).next().done) {
+        if (g.hasChildren(node.v)) {
             node.width = label.width;
             node.height = label.height;
         }
@@ -2323,6 +2323,16 @@ dagre.Graph = class {
             return [];
         }
         return null;
+    }
+
+    hasChildren(v) {
+        if (this.compound) {
+            return this._children.get(v === undefined ? '\x00' : v).size > 0;
+        } else if (v === undefined) {
+            return this.nodes.size > 0;
+        } else {
+            return false;
+        }
     }
 
     predecessors(v) {
