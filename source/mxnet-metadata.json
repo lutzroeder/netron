@@ -33,15 +33,6 @@
     ]
   },
   {
-    "name": "_minus_scalar",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
     "name": "_mul",
     "inputs": [
       { "name": "x" },
@@ -56,15 +47,6 @@
     "attributes": [
       { "name": "scalar", "type": "float32" }
     ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "_mul_scalar",
     "inputs": [
       { "name": "input" }
     ],

@@ -3955,12 +3955,13 @@ pytorch.Metadata = class {
 
     static async open(context) {
         if (!pytorch.Metadata._metadata) {
+            let data = null;
             try {
-                const data = await context.request('pytorch-metadata.json');
-                pytorch.Metadata._metadata = new pytorch.Metadata(data);
+                data = await context.request('pytorch-metadata.json');
             } catch {
-                pytorch.Metadata._metadata = new pytorch.Metadata(null);
+                // continue regardless of error
             }
+            pytorch.Metadata._metadata = new pytorch.Metadata(data);
         }
         return pytorch.Metadata._metadata;
     }

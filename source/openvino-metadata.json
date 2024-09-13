@@ -761,6 +761,10 @@
         "type": "float32"
       }
     ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "data" }
+    ],
     "status": "default"
   },
   {
@@ -1116,6 +1120,10 @@
         "type": "int32"
       }
     ],
+    "inputs": [
+      { "name": "output_size" },
+      { "name": "image_size" }
+    ],
     "status": "default"
   },
   {
@@ -1246,13 +1254,6 @@
       }
     ],
     "status": "default"
-  },
-  {
-    "name": "PriorBox",
-    "inputs": [
-      { "name": "output_size" },
-      { "name": "image_size" }
-    ]
   },
   {
     "name": "PSROIPooling",

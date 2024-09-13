@@ -6237,13 +6237,14 @@ view.Metadata = class {
         view.Metadata._metadata = view.Metadata._metadata || new Map();
         const metadata = view.Metadata._metadata;
         if (!metadata.has(name)) {
+            let data = null;
             try {
-                const content = await context.request(name);
-                const types = JSON.parse(content);
-                metadata.set(name, new view.Metadata(types));
+                data = await context.request(name);
             } catch {
-                metadata.set(name, new view.Metadata(null));
+                // continue regardless of error
             }
+            const types = JSON.parse(data);
+            metadata.set(name, new view.Metadata(types));
         }
         return metadata.get(name);
     }
@@ -6254,6 +6255,9 @@ view.Metadata = class {
         this._inputs = new Map();
         if (Array.isArray(types)) {
             for (const type of types) {
+                if (this._types.has(type.name)) {
+                    // throw new view.Error(`Duplicate type metadata '${type.name}'.`);
+                }
                 this._types.set(type.name, type);
                 if (type.identifier !== undefined) {
                     this._types.set(type.identifier, type);

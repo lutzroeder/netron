@@ -391,10 +391,10 @@ tf.ModelFactory = class {
                                 node.__metadata__ = Array.from(metadata.get(node.op) || []);
                             }
                         }
-                        return saved_model;
                     } catch {
-                        return saved_model;
+                        // continue regardless of error
                     }
+                    return saved_model;
                 };
                 const updated_saved_model = await openPyTorchMetadata(context, saved_model);
                 return openModel(updated_saved_model, format, producer, null);
