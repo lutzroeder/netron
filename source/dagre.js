@@ -2330,9 +2330,8 @@ dagre.Graph = class {
             return this._children.get(v === undefined ? '\x00' : v).size > 0;
         } else if (v === undefined) {
             return this.nodes.size > 0;
-        } else {
-            return false;
         }
+        return false;
     }
 
     predecessors(v) {
