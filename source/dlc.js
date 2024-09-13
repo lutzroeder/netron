@@ -147,15 +147,13 @@ dlc.Value = class {
 dlc.Node = class {
 
     constructor(metadata, version, obj, value) {
-        const type = `${obj.type}:v${version}`;
-        this.type = { ...metadata.type(type) };
-        this.type.name = obj.type;
+        this.type = metadata.type(obj.type);
         this.name = obj.name;
         this.inputs = [];
         this.outputs = [];
         this.attributes = [];
         const inputs = Array.isArray(obj.inputs) ? Array.from(obj.inputs).map((name) => value(name)) : [];
-        if (Array.isArray(this.type.inputs) && inputs.length === this.type.inputs.length) {
+        if (version !== 3 && Array.isArray(this.type.inputs) && inputs.length === this.type.inputs.length) {
             for (let i = 0; i < inputs.length; i++) {
                 const argument = new dlc.Argument(this.type.inputs[i].name, [inputs[i]]);
                 this.inputs.push(argument);
