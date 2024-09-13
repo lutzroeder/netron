@@ -1400,14 +1400,10 @@ dagre.layout = (nodes, edges, layout, state) => {
                                     const idx2 = layer2.indexOf(g.node(layer1[idx0]).in[0].v);
                                     const idx3 = layer2.indexOf(g.node(layer1[idx1]).in[0].v);
                                     if (calcDir(idx0, idx1) !== topDir) {
-                                        const tmp = layer1[idx1];
-                                        layer1[idx1] = layer1[idx0];
-                                        layer1[idx0] = tmp;
+                                        [layer1[idx0], layer1[idx1]] = [layer1[idx1], layer1[idx0]];
                                     }
                                     if (calcDir(idx2, idx3) !== topDir) {
-                                        const tmp = layer2[idx3];
-                                        layer2[idx3] = layer2[idx2];
-                                        layer2[idx2] = tmp;
+                                        [layer2[idx2], layer2[idx3]] = [layer2[idx3], layer2[idx2]];
                                     }
                                     l += 2;
                                 }
@@ -1610,9 +1606,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         }
         if (rankDir === 'lr' || rankDir === 'rl') {
             const swapXYOne = (attrs) => {
-                const x = attrs.x;
-                attrs.x = attrs.y;
-                attrs.y = x;
+                [attrs.x, attrs.y] = [attrs.y, attrs.x];
             };
             for (const node of g.nodes.values()) {
                 swapXYOne(node.label);
@@ -1633,9 +1627,7 @@ dagre.layout = (nodes, edges, layout, state) => {
     const position = (g, state, layout) => {
         const addConflict = (conflicts, v, w) => {
             if (v > w) {
-                const tmp = v;
-                v = w;
-                w = tmp;
+                [v, w] = [w, v];
             }
             let conflictsV = conflicts[v];
             if (!conflictsV) {
@@ -1646,9 +1638,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         };
         const hasConflict = (conflicts, v, w) => {
             if (v > w) {
-                const tmp = v;
-                v = w;
-                w = tmp;
+                [v, w] = [w, v];
             }
             return conflicts[v] && conflicts[v].has(w);
         };
@@ -2373,9 +2363,7 @@ dagre.Graph = class {
             edge.label = label;
         } else {
             if (!this.directed && v > w) {
-                const tmp = v;
-                v = w;
-                w = tmp;
+                [v, w] = [w, v];
             }
             const edge = { label, v, w, name, key, vNode: null, wNode: null };
             this.edges.set(key, edge);
