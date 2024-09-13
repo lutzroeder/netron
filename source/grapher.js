@@ -8,7 +8,7 @@ grapher.Graph = class {
         this._nodes = new Map();
         this._edges = new Map();
         this._focusable = new Map();
-        this._focused = [];
+        this._focused = null;
         this._children = {};
         this._children['\x00'] = {};
         this._parent = {};
@@ -136,6 +136,10 @@ grapher.Graph = class {
             return element;
         };
         edgePathGroup.addEventListener('pointerover', (e) => {
+            if (this._focused) {
+                this._focused.blur();
+                this._focused = null;
+            }
             const edge = this._focusable.get(e.target);
             if (edge && edge.focus) {
                 edge.focus();
@@ -182,7 +186,7 @@ grapher.Graph = class {
         }
 
         this._focusable.clear();
-        this._focused = [];
+        this._focused = null;
         for (const edge of this.edges.values()) {
             edge.label.build(document, edgePathGroup, edgeLabelGroup);
             this._focusable.set(edge.label.hitTest, edge.label);
