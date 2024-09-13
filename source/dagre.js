@@ -2234,9 +2234,9 @@ dagre.Graph = class {
         this.nodes = new Map();
         this.edges = new Map();
         if (this.compound) {
-            this._parent = {};
-            this._children = {};
-            this._children['\x00'] = {};
+            this._parent = new Map();
+            this._children = new Map();
+            this._children.set('\x00', new Map());
         }
     }
 
@@ -2254,9 +2254,9 @@ dagre.Graph = class {
             const node = { label: label ? label : this._defaultNodeLabelFn(v), in: [], out: [], predecessors: new Map(), successors: new Map(), v };
             this.nodes.set(v, node);
             if (this.compound) {
-                this._parent[v] = '\x00';
-                this._children[v] = {};
-                this._children['\x00'][v] = true;
+                this._parent.set(v, '\x00');
+                this._children.set(v, new Map());
+                this._children.get('\x00').set(v, true);
             }
         }
     }
@@ -2273,12 +2273,12 @@ dagre.Graph = class {
         const node = this.nodes.get(v);
         if (node) {
             if (this.compound) {
-                delete this._children[this._parent[v]][v];
-                delete this._parent[v];
+                this._children.get(this._parent.get(v)).delete(v);
+                this._parent.delete(v);
                 for (const child of this.children(v)) {
                     this.setParent(child);
                 }
-                delete this._children[v];
+                this._children.delete(v);
             }
             for (const edge of node.in) {
                 this.removeEdge(edge);
@@ -2304,14 +2304,14 @@ dagre.Graph = class {
         } else {
             parent = '\x00';
         }
-        delete this._children[this._parent[v]][v];
-        this._parent[v] = parent;
-        this._children[parent][v] = true;
+        this._children.get(this._parent.get(v)).delete(v);
+        this._parent.set(v, parent);
+        this._children.get(parent).set(v, true);
     }
 
     parent(v) {
         if (this.compound) {
-            const parent = this._parent[v];
+            const parent = this._parent.get(v);
             if (parent !== '\x00') {
                 return parent;
             }
@@ -2321,7 +2321,7 @@ dagre.Graph = class {
 
     children(v) {
         if (this.compound) {
-            return Object.keys(this._children[v === undefined ? '\x00' : v]);
+            return Array.from(this._children.get(v === undefined ? '\x00' : v).keys());
         } else if (v === undefined) {
             return this.nodes.keys();
         } else if (this.hasNode(v)) {
