@@ -1199,7 +1199,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         // the order of its nodes.
         const initOrder = (g) => {
             const visited = new Set();
-            const nodes = Array.from(g.nodes.values()).filter((node) => Array.from(g.children(node.v)).length === 0);
+            const nodes = Array.from(g.nodes.values()).filter((node) => g.children(node.v).next().done);
             let maxRank = -1;
             for (const node of nodes) {
                 const rank = node.label.rank;
@@ -2014,7 +2014,7 @@ dagre.layout = (nodes, edges, layout, state) => {
     const removeBorderNodes = (g) => {
         for (const node of g.nodes.values()) {
             const v = node.v;
-            if (Array.from(g.children(v)).length) {
+            if (!g.children(v).next().done) {
                 const label = node.label;
                 const t = g.node(label.borderTop).label;
                 const b = g.node(label.borderBottom).label;
@@ -2200,7 +2200,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         const label = g.node(node.v).label;
         node.x = label.x;
         node.y = label.y;
-        if (Array.from(g.children(node.v)).length) {
+        if (!g.children(node.v).next().done) {
             node.width = label.width;
             node.height = label.height;
         }
