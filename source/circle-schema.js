@@ -3292,14 +3292,12 @@ circle.RmsNormOptions = class RmsNormOptions {
     static decode(reader, position) {
         const $ = new circle.RmsNormOptions();
         $.epsilon = reader.float32_(position, 4, 0);
-        $.fused_activation_function = reader.int8_(position, 6, 0);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new circle.RmsNormOptions();
         $.epsilon = reader.value(json.epsilon, 0);
-        $.fused_activation_function = circle.ActivationFunctionType[json.fused_activation_function];
         return $;
     }
 };
