@@ -178,7 +178,10 @@ tvm.Graph = class {
                 blocks.get(nodeName).params.push({ name: argumentName, id: key });
                 values.map(key, null, tensors.get(key));
             }
-            this.nodes = blocks.values().map((block) => new tvm.Node(metadata, block, new Map(), values));
+            for (const block of blocks.values()) {
+                const node = new tvm.Node(metadata, block, new Map(), values);
+                this.nodes.push(node);
+            }
         }
     }
 };
