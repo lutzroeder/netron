@@ -6795,6 +6795,9 @@ tensorflow.ConfigProto = class ConfigProto {
                 case 6:
                     message.gpu_options = tensorflow.GPUOptions.decode(reader, reader.uint32());
                     break;
+                case 18:
+                    message.pluggable_device_options = tensorflow.GPUOptions.decode(reader, reader.uint32());
+                    break;
                 case 7:
                     message.allow_soft_placement = reader.bool();
                     break;
@@ -6860,6 +6863,9 @@ tensorflow.ConfigProto = class ConfigProto {
                 case "gpu_options":
                     message.gpu_options = tensorflow.GPUOptions.decodeText(reader);
                     break;
+                case "pluggable_device_options":
+                    message.pluggable_device_options = tensorflow.GPUOptions.decodeText(reader);
+                    break;
                 case "allow_soft_placement":
                     message.allow_soft_placement = reader.bool();
                     break;
@@ -6901,6 +6907,7 @@ tensorflow.ConfigProto.prototype.inter_op_parallelism_threads = 0;
 tensorflow.ConfigProto.prototype.use_per_session_threads = false;
 tensorflow.ConfigProto.prototype.placement_period = 0;
 tensorflow.ConfigProto.prototype.gpu_options = null;
+tensorflow.ConfigProto.prototype.pluggable_device_options = null;
 tensorflow.ConfigProto.prototype.allow_soft_placement = false;
 tensorflow.ConfigProto.prototype.log_device_placement = false;
 tensorflow.ConfigProto.prototype.graph_options = null;
