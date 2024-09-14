@@ -108,7 +108,6 @@ grapher.Graph = class {
             const element = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             element.setAttribute('id', name);
             element.setAttribute('class', name);
-            origin.appendChild(element);
             return element;
         };
 
@@ -190,6 +189,18 @@ grapher.Graph = class {
         for (const edge of this.edges.values()) {
             edge.label.build(document, edgePathGroup, edgeLabelGroup);
             this._focusable.set(edge.label.hitTest, edge.label);
+        }
+        origin.appendChild(clusterGroup);
+        origin.appendChild(edgePathGroup);
+        origin.appendChild(edgeLabelGroup);
+        origin.appendChild(nodeGroup);
+        for (const edge of this.edges.values()) {
+            if (edge.label.labelElement) {
+                const label = edge.label;
+                const edgeBox = label.labelElement.getBBox();
+                label.width = edgeBox.width;
+                label.height = edgeBox.height;
+            }
         }
     }
 
@@ -857,9 +868,6 @@ grapher.Edge = class {
                 this.labelElement.setAttribute('id', `edge-label-${this.id}`);
             }
             edgeLabelGroupElement.appendChild(this.labelElement);
-            const edgeBox = this.labelElement.getBBox();
-            this.width = edgeBox.width;
-            this.height = edgeBox.height;
         }
     }
 
