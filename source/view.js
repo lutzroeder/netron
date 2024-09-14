@@ -1963,7 +1963,7 @@ view.Node = class extends grapher.Node {
         this.id = `node-${value.name ? `name-${value.name}` : `id-${(context.counter++)}`}`;
         this._add(value, type);
         const inputs = value.inputs;
-        if (Array.isArray(inputs)) {
+        if (type !== 'graph' && Array.isArray(inputs)) {
             for (const argument of inputs) {
                 if (!argument.type || argument.type.endsWith('*')) {
                     if (Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
