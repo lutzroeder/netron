@@ -589,22 +589,52 @@ view.View = class {
     scrollTo(selection, behavior) {
         if (selection && selection.length > 0) {
             const container = this._element('graph');
-            const bounds = container.getBoundingClientRect();
-            let x = 0;
-            let y = 0;
+            let selLeft = Number.POSITIVE_INFINITY;
+            let selRight = Number.NEGATIVE_INFINITY;
+            let selTop = Number.POSITIVE_INFINITY;
+            let selBottom = Number.NEGATIVE_INFINITY;
             for (const element of selection) {
                 const rect = element.getBoundingClientRect();
-                const width = Math.min(rect.width, bounds.width);
-                const height = Math.min(rect.width, bounds.height);
-                x += rect.left + (width / 2);
-                y += rect.top + (height / 2);
+                selLeft = Math.min(selLeft, rect.left);
+                selRight = Math.max(selRight, rect.right);
+                selTop = Math.min(selTop, rect.top);
+                selBottom = Math.max(selBottom, rect.bottom);
             }
-            x /= selection.length;
-            y /= selection.length;
-            const left = (container.scrollLeft + x - bounds.left) - (bounds.width / 2);
-            const top = (container.scrollTop + y - bounds.top) - (bounds.height / 2);
-            behavior = behavior || 'smooth';
-            container.scrollTo({ left, top, behavior });
+            // Shrink the test rectangle by 10%
+            const rect = container.getBoundingClientRect();
+            const cw = container.clientWidth;
+            const ch = container.clientHeight;
+            const cx = rect.x + cw / 2;
+            const cy = rect.y + ch / 2;
+            rect.x = cx - cw * 0.45;
+            rect.width = cw * 0.9;
+            rect.y = cy - ch * 0.45;
+            rect.height = ch * 0.9;
+            // similar to scrollIntoView block: "nearest"
+            if (selRight > rect.right || selLeft < rect.left || selBottom > rect.bottom || selTop < rect.top) {
+                const dr = rect.right - selRight;
+                const dl = selLeft - rect.left;
+                const db = rect.bottom - selBottom;
+                const dt = selTop - rect.top;
+                let dx = 0;
+                let dy = 0;
+                if (selRight - selLeft < rect.width) {
+                    if (dl < 0) {
+                        dx = dl;
+                    } else if (dr < 0) {
+                        dx = -dr;
+                    }
+                }
+                if (selBottom - selTop < rect.height) {
+                    if (dt < 0) {
+                        dy = dt;
+                    } else if (db < 0) {
+                        dy = -db;
+                    }
+                }
+                behavior = behavior || 'smooth';
+                container.scrollBy({ top:dy, left:dx, behavior });
+            }
         }
     }
 
