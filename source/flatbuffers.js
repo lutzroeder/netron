@@ -15,17 +15,22 @@ flatbuffers.BinaryReader = class {
             if (reader.root > 0 && reader.root < reader.length) {
                 const buffer = reader.read(offset + 4, 4);
                 reader.identifier = buffer.every((c) => c >= 32 && c <= 128) ? String.fromCharCode(...buffer) : '';
-                const start = reader.root - reader.int32(reader.root);
-                if (start > 0 && (start + 4) < reader.length) {
-                    const last = reader.int16(start) + start;
-                    if (last < reader.length) {
-                        const max = reader.int16(start + 2);
-                        const offsets = [];
-                        for (let i = start + 4; i < last; i += 2) {
-                            const offset = reader.int16(i);
-                            offsets.push(offset);
+                const vtable = reader.int32(reader.root);
+                if (vtable < 0 || (vtable > 4 && vtable < 1024)) {
+                    const start = reader.root - vtable;
+                    if (start > 0 && (start + 4) < reader.length) {
+                        const last = reader.int16(start) + start;
+                        if (last < reader.length) {
+                            const max = reader.int16(start + 2);
+                            if (max > 0 && (max & 1) === 0) {
+                                const offsets = [];
+                                for (let i = start + 4; i < last; i += 2) {
+                                    const offset = reader.int16(i);
+                                    offsets.push(offset);
+                                }
+                                value = max > Math.max(...offsets);
+                            }
                         }
-                        value = max > Math.max(...offsets);
                     }
                 }
             }

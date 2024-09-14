@@ -3989,6 +3989,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "gpt2-lm-head-bs-12.onnx.zip",
+    "source":   "https://github.com/user-attachments/files/17003061/gpt2-lm-head-bs-12.onnx.zip",
+    "format":   "ONNX v7",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "gpt2_export.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/14189783/gpt2_export.onnx.zip",
     "format":   "ONNX v8",
