@@ -9,9 +9,9 @@ grapher.Graph = class {
         this._edges = new Map();
         this._focusable = new Map();
         this._focused = null;
-        this._children = {};
-        this._children['\x00'] = {};
-        this._parent = {};
+        this._children = new Map();
+        this._children.set('\x00', new Map());
+        this._parent = new Map();
     }
 
     setNode(node) {
@@ -22,9 +22,9 @@ grapher.Graph = class {
         } else {
             this._nodes.set(key, { v: key, label: node });
             if (this._compound) {
-                this._parent[key] = '\x00';
-                this._children[key] = {};
-                this._children['\x00'][key] = true;
+                this._parent.set(key, '\x00');
+                this._children.set(key, new Map());
+                this._children.get('\x00').set(key, true);
             }
         }
     }
@@ -52,9 +52,9 @@ grapher.Graph = class {
                 throw new Error(`Setting ${parent} as parent of ${node} would create a cycle`);
             }
         }
-        delete this._children[this._parent[node]][node];
-        this._parent[node] = parent;
-        this._children[parent][node] = true;
+        this._children.get(this._parent.get(node)).delete(node);
+        this._parent.set(node, parent);
+        this._children.get(parent).set(node, true);
         return this;
     }
 
@@ -80,7 +80,7 @@ grapher.Graph = class {
 
     parent(key) {
         if (this._compound) {
-            const parent = this._parent[key];
+            const parent = this._parent.get(key);
             if (parent !== '\x00') {
                 return parent;
             }
@@ -91,9 +91,9 @@ grapher.Graph = class {
     children(key) {
         key = key === undefined ? '\x00' : key;
         if (this._compound) {
-            const children = this._children[key];
+            const children = this._children.get(key);
             if (children) {
-                return Object.keys(children);
+                return Array.from(children.keys());
             }
         } else if (key === '\x00') {
             return this.nodes.keys();

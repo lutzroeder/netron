@@ -45,7 +45,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         const graph = new dagre.Graph(true, false);
         for (const node of g.nodes.values()) {
             const v = node.v;
-            if (g.children(v).length === 0) {
+            if (!g.hasChildren(v)) {
                 graph.setNode(v, node.label);
             }
         }
@@ -593,11 +593,8 @@ dagre.layout = (nodes, edges, layout, state) => {
         const treeDepths = (g) => {
             const depths = {};
             const dfs = (v, depth) => {
-                const children = g.children(v);
-                if (children && children.length > 0) {
-                    for (const child of children) {
-                        dfs(child, depth + 1);
-                    }
+                for (const child of g.children(v)) {
+                    dfs(child, depth + 1);
                 }
                 depths[v] = depth;
             };
@@ -607,7 +604,7 @@ dagre.layout = (nodes, edges, layout, state) => {
             return depths;
         };
         const dfs = (g, root, nodeSep, weight, height, depths, v) => {
-            const children = g.children(v);
+            const children = Array.from(g.children(v));
             if (!children.length) {
                 if (v !== root) {
                     g.setEdge(root, v, { weight: 0, minlen: nodeSep });
@@ -860,7 +857,7 @@ dagre.layout = (nodes, edges, layout, state) => {
                 g.setEdge(prev, curr, { weight: 1 });
             }
         };
-        const queue = g.children();
+        const queue = Array.from(g.children());
         for (let i = 0; i < queue.length; i++) {
             const v = queue[i];
             const node = g.node(v).label;
@@ -874,10 +871,8 @@ dagre.layout = (nodes, edges, layout, state) => {
                 }
             }
             const children = g.children(v);
-            if (children.length) {
-                for (const v of children) {
-                    queue.push(v);
-                }
+            for (const v of children) {
+                queue.push(v);
             }
         }
     };
@@ -978,7 +973,7 @@ dagre.layout = (nodes, edges, layout, state) => {
                 });
             };
             const barycenter = (g, movable) => {
-                return (movable || []).map((v) => {
+                return Array.from(movable).map((v) => {
                     const inV = g.node(v).in;
                     if (!inV.length) {
                         return { v };
@@ -1053,10 +1048,10 @@ dagre.layout = (nodes, edges, layout, state) => {
             const bl = node && node.label ? node.label.borderLeft : undefined;
             const br = node && node.label ? node.label.borderRight : undefined;
             const subgraphs = {};
-            const movable = bl ? g.children(v).filter((w) => w !== bl && w !== br) : g.children(v);
+            const movable = bl ? Array.from(g.children(v)).filter((w) => w !== bl && w !== br) : g.children(v);
             const barycenters = barycenter(g, movable);
             for (const entry of barycenters) {
-                if (g.children(entry.v).length) {
+                if (g.hasChildren(entry.v)) {
                     const result = sortSubgraph(g, entry.v, cg, biasRight);
                     subgraphs[entry.v] = result;
                     if ('barycenter' in result) {
@@ -1204,7 +1199,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         // the order of its nodes.
         const initOrder = (g) => {
             const visited = new Set();
-            const nodes = Array.from(g.nodes.values()).filter((node) => g.children(node.v).length === 0);
+            const nodes = Array.from(g.nodes.values()).filter((node) => !g.hasChildren(node.v));
             let maxRank = -1;
             for (const node of nodes) {
                 const rank = node.label.rank;
@@ -1400,14 +1395,10 @@ dagre.layout = (nodes, edges, layout, state) => {
                                     const idx2 = layer2.indexOf(g.node(layer1[idx0]).in[0].v);
                                     const idx3 = layer2.indexOf(g.node(layer1[idx1]).in[0].v);
                                     if (calcDir(idx0, idx1) !== topDir) {
-                                        const tmp = layer1[idx1];
-                                        layer1[idx1] = layer1[idx0];
-                                        layer1[idx0] = tmp;
+                                        [layer1[idx0], layer1[idx1]] = [layer1[idx1], layer1[idx0]];
                                     }
                                     if (calcDir(idx2, idx3) !== topDir) {
-                                        const tmp = layer2[idx3];
-                                        layer2[idx3] = layer2[idx2];
-                                        layer2[idx2] = tmp;
+                                        [layer2[idx2], layer2[idx3]] = [layer2[idx3], layer2[idx2]];
                                     }
                                     l += 2;
                                 }
@@ -1610,9 +1601,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         }
         if (rankDir === 'lr' || rankDir === 'rl') {
             const swapXYOne = (attrs) => {
-                const x = attrs.x;
-                attrs.x = attrs.y;
-                attrs.y = x;
+                [attrs.x, attrs.y] = [attrs.y, attrs.x];
             };
             for (const node of g.nodes.values()) {
                 swapXYOne(node.label);
@@ -1633,9 +1622,7 @@ dagre.layout = (nodes, edges, layout, state) => {
     const position = (g, state, layout) => {
         const addConflict = (conflicts, v, w) => {
             if (v > w) {
-                const tmp = v;
-                v = w;
-                w = tmp;
+                [v, w] = [w, v];
             }
             let conflictsV = conflicts[v];
             if (!conflictsV) {
@@ -1646,9 +1633,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         };
         const hasConflict = (conflicts, v, w) => {
             if (v > w) {
-                const tmp = v;
-                v = w;
-                w = tmp;
+                [v, w] = [w, v];
             }
             return conflicts[v] && conflicts[v].has(w);
         };
@@ -2029,7 +2014,7 @@ dagre.layout = (nodes, edges, layout, state) => {
     const removeBorderNodes = (g) => {
         for (const node of g.nodes.values()) {
             const v = node.v;
-            if (g.children(v).length) {
+            if (g.hasChildren(v)) {
                 const label = node.label;
                 const t = g.node(label.borderTop).label;
                 const b = g.node(label.borderBottom).label;
@@ -2215,7 +2200,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         const label = g.node(node.v).label;
         node.x = label.x;
         node.y = label.y;
-        if (g.children(node.v).length) {
+        if (g.hasChildren(node.v)) {
             node.width = label.width;
             node.height = label.height;
         }
@@ -2244,9 +2229,9 @@ dagre.Graph = class {
         this.nodes = new Map();
         this.edges = new Map();
         if (this.compound) {
-            this._parent = {};
-            this._children = {};
-            this._children['\x00'] = {};
+            this._parent = new Map();
+            this._children = new Map();
+            this._children.set('\x00', new Map());
         }
     }
 
@@ -2264,9 +2249,9 @@ dagre.Graph = class {
             const node = { label: label ? label : this._defaultNodeLabelFn(v), in: [], out: [], predecessors: new Map(), successors: new Map(), v };
             this.nodes.set(v, node);
             if (this.compound) {
-                this._parent[v] = '\x00';
-                this._children[v] = {};
-                this._children['\x00'][v] = true;
+                this._parent.set(v, '\x00');
+                this._children.set(v, new Map());
+                this._children.get('\x00').set(v, true);
             }
         }
     }
@@ -2283,12 +2268,12 @@ dagre.Graph = class {
         const node = this.nodes.get(v);
         if (node) {
             if (this.compound) {
-                delete this._children[this._parent[v]][v];
-                delete this._parent[v];
+                this._children.get(this._parent.get(v)).delete(v);
+                this._parent.delete(v);
                 for (const child of this.children(v)) {
                     this.setParent(child);
                 }
-                delete this._children[v];
+                this._children.delete(v);
             }
             for (const edge of node.in) {
                 this.removeEdge(edge);
@@ -2314,14 +2299,14 @@ dagre.Graph = class {
         } else {
             parent = '\x00';
         }
-        delete this._children[this._parent[v]][v];
-        this._parent[v] = parent;
-        this._children[parent][v] = true;
+        this._children.get(this._parent.get(v)).delete(v);
+        this._parent.set(v, parent);
+        this._children.get(parent).set(v, true);
     }
 
     parent(v) {
         if (this.compound) {
-            const parent = this._parent[v];
+            const parent = this._parent.get(v);
             if (parent !== '\x00') {
                 return parent;
             }
@@ -2331,13 +2316,22 @@ dagre.Graph = class {
 
     children(v) {
         if (this.compound) {
-            return Object.keys(this._children[v === undefined ? '\x00' : v]);
+            return this._children.get(v === undefined ? '\x00' : v).keys();
         } else if (v === undefined) {
             return this.nodes.keys();
         } else if (this.hasNode(v)) {
             return [];
         }
         return null;
+    }
+
+    hasChildren(v) {
+        if (this.compound) {
+            return this._children.get(v === undefined ? '\x00' : v).size > 0;
+        } else if (v === undefined) {
+            return this.nodes.size > 0;
+        }
+        return false;
     }
 
     predecessors(v) {
@@ -2373,9 +2367,7 @@ dagre.Graph = class {
             edge.label = label;
         } else {
             if (!this.directed && v > w) {
-                const tmp = v;
-                v = w;
-                w = tmp;
+                [v, w] = [w, v];
             }
             const edge = { label, v, w, name, key, vNode: null, wNode: null };
             this.edges.set(key, edge);
