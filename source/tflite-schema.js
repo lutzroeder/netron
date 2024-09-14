@@ -3273,6 +3273,7 @@ tflite.Operator = class Operator {
         $.large_custom_options_offset = reader.uint64_(position, 22, 0n);
         $.large_custom_options_size = reader.uint64_(position, 24, 0n);
         $.builtin_options_2 = reader.union(position, 26, tflite.BuiltinOptions2);
+        $.debug_metadata_index = reader.int32_(position, 30, -1);
         return $;
     }
 
@@ -3289,6 +3290,7 @@ tflite.Operator = class Operator {
         $.large_custom_options_offset = reader.uint64(json.large_custom_options_offset, 0n);
         $.large_custom_options_size = reader.uint64(json.large_custom_options_size, 0n);
         $.builtin_options_2 = tflite.BuiltinOptions2.decodeText(reader, json.builtin_options_2, json.builtin_options_2_type);
+        $.debug_metadata_index = reader.value(json.debug_metadata_index, -1);
         return $;
     }
 };
@@ -3302,6 +3304,7 @@ tflite.SubGraph = class SubGraph {
         $.outputs = reader.array(position, 8, Int32Array);
         $.operators = reader.tables(position, 10, tflite.Operator);
         $.name = reader.string_(position, 12, null);
+        $.debug_metadata_index = reader.int32_(position, 14, -1);
         return $;
     }
 
@@ -3312,6 +3315,7 @@ tflite.SubGraph = class SubGraph {
         $.outputs = reader.array(json.outputs, Int32Array);
         $.operators = reader.objects(json.operators, tflite.Operator);
         $.name = reader.value(json.name, null);
+        $.debug_metadata_index = reader.value(json.debug_metadata_index, -1);
         return $;
     }
 };
