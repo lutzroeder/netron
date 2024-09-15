@@ -85,7 +85,6 @@ espresso.Graph = class {
     constructor(metadata, reader) {
         this.name = '';
         this.type = reader.type;
-        this.groups = reader.groups;
         for (const value of reader.values.values()) {
             const name = value.name;
             const type = value.type;
@@ -151,9 +150,6 @@ espresso.Node = class {
     constructor(metadata, obj) {
         if (!obj.type) {
             throw new Error('Undefined node type.');
-        }
-        if (obj.group) {
-            this.group = obj.group || null;
         }
         const type = metadata.type(obj.type);
         this.type = type ? { ...type } : { name: obj.type };
