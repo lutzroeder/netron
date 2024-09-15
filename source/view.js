@@ -11,7 +11,7 @@ import * as text from './text.js';
 import * as xml from './xml.js';
 import * as zip from './zip.js';
 
-const view =  {};
+const view = {};
 const markdown = {};
 const metrics = {};
 
@@ -589,18 +589,20 @@ view.View = class {
     scrollTo(selection, behavior) {
         if (selection && selection.length > 0) {
             const container = this._element('graph');
+            const bounds = container.getBoundingClientRect();
             let x = 0;
             let y = 0;
             for (const element of selection) {
                 const rect = element.getBoundingClientRect();
-                x += rect.left + (rect.width / 2);
-                y += rect.top + (rect.height / 2);
+                const width = Math.min(rect.width, bounds.width);
+                const height = Math.min(rect.width, bounds.height);
+                x += rect.left + (width / 2);
+                y += rect.top + (height / 2);
             }
             x /= selection.length;
             y /= selection.length;
-            const rect = container.getBoundingClientRect();
-            const left = (container.scrollLeft + x - rect.left) - (rect.width / 2);
-            const top = (container.scrollTop + y - rect.top) - (rect.height / 2);
+            const left = (container.scrollLeft + x - bounds.left) - (bounds.width / 2);
+            const top = (container.scrollTop + y - bounds.top) - (bounds.height / 2);
             behavior = behavior || 'smooth';
             container.scrollTo({ left, top, behavior });
         }
@@ -865,22 +867,24 @@ view.View = class {
                 this.scrollTo(context, 'instant');
             } else if (elements && elements.length > 0) {
                 // Center view based on input elements
+                const bounds = container.getBoundingClientRect();
                 const xs = [];
                 const ys = [];
                 for (let i = 0; i < elements.length; i++) {
                     const element = elements[i];
                     const rect = element.getBoundingClientRect();
-                    xs.push(rect.left + (rect.width / 2));
-                    ys.push(rect.top + (rect.height / 2));
+                    const width = Math.min(rect.width, bounds.width);
+                    const height = Math.min(rect.width, bounds.width);
+                    xs.push(rect.left + (width / 2));
+                    ys.push(rect.top + (height / 2));
                 }
                 let [x] = xs;
                 const [y] = ys;
                 if (ys.every((y) => y === ys[0])) {
                     x = xs.reduce((a, b) => a + b, 0) / xs.length;
                 }
-                const graphRect = container.getBoundingClientRect();
-                const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
-                const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
+                const left = (container.scrollLeft + x - bounds.left) - (bounds.width / 2);
+                const top = (container.scrollTop + y - bounds.top) - (bounds.height / 2);
                 container.scrollTo({ left, top, behavior: 'auto' });
             } else {
                 const canvasRect = canvas.getBoundingClientRect();
