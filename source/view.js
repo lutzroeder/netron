@@ -3841,12 +3841,18 @@ view.FindSidebar = class extends view.Control {
 
     _add(value, content, icon) {
         const element = this.createElement('li');
-        element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-${icon}"></use></svg>`;
+        const letters = {
+            weight: "&#xe900",
+            connection: "&#xe901",
+            node: "&#xe902"
+        };
+        const letter = letters[icon];
+        element.innerHTML = `<label class='sidebar-find-content-icon'>${letter}</label>`;
         const text = this.createElement('span');
         text.innerText = content;
         element.appendChild(text);
         this._table.set(element, value);
-        this._content.appendChild(element);
+        this._df.appendChild(element);
     }
 
     _focus(element) {
@@ -3866,6 +3872,7 @@ view.FindSidebar = class extends view.Control {
     _update() {
         this._content.innerHTML = '';
         try {
+            this._df = this._host.document.createDocumentFragment();
             this._clear();
             const inputs = this._signature ? this._signature.inputs : this._graph.inputs;
             if (this._state.connection) {
@@ -3888,6 +3895,7 @@ view.FindSidebar = class extends view.Control {
                     }
                 }
             }
+            this._content.appendChild(this._df);
         } catch (error) {
             this.error(error, false);
         }

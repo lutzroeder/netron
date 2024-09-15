@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="sidebar-icon-weight" viewBox="0 0 20 20">
+    <circle cx="5" cy="5" r="1" />
+    <circle cx="10" cy="5" r="1" />
+    <circle cx="15" cy="5" r="1" />
+    <circle cx="5" cy="10" r="1" />
+    <circle cx="10" cy="10" r="1" />
+    <circle cx="15" cy="10" r="1" />
+    <circle cx="5" cy="15" r="1" />
+    <circle cx="10" cy="15" r="1" />
+    <circle cx="15" cy="15" r="1" />
+</svg>
