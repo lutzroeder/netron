@@ -589,43 +589,59 @@ view.View = class {
     scrollTo(selection, behavior) {
         if (selection && selection.length > 0) {
             const container = this._element('graph');
+            const bounds = container.getBoundingClientRect();
+            let x = 0;
+            let y = 0;
             let selLeft = Number.POSITIVE_INFINITY;
             let selRight = Number.NEGATIVE_INFINITY;
             let selTop = Number.POSITIVE_INFINITY;
             let selBottom = Number.NEGATIVE_INFINITY;
             for (const element of selection) {
                 const rect = element.getBoundingClientRect();
+                const width = Math.min(rect.width, bounds.width);
+                const height = Math.min(rect.width, bounds.height);
+                x += rect.left + (width / 2);
+                y += rect.top + (height / 2);
                 selLeft = Math.min(selLeft, rect.left);
                 selRight = Math.max(selRight, rect.right);
                 selTop = Math.min(selTop, rect.top);
                 selBottom = Math.max(selBottom, rect.bottom);
             }
+            // If new selection is completely out of the bounds, scroll to centerize it.
+            if (selRight < bounds.left || selLeft > bounds.right || selBottom < bounds.top || selTop > bounds.bottom) {
+                x /= selection.length;
+                y /= selection.length;
+                const left = (container.scrollLeft + x - bounds.left) - (bounds.width / 2);
+                const top = (container.scrollTop + y - bounds.top) - (bounds.height / 2);
+                behavior = behavior || 'smooth';
+                container.scrollTo({ left, top, behavior });
+                return;
+            }
             // Shrink the test rectangle by 10%
-            const rect = container.getBoundingClientRect();
             const cw = container.clientWidth;
             const ch = container.clientHeight;
-            const cx = rect.x + cw / 2;
-            const cy = rect.y + ch / 2;
-            rect.x = cx - cw * 0.45;
-            rect.width = cw * 0.9;
-            rect.y = cy - ch * 0.45;
-            rect.height = ch * 0.9;
+            const cx = bounds.x + cw / 2;
+            const cy = bounds.y + ch / 2;
+            bounds.x = cx - cw * 0.45;
+            bounds.width = cw * 0.9;
+            bounds.y = cy - ch * 0.45;
+            bounds.height = ch * 0.9;
             // similar to scrollIntoView block: "nearest"
-            if (selRight > rect.right || selLeft < rect.left || selBottom > rect.bottom || selTop < rect.top) {
-                const dr = rect.right - selRight;
-                const dl = selLeft - rect.left;
-                const db = rect.bottom - selBottom;
-                const dt = selTop - rect.top;
+            if (selRight > bounds.right || selLeft < bounds.left || selBottom > bounds.bottom || selTop < bounds.top) {
+                const dr = bounds.right - selRight;
+                const dl = selLeft - bounds.left;
+                const db = bounds.bottom - selBottom;
+                const dt = selTop - bounds.top;
                 let dx = 0;
                 let dy = 0;
-                if (selRight - selLeft < rect.width) {
+                if (selRight - selLeft < bounds.width) {
                     if (dl < 0) {
                         dx = dl;
                     } else if (dr < 0) {
                         dx = -dr;
                     }
                 }
-                if (selBottom - selTop < rect.height) {
+                if (selBottom - selTop < bounds.height) {
                     if (dt < 0) {
                         dy = dt;
                     } else if (db < 0) {
