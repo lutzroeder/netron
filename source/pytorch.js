@@ -514,7 +514,7 @@ pytorch.Node = class {
                         const values = Array.from(value).filter(([, value]) => !stack.has(value)).map(([name, obj]) => {
                             stack.add(value);
                             const type = obj === null ? 'builtins.NoneType' : `${obj.__class__.__module__}.${obj.__class__.__name__}`;
-                            const node = new pytorch.Node(metadata, name, type, obj);
+                            const node = new pytorch.Node(metadata, this.name ? `${this.name}.${name}` : name, type, obj);
                             stack.delete(value);
                             return node;
                         });
