@@ -35,7 +35,7 @@ uff.ModelFactory = class {
                     meta_graph = uff.proto.MetaGraph.decode(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw  new uff.Error(`File format is not uff.MetaGraph (${message.replace(/\.$/, '')}).`);
+                    throw new uff.Error(`File format is not uff.MetaGraph (${message.replace(/\.$/, '')}).`);
                 }
                 break;
             }
