@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 7v2H4v2h6v4l2.983-2.486c1.641-1.368 2.984-2.499 2.984-2.514 0-.015-1.343-1.146-2.984-2.514L10 5v2" fill-rule="evenodd"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M11 7v2H4v2h7V15.001l2.733-2.486c1.504-1.367 2.734-2.499 2.734-2.515 0-.016-1.23-1.148-2.734-2.515L11 4.999V7" fill-rule="evenodd"/></svg>
 <!--
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-    <line x1="4" y1="10" x2="15" y2="10" stroke-width="2" />
-    <polyline points="11,6 15,10 11,14" stroke-width="2" />
+    <line x1="4" y1="10" x2="13" y2="10" stroke="black" stroke-width="2" />
+    <polyline points="11,5 16.5,10 11,15" stroke-width="2" />
 </svg>
 -->
