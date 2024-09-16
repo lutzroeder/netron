@@ -591,6 +591,17 @@ view.View = class {
             behavior = behavior || 'smooth';
             const container = this._element('graph');
             const bounds = container.getBoundingClientRect();
+            // Exclude scrollbars
+            const cw = container.clientWidth;
+            const ch = container.clientHeight;
+            const cx = bounds.x + cw / 2;
+            const cy = bounds.y + ch / 2;
+            // Shrink the test rectangle by 10%
+            const safeBounds = DOMRect.fromRect(bounds);
+            safeBounds.x = cx - cw * 0.45;
+            safeBounds.width = cw * 0.9;
+            safeBounds.y = cy - ch * 0.45;
+            safeBounds.height = ch * 0.9;
             let x = 0;
             let y = 0;
             let selLeft = Number.POSITIVE_INFINITY;
@@ -599,8 +610,8 @@ view.View = class {
             let selBottom = Number.NEGATIVE_INFINITY;
             for (const element of selection) {
                 const rect = element.getBoundingClientRect();
-                const width = Math.min(rect.width, bounds.width);
-                const height = Math.min(rect.width, bounds.height);
+                const width = Math.min(rect.width, safeBounds.width);
+                const height = Math.min(rect.width, safeBounds.height);
                 x += rect.left + (width / 2);
                 y += rect.top + (height / 2);
                 selLeft = Math.min(selLeft, rect.left);
@@ -608,48 +619,41 @@ view.View = class {
                 selTop = Math.min(selTop, rect.top);
                 selBottom = Math.max(selBottom, rect.bottom);
             }
+            // No need to scroll if new selection is in the safe area.
+            if (selRight <= safeBounds.right && selLeft >= safeBounds.left && selBottom <= safeBounds.bottom && selTop >= safeBounds.top) {
+                return;
+            }
             // If new selection is completely out of the bounds, scroll to centerize it.
-            if (selBottom - selTop > bounds.height || selRight - selLeft > bounds.width || selRight < bounds.left || selLeft > bounds.right || selBottom < bounds.top || selTop > bounds.bottom) {
+            if (selBottom - selTop >= safeBounds.height || selRight - selLeft >= safeBounds.width || selRight < bounds.left || selLeft > bounds.right || selBottom < bounds.top || selTop > bounds.bottom) {
                 x /= selection.length;
                 y /= selection.length;
-                const left = (container.scrollLeft + x - bounds.left) - (bounds.width / 2);
-                const top = (container.scrollTop + y - bounds.top) - (bounds.height / 2);
+                const left = (container.scrollLeft + x - safeBounds.left) - (safeBounds.width / 2);
+                const top = (container.scrollTop + y - safeBounds.top) - (safeBounds.height / 2);
                 container.scrollTo({ left, top, behavior });
                 return;
             }
-            // Shrink the test rectangle by 10%
-            const cw = container.clientWidth;
-            const ch = container.clientHeight;
-            const cx = bounds.x + cw / 2;
-            const cy = bounds.y + ch / 2;
-            bounds.x = cx - cw * 0.45;
-            bounds.width = cw * 0.9;
-            bounds.y = cy - ch * 0.45;
-            bounds.height = ch * 0.9;
             // similar to scrollIntoView block: "nearest"
-            if (selRight > bounds.right || selLeft < bounds.left || selBottom > bounds.bottom || selTop < bounds.top) {
-                const dr = bounds.right - selRight;
-                const dl = selLeft - bounds.left;
-                const db = bounds.bottom - selBottom;
-                const dt = selTop - bounds.top;
-                let dx = 0;
-                let dy = 0;
-                if (selRight - selLeft < bounds.width) {
-                    if (dl < 0) {
-                        dx = dl;
-                    } else if (dr < 0) {
-                        dx = -dr;
-                    }
+            const dr = safeBounds.right - selRight;
+            const dl = selLeft - safeBounds.left;
+            const db = safeBounds.bottom - selBottom;
+            const dt = selTop - safeBounds.top;
+            let dx = 0;
+            let dy = 0;
+            if (selRight - selLeft < safeBounds.width) {
+                if (dl < 0) {
+                    dx = dl;
+                } else if (dr < 0) {
+                    dx = -dr;
                 }
-                if (selBottom - selTop < bounds.height) {
-                    if (dt < 0) {
-                        dy = dt;
-                    } else if (db < 0) {
-                        dy = -db;
-                    }
-                }
-                container.scrollBy({ top:dy, left:dx, behavior });
             }
+            if (selBottom - selTop < safeBounds.height) {
+                if (dt < 0) {
+                    dy = dt;
+                } else if (db < 0) {
+                    dy = -db;
+                }
+            }
+            container.scrollBy({ top:dy, left:dx, behavior });
         }
     }
 
