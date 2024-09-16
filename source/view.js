@@ -3686,6 +3686,20 @@ view.FindSidebar = class extends view.Control {
             connection: { hide: 'Hide Connections', show: 'Show Connections' },
             weight: { hide: 'Hide Weights', show: 'Show Weights' }
         };
+        this._lis = [];
+        const letters = {
+            weight: "&#xe900",
+            connection: "&#xe901",
+            node: "&#xe902"
+        };
+        for (const icon of ['weight', 'connection', 'node']) {
+            const element = this.createElement('li');
+            const letter = letters[icon];
+            element.innerHTML = `<label class='sidebar-find-content-icon'>${letter}</label>`;
+            const text = this.createElement('span');
+            element.appendChild(text);
+            this._lis[icon] = element;
+        }
     }
 
     on(event, callback) {
@@ -3840,17 +3854,8 @@ view.FindSidebar = class extends view.Control {
     }
 
     _add(value, content, icon) {
-        const element = this.createElement('li');
-        const letters = {
-            weight: "&#xe900",
-            connection: "&#xe901",
-            node: "&#xe902"
-        };
-        const letter = letters[icon];
-        element.innerHTML = `<label class='sidebar-find-content-icon'>${letter}</label>`;
-        const text = this.createElement('span');
-        text.innerText = content;
-        element.appendChild(text);
+        const element = this._lis[icon].cloneNode(true);
+        element.lastChild.innerText = content;
         this._table.set(element, value);
         this._df.appendChild(element);
     }
