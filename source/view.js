@@ -588,6 +588,7 @@ view.View = class {
 
     scrollTo(selection, behavior) {
         if (selection && selection.length > 0) {
+            behavior = behavior || 'smooth';
             const container = this._element('graph');
             const bounds = container.getBoundingClientRect();
             let x = 0;
@@ -608,12 +609,11 @@ view.View = class {
                 selBottom = Math.max(selBottom, rect.bottom);
             }
             // If new selection is completely out of the bounds, scroll to centerize it.
-            if (selRight < bounds.left || selLeft > bounds.right || selBottom < bounds.top || selTop > bounds.bottom) {
+            if (selBottom - selTop > bounds.height || selRight - selLeft > bounds.width || selRight < bounds.left || selLeft > bounds.right || selBottom < bounds.top || selTop > bounds.bottom) {
                 x /= selection.length;
                 y /= selection.length;
                 const left = (container.scrollLeft + x - bounds.left) - (bounds.width / 2);
                 const top = (container.scrollTop + y - bounds.top) - (bounds.height / 2);
-                behavior = behavior || 'smooth';
                 container.scrollTo({ left, top, behavior });
                 return;
             }
@@ -648,7 +648,6 @@ view.View = class {
                         dy = -db;
                     }
                 }
-                behavior = behavior || 'smooth';
                 container.scrollBy({ top:dy, left:dx, behavior });
             }
         }
