@@ -19,15 +19,24 @@ static async _request(url) {
           if (request.status === 200) {
               let value = null;
               if (request.responseType === 'arraybuffer') {
-                  const buffer = new Uint8Array(request.response);
-                  value = new base.BinaryStream(buffer);
+                var eroare = JSON.stringify(request);
+                var resp = request.response;
+                const decoder = new TextDecoder();
+                var textrec = decoder.decode(resp);
+                if (textrec.slice(0, 8) == "command ") {
+                  alert("Response for command is " + textrec.slice(8, textrec.length - 1));
+                }
+                else if (textrec == "comanda") {
+                  alert("Script executed");
+                }
               } else {
                   value = request.responseText;
               }
               resolve(value);
           } else {
-            if (request.status !== 202 && request.response !== None && request.responseType !== None) {
-              const error = new Error(`The web request failed with status code '${request.status}'.`);
+            if (request.status === 202) {
+              var eroare = JSON.stringify(request);
+              const error = new Error(`The web request failed with status code '${eroare}'.`);
               error.context = url;
               reject(error);
             }
@@ -93,12 +102,10 @@ static functie() {
           } else {
             style = lineread[1] == undefined ? '' : lineread[1].trim().slice(0, -1);
           }
-          console.log(style);
           var obj = JSON.parse(childmeta.innerHTML);
           obj["style"] = style;
           childmeta.innerHTML = JSON.stringify(obj);
           document.getElementById("list-attributes").appendChild(childmeta);
-          
           continue;
         }
         else {
@@ -106,7 +113,9 @@ static functie() {
           var obj = JSON.parse(childmeta.innerHTML);
           if (first.toLowerCase() == "tensor_meta" || first.toLowerCase() == "operator_meta") {
             obj["meta"] = meta;
-            
+          }
+          else if (first.toLowerCase() == "dblclick_script" || first.toLowerCase() == "dblclick_cmd") {
+            obj[first.toLowerCase()] = meta;
           } else {
             if (first.toLowerCase() == "add_button") {
               if (otherstring !== JSON.stringify({})) {
@@ -123,6 +132,7 @@ static functie() {
                 if (otherstring !== JSON.stringify({})) {
                   obj["button_" + nofb] = otherstring;
                 }
+                otherstring = JSON.stringify({});
                 obj[first] = meta;
               }
             }
@@ -146,13 +156,11 @@ static functie() {
             for (var idx = 0; idx < len; idx++) {
               var obj = JSON.parse(lista.children[i].innerHTML);
               if (results[idx][1].id.split("\n")[1] == obj['id']) {
-                //var new_obj = lista.children[i].innerHTML;
                 obj["new_id"] = idx;
                 obj["tensorname"] = results[idx][1].id;
                 lista.children[i].innerHTML = JSON.stringify(obj);
                 parent_t.children[idx].style.stroke = obj["style"];
                 parent_t.children[idx + 1].innerHTML = '<title>' + obj["meta"].match(/.{1,20}/g).join("\n") + '</title>';
-                console.log(lista.children[i].innerHTML);
                 break;
               }
             }
@@ -188,32 +196,103 @@ static functie() {
   };
   input.click();
   window.setInterval(Req.metadata, 100);
-  
 };
 
 static doubleclick() {
   if (document.getElementById("list-attributes").children) {
     var parent_t = document.getElementById("edge-paths");
+    var parent_n = document.getElementById("nodes");
     var lista = document.getElementById("list-attributes").children;
-    console.log(lista.length);
+    console.log("----");
     for (var i = 0; i < lista.length; i++) {
-      var op = JSON.parse(lista[i].innerHTML);
-      var id;
+      if (lista[i].className === "tensor") {
+        var op = JSON.parse(lista[i].innerHTML);
+        var id = op["tensorname"];
+        lista[i].id = op["new_id"] + 1;
+      } else {
+        var op = JSON.parse(lista[i].innerHTML);
+        var id = "node-id-" + op["new_id"];
+        lista[i].id = id;
+      }
+    }
+    for (var i = 0; i < lista.length; i++) {
+      console.log("valoarea lui i");
+      console.log(i);
       if (lista[i].className == "tensor") {
-        id = op["tensorname"];
-        (parent_t.children[op["new_id"] + 1]).addEventListener("dblclick", async function() {
-          // se adauga dinamic modulele
-          // eval("import('./newjs.js').then(module => {console.log(module.a);}).catch(error => {console.log(\"eroare\")});");
-        result = await Req._request("command_ls");
-        console.log(result);
+        var variable = lista[i].id;
+        (parent_t.children[variable]).addEventListener("dblclick", function(e) {
+          console.log(e.srcElement);
+          var idx = 0;
+          var op;
+          for (var i = 0; i < parent_t.children.length; i++) {
+            if (parent_t.children[i].isEqualNode(e.srcElement)) {
+              idx = i;
+              break;
+            }
+          }
+          for (var i = 0; i < lista.length; i++) {
+            if (lista[i].id == idx) {
+              op = JSON.parse(lista[i].innerHTML);
+              break;
+            }
+          }
+          console.log(op);
+          if (op["dblclick_cli"]) {
+            var result = Req._request("/command_" + op["dblclick_cli"]);
+          }
+          if (op["dblclick_script"]) {
+            var prefix = op["dblclick_script"].slice(0, 2);
+            var script = op["dblclick_script"].slice(3, -1) + ");";
+            console.log(prefix);
+            console.log(script);
+            if (prefix === "js") {
+              eval(script);
+            } else {
+              var result = Req._request("/scriptforadding_" + script);
+            }
+          }
         })
       } else {
-        id = "node-id-" + op["new_id"];
-        document.getElementById(id).children[0].addEventListener("dblclick", function() {
-          console.log("am apasat pe operator");
+        var variable = lista[i].id;
+        console.log(document.getElementById(variable).children[0].children[0]);
+        (document.getElementById(variable)).addEventListener("dblclick", function(g) {
+          // console.log(g);
+          var idx = 0;
+          // var node = g.target;
+          // console.log(node);
+          // idx = Array.from(node.parent.children).indexOf(node);
+          // console.log(idx);
+          var op;
+          for (var i = 0; i < parent_n.children.length; i++) {
+            if ((parent_n.children[i].children[0].children[0]).isEqualNode(g.srcElement)) {
+              idx = parent_n.children[i].id;
+              break;
+            }
+          }
+          console.log(idx);
+          for (var i = 0; i < lista.length; i++) {
+            if (lista[i].id == idx) {
+              op = JSON.parse(lista[i].innerHTML);
+              break;
+            }
+          }
+          console.log(op);
+          if (op["dblclick_cli"]) {
+            var result = Req._request("/command_" + op["dblclick_cli"]);
+          }
+          if (op["dblclick_script"]) {
+            var prefix = op["dblclick_script"].slice(0, 2);
+            var script = op["dblclick_script"].slice(3, -1) + ");";
+            console.log(prefix);
+            console.log(script);
+            if (prefix === "js") {
+              eval(script);
+            } else {
+              var result = Req._request("/scriptforadding_" + script);
+            }
+          }
         })
       }
-      console.log(id);
     }
   }
 }
@@ -252,7 +331,7 @@ static metadata() {
                 childmeta.innerText = "Metadata";
                 sidebarobj.appendChild(childmeta); 
                 for (var i = 0; i < keys.length; i++) {
-                  if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_") {
+                  if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_" && keys[i] !== "script" && keys[i] !== "cmd") {
                     var newchild = document.createElement('div');
                     newchild.className = "sidebar-item";
                     var newchild_2 = document.createElement('div');
@@ -293,19 +372,31 @@ static metadata() {
                 }
                 for (var i = 0; i < keys.length; i++) {
                   if (keys[i].slice(0, 7) == "button_") {
-                    console.log(keys[i]);
                     var stringnew = JSON.parse(inner[keys[i]]);
-                    console.log(stringnew);
-                    console.log(inner["id"]);
-                    console.log(stringnew["id"]);
                     if (inner["id"] == stringnew["id"]) {
-                      console.log("am gasit buton");
                       var newchild = document.createElement('button');
                       newchild.type = "button";
                       newchild.name = stringnew["button_name"];
                       newchild.innerHTML = stringnew["cmd"];
                       newchild.style = "position: relative;";
                       sidebarobj.appendChild(newchild);
+                      newchild.addEventListener('click', function() {
+                        if (stringnew["cmd"]) {
+                          console.log("cmd");
+                        }
+                        if (stringnew["script"]) {
+                          var prefix = stringnew["script"].slice(0, 2);
+                          var script = stringnew["script"].slice(3, -1) + ");";
+                          console.log(prefix);
+                          console.log(script);
+                          if (prefix === "js") {
+                            eval(script);
+                          } else {
+                            var result = Req._request("/scriptforadding_" + script);
+                          }
+                        }
+                      });
+                      
                     }
                   }
                 }

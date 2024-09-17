@@ -10,9 +10,9 @@ host.BrowserHost = class {
         this._navigator = window.navigator;
         this._document = window.document;
         this._telemetry = new base.Telemetry(this._window);
-        this._window.eval = () => {
-            throw new Error('window.eval() not supported.');
-        };
+        // this._window.eval = () => {
+        //     throw new Error('window.eval() not supported.');
+        // };
         this._meta = {};
         for (const element of Array.from(this._document.getElementsByTagName('meta'))) {
             if (element.name !== undefined && element.content !== undefined) {
@@ -74,6 +74,7 @@ host.BrowserHost = class {
             }
             let consent = true;
             try {
+                console.log("ip countr");
                 const text = await this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', null, 2000);
                 const json = JSON.parse(text);
                 const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
@@ -272,11 +273,13 @@ host.BrowserHost = class {
             this._requests = this._requests || new Map();
             const key = `${url}:${encoding}`;
             if (!this._requests.has(key)) {
+                console.log("encoding 2");
                 const promise = this._request(url, null, encoding);
                 this._requests.set(key, promise);
             }
             return this._requests.get(key);
         }
+        console.log("Encoding");
         return this._request(url, null, encoding);
     }
 
@@ -422,12 +425,14 @@ host.BrowserHost = class {
             const progress = (value) => {
                 this._view.progress(value);
             };
+            console.log("openmodel");
             let stream = await this._request(url, null, null, progress);
             if (url.startsWith('https://raw.githubusercontent.com/') && stream.length < 150) {
                 const buffer = stream.peek();
                 const content = Array.from(buffer).map((c) => String.fromCodePoint(c)).join('');
                 if (content.split('\n')[0] === 'version https://git-lfs.github.com/spec/v1') {
                     url = url.replace('https://raw.githubusercontent.com/', 'https://media.githubusercontent.com/media/');
+                    console.log("url stream");
                     stream = await this._request(url, null, null, progress);
                 }
             }
@@ -456,6 +461,7 @@ host.BrowserHost = class {
         this._view.show('welcome spinner');
         const url = `https://api.github.com/gists/${gist}`;
         try {
+            console.log("text");
             const text = await this._request(url, { 'Content-Type': 'application/json' }, 'utf-8');
             const json = JSON.parse(text);
             let message = json.message;
