@@ -589,22 +589,74 @@ view.View = class {
     scrollTo(selection, behavior) {
         if (selection && selection.length > 0) {
             const container = this._element('graph');
-            const bounds = container.getBoundingClientRect();
+            const rect = container.getBoundingClientRect();
+            // Exclude scrollbars
+            const cw = container.clientWidth;
+            const ch = container.clientHeight;
+            // Shrink the test rectangle by 10%
+            const bounds = {};
+            bounds.left = (rect.x + cw / 2) - (cw * 0.45);
+            bounds.width = cw * 0.9;
+            bounds.right = bounds.left + bounds.width;
+            bounds.top = (rect.y + ch / 2) - (ch * 0.45);
+            bounds.height = ch * 0.9;
+            bounds.bottom = bounds.top + bounds.height;
             let x = 0;
             let y = 0;
+            let left = Number.POSITIVE_INFINITY;
+            let right = Number.NEGATIVE_INFINITY;
+            let top = Number.POSITIVE_INFINITY;
+            let bottom = Number.NEGATIVE_INFINITY;
             for (const element of selection) {
                 const rect = element.getBoundingClientRect();
                 const width = Math.min(rect.width, bounds.width);
                 const height = Math.min(rect.width, bounds.height);
                 x += rect.left + (width / 2);
                 y += rect.top + (height / 2);
+                left = Math.min(left, rect.left);
+                right = Math.max(right, rect.right);
+                top = Math.min(top, rect.top);
+                bottom = Math.max(bottom, rect.bottom);
             }
-            x /= selection.length;
-            y /= selection.length;
-            const left = (container.scrollLeft + x - bounds.left) - (bounds.width / 2);
-            const top = (container.scrollTop + y - bounds.top) - (bounds.height / 2);
-            behavior = behavior || 'smooth';
-            container.scrollTo({ left, top, behavior });
+            // No need to scroll if new selection is in the safe area.
+            if (right <= bounds.right && left >= bounds.left && bottom <= bounds.bottom && top >= bounds.top) {
+                return;
+            }
+            // If new selection is completely out of the bounds, scroll to centerize it.
+            if (bottom - top >= bounds.height || right - left >= bounds.width || right < rect.left || left > rect.right || bottom < rect.top || top > rect.bottom) {
+                x /= selection.length;
+                y /= selection.length;
+                const options = {};
+                options.left = (container.scrollLeft + x - bounds.left) - (bounds.width / 2);
+                options.top = (container.scrollTop + y - bounds.top) - (bounds.height / 2);
+                options.behavior = behavior || 'smooth';
+                container.scrollTo(options);
+                return;
+            }
+            const options = {};
+            options.left = 0;
+            options.top = 0;
+            options.behavior = behavior || 'smooth';
+            // similar to scrollIntoView block: "nearest"
+            const dr = bounds.right - right;
+            const dl = left - bounds.left;
+            const db = bounds.bottom - bottom;
+            const dt = top - bounds.top;
+            if (right - left < bounds.width) {
+                if (dl < 0) {
+                    options.left = dl;
+                } else if (dr < 0) {
+                    options.left = -dr;
+                }
+            }
+            if (bottom - top < bounds.height) {
+                if (dt < 0) {
+                    options.top = dt;
+                } else if (db < 0) {
+                    options.top = -db;
+                }
+            }
+            container.scrollBy(options);
         }
     }
 
