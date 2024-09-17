@@ -72,7 +72,6 @@ pytorch.Graph = class {
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];
-        this.groups = true;
         this.name = name || '';
         this.type = type;
         const values = new Map();
