@@ -331,7 +331,7 @@ static metadata() {
                 childmeta.innerText = "Metadata";
                 sidebarobj.appendChild(childmeta); 
                 for (var i = 0; i < keys.length; i++) {
-                  if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_" && keys[i] !== "script" && keys[i] !== "cmd") {
+                  if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_" && keys[i] !== "dblclick_script" && keys[i] !== "dblclick_cmd" && keys[i] != "cmd" && keys[i] !== "script") {
                     var newchild = document.createElement('div');
                     newchild.className = "sidebar-item";
                     var newchild_2 = document.createElement('div');
@@ -376,13 +376,12 @@ static metadata() {
                     if (inner["id"] == stringnew["id"]) {
                       var newchild = document.createElement('button');
                       newchild.type = "button";
-                      newchild.name = stringnew["button_name"];
-                      newchild.innerHTML = stringnew["cmd"];
+                      newchild.textContent = stringnew["button_name"];
                       newchild.style = "position: relative;";
                       sidebarobj.appendChild(newchild);
                       newchild.addEventListener('click', function() {
                         if (stringnew["cmd"]) {
-                          console.log("cmd");
+                          var result = Req._request("/command_" + stringnew["cmd"]);
                         }
                         if (stringnew["script"]) {
                           var prefix = stringnew["script"].slice(0, 2);

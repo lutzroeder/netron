@@ -37,8 +37,7 @@
         "@electron/notarize": "2.3.2",
         "electron": "31.2.0",
         "electron-builder": "24.13.3",
-        "eslint": "9.6.0",
-        "webpack": "^5.93.0"
+        "eslint": "9.6.0"
     },
     "build": {
         "extends": "publish/electron-builder.json"
@@ -50,9 +49,5 @@
         "reporter": "json",
         "report-dir": "dist/nyc/report",
         "temp-dir": "dist/nyc/.nyc_output"
-    },
-    "browser": {
-        "child_process": false,
-        "fs": false
     }
 }
