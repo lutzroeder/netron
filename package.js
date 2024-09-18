@@ -299,7 +299,7 @@ const build = async (target) => {
             writeLine('build python');
             await exec('python package.py build version');
             await exec('python -m pip install --user build wheel --quiet');
-            await exec('python -m build --no-isolation --wheel --outdir dist/pypi dist/pypi');
+            await exec('python -m build --wheel --outdir dist/pypi dist/pypi');
             if (read('install')) {
                 await exec('python -m pip install --force-reinstall dist/pypi/*.whl');
             }

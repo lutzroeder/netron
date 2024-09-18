@@ -33,7 +33,9 @@ def _build():
     shutil.rmtree(os.path.join(source_dir, '__pycache__'), ignore_errors=True)
     shutil.rmtree(dist_pypi_dir, ignore_errors=True)
     shutil.copytree(source_dir, os.path.join(dist_pypi_dir, 'netron'))
-    shutil.copyfile(os.path.join(publish_dir, 'setup.py'), os.path.join(dist_pypi_dir, 'setup.py'))
+    shutil.copyfile(
+        os.path.join(publish_dir, 'pyproject.toml'),
+        os.path.join(dist_pypi_dir, 'pyproject.toml'))
     os.remove(os.path.join(dist_pypi_dir, 'netron', 'electron.mjs'))
     os.remove(os.path.join(dist_pypi_dir, 'netron', 'app.js'))
 
@@ -48,7 +50,9 @@ def _install():
 def _version():
     ''' Update version '''
     package = json.loads(_read('./package.json'))
-    _update('./dist/pypi/setup.py', '(    version=")(.*)(",)', package['version'])
+    _update('./dist/pypi/pyproject.toml',
+        '(version\\s*=\\s*")(.*)(")',
+        package['version'])
     _update('./dist/pypi/netron/server.py',
         "(__version__ = ')(.*)(')",
         package['version'])
