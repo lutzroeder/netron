@@ -4610,6 +4610,9 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantized.modules.linear.Linear', class extends torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule {});
         this.registerType('torch.ao.nn.quantized.modules.linear.LinearPackedParams', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.ao.nn.quantized.modules.normalization.LayerNorm', class extends torch.nn.modules.normalization.LayerNorm {});
+        this.registerType('torch.ao.nn.quantized.modules.normalization.InstanceNorm1d', class extends torch.nn.modules.instancenorm.InstanceNorm1d {});
+        this.registerType('torch.ao.nn.quantized.modules.normalization.InstanceNorm2d', class extends torch.nn.modules.instancenorm.InstanceNorm2d {});
+        this.registerType('torch.ao.nn.quantized.modules.normalization.InstanceNorm3d', class extends torch.nn.modules.instancenorm.InstanceNorm3d {});
         this.registerType('torch.ao.nn.quantized.modules.rnn.LSTM', class {});
         this.registerType('torch.ao.nn.quantized.dynamic.modules.linear.Linear', class extends torch.ao.nn.quantized.modules.linear.Linear {});
         this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.PackedParameter', class extends torch.nn.modules.module.Module {});
