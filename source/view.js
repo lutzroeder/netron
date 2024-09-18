@@ -5991,6 +5991,7 @@ view.ModelFactoryService = class {
                         { name: 'MindSpore Lite model data', identifier: 'MSL1' },
                         { name: 'MindSpore Lite model data', identifier: 'MSL2' },
                         { name: 'MindSpore Lite model data', identifier: 'MSL3' },
+                        { name: 'BSTM model data', identifier: 'BSTM' }
                     ];
                     for (const format of formats) {
                         if (identifier === format.identifier) {
