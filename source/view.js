@@ -1513,7 +1513,7 @@ view.Menu = class {
     }
 
     _rebuild() {
-        this._element.innerHTML = '';
+        this._element.replaceChildren();
         const root = this._root[this._root.length - 1];
         for (const group of root.items) {
             const container = this._document.createElement('div');
@@ -2451,7 +2451,7 @@ view.Sidebar = class {
         sidebar.addEventListener('transitionend', (event) => {
             if (event.propertyName === 'opacity' && sidebar.style.opacity === '0') {
                 const content = this._element('sidebar-content');
-                content.innerHTML = '';
+                content.innerHTML.replaceChildren();
             }
         });
     }
@@ -2509,12 +2509,12 @@ view.Sidebar = class {
             if (typeof entry.content === 'string') {
                 content.innerHTML = entry.element;
             } else if (entry.element instanceof Array) {
-                content.innerHTML = '';
+                content.replaceChildren();
                 for (const element of entry.element) {
                     content.appendChild(element);
                 }
             } else {
-                content.innerHTML = '';
+                content.replaceChildren();
                 content.appendChild(entry.element);
             }
             sidebar.style.width = 'min(calc(100% * 0.6), 42em)';
@@ -3916,7 +3916,7 @@ view.FindSidebar = class extends view.Control {
     }
 
     _update() {
-        this._content.innerHTML = '';
+        this._content.replaceChildren();
         try {
             this._clear();
             const inputs = this._signature ? this._signature.inputs : this._graph.inputs;
@@ -4014,6 +4014,7 @@ view.FindSidebar = class extends view.Control {
         }
         this._table.clear();
         this._focused.clear();
+        this._content.replaceChildren();
     }
 
     error(error, fatal) {
