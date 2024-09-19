@@ -79,6 +79,7 @@ static functie() {
       var nofb = 0;
       var otherstring = JSON.stringify({});
       for (var line = 0; line < lines.length; line++) {
+        if (!lines[line].startsWith("#") && lines[line].trim().length !== 0) {
         var lineread = lines[line].split(":");
         var first = lineread[0] == undefined? '' : lineread[0].trim();
         
@@ -90,9 +91,8 @@ static functie() {
           } else {
             childmeta.className = "operator";
           }
-          id = lineread[1] == undefined ? '' : lineread[1].trim().slice(0, -1);
+          id = lineread[1] == undefined ? '' : lineread[1].trim();
           childmeta.innerHTML = JSON.stringify({"id": id});
-          
           continue;
         }
         if (first.toLowerCase() == "tensor_style" || first.toLowerCase() == "operator_style") {
@@ -100,7 +100,7 @@ static functie() {
           if (line == lines.length - 1) {
             style = lineread[1] == undefined ? '' : lineread[1].trim();
           } else {
-            style = lineread[1] == undefined ? '' : lineread[1].trim().slice(0, -1);
+            style = lineread[1] == undefined ? '' : lineread[1].trim();
           }
           var obj = JSON.parse(childmeta.innerHTML);
           obj["style"] = style;
@@ -109,7 +109,7 @@ static functie() {
           continue;
         }
         else {
-          meta = lineread[1] == undefined ? '' : lineread[1].trim().slice(0, -1);
+          meta = lineread[1] == undefined ? '' : lineread[1].trim();
           var obj = JSON.parse(childmeta.innerHTML);
           if (first.toLowerCase() == "tensor_meta" || first.toLowerCase() == "operator_meta") {
             obj["meta"] = meta;
@@ -122,11 +122,11 @@ static functie() {
                 obj["button_" + nofb] = otherstring;
                 nofb += 1;
               }
-              otherstring = JSON.stringify({"id": obj["id"], "class": childmeta.className, "button_name": lineread[1] == undefined ? '' : lineread[1].trim().slice(0, -1)});
+              otherstring = JSON.stringify({"id": obj["id"], "class": childmeta.className, "button_name": lineread[1] == undefined ? '' : lineread[1].trim()});
             } else {
               if (first.toLowerCase() == "cmd" || first.toLowerCase() == "script") {
                 var stri = JSON.parse(otherstring);
-                stri[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim().slice(0, -1);
+                stri[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim();
                 otherstring = JSON.stringify(stri);
               } else {
                 if (otherstring !== JSON.stringify({})) {
@@ -140,6 +140,7 @@ static functie() {
           childmeta.innerHTML = JSON.stringify(obj);
           continue;
         } 
+      }
       }
       
       if (document.getElementById("list-attributes").children) {
@@ -196,6 +197,7 @@ static functie() {
   };
   input.click();
   window.setInterval(Req.metadata, 100);
+
 };
 
 static doubleclick() {
@@ -203,7 +205,6 @@ static doubleclick() {
     var parent_t = document.getElementById("edge-paths");
     var parent_n = document.getElementById("nodes");
     var lista = document.getElementById("list-attributes").children;
-    console.log("----");
     for (var i = 0; i < lista.length; i++) {
       if (lista[i].className === "tensor") {
         var op = JSON.parse(lista[i].innerHTML);
@@ -216,12 +217,9 @@ static doubleclick() {
       }
     }
     for (var i = 0; i < lista.length; i++) {
-      console.log("valoarea lui i");
-      console.log(i);
       if (lista[i].className == "tensor") {
         var variable = lista[i].id;
         (parent_t.children[variable]).addEventListener("dblclick", function(e) {
-          console.log(e.srcElement);
           var idx = 0;
           var op;
           for (var i = 0; i < parent_t.children.length; i++) {
@@ -236,15 +234,12 @@ static doubleclick() {
               break;
             }
           }
-          console.log(op);
-          if (op["dblclick_cli"]) {
-            var result = Req._request("/command_" + op["dblclick_cli"]);
+          if (op["dblclick_cmd"]) {
+            var result = Req._request("/command_" + op["dblclick_cmd"]);
           }
           if (op["dblclick_script"]) {
             var prefix = op["dblclick_script"].slice(0, 2);
             var script = op["dblclick_script"].slice(3, -1) + ");";
-            console.log(prefix);
-            console.log(script);
             if (prefix === "js") {
               eval(script);
             } else {
@@ -254,37 +249,27 @@ static doubleclick() {
         })
       } else {
         var variable = lista[i].id;
-        console.log(document.getElementById(variable).children[0].children[0]);
         (document.getElementById(variable)).addEventListener("dblclick", function(g) {
-          // console.log(g);
           var idx = 0;
-          // var node = g.target;
-          // console.log(node);
-          // idx = Array.from(node.parent.children).indexOf(node);
-          // console.log(idx);
           var op;
           for (var i = 0; i < parent_n.children.length; i++) {
-            if ((parent_n.children[i].children[0].children[0]).isEqualNode(g.srcElement)) {
+            if ((parent_n.children[i].children[0].children[0]).isEqualNode(g.srcElement) || (parent_n.children[i].children[0].children[1]).isEqualNode(g.srcElement)) {
               idx = parent_n.children[i].id;
               break;
             }
           }
-          console.log(idx);
           for (var i = 0; i < lista.length; i++) {
             if (lista[i].id == idx) {
               op = JSON.parse(lista[i].innerHTML);
               break;
             }
           }
-          console.log(op);
-          if (op["dblclick_cli"]) {
-            var result = Req._request("/command_" + op["dblclick_cli"]);
+          if (op["dblclick_cmd"]) {
+            var result = Req._request("/command_" + op["dblclick_cmd"]);
           }
           if (op["dblclick_script"]) {
             var prefix = op["dblclick_script"].slice(0, 2);
             var script = op["dblclick_script"].slice(3, -1) + ");";
-            console.log(prefix);
-            console.log(script);
             if (prefix === "js") {
               eval(script);
             } else {
@@ -378,24 +363,18 @@ static metadata() {
                       newchild.type = "button";
                       newchild.textContent = stringnew["button_name"];
                       newchild.style = "position: relative;";
-                      sidebarobj.appendChild(newchild);
-                      newchild.addEventListener('click', function() {
+                      if (stringnew["cmd"] && stringnew["script"]) {
+                        newchild.value = JSON.stringify({"cmd": stringnew["cmd"], "script": stringnew["script"]});
+                      } else {
                         if (stringnew["cmd"]) {
-                          var result = Req._request("/command_" + stringnew["cmd"]);
+                          newchild.value += JSON.stringify({"cmd": stringnew["cmd"]});
+                        } else if (stringnew["script"]) {
+                          newchild.value += JSON.stringify({"script": stringnew["script"]});
+                        } else {
+                          newchild.value += JSON.stringify({});
                         }
-                        if (stringnew["script"]) {
-                          var prefix = stringnew["script"].slice(0, 2);
-                          var script = stringnew["script"].slice(3, -1) + ");";
-                          console.log(prefix);
-                          console.log(script);
-                          if (prefix === "js") {
-                            eval(script);
-                          } else {
-                            var result = Req._request("/scriptforadding_" + script);
-                          }
-                        }
-                      });
-                      
+                      }
+                      sidebarobj.appendChild(newchild);
                     }
                   }
                 }
@@ -404,9 +383,40 @@ static metadata() {
           }
         }
       }
-
     }
   } 
+  if (document.getElementById("list-attributes").children) {
+    if (document.getElementById("sidebar-content")) {
+      if (document.getElementById("sidebar-content").children[0]) {
+        if (document.getElementById("sidebar-content").children[0].children) {
+          var sidebarobj = document.getElementById("sidebar-content").children[0];
+          for (var i = 0; i < sidebarobj.children.length; i++) {
+            if (sidebarobj.children[i].type == "button") {
+              if (sidebarobj.children[i].getAttribute('listener') !== 'true') {
+                sidebarobj.children[i].setAttribute('listener', 'true');
+                sidebarobj.children[i].addEventListener('click', function(h) {
+                  var value = JSON.parse(h.target.value);
+                  if (value["cmd"]) {
+                    var result = Req._request("/command_" + value["cmd"]);
+                  }
+                  if (value["script"]) {
+                    var prefix = value["script"].slice(0, 2);
+                    var script = value["script"].slice(3, -1) + ");";
+                    if (prefix === "js") {
+                      eval(script);
+                    } else {
+                      var result = Req._request("/scriptforadding_" + script);
+                    }
+                  }
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
 }
 }
 
