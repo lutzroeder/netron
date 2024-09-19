@@ -21,10 +21,11 @@ openvino.ModelFactory = class {
                 return;
             }
             if (length >= 4) {
-                const buffer = stream.peek(Math.min(0x20000, length));
-                const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
+                let buffer = stream.peek(Math.min(0x20000, length));
+                const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.length);
+                const signature = view.getUint32(0, true);
                 for (let i = 0; i < buffer.length - 4; i++) {
-                    const signature = (buffer[i] | buffer[i + 1] << 8 | buffer[i + 2] << 16 | buffer [i + 3] << 24) >>> 0;
+                    const signature = view.getUint32(i, true);
                     if (signature === 0xdeadbeef || // Core ML
                         signature === 0x01306b47 || signature === 0x000d4b38 || signature === 0x0002c056) { // ncnn
                         return;
@@ -45,33 +46,31 @@ openvino.ModelFactory = class {
                     'programs.bin', 'best.bin', 'ncnn.bin',
                     'stories15M.bin','stories42M.bin','stories110M.bin','stories260K.bin'
                 ]);
-                if (!identifiers.has(identifier)) {
-                    const size = Math.min(length, 1024) & 0xFFFC;
-                    const buffer = stream.peek(size).slice(0);
-                    if (signature === 0x00000001) {
-                        return;
-                    }
-                    const floats = Array.from(new Float32Array(buffer.buffer, buffer.byteOffset, buffer.length >> 2));
-                    if (floats.every((x) => x === 0)) {
+                if (!identifiers.has(identifier) && signature !== 0x00000001) {
+                    const size = Math.min(buffer.length & 0xfffffffc, 128);
+                    buffer = buffer.subarray(0, size);
+                    if (Array.from(buffer).every((value) => value === 0)) {
                         context.type = 'openvino.bin';
                         return;
                     }
-                    if (floats[0] !== 0 && floats.every((x) => !Number.isNaN(x) && Number.isFinite(x))) {
-                        if (floats.every((x) => x > -20.0 && x < 20.0 && (x >= 0 || x < -0.0000001) && (x <= 0 || x > 0.0000001))) {
-                            context.type = 'openvino.bin';
-                            return;
-                        }
-                        if (floats.every((x) => x > -100.0 && x < 100.0 && (x * 10) % 1 === 0)) {
-                            context.type = 'openvino.bin';
-                            return;
-                        }
+                    const f32 = new Array(buffer.length >> 2);
+                    for (let i = 0; i < f32.length; i++) {
+                        f32[i] = view.getFloat32(i << 2, true);
                     }
-                    const ints = Array.from(new Int32Array(buffer.buffer, buffer.byteOffset, buffer.length >> 2));
-                    if (ints.length > 32 && ints.slice(0, 32).every((x) => x === 0 || x === 1 || x === 2 || x === 0x7fffffff)) {
-                        context.type = 'openvino.bin';
-                        return;
+                    const f16 = new Array(buffer.length >> 1);
+                    for (let i = 0; i < f16.length; i++) {
+                        f16[i] = view.getFloat16(i << 1, true);
                     }
-                    if (identifier.indexOf('openvino') !== -1) {
+                    const i32 = new Array(buffer.length >> 2);
+                    for (let i = 0; i < f32.length; i++) {
+                        i32[i] = view.getInt32(i << 2, true);
+                    }
+                    const validateFloat = (array) => array[0] !== 0 && array.every((x) => !Number.isNaN(x) && Number.isFinite(x)) &&
+                        (array.every((x) => x > -20.0 && x < 20.0 && (x >= 0 || x < -0.0000001) && (x <= 0 || x > 0.0000001)) ||
+                         array.every((x) => x > -100.0 && x < 100.0 && (x * 10) % 1 === 0));
+                    const validateInt = (array) => array.length > 32 &&
+                        array.slice(0, 32).every((x) => x === 0 || x === 1 || x === 2 || x === 0x7fffffff);
+                    if (validateFloat(f32) || validateFloat(f16) || validateInt(i32)) {
                         context.type = 'openvino.bin';
                         return;
                     }
