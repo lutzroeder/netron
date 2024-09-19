@@ -15,6 +15,17 @@ const view = {};
 const markdown = {};
 const metrics = {};
 
+// Polyfills
+function replaceChildren(...children) {
+    while (this.lastChild) {
+        this.removeChild(this.lastChild);
+    }
+    for (const child of children) {
+        this.appendChild(child);
+    }
+}
+Element.prototype.replaceChildren ||= replaceChildren;
+
 view.View = class {
 
     constructor(host) {
@@ -4014,7 +4025,8 @@ view.FindSidebar = class extends view.Control {
         }
         this._table.clear();
         this._focused.clear();
-        this._content.replaceChildren();
+        //this._content.replaceChildren();
+        replaceChildren.call(this._content);
     }
 
     error(error, fatal) {
