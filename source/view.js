@@ -3766,15 +3766,6 @@ view.FindSidebar = class extends view.Control {
     }
 
     focus(state) {
-        this._state = state || this._state;
-        this._query.focus();
-        this._query.value = '';
-        this._query.value = this._state.query;
-        for (const [name, toggle] of Object.entries(this._toggles)) {
-            toggle.checkbox.checked = this._state[name];
-            toggle.element.setAttribute('title', this._state[name] ? toggle.hide : toggle.show);
-        }
-        this._update();
     }
 
     _clear() {
@@ -4017,6 +4008,17 @@ view.FindSidebar = class extends view.Control {
 
     get element() {
         return [this._search, this._content];
+    }
+
+    activate() {
+        this._query.focus();
+        this._query.value = '';
+        this._query.value = this._state.query;
+        for (const [name, toggle] of Object.entries(this._toggles)) {
+            toggle.checkbox.checked = this._state[name];
+            toggle.element.setAttribute('title', this._state[name] ? toggle.hide : toggle.show);
+        }
+        this._update();
     }
 
     deactivate() {
