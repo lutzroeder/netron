@@ -4025,8 +4025,7 @@ view.FindSidebar = class extends view.Control {
         }
         this._table.clear();
         this._focused.clear();
-        //this._content.replaceChildren();
-        replaceChildren.call(this._content);
+        this._content.replaceChildren();
     }
 
     error(error, fatal) {
