@@ -267,6 +267,15 @@ DataView.prototype.setComplex128 = DataView.prototype.setComplex128 || function(
     }
 };
 
+if (typeof Element !== 'undefined' && Element.prototype && !Element.prototype.replaceChildren) {
+    Element.prototype.replaceChildren = function(...args) {
+        while (this.lastChild) {
+            this.removeChild(this.lastChild);
+        }
+        this.append(...args);
+    };
+}
+
 /* eslint-enable no-extend-native */
 
 base.BinaryStream = class {

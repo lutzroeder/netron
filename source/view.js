@@ -295,6 +295,7 @@ view.View = class {
                 this._graph.blur([value]);
             });
             sidebar.on('activate', (sender, value) => {
+                this._sidebar.close();
                 this.scrollTo(this._graph.activate(value));
             });
             this._sidebar.open(sidebar, 'Find');
@@ -1513,7 +1514,7 @@ view.Menu = class {
     }
 
     _rebuild() {
-        this._element.innerHTML = '';
+        this._element.replaceChildren();
         const root = this._root[this._root.length - 1];
         for (const group of root.items) {
             const container = this._document.createElement('div');
@@ -2451,7 +2452,7 @@ view.Sidebar = class {
         sidebar.addEventListener('transitionend', (event) => {
             if (event.propertyName === 'opacity' && sidebar.style.opacity === '0') {
                 const content = this._element('sidebar-content');
-                content.innerHTML = '';
+                content.replaceChildren();
             }
         });
     }
@@ -2509,13 +2510,9 @@ view.Sidebar = class {
             if (typeof entry.content === 'string') {
                 content.innerHTML = entry.element;
             } else if (entry.element instanceof Array) {
-                content.innerHTML = '';
-                for (const element of entry.element) {
-                    content.appendChild(element);
-                }
+                content.replaceChildren(...entry.element);
             } else {
-                content.innerHTML = '';
-                content.appendChild(entry.element);
+                content.replaceChildren(entry.element);
             }
             sidebar.style.width = 'min(calc(100% * 0.6), 42em)';
             sidebar.style.right = 0;
@@ -3766,12 +3763,13 @@ view.FindSidebar = class extends view.Control {
         this._update();
     }
 
-    _clear() {
+    _reset() {
         for (const element of this._focused) {
             this._blur(element);
         }
         this._focused.clear();
         this._table.clear();
+        this._content.replaceChildren();
         this._edges.clear();
         const unquote = this._state.query.match(new RegExp(/^'(.*)'|"(.*)"$/));
         if (unquote) {
@@ -3916,9 +3914,8 @@ view.FindSidebar = class extends view.Control {
     }
 
     _update() {
-        this._content.innerHTML = '';
         try {
-            this._clear();
+            this._reset();
             const inputs = this._signature ? this._signature.inputs : this._graph.inputs;
             if (this._state.connection) {
                 for (const input of inputs) {
@@ -4009,11 +4006,7 @@ view.FindSidebar = class extends view.Control {
     }
 
     deactivate() {
-        for (const element of this._focused) {
-            this._blur(element);
-        }
-        this._table.clear();
-        this._focused.clear();
+        this._reset();
     }
 
     error(error, fatal) {
