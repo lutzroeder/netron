@@ -4536,8 +4536,8 @@
   },
   {
     "type":     "openvino",
-    "target":   "2018_R3_age-gender-recognition-retail-0013.xml,2018_R3_age-gender-recognition-retail-0013.bin",
-    "source":   "https://github.com/lutzroeder/netron/files/8983748/2018_R3_age-gender-recognition-retail-0013.zip[2018_R3_age-gender-recognition-retail-0013.xml,2018_R3_age-gender-recognition-retail-0013.bin]",
+    "target":   "2018_R3_age-gender-recognition-retail-0013.bin,2018_R3_age-gender-recognition-retail-0013.xml",
+    "source":   "https://github.com/lutzroeder/netron/files/8983748/2018_R3_age-gender-recognition-retail-0013.zip[2018_R3_age-gender-recognition-retail-0013.bin,2018_R3_age-gender-recognition-retail-0013.xml]",
     "format":   "OpenVINO IR",
     "link":     "https://github.com/lutzroeder/netron/issues/191"
   },
@@ -4564,15 +4564,15 @@
   },
   {
     "type":     "openvino",
-    "target":   "face-detection-retail-0005.xml,face-detection-retail-0005.bin",
-    "source":   "https://github.com/lutzroeder/netron/files/12750770/face-detection-retail-0005.zip[face-detection-retail-0005.xml,face-detection-retail-0005.bin]",
+    "target":   "face-detection-retail-0005.bin,face-detection-retail-0005.xml",
+    "source":   "https://github.com/lutzroeder/netron/files/12750770/face-detection-retail-0005.zip[face-detection-retail-0005.bin,face-detection-retail-0005.xml]",
     "format":   "OpenVINO IR",
     "link":     "https://github.com/lutzroeder/netron/issues/191"
   },
   {
     "type":     "openvino",
-    "target":   "int4-model.xml,int4-model.bin",
-    "source":   "https://github.com/lutzroeder/netron/files/6273773/int4-model.zip[int4-model.xml,int4-model.bin]",
+    "target":   "int4-model.bin,int4-model.xml",
+    "source":   "https://github.com/lutzroeder/netron/files/6273773/int4-model.zip[int4-model.bin,int4-model.xml]",
     "format":   "OpenVINO IR",
     "assert":   "model.graphs[0].nodes.length == 223",
     "tags":     "validation",
@@ -4587,8 +4587,8 @@
   },
   {
     "type":     "openvino",
-    "target":   "text-recognition-0012.xml,text-recognition-0012.bin",
-    "source":   "https://github.com/lutzroeder/netron/files/8983714/text-recognition-0012.zip[text-recognition-0012.xml,text-recognition-0012.bin]",
+    "target":   "text-recognition-0012.bin,text-recognition-0012.xml",
+    "source":   "https://github.com/lutzroeder/netron/files/8983714/text-recognition-0012.zip[text-recognition-0012.bin,text-recognition-0012.xml]",
     "format":   "OpenVINO IR",
     "link":     "https://github.com/lutzroeder/netron/issues/191"
   },
@@ -4739,6 +4739,14 @@
     "source":   "https://github.com/user-attachments/files/15507409/mobilenetv2-12_net.json",
     "format":   "QNN",
     "tags":     "quantization",
+    "link":     "https://github.com/lutzroeder/netron/issues/1283"
+  },
+  {
+    "type":     "qnn",
+    "target":   "qnn.serialized.bin",
+    "source":   "https://github.com/user-attachments/files/17068533/qnn.serialized.bin.zip[qnn.serialized.bin]",
+    "format":   "QNN",
+    "error":    "File contains undocumented QNN serialized context.",
     "link":     "https://github.com/lutzroeder/netron/issues/1283"
   },
   {
