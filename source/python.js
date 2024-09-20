@@ -2942,6 +2942,7 @@ python.Execution = class {
         this.registerType('sklearn.tree.tree.DecisionTreeRegressor', class {});
         this.registerType('sklearn.tree.tree.ExtraTreeClassifier', class {});
         this.registerType('sklearn.utils._bunch.Bunch', class {});
+        this.registerType('sklearn.utils._metadata_requests.MethodMetadataRequest', class {});
         this.registerType('sklearn.utils.deprecation.DeprecationDict', class {});
         this.registerType('pickle.Unpickler', class {
             constructor(data) {
