@@ -663,6 +663,10 @@
     ]
   },
   {
+    "name": "LRN",
+    "category": "Normalization"
+  },
+  {
     "name": "LSTMCell",
     "category": "Layer",
     "inputs": [
