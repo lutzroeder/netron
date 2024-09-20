@@ -48,17 +48,20 @@ tensorrt.Engine = class {
 
     static open(context) {
         const stream = context.stream;
-        if (stream && stream.length >= 24) {
+        if (stream && stream.length >= 4) {
+            const size = Math.min(stream.length, 24);
+            let buffer = stream.peek(size);
             let offset = 0;
-            let buffer = stream.peek(Math.min(stream.length, 24));
-            if (buffer[3] === 0x00 && buffer[4] === 0x7b) {
-                const reader = base.BinaryReader.open(buffer);
-                offset = reader.uint32() + 4;
-                if ((offset + 4) < stream.length) {
-                    const position = stream.position;
-                    stream.seek(offset);
-                    buffer = stream.peek(4);
-                    stream.seek(position);
+            if (size >= 24) {
+                if (buffer[3] === 0x00 && buffer[4] === 0x7b) {
+                    const reader = base.BinaryReader.open(buffer);
+                    offset = reader.uint32() + 4;
+                    if ((offset + 4) < stream.length) {
+                        const position = stream.position;
+                        stream.seek(offset);
+                        buffer = stream.peek(4);
+                        stream.seek(position);
+                    }
                 }
             }
             const signature = String.fromCharCode.apply(null, buffer.slice(0, 4));
@@ -78,32 +81,35 @@ tensorrt.Engine = class {
 
     read() {
         const reader = this.context.read('binary');
-        reader.skip(this.position);
-        const buffer = reader.peek(24);
-        delete this.context;
-        delete this.position;
-        reader.skip(4);
-        const version = reader.uint32();
-        reader.uint32();
-        // let size = 0;
-        switch (version) {
-            case 0x0000:
-            case 0x002B: {
-                reader.uint32();
-                /* size = */ reader.uint64();
-                break;
-            }
-            case 0x0057:
-            case 0x0059:
-            case 0x0060:
-            case 0x0061: {
-                /* size = */ reader.uint64();
-                reader.uint32();
-                break;
-            }
-            default: {
-                const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                throw new tensorrt.Error(`Unsupported TensorRT engine signature (${content.substring(8)}).`);
+        const offset = this.position + 24;
+        if (offset <= reader.length) {
+            reader.skip(this.position);
+            const buffer = reader.peek(24);
+            delete this.context;
+            delete this.position;
+            reader.skip(4);
+            const version = reader.uint32();
+            reader.uint32();
+            // let size = 0;
+            switch (version) {
+                case 0x0000:
+                case 0x002B: {
+                    reader.uint32();
+                    /* size = */ reader.uint64();
+                    break;
+                }
+                case 0x0057:
+                case 0x0059:
+                case 0x0060:
+                case 0x0061: {
+                    /* size = */ reader.uint64();
+                    reader.uint32();
+                    break;
+                }
+                default: {
+                    const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                    throw new tensorrt.Error(`Unsupported TensorRT engine signature (${content.substring(8)}).`);
+                }
             }
         }
         // const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
