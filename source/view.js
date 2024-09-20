@@ -1988,11 +1988,10 @@ view.Graph = class extends grapher.Graph {
             // If the element is already selected, skip running reselection.
             if (this._selection.size === 1 && this._selection.has(element)) {
                 return [element];
-            } else {
-                this.select(null);
-                element.activate();
-                return this.select([value]);
             }
+            this.select(null);
+            element.activate();
+            return this.select([value]);
         }
         return [];
     }
