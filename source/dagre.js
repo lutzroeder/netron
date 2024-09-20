@@ -2275,10 +2275,10 @@ dagre.Graph = class {
                 }
                 this._children.delete(v);
             }
-            for (const edge of node.in) {
+            for (const edge of node.in.concat()) {
                 this.removeEdge(edge);
             }
-            for (const edge of node.out) {
+            for (const edge of node.out.concat()) {
                 this.removeEdge(edge);
             }
             this.nodes.delete(v);
@@ -2409,8 +2409,15 @@ dagre.Graph = class {
                 vNode.successors.set(w, value - 1);
             }
         }
-        wNode.in = wNode.in.filter((edge) => edge.key !== key);
-        vNode.out = vNode.out.filter((edge) => edge.key !== key);
+        // Update arrays in-place
+        const idxIn = wNode.in.findIndex((e) => e.key === key);
+        if (idxIn != -1) {
+            wNode.in.splice(idxIn, 1);
+        }
+        const idxOut = vNode.out.findIndex((e) => e.key === key);
+        if (idxOut != -1) {
+            vNode.out.splice(idxOut, 1);
+        }
         this.edges.delete(key);
     }
 
