@@ -25,6 +25,7 @@ app.Application = class {
         const packageContent =  fs.readFileSync(packageFile, 'utf-8');
         this._package = JSON.parse(packageContent);
 
+        electron.app.commandLine.appendSwitch('js-flags', '--expose-gc');
         electron.app.setAppUserModelId('com.lutzroeder.netron');
         electron.app.allowRendererProcessReuse = true;
 

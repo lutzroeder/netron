@@ -3780,6 +3780,9 @@ view.FindSidebar = class extends view.Control {
             this._exact = false;
             this._terms = this._state.query.trim().toLowerCase().split(' ').map((term) => term.trim()).filter((term) => term.length > 0);
         }
+        if (typeof gc !== 'undefined') {
+            gc();
+        }
     }
 
     _term(value) {
