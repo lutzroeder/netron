@@ -45,11 +45,13 @@ numpy.ModelFactory = class {
             case 'npz': {
                 format = 'NumPy Zip';
                 const layers = new Map();
-                for (const [key, array] of context.target) {
+                const entries = Array.from(context.target);
+                const separator = entries.every(([name]) => name.endsWith('.weight.npy')) ? '.' : '/';
+                for (const [key, array] of entries) {
                     const name = key.replace(/\.npy$/, '');
-                    const parts = name.split('/');
-                    const parameterName = parts.pop();
-                    const groupName = parts.join('/');
+                    const path = name.split(separator);
+                    const parameterName = path.pop();
+                    const groupName = path.join(separator);
                     if (!layers.has(groupName)) {
                         layers.set(groupName, { name: groupName, parameters: [] });
                     }
