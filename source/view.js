@@ -5333,9 +5333,11 @@ view.Context = class {
                                         const tail = data.peek(1);
                                         data.seek(0);
                                         if (tail[0] === 0x2e) {
-                                            const buffer = data.peek(Math.min(data.length, 256));
+                                            const size = Math.min(data.length, 256);
+                                            const buffer = data.peek(size);
                                             const content = String.fromCharCode.apply(null, buffer);
-                                            condition = content.indexOf('ccopy_reg') !== -1;
+                                            const list = ['ccopy_reg', 'cnumpy.core.multiarray', '(dp0'];
+                                            condition = list.some((value) => content.indexOf(value) !== -1);
                                         }
                                     }
                                 }
