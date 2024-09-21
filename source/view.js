@@ -1984,10 +1984,15 @@ view.Graph = class extends grapher.Graph {
 
     activate(value) {
         if (this._table.has(value)) {
-            this.select(null);
             const element = this._table.get(value);
-            element.activate();
-            return this.select([value]);
+            // If the element is already selected, skip running reselection.
+            if (this._selection.size === 1 && this._selection.has(element)) {
+                return [element];
+            } else {
+                this.select(null);
+                element.activate();
+                return this.select([value]);
+            }
         }
         return [];
     }
