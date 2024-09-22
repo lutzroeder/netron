@@ -3614,6 +3614,7 @@ python.Execution = class {
                 }
             }
         });
+        this.registerFunction('builtins.exec');
         this.registerFunction('builtins.issubclass', (obj, type) => {
             const name = `${type.__module__}.${type.__name__}`;
             if (obj.__module__ && obj.__name__) {
