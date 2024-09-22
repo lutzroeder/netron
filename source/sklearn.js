@@ -110,66 +110,8 @@ sklearn.Graph = class {
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];
-        this.groups = false;
-        const values = new Map();
-        values.map = (name) => {
-            if (!values.has(name)) {
-                values.set(name, new sklearn.Value(name, null, null));
-            }
-            return values.get(name);
-        };
-        const concat = (parent, name) => {
-            return (parent === '' ?  name : `${parent}/${name}`);
-        };
-        const process = (group, name, obj, inputs) => {
-            const type = `${obj.__class__.__module__}.${obj.__class__.__name__}`;
-            switch (type) {
-                case 'sklearn.pipeline.Pipeline': {
-                    this.groups = true;
-                    name = name || 'pipeline';
-                    const childGroup = concat(group, name);
-                    for (const step of obj.steps) {
-                        inputs = process(childGroup, step[0], step[1], inputs);
-                    }
-                    return inputs;
-                }
-                case 'sklearn.pipeline.FeatureUnion': {
-                    this.groups = true;
-                    const outputs = [];
-                    name = name || 'union';
-                    const output = concat(group, name);
-                    const subgroup = concat(group, name);
-                    const node = new sklearn.Node(metadata, subgroup, output, obj, inputs, [output], values);
-                    this.nodes.push(node);
-                    for (const transformer of obj.transformer_list) {
-                        outputs.push(...process(subgroup, transformer[0], transformer[1], [output]));
-                    }
-                    return outputs;
-                }
-                case 'sklearn.compose._column_transformer.ColumnTransformer': {
-                    this.groups = true;
-                    name = name || 'transformer';
-                    const output = concat(group, name);
-                    const subgroup = concat(group, name);
-                    const outputs = [];
-                    const node = new sklearn.Node(metadata, subgroup, output, obj, inputs, [output], values);
-                    this.nodes.push(node);
-                    for (const transformer of obj.transformers) {
-                        if (transformer[1] !== 'passthrough') {
-                            outputs.push(...process(subgroup, transformer[0], transformer[1], [output]));
-                        }
-                    }
-                    return outputs;
-                }
-                default: {
-                    const output = concat(group, name);
-                    const node = new sklearn.Node(metadata, group, output, obj, inputs, output === '' ? [] : [output], values);
-                    this.nodes.push(node);
-                    return [output];
-                }
-            }
-        };
-        process('', '', obj, []);
+        const node = new sklearn.Node(metadata, '', obj);
+        this.nodes.push(node);
     }
 };
 
@@ -197,21 +139,12 @@ sklearn.Value = class {
 
 sklearn.Node = class {
 
-    constructor(metadata, group, name, obj, inputs, outputs, values, stack) {
-        this.group = group || null;
+    constructor(metadata, name, obj, stack) {
         this.name = name || '';
         const type = obj.__class__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : 'builtins.dict';
         this.type = metadata.type(type) || { name: type };
-        this.inputs = inputs.map((input) => new sklearn.Argument(input, [values.map(input)]));
-        this.outputs = outputs.map((output) => new sklearn.Argument(output, [values.map(output)]));
-        const isArray = (obj) => {
-            return obj && obj.__class__ &&
-                ((obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray') ||
-                 (obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'matrix'));
-        };
-        const isByteArray = (obj) => {
-            return obj && obj.__class__ && obj.__class__.__module__ === 'builtins' && obj.__class__.__name__ === 'bytearray';
-        };
+        this.inputs = [];
+        this.outputs = [];
         const isObject = (obj) => {
             if (obj && typeof obj === 'object') {
                 const proto = Object.getPrototypeOf(obj);
@@ -227,15 +160,15 @@ sklearn.Node = class {
             for (const [name, value] of entries) {
                 if (name === '__class__') {
                     continue;
-                } else if (value && isArray(value)) {
+                } else if (value && sklearn.Utility.isTensor(value)) {
                     const tensor = new sklearn.Tensor(value);
                     const argument = new sklearn.Argument(name, tensor, 'tensor');
                     this.inputs.push(argument);
-                } else if (Array.isArray(value) && value.length > 0 && value.every((obj) => isArray(obj))) {
+                } else if (Array.isArray(value) && value.length > 0 && value.every((obj) => sklearn.Utility.isTensor(obj))) {
                     const tensors = value.map((obj) => new sklearn.Tensor(obj));
                     const argument = new sklearn.Argument(name, tensors, 'tensor[]');
                     this.inputs.push(argument);
-                } else if (isByteArray(value)) {
+                } else if (sklearn.Utility.isType(value, 'builtins.bytearray')) {
                     const argument = new sklearn.Argument(name, Array.from(value), 'byte[]');
                     this.inputs.push(argument);
                 } else {
@@ -246,18 +179,26 @@ sklearn.Node = class {
                     } else if (value && Array.isArray(value) && value.every((obj) => typeof obj === 'number')) {
                         const argument = new sklearn.Argument(name, value, 'attribute');
                         this.inputs.push(argument);
-                    } else if (value && value.__class__ && value.__class__.__module__ === 'builtins' && (value.__class__.__name__ === 'function' || value.__class__.__name__ === 'type')) {
-                        const obj = {};
-                        obj.__class__ = value;
-                        const node = new sklearn.Node(metadata, group, '', obj, [], [], null, stack);
+                    } else if (sklearn.Utility.isType(value, 'builtins.function') || sklearn.Utility.isType(value, 'builtins.type')) {
+                        const node = new sklearn.Node(metadata, '', { __class__: value }, stack);
                         const argument = new sklearn.Argument(name, node, 'object');
+                        this.inputs.push(argument);
+                    } else if (sklearn.Utility.isType(value, 'builtins.list') && value.every((value) => Array.isArray(value) && value.length === 2 && typeof value[0] === 'string')) {
+                        const chain = stack;
+                        const nodes = value.map(([name, value]) => {
+                            chain.add(value);
+                            const node = new sklearn.Node(metadata, name, value, chain);
+                            chain.delete(value);
+                            return node;
+                        });
+                        const argument = new sklearn.Argument(name, nodes, 'object[]');
                         this.inputs.push(argument);
                     } else if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj && (obj.__class__ || obj === Object(obj)))) {
                         const chain = stack;
                         const values = value.filter((value) => !chain.has(value));
                         const nodes = values.map((value) => {
                             chain.add(value);
-                            const node = new sklearn.Node(metadata, group, '', value, [], [], null, chain);
+                            const node = new sklearn.Node(metadata, '', value, null, chain);
                             chain.delete(value);
                             return node;
                         });
@@ -265,7 +206,7 @@ sklearn.Node = class {
                         this.inputs.push(argument);
                     } else if (value && (value.__class__ || isObject(value)) && !stack.has(value)) {
                         stack.add(value);
-                        const node = new sklearn.Node(metadata, group, '', value, [], [], null, stack);
+                        const node = new sklearn.Node(metadata, '', value, null, stack);
                         const argument = new sklearn.Argument(name, node, 'object');
                         this.inputs.push(argument);
                         stack.delete(value);
@@ -331,6 +272,17 @@ sklearn.TensorShape = class {
     toString() {
         return this.dimensions ? (`[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`) : '';
     }
+};
+
+sklearn.Utility = class {
+
+    static isType(obj, name) {
+        return obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ && `${obj.__class__.__module__}.${obj.__class__.__name__}` === name;
+    }
+
+    static isTensor = (obj) => {
+        return sklearn.Utility.isType(obj, 'numpy.ndarray') || sklearn.Utility.isType(obj, 'numpy.matrix');
+    };
 };
 
 sklearn.Error = class extends Error {
