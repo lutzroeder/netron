@@ -232,14 +232,15 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .sidebar-find-query { width: 100vw; background: none; font-family: inherit; font-size: 13px; padding: 8px 8px 8px 8px; border: 0; outline: 0; }
 .sidebar-find-toggle { margin-left: auto; margin-right: 2px; width: 16px; height: 16px; cursor: pointer; }
 .sidebar-find-toggle input[type="checkbox"] { display: none; }
-.sidebar-find-toggle input[type="checkbox"]:not(:checked) + svg { fill: #ccc; stroke: #ccc; }
-.sidebar-find-toggle input[type="checkbox"]:checked + svg { fill: #555; stroke: #555; }
-.sidebar-find-toggle-icon { stroke: #555; fill: #555; width: 16px; height: 16px; }
+.sidebar-find-toggle input[type="checkbox"]:not(:checked) + img { /* #ccc */ filter: invert(89%) sepia(2%) saturate(1448%) hue-rotate(193deg) brightness(122%) contrast(60%); }
+.sidebar-find-toggle input[type="checkbox"]:checked + img { /* #555 */ filter: invert(33%) sepia(0%) saturate(0%) hue-rotate(167deg) brightness(94%) contrast(86%); }
 .sidebar-find-content { flex-grow: 1; padding: 0px 20px 20px 20px; padding-right: 20px; overflow-y: auto; list-style-type: none; overflow-y: auto; margin: 0; }
-.sidebar-find-content li { color: #666; height: 22px; padding: 0 12px 0 12px; outline: 0; white-space: nowrap; border-radius: 3px; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.sidebar-find-content li { color: #666; height: 22px; padding: 0 12px 0 12px; outline: 0; white-space: nowrap; border-radius: 3px; user-select: none; -webkit-user-select: none; -moz-user-select: none; display: flex; align-items: center; }
 .sidebar-find-content li:hover { background: #e5e5e5; color: #000; }
-.sidebar-find-content li>span { font-size: 13px; line-height: 22px; padding-left: 2px; pointer-events: none; }
-.sidebar-find-content-icon { stroke: #555; fill: #555; float: left; width: 16px; height: 16px; margin: 3px; }
+.sidebar-find-content-icon {
+      /* #555 */ filter: invert(28%) sepia(0%) saturate(0%) hue-rotate(167deg) brightness(100%) contrast(75%);
+      float: left; width: 16px; height: 16px; margin: 3px; contain: strict; pointer-events: none;
+ }
 .sidebar-documentation { flex-grow: 1; padding: 0px 20px 20px 20px; overflow-y: auto; font-size: 13px; line-height: 1.5; margin: 0; }
 .sidebar-documentation h1 { font-weight: bold; font-size: 13px; line-height: 1.25; border-bottom: 1px solid #e8e8e8; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; }
 .sidebar-documentation h2 { font-weight: bold; font-size: 13px; line-height: 1.25; margin-top: 20px; margin-bottom: 16px; text-transform: uppercase; border: 0; }
@@ -273,11 +274,11 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     .sidebar-documentation code { background-color: #1e1e1e; }
     .sidebar-documentation pre { background-color: #1e1e1e; }
     .sidebar-find-search { background: #383838; color: #dfdfdf; border-color: #424242; }
-    .sidebar-find-toggle input[type="checkbox"]:not(:checked) + svg { fill: #555; stroke: #555; }
-    .sidebar-find-toggle input[type="checkbox"]:checked + svg { fill: #aaa; stroke: #aaa; }
+    .sidebar-find-toggle input[type="checkbox"]:not(:checked) + img { /* #555 */ filter: invert(33%) sepia(0%) saturate(0%) hue-rotate(167deg) brightness(94%) contrast(86%); }
+    .sidebar-find-toggle input[type="checkbox"]:checked + img { /* #aaa */ filter: invert(72%) sepia(0%) saturate(17%) hue-rotate(142deg) brightness(94%) contrast(92%); }
     .sidebar-find-content li { color: #aaaaaa; }
     .sidebar-find-content li:hover { background: #383838; color: #dfdfdf; }
-    .sidebar-find-content-icon { stroke: #888888; fill: #888888; }
+    .sidebar-find-content-icon { /* #888 */ filter: invert(51%) sepia(71%) saturate(0%) hue-rotate(166deg) brightness(92%) contrast(90%); }
     .sidebar-item-value-expander { color: #888; }
     .sidebar-item-value-expander:hover { color: #e5e5e5; }
     .sidebar-item-value-button { color: #888; }
@@ -299,23 +300,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     <a id="sidebar-closebutton" class="sidebar-closebutton" href="javascript:void(0)" draggable="false">&times;</a>
     <div id="sidebar-content" class="sidebar-content"></div>
     <div style="display:none">
-        <!-- Spaces must not be written between tags to prevent text nodes. -->
-        <ol id="sidebar-find-content-template"><li><svg class="sidebar-find-content-icon" viewBox="0 0 20 20">
-                    <circle cx="10" cy="10" r="6" stroke-width="2" fill="none"/>
-                </svg><span></span></li><li><svg class="sidebar-find-content-icon" viewBox="0 0 20 20">
-                    <line x1="4" y1="10" x2="15" y2="10" stroke-width="2" />
-                    <polyline points="11,6 15,10 11,14" stroke-width="2" />
-                </svg><span></span></li><li><svg class="sidebar-find-content-icon" viewBox="0 0 20 20">
-                    <circle cx="5" cy="5" r="1" />
-                    <circle cx="10" cy="5" r="1" />
-                    <circle cx="15" cy="5" r="1" />
-                    <circle cx="5" cy="10" r="1" />
-                    <circle cx="10" cy="10" r="1" />
-                    <circle cx="15" cy="10" r="1" />
-                    <circle cx="5" cy="15" r="1" />
-                    <circle cx="10" cy="15" r="1" />
-                    <circle cx="15" cy="15" r="1" />
-                </svg><span></span></li></ol>
+        <ol id="sidebar-find-content-template"><li><img class="sidebar-find-content-icon" src="sidebar-icon-node.svg">  </li><li><img class="sidebar-find-content-icon" src="sidebar-icon-connection.svg">  </li><li><img class="sidebar-find-content-icon" src="sidebar-icon-weight.svg">  </li></ol>
     </div>
 </div>
 <div id="toolbar" class="toolbar">

@@ -3054,7 +3054,7 @@ view.ValueView = class extends view.Expander {
                 const element = this.createElement('div', 'sidebar-item-value-button');
                 element.classList.add('sidebar-item-value-button-tool');
                 element.setAttribute('title', 'Show Tensor');
-                element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-weight"></use></svg>`;
+                element.innerHTML = `<img class='sidebar-find-content-icon' src='sidebar-icon-weight.svg'>`;
                 element.addEventListener('pointerenter', () => this.emit('focus', this._value));
                 element.addEventListener('pointerleave', () => this.emit('blur', this._value));
                 element.style.cursor = 'pointer';
@@ -3205,7 +3205,7 @@ view.TensorView = class extends view.Expander {
             this.enable();
             this._button = this.createElement('div', 'sidebar-item-value-button');
             this._button.setAttribute('style', 'float: left;');
-            this._button.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-weight"></use></svg>`;
+            this._button.innerHTML = `<img class='sidebar-find-content-icon' src='sidebar-icon-weight.svg'>`;
             this._button.addEventListener('click', () => this.toggle());
             this.control(this._button);
             const line = this.createElement('div', 'sidebar-item-value-line');
@@ -3900,7 +3900,7 @@ view.FindSidebar = class extends view.Control {
 
     _add(value, content, icon) {
         const element = this._lis[icon].cloneNode(true);
-        element.lastChild.innerHTML = content;
+        element.lastChild.nodeValue = content;
         this._table.set(element, value);
         this._content.appendChild(element);
     }
