@@ -3054,7 +3054,9 @@ view.ValueView = class extends view.Expander {
                 const element = this.createElement('div', 'sidebar-item-value-button');
                 element.classList.add('sidebar-item-value-button-tool');
                 element.setAttribute('title', 'Show Tensor');
-                element.innerHTML = `<img class='sidebar-find-content-icon' src='sidebar-icon-weight.svg'>`;
+                const icon = this._host.document.getElementById('sidebar-icon-weight').cloneNode(true);
+                icon.id = '';
+                element.appendChild(icon);
                 element.addEventListener('pointerenter', () => this.emit('focus', this._value));
                 element.addEventListener('pointerleave', () => this.emit('blur', this._value));
                 element.style.cursor = 'pointer';
@@ -3205,7 +3207,9 @@ view.TensorView = class extends view.Expander {
             this.enable();
             this._button = this.createElement('div', 'sidebar-item-value-button');
             this._button.setAttribute('style', 'float: left;');
-            this._button.innerHTML = `<img class='sidebar-find-content-icon' src='sidebar-icon-weight.svg'>`;
+            const icon = this._host.document.getElementById('sidebar-icon-weight').cloneNode(true);
+            icon.id = '';
+            element.appendChild(icon);
             this._button.addEventListener('click', () => this.toggle());
             this.control(this._button);
             const line = this.createElement('div', 'sidebar-item-value-line');
@@ -3900,6 +3904,7 @@ view.FindSidebar = class extends view.Control {
 
     _add(value, content, icon) {
         const element = this._lis[icon].cloneNode(true);
+        element.firstChild.id = '';
         element.lastChild.nodeValue = content;
         this._table.set(element, value);
         this._content.appendChild(element);
@@ -3987,6 +3992,7 @@ view.FindSidebar = class extends view.Control {
             });
             toggle.element.appendChild(toggle.checkbox);
             const icon = this._lis[name].firstChild.cloneNode(true);
+            icon.id = '';
             toggle.element.appendChild(icon);
             icon.style.margin = '0px';
             this._search.appendChild(toggle.element);
