@@ -279,7 +279,7 @@ view.View = class {
     }
 
     find() {
-        if (this._graph) {
+        if (this._graph && this._sidebar.peek() instanceof view.FindSidebar !== true) {
             this._graph.select(null);
             const sidebar = new view.FindSidebar(this, this.activeGraph, this.activeSignature);
             sidebar.on('state-changed', (sender, state) => {
@@ -2475,6 +2475,10 @@ view.Sidebar = class {
         const element = this._render(content);
         const entry = { title, content, element };
         this._update(this._stack.concat(entry));
+    }
+
+    peek() {
+        return this._stack.length > 0 ? this._stack[this._stack.length - 1].content : null;
     }
 
     _render(content) {
