@@ -3738,6 +3738,12 @@ view.FindSidebar = class extends view.Control {
             connection: { hide: 'Hide Connections', show: 'Show Connections' },
             weight: { hide: 'Hide Weights', show: 'Show Weights' }
         };
+        const tpl = this._host.document.getElementById('sidebar-find-content-template');
+        this._lis = {
+            node: tpl.childNodes[0],
+            connection: tpl.childNodes[1],
+            weight: tpl.childNodes[2],
+        };
     }
 
     on(event, callback) {
@@ -3893,11 +3899,8 @@ view.FindSidebar = class extends view.Control {
     }
 
     _add(value, content, icon) {
-        const element = this.createElement('li');
-        element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-${icon}"></use></svg>`;
-        const text = this.createElement('span');
-        text.innerText = content;
-        element.appendChild(text);
+        const element = this._lis[icon].cloneNode(true);
+        element.lastChild.innerHTML = content;
         this._table.set(element, value);
         this._content.appendChild(element);
     }
@@ -3970,7 +3973,6 @@ view.FindSidebar = class extends view.Control {
         });
         for (const [name, toggle] of Object.entries(this._toggles)) {
             toggle.element = this.createElement('label', 'sidebar-find-toggle');
-            toggle.element.innerHTML = `<svg class='sidebar-find-toggle-icon'><use href="#sidebar-icon-${name}"></use></svg>`;
             toggle.element.setAttribute('title', this._state[name] ? toggle.hide : toggle.show);
             toggle.checkbox = this.createElement('input');
             toggle.checkbox.setAttribute('type', 'checkbox');
@@ -3983,7 +3985,10 @@ view.FindSidebar = class extends view.Control {
                 this.emit('state-changed', this._state);
                 this._update();
             });
-            toggle.element.insertBefore(toggle.checkbox, toggle.element.firstChild);
+            toggle.element.appendChild(toggle.checkbox);
+            const icon = this._lis[name].firstChild.cloneNode(true);
+            toggle.element.appendChild(icon);
+            icon.style.margin = '0px';
             this._search.appendChild(toggle.element);
         }
         this._content.addEventListener('click', (e) => {
@@ -4009,6 +4014,7 @@ view.FindSidebar = class extends view.Control {
     }
 
     deactivate() {
+        this._search.remove();
         this._reset();
     }
 

@@ -298,28 +298,25 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     <h1 id="sidebar-title" class="sidebar-title"></h1>
     <a id="sidebar-closebutton" class="sidebar-closebutton" href="javascript:void(0)" draggable="false">&times;</a>
     <div id="sidebar-content" class="sidebar-content"></div>
-    <svg width="0" height="0" display="none">
-        <defs>
-            <symbol id="sidebar-icon-node" viewBox="0 0 20 20">
-                <circle cx="10" cy="10" r="6" stroke-width="2" fill="none"/>
-            </symbol>
-            <symbol id="sidebar-icon-connection" viewBox="0 0 20 20">
-                <line x1="4" y1="10" x2="15" y2="10" stroke-width="2" />
-                <polyline points="11,6 15,10 11,14" stroke-width="2" />
-            </symbol>
-            <symbol id="sidebar-icon-weight" viewBox="0 0 20 20">
-                <circle cx="5" cy="5" r="1" />
-                <circle cx="10" cy="5" r="1" />
-                <circle cx="15" cy="5" r="1" />
-                <circle cx="5" cy="10" r="1" />
-                <circle cx="10" cy="10" r="1" />
-                <circle cx="15" cy="10" r="1" />
-                <circle cx="5" cy="15" r="1" />
-                <circle cx="10" cy="15" r="1" />
-                <circle cx="15" cy="15" r="1" />
-          </symbol>
-        </defs>
-    </svg>
+    <div style="display:none">
+        <!-- Spaces must not be written between tags to prevent text nodes. -->
+        <ol id="sidebar-find-content-template"><li><svg class="sidebar-find-content-icon" viewBox="0 0 20 20">
+                    <circle cx="10" cy="10" r="6" stroke-width="2" fill="none"/>
+                </svg><span></span></li><li><svg class="sidebar-find-content-icon" viewBox="0 0 20 20">
+                    <line x1="4" y1="10" x2="15" y2="10" stroke-width="2" />
+                    <polyline points="11,6 15,10 11,14" stroke-width="2" />
+                </svg><span></span></li><li><svg class="sidebar-find-content-icon" viewBox="0 0 20 20">
+                    <circle cx="5" cy="5" r="1" />
+                    <circle cx="10" cy="5" r="1" />
+                    <circle cx="15" cy="5" r="1" />
+                    <circle cx="5" cy="10" r="1" />
+                    <circle cx="10" cy="10" r="1" />
+                    <circle cx="15" cy="10" r="1" />
+                    <circle cx="5" cy="15" r="1" />
+                    <circle cx="10" cy="15" r="1" />
+                    <circle cx="15" cy="15" r="1" />
+                </svg><span></span></li></ol>
+    </div>
 </div>
 <div id="toolbar" class="toolbar">
     <button id="sidebar-button" class="toolbar-button" title="Model Properties">
