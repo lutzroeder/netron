@@ -667,25 +667,24 @@ view.View = class {
         }
         this.exception(error, false);
         const knowns = [
-            { name: '', message: /^Invalid value identifier/, url: 'https://github.com/lutzroeder/netron/issues/540' },
-            { name: '', message: /^Cannot read property/, url: 'https://github.com/lutzroeder/netron/issues/647' },
-            { name: 'Error', message: /^EPERM: operation not permitted/, url: 'https://github.com/lutzroeder/netron/issues/551' },
-            { name: 'Error', message: /^EACCES: permission denied/, url: 'https://github.com/lutzroeder/netron/issues/504' },
-            { name: 'RangeError', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
-            { name: 'RangeError', message: /^Invalid string length/, url: 'https://github.com/lutzroeder/netron/issues/648' },
-            { name: 'Python Error', message: /^Unknown function/, url: 'https://github.com/lutzroeder/netron/issues/546' },
-            { name: 'Error loading model.', message: /^Unsupported file content/, url: 'https://github.com/lutzroeder/netron/issues/550' },
-            { name: 'Error loading model.', message: /^Unsupported Protocol Buffers content/, url: 'https://github.com/lutzroeder/netron/issues/593' },
-            { name: 'Error loading model.', message: /^Unsupported Protocol Buffers text content/, url: 'https://github.com/lutzroeder/netron/issues/594' },
-            { name: 'Error loading model.', message: /^Unsupported JSON content/, url: 'https://github.com/lutzroeder/netron/issues/595' },
-            { name: 'Error loading PyTorch model.', message: /^File does not contain root module or state dictionary/, url: 'https://github.com/lutzroeder/netron/issues/543' },
-            { name: 'Error loading PyTorch model.', message: /^Module does not contain modules/, url: 'https://github.com/lutzroeder/netron/issues/544' },
+            { message: /^Invalid value identifier/, url: 'https://github.com/lutzroeder/netron/issues/540' },
+            { message: /^Cannot read property/, url: 'https://github.com/lutzroeder/netron/issues/647' },
+            { message: /^Duplicate value /, url: 'https://github.com/lutzroeder/netron/issues/1364' },
+            { message: /^EPERM: operation not permitted/, url: 'https://github.com/lutzroeder/netron/issues/551' },
+            { message: /^EACCES: permission denied/, url: 'https://github.com/lutzroeder/netron/issues/504' },
+            { message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
+            { message: /^Invalid string length/, url: 'https://github.com/lutzroeder/netron/issues/648' },
+            { message: /^Unknown function /, url: 'https://github.com/lutzroeder/netron/issues/546' },
+            { message: /^Unsupported file content/, url: 'https://github.com/lutzroeder/netron/issues/550' },
+            { message: /^Unsupported Protocol Buffers content/, url: 'https://github.com/lutzroeder/netron/issues/593' },
+            { message: /^Unsupported Protocol Buffers text content/, url: 'https://github.com/lutzroeder/netron/issues/594' },
+            { message: /^Unsupported JSON content/, url: 'https://github.com/lutzroeder/netron/issues/595' },
             { name: 'Error loading PyTorch model.', message: /^Unknown type name/, url: 'https://github.com/lutzroeder/netron/issues/969' },
             { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto \(Unexpected end of file\)\./, url: 'https://github.com/lutzroeder/netron/issues/1155' },
             { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto \(Cannot read properties of undefined \(reading 'ModelProto'\)\)\./, url: 'https://github.com/lutzroeder/netron/issues/1156' },
             { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto/, url: 'https://github.com/lutzroeder/netron/issues/549' }
         ];
-        const known = knowns.find((known) => (known.name.length === 0 || known.name === error.name) && error.message.match(known.message));
+        const known = knowns.find((known) => (!known.name || known.name === error.name) && error.message.match(known.message));
         const url = known && known.url ? known.url : null;
         const message = error.message;
         name = name || error.name;
