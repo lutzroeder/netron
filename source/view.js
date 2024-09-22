@@ -3209,7 +3209,7 @@ view.TensorView = class extends view.Expander {
             this._button.setAttribute('style', 'float: left;');
             const icon = this._host.document.getElementById('sidebar-icon-weight').cloneNode(true);
             icon.id = '';
-            element.appendChild(icon);
+            this._button.appendChild(icon);
             this._button.addEventListener('click', () => this.toggle());
             this.control(this._button);
             const line = this.createElement('div', 'sidebar-item-value-line');
