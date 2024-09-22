@@ -5333,7 +5333,7 @@
     "target":   "iv3_pertensor.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5212009/iv3_pertensor.zip[iv3_pertensor.pt]",
     "format":   "TorchScript v1.5",
-    "link":     "https://github.com/lutzroeder/netron/issues/546"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
@@ -5922,7 +5922,7 @@
     "target":   "resnet50_pertensor.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5212006/resnet50_pertensor.zip[resnet50_pertensor.pt]",
     "format":   "TorchScript v1.5",
-    "link":     "https://github.com/lutzroeder/netron/issues/546"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
@@ -6173,7 +6173,7 @@
     "source":   "https://github.com/lutzroeder/netron/files/5238524/test.8bit.pth.zip[test.8bit.pth]",
     "format":   "TorchScript v1.6",
     "assert":   "model.graphs[0].nodes[8].type.name == 'conv1d_prepack'",
-    "link":     "https://github.com/lutzroeder/netron/issues/546"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
@@ -6203,7 +6203,7 @@
     "target":   "traced_fft.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5172197/traced_fft.zip[traced_fft.pt]",
     "format":   "TorchScript v1.3",
-    "link":     "https://github.com/lutzroeder/netron/issues/546"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
