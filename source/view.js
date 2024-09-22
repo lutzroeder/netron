@@ -279,9 +279,9 @@ view.View = class {
     }
 
     find() {
-        if (this._graph) {
+        if (this._graph && this._sidebar.identifier !== 'find') {
             this._graph.select(null);
-            const sidebar = new view.FindSidebar(this, this.activeGraph, this.activeSignature);
+            const sidebar = new view.FindSidebar(this, this._find, this.activeGraph, this.activeSignature);
             sidebar.on('state-changed', (sender, state) => {
                 this._find = state;
             });
@@ -299,7 +299,6 @@ view.View = class {
                 this.scrollTo(this._graph.activate(value));
             });
             this._sidebar.open(sidebar, 'Find');
-            sidebar.focus(this._find);
         }
     }
 
@@ -2476,6 +2475,16 @@ view.Sidebar = class {
         this._update(this._stack.concat(entry));
     }
 
+    get identifier() {
+        if (this._stack.length > 0) {
+            const content = this._stack[this._stack.length - 1].content;
+            if (content.identifier) {
+                return content.identifier;
+            }
+        }
+        return '';
+    }
+
     _render(content) {
         try {
             content.render();
@@ -2488,15 +2497,16 @@ view.Sidebar = class {
 
     _update(stack) {
         const sidebar = this._element('sidebar');
-        const content = this._element('sidebar-content');
+        const element = this._element('sidebar-content');
         const container = this._element('graph');
         const closeButton = this._element('sidebar-closebutton');
         closeButton.removeEventListener('click', this._closeSidebarHandler);
         this._host.document.removeEventListener('keydown', this._closeSidebarKeyDownHandler);
         if (this._stack.length > 0) {
             const entry = this._stack.pop();
-            if (entry.content && entry.content.deactivate) {
-                entry.content.deactivate();
+            const content = entry.content;
+            if (content && content.deactivate) {
+                content.deactivate();
             }
         }
         if (stack) {
@@ -2507,25 +2517,26 @@ view.Sidebar = class {
             this._element('sidebar-title').innerHTML = entry.title || '';
             closeButton.addEventListener('click', this._closeSidebarHandler);
             if (typeof entry.content === 'string') {
-                content.innerHTML = entry.element;
+                element.innerHTML = entry.element;
             } else if (entry.element instanceof Array) {
-                content.replaceChildren(...entry.element);
+                element.replaceChildren(...entry.element);
             } else {
-                content.replaceChildren(entry.element);
+                element.replaceChildren(entry.element);
             }
             sidebar.style.width = 'min(calc(100% * 0.6), 42em)';
             sidebar.style.right = 0;
             sidebar.style.opacity = 1;
             this._host.document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
             container.style.width = 'max(40vw, calc(100vw - 42em))';
-            if (entry.content && entry.content.activate) {
-                entry.content.activate();
+            const content = entry.content;
+            if (content && content.activate) {
+                content.activate();
             }
         } else {
             sidebar.style.right = 'calc(0px - min(calc(100% * 0.6), 42em))';
             sidebar.style.opacity = 0;
-            const clone = content.cloneNode(true);
-            content.parentNode.replaceChild(clone, content);
+            const clone = element.cloneNode(true);
+            element.parentNode.replaceChild(clone, element);
             container.style.width = '100%';
             container.focus();
         }
@@ -2654,6 +2665,10 @@ view.NodeSidebar = class extends view.ObjectSidebar {
     constructor(context, node) {
         super(context);
         this._node = node;
+    }
+
+    get identifier() {
+        return 'node';
     }
 
     render() {
@@ -3367,6 +3382,10 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
         this._to = to;
     }
 
+    get identifier() {
+        return 'connection';
+    }
+
     render() {
         const value = this._value;
         const from = this._from;
@@ -3426,6 +3445,10 @@ view.TensorSidebar = class extends view.ObjectSidebar {
         super(context);
         this._value = value;
         this._tensor = new base.Tensor(value.value[0].initializer);
+    }
+
+    get identifier() {
+        return 'tensor';
     }
 
     render() {
@@ -3510,6 +3533,10 @@ view.ModelSidebar = class extends view.ObjectSidebar {
         this._model = model;
         this._graph = graph;
         this._signature = signature;
+    }
+
+    get identifier() {
+        return 'model';
     }
 
     render() {
@@ -3628,6 +3655,10 @@ view.DocumentationSidebar = class extends view.Control {
         this._type = type;
     }
 
+    get identifier() {
+        return 'documentation';
+    }
+
     render() {
         if (!this.element) {
             this.element = this.createElement('div', 'sidebar-documentation');
@@ -3719,11 +3750,11 @@ view.DocumentationSidebar = class extends view.Control {
 
 view.FindSidebar = class extends view.Control {
 
-    constructor(context, graph, signature) {
+    constructor(context, state, graph, signature) {
         super(context);
         this._graph = graph;
         this._signature = signature;
-        this._state = {
+        this._state = state || {
             query: '',
             node: true,
             connection: true,
@@ -3734,6 +3765,10 @@ view.FindSidebar = class extends view.Control {
             connection: { hide: 'Hide Connections', show: 'Show Connections' },
             weight: { hide: 'Hide Weights', show: 'Show Weights' }
         };
+    }
+
+    get identifier() {
+        return 'find';
     }
 
     on(event, callback) {
@@ -3750,18 +3785,6 @@ view.FindSidebar = class extends view.Control {
         }
     }
 
-    focus(state) {
-        this._state = state || this._state;
-        this._query.focus();
-        this._query.value = '';
-        this._query.value = this._state.query;
-        for (const [name, toggle] of Object.entries(this._toggles)) {
-            toggle.checkbox.checked = this._state[name];
-            toggle.element.setAttribute('title', this._state[name] ? toggle.hide : toggle.show);
-        }
-        this._update();
-    }
-
     _reset() {
         for (const element of this._focused) {
             this._blur(element);
@@ -3770,6 +3793,9 @@ view.FindSidebar = class extends view.Control {
         this._table.clear();
         this._content.replaceChildren();
         this._edges.clear();
+        for (const value of Object.values(this._toggles)) {
+            delete value.template;
+        }
         const unquote = this._state.query.match(new RegExp(/^'(.*)'|"(.*)"$/));
         if (unquote) {
             this._exact = true;
@@ -3887,12 +3913,17 @@ view.FindSidebar = class extends view.Control {
             }
         }
     }
-    _add(value, content, icon) {
-        const element = this.createElement('li');
-        element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-${icon}"></use></svg>`;
-        const text = this.createElement('span');
-        text.innerText = content;
-        element.appendChild(text);
+
+    _add(value, content, type) {
+        if (!this._toggles[type].template) {
+            const element = this.createElement('li');
+            element.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-${type}"></use></svg>`;
+            const text = this.createElement('span');
+            element.appendChild(text);
+            this._toggles[type].template = element;
+        }
+        const element = this._toggles[type].template.cloneNode(true);
+        element.childNodes[1].innerText = content;
         this._table.set(element, value);
         this._content.appendChild(element);
     }
@@ -4001,6 +4032,21 @@ view.FindSidebar = class extends view.Control {
 
     get element() {
         return [this._search, this._content];
+    }
+
+    activate() {
+        this._query.focus();
+        this._query.value = '';
+        this._query.value = this._state.query;
+        for (const [name, toggle] of Object.entries(this._toggles)) {
+            toggle.checkbox.checked = this._state[name];
+            toggle.element.setAttribute('title', this._state[name] ? toggle.hide : toggle.show);
+        }
+        this._update();
+        this._host.event('open_sidebar', {
+            sidebar_identifier: this.identifier,
+            sidebar_size: this._table.size
+        });
     }
 
     deactivate() {
