@@ -14,6 +14,7 @@ import * as zip from './zip.js';
 const view = {};
 const markdown = {};
 const metrics = {};
+let weightIcon = null;
 
 view.View = class {
 
@@ -216,6 +217,7 @@ view.View = class {
                     execute: async () => await this._host.execute('about')
                 });
             }
+            weightIcon = this._host.document.getElementsByClassName('sidebar-find-content-icon')[2];
             await this._host.start();
         } catch (error) {
             this.error(error, null, null);
@@ -3054,9 +3056,9 @@ view.ValueView = class extends view.Expander {
                 const element = this.createElement('div', 'sidebar-item-value-button');
                 element.classList.add('sidebar-item-value-button-tool');
                 element.setAttribute('title', 'Show Tensor');
-                const icon = this._host.document.getElementById('sidebar-icon-weight').cloneNode(true);
-                icon.id = '';
-                element.appendChild(icon);
+                if (weightIcon) {
+                    element.appendChild(weightIcon.cloneNode(true));
+                }
                 element.addEventListener('pointerenter', () => this.emit('focus', this._value));
                 element.addEventListener('pointerleave', () => this.emit('blur', this._value));
                 element.style.cursor = 'pointer';
@@ -3207,9 +3209,9 @@ view.TensorView = class extends view.Expander {
             this.enable();
             this._button = this.createElement('div', 'sidebar-item-value-button');
             this._button.setAttribute('style', 'float: left;');
-            const icon = this._host.document.getElementById('sidebar-icon-weight').cloneNode(true);
-            icon.id = '';
-            this._button.appendChild(icon);
+            if (weightIcon) {
+                this._button.appendChild(weightIcon.cloneNode(true));
+            }
             this._button.addEventListener('click', () => this.toggle());
             this.control(this._button);
             const line = this.createElement('div', 'sidebar-item-value-line');
