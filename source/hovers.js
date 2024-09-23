@@ -114,17 +114,17 @@ static functie() {
           if (first.toLowerCase() == "tensor_meta" || first.toLowerCase() == "operator_meta") {
             obj["meta"] = meta;
           }
-          else if (first.toLowerCase() == "dblclick_script" || first.toLowerCase() == "dblclick_cmd") {
+          else if (first.toLowerCase() == "tensor_ondblclick_script" || first.toLowerCase() == "tensor_ondblclick_command" || first.toLowerCase() == "operator_ondblclick_script" || first.toLowerCase() == "operator_ondblclick_command") {
             obj[first.toLowerCase()] = meta;
           } else {
-            if (first.toLowerCase() == "add_button") {
+            if (first.toLowerCase() == "tensor_button" || first.toLowerCase() == "operator_button") {
               if (otherstring !== JSON.stringify({})) {
                 obj["button_" + nofb] = otherstring;
                 nofb += 1;
               }
               otherstring = JSON.stringify({"id": obj["id"], "class": childmeta.className, "button_name": lineread[1] == undefined ? '' : lineread[1].trim()});
             } else {
-              if (first.toLowerCase() == "cmd" || first.toLowerCase() == "script") {
+              if (first.toLowerCase() == "tensor_button_cmd" || first.toLowerCase() == "tensor_button_script" || first.toLowerCase() == "operator_button_cmd" || first.toLowerCase() == "operator_button_script") {
                 var stri = JSON.parse(otherstring);
                 stri[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim();
                 otherstring = JSON.stringify(stri);

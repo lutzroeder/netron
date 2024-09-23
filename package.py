@@ -73,7 +73,6 @@ def _start():
 
 def main(): # pylint: disable=missing-function-docstring
     table = { 'build': _build, 'install': _install, 'version': _version, 'start': _start }
-    print("am intrat in table")
     sys.args = sys.argv[1:]
     while len(sys.args) > 0:
         command = sys.args.pop(0)
