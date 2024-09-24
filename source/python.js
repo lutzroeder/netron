@@ -7979,7 +7979,7 @@ python.StreamReader = class {
 
     float64() {
         const position = this._fill(8);
-        return this._view.getFloat64(position, true);
+        return this._view.getFloat64(position, false);
     }
 
     string(size, encoding) {

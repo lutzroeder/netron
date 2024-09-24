@@ -4928,6 +4928,7 @@
     "target":   "word2vec.model",
     "source":   "https://github.com/lutzroeder/netron/files/13628139/word2vec.model.zip[word2vec.model]",
     "format":   "Gensim",
+    "assert":   "model.graphs[0].nodes[0].inputs[7].value == 0.025",
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
@@ -6773,6 +6774,7 @@
     "target":   "iris_svc.joblib.z",
     "source":   "https://github.com/lutzroeder/netron/files/5728549/iris_svc.joblib.z.zip[iris_svc.joblib.z]",
     "format":   "scikit-learn v0.24.0rc1",
+    "assert":   "model.graphs[0].nodes[0].inputs[6].value == 0.001",
     "link":     "https://github.com/lutzroeder/netron/issues/182"
   },
   {
