@@ -69,28 +69,28 @@ ncnn.ModelFactory = class {
             }
         } else if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
             const stream = context.stream;
-            const length = stream.length;
+            const length = Math.min(0x10000, stream.length);
             if (length > 4) {
-                const buffer = stream.peek(4);
+                let buffer = stream.peek(length);
                 const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
                 const signature = view.getUint32(0, true);
                 if (signature === 0x00000000) {
-                    const size = Math.min(stream.length, 1024) & 0xFFFC;
-                    const buffer = stream.peek(size);
-                    const length = size >> 2;
-                    const array = new Float32Array(buffer.buffer, buffer.byteOffset, length);
-                    const values = Array.from(array).slice(1);
-                    if (values.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -20.0 && value < 20.0)) {
+                    const size = Math.min(buffer.length & 0xfffffffc, 128);
+                    buffer = buffer.subarray(0, size);
+                    const f32 = new Array(buffer.length >> 2);
+                    for (let i = 1; i < f32.length; i++) {
+                        f32[i] = view.getFloat32(i << 2, true);
+                    }
+                    if (f32.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -20.0 && value < 20.0)) {
                         context.type = 'ncnn.weights';
                     }
                 } else {
-                    const buffer = stream.peek(Math.min(0x20000, length));
                     for (let i = 0; i < buffer.length - 4; i++) {
-                        const signature = (buffer[i] | buffer[i + 1] << 8 | buffer[i + 2] << 16 | buffer [i + 3] << 24) >>> 0;
+                        const signature = view.getUint32(i, true);
                         if (signature === 0xdeadbeef) { // Core ML
                             return;
                         }
-                        if (signature === 0x01306b47 || signature === 0x000d4b38 || signature === 0x0002c056) {
+                        if (signature === 0x01306b47 || signature === 0x000d4b38 || signature === 0x0002c056) { // ncnn
                             context.type = 'ncnn.weights';
                             return;
                         }
@@ -155,15 +155,28 @@ ncnn.ModelFactory = class {
                 } else if (identifier.endsWith('.weights.ncnn')) {
                     file = context.identifier.replace(/\.weights\.ncnn$/, '.cfg.ncnn');
                 }
-                let reader = null;
+                let content = null;
+                let message = null;
                 try {
-                    const content = await context.fetch(file);
-                    const param = content.read('text');
-                    reader = new ncnn.TextParamReader(param);
-                } catch {
-                    const content = await context.fetch(`${file}.bin`);
-                    const param = content.stream.peek();
-                    reader = new ncnn.BinaryParamReader(param);
+                    content = await context.fetch(file);
+                } catch (error) {
+                    message = error && error.message ? error.message : error.toString();
+                    try {
+                        content = await context.fetch(`${file}.bin`);
+                    } catch {
+                        // continue regardless of error
+                    }
+                }
+                if (!content) {
+                    throw new ncnn.Error(`Required ncnn model definition not found (${message.replace(/\.$/, '')}).`);
+                }
+                let reader = null;
+                if (content.identifier.endsWith('.bin')) {
+                    const data = content.stream.peek();
+                    reader = new ncnn.BinaryParamReader(data);
+                } else {
+                    const text = content.read('text');
+                    reader = new ncnn.TextParamReader(text);
                 }
                 const blobs = new ncnn.BlobReader(context);
                 return new ncnn.Model(metadata, format, reader, blobs);
