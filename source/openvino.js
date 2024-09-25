@@ -15,9 +15,9 @@ openvino.ModelFactory = class {
         }
         if (extension === 'bin') {
             const stream = context.stream;
-            const length = stream.length;
+            const length = Math.min(0x10000, stream.length);
             if (length >= 4) {
-                let buffer = stream.peek(Math.min(0x20000, length));
+                let buffer = stream.peek(length);
                 const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.length);
                 const signature = view.getUint32(0, true);
                 for (let i = 0; i < buffer.length - 4; i++) {
@@ -123,7 +123,7 @@ openvino.ModelFactory = class {
                     context = await context.fetch(file, null);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw new openvino.Error(`OpenVINO model definition required (${message.replace(/\.$/, '')}).`);
+                    throw new openvino.Error(`Required OpenVINO model definition not found (${message.replace(/\.$/, '')}).`);
                 }
                 break;
             }
