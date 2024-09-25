@@ -255,6 +255,7 @@ circle.Tensor = class Tensor {
 };
 
 circle.BuiltinOperator = {
+    ROPE: -7,
     RMS_NORM: -6,
     GRU: -5,
     BCQ_GATHER: -4,
@@ -598,6 +599,7 @@ circle.BuiltinOptions = class {
             case 124: return circle.BitcastOptions.decode(reader, position);
             case 125: return circle.BitwiseXorOptions.decode(reader, position);
             case 126: return circle.RightShiftOptions.decode(reader, position);
+            case 249: return circle.RoPEOptions.decode(reader, position);
             case 250: return circle.RmsNormOptions.decode(reader, position);
             case 251: return circle.GRUOptions.decode(reader, position);
             case 252: return circle.BCQGatherOptions.decode(reader, position);
@@ -735,6 +737,7 @@ circle.BuiltinOptions = class {
             case 'BitcastOptions': return circle.BitcastOptions.decodeText(reader, json);
             case 'BitwiseXorOptions': return circle.BitwiseXorOptions.decodeText(reader, json);
             case 'RightShiftOptions': return circle.RightShiftOptions.decodeText(reader, json);
+            case 'RoPEOptions': return circle.RoPEOptions.decodeText(reader, json);
             case 'RmsNormOptions': return circle.RmsNormOptions.decodeText(reader, json);
             case 'GRUOptions': return circle.GRUOptions.decodeText(reader, json);
             case 'BCQGatherOptions': return circle.BCQGatherOptions.decodeText(reader, json);
@@ -3298,6 +3301,26 @@ circle.RmsNormOptions = class RmsNormOptions {
     static decodeText(reader, json) {
         const $ = new circle.RmsNormOptions();
         $.epsilon = reader.value(json.epsilon, 0);
+        return $;
+    }
+};
+
+circle.RoPEMode = {
+    GPT_NEOX: 0,
+    GPT_J: 1
+};
+
+circle.RoPEOptions = class RoPEOptions {
+
+    static decode(reader, position) {
+        const $ = new circle.RoPEOptions();
+        $.mode = reader.int32_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new circle.RoPEOptions();
+        $.mode = circle.RoPEMode[json.mode];
         return $;
     }
 };
