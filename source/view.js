@@ -5777,9 +5777,9 @@ view.ModelFactoryService = class {
         this.register('./tvm', ['.json', '.params']);
         this.register('./modular', ['.maxviz']);
         this.register('./catboost', ['.cbm']);
-        this.register('./cambricon', ['.cambricon']);
         this.register('./weka', ['.model']);
         this.register('./qnn', ['.json', '.bin', '.serialized']);
+        this.register('', ['.cambricon']);
     }
 
     register(module, factories, containers) {
@@ -6289,7 +6289,9 @@ view.ModelFactoryService = class {
                 { name: 'BCNN model', value: /^BCNN/ },
                 { name: 'base64 data', value: /^gAAAAAB/ },
                 { name: 'Mathematica Notebook data', value: /^\(\*\sContent-type:\sapplication\/vnd\.wolfram\.mathematica\s\*\)/ },
-                { name: 'llama2.c checkpoint', value: /^..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00/, identifier: /^stories\d+[KM]\.bin/ }
+                { name: 'llama2.c checkpoint', value: /^..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00/, identifier: /^stories\d+[KM]\.bin/ },
+                { name: 'Cambricon model', value: /^\x7fMEF/ },
+                { name: 'Cambricon model', value: /^cambricon_offline/ }
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
