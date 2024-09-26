@@ -2074,7 +2074,10 @@ view.Node = class extends grapher.Node {
         if (Array.isArray(node.type.nodes) && node.type.nodes.length > 0) {
             let icon = '\u0192';
             let tooltip = 'Show Function Definition';
-            if (node.type.type === 'weights') {
+            if (type === 'graph') {
+                icon = '\u25CB';
+                tooltip = 'Show Graph';
+            } else if (node.type.type === 'weights') {
                 icon = '\u25CF';
                 tooltip = 'Show Weights';
             }
