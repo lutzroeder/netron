@@ -1230,6 +1230,7 @@ onnx.Context.Graph = class {
 
     createLocation(value) {
         switch (value) {
+            case undefined:
             case onnx.DataLocation.DEFAULT: return '';
             case onnx.DataLocation.EXTERNAL: return 'external';
             default: return 'undefined';
@@ -1777,7 +1778,7 @@ onnx.JsonReader = class {
 
     static open(context) {
         const obj = context.peek('json');
-        if (obj && (obj.irVersion !== undefined || (obj.graph && Array.isArray(obj.graph.node)))) {
+        if (obj && (obj.irVersion !== undefined || obj.ir_Version !== undefined || (obj.graph && Array.isArray(obj.graph.node)))) {
             return new onnx.JsonReader(obj);
         }
         return null;
@@ -1786,226 +1787,304 @@ onnx.JsonReader = class {
     constructor(obj) {
         this.name = 'onnx.json';
         this.model = obj;
+        this._attributeTypes = new Map(Object.entries(onnx.AttributeType));
     }
 
     async read() {
-        const tensor_shape = (value) => {
-            if (Array.isArray(value.dim)) {
-                for (const dimension of value.dim) {
-                    if (dimension.dimValue !== undefined) {
-                        dimension.dim_value = parseInt(dimension.dimValue, 10);
-                        delete dimension.dimValue;
-                    } else if (dimension.dimParam !== undefined) {
-                        dimension.dim_param = dimension.dimParam;
-                        delete dimension.dimParam;
-                    }
+        this.model = this._model(this.model);
+        this.format = `ONNX JSON${this.model.ir_version ? ` v${this.model.ir_version}` : ''}`;
+    }
+
+    _tensor_shape(value) {
+        if (Array.isArray(value.dim)) {
+            for (const dimension of value.dim) {
+                if (dimension.dimValue !== undefined) {
+                    dimension.dim_value = parseInt(dimension.dimValue, 10);
+                    delete dimension.dimValue;
+                } else if (dimension.dimParam !== undefined) {
+                    dimension.dim_param = dimension.dimParam;
+                    delete dimension.dimParam;
                 }
             }
-            return value;
-        };
-        const tensor_type = (value) => {
+        }
+        return value;
+    }
+
+    _tensor_type(value) {
+        if (value.elemType !== undefined) {
             value.elem_type = value.elemType;
             delete value.elemType;
-            if (value.shape) {
-                value.shape = tensor_shape(value.shape);
-            }
-            return value;
-        };
-        /* eslint-disable no-use-before-define */
-        const optional_type = (value) => {
-            value.elem_type = type(value.elemType);
+        }
+        if (value.shape) {
+            value.shape = this._tensor_shape(value.shape);
+        }
+        return value;
+    }
+
+    _optional_type(value) {
+        if (value.elemType !== undefined) {
+            value.elem_type = this._type(value.elemType);
             delete value.elemType;
-            return value;
-        };
-        const sequence_type = (value) => {
-            value.elem_type = type(value.elemType);
+        }
+        return value;
+    }
+
+    _sequence_type(value) {
+        if (value.elemType !== undefined) {
+            value.elem_type = this._type(value.elemType);
             delete value.elemType;
-            return value;
-        };
-        const map_type = (value) => {
+        }
+        return value;
+    }
+
+    _map_type(value) {
+        if (value.keyType !== undefined) {
             value.key_type = value.keyType;
             delete value.keyType;
-            value.value_type = type(value.valueType);
+        }
+        if (value.valueType !== undefined) {
+            value.value_type = this._type(value.valueType);
             delete value.valueType;
-            return value;
-        };
-        const sparse_tensor_type = (value) => {
+        }
+        return value;
+    }
+
+    _sparse_tensor_type(value) {
+        if (value.elemType !== undefined) {
             value.elem_type = value.elemType;
             delete value.elemType;
-            if (value.shape) {
-                value.shape = tensor_shape(value.shape);
-            }
-            return value;
-        };
-        const type = (value) => {
-            if (value.tensorType) {
-                value.tensor_type = tensor_type(value.tensorType);
-                delete value.tensorType;
-            } else if (value.sequenceType) {
-                value.sequence_type = sequence_type(value.sequenceType);
-                delete value.sequenceType;
-            } else if (value.optionalType) {
-                value.optional_type = optional_type(value.optionalType);
-                delete value.optionalType;
-            } else if (value.mapType) {
-                value.map_type = map_type(value.mapType);
-                delete value.mapType;
-            } else if (value.sparseTensorType) {
-                value.sparse_tensor_type = sparse_tensor_type(value.sparseTensorType);
-                delete value.sparseTensorType;
-            } else {
-                throw new onnx.Error(`Unsupported ONNX JSON type '${JSON.stringify(Object.keys(value))}'.`);
-            }
-            return value;
-        };
-        const tensor = (value) => {
+        }
+        if (value.shape) {
+            value.shape = this._tensor_shape(value.shape);
+        }
+        return value;
+    }
+
+    _type(value) {
+        if (value.tensorType) {
+            value.tensor_type = this._tensor_type(value.tensorType);
+            delete value.tensorType;
+        } else if (value.tensor_type) {
+            value.tensor_type = this._tensor_type(value.tensor_type);
+        } else if (value.sequenceType) {
+            value.sequence_type = this._sequence_type(value.sequenceType);
+            delete value.sequenceType;
+        } else if (value.sequence_type) {
+            value.sequence_type = this._sequence_type(value.sequenceType);
+        } else if (value.optionalType !== undefined) {
+            value.optional_type = this._optional_type(value.optionalType);
+            delete value.optionalType;
+        } else if (value.optional_type) {
+            value.optional_type = this._optional_type(value.optionalType);
+        } else if (value.mapType) {
+            value.map_type = this._map_type(value.mapType);
+            delete value.mapType;
+        } else if (value.map_type) {
+            value.map_type = this._map_type(value.mapType);
+        } else if (value.sparseTensorType) {
+            value.sparse_tensor_type = this._sparse_tensor_type(value.sparseTensorType);
+            delete value.sparseTensorType;
+        } else if (value.sparse_tensor_type) {
+            value.sparse_tensor_type = this._sparse_tensor_type(value.sparseTensorType);
+        } else if (Object.keys(value).length > 0) {
+            throw new onnx.Error(`Unsupported ONNX JSON type '${JSON.stringify(Object.keys(value))}'.`);
+        }
+        return value;
+    }
+
+    _tensor(value) {
+        if (value.dataType !== undefined) {
             value.data_type = value.dataType;
-            value.dims = Array.isArray(value.dims) ? value.dims.map((dim) => parseInt(dim, 10)) : [];
             delete value.dataType;
-            if (value.rawData !== undefined) {
+        }
+        value.dims = Array.isArray(value.dims) ? value.dims.map((dim) => parseInt(dim, 10)) : [];
+        if (value.raw_data !== undefined) {
+            if (value.raw_data && value.raw_data instanceof Uint8Array === false &&
+                value.raw_data.type === 'Buffer' && Array.isArray(value.raw_data.data)) {
                 value.data_location = onnx.DataLocation.DEFAULT;
-                const data = atob(value.rawData);
-                const length = data.length;
-                const array = new Uint8Array(length);
-                for (let i = 0; i < length; i++) {
-                    array[i] = data[i].charCodeAt(0);
-                }
-                value.raw_data = array;
-                delete value.rawData;
-            } else if (Array.isArray(value.floatData)) {
-                value.data_location = onnx.DataLocation.DEFAULT;
-                value.float_data = value.floatData;
-                delete value.floatData;
-            } else if (Array.isArray(value.int32Data)) {
-                value.data_location = onnx.DataLocation.DEFAULT;
-                value.int32_data = value.int32Data;
-                delete value.int32Data;
-            } else if (Array.isArray(value.int64Data)) {
-                value.data_location = onnx.DataLocation.DEFAULT;
-                value.int64_data = value.int64Data.map((value) => parseInt(value, 10));
-                delete value.int64Data;
-            } else {
-                throw new onnx.Error(`Unsupported ONNX JSON tensor data type '${JSON.stringify(value.data_type)}'.`);
+                value.raw_data = new Uint8Array(value.raw_data.data);
             }
-            return value;
-        };
-        const sparse_tensor = (value) => {
-            value.indices = tensor(value.indices);
-            value.values = tensor(value.values);
-            return value;
-        };
-        const attributeTypes = new Map(Object.entries(onnx.AttributeType));
-        const attribute = (value) => {
-            if (value.type && attributeTypes.has(value.type)) {
-                value.type = attributeTypes.get(value.type);
+        } else if (value.rawData !== undefined) {
+            value.data_location = onnx.DataLocation.DEFAULT;
+            const data = atob(value.rawData);
+            const length = data.length;
+            const array = new Uint8Array(length);
+            for (let i = 0; i < length; i++) {
+                array[i] = data[i].charCodeAt(0);
             }
-            if (value.refAttrName) {
-                value.ref_attr_name = value.refAttrName;
-                delete value.refAttrName;
-            } else if (value.type === onnx.AttributeType.FLOATS || Array.isArray(value.floats)) {
-                value.floats = value.floats.map((value) => parseFloat(value));
-            } else if (value.type === onnx.AttributeType.INTS || Array.isArray(value.ints)) {
-                value.ints = value.ints.map((value) => parseInt(value, 10));
-            } else if (value.type === onnx.AttributeType.STRINGS || Array.isArray(value.strings)) {
-                value.strings = value.strings.map((value) => atob(value));
-            } else if (value.type === onnx.AttributeType.TENSORS || Array.isArray(value.tensors)) {
-                value.tensors = value.tensors.map((value) => tensor(value));
-            } else if (value.type === onnx.AttributeType.GRAPHS || Array.isArray(value.graphs)) {
-                value.graphs = value.graphs.map((value) => graph(value));
-            } else if (value.type === onnx.AttributeType.SPARSE_TENSORS || Array.isArray(value.sparseTensors)) {
-                value.sparse_tensors = value.sparseTensors.map((value) => sparse_tensor(value));
-                delete value.sparseTensors;
-            } else if (value.type === onnx.AttributeType.FLOAT || value.f !== undefined) {
-                value.f = parseFloat(value.f);
-            } else if (value.type === onnx.AttributeType.INT || value.i !== undefined) {
-                value.i = parseInt(value.i, 10);
-            } else if (value.type === onnx.AttributeType.STRING || value.s !== undefined) {
-                value.s = atob(value.s);
-            } else if (value.type === onnx.AttributeType.TENSOR || value.t !== undefined) {
-                value.t = tensor(value.t);
-            } else if (value.type === onnx.AttributeType.GRAPH || value.g !== undefined) {
-                value.g = graph(value.g);
-            } else if (value.type === onnx.AttributeType.SPARSE_TENSOR || value.sparseTensor !== undefined) {
-                value.sparse_tensor = sparse_tensor(value.sparseTensor);
-                delete value.sparseTensor;
-            } else {
-                throw new onnx.Error(`Unsupported ONNX JSON attribute type '${JSON.stringify(value.type)}'.`);
-            }
-            return value;
-        };
-        const node = (value) => {
+            value.raw_data = array;
+            delete value.rawData;
+        } else if (Array.isArray(value.floatData)) {
+            value.data_location = onnx.DataLocation.DEFAULT;
+            value.float_data = value.floatData;
+            delete value.floatData;
+        } else if (Array.isArray(value.int32Data)) {
+            value.data_location = onnx.DataLocation.DEFAULT;
+            value.int32_data = value.int32Data;
+            delete value.int32Data;
+        } else if (Array.isArray(value.int64Data)) {
+            value.data_location = onnx.DataLocation.DEFAULT;
+            value.int64_data = value.int64Data.map((value) => parseInt(value, 10));
+            delete value.int64Data;
+        } else if ((Array.isArray(value.float_data) && value.float_data.length > 0) ||
+                  (Array.isArray(value.int32_data) && value.int32_data.length > 0) ||
+                  (Array.isArray(value.int64_data) && value.int64_data.length > 0)) {
+            value.data_location = onnx.DataLocation.DEFAULT;
+        } else {
+            throw new onnx.Error(`Unsupported ONNX JSON tensor data type '${JSON.stringify(value.data_type)}'.`);
+        }
+        return value;
+    }
+
+    _sparse_tensor(value) {
+        value.indices = this._tensor(value.indices);
+        value.values = this._tensor(value.values);
+        return value;
+    }
+
+    _attribute(value) {
+        if (value.type && this._attributeTypes.has(value.type)) {
+            value.type = this._attributeTypes.get(value.type);
+        }
+        if (value.refAttrName) {
+            value.ref_attr_name = value.refAttrName;
+            delete value.refAttrName;
+        } else if (value.ref_attr_name) {
+            value.ref_attr_name = value.ref_attr_name.toString();
+        } else if (value.type === onnx.AttributeType.FLOATS || (Array.isArray(value.floats) && value.floats.length > 0)) {
+            value.floats = value.floats.map((value) => parseFloat(value));
+        } else if (value.type === onnx.AttributeType.INTS || (Array.isArray(value.ints) && value.ints.length > 0)) {
+            value.ints = value.ints.map((value) => parseInt(value, 10));
+        } else if (value.type === onnx.AttributeType.STRINGS || (Array.isArray(value.strings) && value.strings.length > 0)) {
+            value.strings = value.strings.map((value) => atob(value));
+        } else if (value.type === onnx.AttributeType.TENSORS || (Array.isArray(value.tensors) && value.tensors.length > 0)) {
+            value.tensors = value.tensors.map((value) => this._tensor(value));
+        } else if (value.type === onnx.AttributeType.GRAPHS || (Array.isArray(value.graphs) && value.graphs.length > 0)) {
+            value.graphs = value.graphs.map((value) => this._graph(value));
+        } else if (value.type === onnx.AttributeType.SPARSE_TENSORS || (Array.isArray(value.sparseTensors) && value.sparseTensors.length > 0)) {
+            value.sparse_tensors = value.sparseTensors.map((item) => this._sparse_tensor(item));
+            delete value.sparseTensors;
+        } else if (value.type === onnx.AttributeType.SPARSE_TENSORS || (Array.isArray(value.sparse_tensors) && value.sparse_tensors.length > 0)) {
+            value.sparse_tensors = value.sparse_tensors.map((item) => this._sparse_tensor(item));
+        } else if (value.type === onnx.AttributeType.FLOAT || value.f !== undefined) {
+            value.f = parseFloat(value.f);
+        } else if (value.type === onnx.AttributeType.INT || value.i !== undefined) {
+            value.i = parseInt(value.i, 10);
+        } else if (value.type === onnx.AttributeType.STRING || value.s !== undefined) {
+            value.s = atob(value.s);
+        } else if (value.type === onnx.AttributeType.TENSOR || value.t !== undefined) {
+            value.t = this._tensor(value.t);
+        } else if (value.type === onnx.AttributeType.GRAPH || value.g !== undefined) {
+            value.g = this._graph(value.g);
+        } else if (value.type === onnx.AttributeType.SPARSE_TENSOR || value.sparseTensor !== undefined) {
+            value.sparse_tensor = this._sparse_tensor(value.sparseTensor);
+            delete value.sparseTensor;
+        } else if (value.type === onnx.AttributeType.SPARSE_TENSOR || value.sparse_tensor !== undefined) {
+            value.sparse_tensor = this._sparse_tensor(value.sparse_tensor);
+        } else {
+            throw new onnx.Error(`Unsupported ONNX JSON attribute type '${JSON.stringify(value.type)}'.`);
+        }
+        return value;
+    }
+
+    _node(value) {
+        if (value.opType !== undefined) {
             value.op_type = value.opType;
             delete value.opType;
-            value.input = Array.isArray(value.input) ? value.input : [];
-            value.output = Array.isArray(value.output) ? value.output : [];
-            value.attribute = Array.isArray(value.attribute) ? value.attribute.map((value) => attribute(value)) : [];
-            return value;
-        };
-        const value_info = (value) => {
-            value.type = type(value.type);
-            return value;
-        };
-        const operator_set = (value) => {
-            value.version = parseInt(value.version, 10);
-            return value;
-        };
-        const graph = (value) => {
-            value.node = value.node.map((value) => node(value));
-            value.initializer = Array.isArray(value.initializer) ? value.initializer.map((value) => tensor(value)) : [];
-            value.sparse_initializer = Array.isArray(value.sparseInitializer) ? value.sparseInitializer.map((value) => sparse_tensor(value)) : [];
-            value.value_info = Array.isArray(value.valueInfo) ? value.valueInfo.map((value) => value_info(value)) : [];
-            value.input = Array.isArray(value.input) ? value.input.map((value) => value_info(value)) : [];
-            value.output = Array.isArray(value.output) ? value.output.map((value) => value_info(value)) : [];
-            return value;
-        };
-        const func = (value) => {
-            value.node = value.node.map((value) => node(value));
-            value.input = Array.isArray(value.input) ? value.input : [];
-            value.output = Array.isArray(value.output) ? value.output : [];
-            value.attribute = Array.isArray(value.attribute) ? value.attribute : [];
-            value.attribute_proto = Array.isArray(value.attributeProto) ? value.attributeProto.map((value) => attribute(value)) : [];
+        }
+        value.input = Array.isArray(value.input) ? value.input : [];
+        value.output = Array.isArray(value.output) ? value.output : [];
+        value.attribute = Array.isArray(value.attribute) ? value.attribute.map((value) => this._attribute(value)) : [];
+        return value;
+    }
+
+    _value_info(value) {
+        value.type = this._type(value.type);
+        return value;
+    }
+
+    _operator_set(value) {
+        value.version = parseInt(value.version, 10);
+        return value;
+    }
+
+    _graph(value) {
+        value.node = value.node.map((value) => this._node(value));
+        value.initializer = Array.isArray(value.initializer) ? value.initializer.map((value) => this._tensor(value)) : [];
+        if (Array.isArray(value.sparseInitializer) && value.sparseInitializer.length > 0) {
+            value.sparse_initializer = value.sparseInitializer.map((item) => this._sparse_tensor(item));
+            delete value.sparseInitializer;
+        } else if (Array.isArray(value.sparse_initializer) && value.sparse_initializer.length > 0) {
+            value.sparse_initializer = value.sparseInitializer.map((item) => this._sparse_tensor(item));
+        }
+        if (Array.isArray(value.valueInfo) && value.valueInfo.length > 0) {
+            value.value_info = value.valueInfo.map((item) => this._value_info(item));
+            delete value.valueInfo;
+        } else if (Array.isArray(value.value_info) && value.value_info.length > 0) {
+            value.value_info = value.value_info.map((item) => this._value_info(item));
+        }
+        value.input = Array.isArray(value.input) ? value.input.map((value) => this._value_info(value)) : [];
+        value.output = Array.isArray(value.output) ? value.output.map((value) => this._value_info(value)) : [];
+        return value;
+    }
+
+    _function(value) {
+        value.node = value.node.map((value) => this._node(value));
+        value.input = Array.isArray(value.input) ? value.input : [];
+        value.output = Array.isArray(value.output) ? value.output : [];
+        value.attribute = Array.isArray(value.attribute) ? value.attribute : [];
+        if (Array.isArray(value.attributeProto) && value.attributeProto.length > 0) {
+            value.attribute_proto = value.attributeProto.map((value) => this._attribute(value));
             delete value.attributeProto;
-            if (value.docString) {
-                value.doc_string = value.docString;
-                delete value.docString;
-            }
-            return value;
-        };
-        /* eslint-enable no-use-before-define */
-        this.model.ir_version = parseInt(this.model.irVersion, 10);
-        delete this.model.irVersion;
-        if (this.model.version !== undefined) {
-            this.model.version = parseInt(this.model.version, 10);
+        } else if (Array.isArray(value.attribute_proto) && value.attribute_proto.length > 0) {
+            value.attribute_proto = value.attribute_proto.map((value) => this._attribute(value));
         }
-        if (this.model.producerName) {
-            this.model.producer_name = this.model.producerName;
-            delete this.model.producerName;
+        if (value.docString) {
+            value.doc_string = value.docString;
+            delete value.docString;
         }
-        if (this.model.producerVersion) {
-            this.model.producer_version = this.model.producerVersion;
-            delete this.model.producerVersion;
+        return value;
+    }
+
+    _model(value) {
+        if (value.irVersion !== undefined) {
+            value.ir_version = parseInt(value.irVersion, 10);
+            delete value.irVersion;
         }
-        if (this.model.modelVersion) {
-            this.model.model_version = parseInt(this.model.modelVersion, 10);
-            delete this.model.modelVersion;
+        if (value.version !== undefined) {
+            value.version = parseInt(value.version, 10);
         }
-        if (this.model.docString) {
-            this.model.doc_string = this.model.docString;
-            delete this.model.docString;
+        if (value.producerName) {
+            value.producer_name = value.producerName;
+            delete value.producerName;
         }
-        this.model.graph = graph(this.model.graph);
-        if (Array.isArray(this.model.opsetImport)) {
-            this.model.opset_import = this.model.opsetImport.map((value) => operator_set(value));
-            delete this.model.opsetImport;
+        if (value.producerVersion) {
+            value.producer_version = value.producerVersion;
+            delete value.producerVersion;
         }
-        if (Array.isArray(this.model.metadataProps)) {
-            this.model.metadata_props = this.model.metadataProps;
-            delete this.model.metadataProps;
+        if (value.modelVersion) {
+            value.model_version = parseInt(value.modelVersion, 10);
+            delete value.modelVersion;
         }
-        if (Array.isArray(this.model.functions)) {
-            this.model.functions = this.model.functions.map((value) => func(value));
+        if (value.docString) {
+            value.doc_string = value.docString;
+            delete value.docString;
         }
-        this.format = `ONNX JSON${this.model.ir_version ? ` v${this.model.ir_version}` : ''}`;
+        value.graph = this._graph(value.graph);
+        if (Array.isArray(value.opsetImport) && value.opsetImport.length > 0) {
+            value.opset_import = value.opsetImport.map((item) => this._operator_set(item));
+            delete value.opsetImport;
+        } else if (Array.isArray(value.opset_import) && value.opset_import.length > 0) {
+            value.opset_import = value.opset_import.map((item) => this._operator_set(item));
+        }
+        if (Array.isArray(value.metadataProps)) {
+            value.metadata_props = value.metadataProps;
+            delete value.metadataProps;
+        }
+        if (Array.isArray(value.functions)) {
+            value.functions = value.functions.map((item) => this._function(item));
+        }
+        return value;
     }
 };
 

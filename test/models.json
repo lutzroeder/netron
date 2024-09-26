@@ -4175,6 +4175,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "my_image_classifier.json",
+    "source":   "https://github.com/user-attachments/files/17140902/my_image_classifier.json.zip[my_image_classifier.json]",
+    "format":   "ONNX JSON v8",
+    "link":     "https://github.com/lutzroeder/netron/issues/1208"
+  },
+  {
+    "type":     "onnx",
     "target":   "nms_base_component.json",
     "source":   "https://github.com/lutzroeder/netron/files/12306626/nms_base_component.json.zip[nms_base_component.json]",
     "format":   "ONNX JSON v8",
