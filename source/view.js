@@ -56,7 +56,12 @@ view.View = class {
                 this.zoomOut();
             });
             this._element('insert-file-button').addEventListener('click', () => {
-                Req.functie();
+                try {
+                    Req.functie();
+                } catch(e) {
+                    alert(e);
+                }
+                
             });
             this._element('toolbar-path-back-button').addEventListener('click', async () => {
                 await this.popGraph();
@@ -100,7 +105,12 @@ view.View = class {
                 file.add({
                     label: '&Insert...',
                     accelerator: 'CmdOrCtrl+T',
-                    execute: async () => await Req.functie()
+                    execute: async () => {
+                        try {
+                            Req.functie()
+                        } catch({name, message}) {
+                            alert(message);
+                        }}
                 });
                 if (this._host.type === 'Electron') {
                     this._recents = file.group('Open &Recent');
