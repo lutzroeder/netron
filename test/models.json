@@ -37,6 +37,13 @@
   },
   {
     "type":     "_",
+    "target":   "deepsort_4c4b_bgr_270_v140.cambricon",
+    "source":   "https://github.com/lutzroeder/netron/files/8783170/deepsort_4c4b_bgr_270_v140.cambricon.zip[deepsort_4c4b_bgr_270_v140.cambricon]",
+    "error":    "Invalid file content. File contains Cambricon model.",
+    "link":     "https://github.com/lutzroeder/netron/issues/917"
+  },
+  {
+    "type":     "_",
     "target":   "empty.zip",
     "source":   "https://github.com/lutzroeder/netron/files/5581087/empty.zip",
     "error":    "Archive contains no model files.",
@@ -172,6 +179,13 @@
     "source":   "https://github.com/user-attachments/files/16203071/tokenizer.json.zip[tokenizer.json]",
     "error":    "Invalid file content. File contains Tokenizers data.",
     "link":     "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":     "_",
+    "target":   "SR_face_x3_530x530.cambricon",
+    "source":   "https://github.com/lutzroeder/netron/files/8783172/SR_face_x3_530x530.cambricon.zip[SR_face_x3_530x530.cambricon]",
+    "error":    "Invalid file content. File contains Cambricon model.",
+    "link":     "https://github.com/lutzroeder/netron/issues/917"
   },
   {
     "type":     "_",
@@ -882,22 +896,6 @@
     "source":   "https://github.com/facebookarchive/models/raw/master/squeezenet/predict_net.pb,https://github.com/facebookarchive/models/raw/master/squeezenet/init_net.pb",
     "format":   "Caffe2",
     "link":     "https://github.com/caffe2/models"
-  },
-  {
-    "type":     "cambricon",
-    "target":   "deepsort_4c4b_bgr_270_v140.cambricon",
-    "source":   "https://github.com/lutzroeder/netron/files/8783170/deepsort_4c4b_bgr_270_v140.cambricon.zip[deepsort_4c4b_bgr_270_v140.cambricon]",
-    "format":   "Cambricon",
-    "error":    "Invalid file content. File contains Cambricon model.",
-    "link":     "https://github.com/lutzroeder/netron/issues/917"
-  },
-  {
-    "type":     "cambricon",
-    "target":   "SR_face_x3_530x530.cambricon",
-    "source":   "https://github.com/lutzroeder/netron/files/8783172/SR_face_x3_530x530.cambricon.zip[SR_face_x3_530x530.cambricon]",
-    "format":   "Cambricon",
-    "error":    "Invalid file content. File contains Cambricon model.",
-    "link":     "https://github.com/lutzroeder/netron/issues/917"
   },
   {
     "type":     "catboost",
