@@ -973,6 +973,43 @@
     ]
   },
   {
+    "name": "aten::_native_batch_norm_legit_functional",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "optional": true },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "running_mean", "type": "Tensor" },
+      { "name": "running_var", "type": "Tensor" },
+      { "name": "training", "type": "boolean" },
+      { "name": "momentum", "type": "float32" },
+      { "name": "eps", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::_native_batch_norm_legit_no_training",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "optional": true },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "running_mean", "type": "Tensor" },
+      { "name": "running_var", "type": "Tensor" },
+      { "name": "momentum", "type": "float32" },
+      { "name": "eps", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::_pack_padded_sequence",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1002,6 +1039,29 @@
     "name": "aten::_shape_as_tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::_softmax",
+    "category": "Activation",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "half_to_float", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::_softmax.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "half_to_float", "type": "boolean" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -7326,6 +7386,15 @@
     ]
   },
   {
+    "name": "aten::lift_fresh_copy",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::linalg_cross",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -9628,6 +9697,22 @@
       { "name": "length", "type": "SymInt" }
     ],
     "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::native_layer_norm",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "normalized_shape", "type": "SymInt[]" },
+      { "name": "weight", "type": "Tensor", "optional": true },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "eps", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" },
       { "type": "Tensor" }
     ]
   },
@@ -13456,6 +13541,34 @@
       { "name": "self", "type": "Tensor" },
       { "name": "axis0", "type": "int64" },
       { "name": "axis1", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::sym_size",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "SymInt[]" }
+    ]
+  },
+  {
+    "name": "aten::sym_size.int",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "SymInt" }
+    ]
+  },
+  {
+    "name": "aten::t",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "type": "Tensor" }
