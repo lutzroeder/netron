@@ -1,5 +1,3 @@
-import * as flatbuffers from './flatbuffers.js';
-
 const kann = {};
 
 kann.ModelFactory = class {
@@ -12,7 +10,6 @@ kann.ModelFactory = class {
         if (reader && reader.identifier === 'KaNN') {
             context.type = 'kann.flatbuffers';
             context.target = reader;
-            return;
         }
     }
 
