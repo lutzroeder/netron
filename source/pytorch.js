@@ -1128,18 +1128,21 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
         this.serialized_exported_program = serialized_exported_program;
     }
 
-    async read() {
+    async read(metadata) {
         this.format = 'PyTorch Export';
         const serialized_state_dict = await this._fetch('serialized_state_dict.pt') || await this._fetch('serialized_state_dict.json');
         const serialized_constants = await this._fetch('serialized_constants.pt') || await this._fetch('serialized_constants.json');
+        const serialized_example_inputs = await this._fetch('serialized_example_inputs.pt');
         const f = new Map();
         f.set('serialized_exported_program.json', this.serialized_exported_program);
         f.set('serialized_state_dict.pt', serialized_state_dict);
         f.set('serialized_constants.pt', serialized_constants);
+        f.set('serialized_example_inputs.pt', serialized_example_inputs);
         const execution = new pytorch.Execution();
         for (const event of this._events) {
             execution.on(event[0], event[1]);
         }
+        execution.registerMetadata(metadata);
         const torch = execution.__import__('torch');
         if (this.serialized_exported_program.graph_module.graph.constants) {
             const zip = await import('./zip.js');
@@ -1157,13 +1160,15 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
         }
         delete this.serialized_exported_program;
         delete this.context;
-        /* const exported_program = */ torch._export.load(f);
+        /* eslint-disable no-unused-vars */
+        const exported_program = torch._export.load(f);
+        /* eslint-enable no-unused-vars */
         throw new pytorch.Error(`'torch.export' not supported.`);
     }
 
     async _fetch(name) {
         try {
-            const context = await this._context.fetch(name);
+            const context = await this.context.fetch(name);
             if (context) {
                 return context.peek('zip');
             }
@@ -1647,6 +1652,25 @@ pytorch.Execution = class extends python.Execution {
         torch._C.CompilationUnit = torch.jit.CompilationUnit;
         torch._C.ScriptModule = torch.ScriptModule;
         torch._C.ClassType = torch.ClassType;
+    }
+
+    registerMetadata(metadata) {
+        const torch = this.register('torch');
+        const registry = torch._C._get_registry();
+        const modules = new Set();
+        for (const [name, type] of metadata._types) {
+            if (name.indexOf('::') !== -1) {
+                const [name, overload_name] = type.name.split('.');
+                const schema = new torch.FunctionSchema(name, overload_name || '', [], []);
+                const op = new torch._C.Operator(schema);
+                registry.registerOperator(op);
+                modules.add(type.name.split('::')[0]);
+            }
+        }
+        for (const module of modules) {
+            const namespace = new torch._ops._OpNamespace(module);
+            this.register(`torch.ops.${module}`, namespace);
+        }
     }
 };
 
@@ -3292,7 +3316,14 @@ pytorch.Utility = class {
             case 'torch.cuda':
                 return obj.__class__.__name__.endsWith('Tensor') ? obj : null;
             case 'torch.nn.parameter':
-                return obj.__class__.__name__ === 'Parameter' ? obj.data : null;
+                if (obj.__class__.__name__ === 'Parameter') {
+                    const data = obj.data;
+                    if (typeof obj.__name__ === 'string') {
+                        data.__name__ = obj.__name__;
+                    }
+                    return data;
+                }
+                return null;
             default:
                 return null;
         }

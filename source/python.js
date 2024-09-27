@@ -3505,12 +3505,13 @@ python.Execution = class {
         });
         this.registerType('types.GenericAlias', class {});
         this.registerType('types.SimpleNamespace', class {});
-        this.register('types').ObjectType = builtins.object;
-        this.register('types').ModuleType = builtins.module;
-        this.register('types').MethodType = builtins.method;
-        this.register('types').FunctionType = builtins.function;
-        this.register('types').TypeType = builtins.type;
-        this.register('types').CodeType = builtins.code;
+        const types = this.register('types');
+        types.ObjectType = builtins.object;
+        types.ModuleType = builtins.module;
+        types.MethodType = builtins.method;
+        types.FunctionType = builtins.function;
+        types.TypeType = builtins.type;
+        types.CodeType = builtins.code;
         this.registerType('xgboost.compat.XGBoostLabelEncoder', class {});
         this.registerType('xgboost.core.Booster', class {});
         this.registerType('xgboost.sklearn.XGBClassifier', class {});
@@ -3641,20 +3642,16 @@ python.Execution = class {
             return Object.prototype.hasOwnProperty.call(obj, name);
         });
         this.registerFunction('builtins.getattr', (obj, name, defaultValue) => {
-            if (obj instanceof Map && obj.__contains__ && obj.__getitem__) {
-                return obj.__contains__(name) ? obj.__getitem__(name) : defaultValue;
-            }
             if (Object.prototype.hasOwnProperty.call(obj, name)) {
                 return obj[name];
+            }
+            if (obj && obj.__getattr__) {
+                return obj.__getattr__(name);
             }
             return defaultValue;
         });
         this.registerFunction('builtins.setattr', (obj, name, value) => {
-            if (obj instanceof Map && obj.__setitem__) {
-                obj.__setitem__(name, value);
-            } else {
-                obj[name] = value;
-            }
+            obj[name] = value;
         });
         this.registerType('builtins.set', class extends Set {});
         this.registerType('builtins.slice', class {
@@ -3728,7 +3725,7 @@ python.Execution = class {
         this.registerFunction('dill._dill._create_type', (typeobj, ...args) => {
             const [name, bases, dict] = args;
             const type = class extends bases[0] {};
-            const identifier = builtins.hasattr(dict, '__module__') ? `${builtins.getattr(dict, '__module__')}.${name}` : name;
+            const identifier = dict.__contains__('__module__') ? `${dict.__getitem__('__module__')}.${name}` : name;
             return self.registerType(identifier, Object.assign(type, dict));
         });
         this.registerFunction('dill._dill._eval_repr');
@@ -4319,6 +4316,69 @@ python.Execution = class {
         this.registerType('torch._C._TensorBase', class extends builtins.object {});
         this.registerType('torch._C._TensorMeta', class extends builtins.type {});
         this.registerType('torch._C._VariableFunctionsClass', class extends builtins.object {});
+        this.registerType('torch._C.OperatorRegistry', class {
+            constructor() {
+                this._operators = new Map();
+            }
+            registerOperator(op) {
+                const key = op.schema().name;
+                if (!this._operators.has(key)) {
+                    this._operators.set(key, []);
+                }
+                this._operators.get(key).push(op);
+            }
+            getAllOperators() {
+                const values = [];
+                for (const [, ops] of this._operators) {
+                    values.push(...ops);
+                }
+                return values;
+            }
+            getAllOperatorsFor(name) {
+                return this._operators.get(name) || [];
+            }
+        });
+        this.registerType('torch._C.Operator', class {
+            constructor(schema) {
+                this._schema = schema;
+            }
+            schema() {
+                return this._schema;
+            }
+        });
+        this.registerFunction('torch._C._get_registry', () => {
+            torch._C._registry = torch._C._registry || new torch._C.OperatorRegistry();
+            return torch._C._registry;
+        });
+        this.registerFunction('torch._C._get_schema', (op_name, overload_name) => {
+            const registry = torch._C._get_registry();
+            const operations = registry.getAllOperatorsFor(op_name);
+            for (const op of operations) {
+                if (op.schema().overload_name === overload_name) {
+                    return op.schema();
+                }
+            }
+            throw new python.Error(`Schema '${op_name}.${overload_name}' not found.`);
+        });
+        this.registerFunction('torch._C._jit_get_operation', (op_name) => {
+            const registry = torch._C._get_registry();
+            const sortedOps = registry.getAllOperatorsFor(op_name);
+            if (sortedOps.length === 0) {
+                return [null, null];
+            }
+            const overload_names = sortedOps.map((op) => op.schema().overload_name);
+            return [{}, overload_names];
+        });
+        this.registerFunction('torch._C._get_operation_overload', (op_name, overload_name) => {
+            const registry = torch._C._get_registry();
+            const operations = registry.getAllOperatorsFor(op_name);
+            for (const op of operations) {
+                if (op.schema().overload_name === overload_name) {
+                    return [{}, {}, null];
+                }
+            }
+            return null;
+        });
         this.registerType('torch.ao.quantization.fake_quantize.FakeQuantize', class {});
         this.registerType('torch.ao.quantization.fake_quantize.FusedMovingAvgObsFakeQuantize', class {});
         this.registerType('torch.ao.quantization.observer._PartialWrapper', class {});
@@ -4865,13 +4925,15 @@ python.Execution = class {
                 return chars.join('');
             }
         });
-        torch.fx.Graph = torch.fx.graph.Graph;
         this.registerType('torch.fx.graph_module.GraphModule', class extends torch.nn.modules.module.Module {
-            constructor(root, graph) {
+            constructor(root, graph, class_name) {
                 super();
+                this.__class__.__name__ = class_name || 'GraphModule';
                 this.graph = graph;
             }
         });
+        torch.fx.Graph = torch.fx.graph.Graph;
+        torch.fx.GraphModule = torch.fx.graph_module.GraphModule;
         this.registerType('torch.fx.immutable_collections.immutable_dict', class extends builtins.dict {});
         this.registerFunction('torch.fx._symbolic_trace.wrap', (fn_or_name) => {
             return fn_or_name;
@@ -5978,9 +6040,136 @@ python.Execution = class {
         });
         this.registerFunction('torch.warn', () => {
         });
-        this.registerType('torch._ops.OperatorBase', class {});
-        this.registerType('torch._ops.HigherOrderOperator', class extends torch._ops.OperatorBase {});
-        this.registerType('torch._ops.OpOverload', class extends torch._ops.OperatorBase {});
+        this.registerType('torch._ops.OperatorBase', class {
+            constructor() {
+                this.functorch_table = {};
+            }
+        });
+        this.registerType('torch._ops.HigherOrderOperator', class extends torch._ops.OperatorBase {
+            constructor(name, cacheable) {
+                super();
+                this._name = name;
+                this.__name__ = name;
+                // _higher_order_ops[name] = this;
+                this._ns = 'higher_order';
+                this.__module__ = 'torch.ops.higher_order';
+                this._cacheable = cacheable;
+            }
+
+        });
+        this.registerType('torch.Argument', class {
+            constructor(name, type, default_value /*, alias_info, is_type_dispatched */) {
+                // torch/aten/src/ATen/core/function_schema.h
+                this.name = name;
+                this.type = type;
+                this.default_value = default_value;
+                // kwarg_only: bool
+                // is_out: bool
+                // alias_info: Optional[AliasInfo]
+            }
+        });
+        this.registerType('torch.FunctionSchema', class {
+            constructor(name, overload_name, args, returns) {
+                this.arguments = args;
+                this.returns = returns;
+                this.name = name;
+                this.overload_name = overload_name;
+            }
+        });
+        this.registerType('torch._ops.OpOverload', class extends torch._ops.OperatorBase {
+            constructor(overloadpacket, op, op_dk, schema, tags) {
+                super();
+                this._op = op;
+                this._op_dk = op_dk;
+                this._schema = schema;
+                this._overloadpacket = overloadpacket;
+                this._tags = tags;
+                this._overloadname = schema.overload_name === '' ? 'default' : schema.overload_name;
+                this._name = this._schema.name;
+                this._name = schema.overload_name ? `${this._name}.${schema.overload_name}` : this._name;
+                this.__name__ = `${this._schema.name.split('::')[1]}.${this._overloadname}`;
+                this.__module__ = overloadpacket.__module__;
+                op.__module__ = overloadpacket.__module__;
+                this.__qualname__ = self._name;
+                this.__annotations__ = {};
+                // this._defined_in_python = this.__qualname__ in torch.library._defs
+                let is_write = null;
+                for (const a of this._schema.arguments) {
+                    if (a.alias_info) {
+                        is_write = is_write === null ? a.alias_info.is_write : a.alias_info.is_write || is_write;
+                    }
+                }
+                this.is_view = is_write !== null && !is_write;
+            }
+            get name() {
+                return this._name;
+            }
+        });
+        this.registerType('torch._ops.OpOverloadPacket', class {
+            constructor(qualified_op_name, op_name, op, overload_names) {
+                this._qualified_op_name = qualified_op_name;
+                this.__name__ = op_name;
+                this._op = op;
+                this._overload_names = overload_names;
+                this._dir = [];
+                this._has_torchbind_op_overload = this._schemas.some((schema) => this._has_script_object_arg(schema));
+            }
+            get _schemas() {
+                return this._overload_names.map((overload_name) => torch._C._get_schema(this._qualified_op_name, overload_name));
+            }
+            __getattr__(key) {
+                key = key === 'default' ? '' : key;
+                const op_dk_tags = torch._C._get_operation_overload(this._qualified_op_name, key);
+                const [op_, op_dk_, tags] = op_dk_tags;
+                const schema = torch._C._get_schema(this._qualified_op_name, key);
+                const overload = this._has_script_object_arg(schema) ?
+                    new torch._ops.TorchBindOpOverload(this, op_, op_dk_, schema, tags) :
+                    new torch._ops.OpOverload(this, op_, op_dk_, schema, tags);
+                builtins.setattr(self, key, overload);
+                this._dir.push(key);
+                return overload;
+            }
+            _has_script_object_arg(/* schema */) {
+                return false;
+                // return any(isinstance(arg.type, torch.ClassType) for arg in schema.arguments)
+            }
+        });
+        this.registerType('torch._ops._OpNamespace', class extends types.ModuleType {
+            constructor(name) {
+                super(`torch.ops.${name}`);
+                this.name = name;
+                this._dir = [];
+            }
+            __getattr__(op_name) {
+                const namespace_name = this.name;
+                const qualified_op_name = `${namespace_name}::${op_name}`;
+                const module_name = `${this.__module__}.${namespace_name}`;
+                let op = null;
+                let overload_names = null;
+                try {
+                    [op, overload_names] = this._get_packet(qualified_op_name, module_name);
+                } catch {
+                    // continue regardless of error
+                }
+                if (!op) {
+                    throw new python.Error(`Namespace '${this.name}' has no attribute '${op_name}'.`);
+                }
+                op.__module__ = module_name;
+                const opoverloadpacket = new torch._ops.OpOverloadPacket(qualified_op_name, op_name, op, overload_names);
+                opoverloadpacket.__module__ = `${this.__module__}.${namespace_name}`;
+                builtins.setattr(this, op_name, opoverloadpacket);
+                this._dir.push(op_name);
+                return opoverloadpacket;
+            }
+            _get_packet(qualname, op_module) {
+                const [op, overload_names] = torch._C._jit_get_operation(qualname);
+                if (op) {
+                    // torch.jit._builtins._register_builtin(op, qualname);
+                }
+                op.__module__ = op_module;
+                return [op, overload_names];
+            }
+        });
         this.registerType('torch.export.unflatten.UnflattenedModule', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.export.graph_signature.ExportGraphSignature', class {});
         this.registerType('torch.export.graph_signature.InputKind', class extends this._enum.Enum {});
@@ -5988,7 +6177,45 @@ python.Execution = class {
         this.registerType('torch.export.graph_signature.OutputKind', class extends this._enum.Enum {});
         this.registerType('torch.export.graph_signature.OutputSpec', class extends this._enum.Enum {});
         this.registerType('torch.export.graph_signature.TensorArgument', class {});
-        this.registerType('torch.export.exported_program.ExportedProgram', class {});
+        this.registerType('torch.export.exported_program.ExportedProgram', class {
+            constructor(root, graph, graph_signature, state_dict, range_constraints, module_call_graph, example_inputs, verifier, tensor_constants, constants) {
+                // graph._codegen = torch.fx.graph.CodeGen()
+                this._graph_module = this._create_graph_module_for_export(root, graph);
+                if (root instanceof torch.fx.GraphModule) {
+                    // this._graph_module.meta.update(root.meta);
+                }
+                this._graph_signature = graph_signature;
+                this._state_dict = state_dict;
+                this._range_constraints = range_constraints;
+                this._module_call_graph = module_call_graph;
+                this._example_inputs = example_inputs;
+                this._constants = tensor_constants || constants || {};
+
+            /*
+                graph: torch.fx.Graph,
+                graph_signature: ExportGraphSignature,
+                state_dict: Dict[str, Union[torch.Tensor, torch.nn.Parameter]],
+                range_constraints: "Dict[sympy.Symbol, Any]",
+                module_call_graph: List[ModuleCallEntry],
+                example_inputs: Optional[Tuple[Tuple[Any, ...], Dict[str, Any]]] = None,
+                constants: Optional[
+                    Dict[str, Union[torch.Tensor, FakeScriptObject, torch._C.ScriptObject]]
+                ] = None,
+                *,
+                verifiers: Optional[List[Type[Verifier]]] = None,
+            */
+            }
+            _create_graph_module_for_export(root, graph) {
+                let gm = null;
+                try {
+                    gm = new torch.fx.GraphModule(root, graph);
+                } catch {
+                    const gm = new torch.fx.GraphModule(root, torch.fx.Graph());
+                    gm._graph = graph;
+                }
+                return gm;
+            }
+        });
         this.registerType('torch.export.exported_program.ModuleCallEntry', class {});
         this.registerType('torch.export.exported_program.ModuleCallSignature', class {});
         this.registerFunction('torch.export.unflatten');
@@ -5996,17 +6223,23 @@ python.Execution = class {
             return new torch.fx.graph_module.GraphModule(root, graph);
         });
         this.registerType('torch._export.serde.serialize.SerializedArtifact', class {
-            constructor(exported_program, state_dict, constants) {
+            constructor(exported_program, state_dict, constants, example_inputs) {
                 this.exported_program = exported_program;
                 this.state_dict = state_dict;
                 this.constants = constants;
+                this.example_inputs = example_inputs;
             }
         });
+        this.registerType('torch._export.serde.union._Union', class {});
+        this.registerType('torch._export.serde.schema.SymInt', class extends torch._export.serde.union._Union {});
+        this.registerType('torch._export.serde.schema.SymIntArgument', class extends torch._export.serde.union._Union {});
+        this.registerType('torch._export.serde.schema.SymBoolArgument', class extends torch._export.serde.union._Union {});
         this.registerFunction('torch._export.load', (f, expected_opset_version) => {
             const serialized_exported_program = f.get('serialized_exported_program.json');
             const serialized_state_dict = f.get('serialized_state_dict.pt');
             const serialized_constants = f.get('serialized_constants.pt');
-            const artifact = new torch._export.serde.serialize.SerializedArtifact(serialized_exported_program, serialized_state_dict, serialized_constants);
+            const serialized_example_inputs = f.get('serialized_example_inputs.pt');
+            const artifact = new torch._export.serde.serialize.SerializedArtifact(serialized_exported_program, serialized_state_dict, serialized_constants, serialized_example_inputs);
             return torch._export.serde.serialize.deserialize(artifact, expected_opset_version);
         });
         this.registerFunction('torch._export.serde.serialize._dict_to_dataclass', (cls, data) => {
@@ -6033,25 +6266,28 @@ python.Execution = class {
             return data;
         });
         this.registerFunction('torch._export.serde.serialize.deserialize', (artifact, expected_opset_version) => {
-            artifact.exported_program = torch._export.serde.serialize._dict_to_dataclass(null, artifact.exported_program);
-            return new torch._export.serde.serialize.ExportedProgramDeserializer(expected_opset_version).deserialize(artifact);
+            const serialized_exported_program = torch._export.serde.serialize._dict_to_dataclass(null, artifact.exported_program);
+            return new torch._export.serde.serialize.ExportedProgramDeserializer(expected_opset_version).deserialize(serialized_exported_program, artifact.state_dict, artifact.constants, artifact.example_inputs);
         });
         this.registerType('torch._export.serde.serialize.ExportedProgramDeserializer', class {
             constructor(expected_opset_version) {
                 this.expected_opset_version = expected_opset_version;
             }
-            deserialize(serialized_artifact) {
-                const symbol_name_to_range = new Map(Object.entries(serialized_artifact.exported_program.range_constraints));
+            deserialize(exported_program, state_dict, constants, example_inputs) {
+                const symbol_name_to_range = new Map(Object.entries(exported_program.range_constraints));
                 /*
                 symbol_name_to_range = {
                     k: symbolic_shapes.ValueRanges(_int_to_sympy_int(v.min_val), _int_to_sympy_int(v.max_val))
-                    for k, v in serialized_artifact.exported_program.range_constraints.items()
+                    for k, v in exported_program.range_constraints.items()
                 }
                 */
-                const constants = serialized_artifact.constants ? torch.load(serialized_artifact.constants) : null;
-                const tensor_constants = constants ? new Map(Object.entries(constants).filter(([, tensor]) => tensor instanceof torch.Tensor)) : null;
                 const deserializer = new torch._export.serde.serialize.GraphModuleDeserializer();
-                const res = deserializer.deserialize(serialized_artifact.exported_program.graph_module, symbol_name_to_range, constants);
+                const res = deserializer.deserialize(
+                    exported_program.graph_module,
+                    state_dict,
+                    constants,
+                    example_inputs,
+                    symbol_name_to_range);
                 const range_constraints = null;
                 /*
                 range_constraints = self.deserialize_range_constraints(
@@ -6061,15 +6297,20 @@ python.Execution = class {
                 self._validate_model_opset_version(model_opset_version)
                 upgrader = GraphModuleOpUpgrader(self.expected_opset_version, model_opset_version)
                 */
-                const state_dict = serialized_artifact.state_dict ? torch.load(serialized_artifact.state_dict) : null;
-                const exported_program = new torch.export.exported_program.ExportedProgram(
+                return new torch.export.exported_program.ExportedProgram(
                     res.graph_module, res.graph_module.graph, res.signature,
-                    state_dict, range_constraints, res.module_call_graph, null,
+                    res.state_dict, range_constraints, res.module_call_graph, res.example_inputs,
                     null, // verifier=load_verifier(serialized_artifact.exported_program.dialect),
-                    tensor_constants);
-                return exported_program;
+                    res.constants);
                 // return upgrader.upgrade(exported_program)
             }
+        });
+        this.registerFunction('torch._export.serde.serialize.deserialize_torch_artifact', (serialized) => {
+            if (!serialized) {
+                return new builtins.dict();
+            }
+            const artifact = torch.load(serialized);
+            return artifact;
         });
         this.registerType('torch._export.serde.serialize.GraphModuleDeserializer', class {
             constructor() {
@@ -6128,18 +6369,22 @@ python.Execution = class {
                 }
             }
             deserialize_operator(serialized_target) {
-                let target = null;
+                let module = null;
+                let serialized_target_names = null;
                 if (serialized_target.startsWith('_operator')) {
-                    target = operator;
+                    module = operator;
+                    serialized_target_names = serialized_target.split(".").slice(1);
                 } else if (serialized_target.startsWith('torch')) {
-                    target = torch;
+                    module = torch;
+                    serialized_target_names = serialized_target.split(".").slice(1);
+                } else if (serialized_target.startsWith('#')) {
+                    return self.deserialize_extension_operator(serialized_target);
                 } else {
                     return serialized_target;
                 }
-                const serialized_target_names = serialized_target.split('.').reverse();
-                serialized_target_names.pop();
+                let target = module;
                 for (const name of serialized_target_names) {
-                    target = target[name];
+                    target = builtins.getattr(target, name);
                     if (!target) {
                         return serialized_target;
                     }
@@ -6170,7 +6415,7 @@ python.Execution = class {
                 } else if (builtins.isinstance(target, torch._ops.OpOverload)) {
                     const name = this._is_single_tensor_return(target) ? serialized_node.outputs[0].as_tensor.name : null;
                     const [args, kwargs] = this.deserialize_inputs(target, serialized_node);
-                    fx_node = self.graph.create_node('call_function', target, args, kwargs, name);
+                    fx_node = this.graph.create_node('call_function', target, args, kwargs, name);
                     this.deserialize_outputs(serialized_node, fx_node);
                 } else {
                     // throw new python.Error(`Unsupported target type '${target}'.`);
@@ -6179,7 +6424,7 @@ python.Execution = class {
                     Object.assign(fx_node.meta, this.deserialize_metadata(serialized_node.metadata));
                 }
             }
-            deserialize(serialized_graph_module, symbol_name_to_range, constants) {
+            deserialize(serialized_graph_module, serialized_state_dict, constants, example_inputs, symbol_name_to_range) {
                 this.shape_env = new torch.fx.experimental.symbolic_shapes.ShapeEnv(/* assume_static_by_default = True */);
                 /*
                 this.fake_tensor_mode = FakeTensorMode(
@@ -6189,16 +6434,31 @@ python.Execution = class {
                 )
                 */
                 this.symbol_name_to_symbol = new Map();
+                this.constants = torch._export.serde.serialize.deserialize_torch_artifact(constants);
+                this.signature = null; // self.deserialize_signature(serialized_graph_module.signature)
                 this.symbol_name_to_range = symbol_name_to_range || new Map();
-                this.constants = constants || new Map();
+                /*
+                    if symbol_name_to_range:
+                    for k, vr in symbol_name_to_range.items():
+                        lower = int(vr.lower)
+                        if vr.upper >= 2:  # max is >= 2, not sym bool range
+                            lower = max(2, lower)
+                        self.symbol_name_to_range[k] = symbolic_shapes.ValueRanges(_int_to_sympy_int(lower), vr.upper)
+                    */
+                this.example_inputs = null;
+                if (example_inputs && example_inputs.length > 0) {
+                    torch._export.serde.serialize.deserialize_torch_artifact(example_inputs);
+                }
                 this.deserialize_graph(serialized_graph_module.graph);
-                const sig = null; // self.deserialize_signature(serialized_graph_module.signature)
                 const module_call_graph = null; // self.deserialize_module_call_graph(serialized_graph_module.module_call_graph)
                 return {
                     graph_module: torch._export.exported_program._create_graph_module_for_export(this.module, this.graph),
-                    signature: sig,
+                    signature: this.signature,
                     module_call_graph,
-                    names_to_symbols: this.symbol_name_to_symbol
+                    names_to_symbols: this.symbol_name_to_symbol,
+                    state_dict: torch._export.serde.serialize.deserialize_torch_artifact(serialized_state_dict),
+                    constants: this.constants,
+                    example_inputs: this.example_inputs,
                 };
             }
             sync_fx_node(name, fx_node) {
@@ -6303,6 +6563,25 @@ python.Execution = class {
                 }
                 */
             }
+            deserialize_outputs(serialized_node, fx_node) {
+                if (serialized_node.outputs.length === 0) {
+                    return;
+                }
+                if (serialized_node.outputs.length === 1 &&
+                    serialized_node.outputs[0].type === 'as_tensor') {
+                    this.sync_fx_node(serialized_node.outputs[0].as_tensor.name, fx_node);
+                    return;
+                } else if (serialized_node.outputs.length === 1 &&
+                     (serialized_node.outputs[0].value instanceof torch._export.serde.schema.SymIntArgument ||
+                      serialized_node.outputs[0].value instanceof torch._export.serde.schema.SymBoolArgument)) {
+                    self.sync_fx_node(serialized_node.outputs[0].value.as_name, fx_node);
+                    return;
+                }
+                this.deserialize_multiple_outputs(serialized_node, fx_node);
+            }
+            deserialize_multiple_outputs() {
+                // debugger;
+            }
             deserialize_metadata(metadata) {
                 const ret = {};
                 const stack_trace = metadata.stack_trace;
@@ -6380,7 +6659,7 @@ python.Execution = class {
                         */
                     }
                     const hint = s.as_expr.hint || null;
-                    if (hint && hint.$type === 'as_int') {
+                    if (hint && (hint.$type === 'as_int' || hint.as_int !== undefined)) {
                         return this.deserialize_sym_int(hint);
                     }
                     return this.shape_env.create_symintnode(sym, hint);
@@ -6396,6 +6675,17 @@ python.Execution = class {
                     return new torch.device(d.type, d.index);
                 }
                 return new torch.device(d.type);
+            }
+            _get_schema_from_target(target) {
+                if (target instanceof torch._ops.OpOverload) {
+                    return target._schema;
+                }
+                throw new python.Error(`Cannot find schema for ${target.name}`);
+            }
+            _is_single_tensor_return(target) {
+                const schema = this._get_schema_from_target(target);
+                const returns = schema.returns;
+                return returns.length === 1 && returns[0].real_type instanceof torch.TensorType;
             }
         });
         this.registerType('torch._export.verifier.Verifier', class {});
@@ -7710,6 +8000,9 @@ python.Execution = class {
                 }
                 const child = current.substring(index + 1);
                 current = current.substring(0, index);
+                if (!value.__module__) {
+                    value.__module__ = current;
+                }
                 const parent = this.register(current);
                 parent[child] = value;
                 value = parent;
