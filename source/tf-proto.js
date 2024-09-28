@@ -7595,6 +7595,171 @@ tensorflow.CallableOptions = class CallableOptions {
 tensorflow.CallableOptions.prototype.run_options = null;
 tensorflow.CallableOptions.prototype.fetch_skip_sync = false;
 
+tensorflow.CoordinatedJob = class CoordinatedJob {
+
+    static decode(reader, length) {
+        const message = new tensorflow.CoordinatedJob();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 2:
+                    message.num_tasks = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new tensorflow.CoordinatedJob();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "name":
+                    message.name = reader.string();
+                    break;
+                case "num_tasks":
+                    message.num_tasks = reader.int32();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+tensorflow.CoordinatedJob.prototype.name = "";
+tensorflow.CoordinatedJob.prototype.num_tasks = 0;
+
+tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
+
+    constructor() {
+        this.coordinated_job_list = [];
+        this.recoverable_jobs = [];
+    }
+
+    static decode(reader, length) {
+        const message = new tensorflow.CoordinationServiceConfig();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.service_type = reader.string();
+                    break;
+                case 2:
+                    message.service_leader = reader.string();
+                    break;
+                case 3:
+                    message.enable_health_check = reader.bool();
+                    break;
+                case 4:
+                    message.cluster_register_timeout_in_ms = reader.int64();
+                    break;
+                case 5:
+                    message.heartbeat_timeout_in_ms = reader.int64();
+                    break;
+                case 10:
+                    message.coordinated_job_list.push(tensorflow.CoordinatedJob.decode(reader, reader.uint32()));
+                    break;
+                case 7:
+                    message.shutdown_barrier_timeout_in_ms = reader.int64();
+                    break;
+                case 8:
+                    message.agent_destruction_without_shutdown = reader.bool();
+                    break;
+                case 9:
+                    message.recoverable_jobs.push(reader.string());
+                    break;
+                case 11:
+                    message.allow_new_incarnation_to_reconnect = reader.bool();
+                    break;
+                case 12:
+                    message.force_disable = reader.bool();
+                    break;
+                case 13:
+                    message.poll_for_error_from_service_at_startup = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new tensorflow.CoordinationServiceConfig();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "service_type":
+                    message.service_type = reader.string();
+                    break;
+                case "service_leader":
+                    message.service_leader = reader.string();
+                    break;
+                case "enable_health_check":
+                    message.enable_health_check = reader.bool();
+                    break;
+                case "cluster_register_timeout_in_ms":
+                    message.cluster_register_timeout_in_ms = reader.int64();
+                    break;
+                case "heartbeat_timeout_in_ms":
+                    message.heartbeat_timeout_in_ms = reader.int64();
+                    break;
+                case "coordinated_job_list":
+                    message.coordinated_job_list.push(tensorflow.CoordinatedJob.decodeText(reader));
+                    break;
+                case "shutdown_barrier_timeout_in_ms":
+                    message.shutdown_barrier_timeout_in_ms = reader.int64();
+                    break;
+                case "agent_destruction_without_shutdown":
+                    message.agent_destruction_without_shutdown = reader.bool();
+                    break;
+                case "recoverable_jobs":
+                    reader.array(message.recoverable_jobs, () => reader.string());
+                    break;
+                case "allow_new_incarnation_to_reconnect":
+                    message.allow_new_incarnation_to_reconnect = reader.bool();
+                    break;
+                case "force_disable":
+                    message.force_disable = reader.bool();
+                    break;
+                case "poll_for_error_from_service_at_startup":
+                    message.poll_for_error_from_service_at_startup = reader.bool();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+tensorflow.CoordinationServiceConfig.prototype.service_type = "";
+tensorflow.CoordinationServiceConfig.prototype.service_leader = "";
+tensorflow.CoordinationServiceConfig.prototype.enable_health_check = false;
+tensorflow.CoordinationServiceConfig.prototype.cluster_register_timeout_in_ms = 0n;
+tensorflow.CoordinationServiceConfig.prototype.heartbeat_timeout_in_ms = 0n;
+tensorflow.CoordinationServiceConfig.prototype.shutdown_barrier_timeout_in_ms = 0n;
+tensorflow.CoordinationServiceConfig.prototype.agent_destruction_without_shutdown = false;
+tensorflow.CoordinationServiceConfig.prototype.allow_new_incarnation_to_reconnect = false;
+tensorflow.CoordinationServiceConfig.prototype.force_disable = false;
+tensorflow.CoordinationServiceConfig.prototype.poll_for_error_from_service_at_startup = false;
+
 tensorflow.CostGraphDef = class CostGraphDef {
 
     constructor() {
@@ -9481,171 +9646,6 @@ tensorflow.RPCOptions.prototype.compression_level = 0;
 tensorflow.RPCOptions.prototype.cache_rpc_response = false;
 tensorflow.RPCOptions.prototype.disable_session_connection_sharing = false;
 tensorflow.RPCOptions.prototype.num_channels_per_target = 0;
-
-tensorflow.CoordinatedJob = class CoordinatedJob {
-
-    static decode(reader, length) {
-        const message = new tensorflow.CoordinatedJob();
-        const end = length === undefined ? reader.length : reader.position + length;
-        while (reader.position < end) {
-            const tag = reader.uint32();
-            switch (tag >>> 3) {
-                case 1:
-                    message.name = reader.string();
-                    break;
-                case 2:
-                    message.num_tasks = reader.int32();
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-            }
-        }
-        return message;
-    }
-
-    static decodeText(reader) {
-        const message = new tensorflow.CoordinatedJob();
-        reader.start();
-        while (!reader.end()) {
-            const tag = reader.tag();
-            switch (tag) {
-                case "name":
-                    message.name = reader.string();
-                    break;
-                case "num_tasks":
-                    message.num_tasks = reader.int32();
-                    break;
-                default:
-                    reader.field(tag, message);
-                    break;
-            }
-        }
-        return message;
-    }
-};
-
-tensorflow.CoordinatedJob.prototype.name = "";
-tensorflow.CoordinatedJob.prototype.num_tasks = 0;
-
-tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
-
-    constructor() {
-        this.coordinated_job_list = [];
-        this.recoverable_jobs = [];
-    }
-
-    static decode(reader, length) {
-        const message = new tensorflow.CoordinationServiceConfig();
-        const end = length === undefined ? reader.length : reader.position + length;
-        while (reader.position < end) {
-            const tag = reader.uint32();
-            switch (tag >>> 3) {
-                case 1:
-                    message.service_type = reader.string();
-                    break;
-                case 2:
-                    message.service_leader = reader.string();
-                    break;
-                case 3:
-                    message.enable_health_check = reader.bool();
-                    break;
-                case 4:
-                    message.cluster_register_timeout_in_ms = reader.int64();
-                    break;
-                case 5:
-                    message.heartbeat_timeout_in_ms = reader.int64();
-                    break;
-                case 10:
-                    message.coordinated_job_list.push(tensorflow.CoordinatedJob.decode(reader, reader.uint32()));
-                    break;
-                case 7:
-                    message.shutdown_barrier_timeout_in_ms = reader.int64();
-                    break;
-                case 8:
-                    message.agent_destruction_without_shutdown = reader.bool();
-                    break;
-                case 9:
-                    message.recoverable_jobs.push(reader.string());
-                    break;
-                case 11:
-                    message.allow_new_incarnation_to_reconnect = reader.bool();
-                    break;
-                case 12:
-                    message.force_disable = reader.bool();
-                    break;
-                case 13:
-                    message.poll_for_error_from_service_at_startup = reader.bool();
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-            }
-        }
-        return message;
-    }
-
-    static decodeText(reader) {
-        const message = new tensorflow.CoordinationServiceConfig();
-        reader.start();
-        while (!reader.end()) {
-            const tag = reader.tag();
-            switch (tag) {
-                case "service_type":
-                    message.service_type = reader.string();
-                    break;
-                case "service_leader":
-                    message.service_leader = reader.string();
-                    break;
-                case "enable_health_check":
-                    message.enable_health_check = reader.bool();
-                    break;
-                case "cluster_register_timeout_in_ms":
-                    message.cluster_register_timeout_in_ms = reader.int64();
-                    break;
-                case "heartbeat_timeout_in_ms":
-                    message.heartbeat_timeout_in_ms = reader.int64();
-                    break;
-                case "coordinated_job_list":
-                    message.coordinated_job_list.push(tensorflow.CoordinatedJob.decodeText(reader));
-                    break;
-                case "shutdown_barrier_timeout_in_ms":
-                    message.shutdown_barrier_timeout_in_ms = reader.int64();
-                    break;
-                case "agent_destruction_without_shutdown":
-                    message.agent_destruction_without_shutdown = reader.bool();
-                    break;
-                case "recoverable_jobs":
-                    reader.array(message.recoverable_jobs, () => reader.string());
-                    break;
-                case "allow_new_incarnation_to_reconnect":
-                    message.allow_new_incarnation_to_reconnect = reader.bool();
-                    break;
-                case "force_disable":
-                    message.force_disable = reader.bool();
-                    break;
-                case "poll_for_error_from_service_at_startup":
-                    message.poll_for_error_from_service_at_startup = reader.bool();
-                    break;
-                default:
-                    reader.field(tag, message);
-                    break;
-            }
-        }
-        return message;
-    }
-};
-
-tensorflow.CoordinationServiceConfig.prototype.service_type = "";
-tensorflow.CoordinationServiceConfig.prototype.service_leader = "";
-tensorflow.CoordinationServiceConfig.prototype.enable_health_check = false;
-tensorflow.CoordinationServiceConfig.prototype.cluster_register_timeout_in_ms = 0n;
-tensorflow.CoordinationServiceConfig.prototype.heartbeat_timeout_in_ms = 0n;
-tensorflow.CoordinationServiceConfig.prototype.shutdown_barrier_timeout_in_ms = 0n;
-tensorflow.CoordinationServiceConfig.prototype.agent_destruction_without_shutdown = false;
-tensorflow.CoordinationServiceConfig.prototype.allow_new_incarnation_to_reconnect = false;
-tensorflow.CoordinationServiceConfig.prototype.force_disable = false;
-tensorflow.CoordinationServiceConfig.prototype.poll_for_error_from_service_at_startup = false;
 
 tensorflow.MemmappedFileSystemDirectoryElement = class MemmappedFileSystemDirectoryElement {
 
