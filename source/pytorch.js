@@ -185,6 +185,12 @@ pytorch.Graph = class {
                     }
                 }
             }
+        } else if (type === 'torch.export.exported_program.ExportedProgram' && module.graph) {
+            const exported_program = module;
+            const graph = exported_program.graph;
+            for (const node of graph.nodes) {
+                this.nodes.push(new pytorch.Node(metadata, node.name, null, node));
+            }
         } else if (pytorch.Utility.isTensor(module)) {
             const node = new pytorch.Node(metadata, null, type, { value: module });
             this.nodes.push(node);
@@ -409,6 +415,14 @@ pytorch.Node = class {
                 const args = list.map((output) => values.map(output.unique().toString()));
                 const argument = new pytorch.Argument(name, args);
                 this.outputs.push(argument);
+            }
+        } else if (pytorch.Utility.isInstance(obj, 'torch.fx.node.Node')) {
+            if (obj.op === 'call_function') {
+                this.type = createType(metadata, obj.target.name);
+            } else if (obj.op === 'placeholder') {
+                this.type = createType(metadata, 'placeholder');
+            } else {
+                throw new pytorch.Error(`Unsupported node operation '${obj.op}'.`);
             }
         } else {
             if (!type) {
@@ -1130,6 +1144,19 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
 
     async read(metadata) {
         this.format = 'PyTorch Export';
+        try {
+            const content = await this.context.fetch('version');
+            if (content) {
+                const reader = content.read('text');
+                if (reader) {
+                    this.version = reader.read();
+                    this.version = this.version.split('\n').shift().trim();
+                }
+            }
+        } catch {
+            // continue regardless of error
+        }
+        this.format = this.version ? `${this.format} v${this.version}` : this.format;
         const serialized_state_dict = await this._fetch('serialized_state_dict.pt') || await this._fetch('serialized_state_dict.json');
         const serialized_constants = await this._fetch('serialized_constants.pt') || await this._fetch('serialized_constants.json');
         const serialized_example_inputs = await this._fetch('serialized_example_inputs.pt');
@@ -1160,10 +1187,7 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
         }
         delete this.serialized_exported_program;
         delete this.context;
-        /* eslint-disable no-unused-vars */
-        const exported_program = torch._export.load(f);
-        /* eslint-enable no-unused-vars */
-        throw new pytorch.Error(`'torch.export' not supported.`);
+        this.module = torch._export.load(f);
     }
 
     async _fetch(name) {

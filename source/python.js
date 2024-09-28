@@ -4852,24 +4852,24 @@ python.Execution = class {
                 this._next = this;
                 this._erased = false;
                 this._repr_fn = null;
-                this.meta = {};
+                this.meta = new builtins.dict();
+            }
+            get next() {
+                return this._next;
             }
             prepend(x) {
                 x._remove_from_list();
                 const p = this._prev;
-                p._next = x;
-                x._prev = p;
-                x._next = this;
-                this._prev = x;
+                [p._next, x._prev] = [x, p];
+                [x._next, this._prev] = [this, x];
             }
             _remove_from_list() {
-                const p = this._prev;
-                const n = this._next;
-                p._next = n;
-                n._prev = p;
+                const [p, n] = [this._prev, this._next];
+                [p._next, n._prev] = [n, p];
             }
         });
         torch.fx.Node = torch.fx.node.Node;
+        torch.fx.graph.Node = torch.fx.node.Node;
         this.registerType('torch.fx.graph.Graph', class {
             constructor() {
                 this._root = new torch.fx.node.Node(self, '', 'root', '', [], {});
@@ -4882,6 +4882,15 @@ python.Execution = class {
                 // this._codegen = CodeGen()
                 // this._co_fields = {}
             }
+            get nodes() {
+                const array = new Array(this._len);
+                let node = this._root.next;
+                for (let i = 0; node !== this._root; i++) {
+                    array[i] = node;
+                    node = node.next;
+                }
+                return array;
+            }
             placeholder(name, type_expr /*, default_value */) {
                 const args = []; // () if default_value is inspect.Signature.empty else (default_value,)
                 return this.create_node('placeholder', name, args, type_expr);
@@ -4891,7 +4900,7 @@ python.Execution = class {
                 kwargs = kwargs || {};
                 const candidate = name || this._target_to_str(target);
                 name = this._graph_namespace.create_name(candidate, null);
-                const n = new torch.fx.Node(this, name, op, target, args, kwargs, type_expr);
+                const n = new torch.fx.node.Node(this, name, op, target, args, kwargs, type_expr);
                 this._graph_namespace.associate_name_with_obj(name, n);
                 this._insert(n);
                 this._len += 1;
@@ -6171,12 +6180,67 @@ python.Execution = class {
             }
         });
         this.registerType('torch.export.unflatten.UnflattenedModule', class extends torch.nn.modules.module.Module {});
-        this.registerType('torch.export.graph_signature.ExportGraphSignature', class {});
-        this.registerType('torch.export.graph_signature.InputKind', class extends this._enum.Enum {});
-        this.registerType('torch.export.graph_signature.InputSpec', class extends this._enum.Enum {});
-        this.registerType('torch.export.graph_signature.OutputKind', class extends this._enum.Enum {});
-        this.registerType('torch.export.graph_signature.OutputSpec', class extends this._enum.Enum {});
-        this.registerType('torch.export.graph_signature.TensorArgument', class {});
+        this.registerType('torch.export.graph_signature.ExportGraphSignature', class {
+            constructor(input_specs, output_specs) {
+                this.input_specs = input_specs;
+                this.output_specs = output_specs;
+            }
+        });
+        torch.export.graph_signature.InputKind = {
+            USER_INPUT: 0,
+            PARAMETER: 1,
+            BUFFER: 2,
+            CONSTANT_TENSOR: 3,
+            CUSTOM_OBJ: 4,
+            TOKEN: 5
+        };
+        this.registerType('torch.export.graph_signature.InputSpec', class {
+            constructor(kind, arg, target, persistent) {
+                this.kind = kind;
+                this.arg = arg;
+                this.target = target;
+                this.persistent = persistent;
+            }
+        });
+        torch.export.graph_signature.OutputKind = {
+            USER_OUTPUT: 0,
+            LOSS_OUTPUT: 1,
+            BUFFER_MUTATION: 2,
+            GRADIENT_TO_PARAMETER: 3,
+            GRADIENT_TO_USER_INPUT: 4,
+            USER_INPUT_MUTATION: 5,
+            TOKEN: 6
+        };
+        this.registerType('torch.export.graph_signature.OutputSpec', class {
+            constructor(kind, arg, target) {
+                this.kind = kind;
+                this.arg = arg;
+                this.target = target;
+            }
+        });
+        this.registerType('torch.export.graph_signature.ConstantArgument', class {
+            constructor(name, value) {
+                this.name = name;
+                this.value = value; // Union[int, float, bool, str, None]
+            }
+        });
+        this.registerType('torch.export.graph_signature.TensorArgument', class {
+            constructor(name) {
+                this.name = name;
+            }
+        });
+        this.registerType('torch.export.graph_signature.SymIntArgument', class {
+            constructor(name) {
+                this.name = name;
+            }
+        });
+        this.registerType('torch.export.graph_signature.CustomObjArgument', class {
+            constructor(name, class_fqn, fake_val) {
+                this.name = name;
+                this.class_fqn = class_fqn;
+                this.fake_val = fake_val;
+            }
+        });
         this.registerType('torch.export.exported_program.ExportedProgram', class {
             constructor(root, graph, graph_signature, state_dict, range_constraints, module_call_graph, example_inputs, verifier, tensor_constants, constants) {
                 // graph._codegen = torch.fx.graph.CodeGen()
@@ -6190,20 +6254,6 @@ python.Execution = class {
                 this._module_call_graph = module_call_graph;
                 this._example_inputs = example_inputs;
                 this._constants = tensor_constants || constants || {};
-
-            /*
-                graph: torch.fx.Graph,
-                graph_signature: ExportGraphSignature,
-                state_dict: Dict[str, Union[torch.Tensor, torch.nn.Parameter]],
-                range_constraints: "Dict[sympy.Symbol, Any]",
-                module_call_graph: List[ModuleCallEntry],
-                example_inputs: Optional[Tuple[Tuple[Any, ...], Dict[str, Any]]] = None,
-                constants: Optional[
-                    Dict[str, Union[torch.Tensor, FakeScriptObject, torch._C.ScriptObject]]
-                ] = None,
-                *,
-                verifiers: Optional[List[Type[Verifier]]] = None,
-            */
             }
             _create_graph_module_for_export(root, graph) {
                 let gm = null;
@@ -6214,6 +6264,18 @@ python.Execution = class {
                     gm._graph = graph;
                 }
                 return gm;
+            }
+            get graph_module() {
+                return this._graph_module;
+            }
+            get graph() {
+                return this._graph_module.graph;
+            }
+            get graph_signature() {
+                return this._graph_signature;
+            }
+            get state_dict() {
+                return this._state_dict;
             }
         });
         this.registerType('torch.export.exported_program.ModuleCallEntry', class {});
@@ -6230,10 +6292,297 @@ python.Execution = class {
                 this.example_inputs = example_inputs;
             }
         });
-        this.registerType('torch._export.serde.union._Union', class {});
-        this.registerType('torch._export.serde.schema.SymInt', class extends torch._export.serde.union._Union {});
-        this.registerType('torch._export.serde.schema.SymIntArgument', class extends torch._export.serde.union._Union {});
-        this.registerType('torch._export.serde.schema.SymBoolArgument', class extends torch._export.serde.union._Union {});
+        this.registerType('torch._export.serde.union._Union', class {
+            constructor(obj) {
+                if (obj.$type) {
+                    this.type = obj.$type;
+                    this[obj.$type] = obj.$value;
+                    delete obj.$type;
+                    delete obj.$value;
+                } else {
+                    let entries = Object.entries(obj);
+                    if (entries.length > 1) {
+                        entries = entries.filter(([, value]) => value !== null);
+                    }
+                    if (entries.length !== 1) {
+                        throw new Error();
+                    }
+                    const [entry] = entries;
+                    const [type, value] = entry;
+                    this.type = type;
+                    this[type] = value;
+                }
+            }
+            get value() {
+                return this[this.type];
+            }
+        });
+        this.registerType('torch._export.serde.schema.NamedArgument', class {
+            constructor(obj) {
+                this.arg = new torch._export.serde.schema.Argument(obj.arg);
+                this.name = obj.name;
+            }
+        });
+        this.registerType('torch._export.serde.schema.Argument', class extends torch._export.serde.union._Union {
+            constructor(obj) {
+                super(obj);
+                if (this.type === 'as_int' || this.type === 'as_ints' ||
+                    this.type === 'as_float' || this.type === 'as_floats' ||
+                    this.type === 'as_bool' || this.type === 'as_bools' ||
+                    this.type === 'as_string' || this.type === 'as_strings' ||
+                    this.type === 'as_scalar_type' || this.type === 'as_device' ||
+                    this.type === 'as_memory_format' || this.type === 'as_layout') {
+                    // continue
+                } else if (this.type === 'as_none') {
+                    this.as_none = null;
+                } else if (this.type === 'as_tensor') {
+                    this.as_tensor = new torch._export.serde.schema.TensorArgument(this.as_tensor);
+                } else if (this.type === 'as_tensors') {
+                    this.as_tensors = this.as_tensors.map((item) => new torch._export.serde.schema.TensorArgument(item));
+                } else if (this.type === 'as_sym_int') {
+                    this.as_sym_int = new torch._export.serde.schema.SymIntArgument(this.as_sym_int);
+                } else if (this.type === 'as_sym_ints') {
+                    this.as_sym_ints = this.as_sym_ints.map((item) => new torch._export.serde.schema.SymIntArgument(item));
+                } else if (this.type === 'as_optional_tensors') {
+                    this.as_optional_tensors = this.as_optional_tensors.map((item) => new torch._export.serde.schema.OptionalTensorArgument(item));
+                } else {
+                    throw new python.Error(`Unsupported argument '${this.type}'.`);
+                }
+                /*
+                as_tensors: List[TensorArgument]
+                as_string: str
+                as_strings: List[str]
+                as_sym_int: SymIntArgument
+                as_sym_ints: List[SymIntArgument]
+                as_scalar_type: ScalarType
+                as_memory_format: MemoryFormat
+                as_layout: Layout
+                as_bools: List[bool]
+                as_sym_bool: SymBoolArgument
+                as_sym_bools: List[SymBoolArgument]
+                as_graph: GraphArgument
+                as_optional_tensors: List[OptionalTensorArgument]
+                as_custom_obj: CustomObjArgument
+                */
+            }
+        });
+        this.registerType('torch._export.serde.schema.Node', class {
+            constructor(obj) {
+                this.target = obj.target;
+                this.inputs = obj.inputs.map((input) => new torch._export.serde.schema.NamedArgument(input));
+                this.outputs = obj.outputs.map((output) => new torch._export.serde.schema.Argument(output));
+                this.metadata = new Map(Object.entries(obj.metadata));
+            }
+        });
+        torch._export.serde.schema.ScalarType = {
+            UNKNOWN: 0,
+            BYTE: 1,
+            CHAR: 2,
+            SHORT: 3,
+            INT: 4,
+            LONG: 5,
+            HALF: 6,
+            FLOAT: 7,
+            DOUBLE: 8,
+            COMPLEXHALF: 9,
+            COMPLEXFLOAT: 10,
+            COMPLEXDOUBLE: 11,
+            BOOL: 12,
+            BFLOAT16: 13
+        };
+        torch._export.serde.schema.Layout = {
+            Unknown: 0,
+            SparseCoo: 1,
+            SparseCsr: 2,
+            SparseCsc: 3,
+            SparseBsr: 4,
+            SparseBsc: 5,
+            _mkldnn: 6,
+            Strided: 7
+        };
+        torch._export.serde.schema.MemoryFormat = {
+            Unknown: 0,
+            ContiguousFormat: 1,
+            ChannelsLast: 2,
+            ChannelsLast3d: 3,
+            PreserveFormat: 4,
+        };
+        this.registerType('torch._export.serde.schema.Device', class {
+            constructor(obj) {
+                Object.assign(this, { ...obj });
+            }
+        });
+        this.registerType('torch._export.serde.schema.TensorMeta', class {
+            constructor(obj) {
+                obj = obj.meta || obj;
+                this.dtype = obj.dtype;
+                this.sizes = obj.sizes.map((size) => new torch._export.serde.schema.SymInt(size));
+                this.requires_grad = obj.requires_grad;
+                this.device = obj.device;
+                this.strides = obj.strides.map((stride) => new torch._export.serde.schema.SymInt(stride));
+                this.storage_offset = new torch._export.serde.schema.SymInt(Number.isInteger(obj.storage_offset) ? { as_int: obj.storage_offset } : obj.storage_offset);
+                this.layout = obj.layout;
+            }
+        });
+        this.registerType('torch._export.serde.schema.Graph', class {
+            constructor(obj) {
+                this.inputs = obj.inputs.map((input) => new torch._export.serde.schema.Argument(input));
+                this.outputs = obj.outputs.map((output) => new torch._export.serde.schema.Argument(output));
+                this.nodes = obj.nodes.map((node) => new torch._export.serde.schema.Node(node));
+                this.tensor_values = new Map(Object.entries(obj.tensor_values).map(([key, value]) => [key, new torch._export.serde.schema.TensorMeta(value)]));
+                this.sym_int_values = new Map(Object.entries(obj.sym_int_values).map(([key, value]) => [key, new torch._export.serde.schema.SymInt(value)]));
+                this.sym_bool_values = new Map(Object.entries(obj.sym_bool_values).map(([key, value]) => [key, new torch._export.serde.schema.SymBool(value)]));
+                this.is_single_tensor_return = obj.is_single_tensor_return;
+                this.custom_obj_values = new Map(Object.entries(obj.custom_obj_values || {}).map(([key, value]) => [key, new torch._export.serde.schema.CustomObjArgument(value)]));
+                if (obj.contants) {
+                    // this.constants = new Map(Object.entries(serialized_graph.constants).map(([k, v]) => [k, torch.load(v)]));
+                    // graph_signature -> input_specs -> tensor_constant
+                }
+            }
+        });
+        this.registerType('torch._export.serde.schema.ModuleCallSignature', class {
+            constructor(obj) {
+                Object.assign(this, { ...obj });
+                this.inputs = this.inputs.map((item) => new torch._export.serde.schema.Argument(item));
+                this.outputs = this.outputs.map((item) => new torch._export.serde.schema.Argument(item));
+            }
+        });
+        this.registerType('torch._export.serde.schema.ModuleCallEntry', class {
+            constructor(obj) {
+                Object.assign(this, { ...obj });
+                this.signature = this.signature ? new torch._export.serde.schema.ModuleCallSignature(this.signature) : null;
+            }
+        });
+        this.registerType('torch._export.serde.schema.GraphModule', class {
+            constructor(obj) {
+                this.graph = new torch._export.serde.schema.Graph(obj.graph);
+                this.signature = new torch._export.serde.schema.GraphSignature(obj.signature);
+                this.module_call_graph = obj.module_call_graph.map((item) => new torch._export.serde.schema.ModuleCallEntry(item));
+                this.metadata = new Map(Object.entries(obj.metadata || {}));
+            }
+        });
+        this.registerType('torch._export.serde.schema.ExportedProgram', class {
+            constructor(obj) {
+                Object.assign(this, { ...obj });
+                this.graph_module = new torch._export.serde.schema.GraphModule(obj.graph_module);
+            }
+        });
+        this.registerType('torch._export.serde.schema.SymExprHint', class extends torch._export.serde.union._Union {});
+        this.registerType('torch._export.serde.schema.SymExpr', class {
+            constructor(obj) {
+                this.expr_str = obj.expr_str;
+                this.hint = obj.hint ? new torch._export.serde.schema.SymExprHint(obj.hint) : null;
+            }
+        });
+        this.registerType('torch._export.serde.schema.SymInt', class extends torch._export.serde.union._Union {
+            constructor(obj) {
+                super(obj);
+                if (this.type === 'as_int') {
+                    // continue
+                } else if (this.type === 'as_expr') {
+                    this.as_expr = new torch._export.serde.schema.SymExpr(this.as_expr);
+                } else {
+                    throw new python.Error(`Unsupported symbolic int '${this.type}'.`);
+                }
+            }
+        });
+        this.registerType('torch._export.serde.schema.SymIntArgument', class extends torch._export.serde.union._Union {
+            constructor(obj) {
+                super(obj);
+                Object.assign(this, { ...obj });
+            }
+        });
+        this.registerType('torch._export.serde.schema.SymBoolArgument', class extends torch._export.serde.union._Union {
+            constructor(obj) {
+                super(obj);
+                Object.assign(this, { ...obj });
+            }
+        });
+        this.registerType('torch._export.serde.schema.GraphSignature', class {
+            constructor(obj) {
+                this.input_specs = [];
+                if (Array.isArray(obj.input_specs)) {
+                    this.input_specs = obj.input_specs.map((input_spec) => new torch._export.serde.schema.InputSpec(input_spec));
+                }
+                if (Array.isArray(obj.user_inputs)) {
+                    for (const user_input of obj.user_inputs) {
+                        this.input_specs.push(new torch._export.serde.schema.InputSpec({ user_input: { arg: { as_string: user_input } } }));
+                    }
+                }
+                this.output_specs = [];
+                if (Array.isArray(obj.output_specs)) {
+                    this.output_specs = obj.output_specs.map((output_spec) => new torch._export.serde.schema.OutputSpec(output_spec));
+                }
+            }
+        });
+        this.registerType('torch._export.serde.schema.UserInputSpec', class {
+            constructor(obj) {
+                this.arg = new torch._export.serde.schema.Argument(obj.arg);
+            }
+        });
+        this.registerType('torch._export.serde.schema.InputToParameterSpec', class {
+            constructor(obj) {
+                Object.assign(this, { ...obj });
+                this.arg = new torch._export.serde.schema.TensorArgument(this.arg);
+            }
+        });
+        this.registerType('torch._export.serde.schema.InputToBufferSpec', class {
+            constructor(obj) {
+                this.arg = new torch._export.serde.schema.TensorArgument(obj.arg);
+                this.buffer_name = obj.buffer_name;
+            }
+        });
+        this.registerType('torch._export.serde.schema.InputToTensorConstantSpec', class {
+            constructor(obj) {
+                this.arg = new torch._export.serde.schema.TensorArgument(obj.arg);
+                this.tensor_constant_name = obj.tensor_constant_name;
+            }
+        });
+        this.registerType('torch._export.serde.schema.InputSpec', class extends torch._export.serde.union._Union {
+            constructor(obj) {
+                super(obj);
+                if (this.type === 'user_input') {
+                    this.user_input = new torch._export.serde.schema.UserInputSpec(this.user_input);
+                } else if (this.type === 'parameter') {
+                    this.parameter = new torch._export.serde.schema.InputToParameterSpec(this.parameter);
+                } else if (this.type === 'buffer') {
+                    this.buffer = new torch._export.serde.schema.InputToBufferSpec(this.buffer);
+                } else if (this.type === 'tensor_constant') {
+                    this.tensor_constant = new torch._export.serde.schema.InputToTensorConstantSpec(this.tensor_constant);
+                } else {
+                    throw new python.Error(`Unsupported input spec type '${this.type}'.`);
+                }
+                /*
+                tensor_constant: InputToTensorConstantSpec
+                custom_obj: InputToCustomObjSpec
+                token: InputTokenSpec
+                constant_input: ConstantInputSpec
+                */
+            }
+        });
+        this.registerType('torch._export.serde.schema.OutputSpec', class extends torch._export.serde.union._Union {
+            constructor(obj) {
+                super(obj);
+                Object.assign(this, { ...obj });
+            }
+        });
+        this.registerType('torch._export.serde.schema.TensorArgument', class {
+            constructor(obj) {
+                this.name = obj.name;
+            }
+        });
+        this.registerType('torch._export.serde.schema.OptionalTensorArgument', class extends torch._export.serde.union._Union {
+            constructor(obj) {
+                super(obj);
+                if (this.type === 'as_tensor') {
+                    // continue
+                } else if (this.type === 'as_none') {
+                    this.as_none = null;
+                } else {
+                    throw new python.Error(`Unsupported optional tensor argument '${this.type}'.`);
+                }
+            }
+        });
         this.registerFunction('torch._export.load', (f, expected_opset_version) => {
             const serialized_exported_program = f.get('serialized_exported_program.json');
             const serialized_state_dict = f.get('serialized_state_dict.pt');
@@ -6246,27 +6595,13 @@ python.Execution = class {
             if (data === null) {
                 return data;
             }
-            if (data.$type) {
-                const res = {};
-                res[data.$type] = data.$value;
-                return res;
+            if (cls) {
+                return new cls(data);
             }
-            if (Array.isArray(data)) {
-                for (let i = 0; i < data.length; i++) {
-                    data[i] = torch._export.serde.serialize._dict_to_dataclass(null, data[i]);
-                }
-                return data;
-            }
-            if (data === Object(data)) {
-                for (const key of Object.keys(data)) {
-                    data[key] = torch._export.serde.serialize._dict_to_dataclass(null, data[key]);
-                }
-                return data;
-            }
-            return data;
+            throw new python.Error(`Unsupported data class '${cls.__name__}'.`);
         });
         this.registerFunction('torch._export.serde.serialize.deserialize', (artifact, expected_opset_version) => {
-            const serialized_exported_program = torch._export.serde.serialize._dict_to_dataclass(null, artifact.exported_program);
+            const serialized_exported_program = torch._export.serde.serialize._dict_to_dataclass(torch._export.serde.schema.ExportedProgram, artifact.exported_program);
             return new torch._export.serde.serialize.ExportedProgramDeserializer(expected_opset_version).deserialize(serialized_exported_program, artifact.state_dict, artifact.constants, artifact.example_inputs);
         });
         this.registerType('torch._export.serde.serialize.ExportedProgramDeserializer', class {
@@ -6327,24 +6662,21 @@ python.Execution = class {
                     torch.sym_not
                 ]);
             }
-            deserialize_graph_output(/* output */) {
-                /*
+            deserialize_graph_output(output) {
                 if (output.type === 'as_tensor') {
-                    return self.serialized_name_to_node[output.as_tensor.name]
+                    return this.serialized_name_to_node[output.as_tensor.name];
+                } else if (output.type === 'as_sym_int') {
+                    return this.serialized_name_to_node[output.as_sym_int.as_name];
+                } else if (output.type === 'as_sym_bool') {
+                    return this.serialized_name_to_node[output.as_sym_bool.as_name];
+                } else if (output.type === 'as_int') {
+                    return this.serialized_name_to_node[output.as_int.as_name];
+                } else if (output.type === 'as_none') {
+                    return this.serialized_name_to_node[output.as_sym_bool.as_name];
                 }
-                else if (output.type === 'as_sym_int') {
-                    return self.serialized_name_to_node[output.as_sym_int.as_name]
-                }
-                elif output.type === 'as_sym_bool':
-                    return self.serialized_name_to_node[output.as_sym_bool.as_name]
-                else:
-                    raise SerializeError(f'Unable to deserialize output node {output}')
-                */
+                throw new python.Error(`Unsupported graph node ${output.type}.`);
             }
             deserialize_graph(serialized_graph) {
-                if (serialized_graph.constants) {
-                    this.constants = new Map(Object.entries(serialized_graph.constants).map(([k, v]) => [k, torch.load(v)]));
-                }
                 for (const [name, tensor_value] of Object.entries(serialized_graph.tensor_values)) {
                     const meta_val = this.deserialize_tensor_meta(tensor_value.meta || tensor_value, this.fake_tensor_mode);
                     this.serialized_name_to_meta.set(name, meta_val);
@@ -6355,9 +6687,20 @@ python.Execution = class {
                 for (const [name, sym_bool_value] in Object.entries(serialized_graph.sym_bool_values)) {
                     this.serialized_name_to_meta.set(name, this.deserialize_sym_bool(sym_bool_value));
                 }
-                for (const input of serialized_graph.inputs) {
-                    const placeholder_node = this.graph.placeholder(input.as_tensor.name);
-                    this.sync_fx_node(input.as_tensor.name, placeholder_node);
+                for (let i = 0; i < serialized_graph.inputs.length; i++) {
+                    const input = serialized_graph.inputs[i];
+                    if (input.type === 'as_tensor' || input.type === 'as_sym_int' || input.type === 'as_custom_obj') {
+                        const node_name = input.value.name;
+                        const placeholder_node = this.graph.placeholder(node_name);
+                        placeholder_node.name = node_name;
+                        this.sync_fx_node(node_name, placeholder_node);
+                    } else if (input.type === 'as_int' || input.type === 'as_float' || input.type === 'as_bool' || input.type === 'as_none' || input.type === 'as_string') {
+                        const node_name = this.signature.input_specs[i].arg.name;
+                        const placeholder_node = this.graph.placeholder(node_name);
+                        placeholder_node.meta.set('val', this.deserialize_input(input));
+                    } else {
+                        throw new python.Error(`Invalid input ${input.type}.`);
+                    }
                 }
                 for (const serialized_node of serialized_graph.nodes) {
                     const target = this.deserialize_operator(serialized_node.target);
@@ -6397,7 +6740,7 @@ python.Execution = class {
                     /*
                     const name = serialized_node.outputs[0].value.as_name;
                     const args = self.deserialize_sym_op_inputs(serialized_node.inputs);
-                    fx_node = self.graph.create_node("call_function", target, args, {}, name);
+                    fx_node = self.graph.create_node('call_function', target, args, {}, name);
                     self.deserialize_sym_op_outputs(serialized_node, fx_node);
                     */
                 } else if (builtins.isinstance(target, torch._ops.HigherOrderOperator)) {
@@ -6424,18 +6767,104 @@ python.Execution = class {
                     Object.assign(fx_node.meta, this.deserialize_metadata(serialized_node.metadata));
                 }
             }
+            deserialize_input_spec(i) {
+                if (i.type === 'user_input') {
+                    return new torch.export.graph_signature.InputSpec(
+                        torch.export.graph_signature.InputKind.USER_INPUT,
+                        this.deserialize_argument_spec(i.user_input.arg),
+                        null);
+                } else if (i.type === 'parameter') {
+                    return new torch.export.graph_signature.InputSpec(
+                        torch.export.graph_signature.InputKind.PARAMETER,
+                        new torch.export.graph_signature.TensorArgument(i.parameter.arg.name),
+                        i.parameter.parameter_name,
+                    );
+                } else if (i.type === 'buffer') {
+                    return new torch.export.graph_signature.InputSpec(
+                        torch.export.graph_signature.InputKind.BUFFER,
+                        new torch.export.graph_signature.TensorArgument(i.buffer.arg.name),
+                        i.buffer.buffer_name,
+                        i.buffer.persistent,
+                    );
+                } else if (i.type === 'tensor_constant') {
+                    return new torch.export.graph_signature.InputSpec(
+                        torch.export.graph_signature.InputKind.CONSTANT_TENSOR,
+                        new torch.export.graph_signature.TensorArgument(i.tensor_constant.arg.name),
+                        i.tensor_constant.tensor_constant_name);
+                } else if (i.type === 'custom_obj') {
+                    return new torch.export.graph_signature.InputSpec(
+                        torch.export.graph_signature.InputKind.CUSTOM_OBJ,
+                        new torch.export.graph_signature.CustomObjArgument(i.custom_obj.arg.name, i.custom_obj.arg.class_fqn),
+                        i.custom_obj.custom_obj_name);
+                } else if (i.type === 'token') {
+                    return new torch.export.graph_signature.InputSpec(
+                        torch.export.graph_signature.InputKind.TOKEN,
+                        new torch.export.graph_signature.TokenArgument(i.token.arg.name),
+                        null);
+                } else if (i.type === 'constant_input') {
+                    return new torch.export.graph_signature.InputSpec(
+                        torch.export.graph_signature.InputKind.USER_INPUT,
+                        new torch.export.graph_signature.ConstantArgument(i.constant_input.name, this.deserialize_constant_input(i.constant_input.value)),
+                        null);
+                }
+                throw new python.Error(`Unknown input spec ${i}`);
+            }
+            deserialize_output_spec(o) {
+                if (o.type === 'user_output') {
+                    return new torch.export.graph_signature.OutputSpec(
+                        torch.export.graph_signature.OutputKind.USER_OUTPUT,
+                        this.deserialize_argument_spec(o.user_output.arg),
+                        null);
+                } else if (o.type === 'loss_output') {
+                    return new torch.export.graph_signature.OutputSpec(
+                        torch.export.graph_signature.OutputKind.LOSS_OUTPUT,
+                        new torch.export.graph_signature.TensorArgument(o.loss_output.arg.name),
+                        null);
+                } else if (o.type === 'buffer_mutation') {
+                    return new torch.export.graph_signature.OutputSpec(
+                        torch.export.graph_signature.OutputKind.BUFFER_MUTATION,
+                        new torch.export.graph_signature.TensorArgument(o.buffer_mutation.arg.name),
+                        o.buffer_mutation.buffer_name);
+                } else if (o.type === 'gradient_to_parameter') {
+                    return new torch.export.graph_signature.OutputSpec(
+                        torch.export.graph_signature.OutputKind.GRADIENT_TO_PARAMETER,
+                        new torch.export.graph_signature.TensorArgument(o.gradient_to_parameter.arg.name),
+                        o.gradient_to_parameter.parameter_name);
+                } else if (o.type === 'gradient_to_user_input') {
+                    return new torch.export.graph_signature.OutputSpec(
+                        torch.export.graph_signature.OutputKind.GRADIENT_TO_USER_INPUT,
+                        new torch.export.graph_signature.TensorArgument(o.gradient_to_user_input.arg.name),
+                        o.gradient_to_user_input.user_input_name);
+                } else if (o.type === 'user_input_mutation') {
+                    return new torch.export.graph_signature.OutputSpec(
+                        torch.export.graph_signature.OutputKind.USER_INPUT_MUTATION,
+                        new torch.export.graph_signature.TensorArgument(o.user_input_mutation.arg.name),
+                        o.user_input_mutation.user_input_name);
+                } else if (o.type === 'token') {
+                    return new torch.export.graph_signature.OutputSpec(
+                        torch.export.graph_signature.OutputKind.TOKEN,
+                        new torch.export.graph_signature.TokenArgument(o.token.arg.name),
+                        null);
+                }
+                throw new python.Error(`Unknown output spec ${o}.`);
+            }
+            deserialize_signature(sig) {
+                return new torch.export.graph_signature.ExportGraphSignature(
+                    sig.input_specs.map((i) => this.deserialize_input_spec(i)),
+                    sig.output_specs.map((o) => this.deserialize_output_spec(o)));
+            }
             deserialize(serialized_graph_module, serialized_state_dict, constants, example_inputs, symbol_name_to_range) {
                 this.shape_env = new torch.fx.experimental.symbolic_shapes.ShapeEnv(/* assume_static_by_default = True */);
                 /*
                 this.fake_tensor_mode = FakeTensorMode(
                     allow_fallback_kernels=False,
                     allow_non_fake_inputs=True,
-                    shape_env=self.shape_env,
+                    shape_env=this.shape_env,
                 )
                 */
                 this.symbol_name_to_symbol = new Map();
                 this.constants = torch._export.serde.serialize.deserialize_torch_artifact(constants);
-                this.signature = null; // self.deserialize_signature(serialized_graph_module.signature)
+                this.signature = this.deserialize_signature(serialized_graph_module.signature);
                 this.symbol_name_to_range = symbol_name_to_range || new Map();
                 /*
                     if symbol_name_to_range:
@@ -6443,14 +6872,14 @@ python.Execution = class {
                         lower = int(vr.lower)
                         if vr.upper >= 2:  # max is >= 2, not sym bool range
                             lower = max(2, lower)
-                        self.symbol_name_to_range[k] = symbolic_shapes.ValueRanges(_int_to_sympy_int(lower), vr.upper)
+                        this.symbol_name_to_range[k] = symbolic_shapes.ValueRanges(_int_to_sympy_int(lower), vr.upper)
                     */
                 this.example_inputs = null;
                 if (example_inputs && example_inputs.length > 0) {
                     torch._export.serde.serialize.deserialize_torch_artifact(example_inputs);
                 }
                 this.deserialize_graph(serialized_graph_module.graph);
-                const module_call_graph = null; // self.deserialize_module_call_graph(serialized_graph_module.module_call_graph)
+                const module_call_graph = null; // this.deserialize_module_call_graph(serialized_graph_module.module_call_graph)
                 return {
                     graph_module: torch._export.exported_program._create_graph_module_for_export(this.module, this.graph),
                     signature: this.signature,
@@ -6476,7 +6905,7 @@ python.Execution = class {
                 const actual_args = null;
                 /*
                 actual_args = {
-                    input.name: self.deserialize_input(input.arg) for input in serialized_node.inputs
+                    input.name: this.deserialize_input(input.arg) for input in serialized_node.inputs
                 }
                 */
                 const args = [];
@@ -6500,7 +6929,7 @@ python.Execution = class {
                     # Convert serialized object to torch equivalent
                     return None
                 elif typ_ === 'as_tensor':
-                    return self.serialized_name_to_node[inp.as_tensor.name]
+                    return this.serialized_name_to_node[inp.as_tensor.name]
                 elif typ_ === 'as_scalar_type':
                     return _SERIALIZE_TO_TORCH_DTYPE[inp.as_scalar_type]
                 elif typ_ === 'as_memory_format':
@@ -6509,11 +6938,11 @@ python.Execution = class {
                     return _SERIALIZE_TO_TORCH_LAYOUT[inp.as_layout]
                 elif typ_ === 'as_graph':
                     assert isinstance(value, GraphArgument)
-                    with self.save_graph_module():
-                        self.deserialize_graph(value.graph)
-                        submodule = torch._export.exported_program._create_graph_module_for_export(self.module, self.graph)
-                    self.module.register_module(value.name, submodule)
-                    return self.graph.create_node(
+                    with this.save_graph_module():
+                        this.deserialize_graph(value.graph)
+                        submodule = torch._export.exported_program._create_graph_module_for_export(this.module, this.graph)
+                    this.module.register_module(value.name, submodule)
+                    return this.graph.create_node(
                         'get_attr',
                         value.name,
                         name=value.name,
@@ -6529,35 +6958,35 @@ python.Execution = class {
                 elif typ_ === 'as_string':
                     return inp.as_string
                 elif typ_ === 'as_sym_int':
-                    return self.deserialize_sym_argument(inp.as_sym_int)
+                    return this.deserialize_sym_argument(inp.as_sym_int)
                 elif typ_ === 'as_sym_bool':
-                    return self.deserialize_sym_argument(inp.as_sym_bool)
+                    return this.deserialize_sym_argument(inp.as_sym_bool)
                 elif isinstance(value, list):
                     if len(value) === 0:
                         return []
                     elif isinstance(value[0], TensorArgument):
                         result = []
                         for arg in value:
-                            result.append(self.serialized_name_to_node[arg.name])
+                            result.append(this.serialized_name_to_node[arg.name])
                         return result
                     elif isinstance(value[0], (int, float, bool)):
                         # convert from serialized.python.types.List to python list
                         return list(value)
                     elif isinstance(value[0], (SymIntArgument, SymBoolArgument)):
-                        return [self.deserialize_sym_argument(arg) for arg in value]
+                        return [this.deserialize_sym_argument(arg) for arg in value]
                     elif isinstance(value[0], OptionalTensorArgument):
                         def deserialize_optional_tensor_args(a):
                             if a.type === 'as_none':
                                 return None
                             elif a.type === 'as_tensor':
-                                return self.serialized_name_to_node[a.value]
+                                return this.serialized_name_to_node[a.value]
                             else:
                                 raise SerializeError(f'Unhandled argument {inp}')
                         return list(map(deserialize_optional_tensor_args, value))
                     else:
                         raise SerializeError(f'Unhandled argument {inp}')
                 elif typ_ === 'as_custom_obj':
-                    return self.constants[inp.as_custom_obj.name]
+                    return this.constants[inp.as_custom_obj.name]
                 else {
                     raise SerializeError(`Unhandled argument ${inp}.`);
                 }
@@ -6574,7 +7003,7 @@ python.Execution = class {
                 } else if (serialized_node.outputs.length === 1 &&
                      (serialized_node.outputs[0].value instanceof torch._export.serde.schema.SymIntArgument ||
                       serialized_node.outputs[0].value instanceof torch._export.serde.schema.SymBoolArgument)) {
-                    self.sync_fx_node(serialized_node.outputs[0].value.as_name, fx_node);
+                    this.sync_fx_node(serialized_node.outputs[0].value.as_name, fx_node);
                     return;
                 }
                 this.deserialize_multiple_outputs(serialized_node, fx_node);
@@ -6628,6 +7057,16 @@ python.Execution = class {
                 }
                 return ret;
             }
+            deserialize_argument_spec(x) {
+                if (x.type === "as_tensor") {
+                    return new torch.export.graph_signature.TensorArgument(x.as_tensor.name);
+                } else if (x.type === "as_sym_int") {
+                    return new torch.export.graph_signature.SymIntArgument(x.as_sym_int.as_name);
+                } else if (x.type === "as_custom_obj") {
+                    return new torch.export.graph_signature.ConstantArgument(x.as_custom_obj.name, this.deserialize_input(x));
+                }
+                return new torch.export.graph_signature.ConstantArgument('', this.deserialize_input(x));
+            }
             deserialize_tensor_meta(tensor_meta) {
                 const sizes = tensor_meta.sizes.map((val) => this.deserialize_sym_int(val));
                 const strides = tensor_meta.strides.map((val) => this.deserialize_sym_int(val));
@@ -6643,12 +7082,12 @@ python.Execution = class {
                     } else {
                         sym = {};
                         /*
-                        sym = sympy.sympify(val.expr_str, locals=self.symbol_name_to_symbol)
+                        sym = sympy.sympify(val.expr_str, locals=this.symbol_name_to_symbol)
                         if isinstance(sym, sympy.Symbol) {
-                            self.symbol_name_to_symbol[val.expr_str] = sym
-                            if vr := self.symbol_name_to_range.get(val.expr_str):
+                            this.symbol_name_to_symbol[val.expr_str] = sym
+                            if vr := this.symbol_name_to_range.get(val.expr_str):
                                 symbolic_shapes._constrain_symbol_range(
-                                    self.shape_env,
+                                    this.shape_env,
                                     sym,
                                     compiler_min=vr.lower,  # type: ignore[arg-type]
                                     compiler_max=vr.upper,  # type: ignore[arg-type]

@@ -3636,6 +3636,7 @@
   },
   {
     "name": "aten::convolution",
+    "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "weight", "type": "Tensor" },
@@ -14024,6 +14025,7 @@
   },
   {
     "name": "aten::transpose.Dimname",
+    "category": "Transform",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim0", "type": "Dimname" },
@@ -14035,6 +14037,7 @@
   },
   {
     "name": "aten::transpose.int",
+    "category": "Transform",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim0", "type": "int64" },
@@ -14046,6 +14049,7 @@
   },
   {
     "name": "aten::transpose_",
+    "category": "Transform",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim0", "type": "int64" },
