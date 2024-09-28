@@ -5585,7 +5585,7 @@ view.Context = class {
                     if (typeof args[0] === 'number') {
                         const length = Math.min(this._stream.length, args[0]);
                         const buffer = this._stream.peek(length);
-                        text.Reader.open(buffer);
+                        return text.Reader.open(buffer);
                     }
                     return text.Reader.open(this._stream);
                 }
@@ -5692,8 +5692,7 @@ view.EntryContext = class {
         if (encoding) {
             const decoder = new TextDecoder(encoding);
             const buffer = stream.peek();
-            const value = decoder.decode(buffer);
-            return value;
+            return decoder.decode(buffer);
         }
         return stream;
     }
