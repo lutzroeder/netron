@@ -419,6 +419,14 @@ pytorch.Node = class {
         } else if (pytorch.Utility.isInstance(obj, 'torch.fx.node.Node')) {
             if (obj.op === 'call_function') {
                 this.type = createType(metadata, obj.target.name);
+                for (const arg of obj.args) {
+                    if (pytorch.Utility.isInstance(arg, 'torch.fx.node.Node')) {
+                        const values = [];
+                        this.inputs.push(new pytorch.Argument('', values));
+                    } else {
+                        this.inputs.push(new pytorch.Argument('', arg, 'attribute'));
+                    }
+                }
             } else if (obj.op === 'placeholder') {
                 this.type = createType(metadata, 'placeholder');
             } else {
@@ -1364,34 +1372,6 @@ pytorch.Execution = class extends python.Execution {
                 return this.set(name, storage);
             }
         });
-        this.registerType('torch.Type', class {});
-        this.registerType('torch.ClassType', class extends torch.Type {
-            constructor(qualified_name, cu, is_module) {
-                super();
-                this._qualified_name = qualified_name;
-                this._is_module = is_module;
-            }
-            qualified_name() {
-                return this._qualified_name;
-            }
-            name() {
-                return this._qualified_name.split('.').pop();
-            }
-            is_module() {
-                return this._is_module;
-            }
-            addMethod(/* name, fn */) {
-            }
-            addAttribute(/* name */) {
-            }
-            hasAttribute(/* name */) {
-            }
-            hasConstant(/* name */) {
-            }
-            methods() {
-            }
-        });
-        this.registerType('torch.TupleType', class extends torch.Type {});
         this.registerType('torch.ScriptFunction', class {
             constructor(name, graph /*, function_creator */) {
                 this._name = name;
@@ -1685,7 +1665,9 @@ pytorch.Execution = class extends python.Execution {
         for (const [name, type] of metadata._types) {
             if (name.indexOf('::') !== -1) {
                 const [name, overload_name] = type.name.split('.');
-                const schema = new torch.FunctionSchema(name, overload_name || '', [], []);
+                const args = type.inputs.map((arg) => new torch.Argument(arg.name));
+                const returns = type.outputs.map((arg) => new torch.Argument(arg.name));
+                const schema = new torch.FunctionSchema(name, overload_name || '', args, returns);
                 const op = new torch._C.Operator(schema);
                 registry.registerOperator(op);
                 modules.add(type.name.split('::')[0]);
