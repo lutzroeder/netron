@@ -265,6 +265,8 @@ class Metadata: # pylint: disable=too-few-public-methods,missing-class-docstring
                 self._argument(argument, getattr(_, 'type'))
                 if hasattr(_, 'default'):
                     argument['default'] = _.default
+                if hasattr(_, 'kwarg_only') and _.kwarg_only is True:
+                    argument['kwarg_only'] = True
             for i, _ in enumerate(returns):
                 argument = outputs[i]
                 if hasattr(_, 'name'):

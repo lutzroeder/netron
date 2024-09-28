@@ -189,7 +189,7 @@ pytorch.Graph = class {
             const exported_program = module;
             const graph = exported_program.graph;
             for (const node of graph.nodes) {
-                this.nodes.push(new pytorch.Node(metadata, node.name, null, node));
+                this.nodes.push(new pytorch.Node(metadata, node.name, null, node, null, values));
             }
         } else if (pytorch.Utility.isTensor(module)) {
             const node = new pytorch.Node(metadata, null, type, { value: module });
@@ -419,14 +419,25 @@ pytorch.Node = class {
         } else if (pytorch.Utility.isInstance(obj, 'torch.fx.node.Node')) {
             if (obj.op === 'call_function') {
                 this.type = createType(metadata, obj.target.name);
-                for (const arg of obj.args) {
+                const schema = obj.target._schema;
+                const args = obj.args;
+                for (let i = 0; i < args.length; i++) {
+                    const arg = args[i];
+                    const name = schema && Array.isArray(schema.arguments) ? schema.arguments[i].name : '';
                     if (pytorch.Utility.isInstance(arg, 'torch.fx.node.Node')) {
-                        const values = [];
-                        this.inputs.push(new pytorch.Argument('', values));
+                        this.inputs.push(new pytorch.Argument(name, [values.map(arg.name)]));
                     } else {
-                        this.inputs.push(new pytorch.Argument('', arg, 'attribute'));
+                        this.inputs.push(new pytorch.Argument(name, arg, 'attribute'));
                     }
                 }
+                for (const [name, arg] of obj.kwargs) {
+                    if (pytorch.Utility.isInstance(arg, 'torch.fx.node.Node')) {
+                        this.inputs.push(new pytorch.Argument(name, [values.map(arg.name)]));
+                    } else {
+                        this.inputs.push(new pytorch.Argument(name, arg, 'attribute'));
+                    }
+                }
+                this.outputs.push(new pytorch.Argument('output', [values.map(obj.name)]));
             } else if (obj.op === 'placeholder') {
                 this.type = createType(metadata, 'placeholder');
             } else {
@@ -1665,8 +1676,8 @@ pytorch.Execution = class extends python.Execution {
         for (const [name, type] of metadata._types) {
             if (name.indexOf('::') !== -1) {
                 const [name, overload_name] = type.name.split('.');
-                const args = type.inputs.map((arg) => new torch.Argument(arg.name));
-                const returns = type.outputs.map((arg) => new torch.Argument(arg.name));
+                const args = type.inputs.map((arg) => new torch.Argument(arg.name, null, null, null, arg.default, arg.kwarg_only || false, arg.alias_info));
+                const returns = type.outputs.map((arg) => new torch.Argument(arg.name, null, null, null, arg.default, arg.kwarg_only || false, arg.alias_info));
                 const schema = new torch.FunctionSchema(name, overload_name || '', args, returns);
                 const op = new torch._C.Operator(schema);
                 registry.registerOperator(op);
