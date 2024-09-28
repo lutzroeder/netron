@@ -5771,7 +5771,7 @@ view.ModelFactoryService = class {
         this.register('./nnef', ['.nnef', '.dat']);
         this.register('./onednn', ['.json']);
         this.register('./espresso', ['.espresso.net', '.espresso.shape', '.espresso.weights'], ['.mlmodelc']);
-        this.register('./mlir', ['.mlir', '.mlir.txt']);
+        this.register('./mlir', ['.mlir', '.mlir.txt', '.mlirbc']);
         this.register('./sentencepiece', ['.model']);
         this.register('./hailo', ['.hn', '.har', '.metadata.json']);
         this.register('./nnc', ['.nnc','.tflite']);

@@ -7,11 +7,20 @@ const mlir = {};
 mlir.ModelFactory = class {
 
     match(context) {
+        const stream = context.stream;
+        if (stream && stream.length > 4) {
+            const buffer = stream.peek(4);
+            const signature = String.fromCharCode.apply(null, buffer);
+            if (signature === 'ML\xEFR') {
+                context.type = 'mlir.binary';
+                return;
+            }
+        }
         try {
             const reader = context.read('text', 0x10000);
             for (let line = reader.read('\n'); line !== undefined; line = reader.read('\n')) {
                 if (/module\s+(\w+\s+)?{/.test(line) || /tensor<\w+>/.test(line)) {
-                    context.type = 'mlir';
+                    context.type = 'mlir.text';
                     return;
                 }
             }
@@ -21,10 +30,22 @@ mlir.ModelFactory = class {
     }
 
     async open(context) {
-        const decoder = context.read('text.decoder');
-        const parser = new mlir.Parser(decoder);
-        const obj = parser.read();
-        return new mlir.Model(obj);
+        switch (context.type) {
+            case 'mlir.text': {
+                const decoder = context.read('text.decoder');
+                const parser = new mlir.Parser(decoder);
+                const obj = parser.read();
+                return new mlir.Model(obj);
+            }
+            case 'mlir.binary': {
+                const reader = new mlir.BytecodeReader(context);
+                reader.read();
+                throw new mlir.Error('Invalid content. File contains MLIR bytecode data.');
+            }
+            default: {
+                throw new mlir.Error(`Unsupported MLIR format '${context.type}'.`);
+            }
+        }
     }
 };
 
@@ -1165,6 +1186,174 @@ mlir.Utility = class {
             case 'i1': return 'boolean';
             default: throw new mlir.Error(`Unknown data type '${value}'.`);
         }
+    }
+};
+
+mlir.BytecodeReader = class {
+
+    constructor(context) {
+        this._reader = new mlir.BinaryReader(context);
+        this._decoder = new TextDecoder('utf-8');
+    }
+
+    read() {
+        const reader = this._reader;
+        reader.read(4); // signature 'ML\xEFR'
+        this.version = reader.varint().toNumber();
+        this.producer = reader.string();
+        this.sections = [];
+        while (reader.position < reader.length) {
+            const code = reader.byte();
+            const identifier = code & 0x7F;
+            const length = reader.varint().toNumber();
+            if (code >> 7) {
+                const alignment = reader.varint();
+                reader.skip(alignment);
+            }
+            const next = reader.position + length;
+            switch (identifier) {
+                case 0: { // string
+                    const lengths = new Array(reader.varint().toNumber());
+                    for (let i = 0; i < lengths.length; i++) {
+                        lengths[i] = reader.varint().toNumber();
+                    }
+                    this.strings = new Array(lengths.length);
+                    for (let i = 0; i < this.strings.length; i++) {
+                        const size = lengths[lengths.length - i - 1];
+                        const buffer = reader.read(size);
+                        this.strings[i] = this._decoder.decode(buffer);
+                    }
+                    break;
+                }
+                case 1: { // dialect
+                    const numDialects = reader.varint().toNumber();
+                    this.dialectNames = new Array(numDialects);
+                    this.opNames = new Array(numDialects);
+                    for (let i = 0; i < this.dialectNames.length; i++) {
+                        const group = {};
+                        const nameAndIsVersioned = reader.varint();
+                        group.name = (nameAndIsVersioned >> 1n).toNumber();
+                        if (nameAndIsVersioned & 1n) {
+                            const size = reader.varint().toNumber();
+                            group.version = reader.read(size);
+                        }
+                        this.dialectNames[i] = group;
+                    }
+                    for (let i = 0; i < this.opNames.length; i++) {
+                        const dialect_ops_group = {};
+                        dialect_ops_group.dialect = reader.varint();
+                        dialect_ops_group.opNames = new Array(reader.varint().toNumber());
+                        for (let j = 0; j < dialect_ops_group.opNames.length; j++) {
+                            const op_name_group = {};
+                            const nameAndIsRegistered = reader.varint();
+                            op_name_group.isRegistered = (nameAndIsRegistered & 1n) === 1n;
+                            op_name_group.name = (nameAndIsRegistered >> 1n).toNumber();
+                            dialect_ops_group.opNames[j] = op_name_group;
+                        }
+                        this.opNames[i] = dialect_ops_group;
+                    }
+                    break;
+                }
+                case 2: // attrType
+                case 3: { // attrTypeOffset
+                    /*
+                    const numAttrs = reader.varint().toNumber();
+                    const numTypes = reader.varint().toNumber();
+                    for (let i = 0; i < (numAttrs + numTypes); i++) {
+
+                    }
+                    break;
+                    */
+                    this.attrType = reader.stream(length);
+                    break;
+                }
+                case 4: { // IR
+                    reader.skip(length);
+                    break;
+                }
+                case 5: { // resource
+                    this.resource = reader.stream(length);
+                    break;
+                }
+                case 6: { // resourceOffset
+                    reader.skip(length);
+                    break;
+                }
+                case 7: { // dialectVersions
+                    reader.skip(length);
+                    break;
+                }
+                case 8: { // properties
+                    reader.skip(length);
+                    break;
+                }
+                default: {
+                    throw new mlir.Error(`Unsupported section identifier '${identifier}'.`);
+                }
+            }
+            if (reader.position !== next) {
+                throw new mlir.Error('Invalid section length.');
+            }
+        }
+    }
+};
+
+mlir.BinaryReader = class {
+
+    constructor(context) {
+        this._reader = context.read('binary');
+    }
+
+    get length() {
+        return this._reader.length;
+    }
+
+    get position() {
+        return this._reader.position;
+    }
+
+    skip(length) {
+        this._reader.skip(length);
+    }
+
+    read(length) {
+        return this._reader.read(length);
+    }
+
+    stream(length) {
+        return this._reader.stream(length);
+    }
+
+    byte() {
+        return this._reader.byte();
+    }
+
+    varint() {
+        let value = 0n;
+        let shift = 0n;
+        for (let i = 0; i < 10 && this._reader.position < this._reader.length; i++) {
+            const byte = this._reader.byte();
+            value |= BigInt(byte >> 1) << shift;
+            if ((byte & 1) === 1) {
+                return value;
+            }
+            shift += 7n;
+        }
+        throw new mlir.Error('Invalid varint value.');
+    }
+
+    string() {
+        const reader = this._reader;
+        let result = '';
+        let value = -1;
+        for (;;) {
+            value = reader.byte();
+            if (value === 0x00) {
+                break;
+            }
+            result += String.fromCharCode(value);
+        }
+        return result;
     }
 };
 

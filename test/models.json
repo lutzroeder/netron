@@ -3085,6 +3085,14 @@
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
+    "type":     "mlir",
+    "target":   "versioned-op-2.0.mlirbc",
+    "source":   "https://github.com/user-attachments/files/17174958/versioned-op-2.0.mlirbc.zip[versioned-op-2.0.mlirbc]",
+    "format":   "MLIR",
+    "error":    "Invalid content. File contains MLIR bytecode data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
     "type":     "mnn",
     "target":   "blazeface.mnn",
     "source":   "https://raw.githubusercontent.com/xindongzhang/MNN-APPLICATIONS/master/applications/blazeface/tensorflow/jni/blazeface.mnn",
