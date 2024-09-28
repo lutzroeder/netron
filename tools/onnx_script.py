@@ -68,7 +68,8 @@ class OnnxSchema: # pylint: disable=too-few-public-methods
 
     def _update_attributes(self, value, schema):
         target = value['attributes'] = []
-        for _ in collections.OrderedDict(schema.attributes.items()).values():
+        attributes = sorted(schema.attributes.items())
+        for _ in collections.OrderedDict(attributes).values():
             value = {}
             value['name'] = _.name
             attribute_type = self._get_attr_type(_.type, _.name, schema.name, schema.domain)
@@ -192,7 +193,8 @@ class OnnxRuntimeSchema: # pylint: disable=too-few-public-methods
 
     def _update_attributes(self, value, schema):
         target = value['attributes'] = []
-        for _ in collections.OrderedDict(schema.attributes.items()).values():
+        attributes = sorted(schema.attributes.items())
+        for _ in collections.OrderedDict(attributes).values():
             value = {}
             value['name'] = _.name
             attribute_type = self._get_attr_type(_.type)
