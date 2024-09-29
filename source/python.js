@@ -4971,6 +4971,9 @@ python.Execution = class {
             _insert(n) {
                 this._root.prepend(n);
             }
+            output(result, type_expr) {
+                return this.create_node('output', 'output', new builtins.tuple(result), null, type_expr);
+            }
             _target_to_str(target) {
                 if (typeof target === 'string') {
                     if (target.startsWith('__') && target.endswith('__')) {
@@ -6282,6 +6285,47 @@ python.Execution = class {
                 this.input_specs = input_specs;
                 this.output_specs = output_specs;
             }
+            user_inputs() {
+                const user_inputs = [];
+                for (const s of this.input_specs) {
+                    if (s.kind !== torch.export.graph_signature.InputKind.USER_INPUT) {
+                        continue;
+                    }
+                    if (s.arg instanceof torch.export.graph_signature.TensorArgument ||
+                        s.arg instanceof torch.export.graph_signature.SymIntArgument ||
+                        s.arg instanceof torch.export.graph_signature.CustomObjArgument) {
+                        user_inputs.push(s.arg.name);
+                    } else if (s.arg instanceof torch.export.graph_signature.ConstantArgument) {
+                        user_inputs.push(s.arg.value);
+                    } else {
+                        throw new python.Error(`Unsupported user input '${s.arg}'.`);
+                    }
+                }
+                return user_inputs;
+            }
+            user_outputs() {
+                const user_outputs = [];
+                for (const s of this.output_specs) {
+                    if (s.kind !== torch.export.graph_signature.OutputKind.USER_OUTPUT) {
+                        continue;
+                    }
+                    if (s.arg instanceof torch.export.graph_signature.TensorArgument ||
+                        s.arg instanceof torch.export.graph_signature.SymIntArgument ||
+                        s.arg instanceof torch.export.graph_signature.CustomObjArgument) {
+                        user_outputs.push(s.arg.name);
+                    } else if (s.arg instanceof torch.export.graph_signature.ConstantArgument) {
+                        user_outputs.push(s.arg.value);
+                    } else {
+                        throw new python.Error(`Unsupported user output '${s.arg}'.`);
+                    }
+                }
+                return user_outputs;
+            }
+            inputs_to_parameters() {
+                return new Map(this.input_specs
+                    .filter((s) => s.kind === torch.export.graph_signature.InputKind.PARAMETER && s.arg instanceof torch.export.graph_signature.TensorArgument && typeof s.target === 'string')
+                    .map((s) => [s.arg.name, s.target]));
+            }
         });
         torch.export.graph_signature.InputKind = {
             USER_INPUT: 0,
@@ -6606,6 +6650,11 @@ python.Execution = class {
                         this.input_specs.push(new torch._export.serde.schema.InputSpec({ user_input: { arg: { as_string: user_input } } }));
                     }
                 }
+                if (obj.inputs_to_parameters) {
+                    for (const [input, parameter_name] of Object.entries(obj.inputs_to_parameters)) {
+                        this.input_specs.push(new torch._export.serde.schema.InputSpec({ parameter: { arg: { name: input }, parameter_name } }));
+                    }
+                }
                 this.output_specs = [];
                 if (Array.isArray(obj.output_specs)) {
                     this.output_specs = obj.output_specs.map((output_spec) => new torch._export.serde.schema.OutputSpec(output_spec));
@@ -6619,8 +6668,8 @@ python.Execution = class {
         });
         this.registerType('torch._export.serde.schema.InputToParameterSpec', class {
             constructor(obj) {
-                Object.assign(this, { ...obj });
-                this.arg = new torch._export.serde.schema.TensorArgument(this.arg);
+                this.arg = new torch._export.serde.schema.TensorArgument(obj.arg);
+                this.parameter_name = obj.parameter_name;
             }
         });
         this.registerType('torch._export.serde.schema.InputToBufferSpec', class {
@@ -6780,15 +6829,15 @@ python.Execution = class {
             }
             deserialize_graph_output(output) {
                 if (output.type === 'as_tensor') {
-                    return this.serialized_name_to_node[output.as_tensor.name];
+                    return this.serialized_name_to_node.get(output.as_tensor.name);
                 } else if (output.type === 'as_sym_int') {
-                    return this.serialized_name_to_node[output.as_sym_int.as_name];
+                    return this.serialized_name_to_node.get(output.as_sym_int.as_name);
                 } else if (output.type === 'as_sym_bool') {
-                    return this.serialized_name_to_node[output.as_sym_bool.as_name];
+                    return this.serialized_name_to_node.get(output.as_sym_bool.as_name);
                 } else if (output.type === 'as_int') {
-                    return this.serialized_name_to_node[output.as_int.as_name];
+                    return this.serialized_name_to_node.get(output.as_int.as_name);
                 } else if (output.type === 'as_none') {
-                    return this.serialized_name_to_node[output.as_sym_bool.as_name];
+                    return this.serialized_name_to_node.get(output.as_sym_bool.as_name);
                 }
                 throw new python.Error(`Unsupported graph node ${output.type}.`);
             }
@@ -6825,10 +6874,25 @@ python.Execution = class {
                     const target = this.deserialize_operator(serialized_node.target);
                     this.deserialize_node(serialized_node, target);
                 }
-                const outputs = [];
+                let outputs = [];
                 for (const output of serialized_graph.outputs) {
                     outputs.push(this.deserialize_graph_output(output));
                 }
+                if (serialized_graph.is_single_tensor_return) {
+                    [outputs] = outputs;
+                } else {
+                    outputs = new builtins.tuple(outputs);
+                }
+                const output_node = this.graph.output(outputs);
+                if (serialized_graph.is_single_tensor_return) {
+                    output_node.meta.set("val", output_node.args[0].meta.get('val'));
+                } else {
+                    /* output_node.meta["val"] = tuple(
+                        arg.meta["val"] if isinstance(arg, torch.fx.Node) else arg
+                        for arg in output_node.args[0]
+                    ) */
+                }
+                return self.graph;
             }
             deserialize_operator(serialized_target) {
                 let module = null;
@@ -7077,7 +7141,7 @@ python.Execution = class {
                     } else if (typ_ === 'as_tensors') {
                         const result = [];
                         for (const arg of value) {
-                            result.append(this.serialized_name_to_node.get(arg.name));
+                            result.push(this.serialized_name_to_node.get(arg.name));
                         }
                         return result;
                     } else if (typ_ === 'as_ints' || typ_ === 'as_floats' || typ_ === 'as_bools' || typ_ ===  'as_strings') {

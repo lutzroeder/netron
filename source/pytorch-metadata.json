@@ -986,9 +986,9 @@
       { "name": "eps", "type": "float32" }
     ],
     "outputs": [
-      { "type": "Tensor" },
-      { "type": "Tensor" },
-      { "type": "Tensor" }
+      { "name": "output", "type": "Tensor" },
+      { "name": "save_mean", "type": "Tensor" },
+      { "name": "save_rstd", "type": "Tensor" }
     ]
   },
   {
@@ -1004,9 +1004,9 @@
       { "name": "eps", "type": "float32" }
     ],
     "outputs": [
-      { "type": "Tensor" },
-      { "type": "Tensor" },
-      { "type": "Tensor" }
+      { "name": "output", "type": "Tensor" },
+      { "name": "save_mean", "type": "Tensor" },
+      { "name": "save_rstd", "type": "Tensor" }
     ]
   },
   {

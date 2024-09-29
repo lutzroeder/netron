@@ -5329,6 +5329,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "inception_v3.pt2",
+    "source":   "https://github.com/user-attachments/files/17179803/inception_v3.pt2.zip[inception_v3.pt2]",
+    "format":   "PyTorch Export v5.3",
+    "link":     "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":     "pytorch",
     "target":   "inception_v3.pkl.pth.zip",
     "source":   "https://github.com/lutzroeder/netron/files/5213454/inception_v3.pkl.pth.zip",
     "format":   "PyTorch v0.1.10",

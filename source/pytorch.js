@@ -188,9 +188,75 @@ pytorch.Graph = class {
         } else if (type === 'torch.export.exported_program.ExportedProgram' && module.graph) {
             const exported_program = module;
             const graph = exported_program.graph;
+            const inputs_to_parameters = exported_program.graph_signature.inputs_to_parameters();
+            const values = new Map();
+            values.map = (obj) => {
+                if (!values.has(obj)) {
+                    let type = null;
+                    const val = obj.meta.get('val');
+                    if (val) {
+                        const dataType = val.dtype.__reduce__();
+                        const shape = new pytorch.TensorShape(val.shape);
+                        type = new pytorch.TensorType(dataType, shape);
+                    }
+                    const value = new pytorch.Value(obj.name, type);
+                    values.set(obj, value);
+                }
+                return values.get(obj);
+            };
+            const nodes = new Map(graph.nodes.map((node) => [node.name, node]));
             for (const node of graph.nodes) {
-                this.nodes.push(new pytorch.Node(metadata, node.name, null, node, null, values));
+                if (node.op === 'placeholder') {
+                    if (inputs_to_parameters.has(node.name)) {
+                        const key = inputs_to_parameters.get(node.name);
+                        const parameter = exported_program.state_dict.get(key);
+                        if (parameter) {
+                            const tensor = new pytorch.Tensor(key, parameter.data);
+                            const value = new pytorch.Value(key, null, null, tensor);
+                            values.set(node, value);
+                        }
+                    }
+                }
             }
+            for (const obj of graph.nodes) {
+                if (obj.op === 'placeholder' && obj.users.size <= 1) {
+                    continue;
+                }
+                if (obj.op === 'call_function') {
+                    if (obj.target.__module__ === 'operator' && obj.target.__name__ === 'getitem') {
+                        continue;
+                    }
+                    if (obj.users.size === 0) {
+                        continue;
+                    }
+                }
+                if (obj.op === 'output') {
+                    for (const output of obj.args) {
+                        if (output.op === 'call_function' && output.target.__module__ === 'operator' && output.target.__name__ === 'getitem') {
+                            continue;
+                        }
+                        const value = values.map(output);
+                        const argument = new pytorch.Argument(output.name, [value]);
+                        this.outputs.push(argument);
+                    }
+                    continue;
+                }
+                const node = new pytorch.Node(metadata, obj.name, null, obj, null, values);
+                this.nodes.push(node);
+            }
+            for (const input_spec of exported_program.graph_signature.user_inputs()) {
+                const node = nodes.get(input_spec);
+                const value = values.map(node);
+                const argument = new pytorch.Argument(input_spec, [value]);
+                this.inputs.push(argument);
+            }
+            /*
+            for (const output_spec of exported_program.graph_signature.user_outputs()) {
+                const value = values.map(output_spec);
+                const argument = new pytorch.Argument(output_spec, [value]);
+                this.outputs.push(argument);
+            }
+            */
         } else if (pytorch.Utility.isTensor(module)) {
             const node = new pytorch.Node(metadata, null, type, { value: module });
             this.nodes.push(node);
@@ -420,26 +486,48 @@ pytorch.Node = class {
             if (obj.op === 'call_function') {
                 this.type = createType(metadata, obj.target.name);
                 const schema = obj.target._schema;
-                const args = obj.args;
-                for (let i = 0; i < args.length; i++) {
-                    const arg = args[i];
-                    const name = schema && Array.isArray(schema.arguments) ? schema.arguments[i].name : '';
+                let args = obj.args.map((arg, index) => {
+                    const name = schema && Array.isArray(schema.arguments) ? schema.arguments[index].name : '';
+                    return [name, arg];
+                });
+                args = args.concat(Array.from(obj.kwargs));
+                for (const [name, arg] of args) {
                     if (pytorch.Utility.isInstance(arg, 'torch.fx.node.Node')) {
-                        this.inputs.push(new pytorch.Argument(name, [values.map(arg.name)]));
+                        const value = values.map(arg);
+                        const argument = new pytorch.Argument(name, [value]);
+                        this.inputs.push(argument);
+                    } else if (Array.isArray(arg) && arg.every((arg) => pytorch.Utility.isInstance(arg, 'torch.fx.node.Node'))) {
+                        const list = arg.map((arg) => values.map(arg));
+                        const argument = new pytorch.Argument(name, list);
+                        this.inputs.push(argument);
                     } else {
-                        this.inputs.push(new pytorch.Argument(name, arg, 'attribute'));
+                        const argument = new pytorch.Argument(name, arg, 'attribute');
+                        this.inputs.push(argument);
                     }
                 }
-                for (const [name, arg] of obj.kwargs) {
-                    if (pytorch.Utility.isInstance(arg, 'torch.fx.node.Node')) {
-                        this.inputs.push(new pytorch.Argument(name, [values.map(arg.name)]));
-                    } else {
-                        this.inputs.push(new pytorch.Argument(name, arg, 'attribute'));
+                let outputs = [obj];
+                if (obj.users.size > 1) {
+                    const users = Array.from(obj.users.keys());
+                    if (users.every((user) => user.op === 'call_function' && user.target.__module__ === 'operator' && user.target.__name__ === 'getitem')) {
+                        outputs = new Array(obj.users.size);
+                        for (const user of users) {
+                            const [, index] = user.args;
+                            outputs[index] = user;
+                        }
                     }
                 }
-                this.outputs.push(new pytorch.Argument('output', [values.map(obj.name)]));
+                for (let i = 0; i < outputs.length; i++) {
+                    const node = outputs[i];
+                    const value = values.map(node);
+                    const name = schema && schema.returns && schema.returns[i] ? schema.returns[i].name || 'output' : 'output';
+                    const argument = new pytorch.Argument(name, [value]);
+                    this.outputs.push(argument);
+                }
             } else if (obj.op === 'placeholder') {
                 this.type = createType(metadata, 'placeholder');
+                const value = values.map(obj);
+                const argument = new pytorch.Argument('value', [value]);
+                this.inputs.push(argument);
             } else {
                 throw new pytorch.Error(`Unsupported node operation '${obj.op}'.`);
             }
