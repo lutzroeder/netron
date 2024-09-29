@@ -39,7 +39,7 @@ onnx.ModelFactory = class {
     }
 
     filter(context, type) {
-        return context.type !== 'onnx.proto' || type !== 'onnx.data';
+        return context.type !== 'onnx.proto' || (type !== 'onnx.data' && type !== 'graphviz.dot');
     }
 };
 
