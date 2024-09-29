@@ -1138,23 +1138,23 @@ dagre.layout = (nodes, edges, layout, state) => {
         //    1. The graph and layering matrix are left unchanged.
         //
         // This algorithm is derived from Barth, et al., 'Bilayer Cross Counting.'
-        const crossCount = (g, layering) => {
+        const crossCount = (g, layering, bestCC) => {
             let count = 0;
             for (let i = 1; i < layering.length; i++) {
                 const northLayer = layering[i - 1];
                 const southLayer = layering[i];
                 // Sort all of the edges between the north and south layers by their position in the north layer and then the south.
                 // Map these edges to the position of their head in the south layer.
-                const southPos = {};
+                const southPos = new Map();
                 for (let i = 0; i < southLayer.length; i++) {
-                    southPos[southLayer[i]] = i;
+                    southPos.set(southLayer[i], i);
                 }
                 const southEntries = [];
                 for (const v of northLayer) {
                     const entries = [];
                     for (const e of g.node(v).out) {
                         entries.push({
-                            pos: southPos[e.w],
+                            pos: southPos.get(e.w),
                             weight: e.label.weight
                         });
                     }
@@ -1184,6 +1184,9 @@ dagre.layout = (nodes, edges, layout, state) => {
                         tree[index] += entry.weight;
                     }
                     count += entry.weight * weightSum;
+                }
+                if (count > bestCC) {
+                    break;
                 }
             }
             return count;
@@ -1349,7 +1352,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         for (let i = 0, lastBest = 0; lastBest < 4; ++i, ++lastBest) {
             sweepLayerGraphs(i % 2 ? downLayerGraphs : upLayerGraphs, i % 4 >= 2);
             layering = buildLayerMatrix(g);
-            const cc = crossCount(g, layering);
+            const cc = crossCount(g, layering, bestCC);
             if (cc < bestCC) {
                 lastBest = 0;
                 const length = layering.length;
