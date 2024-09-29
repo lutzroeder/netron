@@ -1203,6 +1203,7 @@ mlir.BytecodeReader = class {
         this.producer = reader.string();
         this.sections = [];
         while (reader.position < reader.length) {
+            // https://mlir.llvm.org/docs/BytecodeFormat/
             const code = reader.byte();
             const identifier = code & 0x7F;
             const length = reader.varint().toNumber();

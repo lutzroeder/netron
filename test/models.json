@@ -3086,6 +3086,14 @@
   },
   {
     "type":     "mlir",
+    "target":   "model.mlirbc",
+    "source":   "https://github.com/user-attachments/files/17179955/model.mlirbc.zip[model.mlirbc]",
+    "format":   "MLIR",
+    "error":    "Invalid section length.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "versioned-op-2.0.mlirbc",
     "source":   "https://github.com/user-attachments/files/17174958/versioned-op-2.0.mlirbc.zip[versioned-op-2.0.mlirbc]",
     "format":   "MLIR",
