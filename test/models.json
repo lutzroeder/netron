@@ -2089,6 +2089,30 @@
     "link":     "https://github.com/lutzroeder/netron/issues/334"
   },
   {
+    "type":     "graphviz",
+    "target":   "EfficientDet-d0.onnx.dot",
+    "source":   "https://github.com/user-attachments/files/17180084/EfficientDet-d0.onnx.dot.zip[EfficientDet-d0.onnx.dot]",
+    "format":   "Graphviz",
+    "error":    "Invalid file content. File contains Graphviz data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
+    "type":     "graphviz",
+    "target":   "gpt2-10.onnx.dot",
+    "source":   "https://github.com/user-attachments/files/17180085/gpt2-10.onnx.dot.zip[gpt2-10.onnx.dot]",
+    "format":   "Graphviz",
+    "error":    "Invalid file content. File contains Graphviz data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
+    "type":     "graphviz",
+    "target":   "resnet18.dot",
+    "source":   "https://github.com/user-attachments/files/17175694/resnet18.dot.zip[resnet18.dot]",
+    "format":   "Graphviz",
+    "error":    "Invalid file content. File contains Graphviz data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
     "type":     "gguf",
     "target":   "mixtral-8x7b-v0.1.Q4_K_M.gguf",
     "source":   "https://github.com/lutzroeder/netron/files/13802180/mixtral-8x7b-v0.1.Q4_K_M.gguf.zip[mixtral-8x7b-v0.1.Q4_K_M.gguf]",
