@@ -4163,6 +4163,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "Llama-3.2-1B-Instruct-q4f16.onnx.zip",
+    "source":   "https://github.com/user-attachments/files/17198233/Llama-3.2-1B-Instruct-q4f16.onnx.zip",
+    "format":   "ONNX v7",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "last_hidden_state_crf_jud.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/7148912/last_hidden_state_crf_jud.onnx.zip[last_hidden_state_crf_jud.onnx]",
     "format":   "ONNX v6",
