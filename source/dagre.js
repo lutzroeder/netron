@@ -1138,23 +1138,23 @@ dagre.layout = (nodes, edges, layout, state) => {
         //    1. The graph and layering matrix are left unchanged.
         //
         // This algorithm is derived from Barth, et al., 'Bilayer Cross Counting.'
-        const crossCount = (g, layering) => {
+        const crossCount = (g, layering, bestCC) => {
             let count = 0;
             for (let i = 1; i < layering.length; i++) {
                 const northLayer = layering[i - 1];
                 const southLayer = layering[i];
                 // Sort all of the edges between the north and south layers by their position in the north layer and then the south.
                 // Map these edges to the position of their head in the south layer.
-                const southPos = {};
+                const southPos = new Map();
                 for (let i = 0; i < southLayer.length; i++) {
-                    southPos[southLayer[i]] = i;
+                    southPos.set(southLayer[i], i);
                 }
                 const southEntries = [];
                 for (const v of northLayer) {
                     const entries = [];
                     for (const e of g.node(v).out) {
                         entries.push({
-                            pos: southPos[e.w],
+                            pos: southPos.get(e.w),
                             weight: e.label.weight
                         });
                     }
@@ -1184,6 +1184,9 @@ dagre.layout = (nodes, edges, layout, state) => {
                         tree[index] += entry.weight;
                     }
                     count += entry.weight * weightSum;
+                }
+                if (count > bestCC) {
+                    break;
                 }
             }
             return count;
@@ -1349,7 +1352,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         for (let i = 0, lastBest = 0; lastBest < 4; ++i, ++lastBest) {
             sweepLayerGraphs(i % 2 ? downLayerGraphs : upLayerGraphs, i % 4 >= 2);
             layering = buildLayerMatrix(g);
-            const cc = crossCount(g, layering);
+            const cc = crossCount(g, layering, bestCC);
             if (cc < bestCC) {
                 lastBest = 0;
                 const length = layering.length;
@@ -1624,10 +1627,10 @@ dagre.layout = (nodes, edges, layout, state) => {
             if (v > w) {
                 [v, w] = [w, v];
             }
-            let conflictsV = conflicts[v];
+            let conflictsV = conflicts.get(v);
             if (!conflictsV) {
                 conflictsV = new Set();
-                conflicts[v] = conflictsV;
+                conflicts.set(v, conflictsV);
             }
             conflictsV.add(w);
         };
@@ -1635,7 +1638,7 @@ dagre.layout = (nodes, edges, layout, state) => {
             if (v > w) {
                 [v, w] = [w, v];
             }
-            return conflicts[v] && conflicts[v].has(w);
+            return conflicts.has(v) && conflicts.get(v).has(w);
         };
         const buildBlockGraph = (g, layout, layering, root, reverseSep) => {
             const nodeSep = layout.nodesep;
@@ -1644,10 +1647,10 @@ dagre.layout = (nodes, edges, layout, state) => {
             for (const layer of layering) {
                 let u = null;
                 for (const v of layer) {
-                    const vRoot = root[v];
+                    const vRoot = root.get(v);
                     blockGraph.setNode(vRoot, {});
                     if (u) {
-                        const uRoot = root[u];
+                        const uRoot = root.get(u);
                         const vLabel = g.node(v).label;
                         const wLabel = g.node(u).label;
                         let sum = 0;
@@ -1696,17 +1699,17 @@ dagre.layout = (nodes, edges, layout, state) => {
         // If a previous node has already formed a block with a node after the node we're trying to form a block with,
         // we also ignore that possibility - our blocks would be split in that scenario.
         const verticalAlignment = (layering, conflicts, neighborFn) => {
-            const root = {};
-            const align = {};
-            const pos = {};
+            const root = new Map();
+            const align = new Map();
+            const pos = new Map();
             // We cache the position here based on the layering because the graph and layering may be out of sync.
             // The layering matrix is manipulated to generate different extreme alignments.
             for (const layer of layering) {
                 let order = 0;
                 for (const v of layer) {
-                    root[v] = v;
-                    align[v] = v;
-                    pos[v] = order;
+                    root.set(v, v);
+                    align.set(v, v);
+                    pos.set(v, order);
                     order++;
                 }
             }
@@ -1716,17 +1719,17 @@ dagre.layout = (nodes, edges, layout, state) => {
                     let ws = neighborFn(v);
                     if (ws.size > 0) {
                         ws = Array.from(ws.keys());
-                        ws = ws.sort((a, b) => pos[a] - pos[b]);
+                        ws = ws.sort((a, b) => pos.get(a) - pos.get(b));
                         const mp = (ws.length - 1) / 2.0000001;
                         const il = Math.ceil(mp);
                         for (let i = Math.floor(mp); i <= il; i++) {
                             const w = ws[i];
-                            if (align[v] === v && prevIdx < pos[w] && !hasConflict(conflicts, v, w)) {
-                                const x = root[w];
-                                align[w] = v;
-                                align[v] = x;
-                                root[v] = x;
-                                prevIdx = pos[w];
+                            if (align.get(v) === v && prevIdx < pos.get(w) && !hasConflict(conflicts, v, w)) {
+                                const x = root.get(w);
+                                align.set(w, v);
+                                align.set(v, x);
+                                root.set(v, x);
+                                prevIdx = pos.get(w);
                             }
                         }
                     }
@@ -1785,8 +1788,8 @@ dagre.layout = (nodes, edges, layout, state) => {
                 }
             }
             // Assign x coordinates to all nodes
-            for (const v of Object.values(align)) {
-                xs.set(v, xs.get(root[v]));
+            for (const v of align.values()) {
+                xs.set(v, xs.get(root.get(v)));
             }
             return xs;
         };
@@ -1804,7 +1807,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         // This algorithm (safely) assumes that a dummy node will only be incident on a
         // single node in the layers being scanned.
         const findType1Conflicts = (g, layering) => {
-            const conflicts = {};
+            const conflicts = new Map();
             if (layering.length > 0) {
                 let [prev] = layering;
                 for (let k = 1; k < layering.length; k++) {
@@ -1844,7 +1847,7 @@ dagre.layout = (nodes, edges, layout, state) => {
             return conflicts;
         };
         const findType2Conflicts = (g, layering) => {
-            const conflicts = {};
+            const conflicts = new Map();
             const scan = (south, southPos, southEnd, prevNorthBorder, nextNorthBorder) => {
                 for (let i = southPos; i < southEnd; i++) {
                     const v = south[i];
@@ -1898,7 +1901,7 @@ dagre.layout = (nodes, edges, layout, state) => {
             y += maxHeight + ranksep;
         }
         // Coordinate assignment based on Brandes and Köpf, 'Fast and Simple Horizontal Coordinate Assignment.'
-        const conflicts = Object.assign(findType1Conflicts(g, layering), findType2Conflicts(g, layering));
+        const conflicts = new Map([...findType1Conflicts(g, layering).entries(), ...findType2Conflicts(g, layering).entries()]);
         const xss = {};
         for (const vertical of ['u', 'd']) {
             let adjustedLayering = vertical === 'u' ? layering : Object.values(layering).reverse();
@@ -2275,10 +2278,10 @@ dagre.Graph = class {
                 }
                 this._children.delete(v);
             }
-            for (const edge of node.in) {
+            for (const edge of node.in.concat()) {
                 this.removeEdge(edge);
             }
-            for (const edge of node.out) {
+            for (const edge of node.out.concat()) {
                 this.removeEdge(edge);
             }
             this.nodes.delete(v);
@@ -2378,7 +2381,7 @@ dagre.Graph = class {
             edge.wNode = wNode;
             edge.vNode = vNode;
             const incrementOrInitEntry = (map, k) => {
-                map.set(k, map.has(k) ? map.get(k) + 1 : 1);
+                map.set(k, (map.get(k) ?? 0) + 1);
             };
             incrementOrInitEntry(wNode.predecessors, v);
             incrementOrInitEntry(vNode.successors, w);
@@ -2409,8 +2412,15 @@ dagre.Graph = class {
                 vNode.successors.set(w, value - 1);
             }
         }
-        wNode.in = wNode.in.filter((edge) => edge.key !== key);
-        vNode.out = vNode.out.filter((edge) => edge.key !== key);
+        // Update arrays in-place
+        const idxIn = wNode.in.findIndex((e) => e.key === key);
+        if (idxIn !== -1) {
+            wNode.in.splice(idxIn, 1);
+        }
+        const idxOut = vNode.out.findIndex((e) => e.key === key);
+        if (idxOut !== -1) {
+            vNode.out.splice(idxOut, 1);
+        }
         this.edges.delete(key);
     }
 
