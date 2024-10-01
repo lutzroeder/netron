@@ -3113,7 +3113,7 @@
     "target":   "model.mlirbc",
     "source":   "https://github.com/user-attachments/files/17179955/model.mlirbc.zip[model.mlirbc]",
     "format":   "MLIR",
-    "error":    "Invalid section length.",
+    "error":    "Invalid content. File contains MLIR bytecode data.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
