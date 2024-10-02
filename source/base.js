@@ -835,7 +835,7 @@ base.Tensor = class {
         if (dimension === shape.length - 1) {
             const ellipsis = (context.count + size) > context.limit;
             const length = ellipsis ? context.limit - context.count : size;
-            const max = offset + (length * context.itemsize);
+            const max = offset + (length * stride);
             switch (dataType) {
                 case 'boolean':
                     for (; offset < max; offset += stride) {
