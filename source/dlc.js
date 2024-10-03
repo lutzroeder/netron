@@ -59,7 +59,7 @@ dlc.Graph = class {
         this.inputs = [];
         this.outputs = [];
         const values = new Map();
-        switch (version) {
+        switch (version.major) {
             case 3: {
                 for (const node of graph.nodes) {
                     for (const name of node.inputs) {
@@ -257,15 +257,30 @@ dlc.Container = class {
 
     static open(context) {
         const entries = context.peek('zip');
-        if (entries instanceof Map && (entries.has('model') || entries.has('model.params'))) {
-            return new dlc.Container(context, entries.get('model'), entries.get('model.params'), entries.get('dlc.metadata'));
+        if (entries instanceof Map) {
+            const model = entries.get('model');
+            const params = entries.get('model.params');
+            const metadata = entries.get('dlc.metadata');
+            if (model) {
+                const signature = dlc.Container._signature(model);
+                if (signature && (signature.identifier === 'NETD' || signature.major === 2)) {
+                    return new dlc.Container(context, model, params, metadata);
+                }
+            }
+            if (params) {
+                const signature = dlc.Container._signature(params);
+                if (signature && signature.identifier === 'NETP') {
+                    return new dlc.Container(context, model, params, metadata);
+                }
+            }
+            return null;
         }
         const stream = context.stream;
-        switch (dlc.Container._signature(stream).split('.').pop()) {
+        const signature = dlc.Container._signature(stream);
+        switch (signature.identifier) {
             case 'NETD':
                 return new dlc.Container(context, stream, undefined, undefined);
             case 'NETP':
-                return new dlc.Container(context, undefined, stream, undefined);
             case 'NR64':
                 return new dlc.Container(context, undefined, stream, undefined);
             default:
@@ -298,27 +313,19 @@ dlc.Container = class {
             const stream = this._model;
             delete this._model;
             const signature = dlc.Container._signature(stream);
-            switch (signature) {
-                case '2': {
-                    throw new dlc.Error("File contains undocumented DLC v2 data.");
-                }
-                case '3.NETD':
-                case 'NETD': {
-                    this.version = 3;
-                    this.graph = dlc.Container._model3(stream, signature);
-                    this.graphs = [this.graph];
-                    break;
-                }
-                case '4.NETD': {
-                    this.version = 4;
-                    this.graphs = dlc.Container._model4(stream);
-                    break;
-                }
-                default: {
-                    const buffer = stream.peek(Math.min(stream.length, 16));
-                    const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                    throw new dlc.Error(`File contains undocumented '${content}' data.`);
-                }
+            if (signature.major === 2) {
+                throw new dlc.Error("File contains undocumented DLC v2 data.");
+            } else if (signature.identifier === 'NETD' && (signature.major === 3 || signature.major === undefined)) {
+                this.version = { major: signature.major || 3, minor: signature.minor || 0 };
+                this.graph = dlc.Container._model3(stream, signature);
+                this.graphs = [this.graph];
+            } else if (signature.identifier === 'NETD' && signature.major === 4) {
+                this.version = { major: signature.major, minor: signature.minor };
+                this.graphs = dlc.Container._model4(stream);
+            } else {
+                const buffer = stream.peek(Math.min(stream.length, 16));
+                const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                throw new dlc.Error(`File contains undocumented '${content}' data.`);
             }
         }
         if (this._params) {
@@ -326,27 +333,18 @@ dlc.Container = class {
             const stream = this._params;
             delete this._params;
             const signature = dlc.Container._signature(stream);
-            switch (signature) {
-                case '2': {
-                    throw new dlc.Error("File contains undocumented DLC v2 data.");
-                }
-                case '3.NETP':
-                case 'NETP': {
-                    this.version = this.graphs.length > 0 ? this.version : 3;
-                    this.graph = dlc.Container._params3(stream, signature, this.graph);
-                    this.graphs = [this.graph];
-                    break;
-                }
-                case '4.NETP':
-                case '4.NR64': {
-                    dlc.Container._params4(stream, this.graphs, signature);
-                    break;
-                }
-                default: {
-                    const buffer = stream.peek(Math.min(stream.length, 16));
-                    const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                    throw new dlc.Error(`File contains undocumented '${content}' data.`);
-                }
+            if (signature.major === 2) {
+                throw new dlc.Error("File contains undocumented DLC v2 data.");
+            } else if (signature.identifier === 'NETP' && (signature.major === 3 || signature.major === undefined)) {
+                this.version = this.graphs.length > 0 ? this.version : { major: signature.major || 3, minor: signature.minor || 0 };
+                this.graph = dlc.Container._params3(stream, signature, this.graph);
+                this.graphs = [this.graph];
+            } else if ((signature.identifier === 'NETP' || signature.identifier === 'NR64') && signature.major === 4) {
+                dlc.Container._params4(stream, this.graphs, signature);
+            } else {
+                const buffer = stream.peek(Math.min(stream.length, 16));
+                const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                throw new dlc.Error(`File contains undocumented '${content}' data.`);
             }
         }
         if (this._metadata) {
@@ -565,7 +563,7 @@ dlc.Container = class {
     static _params4(stream, graphs, signature) {
         let buffer = stream.peek().subarray(8);
         let buffers = null;
-        if (signature === '4.NR64') {
+        if (signature.major === 4 && signature.identifier === 'NR64') {
             try {
                 const reader = flatbuffers.BinaryReader.open(buffer);
                 const nr64 = dlc.schema.v4.ModelParameters64.decode(reader, reader.root);
@@ -633,30 +631,29 @@ dlc.Container = class {
     }
 
     static _signature(stream) {
+        const signature = {};
+        signature.identifier = '?';
         if (stream) {
             const buffer = stream.peek(Math.min(stream.length, 16));
-            const match = (signature) => buffer.length >= signature.length && signature.every((value, index) => value === buffer[index]);
-            if (match([0xD5, 0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00]) && buffer.length >= 16) {
-                const reader = flatbuffers.BinaryReader.open(stream, 8);
-                if (reader) {
-                    return `4.${reader.identifier}`;
+            if (buffer[0] === 0xD5 && buffer[1] === 0x0A) {
+                delete signature.identifier;
+                if (buffer[3] === 0x00 && buffer[5] === 0x00 && buffer[5] === 0x00 && buffer[6] === 0x00) {
+                    signature.major = buffer[2] | buffer[3] << 8;
+                    signature.minor = buffer[4] | buffer[5] << 8;
+                    if (signature.major > 2) {
+                        signature.identifier = '?';
+                    }
                 }
             }
-            if (match([0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00]) && buffer.length >= 16) {
-                const reader = flatbuffers.BinaryReader.open(stream, 8);
+            if (signature.identifier === '?') {
+                const offset = signature.major === undefined ? 0 : 8;
+                const reader = flatbuffers.BinaryReader.open(stream, offset);
                 if (reader) {
-                    return `3.${reader.identifier}`;
+                    signature.identifier = reader.identifier;
                 }
-            }
-            if (match([0xD5, 0x0A, 0x02, 0x00])) {
-                return '2';
-            }
-            const reader = flatbuffers.BinaryReader.open(stream);
-            if (reader) {
-                return reader.identifier;
             }
         }
-        return '';
+        return signature;
     }
 };
 

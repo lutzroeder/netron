@@ -2043,6 +2043,7 @@
     "target":   "yolov8n_op11_v1.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/10527011/yolov8n_op11_v1.dlc.zip[yolov8n_op11_v1.dlc]",
     "format":   "DLC",
+    "assert":   "model.graphs[0].nodes[0].inputs[2].value[0].initializer.type.shape.dimensions[3] == 16",
     "link":     "https://github.com/lutzroeder/netron/issues/1037"
   },
   {
@@ -2050,6 +2051,7 @@
     "target":   "yolov8n_op11_v2.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/10527012/yolov8n_op11_v2.dlc.zip[yolov8n_op11_v2.dlc]",
     "format":   "DLC",
+    "assert":   "model.graphs[0].nodes[0].inputs[1].value[0].initializer.type.shape.dimensions[3] == 16",
     "link":     "https://github.com/lutzroeder/netron/issues/1037"
   },
   {
