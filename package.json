@@ -31,7 +31,7 @@
         "pull": "node package.js pull"
     },
     "dependencies": {
-        "electron-updater": "6.3.4"
+        "electron-updater": "6.3.9"
     },
     "devDependencies": {
         "@electron/notarize": "2.5.0",
