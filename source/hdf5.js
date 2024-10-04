@@ -399,6 +399,9 @@ hdf5.Reader = class {
                 if (value === 0xffffffffffffffffn) {
                     return -1;
                 }
+                if (value >= Number.MAX_SAFE_INTEGER) {
+                    throw new Error(`64-bit value '${value.toString(16)}' exceeds safe integer.`);
+                }
                 return value.toNumber();
             }
             case 4: {
@@ -421,6 +424,9 @@ hdf5.Reader = class {
                 const value = this._view.getBigUint64(position, true);
                 if (value === 0xffffffffffffffffn) {
                     return -1;
+                }
+                if (value >= Number.MAX_SAFE_INTEGER) {
+                    throw new Error(`64-bit value '${value.toString(16)}' exceeds safe integer.`);
                 }
                 return value.toNumber();
             }
