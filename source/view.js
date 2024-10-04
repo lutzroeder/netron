@@ -465,7 +465,7 @@ view.View = class {
             x: e.clientX,
             y: e.clientY
         };
-        container.style.cursor = 'grabbing';
+        e.target.style.cursor = 'grabbing';
         e.preventDefault();
         e.stopImmediatePropagation();
         const pointerMoveHandler = (e) => {
@@ -488,7 +488,7 @@ view.View = class {
         };
         const pointerUpHandler = (e) => {
             e.target.releasePointerCapture(e.pointerId);
-            container.style.removeProperty('cursor');
+            e.target.style.removeProperty('cursor');
             container.removeEventListener('pointerup', pointerUpHandler);
             container.removeEventListener('pointermove', pointerMoveHandler);
             if (this._mousePosition && this._mousePosition.moved) {
