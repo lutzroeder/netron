@@ -3106,8 +3106,23 @@
     "type":     "mlir",
     "target":   "embedding_bm1684x_f16_tpu.mlir",
     "source":   "https://github.com/user-attachments/files/15525787/embedding_bm1684x_f16_tpu.mlir.txt",
-    "error":    "Unexpected operation '#' at 1:1.",
     "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "mlp.mlir",
+    "source":   "https://github.com/user-attachments/files/17264712/mlp.mlir.zip[mlp.mlir]",
+    "format":   "MLIR",
+    "error":    "Unexpected attribute value.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "mlp_haiku.mlir",
+    "source":   "https://github.com/user-attachments/files/17260022/mlp_haiku.mlir.zip[mlp_haiku.mlir]",
+    "format":   "MLIR",
+    "error":    "Cannot read properties of null (reading 'value')",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
