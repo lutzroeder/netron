@@ -1125,6 +1125,21 @@
     ]
   },
   {
+    "name": "aten::_to_copy",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "device", "type": "Device", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "non_blocking", "type": "boolean", "default": false, "kwarg_only": true },
+      { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null, "kwarg_only": true }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::_unique2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
