@@ -6268,7 +6268,7 @@ python.Execution = class {
                     // continue regardless of error
                 }
                 if (!op) {
-                    throw new python.Error(`Namespace '${this.name}' has no attribute '${op_name}'.`);
+                    throw new python.Error(`Unknown operator type '${qualified_op_name}'.`);
                 }
                 op.__module__ = module_name;
                 const opoverloadpacket = new torch._ops.OpOverloadPacket(qualified_op_name, op_name, op, overload_names);
