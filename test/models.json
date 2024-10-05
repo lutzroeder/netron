@@ -4195,6 +4195,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "longformer.onnx.zip",
+    "source":   "https://github.com/user-attachments/files/17266929/longformer.onnx.zip",
+    "format":   "ONNX v9",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "maskDet_opt.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/8238283/maskDet_opt.onnx.zip[maskDet_opt.onnx]",
     "format":   "ONNX v4",
@@ -4299,6 +4306,14 @@
     "target":   "phi3-mini-128k-instruct-cuda-fp16.onnx",
     "source":   "https://github.com/user-attachments/files/15370204/phi3-mini-128k-instruct-cuda-fp16.onnx.zip[phi3-mini-128k-instruct-cuda-fp16.onnx]",
     "format":   "ONNX v7",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
+    "target":   "resnet18.onnx.zip",
+    "source":   "https://github.com/user-attachments/files/17266931/resnet18.onnx.zip",
+    "format":   "ONNX v9",
+    "assert":   "model.graphs[0].nodes[0].inputs[1].name == 'weight'",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {

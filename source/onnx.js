@@ -292,19 +292,60 @@ onnx.Value = class {
 
 onnx.Node = class {
 
-    constructor(context, node, inputs, outputs) {
-        const domain = node.domain || 'ai.onnx';
-        const op_type = node.op_type;
-        const overload = node.overload || '';
+    constructor(context, node) {
         const attributes = node.attribute || [];
         const metadata_props = node.metadata_props || [];
+        const domain = node.domain || 'ai.onnx';
+        let op_type = node.op_type;
+        let overload = node.overload || '';
+        if (domain === 'pkg.torch.ops') {
+            const path = op_type.split('.');
+            overload = path.pop();
+            op_type = path.join('.');
+        }
         this.type = context.type(domain, op_type, overload);
         if (!this.type || (this.type.module !== domain && !(this.type instanceof onnx.Function))) {
             this.type = { ...this.type };
             this.type.name = op_type;
             this.type.module = domain;
             this.type.overload = overload;
-            this.type.identifier = overload ? `${op_type}:${overload}` : `${op_type}`;
+            this.type.identifier = overload ? `${op_type}.${overload}` : `${op_type}`;
+        }
+        this.metadata = [];
+        for (const metadata of metadata_props) {
+            const key = metadata.key;
+            const value = metadata.value;
+            if (key === 'input_names' && value.startsWith('[') && value.endsWith(']') && !Array.isArray(this.type.inputs)) {
+                const input_names = value.slice(1, -1).split(', ');
+                if (input_names.every((item) => /^'.*'$/.test(item))) {
+                    this.type.inputs = input_names.map((item) => ({ name: item.slice(1, -1) }));
+                    continue;
+                }
+            }
+            const argument = new onnx.Argument(metadata.key, metadata.value);
+            this.metadata.push(argument);
+        }
+        const inputs = [];
+        node.input = node.input || [];
+        for (let i = 0; i < node.input.length;) {
+            const input = this.type && Array.isArray(this.type.inputs) && i < this.type.inputs.length ? this.type.inputs[i] : { name: i.toString() };
+            const count = input.list ? node.input.length - i : 1;
+            const list = node.input.slice(i, i + count).filter((value) => value.name !== '' || value.initializer);
+            const values = list.map((input) => context.value(input.name));
+            const argument = new onnx.Argument(input.name, values);
+            inputs.push(argument);
+            i += count;
+        }
+        const outputs = [];
+        node.output = node.output || [];
+        for (let i = 0; i < node.output.length;) {
+            const output = this.type && Array.isArray(this.type.outputs) && i < this.type.outputs.length ? this.type.outputs[i] : { name: i.toString() };
+            const count = output.list ? node.output.length - i : 1;
+            const list = node.output.slice(i, i + count).filter((value) => value.name !== '' || value.initializer);
+            const values = list.map((output) => context.value(output.name));
+            const argument = new onnx.Argument(output.name, values);
+            outputs.push(argument);
+            i += count;
         }
         this.name = node.name || '';
         this.description = node.doc_string || '';
@@ -396,9 +437,6 @@ onnx.Node = class {
                 }
             }
             return new onnx.Argument(name, value, type, attribute.doc_string, visible);
-        });
-        this.metadata = metadata_props.map((metadata) => {
-            return new onnx.Argument(metadata.key, metadata.value);
         });
         this.chain = [];
         const identifier = domain ? `${domain}.${op_type}` : op_type;
@@ -1277,33 +1315,7 @@ onnx.Context.Graph = class {
             return true;
         });
         for (let node of nodes) {
-            const domain = node.domain || 'ai.onnx';
-            const op_type = node.op_type;
-            const overload = node.overload || '';
-            const type = this._context.type(domain, op_type, overload);
-            const inputs = [];
-            node.input = node.input || [];
-            for (let i = 0; i < node.input.length;) {
-                const input = type && type.inputs && i < type.inputs.length ? type.inputs[i] : { name: i.toString() };
-                const count = input.list ? node.input.length - i : 1;
-                const list = node.input.slice(i, i + count).filter((value) => value.name !== '' || value.initializer);
-                const values = list.map((input) => this.value(input.name));
-                const argument = new onnx.Argument(input.name, values);
-                inputs.push(argument);
-                i += count;
-            }
-            const outputs = [];
-            node.output = node.output || [];
-            for (let i = 0; i < node.output.length;) {
-                const output = type && type.outputs && i < type.outputs.length ? type.outputs[i] : { name: i.toString() };
-                const count = output.list ? node.output.length - i : 1;
-                const list = node.output.slice(i, i + count).filter((value) => value.name !== '' || value.initializer);
-                const values = list.map((output) => this.value(output.name));
-                const argument = new onnx.Argument(output.name, values);
-                outputs.push(argument);
-                i += count;
-            }
-            node = new onnx.Node(this, node, inputs, outputs);
+            node = new onnx.Node(this, node);
             this._nodes.push(node);
 
             // const path = (node.name || '').split('/');
