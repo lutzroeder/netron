@@ -705,9 +705,10 @@ base.Tensor = class {
         const shape = context.dimensions;
         context.stride = this.stride;
         if (!Array.isArray(context.stride)) {
-            context.stride = new Array(shape.length);
+            const length = shape.length === 0 ? 1 : shape.length;
+            context.stride = new Array(length);
             let value = 1;
-            for (let i = shape.length - 1; i >= 0; i--) {
+            for (let i = length - 1; i >= 0; i--) {
                 context.stride[i] = value;
                 value *= shape[i];
             }
