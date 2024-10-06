@@ -4240,6 +4240,7 @@
     "target":   "my_image_classifier.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/13789981/my_image_classifier.zip[my_image_classifier.onnx]",
     "format":   "ONNX v8",
+    "assert":   "model.graphs[0].nodes[0].inputs.length == 1",
     "link":     "https://github.com/lutzroeder/netron/issues/1208"
   },
   {
@@ -4247,6 +4248,7 @@
     "target":   "my_image_classifier.json",
     "source":   "https://github.com/user-attachments/files/17140902/my_image_classifier.json.zip[my_image_classifier.json]",
     "format":   "ONNX JSON v8",
+    "assert":   "model.graphs[0].nodes[0].inputs.length == 1",
     "link":     "https://github.com/lutzroeder/netron/issues/1208"
   },
   {

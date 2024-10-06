@@ -114,10 +114,9 @@ onnx.Model = class {
             }
             imageFormat = [imageMetadata['Image.BitmapPixelFormat'], imageMetadata['Image.ColorSpaceGamma'], imageMetadata['Image.NominalPixelRange']].filter((item) => item);
         }
-        const context = new onnx.Context.Model(metadata, target.locations, imageFormat, imports, model.functions);
-        if (model.graph) {
-            const graph = new onnx.Graph(context, model.graph);
-            this._graphs.push(graph);
+        const context = new onnx.Context.Model(metadata, target.locations, imageFormat, imports, model.graph, model.functions);
+        if (context.graph) {
+            this._graphs.push(context.graph);
         }
     }
 
@@ -178,22 +177,22 @@ onnx.Graph = class {
             }
         }
         if (Array.isArray(graph.value_info)) {
-            for (const valueInfo of graph.value_info) {
-                const tensor = context.tensor(valueInfo.name);
-                tensor.type = context.createType(valueInfo.type);
-                tensor.description = valueInfo.doc_string;
+            for (const value of graph.value_info) {
+                const tensor = context.tensor(value.name);
+                tensor.type = context.createType(value.type);
+                tensor.description = value.doc_string;
             }
         }
-        graph.input = graph.input.map((valueInfo) => {
-            const tensor = context.tensor(valueInfo.name);
-            tensor.type = context.createType(valueInfo.type);
-            tensor.description = valueInfo.doc_string;
+        graph.input = graph.input.map((value) => {
+            const tensor = context.tensor(value.name);
+            tensor.type = context.createType(value.type);
+            tensor.description = value.doc_string;
             return tensor;
         });
-        graph.output = graph.output.map((valueInfo) => {
-            const tensor = context.tensor(valueInfo.name);
-            tensor.type = context.createType(valueInfo.type);
-            tensor.description = valueInfo.doc_string;
+        graph.output = graph.output.map((value) => {
+            const tensor = context.tensor(value.name);
+            tensor.type = context.createType(value.type);
+            tensor.description = value.doc_string;
             return tensor;
         });
         const inference = new onnx.Inference(graph.node);
@@ -864,28 +863,121 @@ onnx.Context = class {};
 
 onnx.Context.Model = class {
 
-    constructor(metadata, locations, imageFormat, imports, functions) {
+    constructor(metadata, locations, imageFormat, imports, graph, functions) {
         this._metadata = metadata;
         this._locations = locations;
         this._imageFormat = imageFormat;
         this._imports = imports;
         this._types = new Map();
         this._attributes = new Map();
+        this._graph = null;
         this._functions = new Map();
         for (const func of functions || []) {
-            const domain = func.domain;
-            const name = func.name;
-            const overload = func.overload;
-            const key = overload ? `${domain}:${name}:${overload}` : `${domain}:${name}`;
+            const key = func.overload ? `${func.domain}:${func.name}:${func.overload}` : `${func.domain}:${func.name}`;
             if (this._functions.has(key)) {
                 throw new onnx.Error(`Duplicate function identifier '${key}'.`);
             }
+            func.initializer = [];
+            func.uses = [];
+            func.callers = new Set();
             this._functions.set(key, func);
+        }
+        if (graph) {
+            if (this._functions.size > 0) { // #1208
+                const queue = [graph].concat(Array.from(this._functions.values()));
+                for (const graph of queue) {
+                    const graphs = [graph];
+                    while (graphs.length > 0) {
+                        const graph = graphs.shift();
+                        for (const node of graph.node) {
+                            const key = node.overload ? `${node.domain}:${node.op_type}:${node.overload}` : `${node.domain}:${node.op_type}`;
+                            if (this._functions.has(key)) {
+                                this._functions.get(key).callers.add(graph);
+                            }
+                            for (const attribute of node.attribute) {
+                                if (attribute.g) {
+                                    graphs.push(attribute.g);
+                                }
+                                if (Array.isArray(attribute.graphs) && attribute.graphs.length > 0) {
+                                    graphs.push(...attribute.graphs);
+                                }
+                            }
+                        }
+                    }
+                }
+                const visited = new Set();
+                const graphs = new Set([graph]);
+                while (graphs.size > 0) {
+                    const graph = graphs.values().next().value;
+                    graphs.delete(graph);
+                    if (visited.has(graph)) {
+                        continue;
+                    }
+                    if (graph.callers && !Array.from(graph.callers).every((caller) => visited.has(caller))) {
+                        graphs.add(graph);
+                        continue;
+                    }
+                    visited.add(graph);
+                    graph.initializer = graph.initializer || [];
+                    const initializers = new Map();
+                    for (const initializer of graph.initializer) {
+                        initializers.set(initializer.name, { uses: [], initializer, visible: true });
+                    }
+                    for (const node of graph.node) {
+                        const key = node.overload ? `${node.domain}:${node.op_type}:${node.overload}` : `${node.domain}:${node.op_type}`;
+                        if (this._functions.has(key)) {
+                            this._functions.get(key).uses.push(node);
+                        }
+                        for (const input of node.input) {
+                            if (initializers.has(input)) {
+                                initializers.get(input).uses.push(node);
+                            }
+                        }
+                        for (const attribute of node.attribute) {
+                            if (attribute.g) {
+                                graphs.add(attribute.g);
+                            }
+                            if (Array.isArray(attribute.graphs) && attribute.graphs.length > 0) {
+                                for (const graph of attribute.graphs) {
+                                    graphs.add(graph);
+                                }
+                            }
+                        }
+                    }
+                    const queue = [];
+                    for (const [name, entry] of initializers) {
+                        if (entry.uses.length === 1) {
+                            const [node] = entry.uses;
+                            const key = node.overload ? `${node.domain}:${node.op_type}:${node.overload}` : `${node.domain}:${node.op_type}`;
+                            if (this._functions.has(key)) {
+                                const func = this._functions.get(key);
+                                if (func.uses.length === 1 && func.callers.size === 1) {
+                                    const index = node.input.indexOf(name);
+                                    if (Array.isArray(func.input) && index < func.input.length && func.input[index] === name) {
+                                        func.initializer.push(entry.initializer);
+                                        graphs.add(func);
+                                        queue.push([index, node]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    queue.sort((a, b) => b[0] - a[0]);
+                    for (const [index, node] of queue) {
+                        node.input.splice(index, 1);
+                    }
+                }
+            }
+            this._graph = new onnx.Graph(this, graph);
         }
     }
 
     get imageFormat()  {
         return this._imageFormat;
+    }
+
+    get graph() {
+        return this._graph;
     }
 
     location(name, offset, length) {
@@ -1750,11 +1842,11 @@ onnx.OrtReader = class {
             value.name = this.graphs.size.toString();
             value.node = value.nodes.map((value) => node(value));
             delete value.nodes;
-            value.value_info = value.node_args.map((valueInfo) => {
+            value.value_info = value.node_args.map((arg) => {
                 return {
-                    name: valueInfo.name,
-                    doc_string: valueInfo.doc_string,
-                    type: type(valueInfo.type)
+                    name: arg.name,
+                    doc_string: arg.doc_string,
+                    type: type(arg.type)
                 };
             });
             delete value.node_args;
