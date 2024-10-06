@@ -189,12 +189,13 @@ pytorch.Graph = class {
             const exported_program = module;
             const graph = exported_program.graph;
             const inputs_to_parameters = exported_program.graph_signature.inputs_to_parameters();
+            const inputs_to_buffers = exported_program.graph_signature.inputs_to_buffers();
             const values = new Map();
             values.map = (obj) => {
                 if (!values.has(obj)) {
                     let type = null;
                     const val = obj.meta.get('val');
-                    if (val) {
+                    if (val && val.dtype) {
                         const dataType = val.dtype.__reduce__();
                         const shape = new pytorch.TensorShape(val.shape);
                         type = new pytorch.TensorType(dataType, shape);
@@ -212,6 +213,15 @@ pytorch.Graph = class {
                         const parameter = exported_program.state_dict.get(key);
                         if (parameter) {
                             const tensor = new pytorch.Tensor(key, parameter.data);
+                            const value = new pytorch.Value(key, null, null, tensor);
+                            values.set(node, value);
+                        }
+                    }
+                    if (inputs_to_buffers.has(node.name)) {
+                        const key = inputs_to_buffers.get(node.name);
+                        const buffer = exported_program.state_dict.get(key);
+                        if (buffer) {
+                            const tensor = new pytorch.Tensor(key, buffer);
                             const value = new pytorch.Value(key, null, null, tensor);
                             values.set(node, value);
                         }
@@ -323,6 +333,7 @@ pytorch.Node = class {
         this.attributes = [];
         this.inputs = [];
         this.outputs = [];
+        this.metadata = [];
         const createType = (metadata, name) => {
             if (name instanceof pytorch.nnapi.Graph) {
                 return name;
@@ -496,10 +507,14 @@ pytorch.Node = class {
                         const value = values.map(arg);
                         const argument = new pytorch.Argument(name, [value]);
                         this.inputs.push(argument);
-                    } else if (Array.isArray(arg) && arg.every((arg) => pytorch.Utility.isInstance(arg, 'torch.fx.node.Node'))) {
-                        const list = arg.map((arg) => values.map(arg));
+                    } else if (Array.isArray(arg) && arg.every((arg) => pytorch.Utility.isInstance(arg, 'torch.fx.node.Node') || arg === null)) {
+                        const list = arg.map((arg) => arg === null ? null : values.map(arg));
                         const argument = new pytorch.Argument(name, list);
                         this.inputs.push(argument);
+                    // } else if (Array.isArray(arg)) {
+                    //     const list = arg.map((arg) => pytorch.Utility.isInstance(arg, 'torch.fx.node.Node') ? values.map(arg) : arg);
+                    //     const argument = new pytorch.Argument(name, list);
+                    //     this.inputs.push(argument);
                     } else {
                         const argument = new pytorch.Argument(name, arg, 'attribute');
                         this.inputs.push(argument);
@@ -522,6 +537,26 @@ pytorch.Node = class {
                     const name = schema && schema.returns && schema.returns[i] ? schema.returns[i].name || 'output' : 'output';
                     const argument = new pytorch.Argument(name, [value]);
                     this.outputs.push(argument);
+                }
+                for (const [name, value] of obj.meta) {
+                    if (name === 'val' || name === 'stack_trace' || name === 'torch_fn' ||
+                        (Array.isArray(value) && value.length === 0) ||
+                        (value instanceof Map && value.size === 0)) {
+                        continue;
+                    }
+                    if (typeof value === 'string') {
+                        const argument = new pytorch.Argument(name, value, 'string');
+                        this.metadata.push(argument);
+                    } else if (Array.isArray(value) && value.every((item) => typeof item === 'string')) {
+                        const argument = new pytorch.Argument(name, value, 'string[]');
+                        this.metadata.push(argument);
+                    } else if (value instanceof Map && value.size > 0) {
+                        // const argument = new pytorch.Argument(name, Object.fromEntries(Array.from(value)));
+                        // this.metadata.push(argument);
+                    } else {
+                        // const argument = new pytorch.Argument(name, value);
+                        // this.metadata.push(argument);
+                    }
                 }
             } else if (obj.op === 'placeholder') {
                 this.type = createType(metadata, 'placeholder');
@@ -1263,7 +1298,6 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
         } catch {
             // continue regardless of error
         }
-        this.format = this.version ? `${this.format} v${this.version}` : this.format;
         const serialized_state_dict = await this._fetch('serialized_state_dict.pt') || await this._fetch('serialized_state_dict.json');
         const serialized_constants = await this._fetch('serialized_constants.pt') || await this._fetch('serialized_constants.json');
         const serialized_example_inputs = await this._fetch('serialized_example_inputs.pt');
@@ -1272,6 +1306,13 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
         f.set('serialized_state_dict.pt', serialized_state_dict);
         f.set('serialized_constants.pt', serialized_constants);
         f.set('serialized_example_inputs.pt', serialized_example_inputs);
+        if (!this.version && this.serialized_exported_program) {
+            const version = this.serialized_exported_program.schema_version;
+            if (version && version.major && version.minor) {
+                this.version = `${version.major}.${version.minor}`;
+            }
+        }
+        this.format = this.version ? `${this.format} v${this.version}` : this.format;
         const execution = new pytorch.Execution();
         for (const event of this._events) {
             execution.on(event[0], event[1]);

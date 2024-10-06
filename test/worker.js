@@ -625,6 +625,9 @@ export class Target {
         const validateGraph = (graph) => {
             const values = new Map();
             const validateValue = (value) => {
+                if (value === null) {
+                    return;
+                }
                 value.name.toString();
                 value.name.length;
                 value.description;

@@ -2025,7 +2025,9 @@ view.Node = class extends grapher.Node {
                         context.createArgument(argument);
                     } else {
                         for (const value of argument.value) {
-                            if (value.name !== '' && !value.initializer) {
+                            if (value === null) {
+                                // null argument
+                            } else if (value.name !== '' && !value.initializer) {
                                 context.createValue(value).to.push(this);
                             } else if (value.initializer) {
                                 context.createValue(value);
@@ -2134,7 +2136,7 @@ view.Node = class extends grapher.Node {
                 } else if (options.weights && argument.visible !== false && argument.type !== 'attribute' && Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
                     const item = this.context.createArgument(argument);
                     list().add(item);
-                } else if (options.weights && (argument.visible === false || Array.isArray(argument.value) && argument.value.length > 1) && (!argument.type || argument.type.endsWith('*')) && argument.value.some((value) => value.initializer)) {
+                } else if (options.weights && (argument.visible === false || Array.isArray(argument.value) && argument.value.length > 1) && (!argument.type || argument.type.endsWith('*')) && argument.value.some((value) => value !== null && value.initializer)) {
                     hiddenTensors = true;
                 } else if (options.attributes && argument.visible !== false && argument.type && !argument.type.endsWith('*')) {
                     const item = attribute(argument);
@@ -3867,7 +3869,7 @@ view.FindSidebar = class extends view.Control {
                 for (const input of node.inputs) {
                     if (!input.type || input.type.endsWith('*')) {
                         for (const value of input.value) {
-                            if (!value.initializer) {
+                            if (value !== null && !value.initializer) {
                                 this._edge(value);
                             }
                         }
@@ -3890,7 +3892,7 @@ view.FindSidebar = class extends view.Control {
                 for (const argument of node.inputs) {
                     if (!argument.type || argument.type.endsWith('*')) {
                         for (const value of argument.value) {
-                            if (value.initializer && this._value(value)) {
+                            if (value !== null && value.initializer && this._value(value)) {
                                 let content = null;
                                 if (value.name) {
                                     content = `${value.name.split('\n').shift()}`; // split custom argument id
@@ -4387,6 +4389,9 @@ view.Formatter = class {
                 }
                 if (Number.isNaN(value)) {
                     return 'NaN';
+                }
+                if (value && value.__class__ && value.__class__.__module__ && value.__class__.__name__) {
+                    return '[\u2026]';
                 }
                 const quote = !itemType || itemType === 'string';
                 return this._format(value, itemType, quote);

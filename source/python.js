@@ -6333,6 +6333,11 @@ python.Execution = class {
                     .filter((s) => s.kind === torch.export.graph_signature.InputKind.PARAMETER && s.arg instanceof torch.export.graph_signature.TensorArgument && typeof s.target === 'string')
                     .map((s) => [s.arg.name, s.target]));
             }
+            inputs_to_buffers() {
+                return new Map(this.input_specs
+                    .filter((s) => s.kind === torch.export.graph_signature.InputKind.BUFFER && s.arg instanceof torch.export.graph_signature.TensorArgument && typeof s.target === 'string')
+                    .map((s) => [s.arg.name, s.target]));
+            }
         });
         torch.export.graph_signature.InputKind = {
             USER_INPUT: 0,
@@ -6755,7 +6760,7 @@ python.Execution = class {
             constructor(obj) {
                 super(obj);
                 if (this.type === 'as_tensor') {
-                    // continue
+                    this.as_tensor = new torch._export.serde.schema.TensorArgument({ name: this.as_tensor });
                 } else if (this.type === 'as_none') {
                     this.as_none = null;
                 } else {
@@ -7183,13 +7188,13 @@ python.Execution = class {
                     if (sym_arg.type === 'as_int') {
                         return sym_arg.as_int;
                     } else if (sym_arg.type === 'as_name') {
-                        return this.serialized_name_to_node[sym_arg.as_name];
+                        return this.serialized_name_to_node.get(sym_arg.as_name);
                     }
                 } else if (sym_arg instanceof torch._export.serde.schema.SymBoolArgument) {
                     if (sym_arg.type === 'as_bool') {
                         return sym_arg.as_bool;
                     } else if (sym_arg.type === 'as_name') {
-                        return self.serialized_name_to_node[sym_arg.as_name];
+                        return self.serialized_name_to_node.get(sym_arg.as_name);
                     }
                 }
                 throw new python.Error(`Unsupported symbolic argument type '${sym_arg.type}`);

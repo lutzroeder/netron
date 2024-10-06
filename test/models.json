@@ -5312,6 +5312,7 @@
     "target":   "exported_program.pt2",
     "source":   "https://github.com/lutzroeder/netron/files/13855206/exported_program.pt2.zip[exported_program.pt2]",
     "format":   "PyTorch Export v1",
+    "assert":   "model.graphs[0].nodes[0].inputs[1].value == 10",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/1211"
   },
@@ -5374,8 +5375,8 @@
   },
   {
     "type":     "pytorch",
-    "target":   "gpt2_export.pt2",
-    "source":   "https://github.com/user-attachments/files/15287534/gpt2_export.pt2.zip[gpt2_export.pt2]",
+    "target":   "gpt2.pt2",
+    "source":   "https://github.com/user-attachments/files/17270120/gpt2.pt2.zip[gpt2.pt2]",
     "format":   "PyTorch Export v3.1",
     "link":     "https://github.com/lutzroeder/netron/issues/1211"
   },
