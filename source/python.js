@@ -6138,7 +6138,14 @@ python.Execution = class {
             }
 
         });
-        this.registerType('torch.Type', class {});
+        this.registerType('torch.Type', class {
+            constructor(kind) {
+                this._kind = kind;
+            }
+            kind() {
+                return this._kind;
+            }
+        });
         this.registerType('torch.ClassType', class extends torch.Type {
             constructor(qualified_name, cu, is_module) {
                 super();
@@ -6165,9 +6172,48 @@ python.Execution = class {
             methods() {
             }
         });
+        this.registerType('torch.OptionalType', class extends torch.Type {
+            constructor(elem) {
+                super();
+                this._elem = elem;
+            }
+            getElementType() {
+                return this._elem;
+            }
+        });
+        this.registerType('torch.ListType', class extends torch.Type {
+            constructor(elem, size) {
+                super();
+                this._elem = elem;
+                this._size = size;
+            }
+            getElementType() {
+                return this._elem;
+            }
+        });
+        this.registerType('torch.FutureType', class extends torch.Type {
+            constructor(elem, size) {
+                super();
+                this._elem = elem;
+                this._size = size;
+            }
+            getElementType() {
+                return this._elem;
+            }
+        });
         this.registerType('torch.TupleType', class extends torch.Type {});
         this.registerType('torch.TensorType', class extends torch.Type {});
+        this.registerType('torch.AnyType', class extends torch.Type {});
+        this.registerType('torch.NumberType', class extends torch.Type {});
+        this.registerType('torch.BoolType', class extends torch.Type {});
         this.registerType('torch.IntType', class extends torch.Type {});
+        this.registerType('torch.SymIntType', class extends torch.Type {});
+        this.registerType('torch.FloatType', class extends torch.Type {});
+        this.registerType('torch.StringType', class extends torch.Type {});
+        this.registerType('torch.ComplexType', class extends torch.Type {});
+        this.registerType('torch.DictType', class extends torch.Type {});
+        this.registerType('torch.DeviceObjType', class extends torch.Type {});
+        this.registerType('torch._C._GeneratorType', class extends torch.Type {});
         this.registerType('torch.Argument', class {
             constructor(name, type, real_type, N, default_value, kwarg_only, alias_info) {
                 // torch/aten/src/ATen/core/function_schema.h
@@ -7436,12 +7482,27 @@ python.Execution = class {
         this.registerType('torch.device', class {
             constructor(type, index) {
                 this.type = type;
-                if (index) {
-                    this.index = index;
-                }
+                this.index = index ? index : null;
+            }
+            __str__() {
+                return this.index === null ? this.type : `${this.type}:${this.index}`;
+            }
+            toString() {
+                const index = this.index === null ? '' : `, index=${this.index}`;
+                return `device(type='${this.type}'${index})`;
             }
         });
-        this.registerType('torch.memory_format', class {});
+        this.registerType('torch.memory_format', class {
+            constructor(name) {
+                this.name = name;
+            }
+            __str__() {
+                return `torch.${this.name}`;
+            }
+            toString() {
+                return this.__str__();
+            }
+        });
         this.registerType('torch.dtype', class {
             constructor(scalar_type, name, itemsize) {
                 this._scalar_type = scalar_type;
@@ -7469,7 +7530,7 @@ python.Execution = class {
                 this._name = name;
             }
             __str__() {
-                return this._name;
+                return `torch.${this._name}`;
             }
             toString() {
                 return this.__str__();
@@ -7887,10 +7948,10 @@ python.Execution = class {
             ['bool', 'BOOL'],
             ['bfloat16', 'BFLOAT16']
         ].map(([key, value]) => [torch._export.serde.schema.ScalarType[value], torch[key]]));
-        torch.contiguous_format = new torch.memory_format();
-        torch.channels_last = new torch.memory_format();
-        torch.channels_last_3d = new torch.memory_format();
-        torch.preserve_format = new torch.memory_format();
+        torch.contiguous_format = new torch.memory_format('contiguous_format');
+        torch.channels_last = new torch.memory_format('channels_last');
+        torch.channels_last_3d = new torch.memory_format('channels_last_3d');
+        torch.preserve_format = new torch.memory_format('preserve_format');
         torch._export.serde.serialize._SERIALIZE_TO_TORCH_MEMORY_FORMAT = Object.fromEntries([
             ['contiguous_format', 'ContiguousFormat'],
             ['channels_last', 'ChannelsLast'],
@@ -7898,13 +7959,13 @@ python.Execution = class {
             ['preserve_format', 'PreserveFormat']
         ].map(([key, value]) => [torch._export.serde.schema.MemoryFormat[value], torch[key]]));
         /* eslint-enable no-multi-assign */
-        torch.strided = new torch.layout('torch.strided');
-        torch.sparse_coo = new torch.layout('torch.sparse_coo');
-        torch.sparse_csr = new torch.layout('torch.sparse_csr');
-        torch.sparse_csc = new torch.layout('torch.sparse_csc');
-        torch.sparse_bsr = new torch.layout('torch.sparse_bsr');
-        torch.sparse_bsc = new torch.layout('torch.sparse_bsc');
-        torch._mkldnn = new torch.layout('torch._mkldnn');
+        torch.strided = new torch.layout('strided');
+        torch.sparse_coo = new torch.layout('sparse_coo');
+        torch.sparse_csr = new torch.layout('sparse_csr');
+        torch.sparse_csc = new torch.layout('sparse_csc');
+        torch.sparse_bsr = new torch.layout('sparse_bsr');
+        torch.sparse_bsc = new torch.layout('sparse_bsc');
+        torch._mkldnn = new torch.layout('_mkldnn');
         torch._export.serde.serialize._SERIALIZE_TO_TORCH_LAYOUT = Object.fromEntries([
             ['sparse_coo', 'SparseCoo'],
             ['sparse_csr', 'SparseCsr'],

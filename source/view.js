@@ -2034,6 +2034,12 @@ view.Node = class extends grapher.Node {
                             }
                         }
                     }
+                } else if (Array.isArray(argument.value) && argument.value.some((value) => value && value.constructor && value.constructor.name === 'Value' && typeof value.name === 'string' && value.name !== '' && !value.initializer)) {
+                    for (const value of argument.value) {
+                        if (value && value.constructor && value.constructor.name === 'Value' && typeof value.name === 'string' && value.name !== '' && !value.initializer) {
+                            context.createValue(value).to.push(this);
+                        }
+                    }
                 }
             }
         }
@@ -4390,8 +4396,8 @@ view.Formatter = class {
                 if (Number.isNaN(value)) {
                     return 'NaN';
                 }
-                if (value && value.__class__ && value.__class__.__module__ && value.__class__.__name__) {
-                    return '[\u2026]';
+                if (value && value.constructor && value.constructor.name === 'Value' && value.name) {
+                    return `{${value.name}}`;
                 }
                 const quote = !itemType || itemType === 'string';
                 return this._format(value, itemType, quote);

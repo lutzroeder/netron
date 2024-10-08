@@ -312,7 +312,7 @@ pytorch.Argument = class {
     }
 };
 
-pytorch.Value = class {
+pytorch.Value = class Value {
 
     constructor(name, type, quantization, initializer) {
         if (typeof name !== 'string') {
@@ -501,8 +501,10 @@ pytorch.Node = class {
                     const name = schema && Array.isArray(schema.arguments) ? schema.arguments[index].name : '';
                     return [name, arg];
                 });
+                const inputs = new Map((this.type.inputs || []).map((input) => [input.name, input]));
                 args = args.concat(Array.from(obj.kwargs));
                 for (const [name, arg] of args) {
+                    const type = inputs.has(name) ? inputs.get(name).type : null;
                     if (pytorch.Utility.isInstance(arg, 'torch.fx.node.Node')) {
                         const value = values.map(arg);
                         const argument = new pytorch.Argument(name, [value]);
@@ -511,12 +513,18 @@ pytorch.Node = class {
                         const list = arg.map((arg) => arg === null ? null : values.map(arg));
                         const argument = new pytorch.Argument(name, list);
                         this.inputs.push(argument);
-                    // } else if (Array.isArray(arg)) {
-                    //     const list = arg.map((arg) => pytorch.Utility.isInstance(arg, 'torch.fx.node.Node') ? values.map(arg) : arg);
-                    //     const argument = new pytorch.Argument(name, list);
-                    //     this.inputs.push(argument);
+                    } else if (Array.isArray(arg)) {
+                        const list = arg.map((arg) => pytorch.Utility.isInstance(arg, 'torch.fx.node.Node') ? values.map(arg) : arg);
+                        const argument = new pytorch.Argument(name, list, type || 'attribute');
+                        this.inputs.push(argument);
+                    } else if (pytorch.Utility.isInstance(arg, 'torch.dtype') ||
+                        pytorch.Utility.isInstance(arg, 'torch.device') ||
+                        pytorch.Utility.isInstance(arg, 'torch.layout') ||
+                        pytorch.Utility.isInstance(arg, 'torch.memory_format')) {
+                        const argument = new pytorch.Argument(name, arg.toString(), type || 'attribute');
+                        this.inputs.push(argument);
                     } else {
-                        const argument = new pytorch.Argument(name, arg, 'attribute');
+                        const argument = new pytorch.Argument(name, arg, type || 'attribute');
                         this.inputs.push(argument);
                     }
                 }
@@ -1805,8 +1813,62 @@ pytorch.Execution = class extends python.Execution {
         for (const [name, type] of metadata._types) {
             if (name.indexOf('::') !== -1) {
                 const [name, overload_name] = type.name.split('.');
-                const args = type.inputs.map((arg) => new torch.Argument(arg.name, null, null, null, arg.default, arg.kwarg_only || false, arg.alias_info));
-                const returns = type.outputs.map((arg) => new torch.Argument(arg.name, null, null, null, arg.default, arg.kwarg_only || false, arg.alias_info));
+                const real_type = (arg) => {
+                    if (!arg.type) {
+                        return null;
+                    }
+                    let type = null;
+                    switch (arg.type) {
+                        case 'boolean': type = new torch.BoolType(); break;
+                        case 'boolean[3]':
+                        case 'boolean[]': type = new torch.ListType(new torch.BoolType()); break;
+                        case 'int64': type = new torch.IntType(); break;
+                        case 'int64[1]': case 'int64[2]': case 'int64[3]':
+                        case 'int64[]': type = new torch.ListType(new torch.IntType()); break;
+                        case 'SymInt': type = new torch.SymIntType(); break;
+                        case 'SymInt[1]': case 'SymInt[2]': case 'SymInt[3]':
+                        case 'SymInt[4]': case 'SymInt[5]': case 'SymInt[6]':
+                        case 'SymInt[]': type = new torch.ListType(new torch.SymIntType()); break;
+                        case 'float32': type = new torch.FloatType(); break;
+                        case 'float32[]': type = new torch.ListType(new torch.FloatType()); break;
+                        case 'string': type = new torch.StringType(); break;
+                        case 'string[]': type = new torch.ListType(new torch.StringType()); break;
+                        case 'string[][]': type = new torch.ListType(new torch.ListType(new torch.StringType())); break;
+                        case 'complex': type = new torch.ComplexType(); break;
+                        case 'complex[]': type = new torch.ListType(new torch.ComplexType()); break;
+                        case 'Tensor': type = new torch.TensorType(); break;
+                        case 'Tensor[]': type = new torch.ListType(new torch.TensorType()); break;
+                        case 'Scalar': type = new torch.NumberType(); break;
+                        case 'ScalarType': type = new torch.Type('ScalarType'); break;
+                        case 'Layout': type = new torch.Type('Layout'); break;
+                        case 'Device': type = new torch.DeviceObjType(); break;
+                        case 'MemoryFormat': type = new torch.Type('MemoryFormat'); break;
+                        case 'Dimname': type = new torch.StringType(); break;
+                        case 'Dimname[1]':
+                        case 'Dimname[]': type = new torch.ListType(new torch.StringType()); break;
+                        case 'Generator': type = new torch._C._GeneratorType(); break;
+                        case 'Any': type = new torch.AnyType(); break;
+                        case 'Any[]': type = new torch.ListType(new torch.AnyType()); break;
+                        case 'AnyEnumType': type = new torch.Type(); break;
+                        case 't[]': type = new torch.ListType(new torch.Type()); break;
+                        case 't': case 't1': case 't2': type = new torch.Type(); break;
+                        case 'Future(t)': type = new torch.FutureType(new torch.Type()); break;
+                        case 'AnyClassType': type = null; break;
+                        default: {
+                            if (arg.type.startsWith('__torch__.')) {
+                                type = new torch.ClassType(arg.type);
+                            } else {
+                                throw new pytorch.Error(`Unsupported argument type '${arg.type}'.`);
+                            }
+                        }
+                    }
+                    if (arg.optional) {
+                        type = new torch.OptionalType(type);
+                    }
+                    return type;
+                };
+                const args = type.inputs.map((arg) => new torch.Argument(arg.name, null, real_type(arg), null, arg.default, arg.kwarg_only || false, arg.alias_info));
+                const returns = type.outputs.map((arg) => new torch.Argument(arg.name, null, real_type(arg), null, arg.default, arg.kwarg_only || false, arg.alias_info));
                 const schema = new torch.FunctionSchema(name, overload_name || '', args, returns);
                 const op = new torch._C.Operator(schema);
                 registry.registerOperator(op);

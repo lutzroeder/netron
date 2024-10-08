@@ -15053,7 +15053,7 @@
   {
     "name": "aten::wait",
     "inputs": [
-      { "name": "self", "type": "Future" }
+      { "name": "self", "type": "Future(t)" }
     ],
     "outputs": [
       { "type": "t" }

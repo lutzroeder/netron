@@ -472,6 +472,13 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                 lexer.whitespace(0)
                 lexer.expect(')')
                 return Schema.DictType(key_type, value_type)
+            if name == 'Future':
+                lexer.expect('(')
+                lexer.whitespace(0)
+                elem_type = Schema.Type.parse(lexer)
+                lexer.whitespace(0)
+                lexer.expect(')')
+                return Schema.Type(f'Future({elem_type})')
             return Schema.Type(name)
     class OptionalType: # pylint: disable=too-few-public-methods,missing-class-docstring
         def __init__(self, element_type):
