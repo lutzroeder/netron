@@ -704,7 +704,8 @@ base.Tensor = class {
         context.dataType = dataType;
         const shape = context.dimensions;
         context.stride = this.stride;
-        if (!Array.isArray(context.stride)) {
+        if (!Array.isArray(context.stride) ||
+            (Array.isArray(context.stride) && context.stride.length === 0 && shape.length === 0)) {
             const length = shape.length === 0 ? 1 : shape.length;
             context.stride = new Array(length);
             let value = 1;
