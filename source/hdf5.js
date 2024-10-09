@@ -361,7 +361,7 @@ hdf5.Reader = class {
             case 0: return this.byte();
             case 1: return this.uint16();
             case 2: return this.uint32();
-            case 3: return this.uint64().toNumber();
+            case 3: return this.uint64();
             default: throw new hdf5.Error(`Unsupported uint size '${size}'.`);
         }
     }
@@ -762,7 +762,7 @@ hdf5.DataObjectHeader = class {
                 const order = (flags & 0x04) !== 0;
                 const size = reader.uint(flags & 0x03);
                 let next = true;
-                let end = reader.position + size;
+                let end = reader.position + (typeof size === 'bigint' ? size.toNumber() : size);
                 while (next && reader.position < end) {
                     const type = reader.byte();
                     const size = reader.uint16();
@@ -960,7 +960,7 @@ hdf5.LinkInfo = class {
             case 0: {
                 const flags = reader.byte();
                 if ((flags & 1) !== 0) {
-                    this.maxCreationIndex = reader.uint64().toNumber();
+                    this.maxCreationIndex = reader.uint64();
                 }
                 this.fractalHeapAddress = reader.offset();
                 this.nameIndexTreeAddress = reader.offset();
@@ -1096,7 +1096,7 @@ hdf5.Datatype = class {
                 } else if (this._size === 4) {
                     return this._flags & 0x8 ? reader.int32() : reader.uint32();
                 } else if (this._size === 8) {
-                    return this._flags & 0x8 ? reader.int64().toNumber() : reader.uint64().toNumber();
+                    return this._flags & 0x8 ? reader.int64() : reader.uint64();
                 }
                 throw new hdf5.Error('Unsupported fixed-point datatype.');
             case 1: // floating-point
@@ -1221,7 +1221,8 @@ hdf5.Link = class {
                     this.creationOrder = reader.uint32();
                 }
                 const encoding = ((flags & 0x10) !== 0 && reader.byte() === 1) ? 'utf-8' : 'ascii';
-                this.name = reader.string(reader.uint(flags & 0x03), encoding);
+                const size = reader.uint(flags & 0x03);
+                this.name = reader.string(typeof size === 'bigint' ? size.toNumber() : size, encoding);
                 switch (this.type) {
                     case 0: // hard link
                         this.objectHeaderAddress = reader.offset();
@@ -1480,7 +1481,7 @@ hdf5.AttributeInfo = class {
             case 0: {
                 const flags = reader.byte();
                 if ((flags & 1) !== 0) {
-                    this.maxCreationIndex = reader.uint64().toNumber();
+                    this.maxCreationIndex = reader.uint64();
                 }
                 this.fractalHeapAddress = reader.offset();
                 this.attributeNameTreeAddress = reader.offset();
