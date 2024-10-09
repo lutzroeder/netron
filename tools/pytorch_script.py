@@ -155,6 +155,22 @@ def _check_types(types, schemas):
     types.pop('aten::classes._nnapi.Compilation')
     types.pop('aten::arange.start_out_')
     types.pop('aten::_native_batch_norm_legit_functional')
+    types.pop('aten::gt.float')
+    types.pop('aten::gt.float_int')
+    types.pop('aten::gt.int')
+    types.pop('aten::gt.int_float')
+    types.pop('aten::add.int')
+    types.pop('aten::add.float')
+    types.pop('aten::add.str')
+    types.pop('aten::le.float')
+    types.pop('aten::le.float_int')
+    types.pop('aten::le.int')
+    types.pop('aten::le.int_float')
+    types.pop('aten::remainder.int')
+    types.pop('aten::remainder.float32')
+    types.pop('aten::sub.int')
+    types.pop('aten::sub.float')
+    types.pop('aten::sub.str')
     if len(types) > 0:
         raise Exception('\n'.join(list(types.keys()))) # pylint: disable=broad-exception-raised
 

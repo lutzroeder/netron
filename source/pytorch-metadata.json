@@ -1419,6 +1419,26 @@
     ]
   },
   {
+    "name": "aten::add.float",
+    "inputs": [
+      { "name": "a", "type": "float32" },
+      { "name": "b", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "float32" }
+    ]
+  },
+  {
+    "name": "aten::add.int",
+    "inputs": [
+      { "name": "a", "type": "int64" },
+      { "name": "b", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
     "name": "aten::add.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1427,6 +1447,16 @@
     ],
     "outputs": [
       { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::add.str",
+    "inputs": [
+      { "name": "a", "type": "string" },
+      { "name": "b", "type": "string" }
+    ],
+    "outputs": [
+      { "type": "string" }
     ]
   },
   {
@@ -4242,6 +4272,15 @@
     ]
   },
   {
+    "name": "aten::dim",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
     "name": "aten::dist",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -6303,6 +6342,46 @@
     ]
   },
   {
+    "name": "aten::gt.float",
+    "inputs": [
+      { "name": "a", "type": "float32" },
+      { "name": "b", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::gt.float_int",
+    "inputs": [
+      { "name": "a", "type": "float32" },
+      { "name": "b", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::gt.int",
+    "inputs": [
+      { "name": "a", "type": "int64" },
+      { "name": "b", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::gt.int_float",
+    "inputs": [
+      { "name": "a", "type": "int64" },
+      { "name": "b", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
     "name": "aten::hamming_window",
     "inputs": [
       { "name": "window_length", "type": "int64" },
@@ -7322,6 +7401,46 @@
     ],
     "outputs": [
       { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::le.float",
+    "inputs": [
+      { "name": "a", "type": "float32" },
+      { "name": "b", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::le.float_int",
+    "inputs": [
+      { "name": "a", "type": "float32" },
+      { "name": "b", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::le.int",
+    "inputs": [
+      { "name": "a", "type": "int64" },
+      { "name": "b", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::le.int_float",
+    "inputs": [
+      { "name": "a", "type": "int64" },
+      { "name": "b", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
     ]
   },
   {
@@ -11484,6 +11603,26 @@
     ]
   },
   {
+    "name": "aten::remainder.float32",
+    "inputs": [
+      { "name": "a", "type": "float32" },
+      { "name": "b", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "float32" }
+    ]
+  },
+  {
+    "name": "aten::remainder.int",
+    "inputs": [
+      { "name": "a", "type": "int64" },
+      { "name": "b", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
     "name": "aten::remainder_.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -13414,11 +13553,41 @@
     ]
   },
   {
+    "name": "aten::sub.float",
+    "inputs": [
+      { "name": "a", "type": "float32" },
+      { "name": "b", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "float32" }
+    ]
+  },
+  {
+    "name": "aten::sub.int",
+    "inputs": [
+      { "name": "a", "type": "int64" },
+      { "name": "b", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
     "name": "aten::sub.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
       { "name": "alpha", "type": "Scalar", "default": 1, "kwarg_only": true }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::sub.str",
+    "inputs": [
+      { "name": "a", "type": "string" },
+      { "name": "b", "type": "string" }
     ],
     "outputs": [
       { "type": "Tensor" }
