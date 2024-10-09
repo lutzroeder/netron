@@ -2346,7 +2346,7 @@
         "option": "optional"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "T",
         "option": "optional"
       },
@@ -11855,7 +11855,7 @@
         "option": "optional"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "T",
         "option": "optional"
       },
@@ -12002,7 +12002,7 @@
         "type": "T"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "T",
         "option": "optional"
       },
@@ -22525,6 +22525,12 @@
         "required": false,
         "default": -1,
         "description": "Use a smooth factor in softmax."
+      },
+      {
+        "name": "softcap",
+        "type": "float32",
+        "required": false,
+        "description": "Softcap value for attention weights. Default value is 0."
       }
     ],
     "inputs": [
@@ -34671,7 +34677,7 @@
         "option": "optional"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "T",
         "option": "optional"
       },
@@ -37493,7 +37499,7 @@
         "type": "M"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "T",
         "option": "optional"
       }
@@ -37581,7 +37587,7 @@
         "type": "M"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "T",
         "option": "optional"
       }
@@ -41034,7 +41040,7 @@
         "option": "optional"
       },
       {
-        "name": "relative_position_bias",
+        "name": "attention_bias",
         "type": "S",
         "option": "optional"
       }
