@@ -72,14 +72,14 @@ class Req {
       let files =   Array.from(input.files);
       const reader = new FileReader();
       reader.onload = function() {
-        try {
         const content = reader.result;
         var lines = content.split('\n');
         var id, meta, style, specifier;
-        var childmeta;
+        var childmeta = 0;
         var nofb = 0;
         var otherstring = JSON.stringify({});
-        var optionskeys = ["tensor_id", "operator_id", "tensor_style", "operator_style", "tensor_ondblclick_script", "tensor_ondblclick_command", "operator_ondblclick_script", "operator_ondblclick_command", "tensor_onmouseover_text", "operator_onmouseover_text", "tensor_meta_key", "operator_meta_key", "tensor_meta_val", "operator_meta_val", "tensor_button", "operator_button", "tensor_button_cmd", "tensor_button_script", "operator_button_cmd", "operator_button_script"];
+        var object = JSON.stringify({});
+        var optionskeys = ["tensor_id", "operator_id", "tensor_style", "operator_style", "tensor_ondblclick_script", "tensor_ondblclick_command", "operator_ondblclick_script", "operator_ondblclick_command", "tensor_onmouseover_text", "operator_onmouseover_text", "tensor_meta_key", "operator_meta_key", "tensor_meta_val", "operator_meta_val", "tensor_button", "operator_button", "tensor_button_command", "tensor_button_script", "operator_button_command", "operator_button_script"];
         for (var line = 0; line < lines.length; line++) {
           if (!lines[line].startsWith("#") && lines[line].trim().length !== 0) {
             var lineread = lines[line].split(":");
@@ -89,7 +89,23 @@ class Req {
               throw "You provided an invalid key: " + first.toLowerCase();
             }
             if (first.toLowerCase() == "tensor_id" || first.toLowerCase() == "operator_id") {
-              console.log("am gasit id");
+              if (otherstring !== JSON.stringify({})) {
+                var objeect = document.getElementById("list-attributes");
+                for (var i = 0; i < objeect.children.length; i++) {
+                  if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(otherstring)['id']) {
+                    var inner = JSON.parse(objeect.children[i].innerHTML);
+                    inner["button_" + nofb] = otherstring;
+                    objeect.children[i].innerHTML = JSON.stringify(inner);
+                    otherstring = JSON.stringify({});
+                    nofb += 1;
+                    break;
+                  }
+                }
+              }
+              if (childmeta !== 0) {
+                document.getElementById("list-attributes").appendChild(childmeta);
+                childmeta = 0;
+              }
               childmeta = document.createElement('div');
               specifier = lineread[0] == undefined? '' : lineread[0].trim();
               if (specifier.toLowerCase() == "tensor_id") {
@@ -102,31 +118,26 @@ class Req {
               continue;
             }
             if (first.toLowerCase() == "tensor_style" || first.toLowerCase() == "operator_style") {
-              console.log("am gasit stil");
               if ((childmeta.className == "tensor" && first.toLowerCase() == "operator_style") || (childmeta.className == "operator" && first.toLowerCase() == "tensor_style")) {
                 document.getElementById("list-attributes").innerHTML = '';
                 throw "Please respect the format of the file: tensor_style corresponds to tensor and operator_style to operator";
               }
-              
               style = lineread[1] == undefined ? '' : lineread[1].trim();
               var obj = JSON.parse(childmeta.innerHTML);
               obj["style"] = style;
               childmeta.innerHTML = JSON.stringify(obj);
-              document.getElementById("list-attributes").appendChild(childmeta);
               continue;
             }
             else {
               meta = lineread[1] == undefined ? '' : lineread[1].trim();
               var obj = JSON.parse(childmeta.innerHTML);
               if (first.toLowerCase() == "tensor_ondblclick_script" || first.toLowerCase() == "tensor_ondblclick_command" || first.toLowerCase() == "operator_ondblclick_script" || first.toLowerCase() == "operator_ondblclick_command") {
-                console.log("am gasit ondblclick");
                 if (((first.toLowerCase() == "tensor_ondblclick_script" || first.toLowerCase() == "tensor_ondblclick_command") && childmeta.className == "operator") || ((first.toLowerCase() == "operator_ondblclick_script" || first.toLowerCase() == "operator_ondblclick_command") && childmeta.className == "tensor")) {
                   document.getElementById("list-attributes").innerHTML = '';
                   throw "Please respect the format of the file: tensor_ondblclick.. corresponds to tensor and operator_ondblclick... to operator";
                 }
                 obj[first.toLowerCase()] = meta;
               } else if (first.toLowerCase() == "tensor_onmouseover_text" || first.toLowerCase() == "operator_onmouseover_text") {
-                console.log("am gasit onmouseover");
                 if ((first.toLowerCase() == "tensor_onmouseover_text" && childmeta.className == "operator") || (first.toLowerCase() == "operator_onmouseover_text" && childmeta.className == "tensor")) {
                   document.getElementById("list-attributes").innerHTML = '';
                   throw "Please respect the format of the file: tensor_onmouseover_text corresponds to tensor and operator_onmouseover_text to operator";
@@ -134,19 +145,17 @@ class Req {
                 obj["hover"] = meta;
               }
               else if (first.toLowerCase() == "tensor_meta_key" || first.toLowerCase() == "operator_meta_key") {
-                console.log("am gasit key");
                 if ((first.toLowerCase() == "tensor_meta_key" && childmeta.className == "operator") || (first.toLowerCase() == "operator_meta_key" && childmeta.className == "tensor")) {
                   document.getElementById("list-attributes").innerHTML = '';
                   throw "Please respect the format of the file: tensor_meta_key corresponds to tensor and operator_meta_key to operator";
                 }
                 var k = 1;
-                while (!lines[line + k].startsWith("#") && lines[line + k].trim().length !== 0) {
+                while (lines[line + k].startsWith("#") || lines[line + k].trim().length == 0) {
                   k += 1;
                 }
                 var linereadsecond = lines[line + k].split(":");
                 var second = linereadsecond[0] == undefined? '' : linereadsecond[0].trim();
                 if (second.toLowerCase() == "tensor_meta_val" || second.toLowerCase() == "operator_meta_val") {
-                  console.log("am gasit val");
                   if ((first.toLowerCase() == "tensor_meta_val" && childmeta.className == "operator") || (first.toLowerCase() == "operator_meta_val" && childmeta.className == "tensor")) {
                     document.getElementById("list-attributes").innerHTML = '';
                     throw "Please respect the format of the file: tensor_meta_val corresponds to tensor and operator_meta_val to operator";
@@ -161,7 +170,7 @@ class Req {
               }
               else if (first.toLowerCase() == "tensor_meta_val" || first.toLowerCase() == "operator_meta_val" ) {
                 var k = -1;
-                while (!lines[line + k].startsWith("#") && lines[line + k].trim().length !== 0) {
+                while (lines[line + k].startsWith("#") || lines[line + k].trim().length == 0) {
                   k -= 1;
                 }
                 var linereadsecond = lines[line + k].split(":");
@@ -169,17 +178,28 @@ class Req {
                 if ((second.toLowerCase() == "tensor_meta_key" && first.toLowerCase() == "tensor_meta_val") || (second.toLowerCase() == "operator_meta_key" && first.toLowerCase() == "operator_meta_val")) {
                   continue;
                 } else if ((second.toLowerCase() == "tensor_meta_key" && first.toLowerCase() == "operator_meta_val") || (second.toLowerCase() == "operator_meta_key" && first.toLowerCase() == "tensor_meta_val")) {
+                  document.getElementById("list-attributes").innerHTML = '';
                   throw "Wrong data types: both key and value should be part of tensor or operator";
                 } else {
+                  document.getElementById("list-attributes").innerHTML = '';
                   throw "There is invalid data: meta_val should be after meta_key and it is not";
                 }
               }
               else {
                 if (first.toLowerCase() == "tensor_button" || first.toLowerCase() == "operator_button") {
-                  console.log("Am gasit buton");
                   if ((childmeta.className == "operator" && first.toLowerCase() == "tensor_button") || (childmeta.className == "tensor" && first.toLowerCase() == "operator_button")) {
                     document.getElementById("list-attributes").innerHTML = '';
                     throw "Please respect the format of the file: tensor_button corresponds to tensor and operator_button to operator";
+                  }
+                  var k = 1;
+                  while (lines[line + k].startsWith("#") || lines[line + k].trim().length == 0) {
+                    k += 1;
+                  }
+                  var linereadsecond = lines[line + k].split(":");
+                  var second = linereadsecond[0] == undefined? '' : linereadsecond[0].trim();
+                  if ((first.toLowerCase() == "tensor_button" && second.toLowerCase() == "tensor_button") || (first.toLowerCase() == "operator_button" && second.toLowerCase() == "operator_button")) {
+                    document.getElementById("list-attributes").innerHTML = '';
+                    throw "You can't have empty buttons";
                   }
                   if (otherstring !== JSON.stringify({})) {
                     obj["button_" + nofb] = otherstring;
@@ -187,60 +207,57 @@ class Req {
                   }
                   otherstring = JSON.stringify({"id": obj["id"], "class": childmeta.className, "button_name": lineread[1] == undefined ? '' : lineread[1].trim()});
                 } else {
-                  if (first.toLowerCase() == "tensor_button_cmd" || first.toLowerCase() == "tensor_button_script" || first.toLowerCase() == "operator_button_cmd" || first.toLowerCase() == "operator_button_script") {
-                    console.log("button");
-                    if ((childmeta.className == "tensor" && (first.toLowerCase() == "operator_button_cmd" || first.toLowerCase() == "operator_button_script")) || (childmeta.className == "operator" && (first.toLowerCase() == "tensor_button_cmd" || first.toLowerCase() == "tensor_button_script"))) {
+                  if (first.toLowerCase() == "tensor_button_command" || first.toLowerCase() == "tensor_button_script" || first.toLowerCase() == "operator_button_command" || first.toLowerCase() == "operator_button_script") {
+                    if ((childmeta.className == "tensor" && (first.toLowerCase() == "operator_button_command" || first.toLowerCase() == "operator_button_script")) || (childmeta.className == "operator" && (first.toLowerCase() == "tensor_button_command" || first.toLowerCase() == "tensor_button_script"))) {
                       document.getElementById("list-attributes").innerHTML = '';
                       throw "Please respect the format of the file: tensor_button.. corresponds to tensor and operator_button.. to operator";
                     }
                     var k = -1;
-                    while (!lines[line + k].startsWith("#") && lines[line + k].trim().length !== 0) {
+                    while (lines[line + k].startsWith("#") || lines[line + k].trim().length == 0) {
                       k -= 1;
                     }
                     var linereadsecond = lines[line + k].split(":");
                     var second = linereadsecond[0] == undefined? '' : linereadsecond[0].trim();
-
-                    if ((first.toLowerCase() == "tensor_button_cmd" && second.toLowerCase() == "tensor_button_cmd") || (first.toLowerCase() == "tensor_button_script" && second.toLowerCase() == "tensor_button_script") || (first.toLowerCase() == "operator_button_cmd" && second.toLowerCase() == "operator_button_cmd") || (first.toLowerCase() == "operator_button_script" && second.toLowerCase() == "operator_button_script")) {
+                    if ((first.toLowerCase() == "tensor_button_command" && second.toLowerCase() == "tensor_button_command") || (first.toLowerCase() == "tensor_button_script" && second.toLowerCase() == "tensor_button_script") || (first.toLowerCase() == "operator_button_command" && second.toLowerCase() == "operator_button_command") || (first.toLowerCase() == "operator_button_script" && second.toLowerCase() == "operator_button_script")) {
                       document.getElementById("list-attributes").innerHTML = '';
                       throw "A button can't execute two scripts or two commands at the same time";
                     }
-                    if (first.toLowerCase() == "tensor_button_cmd") {
+                    if (first.toLowerCase() == "tensor_button_command") {
                       if (second.toLowerCase() !== "tensor_button_script" && second.toLowerCase() !== "tensor_button") {
                         document.getElementById("list-attributes").innerHTML = '';
-                        throw "The format of the data is wrong: the construction of the button should be tensor_button, tensor_button_cmd, tensor_button_script or tensor_button, tensor_button_script, tensor_button_cmd";
+                        throw "The format of the data is wrong: the construction of the button should be tensor_button, tensor_button_command, tensor_button_script or tensor_button, tensor_button_script, tensor_button_command";
                       }
                     }
                     if (first.toLowerCase() == "tensor_button_script") {
-                      if (second.toLowerCase() !== "tensor_button_cmd" && second.toLowerCase() !== "tensor_button") {
+                      if (second.toLowerCase() !== "tensor_button_command" && second.toLowerCase() !== "tensor_button") {
                         document.getElementById("list-attributes").innerHTML = '';
-                        throw "The format of the data is wrong: the construction of the button should be tensor_button, tensor_button_cmd, tensor_button_script or tensor_button, tensor_button_script, tensor_button_cmd";
+                        throw "The format of the data is wrong: the construction of the button should be tensor_button, tensor_button_command, tensor_button_script or tensor_button, tensor_button_script, tensor_button_command";
                       }
                     }
-                    if (first.toLowerCase() == "operator_button_cmd") {
+                    if (first.toLowerCase() == "operator_button_command") {
                       if (second.toLowerCase() !== "operator_button_script" && second.toLowerCase() !== "operator_button") {
                         document.getElementById("list-attributes").innerHTML = '';
-                        throw "The format of the data is wrong: the construction of the button should be operator_button, operator_button_cmd, operator_button_script or operator_button, operator_button_script, operator_button_cmd";
+                        throw "The format of the data is wrong: the construction of the button should be operator_button, operator_button_command, operator_button_script or operator_button, operator_button_script, operator_button_command";
                       }
                     }
-                    if (first.toLowerCase() == "operator_button_cmd") {
+                    if (first.toLowerCase() == "operator_button_command") {
                       if (second.toLowerCase() !== "operator_button_script" && second.toLowerCase() !== "operator_button") {
                         document.getElementById("list-attributes").innerHTML = '';
-                        throw "The format of the data is wrong: the construction of the button should be operator_button, operator_button_cmd, operator_button_script or operator_button, operator_button_script, operator_button_cmd";
+                        throw "The format of the data is wrong: the construction of the button should be operator_button, operator_button_command, operator_button_script or operator_button, operator_button_script, operator_button_command";
                       }
                     }
-
                     var stri = JSON.parse(otherstring);
                     stri[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim();
                     otherstring = JSON.stringify(stri);
                   } 
-                  // else {
-                  //   if (otherstring !== JSON.stringify({})) {
-                  //     obj["button_" + nofb] = otherstring;
-                  //   }
-                  //   otherstring = JSON.stringify({});
-                  //   document.getElementById("list-attributes").innerHTML = '';
-                  //   throw "You provided an invalid key: " + first.toLowerCase();
-                  // }
+                  else {
+                    if (otherstring !== JSON.stringify({})) {
+                      obj["button_" + nofb] = otherstring;
+                    }
+                    otherstring = JSON.stringify({});
+                    document.getElementById("list-attributes").innerHTML = '';
+                    throw "You provided an invalid key: " + first.toLowerCase();
+                  }
                 }
               }
               childmeta.innerHTML = JSON.stringify(obj);
@@ -248,7 +265,22 @@ class Req {
             } 
           }
         }
-        
+        if (childmeta !== 0) {
+          document.getElementById("list-attributes").appendChild(childmeta);
+        }
+        if (otherstring !== JSON.stringify({})) {
+          var objeect = document.getElementById("list-attributes");
+            for (var i = 0; i < objeect.children.length; i++) {
+              if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(otherstring)['id']) {
+                var inner = JSON.parse(objeect.children[i].innerHTML);
+                inner["button_" + nofb] = otherstring;
+                objeect.children[i].innerHTML = JSON.stringify(inner);
+                otherstring = JSON.stringify({});
+                nofb += 1;
+                break;
+            }
+          }
+        }
         if (document.getElementById("list-attributes").children) {
           var lista = document.getElementById("list-attributes");
           var parent_t = document.getElementById("edge-paths");
@@ -316,17 +348,12 @@ class Req {
             }
           }
         }
-          Req.doubleclick();
-          window.setInterval(Req.metadata, 100);
-        } catch (err) {
-          alert(err);
-        }
+        Req.doubleclick();
+        window.setInterval(Req.metadata, 100);
       }
       reader.readAsText(files[0], 'utf-8');
     };
     input.click();
-    
-
   };
 
   static doubleclick() {
@@ -467,7 +494,7 @@ class Req {
                   childmeta.innerText = "Metadata";
                   sidebarobj.appendChild(childmeta); 
                   for (var i = 0; i < keys.length; i++) {
-                    if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_" && keys[i] !== "tensor_ondblclick_script" && keys[i] !== "operator_ondblclick_script" && keys[i] !== "tensor_ondblclick_cmd" && keys[i] !== "operator_ondblclick_cmd") {
+                    if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_" && keys[i] !== "tensor_ondblclick_script" && keys[i] !== "operator_ondblclick_script" && keys[i] !== "tensor_ondblclick_command" && keys[i] !== "operator_ondblclick_command") {
                       var newchild = document.createElement('div');
                       newchild.className = "sidebar-item";
                       var newchild_2 = document.createElement('div');
@@ -514,15 +541,30 @@ class Req {
                         newchild.type = "button";
                         newchild.textContent = stringnew["button_name"];
                         newchild.style = "position: relative;";
-                        if (stringnew["cmd"] && stringnew["script"]) {
-                          newchild.value = JSON.stringify({"cmd": stringnew["cmd"], "script": stringnew["script"]});
-                        } else {
-                          if (stringnew["cmd"]) {
-                            newchild.value += JSON.stringify({"cmd": stringnew["cmd"]});
-                          } else if (stringnew["script"]) {
-                            newchild.value += JSON.stringify({"script": stringnew["script"]});
+                        if (stringnew["class"] == "tensor") {
+                          if (stringnew["tensor_button_command"] && stringnew["tensor_button_script"]) {
+                            newchild.value = JSON.stringify({"cmd": stringnew["tensor_button_command"], "script": stringnew["tensor_button_script"]});
                           } else {
-                            newchild.value += JSON.stringify({});
+                            if (stringnew["tensor_button_command"]) {
+                              newchild.value += JSON.stringify({"cmd": stringnew["tensor_button_command"]});
+                            } else if (stringnew["tensor_button_script"]) {
+                              newchild.value += JSON.stringify({"script": stringnew["tensor_button_script"]});
+                            } else {
+                              newchild.value += JSON.stringify({});
+                            }
+                          }
+                        }
+                        if (stringnew["class"] == "operator") {
+                          if (stringnew["operator_button_command"] && stringnew["operator_button_script"]) {
+                            newchild.value = JSON.stringify({"cmd": stringnew["operator_button_command"], "script": stringnew["operator_button_script"]});
+                          } else {
+                            if (stringnew["operator_button_command"]) {
+                              newchild.value += JSON.stringify({"cmd": stringnew["operator_button_command"]});
+                            } else if (stringnew["operator_button_script"]) {
+                              newchild.value += JSON.stringify({"script": stringnew["operator_button_script"]});
+                            } else {
+                              newchild.value += JSON.stringify({});
+                            }
                           }
                         }
                         sidebarobj.appendChild(newchild);

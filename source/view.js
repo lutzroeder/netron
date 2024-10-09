@@ -106,11 +106,9 @@ view.View = class {
                     label: '&Insert...',
                     accelerator: 'CmdOrCtrl+T',
                     execute: async () => {
-                        try {
+                        
                             Req.functie()
-                        } catch({name, message}) {
-                            alert(message);
-                        }}
+                        }
                 });
                 if (this._host.type === 'Electron') {
                     this._recents = file.group('Open &Recent');
