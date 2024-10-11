@@ -150,27 +150,34 @@ def _check_types(types, schemas):
             types.pop(key)
         if key.startswith('_caffe2::'):
             types.pop(key)
-    types.pop('aten::fft')
-    types.pop('aten::mul.ScalarT')
-    types.pop('aten::classes._nnapi.Compilation')
-    types.pop('aten::arange.start_out_')
-    types.pop('aten::_native_batch_norm_legit_functional')
-    types.pop('aten::gt.float')
-    types.pop('aten::gt.float_int')
-    types.pop('aten::gt.int')
-    types.pop('aten::gt.int_float')
-    types.pop('aten::add.int')
-    types.pop('aten::add.float')
-    types.pop('aten::add.str')
-    types.pop('aten::le.float')
-    types.pop('aten::le.float_int')
-    types.pop('aten::le.int')
-    types.pop('aten::le.int_float')
-    types.pop('aten::remainder.int')
-    types.pop('aten::remainder.float32')
-    types.pop('aten::sub.int')
-    types.pop('aten::sub.float')
-    types.pop('aten::sub.str')
+    known_keys = [
+        'aten::_native_batch_norm_legit_functional',
+        'aten::add.float',
+        'aten::add.int',
+        'aten::add.str',
+        'aten::arange.start_out_',
+        'aten::classes._nnapi.Compilation',
+        'aten::fft',
+        'aten::gt.float_int',
+        'aten::gt.float',
+        'aten::gt.int_float',
+        'aten::gt.int',
+        'aten::le.float_int',
+        'aten::le.float',
+        'aten::le.int_float',
+        'aten::le.int',
+        'aten::mul.ScalarT',
+        'aten::remainder.float32',
+        'aten::remainder.int',
+        'aten::sub.float',
+        'aten::sub.int',
+        'aten::sub.str',
+        'aten::tensor.bool',
+        'aten::tensor.float',
+        'aten::tensor.int'
+    ]
+    for key in known_keys:
+        types.pop(key)
     if len(types) > 0:
         raise Exception('\n'.join(list(types.keys()))) # pylint: disable=broad-exception-raised
 

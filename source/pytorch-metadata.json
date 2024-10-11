@@ -815,6 +815,18 @@
     ]
   },
   {
+    "name": "aten::_cdist_forward",
+    "inputs": [
+      { "name": "x1", "type": "Tensor" },
+      { "name": "x2", "type": "Tensor" },
+      { "name": "p", "type": "float32" },
+      { "name": "compute_mode", "type": "int64", "optional": true }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::_coalesce",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1036,6 +1048,41 @@
     ]
   },
   {
+    "name": "aten::_scaled_dot_product_efficient_attention",
+    "inputs": [
+      { "name": "query", "type": "Tensor" },
+      { "name": "key", "type": "Tensor" },
+      { "name": "value", "type": "Tensor" },
+      { "name": "attn_bias", "type": "Tensor", "optional": true },
+      { "name": "compute_log_sumexp", "type": "boolean" },
+      { "name": "dropout_p", "type": "float32", "default": 0.0 },
+      { "name": "is_causal", "type": "boolean", "default": false },
+      { "name": "scale", "type": "float32", "optional": true, "default": null, "kwarg_only": true }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" },
+      { "name": "log_sumexp", "type": "Tensor" },
+      { "name": "philox_seed", "type": "Tensor" },
+      { "name": "philox_offset", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::_scaled_dot_product_flash_attention_for_cpu",
+    "inputs": [
+      { "name": "query", "type": "Tensor" },
+      { "name": "key", "type": "Tensor" },
+      { "name": "value", "type": "Tensor" },
+      { "name": "dropout_p", "type": "float32", "default": 0.0 },
+      { "name": "is_causal", "type": "boolean", "default": false },
+      { "name": "attn_mask", "type": "Tensor", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "scale", "type": "float32", "optional": true, "default": null, "kwarg_only": true }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" },
+      { "name": "logsumexp", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::_shape_as_tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1150,6 +1197,16 @@
     "outputs": [
       { "type": "Tensor" },
       { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::_unsafe_view",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "size", "type": "SymInt[]" }
+    ],
+    "outputs": [
       { "type": "Tensor" }
     ]
   },
@@ -13860,6 +13917,42 @@
     "name": "aten::tensor",
     "inputs": [
       { "name": "data", "type": "t[]" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "device", "type": "Device", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "requires_grad", "type": "boolean", "default": false, "kwarg_only": true }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::tensor.bool",
+    "inputs": [
+      { "name": "t", "type": "boolean" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "device", "type": "Device", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "requires_grad", "type": "boolean", "default": false, "kwarg_only": true }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::tensor.float",
+    "inputs": [
+      { "name": "t", "type": "float32" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "device", "type": "Device", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "requires_grad", "type": "boolean", "default": false, "kwarg_only": true }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::tensor.int",
+    "inputs": [
+      { "name": "t", "type": "int64" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null, "kwarg_only": true },
       { "name": "device", "type": "Device", "optional": true, "default": null, "kwarg_only": true },
       { "name": "requires_grad", "type": "boolean", "default": false, "kwarg_only": true }
