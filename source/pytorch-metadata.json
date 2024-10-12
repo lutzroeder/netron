@@ -1211,6 +1211,44 @@
     ]
   },
   {
+    "name": "aten::_upsample_bilinear2d_aa",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "SymInt[2]" },
+      { "name": "align_corners", "type": "boolean" },
+      { "name": "scales_h", "type": "float32", "optional": true, "default": null },
+      { "name": "scales_w", "type": "float32", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::_upsample_bilinear2d_aa.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "SymInt[2]" },
+      { "name": "align_corners", "type": "boolean" },
+      { "name": "scales_h", "type": "float32", "optional": true, "default": null },
+      { "name": "scales_w", "type": "float32", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::_upsample_bilinear2d_aa.vec",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "output_size", "type": "SymInt[]", "optional": true },
+      { "name": "align_corners", "type": "boolean" },
+      { "name": "scale_factors", "type": "float32[]", "optional": true }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::_weight_norm",
     "inputs": [
       { "name": "v", "type": "Tensor" },
@@ -12429,6 +12467,62 @@
       { "name": "src", "type": "Tensor" },
       { "name": "reduce", "type": "string" },
       { "name": "include_self", "type": "boolean", "default": true, "kwarg_only": true }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::searchsorted.Scalar",
+    "inputs": [
+      { "name": "sorted_sequence", "type": "Tensor" },
+      { "name": "self", "type": "Scalar" },
+      { "name": "out_int32", "type": "boolean", "default": false, "kwarg_only": true },
+      { "name": "right", "type": "boolean", "default": false, "kwarg_only": true },
+      { "name": "side", "type": "string", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "sorter", "type": "Tensor", "optional": true, "default": null, "kwarg_only": true }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::searchsorted.Scalar_out",
+    "inputs": [
+      { "name": "sorted_sequence", "type": "Tensor" },
+      { "name": "self", "type": "Scalar" },
+      { "name": "out_int32", "type": "boolean", "default": false, "kwarg_only": true },
+      { "name": "right", "type": "boolean", "default": false, "kwarg_only": true },
+      { "name": "side", "type": "string", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "sorter", "type": "Tensor", "optional": true, "default": null, "kwarg_only": true }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::searchsorted.Tensor",
+    "inputs": [
+      { "name": "sorted_sequence", "type": "Tensor" },
+      { "name": "self", "type": "Tensor" },
+      { "name": "out_int32", "type": "boolean", "default": false, "kwarg_only": true },
+      { "name": "right", "type": "boolean", "default": false, "kwarg_only": true },
+      { "name": "side", "type": "string", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "sorter", "type": "Tensor", "optional": true, "default": null, "kwarg_only": true }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::searchsorted.Tensor_out",
+    "inputs": [
+      { "name": "sorted_sequence", "type": "Tensor" },
+      { "name": "self", "type": "Tensor" },
+      { "name": "out_int32", "type": "boolean", "default": false, "kwarg_only": true },
+      { "name": "right", "type": "boolean", "default": false, "kwarg_only": true },
+      { "name": "side", "type": "string", "optional": true, "default": null, "kwarg_only": true },
+      { "name": "sorter", "type": "Tensor", "optional": true, "default": null, "kwarg_only": true }
     ],
     "outputs": [
       { "type": "Tensor" }

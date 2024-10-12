@@ -68,7 +68,11 @@ known_schema_definitions = [
     'aten::as_tensor.complex(complex t, *, ScalarType? dtype=None, Device? device=None) -> Tensor',
     'aten::as_tensor.float(float t, *, ScalarType? dtype=None, Device? device=None) -> Tensor',
     'aten::as_tensor.int(int t, *, ScalarType? dtype=None, Device? device=None) -> Tensor',
-    'aten::as_tensor.list(t[] data, *, ScalarType? dtype=None, Device? device=None) -> Tensor'
+    'aten::as_tensor.list(t[] data, *, ScalarType? dtype=None, Device? device=None) -> Tensor',
+    'aten::searchsorted.Tensor(Tensor sorted_sequence, Tensor self, *, bool out_int32=False, bool right=False, str? side=None, Tensor? sorter=None) -> Tensor',  # pylint: disable=line-too-long
+    'aten::searchsorted.Tensor_out(Tensor sorted_sequence, Tensor self, *, bool out_int32=False, bool right=False, str? side=None, Tensor? sorter=None, Tensor(a!) out) -> Tensor(a!)',  # pylint: disable=line-too-long
+    'aten::searchsorted.Scalar(Tensor sorted_sequence, Scalar self, *, bool out_int32=False, bool right=False, str? side=None, Tensor? sorter=None) -> Tensor',  # pylint: disable=line-too-long
+    'aten::searchsorted.Scalar_out(Tensor sorted_sequence, Scalar self, *, bool out_int32=False, bool right=False, str? side=None, Tensor? sorter=None, Tensor(a!) out) -> Tensor(a!)',  # pylint: disable=line-too-long
 ]
 
 def _parse_schemas():
