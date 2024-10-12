@@ -113,6 +113,7 @@ grapher.Graph = class {
 
         const clusterGroup = createGroup('clusters');
         const edgePathGroup = createGroup('edge-paths');
+        const edgePathHitTestGroup = createGroup('edge-paths-hit-test');
         const edgeLabelGroup = createGroup('edge-labels');
         const nodeGroup = createGroup('nodes');
 
@@ -134,7 +135,7 @@ grapher.Graph = class {
             element.appendChild(markerPath);
             return element;
         };
-        edgePathGroup.addEventListener('pointerover', (e) => {
+        edgePathHitTestGroup.addEventListener('pointerover', (e) => {
             if (this._focused) {
                 this._focused.blur();
                 this._focused = null;
@@ -146,14 +147,14 @@ grapher.Graph = class {
                 e.stopPropagation();
             }
         });
-        edgePathGroup.addEventListener('pointerleave', (e) => {
+        edgePathHitTestGroup.addEventListener('pointerleave', (e) => {
             if (this._focused) {
                 this._focused.blur();
                 this._focused = null;
                 e.stopPropagation();
             }
         });
-        edgePathGroup.addEventListener('click', (e) => {
+        edgePathHitTestGroup.addEventListener('click', (e) => {
             const edge = this._focusable.get(e.target);
             if (edge && edge.activate) {
                 edge.activate();
@@ -187,11 +188,12 @@ grapher.Graph = class {
         this._focusable.clear();
         this._focused = null;
         for (const edge of this.edges.values()) {
-            edge.label.build(document, edgePathGroup, edgeLabelGroup);
+            edge.label.build(document, edgePathGroup, edgePathHitTestGroup, edgeLabelGroup);
             this._focusable.set(edge.label.hitTest, edge.label);
         }
         origin.appendChild(clusterGroup);
         origin.appendChild(edgePathGroup);
+        origin.appendChild(edgePathHitTestGroup);
         origin.appendChild(edgeLabelGroup);
         origin.appendChild(nodeGroup);
         for (const edge of this.edges.values()) {
@@ -841,7 +843,7 @@ grapher.Edge = class {
         this.to = to;
     }
 
-    build(document, edgePathGroupElement, edgeLabelGroupElement) {
+    build(document, edgePathGroupElement, edgePathHitTestGroupElement, edgeLabelGroupElement) {
         const createElement = (name) => {
             return document.createElementNS('http://www.w3.org/2000/svg', name);
         };
@@ -852,8 +854,7 @@ grapher.Edge = class {
         this.element.setAttribute('class', this.class ? `edge-path ${this.class}` : 'edge-path');
         edgePathGroupElement.appendChild(this.element);
         this.hitTest = createElement('path');
-        this.hitTest.setAttribute('class', 'edge-path-hit-test');
-        edgePathGroupElement.appendChild(this.hitTest);
+        edgePathHitTestGroupElement.appendChild(this.hitTest);
         if (this.label) {
             const tspan = createElement('tspan');
             tspan.setAttribute('xml:space', 'preserve');

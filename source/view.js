@@ -985,6 +985,7 @@ view.View = class {
             clone.style.removeProperty('width');
             clone.style.removeProperty('height');
             const background = clone.querySelector('#background');
+            clone.querySelector('#edge-paths-hit-test').remove();
             const origin = clone.querySelector('#origin');
             origin.setAttribute('transform', 'translate(0,0) scale(1)');
             background.removeAttribute('width');
