@@ -900,7 +900,7 @@ view.View = class {
             const margin = 100;
             const width = Math.ceil(margin + size.width + margin);
             const height = Math.ceil(margin + size.height + margin);
-            origin.setAttribute('transform', `translate(${margin}, ${margin}) scale(1)`);
+            origin.setAttribute('transform', `translate(${margin - size.x}, ${margin - size.y}) scale(1)`);
             background.setAttribute('width', width);
             background.setAttribute('height', height);
             this._width = width;
