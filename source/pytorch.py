@@ -286,7 +286,12 @@ class Metadata: # pylint: disable=too-few-public-methods,missing-class-docstring
                 argument_type = '[' + size + ']' + argument_type
                 value = value.element_type
             elif isinstance(value, Schema.DictType):
-                value = str(value)
+                name = value.getKeyType().name
+                key_type = self._primitives[name] if name in self._primitives else name
+                name = value.getValueType().name
+                value_type = self._primitives[name] if name in self._primitives else name
+                value = f'Dict({key_type}, {value_type})'
+                argument_type = value
             else:
                 name = value.name
                 name = self._primitives[name] if name in self._primitives else name
@@ -498,7 +503,7 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
             self._key_type = key_type
             self._value_type = value_type
         def __str__(self):
-            return 'Dict[' + str(self._key_type) + ', ' + str(self._value_type) + ']'
+            return 'Dict(' + str(self._key_type) + ', ' + str(self._value_type) + ')'
         def getKeyType(self): # pylint: disable=invalid-name,missing-function-docstring
             return self._key_type
         def getValueType(self): # pylint: disable=invalid-name,,missing-function-docstring
