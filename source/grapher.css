@@ -69,8 +69,9 @@
 #arrowhead-hover { fill: rgba(220, 0, 0, 0.9); }
 #arrowhead-select { fill: rgba(220, 0, 0, 0.9); }
 
+.edge-paths { pointer-events: none; }
 .edge-path { stroke: #000; stroke-width: 1px; fill: none; marker-end: url("#arrowhead"); }
-.edge-path-hit-test { pointer-events: stroke; stroke-width: 0.5em; fill: none; stroke: #000; stroke-opacity: 0.001; }
+.edge-paths-hit-test { pointer-events: stroke; stroke-width: 0.5em; fill: none; stroke: #000; stroke-opacity: 0.001; }
 
 .select > .node.node-border { stroke: rgba(220, 0, 0, 0.9); stroke-width: 2px; }
 .select.edge-path { stroke: rgba(220, 0, 0, 0.9); stroke-width: 1px; marker-end: url("#arrowhead-select"); }
