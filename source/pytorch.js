@@ -3523,7 +3523,9 @@ pytorch.jit.FlatBuffersLoader = class {
         for (const [name, value] of this._all_functions) {
             const class_index = module.ivalues[name].val.class_type;
             const class_type = this._all_types[class_index];
-            class_type.addMethod(value);
+            if (value) {
+                class_type.addMethod(value);
+            }
         }
         m._min_operator_version = module.operator_version;
         m._bytecode_version = module.bytecode_version;

@@ -6163,7 +6163,7 @@ python.Execution = class {
         });
         this.registerType('torch.ClassType', class extends torch.Type {
             constructor(qualified_name, cu, is_module) {
-                super();
+                super('ClassType');
                 this._qualified_name = qualified_name;
                 this._is_module = is_module;
                 this._attributes = new Map();
@@ -6247,6 +6247,9 @@ python.Execution = class {
             elements() {
                 return this._elements;
             }
+            __str__() {
+                return `Tuple[${this.elements().map((elem) => elem.toString()).join(', ')}]`;
+            }
         });
         this.registerType('torch.TensorType', class extends torch.Type {
             constructor() {
@@ -6327,6 +6330,9 @@ python.Execution = class {
             }
             getValueType() {
                 return this._value;
+            }
+            __str__() {
+                return `Dict(${this.getKeyType().toString()}, ${this.getValueType().toString()})`;
             }
         });
         this.registerType('torch.DeviceObjType', class extends torch.Type {
