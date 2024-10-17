@@ -5243,7 +5243,6 @@
     "target":   "deeplabv3_scripted.ptl",
     "source":   "https://github.com/lutzroeder/netron/files/9562007/deeplabv3_scripted.ptl.zip[deeplabv3_scripted.ptl]",
     "format":   "TorchScript v1.6",
-    "assert":   "model.graphs[0].nodes[0].inputs[1].value.type.name == '__torch__.torch.classes.xnnpack.Conv2dOpContext'",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5334,7 +5333,7 @@
     "type":     "pytorch",
     "target":   "fasterrcnn_resnet50_fpn.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7677467/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
-    "error":    "Unsupported torch.add expression type.",
+    "error":    "value.uses is not a function",
     "link":     "https://github.com/lutzroeder/netron/issues/689"
   },
   {
@@ -5491,7 +5490,7 @@
     "target":   "mask_model.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10080302/mask_model.pt.zip[mask_model.pt]",
     "format":   "TorchScript v1.7",
-    "error":    "Unsupported torch.add expression type.",
+    "error":    "value.uses is not a function",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5693,7 +5692,7 @@
     "type":     "pytorch",
     "target":   "module_000007.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9075631/module_000007.pt.zip[module_000007.pt]",
-    "error":    "ValueError: not enough values to unpack (expected 4, actual 0).",
+    "error":    "Unknown function 'torch.size'.",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5785,7 +5784,7 @@
     "type":     "pytorch",
     "target":   "netron_issue_547_1.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5137393/netron_issue_547_1.zip[netron_issue_547_1.pt]",
-    "error":    "Unsupported torch.add expression type.",
+    "error":    "Unknown function 'torch.add'.",
     "link":     "https://github.com/lutzroeder/netron/issues/547"
   },
   {
@@ -5821,7 +5820,6 @@
     "target":   "opt_xx.pt",
     "source":   "https://github.com/lutzroeder/netron/files/8747908/opt_xx.pt.zip[opt_xx.pt]",
     "format":   "TorchScript v1.6",
-    "error":    "Slicing expected array",
     "link":     "https://github.com/lutzroeder/netron/issues/913"
   },
   {
@@ -5849,7 +5847,7 @@
     "type":     "pytorch",
     "target":   "pyg_model.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10369483/pyg_model.zip[pyg_model.pt]",
-    "error":    "Expected \\'edge_index\\' to be of integer type (got \\'6\\')",
+    "error":    "Unknown function 'torch.linear'.",
     "link":     "https://github.com/lutzroeder/netron/issues/546"
   },
   {
@@ -5864,7 +5862,6 @@
     "target":   "quant_3d.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5877566/quant_3d.pt.zip[quant_3d.pt]",
     "format":   "TorchScript v1.6",
-    "assert":   "model.graphs[0].nodes[1].inputs[1].value.type.name == '__torch__.torch.classes.quantized.Conv3dPackedParamsBase'",
     "link":     "https://github.com/lutzroeder/netron/issues/546"
   },
   {
@@ -5892,7 +5889,7 @@
     "type":     "pytorch",
     "target":   "rcnn.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9035740/rcnn.pt.zip[rcnn.pt]",
-    "error":    "AssertionError: expecting the last two dimensions of the Tensor to be H and W instead got []",
+    "error":    "value.uses is not a function",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -6095,7 +6092,6 @@
     "type":     "pytorch",
     "target":   "silero_vad.jit",
     "source":   "https://github.com/lutzroeder/netron/files/12439374/silero_vad.zip[silero_vad.jit]",
-    "error":    "Supported sampling rates: [8000, 16000] (or multiply of 16000)",
     "link":     "https://github.com/lutzroeder/netron/issues/1142"
   },
   {
@@ -6281,7 +6277,7 @@
     "target":   "TestSerialization.test_lstm.traced.pt",
     "source":   "https://github.com/user-attachments/files/16121906/TestSerialization.test_lstm.traced.pt.zip[TestSerialization.test_lstm.traced.pt]",
     "format":   "TorchScript v1.6",
-    "assert":   "model.graphs[0].nodes.length == 3",
+    "assert":   "model.graphs[0].nodes.length == 9",
     "link":     "https://github.com/lutzroeder/netron/issues/1067"
   },
   {
@@ -6289,7 +6285,7 @@
     "target":   "TFModel_traced_eager_quant.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10867120/TFModel_traced_eager_quant.pt.zip[TFModel_traced_eager_quant.pt]",
     "format":   "TorchScript v1.6",
-    "assert":   "model.graphs[0].nodes.length == 35",
+    "assert":   "model.graphs[0].nodes.length == 46",
     "link":     "https://github.com/lutzroeder/netron/issues/1067"
   },
   {
@@ -6346,7 +6342,6 @@
     "target":   "transformer.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10271969/transformer.pt.zip[transformer.pt]",
     "format":   "TorchScript v1.6",
-    "error":    "AssertionError: was expecting embedding dimension of 512, but got ?",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -6502,8 +6497,7 @@
     "type":     "pytorch",
     "target":   "yolox_m.torchscript.pt",
     "source":   "https://github.com/lutzroeder/netron/files/15031984/yolox_m.torchscript.pt.zip[yolox_m.torchscript.pt]",
-    "format":   "TorchScript v1.5",
-    "error":    "ValueError: not enough values to unpack (expected 3, actual 1).",
+    "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {

@@ -274,37 +274,34 @@ class Metadata: # pylint: disable=too-few-public-methods,missing-class-docstring
                 self._argument(argument, getattr(_, 'type'))
         return self.types[key]
 
+    def _argument_type(self, value):
+        if isinstance(value, Schema.OptionalType):
+            element_type = self._argument_type(value.element_type)
+            return f'{element_type}?'
+        if isinstance(value, Schema.ListType):
+            element_type = self._argument_type(value.element_type)
+            size = str(value.size) if hasattr(value, 'size') else ''
+            return f'{element_type}[{size}]'
+        if isinstance(value, Schema.DictType):
+            key_type = self._argument_type(value.getKeyType())
+            value_type = self._argument_type(value.getValueType())
+            return f'Dict({key_type}, {value_type})'
+        if isinstance(value, Schema.TupleType):
+            elements = []
+            for element in value.elements():
+                elements.append(self._argument_type(element))
+            return f'({', '.join(elements)})'
+        name = value.name
+        return self._primitives[name] if name in self._primitives else name
+
     def _argument(self, argument, value):
-        optional = False
-        argument_type = ''
-        while not isinstance(value, str):
-            if isinstance(value, Schema.OptionalType):
-                value = value.element_type
-                optional = True
-            elif isinstance(value, Schema.ListType):
-                size = str(value.size) if hasattr(value, 'size') else ''
-                argument_type = '[' + size + ']' + argument_type
-                value = value.element_type
-            elif isinstance(value, Schema.DictType):
-                name = value.getKeyType().name
-                key_type = self._primitives[name] if name in self._primitives else name
-                name = value.getValueType().name
-                value_type = self._primitives[name] if name in self._primitives else name
-                value = f'Dict({key_type}, {value_type})'
-                argument_type = value
-            else:
-                name = value.name
-                name = self._primitives[name] if name in self._primitives else name
-                argument_type = name + argument_type
-                break
+        argument_type = self._argument_type(value)
         if argument_type:
             argument['type'] = argument_type
         else:
             argument.pop('type', None)
-        if optional:
-            argument['optional'] = True
-        else:
-            argument.pop('optional', False)
+        if 'optional' in argument:
+            del argument['optional']
 
 class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
     def __init__(self, value):
@@ -463,6 +460,15 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
             return self.name
         @staticmethod
         def parse(lexer): # pylint: disable=missing-function-docstring
+            if lexer.eat('('):
+                lexer.whitespace(0)
+                elements = []
+                while not lexer.eat(')'):
+                    elements.append(Schema.Type.parse(lexer))
+                    lexer.whitespace(0)
+                    lexer.eat(',')
+                    lexer.whitespace(0)
+                return Schema.TupleType(elements)
             name = lexer.expect('id')
             while lexer.eat('.'):
                 name = name + '.' + lexer.expect('id')
@@ -508,6 +514,11 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
             return self._key_type
         def getValueType(self): # pylint: disable=invalid-name,,missing-function-docstring
             return self._value_type
+    class TupleType:
+        def __init__(self, elements):
+            self._elements = elements
+        def elements(self): # pylint: disable=invalid-name,,missing-function-docstring
+            return self._elements
     class Lexer: # pylint: disable=too-few-public-methods,missing-class-docstring
         def __init__(self, buffer):
             self.buffer = buffer
