@@ -223,6 +223,156 @@
     ]
   },
   {
+    "name": "aten::Complex.Tensor_bool",
+    "inputs": [
+      { "name": "x", "type": "Tensor" },
+      { "name": "y", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.Tensor_float",
+    "inputs": [
+      { "name": "x", "type": "Tensor" },
+      { "name": "y", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.Tensor_int",
+    "inputs": [
+      { "name": "x", "type": "Tensor" },
+      { "name": "y", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.bool_Tensor",
+    "inputs": [
+      { "name": "x", "type": "boolean" },
+      { "name": "y", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.bool_bool",
+    "inputs": [
+      { "name": "x", "type": "boolean" },
+      { "name": "y", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.bool_float",
+    "inputs": [
+      { "name": "x", "type": "boolean" },
+      { "name": "y", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.bool_int",
+    "inputs": [
+      { "name": "x", "type": "boolean" },
+      { "name": "y", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.float_Tensor",
+    "inputs": [
+      { "name": "x", "type": "float32" },
+      { "name": "y", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.float_bool",
+    "inputs": [
+      { "name": "x", "type": "float32" },
+      { "name": "y", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.float_float",
+    "inputs": [
+      { "name": "x", "type": "float32" },
+      { "name": "y", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.float_int",
+    "inputs": [
+      { "name": "x", "type": "float32" },
+      { "name": "y", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.int_Tensor",
+    "inputs": [
+      { "name": "x", "type": "int64" },
+      { "name": "y", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.int_bool",
+    "inputs": [
+      { "name": "x", "type": "int64" },
+      { "name": "y", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.int_float",
+    "inputs": [
+      { "name": "x", "type": "int64" },
+      { "name": "y", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.int_int",
+    "inputs": [
+      { "name": "x", "type": "int64" },
+      { "name": "y", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
     "name": "aten::ComplexImplicit",
     "inputs": [
       { "name": "a", "type": "Tensor" }
@@ -2944,6 +3094,18 @@
     ]
   },
   {
+    "name": "aten::bilinear",
+    "inputs": [
+      { "name": "input1", "type": "Tensor" },
+      { "name": "input2", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor?", "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::bin",
     "inputs": [
       { "name": "i", "type": "int64" }
@@ -3058,6 +3220,16 @@
     ]
   },
   {
+    "name": "aten::bitwise_and.Scalar_Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Scalar" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::bitwise_and.Scalar_out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3108,6 +3280,86 @@
     ]
   },
   {
+    "name": "aten::bitwise_left_shift.Scalar_Tensor",
+    "inputs": [
+      { "name": "self", "type": "Scalar" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_left_shift.Scalar_Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Scalar" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_left_shift.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_left_shift.Tensor_Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_left_shift.Tensor_Scalar_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_left_shift.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_left_shift_.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_left_shift_.Tensor_Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::bitwise_not",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -3135,6 +3387,66 @@
     ]
   },
   {
+    "name": "aten::bitwise_or.Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_or.Scalar_Tensor",
+    "inputs": [
+      { "name": "self", "type": "Scalar" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_or.Scalar_Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Scalar" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_or.Scalar_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_or.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_or.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::bitwise_or_.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3146,6 +3458,166 @@
   },
   {
     "name": "aten::bitwise_or_.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_right_shift.Scalar_Tensor",
+    "inputs": [
+      { "name": "self", "type": "Scalar" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_right_shift.Scalar_Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Scalar" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_right_shift.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_right_shift.Tensor_Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_right_shift.Tensor_Scalar_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_right_shift.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_right_shift_.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_right_shift_.Tensor_Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_xor.Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_xor.Scalar_Tensor",
+    "inputs": [
+      { "name": "self", "type": "Scalar" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_xor.Scalar_Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Scalar" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_xor.Scalar_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_xor.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_xor.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_xor_.Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bitwise_xor_.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -6838,6 +7310,132 @@
     ]
   },
   {
+    "name": "aten::get.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Dict(Tensor, t)" },
+      { "name": "key", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "t?" }
+    ]
+  },
+  {
+    "name": "aten::get.bool",
+    "inputs": [
+      { "name": "self", "type": "Dict(boolean, t)" },
+      { "name": "key", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "t?" }
+    ]
+  },
+  {
+    "name": "aten::get.complex",
+    "inputs": [
+      { "name": "self", "type": "Dict(complex, t)" },
+      { "name": "key", "type": "complex" }
+    ],
+    "outputs": [
+      { "type": "t?" }
+    ]
+  },
+  {
+    "name": "aten::get.default_Tensor",
+    "inputs": [
+      { "name": "self", "type": "Dict(Tensor, t)" },
+      { "name": "key", "type": "Tensor" },
+      { "name": "default_value", "type": "t" }
+    ],
+    "outputs": [
+      { "type": "t" }
+    ]
+  },
+  {
+    "name": "aten::get.default_bool",
+    "inputs": [
+      { "name": "self", "type": "Dict(boolean, t)" },
+      { "name": "key", "type": "boolean" },
+      { "name": "default_value", "type": "t" }
+    ],
+    "outputs": [
+      { "type": "t" }
+    ]
+  },
+  {
+    "name": "aten::get.default_complex",
+    "inputs": [
+      { "name": "self", "type": "Dict(complex, t)" },
+      { "name": "key", "type": "complex" },
+      { "name": "default_value", "type": "t" }
+    ],
+    "outputs": [
+      { "type": "t" }
+    ]
+  },
+  {
+    "name": "aten::get.default_float",
+    "inputs": [
+      { "name": "self", "type": "Dict(float32, t)" },
+      { "name": "key", "type": "float32" },
+      { "name": "default_value", "type": "t" }
+    ],
+    "outputs": [
+      { "type": "t" }
+    ]
+  },
+  {
+    "name": "aten::get.default_int",
+    "inputs": [
+      { "name": "self", "type": "Dict(int64, t)" },
+      { "name": "key", "type": "int64" },
+      { "name": "default_value", "type": "t" }
+    ],
+    "outputs": [
+      { "type": "t" }
+    ]
+  },
+  {
+    "name": "aten::get.default_str",
+    "inputs": [
+      { "name": "self", "type": "Dict(string, t)" },
+      { "name": "key", "type": "string" },
+      { "name": "default_value", "type": "t" }
+    ],
+    "outputs": [
+      { "type": "t" }
+    ]
+  },
+  {
+    "name": "aten::get.float",
+    "inputs": [
+      { "name": "self", "type": "Dict(float32, t)" },
+      { "name": "key", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "t?" }
+    ]
+  },
+  {
+    "name": "aten::get.int",
+    "inputs": [
+      { "name": "self", "type": "Dict(int64, t)" },
+      { "name": "key", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "t?" }
+    ]
+  },
+  {
+    "name": "aten::get.str",
+    "inputs": [
+      { "name": "self", "type": "Dict(string, t)" },
+      { "name": "key", "type": "string" }
+    ],
+    "outputs": [
+      { "type": "t?" }
+    ]
+  },
+  {
     "name": "aten::get_device",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -7888,6 +8486,15 @@
     ]
   },
   {
+    "name": "aten::int_repr.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::inverse",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -8415,6 +9022,50 @@
     ],
     "outputs": [
       { "type": "int64" }
+    ]
+  },
+  {
+    "name": "aten::lerp.Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "end", "type": "Tensor" },
+      { "name": "weight", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::lerp.Scalar_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "end", "type": "Tensor" },
+      { "name": "weight", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::lerp.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "end", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::lerp.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "end", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11547,6 +12198,26 @@
       { "name": "device", "type": "Device?", "default": null, "kwarg_only": true },
       { "name": "pin_memory", "type": "boolean?", "default": null, "kwarg_only": true },
       { "name": "memory_format", "type": "MemoryFormat?", "default": null, "kwarg_only": true }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::outer",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "vec2", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::outer.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "vec2", "type": "Tensor" }
     ],
     "outputs": [
       { "type": "Tensor" }

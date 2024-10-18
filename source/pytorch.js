@@ -404,6 +404,10 @@ pytorch.Node = class {
                 let type = null;
                 switch (kind) {
                     case 's': value = node.s(name); type = 'string'; break;
+                    case 'i': value = node.i(name); type = 'int64'; break;
+                    case 'f': value = node.f(name); type = 'float32'; break;
+                    case 'ss': value = node.ss(name); type = 'string[]'; break;
+                    case 'ival': value = node.ival(name); break;
                     default: throw new pytorch.Error(`Unsupported attribute kind '${kind}'.`);
                 }
                 const attribute = new pytorch.Argument(name, value, type);
@@ -2207,6 +2211,30 @@ pytorch.jit.Execution = class extends pytorch.Execution {
             s(name) {
                 return this._values.get(name)[0];
             }
+            ss_(name, value) {
+                this._values.set(name, [value, 'ss']);
+            }
+            ss(name) {
+                return this._values.get(name)[0];
+            }
+            i_(name, value) {
+                this._values.set(name, [value, 'i']);
+            }
+            i(name) {
+                return this._values.get(name)[0];
+            }
+            f_(name, value) {
+                this._values.set(name, [value, 'f']);
+            }
+            f(name) {
+                return this._values.get(name)[0];
+            }
+            ival_(name, value) {
+                this._values.set(name, [value, 'ival']);
+            }
+            ival(name) {
+                return this._values.get(name)[0];
+            }
             attributeNames() {
                 return this._values.keys();
             }
@@ -2289,6 +2317,40 @@ pytorch.jit.Execution = class extends pytorch.Execution {
         return this._graph;
     }
 
+    constant(value) {
+        const torch = this.torch;
+        const node = this.graph.create('prim::Constant');
+        let type = null;
+        if (value === null) {
+            node.ival_('value', value);
+            type = new torch.NoneType();
+        } else if (typeof value === 'string') {
+            node.s_('value', value);
+            type = new torch.StringType();
+        } else if (Array.isArray(value) && value.every((item) => typeof item === 'string')) {
+            node.ss_('value', value);
+            type = new torch.ListType(new torch.StringType());
+        } else if (typeof value === 'boolean') {
+            // return value;
+            node.i_('value', value === true ? 1 : 0);
+            type = new torch.BoolType();
+        } else if (Number.isInteger(value)) {
+            node.i_('value', value);
+            type = new torch.IntType();
+        } else if (typeof value === 'number') {
+            // return value;
+            node.f_('value', value);
+            type = new torch.FloatType();
+        } else {
+            throw new pytorch.Error(`Unsupported value type '${typeof value}'.`);
+        }
+        if (type) {
+            value = node.addOutput();
+            value.setType(type);
+        }
+        return value;
+    }
+
     variable(obj, node) {
         const torch = this.torch;
         if (this._values.has(obj)) {
@@ -2335,7 +2397,6 @@ pytorch.jit.Execution = class extends pytorch.Execution {
     }
 
     target(expression, context) {
-        const torch = this.torch;
         if (expression.type === 'id') {
             switch (expression.value) {
                 case 'torch':
@@ -2347,12 +2408,8 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                         const value = this.builtins[expression.value];
                         const entries = Object.entries(value).map(([name, value]) => {
                             if (Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === 'string')) {
-                                const node = this._graph.create('prim::Constant');
-                                const input = new torch.Value(node);
-                                input.value = value;
-                                const output = node.addOutput();
-                                output.setType(new torch.ListType(new torch.StringType()));
-                                return [name, output];
+                                value = this.constant(value);
+                                return [name, value];
                             }
                             return [name, value];
                         });
@@ -2409,13 +2466,10 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 const target = expression.target;
                 if (target.type === 'id') {
                     let value = this.expression(expression.expression, context);
-                    if (typeof value === 'string') {
-                        const node = this._graph.create('prim::Constant');
-                        const input = new torch.Value(node);
-                        input.value = value;
-                        node.addInput(input);
-                        value = node.addOutput();
-                        value.setType(new torch.StringType());
+                    if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') {
+                        value = this.constant(value);
+                    } else if (typeof value !== 'object' && value !== undefined) {
+                        throw new pytorch.Error(`Unsupported assignment value type '${typeof value}'.`);
                     }
                     context.set(target.value, value);
                     return undefined;
@@ -2478,11 +2532,6 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                         } else {
                             throw new pytorch.Error(`Unsupported annotation type '${type.kind()}'.`);
                         }
-                        /*
-                        const node = this._graph.create(name);
-                        node.addInput(this.variable(value, node));
-                        value = node.addOutput();
-                        */
                         const target = { 'type': 'id', value: 'torch' };
                         name = name.replace('aten::', '');
                         return this.call(target, name, expression.args.slice(1), context);
@@ -2491,13 +2540,19 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                         value.setType(type);
                     }
                     if (value === null) {
-                        const node = this._graph.create('prim::Constant');
-                        const input = this.variable(null, node);
-                        input.value = value;
-                        value = node.addOutput();
+                        value = this.constant(value);
                         value.setType(type);
                     }
                     return value;
+                }
+                if (expression.target.type === 'id' && expression.target.value === 'uninitialized') {
+                    const type = this.type(expression.args[0], context);
+                    // let value = this.expression(expression.args[0], context);
+                    const node = this._graph.create('prim::Uninitialized');
+                    const value = node.addOutput();
+                    value.setType(type);
+                    return value;
+                    // throw new pytorch.Error(`Unsupported uninitialized type '${type.kind()}'.`);
                 }
                 if (expression.target.type === 'id' && expression.target.value === 'unchecked_cast') {
                     let value = this.expression(expression.args[1], context);
@@ -2589,12 +2644,12 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 if (expression.member.type === 'id') {
                     const target = this.target(expression.target, context);
                     if (typeof expression.member.value === 'string' && target instanceof torch.Value && target.type() instanceof torch.ClassType) {
-                        const attribute = target.type().findAttribute(expression.member.value);
+                        const type = target.type().findAttribute(expression.member.value);
                         const node = this.graph.create('prim::GetAttr');
                         node.s_(expression.member.value);
                         node.addInput(target);
                         const value = node.addOutput();
-                        value.setType(attribute);
+                        value.setType(type);
                         return value;
                     }
                     return target[expression.member.value];
@@ -2724,7 +2779,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 const type = new torch.ClassType(`${value.__module__}.${value.__name__}`);
                 for (const entry of statement.body.statements) {
                     if (entry.type === 'var') {
-                        const variableType = this.type(entry.variableType);
+                        const variableType = this.type(entry.variableType, context);
                         type.addAttribute(entry.name, variableType);
                     }
                 }
@@ -2759,6 +2814,9 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                     const value = this.type(expression.arguments.value[1]);
                     return new torch.DictType(key, value);
                 }
+                case 'Final': {
+                    return this.type(expression.arguments.value[0]);
+                }
                 default: {
                     throw new pytorch.Error(`Unsupported type element expression '${expression.target.value}'.`);
                 }
@@ -2772,6 +2830,8 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 case 'float': return new torch.FloatType();
                 case 'number': return new torch.NumberType();
                 case 'bool': return new torch.BoolType();
+                case 'None': return new torch.NoneType();
+                case 'NoneType': return new torch.NoneType();
                 default: throw new pytorch.Error(`Unsupported type expression '${expression.value}'.`);
             }
         }
@@ -3573,11 +3633,12 @@ pytorch.jit.Execution = class extends pytorch.Execution {
             overloads = this._types.get(`aten::Int`);
         } else if (type === 'str') {
             overloads = this._types.get(`aten::str`);
-            // "bool": "aten::Bool"
-            // "int": "aten::Int"
-            // "float": "aten::Float"
-            // "complex": "aten::Complex"
-            // "range": "fake::does_not_exist"
+        } else if (type === 'bool') {
+            overloads = this._types.get(`aten::Bool`);
+        } else if (type === 'float') {
+            overloads = this._types.get(`aten::Float`);
+        } else if (type === 'complex') {
+            overloads = this._types.get(`aten::Complex`);
         } else if (type.startsWith('ops.') && !type.startsWith('ops.prim.')) {
             const path = type.split('.');
             if (path.length === 3) {
