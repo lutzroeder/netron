@@ -5333,7 +5333,7 @@
     "type":     "pytorch",
     "target":   "fasterrcnn_resnet50_fpn.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7677467/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
-    "error":    "value.uses is not a function",
+    "error":    "Unsupported type expression '.'.",
     "link":     "https://github.com/lutzroeder/netron/issues/689"
   },
   {
@@ -5490,7 +5490,7 @@
     "target":   "mask_model.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10080302/mask_model.pt.zip[mask_model.pt]",
     "format":   "TorchScript v1.7",
-    "error":    "value.uses is not a function",
+    "error":    "Unsupported type expression '.'.",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5586,7 +5586,6 @@
     "target":   "mobilenet_v2.pt2",
     "source":   "https://github.com/user-attachments/files/17171765/mobilenet_v2.pt2.zip[mobilenet_v2.pt2]",
     "format":   "PyTorch Export v5.3",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/1211"
   },
   {
@@ -6141,6 +6140,13 @@
     "target":   "squeezenet1_1.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6096662/squeezenet1_1.pt.zip[squeezenet1_1.pt]",
     "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "squeezenet1_1.pt2",
+    "source":   "https://github.com/user-attachments/files/17415183/squeezenet1_1.pt2.zip[squeezenet1_1.pt2]",
+    "format":   "PyTorch Export v7.3",
     "link":     "https://github.com/lutzroeder/netron/issues/281"
   },
   {
