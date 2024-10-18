@@ -223,6 +223,156 @@
     ]
   },
   {
+    "name": "aten::Complex.Tensor_bool",
+    "inputs": [
+      { "name": "x", "type": "Tensor" },
+      { "name": "y", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.Tensor_float",
+    "inputs": [
+      { "name": "x", "type": "Tensor" },
+      { "name": "y", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.Tensor_int",
+    "inputs": [
+      { "name": "x", "type": "Tensor" },
+      { "name": "y", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.bool_Tensor",
+    "inputs": [
+      { "name": "x", "type": "boolean" },
+      { "name": "y", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.bool_bool",
+    "inputs": [
+      { "name": "x", "type": "boolean" },
+      { "name": "y", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.bool_float",
+    "inputs": [
+      { "name": "x", "type": "boolean" },
+      { "name": "y", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.bool_int",
+    "inputs": [
+      { "name": "x", "type": "boolean" },
+      { "name": "y", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.float_Tensor",
+    "inputs": [
+      { "name": "x", "type": "float32" },
+      { "name": "y", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.float_bool",
+    "inputs": [
+      { "name": "x", "type": "float32" },
+      { "name": "y", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.float_float",
+    "inputs": [
+      { "name": "x", "type": "float32" },
+      { "name": "y", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.float_int",
+    "inputs": [
+      { "name": "x", "type": "float32" },
+      { "name": "y", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.int_Tensor",
+    "inputs": [
+      { "name": "x", "type": "int64" },
+      { "name": "y", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.int_bool",
+    "inputs": [
+      { "name": "x", "type": "int64" },
+      { "name": "y", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.int_float",
+    "inputs": [
+      { "name": "x", "type": "int64" },
+      { "name": "y", "type": "float32" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::Complex.int_int",
+    "inputs": [
+      { "name": "x", "type": "int64" },
+      { "name": "y", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
     "name": "aten::ComplexImplicit",
     "inputs": [
       { "name": "a", "type": "Tensor" }
@@ -7880,6 +8030,15 @@
   },
   {
     "name": "aten::int_repr",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::int_repr.out",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
