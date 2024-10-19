@@ -6148,96 +6148,44 @@ python.Execution = class {
 
         });
         this.registerType('torch.Type', class {
-            constructor(kind) {
+            constructor(kind, name) {
                 this._kind = kind;
+                if (name) {
+                    this._name = name;
+                }
             }
             kind() {
                 return this._kind;
             }
-            static parse(lexer) {
-                if (lexer.eat('(')) {
-                    lexer.whitespace(0);
-                    const elements = [];
-                    while (!lexer.eat(')')) {
-                        elements.push(torch.Type.parse(lexer));
-                        lexer.whitespace(0);
-                        lexer.eat(',');
-                        lexer.whitespace(0);
-                    }
-                    return new torch.TupleType(elements);
-                }
-                let name = lexer.expect('id');
-                while (lexer.eat('.')) {
-                    name = `${name}.${lexer.expect('id')}`;
-                }
-                switch (name) {
-                    case 'Dict': {
-                        lexer.expect('(');
-                        lexer.whitespace(0);
-                        const key_type = torch.Type.parse(lexer);
-                        lexer.whitespace(0);
-                        lexer.expect(',');
-                        lexer.whitespace(0);
-                        const value_type = torch.Type.parse(lexer);
-                        lexer.whitespace(0);
-                        lexer.expect(')');
-                        return new torch.DictType(key_type, value_type);
-                    }
-                    case 'Future': {
-                        lexer.expect('(');
-                        lexer.whitespace(0);
-                        const elem_type = torch.Type.parse(lexer);
-                        lexer.whitespace(0);
-                        lexer.expect(')');
-                        return new torch.FutureType(elem_type);
-                    }
-                    case 'Await': {
-                        lexer.expect('(');
-                        lexer.whitespace(0);
-                        const elem_type = torch.Type.parse(lexer);
-                        lexer.whitespace(0);
-                        lexer.expect(')');
-                        return new torch.AwaitType(elem_type);
-                    }
-                    case 'RRef': {
-                        lexer.expect('(');
-                        lexer.whitespace(0);
-                        const elem_type = torch.Type.parse(lexer);
-                        lexer.whitespace(0);
-                        lexer.expect(')');
-                        return new torch.RRefType(elem_type);
-                    }
-                    case 'Tensor': return new torch.TensorType();
-                    case 'bool': return new torch.BoolType();
-                    case 'int': return new torch.IntType();
-                    case 'float': return new torch.FloatType();
-                    case 'complex': return new torch.ComplexType();
-                    case 'str': return new torch.StringType();
-                    case 'SymInt': return new torch.SymIntType();
-                    case 'Scalar': return new torch.NumberType();
-                    case 'ScalarType': return new torch.Type('ScalarTypeType');
-                    case 'Layout': return new torch.Type('ScalarTypeType');
-                    case 'Device': return new torch.DeviceObjType();
-                    case 'MemoryFormat': return new torch.Type('MemoryFormat');
-                    case 'Generator': return new torch._C._GeneratorType();
-                    case 't': case 't1': case 't2': case 'tVal': return new torch.Type('VarType');
-                    case 'Any': return new torch.AnyType();
-                    case 'AnyEnumType': return new torch.Type('AnyEnumType');
-                    case 'QScheme': return new torch.Type('QSchemeType');
-                    case 'Stream': return new torch.StreamObjType();
-                    case 'Storage': return new torch.Type('Storage');
-                    case 'AnyClassType': return new torch.Type('AnyClassType');
-                    case 'NoneType': return new torch.NoneType();
-                    default: {
-                        if (name.startsWith('__torch__')) {
-                            return new torch.ClassType(name);
-                        }
-                        throw new python.Error(`Unsupported type '${name}'.`);
-                    }
-                }
-            }
             __str__() {
-                throw new python.Error('Not implemented.');
+                if (this._kind === 'VarType' && this._name) {
+                    return this._name;
+                } else if (this._kind === 'ScalarTypeType') {
+                    return 'ScalarType';
+                } else if (this._kind === 'Layout' || this._kind === 'MemoryFormat') {
+                    return this._kind;
+                }
+                throw new python.Error(`Not implemented '${this.kind()}'.`);
+            }
+            str() {
+                if (this._kind === 'VarType' && this._name) {
+                    return this._name;
+                } else if (this._kind === 'ScalarTypeType') {
+                    return 'ScalarType';
+                } else if (this._kind === 'Layout' || this._kind === 'MemoryFormat') {
+                    return this._kind;
+                } else if (this._kind === 'AnyType') {
+                    return 'Any';
+                } else if (this._kind === 'AnyEnumType') {
+                    return 'AnyEnumType';
+                } else if (this._kind === 'AnyClassType') {
+                    return 'AnyClassType';
+                } else if (this._kind === 'QSchemeType') {
+                    return 'QScheme';
+                } else if (this._kind === 'Storage') {
+                    return 'Storage';
+                }
+                throw new python.Error(`Not implemented '${this.kind()}'.`);
             }
             toString() {
                 return this.__str__();
@@ -6283,6 +6231,9 @@ python.Execution = class {
             }
             methods() {
             }
+            str() {
+                return this.qualified_name();
+            }
         });
         this.registerType('torch.OptionalType', class extends torch.Type {
             constructor(elem) {
@@ -6295,20 +6246,23 @@ python.Execution = class {
             __str__() {
                 return `Optional[${this.getElementType().toString()}]`;
             }
+            str() {
+                return `${this.getElementType().str()}?`;
+            }
         });
         this.registerType('torch.ListType', class extends torch.Type {
-            constructor(elem, size) {
+            constructor(elem) {
                 super('ListType');
                 this._elem = elem;
-                if (size) {
-                    this._size = size;
-                }
             }
             getElementType() {
                 return this._elem;
             }
             __str__() {
                 return `List[${this.getElementType().toString()}]`;
+            }
+            str() {
+                return `${this.getElementType().str()}[]`;
             }
         });
         this.registerType('torch.FutureType', class extends torch.Type {
@@ -6319,6 +6273,12 @@ python.Execution = class {
             }
             getElementType() {
                 return this._elem;
+            }
+            __str__() {
+                return `Future[${this.getElementType().toString()}]`;
+            }
+            str() {
+                return `Future(${this.getElementType().str()})`;
             }
         });
         this.registerType('torch.RRefType', class extends torch.Type {
@@ -6332,6 +6292,9 @@ python.Execution = class {
             __str__() {
                 return `RRef[${this.getElementType().toString()}]`;
             }
+            str() {
+                return `RRef(${this.getElementType().str()})`;
+            }
         });
         this.registerType('torch.AwaitType', class extends torch.Type {
             constructor(elem) {
@@ -6343,6 +6306,9 @@ python.Execution = class {
             }
             __str__() {
                 return `Await[${this.getElementType().toString()}]`;
+            }
+            str() {
+                return `Await(${this.getElementType().str()})`;
             }
         });
         this.registerType('torch.TupleType', class extends torch.Type {
@@ -6356,12 +6322,18 @@ python.Execution = class {
             __str__() {
                 return `Tuple[${this.elements().map((elem) => elem.toString()).join(', ')}]`;
             }
+            str() {
+                return `(${this.elements().map((elem) => elem.str()).join(', ')})`;
+            }
         });
         this.registerType('torch.TensorType', class extends torch.Type {
             constructor() {
                 super('TensorType');
             }
             __str__() {
+                return 'Tensor';
+            }
+            str() {
                 return 'Tensor';
             }
         });
@@ -6374,10 +6346,22 @@ python.Execution = class {
             constructor() {
                 super('NoneType');
             }
+            __str__() {
+                return this.kind();
+            }
+            str() {
+                return this.kind();
+            }
         });
         this.registerType('torch.NumberType', class extends torch.Type {
             constructor() {
                 super('NumberType');
+            }
+            __str__() {
+                return 'number';
+            }
+            str() {
+                return 'Scalar';
             }
         });
         this.registerType('torch.BoolType', class extends torch.Type {
@@ -6385,6 +6369,9 @@ python.Execution = class {
                 super('BoolType');
             }
             __str__() {
+                return 'bool';
+            }
+            str() {
                 return 'bool';
             }
         });
@@ -6395,10 +6382,19 @@ python.Execution = class {
             __str__() {
                 return 'int';
             }
+            str() {
+                return 'int';
+            }
         });
         this.registerType('torch.SymIntType', class extends torch.Type {
             constructor() {
                 super('SymIntType');
+            }
+            __str__() {
+                return 'int';
+            }
+            str() {
+                return 'SymInt';
             }
         });
         this.registerType('torch.FloatType', class extends torch.Type {
@@ -6406,6 +6402,9 @@ python.Execution = class {
                 super('FloatType');
             }
             __str__() {
+                return 'float';
+            }
+            str() {
                 return 'float';
             }
         });
@@ -6416,12 +6415,18 @@ python.Execution = class {
             __str__() {
                 return 'str';
             }
+            str() {
+                return 'str';
+            }
         });
         this.registerType('torch.ComplexType', class extends torch.Type {
             constructor() {
                 super('ComplexType');
             }
             __str__() {
+                return 'complex';
+            }
+            str() {
                 return 'complex';
             }
         });
@@ -6438,7 +6443,10 @@ python.Execution = class {
                 return this._value;
             }
             __str__() {
-                return `Dict(${this.getKeyType().toString()}, ${this.getValueType().toString()})`;
+                return `Dict(${this.getKeyType().__str__()}, ${this.getValueType().__str__()})`;
+            }
+            str() {
+                return `Dict(${this.getKeyType().str()}, ${this.getValueType().str()})`;
             }
         });
         this.registerType('torch.DeviceObjType', class extends torch.Type {
@@ -6446,6 +6454,9 @@ python.Execution = class {
                 super('DeviceObjType');
             }
             __str__() {
+                return 'Device';
+            }
+            str() {
                 return 'Device';
             }
         });
@@ -6456,11 +6467,319 @@ python.Execution = class {
             __str__() {
                 return 'Stream';
             }
+            str() {
+                return 'Stream';
+            }
         });
-        this.registerType('torch._C._GeneratorType', class extends torch.Type {});
+        this.registerType('torch._C._GeneratorType', class extends torch.Type {
+            constructor() {
+                super('GeneratorType');
+            }
+            __str__() {
+                return 'Generator';
+            }
+            str() {
+                return 'Generator';
+            }
+        });
         this.registerType('torch._C.AliasInfo', class {
             constructor() {
                 this.is_write = false;
+                this.before_set = [];
+                this.after_set = [];
+                this.containedTypes = [];
+            }
+            addBeforeSet(value) {
+                this.before_set.push(value);
+            }
+            addAfterSet(value) {
+                this.after_set.push(value);
+            }
+            addContainedType(alias_info) {
+                this.containedTypes.push(alias_info);
+            }
+            str() {
+                const list = ['('];
+                list.push(this.before_set.join('|'));
+                if (this.after_set.length > 0) {
+                    list.push(' -> ');
+                    list.push(this.after_set.join('|'));
+                }
+                if (this.is_write) {
+                    list.push('!');
+                }
+                list.push(')');
+                return list.join('');
+            }
+        });
+        this.registerType('torch._C.FunctionSchemaLexer', class {
+            constructor(buffer) {
+                this.buffer = buffer;
+                this.position = 0;
+                this.value = '';
+                this.next();
+            }
+            eat(kind) {
+                if (this.kind !== kind) {
+                    return null;
+                }
+                const value = this.value;
+                this.next();
+                return value;
+            }
+            expect(kind) {
+                if (this.kind !== kind) {
+                    throw new python.Error(`Unexpected '${this.kind}' instead of '${kind}'.`);
+                }
+                const value = this.value;
+                this.next();
+                return value;
+            }
+            whitespace(count) {
+                if (this.kind !== ' ') {
+                    if (count > this.value.length) {
+                        throw new python.Error();
+                    }
+                    return false;
+                }
+                this.next();
+                return true;
+            }
+            next() {
+                this.position += this.value.length;
+                let i = this.position;
+                if (i >= this.buffer.length) {
+                    this.kind = '\0';
+                    this.value = '';
+                } else if (this.buffer[i] === ' ') {
+                    while (this.buffer[i] === ' ') {
+                        i += 1;
+                    }
+                    this.kind = ' ';
+                    this.value = this.buffer.slice(this.position, i);
+                } else if (this.buffer[i] === '.' && this.buffer[i + 1] === '.' && this.buffer[i + 2] === '.') {
+                    this.kind = '...';
+                    this.value = '...';
+                } else if (this.buffer[i] === '[' && this.buffer[i + 1] === ']') {
+                    this.kind = '[]';
+                    this.value = '[]';
+                } else if (this.buffer[i] === '(' || this.buffer[i] === ')' || this.buffer[i] === ':' || this.buffer[i] === '.' || this.buffer[i] === '[' || this.buffer[i] === ']' || this.buffer[i] === ',' || this.buffer[i] === '=' || this.buffer[i] === '?' || this.buffer[i] === '!' || this.buffer[i] === '*' || this.buffer[i] === '|') {
+                    this.kind = this.buffer[i];
+                    this.value = this.buffer[i];
+                } else if ((this.buffer[i] >= 'a' && this.buffer[i] <= 'z') || (this.buffer[i] >= 'A' && this.buffer[i] <= 'Z') || this.buffer[i] === '_') {
+                    i += 1;
+                    while (i < this.buffer.length && ((this.buffer[i] >= 'a' && this.buffer[i] <= 'z') || (this.buffer[i] >= 'A' && this.buffer[i] <= 'Z') || (this.buffer[i] >= '0' && this.buffer[i] <= '9') || this.buffer[i] === '_')) {
+                        i += 1;
+                    }
+                    this.kind = 'id';
+                    this.value = this.buffer.slice(this.position, i);
+                } else if (this.buffer[i] === '-' && this.buffer[i + 1] === '>') {
+                    this.kind = '->';
+                    this.value = '->';
+                } else if ((this.buffer[i] >= '0' && this.buffer[i] <= '9') || this.buffer[i] === '-') {
+                    i += 1;
+                    while (i < this.buffer.length && ((this.buffer[i] >= '0' && this.buffer[i] <= '9') || this.buffer[i] === '.' || this.buffer[i] === 'e' || this.buffer[i] === '-')) {
+                        i += 1;
+                    }
+                    this.kind = '#';
+                    this.value = this.buffer.slice(this.position, i);
+                } else if (this.buffer[i] === "'" || this.buffer[i] === '"') {
+                    const quote = this.buffer[i];
+                    i += 1;
+                    while (i < this.buffer.length && this.buffer[i] !== quote) {
+                        i += (this.buffer[i] === '\\' && (this.buffer[i + 1] === "'" || this.buffer[i + 1] === '"' || this.buffer[i + 1] === '\\')) ? 2 : 1;
+                    }
+                    i += 1;
+                    this.kind = 'string';
+                    this.value = this.buffer.slice(this.position, i);
+                } else {
+                    throw new python.Error(`Unsupported token at '${this.position}'.`);
+                }
+            }
+        });
+        this.registerType('torch._C.SchemaTypeParser', class {
+            constructor(L) {
+                this.L = L;
+            }
+            parseType() {
+                const r = this.parseFakeAndRealType();
+                return { first: r[0], second: r[2] };
+            }
+            parseBaseType() {
+                const L = this.L;
+                const value = L.value;
+                L.next();
+                switch (value) {
+                    case 'Tensor': return new torch.TensorType();
+                    case 'bool': return new torch.BoolType();
+                    case 'int': return new torch.IntType();
+                    case 'float': return new torch.FloatType();
+                    case 'complex': return new torch.ComplexType();
+                    case 'str': return new torch.StringType();
+                    case 'SymInt': return new torch.SymIntType();
+                    case 'Scalar': return new torch.NumberType();
+                    case 'ScalarType': return new torch.Type('ScalarTypeType');
+                    case 'Device': return new torch.DeviceObjType();
+                    case 'Layout': return new torch.Type('Layout');
+                    case 'MemoryFormat': return new torch.Type('MemoryFormat');
+                    case 'Generator': return new torch._C._GeneratorType();
+                    case 't': case 't1': case 't2': case 'tVal': return new torch.Type('VarType', value);
+                    case 'Any': return new torch.AnyType();
+                    case 'AnyEnumType': return new torch.Type('AnyEnumType');
+                    case 'QScheme': return new torch.Type('QSchemeType');
+                    case 'Stream': return new torch.StreamObjType();
+                    case 'Storage': return new torch.Type('Storage');
+                    case 'AnyClassType': return new torch.Type('AnyClassType');
+                    case 'NoneType': return new torch.NoneType();
+                    default: throw new python.Error(`Unsupported type '${value}'.`);
+                }
+            }
+            parseFakeAndRealType() {
+                const L = this.L;
+                let fake_value = null;
+                let real_value = null;
+                let alias_info = null;
+                if (L.eat('(')) {
+                    const types = [];
+                    L.whitespace(0);
+                    while (!L.eat(')')) {
+                        const r = this.parseType();
+                        types.push(r.first);
+                        if (alias_info && r.second) {
+                            alias_info.addContainedType(r.second);
+                        }
+                        L.whitespace(0);
+                        L.eat(',');
+                        L.whitespace(0);
+                    }
+                    real_value = new torch.TupleType(types);
+                    fake_value = real_value;
+                } else if (L.value === 'Future') {
+                    L.next();
+                    L.expect('(');
+                    const p = this.parseType();
+                    const subtype = p.first;
+                    // const subalias = p.second;
+                    L.expect(')');
+                    real_value = new torch.FutureType(subtype);
+                    fake_value = real_value;
+                } else if (L.value === 'Await') {
+                    L.next();
+                    L.expect('(');
+                    const p = this.parseType();
+                    const subtype = p.first;
+                    // const subalias = p.second;
+                    L.expect(')');
+                    real_value = new torch.AwaitType(subtype);
+                    fake_value = real_value;
+                } else if (L.value === 'RRef') {
+                    L.next();
+                    L.expect('(');
+                    const p = this.parseType();
+                    const subtype = p.first;
+                    // const subalias = p.second;
+                    L.expect(')');
+                    real_value = new torch.RRefType(subtype);
+                    fake_value = real_value;
+                } else if (L.value === 'Tensor') {
+                    L.next();
+                    real_value = new torch.TensorType();
+                    fake_value = real_value;
+                    alias_info = this.parseAliasAnnotation();
+                } else if (L.value === 'Dict') {
+                    L.next();
+                    L.expect('(');
+                    const key_type = this.parseType().first;
+                    L.expect(',');
+                    L.whitespace(0);
+                    const value_type = this.parseType().first;
+                    L.expect(')');
+                    alias_info = this.parseAliasAnnotation();
+                    real_value = new torch.DictType(key_type, value_type);
+                    fake_value = real_value;
+                } else if (L.eat('Union')) {
+                    L.next();
+                    L.expect('(');
+                    const types = [];
+                    types.push(this.parseType().first);
+                    while (L.cur().kind !== ')') {
+                        L.expect(',');
+                        types.emplace_back(this.parseType().first);
+                    }
+                    L.expect(')');
+                    alias_info = this.parseAliasAnnotation();
+                    real_value = new torch.UnionType(types);
+                    fake_value = real_value;
+                /* } else if (complete_tensor_types && L.cur().kind == TK_IDENT && parseTensorDType(L.cur().text())) {
+                    fake_value = real_value = parseRefinedTensor();
+                    alias_info = parseAliasAnnotation(); */
+                } else if (L.value === "__torch__") {
+                    let name = L.expect('id');
+                    while (L.eat('.')) {
+                        name = `${name}.${L.expect('id')}`;
+                    }
+                    real_value = new torch.ClassType(name); // getCustomClass
+                    fake_value = real_value;
+                } else {
+                    real_value = this.parseBaseType();
+                    fake_value = real_value;
+                    if (real_value.kind() === 'ScalarTypeType' ||
+                        real_value.kind() === 'MemoryFormat' ||
+                        real_value.kind() === 'Layout' ||
+                        real_value.kind() === 'SymInt') {
+                        fake_value = new torch.IntType();
+                    }
+                    alias_info = this.parseAliasAnnotation();
+                }
+                while (true) {
+                    if (L.kind === '[]') {
+                        L.expect('[]');
+                        fake_value = new torch.ListType(fake_value);
+                        real_value = new torch.ListType(real_value);
+                        let container = this.parseAliasAnnotation();
+                        if (alias_info) {
+                            if (!container) {
+                                container = new torch._C.AliasInfo();
+                                container.is_write = alias_info.is_write;
+                            }
+                            container.addContainedType(alias_info);
+                        }
+                        alias_info = container;
+                    } else if (L.eat('?')) {
+                        fake_value = new torch.OptionalType(fake_value);
+                        real_value = new torch.OptionalType(real_value);
+                    } else {
+                        break;
+                    }
+                }
+                return [fake_value, real_value, alias_info];
+            }
+            parseAliasAnnotation() {
+                const L = this.L;
+                let alias_info = null;
+                if (L.eat('(')) {
+                    alias_info = new torch._C.AliasInfo();
+                    do {
+                        alias_info.addBeforeSet(L.value);
+                        L.next();
+                        if (L.eat('!')) {
+                            alias_info.is_write = true;
+                        }
+                        L.whitespace(0);
+                    }
+                    while (L.eat('|'));
+                    if (L.eat('->')) {
+                        L.whitespace(0);
+                        do {
+                            alias_info.addAfterSet(L.value);
+                            L.next();
+                            L.whitespace(0);
+                        }
+                        while (L.eat('|'));
+                    }
+                    L.expect(')');
+                }
+                return alias_info;
             }
         });
         this.registerType('torch.Argument', class {
@@ -6472,102 +6791,149 @@ python.Execution = class {
                 this.N = N;
                 this.default_value = default_value;
                 this.kwarg_only = kwarg_only;
+                this.alias_info = alias_info;
                 const is_alias = alias_info && alias_info.is_write;
                 this.is_out = this.kwarg_only && is_alias;
             }
             has_default_value() {
                 return this.default_value !== undefined;
             }
-            static parse(lexer, is_return, kwarg_only) {
-                let value = torch.Type.parse(lexer);
-                lexer.whitespace(0);
-                let alias_info = null;
-                const N = null;
-                while (true) {
-                    if (lexer.eat('[')) {
-                        let size = null;
-                        if (lexer.kind === '#') {
-                            size = Number(lexer.value);
-                            lexer.next();
+            static parse(L, is_return, kwarg_only) {
+                const type_parser = new torch._C.SchemaTypeParser(L);
+                let [fake_type, real_type, alias_info] = type_parser.parseFakeAndRealType();
+                L.whitespace(0);
+                let N = null;
+                if (L.eat('[')) {
+                    fake_type = new torch.ListType(fake_type);
+                    real_type = new torch.ListType(real_type);
+                    if (L.kind === '#') {
+                        N = Number(L.value);
+                        L.next();
+                    }
+                    L.expect(']');
+                    let container = type_parser.parseAliasAnnotation();
+                    if (alias_info) {
+                        if (!container) {
+                            container = new torch._C.AliasInfo();
+                            container.is_write = alias_info.is_write;
                         }
-                        lexer.expect(']');
-                        value = new torch.ListType(value, size);
-                    } else if (lexer.eat('?')) {
-                        value = new torch.OptionalType(value);
-                    } else if (lexer.kind === '(' && !alias_info) {
-                        alias_info = new torch._C.AliasInfo();
-                        lexer.expect('(');
-                        while (!lexer.eat(')')) {
-                            if (lexer.value === '!') {
-                                alias_info.is_write = true;
-                            }
-                            lexer.next();
-                        }
-                    } else {
-                        break;
+                        container.addContainedType(alias_info);
+                    }
+                    alias_info = container;
+                    if (L.eat('?')) {
+                        /* eslint-disable no-unused-vars */
+                        fake_type = new torch.OptionalType(fake_type);
+                        /* eslint-enable no-unused-vars */
+                        real_type = new torch.OptionalType(real_type);
                     }
                 }
                 let name = null;
-                let default_value = null;
-                const real_type = value;
+                /* eslint-disable no-undef-init */
+                let default_value = undefined;
+                /* eslint-enable no-undef-init */
                 const type = null;
                 if (is_return) {
-                    lexer.whitespace(0);
+                    L.whitespace(0);
                     kwarg_only = false;
-                    if (lexer.kind === 'id') {
-                        name = lexer.expect('id');
+                    if (L.kind === 'id') {
+                        name = L.expect('id');
                     }
                 } else {
-                    lexer.whitespace(1);
-                    name = lexer.expect('id');
-                    lexer.whitespace(0);
-                    if (lexer.eat('=')) {
-                        lexer.whitespace(0);
-                        default_value = torch.Argument._parse_value(lexer);
+                    L.whitespace(1);
+                    name = L.expect('id');
+                    L.whitespace(0);
+                    if (L.eat('=')) {
+                        L.whitespace(0);
+                        default_value = torch.Argument._parse_value(L);
                     }
                 }
                 return new torch.Argument(name, type, real_type, N, default_value, kwarg_only, alias_info);
             }
-            static _parse_value(lexer) {
-                let value = null;
-                if (lexer.kind === 'id') {
-                    if (lexer.value === 'True' || lexer.value === 'False') {
-                        value = lexer.value === 'True';
-                    } else if (lexer.value === 'None') {
+            static _parse_value(L) {
+                /* eslint-disable no-undef-init */
+                let value = undefined;
+                /* eslint-enable no-undef-init */
+                if (L.kind === 'id') {
+                    if (L.value === 'True' || L.value === 'False') {
+                        value = L.value === 'True';
+                    } else if (L.value === 'None') {
                         value = null;
-                    } else if (lexer.value === 'Mean' || lexer.value === 'contiguous_format' || lexer.value === 'long') {
-                        value = lexer.value;
+                    } else if (L.value === 'Mean' || L.value === 'contiguous_format' || L.value === 'long') {
+                        value = L.value;
+                    } else if (typeof L.value === 'string') {
+                        value = L.value;
+                    } else if (typeof L.value === 'number') {
+                        value = L.value;
                     } else {
-                        throw new python.Error(`Unsupported default value '${lexer.value}'.`);
+                        throw new python.Error(`Unsupported default value '${L.value}'.`);
                     }
-                } else if (lexer.kind === '#') {
-                    value = Number(lexer.value);
-                } else if (lexer.kind === 'string') {
-                    value = lexer.value.slice(1, -1);
-                } else if (lexer.eat('[')) {
+                } else if (L.kind === '#') {
+                    value = Number(L.value);
+                } else if (L.kind === 'string') {
+                    value = L.value.slice(1, -1);
+                } else if (L.kind === '[]') {
                     value = [];
-                    if (!lexer.eat(']')) {
+                } else if (L.eat('[')) {
+                    value = [];
+                    if (!L.eat(']')) {
                         while (true) {
-                            lexer.whitespace(0);
-                            value.push(torch.Argument._parse_value(lexer));
-                            lexer.whitespace(0);
-                            if (!lexer.eat(',')) {
+                            L.whitespace(0);
+                            value.push(torch.Argument._parse_value(L));
+                            L.whitespace(0);
+                            if (!L.eat(',')) {
                                 break;
                             }
                         }
-                        lexer.expect(']');
+                        L.expect(']');
                     }
                     return value;
                 } else {
-                    throw new python.Error(`Unsupported default value '${lexer.kind}'.`);
+                    throw new python.Error(`Unsupported default value '${L.kind}'.`);
                 }
-                lexer.next();
+                L.next();
                 return value;
             }
-            toString() {
+            str() {
                 const list = [];
+                const type = this.real_type;
+                const is_opt = type instanceof torch.OptionalType;
+                const unopt_type = is_opt ? type.getElementType() : type;
+                if (unopt_type instanceof torch.ListType) {
+                    list.push(unopt_type.getElementType().str());
+                    if (this.alias_info && this.alias_info.containedTypes.length > 0) {
+                        list.push(this.alias_info.containedTypes[0].str());
+                    }
+                    list.push(this.N === null ? `[]` : `[${this.N}]`);
+                } else {
+                    list.push(unopt_type.str());
+                }
+                if (this.alias_info && this.alias_info.before_set.length > 0) {
+                    list.push(this.alias_info.str());
+                }
+                if (is_opt) {
+                    list.push('?');
+                }
                 if (this.name) {
+                    list.push(' ');
                     list.push(this.name);
+                }
+                if (this.default_value !== undefined) {
+                    const value = this.default_value;
+                    if (value === null) {
+                        list.push('=None');
+                    } else if (typeof value === 'boolean') {
+                        list.push('=');
+                        list.push(value ? 'True' : 'False');
+                    } else if (typeof value === 'string') {
+                        list.push(`="${value}"`);
+                    } else if (typeof value === 'number') {
+                        list.push(`=${value}`);
+                        if (Number.isInteger(value) && this.real_type instanceof torch.FloatType) {
+                            list.push(`.`);
+                        }
+                    } else if (Array.isArray(value)) {
+                        list.push(`=[${value.join(', ')}]`);
+                    }
                 }
                 return list.join('');
             }
@@ -6622,143 +6988,63 @@ python.Execution = class {
             }
             _parse() {
                 if (this._buffer) {
-                    torch.FunctionSchema.Lexer = torch.FunctionSchema.Lexer || class {
-                        constructor(buffer) {
-                            this.buffer = buffer;
-                            this.position = 0;
-                            this.value = '';
-                            this.next();
-                        }
-                        eat(kind) {
-                            if (this.kind !== kind) {
-                                return null;
-                            }
-                            const value = this.value;
-                            this.next();
-                            return value;
-                        }
-                        expect(kind) {
-                            if (this.kind !== kind) {
-                                throw new python.Error(`Unexpected '${this.kind}' instead of '${kind}'.`);
-                            }
-                            const value = this.value;
-                            this.next();
-                            return value;
-                        }
-                        whitespace(count) {
-                            if (this.kind !== ' ') {
-                                if (count > this.value.length) {
-                                    throw new python.Error();
-                                }
-                                return false;
-                            }
-                            this.next();
-                            return true;
-                        }
-                        next() {
-                            this.position += this.value.length;
-                            let i = this.position;
-                            if (i >= this.buffer.length) {
-                                this.kind = '\0';
-                                this.value = '';
-                            } else if (this.buffer[i] === ' ') {
-                                while (this.buffer[i] === ' ') {
-                                    i += 1;
-                                }
-                                this.kind = ' ';
-                                this.value = this.buffer.slice(this.position, i);
-                            } else if (this.buffer[i] === '.' && this.buffer[i + 1] === '.' && this.buffer[i + 2] === '.') {
-                                this.kind = '...';
-                                this.value = '...';
-                            } else if (this.buffer[i] === '(' || this.buffer[i] === ')' || this.buffer[i] === ':' || this.buffer[i] === '.' || this.buffer[i] === '[' || this.buffer[i] === ']' || this.buffer[i] === ',' || this.buffer[i] === '=' || this.buffer[i] === '?' || this.buffer[i] === '!' || this.buffer[i] === '*' || this.buffer[i] === '|') {
-                                this.kind = this.buffer[i];
-                                this.value = this.buffer[i];
-                            } else if ((this.buffer[i] >= 'a' && this.buffer[i] <= 'z') || (this.buffer[i] >= 'A' && this.buffer[i] <= 'Z') || this.buffer[i] === '_') {
-                                i += 1;
-                                while (i < this.buffer.length && ((this.buffer[i] >= 'a' && this.buffer[i] <= 'z') || (this.buffer[i] >= 'A' && this.buffer[i] <= 'Z') || (this.buffer[i] >= '0' && this.buffer[i] <= '9') || this.buffer[i] === '_')) {
-                                    i += 1;
-                                }
-                                this.kind = 'id';
-                                this.value = this.buffer.slice(this.position, i);
-                            } else if (this.buffer[i] === '-' && this.buffer[i + 1] === '>') {
-                                this.kind = '->';
-                                this.value = '->';
-                            } else if ((this.buffer[i] >= '0' && this.buffer[i] <= '9') || this.buffer[i] === '-') {
-                                i += 1;
-                                while (i < this.buffer.length && ((this.buffer[i] >= '0' && this.buffer[i] <= '9') || this.buffer[i] === '.' || this.buffer[i] === 'e' || this.buffer[i] === '-')) {
-                                    i += 1;
-                                }
-                                this.kind = '#';
-                                this.value = this.buffer.slice(this.position, i);
-                            } else if (this.buffer[i] === "'" || this.buffer[i] === '"') {
-                                const quote = this.buffer[i];
-                                i += 1;
-                                while (i < this.buffer.length && this.buffer[i] !== quote) {
-                                    i += (this.buffer[i] === '\\' && (this.buffer[i + 1] === "'" || this.buffer[i + 1] === '"' || this.buffer[i + 1] === '\\')) ? 2 : 1;
-                                }
-                                i += 1;
-                                this.kind = 'string';
-                                this.value = this.buffer.slice(this.position, i);
-                            } else {
-                                throw new python.Error(`Unsupported token at '${this.position}'.`);
-                            }
-                        }
-                    };
-                    const lexer = new torch.FunctionSchema.Lexer(this._buffer);
+                    const L = new torch._C.FunctionSchemaLexer(this._buffer);
                     this._arguments = [];
                     this._is_vararg = false;
                     this._kwarg_only = false;
-                    lexer.expect('(');
-                    if (!lexer.eat(')')) {
+                    L.expect('(');
+                    if (!L.eat(')')) {
                         while (true) {
-                            lexer.whitespace(0);
+                            L.whitespace(0);
                             if (this._is_vararg) {
                                 throw new python.Error();
                             }
-                            if (lexer.eat('*')) {
+                            if (L.eat('*')) {
                                 this._kwarg_only = true;
-                            } else if (lexer.eat('...')) {
+                            } else if (L.eat('...')) {
                                 this._is_vararg = true;
                             } else {
-                                this._arguments.push(torch.Argument.parse(lexer, false, this._kwarg_only));
+                                const argument = torch.Argument.parse(L, false, this._kwarg_only);
+                                this._arguments.push(argument);
                             }
-                            lexer.whitespace(0);
-                            if (!lexer.eat(',')) {
+                            L.whitespace(0);
+                            if (!L.eat(',')) {
                                 break;
                             }
                         }
-                        lexer.expect(')');
+                        L.expect(')');
                     }
-                    lexer.whitespace(0);
-                    lexer.expect('->');
-                    lexer.whitespace(0);
+                    L.whitespace(0);
+                    L.expect('->');
+                    L.whitespace(0);
                     this._returns = [];
                     this._is_varret = false;
-                    if (lexer.eat('...')) {
+                    if (L.eat('...')) {
                         this._is_varret = true;
-                    } else if (lexer.eat('(')) {
-                        lexer.whitespace(0);
-                        if (!lexer.eat(')')) {
+                    } else if (L.eat('(')) {
+                        L.whitespace(0);
+                        if (!L.eat(')')) {
                             while (true) {
-                                lexer.whitespace(0);
+                                L.whitespace(0);
                                 if (this._is_varret) {
                                     throw new python.Error();
                                 }
-                                if (lexer.eat('...')) {
+                                if (L.eat('...')) {
                                     this._is_varret = true;
                                 } else {
-                                    this._returns.push(torch.Argument.parse(lexer, true, false));
+                                    const argument = torch.Argument.parse(L, true, false);
+                                    this._returns.push(argument);
                                 }
-                                lexer.whitespace(0);
-                                if (!lexer.eat(',')) {
+                                L.whitespace(0);
+                                if (!L.eat(',')) {
                                     break;
                                 }
                             }
-                            lexer.expect(')');
+                            L.expect(')');
                         }
-                        lexer.whitespace(0);
+                        L.whitespace(0);
                     } else {
-                        this._returns.push(torch.Argument.parse(lexer, true, false));
+                        this._returns.push(torch.Argument.parse(L, true, false));
                     }
                     delete this._buffer;
                 }
@@ -6771,12 +7057,17 @@ python.Execution = class {
                 }
                 list.push('(');
                 let first = true;
+                let kwarg_only = false;
                 for (const argument of this.arguments) {
                     if (!first) {
                         list.push(', ');
                     }
+                    if (argument.kwarg_only && !kwarg_only) {
+                        list.push('*, ');
+                        kwarg_only = true;
+                    }
                     first = false;
-                    list.push(argument.toString());
+                    list.push(argument.str());
                 }
                 if (this.is_vararg) {
                     if (!first) {
@@ -6787,7 +7078,11 @@ python.Execution = class {
                 }
                 list.push(') -> ');
                 const returns = this.returns;
-                if (returns.length > 1) {
+                const braces = !this.is_varret &&
+                   (returns.length !== 1 ||
+                    returns[0].real_type instanceof torch.TupleType ||
+                    returns[0].real_type instanceof torch.ListType && returns[0].real_type.getElementType() instanceof torch.TupleType);
+                if (braces) {
                     list.push('(');
                 }
                 first = true;
@@ -6796,9 +7091,16 @@ python.Execution = class {
                         list.push(', ');
                     }
                     first = false;
-                    list.push(argument.toString());
+                    list.push(argument.str());
                 }
-                if (returns.length > 1) {
+                if (this.is_varret) {
+                    if (!first) {
+                        list.push(', ');
+                    }
+                    first = true;
+                    list.push('...');
+                }
+                if (braces) {
                     list.push(')');
                 }
                 return list.join('');

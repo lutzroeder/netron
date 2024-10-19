@@ -1921,8 +1921,8 @@ pytorch.Execution = class extends python.Execution {
             case 'Tensor?[]': return new torch.ListType(new torch.OptionalType(new torch.TensorType()));
             case 'Scalar': return new torch.NumberType();
             case 'Scalar?': return new torch.OptionalType(new torch.NumberType());
-            case 'ScalarType': return new torch.Type('ScalarType');
-            case 'ScalarType?': return new torch.OptionalType(new torch.Type('ScalarType'));
+            case 'ScalarType': return new torch.Type('ScalarTypeType');
+            case 'ScalarType?': return new torch.OptionalType(new torch.Type('ScalarTypeType'));
             case 'Layout': return new torch.Type('Layout');
             case 'Layout?': return new torch.OptionalType(new torch.Type('Layout'));
             case 'Device': return new torch.DeviceObjType();
@@ -1937,43 +1937,43 @@ pytorch.Execution = class extends python.Execution {
             case 'Generator?': return new torch.OptionalType(new torch._C._GeneratorType());
             case 'Any': return new torch.AnyType();
             case 'Any[]': return new torch.ListType(new torch.AnyType());
-            case 'AnyEnumType': return new torch.Type();
-            case 't[]': return new torch.ListType(new torch.Type('VarType'));
-            case 't?': return new torch.OptionalType(new torch.Type('VarType'));
+            case 'AnyEnumType': return new torch.Type('AnyEnumType');
+            case 't[]': return new torch.ListType(new torch.Type('VarType', 't'));
+            case 't?': return new torch.OptionalType(new torch.Type('VarType', 't'));
             case 't': case 't1': case 't2': case 'tVal': {
                 if (types && types.has(type)) {
                     return types.get(type);
                 }
-                return new torch.Type('VarType');
+                return new torch.Type('VarType', type);
             }
-            case 'Future(t)': return new torch.FutureType(new torch.Type('VarType'));
+            case 'Future(t)': return new torch.FutureType(new torch.Type('VarType', 't'));
             case 'AnyClassType': return null;
             case 'AnyClassType?': return new torch.OptionalType(null);
-            case 'Dict(string, tVal)':
-            case 'Dict(string, t)': return new torch.DictType(new torch.StringType(), new torch.Type('VarType'));
+            case 'Dict(string, tVal)': return new torch.DictType(new torch.StringType(), new torch.Type('VarType', 'tVal'));
+            case 'Dict(string, t)': return new torch.DictType(new torch.StringType(), new torch.Type('VarType', 't'));
             case 'Dict(string, Tensor)': return new torch.DictType(new torch.StringType(), new torch.TensorType('VarType'));
-            case 'Dict(int64, tVal)':
-            case 'Dict(int64, t)': return new torch.DictType(new torch.IntType(), new torch.Type('VarType'));
-            case 'Dict(float32, tVal)':
-            case 'Dict(float32, t)': return new torch.DictType(new torch.FloatType(), new torch.Type('VarType'));
-            case 'Dict(boolean, tVal)':
-            case 'Dict(boolean, t)': return new torch.DictType(new torch.BoolType(), new torch.Type('VarType'));
-            case 'Dict(complex, tVal)':
-            case 'Dict(complex, t)': return new torch.DictType(new torch.ComplexType(), new torch.Type('VarType'));
-            case 'Dict(Tensor, t)':
-            case 'Dict(Tensor, tVal)': return new torch.DictType(new torch.TensorType(), new torch.Type('VarType'));
-            case '(boolean, t)[]':
-            case '(boolean, tVal)[]': return new torch.ListType(new torch.TupleType([new torch.BoolType(), new torch.Type('VarType')]));
-            case '(float32, t)[]':
-            case '(float32, tVal)[]': return new torch.ListType(new torch.TupleType([new torch.FloatType(), new torch.Type('VarType')]));
-            case '(int64, t)[]':
-            case '(int64, tVal)[]': return new torch.ListType(new torch.TupleType([new torch.IntType(), new torch.Type('VarType')]));
-            case '(string, t)[]':
-            case '(string, tVal)[]': return new torch.ListType(new torch.TupleType([new torch.StringType(), new torch.Type('VarType')]));
-            case '(complex, t)[]':
-            case '(complex, tVal)[]': return new torch.ListType(new torch.TupleType([new torch.ComplexType(), new torch.Type('VarType')]));
-            case '(Tensor, t)[]':
-            case '(Tensor, tVal)[]': return new torch.ListType(new torch.TupleType([new torch.TensorType(), new torch.Type('VarType')]));
+            case 'Dict(int64, tVal)': return new torch.DictType(new torch.IntType(), new torch.Type('VarType', 'tVal'));
+            case 'Dict(int64, t)': return new torch.DictType(new torch.IntType(), new torch.Type('VarType', 't'));
+            case 'Dict(float32, tVal)': return new torch.DictType(new torch.FloatType(), new torch.Type('VarType', 'tVal'));
+            case 'Dict(float32, t)': return new torch.DictType(new torch.FloatType(), new torch.Type('VarType', 't'));
+            case 'Dict(boolean, tVal)': return new torch.DictType(new torch.BoolType(), new torch.Type('VarType', 'tVal'));
+            case 'Dict(boolean, t)': return new torch.DictType(new torch.BoolType(), new torch.Type('VarType', 't'));
+            case 'Dict(complex, tVal)': return new torch.DictType(new torch.ComplexType(), new torch.Type('VarType', 'tVal'));
+            case 'Dict(complex, t)': return new torch.DictType(new torch.ComplexType(), new torch.Type('VarType', 't'));
+            case 'Dict(Tensor, t)': return new torch.DictType(new torch.TensorType(), new torch.Type('VarType', 't'));
+            case 'Dict(Tensor, tVal)': return new torch.DictType(new torch.TensorType(), new torch.Type('VarType', 'tVal'));
+            case '(boolean, t)[]': return new torch.ListType(new torch.TupleType([new torch.BoolType(), new torch.Type('VarType', 't')]));
+            case '(boolean, tVal)[]': return new torch.ListType(new torch.TupleType([new torch.BoolType(), new torch.Type('VarType', 'Val')]));
+            case '(float32, t)[]': return new torch.ListType(new torch.TupleType([new torch.FloatType(), new torch.Type('VarType', 't')]));
+            case '(float32, tVal)[]': return new torch.ListType(new torch.TupleType([new torch.FloatType(), new torch.Type('VarType', 'tVal')]));
+            case '(int64, t)[]': return new torch.ListType(new torch.TupleType([new torch.IntType(), new torch.Type('VarType', 't')]));
+            case '(int64, tVal)[]': return new torch.ListType(new torch.TupleType([new torch.IntType(), new torch.Type('VarType', 'tVal')]));
+            case '(string, t)[]': return new torch.ListType(new torch.TupleType([new torch.StringType(), new torch.Type('VarType', 't')]));
+            case '(string, tVal)[]': return new torch.ListType(new torch.TupleType([new torch.StringType(), new torch.Type('VarType', 'tVal')]));
+            case '(complex, t)[]': return new torch.ListType(new torch.TupleType([new torch.ComplexType(), new torch.Type('VarType', 't')]));
+            case '(complex, tVal)[]': return new torch.ListType(new torch.TupleType([new torch.ComplexType(), new torch.Type('VarType', 'tVal')]));
+            case '(Tensor, t)[]': return new torch.ListType(new torch.TupleType([new torch.TensorType(), new torch.Type('VarType', 't')]));
+            case '(Tensor, tVal)[]': return new torch.ListType(new torch.TupleType([new torch.TensorType(), new torch.Type('VarType', 'tVal')]));
             default: {
                 if (type.startsWith('__torch__.')) {
                     return new torch.ClassType(type);
@@ -1994,6 +1994,7 @@ pytorch.Execution = class extends python.Execution {
                 const args = type.inputs.map((arg) => new torch.Argument(arg.name, null, this.toType(arg.type), null, arg.default, arg.kwarg_only || false, arg.alias_info));
                 const returns = type.outputs.map((arg) => new torch.Argument(arg.name, null, this.toType(arg.type), null, arg.default, arg.kwarg_only || false, arg.alias_info));
                 const schema = new torch.FunctionSchema(name, overload_name || '', args, returns, type.is_vararg || false, type.is_varret || false);
+                // console.log(schema.__str__());
                 const op = new torch._C.Operator(schema);
                 registry.registerOperator(op);
                 modules.add(type.name.split('::')[0]);
