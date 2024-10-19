@@ -7519,7 +7519,7 @@
     "name": "CenterCropPad",
     "module": "ai.onnx",
     "version": 18,
-    "description": "Center crop or pad an input to given dimensions.\n\nThe crop/pad dimensions can be specified for a subset of the `axes`. Non-specified dimensions will not be\ncropped or padded.\n\nIf the input dimensions are bigger than the crop shape, a centered cropping window is extracted from the input.\nIf the input dimensions are smaller than the crop shape, the input is padded on each side equally,\nso that the input is centered in the output.\n",
+    "description": "Center crop or pad an input to given dimensions.\n\nThe crop/pad dimensions can be specified for a subset of the `axes`; unspecified dimensions will remain unchanged.\n\nIf the input dimensions are larger than the target crop dimensions, a centered cropping window will be extracted\nfrom the input. The starting value for the cropping window is rounded down, which means that if the difference\nbetween the input shape and the crop shape is odd, the cropping window will be shifted half a pixel to the left\nof the input center.\n\nIf the input dimensions are smaller than the target crop dimensions, the input will be padded equally on both sides\nto center it in the output. In cases where the total number of padding pixels is odd, an additional pixel will be\nadded to the right side.\n\nThe padding value used is zero.\n",
     "attributes": [
       {
         "name": "axes",
