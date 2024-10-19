@@ -305,6 +305,7 @@ class Metadata: # pylint: disable=too-few-public-methods,missing-class-docstring
 
 class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
     def __init__(self, value):
+        self.value = value
         lexer = Schema.Lexer(value)
         lexer.whitespace(0)
         self._parse_name(lexer)

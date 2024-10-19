@@ -8,6 +8,16 @@ case "${OSTYPE}" in
     *) python="python";;
 esac
 
+venv() {
+    env_dir=./third_party/env/pytorch
+    [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
+    case "${OSTYPE}" in
+        msys*) source ${env_dir}/Scripts/activate;;
+        *) source ${env_dir}/bin/activate;;
+    esac
+    ${python} -m pip install --quiet --upgrade pip requests
+}
+
 clean() {
     echo "pytorch clean"
     rm -rf "./third_party/source/pytorch"
@@ -22,6 +32,16 @@ sync() {
     curl --silent --location --output "./third_party/source/executorch/schema/scalar_type.fbs" "https://github.com/pytorch/executorch/raw/main/schema/scalar_type.fbs"
     curl --silent --location --output "./third_party/source/executorch/schema/program.fbs" "https://github.com/pytorch/executorch/raw/main/schema/program.fbs"
 }
+
+install() {
+    echo "pytorch install"
+    venv
+    ${python} -m pip install --quiet --upgrade wheel
+    ${python} -m pip install --quiet --upgrade  --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cpu
+    # ${python} -m pip install --quiet --upgrade torch-neuron --index-url https://pip.repos.neuron.amazonaws.com
+    deactivate
+}
+
 
 schema() {
     [[ $(grep -U $'\x0D' ./source/pytorch-schema.js) ]] && crlf=1
@@ -45,6 +65,7 @@ while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
         "clean") clean;;
+        "install") install;;
         "sync") sync;;
         "schema") schema;;
         "metadata") metadata;;

@@ -5691,7 +5691,6 @@
     "type":     "pytorch",
     "target":   "module_000007.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9075631/module_000007.pt.zip[module_000007.pt]",
-    "error":    "Unknown function 'torch.size'.",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5783,7 +5782,6 @@
     "type":     "pytorch",
     "target":   "netron_issue_547_1.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5137393/netron_issue_547_1.zip[netron_issue_547_1.pt]",
-    "error":    "Unknown function 'torch.add'.",
     "link":     "https://github.com/lutzroeder/netron/issues/547"
   },
   {

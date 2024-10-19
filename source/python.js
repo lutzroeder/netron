@@ -853,14 +853,17 @@ python.Parser = class {
     }
 
     _type() {
-        const type = this._node();
-        type.type = 'type';
-        type.name = this._expression(-1, ['[', '=']);
-        if (type.name) {
+        const target = this._expression(-1, ['[', '=']);
+        if (target) {
             if (this._tokenizer.peek().value === '[') {
-                type.arguments = this._typeArguments();
+                const type = this._node();
+                type.type = '[]';
+                type.target = target;
+                type.arguments = this._expressions();
+                // type.arguments = this._typeArguments();
+                return type;
             }
-            return type;
+            return target;
         }
         return null;
     }
@@ -6154,38 +6157,26 @@ python.Execution = class {
                     this._name = name;
                 }
             }
+            static get(kind, name) {
+                return new torch.Type(kind, name);
+            }
             kind() {
                 return this._kind;
-            }
-            __str__() {
-                if (this._kind === 'VarType' && this._name) {
-                    return this._name;
-                } else if (this._kind === 'ScalarTypeType') {
-                    return 'ScalarType';
-                } else if (this._kind === 'Layout' || this._kind === 'MemoryFormat') {
-                    return this._kind;
-                }
-                throw new python.Error(`Not implemented '${this.kind()}'.`);
             }
             str() {
                 if (this._kind === 'VarType' && this._name) {
                     return this._name;
                 } else if (this._kind === 'ScalarTypeType') {
                     return 'ScalarType';
-                } else if (this._kind === 'Layout' || this._kind === 'MemoryFormat') {
-                    return this._kind;
-                } else if (this._kind === 'AnyType') {
-                    return 'Any';
-                } else if (this._kind === 'AnyEnumType') {
-                    return 'AnyEnumType';
-                } else if (this._kind === 'AnyClassType') {
-                    return 'AnyClassType';
                 } else if (this._kind === 'QSchemeType') {
                     return 'QScheme';
-                } else if (this._kind === 'Storage') {
-                    return 'Storage';
+                } else if (this._kind) {
+                    return this._kind;
                 }
                 throw new python.Error(`Not implemented '${this.kind()}'.`);
+            }
+            __str__() {
+                return this.str();
             }
             toString() {
                 return this.__str__();
@@ -6240,14 +6231,17 @@ python.Execution = class {
                 super('OptionalType');
                 this._elem = elem;
             }
+            static get(elem) {
+                return new torch.OptionalType(elem);
+            }
             getElementType() {
                 return this._elem;
             }
-            __str__() {
-                return `Optional[${this.getElementType().toString()}]`;
-            }
             str() {
                 return `${this.getElementType().str()}?`;
+            }
+            __str__() {
+                return `Optional[${this.getElementType().__str__()}]`;
             }
         });
         this.registerType('torch.ListType', class extends torch.Type {
@@ -6255,30 +6249,35 @@ python.Execution = class {
                 super('ListType');
                 this._elem = elem;
             }
+            static get(elem) {
+                return new torch.ListType(elem);
+            }
             getElementType() {
                 return this._elem;
-            }
-            __str__() {
-                return `List[${this.getElementType().toString()}]`;
             }
             str() {
                 return `${this.getElementType().str()}[]`;
             }
+            __str__() {
+                return `List[${this.getElementType().__str__()}]`;
+            }
         });
         this.registerType('torch.FutureType', class extends torch.Type {
-            constructor(elem, size) {
+            constructor(elem) {
                 super('FutureType');
                 this._elem = elem;
-                this._size = size;
+            }
+            static get(elem) {
+                return new torch.FutureType(elem);
             }
             getElementType() {
                 return this._elem;
             }
-            __str__() {
-                return `Future[${this.getElementType().toString()}]`;
-            }
             str() {
                 return `Future(${this.getElementType().str()})`;
+            }
+            __str__() {
+                return `Future[${this.getElementType().__str__()}]`;
             }
         });
         this.registerType('torch.RRefType', class extends torch.Type {
@@ -6286,14 +6285,17 @@ python.Execution = class {
                 super('RRefType');
                 this._elem = elem;
             }
+            get(elem) {
+                return new torch.RRefType(elem);
+            }
             getElementType() {
                 return this._elem;
             }
-            __str__() {
-                return `RRef[${this.getElementType().toString()}]`;
-            }
             str() {
                 return `RRef(${this.getElementType().str()})`;
+            }
+            __str__() {
+                return `RRef[${this.getElementType().__str__()}]`;
             }
         });
         this.registerType('torch.AwaitType', class extends torch.Type {
@@ -6301,14 +6303,17 @@ python.Execution = class {
                 super('AwaitType');
                 this._elem = elem;
             }
+            static get(elem) {
+                return new torch.AwaitType(elem);
+            }
             getElementType() {
                 return this._elem;
             }
-            __str__() {
-                return `Await[${this.getElementType().toString()}]`;
-            }
             str() {
                 return `Await(${this.getElementType().str()})`;
+            }
+            __str__() {
+                return `Await[${this.getElementType().__str__()}]`;
             }
         });
         this.registerType('torch.TupleType', class extends torch.Type {
@@ -6316,62 +6321,88 @@ python.Execution = class {
                 super('TupleType');
                 this._elements = elements;
             }
+            static get(elements) {
+                return new torch.TupleType(elements);
+            }
             elements() {
                 return this._elements;
-            }
-            __str__() {
-                return `Tuple[${this.elements().map((elem) => elem.toString()).join(', ')}]`;
             }
             str() {
                 return `(${this.elements().map((elem) => elem.str()).join(', ')})`;
             }
-        });
-        this.registerType('torch.TensorType', class extends torch.Type {
-            constructor() {
-                super('TensorType');
-            }
             __str__() {
-                return 'Tensor';
-            }
-            str() {
-                return 'Tensor';
+                return `Tuple[${this.elements().map((elem) => elem.__str__()).join(', ')}]`;
             }
         });
         this.registerType('torch.AnyType', class extends torch.Type {
             constructor() {
                 super('AnyType');
             }
+            static get() {
+                torch.AnyType.value = torch.AnyType.value || new torch.AnyType();
+                return torch.AnyType.value;
+            }
+            str() {
+                return 'AnyType';
+            }
         });
         this.registerType('torch.NoneType', class extends torch.Type {
             constructor() {
                 super('NoneType');
             }
-            __str__() {
-                return this.kind();
+            static get() {
+                torch.NoneType.value = torch.NoneType.value || new torch.NoneType();
+                return torch.NoneType.value;
             }
             str() {
-                return this.kind();
+                return 'NoneType';
+            }
+            __str__() {
+                return 'NoneType';
+            }
+        });
+        this.registerType('torch.TensorType', class extends torch.Type {
+            constructor() {
+                super('TensorType');
+            }
+            static get() {
+                torch.TensorType.value = torch.TensorType.value || new torch.TensorType();
+                return torch.TensorType.value;
+            }
+            str() {
+                return 'Tensor';
+            }
+            __str__() {
+                return 'Tensor';
             }
         });
         this.registerType('torch.NumberType', class extends torch.Type {
             constructor() {
                 super('NumberType');
             }
-            __str__() {
-                return 'number';
+            static get() {
+                torch.NumberType.value = torch.NumberType.value || new torch.NumberType();
+                return torch.NumberType.value;
             }
             str() {
                 return 'Scalar';
+            }
+            __str__() {
+                return 'number';
             }
         });
         this.registerType('torch.BoolType', class extends torch.Type {
             constructor() {
                 super('BoolType');
             }
-            __str__() {
-                return 'bool';
+            static get() {
+                torch.BoolType.value = torch.BoolType.value || new torch.BoolType();
+                return torch.BoolType.value;
             }
             str() {
+                return 'bool';
+            }
+            __str__() {
                 return 'bool';
             }
         });
@@ -6379,10 +6410,14 @@ python.Execution = class {
             constructor() {
                 super('IntType');
             }
-            __str__() {
-                return 'int';
+            static get() {
+                torch.IntType.value = torch.IntType.value || new torch.IntType();
+                return torch.IntType.value;
             }
             str() {
+                return 'int';
+            }
+            __str__() {
                 return 'int';
             }
         });
@@ -6390,21 +6425,29 @@ python.Execution = class {
             constructor() {
                 super('SymIntType');
             }
-            __str__() {
-                return 'int';
+            static get() {
+                torch.SymIntType.value = torch.SymIntType.value || new torch.SymIntType();
+                return torch.SymIntType.value;
             }
             str() {
                 return 'SymInt';
+            }
+            __str__() {
+                return 'int';
             }
         });
         this.registerType('torch.FloatType', class extends torch.Type {
             constructor() {
                 super('FloatType');
             }
-            __str__() {
-                return 'float';
+            static get() {
+                torch.FloatType.value = torch.FloatType.value || new torch.FloatType();
+                return torch.FloatType.value;
             }
             str() {
+                return 'float';
+            }
+            __str__() {
                 return 'float';
             }
         });
@@ -6412,10 +6455,14 @@ python.Execution = class {
             constructor() {
                 super('StringType');
             }
-            __str__() {
-                return 'str';
+            static get() {
+                torch.StringType.value = torch.StringType.value || new torch.StringType();
+                return torch.StringType.value;
             }
             str() {
+                return 'str';
+            }
+            __str__() {
                 return 'str';
             }
         });
@@ -6423,10 +6470,14 @@ python.Execution = class {
             constructor() {
                 super('ComplexType');
             }
-            __str__() {
-                return 'complex';
+            static get() {
+                torch.ComplexType.value = torch.ComplexType.value || new torch.ComplexType();
+                return torch.ComplexType.value;
             }
             str() {
+                return 'complex';
+            }
+            __str__() {
                 return 'complex';
             }
         });
@@ -6436,27 +6487,34 @@ python.Execution = class {
                 this._key = key;
                 this._value = value;
             }
+            static get(key, value) {
+                return new torch.DictType(key, value);
+            }
             getKeyType() {
                 return this._key;
             }
             getValueType() {
                 return this._value;
             }
-            __str__() {
-                return `Dict(${this.getKeyType().__str__()}, ${this.getValueType().__str__()})`;
-            }
             str() {
                 return `Dict(${this.getKeyType().str()}, ${this.getValueType().str()})`;
+            }
+            __str__() {
+                return `Dict(${this.getKeyType().__str__()}, ${this.getValueType().__str__()})`;
             }
         });
         this.registerType('torch.DeviceObjType', class extends torch.Type {
             constructor() {
                 super('DeviceObjType');
             }
-            __str__() {
-                return 'Device';
+            static get() {
+                torch.DeviceObjType.value ||= new torch.DeviceObjType();
+                return torch.DeviceObjType.value;
             }
             str() {
+                return 'Device';
+            }
+            __str__() {
                 return 'Device';
             }
         });
@@ -6464,10 +6522,10 @@ python.Execution = class {
             constructor() {
                 super('StreamObjType');
             }
-            __str__() {
+            str() {
                 return 'Stream';
             }
-            str() {
+            __str__() {
                 return 'Stream';
             }
         });
@@ -6475,10 +6533,14 @@ python.Execution = class {
             constructor() {
                 super('GeneratorType');
             }
-            __str__() {
-                return 'Generator';
+            static get() {
+                torch._C._GeneratorType.value = torch._C._GeneratorType.value || new torch._C._GeneratorType();
+                return torch._C._GeneratorType.value;
             }
             str() {
+                return 'Generator';
+            }
+            __str__() {
                 return 'Generator';
             }
         });
@@ -6512,7 +6574,7 @@ python.Execution = class {
                 return list.join('');
             }
         });
-        this.registerType('torch._C.FunctionSchemaLexer', class {
+        this.registerType('torch._C.SchemaLexer', class {
             constructor(buffer) {
                 this.buffer = buffer;
                 this.position = 0;
@@ -6610,27 +6672,27 @@ python.Execution = class {
                 const value = L.value;
                 L.next();
                 switch (value) {
-                    case 'Tensor': return new torch.TensorType();
-                    case 'bool': return new torch.BoolType();
-                    case 'int': return new torch.IntType();
-                    case 'float': return new torch.FloatType();
-                    case 'complex': return new torch.ComplexType();
-                    case 'str': return new torch.StringType();
-                    case 'SymInt': return new torch.SymIntType();
-                    case 'Scalar': return new torch.NumberType();
-                    case 'ScalarType': return new torch.Type('ScalarTypeType');
-                    case 'Device': return new torch.DeviceObjType();
-                    case 'Layout': return new torch.Type('Layout');
-                    case 'MemoryFormat': return new torch.Type('MemoryFormat');
-                    case 'Generator': return new torch._C._GeneratorType();
-                    case 't': case 't1': case 't2': case 'tVal': return new torch.Type('VarType', value);
-                    case 'Any': return new torch.AnyType();
-                    case 'AnyEnumType': return new torch.Type('AnyEnumType');
-                    case 'QScheme': return new torch.Type('QSchemeType');
-                    case 'Stream': return new torch.StreamObjType();
-                    case 'Storage': return new torch.Type('Storage');
-                    case 'AnyClassType': return new torch.Type('AnyClassType');
-                    case 'NoneType': return new torch.NoneType();
+                    case 'Tensor': return torch.TensorType.get();
+                    case 'bool': return torch.BoolType.get();
+                    case 'int': return torch.IntType.get();
+                    case 'float': return torch.FloatType.get();
+                    case 'complex': return torch.ComplexType.get();
+                    case 'str': return torch.StringType.get();
+                    case 'SymInt': return torch.SymIntType.get();
+                    case 'Scalar': return torch.NumberType.get();
+                    case 'ScalarType': return torch.Type.get('ScalarTypeType');
+                    case 'Device': return torch.DeviceObjType.get();
+                    case 'Layout': return torch.Type.get('Layout');
+                    case 'MemoryFormat': return torch.Type.get('MemoryFormat');
+                    case 'Generator': return torch._C._GeneratorType.get();
+                    case 't': case 't1': case 't2': case 'tVal': return torch.Type.get('VarType', value);
+                    case 'Any': return torch.AnyType.get();
+                    case 'AnyEnumType': return torch.Type.get('AnyEnumType');
+                    case 'QScheme': return torch.Type.get('QSchemeType');
+                    case 'Stream': return torch.StreamObjType.get();
+                    case 'Storage': return torch.Type.get('Storage');
+                    case 'AnyClassType': return torch.Type.get('AnyClassType');
+                    case 'NoneType': return torch.NoneType.get();
                     default: throw new python.Error(`Unsupported type '${value}'.`);
                 }
             }
@@ -6652,7 +6714,7 @@ python.Execution = class {
                         L.eat(',');
                         L.whitespace(0);
                     }
-                    real_value = new torch.TupleType(types);
+                    real_value = torch.TupleType.get(types);
                     fake_value = real_value;
                 } else if (L.value === 'Future') {
                     L.next();
@@ -6661,7 +6723,7 @@ python.Execution = class {
                     const subtype = p.first;
                     // const subalias = p.second;
                     L.expect(')');
-                    real_value = new torch.FutureType(subtype);
+                    real_value = torch.FutureType.get(subtype);
                     fake_value = real_value;
                 } else if (L.value === 'Await') {
                     L.next();
@@ -6670,7 +6732,7 @@ python.Execution = class {
                     const subtype = p.first;
                     // const subalias = p.second;
                     L.expect(')');
-                    real_value = new torch.AwaitType(subtype);
+                    real_value = torch.AwaitType.get(subtype);
                     fake_value = real_value;
                 } else if (L.value === 'RRef') {
                     L.next();
@@ -6679,11 +6741,11 @@ python.Execution = class {
                     const subtype = p.first;
                     // const subalias = p.second;
                     L.expect(')');
-                    real_value = new torch.RRefType(subtype);
+                    real_value = torch.RRefType.get(subtype);
                     fake_value = real_value;
                 } else if (L.value === 'Tensor') {
                     L.next();
-                    real_value = new torch.TensorType();
+                    real_value = torch.TensorType.get();
                     fake_value = real_value;
                     alias_info = this.parseAliasAnnotation();
                 } else if (L.value === 'Dict') {
@@ -6695,7 +6757,7 @@ python.Execution = class {
                     const value_type = this.parseType().first;
                     L.expect(')');
                     alias_info = this.parseAliasAnnotation();
-                    real_value = new torch.DictType(key_type, value_type);
+                    real_value = torch.DictType.get(key_type, value_type);
                     fake_value = real_value;
                 } else if (L.eat('Union')) {
                     L.next();
@@ -6727,15 +6789,15 @@ python.Execution = class {
                         real_value.kind() === 'MemoryFormat' ||
                         real_value.kind() === 'Layout' ||
                         real_value.kind() === 'SymInt') {
-                        fake_value = new torch.IntType();
+                        fake_value = torch.IntType.get();
                     }
                     alias_info = this.parseAliasAnnotation();
                 }
                 while (true) {
                     if (L.kind === '[]') {
                         L.expect('[]');
-                        fake_value = new torch.ListType(fake_value);
-                        real_value = new torch.ListType(real_value);
+                        fake_value = torch.ListType.get(fake_value);
+                        real_value = torch.ListType.get(real_value);
                         let container = this.parseAliasAnnotation();
                         if (alias_info) {
                             if (!container) {
@@ -6746,8 +6808,8 @@ python.Execution = class {
                         }
                         alias_info = container;
                     } else if (L.eat('?')) {
-                        fake_value = new torch.OptionalType(fake_value);
-                        real_value = new torch.OptionalType(real_value);
+                        fake_value = torch.OptionalType.get(fake_value);
+                        real_value = torch.OptionalType.get(real_value);
                     } else {
                         break;
                     }
@@ -6804,8 +6866,8 @@ python.Execution = class {
                 L.whitespace(0);
                 let N = null;
                 if (L.eat('[')) {
-                    fake_type = new torch.ListType(fake_type);
-                    real_type = new torch.ListType(real_type);
+                    fake_type = torch.ListType.get(fake_type);
+                    real_type = torch.ListType.get(real_type);
                     if (L.kind === '#') {
                         N = Number(L.value);
                         L.next();
@@ -6822,9 +6884,9 @@ python.Execution = class {
                     alias_info = container;
                     if (L.eat('?')) {
                         /* eslint-disable no-unused-vars */
-                        fake_type = new torch.OptionalType(fake_type);
+                        fake_type = torch.OptionalType.get(fake_type);
                         /* eslint-enable no-unused-vars */
-                        real_type = new torch.OptionalType(real_type);
+                        real_type = torch.OptionalType.get(real_type);
                     }
                 }
                 let name = null;
@@ -6988,7 +7050,7 @@ python.Execution = class {
             }
             _parse() {
                 if (this._buffer) {
-                    const L = new torch._C.FunctionSchemaLexer(this._buffer);
+                    const L = new torch._C.SchemaLexer(this._buffer);
                     this._arguments = [];
                     this._is_vararg = false;
                     this._kwarg_only = false;
@@ -7080,6 +7142,7 @@ python.Execution = class {
                 const returns = this.returns;
                 const braces = !this.is_varret &&
                    (returns.length !== 1 ||
+                    returns[0].name ||
                     returns[0].real_type instanceof torch.TupleType ||
                     returns[0].real_type instanceof torch.ListType && returns[0].real_type.getElementType() instanceof torch.TupleType);
                 if (braces) {

@@ -28,6 +28,7 @@ def _read_metadata():
     metadata = {}
     for value in json.loads(_read(metadata_file)):
         key = value['name']
+        key = key.split("(")[0]
         if key in metadata:
             raise ValueError(f"Duplicate key '{key}'")
         metadata[key] = value
@@ -64,6 +65,7 @@ schema_source_files = [
         re.compile(r'(prim::.*->\s*.*)"', re.MULTILINE)),
 ]
 
+# pylint: disable=line-too-long
 known_schema_definitions = [
     'aten::__and__.bool(bool a, bool b) -> bool',
     'aten::__and__.int(int a, int b) -> int',
@@ -77,12 +79,40 @@ known_schema_definitions = [
     'aten::__getitem__.Dict_Tensor(Dict(Tensor, t) self, Tensor key) -> t(*)',
     'aten::__getitem__.str(str s, int index) -> str',
     'aten::__getitem__.t(t[](a) list, int idx) -> t(*)',
+    'aten::_native_batch_norm_legit(Tensor input, Tensor? weight, Tensor? bias, Tensor(a!) running_mean, Tensor(b!) running_var, bool training, float momentum, float eps) -> (Tensor, Tensor, Tensor)',
+    'aten::_native_batch_norm_legit.no_stats(Tensor input, Tensor? weight, Tensor? bias, bool training, float momentum, float eps) -> (Tensor, Tensor, Tensor)',
+    'aten::_native_batch_norm_legit.no_stats_out(Tensor input, Tensor? weight, Tensor? bias, bool training, float momentum, float eps, *, Tensor(a!) out, Tensor(b!) save_mean, Tensor(c!) save_invstd) -> (Tensor(a!), Tensor(b!), Tensor(c!))',
+    'aten::_native_batch_norm_legit.out(Tensor input, Tensor? weight, Tensor? bias, Tensor(a!) running_mean, Tensor(b!) running_var, bool training, float momentum, float eps, *, Tensor(d!) out, Tensor(e!) save_mean, Tensor(f!) save_invstd) -> (Tensor(d!), Tensor(e!), Tensor(f!))',
+    'aten::_native_batch_norm_legit_functional(Tensor input, Tensor? weight, Tensor? bias, Tensor running_mean, Tensor running_var, bool training, float momentum, float eps) -> (Tensor, Tensor, Tensor, Tensor running_mean_out, Tensor running_var_out)',
+    'aten::_native_batch_norm_legit_no_training(Tensor input, Tensor? weight, Tensor? bias, Tensor running_mean, Tensor running_var, float momentum, float eps) -> (Tensor, Tensor, Tensor)',
+    'aten::_native_batch_norm_legit_no_training.out(Tensor input, Tensor? weight, Tensor? bias, Tensor running_mean, Tensor running_var, float momentum, float eps, *, Tensor(a!) out0, Tensor(b!) out1, Tensor(c!) out2) -> (Tensor(a!), Tensor(b!), Tensor(c!))',
+    'aten::_native_multi_head_attention(Tensor query, Tensor key, Tensor value, int embed_dim, int num_head, Tensor qkv_weight, Tensor qkv_bias, Tensor proj_weight, Tensor proj_bias, Tensor? mask=None, bool need_weights=True, bool average_attn_weights=True, int? mask_type=None) -> (Tensor, Tensor)',
+    'aten::_native_multi_head_attention.out(Tensor query, Tensor key, Tensor value, int embed_dim, int num_head, Tensor qkv_weight, Tensor qkv_bias, Tensor proj_weight, Tensor proj_bias, Tensor? mask=None, bool need_weights=True, bool average_attn_weights=True, int? mask_type=None, *, Tensor(a!) out0, Tensor(b!) out1) -> (Tensor(a!), Tensor(b!))',
+    'aten::add(Scalar a, Scalar b) -> Scalar',
+    'aten::add.Scalar(Tensor self, Scalar other, Scalar alpha=1) -> Tensor',
+    'aten::add.Scalar_out(Tensor self, Scalar other, Scalar alpha=1, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::add.Tensor(Tensor self, Tensor other, *, Scalar alpha=1) -> Tensor',
+    'aten::add.complex(complex a, complex b) -> complex',
+    'aten::add.complex_float(complex a, float b) -> complex',
+    'aten::add.complex_int(complex a, int b) -> complex',
+    'aten::add.float(float a, float b) -> float',
+    'aten::add.float_complex(float a, complex b) -> complex',
+    'aten::add.float_int(float a, int b) -> float',
+    'aten::add.int(int a, int b) -> int',
+    'aten::add.int_complex(int a, complex b) -> complex',
+    'aten::add.int_float(int a, float b) -> float',
+    'aten::add.out(Tensor self, Tensor other, *, Scalar alpha=1, Tensor(a!) out) -> Tensor(a!)',
+    'aten::add.str(str a, str b) -> str',
+    'aten::add.t(t[] a, t[] b) -> t[]',
+    'aten::add_.Scalar(Tensor(a!) self, Scalar other, Scalar alpha=1) -> Tensor(a!)',
+    'aten::add_.Tensor(Tensor(a!) self, Tensor other, *, Scalar alpha=1) -> Tensor(a!)',
+    'aten::add_.t(t[](a!) self, t[] b) -> t[]',
     'aten::any.all_out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::any.bool(bool[] self) -> bool',
     'aten::any.dim(Tensor self, int dim, bool keepdim=False) -> Tensor',
-    'aten::any.dimname_out(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::any.dimname_out(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::any.dimname(Tensor self, str dim, bool keepdim=False) -> Tensor',
-    'aten::any.dims_out(Tensor self, int[]? dim=None, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::any.dims_out(Tensor self, int[]? dim=None, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::any.dims(Tensor self, int[]? dim=None, bool keepdim=False) -> Tensor',
     'aten::any.float(float[] self) -> bool',
     'aten::any.int(int[] self) -> bool',
@@ -94,20 +124,20 @@ known_schema_definitions = [
     'aten::as_tensor.float(float t, *, ScalarType? dtype=None, Device? device=None) -> Tensor',
     'aten::as_tensor.int(int t, *, ScalarType? dtype=None, Device? device=None) -> Tensor',
     'aten::as_tensor.list(t[] data, *, ScalarType? dtype=None, Device? device=None) -> Tensor',
-    'aten::as_tensor(Tensor(a) data, *, ScalarType? dtype=None, Device? device=None) -> Tensor(b|a)', # pylint: disable=line-too-long
+    'aten::as_tensor(Tensor(a) data, *, ScalarType? dtype=None, Device? device=None) -> Tensor(b|a)',
     'aten::bitwise_and.Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_and.Scalar_Tensor(Scalar self, Tensor other) -> Tensor',
-    'aten::bitwise_and.Scalar_Tensor_out(Scalar self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::bitwise_and.Scalar_Tensor_out(Scalar self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_and.Tensor(Tensor self, Tensor other) -> Tensor',
     'aten::bitwise_and.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_and_.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)',
     'aten::bitwise_and_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)',
     'aten::bitwise_left_shift.Scalar_Tensor(Scalar self, Tensor other) -> Tensor',
-    'aten::bitwise_left_shift.Scalar_Tensor_out(Scalar self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::bitwise_left_shift.Scalar_Tensor_out(Scalar self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_left_shift.Tensor(Tensor self, Tensor other) -> Tensor',
-    'aten::bitwise_left_shift.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::bitwise_left_shift.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_left_shift.Tensor_Scalar(Tensor self, Scalar other) -> Tensor',
-    'aten::bitwise_left_shift.Tensor_Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::bitwise_left_shift.Tensor_Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_left_shift_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)',
     'aten::bitwise_left_shift_.Tensor_Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)',
     'aten::bitwise_not(Tensor self) -> Tensor',
@@ -116,23 +146,23 @@ known_schema_definitions = [
     'aten::bitwise_or.Scalar(Tensor self, Scalar other) -> Tensor',
     'aten::bitwise_or.Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_or.Scalar_Tensor(Scalar self, Tensor other) -> Tensor',
-    'aten::bitwise_or.Scalar_Tensor_out(Scalar self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::bitwise_or.Scalar_Tensor_out(Scalar self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_or.Tensor(Tensor self, Tensor other) -> Tensor',
     'aten::bitwise_or.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_or_.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)',
     'aten::bitwise_or_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)',
     'aten::bitwise_right_shift.Scalar_Tensor(Scalar self, Tensor other) -> Tensor',
-    'aten::bitwise_right_shift.Scalar_Tensor_out(Scalar self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::bitwise_right_shift.Scalar_Tensor_out(Scalar self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_right_shift.Tensor(Tensor self, Tensor other) -> Tensor',
-    'aten::bitwise_right_shift.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::bitwise_right_shift.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_right_shift.Tensor_Scalar(Tensor self, Scalar other) -> Tensor',
-    'aten::bitwise_right_shift.Tensor_Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::bitwise_right_shift.Tensor_Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_right_shift_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)',
     'aten::bitwise_right_shift_.Tensor_Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)',
     'aten::bitwise_xor.Scalar(Tensor self, Scalar other) -> Tensor',
     'aten::bitwise_xor.Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_xor.Scalar_Tensor(Scalar self, Tensor other) -> Tensor',
-    'aten::bitwise_xor.Scalar_Tensor_out(Scalar self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::bitwise_xor.Scalar_Tensor_out(Scalar self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_xor.Tensor(Tensor self, Tensor other) -> Tensor',
     'aten::bitwise_xor.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::bitwise_xor_.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)',
@@ -181,9 +211,9 @@ known_schema_definitions = [
     'aten::div.complex(complex a, complex b) -> complex',
     'aten::div.float(float a, float b) -> float',
     'aten::div.int(int a, int b) -> float',
-    'aten::div.out_mode(Tensor self, Tensor other, *, str? rounding_mode, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::div.out_mode(Tensor self, Tensor other, *, str? rounding_mode, Tensor(a!) out) -> Tensor(a!)',
     'aten::div.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
-    'aten::div.Scalar_mode_out(Tensor self, Scalar other, *, str? rounding_mode, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::div.Scalar_mode_out(Tensor self, Scalar other, *, str? rounding_mode, Tensor(a!) out) -> Tensor(a!)',
     'aten::div.Scalar_mode(Tensor self, Scalar other, *, str? rounding_mode) -> Tensor',
     'aten::div.Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::div.Scalar(Tensor self, Scalar other) -> Tensor',
@@ -220,6 +250,38 @@ known_schema_definitions = [
     'aten::Float.Scalar(Scalar a) -> float',
     'aten::Float.str(str a) -> float',
     'aten::Float.Tensor(Tensor a) -> float',
+    'aten::floor(Tensor self) -> Tensor',
+    'aten::floor.Scalar(Scalar a) -> Scalar',
+    'aten::floor.float(float a) -> int',
+    'aten::floor.int(int a) -> int',
+    'aten::floor.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::floor_(Tensor(a!) self) -> Tensor(a!)',
+    'aten::floor_divide(Tensor self, Tensor other) -> Tensor',
+    'aten::floor_divide.Scalar(Tensor self, Scalar other) -> Tensor',
+    'aten::floor_divide.Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::floor_divide.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::floor_divide_.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)',
+    'aten::floor_divide_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)',
+    'aten::floordiv(Scalar a, Scalar b) -> Scalar',
+    'aten::floordiv.float(float a, float b) -> float',
+    'aten::floordiv.float_int(float a, int b) -> float',
+    'aten::floordiv.int(int a, int b) -> int',
+    'aten::floordiv.int_float(int a, float b) -> float',
+    'aten::fmax(Tensor self, Tensor other) -> Tensor',
+    'aten::fmax.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::fmin(Tensor self, Tensor other) -> Tensor',
+    'aten::fmin.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::fmod(Scalar a, Scalar b) -> float',
+    'aten::fmod.Scalar(Tensor self, Scalar other) -> Tensor',
+    'aten::fmod.Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::fmod.Tensor(Tensor self, Tensor other) -> Tensor',
+    'aten::fmod.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::fmod.float(float a, float b) -> float',
+    'aten::fmod.float_int(float a, int b) -> float',
+    'aten::fmod.int(int a, int b) -> float',
+    'aten::fmod.int_float(int a, float b) -> float',
+    'aten::fmod_.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)',
+    'aten::fmod_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)',
     'aten::get.bool(Dict(bool, t) self, bool key) -> t(*)?',
     'aten::get.complex(Dict(complex, t) self, complex key) -> t(*)?',
     'aten::get.default_bool(Dict(bool, t) self, bool key, t default_value) -> t(*)',
@@ -280,10 +342,10 @@ known_schema_definitions = [
     'aten::le.Tensor(Tensor self, Tensor other) -> Tensor',
     'aten::le(Scalar a, Scalar b) -> bool',
     'aten::leaky_relu(Tensor self, Scalar negative_slope=0.01) -> Tensor',
-    'aten::leaky_relu.out(Tensor self, Scalar negative_slope=0.01, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::leaky_relu.out(Tensor self, Scalar negative_slope=0.01, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::leaky_relu_(Tensor(a!) self, Scalar negative_slope=0.01) -> Tensor(a!)',
-    'aten::leaky_relu_backward(Tensor grad_output, Tensor self, Scalar negative_slope, bool self_is_result) -> Tensor', # pylint: disable=line-too-long
-    'aten::leaky_relu_backward.grad_input(Tensor grad_output, Tensor self, Scalar negative_slope, bool self_is_result, *, Tensor(a!) grad_input) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::leaky_relu_backward(Tensor grad_output, Tensor self, Scalar negative_slope, bool self_is_result) -> Tensor',
+    'aten::leaky_relu_backward.grad_input(Tensor grad_output, Tensor self, Scalar negative_slope, bool self_is_result, *, Tensor(a!) grad_input) -> Tensor(a!)',
     'aten::len.any(Any[] a) -> int',
     'aten::len.Dict_bool(Dict(bool, t) self) -> int',
     'aten::len.Dict_complex(Dict(complex, t) self) -> int',
@@ -295,9 +357,9 @@ known_schema_definitions = [
     'aten::len.t(t[] a) -> int',
     'aten::len.Tensor(Tensor t) -> int',
     'aten::lerp.Scalar(Tensor self, Tensor end, Scalar weight) -> Tensor',
-    'aten::lerp.Scalar_out(Tensor self, Tensor end, Scalar weight, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::lerp.Scalar_out(Tensor self, Tensor end, Scalar weight, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::lerp.Tensor(Tensor self, Tensor end, Tensor weight) -> Tensor',
-    'aten::lerp.Tensor_out(Tensor self, Tensor end, Tensor weight, *, Tensor(a!) out) -> Tensor(a!)', # pylint: disable=line-too-long
+    'aten::lerp.Tensor_out(Tensor self, Tensor end, Tensor weight, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::lerp_.Scalar(Tensor(a!) self, Tensor end, Scalar weight) -> Tensor(a!)',
     'aten::lerp_.Tensor(Tensor(a!) self, Tensor end, Tensor weight) -> Tensor(a!)',
     'aten::less.Scalar(Tensor self, Scalar other) -> Tensor',
@@ -330,6 +392,58 @@ known_schema_definitions = [
     'aten::lt.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::lt.Tensor(Tensor self, Tensor other) -> Tensor',
     'aten::lt(Scalar a, Scalar b) -> bool',
+    'aten::mul(Scalar a, Scalar b) -> Scalar',
+    'aten::mul.Scalar(Tensor self, Scalar other) -> Tensor',
+    'aten::mul.Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::mul.Tensor(Tensor self, Tensor other) -> Tensor',
+    'aten::mul.complex(complex a, complex b) -> complex',
+    'aten::mul.complex_float(complex a, float b) -> complex',
+    'aten::mul.complex_int(complex a, int b) -> complex',
+    'aten::mul.float(float a, float b) -> float',
+    'aten::mul.float_complex(float a, complex b) -> complex',
+    'aten::mul.float_int(float a, int b) -> float',
+    'aten::mul.int(int a, int b) -> int',
+    'aten::mul.int_complex(int a, complex b) -> complex',
+    'aten::mul.int_float(int a, float b) -> float',
+    'aten::mul.left_t(t[] l, int n) -> t[]',
+    'aten::mul.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::mul.right_(int n, t[] l) -> t[]',
+    'aten::mul_.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)',
+    'aten::mul_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)',
+    'aten::mul_.t(t[](a!) l, int n) -> t[](a!)',
+    'aten::ne(Scalar a, Scalar b) -> bool',
+    'aten::ne.Scalar(Tensor self, Scalar other) -> Tensor',
+    'aten::ne.Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::ne.Tensor(Tensor self, Tensor other) -> Tensor',
+    'aten::ne.Tensor_list(Tensor[] a, Tensor[] b) -> bool',
+    'aten::ne.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::ne.bool(bool a, bool b) -> bool',
+    'aten::ne.bool_list(bool[] a, bool[] b) -> bool',
+    'aten::ne.complex(complex a, complex b) -> bool',
+    'aten::ne.complex_float(complex a, float b) -> bool',
+    'aten::ne.device(Device a, Device b) -> bool',
+    'aten::ne.enum(AnyEnumType a, AnyEnumType b) -> bool',
+    'aten::ne.float(float a, float b) -> bool',
+    'aten::ne.float_complex(float a, complex b) -> bool',
+    'aten::ne.float_int(float a, int b) -> bool',
+    'aten::ne.float_list(float[] a, float[] b) -> bool',
+    'aten::ne.int(int a, int b) -> bool',
+    'aten::ne.int_float(int a, float b) -> bool',
+    'aten::ne.int_list(int[] a, int[] b) -> bool',
+    'aten::ne.str(str a, str b) -> bool',
+    'aten::ne.str_list(str[] a, str[] b) -> bool',
+    'aten::ne_.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)',
+    'aten::ne_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)',
+    'aten::neg(Tensor self) -> Tensor',
+    'aten::neg.Scalar(Scalar a) -> Scalar',
+    'aten::neg.complex(complex a) -> complex',
+    'aten::neg.float(float a) -> float',
+    'aten::neg.int(int a) -> int',
+    'aten::neg.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::neg_(Tensor(a!) self) -> Tensor(a!)',
+    'aten::negative(Tensor self) -> Tensor',
+    'aten::negative.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::negative_(Tensor(a!) self) -> Tensor(a!)',
     'aten::pow.complex(complex a, complex b) -> complex',
     'aten::pow.complex_float(complex a, float b) -> complex',
     'aten::pow.float(float a, float b) -> float',
@@ -360,10 +474,10 @@ known_schema_definitions = [
     'aten::remainder(Scalar a, Scalar b) -> Scalar',
     'aten::replace(str self, str old, str new, int max=-1) -> str',
     'aten::ScalarImplicit(Tensor a) -> Scalar',
-    'aten::searchsorted.Scalar_out(Tensor sorted_sequence, Scalar self, *, bool out_int32=False, bool right=False, str? side=None, Tensor? sorter=None, Tensor(a!) out) -> Tensor(a!)',  # pylint: disable=line-too-long
-    'aten::searchsorted.Scalar(Tensor sorted_sequence, Scalar self, *, bool out_int32=False, bool right=False, str? side=None, Tensor? sorter=None) -> Tensor',  # pylint: disable=line-too-long
-    'aten::searchsorted.Tensor_out(Tensor sorted_sequence, Tensor self, *, bool out_int32=False, bool right=False, str? side=None, Tensor? sorter=None, Tensor(a!) out) -> Tensor(a!)',  # pylint: disable=line-too-long
-    'aten::searchsorted.Tensor(Tensor sorted_sequence, Tensor self, *, bool out_int32=False, bool right=False, str? side=None, Tensor? sorter=None) -> Tensor',  # pylint: disable=line-too-long
+    'aten::searchsorted.Scalar_out(Tensor sorted_sequence, Scalar self, *, bool out_int32=False, bool right=False, str? side=None, Tensor? sorter=None, Tensor(a!) out) -> Tensor(a!)', 
+    'aten::searchsorted.Scalar(Tensor sorted_sequence, Scalar self, *, bool out_int32=False, bool right=False, str? side=None, Tensor? sorter=None) -> Tensor', 
+    'aten::searchsorted.Tensor_out(Tensor sorted_sequence, Tensor self, *, bool out_int32=False, bool right=False, str? side=None, Tensor? sorter=None, Tensor(a!) out) -> Tensor(a!)', 
+    'aten::searchsorted.Tensor(Tensor sorted_sequence, Tensor self, *, bool out_int32=False, bool right=False, str? side=None, Tensor? sorter=None) -> Tensor', 
     'aten::sqrt.complex(complex a) -> complex',
     'aten::sqrt.float(float a) -> float',
     'aten::sqrt.int(int a) -> float',
@@ -371,6 +485,48 @@ known_schema_definitions = [
     'aten::sqrt.Scalar(Scalar a) -> Scalar',
     'aten::sqrt(Tensor self) -> Tensor',
     'aten::str(t elem) -> str',
+    'aten::sub(Scalar a, Scalar b) -> Scalar',
+    'aten::sub.Scalar(Tensor self, Scalar other, Scalar alpha=1) -> Tensor',
+    'aten::sub.Scalar_out(Tensor self, Scalar other, Scalar alpha=1, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::sub.Tensor(Tensor self, Tensor other, *, Scalar alpha=1) -> Tensor',
+    'aten::sub.complex(complex a, complex b) -> complex',
+    'aten::sub.complex_float(complex a, float b) -> complex',
+    'aten::sub.complex_int(complex a, int b) -> complex',
+    'aten::sub.float(float a, float b) -> float',
+    'aten::sub.float_complex(float a, complex b) -> complex',
+    'aten::sub.float_int(float a, int b) -> float',
+    'aten::sub.int(int a, int b) -> int',
+    'aten::sub.int_complex(int a, complex b) -> complex',
+    'aten::sub.int_float(int a, float b) -> float',
+    'aten::sub.out(Tensor self, Tensor other, *, Scalar alpha=1, Tensor(a!) out) -> Tensor(a!)',
+    'aten::sub_.Scalar(Tensor(a!) self, Scalar other, Scalar alpha=1) -> Tensor(a!)',
+    'aten::sub_.Tensor(Tensor(a!) self, Tensor other, *, Scalar alpha=1) -> Tensor(a!)',
+    'aten::subtract.Scalar(Tensor self, Scalar other, Scalar alpha=1) -> Tensor',
+    'aten::subtract.Tensor(Tensor self, Tensor other, *, Scalar alpha=1) -> Tensor',
+    'aten::subtract.out(Tensor self, Tensor other, *, Scalar alpha=1, Tensor(a!) out) -> Tensor(a!)',
+    'aten::subtract_.Scalar(Tensor(a!) self, Scalar other, Scalar alpha=1) -> Tensor(a!)',
+    'aten::subtract_.Tensor(Tensor(a!) self, Tensor other, *, Scalar alpha=1) -> Tensor(a!)',
+    'aten::sum(Tensor self, *, ScalarType? dtype=None) -> Tensor',
+    'aten::sum.DimnameList_out(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)',
+    'aten::sum.IntList_out(Tensor self, int[1]? dim, bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)',
+    'aten::sum.bool(bool[] self) -> int',
+    'aten::sum.complex(complex[] self) -> complex',
+    'aten::sum.dim_DimnameList(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor',
+    'aten::sum.dim_IntList(Tensor self, int[1]? dim, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor',
+    'aten::sum.float(float[] self) -> float',
+    'aten::sum.int(int[] self) -> int',
+    'aten::sum.out(Tensor self, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)',
+    'aten::sum_to_size(Tensor self, SymInt[] size) -> Tensor',
+    'aten::tensor(t[] data, *, ScalarType? dtype=None, Device? device=None, bool requires_grad=False) -> Tensor',
+    'aten::tensor.bool(bool t, *, ScalarType? dtype=None, Device? device=None, bool requires_grad=False) -> Tensor',
+    'aten::tensor.complex(complex t, *, ScalarType? dtype=None, Device? device=None, bool requires_grad=False) -> Tensor',
+    'aten::tensor.float(float t, *, ScalarType? dtype=None, Device? device=None, bool requires_grad=False) -> Tensor',
+    'aten::tensor.int(int t, *, ScalarType? dtype=None, Device? device=None, bool requires_grad=False) -> Tensor',
+    'aten::tensor_split.indices(Tensor(a -> *) self, SymInt[] indices, int dim=0) -> Tensor(a)[]',
+    'aten::tensor_split.sections(Tensor(a -> *) self, SymInt sections, int dim=0) -> Tensor(a)[]',
+    'aten::tensor_split.tensor_indices_or_sections(Tensor(a -> *) self, Tensor tensor_indices_or_sections, int dim=0) -> Tensor(a)[]',
+    'aten::tensordot(Tensor self, Tensor other, int[] dims_self, int[] dims_other) -> Tensor',
+    'aten::tensordot.out(Tensor self, Tensor other, int[] dims_self, int[] dims_other, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::values.bool(Dict(bool, t) self) -> t[](*)',
     'aten::values.complex(Dict(complex, t) self) -> t[](*)',
     'aten::values.float(Dict(float, t) self) -> t[](*)',
@@ -425,6 +581,29 @@ known_schema_definitions = [
     'prim::min(Scalar a, Scalar b) -> Scalar',
 ]
 
+known_legacy_schema_definitions = [
+    '_caffe2::BBoxTransform(Tensor rois, Tensor deltas, Tensor im_info, float[] weights, bool apply_scale, bool rotated, bool angle_bound_on, int angle_bound_lo, int angle_bound_hi, float clip_angle_thresh, bool legacy_plus_one) -> (Tensor output_0, Tensor output_1)',
+    '_caffe2::BatchPermutation(Tensor X, Tensor indices) -> Tensor',
+    '_caffe2::BoxWithNMSLimit(Tensor scores, Tensor boxes, Tensor batch_splits, float score_thresh, float nms, int detections_per_im, bool soft_nms_enabled, str soft_nms_method, float soft_nms_sigma, float soft_nms_min_score_thres, bool rotated, bool cls_agnostic_bbox_reg, bool input_boxes_include_bg_cls, bool output_classes_include_bg_cls, bool legacy_plus_one) -> (Tensor scores, Tensor boxes, Tensor classes, Tensor batch_splits, Tensor keeps, Tensor keeps_size)',
+    '_caffe2::CollectAndDistributeFpnRpnProposals(Tensor[] input_list, int roi_canonical_scale, int roi_canonical_level, int roi_max_level, int roi_min_level, int rpn_max_level, int rpn_min_level, int rpn_post_nms_topN, bool legacy_plus_one) -> (Tensor rois, Tensor rois_fpn2, Tensor rois_fpn3, Tensor rois_fpn4, Tensor rois_fpn5, Tensor rois_idx_restore_int32)',
+    '_caffe2::CollectRpnProposals(Tensor[] input_list, int rpn_max_level, int rpn_min_level, int rpn_post_nms_topN) -> (Tensor rois)',
+    '_caffe2::CopyCPUToGPU(Tensor input) -> Tensor',
+    '_caffe2::CopyGPUToCPU(Tensor input) -> Tensor',
+    '_caffe2::DistributeFpnProposals(Tensor rois, int roi_canonical_scale, int roi_canonical_level, int roi_max_level, int roi_min_level, bool legacy_plus_one) -> (Tensor rois_fpn2, Tensor rois_fpn3, Tensor rois_fpn4, Tensor rois_fpn5, Tensor rois_idx_restore_int32)',
+    '_caffe2::GenerateProposals(Tensor scores, Tensor bbox_deltas, Tensor im_info, Tensor anchors, float spatial_scale, int pre_nms_topN, int post_nms_topN, float nms_thresh, float min_size, bool angle_bound_on, int angle_bound_lo, int angle_bound_hi, float clip_angle_thresh, bool legacy_plus_one) -> (Tensor output_0, Tensor output_1)',
+    '_caffe2::RoIAlign(Tensor features, Tensor rois, str order, float spatial_scale, int pooled_h, int pooled_w, int sampling_ratio, bool aligned) -> Tensor',
+    'aten::arange.start_out_(Scalar start, Scalar end) -> Tensor',
+    'aten::fft(Tensor self, int signal_ndim, bool normalized=False) -> Tensor',
+    'aten::grid_sampler.legacy(Tensor input, Tensor grid, int interpolation_mode, int padding_mode) -> Tensor',
+    'neuron::forward_v2_1(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0)',
+    'prim::shape(Tensor self) -> int[]',
+    'torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int64)',
+    'torchvision::nms(Tensor dets, Tensor scores, float iou_threshold) -> Tensor',
+    'torchvision::roi_align(Tensor input, Tensor rois, float spatial_scale, int pooled_height, int pooled_width, int sampling_ratio, bool aligned) -> Tensor',
+]
+
+# pylint: enable=line-too-long
+
 def _parse_schemas():
     schemas = {}
     definitions = set()
@@ -443,8 +622,11 @@ def _parse_schemas():
                 if schema.name in schemas:
                     raise KeyError(schema.name)
                 schemas[schema.name] = schema
-    for definition in known_schema_definitions:
-        schema = pytorch.Schema(definition)
+    for value in known_legacy_schema_definitions:
+        schema = pytorch.Schema(value)
+        schemas[schema.name] = schema
+    for value in known_schema_definitions:
+        schema = pytorch.Schema(value)
         schemas[schema.name] = schema
     return schemas
 
@@ -455,9 +637,9 @@ def _filter_schemas(schemas, types):
         for key in keys:
             if schema.name == key or schema.name.startswith(key + '.'):
                 filtered_schemas.add(schema.name)
-    for schema in schemas.values():
-        if schema.name.startswith('aten::pop'):
-            filtered_schemas.add(schema.name)
+    # for schema in schemas.values():
+    #    if schema.name.startswith('aten::pop'):
+    #         filtered_schemas.add(schema.name)
     # filtered_schemas = set(types.keys())
     # content = _read('list.csv')
     # regex = re.compile(r'Unsupported function \'(.*)\' in', re.MULTILINE)
@@ -504,41 +686,7 @@ def _check_types(types, schemas):
         if key.startswith('_caffe2::'):
             types.pop(key)
     known_keys = [
-        'aten::_native_batch_norm_legit_functional',
-        'aten::add.float',
-        'aten::add.int',
-        'aten::add.str',
-        'aten::arange.start_out_',
-        'aten::classes._nnapi.Compilation',
-        'aten::fft',
-        'aten::floor.float',
-        'aten::floor.int',
-        'aten::floor.Scalar',
-        'aten::floordiv.float_int',
-        'aten::floordiv.float',
-        'aten::floordiv.int_float',
-        'aten::floordiv.int',
-        'aten::floordiv.Scalar',
-        'aten::grid_sampler.legacy',
-        'aten::mul.float_int',
-        'aten::mul.int_float',
-        'aten::mul.int',
-        'aten::mul.ScalarT',
-        'aten::mul',
-        'aten::ne.float',
-        'aten::ne.int',
-        'aten::ne.str',
-        'aten::neg.complex',
-        'aten::neg.float',
-        'aten::neg.int',
-        'aten::neg.Scalar',
-        'aten::sub.float',
-        'aten::sub.int',
-        'aten::sub.str',
-        'aten::tensor.bool',
-        'aten::tensor.float',
-        'aten::tensor.int',
-        'prim::shape',
+        'aten::classes._nnapi.Compilation'
     ]
     for key in known_keys:
         types.pop(key)
@@ -553,7 +701,8 @@ def _metadata():
     filtered_schemas = _filter_schemas(schemas, types)
     metadata = pytorch.Metadata(types)
     for schema in filtered_schemas.values():
-        metadata.type(schema)
+        value = metadata.type(schema)
+        value['name'] = schema.value
     _write_metadata(types)
 
 def main(): # pylint: disable=missing-function-docstring
