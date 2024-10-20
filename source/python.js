@@ -4364,8 +4364,8 @@ python.Execution = class {
             }
         });
         this.registerFunction('torch._C._get_registry', () => {
-            torch._C._registry = torch._C._registry || new torch._C.OperatorRegistry();
-            return torch._C._registry;
+            this._operators = this._operators || new torch._C.OperatorRegistry();
+            return this._operators;
         });
         this.registerFunction('torch._C._get_schema', (op_name, overload_name) => {
             const registry = torch._C._get_registry();

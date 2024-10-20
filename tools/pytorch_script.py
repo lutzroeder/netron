@@ -1,4 +1,5 @@
 ''' TorchScript metadata script '''
+# pylint: disable=too-many-lines
 
 import collections
 import json
@@ -9,12 +10,370 @@ import sys
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
 sys.pycache_prefix = os.path.join(root_dir, 'dist', 'pycache', 'test', 'backend')
-pytorch = __import__('source.pytorch').pytorch
 
 source_dir = os.path.join(root_dir, 'source')
 third_party_dir = os.path.join(root_dir, 'third_party')
 metadata_file = os.path.join(source_dir, 'pytorch-metadata.json')
 pytorch_source_dir = os.path.join(third_party_dir, 'source', 'pytorch')
+
+class Metadata: # pylint: disable=too-few-public-methods,missing-class-docstring
+
+    def __init__(self, metadata):
+        self.types = metadata
+        self.cache = set()
+        self._primitives = {
+            'int': 'int64', 'float': 'float32', 'bool': 'boolean', 'str': 'string'
+        }
+
+    def type(self, schema): # pylint: disable=missing-function-docstring
+        key = schema.name if isinstance(schema, Schema) else schema.split('(', 1)[0].strip()
+        if key not in self.cache:
+            self.cache.add(key)
+            schema = schema if isinstance(schema, Schema) else Schema(schema)
+            arguments = list(filter(lambda _: \
+                not(_.kwarg_only and hasattr(_, 'alias')), schema.arguments))
+            returns = schema.returns
+            value = self.types.setdefault(schema.name, { 'name': schema.name, })
+            inputs = value.get('inputs', [])
+            outputs = value.get('outputs', [])
+            inputs = [ inputs[i] if i < len(inputs) else {} for i in range(len(arguments)) ]
+            outputs = [ outputs[i] if i < len(outputs) else {} for i in range(len(returns)) ]
+            value['inputs'] = inputs
+            value['outputs'] = outputs
+            for i, _ in enumerate(arguments):
+                argument = inputs[i]
+                argument['name'] = _.name
+                self._argument(argument, getattr(_, 'type'))
+                if hasattr(_, 'default'):
+                    argument['default'] = _.default
+                if hasattr(_, 'kwarg_only') and _.kwarg_only is True:
+                    argument['kwarg_only'] = True
+            for i, _ in enumerate(returns):
+                argument = outputs[i]
+                if hasattr(_, 'name'):
+                    argument['name'] = _.name
+                self._argument(argument, getattr(_, 'type'))
+        return self.types[key]
+
+    def _argument_type(self, value):
+        if isinstance(value, Schema.OptionalType):
+            element_type = self._argument_type(value.element_type)
+            return f'{element_type}?'
+        if isinstance(value, Schema.ListType):
+            element_type = self._argument_type(value.element_type)
+            size = str(value.size) if hasattr(value, 'size') else ''
+            return f'{element_type}[{size}]'
+        if isinstance(value, Schema.DictType):
+            key_type = self._argument_type(value.getKeyType())
+            value_type = self._argument_type(value.getValueType())
+            return f'Dict({key_type}, {value_type})'
+        if isinstance(value, Schema.TupleType):
+            elements = []
+            for element in value.elements():
+                elements.append(self._argument_type(element))
+            return f'({', '.join(elements)})'
+        name = value.name
+        return self._primitives[name] if name in self._primitives else name
+
+    def _argument(self, argument, value):
+        argument_type = self._argument_type(value)
+        if argument_type:
+            argument['type'] = argument_type
+        else:
+            argument.pop('type', None)
+        if 'optional' in argument:
+            del argument['optional']
+
+class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
+    def __init__(self, value):
+        self.value = value
+        lexer = Schema.Lexer(value)
+        lexer.whitespace(0)
+        self._parse_name(lexer)
+        lexer.whitespace(0)
+        if lexer.kind == '(':
+            self._parse_arguments(lexer)
+            lexer.whitespace(0)
+            lexer.expect('->')
+            lexer.whitespace(0)
+            self._parse_returns(lexer)
+    def __str__(self):
+        arguments = []
+        kwarg_only = False
+        for _ in self.arguments:
+            if not kwarg_only and _.kwarg_only:
+                kwarg_only = True
+                arguments.append('*')
+            arguments.append(_.__str__())
+        if self.is_vararg:
+            arguments.append('...')
+        returns = ', '.join(map(lambda _: _.__str__(), self.returns))
+        returns = returns if len(self.returns) == 1 else '(' + returns + ')'
+        return self.name + '(' + ', '.join(arguments) + ') -> ' + returns
+    def _parse_name(self, lexer):
+        self.name = lexer.expect('id')
+        if lexer.eat(':'):
+            lexer.expect(':')
+            self.name = self.name + '::' + lexer.expect('id')
+        if lexer.eat('.'):
+            self.name = self.name + '.' + lexer.expect('id')
+    def _parse_arguments(self, lexer):
+        self.arguments = []
+        self.is_vararg = False
+        self.kwarg_only = False
+        lexer.expect('(')
+        if not lexer.eat(')'):
+            while True:
+                lexer.whitespace(0)
+                if self.is_vararg:
+                    raise NotImplementedError()
+                if lexer.eat('*'):
+                    self.kwarg_only = True
+                elif lexer.eat('...'):
+                    self.is_vararg = True
+                else:
+                    self.arguments.append(Schema.Argument(lexer, False, self.kwarg_only))
+                lexer.whitespace(0)
+                if not lexer.eat(','):
+                    break
+            lexer.expect(')')
+    def _parse_returns(self, lexer):
+        self.returns = []
+        self.is_varret = False
+        if lexer.eat('...'):
+            self.is_varret = True
+        elif lexer.eat('('):
+            lexer.whitespace(0)
+            if not lexer.eat(')'):
+                while True:
+                    lexer.whitespace(0)
+                    if self.is_varret:
+                        raise NotImplementedError()
+                    if lexer.eat('...'):
+                        self.is_varret = True
+                    else:
+                        self.returns.append(Schema.Argument(lexer, True, False))
+                    lexer.whitespace(0)
+                    if not lexer.eat(','):
+                        break
+                lexer.expect(')')
+            lexer.whitespace(0)
+        else:
+            self.returns.append(Schema.Argument(lexer, True, False))
+    class Argument: # pylint: disable=too-few-public-methods
+        def __init__(self, lexer, is_return, kwarg_only):
+            value = Schema.Type.parse(lexer)
+            lexer.whitespace(0)
+            while True:
+                if lexer.eat('['):
+                    size = None
+                    if lexer.kind == '#':
+                        size = int(lexer.value)
+                        lexer.next()
+                    lexer.expect(']')
+                    value = Schema.ListType(value, size)
+                elif lexer.eat('?'):
+                    value = Schema.OptionalType(value)
+                elif lexer.kind == '(' and not hasattr(self, 'alias'):
+                    self.alias = self._parse_alias(lexer)
+                else:
+                    break
+            self.type = value
+            if is_return:
+                lexer.whitespace(0)
+                self.kwarg_only = False
+                if lexer.kind == 'id':
+                    self.name = lexer.expect('id')
+            else:
+                lexer.whitespace(1)
+                self.kwarg_only = kwarg_only
+                self.name = lexer.expect('id')
+                lexer.whitespace(0)
+                if lexer.eat('='):
+                    lexer.whitespace(0)
+                    self.default = self._parse_value(lexer)
+        def __str__(self):
+            alias = '(' + self.alias + ')' if hasattr(self, 'alias') else ''
+            name = ' ' + self.name if hasattr(self, 'name') else ''
+            default = '=' + self.default.__str__() if hasattr(self, 'default') else ''
+            return self.type.__str__() + alias + name + default
+        def _parse_value(self, lexer):
+            if lexer.kind == 'id':
+                if lexer.value in ('True', 'False'):
+                    value = bool(lexer.value == 'True')
+                elif lexer.value == 'None':
+                    value = None
+                elif lexer.value in ('Mean', 'contiguous_format', 'long'):
+                    value = lexer.value
+                else:
+                    raise NotImplementedError()
+            elif lexer.kind == '#':
+                value = float(lexer.value) if \
+                    lexer.value.find('.') != -1 or lexer.value.find('e') != -1 else \
+                    int(lexer.value)
+            elif lexer.kind == 'string':
+                value = lexer.value[1:-1]
+            elif lexer.eat('['):
+                value = []
+                if not lexer.eat(']'):
+                    while True:
+                        lexer.whitespace(0)
+                        value.append(self._parse_value(lexer))
+                        lexer.whitespace(0)
+                        if not lexer.eat(','):
+                            break
+                    lexer.expect(']')
+                return value
+            else:
+                raise NotImplementedError()
+            lexer.next()
+            return value
+        def _parse_alias(self, lexer):
+            value = ''
+            lexer.expect('(')
+            while not lexer.eat(')'):
+                value += lexer.value
+                lexer.next()
+            return value
+    class Type: # pylint: disable=too-few-public-methods,missing-class-docstring
+        def __init__(self, name):
+            self.name = name
+        def __str__(self):
+            return self.name
+        @staticmethod
+        def parse(lexer): # pylint: disable=missing-function-docstring
+            if lexer.eat('('):
+                lexer.whitespace(0)
+                elements = []
+                while not lexer.eat(')'):
+                    elements.append(Schema.Type.parse(lexer))
+                    lexer.whitespace(0)
+                    lexer.eat(',')
+                    lexer.whitespace(0)
+                return Schema.TupleType(elements)
+            name = lexer.expect('id')
+            while lexer.eat('.'):
+                name = name + '.' + lexer.expect('id')
+            if name == 'Dict':
+                lexer.expect('(')
+                lexer.whitespace(0)
+                key_type = Schema.Type.parse(lexer)
+                lexer.whitespace(0)
+                lexer.expect(',')
+                lexer.whitespace(0)
+                value_type = Schema.Type.parse(lexer)
+                lexer.whitespace(0)
+                lexer.expect(')')
+                return Schema.DictType(key_type, value_type)
+            if name == 'Future':
+                lexer.expect('(')
+                lexer.whitespace(0)
+                elem_type = Schema.Type.parse(lexer)
+                lexer.whitespace(0)
+                lexer.expect(')')
+                return Schema.Type(f'Future({elem_type})')
+            return Schema.Type(name)
+    class OptionalType: # pylint: disable=too-few-public-methods,missing-class-docstring
+        def __init__(self, element_type):
+            self.element_type = element_type
+        def __str__(self):
+            return self.element_type.__str__() + '?'
+    class ListType: # pylint: disable=too-few-public-methods,missing-class-docstring
+        def __init__(self, element_type, size):
+            self.element_type = element_type
+            if size:
+                self.size = size
+        def __str__(self):
+            size = self.size.__str__() if hasattr(self, 'size') else ''
+            return self.element_type.__str__() + '[' + size + ']'
+    class DictType:
+        def __init__(self, key_type, value_type):
+            self._key_type = key_type
+            self._value_type = value_type
+        def __str__(self):
+            return 'Dict(' + str(self._key_type) + ', ' + str(self._value_type) + ')'
+        def getKeyType(self): # pylint: disable=invalid-name,missing-function-docstring
+            return self._key_type
+        def getValueType(self): # pylint: disable=invalid-name,,missing-function-docstring
+            return self._value_type
+    class TupleType:
+        def __init__(self, elements):
+            self._elements = elements
+        def elements(self): # pylint: disable=invalid-name,,missing-function-docstring
+            return self._elements
+    class Lexer: # pylint: disable=too-few-public-methods,missing-class-docstring
+        def __init__(self, buffer):
+            self.buffer = buffer
+            self.position = 0
+            self.value = ''
+            self.next()
+        def eat(self, kind): # pylint: disable=missing-function-docstring
+            if self.kind != kind:
+                return None
+            value = self.value
+            self.next()
+            return value
+        def expect(self, kind): # pylint: disable=missing-function-docstring
+            if self.kind != kind:
+                raise SyntaxError("Unexpected '" + self.kind + "' instead of '" + kind + "'.")
+            value = self.value
+            self.next()
+            return value
+        def whitespace(self, count): # pylint: disable=missing-function-docstring
+            if self.kind != ' ':
+                if count > len(self.value):
+                    raise IndexError()
+                return False
+            self.next()
+            return True
+        def next(self): # pylint: disable=missing-function-docstring,too-many-branches
+            self.position += len(self.value)
+            i = self.position
+            if i >= len(self.buffer):
+                self.kind = '\0'
+                self.value = ''
+            elif self.buffer[i] == ' ':
+                while self.buffer[i] == ' ':
+                    i += 1
+                self.kind = ' '
+                self.value = self.buffer[self.position:i]
+            elif self.buffer[i] == '.' and self.buffer[i+1] == '.' and self.buffer[i+2] == '.':
+                self.kind = '...'
+                self.value = '...'
+            elif self.buffer[i] in ('(', ')', ':', '.', '[', ']', ',', '=', '?', '!', '*', '|'):
+                self.kind = self.buffer[i]
+                self.value = self.buffer[i]
+            elif (self.buffer[i] >= 'a' and self.buffer[i] <= 'z') or \
+                 (self.buffer[i] >= 'A' and self.buffer[i] <= 'Z') or self.buffer[i] == '_':
+                i += 1
+                while i < len(self.buffer) and \
+                    ((self.buffer[i] >= 'a' and self.buffer[i] <= 'z') or \
+                     (self.buffer[i] >= 'A' and self.buffer[i] <= 'Z') or \
+                     (self.buffer[i] >= '0' and self.buffer[i] <= '9') or self.buffer[i] == '_'):
+                    i += 1
+                self.kind = 'id'
+                self.value = self.buffer[self.position:i]
+            elif self.buffer[i] == '-' and self.buffer[i+1] == '>':
+                self.kind = '->'
+                self.value = '->'
+            elif (self.buffer[i] >= '0' and self.buffer[i] <= '9') or self.buffer[i] == '-':
+                i += 1
+                while i < len(self.buffer) and \
+                    ((self.buffer[i] >= '0' and self.buffer[i] <= '9') or \
+                    self.buffer[i] == '.' or self.buffer[i] == 'e' or self.buffer[i] == '-'):
+                    i += 1
+                self.kind = '#'
+                self.value = self.buffer[self.position:i]
+            elif self.buffer[i] in ("'", '"'):
+                quote = self.buffer[i]
+                i += 1
+                while i < len(self.buffer) and self.buffer[i] != quote:
+                    i += 2 if self.buffer[i] == '\\' and self.buffer[i+1] in ("'", '"', '\\') else 1
+                i += 1
+                self.kind = 'string'
+                self.value = self.buffer[self.position:i]
+            else:
+                raise NotImplementedError("Unsupported token at " + self.position)
 
 def _read(path):
     with open(path, 'r', encoding='utf-8') as file:
@@ -597,7 +956,7 @@ known_legacy_schema_definitions = [
     'aten::grid_sampler.legacy(Tensor input, Tensor grid, int interpolation_mode, int padding_mode) -> Tensor',
     'neuron::forward_v2_1(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0)',
     'prim::shape(Tensor self) -> int[]',
-    'torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int64)',
+    'torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)',
     'torchvision::nms(Tensor dets, Tensor scores, float iou_threshold) -> Tensor',
     'torchvision::roi_align(Tensor input, Tensor rois, float spatial_scale, int pooled_height, int pooled_width, int sampling_ratio, bool aligned) -> Tensor',
 ]
@@ -618,15 +977,15 @@ def _parse_schemas():
             definition = entry[2] + value if len(entry) > 2 else value
             if not definition in definitions:
                 definitions.add(definition)
-                schema = pytorch.Schema(definition)
+                schema = Schema(definition)
                 if schema.name in schemas:
                     raise KeyError(schema.name)
                 schemas[schema.name] = schema
     for value in known_legacy_schema_definitions:
-        schema = pytorch.Schema(value)
+        schema = Schema(value)
         schemas[schema.name] = schema
     for value in known_schema_definitions:
-        schema = pytorch.Schema(value)
+        schema = Schema(value)
         schemas[schema.name] = schema
     return schemas
 
@@ -699,7 +1058,7 @@ def _metadata():
     _check_types(types, schemas)
     _check_schemas(schemas)
     filtered_schemas = _filter_schemas(schemas, types)
-    metadata = pytorch.Metadata(types)
+    metadata = Metadata(types)
     for schema in filtered_schemas.values():
         value = metadata.type(schema)
         value['name'] = schema.value

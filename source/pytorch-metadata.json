@@ -20382,7 +20382,7 @@
     "category": "Data"
   },
   {
-    "name": "torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int64)",
+    "name": "torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)",
     "inputs": [
       { "name": "tensor", "type": "Tensor" },
       { "name": "sample_rate", "type": "int64" },
