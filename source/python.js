@@ -4722,6 +4722,7 @@ python.Execution = class {
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook', class {});
         this.registerType('torch.nn.utils.weight_norm.WeightNorm', class {});
         this.registerFunction('torch.nn.utils.parametrize.type_before_parametrizations');
+        this.registerType('torch.nn.utils.parametrize.ParametrizationList', class extends torch.nn.modules.container.ModuleList {});
         this.registerType('torch.torch_version.TorchVersion', class extends String {});
         this.registerType('torch.optim.optimizer.Optimizer', class {});
         this.registerType('torch.optim.adam.Adam', class extends torch.optim.optimizer.Optimizer {});
@@ -6163,6 +6164,12 @@ python.Execution = class {
             kind() {
                 return this._kind;
             }
+            equals(/* rhs */) {
+                throw new python.Error(`Not implemented '${this.kind()}'.`);
+            }
+            isSubtypeOf(/* rhs */) {
+                throw new python.Error(`Not implemented '${this.kind()}'.`);
+            }
             str() {
                 if (this._kind === 'VarType' && this._name) {
                     return this._name;
@@ -6399,6 +6406,9 @@ python.Execution = class {
                 torch.BoolType.value = torch.BoolType.value || new torch.BoolType();
                 return torch.BoolType.value;
             }
+            equals(rhs) {
+                return this.kind() === rhs.kind();
+            }
             str() {
                 return 'bool';
             }
@@ -6413,6 +6423,12 @@ python.Execution = class {
             static get() {
                 torch.IntType.value = torch.IntType.value || new torch.IntType();
                 return torch.IntType.value;
+            }
+            equals(rhs) {
+                return this.kind() === rhs.kind();
+            }
+            isSubtypeOf(rhs) {
+                return this.kind() === 'NumberType' || super.isSubtypeOf(rhs);
             }
             str() {
                 return 'int';
@@ -6429,6 +6445,9 @@ python.Execution = class {
                 torch.SymIntType.value = torch.SymIntType.value || new torch.SymIntType();
                 return torch.SymIntType.value;
             }
+            equals(rhs) {
+                return this.kind() === rhs.kind();
+            }
             str() {
                 return 'SymInt';
             }
@@ -6443,6 +6462,12 @@ python.Execution = class {
             static get() {
                 torch.FloatType.value = torch.FloatType.value || new torch.FloatType();
                 return torch.FloatType.value;
+            }
+            equals(rhs) {
+                return this.kind() === rhs.kind();
+            }
+            isSubtypeOf(rhs) {
+                return this.kind() === 'NumberType' || super.isSubtypeOf(rhs);
             }
             str() {
                 return 'float';
@@ -6459,6 +6484,9 @@ python.Execution = class {
                 torch.StringType.value = torch.StringType.value || new torch.StringType();
                 return torch.StringType.value;
             }
+            equals(rhs) {
+                return this.kind() === rhs.kind();
+            }
             str() {
                 return 'str';
             }
@@ -6473,6 +6501,12 @@ python.Execution = class {
             static get() {
                 torch.ComplexType.value = torch.ComplexType.value || new torch.ComplexType();
                 return torch.ComplexType.value;
+            }
+            equals(rhs) {
+                return this.kind() === rhs.kind();
+            }
+            isSubtypeOf(rhs) {
+                return this.kind() === 'NumberType' || super.isSubtypeOf(rhs);
             }
             str() {
                 return 'complex';
