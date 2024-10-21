@@ -4377,6 +4377,10 @@ python.Execution = class {
             }
             throw new python.Error(`Schema '${op_name}.${overload_name}' not found.`);
         });
+        this.registerFunction('torch._C._jit_get_schemas_for_operator', (op_name) => {
+            const registry = torch._C._get_registry();
+            return registry.getAllOperatorsFor(op_name).map((op) => op.schema());
+        });
         this.registerFunction('torch._C._jit_get_operation', (op_name) => {
             const registry = torch._C._get_registry();
             const sortedOps = registry.getAllOperatorsFor(op_name);
@@ -7036,7 +7040,7 @@ python.Execution = class {
         });
         this.registerType('torch.FunctionSchema', class {
             constructor(name, overload_name, args, returns, is_vararg, is_varret) {
-                let index = name.indexOf('(');
+                const index = name.indexOf('(');
                 if (index === -1) {
                     this._name = name;
                     this._overload_name = overload_name;
@@ -7046,15 +7050,15 @@ python.Execution = class {
                     this._is_varret = is_varret;
                 } else {
                     const value = name.substring(0, index).trim();
-                    this._buffer = name.substring(index, name.length);
-                    index = value.indexOf('.');
-                    if (index === -1) {
+                    const dot = value.indexOf('.');
+                    if (dot === -1) {
                         this._name = value;
                         this._overload_name = '';
                     } else {
-                        this._name = value.substring(0, index);
-                        this._overload_name = value.substring(index + 1, value.length);
+                        this._name = value.substring(0, dot);
+                        this._overload_name = value.substring(dot + 1, value.length);
                     }
+                    this._buffer = name.substring(index, name.length);
                 }
             }
             static parse(schema) {
