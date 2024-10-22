@@ -4377,6 +4377,10 @@ python.Execution = class {
             }
             throw new python.Error(`Schema '${op_name}.${overload_name}' not found.`);
         });
+        this.registerFunction('torch._C._jit_get_schemas_for_operator', (op_name) => {
+            const registry = torch._C._get_registry();
+            return registry.getAllOperatorsFor(op_name).map((op) => op.schema());
+        });
         this.registerFunction('torch._C._jit_get_operation', (op_name) => {
             const registry = torch._C._get_registry();
             const sortedOps = registry.getAllOperatorsFor(op_name);
@@ -6152,14 +6156,14 @@ python.Execution = class {
 
         });
         this.registerType('torch.Type', class {
-            constructor(kind, name) {
+            constructor(kind, annotation_str) {
                 this._kind = kind;
-                if (name) {
-                    this._name = name;
+                if (annotation_str) {
+                    this._annotation_str = annotation_str;
                 }
             }
-            static get(kind, name) {
-                return new torch.Type(kind, name);
+            static get(kind, annotation_str) {
+                return new torch.Type(kind, annotation_str);
             }
             kind() {
                 return this._kind;
@@ -6171,8 +6175,8 @@ python.Execution = class {
                 throw new python.Error(`Not implemented '${this.kind()}'.`);
             }
             str() {
-                if (this._kind === 'VarType' && this._name) {
-                    return this._name;
+                if (this._kind === 'VarType' && this._annotation_str) {
+                    return this._annotation_str;
                 } else if (this._kind === 'ScalarTypeType') {
                     return 'ScalarType';
                 } else if (this._kind === 'QSchemeType') {
@@ -6722,6 +6726,7 @@ python.Execution = class {
                     case 't': case 't1': case 't2': case 'tVal': return torch.Type.get('VarType', value);
                     case 'Any': return torch.AnyType.get();
                     case 'AnyEnumType': return torch.Type.get('AnyEnumType');
+                    case 'Dimname': return torch.StringType.get();
                     case 'QScheme': return torch.Type.get('QSchemeType');
                     case 'Stream': return torch.StreamObjType.get();
                     case 'Storage': return torch.Type.get('Storage');
@@ -7036,7 +7041,7 @@ python.Execution = class {
         });
         this.registerType('torch.FunctionSchema', class {
             constructor(name, overload_name, args, returns, is_vararg, is_varret) {
-                let index = name.indexOf('(');
+                const index = name.indexOf('(');
                 if (index === -1) {
                     this._name = name;
                     this._overload_name = overload_name;
@@ -7046,15 +7051,15 @@ python.Execution = class {
                     this._is_varret = is_varret;
                 } else {
                     const value = name.substring(0, index).trim();
-                    this._buffer = name.substring(index, name.length);
-                    index = value.indexOf('.');
-                    if (index === -1) {
+                    const dot = value.indexOf('.');
+                    if (dot === -1) {
                         this._name = value;
                         this._overload_name = '';
                     } else {
-                        this._name = value.substring(0, index);
-                        this._overload_name = value.substring(index + 1, value.length);
+                        this._name = value.substring(0, dot);
+                        this._overload_name = value.substring(dot + 1, value.length);
                     }
+                    this._buffer = name.substring(index, name.length);
                 }
             }
             static parse(schema) {

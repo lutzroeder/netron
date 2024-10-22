@@ -739,6 +739,16 @@
     ]
   },
   {
+    "name": "aten::__is__(t1 self, t2 obj) -> bool",
+    "inputs": [
+      { "name": "self", "type": "t1" },
+      { "name": "obj", "type": "t2" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
     "name": "aten::__isnot__(t1 self, t2 obj) -> bool",
     "inputs": [
       { "name": "self", "type": "t1" },
@@ -5082,6 +5092,25 @@
     ],
     "outputs": [
       { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::device(str a) -> Device",
+    "inputs": [
+      { "name": "a", "type": "string" }
+    ],
+    "outputs": [
+      { "type": "Device" }
+    ]
+  },
+  {
+    "name": "aten::device.with_index(str type, int index) -> Device",
+    "inputs": [
+      { "name": "type", "type": "string" },
+      { "name": "index", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "Device" }
     ]
   },
   {

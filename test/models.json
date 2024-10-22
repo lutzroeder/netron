@@ -6281,7 +6281,7 @@
     "target":   "TestSerialization.test_lstm.traced.pt",
     "source":   "https://github.com/user-attachments/files/16121906/TestSerialization.test_lstm.traced.pt.zip[TestSerialization.test_lstm.traced.pt]",
     "format":   "TorchScript v1.6",
-    "assert":   "model.graphs[0].nodes.length == 9",
+    "assert":   "model.graphs[0].nodes.length == 10",
     "link":     "https://github.com/lutzroeder/netron/issues/1067"
   },
   {
@@ -6289,7 +6289,7 @@
     "target":   "TFModel_traced_eager_quant.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10867120/TFModel_traced_eager_quant.pt.zip[TFModel_traced_eager_quant.pt]",
     "format":   "TorchScript v1.6",
-    "assert":   "model.graphs[0].nodes.length == 46",
+    "assert":   "model.graphs[0].nodes.length == 51",
     "link":     "https://github.com/lutzroeder/netron/issues/1067"
   },
   {
