@@ -5844,7 +5844,7 @@
     "type":     "pytorch",
     "target":   "pyg_model.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10369483/pyg_model.zip[pyg_model.pt]",
-    "error":    "Unknown function 'torch.linear'.",
+    "error":    "Unknown function 'aten::linear'.",
     "link":     "https://github.com/lutzroeder/netron/issues/546"
   },
   {

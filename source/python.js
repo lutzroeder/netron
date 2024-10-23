@@ -6168,6 +6168,9 @@ python.Execution = class {
             kind() {
                 return this._kind;
             }
+            annotation_str() {
+                return this._annotation_str;
+            }
             equals(/* rhs */) {
                 throw new python.Error(`Not implemented '${this.kind()}'.`);
             }
