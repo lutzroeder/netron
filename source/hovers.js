@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 class Req {
   constructor() {}
   static async _request(url) {
@@ -30,7 +31,7 @@ class Req {
                     alert("Script executed");
                   }
                 } else {
-                    value = request.responseText;
+                  alert(textrec);
                 }
                 resolve(value);
             } else {
@@ -72,6 +73,7 @@ class Req {
       let files =   Array.from(input.files);
       const reader = new FileReader();
       reader.onload = function() {
+        try {
         const content = reader.result;
         var lines = content.split('\n');
         var id, meta, style, specifier;
@@ -80,10 +82,18 @@ class Req {
         var otherstring = JSON.stringify({});
         var object = JSON.stringify({});
         var optionskeys = ["tensor_id", "operator_id", "tensor_style", "operator_style", "tensor_ondblclick_script", "tensor_ondblclick_command", "operator_ondblclick_script", "operator_ondblclick_command", "tensor_onmouseover_text", "operator_onmouseover_text", "tensor_meta_key", "operator_meta_key", "tensor_meta_val", "operator_meta_val", "tensor_button", "operator_button", "tensor_button_command", "tensor_button_script", "operator_button_command", "operator_button_script"];
+        var index = -1;
         for (var line = 0; line < lines.length; line++) {
           if (!lines[line].startsWith("#") && lines[line].trim().length !== 0) {
             var lineread = lines[line].split(":");
             var first = lineread[0] == undefined? '' : lineread[0].trim();
+            if (index == -1) {
+              if (first.toLowerCase() !== "operator_id" && first.toLowerCase() !== "tensor_id") {
+                document.getElementById("list-attributes").innerHTML = '';
+                throw "The first line must be operator_id or tensor_id";
+              }
+            }
+            index = 0;
             if (!optionskeys.includes(first.toLowerCase())) {
               document.getElementById("list-attributes").innerHTML = '';
               throw "You provided an invalid key: " + first.toLowerCase();
@@ -114,6 +124,10 @@ class Req {
                 childmeta.className = "operator";
               }
               id = lineread[1] == undefined ? '' : lineread[1].trim();
+              if (!(!isNaN(parseFloat(id)) && isFinite(id))) {
+                document.getElementById("list-attributes").innerHTML = '';
+                throw "Id must be a number";
+              }
               childmeta.innerHTML = JSON.stringify({"id": id});
               continue;
             }
@@ -350,6 +364,9 @@ class Req {
         }
         Req.doubleclick();
         window.setInterval(Req.metadata, 100);
+      } catch(Err) {
+        alert(Err);
+      }
       }
       reader.readAsText(files[0], 'utf-8');
     };
@@ -391,12 +408,14 @@ class Req {
               }
             }
             if (op["tensor_ondblclick_command"]) {
-              var result = Req._request("/command_" + op["tensor_ondblclick_command"]);
+              const execSync = require('child_process').execSync;
+              const output = execSync(op["tensor_ondblclick_command"], { encoding: 'utf-8' });
+              alert(output);
             }
             if (op["tensor_ondblclick_script"]) {
               var prefix = op["tensor_ondblclick_script"].slice(0, 2);
               var script = op["tensor_ondblclick_script"].slice(3, -1) + ");";
-              if (prefix === "js") {
+              if (prefix === "js") {  
                 try {
                   eval(script);
                 } catch(Err) {
@@ -404,7 +423,9 @@ class Req {
                 }
               } else {
                 try {
-                  var result = Req._request("/scriptforadding_" + script);
+                  const execSync = require('child_process').execSync;
+                  const output = execSync(script, { encoding: 'utf-8' });
+                  alert(output);
                 } catch(Err) {
                   alert("Eroare la rularea scriptului " + script + ": " + Err.message);
                 }
@@ -430,7 +451,9 @@ class Req {
             }
             if (op["operator_ondblclick_command"]) {
               try {
-                var result = Req._request("/command_" + op["operator_ondblclick_command"]);
+                const execSync = require('child_process').execSync;
+                  const output = execSync(op["operator_ondblclick_command"], { encoding: 'utf-8' });
+                  alert(output);
               } catch(Err) {
                 alert("Eroare la rularea scriptului " + op["operator_ondblclick_command"] + ": " + Err.message);
               }
@@ -447,7 +470,9 @@ class Req {
                 
               } else {
                 try {
-                  var result = Req._request("/scriptforadding_" + script);
+                  const execSync = require('child_process').execSync;
+                  const output = execSync(script, { encoding: 'utf-8' });
+                  alert(output);
                 } catch(Err) {
                   lert("Eroare la rularea scriptului " + script + ": " + Err.message);
                 }
@@ -466,7 +491,22 @@ class Req {
       var parent_t = document.getElementById("edge-paths");
       var parent_n = document.getElementById("nodes");
       for (var i = 0; i < lista.children.length; i++) {
+        var element_searched = lista.children[i];
+        var inner = JSON.parse(element_searched.innerHTML)
+        var where;
+        if (element_searched.className == "operator") {
+          where = document.getElementById("node-id-" + inner['new_id']);
+        } else {
+          where = document.getElementById(inner['tensorname']);
+        }
+        if (where.getAttribute('listener') !== 'true') {
+          where.setAttribute('listener', 'true');
+        }
+        console.log(where);
+        //where.addEventListener("click", function() {
         var sidebar = document.getElementById("sidebar-content");
+        console.log(where);
+        console.log("A mapasat");
         if (sidebar) {
           if (document.getElementById("sidebar-content").children[0]) {
             if (document.getElementById("sidebar-content").children[0].children) {
@@ -478,23 +518,18 @@ class Req {
                     counter += 1;
                 }
               }
-              var where;
-              var element_searched = lista.children[i];
-              var inner = JSON.parse(element_searched.innerHTML)
-              if (element_searched.className == "operator") {
-                where = document.getElementById("node-id-" + inner['new_id']);
-              } else {
-                where = document.getElementById(inner['tensorname']);
-              }
               if (counter == sidebarobj.children.length) {
+                // console.log(where);
+                // where.addEventListener("click", function() {
+                  console.log("am dat click");
                 if ((element_searched.className == "operator" && where.className['baseVal'] == "node graph-node select") || (element_searched.className == "tensor" && where.className['baseVal'] == "edge-path select")) {
                   var keys = Object.keys(inner);
                   const childmeta = document.createElement('div');
                   childmeta.className = "sidebar-header";
                   childmeta.innerText = "Metadata";
-                  sidebarobj.appendChild(childmeta); 
+                  sidebarobj.appendChild(childmeta);
                   for (var i = 0; i < keys.length; i++) {
-                    if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_" && keys[i] !== "tensor_ondblclick_script" && keys[i] !== "operator_ondblclick_script" && keys[i] !== "tensor_ondblclick_command" && keys[i] !== "operator_ondblclick_command") {
+                    if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_" && keys[i] !== "tensor_ondblclick_script" && keys[i] !== "operator_ondblclick_script" && keys[i] !== "tensor_ondblclick_command" && keys[i] !== "operator_ondblclick_command" && keys[i] !== "hover") {
                       var newchild = document.createElement('div');
                       newchild.className = "sidebar-item";
                       var newchild_2 = document.createElement('div');
@@ -571,11 +606,13 @@ class Req {
                       }
                     }
                   }
+                // })
                 }
               }
             }
           }
         }
+        //});
       }
     } 
     if (document.getElementById("list-attributes").children) {
@@ -591,7 +628,9 @@ class Req {
                     var value = JSON.parse(h.target.value);
                     if (value["cmd"]) {
                       try {
-                        var result = Req._request("/command_" + value["cmd"]);
+                        const execSync = require('child_process').execSync;
+                          const output = execSync(script, { encoding: 'utf-8' });
+                          alert(output);
                       } catch(Err) {
                         alert("Eroare la rularea scriptului " + value["cmd"] + ": " + Err.message);
                       }
@@ -607,7 +646,10 @@ class Req {
                         }
                       } else {
                         try {
-                          var result = Req._request("/scriptforadding_" + script);
+                          const execSync = require('child_process').execSync;
+                          const output = execSync(script, { encoding: 'utf-8' });
+                          alert(output);
+                          
                         } catch(Err) {
                           alert("Eroare la rularea scriptului " + script + ": " + Err.message);
                         }

