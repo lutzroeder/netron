@@ -24,6 +24,8 @@ def main():
     parser.add_argument('--verbosity',
         metavar='LEVEL', help='output verbosity (quiet, default, debug)',
         choices=[ 'quiet', 'default', 'debug', '0', '1', '2' ], default='default')
+    parser.add_argument('--allow-local-files',
+        help='Allows serving local files', action='store_true')
     parser.add_argument('--version', help="print version", action='store_true')
     args = parser.parse_args()
     if args.file and not os.path.exists(args.file):
@@ -33,7 +35,8 @@ def main():
         print(__version__)
         sys.exit(0)
     address = (args.host, args.port) if args.host else args.port if args.port else None
-    start(args.file, address=address, browse=args.browse, verbosity=args.verbosity)
+    start(args.file, address=address, browse=args.browse,
+       verbosity=args.verbosity, allow_local_files=args.allow_local_files)
     wait()
     sys.exit(0)
 

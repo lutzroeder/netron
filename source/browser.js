@@ -172,6 +172,11 @@ host.BrowserHost = class {
                 }
             }
         }
+        const file_path = params.get("file_path");
+        if (file_path) {
+            this._openModelFromFile(file_path);
+            return;
+        }
         const gist = params.get('gist');
         if (gist) {
             this._openGist(gist);
@@ -412,6 +417,34 @@ host.BrowserHost = class {
             location.pathname :
             `${location.pathname.split('/').slice(0, -1).join('/')}/`;
         return `${location.protocol}//${location.host}${pathname}${file}`;
+    }
+
+    async _openModelFromFile(file_path) {
+        this._view.show('welcome spinner');
+        let final_buffer = new Uint8Array();
+        await fetch(`/load_file/${file_path}`, {
+            method: 'GET'
+        }).then((response) => {
+            const reader = response.body.getReader();
+            reader.read().then(function pump({ done, value }) {
+                if (done) {
+                    return final_buffer;
+                }
+                const old_buffer = final_buffer;
+                final_buffer = new Uint8Array(old_buffer.length + value.length);
+                final_buffer.set(old_buffer);
+                final_buffer.set(value, old_buffer.length);
+                return reader.read().then(pump);
+            }).then((buffer) => {
+                if (response.status === 200) {
+                    const stream = new base.BinaryStream(buffer);
+                    const context = new host.BrowserHost.Context(this, '', file_path, null, stream);
+                    this._openContext(context);
+                } else {
+                    this._view.error(new Error(String.fromCharCode.apply(null, buffer), 'Model load request failed.'));
+                }
+            });
+        });
     }
 
     async _openModel(url, identifier, name) {

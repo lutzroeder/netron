@@ -71,7 +71,21 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         status_code = 404
         content = None
         content_type = None
-        if path.startswith('/data/'):
+        if path.startswith('/load_file/'):
+            if self.allow_local_files:
+                file_path = urllib.parse.unquote(path[len('/load_file/'):])
+                try:
+                    with open(file_path, 'rb') as file:
+                        content = file.read()
+                    content_type = 'application/octet-stream'
+                    status_code = 200
+                except:
+                    status_code = 404
+                    content = f'Could not load file {file_path}.'.encode('utf-8')
+            else:
+                status_code = 403
+                content = 'Serving local files is not allowed.'.encode('utf-8')
+        elif path.startswith('/data/'):
             path = urllib.parse.unquote(path[len('/data/'):])
             content = self.content.read(path)
             if content:
@@ -117,16 +131,16 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             self.send_header('Content-Length', len(content))
         self.end_headers()
         if self.command != 'HEAD':
-            if status_code == 404 and content is None:
+            if status_code != 200 and content is None:
                 self.wfile.write(str(status_code).encode('utf-8'))
-            elif (status_code in (200, 404)) and content is not None:
+            elif (status_code in (200, 403, 404)) and content is not None:
                 self.wfile.write(content)
 
 class _ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     pass
 
 class _HTTPServerThread(threading.Thread):
-    def __init__(self, content, address, verbosity):
+    def __init__(self, content, address, verbosity, allow_local_files):
         threading.Thread.__init__(self)
         self.verbosity = verbosity
         self.address = address
@@ -136,6 +150,7 @@ class _HTTPServerThread(threading.Thread):
         self.server.block_on_close = False
         self.server.RequestHandlerClass.content = content
         self.server.RequestHandlerClass.verbosity = verbosity
+        self.server.RequestHandlerClass.allow_local_files = allow_local_files
         self.terminate_event = threading.Event()
         self.terminate_event.set()
         self.stop_event = threading.Event()
@@ -267,7 +282,7 @@ def wait():
         _log(True, '\n')
         stop()
 
-def serve(file, data=None, address=None, browse=False, verbosity=1):
+def serve(file, data=None, address=None, browse=False, verbosity=1, allow_local_files=False):
     '''Start serving model from file or data buffer at address and open in web browser.
 
     Args:
@@ -276,6 +291,8 @@ def serve(file, data=None, address=None, browse=False, verbosity=1):
         address (tuple, optional): A (host, port) tuple, or a port number.
         browse (bool, optional): Launch web browser. Default: True
         log (bool, optional): Log details to console. Default: False
+        allow_local_files(bool, optional): Allow the server to read local files. Default: False
+
 
     Returns:
         A (host, port) address tuple.
@@ -300,7 +317,7 @@ def serve(file, data=None, address=None, browse=False, verbosity=1):
     else:
         address = _make_port(address)
 
-    thread = _HTTPServerThread(content, address, verbosity)
+    thread = _HTTPServerThread(content, address, verbosity, allow_local_files)
     thread.start()
     while not thread.alive():
         time.sleep(0.01)
@@ -311,7 +328,7 @@ def serve(file, data=None, address=None, browse=False, verbosity=1):
 
     return address
 
-def start(file=None, address=None, browse=True, verbosity=1):
+def start(file=None, address=None, browse=True, verbosity=1, allow_local_files=False):
     '''Start serving model file at address and open in web browser.
 
     Args:
@@ -319,11 +336,12 @@ def start(file=None, address=None, browse=True, verbosity=1):
         log (bool, optional): Log details to console. Default: False
         browse (bool, optional): Launch web browser, Default: True
         address (tuple, optional): A (host, port) tuple, or a port number.
+        allow_local_files(bool, optional): Allow the server to read local files. Default: False
 
     Returns:
         A (host, port) address tuple.
     '''
-    return serve(file, None, browse=browse, address=address, verbosity=verbosity)
+    return serve(file, None, browse=browse, address=address, verbosity=verbosity, allow_local_files=allow_local_files)
 
 def widget(address, height=800):
     ''' Open address as Jupyter Notebook IFrame.
