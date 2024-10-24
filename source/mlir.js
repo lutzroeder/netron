@@ -40,7 +40,7 @@ mlir.ModelFactory = class {
             case 'mlir.binary': {
                 const reader = new mlir.BytecodeReader(context);
                 reader.read();
-                throw new mlir.Error('Invalid content. File contains MLIR bytecode data.');
+                throw new mlir.Error('Invalid file content. File contains MLIR bytecode data.');
             }
             default: {
                 throw new mlir.Error(`Unsupported MLIR format '${context.type}'.`);
