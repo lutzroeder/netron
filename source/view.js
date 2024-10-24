@@ -2913,13 +2913,13 @@ view.ArgumentView = class extends view.Control {
         if (argument.type === 'attribute') {
             this._source = 'attribute';
         }
-        if (argument.type === 'tensor') {
-            value = [{ type: value.type, initializer: value }];
-        } else if (argument.type === 'tensor[]') {
+        if (argument.type === 'tensor' || argument.type === 'tensor?') {
+            value = [value === null ? value : { type: value.type, initializer: value }];
+        } else if (argument.type === 'tensor[]' || argument.type === 'tensor?[]') {
             value = value.map((value) => value === null ? value : { type: value.type, initializer: value });
         }
         this._source = typeof type === 'string' && !type.endsWith('*') ? 'attribute' : this._source;
-        if (this._source === 'attribute' && type !== 'tensor' && type !== 'tensor[]') {
+        if (this._source === 'attribute' && type !== 'tensor' && type !== 'tensor?' && type !== 'tensor[]' && type !== 'tensor?[]') {
             this._source = 'attribute';
             const item = new view.PrimitiveView(context, argument);
             this._items.push(item);
@@ -2929,7 +2929,7 @@ view.ArgumentView = class extends view.Control {
         } else {
             const values = value;
             for (const value of values) {
-                const emit = values.length === 1 && value.initializer;
+                const emit = values.length === 1 && value && value.initializer;
                 const target = emit ? argument : value;
                 if (value === null) {
                     const item = new view.TextView(this._view, null);

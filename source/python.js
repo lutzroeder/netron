@@ -6168,7 +6168,7 @@ python.Execution = class {
             kind() {
                 return this._kind;
             }
-            annotation_str() {
+            get annotation_str() {
                 return this._annotation_str;
             }
             equals(/* rhs */) {
@@ -6357,7 +6357,10 @@ python.Execution = class {
                 return torch.AnyType.value;
             }
             str() {
-                return 'AnyType';
+                return 'Any';
+            }
+            __str__() {
+                return 'Any';
             }
         });
         this.registerType('torch.NoneType', class extends torch.Type {
