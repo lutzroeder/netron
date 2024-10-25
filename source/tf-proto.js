@@ -7666,6 +7666,9 @@ tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case 4:
                     message.cluster_register_timeout_in_ms = reader.int64();
                     break;
+                case 14:
+                    message.cluster_register_with_barrier = reader.bool();
+                    break;
                 case 5:
                     message.heartbeat_timeout_in_ms = reader.int64();
                     break;
@@ -7716,6 +7719,9 @@ tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case "cluster_register_timeout_in_ms":
                     message.cluster_register_timeout_in_ms = reader.int64();
                     break;
+                case "cluster_register_with_barrier":
+                    message.cluster_register_with_barrier = reader.bool();
+                    break;
                 case "heartbeat_timeout_in_ms":
                     message.heartbeat_timeout_in_ms = reader.int64();
                     break;
@@ -7753,6 +7759,7 @@ tensorflow.CoordinationServiceConfig.prototype.service_type = "";
 tensorflow.CoordinationServiceConfig.prototype.service_leader = "";
 tensorflow.CoordinationServiceConfig.prototype.enable_health_check = false;
 tensorflow.CoordinationServiceConfig.prototype.cluster_register_timeout_in_ms = 0n;
+tensorflow.CoordinationServiceConfig.prototype.cluster_register_with_barrier = false;
 tensorflow.CoordinationServiceConfig.prototype.heartbeat_timeout_in_ms = 0n;
 tensorflow.CoordinationServiceConfig.prototype.shutdown_barrier_timeout_in_ms = 0n;
 tensorflow.CoordinationServiceConfig.prototype.agent_destruction_without_shutdown = false;
@@ -9764,6 +9771,9 @@ tensorflow.FingerprintDef = class FingerprintDef {
                 case 5:
                     message.checkpoint_hash = reader.uint64();
                     break;
+                case 7:
+                    message.uuid = reader.string();
+                    break;
                 case 6:
                     message.version = tensorflow.VersionDef.decode(reader, reader.uint32());
                     break;
@@ -9796,6 +9806,9 @@ tensorflow.FingerprintDef = class FingerprintDef {
                 case "checkpoint_hash":
                     message.checkpoint_hash = reader.uint64();
                     break;
+                case "uuid":
+                    message.uuid = reader.string();
+                    break;
                 case "version":
                     message.version = tensorflow.VersionDef.decodeText(reader);
                     break;
@@ -9813,6 +9826,7 @@ tensorflow.FingerprintDef.prototype.graph_def_program_hash = 0n;
 tensorflow.FingerprintDef.prototype.signature_def_hash = 0n;
 tensorflow.FingerprintDef.prototype.saved_object_graph_hash = 0n;
 tensorflow.FingerprintDef.prototype.checkpoint_hash = 0n;
+tensorflow.FingerprintDef.prototype.uuid = "";
 tensorflow.FingerprintDef.prototype.version = null;
 
 google.protobuf = {};
