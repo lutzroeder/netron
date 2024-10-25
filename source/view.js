@@ -5935,7 +5935,8 @@ view.ModelFactoryService = class {
                 { name: 'ImageNet LabelMap data', tags: ['entry', 'entry.target_class'] },
                 { name: 'StringIntLabelMapProto data', tags: ['item', 'item.id', 'item.name'] },
                 { name: 'caffe.LabelMap data', tags: ['item', 'item.name', 'item.label'] },
-                { name: 'Triton Inference Server configuration', tags: ['name', 'platform', 'input', 'output'] },
+                { name: 'Triton Inference Server configuration', tags: ['input', 'output', 'name', 'platform'] }, // https://github.com/triton-inference-server/common/blob/main/protobuf/model_config.proto
+                { name: 'Triton Inference Server configuration', tags: ['input', 'output', 'backend'] }, // https://github.com/triton-inference-server/common/blob/main/protobuf/model_config.proto
                 { name: 'TensorFlow OpList data', tags: ['op', 'op.name', 'op.input_arg'] },
                 { name: 'vitis.ai.proto.DpuModelParamList data', tags: ['model', 'model.name', 'model.kernel'] },
                 { name: 'object_detection.protos.DetectionModel data', tags: ['model', 'model.ssd'] },
