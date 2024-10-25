@@ -36,3 +36,5 @@ while [ "$#" != 0 ]; do
         "schema") schema;;
     esac
 done
+
+# TODO support Paddle new format
