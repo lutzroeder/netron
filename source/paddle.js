@@ -47,6 +47,11 @@ paddle.ModelFactory = class {
             context.target = naive;
             context.type = context.target.name;
         }
+        const obj = context.peek('json');
+        if (obj && obj.base_code && obj.program) {
+            context.target = obj;
+            context.type = 'paddle.ir';
+        }
     }
 
     filter(context, type) {
@@ -70,6 +75,9 @@ paddle.ModelFactory = class {
                 const target = context.target;
                 target.read();
                 return new paddle.Model(metadata, target.format, target.model, target.weights);
+            }
+            case 'paddle.ir': {
+                throw new paddle.Error('Invalid file content. File contains PaddlePaddle IR data.');
             }
             default: {
                 paddle.proto = await context.require('./paddle-proto');
