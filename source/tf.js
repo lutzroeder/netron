@@ -374,27 +374,10 @@ tf.ModelFactory = class {
                 const openPyTorchMetadata = async (context, saved_model) => {
                     try {
                         const pytorch = await context.require('./pytorch');
-                        const metadata_ = await pytorch.Metadata.open(context);
-                        const execution = new pytorch.Execution();
-                        execution.registerMetadata(metadata_);
-
-                        /*
-                        const data = await context.request('pytorch-metadata.json');
-                        const metadata = new Map();
-                        for (const item of JSON.parse(data)) {
-                            let name = item.name;
-                            if (name.indexOf('::') !== -1) {
-                                const brace = name.indexOf('(');
-                                name = brace === -1 ? name : name.substring(0, brace);
-                                const dot = name.indexOf('.');
-                                name = dot === -1 ? name : name.substring(0, dot);
-                                if (!metadata.has(name)) {
-                                    metadata.set(name, []);
-                                }
-                                metadata.get(name).push(item);
-                            }
-                        }
-                        */
+                        const python = await context.require('./python');
+                        const metadata = await pytorch.Metadata.open(context);
+                        const execution = new python.Execution();
+                        metadata.register(execution);
                         const torch = execution.register('torch');
                         for (const graph of saved_model.meta_graphs) {
                             for (const node of graph.graph_def.node) {
@@ -403,7 +386,6 @@ tf.ModelFactory = class {
                                     node.__metadata__ = schemas;
                                     node.__torch__ = torch;
                                 }
-                                // node.__metadata__ = Array.from(metadata.get(node.op) || []);
                             }
                         }
                     } catch {
