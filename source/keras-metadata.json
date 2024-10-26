@@ -3501,7 +3501,7 @@
     ],
     "examples": [
       {
-        "code": "relu_layer = keras.layers.activations.ReLU(\n    max_value=10,\n    negative_slope=0.5,\n    threshold=0,\n)\ninput = np.array([-10, -5, 0.0, 5, 10])\nresult = relu_layer(input)\n# result = [-5. , -2.5,  0. ,  5. , 10.]"
+        "code": "relu_layer = keras.layers.ReLU(\n    max_value=10,\n    negative_slope=0.5,\n    threshold=0,\n)\ninput = np.array([-10, -5, 0.0, 5, 10])\nresult = relu_layer(input)\n# result = [-5. , -2.5,  0. ,  5. , 10.]"
       }
     ]
   },
@@ -4176,7 +4176,7 @@
     ],
     "examples": [
       {
-        "code": ">>>softmax_layer = keras.layers.activations.Softmax()\n>>>input = np.array([1.0, 2.0, 1.0])\n>>>result = softmax_layer(input)\n[0.21194157, 0.5761169, 0.21194157]"
+        "code": ">>> softmax_layer = keras.layers.Softmax()\n>>> input = np.array([1.0, 2.0, 1.0])\n>>> result = softmax_layer(input)\n>>> result\n[0.21194157, 0.5761169, 0.21194157]"
       }
     ]
   },
