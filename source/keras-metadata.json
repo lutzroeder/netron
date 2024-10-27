@@ -28,7 +28,7 @@
     ],
     "examples": [
       {
-        "code": ">>> layer = keras.layers.Activation('relu')\n>>> layer([-3.0, -1.0, 0.0, 2.0])\n[0.0, 0.0, 0.0, 2.0]\n>>> layer = keras.layers.Activation(keras.activations.relu)\n>>> layer([-3.0, -1.0, 0.0, 2.0])\n[0.0, 0.0, 0.0, 2.0]"
+        "code": ">>> layer = keras.layers.Activation('relu')\n>>> layer(np.array([-3.0, -1.0, 0.0, 2.0]))\n[0.0, 0.0, 0.0, 2.0]\n>>> layer = keras.layers.Activation(keras.activations.relu)\n>>> layer(np.array([-3.0, -1.0, 0.0, 2.0]))\n[0.0, 0.0, 0.0, 2.0]"
       }
     ]
   },
