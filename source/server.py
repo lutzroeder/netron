@@ -61,6 +61,38 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         '.woff2': 'application/font-woff2',
         '.svg': 'image/svg+xml'
     }
+    allow_local_files = False
+
+    def load_file(self, path: str):
+        ''' Load a local file and returns its content.
+
+        Returns 3 elements:
+            - the status_code (int):
+                - 200 if the file has been correctly loaded
+                - 404 if the file couldn't been loaded
+                - 403 if the server is not allowed to read local files
+                  (see allow_local_files parameter)
+            - the response content (bytestream).
+            - the content_type (str): the response content type, as set in HTTP headers.
+              Set to 'application/octet-stream' if the file has been successfully loaded,
+              None otherwise.
+        '''
+        content_type = None
+        if self.allow_local_files:
+            file_path = urllib.parse.unquote(path[len('/load_file/'):])
+            try:
+                with open(file_path, 'rb') as file:
+                    content = file.read()
+                content_type = 'application/octet-stream'
+                status_code = 200
+            except OSError:
+                status_code = 404
+                content = f'Could not load file {file_path}.'.encode('utf-8')
+        else:
+            status_code = 403
+            content = 'Serving local files is not allowed.'.encode('utf-8')
+        return status_code, content, content_type
+
     def do_HEAD(self): # pylint: disable=invalid-name
         ''' Serve a HEAD request '''
         self.do_GET()
@@ -72,19 +104,7 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         content = None
         content_type = None
         if path.startswith('/load_file/'):
-            if self.allow_local_files:
-                file_path = urllib.parse.unquote(path[len('/load_file/'):])
-                try:
-                    with open(file_path, 'rb') as file:
-                        content = file.read()
-                    content_type = 'application/octet-stream'
-                    status_code = 200
-                except:
-                    status_code = 404
-                    content = f'Could not load file {file_path}.'.encode('utf-8')
-            else:
-                status_code = 403
-                content = 'Serving local files is not allowed.'.encode('utf-8')
+            status_code, content, content_type = self.load_file(path)
         elif path.startswith('/data/'):
             path = urllib.parse.unquote(path[len('/data/'):])
             content = self.content.read(path)
@@ -282,7 +302,7 @@ def wait():
         _log(True, '\n')
         stop()
 
-def serve(file, data=None, address=None, browse=False, verbosity=1, allow_local_files=False):
+def serve(file, data=None, address=None, browse=False, verbosity=1, allow_local_files=False): # pylint: disable=too-many-arguments, too-many-positional-arguments
     '''Start serving model from file or data buffer at address and open in web browser.
 
     Args:
@@ -341,7 +361,8 @@ def start(file=None, address=None, browse=True, verbosity=1, allow_local_files=F
     Returns:
         A (host, port) address tuple.
     '''
-    return serve(file, None, browse=browse, address=address, verbosity=verbosity, allow_local_files=allow_local_files)
+    return serve(file, None, browse=browse, address=address,
+        verbosity=verbosity, allow_local_files=allow_local_files)
 
 def widget(address, height=800):
     ''' Open address as Jupyter Notebook IFrame.
