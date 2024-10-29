@@ -1691,6 +1691,8 @@ python.Execution = class {
         this.register('numpy.core._multiarray_umath');
         this.register('numpy.matrixlib.defmatrix');
         const pandas = this.register('pandas');
+        this.register('pandas.indexes.base');
+        this.register('pandas.indexes.range');
         this.register('pandas._libs.tslib');
         this.register('pandas._libs.internals');
         const pickle = this.register('pickle');
@@ -2653,8 +2655,6 @@ python.Execution = class {
         this.registerType('pandas.core.indexes.multi.MultiIndex', class {});
         this.registerType('pandas.core.indexes.numeric.Int64Index', class {});
         this.registerType('pandas.core.index.Int64Index', class {});
-        pandas.core.index.Index = pandas.core.indexes.base.Index;
-        pandas.core.index._new_Index = pandas.core.indexes.base._new_Index;
         this.registerFunction('pandas.core.internals.blocks.Block', class {
         });
         this.registerFunction('pandas.core.internals.blocks.NumpyBlock', class extends pandas.core.internals.blocks.Block {
@@ -2671,7 +2671,6 @@ python.Execution = class {
         });
         this.registerType('pandas.core.internals.managers.SingleBlockManager', class {});
         this.registerType('pandas.core.internals.managers.BlockManager', class {});
-        pandas.core.internals.BlockManager = pandas.core.internals.managers.BlockManager;
         this.registerType('pandas.core.series.Series', class {});
         this.registerFunction('pandas._libs.arrays.__pyx_unpickle_NDArrayBacked');
         this.registerFunction('pandas._libs.internals._unpickle_block', (values, placement, ndim) => {
@@ -2689,6 +2688,12 @@ python.Execution = class {
         this.registerFunction('pandas._libs.tslibs.timestamps._unpickle_timestamp');
         this.registerType('pandas._libs.tslibs.timestamps._Timestamp', class extends pandas._libs.tslibs.base.ABCTimestamp {});
         this.registerType('pandas._libs.tslibs.timestamps.Timestamp', class extends pandas._libs.tslibs.timestamps._Timestamp {});
+        pandas.indexes.base._new_Index = pandas.core.indexes.base._new_Index;
+        pandas.indexes.base.Index = pandas.core.indexes.base.Index;
+        pandas.indexes.range.RangeIndex = pandas.core.indexes.range.RangeIndex;
+        pandas.core.index.Index = pandas.core.indexes.base.Index;
+        pandas.core.index._new_Index = pandas.core.indexes.base._new_Index;
+        pandas.core.internals.BlockManager = pandas.core.internals.managers.BlockManager;
         pandas._libs.tslib.Timestamp = pandas._libs.tslibs.timestamps.Timestamp;
         this.registerType('pathlib.Path', class {});
         this.registerType('pathlib.PosixPath', class {});
@@ -6109,6 +6114,7 @@ python.Execution = class {
         this.registerFunction('torch.functional.norm');
         this.registerFunction('torch.functional.split');
         this.registerFunction('torch.nn.init.constant_');
+        this.registerFunction('torch.nn.init.normal_');
         this.registerFunction('torch.nn.init.xavier_uniform_');
         this.registerFunction('torch.nn.functional.adaptive_avg_pool2d');
         this.registerFunction('torch.nn.functional.binary_cross_entropy');
