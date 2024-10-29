@@ -13,7 +13,7 @@ clean() {
 sync() {
     echo "kann sync"
     mkdir -p "${third_party_dir}/metadata"
-    curl --silent --location --output "${third_party_dir}/metadata/kann.fbs" "https://github.com/kalray/netron-test-models/raw/main/third_party/kann.fbs"
+    curl --silent --location --output "${third_party_dir}/metadata/kann.fbs" "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/third-party/kann.fbs"
 }
 
 # regenerate kann-schema.js with 'tools/kann schema'
