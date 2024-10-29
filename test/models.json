@@ -2252,34 +2252,34 @@
   },
   {
     "type":     "kann",
-    "target":   "GoogLeNet-ILSVRC2014-fp16-5c.tar.gz",
-    "source":   "https://github.com/kalray/netron-test-models/raw/main/GoogLeNet-ILSVRC2014-fp16-5c.tar.gz",
+    "target":   "googlenet-fp16.kgraph",
+    "source":   "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/kann-graph/googlenet-fp16.kgraph",
     "format":   "KaNN"
   },
   {
     "type":     "kann",
-    "target":   "MobileNet_v2-ILSVRC2012-5c.tar.gz",
-    "source":   "https://github.com/kalray/netron-test-models/raw/main/MobileNet_v2-ILSVRC2012-5c.tar.gz",
+    "target":   "mobilenet-v2-fp16.kgraph",
+    "source":   "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/kann-graph/mobilenet-v2-fp16.kgraph",
     "format":   "KaNN",
     "tags":     "quantization"
   },
   {
     "type":     "kann",
-    "target":   "ResNet50v15_MLPerf_quantized-fp16-5c.tar.gz",
-    "source":   "https://github.com/kalray/netron-test-models/raw/main/ResNet50v15_MLPerf_quantized-fp16-5c.tar.gz",
+    "target":   "resnet50-v1.5-mlperf-quantized-fp16.kgraph",
+    "source":   "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/kann-graph/resnet50-v1.5-mlperf-quantized-fp16.kgraph",
     "format":   "KaNN",
     "tags":     "quantization"
   },
   {
     "type":     "kann",
-    "target":   "SqueezeNetV1_0-ILSVRC2012-fp16-5c.tar.gz",
-    "source":   "https://github.com/kalray/netron-test-models/raw/main/SqueezeNetV1_0-ILSVRC2012-fp16-5c.tar.gz",
+    "target":   "squeezenet-v1-fp16.kgraph",
+    "source":   "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/kann-graph/squeezenet-v1-fp16.kgraph",
     "format":   "KaNN"
   },
   {
     "type":     "kann",
-    "target":   "YOLO_v3-COCO_fp16_kv3_2_L2ON_onnx-fp16-5c.tar.gz",
-    "source":   "https://github.com/kalray/netron-test-models/raw/main/YOLO_v3-COCO_fp16_kv3_2_L2ON_onnx-fp16-5c.tar.gz",
+    "target":   "yolov3-fp16.kgraph",
+    "source":   "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/kann-graph/yolov3-fp16.kgraph",
     "format":   "KaNN"
   },
   {
