@@ -365,7 +365,8 @@ executorch_flatbuffer.ScalarType = {
     QUINT8: 13,
     QINT32: 14,
     QUINT4X2: 16,
-    QUINT2X4: 17
+    QUINT2X4: 17,
+    BITS16: 22
 };
 
 executorch_flatbuffer.ContainerMetadata = class ContainerMetadata {
