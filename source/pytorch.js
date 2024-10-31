@@ -3523,7 +3523,7 @@ pytorch.Utility = class {
             if (entries.length > 0 && entries) {
                 for (const [key, value] of entries) {
                     const name = key.toString();
-                    if (!value || Object(value) !== value || pytorch.Utility.isTensor(value) || ArrayBuffer.isView(value)) {
+                    if (!value || Object(value) !== value || pytorch.Utility.isTensor(value) || ArrayBuffer.isView(value) || value._modules instanceof Map) {
                         return null;
                     }
                     if (!modules.has(name)) {
