@@ -221,6 +221,12 @@
     "name": "aten::__interpolate.size_list_scale_list(Tensor input, int[]? size=None, float[]? scale_factor=None, str mode=\"nearest\", bool? align_corners=None, bool? recompute_scale_factor=None, bool antialias=False) -> Tensor"
   },
   {
+    "name": "aten::__ior__.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::__ior__.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)"
+  },
+  {
     "name": "aten::__irshift__.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)"
   },
   {
@@ -531,6 +537,9 @@
   },
   {
     "name": "aten::_unsafe_view.out(Tensor self, SymInt[] size, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::_unwrap_optional(t(a)? optional) -> t(a)"
   },
   {
     "name": "aten::_upsample_bilinear2d_aa(Tensor self, SymInt[2] output_size, bool align_corners, float? scales_h=None, float? scales_w=None) -> Tensor"

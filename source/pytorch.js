@@ -362,6 +362,10 @@ pytorch.Node = class {
         let module = null;
         if (pytorch.Utility.isInstance(obj, 'torch.Node')) {
             const node = obj;
+            const sourceRange = node.sourceRange();
+            if (sourceRange) {
+                this.metadata.push(new pytorch.Argument('source', sourceRange.replace(/^at\s/, '').replace(/\.$/, '')));
+            }
             const kind = node.kind();
             this.type = {
                 identifier: kind,
@@ -1732,7 +1736,8 @@ pytorch.Execution = class extends python.Execution {
         return type;
     }
 
-    target(expression, context) {
+    target(expression, context, resolve) {
+        resolve = resolve === false ? false : true;
         if (expression.type === 'id') {
             switch (expression.value) {
                 case 'torch':
@@ -1779,7 +1784,7 @@ pytorch.Execution = class extends python.Execution {
                     break;
                 }
             }
-            if (!target) {
+            if (!target && resolve) {
                 path.reverse();
                 const name = path.join('.');
                 const file = `${path.join('/')}.py`;
@@ -1789,7 +1794,7 @@ pytorch.Execution = class extends python.Execution {
                 return this.resolve(name);
             }
         }
-        return super.target(expression, context);
+        return super.target(expression, context, resolve);
     }
 
     expression(expression, context) {
@@ -2062,8 +2067,10 @@ pytorch.Execution = class extends python.Execution {
                         types.push(value.type());
                         elements.push(item);
                     } else if (Number.isInteger(item)) {
-                        const value = new torch.Value(node);
-                        value.value = item;
+                        const value = this.constant(item);
+                        node.addInput(value);
+                        /// const value = new torch.Value(node);
+                        // value.value = item;
                         types.push(torch.IntType.get());
                         elements.push(item);
                     } else if (typeof item === 'boolean') {
@@ -2168,7 +2175,7 @@ pytorch.Execution = class extends python.Execution {
                 break;
             }
             case 'list': {
-                return expression.value.map((expression) => this.static(expression, context));
+                return expression.value.map((expression) => this.static(expression, context, state));
             }
             case 'string': {
                 return expression.value.substring(1, expression.value.length - 1);
@@ -2184,11 +2191,18 @@ pytorch.Execution = class extends python.Execution {
                 break;
             }
             case 'call': {
+                if (expression.target.type === 'id' && expression.target.value === 'annotate') {
+                    return this.static(expression.args[1], context, state);
+                }
                 const args = expression.args.map((expression) => this.static(expression, context, state));
                 if (args.every((arg) => arg !== undefined)) {
-                    const target = this.target(expression.target, context);
+                    const target = this.target(expression.target, context, false);
                     if (typeof target === 'function') {
-                        return target(...args);
+                        if (target && target.__class__ === this._builtins.type) {
+                            // debugger;
+                        } else {
+                            return target(...args);
+                        }
                     }
                 }
                 state.splice(0, state.length);
@@ -2201,6 +2215,109 @@ pytorch.Execution = class extends python.Execution {
         return undefined;
     }
 
+    variables(value, scope) {
+        if (!scope.refs) {
+            scope.refs = new Set();
+        }
+        switch (value.type) {
+            case '=': {
+                this.variables(value.target, scope);
+                this.variables(value.expression, scope);
+                break;
+            }
+            case '.': {
+                this.variables(value.target, scope);
+                this.variables(value.member, scope);
+                break;
+            }
+            case 'id': {
+                scope.refs.add(value.value);
+                break;
+            }
+            case 'import':
+            case 'string':
+            case 'number': {
+                break;
+            }
+            case 'list': {
+                for (const item of value.value) {
+                    this.variables(item, scope.refs);
+                }
+                break;
+            }
+            case 'dict': {
+                for (const item of value.value) {
+                    this.variables(item, scope.refs);
+                }
+                break;
+            }
+            case 'tuple': {
+                for (const item of value.value) {
+                    this.variables(item, scope.refs);
+                }
+                break;
+            }
+            case 'pair': {
+                this.variables(value.key, scope.refs);
+                this.variables(value.value, scope.refs);
+                break;
+            }
+            case '[]': {
+                this.variables(value.target, scope.refs);
+                this.variables(value.arguments, scope.refs);
+                break;
+            }
+            case 'call': {
+                this.variables(value.target, scope.refs);
+                for (const arg of value.args) {
+                    this.variables(arg, scope.refs);
+                }
+                break;
+            }
+            case 'if': {
+                this.variables(value.test, scope.refs);
+                this.variables(value.body, scope.refs);
+                this.variables(value.orelse, scope.refs);
+                break;
+            }
+            case 'for': {
+                for (const target of value.target) {
+                    this.variables(target, scope.refs);
+                }
+                for (const iter of value.iter) {
+                    this.variables(iter, scope.refs);
+                }
+                this.variables(value.body, scope.refs);
+                break;
+            }
+            case 'block': {
+                for (const statement of value.statements) {
+                    this.variables(statement, scope.refs);
+                }
+                break;
+            }
+            case 'return': {
+                this.variables(value.expression, scope.refs);
+                break;
+            }
+            case 'while': {
+                this.variables(value.test, scope.refs);
+                this.variables(value.body, scope.refs);
+                break;
+            }
+            case 'var': {
+                this.variables(value.initializer, scope.refs);
+                break;
+            }
+            case 'pass': {
+                break;
+            }
+            default: {
+                throw new pytorch.Error(`Unsupported type '${value.type}'.`);
+            }
+        }
+    }
+
     block(statements, context) {
         this.traceIf = false;
         if (!this.traceIf) {
@@ -2209,30 +2326,14 @@ pytorch.Execution = class extends python.Execution {
         statements = Array.prototype.slice.call(statements);
         while (statements.length > 0) {
             if (statements.length > 1) {
-                const containsVariableReference = (queue, value) => {
-                    while (queue.length > 0) {
-                        const obj = queue.shift();
-                        if (obj && obj.type === 'id' && obj.value === value) {
-                            return true;
-                        } else if (Array.isArray(obj)) {
-                            for (const item of obj) {
-                                if (Array.isArray(item) || (Object(item) === item && item.type)) {
-                                    queue.push(item);
-                                }
+                const containsVariableReference = (statements, value) => {
+                    if (statements) {
+                        for (const statement of statements) {
+                            if (!statement.refs) {
+                                this.variables(statement, statement);
                             }
-                        } else if (Object(obj) === obj) {
-                            for (const [key, value] of Object.entries(obj)) {
-                                if (key !== 'identifier') {
-                                    if (Array.isArray(value)) {
-                                        for (const item of value) {
-                                            if (Array.isArray(item) || (Object(item) === item && item.type)) {
-                                                queue.push(item);
-                                            }
-                                        }
-                                    } else if (Object(value) === value && value.type) {
-                                        queue.push(value);
-                                    }
-                                }
+                            if (statement.refs.has(value)) {
+                                return true;
                             }
                         }
                     }
@@ -2245,13 +2346,16 @@ pytorch.Execution = class extends python.Execution {
                 if (assign.type === '=' && condition.type === 'if' &&
                     assign.target.type === 'id' && condition.test.type === 'id' &&
                     assign.target.value === condition.test.value &&
-                    !containsVariableReference(statements.slice(2), condition.test.value)) {
+                    !containsVariableReference(statements.slice(2), condition.test.value) &&
+                    (!statements[1].body || !containsVariableReference(statements[1].body.statements), condition.test.value) &&
+                    (!statements[1].orelse || !containsVariableReference(statements[1].orelse.statements, condition.test.value))) {
                     statements.shift();
                     statements[0] = {
                         type: 'if',
                         test: assign.expression,
                         body: condition.body,
-                        orelse: condition.orelse
+                        orelse: condition.orelse,
+                        location: condition.location,
                     };
                 }
             }
@@ -2326,17 +2430,79 @@ pytorch.Execution = class extends python.Execution {
                 if (this.traceIf) {
                     const test = this.expression(statement.test, context);
                     if (test instanceof torch.Value && test.type() instanceof torch.BoolType) {
+                        const __variables = (statements) => {
+                            const set = new Set();
+                            for (const statement of statements) {
+                                if (statement.type === '=') {
+                                    if (statement.target.type === 'id') {
+                                        set.add(statement.target.value);
+                                    } else if (statement.target.type === 'tuple') {
+                                        for (const value of statement.target.value) {
+                                            if (value.type === 'id') {
+                                                set.add(value.value);
+                                            } else {
+                                                // debugger;
+                                            }
+                                        }
+                                    } else {
+                                        // debugger;
+                                    }
+                                }
+                            }
+                            return set;
+                        };
+                        const __type = (value) => {
+                            if (!value) {
+                                return null;
+                            }
+                            if (pytorch.Utility.isTensor(value)) {
+                                return torch.TensorType.get();
+                            }
+                            return value.type();
+                        };
+                        this.variables(statement, statement);
                         const node = this._graph.create('prim::If');
+                        node.setSourceRange(statement.location);
                         this.graph.insertNode(node);
                         node.addInput(test);
                         const prev = this._graph.insertPoint();
                         const true_block = node.addBlock();
                         this._graph.setInsertPoint(true_block);
+                        let vars = __variables(statement.body.statements.concat(statement.orelse.statements));
+                        vars = new Map(Array.from(vars).map((name) => [name, {}]));
                         this.block(statement.body.statements, context);
+                        for (const [name, entry] of vars) {
+                            entry.body = context.get(name);
+                        }
                         const false_block = node.addBlock();
                         this._graph.setInsertPoint(false_block);
                         this.block(statement.orelse.statements, context);
+                        for (const [name, entry] of vars) {
+                            entry.orelse = context.get(name);
+                        }
                         this._graph.setInsertPoint(prev);
+                        for (const [name, entry] of vars) {
+                            const value = node.addOutput();
+                            context.set(name, value);
+                            let type = null;
+                            if (entry.body && !entry.orelse) {
+                                type = __type(entry.body);
+                            } else if (entry.orelse && !entry.body) {
+                                type = __type(entry.orelse);
+                            } else {
+                                // compare
+                                const type1 = __type(entry.body);
+                                const type2 = __type(entry.orelse);
+                                if (type1 === null && type2 === null) {
+                                    type = null;
+                                } else if (type1.equals(type2)) {
+                                    type = type1;
+                                } else {
+                                    // debugger;
+                                }
+                            }
+                            value.setType(type);
+                        }
                         return undefined;
                     }
                 } else {
@@ -2358,6 +2524,7 @@ pytorch.Execution = class extends python.Execution {
                     } else if (test instanceof torch.Value && test.type() instanceof torch.BoolType) {
                         const node = this._graph.create('prim::If');
                         this.graph.insertNode(node);
+                        node.setSourceRange(statement.location);
                         node.addInput(test);
                         const prev = this._graph.insertPoint();
                         const true_block = node.addBlock();
@@ -2430,7 +2597,7 @@ pytorch.Execution = class extends python.Execution {
         throw new pytorch.Error(`Unsupported type expression '${expression.type}'.`);
     }
 
-    call(target, name, args, context) {
+    call(target, name, args, context, location) {
         if (!this.trace) {
             return super.call(target, name, args, context);
         }
@@ -2484,6 +2651,7 @@ pytorch.Execution = class extends python.Execution {
         const [schema, evalArgs] = overload;
         const op = schema.overload_name ? `${schema.name}.${schema.overload_name}` : schema.name;
         const node = this._graph.create(op);
+        node.setSourceRange(location);
         this.graph.insertNode(node);
         const referencedParameters = [];
         const parameters = schema.arguments;

@@ -6276,6 +6276,9 @@ python.Execution = class {
             getElementType() {
                 return this._elem;
             }
+            equals(rhs) {
+                return this.kind() === rhs.kind() && this.getElementType().equals(rhs.getElementType());
+            }
             str() {
                 return `${this.getElementType().str()}[]`;
             }
@@ -6392,6 +6395,9 @@ python.Execution = class {
             static get() {
                 torch.TensorType.value = torch.TensorType.value || new torch.TensorType();
                 return torch.TensorType.value;
+            }
+            equals(rhs) {
+                return this.kind() === rhs.kind();
             }
             str() {
                 return 'Tensor';
@@ -7317,7 +7323,7 @@ python.Execution = class {
         });
         this.registerType('torch.Graph', class {
             constructor() {
-                this._unique = 1;
+                this._next_unique = 1;
                 this._all_nodes = [];
                 this._all_values = [];
                 this._all_blocks = [];
@@ -7357,8 +7363,11 @@ python.Execution = class {
                 }
                 this._insert_before = node;
             }
-            get all_nodes() {
+            all_nodes() {
                 return this._all_nodes;
+            }
+            all_blocks() {
+                return this._all_blocks;
             }
             freeNode(n) {
                 const index = this._all_nodes.indexOf(n);
@@ -7382,7 +7391,6 @@ python.Execution = class {
         });
         this.registerType('torch.Block', class {
             constructor(graph) {
-                this._unique = 1;
                 this._graph = graph;
                 this._input = graph.create('prim::Param');
                 this._output = graph.create('prim::Return');
@@ -7390,6 +7398,11 @@ python.Execution = class {
                 this._input.prev = this._output;
                 this._output.next = this._input;
                 this._output.prev = this._input;
+                this._graph.all_blocks().push(this);
+                this._output._owning_block = this;
+                // output_->topo_position_ = kUpperBound;
+                this._input._owning_block = this;
+                // input_->topo_position_ = kLowerBound;
             }
             param_node() {
                 return this._input;
@@ -7439,12 +7452,16 @@ python.Execution = class {
                 this._inputs = [];
                 this._outputs = [];
                 this._blocks = [];
-                this._graph.all_nodes.push(this);
+                this._graph.all_nodes().push(this);
                 this._prev = null;
                 this._next = null;
+                this._source_range = null;
             }
             owningGraph() {
                 return this._graph;
+            }
+            owningBlock() {
+                return this._owning_block;
             }
             kind() {
                 return this._kind;
@@ -7508,7 +7525,7 @@ python.Execution = class {
                 return this;
             }
             insertAfter(n) {
-                // this.owning_block_ = n->owningBlock();
+                this._owning_block = n.owningBlock();
                 const  next = n.next;
                 n.next = this;
                 this.prev = n;
@@ -7607,11 +7624,17 @@ python.Execution = class {
             kindOf(name) {
                 return this._values.get(name)[1];
             }
+            setSourceRange(r) {
+                this._source_range = r;
+            }
+            sourceRange() {
+                return this._source_range;
+            }
         });
         this.registerType('torch.Value', class {
             constructor(node) {
-                this._unique = node && node._unique ? node._unique++ : node._graph._unique++;
-                this._node = node && node._unique ? null : node;
+                this._unique = node && node._next_unique ? node._next_unique++ : node._graph._next_unique++; // remove always node
+                this._node = node && node._next_unique ? null : node;
                 this._uses = [];
             }
             unique() {
@@ -10714,7 +10737,7 @@ python.Execution = class {
             }
             case 'call': {
                 if (expression.target.type === '.') {
-                    return this.call(expression.target.target, expression.target.member.value, expression.args, context);
+                    return this.call(expression.target.target, expression.target.member.value, expression.args, context, expression.location);
                 }
                 return this.call(expression.target, null, expression.args, context);
             }
@@ -10789,7 +10812,8 @@ python.Execution = class {
         return undefined;
     }
 
-    target(expression, context) {
+    target(expression, context, resolve) {
+        resolve = resolve === false ? false : true;
         let current = expression;
         let path = [];
         for (;;) {
@@ -10812,7 +10836,7 @@ python.Execution = class {
                     break;
                 }
             }
-            if (!target) {
+            if (!target && resolve) {
                 path.reverse();
                 const name = path.join('.');
                 const file = `${path.join('/')}.py`;
