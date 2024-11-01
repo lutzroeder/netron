@@ -173,6 +173,33 @@
     "name": "aten::__and__.int(int a, int b) -> int"
   },
   {
+    "name": "aten::__contains__.Tensor(Dict(Tensor, t) dict, Tensor key) -> bool"
+  },
+  {
+    "name": "aten::__contains__.bool(Dict(bool, t) dict, bool key) -> bool"
+  },
+  {
+    "name": "aten::__contains__.complex(Dict(complex, t) dict, complex key) -> bool"
+  },
+  {
+    "name": "aten::__contains__.float(Dict(float, t) dict, float key) -> bool"
+  },
+  {
+    "name": "aten::__contains__.float_list(float[] l, float item) -> bool"
+  },
+  {
+    "name": "aten::__contains__.int(Dict(int, t) dict, int key) -> bool"
+  },
+  {
+    "name": "aten::__contains__.int_list(int[] l, int item) -> bool"
+  },
+  {
+    "name": "aten::__contains__.str(Dict(str, t) dict, str key) -> bool"
+  },
+  {
+    "name": "aten::__contains__.str_list(str[] l, str item) -> bool"
+  },
+  {
     "name": "aten::__getitem__.Dict_Tensor(Dict(Tensor, t) self, Tensor key) -> t(*)"
   },
   {

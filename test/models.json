@@ -5333,7 +5333,7 @@
     "type":     "pytorch",
     "target":   "fasterrcnn_resnet50_fpn.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7677467/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
-    "error":    "Unsupported type expression '.'.",
+    "error":    "Unknown function 'aten::__contains__'.",
     "link":     "https://github.com/lutzroeder/netron/issues/689"
   },
   {
@@ -6346,6 +6346,7 @@
     "target":   "transformer.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10271969/transformer.pt.zip[transformer.pt]",
     "format":   "TorchScript v1.6",
+    "error":    "value.type is not a function\nUnknown type name 'torch.all'.",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {

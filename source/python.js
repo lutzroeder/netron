@@ -6178,11 +6178,14 @@ python.Execution = class {
             get annotation_str() {
                 return this._annotation_str;
             }
-            equals(/* rhs */) {
-                throw new python.Error(`Not implemented '${this.kind()}'.`);
+            equals(rhs) {
+                return this.kind() === rhs.kind();
             }
-            isSubtypeOf(/* rhs */) {
-                throw new python.Error(`Not implemented '${this.kind()}'.`);
+            isSubtypeOf(rhs) {
+                if (rhs.kind() === 'OptionalType') {
+                    return rhs.getElementType().equals(this);
+                }
+                return false;
             }
             str() {
                 if (this._kind === 'VarType' && this._annotation_str) {
@@ -6257,6 +6260,9 @@ python.Execution = class {
             }
             getElementType() {
                 return this._elem;
+            }
+            equals(rhs) {
+                return this.kind() === rhs.kind() && this.getElementType().equals(rhs.getElementType());
             }
             str() {
                 return `${this.getElementType().str()}?`;
@@ -6381,6 +6387,9 @@ python.Execution = class {
                 torch.NoneType.value = torch.NoneType.value || new torch.NoneType();
                 return torch.NoneType.value;
             }
+            equals(rhs) {
+                return this.kind() === rhs.kind();
+            }
             str() {
                 return 'NoneType';
             }
@@ -6451,7 +6460,7 @@ python.Execution = class {
                 return this.kind() === rhs.kind();
             }
             isSubtypeOf(rhs) {
-                return this.kind() === 'NumberType' || super.isSubtypeOf(rhs);
+                return rhs.kind() === 'NumberType' || rhs.kind() === 'FloatType' || super.isSubtypeOf(rhs);
             }
             str() {
                 return 'int';
@@ -10812,8 +10821,7 @@ python.Execution = class {
         return undefined;
     }
 
-    target(expression, context, resolve) {
-        resolve = resolve === false ? false : true;
+    target(expression, context) {
         let current = expression;
         let path = [];
         for (;;) {
@@ -10836,7 +10844,7 @@ python.Execution = class {
                     break;
                 }
             }
-            if (!target && resolve) {
+            if (!target) {
                 path.reverse();
                 const name = path.join('.');
                 const file = `${path.join('/')}.py`;
