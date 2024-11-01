@@ -20841,7 +20841,6 @@
         "description": "Constrain input and output types to float tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
-          "tensor(bfloat16)",
           "tensor(float16)",
           "tensor(float)",
           "tensor(double)"
@@ -20887,6 +20886,7 @@
         "description": "Constrain input and output types to float tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
+          "tensor(bfloat16)",
           "tensor(float16)",
           "tensor(float)",
           "tensor(double)"
