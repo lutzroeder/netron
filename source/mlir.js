@@ -1074,13 +1074,17 @@ mlir.Parser = class {
                this._current.type !== '}' &&
                this._current.type !== mlir.TokenType.IDENTIFIER &&
                this._current.type !== mlir.TokenType.STRING_LITERAL) {
-            const value = this._eat(mlir.TokenType.VALUE_ID);
-            if (value) {
+            if (this._match(mlir.TokenType.VALUE_ID)) {
+                const value = this._eat(mlir.TokenType.VALUE_ID);
+                inputs.push(value.value);
+            } else if (this._match(mlir.TokenType.DENSE)) {
+                const value = this._eat(mlir.TokenType.DENSE);
+                inputs.push(value.value);
+            } else if (this._match(mlir.TokenType.INTEGER_LITERAL)) {
+                const value = this._eat(mlir.TokenType.INTEGER_LITERAL);
                 inputs.push(value.value);
             } else {
-                const dense = this._eat(mlir.TokenType.DENSE);
-                inputs.push(dense.value);
-                return inputs;
+                throw new mlir.Error(`Unexpected token '${this._current.type}' ${this._tokenizer.location()}`);
             }
             this._eat(',');
         }
@@ -1145,7 +1149,12 @@ mlir.Parser = class {
         const attributes = new Map();
         if (this._eat('{')) {
             while (!this._eat('}')) {
-                const name = this._read(mlir.TokenType.IDENTIFIER).value;
+                let name = null;
+                if (this._match(mlir.TokenType.IDENTIFIER)) {
+                    name = this._read(mlir.TokenType.IDENTIFIER).value;
+                } else {
+                    name = this._read(mlir.TokenType.STRING_LITERAL).value;
+                }
                 if (this._eat('=')) {
                     let value = '';
                     let openingCount = 0;
@@ -1188,7 +1197,7 @@ mlir.Parser = class {
                     } else if (this._match(mlir.TokenType.ATTRIBUTE_ALIAS)) {
                         args.push(this._eat(mlir.TokenType.ATTRIBUTE_ALIAS).value);
                     } else {
-                        throw new mlir(`Unexpected token '${this._current}.`);
+                        throw new mlir.Error(`Unexpected token '${this._current}.`);
                     }
                 }
             }

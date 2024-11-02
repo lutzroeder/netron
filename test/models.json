@@ -3122,7 +3122,7 @@
     "target":   "mlp_haiku.mlir",
     "source":   "https://github.com/user-attachments/files/17260022/mlp_haiku.mlir.zip[mlp_haiku.mlir]",
     "format":   "MLIR",
-    "error":    "Cannot read properties of null (reading 'value')",
+    "error":    "Unexpected token '=' at 3:63.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3139,6 +3139,14 @@
     "source":   "https://github.com/user-attachments/files/17174958/versioned-op-2.0.mlirbc.zip[versioned-op-2.0.mlirbc]",
     "format":   "MLIR",
     "error":    "Invalid file content. File contains MLIR bytecode data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "torch_mlir_3429.mlir",
+    "source":   "https://github.com/user-attachments/files/17605115/torch_mlir_3429.mlir.zip[torch_mlir_3429.mlir]",
+    "format":   "MLIR",
+    "error":    "Unexpected token 'KEYWORD' at 8:34.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
