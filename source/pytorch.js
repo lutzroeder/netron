@@ -2611,6 +2611,7 @@ pytorch.Execution = class extends python.Execution {
                 return obj;
             }
             const node = this.graph.create('prim::CallMethod');
+            node.setSourceRange(location);
             this.graph.insertNode(node);
             node.s_('name', name);
             node.addInput(obj);

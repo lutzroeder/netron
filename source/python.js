@@ -5211,6 +5211,7 @@ python.Execution = class {
         this.registerType('torchvision.transforms.transforms.ToPILImage', class {});
         this.registerType('torchvision.transforms.transforms.ToTensor', class {});
         this.registerType('torchvision.transforms.v2._container.Compose', class {});
+        this.registerType('torchvision.transforms.v2._misc.ConvertImageDtype', class {});
         this.registerType('torchvision.transforms.v2._misc.Normalize', class {});
         this.registerType('torchvision.transforms.v2._misc.ToDtype', class {});
         this.registerType('torchvision.transforms.v2._geometry.CenterCrop', class {});
@@ -5219,6 +5220,7 @@ python.Execution = class {
         this.registerType('torchvision.transforms.v2._geometry.RandomCrop', class {});
         this.registerType('torchvision.transforms.v2._transform.Transform', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.v2._type_conversion.ToImage', class extends torchvision.transforms.v2._transform.Transform {});
+        this.registerType('torchvision.transforms.v2._type_conversion.PILToTensor', class {});
         this.registerFunction('torchvision.models.resnet.resnet18', () => {});
         this.registerFunction('torchvision.models.resnet.resnet34', () => {});
         this.registerFunction('torchvision.models.resnet.resnet50', () => {});
