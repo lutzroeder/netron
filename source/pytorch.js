@@ -695,14 +695,6 @@ pytorch.Node = class {
                 const value = metadata.type(key);
                 this.type = value ? { ...value } : { name: type };
                 this.type.identifier = type;
-                if (this.type.name.indexOf('(') !== -1) {
-                    throw new Error();
-                }
-                if (this.type.name.indexOf('::') !== -1) {
-                    throw new Error();
-                }
-                // [name] = this.type.name.split('(');
-                // this.type.name = name.indexOf('::') === -1 ? name : name.split('::').pop().split('.')[0];
             }
             stack = stack || new Set();
             const weights = pytorch.Utility.weights(obj);
@@ -728,6 +720,8 @@ pytorch.Node = class {
                     } else if (pytorch.Utility.isInstance(value, 'builtins.set') && value instanceof Set && value.size === 0) {
                         continue;
                     } else if (pytorch.Utility.isInstance(value, 'builtins.list') && Array.isArray(value) && value.length === 0) {
+                        continue;
+                    } else if (pytorch.Utility.isInstance(value, 'torch.Size') && Array.isArray(value) && value.length === 0) {
                         continue;
                     }
                     const parameters = new Map();
@@ -3492,9 +3486,9 @@ pytorch.Utility = class {
         if (obj instanceof Map) {
             const entries = Array.from(obj).filter(([name]) => name !== '_metadata');
             const names = entries.filter(([name]) => typeof name === 'string' && (name.indexOf('.') !== -1 || name.indexOf('|') !== -1));
-            if (names.length > 1 &&
-                (names.length / entries.length) >= 0.8 &&
-                entries.every(([, value]) => !pytorch.Utility.isInstance(value, 'builtins.dict') || Array.from(value.values()).every((value) => !pytorch.Utility.isTensor(value)))) {
+            if (names.length > 1 && (names.length / entries.length) >= 0.8 &&
+                (entries.every(([, value]) => !pytorch.Utility.isInstance(value, 'builtins.dict') || Array.from(value.values()).every((value) => !pytorch.Utility.isTensor(value)))) &&
+                (!entries.every(([, value]) => Array.isArray(value)))) {
                 const modules = new Map();
                 for (const [name, value] of entries) {
                     const separator = name.indexOf('.') === -1 && name.indexOf('|') !== -1 ? '|' : '.';

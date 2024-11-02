@@ -5431,6 +5431,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "InternVideo2-stage2_1b-224p-f4.pt",
+    "source":   "https://github.com/user-attachments/files/17607734/InternVideo2-stage2_1b-224p-f4.pt.zip[InternVideo2-stage2_1b-224p-f4.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "iv3_pertensor.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5212009/iv3_pertensor.zip[iv3_pertensor.pt]",
     "format":   "TorchScript v1.5",
