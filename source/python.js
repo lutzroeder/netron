@@ -8471,6 +8471,11 @@ python.Execution = class {
                     .filter((s) => s.kind === torch.export.graph_signature.InputKind.BUFFER && s.arg instanceof torch.export.graph_signature.TensorArgument && typeof s.target === 'string')
                     .map((s) => [s.arg.name, s.target]));
             }
+            inputs_to_lifted_tensor_constants() {
+                return new Map(this.input_specs
+                    .filter((s) => s.kind === torch.export.graph_signature.InputKind.CONSTANT_TENSOR && s.arg instanceof torch.export.graph_signature.TensorArgument && typeof s.target === 'string')
+                    .map((s) => [s.arg.name, s.target]));
+            }
         });
         torch.export.graph_signature.InputKind = {
             USER_INPUT: 0,
@@ -8562,6 +8567,9 @@ python.Execution = class {
             }
             get state_dict() {
                 return this._state_dict;
+            }
+            get constants() {
+                return this._constants;
             }
         });
         this.registerType('torch.export.exported_program.ModuleCallEntry', class {});

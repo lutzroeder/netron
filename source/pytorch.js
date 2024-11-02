@@ -215,6 +215,7 @@ pytorch.Graph = class {
             const graph = exported_program.graph;
             const inputs_to_parameters = exported_program.graph_signature.inputs_to_parameters();
             const inputs_to_buffers = exported_program.graph_signature.inputs_to_buffers();
+            const inputs_to_lifted_tensor_constants = exported_program.graph_signature.inputs_to_lifted_tensor_constants();
             const values = new Map();
             values.map = (obj) => {
                 if (!values.has(obj)) {
@@ -241,12 +242,19 @@ pytorch.Graph = class {
                             const value = new pytorch.Value(key, null, null, tensor);
                             values.set(node, value);
                         }
-                    }
-                    if (inputs_to_buffers.has(node.name)) {
+                    } else if (inputs_to_buffers.has(node.name)) {
                         const key = inputs_to_buffers.get(node.name);
                         const buffer = exported_program.state_dict.get(key);
                         if (buffer) {
                             const tensor = new pytorch.Tensor(key, buffer);
+                            const value = new pytorch.Value(key, null, null, tensor);
+                            values.set(node, value);
+                        }
+                    } else if (inputs_to_lifted_tensor_constants.has(node.name)) {
+                        const key = inputs_to_lifted_tensor_constants.get(node.name);
+                        const constant = exported_program.constants.get(key);
+                        if (exported_program) {
+                            const tensor = new pytorch.Tensor(key, constant);
                             const value = new pytorch.Value(key, null, null, tensor);
                             values.set(node, value);
                         }

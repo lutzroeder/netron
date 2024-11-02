@@ -5165,6 +5165,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "feature_embedding.pt2",
+    "source":   "https://github.com/user-attachments/files/17608076/chai-1.zip[feature_embedding.pt2]",
+    "format":   "PyTorch Export v5.1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "pytorch",
     "target":   "checkpoints_auc_classifier.pth",
     "source":   "https://github.com/user-attachments/files/16405191/checkpoints_auc_classifier.pth.zip[checkpoints_auc_classifier.pth]",
     "format":   "PyTorch v1.6",
