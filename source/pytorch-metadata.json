@@ -41,6 +41,9 @@
     "name": "_caffe2::BoxWithNMSLimit(Tensor scores, Tensor boxes, Tensor batch_splits, float score_thresh, float nms, int detections_per_im, bool soft_nms_enabled, str soft_nms_method, float soft_nms_sigma, float soft_nms_min_score_thres, bool rotated, bool cls_agnostic_bbox_reg, bool input_boxes_include_bg_cls, bool output_classes_include_bg_cls, bool legacy_plus_one) -> (Tensor scores, Tensor boxes, Tensor classes, Tensor batch_splits, Tensor keeps, Tensor keeps_size)"
   },
   {
+    "name": "_caffe2::CollectAndDistributeFpnRpnProposals(Tensor[] input_list, int roi_canonical_scale, int roi_canonical_level, int roi_max_level, int roi_min_level, int rpn_max_level, int rpn_min_level, int rpn_post_nms_topN, bool legacy_plus_one) -> (Tensor rois, Tensor rois_fpn2, Tensor rois_fpn3, Tensor rois_fpn4, Tensor rois_fpn5, Tensor rois_idx_restore_int32)"
+  },
+  {
     "name": "_caffe2::CollectRpnProposals(Tensor[] input_list, int rpn_max_level, int rpn_min_level, int rpn_post_nms_topN) -> (Tensor rois)"
   },
   {
@@ -1462,17 +1465,6 @@
   },
   {
     "name": "aten::clamp_min_.Tensor(Tensor(a!) self, Tensor min) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::classes._nnapi.Compilation",
-    "inputs": [
-      { "name": "serialized_model", "type": "Tensor" },
-      { "name": "inputs", "type": "Tensor[]" },
-      { "name": "parameter_buffers", "type": "Tensor[]" }
-    ],
-    "outputs": [
-      { "type": "Tensor[]" }
-    ]
   },
   {
     "name": "aten::clip(Tensor self, Scalar? min=None, Scalar? max=None) -> Tensor"
@@ -5638,6 +5630,24 @@
     "name": "aten::unsqueeze_copy.out(Tensor self, int dim, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::update.Tensor(Dict(Tensor, t)(a!) self, Dict(Tensor, t)(a!) to_add) -> ()"
+  },
+  {
+    "name": "aten::update.bool(Dict(bool, t)(a!) self, Dict(bool, t)(a!) to_add) -> ()"
+  },
+  {
+    "name": "aten::update.complex(Dict(complex, t)(a!) self, Dict(complex, t)(a!) to_add) -> ()"
+  },
+  {
+    "name": "aten::update.float(Dict(float, t)(a!) self, Dict(float, t)(a!) to_add) -> ()"
+  },
+  {
+    "name": "aten::update.int(Dict(int, t)(a!) self, Dict(int, t)(a!) to_add) -> ()"
+  },
+  {
+    "name": "aten::update.str(Dict(str, t)(a!) self, Dict(str, t)(a!) to_add) -> ()"
+  },
+  {
     "name": "aten::upsample_bicubic2d(Tensor self, SymInt[2] output_size, bool align_corners, float? scales_h=None, float? scales_w=None) -> Tensor",
     "category": "Layer"
   },
@@ -6889,6 +6899,54 @@
   {
     "name": "torch.nn.modules.upsampling.Upsample",
     "category": "Data"
+  },
+  {
+    "name": "torch_scatter::cuda_version() -> int _0"
+  },
+  {
+    "name": "torch_scatter::gather_coo(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::gather_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::scatter_max(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_scatter::scatter_mean(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::scatter_min(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_scatter::scatter_mul(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::scatter_sum(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::segment_max_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_scatter::segment_max_csr(Tensor _0, Tensor _1, Tensor? _2) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_scatter::segment_mean_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::segment_mean_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::segment_min_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_scatter::segment_min_csr(Tensor _0, Tensor _1, Tensor? _2) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_scatter::segment_sum_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::segment_sum_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0"
   },
   {
     "name": "torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)"

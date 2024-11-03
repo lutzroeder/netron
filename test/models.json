@@ -168,6 +168,13 @@
   },
   {
     "type":     "_",
+    "target":   "pytorch_invalid_file.pth",
+    "source":   "https://github.com/lutzroeder/netron/files/3269093/pytorch_invalid_file.zip[pytorch_invalid_file.pth]",
+    "error":    "Could not find end of line.",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "_",
     "target":   "random.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/7449479/random.onnx.zip[random.onnx]",
     "error":    "Unsupported file content '746d6c20786d6c6e733d22687474703a'.",
@@ -5348,7 +5355,7 @@
     "type":     "pytorch",
     "target":   "fasterrcnn_resnet50_fpn.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7677467/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
-    "error":    "Unknown function 'aten::__contains__'.",
+    "format":   "TorchScript v1.7",
     "link":     "https://github.com/lutzroeder/netron/issues/689"
   },
   {
@@ -5512,7 +5519,6 @@
     "target":   "mask_model.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10080302/mask_model.pt.zip[mask_model.pt]",
     "format":   "TorchScript v1.7",
-    "error":    "Unsupported type expression '.'.",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5866,15 +5872,8 @@
     "type":     "pytorch",
     "target":   "pyg_model.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10369483/pyg_model.zip[pyg_model.pt]",
-    "error":    "Unknown function 'aten::linear'.",
+    "format":   "TorchScript v1.7",
     "link":     "https://github.com/lutzroeder/netron/issues/546"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "pytorch_invalid_file.pth",
-    "source":   "https://github.com/lutzroeder/netron/files/3269093/pytorch_invalid_file.zip[pytorch_invalid_file.pth]",
-    "error":    "Could not find end of line.",
-    "link":     "https://github.com/lutzroeder/netron/issues/133"
   },
   {
     "type":     "pytorch",
@@ -5908,7 +5907,6 @@
     "type":     "pytorch",
     "target":   "rcnn.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9035740/rcnn.pt.zip[rcnn.pt]",
-    "error":    "value.uses is not a function",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -6368,7 +6366,6 @@
     "target":   "transformer.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10271969/transformer.pt.zip[transformer.pt]",
     "format":   "TorchScript v1.6",
-    "error":    "value.type is not a function\nUnknown type name 'torch.all'.",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {

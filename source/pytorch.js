@@ -1564,7 +1564,6 @@ pytorch.Execution = class extends python.Execution {
                 }
             }
         });
-        this.register('__torch__').torch.classes._nnapi.Compilation.__type__ = new torch.ClassType('__torch__.torch.classes._nnapi.Compilation');
         this.registerType('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', class {
             __setstate__(state) {
                 if (state[0] !== '2') {
@@ -1898,7 +1897,7 @@ pytorch.Execution = class extends python.Execution {
                     return value;
                 }
                 if (expression.target.type === 'id' && expression.target.value === 'uninitialized') {
-                    const type = this.type(expression.args[0], context);
+                    const type = this.type(expression.args[0]);
                     const node = this._graph.create('prim::Uninitialized');
                     this.graph.insertNode(node);
                     const value = node.addOutput();
@@ -1907,7 +1906,7 @@ pytorch.Execution = class extends python.Execution {
                 }
                 if (expression.target.type === 'id' && expression.target.value === 'unchecked_cast') {
                     let value = this.expression(expression.args[1], context);
-                    const type = this.type(expression.args[0], context);
+                    const type = this.type(expression.args[0]);
                     const node = this._graph.create('prim::unchecked_cast');
                     this.graph.insertNode(node);
                     node.addInput(this.variable(value));
@@ -2440,6 +2439,11 @@ pytorch.Execution = class extends python.Execution {
                             if (pytorch.Utility.isTensor(value)) {
                                 return torch.TensorType.get();
                             }
+                            if (value && value.__class__ && value instanceof torch.Value === false) {
+                                const identifier = `${value.__class__.__module__}.${value.__class__.__name__}`;
+                                const type = this._resolver.resolveType(identifier);
+                                return type;
+                            }
                             return value.type();
                         };
                         this.variables(statement, statement);
@@ -2480,6 +2484,8 @@ pytorch.Execution = class extends python.Execution {
                                 const t2 = __type(entry.orelse);
                                 if (t1 === null && t2 === null) {
                                     type = null;
+                                } else if (t1 === t2) {
+                                    type = t1;
                                 } else if (t1.equals(t2)) {
                                     type = t2;
                                 } else if (t1 instanceof torch.NoneType && t2 instanceof torch.NoneType === false) {
@@ -2538,7 +2544,7 @@ pytorch.Execution = class extends python.Execution {
         return super.statement(statement, context);
     }
 
-    type(expression, context) {
+    type(expression) {
         const torch = this.torch;
         if (expression.type === '[]' && expression.target.type === 'id') {
             switch (expression.target.value) {
@@ -2581,9 +2587,10 @@ pytorch.Execution = class extends python.Execution {
             }
         }
         if (expression.type === '.') {
-            const target = this.expression(expression, context);
-            if (target && target.__type__ instanceof torch.ClassType) {
-                return target.__type__;
+            const identifier = pytorch.Utility.target(expression);
+            const type = this._resolver.resolveType(identifier);
+            if (type) {
+                return type;
             }
         }
         throw new pytorch.Error(`Unsupported type expression '${expression.type}'.`);
@@ -2597,16 +2604,18 @@ pytorch.Execution = class extends python.Execution {
         if (name === '__new__') {
             const identifier = pytorch.Utility.target(target);
             if (identifier) {
-                const type = this.resolve(identifier);
-                if (type && type.__type__) {
+                const type = this._resolver.resolveType(identifier);
+                if (type) {
                     const node = this.graph.create('prim::CreateObject');
+                    node.setSourceRange(location);
                     this.graph.insertNode(node);
                     const value = node.addOutput();
-                    value.setType(type.__type__);
+                    value.setType(type);
                     return value;
                 }
             }
         }
+        /*
         if (name === '__init__') {
             const obj = this.expression(target, context);
             if (args.length === 0) {
@@ -2625,6 +2634,7 @@ pytorch.Execution = class extends python.Execution {
             value.setType(obj.type());
             return value;
         }
+        */
         const overload = this._overload(target, name, args, context);
         if (!overload) {
             const moduleTarget = this.target(target, context);
@@ -2638,6 +2648,35 @@ pytorch.Execution = class extends python.Execution {
                     node.addInput(value);
                 }
                 return node.addOutput();
+            }
+            const prefix = pytorch.Utility.target(target);
+            if (prefix && prefix !== 'self' && !prefix.startsWith('self.') && prefix.indexOf('.') !== -1) {
+                const identifier = `${prefix}.${name}`;
+                const type = this._resolver.resolveType(identifier);
+                if (type instanceof torch.TupleType) {
+                    const node = this._graph.create('prim::TupleConstruct');
+                    node.setSourceRange(location);
+                    this.graph.insertNode(node);
+                    const evalArgs = args.map((expression) => this.expression(expression, context));
+                    for (const arg of evalArgs) {
+                        const value = this.variable(arg);
+                        node.addInput(value);
+                    }
+                    const output = node.addOutput();
+                    output.setType(type);
+                    return output;
+                }
+                if (type instanceof torch.ClassType) {
+                    const node = this.graph.create('prim::CallMethod');
+                    this.graph.insertNode(node);
+                    node.s_('name', name);
+                    const evalArgs = args.map((expression) => this.expression(expression, context));
+                    for (const arg of evalArgs) {
+                        const value = this.variable(arg);
+                        node.addInput(value);
+                    }
+                    return node.addOutput();
+                }
             }
             return super.call(target, name, args, context);
         }
@@ -2734,6 +2773,9 @@ pytorch.Execution = class extends python.Execution {
                 } else {
                     const value = this.variable(v);
                     value.value = v;
+                    if (!value.type() && v instanceof this.builtins.dict) {
+                        value.setType(type);
+                    }
                     input = value;
                     match = true;
                 }
@@ -3062,6 +3104,9 @@ pytorch.Execution = class extends python.Execution {
                             (type.getValueType().kind() === 'VarType' || type.getValueType().str() === obj.type().getValueType().str())) {
                             return true;
                         }
+                    }
+                    if (obj instanceof this.builtins.dict) {
+                        return true;
                     }
                     return false;
                 }
@@ -3392,6 +3437,7 @@ pytorch.Utility = class {
             case 'ScalarTypeType': return `ScalarType`;
             case 'MemoryFormat': return `MemoryFormat`;
             case 'Layout': return `Layout`;
+            case 'VarType': return type.annotation_str;
             default: throw new pytorch.Error(`Unsupported type '${type.kind()}'.`);
         }
     }
