@@ -5300,7 +5300,7 @@ view.Context = class {
 
     async fetch(file) {
         const stream = await this._context.request(file, null, this._base);
-        return new view.Context(this, file, stream, new Map());
+        return new view.Context(this, file, stream);
     }
 
     async require(id) {
