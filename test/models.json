@@ -3133,6 +3133,13 @@
   },
   {
     "type":     "mlir",
+    "target":   "gemmreluadd.onnx.mlir",
+    "source":   "https://github.com/user-attachments/files/17640922/gemmreluadd.onnx.mlir.zip[gemmreluadd.onnx.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "mlp.mlir",
     "source":   "https://github.com/user-attachments/files/17264712/mlp.mlir.zip[mlp.mlir]",
     "format":   "MLIR",
@@ -3145,6 +3152,13 @@
     "source":   "https://github.com/user-attachments/files/17260022/mlp_haiku.mlir.zip[mlp_haiku.mlir]",
     "format":   "MLIR",
     "error":    "Unexpected token '=' at 3:63.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "mnist.onnx.mlir",
+    "source":   "https://github.com/user-attachments/files/17640924/mnist.onnx.mlir.zip[mnist.onnx.mlir]",
+    "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3165,10 +3179,17 @@
   },
   {
     "type":     "mlir",
+    "target":   "resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir",
+    "source":   "https://github.com/user-attachments/files/17640926/resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir.zip[resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "torch_mlir_3429.mlir",
     "source":   "https://github.com/user-attachments/files/17605115/torch_mlir_3429.mlir.zip[torch_mlir_3429.mlir]",
     "format":   "MLIR",
-    "error":    "Unexpected token 'KEYWORD' at 8:34.",
+    "error":    "Unexpected operation '!' at 14:71.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {

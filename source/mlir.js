@@ -1083,6 +1083,11 @@ mlir.Parser = class {
             } else if (this._match(mlir.TokenType.INTEGER_LITERAL)) {
                 const value = this._eat(mlir.TokenType.INTEGER_LITERAL);
                 inputs.push(value.value);
+            } else if (this._match(mlir.TokenType.BOOLEAN_LITERAL)) {
+                const value = this._eat(mlir.TokenType.BOOLEAN_LITERAL);
+                inputs.push(value.value);
+            } else if (this._match(mlir.TokenType.KEYWORD) && this._current.value === 'loc') {
+                break;
             } else {
                 throw new mlir.Error(`Unexpected token '${this._current.type}' ${this._tokenizer.location()}`);
             }
@@ -1152,8 +1157,10 @@ mlir.Parser = class {
                 let name = null;
                 if (this._match(mlir.TokenType.IDENTIFIER)) {
                     name = this._read(mlir.TokenType.IDENTIFIER).value;
-                } else {
+                } else if (this._match(mlir.TokenType.STRING_LITERAL)) {
                     name = this._read(mlir.TokenType.STRING_LITERAL).value;
+                } else if (this._match(mlir.TokenType.KEYWORD)) {
+                    name = this._read(mlir.TokenType.KEYWORD).value;
                 }
                 if (this._eat('=')) {
                     let value = '';
