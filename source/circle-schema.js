@@ -24,7 +24,9 @@ circle.TensorType = {
     GGML_Q4_0: -2,
     GGML_Q4_1: -3,
     GGML_Q8_0: -4,
-    GGML_Q8_1: -5
+    GGML_Q8_1: -5,
+    MXFP4: -6,
+    MXINT8: -7
 };
 
 circle.CustomQuantization = class CustomQuantization {
