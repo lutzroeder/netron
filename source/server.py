@@ -291,7 +291,7 @@ def serve(file, data=None, address=None, browse=False, verbosity=1):
         _log(verbosity > 1, 'Experimental\n')
         model = _open(data)
         if model:
-            text = json.dumps(model.to_json(), indent=4, ensure_ascii=False)
+            text = json.dumps(model.to_json(), indent=2, ensure_ascii=False)
             content = _ContentProvider(text.encode('utf-8'), 'model.netron', None, file)
 
     address = _make_address(address)

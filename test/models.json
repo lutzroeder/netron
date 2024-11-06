@@ -2950,6 +2950,21 @@
     "link":     "https://github.com/lutzroeder/netron/issues/607"
   },
   {
+    "type":     "message",
+    "target":   "inception_v3_traced.message",
+    "source":   "https://github.com/user-attachments/files/17640875/inception_v3_traced.message.zip[inception_v3_traced.message]",
+    "format":   "TorchScript v2.6.0.dev20241105",
+    "link":     "https://github.com/lutzroeder/netron/issues/607"
+  },
+  {
+    "type":     "message",
+    "target":   "resnet34.maxviz",
+    "source":   "https://github.com/lutzroeder/netron/files/13421032/resnet34.maxviz.zip[resnet34.maxviz]",
+    "tags":     "skip-render",
+    "format":   "Modular v0.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1187"
+  },
+  {
     "type":     "mlnet",
     "target":   "BinaryClassification_AutoML_SentimentModel.zip",
     "source":   "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/BinaryClassification_AutoML/SentimentAnalysis/MLModels/SentimentModel.zip",
@@ -3242,14 +3257,6 @@
     "format":   "MNN v2",
     "error":    "Invalid tensor data length.",
     "link":     "https://github.com/xindongzhang/MNN-APPLICATIONS"
-  },
-  {
-    "type":     "modular",
-    "target":   "resnet34.maxviz",
-    "source":   "https://github.com/lutzroeder/netron/files/13421032/resnet34.maxviz.zip[resnet34.maxviz]",
-    "tags":     "skip-render",
-    "format":   "Modular",
-    "link":     "https://github.com/lutzroeder/netron/issues/1187"
   },
   {
     "type":     "mslite",

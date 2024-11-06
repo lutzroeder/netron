@@ -5733,7 +5733,7 @@ view.ModelFactoryService = class {
         this._host = host;
         this._patterns = new Set(['.zip', '.tar', '.tar.gz', '.tgz', '.gz']);
         this._factories = [];
-        this.register('./server', ['.netron']);
+        this.register('./message', ['.message', '.netron', '.maxviz']);
         this.register('./pytorch', ['.pt', '.pth', '.ptl', '.pt1', '.pyt', '.pyth', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel', '.torchscript', '.pytorch', '.ot', '.params', '.trt', '.ff', '.ptmf', '.jit', '.pte', '.bin.index.json', 'model.json', 'serialized_exported_program.json', 'serialized_state_dict.json'], ['.model', '.pt2']);
         this.register('./onnx', ['.onnx', '.onnx.data', '.onn', '.pb', '.onnxtxt', '.pbtxt', '.prototxt', '.txt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx', '.ngf', '.json', '.bin', 'onnxmodel']);
         this.register('./tflite', ['.tflite', '.lite', '.tfl', '.bin', '.pb', '.tmfile', '.h5', '.model', '.json', '.txt', '.dat', '.nb', '.ckpt', '.onnx']);
@@ -5790,7 +5790,6 @@ view.ModelFactoryService = class {
         this.register('./nnc', ['.nnc','.tflite']);
         this.register('./safetensors', ['.safetensors', '.safetensors.index.json']);
         this.register('./tvm', ['.json', '.params']);
-        this.register('./modular', ['.maxviz']);
         this.register('./graphviz', ['.dot']);
         this.register('./catboost', ['.cbm']);
         this.register('./weka', ['.model']);
