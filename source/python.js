@@ -4672,6 +4672,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantizable.modules.rnn._LSTMSingleLayer', class {});
         this.registerType('torch.ao.nn.quantizable.modules.rnn.LSTM', class {});
         this.registerType('torch.ao.nn.quantizable.modules.rnn.LSTMCell', class {});
+        this.registerType('torch.ao.nn.quantized.modules.activation.ELU', class extends torch.nn.modules.activation.ELU {});
         this.registerType('torch.ao.nn.quantized.modules.activation.Hardswish', class extends torch.nn.modules.activation.Hardswish {});
         this.registerType('torch.ao.nn.quantized.modules.activation.MultiheadAttention', class extends torch.ao.nn.quantizable.modules.activation.MultiheadAttention {});
         this.registerType('torch.ao.nn.quantized.modules.activation.PReLU', class extends torch.nn.modules.module.Module {});
