@@ -7351,6 +7351,8 @@ python.Execution = class {
         this.registerType('torch.Graph', class {
             constructor() {
                 this._next_unique = 1;
+                this._unique_names = new Map();
+                this._name_base_suffix = new Map();
                 this._all_nodes = [];
                 this._all_values = [];
                 this._all_blocks = [];
@@ -7673,8 +7675,46 @@ python.Execution = class {
             uses() {
                 return this._uses;
             }
+            hasDebugName() {
+                return this._unique_name;
+            }
             setDebugName(name) {
+                // if (!isValidName(name)) {
+                //     throw std::runtime_error("Invalid name: '" + name + "'");
+                // }
+                const names = this.node().owningGraph()._unique_names;
+                if (this.hasDebugName()) {
+                    names.delete(this._unique_name);
+                    this._unique_name = '';
+                }
+                if (!name) {
+                    return this;
+                }
+                const old_owner_of_name = names.get(name);
+                if (old_owner_of_name) {
+                    let suffix = 1;
+                    let name_base = name;
+                    const last_dot_pos = name.lastIndexOf('.');
+                    if (last_dot_pos !== -1) {
+                        if (/^\d+$/.test(name.substring(last_dot_pos + 1))) {
+                            suffix = Number(name.substring(last_dot_pos + 1));
+                            name_base = name.substring(0, last_dot_pos);
+                        }
+                    }
+                    const names_suffixes = this.node().owningGraph()._name_base_suffix;
+                    if (names_suffixes.has(name_base)) {
+                        suffix = Math.max(suffix, names_suffixes.get(name_base));
+                    }
+                    let replacement_name = null;
+                    do {
+                        replacement_name = `${name_base}.${suffix++}`;
+                    } while (names.has(replacement_name));
+                    names_suffixes.set(name_base, suffix);
+                    old_owner_of_name.setDebugName(replacement_name);
+                }
+                names.set(name, this);
                 this._unique_name = name;
+                return this;
             }
             debugName() {
                 return this._unique_name;
