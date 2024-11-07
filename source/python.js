@@ -8966,6 +8966,18 @@ python.Execution = class {
                 Object.assign(this, { ...obj });
             }
         });
+        this.registerType('torch._export.serde.schema.SymBool', class extends torch._export.serde.union._Union {
+            constructor(obj) {
+                super(obj);
+                if (this.type === 'as_bool') {
+                    // continue
+                } else if (this.type === 'as_expr') {
+                    this.as_expr = new torch._export.serde.schema.SymExpr(this.as_expr);
+                } else {
+                    throw new python.Error(`Unsupported symbolic bool '${this.type}'.`);
+                }
+            }
+        });
         this.registerType('torch._export.serde.schema.SymBoolArgument', class extends torch._export.serde.union._Union {
             constructor(obj) {
                 super(obj);
