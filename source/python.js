@@ -2820,6 +2820,7 @@ python.Execution = class {
         this.registerType('sklearn.linear_model._quantile.QuantileRegressor', class {});
         this.registerType('sklearn.linear_model._ridge.Ridge', class {});
         this.registerType('sklearn.linear_model._ridge.RidgeClassifier', class {});
+        this.registerType('sklearn.linear_model._ridge.RidgeClassifierCV', class {});
         this.registerType('sklearn.linear_model._sgd_fast.Hinge', class {});
         this.registerType('sklearn.linear_model._sgd_fast.Log', class {});
         this.registerType('sklearn.linear_model._sgd_fast.ModifiedHuber', class {});
