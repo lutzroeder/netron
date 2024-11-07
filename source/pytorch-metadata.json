@@ -581,6 +581,15 @@
     "name": "aten::_upsample_bilinear2d_aa.vec(Tensor input, SymInt[]? output_size, bool align_corners, float[]? scale_factors) -> Tensor"
   },
   {
+    "name": "aten::_upsample_nearest_exact1d(Tensor self, SymInt[1] output_size, float? scales=None) -> Tensor"
+  },
+  {
+    "name": "aten::_upsample_nearest_exact1d.out(Tensor self, SymInt[1] output_size, float? scales=None, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::_upsample_nearest_exact1d.vec(Tensor input, SymInt[]? output_size, float[]? scale_factors) -> Tensor"
+  },
+  {
     "name": "aten::_weight_norm(Tensor v, Tensor g, int dim=0) -> Tensor"
   },
   {
@@ -3183,6 +3192,12 @@
     "name": "aten::linalg_qr.out(Tensor A, str mode=\"reduced\", *, Tensor(a!) Q, Tensor(b!) R) -> (Tensor(a!) Q, Tensor(b!) R)"
   },
   {
+    "name": "aten::linalg_slogdet(Tensor A) -> (Tensor sign, Tensor logabsdet)"
+  },
+  {
+    "name": "aten::linalg_slogdet.out(Tensor A, *, Tensor(a!) sign, Tensor(b!) logabsdet) -> (Tensor(a!) sign, Tensor(b!) logabsdet)"
+  },
+  {
     "name": "aten::linalg_solve(Tensor A, Tensor B, *, bool left=True) -> Tensor"
   },
   {
@@ -4987,6 +5002,12 @@
   },
   {
     "name": "aten::slice_scatter.out(Tensor self, Tensor src, int dim=0, SymInt? start=None, SymInt? end=None, SymInt step=1, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::slogdet(Tensor self) -> (Tensor sign, Tensor logabsdet)"
+  },
+  {
+    "name": "aten::slogdet.out(Tensor self, *, Tensor(a!) sign, Tensor(b!) logabsdet) -> (Tensor(a!) sign, Tensor(b!) logabsdet)"
   },
   {
     "name": "aten::smooth_l1_loss(Tensor self, Tensor target, int reduction=1, float beta=1.) -> Tensor"
