@@ -1,6 +1,66 @@
-import { execSync } from 'child_process';
+// import { execSync } from 'child_process';
 class Req {
+  file_added = 0;
   constructor() {}
+
+  static solve_bugs() {
+    var root = document.getElementById("list-modified");
+    if (root.length !== 0)
+    {
+      for (var i = 0; i < root.children.length; i++) {
+          var child = JSON.parse(root.children[i].innerHTML);
+          var id_child = child["id"];
+          if (root.children[i].className == "tensor") {
+              var list_t = document.getElementById("edge-paths");
+              for (var j = 0; j < list_t.children.length; j++) {
+                  if (list_t.children[j].id.split("\n")[1] == id_child) {
+                      if (child["style"] && list_t.children[j].hasAttribute("style")) {
+                          list_t.children[j].removeAttribute("style");
+                      }
+                      if (child["hover"] && list_t.children[j + 1].innerHTML !== '') {
+                          list_t.children[j + 1].innerHTML = '';
+                      }
+                  }
+              }
+          } else {
+              var parent_n = document.getElementById("nodes");
+              var idx = 1;
+              var counter = 0;
+              do{
+                  var child = parent_n.children[idx];
+                  if (child.children[3]) {
+                  counter += 1;
+                  }
+                  counter += 1;
+                  idx += 1;
+              } while (idx <= id_child);
+              if (id_child == 0) {
+                  counter = 0;
+              }
+              var operator = document.getElementById("node-id-" + counter);
+              if (operator) {
+                if (operator.children) {
+                  if (operator.children[0]) {
+                    if (operator.children[0].children) {
+                      if (operator.children[0].children[0]) {
+                        if (child["hover"] && operator.children[0].children[0].innerHTML !== '') {
+                          operator.children[0].children[0].innerHTML = '';
+                        } if (child["style"] && operator.children[0].children[0].hasAttribute("style")) {
+                            operator.children[0].children[0].removeAttribute("style");
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+          }
+      }
+    }
+    document.getElementById("list-attributes").innerHTML = '';
+    document.getElementById("list-modified").innerHTML = '';
+    Req.file_added = 0;
+  }
+
   static async _request(url) {
     let timeout = 0.25;
     let callback = 0;
@@ -70,33 +130,34 @@ class Req {
     let input = document.createElement('input');
     input.type = 'file';
     input.onchange = _ => {
-      let files =   Array.from(input.files);
+      let files = Array.from(input.files);
       const reader = new FileReader();
       reader.onload = function() {
         try {
+        Req.file_added = 1;
         const content = reader.result;
         var lines = content.split('\n');
         var id, meta, style, specifier;
         var childmeta = 0;
+        var another = 0;
         var nofb = 0;
         var otherstring = JSON.stringify({});
-        var object = JSON.stringify({});
         var optionskeys = ["tensor_id", "operator_id", "tensor_style", "operator_style", "tensor_ondblclick_script", "tensor_ondblclick_command", "operator_ondblclick_script", "operator_ondblclick_command", "tensor_onmouseover_text", "operator_onmouseover_text", "tensor_meta_key", "operator_meta_key", "tensor_meta_val", "operator_meta_val", "tensor_button", "operator_button", "tensor_button_command", "tensor_button_script", "operator_button_command", "operator_button_script"];
         var index = -1;
         for (var line = 0; line < lines.length; line++) {
           if (!lines[line].startsWith("#") && lines[line].trim().length !== 0) {
-            var lineread = lines[line].split(":");
+            var lineread = lines[line].split(/:(.+)/);
             var first = lineread[0] == undefined? '' : lineread[0].trim();
             if (index == -1) {
               if (first.toLowerCase() !== "operator_id" && first.toLowerCase() !== "tensor_id") {
-                document.getElementById("list-attributes").innerHTML = '';
-                throw "The first line must be operator_id or tensor_id";
+                Req.solve_bugs();
+                throw "Invalid model metadata file format! The first line must be operator_id or tensor_id";
               }
             }
             index = 0;
             if (!optionskeys.includes(first.toLowerCase())) {
-              document.getElementById("list-attributes").innerHTML = '';
-              throw "You provided an invalid key: " + first.toLowerCase();
+              Req.solve_bugs();
+              throw "Invalid model metadata file format! You provided an invalid key: " + first.toLowerCase();
             }
             if (first.toLowerCase() == "tensor_id" || first.toLowerCase() == "operator_id") {
               if (otherstring !== JSON.stringify({})) {
@@ -114,54 +175,65 @@ class Req {
               }
               if (childmeta !== 0) {
                 document.getElementById("list-attributes").appendChild(childmeta);
+                document.getElementById("list-modified").appendChild(another);
                 childmeta = 0;
+                another = 0;
               }
               childmeta = document.createElement('div');
+              another = document.createElement('div');
               specifier = lineread[0] == undefined? '' : lineread[0].trim();
               if (specifier.toLowerCase() == "tensor_id") {
                 childmeta.className = "tensor";
+                another.className = "tensor";
               } else {
                 childmeta.className = "operator";
+                another.className = "operator";
               }
               id = lineread[1] == undefined ? '' : lineread[1].trim();
               if (!(!isNaN(parseFloat(id)) && isFinite(id))) {
-                document.getElementById("list-attributes").innerHTML = '';
-                throw "Id must be a number";
+                Req.solve_bugs();
+                throw "Invalid model metadata file format! Id must be a number";
               }
               childmeta.innerHTML = JSON.stringify({"id": id});
+              another.innerHTML = JSON.stringify({"id": id});
               continue;
             }
             if (first.toLowerCase() == "tensor_style" || first.toLowerCase() == "operator_style") {
               if ((childmeta.className == "tensor" && first.toLowerCase() == "operator_style") || (childmeta.className == "operator" && first.toLowerCase() == "tensor_style")) {
-                document.getElementById("list-attributes").innerHTML = '';
-                throw "Please respect the format of the file: tensor_style corresponds to tensor and operator_style to operator";
+                Req.solve_bugs();
+                throw "Invalid model metadata file format! tensor_style must correspond to tensor and operator_style to operator";
               }
               style = lineread[1] == undefined ? '' : lineread[1].trim();
               var obj = JSON.parse(childmeta.innerHTML);
               obj["style"] = style;
               childmeta.innerHTML = JSON.stringify(obj);
+              var obj2 = JSON.parse(another.innerHTML);
+              obj2["style"] = style;
+              another.innerHTML = JSON.stringify(obj2);
               continue;
             }
             else {
               meta = lineread[1] == undefined ? '' : lineread[1].trim();
               var obj = JSON.parse(childmeta.innerHTML);
+              var obj2 = JSON.parse(another.innerHTML);
               if (first.toLowerCase() == "tensor_ondblclick_script" || first.toLowerCase() == "tensor_ondblclick_command" || first.toLowerCase() == "operator_ondblclick_script" || first.toLowerCase() == "operator_ondblclick_command") {
                 if (((first.toLowerCase() == "tensor_ondblclick_script" || first.toLowerCase() == "tensor_ondblclick_command") && childmeta.className == "operator") || ((first.toLowerCase() == "operator_ondblclick_script" || first.toLowerCase() == "operator_ondblclick_command") && childmeta.className == "tensor")) {
-                  document.getElementById("list-attributes").innerHTML = '';
-                  throw "Please respect the format of the file: tensor_ondblclick.. corresponds to tensor and operator_ondblclick... to operator";
+                  Req.solve_bugs();
+                  throw "Invalid model metadata file format! tensor_ondblclick.. must correspond to tensor and operator_ondblclick... to operator";
                 }
                 obj[first.toLowerCase()] = meta;
               } else if (first.toLowerCase() == "tensor_onmouseover_text" || first.toLowerCase() == "operator_onmouseover_text") {
                 if ((first.toLowerCase() == "tensor_onmouseover_text" && childmeta.className == "operator") || (first.toLowerCase() == "operator_onmouseover_text" && childmeta.className == "tensor")) {
-                  document.getElementById("list-attributes").innerHTML = '';
-                  throw "Please respect the format of the file: tensor_onmouseover_text corresponds to tensor and operator_onmouseover_text to operator";
+                  Req.solve_bugs();
+                  throw "Invalid model metadata file format! tensor_onmouseover_text must correspond to tensor and operator_onmouseover_text to operator";
                 }
                 obj["hover"] = meta;
+                obj2["hover"] = meta;
               }
               else if (first.toLowerCase() == "tensor_meta_key" || first.toLowerCase() == "operator_meta_key") {
                 if ((first.toLowerCase() == "tensor_meta_key" && childmeta.className == "operator") || (first.toLowerCase() == "operator_meta_key" && childmeta.className == "tensor")) {
-                  document.getElementById("list-attributes").innerHTML = '';
-                  throw "Please respect the format of the file: tensor_meta_key corresponds to tensor and operator_meta_key to operator";
+                  Req.solve_bugs();
+                  throw "Invalid model metadata file format! tensor_meta_key must correspond to tensor and operator_meta_key to operator";
                 }
                 var k = 1;
                 while (lines[line + k].startsWith("#") || lines[line + k].trim().length == 0) {
@@ -171,15 +243,16 @@ class Req {
                 var second = linereadsecond[0] == undefined? '' : linereadsecond[0].trim();
                 if (second.toLowerCase() == "tensor_meta_val" || second.toLowerCase() == "operator_meta_val") {
                   if ((first.toLowerCase() == "tensor_meta_val" && childmeta.className == "operator") || (first.toLowerCase() == "operator_meta_val" && childmeta.className == "tensor")) {
-                    document.getElementById("list-attributes").innerHTML = '';
-                    throw "Please respect the format of the file: tensor_meta_val corresponds to tensor and operator_meta_val to operator";
+                    Req.solve_bugs();
+                    throw "Invalid model metadata file format! tensor_meta_val must correspond to tensor and operator_meta_val to operator";
                   }
                   var value = linereadsecond[1].trim();
                   var key = lineread[1].trim();
                   obj[key] = value;
+                  obj2["metadata"] = "metadata";
                 } else {
-                  document.getElementById("list-attributes").innerHTML = '';
-                  throw "There is invalid data: meta_val should be after meta_key and it is not";
+                  Req.solve_bugs();
+                  throw "Invalid model metadata file format! meta_val must be after meta_key";
                 }
               }
               else if (first.toLowerCase() == "tensor_meta_val" || first.toLowerCase() == "operator_meta_val" ) {
@@ -192,18 +265,18 @@ class Req {
                 if ((second.toLowerCase() == "tensor_meta_key" && first.toLowerCase() == "tensor_meta_val") || (second.toLowerCase() == "operator_meta_key" && first.toLowerCase() == "operator_meta_val")) {
                   continue;
                 } else if ((second.toLowerCase() == "tensor_meta_key" && first.toLowerCase() == "operator_meta_val") || (second.toLowerCase() == "operator_meta_key" && first.toLowerCase() == "tensor_meta_val")) {
-                  document.getElementById("list-attributes").innerHTML = '';
-                  throw "Wrong data types: both key and value should be part of tensor or operator";
+                  Req.solve_bugs();
+                  throw "Invalid model metadata file format! both key and value must be part of tensor or operator";
                 } else {
-                  document.getElementById("list-attributes").innerHTML = '';
-                  throw "There is invalid data: meta_val should be after meta_key and it is not";
+                  Req.solve_bugs();
+                  throw "Invalid model metadata file format! meta_val must be after meta_key";
                 }
               }
               else {
                 if (first.toLowerCase() == "tensor_button" || first.toLowerCase() == "operator_button") {
                   if ((childmeta.className == "operator" && first.toLowerCase() == "tensor_button") || (childmeta.className == "tensor" && first.toLowerCase() == "operator_button")) {
-                    document.getElementById("list-attributes").innerHTML = '';
-                    throw "Please respect the format of the file: tensor_button corresponds to tensor and operator_button to operator";
+                    Req.solve_bugs();
+                    throw "Invalid model metadata file format! tensor_button must correspond to tensor and operator_button to operator";
                   }
                   var k = 1;
                   while (lines[line + k].startsWith("#") || lines[line + k].trim().length == 0) {
@@ -212,19 +285,20 @@ class Req {
                   var linereadsecond = lines[line + k].split(":");
                   var second = linereadsecond[0] == undefined? '' : linereadsecond[0].trim();
                   if ((first.toLowerCase() == "tensor_button" && second.toLowerCase() == "tensor_button") || (first.toLowerCase() == "operator_button" && second.toLowerCase() == "operator_button")) {
-                    document.getElementById("list-attributes").innerHTML = '';
-                    throw "You can't have empty buttons";
+                    Req.solve_bugs();
+                    throw "Invalid model metadata file format! You can't have empty buttons";
                   }
                   if (otherstring !== JSON.stringify({})) {
                     obj["button_" + nofb] = otherstring;
                     nofb += 1;
                   }
                   otherstring = JSON.stringify({"id": obj["id"], "class": childmeta.className, "button_name": lineread[1] == undefined ? '' : lineread[1].trim()});
+                  obj2["buttons"] = "buttons";
                 } else {
                   if (first.toLowerCase() == "tensor_button_command" || first.toLowerCase() == "tensor_button_script" || first.toLowerCase() == "operator_button_command" || first.toLowerCase() == "operator_button_script") {
                     if ((childmeta.className == "tensor" && (first.toLowerCase() == "operator_button_command" || first.toLowerCase() == "operator_button_script")) || (childmeta.className == "operator" && (first.toLowerCase() == "tensor_button_command" || first.toLowerCase() == "tensor_button_script"))) {
-                      document.getElementById("list-attributes").innerHTML = '';
-                      throw "Please respect the format of the file: tensor_button.. corresponds to tensor and operator_button.. to operator";
+                      Req.solve_bugs();
+                      throw "Invalid model metadata file format! tensor_button.. must correspond to tensor and operator_button.. to operator";
                     }
                     var k = -1;
                     while (lines[line + k].startsWith("#") || lines[line + k].trim().length == 0) {
@@ -233,30 +307,30 @@ class Req {
                     var linereadsecond = lines[line + k].split(":");
                     var second = linereadsecond[0] == undefined? '' : linereadsecond[0].trim();
                     if ((first.toLowerCase() == "tensor_button_command" && second.toLowerCase() == "tensor_button_command") || (first.toLowerCase() == "tensor_button_script" && second.toLowerCase() == "tensor_button_script") || (first.toLowerCase() == "operator_button_command" && second.toLowerCase() == "operator_button_command") || (first.toLowerCase() == "operator_button_script" && second.toLowerCase() == "operator_button_script")) {
-                      document.getElementById("list-attributes").innerHTML = '';
+                      Req.solve_bugs();
                       throw "A button can't execute two scripts or two commands at the same time";
                     }
                     if (first.toLowerCase() == "tensor_button_command") {
                       if (second.toLowerCase() !== "tensor_button_script" && second.toLowerCase() !== "tensor_button") {
-                        document.getElementById("list-attributes").innerHTML = '';
+                        Req.solve_bugs();
                         throw "The format of the data is wrong: the construction of the button should be tensor_button, tensor_button_command, tensor_button_script or tensor_button, tensor_button_script, tensor_button_command";
                       }
                     }
                     if (first.toLowerCase() == "tensor_button_script") {
                       if (second.toLowerCase() !== "tensor_button_command" && second.toLowerCase() !== "tensor_button") {
-                        document.getElementById("list-attributes").innerHTML = '';
+                        Req.solve_bugs();
                         throw "The format of the data is wrong: the construction of the button should be tensor_button, tensor_button_command, tensor_button_script or tensor_button, tensor_button_script, tensor_button_command";
                       }
                     }
                     if (first.toLowerCase() == "operator_button_command") {
                       if (second.toLowerCase() !== "operator_button_script" && second.toLowerCase() !== "operator_button") {
-                        document.getElementById("list-attributes").innerHTML = '';
+                        Req.solve_bugs();
                         throw "The format of the data is wrong: the construction of the button should be operator_button, operator_button_command, operator_button_script or operator_button, operator_button_script, operator_button_command";
                       }
                     }
                     if (first.toLowerCase() == "operator_button_command") {
                       if (second.toLowerCase() !== "operator_button_script" && second.toLowerCase() !== "operator_button") {
-                        document.getElementById("list-attributes").innerHTML = '';
+                        Req.solve_bugs();
                         throw "The format of the data is wrong: the construction of the button should be operator_button, operator_button_command, operator_button_script or operator_button, operator_button_script, operator_button_command";
                       }
                     }
@@ -275,12 +349,14 @@ class Req {
                 }
               }
               childmeta.innerHTML = JSON.stringify(obj);
+              another.innerHTML = JSON.stringify(obj2);
               continue;
             } 
           }
         }
         if (childmeta !== 0) {
           document.getElementById("list-attributes").appendChild(childmeta);
+          document.getElementById("list-modified").appendChild(another);
         }
         if (otherstring !== JSON.stringify({})) {
           var objeect = document.getElementById("list-attributes");
@@ -297,6 +373,7 @@ class Req {
         }
         if (document.getElementById("list-attributes").children) {
           var lista = document.getElementById("list-attributes");
+          var lista_m = document.getElementById("list-modified");
           var parent_t = document.getElementById("edge-paths");
           var parent_n = document.getElementById("nodes");
           for (var i = 0; i < lista.children.length; i++) {
@@ -309,9 +386,12 @@ class Req {
               var flag = 0;
               for (var idx = 0; idx < len; idx++) {
                 var obj = JSON.parse(lista.children[i].innerHTML);
+                var obj2 = JSON.parse(lista_m.children[i].innerHTML);
                 if (results[idx][1].id.split("\n")[1] == obj['id']) {
                   obj["new_id"] = idx;
                   obj["tensorname"] = results[idx][1].id;
+                  obj2["new_id"] = idx;
+                  obj2["tensorname"] = results[idx][1].id;
                   lista.children[i].innerHTML = JSON.stringify(obj);
                   if (obj["style"]) {
                     parent_t.children[idx].style.stroke = obj["style"];
@@ -324,12 +404,13 @@ class Req {
                 }
               }
               if (flag == 0) {
-                document.getElementById("list-attributes").innerHTML = '';
+                Req.solve_bugs();
                 throw "Index of tensor not found :" + obj['id'];
               }
             }
             if (lista.children[i].className == "operator") {
               var obj = JSON.parse(lista.children[i].innerHTML);
+              var obj2 = JSON.parse(lista_m.children[i].innerHTML);
               var id = obj["id"];
               var idx = 1;
               var counter = 0;
@@ -347,14 +428,21 @@ class Req {
               }
               var new_obj = JSON.parse(lista.children[i].innerHTML);
               new_obj["new_id"] = counter;
+              obj2["new_id"] = counter;
               lista.children[i].innerHTML = JSON.stringify(new_obj);
+              lista_m.children[i].innerHTML = JSON.stringify(obj2);
               var operator = document.getElementById("node-id-" + counter);
               if (!operator) {
-                document.getElementById("list-attributes").innerHTML = '';
+                Req.solve_bugs();
                 throw "Index of operator not found :" + obj["id"];
               }
               if (obj["hover"]) {
-                operator.children[0].children[0].innerHTML = '<title>' + obj["hover"].match(/.{1,20}/g).join("\n") + '</title>';
+                //operator.children[0].children[0].innerHTML = '<title>' + obj["hover"].match(/.{1,20}/g).join("\n") + '</title>';
+                const newimage = new Image();
+                newimage.style.position = "absolute";
+                newimage.style.zIndex = "1";
+                newimage.src = "C:\Users\nxg06533\OneDrive - NXP\Desktop\Smartphone_Essentials_Very_Small_Picture_Landscape_File_Gallery_Shot_Mountains-64.webp";
+                operator.children[0].append(newimage);
               }
               if (obj["style"]) {
                 operator.children[0].children[0].style.fill = obj["style"];
@@ -408,27 +496,18 @@ class Req {
               }
             }
             if (op["tensor_ondblclick_command"]) {
-              const execSync = require('child_process').execSync;
-              const output = execSync(op["tensor_ondblclick_command"], { encoding: 'utf-8' });
-              alert(output);
+              try {
+                const execSync = require('child_process').execSync;
+                const output = execSync(op["tensor_ondblclick_command"], {shell: true});
+              } catch(Err) {
+                alert("Error when running the command " + op["tensor_ondblclick_command"] + ": " + Err.message);
+              }
             }
             if (op["tensor_ondblclick_script"]) {
-              var prefix = op["tensor_ondblclick_script"].slice(0, 2);
-              var script = op["tensor_ondblclick_script"].slice(3, -1) + ");";
-              if (prefix === "js") {  
-                try {
-                  eval(script);
-                } catch(Err) {
-                  alert("Eroare la rularea scriptului " + script + ": " + Err.message);
-                }
-              } else {
-                try {
-                  const execSync = require('child_process').execSync;
-                  const output = execSync(script, { encoding: 'utf-8' });
-                  alert(output);
-                } catch(Err) {
-                  alert("Eroare la rularea scriptului " + script + ": " + Err.message);
-                }
+              try {
+                eval(op["tensor_ondblclick_script"]);
+              } catch(Err) {
+                alert("Error when running the script " + op["tensor_ondblclick_script"] + ": " + Err.message);
               }
             }
           })
@@ -452,32 +531,17 @@ class Req {
             if (op["operator_ondblclick_command"]) {
               try {
                 const execSync = require('child_process').execSync;
-                  const output = execSync(op["operator_ondblclick_command"], { encoding: 'utf-8' });
-                  alert(output);
+                  const output = execSync(op["operator_ondblclick_command"], {shell: true});
               } catch(Err) {
-                alert("Eroare la rularea scriptului " + op["operator_ondblclick_command"] + ": " + Err.message);
+                alert("Error when running the command " + op["operator_ondblclick_command"] + ": " + Err.message);
               }
             }
             if (op["operator_ondblclick_script"]) {
-              var prefix = op["operator_ondblclick_script"].slice(0, 2);
-              var script = op["operator_ondblclick_script"].slice(3, -1) + ");";
-              if (prefix === "js") {
                 try {
-                  eval(script);
+                  eval(op["operator_ondblclick_script"]);
                 } catch(Err) {
-                  alert("Eroare la rularea scriptului " + script + ": " + Err.message);
+                  alert("Error when running the script " + op["operator_ondblclick_script"] + ": " + Err.message);
                 }
-                
-              } else {
-                try {
-                  const execSync = require('child_process').execSync;
-                  const output = execSync(script, { encoding: 'utf-8' });
-                  alert(output);
-                } catch(Err) {
-                  lert("Eroare la rularea scriptului " + script + ": " + Err.message);
-                }
-                
-              }
             }
           })
         }
@@ -502,11 +566,7 @@ class Req {
         if (where.getAttribute('listener') !== 'true') {
           where.setAttribute('listener', 'true');
         }
-        console.log(where);
-        //where.addEventListener("click", function() {
         var sidebar = document.getElementById("sidebar-content");
-        console.log(where);
-        console.log("A mapasat");
         if (sidebar) {
           if (document.getElementById("sidebar-content").children[0]) {
             if (document.getElementById("sidebar-content").children[0].children) {
@@ -519,9 +579,6 @@ class Req {
                 }
               }
               if (counter == sidebarobj.children.length) {
-                // console.log(where);
-                // where.addEventListener("click", function() {
-                  console.log("am dat click");
                 if ((element_searched.className == "operator" && where.className['baseVal'] == "node graph-node select") || (element_searched.className == "tensor" && where.className['baseVal'] == "edge-path select")) {
                   var keys = Object.keys(inner);
                   const childmeta = document.createElement('div');
@@ -568,14 +625,22 @@ class Req {
                       sidebarobj.appendChild(newchild);
                     }
                   }
+                  var repeated = 0;
                   for (var i = 0; i < keys.length; i++) {
                     if (keys[i].slice(0, 7) == "button_") {
+                      if (repeated == 0) {
+                        const childmeta = document.createElement('div');
+                        childmeta.className = "sidebar-header";
+                        childmeta.innerText = "Actions";
+                        sidebarobj.appendChild(childmeta);
+                        repeated = 1;
+                      }
                       var stringnew = JSON.parse(inner[keys[i]]);
                       if (inner["id"] == stringnew["id"]) {
                         var newchild = document.createElement('button');
                         newchild.type = "button";
                         newchild.textContent = stringnew["button_name"];
-                        newchild.style = "position: relative;";
+                        newchild.style = "display: block; margin: 10px; background-color:#99c2ff; color:black; border-radius: 8px;";
                         if (stringnew["class"] == "tensor") {
                           if (stringnew["tensor_button_command"] && stringnew["tensor_button_script"]) {
                             newchild.value = JSON.stringify({"cmd": stringnew["tensor_button_command"], "script": stringnew["tensor_button_script"]});
@@ -629,30 +694,16 @@ class Req {
                     if (value["cmd"]) {
                       try {
                         const execSync = require('child_process').execSync;
-                          const output = execSync(script, { encoding: 'utf-8' });
-                          alert(output);
+                        const output = execSync(value["cmd"], {shell: true});
                       } catch(Err) {
-                        alert("Eroare la rularea scriptului " + value["cmd"] + ": " + Err.message);
+                        alert("Error when running the command " + value["cmd"] + ": " + Err.message);
                       }
                     }
                     if (value["script"]) {
-                      var prefix = value["script"].slice(0, 2);
-                      var script = value["script"].slice(3, -1) + ");";
-                      if (prefix === "js") {
-                        try {
-                          eval(script);
-                        } catch(Err) {
-                          alert("Eroare la rularea scriptului " + script + ": " + Err.message);
-                        }
-                      } else {
-                        try {
-                          const execSync = require('child_process').execSync;
-                          const output = execSync(script, { encoding: 'utf-8' });
-                          alert(output);
-                          
-                        } catch(Err) {
-                          alert("Eroare la rularea scriptului " + script + ": " + Err.message);
-                        }
+                      try {
+                        eval(value["script"]);
+                      } catch(Err) {
+                        alert("Error when running the script " + value["script"] + ": " + Err.message);
                       }
                     }
                   });
@@ -663,7 +714,30 @@ class Req {
         }
       }
     }
-    
+  //   if (document.getElementById("graph")) {
+  //     if (document.getElementById("origin")) {
+  //       if (document.getElementById("nodes")) {
+  //         for (var i = 0; i < document.getElementById("nodes").children.length; i++) {
+  //             document.getElementById("nodes").children[i].addEventListener("click", function(g) {
+  //               console.log("am pus mouse ul");  
+  //               const newimage = new Image();
+  //                 newimage.style.position = "absolute";
+  //                 newimage.style.zIndex = "1";
+  //                 newimage.src = "/home/nxg06533/netron2/netron/R.jpg";
+  //                 newimage.dataset.hoverimage = "True";
+  //                 g.target.append(newimage);
+  //             });
+  //             document.getElementById("nodes").children[i].addEventListener("onmouseout", function(g) {
+  //                 for (var i = 0; i < g.target.children.length; i++) {
+  //                     if (g.target.children[i].dataset.hoverimage == "True") {
+  //                       g.target.removeChild(g.target.children[i]);
+  //                     }
+  //                 }
+  //             });
+  //         }
+  //       }
+  //     }
+  // }
   }
 }
 
