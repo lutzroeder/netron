@@ -128,7 +128,7 @@
       },
       {
         "name": "seed",
-        "description": "A Python integer to use as random seed incase of `dropout`."
+        "description": "A Python integer to use as random seed in case of `dropout`."
       }
     ],
     "inputs": [
@@ -3348,6 +3348,10 @@
       {
         "name": "seed",
         "description": "Optional integer to seed the dropout layer."
+      },
+      {
+        "name": "flash_attention",
+        "description": "If unspecified, defaults to the global flash attention\n        configuration setting (which can be set via\n        `keras.config.enable_flash_attention()."
       }
     ],
     "examples": [
