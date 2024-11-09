@@ -647,7 +647,8 @@ onnx.Tensor = class {
                             const offset = parseInt(external_data.offset, 10);
                             const length = parseInt(external_data.length, 10);
                             if (Number.isInteger(offset) && Number.isInteger(length)) {
-                                this._data = context.location(external_data.location, offset, length);
+                                const location = context.location(external_data.location);
+                                this._request = { location, offset, length };
                                 this._encoding = '<';
                             }
                         }
@@ -658,6 +659,20 @@ onnx.Tensor = class {
                     break;
                 }
             }
+        }
+    }
+
+    peek() {
+        return !this._request;
+    }
+
+    async read() {
+        if (this._request) {
+            const location = this._request.location;
+            const offset = this._request.offset;
+            const length = this._request.length;
+            this._data = await location.read(offset, length);
+            delete this._request;
         }
     }
 
@@ -686,6 +701,9 @@ onnx.Tensor = class {
     }
 
     get values() {
+        if (this._request) {
+            throw new onnx.Error('Tensor data not loaded.');
+        }
         switch (this.type.layout) {
             case 'sparse': {
                 return this._values;
@@ -980,20 +998,9 @@ onnx.Context.Model = class {
         return this._graph;
     }
 
-    location(name, offset, length) {
+    location(name) {
         if (this._locations.has(name)) {
-            const stream = this._locations.get(name);
-            if (offset >= 0 && (offset + length) <= stream.length) {
-                try {
-                    const position = stream.position;
-                    stream.seek(offset);
-                    const value = stream.stream(length);
-                    stream.seek(position);
-                    return value;
-                } catch {
-                    // continue regardless of error
-                }
-            }
+            return this._locations.get(name);
         }
         return null;
     }
@@ -1263,8 +1270,8 @@ onnx.Context.Graph = class {
         return this._tensors.get(name);
     }
 
-    location(name, offset, length) {
-        return this._context.location(name, offset, length);
+    location(name) {
+        return this._context.location(name);
     }
 
     group(name) {
@@ -1706,16 +1713,12 @@ onnx.ProtoReader = class {
                 }
             }
         }
-        for (const key of this.locations.keys()) {
-            locations.delete(key);
+        for (const name of this.locations.keys()) {
+            locations.delete(name);
         }
-        const keys = Array.from(locations);
-        const promises = keys.map((location) => this.context.fetch(location));
-        const streams = await Promise.all(promises.map((promise) => promise.then((context) => context.stream).catch(() => null)));
-        for (let i = 0; i < keys.length; i++) {
-            if (streams[i] !== null) {
-                this.locations.set(keys[i], streams[i]);
-            }
+        for (const name of locations) {
+            const location = new onnx.Location(this.context, name);
+            this.locations.set(name, location);
         }
     }
 };
@@ -2976,6 +2979,36 @@ onnx.DataReader = class {
         await reader.read();
         this.format = reader.format;
         this.model = reader.model;
+    }
+};
+
+onnx.Location = class {
+
+    constructor(context, name) {
+        this.context = context;
+        this.name = name;
+        this.content = new Map();
+    }
+
+    async read(offset, length) {
+        const key = `${offset}:${length}`;
+        if (this.content.has(key)) {
+            return this.content.get(key);
+        }
+        if (!this.promise) {
+            this.promise = this.context.fetch(this.name);
+        }
+        return this.promise.then((content) => {
+            const stream = content.stream;
+            const position = stream.position;
+            stream.seek(offset);
+            content = stream.stream(length);
+            stream.seek(position);
+            this.content.set(key, content);
+            return content;
+        }).catch(() => {
+            return null;
+        });
     }
 };
 

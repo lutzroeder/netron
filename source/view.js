@@ -3259,24 +3259,30 @@ view.TensorView = class extends view.Expander {
             content.innerHTML = `Tensor encoding '${tensor.layout}' is not implemented.`;
         } else if (tensor.layout && (tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo')) {
             content.innerHTML = `Tensor layout '${tensor.layout}' is not implemented.`;
-        } else if (tensor.empty) {
-            content.innerHTML = 'Tensor data is empty.';
         } else if (tensor.type && tensor.type.dataType === '?') {
             content.innerHTML = 'Tensor data type is not defined.';
         } else if (tensor.type && !tensor.type.shape) {
             content.innerHTML = 'Tensor shape is not defined.';
         } else {
-            content.innerHTML = tensor.toString();
-            if (this._host.save && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length > 0) {
-                this._saveButton = this.createElement('div', 'sidebar-item-value-button');
-                this._saveButton.classList.add('sidebar-item-value-button-context');
-                this._saveButton.setAttribute('style', 'float: right;');
-                this._saveButton.innerHTML = '&#x1F4BE;';
-                this._saveButton.addEventListener('click', async () => {
-                    await this.export();
-                });
-                content.insertBefore(this._saveButton, content.firstChild);
-            }
+            content.innerHTML = '&#x23F3';
+            const promise = value.peek && !value.peek() ? value.read() : Promise.resolve();
+            promise.then(() => {
+                if (tensor.empty) {
+                    content.innerHTML = 'Tensor data is empty.';
+                } else {
+                    content.innerHTML = tensor.toString();
+                    if (this._host.save && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length > 0) {
+                        this._saveButton = this.createElement('div', 'sidebar-item-value-button');
+                        this._saveButton.classList.add('sidebar-item-value-button-context');
+                        this._saveButton.setAttribute('style', 'float: right;');
+                        this._saveButton.innerHTML = '&#x1F4BE;';
+                        this._saveButton.addEventListener('click', async () => {
+                            await this.export();
+                        });
+                        content.insertBefore(this._saveButton, content.firstChild);
+                    }
+                }
+            });
         }
         return content;
     }
@@ -3457,7 +3463,6 @@ view.TensorSidebar = class extends view.ObjectSidebar {
     constructor(context, value) {
         super(context);
         this._value = value;
-        this._tensor = new base.Tensor(value.value[0].initializer);
     }
 
     get identifier() {
@@ -3515,18 +3520,23 @@ view.TensorSidebar = class extends view.ObjectSidebar {
         }
         // Metrics
         if (value.initializer) {
-            if (!this._tensor.empty) {
-                if (!this._metrics) {
-                    this._metrics = new metrics.Tensor(this._tensor);
-                }
-                if (this._metrics.metrics.length > 0) {
-                    this.addHeader('Metrics');
-                    for (const metric of this._metrics.metrics) {
-                        const value = metric.type === 'percentage' ? `${(metric.value * 100).toFixed(1)}%` : metric.value;
-                        this.addProperty(metric.name, [value]);
+            const tensor = value.initializer;
+            const promise = tensor.peek && !tensor.peek() ? tensor.read() : Promise.resolve();
+            promise.then(() => {
+                this._tensor = new base.Tensor(tensor);
+                if (!this._tensor.empty) {
+                    if (!this._metrics) {
+                        this._metrics = new metrics.Tensor(this._tensor);
+                    }
+                    if (this._metrics.metrics.length > 0) {
+                        this.addHeader('Metrics');
+                        for (const metric of this._metrics.metrics) {
+                            const value = metric.type === 'percentage' ? `${(metric.value * 100).toFixed(1)}%` : metric.value;
+                            this.addProperty(metric.name, [value]);
+                        }
                     }
                 }
-            }
+            });
         }
     }
 
@@ -4449,7 +4459,7 @@ view.Formatter = class {
     static tensor(value) {
         const type = value.type;
         if (type && type.shape && type.shape.dimensions && Array.isArray(type.shape.dimensions)) {
-            if (type.shape.dimensions.length === 0) {
+            if (type.shape.dimensions.length === 0 && (!value.peek || value.peek() === true)) {
                 const tensor = new base.Tensor(value);
                 const encoding = tensor.encoding;
                 if ((encoding === '<' || encoding === '>' || encoding === '|') && !tensor.empty && tensor.type.dataType !== '?') {

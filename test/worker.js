@@ -622,9 +622,9 @@ export class Target {
             // continue
         }
         /* eslint-disable no-unused-expressions */
-        const validateGraph = (graph) => {
+        const validateGraph = async (graph) => {
             const values = new Map();
-            const validateValue = (value) => {
+            const validateValue = async (value) => {
                 if (value === null) {
                     return;
                 }
@@ -643,6 +643,9 @@ export class Target {
                 }
                 if (value.initializer) {
                     value.initializer.type.toString();
+                    if (value.initializer && value.initializer.peek && !value.initializer.peek()) {
+                        await value.initializer.read();
+                    }
                     const tensor = new base.Tensor(value.initializer);
                     if (!this.tags.has('skip-tensor-value')) {
                         if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
@@ -700,14 +703,18 @@ export class Target {
                     input.name.toString();
                     input.name.length;
                     for (const value of input.value) {
-                        validateValue(value);
+                        /* eslint-disable no-await-in-loop */
+                        await validateValue(value);
+                        /* eslint-enable no-await-in-loop */
                     }
                 }
                 for (const output of signature.outputs) {
                     output.name.toString();
                     output.name.length;
                     for (const value of output.value) {
-                        validateValue(value);
+                        /* eslint-disable no-await-in-loop */
+                        await validateValue(value);
+                        /* eslint-enable no-await-in-loop */
                     }
                 }
             }
@@ -720,7 +727,9 @@ export class Target {
                     throw new Error(`Invalid node type '${JSON.stringify(node.type)}'.`);
                 }
                 if (Array.isArray(type.nodes)) {
-                    validateGraph(type);
+                    /* eslint-disable no-await-in-loop */
+                    await validateGraph(type);
+                    /* eslint-enable no-await-in-loop */
                 }
                 view.Documentation.open(type);
                 node.name.toString();
@@ -736,7 +745,9 @@ export class Target {
                         const type = attribute.type;
                         const value = attribute.value;
                         if ((type === 'graph' || type === 'function') && value && Array.isArray(value.nodes)) {
-                            validateGraph(value);
+                            /* eslint-disable no-await-in-loop */
+                            await validateGraph(value);
+                            /* eslint-enable no-await-in-loop */
                         } else {
                             let text = new view.Formatter(attribute.value, attribute.type).toString();
                             if (text && text.length > 1000) {
@@ -753,7 +764,9 @@ export class Target {
                         input.name.length;
                         if (!input.type || input.type.endsWith('*')) {
                             for (const value of input.value) {
-                                validateValue(value);
+                                /* eslint-disable no-await-in-loop */
+                                await validateValue(value);
+                                /* eslint-enable no-await-in-loop */
                             }
                             if (this.tags.has('validation')) {
                                 if (input.value.length === 1 && input.value[0].initializer) {
@@ -771,7 +784,9 @@ export class Target {
                         output.name.length;
                         if (!output.type || output.type.endsWith('*')) {
                             for (const value of output.value) {
-                                validateValue(value);
+                                /* eslint-disable no-await-in-loop */
+                                await validateValue(value);
+                                /* eslint-enable no-await-in-loop */
                             }
                         }
                     }
