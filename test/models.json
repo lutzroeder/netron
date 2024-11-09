@@ -5877,6 +5877,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "placeholder.pt2",
+    "source":   "https://github.com/user-attachments/files/17671758/placeholder.pt2.zip[placeholder.pt2]",
+    "format":   "PyTorch Export v8.1",
+    "link":     "https://github.com/lutzroeder/netron/issues/913"
+  },
+  {
+    "type":     "pytorch",
     "target":   "pedestrian_interaction_position_embedding.pt",
     "source":   "https://github.com/user-attachments/files/16120032/pedestrian_interaction_position_embedding.pt.zip[pedestrian_interaction_position_embedding.pt]",
     "format":   "TorchScript v1.0",

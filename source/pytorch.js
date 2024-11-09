@@ -232,37 +232,42 @@ pytorch.Graph = class {
                 return values.get(obj);
             };
             const nodes = new Map(graph.nodes.map((node) => [node.name, node]));
-            for (const node of graph.nodes) {
-                if (node.op === 'placeholder') {
-                    if (inputs_to_parameters.has(node.name)) {
-                        const key = inputs_to_parameters.get(node.name);
+            for (const obj of graph.nodes) {
+                if (obj.op === 'placeholder') {
+                    if (inputs_to_parameters.has(obj.name)) {
+                        const key = inputs_to_parameters.get(obj.name);
                         const parameter = exported_program.state_dict.get(key);
                         if (parameter) {
                             const tensor = new pytorch.Tensor(key, parameter.data);
                             const value = new pytorch.Value(key, null, null, tensor);
-                            values.set(node, value);
+                            values.set(obj, value);
                         }
-                    } else if (inputs_to_buffers.has(node.name)) {
-                        const key = inputs_to_buffers.get(node.name);
+                    } else if (inputs_to_buffers.has(obj.name)) {
+                        const key = inputs_to_buffers.get(obj.name);
                         const buffer = exported_program.state_dict.get(key);
                         if (buffer) {
                             const tensor = new pytorch.Tensor(key, buffer);
                             const value = new pytorch.Value(key, null, null, tensor);
-                            values.set(node, value);
+                            values.set(obj, value);
                         }
-                    } else if (inputs_to_lifted_tensor_constants.has(node.name)) {
-                        const key = inputs_to_lifted_tensor_constants.get(node.name);
+                    } else if (inputs_to_lifted_tensor_constants.has(obj.name)) {
+                        const key = inputs_to_lifted_tensor_constants.get(obj.name);
                         const constant = exported_program.constants.get(key);
                         if (exported_program) {
                             const tensor = new pytorch.Tensor(key, constant);
                             const value = new pytorch.Value(key, null, null, tensor);
-                            values.set(node, value);
+                            values.set(obj, value);
                         }
+                    }
+                    if (obj.users.size > 1 && values.has(obj)) {
+                        const node = new pytorch.Node(metadata, obj.name, null, obj, null, values);
+                        this.nodes.push(node);
+                        values.set(obj, node.outputs[0].value[0]);
                     }
                 }
             }
             for (const obj of graph.nodes) {
-                if (obj.op === 'placeholder' && obj.users.size <= 1) {
+                if (obj.op === 'placeholder') {
                     continue;
                 }
                 if (obj.op === 'call_function') {
@@ -680,9 +685,16 @@ pytorch.Node = class {
                 }
             } else if (obj.op === 'placeholder') {
                 this.type = { name: obj.op };
-                const value = values.map(obj);
-                const argument = new pytorch.Argument('value', [value]);
-                this.inputs.push(argument);
+                {
+                    const value = values.map(obj);
+                    const argument = new pytorch.Argument('value', [value]);
+                    this.inputs.push(argument);
+                }
+                {
+                    const value = values.map({ name: obj.name, meta: obj.meta });
+                    const argument = new pytorch.Argument('value', [value]);
+                    this.outputs.push(argument);
+                }
             } else {
                 throw new pytorch.Error(`Unsupported node operation '${obj.op}'.`);
             }
