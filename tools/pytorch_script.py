@@ -131,6 +131,7 @@ def _parse_schemas():
     all_schemas = list(torch._C._jit_get_all_schemas()) # pylint: disable=protected-access
     for schema in all_schemas:
         definition = str(schema)
+        definition = definition.replace('(b|a)', '(a|b)')
         key = definition.split('(', 1)[0].strip()
         schemas[key] = definition
     return schemas
