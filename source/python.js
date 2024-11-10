@@ -7911,10 +7911,21 @@ python.Execution = class {
                 execution.builtins.inf = torch.inf;
                 execution.builtins.CONSTANTS = {};
                 execution._resolver = this._source_importer;
-                const known_types = ['__torch__.torch.classes._nnapi.Compilation'];
-                for (const name of known_types) {
-                    const type = new torch.ClassType(name, this._compilation_unit, false);
-                    type.addMethod(new torch.FunctionSchema('init(Tensor serialized_model_tensor, Tensor[] parameter_buffers) -> ()'));
+                const known_types = [
+                    { name: '__torch__.torch.classes._nnapi.Compilation', methods: ['init(Tensor serialized_model_tensor, Tensor[] parameter_buffers) -> ()'] },
+                    { name: '__torch__.torch.classes.quantized.Conv2dPackedParamsBase' },
+                    { name: '__torch__.torch.classes.quantized.Conv3dPackedParamsBase' },
+                    { name: '__torch__.torch.classes.quantized.LinearPackedParamsBase' },
+                    { name: '__torch__.torch.classes.rnn.CellParamsBase' },
+                    { name: '__torch__.torch.classes.xnnpack.Conv2dOpContext' },
+                    { name: '__torch__.torch.classes.xnnpack.LinearOpContext' },
+                    { name: '__torch__.torch.classes.xnnpack.TransposeConv2dOpContext' },
+                ];
+                for (const known_type of known_types) {
+                    const type = new torch.ClassType(known_type.name, this._compilation_unit, false);
+                    for (const known_method of known_type.methods || []) {
+                        type.addMethod(new torch.FunctionSchema(known_method));
+                    }
                     this._compilation_unit.register_type(type);
                 }
                 if (this._reader.has_record('model.json')) {

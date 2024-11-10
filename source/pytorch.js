@@ -486,7 +486,7 @@ pytorch.Node = class {
                         const node = obj.map((obj) => new pytorch.Node(metadata, name, type.qualified_name(), obj, initializers, values));
                         argument = new pytorch.Argument(name, node, 'object[]');
                     } else {
-                        const identifier = input.unique().toString();
+                        const identifier = pytorch.Utility.unique(input);
                         const value = values.map(identifier);
                         argument = new pytorch.Argument(name, [value]);
                     }
@@ -2919,10 +2919,8 @@ pytorch.Execution = class extends python.Execution {
                 node.addInput(value);
             }
         }
-        const result = [];
-        for (let i = 0; i < schema.returns.length; i++) {
-            const arg = schema.returns[i];
-            const type = arg.real_type;
+        for (const arg of schema.returns) {
+            let type = arg.real_type;
             switch (type.str()) {
                 case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
                 case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':
@@ -2931,9 +2929,7 @@ pytorch.Execution = class extends python.Execution {
                 case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
                 case '__torch__.torch.classes.xnnpack.LinearOpContext':
                 case '__torch__.torch.classes.xnnpack.TransposeConv2dOpContext': {
-                    const value = this.invoke(type.qualified_name(), []);
-                    this.variable(value, node);
-                    result.push(value);
+                    type = this._resolver.resolveType(type.qualified_name());
                     break;
                 }
                 case 'Tensor':
@@ -2950,69 +2946,49 @@ pytorch.Execution = class extends python.Execution {
                 case 'bool':
                 case 'bool[]':
                 case 'Device': {
-                    const output = node.addOutput();
-                    output.__origin__ = schema.name;
-                    output.setType(type);
-                    result.push(output);
                     break;
                 }
                 case 't': {
-                    const value = this.variable(null, node);
-                    value.__origin__ = schema.name;
-                    const t = varTypes.map(type);
-                    if (!t) {
+                    type = varTypes.map(type);
+                    if (!type) {
                         throw new pytorch.Error(`Unknown var type 't'.`);
                     }
-                    value.setType(t);
-                    result.push(value);
                     break;
                 }
                 case 't[]': {
-                    const value = this.variable(null, node);
-                    value.__origin__ = schema.name;
-                    const t = varTypes.map(type.getElementType());
-                    if (!t) {
+                    type = varTypes.map(type.getElementType());
+                    if (!type) {
                         throw new pytorch.Error();
                     }
-                    value.setType(torch.ListType.get(t));
-                    result.push(value);
+                    type = torch.ListType.get(type);
                     break;
                 }
                 default: {
                     if (type instanceof torch.DictType) {
-                        const value = node.addOutput();
-                        value.__origin__ = schema.name;
                         const keyType = varTypes.map(type.getKeyType());
                         const valueType = varTypes.map(type.getValueType());
-                        value.setType(torch.DictType.get(keyType, valueType));
-                        result.push(value);
-                        break;
+                        type = torch.DictType.get(keyType, valueType);
+                    } else if (type instanceof torch.TupleType && type.elements().length === 2) {
+                        const elements = type.elements().map((type) => varTypes.map(type));
+                        type = torch.ListType.get(torch.TupleType.get(elements));
+                    } else if (type instanceof torch.ListType && type.getElementType() instanceof torch.TupleType) {
+                        const elements = type.getElementType().elements().map((type) => varTypes.map(type));
+                        type = torch.ListType.get(torch.TupleType.get(elements));
+                    } else {
+                        throw new pytorch.Error(`Unsupported return type '${type.str()}'.`);
                     }
-                    if (type instanceof torch.TupleType && type.elements().length === 2) {
-                        const value = node.addOutput();
-                        value.__origin__ = schema.name;
-                        const keyType = varTypes.map(type.elements()[0]);
-                        const valueType = varTypes.map(type.elements()[1]);
-                        value.setType(torch.ListType.get(torch.TupleType.get([keyType, valueType])));
-                        result.push(value);
-                        break;
-                    }
-                    const output = this.invoke('torch.Tensor', []);
-                    output.resize_([]);
-                    output.__origin__ = schema.name;
-                    this.variable(output, node);
-                    result.push(output);
                     break;
                 }
             }
+            const output = node.addOutput();
+            output.__origin__ = schema.name;
+            output.setType(type);
         }
         for (const referencedParameter of referencedParameters) {
             referencedParameter.__count__ = (referencedParameter.__count__ || 0) + 1;
         }
-        if (result.length > 1) {
-            return result;
-        }
-        return result[0];
+        const outputs = node.outputs();
+        return outputs.length > 1 ? outputs : outputs[0];
     }
 
     isType(obj, type, N) {
@@ -3134,9 +3110,13 @@ pytorch.Execution = class extends python.Execution {
             case 't2':
                 return true;
             default: {
-                if (type instanceof torch.ClassType &&
-                    obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__) {
-                    return type.qualified_name() === `${obj.__class__.__module__}.${obj.__class__.__name__}`;
+                if (type instanceof torch.ClassType) {
+                    if (obj instanceof torch.Value && obj.type() instanceof torch.ClassType) {
+                        return type.qualified_name() === obj.type().qualified_name();
+                    }
+                    if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__) {
+                        return type.qualified_name() === `${obj.__class__.__module__}.${obj.__class__.__name__}`;
+                    }
                 }
                 if (type instanceof torch.TupleType) {
                     throw new pytorch.Error('Not implemented.');
@@ -3512,7 +3492,8 @@ pytorch.Utility = class {
         return value.hasDebugName() ? `%${value.debugName().toString()}` : `%${value.unique().toString()}`;
     }
 
-    static isObjectType(type) {
+    static isObject(obj) {
+        const type = obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : null;
         switch (type) {
             case '__torch__.torch.classes.xnnpack.LinearOpContext':
             case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
@@ -3526,11 +3507,6 @@ pytorch.Utility = class {
             default:
                 return false;
         }
-    }
-
-    static isObject(obj) {
-        const type = obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : null;
-        return pytorch.Utility.isObjectType(type);
     }
 
     static isSubclass(value, name) {

@@ -2915,9 +2915,18 @@ view.ArgumentView = class extends view.Control {
             this._source = 'attribute';
         }
         if (argument.type === 'tensor' || argument.type === 'tensor?') {
-            value = [value === null ? value : { type: value.type, initializer: value }];
+            if (value === null || (value && value.constructor && value.constructor.name === 'Value')) {
+                value = [value];
+            } else {
+                value = [{ type: value.type, initializer: value }];
+            }
         } else if (argument.type === 'tensor[]' || argument.type === 'tensor?[]') {
-            value = value.map((value) => value === null ? value : { type: value.type, initializer: value });
+            value = value.map((value) => {
+                if (value === null || (value && value.constructor && value.constructor.name === 'Value')) {
+                    return value;
+                }
+                return { type: value.type, initializer: value };
+            });
         }
         this._source = typeof type === 'string' && !type.endsWith('*') ? 'attribute' : this._source;
         if (this._source === 'attribute' && type !== 'tensor' && type !== 'tensor?' && type !== 'tensor[]' && type !== 'tensor?[]') {
@@ -3064,6 +3073,9 @@ view.ValueView = class extends view.Expander {
         super(context);
         this._value = value;
         try {
+            if (value && value.constructor && value.constructor.name === 'Value' && source === 'attribute') {
+                source = '';
+            }
             const type = this._value.type;
             const initializer = this._value.initializer;
             const quantization = this._value.quantization;

@@ -5388,25 +5388,32 @@
     "name": "aten::tan_(Tensor(a!) self) -> Tensor(a!)"
   },
   {
-    "name": "aten::tanh(Tensor self) -> Tensor"
+    "name": "aten::tanh(Tensor self) -> Tensor",
+    "category": "Activation"
   },
   {
-    "name": "aten::tanh.Scalar(Scalar a) -> Scalar"
+    "name": "aten::tanh.Scalar(Scalar a) -> Scalar",
+    "category": "Activation"
   },
   {
-    "name": "aten::tanh.complex(complex a) -> complex"
+    "name": "aten::tanh.complex(complex a) -> complex",
+    "category": "Activation"
   },
   {
-    "name": "aten::tanh.float(float a) -> float"
+    "name": "aten::tanh.float(float a) -> float",
+    "category": "Activation"
   },
   {
-    "name": "aten::tanh.int(int a) -> float"
+    "name": "aten::tanh.int(int a) -> float",
+    "category": "Activation"
   },
   {
-    "name": "aten::tanh.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::tanh.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)",
+    "category": "Activation"
   },
   {
-    "name": "aten::tanh_(Tensor(a!) self) -> Tensor(a!)"
+    "name": "aten::tanh_(Tensor(a!) self) -> Tensor(a!)",
+    "category": "Activation"
   },
   {
     "name": "aten::tensor(t[] data, *, ScalarType? dtype=None, Device? device=None, bool requires_grad=False) -> Tensor"
@@ -5517,6 +5524,12 @@
   },
   {
     "name": "aten::topk.values(Tensor self, SymInt k, int dim=-1, bool largest=True, bool sorted=True, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)"
+  },
+  {
+    "name": "aten::trace(Tensor self) -> Tensor"
+  },
+  {
+    "name": "aten::trace.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::transpose.Dimname(Tensor(a) self, str dim0, str dim1) -> Tensor(a)",

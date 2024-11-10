@@ -5852,6 +5852,7 @@
     "target":   "netron_issue_677.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5923252/netron_issue_677.pt.zip[netron_issue_677.pt]",
     "format":   "TorchScript v1.6",
+    "assert":   "model.graphs[0].nodes.length == 5",
     "link":     "https://github.com/lutzroeder/netron/issues/677"
   },
   {
