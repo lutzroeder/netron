@@ -239,13 +239,13 @@ hdf5.Variable = class {
                 }
                 const data = new Uint8Array(data_size * item_size);
                 for (const node of tree.nodes) {
-                    if (node.filterMask !== 0) {
-                        return null;
-                    }
                     let chunk = node.data;
                     if (this._filterPipeline) {
-                        for (const filter of this._filterPipeline.filters) {
-                            chunk = filter.decode(chunk);
+                        for (let i = 0; i < this._filterPipeline.filters.length; i++) {
+                            if ((node.filterMask & (1 << i)) === 0) {
+                                const filter = this._filterPipeline.filters[i];
+                                chunk = filter.decode(chunk);
+                            }
                         }
                     }
                     const chunk_offset = node.fields.map((x) => x.toNumber());
@@ -1364,14 +1364,70 @@ hdf5.Filter = class {
 
     decode(data) {
         switch (this.id) {
-            case 1: { // gzip
-                const archive = zip.Archive.open(data);
-                return archive.entries.get('').peek();
-            }
-            default: {
-                throw new hdf5.Error(`Unsupported filter '${this.name}'.`);
+            case 1: return this._deflate(data);
+            case 32000: return this._lzf(data);
+            default: throw new hdf5.Error(`Unsupported filter '${this.id}:${this.name}'.`);
+        }
+    }
+
+    _deflate(input) {
+        const archive = zip.Archive.open(input);
+        return archive.entries.get('').peek();
+    }
+
+    _lzf(input) {
+        let i = 0;
+        let o = 0;
+        while (i < input.length) {
+            let c = input[i++];
+            if (c < (1 << 5)) {
+                c++;
+                i += c;
+                o += c;
+                if (i > input.length) {
+                    throw new Error('Invalid LZF compressed data.');
+                }
+            } else {
+                let length = c >> 5;
+                if (i >= input.length) {
+                    throw new Error('Invalid LZF compressed data.');
+                }
+                if (length === 7) {
+                    length += input[i++];
+                    if (i >= input.length) {
+                        throw new Error('Invalid LZF compressed data.');
+                    }
+                }
+                const ref =  (o - ((c & 0x1f) << 8) - 1) - input[i++];
+                if (ref < 0) {
+                    throw new Error('Invalid LZF compressed data.');
+                }
+                o += length + 2;
             }
         }
+        const output = new Uint8Array(o);
+        i = 0;
+        o = 0;
+        while (i < input.length) {
+            let c = input[i++];
+            if (c < (1 << 5)) {
+                c++;
+                output.set(input.subarray(i, i + c), o);
+                i += c;
+                o += c;
+            } else {
+                let length = c >> 5;
+                if (length === 7) {
+                    length += input[i++];
+                }
+                length += 2;
+                let ref =  o - ((c & 0x1f) << 8) - 1 - input[i++];
+                do {
+                    output[o++] = output[ref++];
+                } while (--length);
+            }
+        }
+        return output;
     }
 };
 

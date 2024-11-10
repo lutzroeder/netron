@@ -2422,6 +2422,13 @@
   },
   {
     "type":     "keras",
+    "target":   "lzf.h5",
+    "source":   "https://github.com/user-attachments/files/17692525/lzf.hdf5.zip[lzf.hdf5]",
+    "format":   "HDF5 Weights",
+    "link":     "https://github.com/lutzroeder/netron/issues/467"
+  },
+  {
+    "type":     "keras",
     "target":   "mlp.h5",
     "source":   "https://github.com/lutzroeder/netron/files/3666244/mlp.zip[mlp.h5]",
     "format":   "HDF5 Weights",
