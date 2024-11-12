@@ -55,12 +55,14 @@ pytorch.Model = class {
         this.producer = target.producer || '';
         this.graphs = [];
         if (target.module) {
-            const graph = new pytorch.Graph(metadata, null, '', target.module);
+            const graph = new pytorch.Graph(target.execution, metadata, null, '', target.module);
             this.graphs.push(graph);
+            delete target.execution;
         } else if (target.modules) {
             for (const [name, value] of target.modules) {
-                const graph = new pytorch.Graph(metadata, null, name, value);
+                const graph = new pytorch.Graph(target.execution, metadata, null, name, value);
                 this.graphs.push(graph);
+                delete target.execution;
             }
         }
     }
@@ -68,7 +70,7 @@ pytorch.Model = class {
 
 pytorch.Graph = class {
 
-    constructor(metadata, type, name, module) {
+    constructor(execution, metadata, type, name, module) {
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];
@@ -86,8 +88,9 @@ pytorch.Graph = class {
             }
             return values.get(name);
         };
-        type = module && module.__class__ && module.__class__.__module__ && module.__class__.__name__ ? `${module.__class__.__module__}.${module.__class__.__name__}` : null;
-        if ((type === 'torch.ScriptModule' || type === 'torch.jit._script.ScriptModule' || type === 'torch.jit._script.RecursiveScriptModule') && module.graph) {
+        const torch = execution ? execution.torch : null;
+        // type = module && module.__class__ && module.__class__.__module__ && module.__class__.__name__ ? `${module.__class__.__module__}.${module.__class__.__name__}` : null;
+        if (torch && (module instanceof torch.ScriptModule || module instanceof torch.jit._script.ScriptModule || module instanceof torch.jit._script.RecursiveScriptModule) && module.graph) {
             const initializers = new Map();
             const graph = module.graph;
             const constants = module.code_with_constants[1].const_mapping;
@@ -122,7 +125,7 @@ pytorch.Graph = class {
                                     initializers.set(obj, obj);
                                 }
                                 queue.push(obj);
-                            } else if (pytorch.Utility.isInstance(obj, 'torch.Value') || pytorch.Utility.isInstance(obj, 'torch.Node')) {
+                            } else if (obj instanceof torch.Value || obj instanceof torch.Node) {
                                 continue;
                             } else if (obj && obj.__class__) {
                                 obj.__parent__ = module;
@@ -134,12 +137,12 @@ pytorch.Graph = class {
                 }
             }
             for (const value of graph.inputs()) {
-                const identifier = value.unique().toString();
+                const identifier = pytorch.Utility.unique(value);
                 const name = value.debugName() || identifier;
                 this.inputs.push(new pytorch.Argument(name, [values.map(identifier)]));
             }
             for (const value of graph.outputs()) {
-                const identifier = value.unique().toString();
+                const identifier = pytorch.Utility.unique(value);
                 this.outputs.push(new pytorch.Argument(identifier, [values.map(identifier)]));
             }
             for (const node of graph.nodes()) {
@@ -156,7 +159,7 @@ pytorch.Graph = class {
                 if (node.kind() === 'prim::ListConstruct') {
                     if (node.outputs().length === 1 &&
                         node.outputs().every((output) => output.uses().length === 1) &&
-                        node.inputs().every((input) => pytorch.Utility.isTensor(input.value) || pytorch.Utility.isInstance(input, 'torch.Value'))) {
+                        node.inputs().every((input) => pytorch.Utility.isTensor(input.value) || input instanceof torch.Value)) {
                         continue;
                     }
                     if (node.inputs().length === 0 &&
@@ -164,7 +167,7 @@ pytorch.Graph = class {
                         node.outputs().every((output) => output.uses().length === 0)) {
                         continue;
                     }
-                    if (node.inputs().every((value) => value && (pytorch.Utility.isInstance(value.type(), 'torch.IntType') || pytorch.Utility.isInstance(value.type(), 'torch.FloatType') || pytorch.Utility.isInstance(value.type(), 'torch.StringType') || pytorch.Utility.isInstance(value.type(), 'torch.ComplexType'))) &&
+                    if (node.inputs().every((value) => value && (value.type() instanceof torch.IntType || value.type() instanceof torch.FloatType || value.type() instanceof torch.StringType || value.type() instanceof torch.ComplexType)) &&
                         node.outputs().length === 1 &&
                         node.outputs().every((output) => output.uses().length === 1)) {
                         continue;
@@ -179,7 +182,7 @@ pytorch.Graph = class {
                 if (node.kind() === 'prim::Constant' && node.outputs().length <= 1 && node.outputs()[0].uses().length <= 1) {
                     continue;
                 }
-                this.nodes.push(new pytorch.Node(metadata, null, null, node, initializers, values));
+                this.nodes.push(new pytorch.Node(execution, metadata, null, null, node, initializers, values));
             }
             if (module) {
                 const queue = [module.data];
@@ -192,14 +195,14 @@ pytorch.Graph = class {
                                     delete module[name];
                                 }
                             }
-                            const node = new pytorch.Node(metadata, null, null, module, initializers, values);
+                            const node = new pytorch.Node(execution, metadata, null, null, module, initializers, values);
                             this.nodes.push(node);
                         }
                         const modules = [];
                         if (module.__class__ && module.__class__.__module__ && module.__class__.__name__) {
                             for (const [key, value] of Object.entries(module)) {
                                 if (!key.startsWith('__') && value && value.__class__ && value.__class__.__module__ && value.__class__.__name__ && !pytorch.Utility.isTensor(value)) {
-                                    if (pytorch.Utility.isInstance(value, 'torch.Value')) {
+                                    if (value instanceof torch.Value) {
                                         continue;
                                     }
                                     modules.push(value);
@@ -210,7 +213,7 @@ pytorch.Graph = class {
                     }
                 }
             }
-        } else if (type === 'torch.export.exported_program.ExportedProgram' && module.graph) {
+        } else if (torch && module instanceof torch.export.exported_program.ExportedProgram && module.graph) {
             const exported_program = module;
             const graph = exported_program.graph;
             const inputs_to_parameters = exported_program.graph_signature.inputs_to_parameters();
@@ -232,37 +235,42 @@ pytorch.Graph = class {
                 return values.get(obj);
             };
             const nodes = new Map(graph.nodes.map((node) => [node.name, node]));
-            for (const node of graph.nodes) {
-                if (node.op === 'placeholder') {
-                    if (inputs_to_parameters.has(node.name)) {
-                        const key = inputs_to_parameters.get(node.name);
+            for (const obj of graph.nodes) {
+                if (obj.op === 'placeholder') {
+                    if (inputs_to_parameters.has(obj.name)) {
+                        const key = inputs_to_parameters.get(obj.name);
                         const parameter = exported_program.state_dict.get(key);
                         if (parameter) {
                             const tensor = new pytorch.Tensor(key, parameter.data);
                             const value = new pytorch.Value(key, null, null, tensor);
-                            values.set(node, value);
+                            values.set(obj, value);
                         }
-                    } else if (inputs_to_buffers.has(node.name)) {
-                        const key = inputs_to_buffers.get(node.name);
+                    } else if (inputs_to_buffers.has(obj.name)) {
+                        const key = inputs_to_buffers.get(obj.name);
                         const buffer = exported_program.state_dict.get(key);
                         if (buffer) {
                             const tensor = new pytorch.Tensor(key, buffer);
                             const value = new pytorch.Value(key, null, null, tensor);
-                            values.set(node, value);
+                            values.set(obj, value);
                         }
-                    } else if (inputs_to_lifted_tensor_constants.has(node.name)) {
-                        const key = inputs_to_lifted_tensor_constants.get(node.name);
+                    } else if (inputs_to_lifted_tensor_constants.has(obj.name)) {
+                        const key = inputs_to_lifted_tensor_constants.get(obj.name);
                         const constant = exported_program.constants.get(key);
                         if (exported_program) {
                             const tensor = new pytorch.Tensor(key, constant);
                             const value = new pytorch.Value(key, null, null, tensor);
-                            values.set(node, value);
+                            values.set(obj, value);
                         }
+                    }
+                    if (obj.users.size > 1 && values.has(obj)) {
+                        const node = new pytorch.Node(execution, metadata, obj.name, null, obj, null, values);
+                        this.nodes.push(node);
+                        values.set(obj, node.outputs[0].value[0]);
                     }
                 }
             }
             for (const obj of graph.nodes) {
-                if (obj.op === 'placeholder' && obj.users.size <= 1) {
+                if (obj.op === 'placeholder') {
                     continue;
                 }
                 if (obj.op === 'call_function') {
@@ -284,7 +292,7 @@ pytorch.Graph = class {
                     }
                     continue;
                 }
-                const node = new pytorch.Node(metadata, obj.name, null, obj, null, values);
+                const node = new pytorch.Node(execution, metadata, obj.name, null, obj, null, values);
                 this.nodes.push(node);
             }
             for (const input_spec of exported_program.graph_signature.user_inputs()) {
@@ -301,21 +309,21 @@ pytorch.Graph = class {
             }
             */
         } else if (pytorch.Utility.isTensor(module)) {
-            const node = new pytorch.Node(metadata, null, type, { value: module });
+            const node = new pytorch.Node(execution, metadata, null, type, { value: module });
             this.nodes.push(node);
         } else {
             const weights = this.type === 'weights' ? module : pytorch.Utility.weights(module);
             if (weights) {
                 this.name = !this.name && typeof module.__name__ === 'string' ? module.__name__ : this.name;
                 for (const [name, module] of weights) {
-                    const node = new pytorch.Node(metadata, name, 'Weights', module);
+                    const node = new pytorch.Node(execution, metadata, name, 'Weights', module);
                     this.nodes.push(node);
                 }
             } else {
                 const modules = Array.isArray(module) && module.every((module) => module && !pytorch.Utility.isTensor(module) && (module._modules !== undefined || module.__class__)) ? module : [module];
                 for (const module of modules) {
                     const type = this.type === 'weights' ? 'Weights' : null;
-                    const node = new pytorch.Node(metadata, null, type, module, null, values);
+                    const node = new pytorch.Node(execution, metadata, null, type, module, null, values);
                     this.nodes.push(node);
                 }
             }
@@ -360,7 +368,8 @@ pytorch.Value = class Value {
 
 pytorch.Node = class {
 
-    constructor(metadata, name, type, obj, initializers, values, stack) {
+    constructor(execution, metadata, name, type, obj, initializers, values, stack) {
+        const torch = execution ? execution.torch : null;
         this.name = name || '';
         this.nodes = [];
         this.attributes = [];
@@ -368,7 +377,7 @@ pytorch.Node = class {
         this.outputs = [];
         this.metadata = [];
         let module = null;
-        if (pytorch.Utility.isInstance(obj, 'torch.Node')) {
+        if (torch && obj instanceof torch.Node) {
             const node = obj;
             const sourceRange = node.sourceRange();
             if (sourceRange) {
@@ -447,13 +456,13 @@ pytorch.Node = class {
                     module = null;
                 }
             }
-            const mapTensor = (input) => {
+            const mapTensor = (value) => {
                 let initializer = null;
-                let identifier = input.unique().toString();
-                if (input.value) {
-                    const value = input.value;
-                    const hide = value.__parent__ ? value.__parent__.__hide__ : true;
-                    initializer = hide ? initializers.get(value) : null;
+                let identifier = value.hasDebugName() ? `%${value.debugName().toString()}` : `%${value.unique().toString()}`;
+                if (value.value) {
+                    const obj = value.value;
+                    const hide = obj.__parent__ ? obj.__parent__.__hide__ : true;
+                    initializer = hide ? initializers.get(obj) : null;
                     identifier = initializer ? initializer.name : identifier;
                 }
                 if (initializer) {
@@ -467,34 +476,34 @@ pytorch.Node = class {
                 const name = arg && arg.name ? arg.name : i.toString();
                 let type = arg ? arg.real_type : null;
                 let array = false;
-                if (pytorch.Utility.isInstance(type, 'torch.ListType')) {
+                if (type instanceof torch.ListType) {
                     array = true;
                     type = type.getElementType();
                 }
                 let argument = null;
-                if (type && pytorch.Utility.isInstance(type, 'torch.ClassType')) {
+                if (type && type instanceof torch.ClassType) {
                     const obj = input.value;
                     if (!array && initializers.has(obj)) {
-                        const node = new pytorch.Node(metadata, name, type.qualified_name(), obj, initializers, values);
+                        const node = new pytorch.Node(execution, metadata, name, type.qualified_name(), obj, initializers, values);
                         argument = new pytorch.Argument(name, node, 'object');
                     } else if (array && Array.isArray(obj) && obj.every((obj) => initializers.has(obj))) {
-                        const node = obj.map((obj) => new pytorch.Node(metadata, name, type.qualified_name(), obj, initializers, values));
+                        const node = obj.map((obj) => new pytorch.Node(execution, metadata, name, type.qualified_name(), obj, initializers, values));
                         argument = new pytorch.Argument(name, node, 'object[]');
                     } else {
-                        const identifier = input.unique().toString();
+                        const identifier = pytorch.Utility.unique(input);
                         const value = values.map(identifier);
                         argument = new pytorch.Argument(name, [value]);
                     }
-                } else if (pytorch.Utility.isInstance(input, 'torch.Value') && !pytorch.Utility.isTensor(input.value)) {
+                } else if (input instanceof torch.Value && !pytorch.Utility.isTensor(input.value)) {
                     if (input.node() === null && input.value !== undefined) {
                         if (Array.isArray(input.value) && input.value.every((value) => pytorch.Utility.isTensor(value))) {
                             continue;
                         }
                         const type = input.type() ? pytorch.Utility.toType(input.type()) : null;
                         argument = new pytorch.Argument(name, input.value, type || 'attribute');
-                    } else if (pytorch.Utility.isInstance(input.type(), 'torch.ListType')) {
+                    } else if (input.type() instanceof torch.ListType) {
                         if (input.node() && input.node().kind() === 'prim::ListConstruct' && input.uses().length === 1 &&
-                        input.node().inputs().every((value) => pytorch.Utility.isInstance(value, 'torch.Value') || pytorch.Utility.isInstance(value.type(), 'torch.IntType') || pytorch.Utility.isInstance(value.type(), 'torch.FloatType') || pytorch.Utility.isInstance(value.type(), 'torch.StringType') || pytorch.Utility.isInstance(value.type(), 'torch.ComplexType') || pytorch.Utility.isInstance(value.type(), 'torch.TensorType'))) {
+                        input.node().inputs().every((value) => value instanceof torch.Value || value.type() instanceof torch.IntType || value.type() instanceof torch.FloatType || value.type() instanceof torch.StringType || value.type() instanceof torch.ComplexType || value.type() instanceof torch.TensorType)) {
                             const list = input.node().inputs();
                             const args = list.map((value) => {
                                 if (pytorch.Utility.isTensor(value.value)) {
@@ -506,16 +515,16 @@ pytorch.Node = class {
                                 if (value.uses().length === 1 && value.node() === input.node() && value.value !== undefined) {
                                     return value.value;
                                 }
-                                const identifier = value.unique().toString();
+                                const identifier = pytorch.Utility.unique(value);
                                 return values.map(identifier);
                             });
                             const type = list.every((value) => (pytorch.Utility.isTensor(value.value)) || value.value === null) ? null : pytorch.Utility.toType(input.type());
                             argument = new pytorch.Argument(name, args, type);
                         } else {
-                            const identifier = input.unique().toString();
+                            const identifier = pytorch.Utility.unique(input);
                             argument = new pytorch.Argument(name, [values.map(identifier)]);
                         }
-                    } else if (pytorch.Utility.isInstance(input.type(), 'torch.StringType') && typeof input.value === 'string') {
+                    } else if (input.type() instanceof torch.StringType && typeof input.value === 'string') {
                         argument = new pytorch.Argument(name, input.value, 'string');
                     } else if (input.node() && input.uses().length === 1 && input.node().kind() === 'prim::Constant') {
                         let [type, value] = getAttribute(input.node(), 'value');
@@ -528,7 +537,7 @@ pytorch.Node = class {
                         }
                         argument = new pytorch.Argument(name, value, type || 'attribute');
                     } else {
-                        const identifier = input.unique().toString();
+                        const identifier = pytorch.Utility.unique(input);
                         const value = values.map(identifier);
                         argument = new pytorch.Argument(name, [value]);
                     }
@@ -542,7 +551,7 @@ pytorch.Node = class {
                     }
                     const args = list.map((input) => {
                         let initializer = null;
-                        let identifier = input.unique().toString();
+                        let identifier = pytorch.Utility.unique(input);
                         if (input.value) {
                             const value = input.value;
                             const hide = value.__parent__ ? value.__parent__.__hide__ : true;
@@ -555,10 +564,10 @@ pytorch.Node = class {
                         return values.map(identifier);
                     });
                     argument = new pytorch.Argument(name, args);
-                } else if (Array.isArray(input.value) && input.value.some((value) => pytorch.Utility.isInstance(value, 'torch.Value'))) {
+                } else if (Array.isArray(input.value) && input.value.some((value) => value instanceof torch.Value)) {
                     const args = input.value.map((value) => {
-                        if (pytorch.Utility.isInstance(value, 'torch.Value')) {
-                            const identifier = value.unique().toString();
+                        if (value instanceof torch.Value) {
+                            const identifier = pytorch.Utility.unique(value);
                             return values.map(identifier);
                         }
                         return value;
@@ -584,18 +593,21 @@ pytorch.Node = class {
                     output.uses()[0].user.outputs().every((output) => pytorch.Utility.isTensor(output.value))) {
                     list = output.uses()[0].user.outputs();
                 }
-                const args = list.map((output) => values.map(output.unique().toString()));
+                const args = list.map((output) => values.map(pytorch.Utility.unique(output)));
                 const argument = new pytorch.Argument(name, args);
                 this.outputs.push(argument);
             }
             const blocks = node.blocks();
             for (let i = 0; i < blocks.length; i++) {
-                const name = `block${i.toString()}`;
-                const graph = { name: '', nodes: [] }; // new pytorch.Graph(metadata, null, name, blocks[i]);
-                const argument = new pytorch.Argument(name, graph, 'graph');
-                this.inputs.push(argument);
+                const block = blocks[i];
+                if (block.nodes().length > 2) {
+                    const name = `block${i.toString()}`;
+                    const graph = { name: '', nodes: [] }; // new pytorch.Graph(execution, metadata, null, name, blocks[i]);
+                    const argument = new pytorch.Argument(name, graph, 'graph');
+                    this.inputs.push(argument);
+                }
             }
-        } else if (pytorch.Utility.isInstance(obj, 'torch.fx.node.Node')) {
+        } else if (torch && obj instanceof torch.fx.node.Node) {
             if (obj.op === 'call_function') {
                 const name = obj.target.name;
                 this.type = {
@@ -614,22 +626,19 @@ pytorch.Node = class {
                 args = args.concat(Array.from(obj.kwargs));
                 for (const [name, arg] of args) {
                     const type = inputs.has(name) ? pytorch.Utility.toType(inputs.get(name).real_type) : null;
-                    if (pytorch.Utility.isInstance(arg, 'torch.fx.node.Node')) {
+                    if (arg instanceof torch.fx.node.Node) {
                         const value = values.map(arg);
                         const argument = new pytorch.Argument(name, [value]);
                         this.inputs.push(argument);
-                    } else if (Array.isArray(arg) && arg.every((arg) => pytorch.Utility.isInstance(arg, 'torch.fx.node.Node') || arg === null)) {
+                    } else if (Array.isArray(arg) && arg.every((arg) => arg instanceof torch.fx.node.Node || arg === null)) {
                         const list = arg.map((arg) => arg === null ? null : values.map(arg));
                         const argument = new pytorch.Argument(name, list);
                         this.inputs.push(argument);
                     } else if (Array.isArray(arg)) {
-                        const list = arg.map((arg) => pytorch.Utility.isInstance(arg, 'torch.fx.node.Node') ? values.map(arg) : arg);
+                        const list = arg.map((arg) => arg instanceof torch.fx.node.Node ? values.map(arg) : arg);
                         const argument = new pytorch.Argument(name, list, type || 'attribute');
                         this.inputs.push(argument);
-                    } else if (pytorch.Utility.isInstance(arg, 'torch.dtype') ||
-                        pytorch.Utility.isInstance(arg, 'torch.device') ||
-                        pytorch.Utility.isInstance(arg, 'torch.layout') ||
-                        pytorch.Utility.isInstance(arg, 'torch.memory_format')) {
+                    } else if (arg instanceof torch.dtype || arg instanceof torch.device || arg instanceof torch.layout || arg instanceof torch.memory_format) {
                         const argument = new pytorch.Argument(name, arg.toString(), type || 'attribute');
                         this.inputs.push(argument);
                     } else {
@@ -677,15 +686,22 @@ pytorch.Node = class {
                 }
             } else if (obj.op === 'placeholder') {
                 this.type = { name: obj.op };
-                const value = values.map(obj);
-                const argument = new pytorch.Argument('value', [value]);
-                this.inputs.push(argument);
+                {
+                    const value = values.map(obj);
+                    const argument = new pytorch.Argument('value', [value]);
+                    this.inputs.push(argument);
+                }
+                {
+                    const value = values.map({ name: obj.name, meta: obj.meta });
+                    const argument = new pytorch.Argument('value', [value]);
+                    this.outputs.push(argument);
+                }
             } else {
                 throw new pytorch.Error(`Unsupported node operation '${obj.op}'.`);
             }
         } else {
             if (!type) {
-                if (pytorch.Utility.isInstance(obj, 'torch.jit._script.RecursiveScriptModule') && obj._c && obj._c.qualified_name) {
+                if (torch && pytorch.Utility.isInstance(obj, 'torch.jit._script.RecursiveScriptModule') && obj._c && obj._c.qualified_name) {
                     type = obj._c.qualified_name;
                 } else if (pytorch.Utility.isInstance(obj, 'builtins.function')) {
                     type = `${obj.__module__}.${obj.__name__}`;
@@ -708,7 +724,7 @@ pytorch.Node = class {
             const weights = pytorch.Utility.weights(obj);
             if (weights) {
                 const type = this.type.name;
-                this.type = new pytorch.Graph(metadata, 'weights', '', weights);
+                this.type = new pytorch.Graph(execution, metadata, 'weights', '', weights);
                 this.type.name = type;
             } else if (obj && pytorch.Utility.isInstance(obj, 'fastai.data.core.DataLoaders')) {
                 // continue
@@ -773,7 +789,7 @@ pytorch.Node = class {
                         const argument = new pytorch.Argument(name, tensor, 'tensor');
                         this.inputs.push(argument);
                     } else if (value && pytorch.Utility.isInstance(value, 'torch.dtype')) {
-                        const node = new pytorch.Node(metadata, null, value.toString(), {});
+                        const node = new pytorch.Node(execution, metadata, null, value.toString(), {});
                         const argument = new pytorch.Argument(name, node, 'object');
                         this.inputs.push(argument);
                     } else if (Array.isArray(value) && value.some((value) => pytorch.Utility.isTensor(value)) && value.every((value) => pytorch.Utility.isTensor(value) || value === null)) {
@@ -795,7 +811,7 @@ pytorch.Node = class {
                         const values = Array.from(value).filter(([, value]) => !stack.has(value)).map(([name, obj]) => {
                             stack.add(value);
                             const type = obj === null ? 'builtins.NoneType' : `${obj.__class__.__module__}.${obj.__class__.__name__}`;
-                            const node = new pytorch.Node(metadata, this.name ? `${this.name}.${name}` : name, type, obj);
+                            const node = new pytorch.Node(execution, metadata, this.name ? `${this.name}.${name}` : name, type, obj);
                             stack.delete(value);
                             return node;
                         });
@@ -808,7 +824,7 @@ pytorch.Node = class {
                         const list = value.filter((value) => !stack.has(value));
                         const nodes = list.map((value) => {
                             stack.add(value);
-                            const node = new pytorch.Node(metadata, null, null, value, initializers, values, stack);
+                            const node = new pytorch.Node(execution, metadata, null, null, value, initializers, values, stack);
                             stack.delete(value);
                             return node;
                         });
@@ -816,7 +832,7 @@ pytorch.Node = class {
                         this.inputs.push(argument);
                     } else if (value && (value.__class__ || typeof value === 'object') && !stack.has(value)) {
                         stack.add(value);
-                        const node = new pytorch.Node(metadata, null, null, value, initializers, values, stack);
+                        const node = new pytorch.Node(execution, metadata, null, null, value, initializers, values, stack);
                         stack.delete(value);
                         const visible = name !== '_metadata' || !pytorch.Utility.isMetadataObject(value);
                         const argument = new pytorch.Argument(name, node, 'object', visible);
@@ -1271,19 +1287,19 @@ pytorch.Container.Zip = class extends pytorch.Container {
     }
 
     async read(metadata) {
-        const execution = new pytorch.Execution(null, metadata);
+        this.execution = new pytorch.Execution(null, metadata);
         for (const event of this._events) {
-            execution.on(event[0], event[1]);
+            this.execution.on(event[0], event[1]);
         }
-        const torch = execution.__import__('torch');
+        const torch = this.execution.__import__('torch');
         const reader = new torch.PyTorchFileReader(this._entries);
         let torchscript = reader.has_record('constants.pkl');
         const version = reader.version();
         if (torchscript) {
-            execution.trace = false;
+            this.execution.trace = false;
             const module = torch.jit.load(reader);
-            execution.trace = true;
-            metadata.register(execution);
+            this.execution.trace = true;
+            metadata.register(this.execution);
             if (module.data && module.data.forward) {
                 this.module = module;
             } else {
@@ -1340,20 +1356,20 @@ pytorch.Container.ModelJson = class extends pytorch.Container {
                 this._entries.set(keys[i], values[i]);
             }
         }
-        const execution = new pytorch.Execution(null, metadata);
+        this.execution = new pytorch.Execution(null, metadata);
         for (const event of this._events) {
-            execution.on(event[0], event[1]);
+            this.execution.on(event[0], event[1]);
         }
-        const torch = execution.__import__('torch');
+        const torch = this.execution.__import__('torch');
         const reader = new torch.PyTorchFileReader(this._entries);
         if (this._model && this._model.producerName) {
             this.producer = this._model.producerName + (this._model.producerVersion ? ` v${this._model.producerVersion}` : '');
         }
         this.format = reader.has_record('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
-        execution.trace = false;
+        this.execution.trace = false;
         const module = torch.jit.load(reader);
-        execution.trace = true;
-        metadata.register(execution);
+        this.execution.trace = true;
+        metadata.register(this.execution);
         if (module.data && module.data.forward) {
             this.module = module;
         } else {
@@ -1391,11 +1407,11 @@ pytorch.Container.Index = class extends pytorch.Container {
         const keys = new Set(weight_map.keys());
         const files = Array.from(new Set(weight_map.values()));
         const contexts = await Promise.all(files.map((name) => this.context.fetch(name)));
-        const execution = new pytorch.Execution(null, metadata);
+        this.execution = new pytorch.Execution(null, metadata);
         for (const event of this._events) {
-            execution.on(event[0], event[1]);
+            this.execution.on(event[0], event[1]);
         }
-        const torch = execution.__import__('torch');
+        const torch = this.execution.__import__('torch');
         const archives = contexts.map((context) => {
             return context.peek('zip');
         });
@@ -1470,12 +1486,12 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
             }
         }
         this.format = this.version ? `${this.format} v${this.version}` : this.format;
-        const execution = new python.Execution();
+        this.execution = new python.Execution();
         for (const event of this._events) {
-            execution.on(event[0], event[1]);
+            this.execution.on(event[0], event[1]);
         }
-        metadata.register(execution);
-        const torch = execution.__import__('torch');
+        metadata.register(this.execution);
+        const torch = this.execution.__import__('torch');
         if (this.serialized_exported_program.graph_module.graph.constants) {
             const zip = await import('./zip.js');
             const constants = this.serialized_exported_program.graph_module.graph.constants;
@@ -1514,7 +1530,6 @@ pytorch.Execution = class extends python.Execution {
         super(sources);
         this._metadata = metadata;
         const execution = this;
-        this.torch = this.register('torch');
         const torch = this.torch;
         this.registerFunction('torch.jit.jit_module_from_flatbuffer', (f) => {
             const cu = new torch.jit.CompilationUnit();
@@ -1564,7 +1579,6 @@ pytorch.Execution = class extends python.Execution {
                 }
             }
         });
-        this.register('__torch__').torch.classes._nnapi.Compilation.__type__ = new torch.ClassType('__torch__.torch.classes._nnapi.Compilation');
         this.registerType('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', class {
             __setstate__(state) {
                 if (state[0] !== '2') {
@@ -1713,7 +1727,7 @@ pytorch.Execution = class extends python.Execution {
                 this._values.set(obj, value);
             }
             if (pytorch.Utility.isTensor(obj)) {
-                obj.__variable__ = value.unique().toString();
+                obj.__variable__ = pytorch.Utility.unique(value);
             }
         }
         if (typeof obj === 'string') {
@@ -1738,16 +1752,28 @@ pytorch.Execution = class extends python.Execution {
         return type;
     }
 
-    target(expression, context) {
-        if (expression.type === 'id') {
-            switch (expression.value) {
+    identifier(expr) {
+        const ast = this.ast;
+        if (expr instanceof ast.Name) {
+            return expr.id;
+        }
+        if (expr instanceof ast.Attribute) {
+            return `${this.identifier(expr.value)}.${expr.attr}`;
+        }
+        return null;
+    }
+
+    target(expr, context) {
+        const ast = this.ast;
+        if (expr instanceof ast.Name) {
+            switch (expr.id) {
                 case 'torch':
                 case 'ops':
                 case 'uninitialized':
-                    return this.builtins[expression.value];
+                    return this.builtins[expr.id];
                 case 'CONSTANTS': {
                     if (!this._constants) {
-                        const value = this.builtins[expression.value];
+                        const value = this.builtins[expr.id];
                         const entries = Object.entries(value).map(([name, value]) => {
                             if (Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === 'string')) {
                                 value = this.constant(value);
@@ -1763,14 +1789,14 @@ pytorch.Execution = class extends python.Execution {
                     break;
             }
         }
-        let current = expression;
+        let current = expr;
         let path = [];
         for (;;) {
-            if (current.type === '.' && current.member && current.member.type === 'id') {
-                path.push(current.member.value);
-                current = current.target;
-            } else if (current.type === 'id' && current.value !== 'self' && current.value !== 'CONSTANTS') {
-                path.push(current.value);
+            if (current instanceof ast.Attribute) {
+                path.push(current.attr);
+                current = current.value;
+            } else if (current instanceof ast.Name && current.id !== 'self' && current.id !== 'CONSTANTS') {
+                path.push(current.id);
                 break;
             } else {
                 path = null;
@@ -1795,47 +1821,51 @@ pytorch.Execution = class extends python.Execution {
                 return this.resolve(name);
             }
         }
-        return super.target(expression, context);
+        return super.target(expr, context);
     }
 
-    expression(expression, context) {
+    expression(expr, context) {
         if (!this.trace) {
-            return super.expression(expression, context);
+            return super.expression(expr, context);
         }
+        const ast = this.ast;
         const torch = this.torch;
-        switch (expression.type) {
-            case 'id': {
-                switch (expression.value) {
+        switch (expr.type) {
+            case 'Name': {
+                switch (expr.id) {
                     case 'True': return this.constant(true);
                     case 'False': return this.constant(false);
                     default: break;
                 }
-                return super.expression(expression, context);
+                return super.expression(expr, context);
             }
-            case '=': {
-                const target = expression.target;
-                if (target.type === 'id') {
-                    let value = this.expression(expression.expression, context);
+            case 'Assign': {
+                const target = expr.targets;
+                if (target instanceof ast.Name) {
+                    let value = this.expression(expr.value, context);
                     if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') {
                         value = this.constant(value);
                     } else if (typeof value !== 'object' && value !== undefined) {
                         throw new pytorch.Error(`Unsupported assignment value type '${typeof value}'.`);
                     }
-                    context.set(target.value, value);
+                    if (value instanceof torch.Value && !value.hasDebugName()) {
+                        value.setDebugName(target.value);
+                    }
+                    context.set(target.id, value);
                     return undefined;
                 } else if (target.type === 'tuple') {
-                    context.target.push(target.value);
-                    const value = this.expression(expression.expression, context);
+                    context.target.push(target.elts);
+                    const value = this.expression(expr.value, context);
                     context.target.pop();
-                    if (target.value.every((item) => item.type === 'id')) {
+                    if (target.elts.every((item) => item instanceof ast.Name)) {
                         if (value instanceof torch.Value) {
                             const node = this._graph.create('prim::TupleUnpack');
-                            node.setSourceRange(expression.location);
+                            node.setSourceRange(expr.location);
                             this.graph.insertNode(node);
                             node.addInput(value);
                             const outputs = [];
-                            for (let i = 0; i < target.value.length; i++) {
-                                const item = target.value[i];
+                            for (let i = 0; i < target.elts.length; i++) {
+                                const item = target.elts[i];
                                 const output = node.addOutput();
                                 const type = value.type();
                                 if (type instanceof torch.ListType) {
@@ -1845,48 +1875,55 @@ pytorch.Execution = class extends python.Execution {
                                 } else {
                                     throw new pytorch.Error(`Unsupported tuple unpack type '${type.kind()}'.`);
                                 }
-                                output.setDebugName(item.value);
-                                context.set(item.value, output);
+                                output.setDebugName(item.id);
+                                context.set(item.id, output);
                                 outputs.push(output);
                             }
                             return outputs;
                         }
-                        if (target.value.length < value.length) {
+                        const elts = value;
+                        if (target.elts.length < elts.length) {
                             throw new pytorch.Error(`ValueError: too many values to unpack (expected ${target.value.length}, actual ${value.length}).`);
                         }
-                        if (target.value.length > value.length) {
+                        if (target.elts.length > elts.length) {
                             throw new pytorch.Error(`ValueError: not enough values to unpack (expected ${target.value.length}, actual ${value.length}).`);
                         }
-                        for (let i = 0; i < value.length; i++) {
-                            context.set(target.value[i].value, value[i]);
+                        for (let i = 0; i < elts.length; i++) {
+                            const value = elts[i];
+                            const name = target.elts[i].id;
+                            if (value instanceof torch.Value && !value.hasDebugName()) {
+                                value.setDebugName(name);
+                            }
+                            context.set(name, value);
                         }
                         return undefined;
                     }
                 }
                 break;
             }
-            case 'call': {
-                if (expression.target.type === 'id' && expression.target.value === 'annotate') {
-                    const type = this.type(expression.args[0]);
-                    let value = this.expression(expression.args[1], context);
+            case 'Call': {
+                const func = expr.func;
+                if (func instanceof ast.Name && func.id === 'annotate') {
+                    const type = this.type(expr.args[0]);
+                    let value = this.expression(expr.args[1], context);
                     if (value instanceof torch.Tensor) {
                         let name = null;
                         if (type instanceof torch.IntType) {
-                            name = 'aten::IntImplicit';
+                            name = 'IntImplicit';
                         } else if (type instanceof torch.FloatType) {
-                            name = 'aten::FloatImplicit';
+                            name = 'FloatImplicit';
                         } else if (type instanceof torch.StringType) {
-                            name = 'aten::StringImplicit';
+                            name = 'StringImplicit';
                         } else if (type instanceof torch.ComplexType) {
-                            name = 'aten::ComplexImplicit';
+                            name = 'ComplexImplicit';
                         } else if (type instanceof torch.NumberType) {
-                            name = 'aten::ScalarImplicit';
+                            name = 'ScalarImplicit';
                         } else {
                             throw new pytorch.Error(`Unsupported annotation type '${type.kind()}'.`);
                         }
-                        const target = { 'type': 'id', value: 'torch' };
-                        name = name.replace('aten::', '');
-                        return this.call(target, name, expression.args.slice(1), context);
+                        const ast = this.ast;
+                        const target = new ast.Name('torch');
+                        return this.call(target, name, expr.args.slice(1), context);
                     }
                     if (value instanceof torch.Value) {
                         value.setType(type);
@@ -1897,17 +1934,18 @@ pytorch.Execution = class extends python.Execution {
                     }
                     return value;
                 }
-                if (expression.target.type === 'id' && expression.target.value === 'uninitialized') {
-                    const type = this.type(expression.args[0], context);
+                if (func instanceof ast.Name && func.id === 'uninitialized') {
+                    const type = this.type(expr.args[0]);
                     const node = this._graph.create('prim::Uninitialized');
+                    node.setSourceRange(expr.location);
                     this.graph.insertNode(node);
                     const value = node.addOutput();
                     value.setType(type);
                     return value;
                 }
-                if (expression.target.type === 'id' && expression.target.value === 'unchecked_cast') {
-                    let value = this.expression(expression.args[1], context);
-                    const type = this.type(expression.args[0], context);
+                if (func instanceof ast.Name && func.id === 'unchecked_cast') {
+                    let value = this.expression(expr.args[1], context);
+                    const type = this.type(expr.args[0]);
                     const node = this._graph.create('prim::unchecked_cast');
                     this.graph.insertNode(node);
                     node.addInput(this.variable(value));
@@ -1915,8 +1953,8 @@ pytorch.Execution = class extends python.Execution {
                     value.setType(type);
                     return value;
                 }
-                if (expression.target.type === 'id' && expression.target.value === 'isinstance') {
-                    let value = this.expression(expression.args[1], context);
+                if (func instanceof ast.Name && func.id === 'isinstance') {
+                    let value = this.expression(expr.args[1], context);
                     // const type = this.type(expression.args[0]);
                     const node = this._graph.create('prim::isinstance');
                     this.graph.insertNode(node);
@@ -1942,18 +1980,18 @@ pytorch.Execution = class extends python.Execution {
                     }
                 }
                 */
-                return super.expression(expression, context);
+                return super.expression(expr, context);
             }
             case '[]': {
-                if (expression.arguments.type === 'list' && expression.arguments.value.length === 1) {
-                    const target = this.expression(expression.target, context);
+                if (expr.arguments.type === 'list' && expr.arguments.value.length === 1) {
+                    const target = this.expression(expr.target, context);
                     if (target instanceof torch.Value) {
                         let type = target.type();
                         if (type instanceof torch.OptionalType) {
                             type = type.getElementType();
                         }
                         if (type instanceof torch.ListType) {
-                            let index = this.expression(expression.arguments.value[0], context);
+                            let index = this.expression(expr.arguments.value[0], context);
                             const node = this._graph.create('aten::__getitem__.t');
                             this.graph.insertNode(node);
                             node.addInput(target);
@@ -1966,7 +2004,7 @@ pytorch.Execution = class extends python.Execution {
                             return value;
                         }
                         if (type instanceof torch.DictType) {
-                            let key = this.expression(expression.arguments.value[0], context);
+                            let key = this.expression(expr.arguments.value[0], context);
                             const node = this._graph.create('aten::__getitem__.t');
                             this.graph.insertNode(node);
                             node.addInput(target);
@@ -1985,7 +2023,7 @@ pytorch.Execution = class extends python.Execution {
                             return value;
                         }
                         if (type instanceof torch.TupleType) {
-                            let index = this.expression(expression.arguments.value[0], context);
+                            let index = this.expression(expr.arguments.value[0], context);
                             const node = this._graph.create('prim::TupleIndex');
                             this.graph.insertNode(node);
                             const value = node.addOutput();
@@ -2001,26 +2039,24 @@ pytorch.Execution = class extends python.Execution {
                 }
                 break;
             }
-            case '.': {
-                if (expression.member.type === 'id') {
-                    const target = this.target(expression.target, context);
-                    if (typeof expression.member.value === 'string' && target instanceof torch.Value && target.type() instanceof torch.ClassType) {
-                        const type = target.type().findAttribute(expression.member.value);
-                        const node = this.graph.create('prim::GetAttr');
-                        this.graph.insertNode(node);
-                        node.s_(expression.member.value);
-                        node.addInput(target);
-                        const value = node.addOutput();
-                        value.setType(type);
-                        return value;
-                    }
-                    return target[expression.member.value];
+            case 'Attribute': {
+                const target = this.target(expr.value, context);
+                const attr = expr.attr;
+                if (target instanceof torch.Value && target.type() instanceof torch.ClassType) {
+                    const type = target.type().findAttribute(attr);
+                    const node = this.graph.create('prim::GetAttr');
+                    this.graph.insertNode(node);
+                    node.s_(attr);
+                    node.addInput(target);
+                    const value = node.addOutput();
+                    value.setType(type);
+                    return value;
                 }
-                throw new pytorch.Error('Unsupported field expression.');
+                return target[attr];
             }
             case 'list': {
-                const list = expression.value.map((item) => this.expression(item, context));
-                if (/* list.length > 0 && */ list.every((item) => pytorch.Utility.isInstance(item, 'torch.Value') || pytorch.Utility.isTensor(item) || Number.isInteger(item) || typeof item === 'string' || item === null)) {
+                const list = expr.value.map((item) => this.expression(item, context));
+                if (/* list.length > 0 && */ list.every((item) => item instanceof torch.Value || pytorch.Utility.isTensor(item) || Number.isInteger(item) || typeof item === 'string' || item === null)) {
                     const node = this._graph.create('prim::ListConstruct');
                     this.graph.insertNode(node);
                     const output = node.addOutput();
@@ -2051,13 +2087,13 @@ pytorch.Execution = class extends python.Execution {
                 break;
             }
             case 'tuple': {
-                const args = expression.value.map((expression) => this.expression(expression, context));
+                const elts = expr.elts.map((expression) => this.expression(expression, context));
                 const node = this._graph.create('prim::TupleConstruct');
-                node.setSourceRange(expression.location);
+                node.setSourceRange(expr.location);
                 this.graph.insertNode(node);
                 const types = [];
                 const elements = [];
-                for (const item of args) {
+                for (const item of elts) {
                     if (item instanceof torch.Value) {
                         node.addInput(item);
                         types.push(item.type());
@@ -2099,7 +2135,7 @@ pytorch.Execution = class extends python.Execution {
                 this.graph.insertNode(node);
                 let keyType = null;
                 let valueType = null;
-                for (const pair of expression.value) {
+                for (const pair of expr.value) {
                     if (pair.type !== 'pair') {
                         throw new pytorch.Error(`Unsupported dict item type '${pair.type}'.`);
                     }
@@ -2122,19 +2158,21 @@ pytorch.Execution = class extends python.Execution {
                 break;
             }
         }
-        return super.expression(expression, context);
+        return super.expression(expr, context);
     }
 
-    static(expression, context, state) {
+    static(expr, context, state) {
+        const ast = this.ast;
+        const builtins = this.builtins;
         const torch = this.torch;
-        switch (expression.type) {
-            case 'id': {
-                switch (expression.value) {
+        switch (expr.type) {
+            case 'Name': {
+                switch (expr.id) {
                     case 'None': return null;
                     case 'True': return true;
                     case 'False': return false;
                     default: {
-                        const value = context.get(expression.value);
+                        const value = context.get(expr.id);
                         if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'string') {
                             return value;
                         }
@@ -2160,9 +2198,11 @@ pytorch.Execution = class extends python.Execution {
                                 const input = node.inputs()[0].node();
                                 if (input.kind() === 'prim::TupleConstruct') {
                                     const value = input.inputs()[index];
-                                    const node = value.node();
-                                    if (node.kind() === 'prim::Constant') {
-                                        return pytorch.Utility.constant(node, 'value');
+                                    const constant = value.node();
+                                    if (constant.kind() === 'prim::Constant') {
+                                        state.push(node);
+                                        state.push(constant);
+                                        return pytorch.Utility.constant(constant, 'value');
                                     }
                                 }
                             }
@@ -2174,31 +2214,29 @@ pytorch.Execution = class extends python.Execution {
                 break;
             }
             case 'list': {
-                return expression.value.map((expression) => this.static(expression, context, state));
+                return expr.value.map((expression) => this.static(expression, context, state));
             }
             case 'string': {
-                return expression.value.substring(1, expression.value.length - 1);
+                return expr.value.substring(1, expr.value.length - 1);
             }
             case 'number': {
-                return Number(expression.value);
+                return Number(expr.value);
             }
-            case '.': {
-                if (expression.member.type === 'id') {
-                    const target = this.target(expression.target, context);
-                    return target[expression.member.value];
-                }
-                break;
+            case 'Attribute': {
+                const target = this.target(expr.value, context);
+                return target[expr.attr];
             }
-            case 'call': {
-                if (expression.target.type === 'id' && expression.target.value === 'annotate') {
-                    return this.static(expression.args[1], context, state);
+            case 'Call': {
+                const func = expr.func;
+                if (func instanceof ast.Name && func.id === 'annotate') {
+                    return this.static(expr.args[1], context, state);
                 }
-                const args = expression.args.map((expression) => this.static(expression, context, state));
+                const args = expr.args.map((expression) => this.static(expression, context, state));
                 if (args.every((arg) => arg !== undefined)) {
-                    if (expression.target.type === '.' && expression.target.target.type === 'id' && expression.target.target.value === 'torch') {
-                        const target = this.target(expression.target, context);
+                    if (func instanceof ast.Attribute && func.value instanceof ast.Name && func.value.id === 'torch') {
+                        const target = this.target(func, context);
                         if (typeof target === 'function') {
-                            if (target && target.__class__ === this._builtins.type) {
+                            if (target && target.__class__ === builtins.type) {
                                 // debugger;
                             } else {
                                 return target(...args);
@@ -2221,18 +2259,17 @@ pytorch.Execution = class extends python.Execution {
             scope.refs = new Set();
         }
         switch (value.type) {
-            case '=': {
-                this.variables(value.target, scope);
-                this.variables(value.expression, scope);
+            case 'Assign': {
+                this.variables(value.targets, scope);
+                this.variables(value.value, scope);
                 break;
             }
-            case '.': {
-                this.variables(value.target, scope);
-                this.variables(value.member, scope);
+            case 'Attribute': {
+                this.variables(value.value, scope);
                 break;
             }
-            case 'id': {
-                scope.refs.add(value.value);
+            case 'Name': {
+                scope.refs.add(value.id);
                 break;
             }
             case 'import':
@@ -2253,7 +2290,7 @@ pytorch.Execution = class extends python.Execution {
                 break;
             }
             case 'tuple': {
-                for (const item of value.value) {
+                for (const item of value.elts) {
                     this.variables(item, scope);
                 }
                 break;
@@ -2268,37 +2305,33 @@ pytorch.Execution = class extends python.Execution {
                 this.variables(value.arguments, scope);
                 break;
             }
-            case 'call': {
-                this.variables(value.target, scope);
+            case 'Call': {
+                this.variables(value.func, scope);
                 for (const arg of value.args) {
                     this.variables(arg, scope);
                 }
                 break;
             }
-            case 'if': {
+            case 'If': {
                 this.variables(value.test, scope);
                 this.variables(value.body, scope);
                 this.variables(value.orelse, scope);
                 break;
             }
             case 'for': {
-                for (const target of value.target) {
-                    this.variables(target, scope);
-                }
-                for (const iter of value.iter) {
-                    this.variables(iter, scope);
-                }
+                this.variables(value.target, scope);
+                this.variables(value.iter, scope);
                 this.variables(value.body, scope);
                 break;
             }
             case 'block': {
-                for (const statement of value.statements) {
-                    this.variables(statement, scope);
+                for (const stmt of value.statements) {
+                    this.variables(stmt, scope);
                 }
                 break;
             }
-            case 'return': {
-                this.variables(value.expression, scope);
+            case 'Return': {
+                this.variables(value.value, scope);
                 break;
             }
             case 'while': {
@@ -2324,47 +2357,59 @@ pytorch.Execution = class extends python.Execution {
     }
 
     block(statements, context) {
+        const ast = this.ast;
         const torch = this.torch;
         statements = Array.prototype.slice.call(statements);
-        while (statements.length > 0) {
-            if (statements.length > 1) {
+        for (let i = 0; i < statements.length;) {
+            if (i < statements.length - 1) {
                 const containsVariableReference = (statements, value) => {
                     if (statements) {
-                        for (const statement of statements) {
-                            if (!statement.refs) {
-                                this.variables(statement, statement);
+                        for (const stmt of statements) {
+                            if (!stmt.refs) {
+                                this.variables(stmt, stmt);
                             }
-                            if (statement.refs.has(value)) {
+                            if (stmt.refs.has(value)) {
                                 return true;
                             }
                         }
                     }
                     return false;
                 };
-                const [assign, condition] = statements;
+                const assign = statements[i];
+                const condition = statements[i + 1];
                 // _x = <expr>
                 // if _x:
                 //   ...
-                if (assign.type === '=' && condition.type === 'if' &&
-                    assign.target.type === 'id' && condition.test.type === 'id' &&
-                    assign.target.value === condition.test.value &&
-                    !containsVariableReference(statements.slice(2), condition.test.value) &&
-                    (!statements[1].body || !containsVariableReference(statements[1].body.statements), condition.test.value) &&
-                    (!statements[1].orelse || !containsVariableReference(statements[1].orelse.statements, condition.test.value))) {
-                    statements.shift();
-                    statements[0] = {
-                        type: 'if',
-                        test: assign.expression,
-                        body: condition.body,
-                        orelse: condition.orelse,
-                        location: condition.location,
-                    };
+                if (assign instanceof ast.Assign && condition instanceof ast.If &&
+                    assign.targets instanceof ast.Name && condition.test instanceof ast.Name &&
+                    assign.targets.id === condition.test.id &&
+                    !containsVariableReference(statements.slice(i + 2), condition.test.id) &&
+                    (!condition.body || !containsVariableReference(condition.body.statements), condition.test.id) &&
+                    (!condition.orelse || !containsVariableReference(condition.orelse.statements, condition.test.id))) {
+                    const node = new ast.If(assign.value, condition.body, condition.orelse);
+                    node.location = condition.location;
+                    statements.splice(i, 2, node);
                 }
             }
-            const [condition] = statements;
-            if (condition.type === 'if') {
+            const condition = statements[i];
+            if (condition instanceof ast.If) {
                 const state = [];
                 let test = this.static(condition.test, context, state);
+                if (test === null) {
+                    test = false;
+                } else if (typeof test === 'boolean') {
+                    test = test === true;
+                } else if (Number.isInteger(test)) {
+                    test = test !== 0;
+                } else if (typeof test === 'string') {
+                    test = test && test.length > 0;
+                }
+                if (test === true) {
+                    statements.splice(i, 1, ...condition.body.statements);
+                } else if (test === false) {
+                    statements.splice(i, 1, ...condition.orelse.statements);
+                }
+
                 const count = new Map();
                 for (const node of state) {
                     if (count.has(node)) {
@@ -2378,50 +2423,38 @@ pytorch.Execution = class extends python.Execution {
                         node.destroy();
                     }
                 }
-                if (test === null) {
-                    test = false;
-                } else if (typeof test === 'boolean') {
-                    test = test === true;
-                } else if (Number.isInteger(test)) {
-                    test = test !== 0;
-                } else if (typeof test === 'string') {
-                    test = test && test.length > 0;
-                }
-                if (test === true) {
-                    statements.shift();
-                    statements = condition.body.statements.concat(statements);
-                    continue;
-                }
-                if (test === false) {
-                    statements.shift();
-                    statements = condition.orelse.statements.concat(statements);
+
+                if (test === true || test === false) {
                     continue;
                 }
             }
-            if (statements.length > 0) {
-                const statement = statements.shift();
-                if (statement.type === 'if') {
-                    const test = this.expression(statement.test, context);
+            if (i < statements.length) {
+                const stmt = statements[i];
+                if (stmt instanceof ast.If) {
+                    const condition = stmt;
+                    const test = this.expression(condition.test, context);
                     if (test instanceof torch.Value && test.type() instanceof torch.BoolType) {
                         const refs = new Set();
-                        for (const statement of statements) {
-                            if (!statement.refs) {
-                                this.variables(statement, statement);
+                        for (let j = i + 1; j < statements.length; j++) {
+                            const stmt = statements[j];
+                            if (!stmt.refs) {
+                                this.variables(stmt, stmt);
                             }
-                            for (const variable of Array.from(statement.refs)) {
+                            for (const variable of Array.from(stmt.refs)) {
                                 refs.add(variable);
                             }
                         }
                         const __variables = (statements) => {
                             const set = new Set();
-                            for (const statement of statements) {
-                                if (statement.type === '=') {
-                                    if (statement.target.type === 'id') {
-                                        set.add(statement.target.value);
-                                    } else if (statement.target.type === 'tuple') {
-                                        for (const value of statement.target.value) {
-                                            if (value.type === 'id') {
-                                                set.add(value.value);
+                            for (const stmt of statements) {
+                                if (stmt instanceof ast.Assign) {
+                                    const target = stmt.targets;
+                                    if (target instanceof ast.Name) {
+                                        set.add(target.id);
+                                    } else if (target.type === 'tuple') {
+                                        for (const value of target.elts) {
+                                            if (value instanceof ast.Name) {
+                                                set.add(value.id);
                                             } else {
                                                 // debugger;
                                             }
@@ -2440,25 +2473,30 @@ pytorch.Execution = class extends python.Execution {
                             if (pytorch.Utility.isTensor(value)) {
                                 return torch.TensorType.get();
                             }
+                            if (value && value.__class__ && value instanceof torch.Value === false) {
+                                const identifier = `${value.__class__.__module__}.${value.__class__.__name__}`;
+                                const type = this._resolver.resolveType(identifier);
+                                return type;
+                            }
                             return value.type();
                         };
-                        this.variables(statement, statement);
+                        this.variables(condition, condition);
                         const node = this._graph.create('prim::If');
-                        node.setSourceRange(statement.location);
+                        node.setSourceRange(stmt.location);
                         this.graph.insertNode(node);
                         node.addInput(test);
                         const prev = this._graph.insertPoint();
                         const true_block = node.addBlock();
                         this._graph.setInsertPoint(true_block);
-                        let vars = __variables(statement.body.statements.concat(statement.orelse.statements));
+                        let vars = __variables(condition.body.statements.concat(stmt.orelse.statements));
                         vars = new Map(Array.from(vars).map((name) => [name, {}]));
-                        this.block(statement.body.statements, context);
+                        this.block(condition.body.statements, context);
                         for (const [name, entry] of vars) {
                             entry.body = context.get(name);
                         }
                         const false_block = node.addBlock();
                         this._graph.setInsertPoint(false_block);
-                        this.block(statement.orelse.statements, context);
+                        this.block(condition.orelse.statements, context);
                         for (const [name, entry] of vars) {
                             entry.orelse = context.get(name);
                         }
@@ -2480,6 +2518,8 @@ pytorch.Execution = class extends python.Execution {
                                 const t2 = __type(entry.orelse);
                                 if (t1 === null && t2 === null) {
                                     type = null;
+                                } else if (t1 === t2) {
+                                    type = t1;
                                 } else if (t1.equals(t2)) {
                                     type = t2;
                                 } else if (t1 instanceof torch.NoneType && t2 instanceof torch.NoneType === false) {
@@ -2496,30 +2536,65 @@ pytorch.Execution = class extends python.Execution {
                             }
                             value.setType(type);
                         }
+                        i++;
                         continue;
                     }
                     throw new pytorch.Error("Unsupported condition.");
                 }
-                const value = this.statement(statement, context);
+                if (stmt.type === 'for') {
+                    const node = this._graph.create('prim::Loop');
+                    node.setSourceRange(stmt.location);
+                    this.graph.insertNode(node);
+                    const loop = stmt;
+                    if (loop.target instanceof ast.Name && loop.iter.type !== 'tuple') {
+                        const range = this.expression(loop.iter, context);
+                        const variable = loop.target;
+                        for (const current of range) {
+                            this.statement({ type: '=', target: variable, expression: { type: 'number', value: current } }, context);
+                            const value = this.block(loop.body.statements, context);
+                            if (value !== undefined) {
+                                return value;
+                            }
+                        }
+                        i++;
+                        continue;
+                    }
+                }
+                if (stmt.type === 'while') {
+                    const node = this._graph.create('prim::Loop');
+                    node.setSourceRange(stmt.location);
+                    this.graph.insertNode(node);
+                    const test = this.expression(stmt.test, context);
+                    if (test) {
+                        const value = this.block(stmt.body.statements, context);
+                        if (value !== undefined) {
+                            return value;
+                        }
+                    }
+                    i++;
+                    continue;
+                }
+                const value = this.statement(stmt, context);
                 if (value !== undefined) {
                     return value;
                 }
+                i++;
             }
         }
         return undefined;
     }
 
-    statement(statement, context) {
+    statement(stmt, context) {
         const torch = this.torch;
         if (!this.trace) {
-            return super.statement(statement, context);
+            return super.statement(stmt, context);
         }
-        switch (statement.type) {
+        switch (stmt.type) {
             case 'class': {
-                super.statement(statement, context);
-                const value = context.get(statement.name);
+                super.statement(stmt, context);
+                const value = context.get(stmt.name);
                 const type = new torch.ClassType(`${value.__module__}.${value.__name__}`);
-                for (const entry of statement.body.statements) {
+                for (const entry of stmt.body.statements) {
                     if (entry.type === 'var') {
                         const variableType = this.type(entry.variableType, context);
                         type.addAttribute(entry.name, variableType);
@@ -2528,47 +2603,48 @@ pytorch.Execution = class extends python.Execution {
                 value.__type__ = type;
                 return undefined;
             }
-            case 'if': {
+            case 'If': {
                 throw new pytorch.Error('Not implemented.');
             }
             default: {
                 break;
             }
         }
-        return super.statement(statement, context);
+        return super.statement(stmt, context);
     }
 
-    type(expression, context) {
+    type(expr) {
+        const ast = this.ast;
         const torch = this.torch;
-        if (expression.type === '[]' && expression.target.type === 'id') {
-            switch (expression.target.value) {
+        if (expr.type === '[]' && expr.target instanceof ast.Name) {
+            switch (expr.target.id) {
                 case 'List': {
-                    const elementType = this.type(expression.arguments.value[0]);
+                    const elementType = this.type(expr.arguments.value[0]);
                     return torch.ListType.get(elementType);
                 }
                 case 'Optional': {
-                    const elementType = this.type(expression.arguments.value[0]);
+                    const elementType = this.type(expr.arguments.value[0]);
                     return torch.OptionalType.get(elementType);
                 }
                 case 'Tuple': {
-                    const elements = expression.arguments.value.map((expression) => this.type(expression));
+                    const elements = expr.arguments.value.map((expression) => this.type(expression));
                     return torch.TupleType.get(elements);
                 }
                 case 'Dict': {
-                    const key = this.type(expression.arguments.value[0]);
-                    const value = this.type(expression.arguments.value[1]);
+                    const key = this.type(expr.arguments.value[0]);
+                    const value = this.type(expr.arguments.value[1]);
                     return torch.DictType.get(key, value);
                 }
                 case 'Final': {
-                    return this.type(expression.arguments.value[0]);
+                    return this.type(expr.arguments.value[0]);
                 }
                 default: {
-                    throw new pytorch.Error(`Unsupported type element expression '${expression.target.value}'.`);
+                    throw new pytorch.Error(`Unsupported type element expression '${expr.target.id}'.`);
                 }
             }
         }
-        if (expression.type === 'id') {
-            switch (expression.value) {
+        if (expr instanceof ast.Name) {
+            switch (expr.id) {
                 case 'Tensor': return torch.TensorType.get();
                 case 'int': return torch.IntType.get();
                 case 'str': return torch.StringType.get();
@@ -2577,36 +2653,41 @@ pytorch.Execution = class extends python.Execution {
                 case 'bool': return torch.BoolType.get();
                 case 'None': return torch.NoneType.get();
                 case 'NoneType': return torch.NoneType.get();
-                default: throw new pytorch.Error(`Unsupported type expression '${expression.value}'.`);
+                default: throw new pytorch.Error(`Unsupported type expression '${expr.value}'.`);
             }
         }
-        if (expression.type === '.') {
-            const target = this.expression(expression, context);
-            if (target && target.__type__ instanceof torch.ClassType) {
-                return target.__type__;
+        if (expr instanceof ast.Attribute) {
+            const identifier = this.identifier(expr);
+            const type = this._resolver.resolveType(identifier);
+            if (type) {
+                return type;
             }
         }
-        throw new pytorch.Error(`Unsupported type expression '${expression.type}'.`);
+        throw new pytorch.Error(`Unsupported type expression '${expr.type}'.`);
     }
 
     call(target, name, args, context, location) {
         if (!this.trace) {
             return super.call(target, name, args, context);
         }
+        const ast = this.ast;
         const torch = this.torch;
+        const builtins = this.builtins;
         if (name === '__new__') {
-            const identifier = pytorch.Utility.target(target);
+            const identifier = this.identifier(target);
             if (identifier) {
-                const type = this.resolve(identifier);
-                if (type && type.__type__) {
+                const type = this._resolver.resolveType(identifier);
+                if (type) {
                     const node = this.graph.create('prim::CreateObject');
+                    node.setSourceRange(location);
                     this.graph.insertNode(node);
                     const value = node.addOutput();
-                    value.setType(type.__type__);
+                    value.setType(type);
                     return value;
                 }
             }
         }
+        /*
         if (name === '__init__') {
             const obj = this.expression(target, context);
             if (args.length === 0) {
@@ -2625,6 +2706,7 @@ pytorch.Execution = class extends python.Execution {
             value.setType(obj.type());
             return value;
         }
+        */
         const overload = this._overload(target, name, args, context);
         if (!overload) {
             const moduleTarget = this.target(target, context);
@@ -2638,6 +2720,35 @@ pytorch.Execution = class extends python.Execution {
                     node.addInput(value);
                 }
                 return node.addOutput();
+            }
+            const prefix = this.identifier(target);
+            if (prefix && prefix !== 'self' && !prefix.startsWith('self.') && prefix.indexOf('.') !== -1) {
+                const identifier = `${prefix}.${name}`;
+                const type = this._resolver.resolveType(identifier);
+                if (type instanceof torch.TupleType) {
+                    const node = this._graph.create('prim::TupleConstruct');
+                    node.setSourceRange(location);
+                    this.graph.insertNode(node);
+                    const evalArgs = args.map((expression) => this.expression(expression, context));
+                    for (const arg of evalArgs) {
+                        const value = this.variable(arg);
+                        node.addInput(value);
+                    }
+                    const output = node.addOutput();
+                    output.setType(type);
+                    return output;
+                }
+                if (type instanceof torch.ClassType) {
+                    const node = this.graph.create('prim::CallMethod');
+                    this.graph.insertNode(node);
+                    node.s_('name', name);
+                    const evalArgs = args.map((expression) => this.expression(expression, context));
+                    for (const arg of evalArgs) {
+                        const value = this.variable(arg);
+                        node.addInput(value);
+                    }
+                    return node.addOutput();
+                }
             }
             return super.call(target, name, args, context);
         }
@@ -2724,7 +2835,7 @@ pytorch.Execution = class extends python.Execution {
                     continue;
                 }
                 throw new pytorch.Error('Invalid argument type.');
-            } else if (args[position].type === '=' && args[position].target.value !== arg.name) {
+            } else if (args[position] instanceof ast.Assign && args[position].targets.id !== arg.name) {
                 throw new pytorch.Error('Expected named argument.');
             } else {
                 position++;
@@ -2734,6 +2845,9 @@ pytorch.Execution = class extends python.Execution {
                 } else {
                     const value = this.variable(v);
                     value.value = v;
+                    if (!value.type() && v instanceof builtins.dict) {
+                        value.setType(type);
+                    }
                     input = value;
                     match = true;
                 }
@@ -2787,11 +2901,11 @@ pytorch.Execution = class extends python.Execution {
                 }
             }
         }
-        if (args.every((arg, index) => index < position || (arg.type === '=' && arg.target && arg.target.type === 'id'))) {
+        if (args.every((arg, index) => index < position || (arg instanceof ast.Assign && arg.targets && arg.targets instanceof ast.Name))) {
             const params = new Map(parameters.slice(index).map((a) => [a.name, a]));
             while (position < args.length) {
+                const arg = params.get(args[position].targets.id);
                 const v = evalArgs[position];
-                const arg = params.get(args[position].target.value);
                 position++;
                 if (!arg) {
                     throw new pytorch.Error();
@@ -2813,24 +2927,9 @@ pytorch.Execution = class extends python.Execution {
                 node.addInput(value);
             }
         }
-        const result = [];
-        for (let i = 0; i < schema.returns.length; i++) {
-            const arg = schema.returns[i];
-            const type = arg.real_type;
+        for (const arg of schema.returns) {
+            let type = arg.real_type;
             switch (type.str()) {
-                case 'Tensor': {
-                    const output = new torch.Tensor();
-                    output.__origin__ = schema.name;
-                    this.variable(output, node);
-                    result.push(output);
-                    break;
-                }
-                case 'Tensor[]': {
-                    const value = node.addOutput();
-                    value.setType(torch.ListType.get(torch.TensorType.get()));
-                    result.push(value);
-                    break;
-                }
                 case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
                 case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':
                 case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
@@ -2838,11 +2937,11 @@ pytorch.Execution = class extends python.Execution {
                 case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
                 case '__torch__.torch.classes.xnnpack.LinearOpContext':
                 case '__torch__.torch.classes.xnnpack.TransposeConv2dOpContext': {
-                    const value = this.invoke(type.qualified_name(), []);
-                    this.variable(value, node);
-                    result.push(value);
+                    type = this._resolver.resolveType(type.qualified_name());
                     break;
                 }
+                case 'Tensor':
+                case 'Tensor[]':
                 case 'Scalar':
                 case 'Dict(str, Tensor)':
                 case 'int':
@@ -2855,73 +2954,54 @@ pytorch.Execution = class extends python.Execution {
                 case 'bool':
                 case 'bool[]':
                 case 'Device': {
-                    const value = this.variable(null, node);
-                    value.__origin__ = schema.name;
-                    value.setType(type);
-                    result.push(value);
                     break;
                 }
                 case 't': {
-                    const value = this.variable(null, node);
-                    value.__origin__ = schema.name;
-                    const t = varTypes.map(type);
-                    if (!t) {
+                    type = varTypes.map(type);
+                    if (!type) {
                         throw new pytorch.Error(`Unknown var type 't'.`);
                     }
-                    value.setType(t);
-                    result.push(value);
                     break;
                 }
                 case 't[]': {
-                    const value = this.variable(null, node);
-                    value.__origin__ = schema.name;
-                    const t = varTypes.map(type.getElementType());
-                    if (!t) {
+                    type = varTypes.map(type.getElementType());
+                    if (!type) {
                         throw new pytorch.Error();
                     }
-                    value.setType(torch.ListType.get(t));
-                    result.push(value);
+                    type = torch.ListType.get(type);
                     break;
                 }
                 default: {
                     if (type instanceof torch.DictType) {
-                        const value = this.variable(null, node);
-                        value.__origin__ = schema.name;
                         const keyType = varTypes.map(type.getKeyType());
                         const valueType = varTypes.map(type.getValueType());
-                        value.setType(torch.DictType.get(keyType, valueType));
-                        result.push(value);
-                        break;
+                        type = torch.DictType.get(keyType, valueType);
+                    } else if (type instanceof torch.TupleType && type.elements().length === 2) {
+                        const elements = type.elements().map((type) => varTypes.map(type));
+                        type = torch.ListType.get(torch.TupleType.get(elements));
+                    } else if (type instanceof torch.ListType && type.getElementType() instanceof torch.TupleType) {
+                        const elements = type.getElementType().elements().map((type) => varTypes.map(type));
+                        type = torch.ListType.get(torch.TupleType.get(elements));
+                    } else {
+                        throw new pytorch.Error(`Unsupported return type '${type.str()}'.`);
                     }
-                    if (type instanceof torch.TupleType && type.elements().length === 2) {
-                        const value = this.variable(null, node);
-                        value.__origin__ = schema.name;
-                        const keyType = varTypes.map(type.elements()[0]);
-                        const valueType = varTypes.map(type.elements()[1]);
-                        value.setType(torch.ListType.get(torch.TupleType.get([keyType, valueType])));
-                        result.push(value);
-                        break;
-                    }
-                    const output = this.invoke('torch.Tensor', []);
-                    output.resize_([]);
-                    output.__origin__ = schema.name;
-                    this.variable(output, node);
-                    result.push(output);
                     break;
                 }
             }
+            const output = node.addOutput();
+            output.__origin__ = schema.name;
+            output.setType(type);
         }
         for (const referencedParameter of referencedParameters) {
             referencedParameter.__count__ = (referencedParameter.__count__ || 0) + 1;
         }
-        if (result.length > 1) {
-            return result;
-        }
-        return result[0];
+        const outputs = node.outputs();
+        return outputs.length > 1 ? outputs : outputs[0];
     }
 
     isType(obj, type, N) {
         const torch = this.torch;
+        const builtins = this.builtins;
         switch (type.str()) {
             case 'Tensor':
                 return !Array.isArray(obj) && (pytorch.Utility.isTensor(obj) || obj === null ||
@@ -2938,7 +3018,7 @@ pytorch.Execution = class extends python.Execution {
                     (pytorch.Utility.isTensor(obj) && Array.isArray(obj.size()) && obj.size().length === 0) ||
                     (obj instanceof torch.Value && (obj.type() instanceof torch.IntType || obj.type() instanceof torch.FloatType || obj.type() instanceof torch.NumberType));
             case 'bool':
-                return obj === true || obj === false || (pytorch.Utility.isInstance(obj, 'torch.Value') && obj.type() instanceof torch.BoolType);
+                return obj === true || obj === false || (obj instanceof torch.Value && obj.type() instanceof torch.BoolType);
             case 'bool[]':
                 if (Array.isArray(obj) && obj.every((item) => item === true || item === false)) {
                     return true;
@@ -2979,8 +3059,7 @@ pytorch.Execution = class extends python.Execution {
             case 'SymInt[1]':
                 return this.isType(obj, torch.IntType.get()) || this.isType(obj, torch.ListType.get(torch.IntType.get()));
             case 'float': {
-                return obj !== null && (typeof obj === 'number' || obj instanceof Number) ||
-                    (pytorch.Utility.isInstance(obj, 'torch.Value') && pytorch.Utility.isInstance(obj.type(), 'torch.FloatType'));
+                return obj !== null && (typeof obj === 'number' || obj instanceof Number) || (obj instanceof torch.Value && obj.type() instanceof torch.FloatType);
             }
             case 'float[]': {
                 if (Array.isArray(obj) && obj.every((item) => (typeof item === 'number' || item instanceof Number) && !isNaN(item))) {
@@ -3038,9 +3117,13 @@ pytorch.Execution = class extends python.Execution {
             case 't2':
                 return true;
             default: {
-                if (type instanceof torch.ClassType &&
-                    obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__) {
-                    return type.qualified_name() === `${obj.__class__.__module__}.${obj.__class__.__name__}`;
+                if (type instanceof torch.ClassType) {
+                    if (obj instanceof torch.Value && obj.type() instanceof torch.ClassType) {
+                        return type.qualified_name() === obj.type().qualified_name();
+                    }
+                    if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__) {
+                        return type.qualified_name() === `${obj.__class__.__module__}.${obj.__class__.__name__}`;
+                    }
                 }
                 if (type instanceof torch.TupleType) {
                     throw new pytorch.Error('Not implemented.');
@@ -3062,6 +3145,9 @@ pytorch.Execution = class extends python.Execution {
                             (type.getValueType().kind() === 'VarType' || type.getValueType().str() === obj.type().getValueType().str())) {
                             return true;
                         }
+                    }
+                    if (obj instanceof builtins.dict) {
+                        return true;
                     }
                     return false;
                 }
@@ -3097,8 +3183,9 @@ pytorch.Execution = class extends python.Execution {
     }
 
     _overload(target, name, args, context) {
+        const ast = this.ast;
         const torch = this.torch;
-        const prefix = pytorch.Utility.target(target);
+        const prefix = this.identifier(target);
         if (!prefix) {
             return null;
         }
@@ -3130,9 +3217,9 @@ pytorch.Execution = class extends python.Execution {
                 for (let i = 0; i < args.length; i++) {
                     let argument = args[i];
                     let name = i.toString();
-                    if (argument.type === '=' && argument.target && argument.target.type === 'id') {
-                        name = this.expression(argument.target, context);
-                        argument = argument.expression;
+                    if (argument instanceof ast.Assign && argument.targets instanceof ast.Name) {
+                        name = this.expression(argument.targets, context);
+                        argument = argument.value;
                     }
                     const obj = this.expression(argument, context);
                     const real_type = this.getType(obj);
@@ -3153,11 +3240,11 @@ pytorch.Execution = class extends python.Execution {
             }
             return null;
         }
-        evalArgs = args.map((argument) => {
-            if (argument.type === '=' && argument.target && argument.target.type === 'id') {
-                argument = argument.expression;
+        evalArgs = args.map((expr) => {
+            if (expr instanceof ast.Assign && expr.targets instanceof ast.Name) {
+                expr = expr.value;
             }
-            return this.expression(argument, context);
+            return this.expression(expr, context);
         });
         const matches = [];
         for (const schema of overloads) {
@@ -3193,7 +3280,7 @@ pytorch.Execution = class extends python.Execution {
                     }
                     next = true;
                     break;
-                } else if (args[position].type === '=' && args[position].target.value !== arg.name) {
+                } else if (args[position] instanceof ast.Assign && args[position].targets.id !== arg.name) {
                     next = true;
                     break;
                 } else {
@@ -3203,11 +3290,11 @@ pytorch.Execution = class extends python.Execution {
             if (next) {
                 continue;
             }
-            if (args.every((arg, index) => index < position || (arg.type === '=' && arg.target && arg.target.type === 'id'))) {
+            if (args.every((arg, index) => index < position || (arg instanceof ast.Assign && arg.targets instanceof ast.Name))) {
                 const params = new Map(parameters.slice(index).map((a) => [a.name, a]));
                 while (position < args.length) {
                     const value = evalArgs[position];
-                    const arg = params.get(args[position].target.value);
+                    const arg = params.get(args[position].targets.id);
                     position++;
                     if (!arg) {
                         next = true;
@@ -3270,11 +3357,11 @@ pytorch.Container.Package = class extends pytorch.Container {
     }
 
     async read() {
-        const execution = new python.Execution();
+        this.execution = new python.Execution();
         for (const event of this._events) {
-            execution.on(event[0], event[1]);
+            this.execution.on(event[0], event[1]);
         }
-        const torch = execution.__import__('torch');
+        const torch = this.execution.__import__('torch');
         const reader = new torch.PyTorchFileReader(this.entries);
         const version = reader.version();
         this.format = pytorch.Utility.format('PyTorch Package', version);
@@ -3302,7 +3389,7 @@ pytorch.Container.Package = class extends pytorch.Container {
                 if (!name.startsWith('.data/') && name.endsWith('.py')) {
                     const stream = reader.get_record(name);
                     const buffer = stream.peek();
-                    execution.add(name, buffer);
+                    this.execution.add(name, buffer);
                 }
             }
             const importer = new torch.package.PackageImporter(reader);
@@ -3330,16 +3417,6 @@ pytorch.Layout = {
 };
 
 pytorch.Utility = class {
-
-    static target(expression) {
-        if (expression.type === 'id') {
-            return expression.value;
-        }
-        if (expression.type === '.') {
-            return `${pytorch.Utility.target(expression.target)}.${pytorch.Utility.target(expression.member)}`;
-        }
-        return null;
-    }
 
     static isTensor(obj) {
         const name = obj && obj.__class__ ? obj.__class__.__module__ : null;
@@ -3392,6 +3469,7 @@ pytorch.Utility = class {
             case 'ScalarTypeType': return `ScalarType`;
             case 'MemoryFormat': return `MemoryFormat`;
             case 'Layout': return `Layout`;
+            case 'VarType': return type.annotation_str;
             default: throw new pytorch.Error(`Unsupported type '${type.kind()}'.`);
         }
     }
@@ -3408,7 +3486,12 @@ pytorch.Utility = class {
         }
     }
 
-    static isObjectType(type) {
+    static unique(value) {
+        return value.hasDebugName() ? `%${value.debugName().toString()}` : `%${value.unique().toString()}`;
+    }
+
+    static isObject(obj) {
+        const type = obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : null;
         switch (type) {
             case '__torch__.torch.classes.xnnpack.LinearOpContext':
             case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
@@ -3424,11 +3507,6 @@ pytorch.Utility = class {
         }
     }
 
-    static isObject(obj) {
-        const type = obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : null;
-        return pytorch.Utility.isObjectType(type);
-    }
-
     static isSubclass(value, name) {
         if (value && value.__module__ && value.__name__) {
             return name === `${value.__module__}.${value.__name__}`;
@@ -3440,19 +3518,6 @@ pytorch.Utility = class {
 
     static isInstance(value, name) {
         return value && value.__class__ ? pytorch.Utility.isSubclass(value.__class__, name) : false;
-    }
-
-    static isCall(expression, name, size) {
-        if (expression.type === 'call' &&
-            (size === undefined || size === expression.args.length) &&
-            pytorch.Utility.target(expression.target) === name) {
-            return true;
-        }
-        return false;
-    }
-
-    static isEqual(a, b) {
-        return (a.type === 'id' && b.type === 'id' && a.value === b.value);
     }
 
     static format(name, value) {

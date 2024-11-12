@@ -2915,9 +2915,18 @@ view.ArgumentView = class extends view.Control {
             this._source = 'attribute';
         }
         if (argument.type === 'tensor' || argument.type === 'tensor?') {
-            value = [value === null ? value : { type: value.type, initializer: value }];
+            if (value === null || (value && value.constructor && value.constructor.name === 'Value')) {
+                value = [value];
+            } else {
+                value = [{ type: value.type, initializer: value }];
+            }
         } else if (argument.type === 'tensor[]' || argument.type === 'tensor?[]') {
-            value = value.map((value) => value === null ? value : { type: value.type, initializer: value });
+            value = value.map((value) => {
+                if (value === null || (value && value.constructor && value.constructor.name === 'Value')) {
+                    return value;
+                }
+                return { type: value.type, initializer: value };
+            });
         }
         this._source = typeof type === 'string' && !type.endsWith('*') ? 'attribute' : this._source;
         if (this._source === 'attribute' && type !== 'tensor' && type !== 'tensor?' && type !== 'tensor[]' && type !== 'tensor?[]') {
@@ -3064,6 +3073,9 @@ view.ValueView = class extends view.Expander {
         super(context);
         this._value = value;
         try {
+            if (value && value.constructor && value.constructor.name === 'Value' && source === 'attribute') {
+                source = '';
+            }
             const type = this._value.type;
             const initializer = this._value.initializer;
             const quantization = this._value.quantization;
@@ -3259,24 +3271,30 @@ view.TensorView = class extends view.Expander {
             content.innerHTML = `Tensor encoding '${tensor.layout}' is not implemented.`;
         } else if (tensor.layout && (tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo')) {
             content.innerHTML = `Tensor layout '${tensor.layout}' is not implemented.`;
-        } else if (tensor.empty) {
-            content.innerHTML = 'Tensor data is empty.';
         } else if (tensor.type && tensor.type.dataType === '?') {
             content.innerHTML = 'Tensor data type is not defined.';
         } else if (tensor.type && !tensor.type.shape) {
             content.innerHTML = 'Tensor shape is not defined.';
         } else {
-            content.innerHTML = tensor.toString();
-            if (this._host.save && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length > 0) {
-                this._saveButton = this.createElement('div', 'sidebar-item-value-button');
-                this._saveButton.classList.add('sidebar-item-value-button-context');
-                this._saveButton.setAttribute('style', 'float: right;');
-                this._saveButton.innerHTML = '&#x1F4BE;';
-                this._saveButton.addEventListener('click', async () => {
-                    await this.export();
-                });
-                content.insertBefore(this._saveButton, content.firstChild);
-            }
+            content.innerHTML = '&#x23F3';
+            const promise = value.peek && !value.peek() ? value.read() : Promise.resolve();
+            promise.then(() => {
+                if (tensor.empty) {
+                    content.innerHTML = 'Tensor data is empty.';
+                } else {
+                    content.innerHTML = tensor.toString();
+                    if (this._host.save && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length > 0) {
+                        this._saveButton = this.createElement('div', 'sidebar-item-value-button');
+                        this._saveButton.classList.add('sidebar-item-value-button-context');
+                        this._saveButton.setAttribute('style', 'float: right;');
+                        this._saveButton.innerHTML = '&#x1F4BE;';
+                        this._saveButton.addEventListener('click', async () => {
+                            await this.export();
+                        });
+                        content.insertBefore(this._saveButton, content.firstChild);
+                    }
+                }
+            });
         }
         return content;
     }
@@ -3457,7 +3475,6 @@ view.TensorSidebar = class extends view.ObjectSidebar {
     constructor(context, value) {
         super(context);
         this._value = value;
-        this._tensor = new base.Tensor(value.value[0].initializer);
     }
 
     get identifier() {
@@ -3515,18 +3532,23 @@ view.TensorSidebar = class extends view.ObjectSidebar {
         }
         // Metrics
         if (value.initializer) {
-            if (!this._tensor.empty) {
-                if (!this._metrics) {
-                    this._metrics = new metrics.Tensor(this._tensor);
-                }
-                if (this._metrics.metrics.length > 0) {
-                    this.addHeader('Metrics');
-                    for (const metric of this._metrics.metrics) {
-                        const value = metric.type === 'percentage' ? `${(metric.value * 100).toFixed(1)}%` : metric.value;
-                        this.addProperty(metric.name, [value]);
+            const tensor = value.initializer;
+            const promise = tensor.peek && !tensor.peek() ? tensor.read() : Promise.resolve();
+            promise.then(() => {
+                this._tensor = new base.Tensor(tensor);
+                if (!this._tensor.empty) {
+                    if (!this._metrics) {
+                        this._metrics = new metrics.Tensor(this._tensor);
+                    }
+                    if (this._metrics.metrics.length > 0) {
+                        this.addHeader('Metrics');
+                        for (const metric of this._metrics.metrics) {
+                            const value = metric.type === 'percentage' ? `${(metric.value * 100).toFixed(1)}%` : metric.value;
+                            this.addProperty(metric.name, [value]);
+                        }
                     }
                 }
-            }
+            });
         }
     }
 
@@ -4449,7 +4471,7 @@ view.Formatter = class {
     static tensor(value) {
         const type = value.type;
         if (type && type.shape && type.shape.dimensions && Array.isArray(type.shape.dimensions)) {
-            if (type.shape.dimensions.length === 0) {
+            if (type.shape.dimensions.length === 0 && (!value.peek || value.peek() === true)) {
                 const tensor = new base.Tensor(value);
                 const encoding = tensor.encoding;
                 if ((encoding === '<' || encoding === '>' || encoding === '|') && !tensor.empty && tensor.type.dataType !== '?') {
@@ -5300,7 +5322,7 @@ view.Context = class {
 
     async fetch(file) {
         const stream = await this._context.request(file, null, this._base);
-        return new view.Context(this, file, stream, new Map());
+        return new view.Context(this, file, stream);
     }
 
     async require(id) {
@@ -5733,7 +5755,7 @@ view.ModelFactoryService = class {
         this._host = host;
         this._patterns = new Set(['.zip', '.tar', '.tar.gz', '.tgz', '.gz']);
         this._factories = [];
-        this.register('./server', ['.netron']);
+        this.register('./message', ['.message', '.netron', '.maxviz']);
         this.register('./pytorch', ['.pt', '.pth', '.ptl', '.pt1', '.pyt', '.pyth', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel', '.torchscript', '.pytorch', '.ot', '.params', '.trt', '.ff', '.ptmf', '.jit', '.pte', '.bin.index.json', 'model.json', 'serialized_exported_program.json', 'serialized_state_dict.json'], ['.model', '.pt2']);
         this.register('./onnx', ['.onnx', '.onnx.data', '.onn', '.pb', '.onnxtxt', '.pbtxt', '.prototxt', '.txt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx', '.ngf', '.json', '.bin', 'onnxmodel']);
         this.register('./tflite', ['.tflite', '.lite', '.tfl', '.bin', '.pb', '.tmfile', '.h5', '.model', '.json', '.txt', '.dat', '.nb', '.ckpt', '.onnx']);
@@ -5790,7 +5812,6 @@ view.ModelFactoryService = class {
         this.register('./nnc', ['.nnc','.tflite']);
         this.register('./safetensors', ['.safetensors', '.safetensors.index.json']);
         this.register('./tvm', ['.json', '.params']);
-        this.register('./modular', ['.maxviz']);
         this.register('./graphviz', ['.dot']);
         this.register('./catboost', ['.cbm']);
         this.register('./weka', ['.model']);

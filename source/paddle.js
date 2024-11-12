@@ -831,6 +831,7 @@ paddle.Utility = class {
         const size = dims.reduce((a, b) => a * b, 1);
         let itemsize = 0;
         switch (tensorDesc.data_type) {
+            case paddle.DataType.BOOL: itemsize = 1; break;
             case paddle.DataType.FP16: itemsize = 2; break;
             case paddle.DataType.FP32: itemsize = 4; break;
             case paddle.DataType.FP64: itemsize = 8; break;

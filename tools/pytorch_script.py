@@ -84,6 +84,22 @@ known_legacy_schema_definitions = [
     'neuron::forward_v2_1(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0)',
     'prim::shape(Tensor self) -> int[]',
     'torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)',
+    'torch_scatter::gather_coo(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0',
+    'torch_scatter::segment_max_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> (Tensor _0, Tensor _1)',
+    'torch_scatter::segment_min_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> (Tensor _0, Tensor _1)',
+    'torch_scatter::segment_mean_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> Tensor _0',
+    'torch_scatter::segment_sum_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> Tensor _0',
+    'torch_scatter::gather_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0',
+    'torch_scatter::segment_max_csr(Tensor _0, Tensor _1, Tensor? _2) -> (Tensor _0, Tensor _1)',
+    'torch_scatter::segment_min_csr(Tensor _0, Tensor _1, Tensor? _2) -> (Tensor _0, Tensor _1)',
+    'torch_scatter::segment_mean_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0',
+    'torch_scatter::segment_sum_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0',
+    'torch_scatter::scatter_max(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> (Tensor _0, Tensor _1)',
+    'torch_scatter::scatter_min(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> (Tensor _0, Tensor _1)',
+    'torch_scatter::scatter_mean(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0',
+    'torch_scatter::scatter_mul(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0',
+    'torch_scatter::scatter_sum(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0',
+    'torch_scatter::cuda_version() -> int _0',
     'torchvision::nms(Tensor dets, Tensor scores, float iou_threshold) -> Tensor',
     'torchvision::roi_align(Tensor input, Tensor rois, float spatial_scale, int pooled_height, int pooled_width, int sampling_ratio, bool aligned) -> Tensor',
 ]
@@ -115,12 +131,15 @@ def _parse_schemas():
     all_schemas = list(torch._C._jit_get_all_schemas()) # pylint: disable=protected-access
     for schema in all_schemas:
         definition = str(schema)
+        definition = definition.replace('(b|a)', '(a|b)')
         key = definition.split('(', 1)[0].strip()
         schemas[key] = definition
     return schemas
 
 def _filter_schemas(schemas, types):
     names = set(map(lambda _: _.split('.')[0], types.keys()))
+    for key in known_legacy_schema_definitions:
+        names.add(re.sub(r'[\.(].*$', '', key))
     filtered_schemas = set()
     for schema in schemas.values():
         for name in names:
@@ -144,11 +163,6 @@ def _check_types(types, schemas):
             types.pop(key)
         if key.startswith('_caffe2::'):
             types.pop(key)
-    known_keys = [
-        'aten::classes._nnapi.Compilation'
-    ]
-    for key in known_keys:
-        types.pop(key)
     if len(types) > 0:
         raise Exception('\n'.join(list(types.keys()))) # pylint: disable=broad-exception-raised
 

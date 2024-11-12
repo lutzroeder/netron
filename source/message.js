@@ -31,6 +31,7 @@ message.Model = class {
 
     constructor(data) {
         this.format = data.format || '';
+        this.format = this.format.replace(/\s+(\d+\.\d+)$/, ' v$1'); // Format v2.0
         this.producer = data.producer || '';
         this.version = data.version || '';
         this.description = data.description || '';
@@ -47,25 +48,49 @@ message.Graph = class {
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];
-        const values = data.values ? data.values.map((value) => new message.Value(value)) : [];
+        const values = new Map();
+        values.map = (index) => {
+            if (!values.has(index)) {
+                values.set(index, new message.Value({ name: index.toString() }));
+            }
+            return values.get(index);
+        };
+        if (Array.isArray(data.values)) {
+            for (let i = 0; i < data.values.length; i++) {
+                values.set(i, new message.Value(data.values[i]));
+            }
+        }
+        if (Array.isArray(data.arguments)) {
+            for (let i = 0; i < data.arguments.length; i++) {
+                values.set(data.arguments[i].name, new message.Value(data.arguments[i]));
+            }
+        }
         for (const argument of data.inputs || []) {
-            argument.value = argument.value.map((index) => values[index]).filter((argument) => !argument.initializer);
+            argument.value = argument.value.map((index) => values.map(index)).filter((argument) => !argument.initializer);
             if (argument.value.filter((argument) => !argument.initializer).length > 0) {
                 this.inputs.push(new message.Argument(argument));
             }
         }
         for (const argument of data.outputs || []) {
-            argument.value = argument.value.map((index) => values[index]);
+            argument.value = argument.value.map((index) => values.map(index));
             if (argument.value.filter((argument) => !argument.initializer).length > 0) {
                 this.outputs.push(new message.Argument(argument));
             }
         }
         for (const node of data.nodes || []) {
             for (const argument of node.inputs || []) {
-                argument.value = argument.value.map((index) => values[index]);
+                if (!argument.value && argument.arguments) {
+                    argument.value = argument.arguments;
+                    delete argument.arguments;
+                }
+                argument.value = argument.value.map((index) => values.map(index));
             }
             for (const argument of node.outputs || []) {
-                argument.value = argument.value.map((index) => values[index]);
+                if (!argument.value && argument.arguments) {
+                    argument.value = argument.arguments;
+                    delete argument.arguments;
+                }
+                argument.value = argument.value.map((index) => values.map(index));
             }
             this.nodes.push(new message.Node(node));
         }
@@ -77,14 +102,14 @@ message.Argument = class {
     constructor(data) {
         this.name = data.name || '';
         this.value = data.value || [];
-        this.type = data.type || '';
+        this.type = data.type || null;
     }
 };
 
 message.Value = class {
 
     constructor(data) {
-        this.name = data.name || '';
+        this.name = data.name ? data.name.toString() : '';
         this.initializer = data.initializer ? new message.Tensor(data.initializer) : null;
         if (this.initializer && this.initializer.type) {
             this.type = this.initializer.type;
@@ -98,7 +123,7 @@ message.Node = class {
 
     constructor(data) {
         this.type = { name: data.type.name, category: data.type.category };
-        this.name = data.name;
+        this.name = data.name || '';
         this.inputs = (data.inputs || []).map((input) => new message.Argument(input));
         this.outputs = (data.outputs || []).map((output) => new message.Argument(output));
         this.attributes = (data.attributes || []).map((attribute) => new message.Argument(attribute));

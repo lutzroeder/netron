@@ -168,6 +168,13 @@
   },
   {
     "type":     "_",
+    "target":   "pytorch_invalid_file.pth",
+    "source":   "https://github.com/lutzroeder/netron/files/3269093/pytorch_invalid_file.zip[pytorch_invalid_file.pth]",
+    "error":    "Could not find end of line.",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "_",
     "target":   "random.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/7449479/random.onnx.zip[random.onnx]",
     "error":    "Unsupported file content '746d6c20786d6c6e733d22687474703a'.",
@@ -2415,6 +2422,13 @@
   },
   {
     "type":     "keras",
+    "target":   "lzf.h5",
+    "source":   "https://github.com/user-attachments/files/17692525/lzf.hdf5.zip[lzf.hdf5]",
+    "format":   "HDF5 Weights",
+    "link":     "https://github.com/lutzroeder/netron/issues/467"
+  },
+  {
+    "type":     "keras",
     "target":   "mlp.h5",
     "source":   "https://github.com/lutzroeder/netron/files/3666244/mlp.zip[mlp.h5]",
     "format":   "HDF5 Weights",
@@ -2943,6 +2957,21 @@
     "link":     "https://github.com/lutzroeder/netron/issues/607"
   },
   {
+    "type":     "message",
+    "target":   "inception_v3_traced.message",
+    "source":   "https://github.com/user-attachments/files/17640875/inception_v3_traced.message.zip[inception_v3_traced.message]",
+    "format":   "TorchScript v2.6.0.dev20241105",
+    "link":     "https://github.com/lutzroeder/netron/issues/607"
+  },
+  {
+    "type":     "message",
+    "target":   "resnet34.maxviz",
+    "source":   "https://github.com/lutzroeder/netron/files/13421032/resnet34.maxviz.zip[resnet34.maxviz]",
+    "tags":     "skip-render",
+    "format":   "Modular v0.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1187"
+  },
+  {
     "type":     "mlnet",
     "target":   "BinaryClassification_AutoML_SentimentModel.zip",
     "source":   "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/BinaryClassification_AutoML/SentimentAnalysis/MLModels/SentimentModel.zip",
@@ -3111,6 +3140,13 @@
   },
   {
     "type":     "mlir",
+    "target":   "gemmreluadd.onnx.mlir",
+    "source":   "https://github.com/user-attachments/files/17640922/gemmreluadd.onnx.mlir.zip[gemmreluadd.onnx.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "mlp.mlir",
     "source":   "https://github.com/user-attachments/files/17264712/mlp.mlir.zip[mlp.mlir]",
     "format":   "MLIR",
@@ -3123,6 +3159,13 @@
     "source":   "https://github.com/user-attachments/files/17260022/mlp_haiku.mlir.zip[mlp_haiku.mlir]",
     "format":   "MLIR",
     "error":    "Unexpected token '=' at 3:63.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "mnist.onnx.mlir",
+    "source":   "https://github.com/user-attachments/files/17640924/mnist.onnx.mlir.zip[mnist.onnx.mlir]",
+    "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3143,10 +3186,17 @@
   },
   {
     "type":     "mlir",
+    "target":   "resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir",
+    "source":   "https://github.com/user-attachments/files/17640926/resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir.zip[resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "torch_mlir_3429.mlir",
     "source":   "https://github.com/user-attachments/files/17605115/torch_mlir_3429.mlir.zip[torch_mlir_3429.mlir]",
     "format":   "MLIR",
-    "error":    "Unexpected token 'KEYWORD' at 8:34.",
+    "error":    "Unexpected operation '!' at 14:71.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3235,14 +3285,6 @@
     "format":   "MNN v2",
     "error":    "Invalid tensor data length.",
     "link":     "https://github.com/xindongzhang/MNN-APPLICATIONS"
-  },
-  {
-    "type":     "modular",
-    "target":   "resnet34.maxviz",
-    "source":   "https://github.com/lutzroeder/netron/files/13421032/resnet34.maxviz.zip[resnet34.maxviz]",
-    "tags":     "skip-render",
-    "format":   "Modular",
-    "link":     "https://github.com/lutzroeder/netron/issues/1187"
   },
   {
     "type":     "mslite",
@@ -5348,7 +5390,7 @@
     "type":     "pytorch",
     "target":   "fasterrcnn_resnet50_fpn.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7677467/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
-    "error":    "Unknown function 'aten::__contains__'.",
+    "format":   "TorchScript v1.7",
     "link":     "https://github.com/lutzroeder/netron/issues/689"
   },
   {
@@ -5512,7 +5554,6 @@
     "target":   "mask_model.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10080302/mask_model.pt.zip[mask_model.pt]",
     "format":   "TorchScript v1.7",
-    "error":    "Unsupported type expression '.'.",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -5818,6 +5859,7 @@
     "target":   "netron_issue_677.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5923252/netron_issue_677.pt.zip[netron_issue_677.pt]",
     "format":   "TorchScript v1.6",
+    "assert":   "model.graphs[0].nodes.length == 5",
     "link":     "https://github.com/lutzroeder/netron/issues/677"
   },
   {
@@ -5839,6 +5881,13 @@
     "target":   "opt_xx.pt",
     "source":   "https://github.com/lutzroeder/netron/files/8747908/opt_xx.pt.zip[opt_xx.pt]",
     "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/913"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "placeholder.pt2",
+    "source":   "https://github.com/user-attachments/files/17671758/placeholder.pt2.zip[placeholder.pt2]",
+    "format":   "PyTorch Export v8.1",
     "link":     "https://github.com/lutzroeder/netron/issues/913"
   },
   {
@@ -5866,15 +5915,8 @@
     "type":     "pytorch",
     "target":   "pyg_model.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10369483/pyg_model.zip[pyg_model.pt]",
-    "error":    "Unknown function 'aten::linear'.",
+    "format":   "TorchScript v1.7",
     "link":     "https://github.com/lutzroeder/netron/issues/546"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "pytorch_invalid_file.pth",
-    "source":   "https://github.com/lutzroeder/netron/files/3269093/pytorch_invalid_file.zip[pytorch_invalid_file.pth]",
-    "error":    "Could not find end of line.",
-    "link":     "https://github.com/lutzroeder/netron/issues/133"
   },
   {
     "type":     "pytorch",
@@ -5908,7 +5950,6 @@
     "type":     "pytorch",
     "target":   "rcnn.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9035740/rcnn.pt.zip[rcnn.pt]",
-    "error":    "value.uses is not a function",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -6368,7 +6409,6 @@
     "target":   "transformer.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10271969/transformer.pt.zip[transformer.pt]",
     "format":   "TorchScript v1.6",
-    "error":    "value.type is not a function\nUnknown type name 'torch.all'.",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {

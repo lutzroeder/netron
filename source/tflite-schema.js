@@ -452,7 +452,8 @@ tflite.BuiltinOperator = {
     REDUCE_WINDOW: 205,
     STABLEHLO_COMPOSITE: 206,
     STABLEHLO_SHIFT_LEFT: 207,
-    STABLEHLO_CBRT: 208
+    STABLEHLO_CBRT: 208,
+    STABLEHLO_CASE: 209
 };
 
 tflite.BuiltinOptions = class {
@@ -748,6 +749,7 @@ tflite.BuiltinOptions2 = class {
             case 20: return tflite.ReduceWindowOptions.decode(reader, position);
             case 21: return tflite.StableHLOCompositeOptions.decode(reader, position);
             case 22: return tflite.StablehloShiftLeftOptions.decode(reader, position);
+            case 23: return tflite.StablehloCaseOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -776,6 +778,7 @@ tflite.BuiltinOptions2 = class {
             case 'ReduceWindowOptions': return tflite.ReduceWindowOptions.decodeText(reader, json);
             case 'StableHLOCompositeOptions': return tflite.StableHLOCompositeOptions.decodeText(reader, json);
             case 'StablehloShiftLeftOptions': return tflite.StablehloShiftLeftOptions.decodeText(reader, json);
+            case 'StablehloCaseOptions': return tflite.StablehloCaseOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -1155,6 +1158,21 @@ tflite.StablehloScatterOptions = class StablehloScatterOptions {
         $.index_vector_dim = reader.int64(json.index_vector_dim, 0n);
         $.unique_indices = reader.value(json.unique_indices, false);
         $.update_computation_subgraph_index = reader.value(json.update_computation_subgraph_index, 0);
+        return $;
+    }
+};
+
+tflite.StablehloCaseOptions = class StablehloCaseOptions {
+
+    static decode(reader, position) {
+        const $ = new tflite.StablehloCaseOptions();
+        $.branch_subgraph_indices = reader.array(position, 4, Int32Array);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new tflite.StablehloCaseOptions();
+        $.branch_subgraph_indices = reader.array(json.branch_subgraph_indices, Int32Array);
         return $;
     }
 };

@@ -41,6 +41,9 @@
     "name": "_caffe2::BoxWithNMSLimit(Tensor scores, Tensor boxes, Tensor batch_splits, float score_thresh, float nms, int detections_per_im, bool soft_nms_enabled, str soft_nms_method, float soft_nms_sigma, float soft_nms_min_score_thres, bool rotated, bool cls_agnostic_bbox_reg, bool input_boxes_include_bg_cls, bool output_classes_include_bg_cls, bool legacy_plus_one) -> (Tensor scores, Tensor boxes, Tensor classes, Tensor batch_splits, Tensor keeps, Tensor keeps_size)"
   },
   {
+    "name": "_caffe2::CollectAndDistributeFpnRpnProposals(Tensor[] input_list, int roi_canonical_scale, int roi_canonical_level, int roi_max_level, int roi_min_level, int rpn_max_level, int rpn_min_level, int rpn_post_nms_topN, bool legacy_plus_one) -> (Tensor rois, Tensor rois_fpn2, Tensor rois_fpn3, Tensor rois_fpn4, Tensor rois_fpn5, Tensor rois_idx_restore_int32)"
+  },
+  {
     "name": "_caffe2::CollectRpnProposals(Tensor[] input_list, int rpn_max_level, int rpn_min_level, int rpn_post_nms_topN) -> (Tensor rois)"
   },
   {
@@ -576,6 +579,15 @@
   },
   {
     "name": "aten::_upsample_bilinear2d_aa.vec(Tensor input, SymInt[]? output_size, bool align_corners, float[]? scale_factors) -> Tensor"
+  },
+  {
+    "name": "aten::_upsample_nearest_exact1d(Tensor self, SymInt[1] output_size, float? scales=None) -> Tensor"
+  },
+  {
+    "name": "aten::_upsample_nearest_exact1d.out(Tensor self, SymInt[1] output_size, float? scales=None, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::_upsample_nearest_exact1d.vec(Tensor input, SymInt[]? output_size, float[]? scale_factors) -> Tensor"
   },
   {
     "name": "aten::_weight_norm(Tensor v, Tensor g, int dim=0) -> Tensor"
@@ -1462,17 +1474,6 @@
   },
   {
     "name": "aten::clamp_min_.Tensor(Tensor(a!) self, Tensor min) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::classes._nnapi.Compilation",
-    "inputs": [
-      { "name": "serialized_model", "type": "Tensor" },
-      { "name": "inputs", "type": "Tensor[]" },
-      { "name": "parameter_buffers", "type": "Tensor[]" }
-    ],
-    "outputs": [
-      { "type": "Tensor[]" }
-    ]
   },
   {
     "name": "aten::clip(Tensor self, Scalar? min=None, Scalar? max=None) -> Tensor"
@@ -3189,6 +3190,12 @@
   },
   {
     "name": "aten::linalg_qr.out(Tensor A, str mode=\"reduced\", *, Tensor(a!) Q, Tensor(b!) R) -> (Tensor(a!) Q, Tensor(b!) R)"
+  },
+  {
+    "name": "aten::linalg_slogdet(Tensor A) -> (Tensor sign, Tensor logabsdet)"
+  },
+  {
+    "name": "aten::linalg_slogdet.out(Tensor A, *, Tensor(a!) sign, Tensor(b!) logabsdet) -> (Tensor(a!) sign, Tensor(b!) logabsdet)"
   },
   {
     "name": "aten::linalg_solve(Tensor A, Tensor B, *, bool left=True) -> Tensor"
@@ -4997,6 +5004,12 @@
     "name": "aten::slice_scatter.out(Tensor self, Tensor src, int dim=0, SymInt? start=None, SymInt? end=None, SymInt step=1, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::slogdet(Tensor self) -> (Tensor sign, Tensor logabsdet)"
+  },
+  {
+    "name": "aten::slogdet.out(Tensor self, *, Tensor(a!) sign, Tensor(b!) logabsdet) -> (Tensor(a!) sign, Tensor(b!) logabsdet)"
+  },
+  {
     "name": "aten::smooth_l1_loss(Tensor self, Tensor target, int reduction=1, float beta=1.) -> Tensor"
   },
   {
@@ -5375,25 +5388,32 @@
     "name": "aten::tan_(Tensor(a!) self) -> Tensor(a!)"
   },
   {
-    "name": "aten::tanh(Tensor self) -> Tensor"
+    "name": "aten::tanh(Tensor self) -> Tensor",
+    "category": "Activation"
   },
   {
-    "name": "aten::tanh.Scalar(Scalar a) -> Scalar"
+    "name": "aten::tanh.Scalar(Scalar a) -> Scalar",
+    "category": "Activation"
   },
   {
-    "name": "aten::tanh.complex(complex a) -> complex"
+    "name": "aten::tanh.complex(complex a) -> complex",
+    "category": "Activation"
   },
   {
-    "name": "aten::tanh.float(float a) -> float"
+    "name": "aten::tanh.float(float a) -> float",
+    "category": "Activation"
   },
   {
-    "name": "aten::tanh.int(int a) -> float"
+    "name": "aten::tanh.int(int a) -> float",
+    "category": "Activation"
   },
   {
-    "name": "aten::tanh.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::tanh.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)",
+    "category": "Activation"
   },
   {
-    "name": "aten::tanh_(Tensor(a!) self) -> Tensor(a!)"
+    "name": "aten::tanh_(Tensor(a!) self) -> Tensor(a!)",
+    "category": "Activation"
   },
   {
     "name": "aten::tensor(t[] data, *, ScalarType? dtype=None, Device? device=None, bool requires_grad=False) -> Tensor"
@@ -5504,6 +5524,12 @@
   },
   {
     "name": "aten::topk.values(Tensor self, SymInt k, int dim=-1, bool largest=True, bool sorted=True, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)"
+  },
+  {
+    "name": "aten::trace(Tensor self) -> Tensor"
+  },
+  {
+    "name": "aten::trace.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::transpose.Dimname(Tensor(a) self, str dim0, str dim1) -> Tensor(a)",
@@ -5636,6 +5662,24 @@
   },
   {
     "name": "aten::unsqueeze_copy.out(Tensor self, int dim, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::update.Tensor(Dict(Tensor, t)(a!) self, Dict(Tensor, t)(a!) to_add) -> ()"
+  },
+  {
+    "name": "aten::update.bool(Dict(bool, t)(a!) self, Dict(bool, t)(a!) to_add) -> ()"
+  },
+  {
+    "name": "aten::update.complex(Dict(complex, t)(a!) self, Dict(complex, t)(a!) to_add) -> ()"
+  },
+  {
+    "name": "aten::update.float(Dict(float, t)(a!) self, Dict(float, t)(a!) to_add) -> ()"
+  },
+  {
+    "name": "aten::update.int(Dict(int, t)(a!) self, Dict(int, t)(a!) to_add) -> ()"
+  },
+  {
+    "name": "aten::update.str(Dict(str, t)(a!) self, Dict(str, t)(a!) to_add) -> ()"
   },
   {
     "name": "aten::upsample_bicubic2d(Tensor self, SymInt[2] output_size, bool align_corners, float? scales_h=None, float? scales_w=None) -> Tensor",
@@ -6889,6 +6933,54 @@
   {
     "name": "torch.nn.modules.upsampling.Upsample",
     "category": "Data"
+  },
+  {
+    "name": "torch_scatter::cuda_version() -> int _0"
+  },
+  {
+    "name": "torch_scatter::gather_coo(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::gather_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::scatter_max(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_scatter::scatter_mean(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::scatter_min(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_scatter::scatter_mul(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::scatter_sum(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::segment_max_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_scatter::segment_max_csr(Tensor _0, Tensor _1, Tensor? _2) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_scatter::segment_mean_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::segment_mean_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::segment_min_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_scatter::segment_min_csr(Tensor _0, Tensor _1, Tensor? _2) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_scatter::segment_sum_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> Tensor _0"
+  },
+  {
+    "name": "torch_scatter::segment_sum_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0"
   },
   {
     "name": "torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)"
