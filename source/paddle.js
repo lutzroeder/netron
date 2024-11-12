@@ -79,7 +79,7 @@ paddle.ModelFactory = class {
             case 'paddle.ir': {
                 const obj = context.target;
                 const ir = new paddle.IR(obj);
-                return new paddle.Model(metadata, 'PaddlePaddle PIR', ir.program, {});
+                return new paddle.Model(metadata, `PaddlePaddle IR v${ir.version}`, ir.program, {});
             }
             default: {
                 paddle.proto = await context.require('./paddle-proto');
@@ -317,9 +317,11 @@ paddle.Graph = class {
                     }
                 }
                 for (const output of op.outputs) {
+                    const hasType = output.dataTypes !== undefined;
                     for (const name of output.arguments) {
                         if (!values.has(name)) {
-                            values.set(name, new paddle.Value(name, null, null));
+                            const type = hasType ? output.dataTypes.get(name) : null;
+                            values.set(name, new paddle.Value(name, type, null));
                         }
                     }
                 }
@@ -905,7 +907,8 @@ paddle.IR.Block = class {
 paddle.IR.Op = class {
 
     constructor(op) {
-        this.type = op['#'];
+        this.name = op['#'];
+        this.type = this.name.includes('.') ? this.name.split('.')[1] : this.name;
         this.inputs = op.I !== undefined ? [new paddle.IR.Input(op.I)] : [new paddle.IR.Input([])];
         this.outputs = op.O !== undefined ? [new paddle.IR.Output(op.O)] : [new paddle.IR.Output([])];
         this.attrs = [];
@@ -1023,10 +1026,12 @@ paddle.IR.Attr = class {
 paddle.IR.Input = class {
 
     constructor(input) {
-        this._input = Array.isArray(input) ? input : [input];
         this.arguments = [];
-        for (const i of this._input) {
-            this.arguments.push(`${i['%']}`)
+        this.parameter = 'Input';
+
+        const _input = Array.isArray(input) ? input : [input];
+        for (const i of _input) {
+            this.arguments.push(`${i['%']}`);
         }
     }
 };
@@ -1034,10 +1039,15 @@ paddle.IR.Input = class {
 paddle.IR.Output = class {
 
     constructor(output) {
-        this._output = Array.isArray(output) ? output : [output];
         this.arguments = [];
-        for (const o of this._output) {
-            this.arguments.push(`${o['%']}`)
+        this.parameter = 'Output';
+        this.dataTypes = new Map();
+
+        const _output = Array.isArray(output) ? output : [output];
+        for (const o of _output) {
+            const idx = `${o['%']}`;
+            this.arguments.push(idx);
+            this.dataTypes.set(idx, JSON.stringify(o.TT));
         }
     }
 };
