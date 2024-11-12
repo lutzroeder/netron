@@ -77,7 +77,9 @@ paddle.ModelFactory = class {
                 return new paddle.Model(metadata, target.format, target.model, target.weights);
             }
             case 'paddle.ir': {
-                throw new paddle.Error('Invalid file content. File contains PaddlePaddle IR data.');
+                const obj = context.target;
+                const ir = new paddle.IR(obj);
+                return new paddle.Model(metadata, 'PaddlePaddle PIR', ir.program, {});
             }
             default: {
                 paddle.proto = await context.require('./paddle-proto');
@@ -472,6 +474,11 @@ paddle.Node = class {
                     case paddle.AttributeType.LONGS:
                         type = 'int64[]';
                         break;
+                    case paddle.AttributeType.GRAPH:
+                        type = 'graph';
+                        const [block] = attr.blocks;
+                        value = new paddle.Graph(metadata, block, {});
+                        break;
                     default:
                         break;
                 }
@@ -838,6 +845,203 @@ paddle.Utility = class {
     }
 };
 
+paddle.IR = class {
+
+    constructor(obj) {
+        this.base_code = obj.base_code;
+        this.program = new paddle.IR.Program(obj.program);
+    }
+
+    get version() {
+        return this.base_code.version;
+    }
+
+    get trainable() {
+        return this.base_code.trainable;
+    }
+
+};
+
+paddle.IR.Program = class {
+
+    constructor(program) {
+        this.blocks = [];
+        for (const region of program.regions) {
+            for (const block of region.blocks) {
+                this.blocks.push(new paddle.IR.Block(block));
+            }
+        }
+    }
+};
+
+paddle.IR.Graph = class {
+
+    constructor(region) {
+        this.name = region['#'];
+        this.type = paddle.AttributeType.GRAPH;
+        this.blocks = [];
+        for (const block of region.blocks) {
+            this.blocks.push(new paddle.IR.Block(block));
+        }
+    }
+};
+
+paddle.IR.Block = class {
+
+    constructor(block) {
+        this.name = block['#'];
+        this.vars = [];
+        this.ops = [];
+        for (const op of block.ops) {
+            this.ops.push(new paddle.IR.Op(op));
+        }
+    }
+
+    get idx() {
+        return this.name;
+    }
+};
+
+paddle.IR.Op = class {
+
+    constructor(op) {
+        this.type = op['#'];
+        this.inputs = op.I !== undefined ? [new paddle.IR.Input(op.I)] : [new paddle.IR.Input([])];
+        this.outputs = op.O !== undefined ? [new paddle.IR.Output(op.O)] : [new paddle.IR.Output([])];
+        this.attrs = [];
+        if (op.regions !== undefined) {
+            for (const region of op.regions) {
+                this.attrs.push(new paddle.IR.Graph(region));
+            }
+        } else {
+            for (const [idx, value] of Object.entries(op.A)) {
+                this.attrs.push(new paddle.IR.Attr(`${idx}`, value));
+            }
+        }
+    }
+};
+
+paddle.IR.Attr = class {
+
+    constructor(name, value) {
+        if (value.hasOwnProperty('N')) {
+            this.name = value.N;
+            const attrType = value.AT['#'].split('.')[1];
+            const attrValue = value.AT['D'];
+            switch (attrType) {
+                // ref: Paddle/paddle/pir/include/core/builtin_attribute.h
+                case 'a_bool':
+                    this.type = paddle.AttributeType.BOOLEAN;
+                    this.b = attrValue;
+                    break;
+                case 'a_c64':
+                    this.type = paddle.AttributeType.STRING;
+                    this.s = attrValue;
+                    break;
+                case 'a_c128':
+                    this.type = paddle.AttributeType.STRING;
+                    this.s = attrValue;
+                    break;
+                case 'a_f32':
+                    this.type = paddle.AttributeType.FLOAT;
+                    this.f = attrValue;
+                    break;
+                case 'a_f64':
+                    this.type = paddle.AttributeType.FLOAT;
+                    this.f = attrValue;
+                    break;
+                case 'a_i32':
+                    this.type = paddle.AttributeType.INT;
+                    this.i = attrValue;
+                    break;
+                case 'a_index':
+                    this.type = paddle.AttributeType.INT;
+                    this.i = attrValue;
+                    break;
+                case 'a_i64':
+                    this.type = paddle.AttributeType.INT;
+                    this.i = attrValue;
+                    break;
+                case 'a_pointer':
+                    this.type = paddle.AttributeType.INT;
+                    this.i = attrValue;
+                    break;
+                case 'a_type':
+                    this.type = paddle.AttributeType.STRING;
+                    this.s = attrValue;
+                    break;
+                case 'a_str':
+                    this.type = paddle.AttributeType.STRING;
+                    this.s = attrValue;
+                    break;
+                case 'a_array':
+                    this.type = paddle.AttributeType.STRINGS;
+                    const _strings = [];
+                    for (const s of attrValue) {
+                        _strings.push(s['D']);
+                    }
+                    this.strings = _strings;
+                    break;
+                case 'a_tensorname':
+                    this.type = paddle.AttributeType.STRING;
+                    this.s = attrValue;
+                    break;
+                // ref: Paddle/paddle/fluid/pir/dialect/operator/ir/op_attribute.h
+                case 'a_intarray':
+                    this.type = paddle.AttributeType.INTS;
+                    this.ints = attrValue;
+                    break;
+                case 'a_scalar':
+                    this.type = paddle.AttributeType.STRING;
+                    this.s = attrValue;
+                    break;
+                case 'a_dtype':
+                    this.type = paddle.AttributeType.STRING;
+                    this.s = attrValue;
+                    break;
+                case 'a_place':
+                    this.type = paddle.AttributeType.STRING;
+                    this.s = attrValue;
+                    break;
+                case 'a_layout':
+                    this.type = paddle.AttributeType.STRING;
+                    this.s = attrValue;
+                    break;
+                default:
+                    this.type = paddle.AttributeType.FLOAT;
+                    this.f = attrValue;
+                    break;
+            }
+        } else {
+            this.name = name;
+            this.type = paddle.AttributeType.STRING;
+            this.s = value;
+        }
+    }
+};
+
+paddle.IR.Input = class {
+
+    constructor(input) {
+        this._input = Array.isArray(input) ? input : [input];
+        this.arguments = [];
+        for (const i of this._input) {
+            this.arguments.push(`${i['%']}`)
+        }
+    }
+};
+
+paddle.IR.Output = class {
+
+    constructor(output) {
+        this._output = Array.isArray(output) ? output : [output];
+        this.arguments = [];
+        for (const o of this._output) {
+            this.arguments.push(`${o['%']}`)
+        }
+    }
+};
+
 paddle.DataType = {
     BOOL: 0,
     INT16: 1,
@@ -885,7 +1089,8 @@ paddle.AttributeType = {
     FLOAT64S: 12,
     VAR: 13,
     VARS: 14,
-    FLOAT64: 15
+    FLOAT64: 15,
+    GRAPH: 16
 };
 
 paddle.Error = class extends Error {
