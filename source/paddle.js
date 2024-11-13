@@ -79,7 +79,7 @@ paddle.ModelFactory = class {
             case 'paddle.ir': {
                 const obj = context.target;
                 const ir = new paddle.IR(obj);
-                return new paddle.Model(metadata, `PaddlePaddle IR v${ir.version}`, ir.program, {});
+                return new paddle.Model(metadata, `PaddlePaddle IR v${ir.version}`, ir.program, ir.weights);
             }
             default: {
                 paddle.proto = await context.require('./paddle-proto');
@@ -478,8 +478,7 @@ paddle.Node = class {
                         break;
                     case paddle.AttributeType.GRAPH:
                         type = 'graph';
-                        const [block] = attr.blocks;
-                        value = new paddle.Graph(metadata, block, {});
+                        value = new paddle.Graph(metadata, attr.block, attr.tensors);
                         break;
                     default:
                         break;
@@ -853,6 +852,7 @@ paddle.IR = class {
     constructor(obj) {
         this.base_code = obj.base_code;
         this.program = new paddle.IR.Program(obj.program);
+        this.weights = new Map();
     }
 
     get version() {
@@ -877,15 +877,18 @@ paddle.IR.Program = class {
     }
 };
 
-paddle.IR.Graph = class {
+paddle.IR.SubGraph = class {
 
     constructor(region) {
         this.name = region['#'];
-        this.type = paddle.AttributeType.GRAPH;
-        this.blocks = [];
+        const _blocks = [];
         for (const block of region.blocks) {
-            this.blocks.push(new paddle.IR.Block(block));
+            _blocks.push(new paddle.IR.Block(block));
         }
+
+        this.type = paddle.AttributeType.GRAPH;
+        [this.block] = _blocks;
+        this.values = new Map();
     }
 };
 
@@ -913,13 +916,12 @@ paddle.IR.Op = class {
         this.inputs = op.I !== undefined ? [new paddle.IR.Input(op.I)] : [new paddle.IR.Input([])];
         this.outputs = op.O !== undefined ? [new paddle.IR.Output(op.O)] : [new paddle.IR.Output([])];
         this.attrs = [];
+        for (const [idx, value] of Object.entries(op.A)) {
+            this.attrs.push(new paddle.IR.Attr(`${idx}`, value));
+        }
         if (op.regions !== undefined) {
             for (const region of op.regions) {
-                this.attrs.push(new paddle.IR.Graph(region));
-            }
-        } else {
-            for (const [idx, value] of Object.entries(op.A)) {
-                this.attrs.push(new paddle.IR.Attr(`${idx}`, value));
+                this.attrs.push(new paddle.IR.SubGraph(region));
             }
         }
     }
@@ -939,56 +941,32 @@ paddle.IR.Attr = class {
                     this.b = attrValue;
                     break;
                 case 'a_c64':
-                    this.type = paddle.AttributeType.STRING;
-                    this.s = attrValue;
-                    break;
                 case 'a_c128':
+                case 'a_type':
+                case 'a_tensorname':
+                case 'a_str':
                     this.type = paddle.AttributeType.STRING;
                     this.s = attrValue;
                     break;
                 case 'a_f32':
-                    this.type = paddle.AttributeType.FLOAT;
-                    this.f = attrValue;
-                    break;
                 case 'a_f64':
                     this.type = paddle.AttributeType.FLOAT;
                     this.f = attrValue;
                     break;
                 case 'a_i32':
-                    this.type = paddle.AttributeType.INT;
-                    this.i = attrValue;
-                    break;
-                case 'a_index':
-                    this.type = paddle.AttributeType.INT;
-                    this.i = attrValue;
-                    break;
                 case 'a_i64':
-                    this.type = paddle.AttributeType.INT;
-                    this.i = attrValue;
-                    break;
+                case 'a_index':
                 case 'a_pointer':
                     this.type = paddle.AttributeType.INT;
                     this.i = attrValue;
                     break;
-                case 'a_type':
-                    this.type = paddle.AttributeType.STRING;
-                    this.s = attrValue;
-                    break;
-                case 'a_str':
-                    this.type = paddle.AttributeType.STRING;
-                    this.s = attrValue;
-                    break;
                 case 'a_array':
                     this.type = paddle.AttributeType.STRINGS;
-                    const _strings = [];
+                    const strings = [];
                     for (const s of attrValue) {
-                        _strings.push(s['D']);
+                        strings.push(s['D']);
                     }
-                    this.strings = _strings;
-                    break;
-                case 'a_tensorname':
-                    this.type = paddle.AttributeType.STRING;
-                    this.s = attrValue;
+                    this.strings = strings;
                     break;
                 // ref: Paddle/paddle/fluid/pir/dialect/operator/ir/op_attribute.h
                 case 'a_intarray':
@@ -996,24 +974,16 @@ paddle.IR.Attr = class {
                     this.ints = attrValue;
                     break;
                 case 'a_scalar':
-                    this.type = paddle.AttributeType.STRING;
-                    this.s = attrValue;
-                    break;
                 case 'a_dtype':
-                    this.type = paddle.AttributeType.STRING;
-                    this.s = attrValue;
-                    break;
                 case 'a_place':
-                    this.type = paddle.AttributeType.STRING;
-                    this.s = attrValue;
-                    break;
                 case 'a_layout':
                     this.type = paddle.AttributeType.STRING;
                     this.s = attrValue;
                     break;
+                // make default as `STRING`
                 default:
-                    this.type = paddle.AttributeType.FLOAT;
-                    this.f = attrValue;
+                    this.type = paddle.AttributeType.STRING;
+                    this.s = attrValue;
                     break;
             }
         } else {
@@ -1048,7 +1018,17 @@ paddle.IR.Output = class {
         for (const o of _output) {
             const idx = `${o['%']}`;
             this.arguments.push(idx);
-            this.dataTypes.set(idx, JSON.stringify(o.TT));
+
+            const tensorType = o.TT['#'].includes('.') ? o.TT['#'].split('.')[1] : null;
+            if (tensorType === 't_dtensor') {
+                const dataInfo = o.TT['D'];
+                const typeInfo = dataInfo[0]['#'].includes('.') ? dataInfo[0]['#'].split('.')[1] : null;
+                if (typeInfo && paddle.IR.DataType[typeInfo]) {
+                    const dataType = paddle.IR.DataType[typeInfo];
+                    const shape = dataInfo[1];
+                    this.dataTypes.set(idx, paddle.Utility.createTensorType(dataType, shape));
+                }
+            }
         }
     }
 };
@@ -1082,6 +1062,25 @@ paddle.DataType = {
     STRINGS: 26,
     FP8_E4M3FN: 32,
     FP8_E5M2: 33,
+};
+
+// ref: Paddle/paddle/pir/include/core/builtin_type.h
+paddle.IR.DataType = {
+    t_bf16: paddle.DataType.BF16,
+    t_f16: paddle.DataType.FP16,
+    t_f32: paddle.DataType.FP32,
+    t_f64: paddle.DataType.FP64,
+    t_i8: paddle.DataType.INT8,
+    t_ui8: paddle.DataType.UINT8,
+    t_i16: paddle.DataType.INT16,
+    t_i32: paddle.DataType.INT32,
+    t_i64: paddle.DataType.INT64,
+    t_index: paddle.DataType.INT64,
+    t_bool: paddle.DataType.BOOL,
+    t_c64: paddle.DataType.COMPLEX64,
+    t_c128: paddle.DataType.COMPLEX128,
+    t_f8e4m3fn: paddle.DataType.FP8_E4M3FN,
+    t_f8e5m2: paddle.DataType.FP8_E5M2
 };
 
 paddle.AttributeType = {
