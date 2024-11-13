@@ -932,7 +932,7 @@ paddle.framework.proto.VarType.Type = {
     "FETCH_LIST": 10,
     "STEP_SCOPES": 11,
     "LOD_RANK_TABLE": 12,
-    "LOD_TENSOR_ARRAY": 13,
+    "DENSE_TENSOR_ARRAY": 13,
     "PLACE_LIST": 14,
     "READER": 15,
     "RAW": 17,
