@@ -7595,6 +7595,76 @@ tensorflow.CallableOptions = class CallableOptions {
 tensorflow.CallableOptions.prototype.run_options = null;
 tensorflow.CallableOptions.prototype.fetch_skip_sync = false;
 
+tensorflow.BatchingOptions = class BatchingOptions {
+
+    constructor() {
+        this.allowed_batch_sizes = [];
+    }
+
+    static decode(reader, length) {
+        const message = new tensorflow.BatchingOptions();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.num_batch_threads = reader.int32();
+                    break;
+                case 2:
+                    message.max_batch_size = reader.int32();
+                    break;
+                case 3:
+                    message.batch_timeout_micros = reader.int32();
+                    break;
+                case 4:
+                    message.allowed_batch_sizes = reader.array(message.allowed_batch_sizes, () => reader.int32(), tag);
+                    break;
+                case 5:
+                    message.max_enqueued_batches = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new tensorflow.BatchingOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "num_batch_threads":
+                    message.num_batch_threads = reader.int32();
+                    break;
+                case "max_batch_size":
+                    message.max_batch_size = reader.int32();
+                    break;
+                case "batch_timeout_micros":
+                    message.batch_timeout_micros = reader.int32();
+                    break;
+                case "allowed_batch_sizes":
+                    reader.array(message.allowed_batch_sizes, () => reader.int32());
+                    break;
+                case "max_enqueued_batches":
+                    message.max_enqueued_batches = reader.int32();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+tensorflow.BatchingOptions.prototype.num_batch_threads = 0;
+tensorflow.BatchingOptions.prototype.max_batch_size = 0;
+tensorflow.BatchingOptions.prototype.batch_timeout_micros = 0;
+tensorflow.BatchingOptions.prototype.max_enqueued_batches = 0;
+
 tensorflow.CoordinatedJob = class CoordinatedJob {
 
     static decode(reader, length) {
