@@ -122,6 +122,9 @@ python.Execution = class {
         this.register('sys').modules = this._modules;
         this.register('xgboost');
         this.registerType('ast.AST', class {
+            get type() { // remove
+                return this.__class__.__name__;
+            }
         });
         this.registerType('ast.expr', class extends ast.AST {
         });
@@ -135,8 +138,30 @@ python.Execution = class {
                     this.ctx = ctx;
                 }
             }
-            get type() { // remove
-                return 'Name';
+        });
+        this.registerType('ast.List', class extends ast.expr {
+            constructor(elts, ctx) {
+                super();
+                this.elts = elts;
+                if (ctx) {
+                    this.ctx = ctx;
+                }
+            }
+        });
+        this.registerType('ast.Tuple', class extends ast.expr {
+            constructor(elts, ctx) {
+                super();
+                this.elts = elts;
+                if (ctx) {
+                    this.ctx = ctx;
+                }
+            }
+        });
+        this.registerType('ast.UnaryOp', class extends ast.expr {
+            constructor(op, operand) {
+                super();
+                this.op = op;
+                this.operand = operand;
             }
         });
         this.registerType('ast.Call', class extends ast.expr {
@@ -145,9 +170,6 @@ python.Execution = class {
                 this.func = func;
                 this.args = args;
                 this.keywords = keywords || [];
-            }
-            get type() { // remove
-                return 'Call';
             }
         });
         this.registerType('ast.Attribute', class extends ast.expr {
@@ -159,9 +181,6 @@ python.Execution = class {
                     this.ctx = ctx;
                 }
             }
-            get type() { // remove
-                return 'Attribute';
-            }
         });
         this.registerType('ast.Assign', class extends ast.stmt {
             constructor(targets, value, ctx) {
@@ -172,8 +191,14 @@ python.Execution = class {
                     this.ctx = ctx;
                 }
             }
-            get type() { // remove
-                return 'Assign';
+        });
+        this.registerType('ast.AnnAssign', class extends ast.stmt {
+            constructor(target, annotation, value, simple) {
+                super();
+                this.target = target;
+                this.annotation = annotation;
+                this.value = value;
+                this.simple = simple;
             }
         });
         this.registerType('ast.If', class extends ast.stmt {
@@ -183,8 +208,14 @@ python.Execution = class {
                 this.body = body;
                 this.orelse = orelse;
             }
-            get type() { // remove
-                return 'If';
+        });
+        this.registerType('ast.For', class extends ast.stmt {
+            constructor(target, iter, body, orelse /*, type_comment */) {
+                super();
+                this.target = target;
+                this.iter = iter;
+                this.body = body;
+                this.orelse = orelse;
             }
         });
         this.registerType('ast.Return', class extends ast.stmt {
@@ -192,18 +223,65 @@ python.Execution = class {
                 super();
                 this.value = value;
             }
-            get type() { // remove
-                return 'Return';
+        });
+        this.registerType('ast.ClassDef', class extends ast.stmt {
+            constructor(name, bases, keywords, body, decorator_list, type_params) {
+                super();
+                this.name = name;
+                this.bases = bases;
+                this.keywords = keywords;
+                this.body = body;
+                this.decorator_list = decorator_list;
+                this.type_params = type_params;
             }
         });
-        this.registerType('ast.Continue', class extends ast.stmt {
-            get type() { // remove
-                return 'Continue';
+        this.registerType('ast.FunctionDef', class extends ast.stmt {
+            constructor(name, args, body, decorator_list, returns, type_comment, type_params) {
+                super();
+                this.name = name;
+                this.args = args;
+                this.body = body;
+                this.decorator_list = decorator_list;
+                this.returns = returns;
+                this.type_comment = type_comment;
+                this.type_params = type_params;
             }
         });
-        this.registerType('ast.Break', class extends ast.stmt {
-            get type() { // remove
-                return 'Break';
+        this.registerType('ast.Import', class extends ast.stmt {
+            constructor(names) {
+                super();
+                this.names = names;
+            }
+        });
+        this.registerType('ast.ImportFrom', class extends ast.stmt {
+            constructor(module, names, level) {
+                super();
+                this.module = module;
+                this.names = names;
+                this.level = level;
+            }
+        });
+        this.registerType('ast.Assert', class extends ast.stmt {
+            constructor(test, msg) {
+                super();
+                this.test = test;
+                this.msg = msg;
+            }
+        });
+        this.registerType('ast.Raise', class extends ast.stmt {
+            constructor(exc, cause) {
+                super();
+                this.exc = exc;
+                this.cause = cause;
+            }
+        });
+        this.registerType('ast.Continue', class extends ast.stmt {});
+        this.registerType('ast.Break', class extends ast.stmt {});
+        this.registerType('ast.Pass', class extends ast.stmt {});
+        this.registerType('ast.Await', class extends ast.stmt {
+            constructor(value) {
+                super();
+                this.value = value;
             }
         });
         this.registerFunction('ast.parse', (source, filename, debug) => {
@@ -284,49 +362,49 @@ python.Execution = class {
                 return node;
             }
             _statement() {
-                let node = this._eat('id', 'break');
-                if (node) {
-                    const location = node.location;
+                let node = null;
+                let position = null;
+                position = this._eat_('id', 'break');
+                if (position) {
                     node = new ast.Break();
-                    node.location = location;
-                    return node;
+                    return this._complete(node, position);
                 }
-                node = this._eat('id', 'continue');
-                if (node) {
-                    const location = node.location;
+                position = this._eat_('id', 'continue');
+                if (position) {
                     node = new ast.Continue();
-                    node.location = location;
-                    return node;
+                    return this._complete(node, position);
                 }
-                node = this._eat('id', 'return');
-                if (node) {
-                    const location = node.location;
+                position = this._eat_('id', 'return');
+                if (position) {
                     const value = this._expression(-1, [], true);
                     node = new ast.Return(value);
-                    node.location = location;
-                    return node;
+                    return this._complete(node, position);
                 }
-                node = this._eat('id', 'raise');
-                if (node) {
-                    node.exception = this._expression(-1, ['from']);
+                position = this._eat_('id', 'raise');
+                if (position) {
+                    let exc = this._expression(-1, ['from']);
+                    let cause = null;
                     if (this._tokenizer.eat('id', 'from')) {
-                        node.from = this._expression();
+                        cause = this._expression();
                     } else if (this._tokenizer.eat(',')) {
-                        node.exception = [node.exception];
-                        node.exception.push(this._expression());
+                        exc = [exc];
+                        exc.push(this._expression());
                         if (this._tokenizer.eat(',')) {
-                            node.exception.push(this._expression());
+                            exc.push(this._expression());
                         }
                     }
-                    return node;
+                    node = new ast.Raise(exc, cause);
+                    return this._complete(node, position);
                 }
-                node = this._eat('id', 'assert');
-                if (node) {
-                    node.test = this._expression(-1, [',']);
+                position = this._eat('id', 'assert');
+                if (position) {
+                    const test = this._expression(-1, [',']);
+                    let msg = null;
                     if (this._tokenizer.eat(',')) {
-                        node.msg = this._expression();
+                        msg = this._expression();
                     }
-                    return node;
+                    node = new ast.Assert(test, msg);
+                    return this._complete(node, position);
                 }
                 node = this._eat('id', 'exec');
                 if (node) {
@@ -362,7 +440,8 @@ python.Execution = class {
                 }
                 node = this._eat('id', 'import');
                 if (node) {
-                    node.names = [];
+                    const location = node.location;
+                    const names = [];
                     do {
                         const alias = this._node('alias');
                         alias.name = this._dottedName();
@@ -370,23 +449,25 @@ python.Execution = class {
                             const name = this._name(true);
                             alias.asname = name.id;
                         }
-                        node.names.push(alias);
+                        names.push(alias);
                     }
                     while (this._tokenizer.eat(','));
+                    node = new ast.Import(names);
+                    node.location = location;
                     return node;
                 }
                 node = this._eat('id', 'from');
                 if (node) {
-                    node.type = 'import_from';
-                    node.level = 0;
+                    const location = node.location;
+                    let level = 0;
                     const dots = this._tokenizer.peek();
                     if (dots && Array.from(dots.type).every((c) => c === '.')) {
                         this._eat(dots.type);
-                        node.level = Array.from(dots.type).length;
+                        level = Array.from(dots.type).length;
                     }
-                    node.module = this._dottedName();
+                    const module = this._dottedName();
                     this._tokenizer.expect('id', 'import');
-                    node.names = [];
+                    const names = [];
                     const close = this._tokenizer.eat('(');
                     do {
                         const alias = this._node('alias');
@@ -396,26 +477,30 @@ python.Execution = class {
                             const name = this._name(true);
                             alias.asname = name.id;
                         }
-                        node.names.push(alias);
+                        names.push(alias);
                     }
                     while (this._tokenizer.eat(','));
                     if (close) {
                         this._tokenizer.expect(')');
                     }
+                    node = new ast.ImportFrom(module, names, level);
+                    node.location = location;
                     return node;
                 }
                 let decorator_list = this._decorator();
                 node = this._eat('id', 'class');
                 if (node) {
+                    const location = node.location;
                     const name = this._name(true);
-                    node.name = name.id;
                     if (decorator_list) {
                         node.decorator_list = Array.from(decorator_list);
                         decorator_list = null;
                     }
-                    node.bases = this._tokenizer.peek().type === '(' ? this._arguments() : [];
+                    const bases = this._tokenizer.peek().type === '(' ? this._arguments() : [];
                     this._tokenizer.expect(':');
-                    node.body = this._suite();
+                    const body = this._suite();
+                    node = new ast.ClassDef(name.id, bases, null, body, decorator_list, null);
+                    node.location = location;
                     return node;
                 }
                 const async = this._eat('id', 'async');
@@ -427,22 +512,25 @@ python.Execution = class {
                 }
                 node = this._eat('id', 'def');
                 if (node) {
-                    if (async) {
-                        node.async = async;
-                    }
+                    const location = node.location;
                     const name = this._name(true);
-                    node.name = name.id;
                     if (decorator_list) {
                         node.decorator_list = Array.from(decorator_list);
                         decorator_list = null;
                     }
                     this._tokenizer.expect('(');
-                    node.args = this._parameters(')');
+                    const args = this._parameters(')');
+                    let returns = null;
                     if (this._tokenizer.eat('->')) {
-                        node.returnType = this._type();
+                        returns = this._type();
                     }
                     this._tokenizer.expect(':');
-                    node.body = this._suite();
+                    const body = this._suite();
+                    node = new ast.FunctionDef(name.id, args, body, decorator_list, returns, null, null);
+                    if (async) {
+                        node.async = async;
+                    }
+                    node.location = location;
                     return node;
                 }
                 if (decorator_list && decorator_list.length > 0) {
@@ -495,39 +583,46 @@ python.Execution = class {
                 }
                 node = this._eat('id', 'pass');
                 if (node) {
+                    const location = node.location;
+                    node = new ast.Pass();
+                    node.location = location;
                     return node;
                 }
                 node = this._eat('id', 'for');
                 if (node) {
-                    node.target = this._expression(-1, ['in']);
+                    const location = node.location;
+                    let target = this._expression(-1, ['in']);
                     while (this._tokenizer.eat(',')) {
-                        if (node.target.type !== 'tuple') {
-                            node.target = { type: 'tuple', elts: [node.target] };
+                        if (target instanceof ast.Tuple === false) {
+                            target = new ast.Tuple([target]);
                         }
                         if (this._tokenizer.match('id', 'in')) {
-                            node.target.elts.push({});
+                            target.elts.push({});
                             break;
                         }
-                        node.target.elts.push(this._expression(-1, ['in']));
+                        target.elts.push(this._expression(-1, ['in']));
                     }
                     this._tokenizer.expect('id', 'in');
-                    node.iter = this._expression();
+                    let iter = this._expression();
                     while (this._tokenizer.eat(',')) {
-                        if (node.iter.type !== 'tuple') {
-                            node.iter = { type: 'tuple', elts: [node.iter] };
+                        if (iter.type !== 'tuple') {
+                            iter = new ast.Tuple([node.iter]);
                         }
                         if (this._tokenizer.match(':')) {
-                            node.iter.elts.push({});
+                            iter.elts.push({});
                             break;
                         }
-                        node.iter.elts.push(this._expression(-1, ['in']));
+                        iter.elts.push(this._expression(-1, ['in']));
                     }
                     this._tokenizer.expect(':');
-                    node.body = this._suite();
+                    const body = this._suite();
+                    let orelse = null;
                     if (this._tokenizer.eat('id', 'else')) {
                         this._tokenizer.expect(':');
-                        node.orelse = this._suite();
+                        orelse = this._suite();
                     }
+                    node = new ast.For(target, iter, body, orelse);
+                    node.location = location;
                     return node;
                 }
                 node = this._eat('id', 'with');
@@ -591,17 +686,17 @@ python.Execution = class {
                 const expr = this._expression(-1, [], true);
                 if (expr) {
                     if (expr instanceof ast.Name && this._tokenizer.eat(':')) {
-                        node = this._node('var');
-                        node.name = expr.id;
-                        node.location = expr.location;
-                        node.variableType = this._expression(-1, ['=']);
+                        const location = this._tokenizer.location();
+                        const annotation = this._expression(-1, ['=']);
+                        let value = null;
                         if (this._tokenizer.eat('=')) {
-                            node.initializer = this._expression();
+                            value = this._expression();
                         }
+                        node = new ast.AnnAssign(expr, annotation, value);
+                        node.location = location;
                         return node;
                     }
                     switch (expr.type) {
-                        case 'Assign':
                         case ':=':
                         case '==':
                         case '!=':
@@ -627,36 +722,31 @@ python.Execution = class {
                         case '^=':
                         case '...':
                         case 'Call':
-                        case 'assert':
-                        case 'raise':
+                        case 'Assert':
+                        case 'Raise':
                         case 'string':
-                        case 'list':
-                        case 'var':
+                        case 'Assign':
+                        case 'AnnAssign':
                         case 'Attribute':
                         case '[]':
                         case 'yield':
-                        case '+':
-                        case '-':
-                        case '*':
+                        case '+': case '-': case '*': case '/':
                         case '**':
                         case '@':
-                        case '/':
                         case '//':
                         case '~':
-                        case '&':
-                        case '^':
-                        case '|':
+                        case '&': case '^': case '|':
                         case 'not':
                         case 'Name':
                         case 'number':
                         case 'in':
-                        case 'and':
-                        case 'or':
+                        case 'and': case 'or':
                         case 'If':
-                        case 'for':
-                        case 'tuple':
+                        case 'For':
+                        case 'List':
+                        case 'Tuple':
                         case 'lambda':
-                        case 'await':
+                        case 'Await':
                             return expr;
                         default:
                             throw new python.Error(`Unhandled expression ${this._tokenizer.location()}`);
@@ -669,6 +759,7 @@ python.Execution = class {
                 const terminalSet = new Set(terminal);
                 const stack = [];
                 for (;;) {
+                    let position = null;
                     let node = this._node();
                     const token = this._tokenizer.peek();
                     if (stack.length === 1 && terminalSet.has(token.value)) {
@@ -706,9 +797,11 @@ python.Execution = class {
                                 node.left = stack.pop();
                                 node.right = this._expression(precedence, terminal, tuple === true ? true : false);
                             } else {
-                                node.op = node.type;
-                                node.type = 'unary';
-                                node.operand = this._expression(precedence, terminal, tuple === true ? true : false);
+                                const location = node.location;
+                                const op = node.type;
+                                const operand =  this._expression(precedence, terminal, tuple === true ? true : false);
+                                node = new ast.UnaryOp(op, operand);
+                                node.location = location;
                             }
                             stack.push(node);
                             continue;
@@ -804,9 +897,11 @@ python.Execution = class {
                         stack.push(node);
                         continue;
                     }
-                    node = this._eat('id', 'await');
-                    if (node) {
-                        node.expression = this._expression(minPrecedence, terminal, tuple);
+                    position = this._eat_('id', 'await');
+                    if (position) {
+                        const value = this._expression(minPrecedence, terminal, tuple);
+                        node = new ast.Await(value);
+                        node = node._complete(node, position);
                         stack.push(node);
                         continue;
                     }
@@ -822,12 +917,13 @@ python.Execution = class {
                     }
                     if (this._tokenizer.peek().type === '(') {
                         if (stack.length === 0) {
-                            node = this._node('tuple');
+                            const position = this._position();
                             const args = this._arguments();
                             if (args.length === 1) {
                                 stack.push(args[0]);
                             } else {
-                                node.elts = args;
+                                node = new ast.Tuple(args);
+                                node = this._complete(node, position);
                                 stack.push(node);
                             }
                         } else {
@@ -893,11 +989,13 @@ python.Execution = class {
                         continue;
                     }
                     if (tuple === true && stack.length === 1 && this._tokenizer.eat(',')) {
-                        if (stack[0].type === 'tuple') {
+                        if (stack[0] instanceof ast.Tuple) {
                             [node] = stack;
                         } else {
-                            node = this._node('tuple');
-                            node.elts = [stack.pop()];
+                            const position = this._position();
+                            const elts = [stack.pop()];
+                            node = new ast.Tuple(elts);
+                            node = this._complete(node, position);
                             stack.push(node);
                         }
                         // for, bar, = <expr>
@@ -971,14 +1069,14 @@ python.Execution = class {
                 return { type: 'set', value: list };
             }
             _expressions() {
-                const list = [];
+                const elts = [];
                 this._tokenizer.expect('[');
                 while (!this._tokenizer.eat(']')) {
                     const expression = this._expression();
                     if (expression === null) {
                         throw new python.Error(`Expected expression ${this._tokenizer.location()}`);
                     }
-                    list.push(expression);
+                    elts.push(expression);
                     this._tokenizer.eat(',');
                     while (this._tokenizer.eat('\n')) {
                         // continue
@@ -987,17 +1085,17 @@ python.Execution = class {
                         break;
                     }
                 }
-                return { type: 'list', value: list };
+                return new ast.List(elts);
             }
             _slice() {
                 let node = { type: '::' };
-                let list = [];
+                let elts = [];
                 const group = ['start', 'stop', 'step'];
                 this._tokenizer.expect('[');
                 while (!this._tokenizer.eat(']')) {
                     if (this._tokenizer.eat(':')) {
-                        node[group.shift()] = { type: 'list', value: list };
-                        list = [];
+                        node[group.shift()] = new ast.List(elts);
+                        elts = [];
                         continue;
                     }
                     if (this._tokenizer.eat(',')) {
@@ -1009,11 +1107,11 @@ python.Execution = class {
                         if (expression === null) {
                             throw new python.Error(`Expected expression ${this._tokenizer.location()}`);
                         }
-                        list.push(expression);
+                        elts.push(expression);
                     }
                 }
-                if (list.length > 0) {
-                    node[group.shift()] = { type: 'list', value: list };
+                if (elts.length > 0) {
+                    node[group.shift()] = new ast.List(elts);
                 }
                 if (node.start && !node.stop && !node.step) {
                     node = node.start;
@@ -1160,6 +1258,29 @@ python.Execution = class {
                 }
                 return null;
             }
+            _complete(node, position) {
+                node.location = position.location;
+                node.lineno = position.lineno;
+                node.col_offset = position.col_offset;
+                node.end_lineno = this._tokenizer.lineno;
+                node.end_col_offset = this._tokenizer.col_offset;
+                return node;
+            }
+            _eat_(type, value) {
+                if (this._tokenizer.match(type, value)) {
+                    const position = this._position();
+                    this._tokenizer.expect(type, value);
+                    return position;
+                }
+                return null;
+            }
+            _position() {
+                return {
+                    location: this._tokenizer.location(),
+                    lineno: this._tokenizer.lineno,
+                    col_offset: this._tokenizer.col_offset
+                };
+            }
         });
         this.registerType('ast._Tokenizer', class {
             constructor(text, file) {
@@ -1235,6 +1356,12 @@ python.Execution = class {
                 const line = this._line + 1;
                 const column = this._position - this._lineStart + 1;
                 return `at ${this._file}:${line}:${column}.`;
+            }
+            get lineno() {
+                return this._line + 1;
+            }
+            get col_offset() {
+                return this._position - this._lineStart + 1;
             }
             static _isSpace(c) {
                 if (c === ' ' || c === '\t' || c === '\v' || c === '\f' || c === '\xA0') {
@@ -1613,9 +1740,9 @@ python.Execution = class {
                         case 'and':
                         case 'as':
                         case 'else':
-                        case 'for':
+                        case 'For':
                         case 'If':
-                        case 'import':
+                        case 'Import':
                         case 'in':
                         case 'is':
                         case 'not':
@@ -5242,11 +5369,13 @@ python.Execution = class {
         this.registerFunction('torchvision.transforms.functional.adjust_saturation');
         this.registerType('torchvision.transforms.transforms.ColorJitter', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.Compose', class {});
+        this.registerType('torchvision.transforms.transforms.ConvertImageDtype', class {});
         this.registerType('torchvision.transforms.transforms.CenterCrop', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.GaussianBlur', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.Grayscale', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.Lambda', class {});
         this.registerType('torchvision.transforms.transforms.Normalize', class extends torch.nn.modules.module.Module {});
+        this.registerType('torchvision.transforms.transforms.PILToTensor', class {});
         this.registerType('torchvision.transforms.transforms.RandomAffine', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomApply', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomCrop', class extends torch.nn.modules.module.Module {});
@@ -7843,7 +7972,7 @@ python.Execution = class {
                 this.parseSourceIfNeeded(name.prefix());
                 const key = name.qualifiedName();
                 const it = this._to_be_defined.get(key);
-                if (it && it.type === 'class') {
+                if (it && it instanceof ast.ClassDef) {
                     this._to_be_defined.delete(key);
                     this.importNamedType(name.prefix(), it);
                 }
@@ -7876,9 +8005,10 @@ python.Execution = class {
                 }
                 const class_type = new torch.ClassType(qualified_name.qualifiedName(), this._cu, is_module);
                 for (const entry of class_def.body.statements) {
-                    if (entry.type === 'var') {
-                        const variableType = this._cu.execution.type(entry.variableType, null);
-                        class_type.addAttribute(entry.name, variableType);
+                    if (entry instanceof ast.AnnAssign) {
+                        const target = this._cu.execution.identifier(entry.target);
+                        const annotation = this._cu.execution.type(entry.annotation, null);
+                        class_type.addAttribute(target, annotation);
                     }
                 }
                 // debugger;
@@ -7888,12 +8018,14 @@ python.Execution = class {
                 const field_names = [];
                 const field_types = [];
                 const field_defaults = [];
-                for (const statement of named_tuple_def.body.statements) {
-                    if (statement.type !== 'var') {
+                for (const stmt of named_tuple_def.body.statements) {
+                    if (stmt instanceof ast.AnnAssign === false) {
                         throw new python.Error('Unexpected statement in NamedTuple body.');
                     }
-                    field_names.push(statement.name);
-                    field_types.push(this._cu.execution.type(statement.variableType));
+                    const target = this._cu.execution.identifier(stmt.target);
+                    const annotation = this._cu.execution.type(stmt.annotation);
+                    field_names.push(target);
+                    field_types.push(annotation);
                 }
                 const tt = torch.TupleType.createNamed(qualified_name.qualifiedName(), field_names, field_types, field_defaults);
                 this._cu.register_type(tt);
@@ -7910,10 +8042,10 @@ python.Execution = class {
                 const program = this._cu.execution.parse(src.filename(), src.text_str(), null);
                 for (const statement of program.body) {
                     switch (statement.type) {
-                        case 'def': {
+                        case 'FunctionDef': {
                             break;
                         }
-                        case 'class': {
+                        case 'ClassDef': {
                             const name = `${qualifier}.${statement.name}`;
                             this._to_be_defined.set(name, statement);
                             break;
@@ -10745,13 +10877,13 @@ python.Execution = class {
         const ast = this.ast;
         const builtins = this.builtins;
         switch (stmt.type) {
-            case 'pass': {
+            case 'Pass': {
                 break;
             }
             case 'Return': {
                 return this.expression(stmt.value, context);
             }
-            case 'def': {
+            case 'FunctionDef': {
                 const module = context.get('__name__');
                 const self = this;
                 const parent = context.get('__class__');
@@ -10769,8 +10901,8 @@ python.Execution = class {
                 context.set(stmt.name, func);
                 break;
             }
-            case 'class': {
-                const bases = stmt.bases.map((arg) => this.expression(arg, context));
+            case 'ClassDef': {
+                const bases = stmt.bases.map((base) => this.expression(base, context));
                 if (bases.length > 1) {
                     throw new python.Error(`Unsupported multiple bases for class '${stmt.name}'.`);
                 }
@@ -10782,8 +10914,9 @@ python.Execution = class {
                 this.block(stmt.body.statements, new python.Execution.Context(context.globals, value.prototype));
                 break;
             }
-            case 'var': {
-                context.set(stmt.name, stmt.initializer ? this.expression(stmt.initializer, context) : undefined);
+            case 'AnnAssign': {
+                const target = this.identifier(stmt.target, context);
+                context.set(target, stmt.value ? this.expression(stmt.value, context) : undefined);
                 break;
             }
             case 'Assign': {
@@ -10809,8 +10942,8 @@ python.Execution = class {
                 }
                 throw new python.Error("Unsupported condition.");
             }
-            case 'for': {
-                if (stmt.target instanceof ast.Name && stmt.iter.type !== 'tuple') {
+            case 'For': {
+                if (stmt.target instanceof ast.Name && stmt.iter instanceof ast.Tuple === false) {
                     const range = this.expression(stmt.iter, context);
                     const variable = stmt.target;
                     for (const current of range) {
@@ -10859,7 +10992,7 @@ python.Execution = class {
                 this.expression(stmt, context);
                 break;
             }
-            case 'import': {
+            case 'Import': {
                 for (const alias of stmt.names) {
                     let module = this.__import__(alias.name, context);
                     if (alias.asname) {
@@ -10875,7 +11008,7 @@ python.Execution = class {
                 }
                 break;
             }
-            case 'import_from': {
+            case 'ImportFrom': {
                 const fromlist = stmt.names.map((name) => name.name);
                 const module = this.__import__(stmt.module, context.globals, context.locals, fromlist, stmt.level);
                 for (const entry of stmt.names) {
@@ -10912,9 +11045,9 @@ python.Execution = class {
                     return undefined;
                 } else if (target.type === '[]') {
                     if (target.target instanceof ast.Name &&
-                        target.arguments.type === 'list' &&
-                        target.arguments.value.length === 1) {
-                        const index = this.expression(target.arguments.value[0], context);
+                        target.arguments instanceof ast.List &&
+                        target.arguments.elts.length === 1) {
+                        const index = this.expression(target.arguments.elts[0], context);
                         if (target.target.id === '__annotations__') {
                             context.set(target.target.id, context.get(target.target.id) || {});
                         }
@@ -10932,7 +11065,7 @@ python.Execution = class {
                     const value = this.expression(expr.value, context);
                     obj[target.attr] = value;
                     return undefined;
-                } else if (target.type === 'tuple') {
+                } else if (target instanceof ast.Tuple) {
                     context.target.push(target.elts);
                     const value = this.expression(expr.value, context);
                     context.target.pop();
@@ -10951,8 +11084,8 @@ python.Execution = class {
                 }
                 break;
             }
-            case 'list': {
-                return expr.value.map((item) => this.expression(item, context));
+            case 'List': {
+                return expr.elts.map((expr) => this.expression(expr, context));
             }
             case 'string': {
                 return expr.value.substring(1, expr.value.length - 1);
@@ -10962,11 +11095,11 @@ python.Execution = class {
             }
             case '[]': {
                 if (expr.target instanceof ast.Name &&
-                    expr.arguments.type === 'list' &&
-                    expr.arguments.value.length === 1) {
+                    expr.arguments instanceof ast.List &&
+                    expr.arguments.elts.length === 1) {
                     const id = expr.target.id;
                     if (context.get(id)) {
-                        const index = this.expression(expr.arguments.value[0], context);
+                        const index = this.expression(expr.arguments.elts[0], context);
                         const target = context.get(id);
                         if (target instanceof Map) {
                             return target.get(index);
@@ -10975,16 +11108,16 @@ python.Execution = class {
                     }
                 }
                 const target = this.expression(expr.target, context);
-                if (target && expr.arguments.type === 'list' &&
+                if (target && expr.arguments instanceof ast.List &&
                     (target.__class__ === typing._TupleType ||
                      target.__class__ === typing._SpecialGenericAlias ||
                      target.__class__ === typing._SpecialForm)) {
                     const type = { ...target };
-                    type.__args__ = expr.arguments.value.map((arg) => this.expression(arg, context));
+                    type.__args__ = expr.arguments.elts.map((arg) => this.expression(arg, context));
                     return type;
                 }
-                if (expr.arguments.type === 'list' && expr.arguments.value.length === 1) {
-                    const index = this.expression(expr.arguments.value[0], context);
+                if (expr.arguments instanceof ast.List && expr.arguments.elts.length === 1) {
+                    const index = this.expression(expr.arguments.elts[0], context);
                     if (target instanceof Map) {
                         return target.get(index);
                     }
@@ -11033,8 +11166,8 @@ python.Execution = class {
                     }
                 }
             }
-            case 'tuple': {
-                return expr.elts.map((expression) => this.expression(expression, context));
+            case 'Tuple': {
+                return expr.elts.map((expr) => this.expression(expr, context));
             }
             case 'dict': {
                 const dict = {};
@@ -11048,7 +11181,7 @@ python.Execution = class {
                 }
                 return dict;
             }
-            case 'unary': {
+            case 'UnaryOp': {
                 switch (expr.op) {
                     case '-': {
                         return -this.expression(expr.operand, context);
@@ -11073,6 +11206,17 @@ python.Execution = class {
             }
         }
         return undefined;
+    }
+
+    identifier(expr) {
+        const ast = this.ast;
+        if (expr instanceof ast.Name) {
+            return expr.id;
+        }
+        if (expr instanceof ast.Attribute) {
+            return `${this.identifier(expr.value)}.${expr.attr}`;
+        }
+        return null;
     }
 
     target(expr, context) {
