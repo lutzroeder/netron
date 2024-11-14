@@ -43,6 +43,7 @@ tflite.QuantizationDetails = class {
     static decode(reader, position, type) {
         switch (type) {
             case 1: return tflite.CustomQuantization.decode(reader, position);
+            case 2: return tflite.BlockwiseQuantization.decode(reader, position);
             default: return undefined;
         }
     }
@@ -50,8 +51,28 @@ tflite.QuantizationDetails = class {
     static decodeText(reader, json, type) {
         switch (type) {
             case 'CustomQuantization': return tflite.CustomQuantization.decodeText(reader, json);
+            case 'BlockwiseQuantization': return tflite.BlockwiseQuantization.decodeText(reader, json);
             default: return undefined;
         }
+    }
+};
+
+tflite.BlockwiseQuantization = class BlockwiseQuantization {
+
+    static decode(reader, position) {
+        const $ = new tflite.BlockwiseQuantization();
+        $.scales = reader.int32_(position, 4, 0);
+        $.zero_points = reader.int32_(position, 6, 0);
+        $.block_size = reader.int32_(position, 8, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new tflite.BlockwiseQuantization();
+        $.scales = reader.value(json.scales, 0);
+        $.zero_points = reader.value(json.zero_points, 0);
+        $.block_size = reader.value(json.block_size, 0);
+        return $;
     }
 };
 
