@@ -141,6 +141,21 @@ darknet.Graph = class {
             layer.weights.push(load_weights(`${prefix}weights`, [Math.floor(c / groups), n, size, size], prefix === ''));
             layer.outputs[0].type = new darknet.TensorType('float32', make_shape([layer.out_w, layer.out_h, layer.out_c], 'make_convolutional_layer'));
         };
+        const make_deconvolutional_layer = (l, batch, h, w, c, n, size, stride, padding, activation, batch_normalize) => {
+            const pad = padding;
+            l.out_w = Math.floor((w - 1) * stride + size - 2 * pad);
+            l.out_h = Math.floor((h - 1) * stride + size - 2 * pad);
+            l.out_c = n;
+            l.out = l.out_w * l.out_h * l.out_c;
+            l.weights.push(load_weights(`biases`, [n]));
+            if (batch_normalize) {
+                const batchnorm_layer = { weights: [] };
+                load_batch_normalize_weights(batchnorm_layer, '', n);
+                l.chain.push({ type: 'batchnorm', layer: batchnorm_layer });
+            }
+            l.weights.push(load_weights(`weights`, [c, n, size, size]));
+            l.outputs[0].type = new darknet.TensorType('float32', make_shape([l.out_w, l.out_h, l.out_c], 'make_convolutional_layer'));
+        };
         const make_connected_layer = (layer, prefix, inputs, outputs, batch_normalize) => {
             layer.out_h = 1;
             layer.out_w = 1;
@@ -180,7 +195,7 @@ darknet.Graph = class {
         }
         const inputType = params.w && params.h && params.c ?
             new darknet.TensorType('float32', make_shape([params.w, params.h, params.c], 'params-if')) :
-            new darknet.TensorType('float32', make_shape([params.inputs], 'params-else'));
+            new darknet.TensorType('float32', make_shape([params.inputs], ''));
         const inputName = 'input';
         params.value = [new darknet.Value(inputName, inputType, null)];
         this.inputs.push(new darknet.Argument(inputName, params.value));
@@ -256,8 +271,7 @@ darknet.Graph = class {
             if (infer) {
                 switch (section.type) {
                     case 'conv':
-                    case 'convolutional':
-                    case 'deconvolutional': {
+                    case 'convolutional': {
                         const shape = layer.inputs[0].type.shape.dimensions;
                         if (shape[0] !== params.w || shape[1] !== params.h || shape[2] !== params.c) {
                             throw new darknet.Error('Layer before convolutional layer must output image.');
@@ -277,6 +291,31 @@ darknet.Graph = class {
                         const batch_normalize = option_find_int(options, 'batch_normalize', 0);
                         const activation = option_find_str(options, 'activation', 'logistic');
                         make_convolutional_layer(layer, '', params.w, params.h, params.c, n, groups, size, stride_x, stride_y, padding, batch_normalize);
+                        if (activation !== 'logistic' && activation !== 'none') {
+                            layer.chain.push({ type: activation });
+                        }
+                        break;
+                    }
+                    case 'deconvolutional': {
+                        const shape = layer.inputs[0].type.shape.dimensions;
+                        if (shape[0] !== params.w || shape[1] !== params.h || shape[2] !== params.c) {
+                            throw new darknet.Error('Layer before convolutional layer must output image.');
+                        }
+                        const n = option_find_int(options, 'filters', 1);
+                        const size = option_find_int(options, 'size', 1);
+                        const stride = option_find_int(options, 'stride', 1);
+                        const activation = option_find_str(options, 'activation', 'logistic');
+                        const h = params.h;
+                        const w = params.w;
+                        const c = params.c;
+                        const batch = params.batch;
+                        let padding = option_find_int(options, 'padding', 0);
+                        const pad = option_find_int(options, 'pad', 0);
+                        if (pad) {
+                            padding = size / 2;
+                        }
+                        const batch_normalize = option_find_int(options, 'batch_normalize', 0);
+                        make_deconvolutional_layer(layer, batch, h, w, c, n, size, stride, padding, activation, batch_normalize);
                         if (activation !== 'logistic' && activation !== 'none') {
                             layer.chain.push({ type: activation });
                         }

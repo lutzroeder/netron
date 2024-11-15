@@ -317,7 +317,7 @@ dlc.Container = class {
                 throw new dlc.Error("File contains undocumented DLC v2 data.");
             } else if (signature.identifier === 'NETD' && (signature.major === 3 || signature.major === undefined)) {
                 this.version = { major: signature.major || 3, minor: signature.minor || 0 };
-                this.graph = dlc.Container._model3(stream, signature);
+                this.graph = dlc.Container._model3(stream, signature.offset);
                 this.graphs = [this.graph];
             } else if (signature.identifier === 'NETD' && signature.major === 4) {
                 this.version = { major: signature.major, minor: signature.minor };
@@ -367,10 +367,10 @@ dlc.Container = class {
         }
     }
 
-    static _model3(stream, signature) {
+    static _model3(stream, offset) {
         let model = null;
         try {
-            const buffer = new Uint8Array(signature === 'NETD' ? stream.peek() : stream.peek().subarray(8));
+            const buffer = new Uint8Array(offset > 0 ? stream.peek().subarray(offset) : stream.peek());
             const reader = flatbuffers.BinaryReader.open(buffer);
             model = dlc.schema.v3.Model.decode(reader, reader.root);
         } catch (error) {
@@ -633,6 +633,7 @@ dlc.Container = class {
     static _signature(stream) {
         const signature = {};
         signature.identifier = '?';
+        signature.offset = 0;
         if (stream) {
             const buffer = stream.peek(Math.min(stream.length, 16));
             if (buffer[0] === 0xD5 && buffer[1] === 0x0A) {
@@ -650,6 +651,7 @@ dlc.Container = class {
                 const reader = flatbuffers.BinaryReader.open(stream, offset);
                 if (reader) {
                     signature.identifier = reader.identifier;
+                    signature.offset = offset;
                 }
             }
         }
