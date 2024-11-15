@@ -4891,6 +4891,41 @@
     "link":     "https://github.com/lutzroeder/netron/issues/246"
   },
   {
+    "type":     "paddle",
+    "target":   "while_net.json",
+    "source":   "https://github.com/user-attachments/files/17505487/while_net.json",
+    "format":   "PaddlePaddle IR v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1384"
+  },
+  {
+    "type":     "paddle",
+    "target":   "model.json",
+    "source":   "https://github.com/user-attachments/files/17505488/model.json",
+    "format":   "PaddlePaddle IR v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1384"
+  },
+  {
+    "type":     "paddle",
+    "target":   "model_pylayer.json",
+    "source":   "https://github.com/user-attachments/files/17505489/model_pylayer.json",
+    "format":   "PaddlePaddle IR v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1384"
+  },
+  {
+    "type":     "paddle",
+    "target":   "if_net.json",
+    "source":   "https://github.com/user-attachments/files/17505490/if_net.json",
+    "format":   "PaddlePaddle IR v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1384"
+  },
+  {
+    "type":     "paddle",
+    "target":   "for_net.json",
+    "source":   "https://github.com/user-attachments/files/17505491/for_net.json",
+    "format":   "PaddlePaddle IR v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1384"
+  },
+  {
     "type":     "qnn",
     "target":   "mobilenetv2-12_net.json",
     "source":   "https://github.com/user-attachments/files/15507409/mobilenetv2-12_net.json",
