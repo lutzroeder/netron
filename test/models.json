@@ -3147,10 +3147,18 @@
   },
   {
     "type":     "mlir",
+    "target":   "gemm.onnx.mlir",
+    "source":   "https://github.com/user-attachments/files/17775324/gemm.onnx.mlir.zip[gemm.onnx.mlir]",
+    "format":   "MLIR",
+    "error":    "Unexpected operation '0' at 34:24.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "mlp.mlir",
     "source":   "https://github.com/user-attachments/files/17264712/mlp.mlir.zip[mlp.mlir]",
     "format":   "MLIR",
-    "error":    "Unexpected attribute value.",
+    "error":    "Unexpected identifier 'ins' at 78:25.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3158,13 +3166,20 @@
     "target":   "mlp_haiku.mlir",
     "source":   "https://github.com/user-attachments/files/17260022/mlp_haiku.mlir.zip[mlp_haiku.mlir]",
     "format":   "MLIR",
-    "error":    "Unexpected token '=' at 3:63.",
+    "error":    "Unexpected identifier 'contracting_dims' at 3:46.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
     "type":     "mlir",
     "target":   "mnist.onnx.mlir",
     "source":   "https://github.com/user-attachments/files/17640924/mnist.onnx.mlir.zip[mnist.onnx.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "mnist.onnx.dense.mlir",
+    "source":   "https://github.com/user-attachments/files/17775783/mnist.onnx.dense.mlir.zip[mnist.onnx.dense.mlir]",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
@@ -3193,10 +3208,16 @@
   },
   {
     "type":     "mlir",
+    "target":   "torch_mlir_3423.mlir",
+    "source":   "https://github.com/user-attachments/files/17775259/torch-mlir-3423.mlir.zip[torch-mlir-3423.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "torch_mlir_3429.mlir",
     "source":   "https://github.com/user-attachments/files/17605115/torch_mlir_3429.mlir.zip[torch_mlir_3429.mlir]",
     "format":   "MLIR",
-    "error":    "Unexpected operation '!' at 14:71.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
