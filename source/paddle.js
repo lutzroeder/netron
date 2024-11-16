@@ -919,29 +919,15 @@ paddle.IR.Block = class {
 paddle.IR.Op = class {
 
     constructor(op) {
-        const typeCompressed = op['#'];
-        let type = typeCompressed;
-        let name = typeCompressed;
-        let description = '';
-        const isParameter = type === 'p';
-        if (isParameter) {
-            [name] = op.A.slice(-1);
-            type = paddle.IR.OpCompressMapper[type];
-            description = type;
-        } else {
-            const [opKey, opType] = name.split('.');
-            name = opType;
-            type = opType;
-            description = `${paddle.IR.OpCompressMapper[opKey]}.${opType}`;
-        }
+        const opInfo = paddle.IR.Op.Utility.getOpInfo(op);
 
-        this.name = name;
-        this.type = type;
-        this.description = `The op is "${typeCompressed}" ("${description}").`;
+        this.name = opInfo.name;
+        this.type = opInfo.type;
+        this.description = `The op is "${opInfo.rawType}" ("${opInfo.description}").`;
 
         this.attrs = [];
         for (const [idx, value] of Object.entries(op.A)) {
-            this.attrs.push(new paddle.IR.Attr(idx, value, isParameter));
+            this.attrs.push(new paddle.IR.Attr(idx, value, opInfo));
         }
 
         if (op.regions !== undefined) {
@@ -951,56 +937,162 @@ paddle.IR.Op = class {
         }
 
         this.inputs = op.I ? [new paddle.IR.Input(op.I)] : [new paddle.IR.Input([])];
-        this.outputs = op.O ? [new paddle.IR.Output(op.O, op.OA, isParameter)] : [new paddle.IR.Output([], [], false)];
+        this.outputs = op.O ? [new paddle.IR.Output(op.O, op.OA, opInfo)] : [new paddle.IR.Output([], [], opInfo)];
+    }
+
+};
+
+paddle.IR.Op.Utility = class {
+
+    static getOpInfo(op) {
+        switch (op['#']) {
+            case 'p':
+                return new paddle.IR.OpInfoP(op);
+            default:
+                return new paddle.IR.OpInfoNormal(op);
+        }
+    }
+
+    static getCompressOp(opType) {
+        if (!paddle.IR.Op.Utility._opCompressMapper) {
+            paddle.IR.Op.Utility._opCompressMapper = new Map([
+                ['0', 'builtin'],
+                ['1', 'pd_op'],
+                ['2', 'cf'],
+                ['3', 'custom_op'],
+                ['4', 'pd_dist'],
+                ['p', 'parameter']
+            ]);
+        }
+        return paddle.IR.Op.Utility._opCompressMapper.has(opType) ? paddle.IR.Op.Utility._opCompressMapper.get(opType) : opType;
+    }
+};
+
+paddle.IR.OpInfoNormal = class {
+
+    constructor(op) {
+        const typeCompressed = op['#'];
+        this._rawType = typeCompressed;
+        this._type = typeCompressed;
+        this._name = typeCompressed;
+        this._description = '';
+        this.init(op);
+    }
+
+    init() {
+        const [opKey, opType] = this._name.split('.');
+        this._opKey = opKey;
+        this._opType = opType;
+    }
+
+    get rawType() {
+        return this._rawType;
+    }
+
+    get type() {
+        return this._opType;
+    }
+
+    get name() {
+        return this._opType;
+    }
+
+    get description() {
+        return `${paddle.IR.Op.Utility.getCompressOp(this._opKey)}.${this._opType}`;
+    }
+
+    getAttr(idx, value) {
+        const attrName = value.N;
+        let attrType = paddle.IR.Utility.getType(value.AT['#'].split('.')[1]);
+        let attrValue = value.AT.D;
+
+        // `a_array` depends on sub type, `attrType` and `attrValue` should be changed
+        if (attrType === paddle.IR.Utility.getType('a_array')) {
+            const subType = paddle.IR.Utility.getType(attrValue[0]['#'].split('.')[1]);
+            attrType = `${subType}[]`;
+            const valueData = [];
+            for (const attr of attrValue) {
+                valueData.push(attr.D);
+            }
+            attrValue = valueData;
+        }
+
+        return [attrName, attrType, attrValue];
+    }
+
+    getOutputAttr(idx, outputAttr) {
+        const denotation = [];
+        for (const attr of outputAttr) {
+            denotation.push(`${attr.N}:${attr.AT.D[idx].D}`);
+        }
+        return denotation.join(';');
+    }
+};
+
+paddle.IR.OpInfoP = class extends paddle.IR.OpInfoNormal {
+
+    init(op) {
+        const [name] = op.A.slice(3);
+        this._name = name;
+        this._type = paddle.IR.Op.Utility.getCompressOp(this._type);
+        this._description = this._type;
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get description() {
+        return this._description;
+    }
+
+    getAttr(idx, value) {
+        let attrName = '';
+        let attrType = '';
+        let attrValue = '';
+        switch (idx) {
+            case '0':
+                attrName = 'is_distributed';
+                attrType = paddle.IR.Utility.getType('a_bool');
+                break;
+            case '1':
+                attrName = 'is_parameter';
+                attrType = paddle.IR.Utility.getType('a_bool');
+                break;
+            case '2':
+                attrName = 'need_clip';
+                attrType = paddle.IR.Utility.getType('a_bool');
+                break;
+            case '3':
+                attrName = 'name';
+                attrType = paddle.IR.Utility.getType('a_str');
+                break;
+            default:
+                break;
+        }
+        attrValue = attrType === paddle.IR.Utility.getType('a_bool') ? value === 1 : value;
+        return [attrName, attrType, attrValue];
+    }
+
+    getOutputAttr(idx, outputAttr) {
+        const persistable = outputAttr[0] === 1;
+        const stop_gradient = outputAttr[1] === 1;
+        const trainable = outputAttr[2] === 1;
+        return `persistable:${persistable};stop_gradient:${stop_gradient};trainable:${trainable}`;
     }
 };
 
 paddle.IR.Attr = class {
 
-    constructor(idx, value, isParameter) {
-        if (isParameter) {
-            switch (idx) {
-                case '0':
-                    this.name = 'is_distributed';
-                    this.type = paddle.IR.AttributeType.a_bool;
-                    break;
-                case '1':
-                    this.name = 'is_parameter';
-                    this.type = paddle.IR.AttributeType.a_bool;
-                    break;
-                case '2':
-                    this.name = 'need_clip';
-                    this.type = paddle.IR.AttributeType.a_bool;
-                    break;
-                case '3':
-                    this.name = 'name';
-                    this.type = paddle.IR.AttributeType.a_str;
-                    break;
-                default:
-                    break;
-            }
-            this.value = this.type === paddle.IR.AttributeType.a_bool ? value === 1 : value;
-
-        } else {
-            this.name = value.N;
-            let attrType = paddle.IR.AttributeType[value.AT['#'].split('.')[1]];
-            let attrValue = value.AT.D;
-
-            // `a_array` depends on sub type, `attrType` and `attrValue` should be changed
-            if (attrType === paddle.IR.AttributeType.a_array) {
-                const subType = paddle.IR.AttributeType[attrValue[0]['#'].split('.')[1]];
-                attrType = `${subType}[]`;
-                const valueData = [];
-                for (const attr of attrValue) {
-                    valueData.push(attr.D);
-                }
-                attrValue = valueData;
-            }
-
-            this.type = attrType;
-            this.value = attrValue;
-
-        }
+    constructor(idx, value, opInfo) {
+        const [attrName, attrType, attrValue] = opInfo.getAttr(idx, value);
+        this.name = attrName;
+        this.type = attrType;
+        this.value = attrValue;
     }
 };
 
@@ -1019,7 +1111,7 @@ paddle.IR.Input = class {
 
 paddle.IR.Output = class {
 
-    constructor(output, outputAttr, isParameter) {
+    constructor(output, outputAttr, opInfo) {
         this.arguments = [];
         this.parameter = 'Output';
         this.dataTypes = new Map();
@@ -1032,21 +1124,10 @@ paddle.IR.Output = class {
             const [, tensorType] = o.TT['#'].split('.');
             if (tensorType === 't_dtensor') {
                 const dataInfo = o.TT.D;
-                const [type, shape, layout,,] = dataInfo;
-                const [, typeInfo] = type['#'].split('.');
-                const dataType = paddle.IR.DataType[typeInfo];
-                let denotation = '';
-                if (isParameter) {
-                    const persistable = outputAttr[0] === 1;
-                    const stop_gradient = outputAttr[1] === 1;
-                    const trainable = outputAttr[2] === 1;
-                    denotation = `persistable:${persistable};stop_gradient:${stop_gradient};trainable:${trainable};`;
-                } else {
-                    for (const attr of outputAttr) {
-                        denotation += `${attr.N}:${attr.AT.D[idx].D};`;
-                    }
-                }
-                this.dataTypes.set(outputId, new paddle.IR.TensorType(dataType, new paddle.TensorShape(shape), denotation, layout));
+                const [type, shape, layout, ,] = dataInfo;
+                const [, dataType] = type['#'].split('.');
+                const denotation = opInfo.getOutputAttr(idx, outputAttr);
+                this.dataTypes.set(outputId, paddle.IR.Utility.createTensorType(dataType, shape, denotation, layout));
             }
         }
     }
@@ -1066,55 +1147,41 @@ paddle.IR.TensorType = class {
     }
 };
 
-paddle.IR.OpCompressMapper = {
-    '0': 'builtin',
-    '1': 'pd_op',
-    '2': 'cf',
-    '3': 'custom_op',
-    '4': 'pd_dist',
-    'p': 'parameter'
-};
+paddle.IR.Utility = class {
 
-// ref: Paddle/paddle/pir/include/core/builtin_type.h
-paddle.IR.DataType = {
-    t_bf16: 'bfloat16',
-    t_f16: 'float16',
-    t_f32: 'float32',
-    t_f64: 'float64',
-    t_i8: 'int8',
-    t_ui8: 'uint8',
-    t_i16: 'int16',
-    t_i32: 'int32',
-    t_i64: 'int64',
-    t_index: 'index',
-    t_bool: 'bool',
-    t_c64: 'complex64',
-    t_c128: 'complex128',
-    t_f8e4m3fn: 'f8_e4m3fn',
-    t_f8e5m2: 'f8_e5m2'
-};
+    static getType(type) {
+        type = type.includes('_') ? type.split('_')[1] : type;
+        if (!paddle.IR.Utility._typeMapper) {
+            paddle.IR.Utility._typeMapper = new Map([
+                ['bool', 'boolean'],
+                ['bf16', 'bfloat16'],
+                ['fp16', 'float16'],
+                ['fp32', 'float32'],
+                ['fp64', 'float64'],
+                ['fp8_e4m3fn', 'float8e4m3fn'],
+                ['fp8_e5m2', 'float8e5m2'],
+                ['f8e4m3fn', 'float8e4m3fn'],
+                ['f8e5m2', 'float8e5m2'],
+                ['f16', 'float16'],
+                ['f32', 'float32'],
+                ['f64', 'float64'],
+                ['i8', 'int8'],
+                ['ui8', 'uint8'],
+                ['i16', 'int16'],
+                ['i32', 'int32'],
+                ['i64', 'int64'],
+                ['c64', 'complex64'],
+                ['c128', 'complex128'],
+                ['str', 'string'],
+            ]);
+        }
+        return paddle.IR.Utility._typeMapper.has(type) ? paddle.IR.Utility._typeMapper.get(type) : type;
+    }
 
-paddle.IR.AttributeType = {
-    // ref: Paddle/paddle/pir/include/core/builtin_attribute.h
-    a_bool: 'bool',
-    a_c64: 'complex64',
-    a_c128: 'complex128',
-    a_type: 'type',
-    a_tensorname: 'tensorname',
-    a_str: 'str',
-    a_f32: 'float32',
-    a_f64: 'float64',
-    a_i32: 'int32',
-    a_i64: 'int64',
-    a_index: 'index',
-    a_pointer: 'pointer',
-    a_array: 'array',
-    // ref: Paddle/paddle/fluid/pir/dialect/operator/ir/op_attribute.h
-    a_intarray: 'intarray',
-    a_scalar: 'scalar',
-    a_dtype: 'dtype',
-    a_place: 'place',
-    a_layout: 'layout'
+    static createTensorType(dataType, shape, denotation, layout) {
+        dataType = paddle.IR.Utility.getType(dataType);
+        return new paddle.IR.TensorType(dataType, new paddle.TensorShape(shape), denotation, layout);
+    }
 };
 
 paddle.DataType = {
