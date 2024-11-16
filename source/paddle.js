@@ -317,11 +317,12 @@ paddle.Graph = class {
                     }
                 }
                 for (const output of op.outputs) {
-                    const hasType = output.dataTypes !== undefined;
                     for (const name of output.arguments) {
+                        if (output.values && output.values.has(name)) {
+                            values.set(name, output.values.get(name));
+                        }
                         if (!values.has(name)) {
-                            const type = hasType ? output.dataTypes.get(name) : null;
-                            values.set(name, new paddle.Value(name, type, null));
+                            values.set(name, new paddle.Value(name, null, null));
                         }
                     }
                 }
@@ -921,10 +922,12 @@ paddle.IR.Op = class {
     constructor(op) {
         const opInfo = paddle.IR.Op.Utility.getOpInfo(op);
 
+        // make base info
         this.name = opInfo.name;
         this.type = opInfo.type;
         this.description = `The op is "${opInfo.rawType}" ("${opInfo.description}").`;
 
+        // make attributes
         this.attrs = [];
         for (const [idx, value] of Object.entries(op.A)) {
             this.attrs.push(new paddle.IR.Attr(idx, value, opInfo));
@@ -936,10 +939,24 @@ paddle.IR.Op = class {
             }
         }
 
-        this.inputs = op.I ? [new paddle.IR.Input(op.I)] : [new paddle.IR.Input([])];
-        this.outputs = op.O ? [new paddle.IR.Output(op.O, op.OA, opInfo)] : [new paddle.IR.Output([], [], opInfo)];
-    }
+        // make inputs
+        this.inputs = [];
+        if (op.I) {
+            const inputs = Array.isArray(op.I) ? op.I : [op.I];
+            for (const input of inputs) {
+                this.inputs.push(new paddle.IR.Input(input));
+            }
+        }
 
+        // make outputs
+        this.outputs = [];
+        if (op.O) {
+            const outputs = Array.isArray(op.O) ? op.O : [op.O];
+            for (const [idx, output] of Object.entries(outputs)) {
+                this.outputs.push(new paddle.IR.Output(idx, output, op.OA, opInfo));
+            }
+        }
+    }
 };
 
 paddle.IR.Op.Utility = class {
@@ -949,7 +966,7 @@ paddle.IR.Op.Utility = class {
             case 'p':
                 return new paddle.IR.OpInfoP(op);
             default:
-                return new paddle.IR.OpInfoNormal(op);
+                return new paddle.IR.OpInfo(op);
         }
     }
 
@@ -968,7 +985,7 @@ paddle.IR.Op.Utility = class {
     }
 };
 
-paddle.IR.OpInfoNormal = class {
+paddle.IR.OpInfo = class {
 
     constructor(op) {
         const typeCompressed = op['#'];
@@ -1029,7 +1046,7 @@ paddle.IR.OpInfoNormal = class {
     }
 };
 
-paddle.IR.OpInfoP = class extends paddle.IR.OpInfoNormal {
+paddle.IR.OpInfoP = class extends paddle.IR.OpInfo {
 
     init(op) {
         const [name] = op.A.slice(3);
@@ -1097,39 +1114,33 @@ paddle.IR.Attr = class {
 };
 
 paddle.IR.Input = class {
-
     constructor(input) {
-        this.arguments = [];
-        this.parameter = 'Input';
-
-        input = Array.isArray(input) ? input : [input];
-        for (const i of input) {
-            this.arguments.push(`${i['%']}`);
-        }
+        const inputIdx = `${input['%']}`;
+        this.arguments = [inputIdx];
+        this.parameter = inputIdx;
     }
 };
 
 paddle.IR.Output = class {
 
-    constructor(output, outputAttr, opInfo) {
-        this.arguments = [];
-        this.parameter = 'Output';
-        this.dataTypes = new Map();
+    constructor(idx, output, outputAttr, opInfo) {
+        const outputIdx = `${output['%']}`;
+        this.arguments = [outputIdx];
+        this.parameter = outputIdx;
+        this.values = new Map();
 
-        output = Array.isArray(output) ? output : [output];
-        for (const [idx, o] of Object.entries(output)) {
-            const outputId = `${o['%']}`;
-            this.arguments.push(outputId);
-
-            const [, tensorType] = o.TT['#'].split('.');
-            if (tensorType === 't_dtensor') {
-                const dataInfo = o.TT.D;
-                const [type, shape, layout, ,] = dataInfo;
-                const [, dataType] = type['#'].split('.');
-                const denotation = opInfo.getOutputAttr(idx, outputAttr);
-                this.dataTypes.set(outputId, paddle.IR.Utility.createTensorType(dataType, shape, denotation, layout));
-            }
+        const [, tensorType] = output.TT['#'].split('.');
+        if (tensorType === 't_dtensor') {
+            const dataInfo = output.TT.D;
+            const [type, shape, layout, ,] = dataInfo;
+            const [, dataType] = type['#'].split('.');
+            const denotation = opInfo.getOutputAttr(idx, outputAttr);
+            this.dataType = paddle.IR.Utility.createTensorType(dataType, shape, denotation, layout);
+            this.values.set(outputIdx, new paddle.Value(outputIdx, paddle.IR.Utility.createTensorType(dataType, shape, denotation, layout), null));
+        } else {
+            this.values.set(outputIdx, new paddle.Value(outputIdx, null, null));
         }
+
     }
 };
 
