@@ -3549,6 +3549,9 @@
     "category": "Layer"
   },
   {
+    "name": "aten::lstrip(str self, str chars=\" \\n\\t\\f\\v\") -> str"
+  },
+  {
     "name": "aten::lt(Scalar a, Scalar b) -> bool"
   },
   {
@@ -4769,6 +4772,9 @@
   },
   {
     "name": "aten::rsqrt_(Tensor(a!) self) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::rstrip(str self, str chars=\" \\n\\t\\f\\v\") -> str"
   },
   {
     "name": "aten::rsub.Scalar(Tensor self, Scalar other, Scalar alpha=1) -> Tensor"

@@ -4859,9 +4859,9 @@ python.Execution = class {
         this.registerType('torch.nn.intrinsic.qat.modules.conv_fused.ConvBn2d', class {});
         this.registerType('torch.nn.intrinsic.qat.modules.conv_fused.ConvBnReLU2d', class {});
         this.registerType('torch.nn.intrinsic.qat.modules.conv_fused.ConvReLU2d', class {});
+        this.registerType('torch.nn.intrinsic.quantized.modules.bn_relu.BNReLU2d', class {});
         this.registerType('torch.nn.intrinsic.quantized.modules.conv_relu.ConvReLU1d', class {});
         this.registerType('torch.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class {});
-
         this.registerType('torch.nn.intrinsic.quantized.modules.linear_relu.LinearReLU', class {});
         this.registerType('torch.nn.modules.activation.CELU', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.activation.ELU', class extends torch.nn.modules.module.Module {});
@@ -5191,7 +5191,14 @@ python.Execution = class {
         });
         this.registerFunction('torch.fx.graph_module.reduce_graph_module', (body, import_block) => {
             // https://github.com/pytorch/pytorch/blob/master/torch/fx/graph_module.py
-            const fn_src = body._code || body.code;
+            let fn_src = null;
+            if (body.has('_code')) {
+                fn_src = body.get('_code');
+            } else if (body.has('code')) {
+                fn_src = body.get('code');
+            } else {
+                fn_src = body._code || body.code;
+            }
             const forward = execution.invoke('torch.fx.graph_module._forward_from_src', [import_block + fn_src, {}]);
             return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [forward, body]);
         });

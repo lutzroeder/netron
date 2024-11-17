@@ -313,8 +313,10 @@ mlir.Node = class {
         this.outputs = op.outputs || [];
         this.attributes = [];
         if (op.attributes) {
-            for (const [name, value] of op.attributes) {
-                const attribute = new mlir.Argument(name, value, 'string');
+            for (let i = 0; i < op.attributes.length; i++) {
+                const attr = op.attributes[i];
+                const name = attr.name || i.toString();
+                const attribute = new mlir.Argument(name, attr.value, attr.type || 'attribute');
                 this.attributes.push(attribute);
             }
         }
@@ -818,11 +820,11 @@ mlir.Parser = class {
         }
         func.name = this._parseFunctionName();
         const inputs = this._parseFunctionInputs();
-        func.attributes = new Map();
+        func.attributes = [];
         // attributes
         if (this._eat(mlir.TokenType.IDENTIFIER, 'attributes')) {
-            for (const [key, value] of this._parseAttributes()) {
-                func.attributes.set(key, value);
+            for (const attribute of this._parseAttributes()) {
+                func.attributes.push(attribute);
             }
         }
         const outputTypes = [];
@@ -833,8 +835,8 @@ mlir.Parser = class {
         }
         // attributes
         if (this._eat(mlir.TokenType.IDENTIFIER, 'attributes')) {
-            for (const [key, value] of this._parseAttributes()) {
-                func.attributes.set(key, value);
+            for (const attribute of this._parseAttributes()) {
+                func.attributes.push(attribute);
             }
         }
         this._read('{');
@@ -1079,19 +1081,7 @@ mlir.Parser = class {
                 inputs.push(value.value);
             } else if (this._current.type === mlir.TokenType.IDENTIFIER) {
                 if (this._current.value === 'dense') {
-                    let value = this._read(mlir.TokenType.IDENTIFIER).value;
-                    value += this._read('<').value;
-                    let level = 0;
-                    while (level > 0 || this._current.type !== '>') {
-                        if (this._current.type === '<') {
-                            level += 1;
-                        }
-                        if (this._current.type === '>') {
-                            level -= 1;
-                        }
-                        value += this._read(this._current.type).value;
-                    }
-                    value += this._read('>').value;
+                    const value = this._parseValue();
                     inputs.push(value);
                 } else {
                     throw new mlir.Error(`Unexpected identifier '${this._current.value}' ${this._tokenizer.location()}`);
@@ -1121,7 +1111,9 @@ mlir.Parser = class {
     _parseType() {
         if (this._current.type === mlir.TokenType.IDENTIFIER) {
             if (this._current.value === 'none' ||
+                this._current.value === 'i32' ||
                 this._current.value === 'i64' ||
+                this._current.value === 'si64' ||
                 this._current.value === 'f32' ||
                 this._current.value === 'index') {
                 return this._eat(mlir.TokenType.IDENTIFIER).value;
@@ -1213,8 +1205,73 @@ mlir.Parser = class {
         return outputTypes;
     }
 
+    _parseValue() {
+        if (this._current.type === mlir.TokenType.STRING_LITERAL) {
+            return this._read(mlir.TokenType.STRING_LITERAL).value;
+        }
+        if (this._current.type === mlir.TokenType.INTEGER_LITERAL) {
+            return this._read(mlir.TokenType.INTEGER_LITERAL).value;
+        }
+        if (this._current.type === mlir.TokenType.FLOAT_LITERAL) {
+            return this._read(mlir.TokenType.FLOAT_LITERAL).value;
+        }
+        if (this._current.type === mlir.TokenType.BOOLEAN_LITERAL) {
+            return this._read(mlir.TokenType.BOOLEAN_LITERAL).value;
+        }
+        if (this._current.type === mlir.TokenType.SYMBOL_REF_ID) {
+            return this._read(mlir.TokenType.SYMBOL_REF_ID).value;
+        }
+        if (this._eat('[')) {
+            const list = [];
+            while (!this._eat(']')) {
+                list.push(this._parseValue());
+                this._eat(',');
+            }
+            return list;
+        }
+        if (this._current.type === '{') {
+            const attributes = this._parseAttributes();
+            const obj = {};
+            for (const attribute of attributes) {
+                obj[attribute.name] = attribute.value;
+            }
+            return obj;
+        }
+        if (this._current.type === mlir.TokenType.ATTRIBUTE_ALIAS) {
+            let value = this._read(mlir.TokenType.ATTRIBUTE_ALIAS).value;
+            if (this._current.type === '<') {
+                value += this._read('<').value;
+                while (this._current.type !== '>') {
+                    value += this._read(this._current.type).value;
+                }
+                value += this._read('>').value;
+            }
+            return value;
+        }
+        if (this._current.value === 'tensor') {
+            return this._parseType();
+        }
+        if (this._current.value === 'dense') {
+            let value = this._read(mlir.TokenType.IDENTIFIER).value;
+            value += this._read('<').value;
+            let level = 0;
+            while (level > 0 || this._current.type !== '>') {
+                if (this._current.type === '<') {
+                    level += 1;
+                }
+                if (this._current.type === '>') {
+                    level -= 1;
+                }
+                value += this._read(this._current.type).value;
+            }
+            value += this._read('>').value;
+            return value;
+        }
+        throw new mlir.Error(`Unexpected value ${this._tokenizer.location()}`);
+    }
+
     _parseAttributes() {
-        const attributes = new Map();
+        const attributes = [];
         if (this._eat('{')) {
             while (!this._eat('}')) {
                 let name = null;
@@ -1225,8 +1282,14 @@ mlir.Parser = class {
                 } else if (this._match(mlir.TokenType.KEYWORD)) {
                     name = this._read(mlir.TokenType.KEYWORD).value;
                 }
+                let value = null;
+                let type = null;
                 if (this._eat('=')) {
-                    let value = '';
+                    value = this._parseValue();
+                    if (this._eat(':')) {
+                        type = this._parseType();
+                    }
+                    /*
                     let openingCount = 0;
                     while (openingCount !== 0 || (this._current.type !== ',' && this._current.type !== '}')) {
                         switch (this._current.type) {
@@ -1246,10 +1309,19 @@ mlir.Parser = class {
                         value += `${this._current.value} `;
                         this._read(this._current.type);
                     }
-                    attributes.set(name, value.trim());
-                } else {
-                    attributes.set(name, name);
+                    value = value.trim();
+                    let type = null;
+                    const index = value.lastIndexOf(':');
+                    if (index !== -1) {
+                        type = value.substring(index + 1).trim();
+                        value = value.substring(0, index).trim();
+                    }
+                    if (value.startsWith('[') && value.endsWith(']')) {
+                        value = JSON.parse(value);
+                    }
+                    */
                 }
+                attributes.push({ name, value, type });
                 this._eat(',');
             }
         }
