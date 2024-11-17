@@ -1038,11 +1038,11 @@ paddle.IR.OpInfo = class {
     }
 
     getOutputAttr(idx, outputAttr) {
-        const denotation = [];
-        for (const attr of outputAttr) {
-            denotation.push(`${attr.N}:${attr.AT.D[idx].D}`);
+        const description = [];
+        for (const [i, attr] of Object.entries(outputAttr)) {
+            description.push(paddle.IR.Utility.formatOutputAttr(attr.N, attr.AT.D[idx].D, i > 0));
         }
-        return denotation.join(';');
+        return description.join('');
     }
 };
 
@@ -1099,7 +1099,12 @@ paddle.IR.OpInfoP = class extends paddle.IR.OpInfo {
         const persistable = outputAttr[0] === 1;
         const stop_gradient = outputAttr[1] === 1;
         const trainable = outputAttr[2] === 1;
-        return `persistable:${persistable};stop_gradient:${stop_gradient};trainable:${trainable}`;
+        const attr = [
+            paddle.IR.Utility.formatOutputAttr('persistable', persistable, false),
+            paddle.IR.Utility.formatOutputAttr('stop_gradient', stop_gradient, true),
+            paddle.IR.Utility.formatOutputAttr('trainable', trainable, true)
+        ];
+        return attr.join('');
     }
 };
 
@@ -1134,27 +1139,13 @@ paddle.IR.Output = class {
             const dataInfo = output.TT.D;
             const [type, shape, layout, ,] = dataInfo;
             const [, dataType] = type['#'].split('.');
-            const denotation = opInfo.getOutputAttr(idx, outputAttr);
-            this.dataType = paddle.IR.Utility.createTensorType(dataType, shape, denotation, layout);
-            this.values.set(outputIdx, new paddle.Value(outputIdx, paddle.IR.Utility.createTensorType(dataType, shape, denotation, layout), null));
+            const description = opInfo.getOutputAttr(idx, outputAttr);
+            const tensorType = paddle.IR.Utility.createTensorType(dataType, shape, layout);
+            this.values.set(outputIdx, new paddle.IR.Value(outputIdx, tensorType, null, description));
         } else {
-            this.values.set(outputIdx, new paddle.Value(outputIdx, null, null));
+            this.values.set(outputIdx, new paddle.IR.Value(outputIdx, null, null, null));
         }
 
-    }
-};
-
-paddle.IR.TensorType = class {
-
-    constructor(dataType, shape, denotation, layout) {
-        this.dataType = dataType;
-        this.shape = shape;
-        this.denotation = denotation;
-        this.layout = layout;
-    }
-
-    toString() {
-        return this.dataType + this.shape.toString();
     }
 };
 
@@ -1189,9 +1180,29 @@ paddle.IR.Utility = class {
         return paddle.IR.Utility._typeMapper.has(type) ? paddle.IR.Utility._typeMapper.get(type) : type;
     }
 
-    static createTensorType(dataType, shape, denotation, layout) {
+    static createTensorType(dataType, shape, layout) {
         dataType = paddle.IR.Utility.getType(dataType);
-        return new paddle.IR.TensorType(dataType, new paddle.TensorShape(shape), denotation, layout);
+        return new paddle.IR.TensorType(dataType, new paddle.TensorShape(shape), layout);
+    }
+
+    static formatOutputAttr(key, value, padding) {
+        return `<div style="padding-top: ${padding ? 6 : 0}px">${key}: <code><b>${value}</b></code><br></div>`;
+    }
+};
+
+paddle.IR.TensorType = class extends paddle.TensorType {
+
+    constructor(dataType, shape, layout) {
+        super(dataType, shape);
+        this.layout = layout;
+    }
+};
+
+paddle.IR.Value = class extends paddle.Value {
+
+    constructor(name, type, initializer, description) {
+        super(name, type, initializer);
+        this.description = description;
     }
 };
 
@@ -1242,7 +1253,7 @@ paddle.AttributeType = {
     FLOAT64S: 12,
     VAR: 13,
     VARS: 14,
-    FLOAT64: 15,
+    FLOAT64: 15
 };
 
 paddle.Error = class extends Error {
