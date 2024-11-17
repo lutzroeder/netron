@@ -939,13 +939,19 @@ paddle.IR.Op = class {
             }
         }
 
+        // in case of duplicated
+        const inputNames = new Set();
+        const outputNames = new Set();
+
         // make inputs
         this.inputs = [];
         if (op.I) {
             const inputs = Array.isArray(op.I) ? op.I : [op.I];
             for (const input of inputs) {
                 this.inputs.push(new paddle.IR.Input(input));
+                inputNames.add(`${input['%']}`);
             }
+
         }
 
         // make outputs
@@ -954,6 +960,64 @@ paddle.IR.Op = class {
             const outputs = Array.isArray(op.O) ? op.O : [op.O];
             for (const [idx, output] of Object.entries(outputs)) {
                 this.outputs.push(new paddle.IR.Output(idx, output, op.OA, opInfo));
+                outputNames.add(`${output['%']}`);
+            }
+        }
+
+        // add inputs and outputs from regions
+        const walkRegions = (regions) => {
+            let inputs = new Map();
+            let outputs = new Map();
+            for (const region of regions) {
+                for (const block of region.blocks) {
+                    for (const op of block.ops) {
+                        if (op.I) {
+                            const opInputs = Array.isArray(op.I) ? op.I : [op.I];
+                            for (const input of opInputs) {
+                                const name = `${input['%']}`;
+                                if (!inputs.has(name)) {
+                                    inputs.set(name, input);
+                                }
+                            }
+                        }
+
+                        if (op.O) {
+                            const opOutputs = Array.isArray(op.O) ? op.O : [op.O];
+                            for (const output of opOutputs) {
+                                const name = `${output['%']}`;
+                                if (!outputs.has(name)) {
+                                    outputs.set(name, output);
+                                }
+                            }
+                        }
+
+                        if (op.regions) {
+                            const [subInputs, subOutputs] = walkRegions(op.regions);
+                            inputs = new Map([...inputs, ...subInputs]);
+                            outputs = new Map([...outputs, ...subOutputs]);
+                        }
+                    }
+                }
+            }
+            return [inputs, outputs];
+        };
+
+        if (op.regions) {
+            // get sub inputs and outputs from regions
+            const [subInputs, subOutputs] = walkRegions(op.regions);
+
+            // just add inputs which are not generated from sub regions
+            for (const [name, input] of subInputs) {
+                if (!inputNames.has(name) && !subOutputs.has(name)) {
+                    this.inputs.push(new paddle.IR.Input(input));
+                }
+            }
+
+            // just add outputs which are not used inside sub regions
+            for (const [name, output] of subOutputs) {
+                if (!outputNames.has(name) && !subInputs.has(name)) {
+                    this.outputs.push(new paddle.IR.Output(output));
+                }
             }
         }
     }
