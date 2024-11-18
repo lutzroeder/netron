@@ -867,7 +867,7 @@ paddle.Utility = class {
 paddle.IR = class {
 
     constructor(obj) {
-        paddle.IR.Utility.init();
+        paddle.IR.Utility.init(obj);
 
         this.base_code = obj.base_code;
         this.version = obj.base_code.version;
@@ -968,49 +968,9 @@ paddle.IR.Op = class {
             }
         }
 
-        // add inputs and outputs from regions
-        const walkRegions = (regions) => {
-            let inputs = new Map();
-            let outputs = new Map();
-            for (const region of regions) {
-                for (const block of region.blocks) {
-                    for (const op of block.ops) {
-                        const opInfo = paddle.IR.Op.Utility.getOpInfo(op);
-
-                        if (op.I) {
-                            const opInputs = Array.isArray(op.I) ? op.I : [op.I];
-                            for (const input of opInputs) {
-                                const [, name] = paddle.IR.Utility.getTensorName(input, opInfo.namePrefix);
-                                if (!inputs.has(name)) {
-                                    inputs.set(name, [input, opInfo]);
-                                }
-                            }
-                        }
-
-                        if (op.O) {
-                            const opOutputs = Array.isArray(op.O) ? op.O : [op.O];
-                            for (const [idx, output] of Object.entries(opOutputs)) {
-                                const [, name] = paddle.IR.Utility.getTensorName(output, opInfo.namePrefix);
-                                if (!outputs.has(name)) {
-                                    outputs.set(name, [output, opInfo, idx, op.OA]);
-                                }
-                            }
-                        }
-
-                        if (op.regions) {
-                            const [subInputs, subOutputs] = walkRegions(op.regions);
-                            inputs = new Map([...inputs, ...subInputs]);
-                            outputs = new Map([...outputs, ...subOutputs]);
-                        }
-                    }
-                }
-            }
-            return [inputs, outputs];
-        };
-
         if (op.regions) {
             // get sub inputs and outputs from regions
-            const [subInputs, subOutputs] = walkRegions(op.regions);
+            const [subInputs, subOutputs] = paddle.IR.Utility.collectRegions(op.regions);
 
             // just add inputs which are not generated from sub regions
             for (const [name, inputArgs] of subInputs) {
@@ -1282,7 +1242,7 @@ paddle.IR.Output = class {
 };
 
 paddle.IR.Utility = class {
-    static init() {
+    static init(obj) {
         paddle.IR.Utility._typeMapper = new Map([
             ['bool', 'boolean'],
             ['bf16', 'bfloat16'],
@@ -1317,6 +1277,10 @@ paddle.IR.Utility = class {
         ]);
 
         paddle.IR.Utility._outputNames = new Map();
+
+        const [inputs, outputs] = paddle.IR.Utility.collectRegions(obj.program.regions);
+        paddle.IR.Utility._inputs = inputs;
+        paddle.IR.Utility._outputs = outputs;
     }
 
     static getPlace(place) {
@@ -1344,7 +1308,52 @@ paddle.IR.Utility = class {
             const [, shape] = tensor.TT.D;
             paddle.IR.Utility._outputNames.set(idx, `${prefix} [${shape}]`);
         }
-        return [`${idx}`, paddle.IR.Utility._outputNames.has(idx) ? paddle.IR.Utility._outputNames.get(idx) : `${idx}`];
+
+        // [idx as string, formatted name, is a negative integer]
+        return [
+            `${idx}`,
+            paddle.IR.Utility._outputNames.has(idx) ? paddle.IR.Utility._outputNames.get(idx) : `${idx}`,
+            Number.isInteger(idx) ? idx < 0 : false
+        ];
+    }
+
+    static collectRegions(regions) {
+        let inputs = new Map();
+        let outputs = new Map();
+        for (const region of regions) {
+            for (const block of region.blocks) {
+                for (const op of block.ops) {
+                    const opInfo = paddle.IR.Op.Utility.getOpInfo(op);
+
+                    if (op.I) {
+                        const opInputs = Array.isArray(op.I) ? op.I : [op.I];
+                        for (const input of opInputs) {
+                            const [, name, isNegative] = paddle.IR.Utility.getTensorName(input, opInfo.namePrefix);
+                            if (!isNegative && !inputs.has(name)) {
+                                inputs.set(name, [input, opInfo]);
+                            }
+                        }
+                    }
+
+                    if (op.O) {
+                        const opOutputs = Array.isArray(op.O) ? op.O : [op.O];
+                        for (const [idx, output] of Object.entries(opOutputs)) {
+                            const [, name, isNegative] = paddle.IR.Utility.getTensorName(output, opInfo.namePrefix);
+                            if (!isNegative && !outputs.has(name)) {
+                                outputs.set(name, [output, opInfo, idx, op.OA]);
+                            }
+                        }
+                    }
+
+                    if (op.regions) {
+                        const [subInputs, subOutputs] = paddle.IR.Utility.collectRegions(op.regions);
+                        inputs = new Map([...inputs, ...subInputs]);
+                        outputs = new Map([...outputs, ...subOutputs]);
+                    }
+                }
+            }
+        }
+        return [inputs, outputs];
     }
 };
 
