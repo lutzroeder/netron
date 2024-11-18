@@ -367,6 +367,12 @@ paddle.Graph = class {
                     }
                 }
             }
+
+            if (block.inputs) {
+                for (const input of block.inputs) {
+                    this.inputs.push(input);
+                }
+            }
         } else {
             const values = new Map();
             const ops = new Map();
@@ -916,6 +922,17 @@ paddle.IR.Block = class {
         for (const op of block.ops) {
             this.ops.push(new paddle.IR.Op(op));
         }
+        this.inputs = [];
+        if (block.args) {
+            for (const input of block.args) {
+                const [,type] = input.TT && input.TT['#'] ? input.TT['#'].split('.') : null;
+                if (type === 't_dtensor') {
+                    const name = `${input['#']}`;
+                    const tensorType = paddle.IR.Utility.createTensorType(input);
+                    this.inputs.push(new paddle.Argument(name, [new paddle.IR.Value(name, tensorType, null, null)]));
+                }
+            }
+        }
     }
 };
 
@@ -951,7 +968,7 @@ paddle.IR.Op = class {
             const inputs = Array.isArray(op.I) ? op.I : [op.I];
             for (const input of inputs) {
                 this.inputs.push(new paddle.IR.Input(input, opInfo));
-                const [, name] = paddle.IR.Utility.getTensorName(input, opInfo.namePrefix);
+                const [, name] = paddle.IR.Utility.getParaName(input, opInfo.namePrefix);
                 inputNames.add(name);
             }
 
@@ -963,7 +980,7 @@ paddle.IR.Op = class {
             const outputs = Array.isArray(op.O) ? op.O : [op.O];
             for (const [idx, output] of Object.entries(outputs)) {
                 this.outputs.push(new paddle.IR.Output(output, opInfo, idx, op.OA));
-                const [, name] = paddle.IR.Utility.getTensorName(output, opInfo.namePrefix);
+                const [, name] = paddle.IR.Utility.getParaName(output, opInfo.namePrefix);
                 outputNames.add(name);
             }
         }
@@ -1212,7 +1229,7 @@ paddle.IR.Attr = class {
 
 paddle.IR.Input = class {
     constructor(input, opInfo) {
-        const [parameter, inputName] = paddle.IR.Utility.getTensorName(input, opInfo.namePrefix);
+        const [parameter, inputName] = paddle.IR.Utility.getParaName(input, opInfo.namePrefix);
         this.arguments = [inputName];
         this.parameter = parameter;
     }
@@ -1221,18 +1238,15 @@ paddle.IR.Input = class {
 paddle.IR.Output = class {
 
     constructor(output, opInfo, idx, outputAttr) {
-        const [parameter, outputName] = paddle.IR.Utility.getTensorName(output, opInfo.namePrefix);
+        const [parameter, outputName] = paddle.IR.Utility.getParaName(output, opInfo.namePrefix);
         this.arguments = [outputName];
         this.parameter = parameter;
         this.values = new Map();
 
         const [, tensorType] = output.TT['#'].split('.');
         if (tensorType === 't_dtensor') {
-            const dataInfo = output.TT.D;
-            const [type, shape, layout, ,] = dataInfo;
-            const [, dataType] = type['#'].split('.');
+            const tensorType = paddle.IR.Utility.createTensorType(output);
             const description = opInfo.getOutputAttr(idx, outputAttr);
-            const tensorType = paddle.IR.Utility.createTensorType(dataType, shape, layout);
             this.values.set(outputName, new paddle.IR.Value(outputName, tensorType, null, description));
         } else {
             this.values.set(outputName, new paddle.IR.Value(outputName, null, null, null));
@@ -1292,21 +1306,24 @@ paddle.IR.Utility = class {
         return paddle.IR.Utility._typeMapper.has(type) ? paddle.IR.Utility._typeMapper.get(type) : type;
     }
 
-    static createTensorType(dataType, shape, layout) {
-        dataType = paddle.IR.Utility.getType(dataType);
-        return new paddle.IR.TensorType(dataType, new paddle.TensorShape(shape), layout);
+    static createTensorType(data) {
+        const dataInfo = data.TT.D;
+        const [type, shape, layout, ,] = dataInfo;
+        const [, dataType] = type['#'].split('.');
+        const mappedDataType = paddle.IR.Utility.getType(dataType);
+        return new paddle.IR.TensorType(mappedDataType, new paddle.TensorShape(shape), layout);
     }
 
     static formatOutputAttr(key, value, padding) {
         return `<div style="padding-top: ${padding ? 6 : 0}px">${key}: <code><b>${value}</b></code><br></div>`;
     }
 
-    static getTensorName(tensor, namePrefix) {
+    static getParaName(tensor, namePrefix) {
         const idx = tensor['%'];
         if (tensor.TT && !paddle.IR.Utility._outputNames.has(idx)) {
             const prefix = namePrefix || idx;
             const [, shape] = tensor.TT.D;
-            paddle.IR.Utility._outputNames.set(idx, `${prefix} [${shape}]`);
+            paddle.IR.Utility._outputNames.set(idx, paddle.IR.Utility.formatTensorName(prefix, shape));
         }
 
         // [idx as string, formatted name, is a negative integer]
@@ -1315,6 +1332,10 @@ paddle.IR.Utility = class {
             paddle.IR.Utility._outputNames.has(idx) ? paddle.IR.Utility._outputNames.get(idx) : `${idx}`,
             Number.isInteger(idx) ? idx < 0 : false
         ];
+    }
+
+    static formatTensorName(prefix, shape) {
+        return shape ? `${prefix} [${shape}]` : `${prefix}`;
     }
 
     static collectRegions(regions) {
@@ -1328,7 +1349,7 @@ paddle.IR.Utility = class {
                     if (op.I) {
                         const opInputs = Array.isArray(op.I) ? op.I : [op.I];
                         for (const input of opInputs) {
-                            const [, name, isNegative] = paddle.IR.Utility.getTensorName(input, opInfo.namePrefix);
+                            const [, name, isNegative] = paddle.IR.Utility.getParaName(input, opInfo.namePrefix);
                             if (!isNegative && !inputs.has(name)) {
                                 inputs.set(name, [input, opInfo]);
                             }
@@ -1338,7 +1359,7 @@ paddle.IR.Utility = class {
                     if (op.O) {
                         const opOutputs = Array.isArray(op.O) ? op.O : [op.O];
                         for (const [idx, output] of Object.entries(opOutputs)) {
-                            const [, name, isNegative] = paddle.IR.Utility.getTensorName(output, opInfo.namePrefix);
+                            const [, name, isNegative] = paddle.IR.Utility.getParaName(output, opInfo.namePrefix);
                             if (!isNegative && !outputs.has(name)) {
                                 outputs.set(name, [output, opInfo, idx, op.OA]);
                             }
@@ -1361,7 +1382,7 @@ paddle.IR.TensorType = class extends paddle.TensorType {
 
     constructor(dataType, shape, layout) {
         super(dataType, shape);
-        this.layout = layout;
+        this.layout = layout || '';
     }
 };
 
@@ -1369,7 +1390,7 @@ paddle.IR.Value = class extends paddle.Value {
 
     constructor(name, type, initializer, description) {
         super(name, type, initializer);
-        this.description = description;
+        this.description = description || '';
     }
 };
 
