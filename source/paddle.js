@@ -867,6 +867,8 @@ paddle.Utility = class {
 paddle.IR = class {
 
     constructor(obj) {
+        paddle.IR.Utility.init();
+
         this.base_code = obj.base_code;
         this.version = obj.base_code.version;
         this.program = new paddle.IR.Program(obj.program);
@@ -923,9 +925,9 @@ paddle.IR.Op = class {
         const opInfo = paddle.IR.Op.Utility.getOpInfo(op);
 
         // make base info
-        this.name = opInfo.name;
+        this.name = opInfo.fullName;
         this.type = opInfo.type;
-        this.description = `The op is "${opInfo.rawType}" ("${opInfo.description}").`;
+        this.description = `The op is "${opInfo.rawType}" ("${opInfo.fullName}").`;
 
         // make attributes
         this.attrs = [];
@@ -948,8 +950,9 @@ paddle.IR.Op = class {
         if (op.I) {
             const inputs = Array.isArray(op.I) ? op.I : [op.I];
             for (const input of inputs) {
-                this.inputs.push(new paddle.IR.Input(input));
-                inputNames.add(`${input['%']}`);
+                this.inputs.push(new paddle.IR.Input(input, opInfo));
+                const [, name] = paddle.IR.Utility.getTensorName(input, opInfo.namePrefix);
+                inputNames.add(name);
             }
 
         }
@@ -959,8 +962,9 @@ paddle.IR.Op = class {
         if (op.O) {
             const outputs = Array.isArray(op.O) ? op.O : [op.O];
             for (const [idx, output] of Object.entries(outputs)) {
-                this.outputs.push(new paddle.IR.Output(idx, output, op.OA, opInfo));
-                outputNames.add(`${output['%']}`);
+                this.outputs.push(new paddle.IR.Output(output, opInfo, idx, op.OA));
+                const [, name] = paddle.IR.Utility.getTensorName(output, opInfo.namePrefix);
+                outputNames.add(name);
             }
         }
 
@@ -971,22 +975,24 @@ paddle.IR.Op = class {
             for (const region of regions) {
                 for (const block of region.blocks) {
                     for (const op of block.ops) {
+                        const opInfo = paddle.IR.Op.Utility.getOpInfo(op);
+
                         if (op.I) {
                             const opInputs = Array.isArray(op.I) ? op.I : [op.I];
                             for (const input of opInputs) {
-                                const name = `${input['%']}`;
+                                const [, name] = paddle.IR.Utility.getTensorName(input, opInfo.namePrefix);
                                 if (!inputs.has(name)) {
-                                    inputs.set(name, input);
+                                    inputs.set(name, [input, opInfo]);
                                 }
                             }
                         }
 
                         if (op.O) {
                             const opOutputs = Array.isArray(op.O) ? op.O : [op.O];
-                            for (const output of opOutputs) {
-                                const name = `${output['%']}`;
+                            for (const [idx, output] of Object.entries(opOutputs)) {
+                                const [, name] = paddle.IR.Utility.getTensorName(output, opInfo.namePrefix);
                                 if (!outputs.has(name)) {
-                                    outputs.set(name, output);
+                                    outputs.set(name, [output, opInfo, idx, op.OA]);
                                 }
                             }
                         }
@@ -1007,16 +1013,18 @@ paddle.IR.Op = class {
             const [subInputs, subOutputs] = walkRegions(op.regions);
 
             // just add inputs which are not generated from sub regions
-            for (const [name, input] of subInputs) {
+            for (const [name, inputArgs] of subInputs) {
                 if (!inputNames.has(name) && !subOutputs.has(name)) {
-                    this.inputs.push(new paddle.IR.Input(input));
+                    const [input, opInfo] = inputArgs;
+                    this.inputs.push(new paddle.IR.Input(input, opInfo));
                 }
             }
 
             // just add outputs which are not used inside sub regions
-            for (const [name, output] of subOutputs) {
+            for (const [name, outputArgs] of subOutputs) {
                 if (!outputNames.has(name) && !subInputs.has(name)) {
-                    this.outputs.push(new paddle.IR.Output(output));
+                    const [output, opInfo, idx, oa] = outputArgs;
+                    this.outputs.push(new paddle.IR.Output(output, opInfo, idx, oa));
                 }
             }
         }
@@ -1029,6 +1037,8 @@ paddle.IR.Op.Utility = class {
         switch (op['#']) {
             case 'p':
                 return new paddle.IR.OpInfoP(op);
+            case '1.data':
+                return new paddle.IR.OpInfoData(op);
             default:
                 return new paddle.IR.OpInfo(op);
         }
@@ -1056,7 +1066,7 @@ paddle.IR.OpInfo = class {
         this._rawType = typeCompressed;
         this._type = typeCompressed;
         this._name = typeCompressed;
-        this._description = '';
+        this._fullName = typeCompressed;
         this.init(op);
     }
 
@@ -1078,7 +1088,11 @@ paddle.IR.OpInfo = class {
         return this._opType;
     }
 
-    get description() {
+    get namePrefix() {
+        return null;
+    }
+
+    get fullName() {
         return `${paddle.IR.Op.Utility.getCompressOp(this._opKey)}.${this._opType}`;
     }
 
@@ -1098,6 +1112,12 @@ paddle.IR.OpInfo = class {
             attrValue = valueData;
         }
 
+        if (attrName === 'place') {
+            const [place, val,] = attrValue;
+            const device = paddle.IR.Utility.getPlace(place);
+            attrValue = `${device}: ${val}`;
+        }
+
         return [attrName, attrType, attrValue];
     }
 
@@ -1110,13 +1130,50 @@ paddle.IR.OpInfo = class {
     }
 };
 
+paddle.IR.OpInfoData = class extends paddle.IR.OpInfo {
+
+    init(op) {
+        const [opKey, opType] = this._name.split('.');
+        this._opKey = opKey;
+        this._opType = opType;
+        let prefix = '';
+        for (const attr of op.A) {
+            if (attr.N === 'name') {
+                prefix = attr.AT.D;
+                break;
+            }
+        }
+        this._prefix = prefix;
+        this._attr = op.A;
+    }
+
+    get namePrefix() {
+        return this._prefix;
+    }
+
+    getOutputAttr(idx, outputAttr) {
+        const description = [];
+        for (const [i, attr] of Object.entries(outputAttr)) {
+            description.push(paddle.IR.Utility.formatOutputAttr(attr.N, attr.AT.D[idx].D, i > 0));
+        }
+
+        for (const value of this._attr) {
+            const [attrName, , attrValue] = this.getAttr(null, value);
+            description.push(paddle.IR.Utility.formatOutputAttr(attrName, attrValue, true));
+        }
+
+        return description.join('');
+    }
+};
+
 paddle.IR.OpInfoP = class extends paddle.IR.OpInfo {
 
     init(op) {
         const [name] = op.A.slice(3);
         this._name = name;
         this._type = paddle.IR.Op.Utility.getCompressOp(this._type);
-        this._description = this._type;
+        this._fullName = this._type;
+        op.OA = [...op.OA, ...op.A];
     }
 
     get type() {
@@ -1124,11 +1181,15 @@ paddle.IR.OpInfoP = class extends paddle.IR.OpInfo {
     }
 
     get name() {
+        return this._type;
+    }
+
+    get namePrefix() {
         return this._name;
     }
 
-    get description() {
-        return this._description;
+    get fullName() {
+        return this._fullName;
     }
 
     getAttr(idx, value) {
@@ -1163,10 +1224,17 @@ paddle.IR.OpInfoP = class extends paddle.IR.OpInfo {
         const persistable = outputAttr[0] === 1;
         const stop_gradient = outputAttr[1] === 1;
         const trainable = outputAttr[2] === 1;
+        const is_distributed = outputAttr[3] === 1;
+        const is_parameter = outputAttr[4] === 1;
+        const need_clip = outputAttr[5] === 1;
         const attr = [
             paddle.IR.Utility.formatOutputAttr('persistable', persistable, false),
             paddle.IR.Utility.formatOutputAttr('stop_gradient', stop_gradient, true),
-            paddle.IR.Utility.formatOutputAttr('trainable', trainable, true)
+            paddle.IR.Utility.formatOutputAttr('trainable', trainable, true),
+            paddle.IR.Utility.formatOutputAttr('is_distributed', is_distributed, true),
+            paddle.IR.Utility.formatOutputAttr('is_parameter', is_parameter, true),
+            paddle.IR.Utility.formatOutputAttr('need_clip', need_clip, true),
+            paddle.IR.Utility.formatOutputAttr('name', outputAttr[6], true)
         ];
         return attr.join('');
     }
@@ -1183,19 +1251,19 @@ paddle.IR.Attr = class {
 };
 
 paddle.IR.Input = class {
-    constructor(input) {
-        const inputIdx = `${input['%']}`;
-        this.arguments = [inputIdx];
-        this.parameter = inputIdx;
+    constructor(input, opInfo) {
+        const [parameter, inputName] = paddle.IR.Utility.getTensorName(input, opInfo.namePrefix);
+        this.arguments = [inputName];
+        this.parameter = parameter;
     }
 };
 
 paddle.IR.Output = class {
 
-    constructor(idx, output, outputAttr, opInfo) {
-        const outputIdx = `${output['%']}`;
-        this.arguments = [outputIdx];
-        this.parameter = outputIdx;
+    constructor(output, opInfo, idx, outputAttr) {
+        const [parameter, outputName] = paddle.IR.Utility.getTensorName(output, opInfo.namePrefix);
+        this.arguments = [outputName];
+        this.parameter = parameter;
         this.values = new Map();
 
         const [, tensorType] = output.TT['#'].split('.');
@@ -1205,42 +1273,58 @@ paddle.IR.Output = class {
             const [, dataType] = type['#'].split('.');
             const description = opInfo.getOutputAttr(idx, outputAttr);
             const tensorType = paddle.IR.Utility.createTensorType(dataType, shape, layout);
-            this.values.set(outputIdx, new paddle.IR.Value(outputIdx, tensorType, null, description));
+            this.values.set(outputName, new paddle.IR.Value(outputName, tensorType, null, description));
         } else {
-            this.values.set(outputIdx, new paddle.IR.Value(outputIdx, null, null, null));
+            this.values.set(outputName, new paddle.IR.Value(outputName, null, null, null));
         }
 
     }
 };
 
 paddle.IR.Utility = class {
+    static init() {
+        paddle.IR.Utility._typeMapper = new Map([
+            ['bool', 'boolean'],
+            ['bf16', 'bfloat16'],
+            ['fp16', 'float16'],
+            ['fp32', 'float32'],
+            ['fp64', 'float64'],
+            ['fp8_e4m3fn', 'float8e4m3fn'],
+            ['fp8_e5m2', 'float8e5m2'],
+            ['f8e4m3fn', 'float8e4m3fn'],
+            ['f8e5m2', 'float8e5m2'],
+            ['f16', 'float16'],
+            ['f32', 'float32'],
+            ['f64', 'float64'],
+            ['i8', 'int8'],
+            ['ui8', 'uint8'],
+            ['i16', 'int16'],
+            ['i32', 'int32'],
+            ['i64', 'int64'],
+            ['c64', 'complex64'],
+            ['c128', 'complex128'],
+            ['str', 'string'],
+        ]);
+
+        paddle.IR.Utility._placeMapper = new Map([
+            ['0', 'UNDEFINED'],
+            ['1', 'CPU'],
+            ['2', 'GPU'],
+            ['3', 'GPUPINNED'],
+            ['4', 'XPU'],
+            ['7', 'IPU'],
+            ['9', 'CUSTOM'],
+        ]);
+
+        paddle.IR.Utility._outputNames = new Map();
+    }
+
+    static getPlace(place) {
+        return paddle.IR.Utility._placeMapper.has(`${place}`) ? paddle.IR.Utility._placeMapper.get(`${place}`) : `${place}`;
+    }
 
     static getType(type) {
         type = type.includes('_') ? type.split('_')[1] : type;
-        if (!paddle.IR.Utility._typeMapper) {
-            paddle.IR.Utility._typeMapper = new Map([
-                ['bool', 'boolean'],
-                ['bf16', 'bfloat16'],
-                ['fp16', 'float16'],
-                ['fp32', 'float32'],
-                ['fp64', 'float64'],
-                ['fp8_e4m3fn', 'float8e4m3fn'],
-                ['fp8_e5m2', 'float8e5m2'],
-                ['f8e4m3fn', 'float8e4m3fn'],
-                ['f8e5m2', 'float8e5m2'],
-                ['f16', 'float16'],
-                ['f32', 'float32'],
-                ['f64', 'float64'],
-                ['i8', 'int8'],
-                ['ui8', 'uint8'],
-                ['i16', 'int16'],
-                ['i32', 'int32'],
-                ['i64', 'int64'],
-                ['c64', 'complex64'],
-                ['c128', 'complex128'],
-                ['str', 'string'],
-            ]);
-        }
         return paddle.IR.Utility._typeMapper.has(type) ? paddle.IR.Utility._typeMapper.get(type) : type;
     }
 
@@ -1251,6 +1335,16 @@ paddle.IR.Utility = class {
 
     static formatOutputAttr(key, value, padding) {
         return `<div style="padding-top: ${padding ? 6 : 0}px">${key}: <code><b>${value}</b></code><br></div>`;
+    }
+
+    static getTensorName(tensor, namePrefix) {
+        const idx = tensor['%'];
+        if (tensor.TT && !paddle.IR.Utility._outputNames.has(idx)) {
+            const prefix = namePrefix || idx;
+            const [, shape] = tensor.TT.D;
+            paddle.IR.Utility._outputNames.set(idx, `${prefix} [${shape}]`);
+        }
+        return [`${idx}`, paddle.IR.Utility._outputNames.has(idx) ? paddle.IR.Utility._outputNames.get(idx) : `${idx}`];
     }
 };
 
