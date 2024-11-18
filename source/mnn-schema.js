@@ -321,6 +321,7 @@ MNN.QuantizedFloatParam = class QuantizedFloatParam {
         $.clampMax = reader.int8_(position, 22, 127);
         $.winogradAttr = reader.array(position, 24, Int32Array);
         $.outputDataType = reader.int32_(position, 26, 6);
+        $.floatzeros = reader.array(position, 28, Float32Array);
         return $;
     }
 
@@ -338,6 +339,7 @@ MNN.QuantizedFloatParam = class QuantizedFloatParam {
         $.clampMax = reader.value(json.clampMax, 127);
         $.winogradAttr = reader.array(json.winogradAttr, Int32Array);
         $.outputDataType = MNN.DataType[json.outputDataType];
+        $.floatzeros = reader.array(json.floatzeros, Float32Array);
         return $;
     }
 };
@@ -2538,7 +2540,7 @@ MNN.OpType = {
     Segment: 89,
     Squeeze: 90,
     StridedSlice: 91,
-    StringJoin: 92,
+    CastLike: 92,
     StringSplit: 93,
     StringToNumber: 94,
     TanH: 95,
