@@ -603,7 +603,7 @@ paddle.TensorShape = class {
     }
 
     toString() {
-        return (this.dimensions && this.dimensions.length) ? (`[${this.dimensions.join(',')}]`) : '[]';
+        return (this.dimensions && this.dimensions.length) ? (`[${this.dimensions.join(',')}]`) : '';
     }
 };
 
@@ -1351,12 +1351,12 @@ paddle.IR.Utility = class {
         return `<div style="padding-top: ${padding ? 6 : 0}px">${div}</div>`;
     }
 
-    static getParaName(tensor, namePrefix) {
+    static getParaName(tensor, namePrefix, needShape) {
         const idx = tensor['%'] || tensor['#'];
         if (tensor.TT && !paddle.IR.Utility._outputNames.has(idx)) {
             const prefix = namePrefix || idx;
             const [, shape] = tensor.TT.D;
-            paddle.IR.Utility._outputNames.set(idx, paddle.IR.Utility.formatTensorName(prefix, shape));
+            paddle.IR.Utility._outputNames.set(idx, paddle.IR.Utility.formatTensorName(prefix, needShape ? shape : null));
         }
 
         // [idx as string, formatted name, is a negative integer]
