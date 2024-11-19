@@ -3126,6 +3126,14 @@
   },
   {
     "type":     "mlir",
+    "target":   "example.mlir",
+    "source":   "https://github.com/user-attachments/files/17792104/example.mlir.zip[example.mlir]",
+    "format":   "MLIR",
+    "error":    "Expected token of type '=', but got '%' at 10:59.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "examples.mnist_xla.mlir",
     "source":   "https://github.com/lutzroeder/netron/files/10672271/examples.mnist_xla.mlir.zip[examples.mnist_xla.mlir]",
     "format":   "MLIR",
@@ -3158,7 +3166,6 @@
     "target":   "mlp.mlir",
     "source":   "https://github.com/user-attachments/files/17264712/mlp.mlir.zip[mlp.mlir]",
     "format":   "MLIR",
-    "error":    "Unexpected identifier 'ins' at 78:25.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3166,7 +3173,6 @@
     "target":   "mlp_haiku.mlir",
     "source":   "https://github.com/user-attachments/files/17260022/mlp_haiku.mlir.zip[mlp_haiku.mlir]",
     "format":   "MLIR",
-    "error":    "Unexpected identifier 'contracting_dims' at 3:46.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3193,16 +3199,23 @@
   },
   {
     "type":     "mlir",
-    "target":   "versioned-op-2.0.mlirbc",
-    "source":   "https://github.com/user-attachments/files/17174958/versioned-op-2.0.mlirbc.zip[versioned-op-2.0.mlirbc]",
+    "target":   "resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir",
+    "source":   "https://github.com/user-attachments/files/17640926/resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir.zip[resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir]",
     "format":   "MLIR",
-    "error":    "Invalid file content. File contains MLIR bytecode data.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
     "type":     "mlir",
-    "target":   "resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir",
-    "source":   "https://github.com/user-attachments/files/17640926/resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir.zip[resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir]",
+    "target":   "sample.mlir",
+    "source":   "https://github.com/user-attachments/files/17792073/sample.mlir.zip[sample.mlir]",
+    "format":   "MLIR",
+    "error":    "Expected token of type '=', but got '>' at 4:58.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "sha256.mlir",
+    "source":   "https://github.com/user-attachments/files/17788766/sha256.mlir.zip[sha256.mlir]",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
@@ -3217,6 +3230,21 @@
     "type":     "mlir",
     "target":   "torch_mlir_3429.mlir",
     "source":   "https://github.com/user-attachments/files/17605115/torch_mlir_3429.mlir.zip[torch_mlir_3429.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "versioned-op-2.0.mlirbc",
+    "source":   "https://github.com/user-attachments/files/17174958/versioned-op-2.0.mlirbc.zip[versioned-op-2.0.mlirbc]",
+    "format":   "MLIR",
+    "error":    "Invalid file content. File contains MLIR bytecode data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "wcr.mlir",
+    "source":   "https://github.com/user-attachments/files/17788767/wcr.mlir.zip[wcr.mlir]",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },

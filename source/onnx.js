@@ -638,19 +638,17 @@ onnx.Tensor = class {
                 }
                 case onnx.DataLocation.EXTERNAL: {
                     if (Array.isArray(tensor.external_data)) {
-                        const external_data = {};
+                        const data = new Map();
                         for (const entry of tensor.external_data) {
-                            external_data[entry.key] = entry.value;
+                            data.set(entry.key, entry.value);
                         }
-                        if (external_data.location && external_data.offset && external_data.length) {
-                            this._location = external_data.location.toString();
-                            const offset = parseInt(external_data.offset, 10);
-                            const length = parseInt(external_data.length, 10);
-                            if (Number.isInteger(offset) && Number.isInteger(length)) {
-                                const location = context.location(external_data.location);
-                                this._request = { location, offset, length };
-                                this._encoding = '<';
-                            }
+                        if (data.has('location')) {
+                            this._location = data.get('location').toString();
+                            const location = context.location(this._location);
+                            const offset = data.has('offset') ? parseInt(data.get('offset'), 10) : 0;
+                            const length = data.has('length') ? parseInt(data.get('length'), 10) : -1;
+                            this._request = { location, offset, length };
+                            this._encoding = '<';
                         }
                     }
                     break;
@@ -3002,6 +3000,7 @@ onnx.Location = class {
             const stream = content.stream;
             const position = stream.position;
             stream.seek(offset);
+            length = length === -1 ? stream.length - offset : length;
             content = stream.stream(length);
             stream.seek(position);
             this.content.set(key, content);
