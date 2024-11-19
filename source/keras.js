@@ -574,8 +574,23 @@ keras.Graph = class {
                 return null;
             };
             this.name = config.name || (config.config && config.config.name ? config.config.name : '');
-            switch (config.class_name) {
-                case 'AllCNN':
+            this.type = config.class_name;
+            let baseType = config.class_name;
+            switch (baseType) {
+                case 'Sequential':
+                case '__Function__':
+                case 'Functional':
+                case 'Model': {
+                    break;
+                }
+                default: {
+                    const layers = Array.from(config.layers ? config.layers : config);
+                    const sequential = layers.every((layer) => layer.inbound_nodes === undefined);
+                    baseType = sequential ? 'Sequential' : 'Functional';
+                    break;
+                }
+            }
+            switch (baseType) {
                 case 'Sequential': {
                     config = config.config;
                     const outputs = null;
@@ -624,8 +639,6 @@ keras.Graph = class {
                     }
                     break;
                 }
-                case 'YOLOV8Backbone':
-                case 'YOLOV8Detector':
                 case '__Function__':
                 case 'Functional':
                 case 'Model': {
