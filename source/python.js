@@ -4341,14 +4341,14 @@ python.Execution = class {
         this.registerFunction('numpy.core.numeric._frombuffer', (/* buf, dtype, shape, order */) => {
             return {};
         });
-        this.registerFunction('numpy._core.multiarray._reconstruct', (subtype, shape, dtype) => {
+        this.registerFunction('numpy.core.multiarray._reconstruct', (subtype, shape, dtype) => {
             return numpy.ndarray.__new__(subtype, shape, dtype);
         });
         this.registerFunction('numpy._core.numeric._frombuffer');
         this.registerFunction('numpy._core._internal._convert_to_stringdtype_kwargs', () => {
             return new numpy.dtypes.StringDType();
         });
-        this.registerFunction('numpy._core.multiarray.scalar', (dtype, rawData) => {
+        this.registerFunction('numpy.core.multiarray.scalar', (dtype, rawData) => {
             let data = rawData;
             if (typeof rawData === 'string' || rawData instanceof String) {
                 data = new Uint8Array(rawData.length);
@@ -4406,10 +4406,9 @@ python.Execution = class {
                 }
             }
         });
-        numpy.core.multiarray._reconstruct = numpy._core.multiarray._reconstruct;
-        numpy.core.multiarray.scalar = numpy._core.multiarray.scalar;
-        numpy.core._multiarray_umath._reconstruct = numpy.core.multiarray._reconstruct;
         this.registerFunction('numpy.core._multiarray_umath.cbrt');
+        this.registerFunction('numpy.core._multiarray_umath.fmin');
+        this.registerFunction('numpy.core._multiarray_umath.fmax');
         this.registerFunction('numpy.core._multiarray_umath.greater');
         this.registerFunction('numpy.core._multiarray_umath.less');
         this.registerFunction('numpy.core._multiarray_umath.log');
@@ -4442,6 +4441,10 @@ python.Execution = class {
             }
         });
         this.registerFunction('numpy.core._multiarray_umath.sqrt');
+        this.register('numpy._core.multiarray', numpy.core.multiarray);
+        this.register('numpy._core._multiarray_umath', numpy.core._multiarray_umath);
+        this.register('numpy._core._multiarray_umath', numpy.core._multiarray_umath);
+        numpy._core._multiarray_umath._reconstruct = numpy.core.multiarray._reconstruct;
         this.registerFunction('numpy.load', (file) => {
             // https://github.com/numpy/numpy/blob/main/numpy/lib/format.py
             const signature = [0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59];
