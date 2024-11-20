@@ -286,7 +286,7 @@ paddle.Graph = class {
         if (block) {
             this.name = block.idx.toString();
             const values = new Map();
-            if (block.argInputs) {
+            if (block instanceof paddle.IR.Block) {
                 for (const [name, input] of block.argInputs) {
                     const [parameter, tensorType] = input;
                     const value = new paddle.IR.Value(name, tensorType, null, null);
@@ -870,6 +870,56 @@ paddle.Utility = class {
         const data = stream.read(itemsize * size);
         return new paddle.Tensor(type, data);
     }
+};
+
+paddle.DataType = {
+    BOOL: 0,
+    INT16: 1,
+    INT32: 2,
+    INT64: 3,
+    FP16: 4,
+    FP32: 5,
+    FP64: 6,
+    LOD_TENSOR: 7,
+    SELECTED_ROWS: 8,
+    FEED_MINIBATCH: 9,
+    FETCH_LIST: 10,
+    STEP_SCOPES: 11,
+    LOD_RANK_TABLE: 12,
+    LOD_TENSOR_ARRAY: 13,
+    PLACE_LIST: 14,
+    READER: 15,
+    RAW: 17,
+    TUPLE: 18,
+    SIZE_T: 19,
+    UINT8: 20,
+    INT8: 21,
+    BF16: 22,
+    COMPLEX64: 23,
+    COMPLEX128: 24,
+    STRING: 25,
+    STRINGS: 26,
+    FP8_E4M3FN: 32,
+    FP8_E5M2: 33,
+};
+
+paddle.AttributeType = {
+    INT: 0,
+    FLOAT: 1,
+    STRING: 2,
+    INTS: 3,
+    FLOATS: 4,
+    STRINGS: 5,
+    BOOLEAN: 6,
+    BOOLEANS: 7,
+    BLOCK: 8,
+    LONG: 9,
+    BLOCKS: 10,
+    LONGS: 11,
+    FLOAT64S: 12,
+    VAR: 13,
+    VARS: 14,
+    FLOAT64: 15
 };
 
 paddle.IR = class {
@@ -1482,56 +1532,6 @@ paddle.IR.Value = class extends paddle.Value {
 
         this.description = description || '';
     }
-};
-
-paddle.DataType = {
-    BOOL: 0,
-    INT16: 1,
-    INT32: 2,
-    INT64: 3,
-    FP16: 4,
-    FP32: 5,
-    FP64: 6,
-    LOD_TENSOR: 7,
-    SELECTED_ROWS: 8,
-    FEED_MINIBATCH: 9,
-    FETCH_LIST: 10,
-    STEP_SCOPES: 11,
-    LOD_RANK_TABLE: 12,
-    LOD_TENSOR_ARRAY: 13,
-    PLACE_LIST: 14,
-    READER: 15,
-    RAW: 17,
-    TUPLE: 18,
-    SIZE_T: 19,
-    UINT8: 20,
-    INT8: 21,
-    BF16: 22,
-    COMPLEX64: 23,
-    COMPLEX128: 24,
-    STRING: 25,
-    STRINGS: 26,
-    FP8_E4M3FN: 32,
-    FP8_E5M2: 33,
-};
-
-paddle.AttributeType = {
-    INT: 0,
-    FLOAT: 1,
-    STRING: 2,
-    INTS: 3,
-    FLOATS: 4,
-    STRINGS: 5,
-    BOOLEAN: 6,
-    BOOLEANS: 7,
-    BLOCK: 8,
-    LONG: 9,
-    BLOCKS: 10,
-    LONGS: 11,
-    FLOAT64S: 12,
-    VAR: 13,
-    VARS: 14,
-    FLOAT64: 15
 };
 
 paddle.Error = class extends Error {
