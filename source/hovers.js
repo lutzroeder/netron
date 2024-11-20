@@ -1,3 +1,5 @@
+//import { stringify } from 'querystring';
+
 // import { execSync } from 'child_process';
 class Req {
   file_added = 0;
@@ -142,12 +144,16 @@ class Req {
         var another = 0;
         var nofb = 0;
         var otherstring = JSON.stringify({});
-        var optionskeys = ["tensor_id", "operator_id", "tensor_style", "operator_style", "tensor_ondblclick_script", "tensor_ondblclick_command", "operator_ondblclick_script", "operator_ondblclick_command", "tensor_onmouseover_text", "operator_onmouseover_text", "tensor_meta_key", "operator_meta_key", "tensor_meta_val", "operator_meta_val", "tensor_button", "operator_button", "tensor_button_command", "tensor_button_script", "operator_button_command", "operator_button_script"];
+        var optionskeys = ["operator_onmouseover_image_posx", "operator_onmouseover_image_posy", "tensor_onmouseover_image_posx", "tensor_onmouseover_image_posy", "tensor_id", "operator_id", "tensor_style", "operator_style", "tensor_ondblclick_script", "tensor_ondblclick_command", "operator_ondblclick_script", "operator_ondblclick_command", "tensor_onmouseover_text", "operator_onmouseover_text", "tensor_onmouseover_image", "operator_onmouseover_image", "tensor_meta_key", "operator_meta_key", "tensor_meta_val", "operator_meta_val", "tensor_button", "operator_button", "tensor_button_command", "tensor_button_script", "operator_button_command", "operator_button_script", "tensor_onmouseover_image_dimx", "tensor_onmouseover_image_dimy", "operator_onmouseover_image_dimx", "operator_onmouseover_image_dimy"];
         var index = -1;
+        var img = JSON.stringify({});
+        var nofimg = 0
+
         for (var line = 0; line < lines.length; line++) {
           if (!lines[line].startsWith("#") && lines[line].trim().length !== 0) {
             var lineread = lines[line].split(/:(.+)/);
             var first = lineread[0] == undefined? '' : lineread[0].trim();
+            console.log(first.toLowerCase());
             if (index == -1) {
               if (first.toLowerCase() !== "operator_id" && first.toLowerCase() !== "tensor_id") {
                 Req.solve_bugs();
@@ -170,6 +176,19 @@ class Req {
                     otherstring = JSON.stringify({});
                     nofb += 1;
                     break;
+                  }
+                }
+              }
+              if (img !== JSON.stringify({})) {
+                var objeect = document.getElementById("list-attributes");
+                  for (var i = 0; i < objeect.children.length; i++) {
+                    if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(img)['id']) {
+                      var inner = JSON.parse(objeect.children[i].innerHTML);
+                      inner["img_" + nofimg] = img;
+                      objeect.children[i].innerHTML = JSON.stringify(inner);
+                      img = JSON.stringify({});
+                      nofimg += 1;
+                      break;
                   }
                 }
               }
@@ -229,6 +248,18 @@ class Req {
                 }
                 obj["hover"] = meta;
                 obj2["hover"] = meta;
+              }
+              else if (first.toLowerCase() == "tensor_onmouseover_image" || first.toLowerCase() == "operator_onmouseover_image") {
+                if ((first.toLowerCase() == "tensor_onmouseover_image" && childmeta.className == "operator") || (first.toLowerCase() == "operator_onmouseover_image" && childmeta.className == "tensor")) {
+                  Req.solve_bugs();
+                  throw "Invalid model metadata file format! tensor_onmouseover_image must correspond to tensor and operator_onmouseover_image to operator";
+                }
+                if (img !== JSON.stringify({})) {
+                  obj["img_" + nofimg] = img;
+                  nofimg += 1;
+                }
+                img = JSON.stringify({"id": obj["id"], "class": childmeta.className, "img_link": meta});
+                obj2["hover_image"] = meta;
               }
               else if (first.toLowerCase() == "tensor_meta_key" || first.toLowerCase() == "operator_meta_key") {
                 if ((first.toLowerCase() == "tensor_meta_key" && childmeta.className == "operator") || (first.toLowerCase() == "operator_meta_key" && childmeta.className == "tensor")) {
@@ -339,12 +370,23 @@ class Req {
                     otherstring = JSON.stringify(stri);
                   } 
                   else {
-                    if (otherstring !== JSON.stringify({})) {
-                      obj["button_" + nofb] = otherstring;
+                    if (first.toLowerCase() == "tensor_onmouseover_image_dimx" || first.toLowerCase() == "tensor_onmouseover_image_dimy" || first.toLowerCase() == "operator_onmouseover_image_dimx" || first.toLowerCase() == "operator_onmouseover_image_dimy" || first.toLowerCase() == "tensor_onmouseover_image_posx" || first.toLowerCase() == "tensor_onmouseover_image_posy" || first.toLowerCase() == "operator_onmouseover_image_posx" || first.toLowerCase() == "operator_onmouseover_image_posy") {
+                      console.log("S a verificat");
+                      var strin = JSON.parse(img);
+                      strin[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim();
+                      img = JSON.stringify(strin);
+                    } else {
+                      if (otherstring !== JSON.stringify({})) {
+                        obj["button_" + nofb] = otherstring;
+                      }
+                      if (img !== JSON.stringify({})) {
+                        obj["img_" + nofimg] = img;
+                      }
+                      otherstring = JSON.stringify({});
+                      img = JSON.stringify({});
+                      document.getElementById("list-attributes").innerHTML = '';
+                      throw "You provided an invalid key: " + first.toLowerCase();
                     }
-                    otherstring = JSON.stringify({});
-                    document.getElementById("list-attributes").innerHTML = '';
-                    throw "You provided an invalid key: " + first.toLowerCase();
                   }
                 }
               }
@@ -367,6 +409,19 @@ class Req {
                 objeect.children[i].innerHTML = JSON.stringify(inner);
                 otherstring = JSON.stringify({});
                 nofb += 1;
+                break;
+            }
+          }
+        }
+        if (img !== JSON.stringify({})) {
+          var objeect = document.getElementById("list-attributes");
+            for (var i = 0; i < objeect.children.length; i++) {
+              if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(img)['id']) {
+                var inner = JSON.parse(objeect.children[i].innerHTML);
+                inner["img_" + nofimg] = img;
+                objeect.children[i].innerHTML = JSON.stringify(inner);
+                img = JSON.stringify({});
+                nofimg += 1;
                 break;
             }
           }
@@ -399,6 +454,23 @@ class Req {
                   flag = 1;
                   if (obj["hover"]) {
                     parent_t.children[idx + 1].innerHTML = '<title>' + obj["hover"].match(/.{1,20}/g).join("\n") + '</title>';
+                  }
+                  var keys = Object.keys(obj);
+                  for (var j = 0; j < keys.length; j++) {
+                    if (keys[j].startsWith("img_")) {
+                      var obje = JSON.parse(obj[keys[j]]);
+                      var oImg = new Image();
+                      oImg.src = obje["img_link"];
+                      oImg.style.width = obje["tensor_onmouseover_image_dimx"];
+                      oImg.style.height = obje["tensor_onmouseover_image_dimy"];
+                      oImg.style.display = 'none';
+                      oImg.style.position = 'absolute';
+                      oImg.style.top = obje["tensor_onmouseover_image_posx"];
+                      oImg.style.left = obje["tensor_onmouseover_image_posy"];
+                      oImg.id = "tensor-image-" + idx + "_" + keys[j];
+                      oImg.className = "put-image-on-hover";
+                      document.body.appendChild(oImg);
+                    }
                   }
                   break;
                 }
@@ -437,13 +509,26 @@ class Req {
                 throw "Index of operator not found :" + obj["id"];
               }
               if (obj["hover"]) {
-                //operator.children[0].children[0].innerHTML = '<title>' + obj["hover"].match(/.{1,20}/g).join("\n") + '</title>';
-                const newimage = new Image();
-                newimage.style.position = "absolute";
-                newimage.style.zIndex = "1";
-                newimage.src = "C:\Users\nxg06533\OneDrive - NXP\Desktop\Smartphone_Essentials_Very_Small_Picture_Landscape_File_Gallery_Shot_Mountains-64.webp";
-                operator.children[0].append(newimage);
+                operator.children[0].children[0].innerHTML = '<title>' + obj["hover"].match(/.{1,20}/g).join("\n") + '</title>';
               }
+
+              var keys = Object.keys(obj);
+                  for (var j = 0; j < keys.length; j++) {
+                    if (keys[j].startsWith("img_")) {
+                      var obje = JSON.parse(obj[keys[j]]);
+                      var oImg = new Image();
+                      oImg.src = obje["img_link"];
+                      oImg.style.width = obje["operator_onmouseover_image_dimx"];
+                      oImg.style.height = obje["operator_onmouseover_image_dimy"];
+                      oImg.style.display = 'none';
+                      oImg.style.position = 'absolute';
+                      oImg.style.top = obje["operator_onmouseover_image_posx"];
+                      oImg.style.left = obje["operator_onmouseover_image_posy"];
+                      oImg.id = "image-node-id-" + counter + "_" + keys[j];
+                      oImg.className = "put-image-on-hover";
+                      document.body.appendChild(oImg);
+                    }
+                  }
               if (obj["style"]) {
                 operator.children[0].children[0].style.fill = obj["style"];
               }
@@ -586,7 +671,7 @@ class Req {
                   childmeta.innerText = "Metadata";
                   sidebarobj.appendChild(childmeta);
                   for (var i = 0; i < keys.length; i++) {
-                    if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_" && keys[i] !== "tensor_ondblclick_script" && keys[i] !== "operator_ondblclick_script" && keys[i] !== "tensor_ondblclick_command" && keys[i] !== "operator_ondblclick_command" && keys[i] !== "hover") {
+                    if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_" && keys[i] !== "tensor_ondblclick_script" && keys[i] !== "operator_ondblclick_script" && keys[i] !== "tensor_ondblclick_command" && keys[i] !== "operator_ondblclick_command" && keys[i] !== "hover" && keys[i] !== "hover_image") {
                       var newchild = document.createElement('div');
                       newchild.className = "sidebar-item";
                       var newchild_2 = document.createElement('div');
@@ -714,30 +799,6 @@ class Req {
         }
       }
     }
-  //   if (document.getElementById("graph")) {
-  //     if (document.getElementById("origin")) {
-  //       if (document.getElementById("nodes")) {
-  //         for (var i = 0; i < document.getElementById("nodes").children.length; i++) {
-  //             document.getElementById("nodes").children[i].addEventListener("click", function(g) {
-  //               console.log("am pus mouse ul");  
-  //               const newimage = new Image();
-  //                 newimage.style.position = "absolute";
-  //                 newimage.style.zIndex = "1";
-  //                 newimage.src = "/home/nxg06533/netron2/netron/R.jpg";
-  //                 newimage.dataset.hoverimage = "True";
-  //                 g.target.append(newimage);
-  //             });
-  //             document.getElementById("nodes").children[i].addEventListener("onmouseout", function(g) {
-  //                 for (var i = 0; i < g.target.children.length; i++) {
-  //                     if (g.target.children[i].dataset.hoverimage == "True") {
-  //                       g.target.removeChild(g.target.children[i]);
-  //                     }
-  //                 }
-  //             });
-  //         }
-  //       }
-  //     }
-  // }
   }
 }
 
