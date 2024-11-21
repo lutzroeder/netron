@@ -3158,7 +3158,6 @@
     "target":   "gemm.onnx.mlir",
     "source":   "https://github.com/user-attachments/files/17775324/gemm.onnx.mlir.zip[gemm.onnx.mlir]",
     "format":   "MLIR",
-    "error":    "Unexpected operation '0' at 34:24.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3209,7 +3208,7 @@
     "target":   "sample.mlir",
     "source":   "https://github.com/user-attachments/files/17792073/sample.mlir.zip[sample.mlir]",
     "format":   "MLIR",
-    "error":    "Expected token of type '=', but got '>' at 4:58.",
+    "error":    "Unexpected operation '>' at 4:58.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {

@@ -34,7 +34,7 @@ mlir.ModelFactory = class {
             case 'mlir.text': {
                 const decoder = context.read('text.decoder');
                 const parser = new mlir.Parser(decoder);
-                const obj = parser.read();
+                const obj = await parser.read();
                 return new mlir.Model(obj);
             }
             case 'mlir.binary': {
@@ -103,33 +103,33 @@ mlir.Graph = class {
             const operation = {
                 type: op.name,
                 attributes: op.attributes,
-                inputs: [],
-                outputs: [],
+                operands: [],
+                results: [],
                 delete: false,
             };
-            const inputs = op.inputs || [];
-            for (let i = 0; i < inputs.length; i++) {
-                const input = op.inputs[i];
+            const operands = op.operands || [];
+            for (let i = 0; i < operands.length; i++) {
+                const input = op.operands[i];
                 if (input.value instanceof Uint8Array) {
-                    operation.inputs.push({
+                    operation.operands.push({
                         name: input.name || i.toString(),
                         value: input.value,
                         type: input.type
                     });
                 } else if (Number.isInteger(input.value)) {
-                    operation.inputs.push({
+                    operation.operands.push({
                         name: input.name || i.toString(),
                         value: input.value,
                         type: 'int64'
                     });
                 } else if (typeof input.value === 'boolean') {
-                    operation.inputs.push({
+                    operation.operands.push({
                         name: input.name || i.toString(),
                         value: input.value,
                         type: 'boolean'
                     });
                 } else if (Array.isArray(input.value)) {
-                    operation.inputs.push({
+                    operation.operands.push({
                         name: input.name || i.toString(),
                         value: input.value
                     });
@@ -137,19 +137,19 @@ mlir.Graph = class {
                     const value = values.map(input);
                     value.to.push(operation);
                     const args = [{ name: input.value, type: input.type }];
-                    operation.inputs.push({
+                    operation.operands.push({
                         name: input.name || i.toString(),
                         value: args
                     });
                 }
             }
-            const outputs = op.outputs || [];
-            for (let i = 0; i < outputs.length; i++) {
-                const output = outputs[i];
+            const results = op.results || [];
+            for (let i = 0; i < results.length; i++) {
+                const output = results[i];
                 const value = values.map(output.value);
                 value.type = mlir.Utility.valueType(output.type);
                 value.from.push(operation);
-                operation.outputs.push({
+                operation.results.push({
                     name: output.name || i.toString(),
                     value: [value]
                 });
@@ -233,7 +233,7 @@ mlir.Graph = class {
             if (op.delete) {
                 continue;
             }
-            op.inputs = op.inputs.map((input) => {
+            op.operands = op.operands.map((input) => {
                 if (input.type && input.type.startsWith('tensor<')) {
                     const type = mlir.Utility.valueType(input.type);
                     const tensor = new mlir.Tensor(type, input.value);
@@ -247,7 +247,7 @@ mlir.Graph = class {
                 }
                 return new mlir.Argument(input.name, input.value.map((argument) => tensor(argument)));
             });
-            op.outputs = op.outputs.map((output) => {
+            op.results = op.results.map((output) => {
                 return new mlir.Argument(output.name, output.value.map((argument) => tensor(argument)));
             });
         }
@@ -318,8 +318,8 @@ mlir.Node = class {
         }
         this.type = { name: op.type || '' };
         this.name = op.name || '';
-        this.inputs = op.inputs || [];
-        this.outputs = op.outputs || [];
+        this.inputs = op.operands || [];
+        this.outputs = op.results || [];
         this.attributes = [];
         if (op.attributes) {
             for (let i = 0; i < op.attributes.length; i++) {
@@ -375,8 +375,8 @@ mlir.TensorShape = class {
 
 mlir.Token = class {
 
-    constructor(type, value) {
-        this.type = type;
+    constructor(kind, value) {
+        this.kind = kind;
         this.value = value;
     }
 };
@@ -504,16 +504,18 @@ mlir.Tokenizer = class {
                     throw new mlir.Error(`Unexpected character '${this._current}' ${this.location()}`);
             }
         }
-        return new mlir.Token('EOF', null);
+        return new mlir.Token('eof', null);
     }
 
     location() {
         let line = 1;
         let column = 1;
+        const position = this._decoder.position;
         this._decoder.position = 0;
         let c = '';
         do {
             if (this._decoder.position === this._position) {
+                this._decoder.position = position;
                 return `at ${line}:${column}.`;
             }
             c = this._decoder.decode();
@@ -525,6 +527,7 @@ mlir.Tokenizer = class {
             }
         }
         while (c !== undefined);
+        this._decoder.position = position;
         return `at ${line}:${column}.`;
     }
 
@@ -650,14 +653,8 @@ mlir.Tokenizer = class {
         while (this._current && (/[a-zA-Z_$\-.*]/.test(this._current) || /[0-9]/.test(this._current))) {
             result += this._read();
         }
-        if (result.endsWith('func')) {
-            return new mlir.Token('keyword', result);
-        }
         switch (result) {
-            case 'module':
-            case 'func':
             case 'loc':
-            case 'sdir.state':
                 return new mlir.Token('keyword', result);
             case 'true':
             case 'false':
@@ -757,62 +754,67 @@ mlir.Parser = class {
 
     constructor(decoder) {
         this._tokenizer = new mlir.Tokenizer(decoder);
-        this._current = this._tokenizer.read();
+        this._token = this._tokenizer.read();
     }
 
-    read() {
+    async read() {
+        return this.parse();
+    }
+
+    parse() {
         // https://mlir.llvm.org/docs/LangRef/#top-level-productions
-        const graph = {
+        const block = {
             functions: [],
             operations: [],
             definitions: [],
             metadata: []
         };
-        while (!this._match('EOF')) {
+        while (!this._match('eof')) {
             if (this._match('#')) { // attribute-alias-def
                 const name = this._read();
                 this._read('=');
                 const value = this._parseAttributeValue();
-                graph.definitions.push({ name, value });
+                block.definitions.push({ name, value });
                 continue;
             }
-            const module = this._eat('keyword', 'module');
-            if (module) {
+            let terminal = 'eof';
+            if (this._match('id', 'module')) {
+                this._read();
                 if (this._match('@')) {
-                    graph.name = this._read();
+                    block.name = this._read();
                 }
                 if (this._eat('id', 'attributes')) {
-                    graph.attributes = this._parseAttributes();
+                    block.attributes = this._parseAttributes();
                 }
                 this._read('{');
+                terminal = '}';
             }
             // functions or operations
-            const terminal = module ? '}' : 'EOF';
             while (!this._match(terminal)) {
-                if (this._match('keyword', 'func') ||
-                    this._match('keyword', 'func.func') ||
-                    this._match('keyword', 'builtin.func') ||
-                    this._match('keyword', 'sdir.state')) {
+                if (this._match('id', 'func') ||
+                    this._match('id', 'func.func') ||
+                    this._match('id', 'builtin.func') ||
+                    this._match('id', 'sdir.state')) {
                     const func = this._parseFunction();
-                    graph.functions.push(func);
+                    block.functions.push(func);
                 } else {
                     // operation
-                    const op = this._parseOperation();
-                    graph.operations.push(op);
+                    const op = this.parseOperation();
+                    block.operations.push(op);
                 }
             }
-            if (module) {
+            if (terminal === '}') {
                 this._read('}');
-                graph.loc = this._parseLocation();
+                block.loc = this._parseLocation();
             }
         }
-        return graph;
+        return block;
     }
 
     _parseFunction() {
         // func keyword
         const func = {};
-        func.type = this._read('keyword');
+        func.type = this._read('id');
         func.visibility = null;
         if (!this._match('@')) {
             func.visibility = this._read();
@@ -841,16 +843,16 @@ mlir.Parser = class {
         this._read('{');
         // operations
         func.operations = [];
-        while (this._current.type !== '}') {
-            const operation = this._parseOperation();
+        while (!this._match('}')) {
+            const operation = this.parseOperation();
             func.operations.push(operation);
         }
         this._read('}');
         func.inputs = inputs;
         func.outputs = outputs;
         if (func.operations.length > 0) {
-            const ret = func.operations[func.operations.length - 1];
-            func.outputs = ret.inputs;
+            const operation = func.operations[func.operations.length - 1];
+            func.outputs = operation.operands;
             func.operations.pop();
         }
         func.loc = this._parseLocation();
@@ -866,7 +868,7 @@ mlir.Parser = class {
         if (this._eat('(')) {
             while (!this._eat(')')) {
                 const input = {};
-                input.value = this._current.value;
+                input.value = this._token.value;
                 if (this._match('keyword', 'loc')) {
                     this._parseAttributeValue();
                 } else {
@@ -908,7 +910,7 @@ mlir.Parser = class {
     _skipSymbolBetween(open, close) {
         let value = '';
         if (this._match(open)) {
-            value += this._read(this._current.type);
+            value += this._read();
             let count = 1;
             while (count > 0) {
                 if (this._match(open)) {
@@ -916,27 +918,36 @@ mlir.Parser = class {
                 } else if (this._match(close)) {
                     count--;
                 }
-                value += this._read(this._current.type);
+                value += this._read();
             }
         }
         return value;
     }
 
-    _parseOperation() {
+    parseOperation() {
         const operation = {};
-        operation.inputs = [];
-        operation.outputs = [];
+        operation.operands = [];
+        operation.results = [];
         operation.body = null;
-        const ret = this._current.value !== 'return' &&
-            this._current.type !== 'string' &&
-            this._current.type !== 'id';
-        if (ret) {
-            // %3
-            for (const output of this._parseReturnValues()) {
-                // console.log(`${output}`);
-                operation.outputs.push({ value: output });
-            }
-            // =
+        // const ret = this._token.value !== 'return' && this._token.kind !== 'string' && this._token.kind !== 'id';
+        if (this._match('%')) {
+            do {
+                if (!this._match('%')) {
+                    break;
+                }
+                const value = this._read();
+                const index = value.indexOf(':');
+                if (index === -1) {
+                    operation.results.push({ value });
+                } else {
+                    const id = value.substring(0, index);
+                    const length = value.substring(index + 1);
+                    for (let i = 0; i < length; i++) {
+                        const value = `${id}#${i}`;
+                        operation.results.push({ value });
+                    }
+                }
+            } while (this._eat(','));
             this._read('=');
         }
         // 'add'
@@ -957,7 +968,19 @@ mlir.Parser = class {
         }
         // (%a, %b)
         // condition: start with `(%`, `%`, or `()`
-        operation.inputs = this._parseArguments();
+        operation.operands = this._parseArguments();
+
+        if (operation.name === 'affine.for') {
+            this._read('=');
+            this._read('int');
+            this._read('id', 'to');
+            this._read('int');
+            if (this._eat('id', 'step')) {
+                this._read('int');
+            }
+            this._skipSymbolBetween('{', '}');
+            return operation;
+        }
         // successor-list?
         // condition: start with `[`, end with `]`
         this._skipSymbolBetween('[', ']');
@@ -974,7 +997,7 @@ mlir.Parser = class {
                 } else if (this._match(')')) {
                     count--;
                 }
-                this._read(this._current.type);
+                this._read();
             }
         }
         // dictionary-attribute?
@@ -986,14 +1009,14 @@ mlir.Parser = class {
         }
         // : (f32, tensor<1xf32>)
         if (this._eat(':')) {
-            this._parseArgumentTypes(operation.inputs);
+            this._parseArgumentTypes(operation.operands);
         }
         // -> f32
         if (this._eat('->')) {
-            if (ret || operation.outputs.length > 0) {
-                this._parseArgumentTypes(operation.outputs);
+            if (operation.results.length > 0) {
+                this._parseArgumentTypes(operation.results);
             } else {
-                operation.outputs = this._parseArguments();
+                operation.results = this._parseArguments();
             }
         }
         if (this._eat('{')) {
@@ -1007,14 +1030,14 @@ mlir.Parser = class {
                     braceCount--;
                 }
                 if (braceCount > 0) {
-                    operation.body += this._current.value;
+                    operation.body += this._token.value;
                     if (this._match('{') || this._match('}')) {
                         operation.body += '\n';
-                    } else if (this._current.type !== mlir.TokenType.WHITESPACE) {
+                    } else if (this._token.kind !== ' ') {
                         operation.body += ' ';
                     }
                 }
-                this._read(this._current.type);
+                this._read();
             }
             operation.body += '}';
         }
@@ -1039,7 +1062,7 @@ mlir.Parser = class {
             } else if (this._match('id', 'unknown')) {
                 this._read();
             } else {
-                throw new mlir.Error(`Unexpected location '${this._current.value}' ${this._tokenizer.location()}`);
+                throw new mlir.Error(`Unexpected location '${this._token.value}' ${this._tokenizer.location()}`);
             }
             this._read(')');
             return location;
@@ -1047,51 +1070,14 @@ mlir.Parser = class {
         return null;
     }
 
-    _parseReturnValues() {
-        const outputs = [];
-        if (this._eat('(')) {
-            while (!this._eat(')')) {
-                const value = this._eat('%');
-                if (value) {
-                    outputs.push(value.value);
-                }
-                this._eat(',');
-            }
-        } else {
-            const value = this._eat('%');
-            if (value) {
-                outputs.push(value.value);
-            }
-            if (this._eat(',')) {
-                while (this._match('%')) {
-                    const value = this._read();
-                    outputs.push(value);
-                    this._eat(',');
-                }
-            }
-        }
-        const result = [];
-        for (const output of outputs) {
-            if (output.split(':').length === 2) {
-                const [valueId, length] = output.split(':');
-                for (let i = 0; i < length; i++) {
-                    result.push(`${valueId}#${i}`);
-                }
-            } else {
-                result.push(output);
-            }
-        }
-        return result;
-    }
-
     _parseOperationName() {
-        switch (this._current.type) {
+        switch (this._token.kind) {
             case 'string':
                 return this._read();
             case 'id':
                 return this._read('id');
             default:
-                throw new mlir.Error(`Unexpected operation '${this._current.value}' ${this._tokenizer.location()}`);
+                throw new mlir.Error(`Unexpected operation '${this._token.value}' ${this._tokenizer.location()}`);
         }
     }
 
@@ -1103,7 +1089,7 @@ mlir.Parser = class {
         const open = this._eat('(');
         while (!this._match(')') && !this._match('->') && !this._match('{')) {
             const input = {};
-            if (this._current.type === 'id' && this._current.value !== 'dense') {
+            if (this._token.kind === 'id' && this._token.value !== 'dense') {
                 const identifier = this._read('id');
                 if (this._eat('(')) {
                     const args = this._parseArguments();
@@ -1143,13 +1129,13 @@ mlir.Parser = class {
     }
 
     _parseType() {
-        if (this._current.type === 'id') {
-            if (this._current.value === 'none' ||
-                this._current.value === 'i32' ||
-                this._current.value === 'i64' ||
-                this._current.value === 'si64' ||
-                this._current.value === 'f32' ||
-                this._current.value === 'index') {
+        if (this._token.kind === 'id') {
+            if (this._token.value === 'none' ||
+                this._token.value === 'i32' ||
+                this._token.value === 'i64' ||
+                this._token.value === 'si64' ||
+                this._token.value === 'f32' ||
+                this._token.value === 'index') {
                 return this._read('id');
             }
         }
@@ -1186,7 +1172,7 @@ mlir.Parser = class {
         let index = 0;
         const open = this._eat('(');
         if (open) {
-            while (this._current.type !== ')') {
+            while (this._token.kind !== ')') {
                 const type = this._parseType();
                 if (!type) {
                     break;
@@ -1207,11 +1193,11 @@ mlir.Parser = class {
         } else {
             while ((index === 0 || index < args.length) &&
                 !this._eat(')') &&
-                this._current.type !== '->' &&
-                this._current.value !== 'loc' &&
-                this._current.value !== 'return' && this._current.value !== 'func.return' &&
-                this._current.type !== '}' &&
-                this._current.type !== '%') {
+                this._token.kind !== '->' &&
+                this._token.value !== 'loc' &&
+                this._token.value !== 'return' && this._token.value !== 'func.return' &&
+                this._token.kind !== '}' &&
+                this._token.kind !== '%') {
                 const type = this._parseType();
                 if (!type) {
                     break;
@@ -1324,8 +1310,8 @@ mlir.Parser = class {
             value.value = this._read('#');
             if (this._match('<')) {
                 value.value += this._read('<');
-                while (this._current.type !== '>') {
-                    value.value += this._read(this._current.type);
+                while (!this._match('>')) {
+                    value.value += this._read();
                 }
                 value.value += this._read('>');
             }
@@ -1355,21 +1341,21 @@ mlir.Parser = class {
             return value;
             /*
             let level = 0;
-            while (level > 0 || this._current.type !== '>') {
+            while (level > 0 || this._token.kind !== '>') {
                 if (this._match('<')) {
                     level += 1;
                 }
                 if (this._match('>')) {
                     level -= 1;
                 }
-                value.value += this._read(this._current.type);
+                value.value += this._read();
             }
             value.value += this._read('>');
             value.type = 'tensor';
             return value;
             */
         }
-        throw new mlir.Error(`Unexpected value '${this._current.value}' ${this._tokenizer.location()}`);
+        throw new mlir.Error(`Unexpected value '${this._token.value}' ${this._tokenizer.location()}`);
     }
 
     _parseAttributes() {
@@ -1399,54 +1385,44 @@ mlir.Parser = class {
         if (this._match('keyword', 'loc')) {
             return this._parseLocation();
         }
-        if (this._match('id')) {
-            if (this._current.value === 'affine_map' || this._current.value === 'affine_set') {
-                const name = this._read('id');
-                const args = this._skipSymbolBetween('<', '>');
-                return { name, args };
-            }
+        if (this._match('id', 'affine_map') || this._match('id', 'affine_set')) {
+            const name = this._read();
+            const args = this._skipSymbolBetween('<', '>');
+            return { name, args };
         }
-        const alias = this._eat('#');
-        if (alias) {
-            const name = alias.value;
+        if (this._match('#')) {
+            const name = this._read();
             if (this._eat('<')) {
                 while (!this._eat('>')) {
-                    this._current = this._tokenizer.read();
+                    this._token = this._tokenizer.read();
                 }
             }
-            return {
-                name
-            };
+            return { name };
         }
         throw new mlir.Error(`Unexpected attribute value ${this._tokenizer.location()}`);
     }
 
-    _match(type, value) {
-        if (this._current.type === type && (!value || this._current.value === value)) {
-            return true;
-        }
-        return false;
+    _match(kind, value) {
+        return (this._token.kind === kind && (!value || this._token.value === value));
     }
 
-    _eat(type, value) {
-        if (this._current.type === type && (!value || this._current.value === value)) {
-            const current = this._current;
-            this._read();
-            return current;
+    _read(kind, value) {
+        if (kind && this._token.kind !== kind) {
+            throw new mlir.Error(`Expected token of type '${kind}', but got '${this._token.kind}' ${this._tokenizer.location()}`);
+        }
+        if (value && this._token.value !== value) {
+            throw new mlir.Error(`Expected token with value '${value}', but got '${this._token.value}' ${this._tokenizer.location()}`);
+        }
+        const token = this._token;
+        this._token = this._tokenizer.read();
+        return token.value;
+    }
+
+    _eat(kind, value) {
+        if (this._match(kind, value)) {
+            return this._read();
         }
         return null;
-    }
-
-    _read(type, value) {
-        if (type && this._current.type !== type) {
-            throw new mlir.Error(`Expected token of type '${type}', but got '${this._current.type}' ${this._tokenizer.location()}`);
-        }
-        if (value && this._current.value !== value) {
-            throw new mlir.Error(`Expected token with value '${value}', but got '${this._current.value}' ${this._tokenizer.location()}`);
-        }
-        const current = this._current;
-        this._current = this._tokenizer.read();
-        return current.value;
     }
 };
 
