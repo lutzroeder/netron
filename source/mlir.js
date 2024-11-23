@@ -101,7 +101,8 @@ mlir.Graph = class {
         // operations - setup arguments
         const operations = func.operations.map((op) => {
             const operation = {
-                type: op.name,
+                type: op.kind || op.name,
+                identifier: op.name,
                 attributes: op.attributes,
                 operands: [],
                 results: [],
@@ -316,7 +317,7 @@ mlir.Node = class {
         if (!op.type) {
             throw new mlir.Error('Undefined node type.');
         }
-        this.type = { name: op.type || '' };
+        this.type = { name: op.type || '', identifier: op.identifier || '' };
         this.name = op.name || '';
         this.inputs = op.operands || [];
         this.outputs = op.results || [];
@@ -792,8 +793,9 @@ mlir.Parser = class {
             // functions or operations
             while (!this._match(terminal)) {
                 if (this._match('id', 'func') ||
-                    this._match('id', 'func.func') ||
-                    this._match('id', 'builtin.func') ||
+                    (this._match('id') && this._token.value.endsWith('.func')) ||
+                    //this._match('id', 'func.func') ||
+                    // this._match('id', 'builtin.func') ||
                     this._match('id', 'sdir.state')) {
                     const func = this._parseFunction();
                     block.functions.push(func);
@@ -816,7 +818,7 @@ mlir.Parser = class {
         const func = {};
         func.type = this._read('id');
         func.visibility = null;
-        if (!this._match('@')) {
+        if (this._match('id', 'private') || this._match('id', 'public')) {
             func.visibility = this._read();
         }
         func.name = this._parseFunctionName();
@@ -952,11 +954,18 @@ mlir.Parser = class {
         }
         // 'add'
         operation.name = this._parseOperationName();
-        if (operation.name === 'call') {
-            operation.name = this._read('@');
-            operation.call = true;
+        operation.kind = operation.name.split('.').pop();
+        if (operation.name.startsWith('torch.')) {
+            const parts = operation.name.split('.');
+            if (parts[1] === 'aten' || parts[1] === 'prim') {
+                [, , operation.kind] = parts;
+            } else {
+                [, operation.kind] = parts;
+            }
         }
-        // console.log(`${operation.name}`);
+        if (operation.name === 'call' || operation.name.endsWith('.generic_call')) {
+            operation.target = this._read('@');
+        }
         if (this._match('}')) {
             return operation;
         }
@@ -1012,7 +1021,7 @@ mlir.Parser = class {
             this._parseArgumentTypes(operation.operands);
         }
         // -> f32
-        if (this._eat('->')) {
+        if (this._eat('->') || this._eat('id', 'to')) {
             if (operation.results.length > 0) {
                 this._parseArgumentTypes(operation.results);
             } else {
@@ -1110,6 +1119,9 @@ mlir.Parser = class {
             }
             if (this._match('%')) {
                 input.value = this._read();
+                if (open && this._eat(':')) {
+                    input.type = this._parseType();
+                }
             } else if (this._match('keyword', 'loc')) {
                 continue;
             } else {

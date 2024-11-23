@@ -3141,6 +3141,13 @@
   },
   {
     "type":     "mlir",
+    "target":   "codegen.toy.mlir",
+    "source":   "https://github.com/user-attachments/files/17878028/codegen.toy.mlir.zip[codegen.toy.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "embedding_bm1684x_f16_tpu.mlir",
     "source":   "https://github.com/user-attachments/files/15525787/embedding_bm1684x_f16_tpu.mlir.txt",
     "format":   "MLIR",
