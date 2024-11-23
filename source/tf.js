@@ -237,13 +237,23 @@ tf.ModelFactory = class {
                 const offset = reader.uint64().toNumber();
                 if (offset < stream.length) {
                     context.type = 'tf.pb.mmap';
+                    return;
                 }
             }
+        }
+        if (/^.*group\d+-shard\d+of\d+(\.bin)?$/.test(identifier)) {
+            context.type = 'tf.tfjs.weights';
         }
     }
 
     filter(context, type) {
-        return context.type !== 'tf.bundle' || type !== 'tf.data';
+        if (context.type === 'tf.bundle' && type === 'tf.data') {
+            return false;
+        }
+        if ((context.type === 'tf.json' || context.type === 'tf.json.gz') && type === 'tf.tfjs.weights') {
+            return false;
+        }
+        return true;
     }
 
     async open(context) {
@@ -399,120 +409,123 @@ tf.ModelFactory = class {
             return openSavedModel(context, saved_model, format, producer);
         };
         const openJson = async (context, type) => {
-            try {
-                const obj = context.peek(type);
-                const format = `TensorFlow.js ${obj.format || 'graph-model'}`;
-                const producer = obj.convertedBy || obj.generatedBy || '';
-                const meta_graph = new tf.proto.tensorflow.MetaGraphDef();
-                meta_graph.graph_def = tf.JsonReader.decodeGraphDef(obj.modelTopology);
-                const saved_model = new tf.proto.tensorflow.SavedModel();
-                saved_model.meta_graphs.push(meta_graph);
-                const nodes = new Map();
-                for (const node of meta_graph.graph_def.node) {
-                    node.input = node.input || [];
-                    if (node.op === 'Const') {
-                        nodes.set(node.name, node);
-                    }
-                }
-                const shards = new Map();
-                const manifests = Array.isArray(obj.weightsManifest) ? obj.weightsManifest : [];
-                for (const manifest of manifests) {
-                    for (const path of manifest.paths) {
-                        if (!shards.has(path)) {
-                            shards.set(path, context.fetch(path));
-                        }
-                    }
-                }
-                const openShards = (shards) => {
-                    const dtype_size_map = new Map([
-                        ['float16', 2], ['float32', 4], ['float64', 8],
-                        ['int8', 1], ['int16', 2], ['int32', 4], ['int64', 8],
-                        ['uint8', 1], ['uint16', 2], ['uint32', 4], ['uint64', 8],
-                        ['bool', 1]
-                    ]);
-                    for (const manifest of manifests) {
-                        let buffer = null;
-                        if (Array.isArray(manifest.paths) && manifest.paths.length > 0 && manifest.paths.every((path) => shards.has(path))) {
-                            const list = manifest.paths.map((path) => shards.get(path));
-                            const size = list.reduce((a, b) => a + b.length, 0);
-                            buffer = new Uint8Array(size);
-                            let offset = 0;
-                            for (const item of list) {
-                                buffer.set(item, offset);
-                                offset += item.length;
-                            }
-                        }
-                        let offset = 0;
-                        for (const weight of manifest.weights) {
-                            const dtype = weight.quantization && weight.quantization.dtype ? weight.quantization.dtype : weight.dtype;
-                            const size = weight.shape.reduce((a, b) => a * b, 1);
-                            switch (dtype) {
-                                case 'string': {
-                                    const data = [];
-                                    if (buffer && size > 0) {
-                                        const reader = new tf.BinaryReader(buffer.subarray(offset));
-                                        for (let i = 0; i < size; i++) {
-                                            data[i] = reader.string();
-                                        }
-                                        offset += reader.position;
-                                    }
-                                    if (nodes.has(weight.name)) {
-                                        const node = nodes.get(weight.name);
-                                        node.attr.value.tensor.dtype = tf.Utility.dataTypeKey(dtype);
-                                        node.attr.value.tensor.string_val = data;
-                                    }
-                                    break;
-                                }
-                                default: {
-                                    if (!dtype_size_map.has(dtype)) {
-                                        throw new tf.Error(`Unsupported weight data type size '${dtype}'.`);
-                                    }
-                                    const itemsize = dtype_size_map.get(dtype);
-                                    const length = itemsize * size;
-                                    const tensor_content = buffer ? buffer.slice(offset, offset + length) : null;
-                                    offset += length;
-                                    if (nodes.has(weight.name)) {
-                                        const node = nodes.get(weight.name);
-                                        node.attr.value.tensor.dtype = tf.Utility.dataTypeKey(dtype);
-                                        node.attr.value.tensor.tensor_content = tensor_content;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    return openSavedModel(context, saved_model, format, producer);
-                };
-                try {
-                    const contexts = await Promise.all(shards.values());
-                    for (const key of shards.keys()) {
-                        const context = contexts.shift();
-                        const buffer = context.stream.peek();
-                        shards.set(key, buffer);
-                    }
-                    if (type === 'json.gz') {
-                        try {
-                            for (const key of shards.keys()) {
-                                const stream = shards.get(key);
-                                const archive = zip.Archive.open(stream, 'gzip');
-                                if (archive && archive.entries.size === 1) {
-                                    const stream = archive.entries.values().next().value;
-                                    const buffer = stream.peek();
-                                    shards.set(key, buffer);
-                                }
-                            }
-                        } catch {
-                            // continue regardless of error
-                        }
-                    }
-                    return openShards(shards);
-                } catch {
-                    shards.clear();
-                    return openShards(shards);
-                }
-            } catch (error) {
-                throw new tf.Error(`File text format is not TensorFlow.js graph-model (${error.message}).`);
+            const obj = context.peek(type);
+            if (!obj || !obj.modelTopology || (obj.format !== 'graph-model' && !Array.isArray(obj.modelTopology.node))) {
+                throw new tf.Error('File format is not TensorFlow.js graph-model.');
             }
+            const format = `TensorFlow.js ${obj.format || 'graph-model'}`;
+            const producer = obj.convertedBy || obj.generatedBy || '';
+            const meta_graph = new tf.proto.tensorflow.MetaGraphDef();
+            meta_graph.graph_def = tf.JsonReader.decodeGraphDef(obj.modelTopology);
+            const saved_model = new tf.proto.tensorflow.SavedModel();
+            saved_model.meta_graphs.push(meta_graph);
+            const nodes = new Map();
+            for (const node of meta_graph.graph_def.node) {
+                node.input = node.input || [];
+                if (node.op === 'Const') {
+                    nodes.set(node.name, node);
+                }
+            }
+            const shards = new Map();
+            const manifests = Array.isArray(obj.weightsManifest) ? obj.weightsManifest : [];
+            for (const manifest of manifests) {
+                for (const path of manifest.paths) {
+                    if (!shards.has(path)) {
+                        shards.set(path, context.fetch(path));
+                    }
+                }
+            }
+            const openShards = (shards) => {
+                const dtype_size_map = new Map([
+                    ['float16', 2], ['float32', 4], ['float64', 8],
+                    ['int8', 1], ['int16', 2], ['int32', 4], ['int64', 8],
+                    ['uint8', 1], ['uint16', 2], ['uint32', 4], ['uint64', 8],
+                    ['bool', 1]
+                ]);
+                for (const manifest of manifests) {
+                    let buffer = null;
+                    if (Array.isArray(manifest.paths) && manifest.paths.length > 0 && manifest.paths.every((path) => shards.has(path))) {
+                        const list = manifest.paths.map((path) => shards.get(path));
+                        const size = list.reduce((a, b) => a + b.length, 0);
+                        buffer = new Uint8Array(size);
+                        let offset = 0;
+                        for (const item of list) {
+                            buffer.set(item, offset);
+                            offset += item.length;
+                        }
+                    }
+                    let offset = 0;
+                    for (const weight of manifest.weights) {
+                        const dtype = weight.quantization && weight.quantization.dtype ? weight.quantization.dtype : weight.dtype;
+                        const size = weight.shape.reduce((a, b) => a * b, 1);
+                        switch (dtype) {
+                            case 'string': {
+                                const data = [];
+                                if (buffer && size > 0) {
+                                    const reader = new tf.BinaryReader(buffer.subarray(offset));
+                                    for (let i = 0; i < size; i++) {
+                                        data[i] = reader.string();
+                                    }
+                                    offset += reader.position;
+                                }
+                                if (nodes.has(weight.name)) {
+                                    const node = nodes.get(weight.name);
+                                    node.attr.value.tensor.dtype = tf.Utility.dataTypeKey(dtype);
+                                    node.attr.value.tensor.string_val = data;
+                                }
+                                break;
+                            }
+                            default: {
+                                if (!dtype_size_map.has(dtype)) {
+                                    throw new tf.Error(`Unsupported weight data type size '${dtype}'.`);
+                                }
+                                const itemsize = dtype_size_map.get(dtype);
+                                const length = itemsize * size;
+                                const tensor_content = buffer ? buffer.slice(offset, offset + length) : null;
+                                offset += length;
+                                if (nodes.has(weight.name)) {
+                                    const node = nodes.get(weight.name);
+                                    node.attr.value.tensor.dtype = tf.Utility.dataTypeKey(dtype);
+                                    node.attr.value.tensor.tensor_content = tensor_content;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+                return openSavedModel(context, saved_model, format, producer);
+            };
+            try {
+                const contexts = await Promise.all(shards.values());
+                for (const key of shards.keys()) {
+                    const context = contexts.shift();
+                    const buffer = context.stream.peek();
+                    shards.set(key, buffer);
+                }
+                if (type === 'json.gz') {
+                    try {
+                        for (const key of shards.keys()) {
+                            const stream = shards.get(key);
+                            const archive = zip.Archive.open(stream, 'gzip');
+                            if (archive && archive.entries.size === 1) {
+                                const stream = archive.entries.values().next().value;
+                                const buffer = stream.peek();
+                                shards.set(key, buffer);
+                            }
+                        }
+                    } catch {
+                        // continue regardless of error
+                    }
+                }
+                return openShards(shards);
+            } catch {
+                shards.clear();
+                return openShards(shards);
+            }
+        };
+        const openJsonWeights = async (context) => {
+            const content = await context.fetch('model.json');
+            return openJson(content, 'json');
         };
         const openTextGraphDef = (context) => {
             try {
@@ -673,6 +686,8 @@ tf.ModelFactory = class {
                 return openJson(context, 'json');
             case 'tf.json.gz':
                 return openJson(context, 'json.gz');
+            case 'tf.tfjs.weights':
+                return await openJsonWeights(context);
             case 'tf.pbtxt.GraphDef':
                 return openTextGraphDef(context);
             case 'tf.pbtxt.MetaGraphDef':
