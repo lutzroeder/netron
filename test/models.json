@@ -5255,6 +5255,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "cloudpickle.pth",
+    "source":   "https://github.com/user-attachments/files/17882209/cloudpickle.pth.zip[cloudpickle.pth]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "coco128-yolov8n-seg_output.torchscript.ptl",
     "source":   "https://github.com/user-attachments/files/16091260/coco128-yolov8n-seg_output.torchscript.ptl.zip[coco128-yolov8n-seg_output.torchscript.ptl]",
     "format":   "TorchScript v1.6",

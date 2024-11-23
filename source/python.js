@@ -16,6 +16,11 @@ python.Execution = class {
             constructor(items) {
                 super();
                 if (items) {
+                    if (items instanceof Map) {
+                        items = Array.from(items);
+                    } else if (!Array.isArray(items)) {
+                        items = Object.entries(items);
+                    }
                     for (const [name, value] of items) {
                         this.__setitem__(name, value);
                     }
@@ -30,6 +35,9 @@ python.Execution = class {
             __getitem__(key) {
                 return this.get(key);
             }
+            __delitem__(key) {
+                this.delete(key);
+            }
             get(key, defaultValue) {
                 return super.get(key) || defaultValue;
             }
@@ -40,6 +48,17 @@ python.Execution = class {
                 const value = defaultValue || null;
                 this.set(key, value);
                 return value;
+            }
+            pop(key) {
+                if (this.__contains__(key)) {
+                    const v = this.__getitem__(key);
+                    this.__delitem__(key);
+                    return v;
+                }
+                return null;
+            }
+            items() {
+                return Array.from(this);
             }
             update(other) {
                 for (const [key, value] of other) {
@@ -57,10 +76,45 @@ python.Execution = class {
         const builtins = this.register('builtins', new module('builtins'));
         this.builtins = builtins;
         this._registry.set('__builtin__', builtins);
-        this.registerType('builtins.type', class {}).__class__ = builtins.type;
+        this.registerType('builtins.type', class {
+            constructor(...args) {
+                if (args.length === 1) {
+                    const [obj] = args;
+                    if (obj === null) {
+                        /* eslint-disable no-constructor-return */
+                        return builtins.NoneType;
+                        /* eslint-enable no-constructor-return */
+                    }
+                    if (obj && obj.__class__) {
+                        /* eslint-disable no-constructor-return */
+                        return obj.__class__;
+                        /* eslint-enable no-constructor-return */
+                    }
+                    throw new python.Error(`Unknown type '${obj}'`);
+                }
+                if (args.length === 3) {
+                    const [name, bases, body] = args;
+                    const cls = bases.length > 0 ? class extends bases[0] {} : class {};
+                    execution.registerType(name, cls);
+                    for (const [key, value] of body) {
+                        cls[key] = value;
+                    }
+                    /* eslint-disable no-constructor-return */
+                    return cls;
+                    /* eslint-enable no-constructor-return */
+                }
+                throw new python.Error(`Invalid 'builtins.dict' argument count.`);
+            }
+        }).__class__ = builtins.type;
         this.registerType('builtins.module', module);
         this.registerType('builtins.method', class {});
-        this.registerType('builtins.function', class {});
+        this.registerType('builtins.function', class {
+            constructor(code, globals, name) {
+                this.__code__ = code;
+                this.__globals__ = globals;
+                this.__name__ = name;
+            }
+        });
         this.registerType('builtins.code', class {});
         this.import('builtins');
         this.registerType('builtins.builtin_function_or_method', class {});
@@ -75,6 +129,7 @@ python.Execution = class {
         const ast = this.register('ast');
         this.ast = ast;
         this.register('cuml');
+        const cloudpickle = this.register('cloudpickle');
         const datetime = this.register('datetime');
         this.register('gensim');
         this.register('io');
@@ -119,7 +174,8 @@ python.Execution = class {
         this.register('torch.ops._caffe2');
         this.register('torchvision');
         this.register('__torch__');
-        this.register('sys').modules = this._modules;
+        const sys = this.register('sys');
+        sys.modules = this._modules;
         this.register('xgboost');
         this.registerType('ast.AST', class {
             get type() { // remove
@@ -3911,9 +3967,49 @@ python.Execution = class {
                 Object.assign(this, dict);
             }
         });
+        const types = this.register('types');
         this.registerType('types.GenericAlias', class {});
         this.registerType('types.SimpleNamespace', class {});
-        const types = this.register('types');
+        this.registerFunction('types.resolve_bases', (bases) => {
+            return bases;
+        });
+        this.registerFunction('types.prepare_class', (name, bases, kwds) => {
+            if (kwds) {
+                kwds = new builtins.dict(kwds);
+            } else {
+                kwds = new builtins.dict();
+            }
+            let meta = null;
+            if (kwds.__contains__('metaclass')) {
+                meta = kwds.pop('metaclass');
+            } else if (bases && bases.length > 0) {
+                meta = builtins.type(bases[0]);
+            } else {
+                meta = builtins.type;
+            }
+            if (meta instanceof builtins.type) {
+                meta = types._calculate_meta(meta, bases);
+            }
+            let ns = null;
+            if (builtins.hasattr(meta, '__prepare__')) {
+                // ns = meta.__prepare__(name, bases, **kwds)
+            } else {
+                ns = new builtins.dict();
+            }
+            return [meta, ns, kwds];
+        });
+        this.registerFunction('types._calculate_meta', (meta /*, bases*/) => {
+            const winner = meta;
+            return winner;
+        });
+        this.registerFunction('types.new_class', (name, bases, kwds, exec_body) => {
+            const resolved_bases = types.resolve_bases(bases);
+            const [meta, ns] = types.prepare_class(name, bases, kwds);
+            if (exec_body) {
+                exec_body(ns);
+            }
+            return new meta(name, resolved_bases, ns);
+        });
         types.ObjectType = builtins.object;
         types.ModuleType = builtins.module;
         types.MethodType = builtins.method;
@@ -4074,12 +4170,88 @@ python.Execution = class {
             return name;
         });
         this.registerFunction('cloudpickle.cloudpickle._fill_function');
-        this.registerFunction('cloudpickle.cloudpickle._make_cell');
-        this.registerFunction('cloudpickle.cloudpickle._make_empty_cell');
-        this.registerFunction('cloudpickle.cloudpickle._make_function');
+
+        this.registerType('cloudpickle.cloudpickle._empty_cell_value', class {});
+        this.registerFunction('cloudpickle.cloudpickle._make_cell', (value) => {
+            value = value || cloudpickle.cloudpickle._empty_cell_value;
+            const cell = cloudpickle.cloudpickle._make_empty_cell();
+            if (value !== cloudpickle.cloudpickle._empty_cell_value) {
+                cell.cell_contents = value;
+            }
+            return cell;
+        });
+        this.registerFunction('cloudpickle.cloudpickle._make_function', (code, globals, name, argdefs, closure) => {
+            // globals["__builtins__"] = __builtins__
+            return new types.FunctionType(code, globals, name, argdefs, closure);
+        });
         this.registerFunction('cloudpickle.cloudpickle._make_skel_func');
-        this.registerFunction('cloudpickle.cloudpickle._make_skeleton_class');
-        this.registerFunction('cloudpickle.cloudpickle.subimport');
+        cloudpickle.cloudpickle._DYNAMIC_CLASS_TRACKER_BY_ID = new builtins.dict();
+        this.registerFunction('cloudpickle.cloudpickle._lookup_class_or_track', (class_tracker_id, class_def) => {
+            if (class_tracker_id) {
+                class_def = cloudpickle.cloudpickle._DYNAMIC_CLASS_TRACKER_BY_ID.setdefault(class_tracker_id, class_def);
+            }
+            return class_def;
+        });
+        this.registerFunction('cloudpickle.cloudpickle._make_skeleton_class', (type_constructor, name, bases, type_kwargs, class_tracker_id /*, extra */) => {
+            // https://github.com/ray-project/ray/blob/5cd8967f1c0c16d3ae5fedb8449d0d25dd4f9f3e/python/ray/cloudpickle/cloudpickle.py#L523
+            const kwds = { 'metaclass': type_constructor };
+            const skeleton_class = types.new_class(name, bases, kwds, (ns) => ns.update(type_kwargs));
+            return cloudpickle.cloudpickle._lookup_class_or_track(class_tracker_id, skeleton_class);
+        });
+        this.registerFunction('cloudpickle.cloudpickle._make_empty_cell', () => {
+            return new builtins.cell();
+        });
+        this.registerFunction('cloudpickle.cloudpickle._class_setstate', (obj, state) => {
+            [state] = state;
+            let registry = null;
+            for (const [attrname, attr] of state.items()) {
+                if (attrname === '_abc_impl') {
+                    registry = attr;
+                } else {
+                    builtins.setattr(obj, attrname, attr);
+                }
+            }
+            if (sys.version_info >= (3, 13) && state.__contains__('__firstlineno__')) {
+                obj.__firstlineno__ = state.get('__firstlineno__');
+            }
+            if (registry) {
+                for (const subclass of registry) {
+                    obj.register(subclass);
+                }
+            }
+            return obj;
+        });
+        this.registerFunction('cloudpickle.cloudpickle._function_setstate', (obj, state) => {
+            const [, slotstate] = state;
+            [state] = state;
+            // obj.__dict__.update(state)
+            /* const obj_globals = */ slotstate.pop('__globals__');
+            const obj_closure = slotstate.pop('__closure__');
+            slotstate.pop('_cloudpickle_submodules');
+            if (obj.__globals__) {
+                // obj.__globals__.update(obj_globals);
+                // obj.__globals__.__builtins__ = __builtins__;
+            }
+            if (obj_closure) {
+                // let value = null;
+                for (let i = 0; i < obj_closure.length; i++) {
+                    // const cell = obj_closure[i];
+                    try {
+                        // value = cell.cell_contents;
+                    } catch {
+                        // cell is empty
+                    }
+                    // obj.__closure__[i].cell_contents = value;
+                }
+            }
+            for (const [k, v] of slotstate.items()) {
+                builtins.setattr(obj, k, v);
+            }
+        });
+        this.registerFunction('cloudpickle.cloudpickle.subimport', (name) => {
+            execution.__import__(name);
+            return sys.modules.get(name);
+        });
         this.registerFunction('cloudpickle.cloudpickle_fast._class_setstate');
         this.registerFunction('cloudpickle.cloudpickle_fast._function_setstate');
         this.registerType('collections.Counter', class {});
