@@ -3351,7 +3351,7 @@
       },
       {
         "name": "flash_attention",
-        "description": "If unspecified, defaults to the global flash attention\n        configuration setting (which can be set via\n        `keras.config.enable_flash_attention()."
+        "description": "If `None`, the layer attempts to use flash\n        attention for faster and more memory-efficient attention\n        computations when possible. This behavior can be configured using\n        `keras.config.enable_flash_attention()` or\n        `keras.config.disable_flash_attention()`."
       }
     ],
     "examples": [

@@ -92,7 +92,8 @@ install() {
             ;;
     esac
     ${python} -m pip install --quiet "./third_party/source/onnx"
-    ${python} -m pip install --quiet --upgrade ort-nightly --extra-index https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/
+    ${python} -m pip install --quiet --upgrade packaging flatbuffers protobuf numpy sympy
+    ${python} -m pip install --quiet --upgrade onnxruntime --pre --extra-index https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/
     deactivate
 }
 
