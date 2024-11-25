@@ -1150,50 +1150,53 @@ paddle.IR.Op = class {
         const outputNames = new Set();
 
         // make inputs
-        class Input {
-            constructor(input, opInfo) {
-                const [parameter, inputName] = globalInfo.getParaName(input, opInfo.namePrefix);
-                this.arguments = [inputName];
-                this.parameter = parameter;
-            }
-        }
+        const createInput = (input, opInfo) => {
+            const [parameterName, inputName] = globalInfo.getParaName(input, opInfo.namePrefix);
+            return {
+                arguments: [inputName],
+                parameter: parameterName
+            };
+        };
 
         const inputs = [];
         if (op.I) {
             const inputArray = Array.isArray(op.I) ? op.I : [op.I];
             for (const input of inputArray) {
-                inputs.push(new Input(input, opInfo));
+                inputs.push(createInput(input, opInfo));
                 const [, name] = globalInfo.getParaName(input, opInfo.namePrefix);
                 inputNames.add(name);
             }
         }
 
         // make outputs
-        class Output {
-            constructor(output, opInfo, idx, outputAttr) {
-                const [parameter, outputName] = globalInfo.getParaName(output, opInfo.namePrefix);
-                this.arguments = [outputName];
-                this.parameter = parameter;
-                this.values = new Map();
-                this.tensorType = null;
+        const createOutput = (output, opInfo, idx, outputAttr) => {
+            const [parameterName, outputName] = globalInfo.getParaName(output, opInfo.namePrefix);
+            const valuesMap = new Map();
+            let tType = null;
 
-                const [, tensorType] = output.TT['#'].split('.');
-                if (tensorType === 't_dtensor') {
-                    const denotation = opInfo.getOutputAttr(idx, outputAttr);
-                    const tensorType = paddle.Utility.createIRTensorType(output, denotation);
-                    this.values.set(outputName, new paddle.Value(outputName, tensorType, null));
-                    this.tensorType = tensorType;
-                } else {
-                    this.values.set(outputName, new paddle.Value(outputName, null, null, null));
-                }
+            const [, typeType] = output.TT['#'].split('.');
+            if (typeType === 't_dtensor') {
+                const denotation = opInfo.getOutputAttr(idx, outputAttr);
+                const tensorType = paddle.Utility.createIRTensorType(output, denotation);
+                valuesMap.set(outputName, new paddle.Value(outputName, tensorType, null));
+                tType = tensorType;
+            } else {
+                valuesMap.set(outputName, new paddle.Value(outputName, null, null, null));
             }
-        }
+
+            return {
+                arguments: [outputName],
+                parameter: parameterName,
+                tensorType: tType,
+                values: valuesMap
+            };
+        };
 
         const outputs = [];
         if (op.O) {
             const outputArray = Array.isArray(op.O) ? op.O : [op.O];
             for (const [idx, output] of Object.entries(outputArray)) {
-                const irOutput = new Output(output, opInfo, idx, op.OA);
+                const irOutput = createOutput(output, opInfo, idx, op.OA);
                 outputs.push(irOutput);
                 const [, name, isNegative] = globalInfo.getParaName(output, opInfo.namePrefix);
                 outputNames.add(name);
@@ -1252,7 +1255,7 @@ paddle.IR.Op = class {
             for (const [name, inputArgs] of subInputs) {
                 if (!inputNames.has(name) && !subOutputs.has(name)) {
                     const [input, opInfo] = inputArgs;
-                    inputs.push(new Input(input, opInfo));
+                    inputs.push(createInput(input, opInfo));
                     inputNames.add(name);
                 }
             }
@@ -1261,7 +1264,7 @@ paddle.IR.Op = class {
             for (const [name, outputArgs] of subOutputs) {
                 if (!outputNames.has(name) && !subInputs.has(name)) {
                     const [output, opInfo, idx, oa] = outputArgs;
-                    outputs.push(new Output(output, opInfo, idx, oa));
+                    outputs.push(createOutput(output, opInfo, idx, oa));
                     outputNames.add(name);
                 }
             }
