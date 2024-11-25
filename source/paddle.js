@@ -925,7 +925,7 @@ paddle.Utility = class {
         return paddle.Utility._placeMapper.has(`${place}`) ? paddle.Utility._placeMapper.get(`${place}`) : `${place}`;
     }
 
-    static getCompressOp(opType) {
+    static getIRCompressOp(opType) {
         if (!paddle.Utility._opCompressMapper) {
             paddle.Utility._opCompressMapper = new Map([
                 ['0', 'builtin'],
@@ -937,6 +937,17 @@ paddle.Utility = class {
             ]);
         }
         return paddle.Utility._opCompressMapper.has(opType) ? paddle.Utility._opCompressMapper.get(opType) : opType;
+    }
+
+    static getIROpInfo(op) {
+        switch (op['#']) {
+            case 'p':
+                return new paddle.IR.OpInfoP(op);
+            case '1.data':
+                return new paddle.IR.OpInfoData(op);
+            default:
+                return new paddle.IR.OpInfo(op);
+        }
     }
 
 };
@@ -994,28 +1005,59 @@ paddle.AttributeType = {
 paddle.IR = class {
 
     constructor(obj) {
-        // init some map
-        paddle.IR.Utility.init(obj);
-
         this.base_code = obj.base_code;
         this.version = obj.base_code.version;
-        this.program = new paddle.IR.Program(obj.program);
+
+        const globalInfo = new paddle.IR.GlobalInfo();
+        this.program = new paddle.IR.Program(obj.program, globalInfo);
 
         // to construct a `paddle.Model`
         this.desc = this.program.region;
         this.tensors = new Map();
 
-        // clear the maps
-        paddle.IR.Utility.clear();
+    }
+};
+
+paddle.IR.GlobalInfo = class {
+    constructor() {
+        this.names = new Map();
+        this.crossRegionInputs = new Map();
+    }
+
+    getParaName(tensor, namePrefix) {
+        const idx = tensor['%'] || tensor['#'];
+        if (tensor.TT && !this.names.has(idx)) {
+            const prefix = namePrefix || idx;
+            this.names.set(idx, `${prefix}`);
+        }
+
+        // [idx as string, formatted name, is a negative integer]
+        return [
+            `${idx}`,
+            this.names.has(idx) ? this.names.get(idx) : `${idx}`,
+            Number.isInteger(idx) ? idx < 0 : false
+        ];
+    }
+
+    hasCrossInput(name) {
+        return this.crossRegionInputs.has(name);
+    }
+
+    getCrossInput(name) {
+        return this.crossRegionInputs.has(name) ? this.crossRegionInputs.get(name) : null;
+    }
+
+    addCrossInput(name, input) {
+        this.crossRegionInputs.set(name, input);
     }
 };
 
 paddle.IR.Program = class {
 
-    constructor(program) {
+    constructor(program, globalInfo) {
         this.regions = [];
         for (const region of program.regions) {
-            this.regions.push(new paddle.IR.Region(region));
+            this.regions.push(new paddle.IR.Region(region, globalInfo));
         }
         const [region] = this.regions;
         this.region = region;
@@ -1024,13 +1066,13 @@ paddle.IR.Program = class {
 
 paddle.IR.Region = class {
 
-    constructor(region) {
+    constructor(region, globalInfo) {
         this.name = region['#'];
         this.idx = region['#'];
         this.vars = new Map();
         this.blocks = [];
         for (const block of region.blocks) {
-            this.blocks.push(new paddle.IR.Block(block));
+            this.blocks.push(new paddle.IR.Block(block, globalInfo));
         }
         const [block] = this.blocks;
         this.block = block;
@@ -1039,7 +1081,7 @@ paddle.IR.Region = class {
 
 paddle.IR.Block = class {
 
-    constructor(block) {
+    constructor(block, globalInfo) {
         this.name = block['#'];
         this.idx = block['#'];
         this.vars = new Map();
@@ -1049,7 +1091,7 @@ paddle.IR.Block = class {
             for (const input of block.args) {
                 const [, type] = input.TT && input.TT['#'] ? input.TT['#'].split('.') : null;
                 if (type === 't_dtensor') {
-                    const [parameter, name,] = paddle.IR.Utility.getParaName(input);
+                    const [parameter, name,] = globalInfo.getParaName(input);
                     const tensorType = paddle.Utility.createIRTensorType(input);
                     this.argInputs.set(name, [parameter, tensorType]);
                 }
@@ -1061,7 +1103,7 @@ paddle.IR.Block = class {
 
         this.ops = [];
         for (const op of block.ops) {
-            const irOp = new paddle.IR.Op(op);
+            const irOp = new paddle.IR.Op(op, globalInfo);
             this.ops.push(irOp);
 
             inputNames = new Set([...inputNames, ...irOp.inputNames]);
@@ -1071,7 +1113,7 @@ paddle.IR.Block = class {
         const missInputs = new Set([...inputNames].filter((item) => !outputNames.has(item)));
         if (missInputs) {
             for (const name of missInputs) {
-                const output = paddle.IR.Utility.getCrossRegionInput(name);
+                const output = globalInfo.getCrossInput(name);
                 if (output) {
                     this.argInputs.set(name, [output.parameter, output.tensorType]);
                 }
@@ -1082,8 +1124,8 @@ paddle.IR.Block = class {
 
 paddle.IR.Op = class {
 
-    constructor(op) {
-        const opInfo = paddle.IR.Utility.getOpInfo(op);
+    constructor(op, globalInfo) {
+        const opInfo = paddle.Utility.getIROpInfo(op);
 
         // make base info
         this.name = opInfo.fullName;
@@ -1099,7 +1141,7 @@ paddle.IR.Op = class {
         // add regions as sub graph
         if (op.regions !== undefined) {
             for (const region of op.regions) {
-                this.attrs.push(new paddle.IR.Region(region));
+                this.attrs.push(new paddle.IR.Region(region, globalInfo));
             }
         }
 
@@ -1110,7 +1152,7 @@ paddle.IR.Op = class {
         // make inputs
         class Input {
             constructor(input, opInfo) {
-                const [parameter, inputName] = paddle.IR.Utility.getParaName(input, opInfo.namePrefix);
+                const [parameter, inputName] = globalInfo.getParaName(input, opInfo.namePrefix);
                 this.arguments = [inputName];
                 this.parameter = parameter;
             }
@@ -1121,7 +1163,7 @@ paddle.IR.Op = class {
             const inputArray = Array.isArray(op.I) ? op.I : [op.I];
             for (const input of inputArray) {
                 inputs.push(new Input(input, opInfo));
-                const [, name] = paddle.IR.Utility.getParaName(input, opInfo.namePrefix);
+                const [, name] = globalInfo.getParaName(input, opInfo.namePrefix);
                 inputNames.add(name);
             }
         }
@@ -1129,7 +1171,7 @@ paddle.IR.Op = class {
         // make outputs
         class Output {
             constructor(output, opInfo, idx, outputAttr) {
-                const [parameter, outputName] = paddle.IR.Utility.getParaName(output, opInfo.namePrefix);
+                const [parameter, outputName] = globalInfo.getParaName(output, opInfo.namePrefix);
                 this.arguments = [outputName];
                 this.parameter = parameter;
                 this.values = new Map();
@@ -1144,7 +1186,6 @@ paddle.IR.Op = class {
                 } else {
                     this.values.set(outputName, new paddle.Value(outputName, null, null, null));
                 }
-
             }
         }
 
@@ -1154,19 +1195,58 @@ paddle.IR.Op = class {
             for (const [idx, output] of Object.entries(outputArray)) {
                 const irOutput = new Output(output, opInfo, idx, op.OA);
                 outputs.push(irOutput);
-                const [, name, isNegative] = paddle.IR.Utility.getParaName(output, opInfo.namePrefix);
+                const [, name, isNegative] = globalInfo.getParaName(output, opInfo.namePrefix);
                 outputNames.add(name);
 
                 // add cross inputs for sub graph render block arguments
-                if (!isNegative && !paddle.IR.Utility.hasCrossRegionInput(name)) {
-                    paddle.IR.Utility.addCrossRegionInput(name, irOutput);
+                if (!isNegative && !globalInfo.hasCrossInput(name)) {
+                    globalInfo.addCrossInput(name, irOutput);
                 }
             }
         }
 
         if (op.regions) {
+            const collectRegions = (globalInfo, regions) => {
+                let inputs = new Map();
+                let outputs = new Map();
+                for (const region of regions) {
+                    for (const block of region.blocks) {
+                        for (const op of block.ops) {
+                            const opInfo = paddle.Utility.getIROpInfo(op);
+
+                            if (op.I) {
+                                const opInputs = Array.isArray(op.I) ? op.I : [op.I];
+                                for (const input of opInputs) {
+                                    const [, name, isNegative] = globalInfo.getParaName(input, opInfo.namePrefix);
+                                    if (!isNegative && !inputs.has(name)) {
+                                        inputs.set(name, [input, opInfo]);
+                                    }
+                                }
+                            }
+
+                            if (op.O) {
+                                const opOutputs = Array.isArray(op.O) ? op.O : [op.O];
+                                for (const [idx, output] of Object.entries(opOutputs)) {
+                                    const [, name, isNegative] = globalInfo.getParaName(output, opInfo.namePrefix);
+                                    if (!isNegative && !outputs.has(name)) {
+                                        outputs.set(name, [output, opInfo, idx, op.OA]);
+                                    }
+                                }
+                            }
+
+                            if (op.regions) {
+                                const [subInputs, subOutputs] = collectRegions(globalInfo, op.regions);
+                                inputs = new Map([...inputs, ...subInputs]);
+                                outputs = new Map([...outputs, ...subOutputs]);
+                            }
+                        }
+                    }
+                }
+                return [inputs, outputs];
+            };
+
             // get sub inputs and outputs from regions
-            const [subInputs, subOutputs] = paddle.IR.Utility.collectRegions(op.regions);
+            const [subInputs, subOutputs] = collectRegions(globalInfo, op.regions);
 
             // just add inputs which are not generated from sub regions
             for (const [name, inputArgs] of subInputs) {
@@ -1228,7 +1308,7 @@ paddle.IR.OpInfo = class {
     }
 
     get fullName() {
-        return `${paddle.Utility.getCompressOp(this._opKey)}.${this._opType}`;
+        return `${paddle.Utility.getIRCompressOp(this._opKey)}.${this._opType}`;
     }
 
     getAttr(idx, value) {
@@ -1312,7 +1392,7 @@ paddle.IR.OpInfoP = class extends paddle.IR.OpInfo {
     init(op) {
         const [name] = op.A.slice(3);
         this._name = name;
-        this._type = paddle.Utility.getCompressOp(this._type);
+        this._type = paddle.Utility.getIRCompressOp(this._type);
         this._fullName = this._type;
         op.OA = [...op.OA, ...op.A];
     }
@@ -1387,102 +1467,6 @@ paddle.IR.Attr = class {
         this.name = attrName;
         this.type = attrType;
         this.value = attrValue;
-    }
-};
-
-paddle.IR.Utility = class {
-    static init(obj) {
-
-        paddle.IR.Utility._outputNames = new Map();
-        paddle.IR.Utility._crossInputs = new Map();
-
-        const [inputs, outputs] = paddle.IR.Utility.collectRegions(obj.program.regions);
-        paddle.IR.Utility._inputs = inputs;
-        paddle.IR.Utility._outputs = outputs;
-    }
-
-    static clear() {
-        paddle.IR.Utility._outputNames = null;
-        paddle.IR.Utility._crossInputs = null;
-        paddle.IR.Utility._inputs = null;
-        paddle.IR.Utility._outputs = null;
-    }
-
-    static getParaName(tensor, namePrefix) {
-        const idx = tensor['%'] || tensor['#'];
-        if (tensor.TT && !paddle.IR.Utility._outputNames.has(idx)) {
-            const prefix = namePrefix || idx;
-            paddle.IR.Utility._outputNames.set(idx, `${prefix}`);
-        }
-
-        // [idx as string, formatted name, is a negative integer]
-        return [
-            `${idx}`,
-            paddle.IR.Utility._outputNames.has(idx) ? paddle.IR.Utility._outputNames.get(idx) : `${idx}`,
-            Number.isInteger(idx) ? idx < 0 : false
-        ];
-    }
-
-    static getOpInfo(op) {
-        switch (op['#']) {
-            case 'p':
-                return new paddle.IR.OpInfoP(op);
-            case '1.data':
-                return new paddle.IR.OpInfoData(op);
-            default:
-                return new paddle.IR.OpInfo(op);
-        }
-    }
-
-    static addCrossRegionInput(name, input) {
-        paddle.IR.Utility._crossInputs.set(name, input);
-    }
-
-    static getCrossRegionInput(name) {
-        return paddle.IR.Utility._crossInputs.has(name) ? paddle.IR.Utility._crossInputs.get(name) : null;
-    }
-
-    static hasCrossRegionInput(name) {
-        return paddle.IR.Utility._crossInputs.has(name);
-    }
-
-    static collectRegions(regions) {
-        let inputs = new Map();
-        let outputs = new Map();
-        for (const region of regions) {
-            for (const block of region.blocks) {
-                for (const op of block.ops) {
-                    const opInfo = paddle.IR.Utility.getOpInfo(op);
-
-                    if (op.I) {
-                        const opInputs = Array.isArray(op.I) ? op.I : [op.I];
-                        for (const input of opInputs) {
-                            const [, name, isNegative] = paddle.IR.Utility.getParaName(input, opInfo.namePrefix);
-                            if (!isNegative && !inputs.has(name)) {
-                                inputs.set(name, [input, opInfo]);
-                            }
-                        }
-                    }
-
-                    if (op.O) {
-                        const opOutputs = Array.isArray(op.O) ? op.O : [op.O];
-                        for (const [idx, output] of Object.entries(opOutputs)) {
-                            const [, name, isNegative] = paddle.IR.Utility.getParaName(output, opInfo.namePrefix);
-                            if (!isNegative && !outputs.has(name)) {
-                                outputs.set(name, [output, opInfo, idx, op.OA]);
-                            }
-                        }
-                    }
-
-                    if (op.regions) {
-                        const [subInputs, subOutputs] = paddle.IR.Utility.collectRegions(op.regions);
-                        inputs = new Map([...inputs, ...subInputs]);
-                        outputs = new Map([...outputs, ...subOutputs]);
-                    }
-                }
-            }
-        }
-        return [inputs, outputs];
     }
 };
 
