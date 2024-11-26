@@ -890,9 +890,6 @@ onnx.Context.Model = class {
         this._functions = new Map();
         for (const func of functions || []) {
             const key = func.overload ? `${func.domain}:${func.name}:${func.overload}` : `${func.domain}:${func.name}`;
-            if (this._functions.has(key)) {
-                throw new onnx.Error(`Duplicate function identifier '${key}'.`);
-            }
             func.initializer = [];
             func.uses = [];
             func.callers = new Set();
@@ -1443,6 +1440,33 @@ onnx.ProtoReader = class {
 
     static open(context) {
         const identifier = context.identifier;
+        const stream = context.stream;
+        if (stream && stream.length > 5) {
+            const buffer = stream.peek(Math.min(stream.length, 256));
+            if (buffer[0] === 0x08 && buffer[1] < 0x0B && buffer[2] === 0x12 && buffer[3] < 64 && (buffer[3] + 4) <= stream.length) {
+                if (buffer[3] === 0x00 && buffer[4] === 0x1A && buffer[5] === 0x00) {
+                    return new onnx.ProtoReader(context, 'binary', 'model');
+                }
+                const producer = String.fromCharCode.apply(null, buffer.subarray(4, 4 + buffer[3]));
+                if (producer.match(/^[A-Za-z][A-Za-z0-9_+-. ]+$/)) {
+                    return new onnx.ProtoReader(context, 'binary', 'model');
+                }
+            }
+            const length = buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24);
+            if (length === stream.length - 4) {
+                stream.seek(4);
+                try {
+                    const reader = protobuf.BinaryReader.open(stream);
+                    const tags = reader.signature();
+                    if (tags.get(7) === 2) {
+                        stream.seek(4);
+                        return new onnx.ProtoReader(context, 'binary', 'model');
+                    }
+                } catch {
+                    // continue regardless of error
+                }
+            }
+        }
         const binaryTags = context.tags('pb');
         if (binaryTags.size > 0) {
             const tags = binaryTags;
@@ -1523,36 +1547,6 @@ onnx.ProtoReader = class {
                     if (schema.every(([key, value]) => !tags.has(key) || tags.get(key) === value)) {
                         return new onnx.ProtoReader(context, 'binary', 'model');
                     }
-                }
-            }
-        }
-        const stream = context.stream;
-        if (stream && stream.length > 5) {
-            const buffer = stream.peek(Math.min(stream.length, 256));
-            if (buffer[0] === 0x08 && buffer[1] < 0x0B && buffer[2] === 0x12 && buffer[3] < 64 && (buffer[3] + 4) <= stream.length) {
-                const producers = ['vai_q_onnx'];
-                const producer = String.fromCharCode.apply(null, buffer.subarray(4, 4 + buffer[3]));
-                if (producers.includes(producer) ||
-                    producer.match(/^[A-Za-z][A-Za-z23]+([-_. ][A-Za-z][A-Za-z2350]+)*$/) ||
-                    buffer[3] === 0x00 && buffer[4] === 0x1A && buffer[5] === 0x00) {
-                    return new onnx.ProtoReader(context, 'binary', 'model');
-                }
-            }
-        }
-        if (stream && stream.length > 8) {
-            const buffer = stream.peek(4);
-            const length = buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24);
-            if (length === stream.length - 4) {
-                stream.seek(4);
-                try {
-                    const reader = protobuf.BinaryReader.open(stream);
-                    const tags = reader.signature();
-                    if (tags.get(7) === 2) {
-                        stream.seek(4);
-                        return new onnx.ProtoReader(context, 'binary', 'model');
-                    }
-                } catch {
-                    // continue regardless of error
                 }
             }
         }

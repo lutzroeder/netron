@@ -4064,6 +4064,16 @@
   },
   {
     "type":     "onnx",
+    "target":   "duplicate_function.onnx",
+    "source":   "https://github.com/user-attachments/files/17901407/duplicate_function.onnx.zip[duplicate_function.onnx]",
+    "format":   "ONNX v8",
+    "assert":   "model.graphs[0].nodes[0].type.nodes[0].type.name == 'Sub'",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+
+  
+  {
+    "type":     "onnx",
     "target":   "DocumentClassification.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/2592479/DocumentClassification.onnx.zip[DocumentClassification.onnx]",
     "format":   "ONNX v3",
