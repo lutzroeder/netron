@@ -1,8 +1,9 @@
-function image() {
+
   if (document.getElementById("graph")) {
     if (document.getElementById("origin")) {
       if (document.getElementById("nodes") && document.getElementById("edge-paths")) {
         if (document.getElementById("list-attributes").innerHTML.length !== 0) {
+          alert("yes");
           var parent_n = document.getElementById("nodes");
           var parent_t = document.getElementById("edge-paths");
           var lista = document.getElementById("list-attributes");
@@ -12,10 +13,11 @@ function image() {
             var inner = JSON.parse(child.innerHTML);
             var item;
             var elem;
+            console.log(inner);
             var keys = Object.keys(inner);
             for (var j = 0; j < keys.length; j++) {
               if (keys[j].startsWith("img_")) {
-                var getting = JSON.parse(inner[keys[j]]);
+                var getting = inner[keys[j]];
                 if (getting["class"] == "operator") {
                   var value = "node-id-" + getting["id"];
                   if (!(value in onmouseoverdict)) {
@@ -50,6 +52,6 @@ function image() {
       }
     }
   }
-}
 
-window.setInterval(image, 1);
+
+window.setInterval(image, 1000);

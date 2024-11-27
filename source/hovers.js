@@ -1,6 +1,6 @@
-//import { stringify } from 'querystring';
+import { stringify } from 'querystring';
 
-// import { execSync } from 'child_process';
+import { execSync } from 'child_process';
 class Req {
   file_added = 0;
   constructor() {}
@@ -371,7 +371,6 @@ class Req {
                   } 
                   else {
                     if (first.toLowerCase() == "tensor_onmouseover_image_dimx" || first.toLowerCase() == "tensor_onmouseover_image_dimy" || first.toLowerCase() == "operator_onmouseover_image_dimx" || first.toLowerCase() == "operator_onmouseover_image_dimy" || first.toLowerCase() == "tensor_onmouseover_image_posx" || first.toLowerCase() == "tensor_onmouseover_image_posy" || first.toLowerCase() == "operator_onmouseover_image_posx" || first.toLowerCase() == "operator_onmouseover_image_posy") {
-                      console.log("S a verificat");
                       var strin = JSON.parse(img);
                       strin[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim();
                       img = JSON.stringify(strin);
@@ -459,7 +458,7 @@ class Req {
                   for (var j = 0; j < keys.length; j++) {
                     if (keys[j].startsWith("img_")) {
                       var obje = JSON.parse(obj[keys[j]]);
-                      var oImg = new Image();
+                      var oImg = document.createElement('img');
                       oImg.src = obje["img_link"];
                       oImg.style.width = obje["tensor_onmouseover_image_dimx"];
                       oImg.style.height = obje["tensor_onmouseover_image_dimy"];
@@ -516,7 +515,7 @@ class Req {
                   for (var j = 0; j < keys.length; j++) {
                     if (keys[j].startsWith("img_")) {
                       var obje = JSON.parse(obj[keys[j]]);
-                      var oImg = new Image();
+                      var oImg = document.createElement('img');
                       oImg.src = obje["img_link"];
                       oImg.style.width = obje["operator_onmouseover_image_dimx"];
                       oImg.style.height = obje["operator_onmouseover_image_dimy"];
@@ -799,6 +798,54 @@ class Req {
         }
       }
     }
+    if (document.getElementById("graph")) {
+      if (document.getElementById("origin")) {
+        if (document.getElementById("nodes") && document.getElementById("edge-paths")) {
+          if (document.getElementById("list-attributes").innerHTML.length !== 0) {
+            var parent_n = document.getElementById("nodes");
+            var parent_t = document.getElementById("edge-paths");
+            var lista = document.getElementById("list-attributes");
+            var onmouseoverdict = {};
+            for (var i = 0; i < lista.children.length; i++) {
+              var child = lista.children[i];
+              var inner = JSON.parse(child.innerHTML);
+              var item;
+              var elem;
+              for (const keyy in inner) {
+                if (keyy.startsWith("img_")) {
+                  var getting = JSON.parse(inner[keyy]);
+                  if (getting["class"] == "operator") {
+                    var value = "node-id-" + getting["id"];
+                    if (!(onmouseoverdict.hasOwnProperty(value))) {
+                      onmouseoverdict[value] = [];
+                    }
+                    onmouseoverdict[value].push("image-node-id-" + getting["id"] + "_" + keyy);
+                  } else {
+                    var value = getting["id"] + 1;
+                    if (!(onmouseoverdict.hasOwnProperty(value))) {
+                      onmouseoverdict[value] = [];
+                    }
+                    onmouseoverdict[value].push("tensor-image-" + getting["id"] + "_" + keyy);
+                  }
+                }
+              }
+            }
+            for (const [elem, lista] of Object.entries(onmouseoverdict)) {
+              document.getElementById(elem).onmouseover = function() {
+                for (const item of lista) {
+                  document.getElementById(item).style.display = "block";
+                }
+              }
+              document.getElementById(elem).onmouseout = function() {
+                for (const item of lista) {
+                  document.getElementById(item).style.display = "none";
+                }
+               }
+            }
+          }
+        }
+      }
+    }    
   }
 }
 
