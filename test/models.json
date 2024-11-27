@@ -2098,27 +2098,96 @@
     "link":     "https://github.com/lutzroeder/netron/issues/334"
   },
   {
-    "type":     "graphviz",
+    "type":     "dot",
+    "target":   "chart_fr1.dot",
+    "source":   "https://github.com/user-attachments/files/17928647/chart_fr1.dot.zip[chart_fr1.dot]",
+    "format":   "DOT",
+    "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
+    "type":     "dot",
+    "target":   "dataflow.dot",
+    "source":   "https://github.com/user-attachments/files/17928508/dataflow.dot.zip[dataflow.dot]",
+    "format":   "DOT",
+    "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
+    "type":     "dot",
+    "target":   "edges.dot",
+    "source":   "https://github.com/user-attachments/files/17928569/edges.dot.zip[edges.dot]",
+    "format":   "DOT",
+    "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
+    "type":     "dot",
     "target":   "EfficientDet-d0.onnx.dot",
     "source":   "https://github.com/user-attachments/files/17180084/EfficientDet-d0.onnx.dot.zip[EfficientDet-d0.onnx.dot]",
-    "format":   "Graphviz",
-    "error":    "Invalid file content. File contains Graphviz data.",
+    "format":   "DOT",
+    "tags":     "skip-render",
     "link":     "https://github.com/lutzroeder/netron/issues/1368"
   },
   {
-    "type":     "graphviz",
+    "type":     "dot",
+    "target":   "fg.dot",
+    "source":   "https://github.com/user-attachments/files/17928899/fg.dot.zip[fg.dot]",
+    "format":   "DOT",
+    "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
+    "type":     "dot",
     "target":   "gpt2-10.onnx.dot",
     "source":   "https://github.com/user-attachments/files/17180085/gpt2-10.onnx.dot.zip[gpt2-10.onnx.dot]",
-    "format":   "Graphviz",
-    "error":    "Invalid file content. File contains Graphviz data.",
+    "format":   "DOT",
     "link":     "https://github.com/lutzroeder/netron/issues/1368"
   },
   {
-    "type":     "graphviz",
+    "type":     "dot",
+    "target":   "homekey.dot",
+    "source":   "https://github.com/user-attachments/files/17928509/homekey.dot.zip[homekey.dot]",
+    "format":   "DOT",
+    "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
+    "type":     "dot",
+    "target":   "mb_v1_ssd_with_flag.dot",
+    "source":   "https://github.com/user-attachments/files/17928515/mb_v1_ssd_with_flag.dot.zip[mb_v1_ssd_with_flag.dot]",
+    "format":   "DOT",
+    "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
+    "type":     "dot",
+    "target":   "mobilenetv1.dot",
+    "source":   "https://github.com/user-attachments/files/17928510/mobilenetv1.dot.zip[mobilenetv1.dot]",
+    "format":   "DOT",
+    "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
+    "type":     "dot",
+    "target":   "nth.dot",
+    "source":   "https://github.com/user-attachments/files/17928645/nth.dot.zip[nth.dot]",
+    "format":   "DOT",
+    "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
+    "type":     "dot",
+    "target":   "pilot.dot",
+    "source":   "https://github.com/user-attachments/files/17928648/pilot.dot.zip[pilot.dot]",
+    "format":   "DOT",
+    "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
+    "type":     "dot",
     "target":   "resnet18.dot",
     "source":   "https://github.com/user-attachments/files/17175694/resnet18.dot.zip[resnet18.dot]",
-    "format":   "Graphviz",
-    "error":    "Invalid file content. File contains Graphviz data.",
+    "format":   "DOT",
+    "assert":   "model.graphs[0].nodes.length == 71",
+    "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
+    "type":     "dot",
+    "target":   "squeezenet.dot",
+    "source":   "https://github.com/user-attachments/files/17928516/squeezenet.dot.zip[squeezenet.dot]",
+    "format":   "DOT",
     "link":     "https://github.com/lutzroeder/netron/issues/1368"
   },
   {

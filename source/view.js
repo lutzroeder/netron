@@ -2081,7 +2081,7 @@ view.Node = class extends grapher.Node {
         title.on('click', () => {
             this.context.activate(value);
         });
-        if (Array.isArray(node.type.nodes) && node.type.nodes.length > 0) {
+        if (node.type.type || (Array.isArray(node.type.nodes) && node.type.nodes.length > 0)) {
             let icon = '\u0192';
             let tooltip = 'Show Function Definition';
             if (type === 'graph') {
@@ -3435,6 +3435,12 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
         if (Array.isArray(to) && to.length > 0) {
             this.addHeader('Outputs');
             this.addNodeList('to', to);
+        }
+        if (Array.isArray(value.metadata) && value.metadata.length > 0) {
+            this.addHeader('Metadata');
+            for (const metadata of value.metadata) {
+                this.addProperty(metadata.name, metadata.value);
+            }
         }
     }
 
@@ -5812,7 +5818,7 @@ view.ModelFactoryService = class {
         this.register('./nnc', ['.nnc','.tflite']);
         this.register('./safetensors', ['.safetensors', '.safetensors.index.json']);
         this.register('./tvm', ['.json', '.params']);
-        this.register('./graphviz', ['.dot']);
+        this.register('./dot', ['.dot']);
         this.register('./catboost', ['.cbm']);
         this.register('./weka', ['.model']);
         this.register('./qnn', ['.json', '.bin', '.serialized']);

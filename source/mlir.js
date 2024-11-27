@@ -585,24 +585,31 @@ mlir.Tokenizer = class {
     }
 
     _skipComment() {
-        if (this._eat('/')) {
+        this._read('/');
+        if (this._current === '/') {
+            while (this._current && this._current !== '\n') {
+                this._read();
+            }
+            this._skipWhitespace();
             if (this._current === '/') {
-                while (this._current && this._current !== '\n') {
-                    this._read();
-                }
-                this._skipWhitespace();
-                this._skipComment();
-            } else if (this._current === '*') {
-                while (this._current) {
-                    this._read();
-                    if (this._eat('*') && this._eat('/')) {
-                        break;
-                    }
-                }
-                this._skipWhitespace();
                 this._skipComment();
             }
+            return;
         }
+        if (this._current === '*') {
+            while (this._current) {
+                this._read();
+                if (this._eat('*') && this._eat('/')) {
+                    break;
+                }
+            }
+            this._skipWhitespace();
+            if (this._current === '/') {
+                this._skipComment();
+            }
+            return;
+        }
+        throw new mlir.Error('Invalid comment.');
     }
 
     _number() {
