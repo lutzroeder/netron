@@ -285,7 +285,7 @@ paddle.Graph = class {
             this.name = block.idx.toString();
             const values = new Map();
             for (const variable of block.vars) {
-                const type = variable.type && variable.type.type && variable.type.lod_tensor && variable.type.lod_tensor.tensor ? paddle.Utility.createTensorType(variable.type.lod_tensor.tensor.data_type, variable.type.lod_tensor.tensor.dims) : null;
+                const type = variable.type && variable.type.type && variable.type.dense_tensor && variable.type.dense_tensor.tensor ? paddle.Utility.createTensorType(variable.type.dense_tensor.tensor.data_type, variable.type.dense_tensor.tensor.dims) : null;
                 const tensor = variable.persistable && variable.type && variable.type.type !== paddle.DataType.FETCH_LIST && variable.type.type !== paddle.DataType.FEED_MINIBATCH ? (tensors.get(variable.name) || new paddle.Tensor(type)) : null;
                 values.set(variable.name, new paddle.Value(variable.name, type, tensor));
             }
@@ -847,13 +847,13 @@ paddle.DataType = {
     FP16: 4,
     FP32: 5,
     FP64: 6,
-    LOD_TENSOR: 7,
+    DENSE_TENSOR: 7,
     SELECTED_ROWS: 8,
     FEED_MINIBATCH: 9,
     FETCH_LIST: 10,
     STEP_SCOPES: 11,
     LOD_RANK_TABLE: 12,
-    LOD_TENSOR_ARRAY: 13,
+    DENSE_TENSOR_ARRAY: 13,
     PLACE_LIST: 14,
     READER: 15,
     RAW: 17,
