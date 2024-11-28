@@ -55,7 +55,9 @@ schema() {
 metadata() {
     echo "pytorch metadata"
     [[ $(grep -U $'\x0D' ./source/pytorch-metadata.json) ]] && crlf=1
+    venv
     ${python} ./tools/pytorch_script.py
+    deactivate
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/pytorch-metadata.json ./source/pytorch-metadata.json
     fi
