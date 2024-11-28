@@ -371,6 +371,20 @@ class Req {
                   } 
                   else {
                     if (first.toLowerCase() == "tensor_onmouseover_image_dimx" || first.toLowerCase() == "tensor_onmouseover_image_dimy" || first.toLowerCase() == "operator_onmouseover_image_dimx" || first.toLowerCase() == "operator_onmouseover_image_dimy" || first.toLowerCase() == "tensor_onmouseover_image_posx" || first.toLowerCase() == "tensor_onmouseover_image_posy" || first.toLowerCase() == "operator_onmouseover_image_posx" || first.toLowerCase() == "operator_onmouseover_image_posy") {
+                      if ((childmeta.className == "tensor" && first.toLowerCase().startsWith("operator_")) || (childmeta.className == "operator" && first.toLowerCase().startsWith("tensor_"))) {
+                        Req.solve_bugs();
+                        throw "Invalid model metadata file format! tensor_onmouseover_image.. must correspond to tensor and operator_onmouseover_image.. to operator";
+                      }
+                      var k = -1;
+                      while (lines[line + k].startsWith("#") || lines[line + k].trim().length == 0) {
+                        k -= 1;
+                      }
+                      var linereadsecond = lines[line + k].split(":");
+                      var second = linereadsecond[0] == undefined? '' : linereadsecond[0].trim();
+                      if (first.toLowerCase() == second.toLowerCase()) {
+                        Req.solve_bugs();
+                        throw "A button can't execute two x dimesions or two y dimensions at the same time";
+                      }
                       var strin = JSON.parse(img);
                       strin[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim();
                       img = JSON.stringify(strin);
