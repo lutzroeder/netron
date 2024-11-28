@@ -589,11 +589,14 @@ const forge = async() => {
     const command = read();
     switch (command) {
         case 'install': {
-            await exec('npm install @electron-forge/cli@7.3.0');
-            await exec('npm install @electron-forge/core@7.3.0');
-            await exec('npm install @electron-forge/maker-snap@7.3.0');
-            await exec('npm install @electron-forge/maker-dmg@7.3.0');
-            await exec('npm install @electron-forge/maker-zip@7.3.0');
+            const packages = [
+                '@electron-forge/cli',
+                '@electron-forge/core',
+                '@electron-forge/maker-snap',
+                '@electron-forge/maker-dmg',
+                '@electron-forge/maker-zip'
+            ];
+            await exec(`npm install ${packages.join(' ')} --no-save`);
             break;
         }
         case 'update': {

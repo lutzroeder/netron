@@ -7,15 +7,15 @@ const APPLE_API_KEY_ISSUER_ID = process.env.APPLE_API_KEY_ISSUER_ID;
 export default {
     outDir: 'dist',
     packagerConfig: {
-        icon: "publish/icon",
+        icon: 'publish/icon',
         dir: [
             'source'
         ],
         ignore: [
-            "publish",
-            "third_party",
-            "test",
-            "tools"
+            'publish',
+            'third_party',
+            'test',
+            'tools'
         ],
         /*
         osxNotarize: {
@@ -39,7 +39,7 @@ export default {
             name: '@electron-forge/maker-zip',
             config: {
                 platforms: ['darwin'],
-                // name: "${name}-${version}-mac.zip"
+                // name: '${name}-${version}-mac.zip'
             }
         },
         {
@@ -47,19 +47,36 @@ export default {
             config: {
                 background: './publish/background.png',
                 /* eslint-disable no-template-curly-in-string */
-                name: "Netron-${version}"
+                name: 'Netron-${version}'
                 /* eslint-enable no-template-curly-in-string */
+            }
+        },
+        {
+            // sudo snap install snapcraft --classic
+            // sudo snap install multipass
+            // DEBUG=electron-forge:* npx electron-forge make --arch arm64 --targets=@electron-forge/maker-snap
+            name: '@electron-forge/maker-snap',
+            platforms: ['linux'],
+            config: {
+                grade: 'stable',
+                base: 'core20', // sudo snap install snapcraft --classic --channel=7.x/stable
+                appPlugs: [
+                    'default',
+                    'removable-media'
+                ],
             }
         }
     ],
     publishers: [
         {
-            "name": "@electron-forge/publisher-github",
-            "config": {}
+            'name': '@electron-forge/publisher-github',
+            'config': {}
         },
         {
-            "name": "@electron-forge/publisher-snapcraft",
-            "config": {}
+            'name': '@electron-forge/publisher-snapcraft',
+            'config': {
+                release: 'latest/stable'
+            }
         }
     ]
 };
