@@ -52,18 +52,23 @@ export default {
             }
         },
         {
-            // sudo snap install snapcraft --classic
-            // sudo snap install multipass
-            // DEBUG=electron-forge:* npx electron-forge make --arch arm64 --targets=@electron-forge/maker-snap
+            // sudo snap install snapcraft --classic --channel=7.x/stable
+            // DEBUG=electron-installer-snap:snapcraft npx electron-forge make --arch x64 --targets=@electron-forge/maker-snap
+            // DEBUG=electron-installer-snap:snapcraft npx electron-forge make --arch arm64 --targets=@electron-forge/maker-snap
+            // Using "DEBUG=electron-installer-snap:snapcraft" will enable --destructive-mode and skip multipass
+            // To unpack the .snap: unsquashfs dist/make/snap/arm64/netron_8.0.0_arm64.snap
             name: '@electron-forge/maker-snap',
             platforms: ['linux'],
             config: {
                 grade: 'stable',
-                base: 'core20', // sudo snap install snapcraft --classic --channel=7.x/stable
-                appPlugs: [
-                    'default',
-                    'removable-media'
-                ],
+                // base: 'core20',
+                apps: {
+                    electronApp: {
+                        plugs: [
+                            'removable-media'
+                        ]
+                    }
+                }
             }
         }
     ],
