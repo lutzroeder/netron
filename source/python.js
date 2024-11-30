@@ -9249,7 +9249,7 @@ python.Execution = class {
                 this.kind = kind;
                 this.arg = arg;
                 this.target = target;
-                this.persistent = persistent;
+                this.persistent = persistent || null;
             }
         });
         torch.export.graph_signature.OutputKind = {
@@ -9616,6 +9616,24 @@ python.Execution = class {
                 this.tensor_constant_name = obj.tensor_constant_name;
             }
         });
+        this.registerType('torch._export.serde.schema.InputToConstantInputSpec', class {
+            constructor(obj) {
+                this.name = obj.name;
+                this.value = new torch._export.serde.schema.ConstantValue(obj.value);
+            }
+        });
+        this.registerType('torch._export.serde.schema.ConstantValue', class extends torch._export.serde.union._Union {
+            constructor(obj) {
+                super(obj);
+                if (this.type === 'as_int' || this.type === 'as_float' || this.type === 'as_bool' || this.type === 'as_string' || this.type === 'as_strings') {
+                    // continue
+                } else if (this.type === 'as_none') {
+                    this.as_none = null;
+                } else {
+                    throw new python.Error(`Unsupported constant value type '${this.type}'.`);
+                }
+            }
+        });
         this.registerType('torch._export.serde.schema.InputSpec', class extends torch._export.serde.union._Union {
             constructor(obj) {
                 super(obj);
@@ -9627,14 +9645,14 @@ python.Execution = class {
                     this.buffer = new torch._export.serde.schema.InputToBufferSpec(this.buffer);
                 } else if (this.type === 'tensor_constant') {
                     this.tensor_constant = new torch._export.serde.schema.InputToTensorConstantSpec(this.tensor_constant);
+                } else if (this.type === 'constant_input') {
+                    this.constant_input = new torch._export.serde.schema.InputToConstantInputSpec(this.constant_input);
                 } else {
                     throw new python.Error(`Unsupported input spec type '${this.type}'.`);
                 }
                 /*
-                tensor_constant: InputToTensorConstantSpec
                 custom_obj: InputToCustomObjSpec
                 token: InputTokenSpec
-                constant_input: ConstantInputSpec
                 */
             }
         });
@@ -9915,6 +9933,20 @@ python.Execution = class {
                 }
                 throw new python.Error(`Unknown input spec ${i}`);
             }
+            deserialize_constant_input(inp) {
+                if (inp.type === 'as_int') {
+                    return inp.as_int;
+                } else if (inp.type === 'as_float') {
+                    return inp.as_float;
+                } else if (inp.type === 'as_string') {
+                    return inp.as_string;
+                } else if (inp.type === 'as_bool') {
+                    return inp.as_bool;
+                } else if (inp.type === 'as_none') {
+                    return null;
+                }
+                throw new python.Error(`Unhandled constant argument ${inp} to deserialize.`);
+            }
             deserialize_output_spec(o) {
                 if (o.type === 'user_output') {
                     return new torch.export.graph_signature.OutputSpec(
@@ -10045,7 +10077,6 @@ python.Execution = class {
                         value.name,
                         name=value.name,
                     )*/
-                    throw new Error();
                 } else if (typ_ === 'as_device') {
                     return this.deserialize_device(inp.as_device);
                 } else if (typ_ === 'as_int') {

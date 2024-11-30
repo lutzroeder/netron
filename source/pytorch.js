@@ -296,10 +296,12 @@ pytorch.Graph = class {
                 this.nodes.push(node);
             }
             for (const input_spec of exported_program.graph_signature.user_inputs()) {
-                const node = nodes.get(input_spec);
-                const value = values.map(node);
-                const argument = new pytorch.Argument(input_spec, [value]);
-                this.inputs.push(argument);
+                if (nodes.has(input_spec)) {
+                    const node = nodes.get(input_spec);
+                    const value = values.map(node);
+                    const argument = new pytorch.Argument(input_spec, [value]);
+                    this.inputs.push(argument);
+                }
             }
             /*
             for (const output_spec of exported_program.graph_signature.user_outputs()) {

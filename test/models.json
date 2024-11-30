@@ -5386,6 +5386,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "constant_input.pt2",
+    "source":   "https://github.com/user-attachments/files/17966651/constant_input.pt2.zip[constant_input.pt2]",
+    "format":   "PyTorch Export v7.3",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "pytorch",
     "target":   "cpu_jit.pt",
     "source":   "https://github.com/user-attachments/files/16401711/cpu_jit.pt.zip[cpu_jit.pt]",
     "format":   "PyTorch v1.6",
