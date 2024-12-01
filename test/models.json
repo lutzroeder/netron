@@ -345,13 +345,6 @@
   },
   {
     "type":     "caffe",
-    "target":   "bvlc_googlenet.caffemodel",
-    "source":   "https://github.com/facebookarchive/models/raw/master/bvlc_googlenet/original.caffemodel",
-    "format":   "Caffe v1",
-    "link":     "https://github.com/BVLC/caffe/tree/master/models/bvlc_googlenet"
-  },
-  {
-    "type":     "caffe",
     "target":   "caffe_array.prototxt",
     "source":   "https://github.com/lutzroeder/netron/files/3288816/caffe_examples.zip[caffe_array.prototxt]",
     "format":   "Caffe v2",
