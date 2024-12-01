@@ -6229,6 +6229,9 @@
     "name": "prim::shape(Tensor self) -> int[]"
   },
   {
+    "name": "prim::tolist(...) -> ..."
+  },
+  {
     "name": "prim::type(Device self) -> str"
   },
   {
