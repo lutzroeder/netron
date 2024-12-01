@@ -1787,7 +1787,7 @@ pytorch.Execution = class extends python.Execution {
         }
         const ast = this.ast;
         const torch = this.torch;
-        switch (expr.type) {
+        switch (expr.__class__.__name__) {
             case 'Constant': {
                 if (expr.value === true || expr.value === false) {
                     return this._graph.insertConstant(expr.value);
@@ -2072,7 +2072,7 @@ pytorch.Execution = class extends python.Execution {
         const ast = this.ast;
         const builtins = this.builtins;
         const torch = this.torch;
-        switch (expr.type) {
+        switch (expr.__class__.__name__) {
             case 'Name': {
                 const value = context.get(expr.id);
                 if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'string') {
@@ -2154,7 +2154,7 @@ pytorch.Execution = class extends python.Execution {
         if (!scope.refs) {
             scope.refs = new Set();
         }
-        switch (value.type) {
+        switch (value.__class__.__name__) {
             case 'Assign': {
                 this.variables(value.targets, scope);
                 this.variables(value.value, scope);
@@ -2214,18 +2214,18 @@ pytorch.Execution = class extends python.Execution {
             }
             case 'If': {
                 this.variables(value.test, scope);
-                this.variables(value.body, scope);
-                this.variables(value.orelse, scope);
+                for (const stmt of value.body) {
+                    this.variables(stmt, scope);
+                }
+                for (const stmt of value.orelse) {
+                    this.variables(stmt, scope);
+                }
                 break;
             }
             case 'For': {
                 this.variables(value.target, scope);
                 this.variables(value.iter, scope);
-                this.variables(value.body, scope);
-                break;
-            }
-            case 'block': {
-                for (const stmt of value.statements) {
+                for (const stmt of value.body) {
                     this.variables(stmt, scope);
                 }
                 break;
@@ -2236,7 +2236,9 @@ pytorch.Execution = class extends python.Execution {
             }
             case 'While': {
                 this.variables(value.test, scope);
-                this.variables(value.body, scope);
+                for (const stmt of value.body) {
+                    this.variables(stmt, scope);
+                }
                 break;
             }
             case 'UnaryOp': {
@@ -2301,9 +2303,9 @@ pytorch.Execution = class extends python.Execution {
                     test = test && test.length > 0;
                 }
                 if (test === true) {
-                    statements.splice(i, 1, ...condition.body.statements);
+                    statements.splice(i, 1, ...condition.body);
                 } else if (test === false) {
-                    statements.splice(i, 1, ...condition.orelse.statements);
+                    statements.splice(i, 1, ...condition.orelse);
                 }
                 for (const node of state) {
                     this.purge.add(node);
@@ -2372,15 +2374,15 @@ pytorch.Execution = class extends python.Execution {
                         const prev = this._graph.insertPoint();
                         const true_block = node.addBlock();
                         this._graph.setInsertPoint(true_block);
-                        let vars = __variables(condition.body.statements.concat(stmt.orelse.statements));
+                        let vars = __variables(condition.body.concat(stmt.orelse));
                         vars = new Map(Array.from(vars).map((name) => [name, {}]));
-                        this.block(condition.body.statements, context);
+                        this.block(condition.body, context);
                         for (const [name, entry] of vars) {
                             entry.body = context.get(name);
                         }
                         const false_block = node.addBlock();
                         this._graph.setInsertPoint(false_block);
-                        this.block(condition.orelse.statements, context);
+                        this.block(condition.orelse, context);
                         for (const [name, entry] of vars) {
                             entry.orelse = context.get(name);
                         }
@@ -2437,7 +2439,7 @@ pytorch.Execution = class extends python.Execution {
                             const constant = new ast.Constant(current);
                             const stmt = new ast.Assign(variable, constant);
                             this.statement(stmt, context);
-                            const value = this.block(loop.body.statements, context);
+                            const value = this.block(loop.body, context);
                             if (value !== undefined) {
                                 return value;
                             }
@@ -2452,7 +2454,7 @@ pytorch.Execution = class extends python.Execution {
                     this.graph.insertNode(node);
                     const test = this.expression(stmt.test, context);
                     if (test) {
-                        const value = this.block(stmt.body.statements, context);
+                        const value = this.block(stmt.body, context);
                         if (value !== undefined) {
                             return value;
                         }
@@ -2476,12 +2478,12 @@ pytorch.Execution = class extends python.Execution {
         if (!this.trace) {
             return super.statement(stmt, context);
         }
-        switch (stmt.type) {
+        switch (stmt.__class__.__name__) {
             case 'ClassDef': {
                 super.statement(stmt, context);
                 const value = context.get(stmt.name);
                 const type = new torch.ClassType(`${value.__module__}.${value.__name__}`);
-                for (const entry of stmt.body.statements) {
+                for (const entry of stmt.body) {
                     if (entry instanceof ast.AnnAssign) {
                         const target = this.identifier(entry.target);
                         const annotation = this.type(entry.annotation, context);

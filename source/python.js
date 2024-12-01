@@ -177,11 +177,7 @@ python.Execution = class {
         const sys = this.register('sys');
         sys.modules = this._modules;
         this.register('xgboost');
-        this.registerType('ast.AST', class {
-            get type() { // remove
-                return this.__class__.__name__;
-            }
-        });
+        this.registerType('ast.AST', class {});
         this.registerType('ast.expr', class extends ast.AST {});
         this.registerType('ast.unaryop', class extends ast.AST {});
         this.registerType('ast.binop', class extends ast.AST {});
@@ -295,6 +291,7 @@ python.Execution = class {
         });
         this.registerType('ast.Add', class extends ast.operator {});
         this.registerType('ast.Sub', class extends ast.operator {});
+        this.registerType('ast.Mult', class extends ast.operator {});
         this.registerType('ast.Div', class extends ast.operator {});
         this.registerType('ast.FloorDiv', class extends ast.operator {});
         this.registerType('ast.Mod', class extends ast.operator {});
@@ -401,6 +398,14 @@ python.Execution = class {
                 this.annotation = annotation;
                 this.value = value;
                 this.simple = simple;
+            }
+        });
+        this.registerType('ast.AugAssign', class extends ast.stmt {
+            constructor(target, op, value) {
+                super();
+                this.target = target;
+                this.op = op;
+                this.value = value;
             }
         });
         this.registerType('ast.If', class extends ast.stmt {
@@ -575,8 +580,7 @@ python.Execution = class {
                 return node;
             }
             _suite() {
-                const node = this._node('block');
-                node.statements = [];
+                const body = [];
                 let statement = null;
                 if (this._tokenizer.eat('\n')) {
                     if (this._tokenizer.eat('indent')) {
@@ -586,7 +590,7 @@ python.Execution = class {
                             }
                             statement = this._statement();
                             if (statement) {
-                                node.statements.push(statement);
+                                body.push(statement);
                                 continue;
                             }
                             if (this._tokenizer.eat('\n')) {
@@ -605,33 +609,33 @@ python.Execution = class {
                         }
                         statement = this._statement();
                         if (statement) {
-                            node.statements.push(statement);
+                            body.push(statement);
                             continue;
                         }
                         throw new python.Error(`Empty statement ${this._tokenizer.location()}`);
                     }
                     this._tokenizer.eat('\n');
                 }
-                return node;
+                return body;
             }
             _statement() {
                 let node = null;
                 let position = null;
                 position = this._eat('id', 'break');
                 if (position) {
-                    node = new ast.Break();
-                    return this._complete(node, position);
+                    const node = new ast.Break();
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'continue');
                 if (position) {
-                    node = new ast.Continue();
-                    return this._complete(node, position);
+                    const node = new ast.Continue();
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'return');
                 if (position) {
                     const value = this._expression(-1, [], true);
-                    node = new ast.Return(value);
-                    return this._complete(node, position);
+                    const node = new ast.Return(value);
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'raise');
                 if (position) {
@@ -647,7 +651,7 @@ python.Execution = class {
                         }
                     }
                     node = new ast.Raise(exc, cause);
-                    return this._complete(node, position);
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'assert');
                 if (position) {
@@ -657,7 +661,7 @@ python.Execution = class {
                         msg = this._expression();
                     }
                     node = new ast.Assert(test, msg);
-                    return this._complete(node, position);
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'global');
                 if (position) {
@@ -667,8 +671,8 @@ python.Execution = class {
                         names.push(name.id);
                     }
                     while (this._tokenizer.eat(','));
-                    node = new ast.Global(names);
-                    return this._complete(node, position);
+                    const node = new ast.Global(names);
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'nonlocal');
                 if (position) {
@@ -678,8 +682,8 @@ python.Execution = class {
                         names.push(name.id);
                     }
                     while (this._tokenizer.eat(','));
-                    node = new ast.Nonlocal(names);
-                    return this._complete(node, position);
+                    const node = new ast.Nonlocal(names);
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'import');
                 if (position) {
@@ -694,8 +698,8 @@ python.Execution = class {
                         names.push(node);
                     }
                     while (this._tokenizer.eat(','));
-                    node = new ast.Import(names);
-                    return this._complete(node, position);
+                    const node = new ast.Import(names);
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'from');
                 if (position) {
@@ -715,15 +719,15 @@ python.Execution = class {
                         if (this._tokenizer.eat('id', 'as')) {
                             asname = this._name(true).id;
                         }
-                        node = new ast.alias(name, asname);
+                        const node = new ast.alias(name, asname);
                         names.push(node);
                     }
                     while (this._tokenizer.eat(','));
                     if (close) {
                         this._tokenizer.expect(')');
                     }
-                    node = new ast.ImportFrom(module, names, level);
-                    return this._complete(node, position);
+                    const node = new ast.ImportFrom(module, names, level);
+                    return this._mark(node, position);
                 }
                 let decorator_list = this._decorator();
                 position = this._eat('id', 'class');
@@ -735,8 +739,8 @@ python.Execution = class {
                     const bases = this._tokenizer.peek().type === '(' ? this._arguments() : [];
                     this._tokenizer.expect(':');
                     const body = this._suite();
-                    node = new ast.ClassDef(name.id, bases, null, body, decorator_list, null);
-                    return this._complete(node, position);
+                    const node = new ast.ClassDef(name.id, bases, null, body, decorator_list, null);
+                    return this._mark(node, position);
                 }
                 const async = this._eat('id', 'async') !== null;
                 if (async &&
@@ -759,11 +763,11 @@ python.Execution = class {
                     }
                     this._tokenizer.expect(':');
                     const body = this._suite();
-                    node = new ast.FunctionDef(name.id, args, body, decorator_list, returns, null, null);
+                    const node = new ast.FunctionDef(name.id, args, body, decorator_list, returns, null, null);
                     if (async) {
                         node.async = async;
                     }
-                    return this._complete(node, position);
+                    return this._mark(node, position);
                 }
                 if (decorator_list && decorator_list.length > 0) {
                     throw new python.Error('Unexpected decorator.');
@@ -772,14 +776,14 @@ python.Execution = class {
                 if (position) {
                     const targets = this._expression(-1, [], true);
                     node = new ast.Del(targets);
-                    return this._complete(node, position);
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'if');
                 if (position) {
                     const test = this._expression();
                     this._tokenizer.expect(':');
                     const body = this._suite();
-                    node = new ast.If(test, body);
+                    const node = new ast.If(test, body);
                     let current = node;
                     this._tokenizer.eat('\n');
                     while (this._tokenizer.eat('id', 'elif')) {
@@ -794,7 +798,7 @@ python.Execution = class {
                         this._tokenizer.expect(':');
                         current.orelse = this._suite();
                     }
-                    return this._complete(node, position);
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'while');
                 if (position) {
@@ -806,13 +810,13 @@ python.Execution = class {
                         this._tokenizer.expect(':');
                         orelse = this._suite();
                     }
-                    node = new ast.While(test, body, orelse);
-                    return this._complete(node, position);
+                    const node = new ast.While(test, body, orelse);
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'pass');
                 if (position) {
-                    node = new ast.Pass();
-                    return this._complete(node, position);
+                    const node = new ast.Pass();
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'for');
                 if (position) {
@@ -831,7 +835,7 @@ python.Execution = class {
                     let iter = this._expression();
                     while (this._tokenizer.eat(',')) {
                         if (iter.type !== 'tuple') {
-                            iter = new ast.Tuple([node.iter]);
+                            iter = new ast.Tuple([iter]);
                         }
                         if (this._tokenizer.match(':')) {
                             iter.elts.push({});
@@ -846,8 +850,8 @@ python.Execution = class {
                         this._tokenizer.expect(':');
                         orelse = this._suite();
                     }
-                    node = new ast.For(target, iter, body, orelse);
-                    return this._complete(node, position);
+                    const node = new ast.For(target, iter, body, orelse);
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'with');
                 if (position) {
@@ -864,11 +868,11 @@ python.Execution = class {
                     while (this._tokenizer.eat(','));
                     this._tokenizer.expect(':');
                     const body = this._suite();
-                    node = new ast.With(items, body, null);
+                    const node = new ast.With(items, body, null);
                     if (async) {
                         node.async = async;
                     }
-                    return this._complete(node, position);
+                    return this._mark(node, position);
                 }
                 position = this._eat('id', 'try');
                 if (position) {
@@ -909,9 +913,8 @@ python.Execution = class {
                         this._tokenizer.expect(':');
                         finalbody = this._suite();
                     }
-                    node = new ast.Try(body, handlers, orelse, finalbody);
-                    node = this._complete(node, position);
-                    return node;
+                    const node = new ast.Try(body, handlers, orelse, finalbody);
+                    return this._mark(node, position);
                 }
                 const expr = this._expression(-1, [], true);
                 if (expr) {
@@ -923,31 +926,12 @@ python.Execution = class {
                             value = this._expression();
                         }
                         node = new ast.AnnAssign(expr, annotation, value);
-                        return this._complete(node, position);
+                        return this._mark(node, position);
                     }
-                    switch (expr.type) {
-                        case '==':
-                        case '!=':
-                        case '+=':
-                        case '-=':
-                        case '*=':
-                        case '@=':
-                        case '/=':
-                        case '//=':
-                        case '**=':
-                        case '&=':
-                        case '|=':
-                        case '%=':
-                        case '>>=':
-                        case '<<=':
-                        case '>>':
-                        case '<<':
-                        case '>=':
-                        case '<=':
-                        case '<':
-                        case '>':
-                        case '%':
-                        case '^=':
+                    switch (expr.__class__.__name__) {
+                        case 'in':
+                        case 'Compare':
+                        case 'BinOp':
                         case 'Ellipsis':
                         case 'NamedExpr':
                         case 'Call':
@@ -955,20 +939,12 @@ python.Execution = class {
                         case 'Raise':
                         case 'Assign':
                         case 'AnnAssign':
+                        case 'AugAssign':
                         case 'Attribute':
                         case 'Yield':
                         case 'Subscript':
                         case 'Name':
                         case 'Constant':
-                        case '+': case '-': case '*': case '/':
-                        case '**':
-                        case '@':
-                        case '//':
-                        case '~':
-                        case '&': case '^': case '|':
-                        case 'not':
-                        case 'in':
-                        case 'and': case 'or':
                         case 'If':
                         case 'For':
                         case 'List':
@@ -1004,14 +980,16 @@ python.Execution = class {
                                 } else if (this._tokenizer.eat('id', 'in')) {
                                     node.type = 'not in';
                                 } else {
-                                    node.type = 'not';
-                                    node.expression = this._expression(precedence, terminal, tuple === false ? false : true);
+                                    const op = new ast.Not();
+                                    const operand = this._expression(precedence, terminal, tuple === false ? false : true);
+                                    const node = new ast.UnaryOp(op, operand);
                                     stack.push(node);
                                     continue;
                                 }
                             } else if (token.value === '~') {
-                                node.type = '~';
-                                node.expression = this._expression(precedence, terminal, tuple === false ? false : true);
+                                const op = new ast.Invert();
+                                const operand = this._expression(precedence, terminal, tuple === false ? false : true);
+                                const node = new ast.UnaryOp(op, operand);
                                 stack.push(node);
                                 continue;
                             } else if (token.type === 'id' && token.value === 'is') {
@@ -1020,28 +998,59 @@ python.Execution = class {
                                 }
                             }
                             if (stack.length > 0) {
-                                node.op = node.type;
-                                node.type = 'binary';
-                                node.left = stack.pop();
-                                node.right = this._expression(precedence, terminal, tuple === true ? true : false);
-                            } else if (node.type === '*') {
+                                let op = null;
+                                switch (token.value) {
+                                    case '+':  op = new ast.Add(); break;
+                                    case '-':  op = new ast.Sub(); break;
+                                    case '*':  op = new ast.Mult(); break;
+                                    case '/':  op = new ast.Div(); break;
+                                    case '//': op = new ast.FloorDiv(); break;
+                                    case '**': op = new ast.Pow(); break;
+                                    case '@':  op = new ast.MatMult(); break;
+                                    case '&':  op = new ast.BitAnd(); break;
+                                    case '^':  op = new ast.BitXor(); break;
+                                    case '|':  op = new ast.BitOr(); break;
+                                    case '%':  op = new ast.Mod(); break;
+                                    case '>>': op = new ast.RShift(); break;
+                                    case '<<': op = new ast.LShift(); break;
+                                    default: break;
+                                }
+                                if (op) {
+                                    const left = stack.pop();
+                                    const right = this._expression(precedence, terminal, tuple === true ? true : false);
+                                    node = new ast.BinOp(left, op, right);
+                                } else {
+                                    switch (token.value) {
+                                        case '==': op = new ast.Eq(); break;
+                                        case '!=': op = new ast.NotEq(); break;
+                                        case '>=': op = new ast.GtE(); break;
+                                        case '<=': op = new ast.LtE(); break;
+                                        case '<':  op = new ast.Lt(); break;
+                                        case '>':  op = new ast.Gt(); break;
+                                        default: break;
+                                    }
+                                    const left = stack.pop();
+                                    const comparator = this._expression(precedence, terminal, tuple === true ? true : false);
+                                    node = new ast.Compare(left, [op], [comparator]);
+                                }
+                            } else if (token.value === '*') {
                                 const value =  this._expression(precedence, terminal, tuple === true ? true : false);
                                 node = new ast.Starred(value);
-                            } else if (node.type === '**') {
+                            } else if (token.value === '**') {
                                 const value =  this._expression(precedence, terminal, tuple === true ? true : false);
                                 node = new ast.keyword(null, value);
                             } else {
                                 let op = null;
-                                switch (node.type) {
+                                switch (token.value) {
                                     case '-': op = new ast.USub(); break;
                                     case '+': op = new ast.UAdd(); break;
                                     case '~': op = new ast.Invert(); break;
                                     case 'not': op = new ast.Not(); break;
-                                    default: throw new python.Error(`Unsupported unary operator ${node.type} ${this._tokenizer.location()}`);
+                                    default: throw new python.Error(`Unsupported unary operator ${token.value} ${this._tokenizer.location()}`);
                                 }
                                 const operand =  this._expression(precedence, terminal, tuple === true ? true : false);
                                 node = new ast.UnaryOp(op, operand);
-                                // node = this._complete(node, position);
+                                // node = this._mark(node, position);
                             }
                             stack.push(node);
                             continue;
@@ -1050,42 +1059,44 @@ python.Execution = class {
                     if (this._tokenizer.eat(':=')) {
                         const target = stack.pop();
                         const value = this._expression(-1, terminal, tuple === false ? false : true);
-                        node = new ast.NamedExpr(target, value);
-                        node = this._complete(node, position);
+                        const node = new ast.NamedExpr(target, value);
+                        this._mark(node, position);
                         stack.push(node);
                         continue;
                     }
                     if (this._tokenizer.eat('=')) {
-                        const location = this._tokenizer.location();
+                        const position = this._position();
                         const targets = stack.pop();
                         const value = this._expression(-1, terminal, tuple === false ? false : true);
-                        node = new ast.Assign(targets, value);
-                        node.location = location;
+                        const node = new ast.Assign(targets, value);
+                        this._mark(node, position);
                         stack.push(node);
                         continue;
                     }
+                    let op = null;
                     switch (token.type) {
-                        case '-=':
-                        case '**=':
-                        case '*=':
-                        case '//=':
-                        case '/=':
-                        case '&=':
-                        case '%=':
-                        case '^=':
-                        case '+=':
-                        case '<<=':
-                        case '>>=':
-                        case '|=':
-                        case '@=':
-                            node = this._node(token.type);
-                            this._tokenizer.expect(token.type);
-                            node.target = stack.pop();
-                            node.expression = this._expression(-1, terminal, true);
-                            stack.push(node);
-                            continue;
-                        default:
-                            break;
+                        case '+=':  op = new ast.Add(); break;
+                        case '-=':  op = new ast.Sub(); break;
+                        case '**=': op = new ast.Pow(); break;
+                        case '*=':  op = new ast.Mult(); break;
+                        case '//=': op = new ast.FloorDiv(); break;
+                        case '/=':  op = new ast.Div(); break;
+                        case '&=':  op = new ast.BitAnd(); break;
+                        case '%=':  op = new ast.Mod(); break;
+                        case '^=':  op = new ast.BitXor(); break;
+                        case '<<=': op = new ast.LShift(); break;
+                        case '>>=': op = new ast.RShift(); break;
+                        case '|=':  op = new ast.BitOr(); break;
+                        case '@=':  op = new ast.MatMul(); break;
+                        default: break;
+                    }
+                    if (op) {
+                        this._tokenizer.expect(token.type);
+                        const target = stack.pop();
+                        const value = this._expression(-1, terminal, true);
+                        const node = new ast.AugAssign(target, op, value);
+                        stack.push(node);
+                        continue;
                     }
                     position = this._eat('id', 'if');
                     if (position) {
@@ -1093,8 +1104,8 @@ python.Execution = class {
                         const test = this._expression();
                         this._tokenizer.expect('id', 'else');
                         const orelse = this._expression();
-                        node = new ast.IfExp(test, body, orelse);
-                        node = this._complete(node, position);
+                        const node = new ast.IfExp(test, body, orelse);
+                        this._mark(node, position);
                         stack.push(node);
                         continue;
                     }
@@ -1124,8 +1135,8 @@ python.Execution = class {
                     if (position) {
                         const args = this._parameters(':');
                         const body = this._expression(-1, terminal, false);
-                        node = new ast.Lambda(args, body);
-                        node = this._complete(node, position);
+                        const node = new ast.Lambda(args, body);
+                        this._mark(node, position);
                         stack.push(node);
                         continue;
                     }
@@ -1149,8 +1160,8 @@ python.Execution = class {
                     position = this._eat('id', 'await');
                     if (position) {
                         const value = this._expression(minPrecedence, terminal, tuple);
-                        node = new ast.Await(value);
-                        node = node._complete(node, position);
+                        const node = new ast.Await(value);
+                        this._mark(node, position);
                         stack.push(node);
                         continue;
                     }
@@ -1158,8 +1169,8 @@ python.Execution = class {
                     if (position) {
                         const value = stack.pop();
                         const attr = this._name().id;
-                        node = new ast.Attribute(value, attr);
-                        node = this._complete(node, position);
+                        const node = new ast.Attribute(value, attr);
+                        this._mark(node, position);
                         stack.push(node);
                         continue;
                     }
@@ -1171,7 +1182,7 @@ python.Execution = class {
                                 stack.push(args[0]);
                             } else {
                                 node = new ast.Tuple(args);
-                                node = this._complete(node, position);
+                                node = this._mark(node, position);
                                 stack.push(node);
                             }
                         } else {
@@ -1228,12 +1239,7 @@ python.Execution = class {
                         if (keys.length !== values.length || (keys.length > 0 && elts.length > 0)) {
                             throw new python.Error(`Invalid set expression ${this._tokenizer.location()}`);
                         }
-                        let node = null;
-                        if (elts.length > 0) {
-                            node = new ast.Set(elts);
-                        } else {
-                            node = new ast.Dict(keys, values);
-                        }
+                        const node = elts.length > 0 ? new ast.Set(elts) : new ast.Dict(keys, values);
                         stack.push(node);
                         continue;
                     }
@@ -1268,22 +1274,22 @@ python.Execution = class {
                     }
                     position = this._eat('id', 'False');
                     if (position) {
-                        node = new ast.Constant(false);
-                        node = this._complete(node, position);
+                        const node = new ast.Constant(false);
+                        this._mark(node, position);
                         stack.push(node);
                         continue;
                     }
                     position = this._eat('id', 'True');
                     if (position) {
-                        node = new ast.Constant(true);
-                        node = this._complete(node, position);
+                        const node = new ast.Constant(true);
+                        this._mark(node, position);
                         stack.push(node);
                         continue;
                     }
                     position = this._eat('id', 'None');
                     if (position) {
-                        node = new ast.Constant(null);
-                        node = this._complete(node, position);
+                        const node = new ast.Constant(null);
+                        this._mark(node, position);
                         stack.push(node);
                         continue;
                     }
@@ -1292,8 +1298,8 @@ python.Execution = class {
                     }
                     position = this._eat('...');
                     if (position) {
-                        node = new ast.Ellipsis();
-                        node = this._complete(node, position);
+                        const node = new ast.Ellipsis();
+                        this._mark(node, position);
                         stack.push(node);
                         continue;
                     }
@@ -1309,7 +1315,7 @@ python.Execution = class {
                             const position = this._position();
                             const elts = [stack.pop()];
                             node = new ast.Tuple(elts);
-                            node = this._complete(node, position);
+                            this._mark(node, position);
                             stack.push(node);
                         }
                         // for, bar, = <expr>
@@ -1403,11 +1409,10 @@ python.Execution = class {
             _name(required) {
                 const token = this._tokenizer.peek();
                 if (token.type === 'id' && !token.keyword) {
-                    const location = this._tokenizer.location();
+                    const position = this._position();
                     this._tokenizer.read();
                     const node = new ast.Name(token.value);
-                    node.location = location;
-                    return node;
+                    return this._mark(node, position);
                 }
                 if (required) {
                     throw new python.Error(`Invalid syntax ${this._tokenizer.location()}`);
@@ -1536,7 +1541,7 @@ python.Execution = class {
                 }
                 return null;
             }
-            _complete(node, position) {
+            _mark(node, position) {
                 node.location = position.location;
                 node.lineno = position.lineno;
                 node.col_offset = position.col_offset;
@@ -2020,7 +2025,6 @@ python.Execution = class {
                             keyword = true;
                             break;
                         default:
-                            keyword = false;
                             break;
                     }
                     return { type: 'id', value: text, keyword };
@@ -8597,7 +8601,7 @@ python.Execution = class {
                     return;
                 }
                 const class_type = new torch.ClassType(qualified_name.qualifiedName(), this._cu, is_module);
-                for (const entry of class_def.body.statements) {
+                for (const entry of class_def.body) {
                     if (entry instanceof ast.AnnAssign) {
                         const target = this._cu.execution.identifier(entry.target);
                         const annotation = this._cu.execution.type(entry.annotation, null);
@@ -8611,7 +8615,7 @@ python.Execution = class {
                 const field_names = [];
                 const field_types = [];
                 const field_defaults = [];
-                for (const stmt of named_tuple_def.body.statements) {
+                for (const stmt of named_tuple_def.body) {
                     if (stmt instanceof ast.AnnAssign === false) {
                         throw new python.Error('Unexpected statement in NamedTuple body.');
                     }
@@ -8633,19 +8637,12 @@ python.Execution = class {
                     return;
                 }
                 const program = this._cu.execution.parse(src.filename(), src.text_str(), null);
-                for (const statement of program.body) {
-                    switch (statement.type) {
-                        case 'FunctionDef': {
-                            break;
-                        }
-                        case 'ClassDef': {
-                            const name = `${qualifier}.${statement.name}`;
-                            this._to_be_defined.set(name, statement);
-                            break;
-                        }
-                        default: {
-                            break;
-                        }
+                for (const stmt of program.body) {
+                    if (stmt instanceof ast.ClassDef) {
+                        const name = `${qualifier}.${stmt.name}`;
+                        this._to_be_defined.set(name, stmt);
+                    } else if (stmt instanceof ast.FunctionDef) {
+                        // not implemented
                     }
                 }
             }
@@ -11498,7 +11495,7 @@ python.Execution = class {
             }
             context.set(argument.name, value);
         }
-        return this.block(method.body.statements, context);
+        return this.block(method.body, context);
     }
 
     block(statements, context) {
@@ -11516,7 +11513,7 @@ python.Execution = class {
     statement(stmt, context) {
         const ast = this.ast;
         const builtins = this.builtins;
-        switch (stmt.type) {
+        switch (stmt.__class__.__name__) {
             case 'Pass': {
                 break;
             }
@@ -11554,7 +11551,7 @@ python.Execution = class {
                 const value = this._createType(name, base ? class extends base {} : class {});
                 value.__bases__ = bases;
                 context.set(stmt.name, value);
-                this.block(stmt.body.statements, new python.Execution.Context(context.globals, value.prototype));
+                this.block(stmt.body, new python.Execution.Context(context.globals, value.prototype));
                 break;
             }
             case 'AnnAssign': {
@@ -11620,7 +11617,7 @@ python.Execution = class {
                         item.__enter__.__call__([item]);
                     }
                 }
-                const value = this.block(stmt.body.statements, context);
+                const value = this.block(stmt.body, context);
                 for (const item of items) {
                     if (item.__exit__ && item.__exit__.__call__) {
                         item.__exit__.__call__([item]);
@@ -11676,7 +11673,7 @@ python.Execution = class {
         const builtins = this.builtins;
         const typing = this.typing;
         const self = context.get('self');
-        switch (expr.type) {
+        switch (expr.__class__.__name__) {
             case 'Assign': {
                 const target = expr.targets;
                 if (target instanceof ast.Name) {
