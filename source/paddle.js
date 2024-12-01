@@ -883,46 +883,50 @@ paddle.Utility = class {
 
     static getIRType(type) {
         type = type.includes('_') ? type.split('_')[1] : type;
-        if (!paddle.Utility._typeMapper) {
-            paddle.Utility._typeMapper = new Map([
-                ['bool', 'boolean'],
-                ['bf16', 'bfloat16'],
-                ['fp16', 'float16'],
-                ['fp32', 'float32'],
-                ['fp64', 'float64'],
-                ['fp8_e4m3fn', 'float8e4m3fn'],
-                ['fp8_e5m2', 'float8e5m2'],
-                ['f8e4m3fn', 'float8e4m3fn'],
-                ['f8e5m2', 'float8e5m2'],
-                ['f16', 'float16'],
-                ['f32', 'float32'],
-                ['f64', 'float64'],
-                ['i8', 'int8'],
-                ['ui8', 'uint8'],
-                ['i16', 'int16'],
-                ['i32', 'int32'],
-                ['i64', 'int64'],
-                ['c64', 'complex64'],
-                ['c128', 'complex128'],
-                ['str', 'string'],
-            ]);
+        switch (type) {
+            case 'bool':
+                return 'boolean';
+            case 'bf16':
+                return 'bfloat16';
+            case 'fp16':
+                return 'float16';
+            case 'fp32':
+                return 'float32';
+            case 'fp64':
+                return 'float64';
+            case 'fp8_e4m3fn':
+                return 'float8e4m3fn';
+            case 'fp8_e5m2':
+                return 'float8e5m2';
+            case 'f8e4m3fn':
+                return 'float8e4m3fn';
+            case 'f8e5m2':
+                return 'float8e5m2';
+            case 'f16':
+                return 'float16';
+            case 'f32':
+                return 'float32';
+            case 'f64':
+                return 'float64';
+            case 'i8':
+                return 'int8';
+            case 'ui8':
+                return 'uint8';
+            case 'i16':
+                return 'int16';
+            case 'i32':
+                return 'int32';
+            case 'i64':
+                return 'int64';
+            case 'c64':
+                return 'complex64';
+            case 'c128':
+                return 'complex128';
+            case 'str':
+                return 'string';
+            default:
+                return type;
         }
-        return paddle.Utility._typeMapper.has(type) ? paddle.Utility._typeMapper.get(type) : type;
-    }
-
-    static getPlace(place) {
-        if (!paddle.Utility._placeMapper) {
-            paddle.Utility._placeMapper = new Map([
-                ['0', 'UNDEFINED'],
-                ['1', 'CPU'],
-                ['2', 'GPU'],
-                ['3', 'GPUPINNED'],
-                ['4', 'XPU'],
-                ['7', 'IPU'],
-                ['9', 'CUSTOM'],
-            ]);
-        }
-        return paddle.Utility._placeMapper.has(`${place}`) ? paddle.Utility._placeMapper.get(`${place}`) : `${place}`;
     }
 
     static getIRCompressOp(opType) {
@@ -1332,7 +1336,33 @@ paddle.IR.OpInfo = class {
 
         if (attrName === 'place') {
             const [place, val,] = attrValue;
-            const device = paddle.Utility.getPlace(place);
+            let device = place;
+            switch (device) {
+                case 0:
+                    device = 'UNDEFINED';
+                    break;
+                case 1:
+                    device = 'CPU';
+                    break;
+                case 2:
+                    device = 'GPU';
+                    break;
+                case 3:
+                    device = 'GPUPINNED';
+                    break;
+                case 4:
+                    device = 'XPU';
+                    break;
+                case 7:
+                    device = 'IPU';
+                    break;
+                case 9:
+                    device = 'CUSTOM';
+                    break;
+                default:
+                    break;
+            }
+
             attrValue = `${device}: ${val}`;
         }
 
