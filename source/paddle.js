@@ -932,17 +932,22 @@ paddle.Utility = class {
     }
 
     static getIRCompressOp(opType) {
-        if (!paddle.Utility._opCompressMapper) {
-            paddle.Utility._opCompressMapper = new Map([
-                ['0', 'builtin'],
-                ['1', 'pd_op'],
-                ['2', 'cf'],
-                ['3', 'custom_op'],
-                ['4', 'pd_dist'],
-                ['p', 'parameter']
-            ]);
+        switch (opType) {
+            case '0':
+                return 'builtin';
+            case '1':
+                return 'pd_op';
+            case '2':
+                return 'cf';
+            case '3':
+                return 'custom_op';
+            case '4':
+                return 'pd_dist';
+            case 'p':
+                return 'parameter';
+            default:
+                return opType;
         }
-        return paddle.Utility._opCompressMapper.has(opType) ? paddle.Utility._opCompressMapper.get(opType) : opType;
     }
 
     static getIROpInfo(op) {
