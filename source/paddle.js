@@ -78,7 +78,7 @@ paddle.ModelFactory = class {
             }
             case 'paddle.ir': {
                 const obj = context.target;
-                const ir = new paddle.IR(obj);
+                const ir = new paddle.IrReader(obj);
                 return new paddle.Model(metadata, `PaddlePaddle IR v${ir.version}`, ir.desc, ir.tensors);
             }
             default: {
@@ -341,7 +341,7 @@ paddle.Graph = class {
                 if (op.type === 'feed') {
                     let name = '';
                     if (op instanceof paddle.IR.Op) {
-                        name = op.attrs.filter((attr) => attr.name === 'col')[0].value.toString();
+                        name = op.attrs.filter((attr) => attr.name === 'col')[0].irValue.toString();
                     } else {
                         name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
                     }
@@ -350,7 +350,7 @@ paddle.Graph = class {
                 } else if (op.type === 'fetch') {
                     let name = '';
                     if (op instanceof paddle.IR.Op) {
-                        name = op.attrs.filter((attr) => attr.name === 'col')[0].value.toString();
+                        name = op.attrs.filter((attr) => attr.name === 'col')[0].irValue.toString();
                     } else {
                         name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
                     }
@@ -438,6 +438,7 @@ paddle.Node = class {
         this.type = metadata.type(type) || { name: type };
         this.name = op.name || '';
         this.description = op.description || '';
+        this.identifier = op.identifier || '';
         this.attributes = [];
         this.inputs = [];
         this.outputs = [];
@@ -450,64 +451,65 @@ paddle.Node = class {
                 let visible = true;
                 let type = null;
 
-                if (attr instanceof paddle.IR.Attr) {
-                    type = attr.type;
-                    value = attr.value;
-                } else if (attr instanceof paddle.IR.Region) {
-                    type = 'graph';
-                    value = new paddle.Graph(metadata, attr.block, attr.vars);
-                } else {
-                    switch (attr.type) {
-                        case paddle.AttributeType.STRING:
-                            type = 'string';
-                            value = attr.s;
-                            break;
-                        case paddle.AttributeType.STRINGS:
-                            type = 'string[]';
-                            value = Array.from(attr.strings);
-                            break;
-                        case paddle.AttributeType.BOOLEAN:
-                            type = 'boolean';
-                            value = attr.b;
-                            break;
-                        case paddle.AttributeType.BOOLEANS:
-                            type = 'boolean[]';
-                            value = attr.bools ? Array.from(attr.bools) : attr.bools;
-                            break;
-                        case paddle.AttributeType.FLOAT:
-                            type = 'float32';
-                            value = attr.f;
-                            break;
-                        case paddle.AttributeType.FLOATS:
-                            type = 'float32[]';
-                            value = attr.floats ? Array.from(attr.floats) : attr.floats;
-                            break;
-                        case paddle.AttributeType.FLOAT64:
-                            type = 'float64';
-                            value = attr.float64;
-                            break;
-                        case paddle.AttributeType.FLOAT64S:
-                            type = 'float64[]';
-                            value = attr.float64s ? Array.from(attr.float64s) : attr.float64s;
-                            break;
-                        case paddle.AttributeType.INT:
-                            type = 'int32';
-                            value = attr.i;
-                            break;
-                        case paddle.AttributeType.INTS:
-                            type = 'int32[]';
-                            value = attr.ints ? Array.from(attr.ints) : attr.ints;
-                            break;
-                        case paddle.AttributeType.LONG:
-                            type = 'int64';
-                            break;
-                        case paddle.AttributeType.LONGS:
-                            type = 'int64[]';
-                            break;
-                        default:
-                            break;
-                    }
+                switch (attr.type) {
+                    case paddle.AttributeType.STRING:
+                        type = 'string';
+                        value = attr.s;
+                        break;
+                    case paddle.AttributeType.STRINGS:
+                        type = 'string[]';
+                        value = Array.from(attr.strings);
+                        break;
+                    case paddle.AttributeType.BOOLEAN:
+                        type = 'boolean';
+                        value = attr.b;
+                        break;
+                    case paddle.AttributeType.BOOLEANS:
+                        type = 'boolean[]';
+                        value = attr.bools ? Array.from(attr.bools) : attr.bools;
+                        break;
+                    case paddle.AttributeType.FLOAT:
+                        type = 'float32';
+                        value = attr.f;
+                        break;
+                    case paddle.AttributeType.FLOATS:
+                        type = 'float32[]';
+                        value = attr.floats ? Array.from(attr.floats) : attr.floats;
+                        break;
+                    case paddle.AttributeType.FLOAT64:
+                        type = 'float64';
+                        value = attr.float64;
+                        break;
+                    case paddle.AttributeType.FLOAT64S:
+                        type = 'float64[]';
+                        value = attr.float64s ? Array.from(attr.float64s) : attr.float64s;
+                        break;
+                    case paddle.AttributeType.INT:
+                        type = 'int32';
+                        value = attr.i;
+                        break;
+                    case paddle.AttributeType.INTS:
+                        type = 'int32[]';
+                        value = attr.ints ? Array.from(attr.ints) : attr.ints;
+                        break;
+                    case paddle.AttributeType.LONG:
+                        type = 'int64';
+                        break;
+                    case paddle.AttributeType.LONGS:
+                        type = 'int64[]';
+                        break;
+                    case paddle.AttributeType.IR:
+                        type = attr.irType;
+                        value = attr.irValue;
+                        break;
+                    case paddle.AttributeType.GRAPH:
+                        type = 'graph';
+                        value = new paddle.Graph(metadata, attr.block, attr.vars);
+                        break;
+                    default:
+                        break;
                 }
+
                 switch (name) {
                     case 'use_mkldnn':
                     case 'use_cudnn':
@@ -954,6 +956,20 @@ paddle.Utility = class {
         }
     }
 
+    static getAttrDenotation(attrName, attrValue) {
+        // show `true` attrs
+        // and other attrs not in ['name', 'dtype'], which are duplicated
+        // but `shape` can NOT be ignored, which is different from tensor information
+        if (attrValue) {
+            if (typeof attrValue === 'boolean') {
+                return `${attrName}`;
+            }
+            if (attrName !== 'name' && attrName !== 'dtype') {
+                return `${attrName}:${attrValue}`;
+            }
+        }
+        return '';
+    }
 };
 
 paddle.DataType = {
@@ -1003,80 +1019,72 @@ paddle.AttributeType = {
     FLOAT64S: 12,
     VAR: 13,
     VARS: 14,
-    FLOAT64: 15
+    FLOAT64: 15,
+    IR: 16,
+    GRAPH: 17
 };
 
-paddle.IR = class {
-
+paddle.IrReader = class {
     constructor(obj) {
+        // cache the global info
+        this._names = new Map();
+        this._crossRegionInputs = new Map();
+
         this.base_code = obj.base_code;
         this.version = obj.base_code.version;
 
-        const globalInfo = new paddle.IR.GlobalInfo();
-        this.program = new paddle.IR.Program(obj.program, globalInfo);
+        const program = obj.program;
+        const regions = [];
+        for (const region of program.regions) {
+            regions.push(new paddle.IR.Region(region, this));
+        }
+        const [programRegion] = regions;
 
         // to construct a `paddle.Model`
-        this.desc = this.program.region;
+        this.desc = programRegion;
         this.tensors = new Map();
-
-    }
-};
-
-paddle.IR.GlobalInfo = class {
-    constructor() {
-        this.names = new Map();
-        this.crossRegionInputs = new Map();
     }
 
     getParaName(tensor, namePrefix) {
         const idx = tensor['%'] || tensor['#'];
-        if (tensor.TT && !this.names.has(idx)) {
+        if (tensor.TT && !this._names.has(idx)) {
             const prefix = namePrefix || idx;
-            this.names.set(idx, `${prefix}`);
+            this._names.set(idx, `${prefix}`);
         }
 
         // [idx as string, formatted name, is a negative integer]
         return [
             `${idx}`,
-            this.names.has(idx) ? this.names.get(idx) : `${idx}`,
+            this._names.has(idx) ? this._names.get(idx) : `${idx}`,
             Number.isInteger(idx) ? idx < 0 : false
         ];
     }
 
     hasCrossInput(name) {
-        return this.crossRegionInputs.has(name);
+        return this._crossRegionInputs.has(name);
     }
 
     getCrossInput(name) {
-        return this.crossRegionInputs.has(name) ? this.crossRegionInputs.get(name) : null;
+        return this._crossRegionInputs.has(name) ? this._crossRegionInputs.get(name) : null;
     }
 
     addCrossInput(name, input) {
-        this.crossRegionInputs.set(name, input);
+        this._crossRegionInputs.set(name, input);
     }
+
 };
 
-paddle.IR.Program = class {
-
-    constructor(program, globalInfo) {
-        this.regions = [];
-        for (const region of program.regions) {
-            this.regions.push(new paddle.IR.Region(region, globalInfo));
-        }
-        const [region] = this.regions;
-        this.region = region;
-    }
-};
+paddle.IR = class { };
 
 paddle.IR.Region = class {
 
-    constructor(region, globalInfo) {
+    constructor(region, irReader) {
         this.name = region['#'];
         this.idx = region['#'];
         this.vars = new Map();
         this.blocks = [];
         for (const block of region.blocks) {
-            this.blocks.push(new paddle.IR.Block(block, globalInfo));
+            this.blocks.push(new paddle.IR.Block(block, irReader));
         }
         const [block] = this.blocks;
         this.block = block;
@@ -1085,7 +1093,7 @@ paddle.IR.Region = class {
 
 paddle.IR.Block = class {
 
-    constructor(block, globalInfo) {
+    constructor(block, irReader) {
         this.name = block['#'];
         this.idx = block['#'];
         this.vars = new Map();
@@ -1095,7 +1103,7 @@ paddle.IR.Block = class {
             for (const input of block.args) {
                 const [, type] = input.TT && input.TT['#'] ? input.TT['#'].split('.') : null;
                 if (type === 't_dtensor') {
-                    const [parameter, name,] = globalInfo.getParaName(input);
+                    const [parameter, name,] = irReader.getParaName(input);
                     const tensorType = paddle.Utility.createIRTensorType(input);
                     this.argInputs.set(name, [parameter, tensorType]);
                 }
@@ -1107,7 +1115,7 @@ paddle.IR.Block = class {
 
         this.ops = [];
         for (const op of block.ops) {
-            const irOp = new paddle.IR.Op(op, globalInfo);
+            const irOp = new paddle.IR.Op(op, irReader);
             this.ops.push(irOp);
 
             inputNames = new Set([...inputNames, ...irOp.inputNames]);
@@ -1117,7 +1125,7 @@ paddle.IR.Block = class {
         const missInputs = new Set([...inputNames].filter((item) => !outputNames.has(item)));
         if (missInputs) {
             for (const name of missInputs) {
-                const output = globalInfo.getCrossInput(name);
+                const output = irReader.getCrossInput(name);
                 if (output) {
                     this.argInputs.set(name, [output.parameter, output.tensorType]);
                 }
@@ -1128,13 +1136,13 @@ paddle.IR.Block = class {
 
 paddle.IR.Op = class {
 
-    constructor(op, globalInfo) {
+    constructor(op, irReader) {
         const opInfo = paddle.Utility.getIROpInfo(op);
 
         // make base info
         this.name = opInfo.fullName;
         this.type = opInfo.type;
-        this.description = `The op is "${opInfo.rawType}" ("${opInfo.fullName}").`;
+        this.identifier = opInfo.rawType;
 
         // make attributes
         this.attrs = [];
@@ -1145,7 +1153,8 @@ paddle.IR.Op = class {
         // add regions as sub graph
         if (op.regions !== undefined) {
             for (const region of op.regions) {
-                this.attrs.push(new paddle.IR.Region(region, globalInfo));
+                const regionAttr = new paddle.IR.Region(region, irReader);
+                this.attrs.push(new paddle.IR.Attr(null, regionAttr, null));
             }
         }
 
@@ -1155,7 +1164,7 @@ paddle.IR.Op = class {
 
         // make inputs
         const createInput = (input, opInfo) => {
-            const [parameterName, inputName] = globalInfo.getParaName(input, opInfo.namePrefix);
+            const [parameterName, inputName] = irReader.getParaName(input, opInfo.namePrefix);
             return {
                 arguments: [inputName],
                 parameter: parameterName
@@ -1167,14 +1176,14 @@ paddle.IR.Op = class {
             const inputArray = Array.isArray(op.I) ? op.I : [op.I];
             for (const input of inputArray) {
                 inputs.push(createInput(input, opInfo));
-                const [, name] = globalInfo.getParaName(input, opInfo.namePrefix);
+                const [, name] = irReader.getParaName(input, opInfo.namePrefix);
                 inputNames.add(name);
             }
         }
 
         // make outputs
         const createOutput = (output, opInfo, idx, outputAttr) => {
-            const [parameterName, outputName] = globalInfo.getParaName(output, opInfo.namePrefix);
+            const [parameterName, outputName] = irReader.getParaName(output, opInfo.namePrefix);
             const valuesMap = new Map();
             let tType = null;
 
@@ -1202,18 +1211,18 @@ paddle.IR.Op = class {
             for (const [idx, output] of Object.entries(outputArray)) {
                 const irOutput = createOutput(output, opInfo, idx, op.OA);
                 outputs.push(irOutput);
-                const [, name, isNegative] = globalInfo.getParaName(output, opInfo.namePrefix);
+                const [, name, isNegative] = irReader.getParaName(output, opInfo.namePrefix);
                 outputNames.add(name);
 
                 // add cross inputs for sub graph render block arguments
-                if (!isNegative && !globalInfo.hasCrossInput(name)) {
-                    globalInfo.addCrossInput(name, irOutput);
+                if (!isNegative && !irReader.hasCrossInput(name)) {
+                    irReader.addCrossInput(name, irOutput);
                 }
             }
         }
 
         if (op.regions) {
-            const collectRegions = (globalInfo, regions) => {
+            const collectRegions = (irReader, regions) => {
                 let inputs = new Map();
                 let outputs = new Map();
                 for (const region of regions) {
@@ -1224,7 +1233,7 @@ paddle.IR.Op = class {
                             if (op.I) {
                                 const opInputs = Array.isArray(op.I) ? op.I : [op.I];
                                 for (const input of opInputs) {
-                                    const [, name, isNegative] = globalInfo.getParaName(input, opInfo.namePrefix);
+                                    const [, name, isNegative] = irReader.getParaName(input, opInfo.namePrefix);
                                     if (!isNegative && !inputs.has(name)) {
                                         inputs.set(name, [input, opInfo]);
                                     }
@@ -1234,7 +1243,7 @@ paddle.IR.Op = class {
                             if (op.O) {
                                 const opOutputs = Array.isArray(op.O) ? op.O : [op.O];
                                 for (const [idx, output] of Object.entries(opOutputs)) {
-                                    const [, name, isNegative] = globalInfo.getParaName(output, opInfo.namePrefix);
+                                    const [, name, isNegative] = irReader.getParaName(output, opInfo.namePrefix);
                                     if (!isNegative && !outputs.has(name)) {
                                         outputs.set(name, [output, opInfo, idx, op.OA]);
                                     }
@@ -1242,7 +1251,7 @@ paddle.IR.Op = class {
                             }
 
                             if (op.regions) {
-                                const [subInputs, subOutputs] = collectRegions(globalInfo, op.regions);
+                                const [subInputs, subOutputs] = collectRegions(irReader, op.regions);
                                 inputs = new Map([...inputs, ...subInputs]);
                                 outputs = new Map([...outputs, ...subOutputs]);
                             }
@@ -1253,7 +1262,7 @@ paddle.IR.Op = class {
             };
 
             // get sub inputs and outputs from regions
-            const [subInputs, subOutputs] = collectRegions(globalInfo, op.regions);
+            const [subInputs, subOutputs] = collectRegions(irReader, op.regions);
 
             // just add inputs which are not generated from sub regions
             for (const [name, inputArgs] of subInputs) {
@@ -1363,7 +1372,7 @@ paddle.IR.OpInfo = class {
                     break;
             }
 
-            attrValue = `${device}: ${val}`;
+            attrValue = `${device}:${val}`;
         }
 
         if (attrName === 'shape') {
@@ -1376,7 +1385,12 @@ paddle.IR.OpInfo = class {
     getOutputAttr(idx, outputAttr) {
         const denotation = [];
         for (const attr of outputAttr) {
-            denotation.push(`${attr.N}:${attr.AT.D[idx].D}`);
+            const attrName = attr.N;
+            const attrValue = attr.AT.D[idx].D;
+            const attrDenotation = paddle.Utility.getAttrDenotation(attrName, attrValue);
+            if (attrDenotation) {
+                denotation.push(attrDenotation);
+            }
         }
         return denotation.join(';');
     }
@@ -1408,12 +1422,18 @@ paddle.IR.OpInfoData = class extends paddle.IR.OpInfo {
         for (const attr of outputAttr) {
             const attrName = attr.N;
             const attrValue = attr.AT.D[idx].D;
-            denotation.push(`${attrName}:${attrValue}`);
+            const attrDenotation = paddle.Utility.getAttrDenotation(attrName, attrValue);
+            if (attrDenotation) {
+                denotation.push(attrDenotation);
+            }
         }
 
         for (const value of this._attr) {
             const [attrName, , attrValue] = this.getAttr(null, value);
-            denotation.push(`${attrName}:${attrValue}`);
+            const attrDenotation = paddle.Utility.getAttrDenotation(attrName, attrValue);
+            if (attrDenotation) {
+                denotation.push(attrDenotation);
+            }
         }
 
         return denotation.join(';');
@@ -1475,20 +1495,25 @@ paddle.IR.OpInfoP = class extends paddle.IR.OpInfo {
     }
 
     getOutputAttr(idx, outputAttr) {
-        const persistable = outputAttr[0] === 1;
-        const stop_gradient = outputAttr[1] === 1;
-        const trainable = outputAttr[2] === 1;
-        const is_distributed = outputAttr[3] === 1;
-        const is_parameter = outputAttr[4] === 1;
-        const need_clip = outputAttr[5] === 1;
-        const denotation = [
-            `persistable:${persistable}`,
-            `stop_gradient:${stop_gradient}`,
-            `trainable:${trainable}`,
-            `is_distributed:${is_distributed}`,
-            `is_parameter:${is_parameter}`,
-            `need_clip:${need_clip}`,
-        ];
+        const denotation = [];
+        if (outputAttr[0] === 1) {
+            denotation.push('persistable');
+        }
+        if (outputAttr[1] === 1) {
+            denotation.push('stop_gradient');
+        }
+        if (outputAttr[2] === 1) {
+            denotation.push('trainable');
+        }
+        if (outputAttr[3] === 1) {
+            denotation.push('is_distributed');
+        }
+        if (outputAttr[4] === 1) {
+            denotation.push('is_parameter');
+        }
+        if (outputAttr[5] === 1) {
+            denotation.push('need_clip');
+        }
         return denotation.join(';');
     }
 };
@@ -1496,10 +1521,18 @@ paddle.IR.OpInfoP = class extends paddle.IR.OpInfo {
 paddle.IR.Attr = class {
 
     constructor(idx, value, opInfo) {
-        const [attrName, attrType, attrValue] = opInfo.getAttr(idx, value);
-        this.name = attrName;
-        this.type = attrType;
-        this.value = attrValue;
+        if (value instanceof paddle.IR.Region) {
+            this.name = value.name;
+            this.type = paddle.AttributeType.GRAPH;
+            this.block = value.block;
+            this.vars = value.vars;
+        } else {
+            const [attrName, attrType, attrValue] = opInfo.getAttr(idx, value);
+            this.name = attrName;
+            this.type = paddle.AttributeType.IR;
+            this.irType = attrType;
+            this.irValue = attrValue;
+        }
     }
 };
 
