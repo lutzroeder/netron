@@ -1366,7 +1366,8 @@ MNN.UnaryOpOperation = {
     TANH: 30,
     HARDSWISH: 31,
     GELU: 32,
-    GELU_STANDARD: 33
+    GELU_STANDARD: 33,
+    SILU: 34
 };
 
 MNN.UnaryOp = class UnaryOp {
