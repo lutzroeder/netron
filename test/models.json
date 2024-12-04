@@ -931,7 +931,7 @@
   },
   {
     "type":     "circle",
-    "target":   "ArgMax_001.circle",
+    "target":   "ArgMax_001",
     "source":   "https://github.com/lutzroeder/netron/files/7489768/circle_model_samples.zip[ArgMax_001.circle]",
     "format":   "Circle v0",
     "link":     "https://github.com/lutzroeder/netron/issues/790"
@@ -2259,7 +2259,7 @@
   },
   {
     "type":     "keras",
-    "target":   "0428.h5",
+    "target":   "0428",
     "source":   "https://github.com/lutzroeder/netron/files/14074802/0428.h5.zip[0428.h5]",
     "format":   "Keras v2.2.4-tf",
     "link":     "https://github.com/lutzroeder/netron/issues/428"
@@ -3427,7 +3427,7 @@
   },
   {
     "type":     "mslite",
-    "target":   "mnist.ms",
+    "target":   "mnist",
     "source":   "https://github.com/lutzroeder/netron/files/6128484/mnist.ms.zip[mnist.ms]",
     "tags":     "quantization",
     "format":   "MindSpore Lite v1.2.0",
@@ -4475,7 +4475,7 @@
   },
   {
     "type":     "onnx",
-    "target":   "ort_github_issue_4031.onnx.ort",
+    "target":   "ort_github_issue_4031",
     "source":   "https://github.com/lutzroeder/netron/files/8191468/ort_github_issue_4031.onnx.ort.zip[ort_github_issue_4031.onnx.ort]",
     "format":   "ONNX Runtime v7",
     "link":     "https://github.com/lutzroeder/netron/issues/767"
@@ -4765,14 +4765,14 @@
   },
   {
     "type":     "om",
-    "target":   "resnet50_issue_svp.om",
+    "target":   "resnet50_issue_svp",
     "source":   "https://github.com/lutzroeder/netron/files/9892582/resnet50_issue_svp.om.zip[resnet50_issue_svp.om]",
     "format":   "DaVinci OM SVP",
     "link":     "https://github.com/lutzroeder/netron/issues/799"
   },
   {
     "type":     "om",
-    "target":   "yolov5s.om",
+    "target":   "yolov5s",
     "source":   "https://github.com/lutzroeder/netron/files/12136842/yolov5s.om.zip[yolov5s.om]",
     "format":   "DaVinci OM",
     "link":     "https://github.com/lutzroeder/netron/issues/799"
@@ -7816,7 +7816,7 @@
   },
   {
     "type":     "tflite",
-    "target":   "0256.tflite",
+    "target":   "0256",
     "source":   "https://github.com/lutzroeder/netron/files/14074688/0256.tflite.zip[0256.tflite]",
     "format":   "TensorFlow Lite v3",
     "tags":     "quantization",
