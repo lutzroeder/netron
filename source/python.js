@@ -5179,6 +5179,7 @@ python.Execution = class {
         this.registerType('torch.nn.modules.pooling.AvgPool2d', class {});
         this.registerType('torch.nn.modules.pooling.AvgPool3d', class {});
         this.registerType('torch.nn.modules.pooling.FractionalMaxPool2d', class {});
+        this.registerType('torch.nn.modules.pooling.LPPool1d', class {});
         this.registerType('torch.nn.modules.pooling.LPPool2d', class {});
         this.registerType('torch.nn.modules.pooling.MaxPool1d', class {});
         this.registerType('torch.nn.modules.pooling.MaxPool2d', class {});
@@ -5956,6 +5957,7 @@ python.Execution = class {
         this.registerFunction('torch._C._nn.gelu');
         this.registerFunction('torch._C._nn.avg_pool2d');
         this.registerFunction('torch._C._nn.scaled_dot_product_attention');
+        this.registerFunction('torch._C._nn.softplus');
         this.registerFunction('torch._native_multi_head_attention');
         this.registerFunction('torch._utils._rebuild_sparse_tensor', (layout, data) => {
             if (layout === torch.sparse_coo) {
