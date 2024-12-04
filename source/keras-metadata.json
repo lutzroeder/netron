@@ -3091,7 +3091,7 @@
     "examples": [
       {
         "summary": "Consider a NumPy data array `x` of shape `(samples, timesteps, features)`,\nto be fed to an LSTM layer. You want to mask timestep #3 and #5 because you\nlack data for these timesteps. You can:\n- Set `x[:, 3, :] = 0.` and `x[:, 5, :] = 0.`\n- Insert a `Masking` layer with `mask_value=0.` before the LSTM layer:",
-        "code": "samples, timesteps, features = 32, 10, 8\ninputs = np.random.random([samples, timesteps, features]).astype(np.float32)\ninputs[:, 3, :] = 0.\ninputs[:, 5, :] = 0.\n\nmodel = keras.models.Sequential()\nmodel.add(keras.layers.Masking(mask_value=0.)\nmodel.add(keras.layers.LSTM(32))\noutput = model(inputs)\n# The time step 3 and 5 will be skipped from LSTM calculation."
+        "code": "samples, timesteps, features = 32, 10, 8\ninputs = np.random.random([samples, timesteps, features]).astype(np.float32)\ninputs[:, 3, :] = 0.\ninputs[:, 5, :] = 0.\n\nmodel = keras.models.Sequential()\nmodel.add(keras.layers.Masking(mask_value=0.0))\nmodel.add(keras.layers.LSTM(32))\noutput = model(inputs)\n# The time step 3 and 5 will be skipped from LSTM calculation."
       }
     ]
   },
