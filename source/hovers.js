@@ -1,6 +1,7 @@
 import { stringify } from 'querystring';
 
 import { execSync } from 'child_process';
+import { cp } from 'fs';
 class Req {
   file_added = 0;
   constructor() {}
@@ -148,6 +149,7 @@ class Req {
         var index = -1;
         var img = JSON.stringify({});
         var nofimg = 0
+        var list_attributes = [];
 
         for (var line = 0; line < lines.length; line++) {
           if (!lines[line].startsWith("#") && lines[line].trim().length !== 0) {
@@ -253,8 +255,25 @@ class Req {
                 if ((first.toLowerCase() == "tensor_onmouseover_image" && childmeta.className == "operator") || (first.toLowerCase() == "operator_onmouseover_image" && childmeta.className == "tensor")) {
                   Req.solve_bugs();
                   throw "Invalid model metadata file format! tensor_onmouseover_image must correspond to tensor and operator_onmouseover_image to operator";
-                }
+                }          
+                if (list_attributes.length !== 0) {
+                  var complete_list = [];
+                  if (first.toLowerCase().startsWith("tensor")) {
+                    complete_list = ["tensor_onmouseover_image_dimx", "tensor_onmouseover_image_dimy", "tensor_onmouseover_image_posx", "tensor_onmouseover_image_posy"];
+                  } else {
+                    complete_list = ["operator_onmouseover_image_dimx", "operator_onmouseover_image_dimy", "operator_onmouseover_image_posx", "operator_onmouseover_image_posy"];
+                  }
+                  for (const val of list_attributes) {
+                    if (!complete_list.includes(val)) {
+                      var strin = JSON.parse(img);
+                      strin[val] = "auto";
+                      img = JSON.stringify(strin);
+                    }
+                  }
+                  list_attributes = [];
+                }      
                 if (img !== JSON.stringify({})) {
+
                   obj["img_" + nofimg] = img;
                   nofimg += 1;
                 }
@@ -388,6 +407,7 @@ class Req {
                       var strin = JSON.parse(img);
                       strin[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim();
                       img = JSON.stringify(strin);
+                      list_attributes.push(first.toLowerCase());
                     } else {
                       if (otherstring !== JSON.stringify({})) {
                         obj["button_" + nofb] = otherstring;
@@ -397,7 +417,7 @@ class Req {
                       }
                       otherstring = JSON.stringify({});
                       img = JSON.stringify({});
-                      document.getElementById("list-attributes").innerHTML = '';
+                      Req.solve_bugs();
                       throw "You provided an invalid key: " + first.toLowerCase();
                     }
                   }
