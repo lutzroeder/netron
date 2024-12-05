@@ -4,6 +4,7 @@ import * as electron from 'electron';
 import * as fs from 'fs';
 import * as http from 'http';
 import * as https from 'https';
+import * as os from 'os';
 import * as path from 'path';
 import * as url from 'url';
 import * as view from './view.js';
@@ -42,6 +43,16 @@ host.ElectronHost = class {
         if (!/^\d\.\d\.\d$/.test(this.version)) {
             throw new Error('Invalid version.');
         }
+        const metadata = [];
+        metadata.push(os.arch());
+        if (process.env.APPIMAGE) {
+            metadata.push('appimage');
+        } else if (process.env.SNAP) {
+            metadata.push('snap');
+        } else {
+            metadata.push('');
+        }
+        this._metadata = metadata.join('|');
     }
 
     get window() {
@@ -58,6 +69,10 @@ host.ElectronHost = class {
 
     get type() {
         return 'Electron';
+    }
+
+    get metadata() {
+        return this._metadata;
     }
 
     async view(view) {
@@ -109,11 +124,13 @@ host.ElectronHost = class {
                 this._telemetry.send('page_view', {
                     app_name: this.type,
                     app_version: this.version,
+                    app_metadata: this.metadata
                 });
                 this._telemetry.send('scroll', {
                     percent_scrolled: 90,
                     app_name: this.type,
-                    app_version: this.version
+                    app_version: this.version,
+                    app_metadata: this.metadata
                 });
                 this.set('user', this._telemetry.get('client_id'));
                 this.set('session', this._telemetry.session);
@@ -370,6 +387,7 @@ host.ElectronHost = class {
                 this._telemetry.send('exception', {
                     app_name: this.type,
                     app_version: this.version,
+                    app_metadata: this.metadata,
                     error_name: name,
                     error_message: message,
                     error_context: context,
@@ -386,6 +404,7 @@ host.ElectronHost = class {
         if (name && params) {
             params.app_name = this.type;
             params.app_version = this.version;
+            params.app_metadata = this.metadata;
             this._telemetry.send(name, params);
         }
     }
