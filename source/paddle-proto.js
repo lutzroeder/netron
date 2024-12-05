@@ -1013,7 +1013,7 @@ paddle.framework.proto.VarType.DenseTensorDesc = class DenseTensorDesc {
                     message.tensor = paddle.framework.proto.VarType.TensorDesc.decode(reader, reader.uint32());
                     break;
                 case 2:
-                    message.lod_level = reader.int32();
+                    message.legacy_lod_level = reader.int32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1035,8 +1035,8 @@ paddle.framework.proto.VarType.DenseTensorDesc = class DenseTensorDesc {
                 case "tensor":
                     message.tensor = paddle.framework.proto.VarType.TensorDesc.decodeText(reader);
                     break;
-                case "lod_level":
-                    message.lod_level = reader.int32();
+                case "legacy_lod_level":
+                    message.legacy_lod_level = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -1051,7 +1051,7 @@ paddle.framework.proto.VarType.DenseTensorDesc = class DenseTensorDesc {
 };
 
 paddle.framework.proto.VarType.DenseTensorDesc.prototype.tensor = null;
-paddle.framework.proto.VarType.DenseTensorDesc.prototype.lod_level = 0;
+paddle.framework.proto.VarType.DenseTensorDesc.prototype.legacy_lod_level = 0;
 
 paddle.framework.proto.VarType.DenseTensorArrayDesc = class DenseTensorArrayDesc {
 
@@ -1065,7 +1065,7 @@ paddle.framework.proto.VarType.DenseTensorArrayDesc = class DenseTensorArrayDesc
                     message.tensor = paddle.framework.proto.VarType.TensorDesc.decode(reader, reader.uint32());
                     break;
                 case 2:
-                    message.lod_level = reader.int32();
+                    message.legacy_lod_level = reader.int32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1087,8 +1087,8 @@ paddle.framework.proto.VarType.DenseTensorArrayDesc = class DenseTensorArrayDesc
                 case "tensor":
                     message.tensor = paddle.framework.proto.VarType.TensorDesc.decodeText(reader);
                     break;
-                case "lod_level":
-                    message.lod_level = reader.int32();
+                case "legacy_lod_level":
+                    message.legacy_lod_level = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -1103,7 +1103,7 @@ paddle.framework.proto.VarType.DenseTensorArrayDesc = class DenseTensorArrayDesc
 };
 
 paddle.framework.proto.VarType.DenseTensorArrayDesc.prototype.tensor = null;
-paddle.framework.proto.VarType.DenseTensorArrayDesc.prototype.lod_level = 0;
+paddle.framework.proto.VarType.DenseTensorArrayDesc.prototype.legacy_lod_level = 0;
 
 paddle.framework.proto.VarType.ReaderDesc = class ReaderDesc {
 
