@@ -648,13 +648,15 @@ openvino.Node = class {
             const precision = blob.precision || layer.precision;
             let itemSize = -1;
             switch (precision) {
-                case 'BOOL': case 'BOOLEAN':            itemSize = 1; break;
-                case 'I1':   case 'U1':                 itemSize = 0.125; break;
-                case 'I4':   case 'U4':                 itemSize = 0.5; break;
-                case 'I8':   case 'U8':  case 'F8E4M3': itemSize = 1; break;
-                case 'I16':  case 'U16': case 'FP16':   itemSize = 2; break;
-                case 'I32':  case 'U32': case 'FP32':   itemSize = 4; break;
-                case 'I64':  case 'U64': case 'FP64':   itemSize = 8; break;
+                case 'BOOL': case 'BOOLEAN':          itemSize = 1; break;
+                case 'I1':   case 'U1':               itemSize = 0.125; break;
+                case 'I4':   case 'U4':               itemSize = 0.5; break;
+                case 'I8':   case 'U8':               itemSize = 1; break;
+                case 'I16':  case 'U16': case 'FP16': itemSize = 2; break;
+                case 'I32':  case 'U32': case 'FP32': itemSize = 4; break;
+                case 'I64':  case 'U64': case 'FP64': itemSize = 8; break;
+                case 'F8E4M3':                        itemSize = 1; break;
+                case 'BF16':                          itemSize = 2; break;
                 default: throw new openvino.Error(`Unsupported data type size '${precision}'.`);
             }
             const weight = (name, precision, dimensions, data) => {
