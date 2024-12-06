@@ -42,32 +42,8 @@ def _write_metadata(value):
     content = re.sub(r'\s {6}}', ' }', content)
     _write(metadata_file, content)
 
-schema_source_files = [
-    ('aten/src/ATen/native/native_functions.yaml',
-        re.compile(r'-\s*func:\s*(.*)', re.MULTILINE), 'aten::'),
-    ('aten/src/ATen/native/quantized/library.cpp',
-        re.compile(r'TORCH_SELECTIVE_SCHEMA\("(.*)"\)', re.MULTILINE)),
-    ('aten/src/ATen/native/xnnpack/RegisterOpContextClass.cpp',
-        re.compile(r'TORCH_SELECTIVE_SCHEMA\("(.*)"', re.MULTILINE)),
-    ('torch/csrc/jit/runtime/register_prim_ops.cpp',
-        re.compile(r'(aten::.*->\s*.*)"', re.MULTILINE)),
-    ('torch/csrc/jit/runtime/register_prim_ops.cpp',
-        re.compile(r'(prim::.*->\s*.*)"', re.MULTILINE)),
-    ('torch/csrc/jit/runtime/register_prim_ops_fulljit.cpp',
-        re.compile(r'(aten::.*->\s*.*)"', re.MULTILINE)),
-    ('torch/csrc/jit/runtime/register_special_ops.cpp',
-        re.compile(r'(aten::.*->\s*.*)"', re.MULTILINE)),
-    ('aten/src/ATen/native/RNN.cpp',
-        re.compile(r'TORCH_SELECTIVE_SCHEMA\("(.*)"', re.MULTILINE)),
-    ('torch/jit/_shape_functions.py',
-        re.compile(r'(prim::.*->\s*.*)"', re.MULTILINE)),
-    ('torch/csrc/jit/runtime/static/native_ops.cpp',
-        re.compile(r'(prim::.*->\s*.*)"', re.MULTILINE)),
-]
-
-# pylint: disable=line-too-long
-
 known_legacy_schema_definitions = [
+    # pylint: disable=line-too-long
     '_caffe2::BBoxTransform(Tensor rois, Tensor deltas, Tensor im_info, float[] weights, bool apply_scale, bool rotated, bool angle_bound_on, int angle_bound_lo, int angle_bound_hi, float clip_angle_thresh, bool legacy_plus_one) -> (Tensor output_0, Tensor output_1)',
     '_caffe2::BatchPermutation(Tensor X, Tensor indices) -> Tensor',
     '_caffe2::BoxWithNMSLimit(Tensor scores, Tensor boxes, Tensor batch_splits, float score_thresh, float nms, int detections_per_im, bool soft_nms_enabled, str soft_nms_method, float soft_nms_sigma, float soft_nms_min_score_thres, bool rotated, bool cls_agnostic_bbox_reg, bool input_boxes_include_bg_cls, bool output_classes_include_bg_cls, bool legacy_plus_one) -> (Tensor scores, Tensor boxes, Tensor classes, Tensor batch_splits, Tensor keeps, Tensor keeps_size)',
@@ -78,15 +54,23 @@ known_legacy_schema_definitions = [
     '_caffe2::DistributeFpnProposals(Tensor rois, int roi_canonical_scale, int roi_canonical_level, int roi_max_level, int roi_min_level, bool legacy_plus_one) -> (Tensor rois_fpn2, Tensor rois_fpn3, Tensor rois_fpn4, Tensor rois_fpn5, Tensor rois_idx_restore_int32)',
     '_caffe2::GenerateProposals(Tensor scores, Tensor bbox_deltas, Tensor im_info, Tensor anchors, float spatial_scale, int pre_nms_topN, int post_nms_topN, float nms_thresh, float min_size, bool angle_bound_on, int angle_bound_lo, int angle_bound_hi, float clip_angle_thresh, bool legacy_plus_one) -> (Tensor output_0, Tensor output_1)',
     '_caffe2::RoIAlign(Tensor features, Tensor rois, str order, float spatial_scale, int pooled_h, int pooled_w, int sampling_ratio, bool aligned) -> Tensor',
+    'aten::_cat.out(Tensor[] tensors, int dim=0, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::_cat(Tensor[] tensors, int dim=0) -> Tensor',
+    'aten::adaptive_avg_pool1d.out(Tensor self, int[1] output_size, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::arange.start_out_(Scalar start, Scalar end) -> Tensor',
+    'aten::avg_pool1d.out(Tensor self, int[1] kernel_size, int[1] stride=[], int[1] padding=[0], bool ceil_mode=False, bool count_include_pad=True, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::fft(Tensor self, int signal_ndim, bool normalized=False) -> Tensor',
     'aten::grid_sampler.legacy(Tensor input, Tensor grid, int interpolation_mode, int padding_mode) -> Tensor',
+    'aten::upsample_bilinear2d.vec_out(Tensor input, SymInt[]? output_size, bool align_corners, float[]? scale_factors, *, Tensor(a!) out) -> Tensor(a!)',
+    'aten::upsample_nearest2d.vec_out(Tensor input, SymInt[]? output_size, float[]? scale_factors, *, Tensor(a!) out) -> Tensor(a!)',
     'neuron::forward_v2_1(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0)',
+    'prim::isinstance(Any to_check) -> bool',
     'prim::shape(Tensor self) -> int[]',
-    'torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)',
+    'quantized_decomposed::quantize_per_tensor(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype) -> Tensor',
     'torch_scatter::gather_coo(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0',
     'torch_scatter::segment_max_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> (Tensor _0, Tensor _1)',
     'torch_scatter::segment_min_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> (Tensor _0, Tensor _1)',
+    'torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)',
     'torch_scatter::segment_mean_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> Tensor _0',
     'torch_scatter::segment_sum_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> Tensor _0',
     'torch_scatter::gather_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0',
@@ -102,38 +86,26 @@ known_legacy_schema_definitions = [
     'torch_scatter::cuda_version() -> int _0',
     'torchvision::nms(Tensor dets, Tensor scores, float iou_threshold) -> Tensor',
     'torchvision::roi_align(Tensor input, Tensor rois, float spatial_scale, int pooled_height, int pooled_width, int sampling_ratio, bool aligned) -> Tensor',
+    # pylint: enable=line-too-long
 ]
 
-# pylint: enable=line-too-long
+def _identifier(schema):
+    return schema.split('(', 1)[0].strip()
 
 def _parse_schemas():
     schemas = {}
-    definitions = set()
-    for entry in schema_source_files:
-        path = os.path.join(pytorch_source_dir, entry[0])
-        content = _read(path)
-        content = content.splitlines()
-        content = filter(lambda _: not _.startswith('#'), content)
-        content = '\n'.join(content)
-        for value in entry[1].findall(content):
-            value = re.sub(r'\n|\r|\s*"', '', value) if value.startswith('_caffe2::') else value
-            schema = entry[2] + value if len(entry) > 2 else value
-            if not schema in definitions:
-                definitions.add(schema)
-                key = schema.split('(', 1)[0].strip()
-                if key in schemas:
-                    raise KeyError(key)
-                schemas[key] = schema
-    for schema in known_legacy_schema_definitions:
-        key = schema.split('(', 1)[0].strip()
-        schemas[key] = schema
     import torch # pylint: disable=import-outside-toplevel,import-error
     all_schemas = list(torch._C._jit_get_all_schemas()) # pylint: disable=protected-access
     for schema in all_schemas:
         definition = str(schema)
         definition = definition.replace('(b|a)', '(a|b)')
-        key = definition.split('(', 1)[0].strip()
+        key = _identifier(definition)
         schemas[key] = definition
+    for schema in known_legacy_schema_definitions:
+        key = _identifier(schema)
+        if key in schemas:
+            raise KeyError(key)
+        schemas[key] = schema
     return schemas
 
 def _filter_schemas(schemas, types):
@@ -143,7 +115,7 @@ def _filter_schemas(schemas, types):
     filtered_schemas = set()
     for schema in schemas.values():
         for name in names:
-            key = schema.split('(', 1)[0].strip()
+            key = _identifier(schema)
             if key == name or key.startswith(name + '.'):
                 filtered_schemas.add(key)
     return dict(filter(lambda _: _[0] in filtered_schemas, schemas.items()))
@@ -151,17 +123,11 @@ def _filter_schemas(schemas, types):
 def _check_types(types, schemas):
     types = dict(types.items())
     for schema in schemas.values():
-        key = schema.split('(', 1)[0].strip()
+        key = _identifier(schema)
         if key in types:
             types.pop(key)
     for key in list(types.keys()):
         if key.startswith('torch.nn') or key.startswith('__torch__.'):
-            types.pop(key)
-        if key.startswith('torchvision::') or \
-           key.startswith('torchaudio::') or \
-           key.startswith('neuron::'):
-            types.pop(key)
-        if key.startswith('_caffe2::'):
             types.pop(key)
     if len(types) > 0:
         raise Exception('\n'.join(list(types.keys()))) # pylint: disable=broad-exception-raised
@@ -172,7 +138,7 @@ def _metadata():
     _check_types(types, schemas)
     filtered_schemas = _filter_schemas(schemas, types)
     for schema in filtered_schemas.values():
-        key = schema.split('(', 1)[0].strip()
+        key = _identifier(schema)
         if key in types:
             types[key]['name'] = schema
         else:

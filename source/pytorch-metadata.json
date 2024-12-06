@@ -415,6 +415,12 @@
     "name": "aten::_cast_Short(Tensor self, bool non_blocking=False) -> Tensor"
   },
   {
+    "name": "aten::_cat(Tensor[] tensors, int dim=0) -> Tensor"
+  },
+  {
+    "name": "aten::_cat.out(Tensor[] tensors, int dim=0, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::_cdist_forward(Tensor x1, Tensor x2, float p, int? compute_mode) -> Tensor"
   },
   {
@@ -688,6 +694,9 @@
   {
     "name": "aten::adaptive_avg_pool1d(Tensor self, int[1] output_size) -> Tensor",
     "category": "Pool"
+  },
+  {
+    "name": "aten::adaptive_avg_pool1d.out(Tensor self, int[1] output_size, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::adaptive_avg_pool2d(Tensor self, SymInt[2] output_size) -> Tensor",
@@ -1139,6 +1148,9 @@
   {
     "name": "aten::avg_pool1d(Tensor self, int[1] kernel_size, int[1] stride=[], int[1] padding=[0], bool ceil_mode=False, bool count_include_pad=True) -> Tensor",
     "category": "Pool"
+  },
+  {
+    "name": "aten::avg_pool1d.out(Tensor self, int[1] kernel_size, int[1] stride=[], int[1] padding=[0], bool ceil_mode=False, bool count_include_pad=True, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::avg_pool2d(Tensor self, int[2] kernel_size, int[2] stride=[], int[2] padding=0, bool ceil_mode=False, bool count_include_pad=True, int? divisor_override=None) -> Tensor",
@@ -5737,6 +5749,9 @@
     "category": "Layer"
   },
   {
+    "name": "aten::upsample_bilinear2d.vec_out(Tensor input, SymInt[]? output_size, bool align_corners, float[]? scale_factors, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::upsample_bilinear2d_backward(Tensor grad_output, SymInt[2] output_size, SymInt[4] input_size, bool align_corners, float? scales_h=None, float? scales_w=None) -> Tensor"
   },
   {
@@ -5772,6 +5787,9 @@
   {
     "name": "aten::upsample_nearest2d.vec(Tensor input, SymInt[]? output_size, float[]? scale_factors) -> Tensor",
     "category": "Layer"
+  },
+  {
+    "name": "aten::upsample_nearest2d.vec_out(Tensor input, SymInt[]? output_size, float[]? scale_factors, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::upsample_nearest2d_backward(Tensor grad_output, SymInt[2] output_size, SymInt[4] input_size, float? scales_h=None, float? scales_w=None) -> Tensor"
@@ -6595,6 +6613,9 @@
   },
   {
     "name": "quantized::softmax(Tensor qx, int dim, float output_scale, int output_zero_point) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::quantize_per_tensor(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype) -> Tensor"
   },
   {
     "name": "torch.nn.modules.activation.ELU",
