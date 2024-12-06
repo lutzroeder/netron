@@ -2251,6 +2251,38 @@
     "link":     "https://github.com/lutzroeder/netron/issues/998"
   },
   {
+    "type":     "kann",
+    "target":   "googlenet-fp16.kgraph",
+    "source":   "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/kann-graph/googlenet-fp16.kgraph",
+    "format":   "KaNN"
+  },
+  {
+    "type":     "kann",
+    "target":   "mobilenet-v2-fp16.kgraph",
+    "source":   "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/kann-graph/mobilenet-v2-fp16.kgraph",
+    "format":   "KaNN",
+    "tags":     "quantization"
+  },
+  {
+    "type":     "kann",
+    "target":   "resnet50-v1.5-mlperf-quantized-fp16.kgraph",
+    "source":   "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/kann-graph/resnet50-v1.5-mlperf-quantized-fp16.kgraph",
+    "format":   "KaNN",
+    "tags":     "quantization"
+  },
+  {
+    "type":     "kann",
+    "target":   "squeezenet-v1-fp16.kgraph",
+    "source":   "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/kann-graph/squeezenet-v1-fp16.kgraph",
+    "format":   "KaNN"
+  },
+  {
+    "type":     "kann",
+    "target":   "yolov3-fp16.kgraph",
+    "source":   "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/kann-graph/yolov3-fp16.kgraph",
+    "format":   "KaNN"
+  },
+  {
     "type":     "keras",
     "target":   "0326.json",
     "source":   "https://github.com/lutzroeder/netron/files/13367043/0326.json.zip[0326.json]",
