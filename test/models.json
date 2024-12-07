@@ -3311,6 +3311,13 @@
   },
   {
     "type":     "mlir",
+    "target":   "toy_gemms.mlir",
+    "source":   "https://github.com/user-attachments/files/18049387/toy_gemms.mlir.zip[toy_gemms.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "versioned-op-2.0.mlirbc",
     "source":   "https://github.com/user-attachments/files/17174958/versioned-op-2.0.mlirbc.zip[versioned-op-2.0.mlirbc]",
     "format":   "MLIR",

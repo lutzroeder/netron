@@ -937,10 +937,13 @@ mlir.Parser = class {
         if (op.name.endsWith('.call') || op.name.endsWith('.generic_call')) {
             this.parseSymbolName('callee', op.attributes);
         }
-        if (op.name === 'arith.cmpi') {
+        if (op.name === 'arith.cmpi' || op.name.endsWith('.contract')) {
             if (this._match('id')) {
-                op.attributes.push({ name: 'predicate', value: this._read() });
-                this._read(',');
+                const list = [];
+                do {
+                    list.push(this._read());
+                } while (this._eat(',') && this._match('id'));
+                op.attributes.push({ name: 'predicate', value: list });
             }
         }
         if (op.name.endsWith('.func')) {
@@ -1038,7 +1041,7 @@ mlir.Parser = class {
         // dictionary-attribute?
         // condition: start with `{`, end with `}`
         if (this._match('{')) {
-            if (op.attributes.length === 0) {
+            if (op.attributes.length === 0 || (op.attributes.length === 1 && op.attributes[0].name === 'predicate')) {
                 this.parseAttributeDict(op.attributes);
             } else {
                 const region = {};
@@ -1248,6 +1251,9 @@ mlir.Parser = class {
                 const value = this._parseValue();
                 input.type = value.type;
                 input.value = value.value;
+                if (open && this._eat(':')) {
+                    input.type = this._parseType();
+                }
             }
             inputs.push(input);
             if (!this._eat(',')) {
@@ -1267,6 +1273,7 @@ mlir.Parser = class {
                 this._token.value === 'i64' ||
                 this._token.value === 'si64' ||
                 this._token.value === 'f32' ||
+                this._token.value === 'f64' ||
                 this._token.value === 'index') {
                 return this._read('id');
             }
