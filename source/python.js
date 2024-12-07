@@ -5761,6 +5761,7 @@ python.Execution = class {
         this.registerType('torchvision.transforms._presets.ImageClassification', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.autoaugment.AutoAugment', class {});
         this.registerType('torchvision.transforms.autoaugment.AutoAugmentPolicy', class {});
+        this.registerType('torchvision.transforms.autoaugment.AugMix', class {});
         this.registerType('torchvision.transforms.functional.InterpolationMode', class {});
         this.registerFunction('torchvision.transforms.functional.adjust_brightness');
         this.registerFunction('torchvision.transforms.functional.adjust_contrast');
@@ -5781,6 +5782,7 @@ python.Execution = class {
         this.registerType('torchvision.transforms.transforms.RandomAffine', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomApply', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomCrop', class extends torch.nn.modules.module.Module {});
+        this.registerType('torchvision.transforms.transforms.RandomErasing', class {});
         this.registerType('torchvision.transforms.transforms.RandomHorizontalFlip', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomVerticalFlip', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomResizedCrop', class extends torch.nn.modules.module.Module {});
