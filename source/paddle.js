@@ -77,7 +77,9 @@ paddle.ModelFactory = class {
                 return new paddle.Model(metadata, target.format, target.model, target.weights);
             }
             case 'paddle.ir': {
-                throw new paddle.Error('Invalid file content. File contains PaddlePaddle IR data.');
+                const obj = context.target;
+                const ir = new paddle.IrReader(obj);
+                return new paddle.Model(metadata, `PaddlePaddle IR v${ir.version}`, ir.desc, ir.tensors);
             }
             default: {
                 paddle.proto = await context.require('./paddle-proto');
@@ -284,6 +286,14 @@ paddle.Graph = class {
         if (block) {
             this.name = block.idx.toString();
             const values = new Map();
+            if (block instanceof paddle.IR.Block) {
+                for (const [name, input] of block.argInputs) {
+                    const [parameter, tensorType] = input;
+                    const value = new paddle.Value(name, tensorType, null, null);
+                    values.set(name, value);
+                    this.inputs.push(new paddle.Argument(parameter, [value]));
+                }
+            }
             for (const variable of block.vars) {
                 const type = variable.type && variable.type.type && variable.type.dense_tensor && variable.type.dense_tensor.tensor ? paddle.Utility.createTensorType(variable.type.dense_tensor.tensor.data_type, variable.type.dense_tensor.tensor.dims) : null;
                 const tensor = variable.persistable && variable.type && variable.type.type !== paddle.DataType.FETCH_LIST && variable.type.type !== paddle.DataType.FEED_MINIBATCH ? (tensors.get(variable.name) || new paddle.Tensor(type)) : null;
@@ -316,6 +326,9 @@ paddle.Graph = class {
                 }
                 for (const output of op.outputs) {
                     for (const name of output.arguments) {
+                        if (output.values && output.values.has(name)) {
+                            values.set(name, output.values.get(name));
+                        }
                         if (!values.has(name)) {
                             values.set(name, new paddle.Value(name, null, null));
                         }
@@ -326,11 +339,21 @@ paddle.Graph = class {
             let lastOutput = null;
             for (const op of block.ops) {
                 if (op.type === 'feed') {
-                    const name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
+                    let name = '';
+                    if (op instanceof paddle.IR.Op) {
+                        name = op.attrs.filter((attr) => attr.name === 'col')[0].irValue.toString();
+                    } else {
+                        name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
+                    }
                     const argument = new paddle.Argument(name, op.outputs[0].arguments.map((id) => values.get(id)));
                     this.inputs.push(argument);
                 } else if (op.type === 'fetch') {
-                    const name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
+                    let name = '';
+                    if (op instanceof paddle.IR.Op) {
+                        name = op.attrs.filter((attr) => attr.name === 'col')[0].irValue.toString();
+                    } else {
+                        name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
+                    }
                     const argument = new paddle.Argument(name, op.inputs[0].arguments.map((id) => values.get(id)));
                     this.outputs.push(argument);
                 } else {
@@ -414,6 +437,8 @@ paddle.Node = class {
         const type = op.type;
         this.type = metadata.type(type) || { name: type };
         this.name = op.name || '';
+        this.description = op.description || '';
+        this.identifier = op.identifier || '';
         this.attributes = [];
         this.inputs = [];
         this.outputs = [];
@@ -425,6 +450,7 @@ paddle.Node = class {
                 let value = '?';
                 let visible = true;
                 let type = null;
+
                 switch (attr.type) {
                     case paddle.AttributeType.STRING:
                         type = 'string';
@@ -472,9 +498,18 @@ paddle.Node = class {
                     case paddle.AttributeType.LONGS:
                         type = 'int64[]';
                         break;
+                    case paddle.AttributeType.IR:
+                        type = attr.irType;
+                        value = attr.irValue;
+                        break;
+                    case paddle.AttributeType.GRAPH:
+                        type = 'graph';
+                        value = new paddle.Graph(metadata, attr.block, attr.vars);
+                        break;
                     default:
                         break;
                 }
+
                 switch (name) {
                     case 'use_mkldnn':
                     case 'use_cudnn':
@@ -550,9 +585,11 @@ paddle.Tensor = class {
 
 paddle.TensorType = class {
 
-    constructor(dataType, shape) {
+    constructor(dataType, shape, layout, denotation) {
         this.dataType = dataType;
         this.shape = shape;
+        this.layout = layout;
+        this.denotation = denotation;
     }
 
     toString() {
@@ -837,6 +874,107 @@ paddle.Utility = class {
         const data = stream.read(itemsize * size);
         return new paddle.Tensor(type, data);
     }
+
+    static createIRTensorType(data, denotation) {
+        const dataInfo = data.TT.D;
+        const [type, shape, layout, ,] = dataInfo;
+        const [, dataType] = type['#'].split('.');
+        const mappedDataType = paddle.Utility.getIRType(dataType);
+        return new paddle.TensorType(mappedDataType, new paddle.TensorShape(shape), layout, denotation);
+    }
+
+    static getIRType(type) {
+        type = type.includes('_') ? type.split('_')[1] : type;
+        switch (type) {
+            case 'bool':
+                return 'boolean';
+            case 'bf16':
+                return 'bfloat16';
+            case 'fp16':
+                return 'float16';
+            case 'fp32':
+                return 'float32';
+            case 'fp64':
+                return 'float64';
+            case 'fp8_e4m3fn':
+                return 'float8e4m3fn';
+            case 'fp8_e5m2':
+                return 'float8e5m2';
+            case 'f8e4m3fn':
+                return 'float8e4m3fn';
+            case 'f8e5m2':
+                return 'float8e5m2';
+            case 'f16':
+                return 'float16';
+            case 'f32':
+                return 'float32';
+            case 'f64':
+                return 'float64';
+            case 'i8':
+                return 'int8';
+            case 'ui8':
+                return 'uint8';
+            case 'i16':
+                return 'int16';
+            case 'i32':
+                return 'int32';
+            case 'i64':
+                return 'int64';
+            case 'c64':
+                return 'complex64';
+            case 'c128':
+                return 'complex128';
+            case 'str':
+                return 'string';
+            default:
+                return type;
+        }
+    }
+
+    static getIRCompressOp(opType) {
+        switch (opType) {
+            case '0':
+                return 'builtin';
+            case '1':
+                return 'pd_op';
+            case '2':
+                return 'cf';
+            case '3':
+                return 'custom_op';
+            case '4':
+                return 'pd_dist';
+            case 'p':
+                return 'parameter';
+            default:
+                return opType;
+        }
+    }
+
+    static getIROpInfo(op) {
+        switch (op['#']) {
+            case 'p':
+                return new paddle.IR.OpInfoP(op);
+            case '1.data':
+                return new paddle.IR.OpInfoData(op);
+            default:
+                return new paddle.IR.OpInfo(op);
+        }
+    }
+
+    static getAttrDenotation(attrName, attrValue) {
+        // show `true` attrs
+        // and other attrs not in ['name', 'dtype'], which are duplicated
+        // but `shape` can NOT be ignored, which is different from tensor information
+        if (attrValue) {
+            if (typeof attrValue === 'boolean') {
+                return `${attrName}`;
+            }
+            if (attrName !== 'name' && attrName !== 'dtype') {
+                return `${attrName}:${attrValue}`;
+            }
+        }
+        return '';
+    }
 };
 
 paddle.DataType = {
@@ -886,7 +1024,521 @@ paddle.AttributeType = {
     FLOAT64S: 12,
     VAR: 13,
     VARS: 14,
-    FLOAT64: 15
+    FLOAT64: 15,
+    IR: 16,
+    GRAPH: 17
+};
+
+paddle.IrReader = class {
+    constructor(obj) {
+        // cache the global info
+        this._names = new Map();
+        this._crossRegionInputs = new Map();
+
+        this.base_code = obj.base_code;
+        this.version = obj.base_code.version;
+
+        const program = obj.program;
+        const regions = [];
+        for (const region of program.regions) {
+            regions.push(new paddle.IR.Region(region, this));
+        }
+        const [programRegion] = regions;
+
+        // to construct a `paddle.Model`
+        this.desc = programRegion;
+        this.tensors = new Map();
+    }
+
+    getParaName(tensor, namePrefix) {
+        const idx = tensor['%'] || tensor['#'];
+        if (tensor.TT && !this._names.has(idx)) {
+            const prefix = namePrefix || idx;
+            this._names.set(idx, `${prefix}`);
+        }
+
+        // [idx as string, formatted name, is a negative integer]
+        return [
+            `${idx}`,
+            this._names.has(idx) ? this._names.get(idx) : `${idx}`,
+            Number.isInteger(idx) ? idx < 0 : false
+        ];
+    }
+
+    hasCrossInput(name) {
+        return this._crossRegionInputs.has(name);
+    }
+
+    getCrossInput(name) {
+        return this._crossRegionInputs.has(name) ? this._crossRegionInputs.get(name) : null;
+    }
+
+    addCrossInput(name, input) {
+        this._crossRegionInputs.set(name, input);
+    }
+
+};
+
+paddle.IR = class { };
+
+paddle.IR.Region = class {
+
+    constructor(region, irReader) {
+        this.name = region['#'];
+        this.idx = region['#'];
+        this.vars = new Map();
+        this.blocks = [];
+        for (const block of region.blocks) {
+            this.blocks.push(new paddle.IR.Block(block, irReader));
+        }
+        const [block] = this.blocks;
+        this.block = block;
+    }
+};
+
+paddle.IR.Block = class {
+
+    constructor(block, irReader) {
+        this.name = block['#'];
+        this.idx = block['#'];
+        this.vars = new Map();
+
+        this.argInputs = new Map();
+        if (block.args) {
+            for (const input of block.args) {
+                const [, type] = input.TT && input.TT['#'] ? input.TT['#'].split('.') : null;
+                if (type === 't_dtensor') {
+                    const [parameter, name,] = irReader.getParaName(input);
+                    const tensorType = paddle.Utility.createIRTensorType(input);
+                    this.argInputs.set(name, [parameter, tensorType]);
+                }
+            }
+        }
+
+        let inputNames = new Set();
+        let outputNames = new Set();
+
+        this.ops = [];
+        for (const op of block.ops) {
+            const irOp = new paddle.IR.Op(op, irReader);
+            this.ops.push(irOp);
+
+            inputNames = new Set([...inputNames, ...irOp.inputNames]);
+            outputNames = new Set([...outputNames, ...irOp.outputNames]);
+        }
+
+        const missInputs = new Set([...inputNames].filter((item) => !outputNames.has(item)));
+        if (missInputs) {
+            for (const name of missInputs) {
+                const output = irReader.getCrossInput(name);
+                if (output) {
+                    this.argInputs.set(name, [output.parameter, output.tensorType]);
+                }
+            }
+        }
+    }
+};
+
+paddle.IR.Op = class {
+
+    constructor(op, irReader) {
+        const opInfo = paddle.Utility.getIROpInfo(op);
+
+        // make base info
+        this.name = opInfo.fullName;
+        this.type = opInfo.type;
+        this.identifier = opInfo.rawType;
+
+        // make attributes
+        this.attrs = [];
+        for (const [idx, value] of Object.entries(op.A)) {
+            this.attrs.push(new paddle.IR.Attr(idx, value, opInfo));
+        }
+
+        // add regions as sub graph
+        if (op.regions !== undefined) {
+            for (const region of op.regions) {
+                const regionAttr = new paddle.IR.Region(region, irReader);
+                this.attrs.push(new paddle.IR.Attr(null, regionAttr, null));
+            }
+        }
+
+        // in case of duplicated
+        const inputNames = new Set();
+        const outputNames = new Set();
+
+        // make inputs
+        const createInput = (input, opInfo) => {
+            const [parameterName, inputName] = irReader.getParaName(input, opInfo.namePrefix);
+            return {
+                arguments: [inputName],
+                parameter: parameterName
+            };
+        };
+
+        const inputs = [];
+        if (op.I) {
+            const inputArray = Array.isArray(op.I) ? op.I : [op.I];
+            for (const input of inputArray) {
+                inputs.push(createInput(input, opInfo));
+                const [, name] = irReader.getParaName(input, opInfo.namePrefix);
+                inputNames.add(name);
+            }
+        }
+
+        // make outputs
+        const createOutput = (output, opInfo, idx, outputAttr) => {
+            const [parameterName, outputName] = irReader.getParaName(output, opInfo.namePrefix);
+            const valuesMap = new Map();
+            let tType = null;
+
+            const [, typeType] = output.TT['#'].split('.');
+            if (typeType === 't_dtensor') {
+                const denotation = opInfo.getOutputAttr(idx, outputAttr);
+                const tensorType = paddle.Utility.createIRTensorType(output, denotation);
+                valuesMap.set(outputName, new paddle.Value(outputName, tensorType, null));
+                tType = tensorType;
+            } else {
+                valuesMap.set(outputName, new paddle.Value(outputName, null, null, null));
+            }
+
+            return {
+                arguments: [outputName],
+                parameter: parameterName,
+                tensorType: tType,
+                values: valuesMap
+            };
+        };
+
+        const outputs = [];
+        if (op.O) {
+            const outputArray = Array.isArray(op.O) ? op.O : [op.O];
+            for (const [idx, output] of Object.entries(outputArray)) {
+                const irOutput = createOutput(output, opInfo, idx, op.OA);
+                outputs.push(irOutput);
+                const [, name, isNegative] = irReader.getParaName(output, opInfo.namePrefix);
+                outputNames.add(name);
+
+                // add cross inputs for sub graph render block arguments
+                if (!isNegative && !irReader.hasCrossInput(name)) {
+                    irReader.addCrossInput(name, irOutput);
+                }
+            }
+        }
+
+        if (op.regions) {
+            const collectRegions = (irReader, regions) => {
+                let inputs = new Map();
+                let outputs = new Map();
+                for (const region of regions) {
+                    for (const block of region.blocks) {
+                        for (const op of block.ops) {
+                            const opInfo = paddle.Utility.getIROpInfo(op);
+
+                            if (op.I) {
+                                const opInputs = Array.isArray(op.I) ? op.I : [op.I];
+                                for (const input of opInputs) {
+                                    const [, name, isNegative] = irReader.getParaName(input, opInfo.namePrefix);
+                                    if (!isNegative && !inputs.has(name)) {
+                                        inputs.set(name, [input, opInfo]);
+                                    }
+                                }
+                            }
+
+                            if (op.O) {
+                                const opOutputs = Array.isArray(op.O) ? op.O : [op.O];
+                                for (const [idx, output] of Object.entries(opOutputs)) {
+                                    const [, name, isNegative] = irReader.getParaName(output, opInfo.namePrefix);
+                                    if (!isNegative && !outputs.has(name)) {
+                                        outputs.set(name, [output, opInfo, idx, op.OA]);
+                                    }
+                                }
+                            }
+
+                            if (op.regions) {
+                                const [subInputs, subOutputs] = collectRegions(irReader, op.regions);
+                                inputs = new Map([...inputs, ...subInputs]);
+                                outputs = new Map([...outputs, ...subOutputs]);
+                            }
+                        }
+                    }
+                }
+                return [inputs, outputs];
+            };
+
+            // get sub inputs and outputs from regions
+            const [subInputs, subOutputs] = collectRegions(irReader, op.regions);
+
+            // just add inputs which are not generated from sub regions
+            for (const [name, inputArgs] of subInputs) {
+                if (!inputNames.has(name) && !subOutputs.has(name)) {
+                    const [input, opInfo] = inputArgs;
+                    inputs.push(createInput(input, opInfo));
+                    inputNames.add(name);
+                }
+            }
+
+            // just add outputs which are not used inside sub regions
+            for (const [name, outputArgs] of subOutputs) {
+                if (!outputNames.has(name) && !subInputs.has(name)) {
+                    const [output, opInfo, idx, oa] = outputArgs;
+                    outputs.push(createOutput(output, opInfo, idx, oa));
+                    outputNames.add(name);
+                }
+            }
+        }
+
+        this.inputs = inputs;
+        this.outputs = outputs;
+        this.inputNames = inputNames;
+        this.outputNames = outputNames;
+    }
+};
+
+paddle.IR.OpInfo = class {
+
+    constructor(op) {
+        const typeCompressed = op['#'];
+        this._rawType = typeCompressed;
+        this._type = typeCompressed;
+        this._name = typeCompressed;
+        this._fullName = typeCompressed;
+        this.init(op);
+    }
+
+    init() {
+        const [opKey, opType] = this._name.split('.');
+        this._opKey = opKey;
+        this._opType = opType;
+    }
+
+    get rawType() {
+        return this._rawType;
+    }
+
+    get type() {
+        return this._opType;
+    }
+
+    get name() {
+        return this._opType;
+    }
+
+    get namePrefix() {
+        return null;
+    }
+
+    get fullName() {
+        return `${paddle.Utility.getIRCompressOp(this._opKey)}.${this._opType}`;
+    }
+
+    getAttr(idx, value) {
+        const attrName = value.N;
+        let attrType = paddle.Utility.getIRType(value.AT['#'].split('.')[1]);
+        let attrValue = value.AT.D;
+
+        // `a_array` depends on sub type, `attrType` and `attrValue` should be changed
+        if (attrType === paddle.Utility.getIRType('a_array')) {
+            const subType = paddle.Utility.getIRType(attrValue[0]['#'].split('.')[1]);
+            attrType = `${subType}[]`;
+            const valueData = [];
+            for (const attr of attrValue) {
+                valueData.push(attr.D);
+            }
+            attrValue = valueData;
+        }
+
+        if (attrName === 'place') {
+            const [place, val,] = attrValue;
+            let device = place;
+            switch (device) {
+                case 0:
+                    device = 'UNDEFINED';
+                    break;
+                case 1:
+                    device = 'CPU';
+                    break;
+                case 2:
+                    device = 'GPU';
+                    break;
+                case 3:
+                    device = 'GPUPINNED';
+                    break;
+                case 4:
+                    device = 'XPU';
+                    break;
+                case 7:
+                    device = 'IPU';
+                    break;
+                case 9:
+                    device = 'CUSTOM';
+                    break;
+                default:
+                    break;
+            }
+
+            attrValue = `${device}:${val}`;
+        }
+
+        if (attrName === 'shape') {
+            attrValue = new paddle.TensorShape(attrValue);
+        }
+
+        return [attrName, attrType, attrValue];
+    }
+
+    getOutputAttr(idx, outputAttr) {
+        const denotation = [];
+        for (const attr of outputAttr) {
+            const attrName = attr.N;
+            const attrValue = attr.AT.D[idx].D;
+            const attrDenotation = paddle.Utility.getAttrDenotation(attrName, attrValue);
+            if (attrDenotation) {
+                denotation.push(attrDenotation);
+            }
+        }
+        return denotation.join(';');
+    }
+};
+
+paddle.IR.OpInfoData = class extends paddle.IR.OpInfo {
+
+    init(op) {
+        const [opKey, opType] = this._name.split('.');
+        this._opKey = opKey;
+        this._opType = opType;
+        let prefix = '';
+        for (const attr of op.A) {
+            if (attr.N === 'name') {
+                prefix = attr.AT.D;
+                break;
+            }
+        }
+        this._prefix = prefix;
+        this._attr = op.A;
+    }
+
+    get namePrefix() {
+        return this._prefix;
+    }
+
+    getOutputAttr(idx, outputAttr) {
+        const denotation = [];
+        for (const attr of outputAttr) {
+            const attrName = attr.N;
+            const attrValue = attr.AT.D[idx].D;
+            const attrDenotation = paddle.Utility.getAttrDenotation(attrName, attrValue);
+            if (attrDenotation) {
+                denotation.push(attrDenotation);
+            }
+        }
+
+        for (const value of this._attr) {
+            const [attrName, , attrValue] = this.getAttr(null, value);
+            const attrDenotation = paddle.Utility.getAttrDenotation(attrName, attrValue);
+            if (attrDenotation) {
+                denotation.push(attrDenotation);
+            }
+        }
+
+        return denotation.join(';');
+    }
+};
+
+paddle.IR.OpInfoP = class extends paddle.IR.OpInfo {
+
+    init(op) {
+        const [name] = op.A.slice(3);
+        this._name = name;
+        this._type = paddle.Utility.getIRCompressOp(this._type);
+        this._fullName = this._type;
+        op.OA = [...op.OA, ...op.A];
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get name() {
+        return this._type;
+    }
+
+    get namePrefix() {
+        return this._name;
+    }
+
+    get fullName() {
+        return this._fullName;
+    }
+
+    getAttr(idx, value) {
+        let attrName = '';
+        let attrType = '';
+        let attrValue = '';
+        switch (idx) {
+            case '0':
+                attrName = 'is_distributed';
+                attrType = paddle.Utility.getIRType('a_bool');
+                break;
+            case '1':
+                attrName = 'is_parameter';
+                attrType = paddle.Utility.getIRType('a_bool');
+                break;
+            case '2':
+                attrName = 'need_clip';
+                attrType = paddle.Utility.getIRType('a_bool');
+                break;
+            case '3':
+                attrName = 'name';
+                attrType = paddle.Utility.getIRType('a_str');
+                break;
+            default:
+                break;
+        }
+        attrValue = attrType === paddle.Utility.getIRType('a_bool') ? value === 1 : value;
+        return [attrName, attrType, attrValue];
+    }
+
+    getOutputAttr(idx, outputAttr) {
+        const denotation = [];
+        if (outputAttr[0] === 1) {
+            denotation.push('persistable');
+        }
+        if (outputAttr[1] === 1) {
+            denotation.push('stop_gradient');
+        }
+        if (outputAttr[2] === 1) {
+            denotation.push('trainable');
+        }
+        if (outputAttr[3] === 1) {
+            denotation.push('is_distributed');
+        }
+        if (outputAttr[4] === 1) {
+            denotation.push('is_parameter');
+        }
+        if (outputAttr[5] === 1) {
+            denotation.push('need_clip');
+        }
+        return denotation.join(';');
+    }
+};
+
+paddle.IR.Attr = class {
+
+    constructor(idx, value, opInfo) {
+        if (value instanceof paddle.IR.Region) {
+            this.name = value.name;
+            this.type = paddle.AttributeType.GRAPH;
+            this.block = value.block;
+            this.vars = value.vars;
+        } else {
+            const [attrName, attrType, attrValue] = opInfo.getAttr(idx, value);
+            this.name = attrName;
+            this.type = paddle.AttributeType.IR;
+            this.irType = attrType;
+            this.irValue = attrValue;
+        }
+    }
 };
 
 paddle.Error = class extends Error {
