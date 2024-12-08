@@ -8432,6 +8432,7 @@ python.Execution = class {
             }
             setSourceRange(r) {
                 this._source_range = r;
+                return this;
             }
             sourceRange() {
                 return this._source_range;
