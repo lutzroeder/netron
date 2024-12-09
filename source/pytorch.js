@@ -1929,6 +1929,15 @@ pytorch.Execution = class extends python.Execution {
                     const target = this.target(func.value, context);
                     return this._graph.insertToList(target, typehint);
                 }
+                if (this.traceAttr) {
+                    if (func instanceof ast.Name && func.id === 'getattr') {
+                        const obj = this.expression(expr.args[0], context);
+                        const field = this.expression(expr.args[1], context);
+                        const n = this._graph.createGetAttr(obj, field);
+                        this._graph.insertNode(n);
+                        return n.output();
+                    }
+                }
                 return super.expression(expr, context);
             }
             case 'Subscript': {
@@ -2258,6 +2267,20 @@ pytorch.Execution = class extends python.Execution {
         }
     }
 
+    emitSugaredExpr(tree, n_binders, type_hint) {
+        const ast = this.ast;
+        if (tree instanceof ast.Var) {
+            //
+        } else if (tree instanceof ast.Attribute) {
+            //
+        } else if (tree instanceof ast.Apply) {
+            //
+        } if (tree instanceof ast.Subscript) {
+            //
+        }
+        return this.emitSimpleExpr(tree, type_hint);
+    }
+
     block(statements, context) {
         const ast = this.ast;
         const torch = this.torch;
@@ -2432,13 +2455,26 @@ pytorch.Execution = class extends python.Execution {
                 }
                 if (stmt instanceof ast.For) {
                     const range = stmt.location;
-                    const node = this.create('prim::Loop', range, 0);
-                    this._graph.insertNode(node);
+                    const n = this._graph.insertNode(this.create('prim::Loop', range, 0));
                     const itrs = stmt.iter instanceof ast.Tuple ? stmt.iter.elts : [stmt.iter];
                     // const targets = stmt.target instanceof ast.Tuple ? stmt.target.elts : [stmt.target];
                     if (itrs.length !==  1) {
                         throw new pytorch.Error('List of iterables is not supported currently.');
                     }
+                    /*
+                    // const sv = this.expression(itrs[0], context);
+                    const sv = this.emitSugaredExpr(itrs[0], 1);
+                    const iterable = sv.iter(range, method);
+                    if (iterable.shouldEmitUnrolled()) {
+                        this.emitUnrolledLoop(loc, emit_body, iterable, targets);
+                    } else {
+                        this.emitLoopCommon(loc, emit_body, iterable, targets, {});
+                    }
+                    */
+
+                    /* const body_block = */ n.addBlock();
+                    /* const condition_block = */ n.addBlock();
+
                     const loop = stmt;
                     if (loop.target instanceof ast.Name && loop.iter instanceof ast.Tuple === false) {
                         const range = this.expression(loop.iter, context);
@@ -2480,13 +2516,18 @@ pytorch.Execution = class extends python.Execution {
     }
 
     statement(stmt, context) {
-        const ast = this.ast;
-        const torch = this.torch;
+        if (stmt.__class__.__name__ === 'ClassDef') {
+            const name = `${context.get('__name__')}.${stmt.name}`;
+            this._resolver.resolveType(name);
+        }
+
         if (!this.trace) {
             return super.statement(stmt, context);
         }
+
         switch (stmt.__class__.__name__) {
             case 'ClassDef': {
+                /*
                 super.statement(stmt, context);
                 const value = context.get(stmt.name);
                 const type = new torch.ClassType(`${value.__module__}.${value.__name__}`);
@@ -2498,6 +2539,7 @@ pytorch.Execution = class extends python.Execution {
                     }
                 }
                 value.__type__ = type;
+                */
                 return undefined;
             }
             case 'If': {

@@ -6800,6 +6800,7 @@ python.Execution = class {
                 this._attributes = new Map();
                 this._methods = new Map();
                 this._staticmethods = new Map();
+                this._constants = new Map();
             }
             qualified_name() {
                 return this.annotation_str;
@@ -6822,7 +6823,7 @@ python.Execution = class {
             findStaticMethod(name) {
                 return this._staticmethods.get(name);
             }
-            addAttribute(name, type) {
+            addAttribute(name, type /*, is_parameter, is_buffer */) {
                 this._attributes.set(name, type);
             }
             findAttribute(name) {
@@ -6834,6 +6835,9 @@ python.Execution = class {
             hasConstant(/* name */) {
             }
             methods() {
+            }
+            addConstant(name, value) {
+                this._constants.set(name, value);
             }
             str() {
                 return this.qualified_name();
@@ -8601,20 +8605,105 @@ python.Execution = class {
                     throw new python.Error('TorchScript does not support class inheritance.');
                 }
             }
-            importClass(qualified_name, class_def, is_module) {
-                if (qualified_name.prefix().startsWith('__torch__.torch.classes')) {
+            importClass(qualified_classname, class_def, is_module) {
+                if (qualified_classname.prefix().startsWith('__torch__.torch.classes')) {
                     return;
                 }
-                const class_type = new torch.ClassType(qualified_name.qualifiedName(), this._cu, is_module);
-                for (const entry of class_def.body) {
-                    if (entry instanceof ast.AnnAssign) {
-                        const target = this._cu.execution.identifier(entry.target);
-                        const annotation = this._cu.execution.type(entry.annotation, null);
-                        class_type.addAttribute(target, annotation);
+                const parameter_names = new Set();
+                const buffer_names = new Set();
+                const methods = [];
+                const attributes = [];
+                const constants = [];
+                const pre_hook_names = new Set();
+                const pre_hook_def_map = new Map();
+                const hook_names = new Set();
+                const hook_def_map = new Map();
+                const class_type = new torch.ClassType(qualified_classname.qualifiedName(), this._cu, is_module);
+                for (const stmt of class_def.body) {
+                    if (stmt instanceof ast.Assign || stmt instanceof ast.AnnAssign) {
+                        let target = null;
+                        let annotation = null;
+                        let value = null;
+                        if (stmt instanceof ast.Assign) {
+                            target = stmt.targets;
+                            value = stmt.value;
+                        } else {
+                            target = stmt.target;
+                            annotation = stmt.annotation;
+                            value = stmt.value;
+                        }
+                        if (target instanceof ast.Name) {
+                            const name = this._cu.execution.identifier(target);
+                            switch (name) {
+                                case '__annotations__': {
+                                    continue;
+                                }
+                                case '__parameters__': {
+                                    for (const elt of value.elts) {
+                                        parameter_names.add(elt.value);
+                                    }
+                                    break;
+                                }
+                                case '__buffers__': {
+                                    for (const elt of value.elts) {
+                                        buffer_names.add(elt.value);
+                                    }
+                                    break;
+                                }
+                                case '__forward_pre_hooks__': {
+                                    for (const elt of value.elts) {
+                                        pre_hook_names.add(elt.value);
+                                    }
+                                    break;
+                                }
+                                case '__forward_hooks__': {
+                                    for (const elt of value.elts) {
+                                        hook_names.add(elt.value);
+                                    }
+                                    break;
+                                }
+                                default: {
+                                    if (value) {
+                                        constants.push({ name, value, annotation });
+                                    } else {
+                                        attributes.push({ name, value, annotation });
+                                    }
+                                    break;
+                                }
+                            }
+                        } else if (target instanceof ast.Subscript) {
+                            // not implemented
+                            continue;
+                        } else {
+                            throw new python.Error('Unexpected statement kind in module metadata.');
+                        }
+                    } else if (stmt instanceof ast.FunctionDef) {
+                        const def = stmt;
+                        const def_name = def.name;
+                        if (pre_hook_names.has(def_name)) {
+                            pre_hook_def_map.set(def_name, def);
+                        } else if (hook_names.has(def_name)) {
+                            hook_def_map.set(def_name, def);
+                        } else {
+                            methods.push(def);
+                        }
+                    } else {
+                        throw new python.Error('Unexpected statement kind in class body.');
                     }
+                }
+                for (const assign of attributes) {
+                    const name = assign.name;
+                    const annotation = this._cu.execution.type(assign.annotation, null);
+                    const is_parameter = parameter_names.has(name);
+                    const is_buffer = buffer_names.has(name);
+                    class_type.addAttribute(name, annotation, is_parameter, is_buffer);
+                }
+                for (const constant of constants) {
+                    class_type.addConstant(constant.name, constant.value);
                 }
                 // debugger;
                 this._cu.register_type(class_type);
+                this._cu.define(qualified_classname, null, null, methods);
             }
             importNamedTuple(qualified_name, named_tuple_def) {
                 const field_names = [];
@@ -9111,10 +9200,14 @@ python.Execution = class {
                     if (!this.data.forward) {
                         throw new python.Error("Module 'forward' not implemented.");
                     }
-                    const args = [this.data]; // self
+                    this.traceAttr = false;
+                    const args = [];
+                    if (!this.traceAttr) {
+                        args.push(this.data); // self
+                    }
                     if (this.data.forward.__code__ && this.data.forward.__code__.args) {
                         for (const arg of this.data.forward.__code__.args) {
-                            if (arg.name !== 'self') {
+                            if (this.traceAttr || arg.name !== 'self') {
                                 const value = execution.graph.addInput(arg.name);
                                 value.setType(execution.type(arg.parameterType));
                                 if (isTensor(value)) {
