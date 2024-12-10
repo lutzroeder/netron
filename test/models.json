@@ -2135,7 +2135,7 @@
   },
   {
     "type":     "dot",
-    "target":   "homekey.dot",
+    "target":   "homekey",
     "source":   "https://github.com/user-attachments/files/17928509/homekey.dot.zip[homekey.dot]",
     "format":   "DOT",
     "link":     "https://github.com/lutzroeder/netron/issues/1368"

@@ -5818,8 +5818,8 @@ view.ModelFactoryService = class {
         this.register('./hailo', ['.hn', '.har', '.metadata.json']);
         this.register('./nnc', ['.nnc','.tflite']);
         this.register('./safetensors', ['.safetensors', '.safetensors.index.json']);
-        this.register('./tvm', ['.json', '.params']);
-        this.register('./dot', ['.dot']);
+        this.register('./tvm', ['.json', '.dot', '.params']);
+        this.register('./dot', ['.do'], [], [/^\s*(\/\*[\s\S]*?\*\/|\/\/.*|#.*)?\s*digraph\s*([A-Za-z][A-Za-z0-9-_]*|".*?")?\s*{/m]);
         this.register('./catboost', ['.cbm']);
         this.register('./weka', ['.model']);
         this.register('./qnn', ['.json', '.bin', '.serialized']);
