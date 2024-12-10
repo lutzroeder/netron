@@ -411,12 +411,18 @@ executorch_flatbuffer.TensorShapeDynamism = {
     DYNAMIC_UNBOUND: 2
 };
 
+executorch_flatbuffer.TensorDataLocation = {
+    SEGMENT: 0,
+    EXTERNAL: 1
+};
+
 executorch_flatbuffer.ExtraTensorInfo = class ExtraTensorInfo {
 
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.ExtraTensorInfo();
         $.mutable_data_segments_idx = reader.uint64_(position, 4, 0n);
         $.fully_qualified_name = reader.string_(position, 6, null);
+        $.location = reader.int8_(position, 8, 0);
         return $;
     }
 };
