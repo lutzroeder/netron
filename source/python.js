@@ -10280,6 +10280,35 @@ python.Execution = class {
                 this.arg = new torch._export.serde.schema.Argument(obj.arg);
             }
         });
+        this.registerType('torch._export.serde.schema.BufferMutationSpec', class {
+            constructor(obj) {
+                this.arg = new torch._export.serde.schema.Argument(obj.arg);
+                this.buffer_name = obj.buffer_name;
+            }
+        });
+        this.registerType('torch._export.serde.schema.GradientToParameterSpec', class {
+            constructor(obj) {
+                this.arg = new torch._export.serde.schema.Argument(obj.arg);
+                this.parameter_name = obj.parameter_name;
+            }
+        });
+        this.registerType('torch._export.serde.schema.GradientToUserInputSpec', class {
+            constructor(obj) {
+                this.arg = new torch._export.serde.schema.Argument(obj.arg);
+                this.user_input_name = obj.user_input_name;
+            }
+        });
+        this.registerType('torch._export.serde.schema.UserInputMutationSpec', class {
+            constructor(obj) {
+                this.arg = new torch._export.serde.schema.Argument(obj.arg);
+                this.user_input_name = obj.user_input_name;
+            }
+        });
+        this.registerType('torch._export.serde.schema.OutputTokenSpec', class {
+            constructor(obj) {
+                this.arg = new torch._export.serde.schema.TokenArgument(obj.arg);
+            }
+        });
         this.registerType('torch._export.serde.schema.OutputSpec', class extends torch._export.serde.union._Union {
             constructor(obj) {
                 super(obj);
@@ -10301,6 +10330,11 @@ python.Execution = class {
             }
         });
         this.registerType('torch._export.serde.schema.TensorArgument', class {
+            constructor(obj) {
+                this.name = obj.name;
+            }
+        });
+        this.registerType('torch._export.serde.schema.TokenArgument', class {
             constructor(obj) {
                 this.name = obj.name;
             }
