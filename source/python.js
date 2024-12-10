@@ -3241,6 +3241,7 @@ python.Execution = class {
         this.registerType('sklearn.ensemble.gradient_boosting.PriorProbabilityEstimator', class {});
         this.registerType('sklearn.ensemble.voting_classifier.VotingClassifier', class {});
         this.registerType('sklearn.ensemble.weight_boosting.AdaBoostClassifier', class {});
+        this.registerType('sklearn.feature_extraction._dict_vectorizer.DictVectorizer', class {});
         this.registerType('sklearn.feature_extraction._hashing.FeatureHasher', class {});
         this.registerType('sklearn.feature_extraction.text.CountVectorizer', class {});
         this.registerType('sklearn.feature_extraction.text.HashingVectorizer', class {});
@@ -4275,6 +4276,9 @@ python.Execution = class {
         });
         this.registerFunction('cloudpickle.cloudpickle_fast._class_setstate');
         this.registerFunction('cloudpickle.cloudpickle_fast._function_setstate');
+        const ray = this.register('ray');
+        this.register('ray.cloudpickle.cloudpickle');
+        ray.cloudpickle.cloudpickle._builtin_type = cloudpickle.cloudpickle._builtin_type;
         this.registerType('collections.Counter', class {});
         this.registerFunction('collections.defaultdict', (/* default_factory */) => {
             return {};
@@ -5295,6 +5299,7 @@ python.Execution = class {
         this.registerType('torch.nn.modules.padding.ReplicationPad1d', class extends torch.nn.modules.padding._ReplicationPadNd {});
         this.registerType('torch.nn.modules.padding.ReplicationPad2d', class extends torch.nn.modules.padding._ReplicationPadNd {});
         this.registerType('torch.nn.modules.padding.ReplicationPad3d', class extends torch.nn.modules.padding._ReplicationPadNd {});
+        this.registerType('torch.nn.modules.padding.ZeroPad1d', class {});
         this.registerType('torch.nn.modules.padding.ZeroPad2d', class {});
         this.registerType('torch.nn.modules.padding.ConstantPad1d', class {});
         this.registerType('torch.nn.modules.padding.ConstantPad2d', class {});
