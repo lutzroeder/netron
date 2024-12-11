@@ -91,12 +91,12 @@
     .node path { stroke: #1d1d1d; }
     .node line { stroke: #1d1d1d; }
 
-    .select > .node.node-border { stroke: #ccc; }
-    .select.edge-path { stroke: #ccc; }
-    .select.node-argument > rect { fill: transparent; stroke: #ccc; }
+    .select > .node.node-border { stroke: rgba(192, 0, 0, 0.8); }
+    .select.edge-path { stroke: rgba(192, 0, 0, 0.8); }
+    .select.node-argument > rect { fill: transparent; stroke: rgba(192, 0, 0, 0.8); }
     #arrowhead { fill: #888; }
-    #arrowhead-hover { fill: #ccc; }
-    #arrowhead-select { fill: #ccc; }
+    #arrowhead-hover { fill: rgba(192, 0, 0, 0.8); }
+    #arrowhead-select { fill: rgba(192, 0, 0, 0.8); }
 
     .edge-label { fill: #b2b2b2; }
 
