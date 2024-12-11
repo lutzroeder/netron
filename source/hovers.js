@@ -2,133 +2,78 @@ import { stringify } from 'querystring';
 
 import { execSync } from 'child_process';
 import { cp } from 'fs';
+
 class Req {
+  //variable which states if a file was added before
   file_added = 0;
   constructor() {}
 
+  //function for cleaning all the cache (information added from the file) in case an error occurs
   static solve_bugs() {
     var root = document.getElementById("list-modified");
-    if (root.length !== 0)
-    {
+    if (root.length !== 0) {
       for (var i = 0; i < root.children.length; i++) {
-          var child = JSON.parse(root.children[i].innerHTML);
-          var id_child = child["id"];
-          if (root.children[i].className == "tensor") {
-              var list_t = document.getElementById("edge-paths");
-              for (var j = 0; j < list_t.children.length; j++) {
-                  if (list_t.children[j].id.split("\n")[1] == id_child) {
-                      if (child["style"] && list_t.children[j].hasAttribute("style")) {
-                          list_t.children[j].removeAttribute("style");
-                      }
-                      if (child["hover"] && list_t.children[j + 1].innerHTML !== '') {
-                          list_t.children[j + 1].innerHTML = '';
-                      }
-                  }
+        var child = JSON.parse(root.children[i].innerHTML);
+        var id_child = child["id"];
+        if (root.children[i].className == "tensor") {
+          var list_t = document.getElementById("edge-paths");
+          for (var j = 0; j < list_t.children.length; j++) {
+            if (list_t.children[j].id.split("\n")[1] == id_child) {
+              if (child["style"] && list_t.children[j].hasAttribute("style")) {
+                list_t.children[j].removeAttribute("style");
               }
-          } else {
-              var parent_n = document.getElementById("nodes");
-              var idx = 1;
-              var counter = 0;
-              do{
-                  var child = parent_n.children[idx];
-                  if (child.children[3]) {
-                  counter += 1;
-                  }
-                  counter += 1;
-                  idx += 1;
-              } while (idx <= id_child);
-              if (id_child == 0) {
-                  counter = 0;
+              if (child["hover"] && list_t.children[j + 1].innerHTML !== '') {
+                list_t.children[j + 1].innerHTML = '';
               }
-              var operator = document.getElementById("node-id-" + counter);
-              if (operator) {
-                if (operator.children) {
-                  if (operator.children[0]) {
-                    if (operator.children[0].children) {
-                      if (operator.children[0].children[0]) {
-                        if (child["hover"] && operator.children[0].children[0].innerHTML !== '') {
-                          operator.children[0].children[0].innerHTML = '';
-                        } if (child["style"] && operator.children[0].children[0].hasAttribute("style")) {
-                            operator.children[0].children[0].removeAttribute("style");
-                        }
-                      }
+            }
+          }
+        } else {
+          var parent_n = document.getElementById("nodes");
+          var idx = 1;
+          var counter = 0;
+          do {
+            var child = parent_n.children[idx];
+            if (child.children[3]) {
+              counter += 1;
+            }
+            counter += 1;
+            idx += 1;
+          } while (idx <= id_child);
+          if (id_child == 0) {
+            counter = 0;
+          }
+          var operator = document.getElementById("node-id-" + counter);
+          if (operator) {
+            if (operator.children) {
+              if (operator.children[0]) {
+                if (operator.children[0].children) {
+                  if (operator.children[0].children[0]) {
+                    if (child["hover"] && operator.children[0].children[0].innerHTML !== '') {
+                      operator.children[0].children[0].innerHTML = '';
+                    } if (child["style"] && operator.children[0].children[0].hasAttribute("style")) {
+                      operator.children[0].children[0].removeAttribute("style");
                     }
                   }
                 }
               }
+            }
           }
+        }
       }
     }
     document.getElementById("list-attributes").innerHTML = '';
     document.getElementById("list-modified").innerHTML = '';
+    var body = document.body;
+    var children = body.children;
+    for (var i = children.length - 1; i >= 0; i--) {
+      if (children[i].tagName == 'IMG') {
+        body.removeChild(children[i]);
+      }
+    }
     Req.file_added = 0;
   }
-
-  static async _request(url) {
-    let timeout = 0.25;
-    let callback = 0;
-    return new Promise((resolve, reject) => {
-        const request = new XMLHttpRequest();
-        request.responseType = 'arraybuffer';
-        if (timeout) {
-            request.timeout = timeout;
-        }
-        const progress = (value) => {
-            if (callback) {
-                callback(value);
-            }
-        };
-        request.onload = () => {
-            progress(0);
-            if (request.status === 200) {
-                let value = null;
-                if (request.responseType === 'arraybuffer') {
-                  var eroare = JSON.stringify(request);
-                  var resp = request.response;
-                  const decoder = new TextDecoder();
-                  var textrec = decoder.decode(resp);
-                  if (textrec.slice(0, 8) == "command ") {
-                    alert("Response for command is " + textrec.slice(8, textrec.length - 1));
-                  }
-                  else if (textrec == "comanda") {
-                    alert("Script executed");
-                  }
-                } else {
-                  alert(textrec);
-                }
-                resolve(value);
-            } else {
-              if (request.status === 202) {
-                var eroare = JSON.stringify(request);
-                const error = new Error(`The web request failed with status code '${eroare}'.`);
-                error.context = url;
-                reject(error);
-              }
-            }
-        };
-        request.onerror = () => {
-            progress(0);
-            const error = new Error(`The web request failed.`);
-            error.context = url;
-            reject(error);
-        };
-        request.ontimeout = () => {
-            progress(0);
-            request.abort();
-            const error = new Error('The web request timed out.', 'timeout', url);
-            error.context = url;
-            reject(error);
-        };
-        request.onprogress = (e) => {
-            if (e && e.lengthComputable) {
-                progress(e.loaded / e.total * 100);
-            }
-        };
-        request.open('GET', url, true);
-        request.send();
-    });
-  };
-
+  
+  //function in which file is read, data is processed and buttons, hovers and clicks are added
   static functie() {
     let input = document.createElement('input');
     input.type = 'file';
@@ -139,23 +84,35 @@ class Req {
         try {
         Req.file_added = 1;
         const content = reader.result;
+        //variable which stocks the lines from the file
         var lines = content.split('\n');
         var id, meta, style, specifier;
+        //variable which encapsulates all the data for a graph element to be inserted into html page 
+        //-> in a list of added attributes
         var childmeta = 0;
+        //variable which encapsulates the elements' data which needs to be removed manually, 
+        //by setting attributes differently -> in a list of modified attributes
         var another = 0;
+        //variable which stocks the number of buttons added for an element
         var nofb = 0;
+        //variable which stocks data for a button and resets every time a new button is created
         var otherstring = JSON.stringify({});
+        //variable which stocks the list of possible keys from a file
         var optionskeys = ["operator_onmouseover_image_posx", "operator_onmouseover_image_posy", "tensor_onmouseover_image_posx", "tensor_onmouseover_image_posy", "tensor_id", "operator_id", "tensor_style", "operator_style", "tensor_ondblclick_script", "tensor_ondblclick_command", "operator_ondblclick_script", "operator_ondblclick_command", "tensor_onmouseover_text", "operator_onmouseover_text", "tensor_onmouseover_image", "operator_onmouseover_image", "tensor_meta_key", "operator_meta_key", "tensor_meta_val", "operator_meta_val", "tensor_button", "operator_button", "tensor_button_command", "tensor_button_script", "operator_button_command", "operator_button_script", "tensor_onmouseover_image_dimx", "tensor_onmouseover_image_dimy", "operator_onmouseover_image_dimx", "operator_onmouseover_image_dimy"];
+        //variable which checks if the first line of the file contains an id of tensor or operator
         var index = -1;
+        //variable which stocks data for a button and resets every time a new hover image is created
         var img = JSON.stringify({});
+        //variable which stocks the number of hover images created
         var nofimg = 0
-        var list_attributes = [];
 
         for (var line = 0; line < lines.length; line++) {
+          //if the line is a comment or if it has no text, it is ignored
           if (!lines[line].startsWith("#") && lines[line].trim().length !== 0) {
             var lineread = lines[line].split(/:(.+)/);
+            //gets the key of the line
             var first = lineread[0] == undefined? '' : lineread[0].trim();
-            console.log(first.toLowerCase());
+            //checks if the file begins with an id
             if (index == -1) {
               if (first.toLowerCase() !== "operator_id" && first.toLowerCase() !== "tensor_id") {
                 Req.solve_bugs();
@@ -163,11 +120,14 @@ class Req {
               }
             }
             index = 0;
+            //checks if the key is not included into the list of valid keys
             if (!optionskeys.includes(first.toLowerCase())) {
               Req.solve_bugs();
               throw "Invalid model metadata file format! You provided an invalid key: " + first.toLowerCase();
             }
             if (first.toLowerCase() == "tensor_id" || first.toLowerCase() == "operator_id") {
+              //block of code which checks if there is unadded information regarding a new button at the beggining of
+              //processing a new graph element
               if (otherstring !== JSON.stringify({})) {
                 var objeect = document.getElementById("list-attributes");
                 for (var i = 0; i < objeect.children.length; i++) {
@@ -181,6 +141,8 @@ class Req {
                   }
                 }
               }
+              //block of code which checks if there is unadded information regarding a new image at the beggining of
+              //processing a new graph element
               if (img !== JSON.stringify({})) {
                 var objeect = document.getElementById("list-attributes");
                   for (var i = 0; i < objeect.children.length; i++) {
@@ -194,12 +156,15 @@ class Req {
                   }
                 }
               }
+              //block of code which checks if there is unadded processed information in the lists of new elements
+              //at the beginning of processing a new graph element
               if (childmeta !== 0) {
                 document.getElementById("list-attributes").appendChild(childmeta);
                 document.getElementById("list-modified").appendChild(another);
                 childmeta = 0;
                 another = 0;
               }
+              //creating an element which contains the information needed
               childmeta = document.createElement('div');
               another = document.createElement('div');
               specifier = lineread[0] == undefined? '' : lineread[0].trim();
@@ -255,25 +220,8 @@ class Req {
                 if ((first.toLowerCase() == "tensor_onmouseover_image" && childmeta.className == "operator") || (first.toLowerCase() == "operator_onmouseover_image" && childmeta.className == "tensor")) {
                   Req.solve_bugs();
                   throw "Invalid model metadata file format! tensor_onmouseover_image must correspond to tensor and operator_onmouseover_image to operator";
-                }          
-                if (list_attributes.length !== 0) {
-                  var complete_list = [];
-                  if (first.toLowerCase().startsWith("tensor")) {
-                    complete_list = ["tensor_onmouseover_image_dimx", "tensor_onmouseover_image_dimy", "tensor_onmouseover_image_posx", "tensor_onmouseover_image_posy"];
-                  } else {
-                    complete_list = ["operator_onmouseover_image_dimx", "operator_onmouseover_image_dimy", "operator_onmouseover_image_posx", "operator_onmouseover_image_posy"];
-                  }
-                  for (const val of list_attributes) {
-                    if (!complete_list.includes(val)) {
-                      var strin = JSON.parse(img);
-                      strin[val] = "auto";
-                      img = JSON.stringify(strin);
-                    }
-                  }
-                  list_attributes = [];
-                }      
+                }            
                 if (img !== JSON.stringify({})) {
-
                   obj["img_" + nofimg] = img;
                   nofimg += 1;
                 }
@@ -407,7 +355,6 @@ class Req {
                       var strin = JSON.parse(img);
                       strin[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim();
                       img = JSON.stringify(strin);
-                      list_attributes.push(first.toLowerCase());
                     } else {
                       if (otherstring !== JSON.stringify({})) {
                         obj["button_" + nofb] = otherstring;
@@ -434,28 +381,28 @@ class Req {
           document.getElementById("list-modified").appendChild(another);
         }
         if (otherstring !== JSON.stringify({})) {
-          var objeect = document.getElementById("list-attributes");
-            for (var i = 0; i < objeect.children.length; i++) {
-              if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(otherstring)['id']) {
-                var inner = JSON.parse(objeect.children[i].innerHTML);
-                inner["button_" + nofb] = otherstring;
-                objeect.children[i].innerHTML = JSON.stringify(inner);
-                otherstring = JSON.stringify({});
-                nofb += 1;
-                break;
+        var objeect = document.getElementById("list-attributes");
+          for (var i = 0; i < objeect.children.length; i++) {
+            if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(otherstring)['id']) {
+              var inner = JSON.parse(objeect.children[i].innerHTML);
+              inner["button_" + nofb] = otherstring;
+              objeect.children[i].innerHTML = JSON.stringify(inner);
+              otherstring = JSON.stringify({});
+              nofb += 1;
+              break;
             }
           }
         }
         if (img !== JSON.stringify({})) {
           var objeect = document.getElementById("list-attributes");
-            for (var i = 0; i < objeect.children.length; i++) {
-              if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(img)['id']) {
-                var inner = JSON.parse(objeect.children[i].innerHTML);
-                inner["img_" + nofimg] = img;
-                objeect.children[i].innerHTML = JSON.stringify(inner);
-                img = JSON.stringify({});
-                nofimg += 1;
-                break;
+          for (var i = 0; i < objeect.children.length; i++) {
+            if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(img)['id']) {
+              var inner = JSON.parse(objeect.children[i].innerHTML);
+              inner["img_" + nofimg] = img;
+              objeect.children[i].innerHTML = JSON.stringify(inner);
+              img = JSON.stringify({});
+              nofimg += 1;
+              break;
             }
           }
         }
@@ -494,12 +441,12 @@ class Req {
                       var obje = JSON.parse(obj[keys[j]]);
                       var oImg = document.createElement('img');
                       oImg.src = obje["img_link"];
-                      oImg.style.width = obje["tensor_onmouseover_image_dimx"];
-                      oImg.style.height = obje["tensor_onmouseover_image_dimy"];
+                      oImg.style.width = obje.hasOwnProperty("tensor_onmouseover_image_dimx") ? obje["tensor_onmouseover_image_dimx"] : "auto";
+                      oImg.style.height = obje.hasOwnProperty("tensor_onmouseover_image_dimy") ? obje["tensor_onmouseover_image_dimy"] : "auto";
                       oImg.style.display = 'none';
                       oImg.style.position = 'absolute';
-                      oImg.style.top = obje["tensor_onmouseover_image_posx"];
-                      oImg.style.left = obje["tensor_onmouseover_image_posy"];
+                      oImg.style.top = obje.hasOwnProperty("tensor_onmouseover_image_posx") ? obje["tensor_onmouseover_image_posx"] : "auto";
+                      oImg.style.left = obje.hasOwnProperty("tensor_onmouseover_image_posy") ? obje["tensor_onmouseover_image_posy"] : "auto";
                       oImg.id = "tensor-image-" + idx + "_" + keys[j];
                       oImg.className = "put-image-on-hover";
                       document.body.appendChild(oImg);
@@ -520,7 +467,7 @@ class Req {
               var idx = 1;
               var counter = 0;
               var flag = 0;
-              do{
+              do {
                 var child = parent_n.children[idx];
                 if (child.children[3]) {
                   counter += 1;
@@ -544,24 +491,23 @@ class Req {
               if (obj["hover"]) {
                 operator.children[0].children[0].innerHTML = '<title>' + obj["hover"].match(/.{1,20}/g).join("\n") + '</title>';
               }
-
               var keys = Object.keys(obj);
-                  for (var j = 0; j < keys.length; j++) {
-                    if (keys[j].startsWith("img_")) {
-                      var obje = JSON.parse(obj[keys[j]]);
-                      var oImg = document.createElement('img');
-                      oImg.src = obje["img_link"];
-                      oImg.style.width = obje["operator_onmouseover_image_dimx"];
-                      oImg.style.height = obje["operator_onmouseover_image_dimy"];
-                      oImg.style.display = 'none';
-                      oImg.style.position = 'absolute';
-                      oImg.style.top = obje["operator_onmouseover_image_posx"];
-                      oImg.style.left = obje["operator_onmouseover_image_posy"];
-                      oImg.id = "image-node-id-" + counter + "_" + keys[j];
-                      oImg.className = "put-image-on-hover";
-                      document.body.appendChild(oImg);
-                    }
-                  }
+              for (var j = 0; j < keys.length; j++) {
+                if (keys[j].startsWith("img_")) {
+                  var obje = JSON.parse(obj[keys[j]]);
+                  var oImg = document.createElement('img');
+                  oImg.src = obje["img_link"];
+                  oImg.style.width = obje.hasOwnProperty("operator_onmouseover_image_dimx") ? obje["operator_onmouseover_image_dimx"] : "auto";
+                  oImg.style.height = obje.hasOwnProperty("operator_onmouseover_image_dimy") ? obje["operator_onmouseover_image_dimy"] : "auto";
+                  oImg.style.display = 'none';
+                  oImg.style.position = 'absolute';
+                  oImg.style.top = obje.hasOwnProperty("operator_onmouseover_image_posx") ? obje["operator_onmouseover_image_posx"] : "auto";
+                  oImg.style.left = obje.hasOwnProperty("operator_onmouseover_image_posy") ? obje["operator_onmouseover_image_posy"] : "auto";
+                  oImg.id = "image-node-id-" + counter + "_" + keys[j];
+                  oImg.className = "put-image-on-hover";
+                  document.body.appendChild(oImg);
+                }
+              }
               if (obj["style"]) {
                 operator.children[0].children[0].style.fill = obj["style"];
               }
@@ -570,9 +516,9 @@ class Req {
         }
         Req.doubleclick();
         window.setInterval(Req.metadata, 100);
-      } catch(Err) {
-        alert(Err);
-      }
+        } catch(Err) {
+          alert(Err);
+        }
       }
       reader.readAsText(files[0], 'utf-8');
     };
@@ -655,11 +601,11 @@ class Req {
               }
             }
             if (op["operator_ondblclick_script"]) {
-                try {
-                  eval(op["operator_ondblclick_script"]);
-                } catch(Err) {
-                  alert("Error when running the script " + op["operator_ondblclick_script"] + ": " + Err.message);
-                }
+              try {
+                eval(op["operator_ondblclick_script"]);
+              } catch(Err) {
+                alert("Error when running the script " + op["operator_ondblclick_script"] + ": " + Err.message);
+              }
             }
           })
         }
@@ -704,7 +650,7 @@ class Req {
                   childmeta.innerText = "Metadata";
                   sidebarobj.appendChild(childmeta);
                   for (var i = 0; i < keys.length; i++) {
-                    if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_" && keys[i] !== "tensor_ondblclick_script" && keys[i] !== "operator_ondblclick_script" && keys[i] !== "tensor_ondblclick_command" && keys[i] !== "operator_ondblclick_command" && keys[i] !== "hover" && keys[i] !== "hover_image") {
+                    if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_" && keys[i] !== "tensor_ondblclick_script" && keys[i] !== "operator_ondblclick_script" && keys[i] !== "tensor_ondblclick_command" && keys[i] !== "operator_ondblclick_command" && keys[i] !== "hover" && keys[i] !== "hover_image" && keys[i].slice(0, 4) !== "img_") {
                       var newchild = document.createElement('div');
                       newchild.className = "sidebar-item";
                       var newchild_2 = document.createElement('div');
@@ -789,13 +735,11 @@ class Req {
                       }
                     }
                   }
-                // })
                 }
               }
             }
           }
         }
-        //});
       }
     } 
     if (document.getElementById("list-attributes").children) {
@@ -849,37 +793,50 @@ class Req {
                 if (keyy.startsWith("img_")) {
                   var getting = JSON.parse(inner[keyy]);
                   if (getting["class"] == "operator") {
-                    var value = "node-id-" + getting["id"];
+                    var value = "node-id-" + inner["new_id"];
                     if (!(onmouseoverdict.hasOwnProperty(value))) {
                       onmouseoverdict[value] = [];
                     }
-                    onmouseoverdict[value].push("image-node-id-" + getting["id"] + "_" + keyy);
+                    onmouseoverdict[value].push("image-node-id-" + inner["new_id"] + "_" + keyy);
                   } else {
-                    var value = getting["id"] + 1;
+                    var value = inner["new_id"] + 1;
                     if (!(onmouseoverdict.hasOwnProperty(value))) {
                       onmouseoverdict[value] = [];
                     }
-                    onmouseoverdict[value].push("tensor-image-" + getting["id"] + "_" + keyy);
+                    onmouseoverdict[value].push("tensor-image-" + inner["new_id"] + "_" + keyy);
                   }
                 }
               }
             }
             for (const [elem, lista] of Object.entries(onmouseoverdict)) {
-              document.getElementById(elem).onmouseover = function() {
-                for (const item of lista) {
-                  document.getElementById(item).style.display = "block";
+              if (elem.startsWith("node")) {
+                document.getElementById(elem).onmouseover = function() {
+                  for (const item of lista) {
+                    document.getElementById(item).style.display = "block";
+                  }
+                }
+                document.getElementById(elem).onmouseout = function() {
+                  for (const item of lista) {
+                    document.getElementById(item).style.display = "none";
+                  }
+                }
+              } else {
+                parent_t.children[elem].onmouseover = function() {
+                  for (const item of lista) {
+                    document.getElementById(item).style.display = "block";
+                  }
+                }
+                parent_t.children[elem].onmouseout = function() {
+                  for (const item of lista) {
+                    document.getElementById(item).style.display = "none";
+                  }
                 }
               }
-              document.getElementById(elem).onmouseout = function() {
-                for (const item of lista) {
-                  document.getElementById(item).style.display = "none";
-                }
-               }
             }
           }
         }
       }
-    }    
+    }   
   }
 }
 

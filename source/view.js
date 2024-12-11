@@ -97,65 +97,75 @@ view.View = class {
                     label: '&Import metadata',
                     accelerator: 'CmdOrCtrl+T',
                     execute: async () => {
+                        //block of code which cleans all the information added before uploading
+                        //a new file
                         if (Req.file_added == 1) {
                             var root = document.getElementById("list-modified");
-                            if (root.length !== 0)
-                            {
-                              for (var i = 0; i < root.children.length; i++) {
-                                  var child = JSON.parse(root.children[i].innerHTML);
-                                  var id_child = child["id"];
-                                  if (root.children[i].className == "tensor") {
-                                      var list_t = document.getElementById("edge-paths");
-                                      for (var j = 0; j < list_t.children.length; j++) {
-                                          if (list_t.children[j].id.split("\n")[1] == id_child) {
-                                              if (child["style"] && list_t.children[j].hasAttribute("style")) {
-                                                  list_t.children[j].removeAttribute("style");
-                                              }
-                                              if (child["hover"] && list_t.children[j + 1].innerHTML !== '') {
-                                                  list_t.children[j + 1].innerHTML = '';
-                                              }
-                                          }
-                                      }
-                                  } else {
-                                      var parent_n = document.getElementById("nodes");
-                                      var idx = 1;
-                                      var counter = 0;
-                                      do{
-                                          var child = parent_n.children[idx];
-                                          if (child.children[3]) {
-                                          counter += 1;
-                                          }
-                                          counter += 1;
-                                          idx += 1;
-                                      } while (idx <= id_child);
-                                      if (id_child == 0) {
-                                          counter = 0;
-                                      }
-                                      var operator = document.getElementById("node-id-" + counter);
-                                      if (operator) {
-                                        if (operator.children) {
-                                          if (operator.children[0]) {
-                                            if (operator.children[0].children) {
-                                              if (operator.children[0].children[0]) {
-                                                if (child["hover"] && operator.children[0].children[0].innerHTML !== '') {
-                                                  operator.children[0].children[0].innerHTML = '';
-                                                } if (child["style"] && operator.children[0].children[0].hasAttribute("style")) {
-                                                    operator.children[0].children[0].removeAttribute("style");
+                            if (root.length !== 0) {
+                                for (var i = 0; i < root.children.length; i++) {
+                                    var child = JSON.parse(root.children[i].innerHTML);
+                                    var id_child = child["id"];
+                                    if (root.children[i].className == "tensor") {
+                                        var list_t = document.getElementById("edge-paths");
+                                        for (var j = 0; j < list_t.children.length; j++) {
+                                            if (list_t.children[j].id.split("\n")[1] == id_child) {
+                                                if (child["style"] && list_t.children[j].hasAttribute("style")) {
+                                                    list_t.children[j].removeAttribute("style");
                                                 }
-                                              }
+                                                if (child["hover"] && list_t.children[j + 1].innerHTML !== '') {
+                                                    list_t.children[j + 1].innerHTML = '';
+                                                }
                                             }
-                                          }
                                         }
-                                      }
-                                  }
-                              }
+                                    } else {
+                                        var parent_n = document.getElementById("nodes");
+                                        var idx = 1;
+                                        var counter = 0;
+                                        do {
+                                            var child = parent_n.children[idx];
+                                            if (child.children[3]) {
+                                            counter += 1;
+                                            }
+                                            counter += 1;
+                                            idx += 1;
+                                        } while (idx <= id_child);
+                                        if (id_child == 0) {
+                                            counter = 0;
+                                        }
+                                        var operator = document.getElementById("node-id-" + counter);
+                                        if (operator) {
+                                            if (operator.children) {
+                                                if (operator.children[0]) {
+                                                    if (operator.children[0].children) {
+                                                        if (operator.children[0].children[0]) {
+                                                            if (child["hover"] && operator.children[0].children[0].innerHTML !== '') {
+                                                                operator.children[0].children[0].innerHTML = '';
+                                                            }
+                                                            if (child["style"] && operator.children[0].children[0].hasAttribute("style")) {
+                                                                operator.children[0].children[0].removeAttribute("style");
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             document.getElementById("list-attributes").innerHTML = '';
                             document.getElementById("list-modified").innerHTML = '';
+                            var body = document.body;
+                            var children = body.children;
+                            //block of code which removes all the existing images
+                            for (var i = children.length - 1; i >= 0; i--) {
+                                if (children[i].tagName == 'IMG') {
+                                    body.removeChild(children[i]);
+                                }
+                            }
                             Req.file_added = 0;
                         }
-                            Req.functie();
-                        }
+                        Req.functie();
+                    }
                 });
                 if (this._host.type === 'Electron') {
                     this._recents = file.group('Open &Recent');
