@@ -467,7 +467,7 @@ mlnet.ModelHeader = class {
         const stream = this._entries.get(name) || this._entries.get(name.replace(/\//g, '\\'));
         if (stream) {
             const buffer = stream.peek();
-            const decoder = new TextDecoder();
+            const decoder = new TextDecoder('utf-8');
             return decoder.decode(buffer);
         }
         return null;

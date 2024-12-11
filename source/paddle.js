@@ -730,7 +730,7 @@ paddle.NaiveBuffer = class {
         if (this.meta_version >= 2) {
             reader.skip(2);
         }
-        const decoder = new TextDecoder();
+        const decoder = new TextDecoder('utf-8');
         const opt_version = reader.read(16);
         const version = decoder.decode(opt_version.slice(0, opt_version.indexOf(0x00)));
         this.format = `Paddle Lite${version && version.match(/^v\d+\.\d+.\d+$/) ? ` ${version}` : ''}`;
