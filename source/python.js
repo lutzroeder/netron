@@ -8072,24 +8072,31 @@ python.Execution = class {
             }
             parseArgsFromDecl(decl, skip_self) {
                 const retval = [];
-                const params = skip_self ? decl.args.args.slice(1) : decl.args.args.slice();
-                for (const decl_arg of params) {
+                if (decl.args.posonlyargs.length > 0 || decl.args.kwonlyargs.length > 0) {
+                    throw new Error();
+                }
+                const params = decl.args.args.slice();
+                const kwonlyargs = new Set(Array.from(decl.args.kwonlyargs));
+                const start = skip_self ? 1 : 0;
+                for (let i = start; i < params.length; i++) {
+                    const decl_arg = params[i];
                     const N = null;
-                    const default_value = null;
+                    const default_value = undefined;
                     const type = decl_arg.annotation ? this.parseTypeFromExpr(decl_arg.annotation) : null;
-                    const arg = new torch.Argument(decl_arg.name, type, type, N, default_value, /* decl_arg.kwarg_only() */ false, null);
+                    const arg = new torch.Argument(decl_arg.arg, type, type, N, default_value, kwonlyargs.has(decl_arg), null);
                     retval.push(arg);
                 }
+                return retval;
             }
             parseReturnFromDecl(decl) {
-                /*
-                if (!decl.return_type().present())
-                    return {};
-                */
-                // if (parseBroadcastList(decl.return_type().get()))
-                //     throw ErrorReport(decl.return_type().range()) << "Broadcastable lists cannot appear as a return type";
+                if (!decl.returns) {
+                    return [];
+                }
+                if (this.parseBroadcastList(decl.returns)) {
+                    throw new python.Error('Broadcastable lists cannot appear as a return type.');
+                }
                 const parsed_type = this.parseTypeFromExpr(decl.returns);
-                return [new torch.Argument('', parsed_type, parsed_type, null, null, false)];
+                return [new torch.Argument('', parsed_type, parsed_type, null, undefined, false)];
             }
             parseTypeFromExpr(expr) {
                 if (expr instanceof ast.Name) {
@@ -8100,6 +8107,10 @@ python.Execution = class {
                 }
                 return this._resolver._cu.execution.type(expr);
             }
+            parseBroadcastList(/* expr */) {
+                return null;
+            }
+
         });
         this.registerType('torch._ops.OpOverload', class extends torch._ops.OperatorBase {
             constructor(overloadpacket, op, op_dk, schema, tags) {
@@ -9187,7 +9198,8 @@ python.Execution = class {
                         data.forward = module.forward;
                     }
                 }
-                const result = new torch.ScriptModule();
+                const class_type = new torch.ClassType(data.name);
+                const result = new torch.ScriptModule(class_type);
                 result.data = data;
                 return result;
             }
@@ -9516,10 +9528,16 @@ python.Execution = class {
                         args.push(this.data); // self
                     }
                     if (this.data.forward.__code__ && this.data.forward.__code__.args) {
-                        for (const arg of this.data.forward.__code__.args.args) {
+                        const params = this.data.forward.__code__.args.args;
+                        for (let i = 0; i < params.length; i++) {
+                            const arg = params[i];
                             if (execution.traceAttr || arg.arg !== 'self') {
                                 const value = execution.graph.addInput(arg.arg);
-                                value.setType(execution.type(arg.annotation));
+                                if (i === 0 && arg.arg === 'self' && !arg.annotation) {
+                                    value.setType(this._type);
+                                } else {
+                                    value.setType(execution.type(arg.annotation));
+                                }
                                 if (isTensor(value)) {
                                     value.__variable__ = arg.name;
                                     value.__origin__ = 'graph-input';
