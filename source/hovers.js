@@ -1,11 +1,19 @@
-import { stringify } from 'querystring';
+// import { stringify } from 'querystring';
 
-import { execSync } from 'child_process';
-import { cp } from 'fs';
+// import { NONAME } from 'dns';
+
+// import { execSync } from 'child_process';
+// import { cp } from 'fs';
 
 class Req {
   //variable which states if a file was added before
   file_added = 0;
+  //variable which stores the elements on which 
+  //event listeners for images are put
+  EventImg = [];
+  //variable which stores the elements on which 
+  //event listeners for double click are put
+  EventDblClick = [];
   constructor() {}
 
   //function for cleaning all the cache (information added from the file) in case an error occurs
@@ -70,6 +78,17 @@ class Req {
         body.removeChild(children[i]);
       }
     }
+    if (Req.EventImg.length !== 0) {
+      for (var i = 0; i < Req.EventImg.length; i++) {
+        (Req.EventImg[i]).onmouseover = null;
+        (Req.EventImg[i]).onmouseout = null;
+      }
+    }
+    if (Req.EventDblClick.length !== 0) {
+      for (var i = 0; i < Req.EventDblClick.length; i++) {
+        Req.EventDblClick[i].ondblclick = null;
+      }
+    }
     Req.file_added = 0;
   }
   
@@ -83,6 +102,8 @@ class Req {
       reader.onload = function() {
         try {
         Req.file_added = 1;
+        Req.EventImg = [];
+        Req.EventDblClick = [];
         const content = reader.result;
         //variable which stocks the lines from the file
         var lines = content.split('\n');
@@ -184,6 +205,7 @@ class Req {
               another.innerHTML = JSON.stringify({"id": id});
               continue;
             }
+            //adding the style info in the element
             if (first.toLowerCase() == "tensor_style" || first.toLowerCase() == "operator_style") {
               if ((childmeta.className == "tensor" && first.toLowerCase() == "operator_style") || (childmeta.className == "operator" && first.toLowerCase() == "tensor_style")) {
                 Req.solve_bugs();
@@ -202,6 +224,7 @@ class Req {
               meta = lineread[1] == undefined ? '' : lineread[1].trim();
               var obj = JSON.parse(childmeta.innerHTML);
               var obj2 = JSON.parse(another.innerHTML);
+              //adding the doubleclick information for the element
               if (first.toLowerCase() == "tensor_ondblclick_script" || first.toLowerCase() == "tensor_ondblclick_command" || first.toLowerCase() == "operator_ondblclick_script" || first.toLowerCase() == "operator_ondblclick_command") {
                 if (((first.toLowerCase() == "tensor_ondblclick_script" || first.toLowerCase() == "tensor_ondblclick_command") && childmeta.className == "operator") || ((first.toLowerCase() == "operator_ondblclick_script" || first.toLowerCase() == "operator_ondblclick_command") && childmeta.className == "tensor")) {
                   Req.solve_bugs();
@@ -216,6 +239,7 @@ class Req {
                 obj["hover"] = meta;
                 obj2["hover"] = meta;
               }
+              //adding the imahe hovering information for the element
               else if (first.toLowerCase() == "tensor_onmouseover_image" || first.toLowerCase() == "operator_onmouseover_image") {
                 if ((first.toLowerCase() == "tensor_onmouseover_image" && childmeta.className == "operator") || (first.toLowerCase() == "operator_onmouseover_image" && childmeta.className == "tensor")) {
                   Req.solve_bugs();
@@ -228,6 +252,7 @@ class Req {
                 img = JSON.stringify({"id": obj["id"], "class": childmeta.className, "img_link": meta});
                 obj2["hover_image"] = meta;
               }
+              //adding the key-value metadata information for the element
               else if (first.toLowerCase() == "tensor_meta_key" || first.toLowerCase() == "operator_meta_key") {
                 if ((first.toLowerCase() == "tensor_meta_key" && childmeta.className == "operator") || (first.toLowerCase() == "operator_meta_key" && childmeta.className == "tensor")) {
                   Req.solve_bugs();
@@ -271,6 +296,7 @@ class Req {
                 }
               }
               else {
+                //adding the button information for the element
                 if (first.toLowerCase() == "tensor_button" || first.toLowerCase() == "operator_button") {
                   if ((childmeta.className == "operator" && first.toLowerCase() == "tensor_button") || (childmeta.className == "tensor" && first.toLowerCase() == "operator_button")) {
                     Req.solve_bugs();
@@ -337,6 +363,7 @@ class Req {
                     otherstring = JSON.stringify(stri);
                   } 
                   else {
+                    //adding the image information for the element
                     if (first.toLowerCase() == "tensor_onmouseover_image_dimx" || first.toLowerCase() == "tensor_onmouseover_image_dimy" || first.toLowerCase() == "operator_onmouseover_image_dimx" || first.toLowerCase() == "operator_onmouseover_image_dimy" || first.toLowerCase() == "tensor_onmouseover_image_posx" || first.toLowerCase() == "tensor_onmouseover_image_posy" || first.toLowerCase() == "operator_onmouseover_image_posx" || first.toLowerCase() == "operator_onmouseover_image_posy") {
                       if ((childmeta.className == "tensor" && first.toLowerCase().startsWith("operator_")) || (childmeta.className == "operator" && first.toLowerCase().startsWith("tensor_"))) {
                         Req.solve_bugs();
@@ -356,6 +383,8 @@ class Req {
                       strin[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim();
                       img = JSON.stringify(strin);
                     } else {
+                      //if there is unadded information for buttons and images,
+                      //this will be added
                       if (otherstring !== JSON.stringify({})) {
                         obj["button_" + nofb] = otherstring;
                       }
@@ -575,6 +604,7 @@ class Req {
               }
             }
           })
+          Req.EventDblClick.push(parent_t.children[variable]);
         } else {
           var variable = lista[i].id;
           (document.getElementById(variable)).addEventListener("dblclick", function(g) {
@@ -608,6 +638,7 @@ class Req {
               }
             }
           })
+          Req.EventDblClick.push(document.getElementById(variable));
         }
       }
     }
@@ -831,6 +862,7 @@ class Req {
                     document.getElementById(item).style.display = "none";
                   }
                 }
+                Req.EventImg.push(parent_t.children[elem]);
               }
             }
           }
