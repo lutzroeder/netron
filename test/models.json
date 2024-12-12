@@ -4956,11 +4956,39 @@
   },
   {
     "type":     "paddle",
+    "target":   "for_net.json",
+    "source":   "https://github.com/user-attachments/files/18105174/for_net.json",
+    "format":   "PaddlePaddle IR v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1407"
+  },
+  {
+    "type":     "paddle",
+    "target":   "if_net.json",
+    "source":   "https://github.com/user-attachments/files/18105171/if_net.json",
+    "format":   "PaddlePaddle IR v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1407"
+  },
+  {
+    "type":     "paddle",
     "target":   "lite_naive_model_opt.nb.tar.gz",
     "source":   "https://github.com/lutzroeder/netron/files/7084134/lite_naive_model_opt.nb.tar.gz",
     "format":   "Paddle Lite",
     "error":    "Paddle Lite naive buffer format is deprecated.",
     "link":     "https://github.com/lutzroeder/netron/issues/797"
+  },
+  {
+    "type":     "paddle",
+    "target":   "ir_model.json",
+    "source":   "https://github.com/user-attachments/files/18105172/ir_model.json",
+    "format":   "PaddlePaddle IR v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1407"
+  },
+  {
+    "type":     "paddle",
+    "target":   "model_pylayer.json",
+    "source":   "https://github.com/user-attachments/files/18105175/model_pylayer.json",
+    "format":   "PaddlePaddle IR v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1407"
   },
   {
     "type":     "paddle",
@@ -5004,6 +5032,14 @@
     "format":   "PaddlePaddle",
     "link":     "https://github.com/lutzroeder/netron/issues/246"
   },
+  {
+    "type":     "paddle",
+    "target":   "while_net.json",
+    "source":   "https://github.com/user-attachments/files/18105173/while_net.json",
+    "format":   "PaddlePaddle IR v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1407"
+  },
+
   {
     "type":     "paddle",
     "target":   "without_tensor_type.zip",

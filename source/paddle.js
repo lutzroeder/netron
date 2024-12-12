@@ -77,7 +77,9 @@ paddle.ModelFactory = class {
                 return new paddle.Model(metadata, target.format, target.model, target.weights);
             }
             case 'paddle.ir': {
-                throw new paddle.Error('Invalid file content. File contains PaddlePaddle IR data.');
+                const ir = new paddle.IR(context.target);
+                const format = `PaddlePaddle IR v${ir.version}`;
+                return new paddle.Model(metadata, format, ir.desc, ir.tensors);
             }
             default: {
                 paddle.proto = await context.require('./paddle-proto');
@@ -284,6 +286,14 @@ paddle.Graph = class {
         if (block) {
             this.name = block.idx.toString();
             const values = new Map();
+            if (block.kind === 'block') {
+                for (const [name, input] of block.argInputs) {
+                    const [parameter, tensorType] = input;
+                    const value = new paddle.Value(name, tensorType, null, null);
+                    values.set(name, value);
+                    this.inputs.push(new paddle.Argument(parameter, [value]));
+                }
+            }
             for (const variable of block.vars) {
                 const type = variable.type && variable.type.type && variable.type.dense_tensor && variable.type.dense_tensor.tensor ? paddle.Utility.createTensorType(variable.type.dense_tensor.tensor.data_type, variable.type.dense_tensor.tensor.dims) : null;
                 const tensor = variable.persistable && variable.type && variable.type.type !== paddle.DataType.FETCH_LIST && variable.type.type !== paddle.DataType.FEED_MINIBATCH ? (tensors.get(variable.name) || new paddle.Tensor(type)) : null;
@@ -316,6 +326,9 @@ paddle.Graph = class {
                 }
                 for (const output of op.outputs) {
                     for (const name of output.arguments) {
+                        if (output.values && output.values.has(name)) {
+                            values.set(name, output.values.get(name));
+                        }
                         if (!values.has(name)) {
                             values.set(name, new paddle.Value(name, null, null));
                         }
@@ -326,11 +339,21 @@ paddle.Graph = class {
             let lastOutput = null;
             for (const op of block.ops) {
                 if (op.type === 'feed') {
-                    const name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
+                    let name = '';
+                    if (op.kind === 'op') {
+                        name = op.attrs.filter((attr) => attr.name === 'col')[0].irValue.toString();
+                    } else {
+                        name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
+                    }
                     const argument = new paddle.Argument(name, op.outputs[0].arguments.map((id) => values.get(id)));
                     this.inputs.push(argument);
                 } else if (op.type === 'fetch') {
-                    const name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
+                    let name = '';
+                    if (op.kind === 'op') {
+                        name = op.attrs.filter((attr) => attr.name === 'col')[0].irValue.toString();
+                    } else {
+                        name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
+                    }
                     const argument = new paddle.Argument(name, op.inputs[0].arguments.map((id) => values.get(id)));
                     this.outputs.push(argument);
                 } else {
@@ -414,6 +437,8 @@ paddle.Node = class {
         const type = op.type;
         this.type = metadata.type(type) || { name: type };
         this.name = op.name || '';
+        this.description = op.description || '';
+        this.identifier = op.identifier || '';
         this.attributes = [];
         this.inputs = [];
         this.outputs = [];
@@ -471,6 +496,14 @@ paddle.Node = class {
                         break;
                     case paddle.AttributeType.LONGS:
                         type = 'int64[]';
+                        break;
+                    case 1000: // ir
+                        type = attr.irType;
+                        value = attr.irValue;
+                        break;
+                    case 1001: // graph
+                        type = 'graph';
+                        value = new paddle.Graph(metadata, attr.block, attr.vars);
                         break;
                     default:
                         break;
@@ -550,9 +583,11 @@ paddle.Tensor = class {
 
 paddle.TensorType = class {
 
-    constructor(dataType, shape) {
+    constructor(dataType, shape, layout, denotation) {
         this.dataType = dataType;
         this.shape = shape;
+        this.layout = layout;
+        this.denotation = denotation;
     }
 
     toString() {
@@ -887,6 +922,465 @@ paddle.AttributeType = {
     VAR: 13,
     VARS: 14,
     FLOAT64: 15
+};
+
+paddle.IR = class {
+
+    constructor(obj) {
+        this._names = new Map();
+        this._crossRegionInputs = new Map();
+        this.base_code = obj.base_code;
+        this.version = obj.base_code.version;
+        const program = obj.program;
+        const regions = [];
+        for (const region of program.regions) {
+            regions.push(this.region(region));
+        }
+        const [programRegion] = regions;
+        this.desc = programRegion;
+        this.tensors = new Map();
+    }
+
+    region(value) {
+        const obj = {};
+        obj.kind = 'region';
+        obj.name = value['#'];
+        obj.idx = value['#'];
+        obj.vars = new Map();
+        obj.blocks = [];
+        for (const block of value.blocks) {
+            obj.blocks.push(this.block(block));
+        }
+        const [block] = obj.blocks;
+        obj.block = block;
+        return obj;
+    }
+
+    block(value) {
+        const obj = {};
+        obj.kind = 'block';
+        obj.name = value['#'];
+        obj.idx = value['#'];
+        obj.vars = new Map();
+        obj.argInputs = new Map();
+        if (value.args) {
+            for (const input of value.args) {
+                const [, type] = input.TT && input.TT['#'] ? input.TT['#'].split('.') : null;
+                if (type === 't_dtensor') {
+                    const [parameter, name,] = this.getParaName(input);
+                    const tensorType = this.createTensorType(input);
+                    obj.argInputs.set(name, [parameter, tensorType]);
+                }
+            }
+        }
+        let inputNames = new Set();
+        let outputNames = new Set();
+        obj.ops = [];
+        for (const op of value.ops) {
+            const irOp = this.op(op);
+            obj.ops.push(irOp);
+            inputNames = new Set([...inputNames, ...irOp.inputNames]);
+            outputNames = new Set([...outputNames, ...irOp.outputNames]);
+        }
+        const missInputs = new Set([...inputNames].filter((item) => !outputNames.has(item)));
+        if (missInputs) {
+            for (const name of missInputs) {
+                const output = this.getCrossInput(name);
+                if (output) {
+                    obj.argInputs.set(name, [output.parameter, output.tensorType]);
+                }
+            }
+        }
+        return obj;
+    }
+
+    op(op) {
+        const obj = {};
+        obj.kind = 'op';
+        const opInfo = this.getOpInfo(op);
+        obj.name = opInfo.fullName;
+        obj.type = opInfo.type;
+        obj.identifier = opInfo.rawType;
+        obj.attrs = [];
+        for (const [idx, value] of Object.entries(op.A)) {
+            obj.attrs.push(this.attr(idx, value, opInfo));
+        }
+        if (op.regions !== undefined) {
+            for (const region of op.regions) {
+                const regionAttr = this.region(region);
+                obj.attrs.push(this.attr(null, regionAttr, null));
+            }
+        }
+        const inputNames = new Set();
+        const outputNames = new Set();
+        const createInput = (input, opInfo) => {
+            const [parameterName, inputName] = this.getParaName(input, opInfo.namePrefix);
+            return { arguments: [inputName], parameter: parameterName };
+        };
+        const inputs = [];
+        if (op.I) {
+            const inputArray = Array.isArray(op.I) ? op.I : [op.I];
+            for (const input of inputArray) {
+                inputs.push(createInput(input, opInfo));
+                const [, name] = this.getParaName(input, opInfo.namePrefix);
+                inputNames.add(name);
+            }
+        }
+        const createOutput = (output, opInfo, idx, outputAttr) => {
+            const [parameterName, outputName] = this.getParaName(output, opInfo.namePrefix);
+            const valuesMap = new Map();
+            let tType = null;
+            const [, typeType] = output.TT['#'].split('.');
+            if (typeType === 't_dtensor') {
+                const denotation = this.getOutputAttr(opInfo, idx, outputAttr);
+                const tensorType = this.createTensorType(output, denotation);
+                valuesMap.set(outputName, new paddle.Value(outputName, tensorType, null));
+                tType = tensorType;
+            } else {
+                valuesMap.set(outputName, new paddle.Value(outputName, null, null, null));
+            }
+            return {
+                arguments: [outputName],
+                parameter: parameterName,
+                tensorType: tType,
+                values: valuesMap
+            };
+        };
+        const outputs = [];
+        if (op.O) {
+            const outputArray = Array.isArray(op.O) ? op.O : [op.O];
+            for (const [idx, output] of Object.entries(outputArray)) {
+                const irOutput = createOutput(output, opInfo, idx, op.OA);
+                outputs.push(irOutput);
+                const [, name, isNegative] = this.getParaName(output, opInfo.namePrefix);
+                outputNames.add(name);
+                if (!isNegative && !this.hasCrossInput(name)) {
+                    this.addCrossInput(name, irOutput);
+                }
+            }
+        }
+        if (op.regions) {
+            const collectRegions = (irReader, regions) => {
+                let inputs = new Map();
+                let outputs = new Map();
+                for (const region of regions) {
+                    for (const block of region.blocks) {
+                        for (const op of block.ops) {
+                            const opInfo = this.getOpInfo(op);
+                            if (op.I) {
+                                const opInputs = Array.isArray(op.I) ? op.I : [op.I];
+                                for (const input of opInputs) {
+                                    const [, name, isNegative] = irReader.getParaName(input, opInfo.namePrefix);
+                                    if (!isNegative && !inputs.has(name)) {
+                                        inputs.set(name, [input, opInfo]);
+                                    }
+                                }
+                            }
+                            if (op.O) {
+                                const opOutputs = Array.isArray(op.O) ? op.O : [op.O];
+                                for (const [idx, output] of Object.entries(opOutputs)) {
+                                    const [, name, isNegative] = irReader.getParaName(output, opInfo.namePrefix);
+                                    if (!isNegative && !outputs.has(name)) {
+                                        outputs.set(name, [output, opInfo, idx, op.OA]);
+                                    }
+                                }
+                            }
+                            if (op.regions) {
+                                const [subInputs, subOutputs] = collectRegions(irReader, op.regions);
+                                inputs = new Map([...inputs, ...subInputs]);
+                                outputs = new Map([...outputs, ...subOutputs]);
+                            }
+                        }
+                    }
+                }
+                return [inputs, outputs];
+            };
+            const [subInputs, subOutputs] = collectRegions(this, op.regions);
+            for (const [name, inputArgs] of subInputs) {
+                if (!inputNames.has(name) && !subOutputs.has(name)) {
+                    const [input, opInfo] = inputArgs;
+                    inputs.push(createInput(input, opInfo));
+                    inputNames.add(name);
+                }
+            }
+            for (const [name, outputArgs] of subOutputs) {
+                if (!outputNames.has(name) && !subInputs.has(name)) {
+                    const [output, opInfo, idx, oa] = outputArgs;
+                    outputs.push(createOutput(output, opInfo, idx, oa));
+                    outputNames.add(name);
+                }
+            }
+        }
+        obj.inputs = inputs;
+        obj.outputs = outputs;
+        obj.inputNames = inputNames;
+        obj.outputNames = outputNames;
+        return obj;
+    }
+
+    attr(idx, value, opInfo) {
+        const obj = {};
+        obj.kind = 'attr';
+        if (value.kind === 'region') {
+            obj.name = value.name;
+            obj.type = 1001; // graph
+            obj.block = value.block;
+            obj.vars = value.vars;
+        } else {
+            const [attrName, attrType, attrValue] = this.getAttr(opInfo, idx, value);
+            obj.name = attrName;
+            obj.type = 1000; // ir
+            obj.irType = attrType;
+            obj.irValue = attrValue;
+        }
+        return obj;
+    }
+
+    getParaName(tensor, namePrefix) {
+        const idx = tensor['%'] || tensor['#'];
+        if (tensor.TT && !this._names.has(idx)) {
+            const prefix = namePrefix || idx;
+            this._names.set(idx, `${prefix}`);
+        }
+        return [`${idx}`, this._names.has(idx) ? this._names.get(idx) : `${idx}`, Number.isInteger(idx) ? idx < 0 : false];
+    }
+
+    hasCrossInput(name) {
+        return this._crossRegionInputs.has(name);
+    }
+
+    getCrossInput(name) {
+        return this._crossRegionInputs.has(name) ? this._crossRegionInputs.get(name) : null;
+    }
+
+    addCrossInput(name, input) {
+        this._crossRegionInputs.set(name, input);
+    }
+
+    getOpInfo(op) {
+        const obj = {};
+        obj.rawType = op['#'];
+        obj._type = op['#'];
+        obj._name = op['#'];
+        switch (op['#']) {
+            case 'p': {
+                obj.kind = 'p';
+                [obj._name] = op.A.slice(3);
+                obj._type = this.getCompressOp(obj._type);
+                op.OA = [...op.OA, ...op.A];
+                obj.type = obj._type;
+                obj.name = obj._type;
+                obj.fullName = obj._type;
+                obj.namePrefix = obj._name;
+                break;
+            }
+            case '1.data': {
+                obj.kind = 'data';
+                [obj._opKey, obj._opType] = obj._name.split('.');
+                let prefix = '';
+                for (const attr of op.A) {
+                    if (attr.N === 'name') {
+                        prefix = attr.AT.D;
+                        break;
+                    }
+                }
+                obj._attr = op.A;
+                obj.type = obj._opType;
+                obj.name = obj._opType;
+                obj.fullName = `${this.getCompressOp(obj._opKey)}.${obj._opType}`;
+                obj.namePrefix = prefix;
+                break;
+            }
+            default: {
+                obj.kind = '';
+                [obj._opKey, obj._opType] = obj._name.split('.');
+                obj.type = obj._opType;
+                obj.name = obj._opType;
+                obj.fullName = `${this.getCompressOp(obj._opKey)}.${obj._opType}`;
+                obj.namePrefix = null;
+                break;
+            }
+        }
+        return obj;
+    }
+
+    createTensorType(data, denotation) {
+        const [type, dims, layout, ,] = data.TT.D;
+        const [, dataType] = type['#'].split('.');
+        const dtype = this.getType(dataType);
+        const shape = new paddle.TensorShape(dims);
+        return new paddle.TensorType(dtype, shape, layout, denotation);
+    }
+
+    getType(type) {
+        type = type.includes('_') ? type.split('_')[1] : type;
+        switch (type) {
+            case 'bool': return 'boolean';
+            case 'bf16': return 'bfloat16';
+            case 'fp16': return 'float16';
+            case 'fp32': return 'float32';
+            case 'fp64': return 'float64';
+            case 'fp8_e4m3fn': return 'float8e4m3fn';
+            case 'fp8_e5m2': return 'float8e5m2';
+            case 'f8e4m3fn': return 'float8e4m3fn';
+            case 'f8e5m2': return 'float8e5m2';
+            case 'f16': return 'float16';
+            case 'f32': return 'float32';
+            case 'f64': return 'float64';
+            case 'i8': return 'int8';
+            case 'ui8': return 'uint8';
+            case 'i16': return 'int16';
+            case 'i32': return 'int32';
+            case 'i64': return 'int64';
+            case 'c64': return 'complex64';
+            case 'c128': return 'complex128';
+            case 'str': return 'string';
+            default: return type;
+        }
+    }
+
+    getCompressOp(opType) {
+        switch (opType) {
+            case '0': return 'builtin';
+            case '1': return 'pd_op';
+            case '2': return 'cf';
+            case '3': return 'custom_op';
+            case '4': return 'pd_dist';
+            case 'p': return 'parameter';
+            default: return opType;
+        }
+    }
+
+    getAttrDenotation(name, value) {
+        if (value) {
+            if (typeof value === 'boolean') {
+                return `${name}`;
+            }
+            if (name !== 'name' && name !== 'dtype') {
+                return `${name}:${value}`;
+            }
+        }
+        return '';
+    }
+
+    getAttr(opInfo, idx, value) {
+        if (opInfo.kind === 'p') {
+            let attrName = '';
+            let attrType = '';
+            let attrValue = '';
+            switch (idx) {
+                case '0':
+                    attrName = 'is_distributed';
+                    attrType = this.getType('a_bool');
+                    break;
+                case '1':
+                    attrName = 'is_parameter';
+                    attrType = this.getType('a_bool');
+                    break;
+                case '2':
+                    attrName = 'need_clip';
+                    attrType = this.getType('a_bool');
+                    break;
+                case '3':
+                    attrName = 'name';
+                    attrType = this.getType('a_str');
+                    break;
+                default:
+                    break;
+            }
+            attrValue = attrType === this.getType('a_bool') ? value === 1 : value;
+            return [attrName, attrType, attrValue];
+        }
+        const attrName = value.N;
+        let attrType = this.getType(value.AT['#'].split('.')[1]);
+        let attrValue = value.AT.D;
+        if (attrType === this.getType('a_array')) {
+            const subType = this.getType(attrValue[0]['#'].split('.')[1]);
+            attrType = `${subType}[]`;
+            const valueData = [];
+            for (const attr of attrValue) {
+                valueData.push(attr.D);
+            }
+            attrValue = valueData;
+        }
+        if (attrName === 'place') {
+            const [place, val,] = attrValue;
+            let device = place;
+            switch (device) {
+                case 0: device = 'UNDEFINED'; break;
+                case 1: device = 'CPU'; break;
+                case 2: device = 'GPU'; break;
+                case 3: device = 'GPUPINNED'; break;
+                case 4: device = 'XPU'; break;
+                case 7: device = 'IPU'; break;
+                case 9: device = 'CUSTOM'; break;
+                default: break;
+            }
+            attrValue = `${device}:${val}`;
+        }
+        if (attrName === 'shape') {
+            attrValue = new paddle.TensorShape(attrValue);
+        }
+        return [attrName, attrType, attrValue];
+    }
+
+    getOutputAttr(opInfo, idx, outputAttr) {
+        switch (opInfo.kind) {
+            case 'p': {
+                const denotation = [];
+                if (outputAttr[0] === 1) {
+                    denotation.push('persistable');
+                }
+                if (outputAttr[1] === 1) {
+                    denotation.push('stop_gradient');
+                }
+                if (outputAttr[2] === 1) {
+                    denotation.push('trainable');
+                }
+                if (outputAttr[3] === 1) {
+                    denotation.push('is_distributed');
+                }
+                if (outputAttr[4] === 1) {
+                    denotation.push('is_parameter');
+                }
+                if (outputAttr[5] === 1) {
+                    denotation.push('need_clip');
+                }
+                return denotation.join(';');
+            }
+            case 'data': {
+                const denotation = [];
+                for (const attr of outputAttr) {
+                    const attrName = attr.N;
+                    const attrValue = attr.AT.D[idx].D;
+                    const attrDenotation = this.getAttrDenotation(attrName, attrValue);
+                    if (attrDenotation) {
+                        denotation.push(attrDenotation);
+                    }
+                }
+                for (const value of opInfo._attr) {
+                    const [attrName, , attrValue] = this.getAttr(opInfo, null, value);
+                    const attrDenotation = this.getAttrDenotation(attrName, attrValue);
+                    if (attrDenotation) {
+                        denotation.push(attrDenotation);
+                    }
+                }
+                return denotation.join(';');
+            }
+            default: {
+                const denotation = [];
+                for (const attr of outputAttr) {
+                    const attrName = attr.N;
+                    const attrValue = attr.AT.D[idx].D;
+                    const attrDenotation = this.getAttrDenotation(attrName, attrValue);
+                    if (attrDenotation) {
+                        denotation.push(attrDenotation);
+                    }
+                }
+                return denotation.join(';');
+            }
+        }
+    }
 };
 
 paddle.Error = class extends Error {
