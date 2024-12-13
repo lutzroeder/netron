@@ -16,6 +16,8 @@
         { "ext": "hd5",         "name": "Keras Model"              },
         { "ext": "hdf5",        "name": "Keras Model"              },
         { "ext": "hn",          "name": "Hailo Model"              },
+        { "ext": "kann",        "name": "KaNN Model"               },
+        { "ext": "kgraph",      "name": "KaNN Model"               },
         { "ext": "keras",       "name": "Keras Model"              },
         { "ext": "kmodel",      "name": "Kendryte Model"           },
         { "ext": "lite",        "name": "TensorFlow Lite Model"    },

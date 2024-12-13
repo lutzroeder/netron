@@ -1,0 +1,86 @@
+[
+    {
+        "name": "Transpose",
+        "category": "Transform"
+    },
+    {
+        "name": "Substraction",
+        "category": "Transform"
+    },
+    {
+        "name": "LayerNorm",
+        "category": "Normalization"
+    },
+    {
+        "name": "ConvolutionCV2",
+        "category": "Layer"
+    },
+    {
+        "name": "ReLU",
+        "category": "Activation"
+    },
+    {
+        "name": "Resize",
+        "category": "Shape"
+    },
+    {
+        "name": "ResizeNearestAsymFloor",
+        "category": "Shape"
+    },
+    {
+        "name": "Exp",
+        "category": "Activation"
+    },
+    {
+        "name": "Mish",
+        "category": "Activation"
+    },
+    {
+        "name": "Stddev",
+        "category": "Normalization"
+    },
+    {
+        "name": "AvgPooling",
+        "category": "Pool"
+    },
+    {
+        "name": "HardSigmoid",
+        "category": "Activation"
+    },
+    {
+        "name": "SeLU",
+        "category": "Activation"
+    },
+    {
+        "name": "LRN",
+        "category": "Normalization"
+    },
+    {
+        "name": "GeLU",
+        "category": "Activation"
+    },
+    {
+        "name": "Reshape",
+        "category": "Shape"
+    },
+    {
+        "name": "Tanh",
+        "category": "Activation"
+    },
+    {
+        "name": "MaxPooling",
+        "category": "Pool"
+    },
+    {
+        "name": "DepthwiseConvolution",
+        "category": "Layer"
+    },
+    {
+        "name": "Softmax",
+        "category": "Activation"
+    },
+    {
+        "name": "SiLU",
+        "category": "Activation"
+    }
+]

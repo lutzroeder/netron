@@ -539,7 +539,7 @@ const update = async () => {
         'caffe', 'caffe2', 'circle', 'cntk', 'coreml',
         'dlc', 'dnn',
         'gguf',
-        'keras',
+        'kann', 'keras',
         'mnn', 'mslite', 'megengine',
         'nnabla',
         'onnx', 'om',
