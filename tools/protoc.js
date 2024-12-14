@@ -1131,9 +1131,9 @@ protoc.Tokenizer = class {
 
 protoc.Generator = class {
 
-    constructor(root, text) {
+    constructor(root, options) {
         this._root = root;
-        this._text = text;
+        this._options = options;
         this._builder = new protoc.Generator.StringBuilder();
         const scopes = Array.from(this._root.children.values()).map((child) => child.fullName);
         const exports = new Set(scopes.map((scope) => scope.split('.')[0]));
@@ -1206,12 +1206,19 @@ protoc.Generator = class {
             /* eslint-enable indent */
         }
 
-        this._builder.add('');
-        this._buildDecodeFunction(type);
+        if (this._options.binary) {
+            this._builder.add('');
+            this._buildDecodeFunction(type);
+        }
 
-        if (this._text) {
+        if (this._options.text) {
             this._builder.add('');
             this._buildDecodeTextFunction(type);
+        }
+
+        if (this._options.json) {
+            this._builder.add('');
+            this._buildDecodeJsonFunction(type);
         }
 
         this._builder.outdent();
@@ -1412,6 +1419,16 @@ protoc.Generator = class {
         /* eslint-enable indent */
     }
 
+    _buildDecodeJsonFunction() {
+        // /* eslint-disable indent */
+        this._builder.add('static decodeJson(/* reader */) {');
+        this._builder.indent();
+
+        this._builder.outdent();
+        this._builder.add('}');
+        // /* eslint-enable indent */
+    }
+
     static _isKeyword(name) {
         return /^(?:do|if|in|for|let|new|try|var|case|else|enum|eval|false|null|this|true|void|with|break|catch|class|const|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/.test(name);
     }
@@ -1486,8 +1503,14 @@ const main = async (args) => {
             case '--root':
                 options.root = args.shift();
                 break;
+            case '--binary':
+                options.binary = true;
+                break;
             case '--text':
                 options.text = true;
+                break;
+            case '--json':
+                options.json = true;
                 break;
             case '--path':
                 options.paths.push(args.shift());
@@ -1504,7 +1527,7 @@ const main = async (args) => {
     try {
         const root = new protoc.Root(options.root);
         await root.load(options.paths, options.files);
-        const generator = new protoc.Generator(root, options.text);
+        const generator = new protoc.Generator(root, options);
         if (options.out) {
             await fs.writeFile(options.out, generator.content, 'utf-8');
         }

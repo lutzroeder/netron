@@ -49,7 +49,7 @@ schema() {
     ${python} ./tools/nnabla_script.py schema
     deactivate
     [[ $(grep -U $'\x0D' ./source/nnabla-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --text --root nnabla --out ./source/nnabla-proto.js ./third_party/source/nnabla/src/nbla/proto/nnabla.proto
+    node ./tools/protoc.js --binary --text --root nnabla --out ./source/nnabla-proto.js ./third_party/source/nnabla/src/nbla/proto/nnabla.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/nnabla-proto.js ./source/nnabla-proto.js
     fi

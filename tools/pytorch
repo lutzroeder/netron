@@ -20,6 +20,7 @@ venv() {
 
 clean() {
     echo "pytorch clean"
+    rm -rf "./third_party/source/caffe2"
     rm -rf "./third_party/source/pytorch"
     rm -rf "./third_party/source/executorch/schema"
 }
@@ -31,6 +32,9 @@ sync() {
     mkdir -p "./third_party/source/executorch/schema"
     curl --silent --location --output "./third_party/source/executorch/schema/scalar_type.fbs" "https://github.com/pytorch/executorch/raw/main/schema/scalar_type.fbs"
     curl --silent --location --output "./third_party/source/executorch/schema/program.fbs" "https://github.com/pytorch/executorch/raw/main/schema/program.fbs"
+    mkdir -p "./third_party/source/caffe2/proto"
+    curl --silent --location --output "./third_party/source/caffe2/proto/caffe2.proto" "https://github.com/pytorch/pytorch/raw/5e69e11d098a2cfccc8a59377c431e9c71cab9a8/caffe2/proto/caffe2.proto"
+    curl --silent --location --output "./third_party/source/caffe2/proto/torch.proto" "https://github.com/pytorch/pytorch/raw/5e69e11d098a2cfccc8a59377c431e9c71cab9a8/caffe2/proto/torch.proto"
 }
 
 install() {
@@ -44,12 +48,23 @@ install() {
 
 
 schema() {
-    [[ $(grep -U $'\x0D' ./source/pytorch-schema.js) ]] && crlf=1
     echo "pytorch schema"
+    [[ $(grep -U $'\x0D' ./source/caffe2-proto.js) ]] && crlf=1
+    node ./tools/protoc.js --binary --text --root caffe2 --out ./source/caffe2-proto.js ./third_party/source/caffe2/proto/caffe2.proto
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/caffe2-proto.js ./source/caffe2-proto.js
+    fi
+    [[ $(grep -U $'\x0D' ./source/pytorch-proto.js) ]] && crlf=1
+    node ./tools/protoc.js --json --root pytorch --out ./source/pytorch-proto.js --path ./third_party/source ./third_party/source/caffe2/proto/torch.proto
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/pytorch-proto.js ./source/pytorch-proto.js
+    fi
+    [[ $(grep -U $'\x0D' ./source/pytorch-schema.js) ]] && crlf=1
     node ./tools/flatc.js --root torch --out ./source/pytorch-schema.js ./third_party/source/pytorch/torch/csrc/jit/serialization/mobile_bytecode.fbs ./third_party/source/executorch/schema/program.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/pytorch-schema.js ./source/pytorch-schema.js
     fi
+
 }
 
 metadata() {

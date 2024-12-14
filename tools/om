@@ -12,7 +12,7 @@ schema() {
     echo "om schema"
     [[ $(grep -U $'\x0D' ./source/om-proto.js) ]] && crlf=1
     # https://github.com/Ascend/parser/blob/development/parser/proto/ge_ir.proto
-    node ./tools/protoc.js --text --root om --out ./source/om-proto.js ./tools/om.proto
+    node ./tools/protoc.js --binary --text --root om --out ./source/om-proto.js ./tools/om.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/om-proto.js ./source/om-proto.js
     fi

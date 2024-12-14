@@ -44,7 +44,7 @@ install() {
 schema() {
     echo "tf schema"
     [[ $(grep -U $'\x0D' ./source/tf-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --text --root tf --out ./source/tf-proto.js --path ./third_party/source/tensorflow --path ./third_party/source/tensorflow/third_party/xla tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto tensorflow/core/util/event.proto tensorflow/core/protobuf/config.proto tensorflow/core/util/memmapped_file_system.proto tensorflow/core/protobuf/fingerprint.proto
+    node ./tools/protoc.js --binary --text --root tf --out ./source/tf-proto.js --path ./third_party/source/tensorflow --path ./third_party/source/tensorflow/third_party/xla tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto tensorflow/core/util/event.proto tensorflow/core/protobuf/config.proto tensorflow/core/util/memmapped_file_system.proto tensorflow/core/protobuf/fingerprint.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/tf-proto.js ./source/tf-proto.js
     fi
@@ -58,7 +58,7 @@ schema() {
     fi
     echo "keras schema"
     [[ $(grep -U $'\x0D' ./source/keras-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --text --root tf --out ./source/keras-proto.js --path ./third_party/source/tensorflow --path ./third_party/source/tensorflow/third_party/xla/third_party/tsl tensorflow/python/keras/protobuf/saved_metadata.proto
+    node ./tools/protoc.js --binary --text --root tf --out ./source/keras-proto.js --path ./third_party/source/tensorflow --path ./third_party/source/tensorflow/third_party/xla/third_party/tsl tensorflow/python/keras/protobuf/saved_metadata.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/keras-proto.js ./source/keras-proto.js
     fi
