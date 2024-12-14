@@ -25,7 +25,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: latest
+          node-version: 23.3.0
 
       - name: Install Python
         uses: actions/setup-python@v5
