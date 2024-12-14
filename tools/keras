@@ -34,6 +34,7 @@ install() {
     echo "keras install"
     venv
     ${python} -m pip install --quiet --upgrade packaging
+    ${python} -m pip install --quiet --upgrade scikit-learn
     ${python} -m pip install --quiet --upgrade keras-nightly
     ${python} -m pip install --quiet --upgrade jax
     deactivate

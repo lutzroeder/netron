@@ -3936,12 +3936,12 @@
       },
       {
         "default": false,
-        "description": "Boolean (default: `False`). If `True`, the last state\n        for each sample at index i in a batch will be used as initial\n        state for the sample of index i in the following batch.",
+        "description": "Boolean (default: `False`). If `True`, the last state\n        for each sample at index i in a batch will be used as the\n        initial state for the sample of index i in the following batch.",
         "name": "stateful"
       },
       {
         "default": false,
-        "description": "Boolean (default: `False`).\n        If `True`, the network will be unrolled,\n        else a symbolic loop will be used.\n        Unrolling can speed-up a RNN,\n        although it tends to be more memory-intensive.\n        Unrolling is only suitable for short sequences.",
+        "description": "Boolean (default: `False`).\n        If `True`, the network will be unrolled,\n        else a symbolic loop will be used.\n        Unrolling can speed-up an RNN,\n        although it tends to be more memory-intensive.\n        Unrolling is only suitable for short sequences.",
         "name": "unroll"
       },
       {
