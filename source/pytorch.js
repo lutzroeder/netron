@@ -1792,6 +1792,12 @@ pytorch.Execution = class extends python.Execution {
         const ast = this.ast;
         const torch = this.torch;
         switch (expr.__class__.__name__) {
+            case 'Name': {
+                if (this.traceAttr && expr.id === 'self') {
+                    return context.get('self');
+                }
+                break;
+            }
             case 'Constant': {
                 if (expr.value === true || expr.value === false) {
                     return this._graph.insertConstant(expr.value);
@@ -2530,7 +2536,7 @@ pytorch.Execution = class extends python.Execution {
                 super.statement(stmt, context);
                 /*
                 const value = context.get(stmt.name);
-                const type = new torch.ClassType(`${value.__module__}.${value.__name__}`);
+                const type = torch.ClassType.create(`${value.__module__}.${value.__name__}`);
                 for (const entry of stmt.body) {
                     if (entry instanceof ast.AnnAssign) {
                         const target = this.identifier(entry.target);
@@ -2660,23 +2666,22 @@ pytorch.Execution = class extends python.Execution {
             const moduleTarget = this.target(target, context);
             if (moduleTarget instanceof torch.Value && moduleTarget.type() instanceof torch.ClassType) {
                 const class_type = moduleTarget.type().expect(torch.ClassType);
-                const method_name = name;
-                const method = class_type.getMethod(method_name);
-                const return_type = method.getSchema().returns[0].real_type;
-                const node = this._graph.create('prim::CallMethod');
-                this._graph.insertNode(node);
-                node.s_('name', name);
-                const inputs = [];
+                const method = class_type.getMethod(name);
                 const evalArgs = args.map((expression) => this.expression(expression, context));
+                if (this.traceAttr && method.__ast__) {
+                    return this.apply(method.__ast__, [moduleTarget].concat(evalArgs), context);
+                }
+                const schema = method.getSchema();
+                const return_field_names = [schema.returns[0].name];
+                const return_types = [schema.returns[0].real_type];
+                const inputs = [moduleTarget];
                 for (const arg of evalArgs) {
                     const value = this.variable(arg);
                     inputs.push(value);
-                    node.addInput(value);
                 }
-                node.output().setType(return_type);
+                const matchedSchema = new torch.jit.MatchedSchema(inputs, return_types, return_field_names, name);
+                const node = this._graph.insertMethodCall(name, matchedSchema);
                 return node.output();
-                // const matchedSchema = new torch.jit.MatchedSchema(inputs, return_types, return_field_names, schema_name)
-                // return this._graph.insertMethodCall(name, matchedSchema);
             }
             const prefix = this.identifier(target);
             if (prefix && prefix !== 'self' && !prefix.startsWith('self.') && prefix.indexOf('.') !== -1) {
