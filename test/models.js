@@ -278,7 +278,7 @@ const main = async () => {
         const exists = await Promise.all(args.inputs.map((pattern) => access(pattern)));
         const paths = exists.length > 0 && exists.every((value) => value);
         const patterns = paths ? [] : args.inputs;
-        const targets = paths ? args.inputs.map((path) => ({ target: path })) : await configuration();
+        const targets = paths ? args.inputs.map((path) => ({ target: path, tags: 'quantization,validation' })) : await configuration();
         const queue = new Queue(targets, patterns);
         const threads = args.measure || inspector.url() ? 1 : undefined;
         const logger = new Logger(threads);
