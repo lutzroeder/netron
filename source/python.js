@@ -6496,6 +6496,9 @@ python.Execution = class {
         this.registerFunction('torch.is_grad_enabled', () => {
             return false;
         });
+        this.registerFunction('torch.is_autocast_enabled', () => {
+            return false;
+        });
         this.registerFunction('torch.isfinite');
         this.registerFunction('torch.set_grad_enabled', (/* value */) => {
         });
