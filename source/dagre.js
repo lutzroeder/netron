@@ -1365,13 +1365,29 @@ dagre.layout = (nodes, edges, layout, state) => {
         }
         // Reduce crossings
         const calcDir = (idx0, idx1) => (idx0 < idx1) ? 1 : 2;
+
+        // https://stackoverflow.com/a/62854671
+        function perm(array, length) {
+            return array.flatMap((v, i) => length > 1
+                ? perm(array.slice(i + 1), length - 1).map(w => [v, ...w])
+                : [[v]]
+            );
+        }
+        const perms = new Map();
         for (let i = 4; i < best.length; i += 2) {
             const layer = best[i];
+            const upperLayer = best[i - 1];
             for (let j = 0; j < layer.length; ++j) {
                 const node = g.nodes.get(layer[j]);
-                if (node.in && node.in.length === 2) {
-                    let n0 = node.in[0].vNode.in[0].vNode;
-                    let n1 = node.in[1].vNode.in[0].vNode;
+                if (!node.in || node.in.length < 2) {
+                    continue;
+                }
+                if (!perms.has(node.in.length)) {
+                    perms.set(node.in.length, perm([...Array(node.in.length).keys()], 2));
+                }
+                for (const p of perms.get(node.in.length)) {
+                    let n0 = node.in[p[0]].vNode.in[0].vNode;
+                    let n1 = node.in[p[1]].vNode.in[0].vNode;
                     const indexes = [];
                     let dirTotal = 0;
                     for (let k = i - 2; k >= 0; k -= 2) {
@@ -1388,6 +1404,11 @@ dagre.layout = (nodes, edges, layout, state) => {
                             || n1.out.length !== 1
                         ) {
                             if (dirTotal === 3) {
+                                {
+                                    const idx0 = upperLayer.indexOf(node.in[p[0]].v);
+                                    const idx1 = upperLayer.indexOf(node.in[p[1]].v);
+                                    [upperLayer[idx0], upperLayer[idx1]] = [upperLayer[idx1], upperLayer[idx0]];
+                                }
                                 const topDir = dir;
                                 let l = k + 2;
                                 while (indexes.length !== 0) {
