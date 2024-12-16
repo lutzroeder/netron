@@ -1369,7 +1369,7 @@ dagre.layout = (nodes, edges, layout, state) => {
         // https://stackoverflow.com/a/62854671
         function perm(array, length) {
             return array.flatMap((v, i) => length > 1
-                ? perm(array.slice(i + 1), length - 1).map(w => [v, ...w])
+                ? perm(array.slice(i + 1), length - 1).map((w) => [v, ...w])
                 : [[v]]
             );
         }
