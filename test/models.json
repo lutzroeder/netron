@@ -4074,7 +4074,7 @@
     "type":     "onnx",
     "target":   "candy.json.zip",
     "source":   "https://github.com/lutzroeder/netron/files/12329067/candy.json.zip",
-    "format":   "ONNX JSON v3",
+    "format":   "ONNX v3",
     "assert":   "model.graphs[0].nodes[2].attributes[1].visible == false",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
@@ -4254,7 +4254,7 @@
     "type":     "onnx",
     "target":   "gather.json",
     "source":   "https://github.com/lutzroeder/netron/files/12306625/gather.json.zip[gather.json]",
-    "format":   "ONNX JSON v6",
+    "format":   "ONNX v6",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -4374,7 +4374,7 @@
     "type":     "onnx",
     "target":   "issue_1138.json",
     "source":   "https://github.com/lutzroeder/netron/files/12343742/issue_1138.json.zip[issue_1138.json]",
-    "format":   "ONNX JSON v9",
+    "format":   "ONNX v9",
     "link":     "https://github.com/lutzroeder/netron/issues/1138"
   },
   {
@@ -4484,7 +4484,7 @@
     "type":     "onnx",
     "target":   "nms_base_component.json",
     "source":   "https://github.com/lutzroeder/netron/files/12306626/nms_base_component.json.zip[nms_base_component.json]",
-    "format":   "ONNX JSON v8",
+    "format":   "ONNX v8",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -4507,7 +4507,7 @@
     "type":     "onnx",
     "target":   "optional_type.json",
     "source":   "https://github.com/lutzroeder/netron/files/12329086/optional_type.json.zip[optional_type.json]",
-    "format":   "ONNX JSON v8",
+    "format":   "ONNX v8",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -4600,7 +4600,7 @@
     "type":     "onnx",
     "target":   "sparse_initializer_as_output.json",
     "source":   "https://github.com/lutzroeder/netron/files/12444489/sparse_initializer_as_output.json.zip[sparse_initializer_as_output.json]",
-    "format":   "ONNX JSON v7",
+    "format":   "ONNX v7",
     "assert":   "model.graphs[0].outputs[0].value[0].type.layout == 'sparse'",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/741"
@@ -4769,7 +4769,7 @@
     "type":     "onnx",
     "target":   "zipmap_int64float.json",
     "source":   "https://github.com/lutzroeder/netron/files/12329104/zipmap_int64float.json.zip[zipmap_int64float.json]",
-    "format":   "ONNX JSON v3",
+    "format":   "ONNX v3",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
