@@ -1345,6 +1345,9 @@ pytorch.Container.ModelJson = class extends pytorch.Container {
     }
 
     async read(metadata) {
+        if (this._entries.has('model.json')) {
+            pytorch.proto = await this._context.require('./pytorch-proto');
+        }
         const keys = [
             'attributes.pkl',
             'version',
@@ -1360,6 +1363,7 @@ pytorch.Container.ModelJson = class extends pytorch.Container {
             }
         }
         this.execution = new pytorch.Execution(null, metadata);
+        this.execution.proto = pytorch.proto;
         for (const event of this._events) {
             this.execution.on(event[0], event[1]);
         }

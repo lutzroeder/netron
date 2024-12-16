@@ -6987,7 +6987,7 @@ python.Execution = class {
             constructor(qualified_name, cu, is_module) {
                 super('ClassType', typeof qualified_name === 'string' ? qualified_name : qualified_name.qualifiedName());
                 this._is_module = is_module;
-                this._attributes = new Map();
+                this._attributes = [];
                 this._methods = new Map();
                 this._staticmethods = new Map();
                 this._constants = new Map();
@@ -7023,14 +7023,43 @@ python.Execution = class {
             findStaticMethod(name) {
                 return this._staticmethods.get(name);
             }
-            addAttribute(name, type /*, is_parameter, is_buffer */) {
-                this._attributes.set(name, type);
+            addAttribute(name, type, is_parameter, is_buffer) {
+                is_parameter = is_parameter || false;
+                is_buffer = is_buffer || false;
+                const slot = this._attributes.length;
+                this._attributes.push({ name, type, is_parameter, is_buffer });
+                return slot;
+            }
+            addOrCheckAttribute(name, ty, is_parameter, is_buffer) {
+                is_parameter = is_parameter || false;
+                is_buffer = is_buffer || false;
+                const slot_idx = this.findAttributeSlot(name);
+                if (slot_idx === null) {
+                    return this.addAttribute(name, ty, is_parameter, is_buffer);
+                }
+                // TORCH_CHECK(is_parameter == this->is_parameter(*slot_idx), "Parameter field mismatch for the field '", name, "'");
+                // const TypePtr& atype = getAttribute(*slot_idx);
+                // TORCH_CHECK(ty->isSubtypeOf(*atype), ty->repr_str(), " is not compatible with the type ", atype->repr_str(), " for the field '", name, "'");
+                return slot_idx;
+            }
+            findAttributeSlot(name) {
+                for (let pos = 0; pos < this._attributes.length; pos++) {
+                    if (name === this._attributes[pos].name) {
+                        return pos;
+                    }
+                }
+                return null;
             }
             findAttribute(name) {
-                return this._attributes.get(name);
+                const slot = this.findAttributeSlot(name);
+                if (slot !== null) {
+                    return this._attributes[slot].type;
+                }
+                return null;
             }
             getAttribute(name) {
-                return this._attributes.get(name);
+                const slot = this.findAttributeSlot(name);
+                return this._attributes[slot].type;
             }
             hasConstant(/* name */) {
             }
@@ -9100,28 +9129,28 @@ python.Execution = class {
             }
             LEGACY_deserialize() {
                 const execution = this._compilation_unit.execution;
+                const caffe2 = execution.proto.caffe2;
                 const torch = execution.import('torch');
                 const stream = this._reader.get_record('model.json');
                 const buffer = stream.peek();
                 const decoder = new TextDecoder('utf-8');
                 const content = decoder.decode(buffer);
-                const model = JSON.parse(content);
-                const data = model.mainModule || {};
-                const queue = [data];
+                const obj = JSON.parse(content);
+                const model = execution.proto.torch.ModelDef.decodeJson(obj);
                 const tensorTypeMap = new Map([
-                    ['FLOAT', 'Float'],
-                    ['FLOAT16', 'Half'],
-                    ['DOUBLE', 'Double'],
-                    ['INT8', 'Char'],
-                    ['INT32', 'Int'],
-                    ['INT64', 'Long']
+                    [caffe2.TensorProto.DataType.FLOAT, 'Float'],
+                    [caffe2.TensorProto.DataType.FLOAT16, 'Half'],
+                    [caffe2.TensorProto.DataType.DOUBLE, 'Double'],
+                    [caffe2.TensorProto.DataType.INT8, 'Char'],
+                    [caffe2.TensorProto.DataType.INT32, 'Int'],
+                    [caffe2.TensorProto.DataType.INT64, 'Long']
                 ]);
                 const tensor_table = (model.tensors || []).map((constant) => {
                     const key = constant.data.key;
-                    if (!tensorTypeMap.has(constant.dataType)) {
-                        throw new python.Error(`Unsupported tensor data type '${constant.dataType}'.`);
+                    if (!tensorTypeMap.has(constant.data_type)) {
+                        throw new python.Error(`Unsupported tensor data type '${constant.data_type}'.`);
                     }
-                    const type = tensorTypeMap.get(constant.dataType);
+                    const type = tensorTypeMap.get(constant.data_type);
                     const shape = constant.dims ? constant.dims.map((dim) => parseInt(dim, 10)) : null;
                     const strides = constant.strides ? constant.strides.map((dim) => parseInt(dim, 10)) : null;
                     const storage_type = execution.resolve(`torch.${type}Storage`);
@@ -9137,7 +9166,7 @@ python.Execution = class {
                         storage._set_cdata(data);
                     }
                     const tensor = torch._utils._rebuild_tensor(storage, 0, shape, strides);
-                    tensor.name = constant.data.key;
+                    tensor.name = key;
                     return tensor;
                 });
                 execution.builtins.CONSTANTS = {};
@@ -9152,14 +9181,14 @@ python.Execution = class {
                     const obj = unpickler.load();
                     attributes.push(...obj);
                 }
-
                 this._LEGACY_moduleStack = ['__torch__'];
-                // const module_def = model.mainModule;
+                const module_def = model.main_module;
                 for (const tensor of tensor_table) {
                     this._constant_table.push(tensor);
                 }
-                // this.LEGACY_convertModule(module_def);
-
+                const temp = this.LEGACY_convertModule(module_def);
+                const data = obj.mainModule || {};
+                const queue = [data];
                 while (queue.length > 0) {
                     const module = queue.shift();
                     module.__class__ = module.__class__ || { __module__: 'torch.nn.modules.module', __name__: 'Module' };
@@ -9205,8 +9234,7 @@ python.Execution = class {
                         data.forward = module.forward;
                     }
                 }
-                const class_type = torch.ClassType.create(data.name);
-                const result = new torch.ScriptModule(class_type);
+                const result = new torch.ScriptModule(temp.type());
                 result.data = data;
                 return result;
             }
@@ -9532,6 +9560,9 @@ python.Execution = class {
                 }
                 return new torch.ScriptObject(type);
             }
+            type() {
+                return this._type;
+            }
             _type() {
                 return this._type; // torch.ClassType
             }
@@ -9682,11 +9713,21 @@ python.Execution = class {
                 cu.register_type(cls);
                 return [cls, cu];
             }
-            register_module(/* name, module */) {
+            register_module(name, module) {
+                this.type().addOrCheckAttribute(name, module.type());
+                // _ivalue()->setAttr(name, module._ivalue());
             }
-            register_buffer(/* name, buffer */) {
+            register_buffer(name /* , v */) {
+                this.type().addOrCheckAttribute(name, torch.TensorType.get(), false, true);
+                // _ivalue()->setAttr(name, std::move(v));
             }
-            register_parameter(/* name, parameter, is_buffer */) {
+            register_parameter(name, v, is_buffer) {
+                this.type().addOrCheckAttribute(name, torch.TensorType.get(), !is_buffer, is_buffer);
+                // _ivalue()->setAttr(name, std::move(v));
+            }
+            register_attribute(name, t, v, is_param, is_buffer) {
+                this.type().addOrCheckAttribute(name, t, is_param, is_buffer);
+                // _ivalue()->setAttr(name, v);
             }
         });
         this.registerType('torch.ModuleDict', class {
