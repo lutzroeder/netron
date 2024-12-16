@@ -1137,7 +1137,14 @@ paddle.IR = class {
     }
 
     getParaName(tensor, namePrefix) {
-        const idx = tensor['%'] || tensor['#'];
+        // in case of idx is `0`, do not use `xxx || xxx`
+        let idx = '';
+        if ('%' in tensor) {
+            idx = tensor['%'];
+        } else if ('#' in tensor) {
+            idx = tensor['#'];
+        }
+
         if (tensor.TT && !this._names.has(idx)) {
             const prefix = namePrefix || idx;
             this._names.set(idx, `${prefix}`);
@@ -1294,7 +1301,7 @@ paddle.IR = class {
         const attrName = value.N;
         let attrType = this.getType(value.AT['#'].split('.')[1]);
         let attrValue = value.AT.D;
-        if (attrType === this.getType('a_array')) {
+        if (attrType === this.getType('a_array') && attrValue.length > 0) {
             const subType = this.getType(attrValue[0]['#'].split('.')[1]);
             attrType = `${subType}[]`;
             const valueData = [];
