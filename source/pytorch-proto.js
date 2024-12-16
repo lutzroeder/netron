@@ -4,7 +4,12 @@ export const caffe2 = {};
 
 torch.RecordRef = class RecordRef {
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new torch.RecordRef();
+        if (obj.key !== undefined) {
+            message.key = obj.key;
+        }
+        return message;
     }
 };
 
@@ -17,7 +22,39 @@ torch.TensorDef = class TensorDef {
         this.strides = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new torch.TensorDef();
+        if (obj.dims !== undefined) {
+            message.dims = obj.dims.map((obj) => BigInt(obj));
+        }
+        if (obj.offset !== undefined) {
+            message.offset = BigInt(obj.offset);
+        }
+        if (obj.strides !== undefined) {
+            message.strides = obj.strides.map((obj) => BigInt(obj));
+        }
+        if (obj.requiresGrad !== undefined) {
+            message.requires_grad = obj.requiresGrad;
+        }
+        if (obj.dataType !== undefined) {
+            message.data_type = caffe2.TensorProto.DataType[obj.dataType];
+        }
+        if (obj.data !== undefined) {
+            message.data = torch.RecordRef.decodeJson(obj.data);
+        }
+        if (obj.device !== undefined) {
+            message.device = obj.device;
+        }
+        if (obj.isQuantized !== undefined) {
+            message.is_quantized = obj.isQuantized;
+        }
+        if (obj.scale !== undefined) {
+            message.scale = Number(obj.scale);
+        }
+        if (obj.zeroPoint !== undefined) {
+            message.zero_point = BigInt(obj.zeroPoint);
+        }
+        return message;
     }
 };
 
@@ -32,7 +69,12 @@ torch.TensorDef.prototype.zero_point = 0n;
 
 torch.AttributeDef = class AttributeDef {
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new torch.AttributeDef();
+        message.type = obj.type;
+        message.name = obj.name;
+        message.id = BigInt(obj.id);
+        return message;
     }
 };
 
@@ -42,7 +84,18 @@ torch.AttributeDef.prototype.id = 0n;
 
 torch.ParameterDef = class ParameterDef {
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new torch.ParameterDef();
+        if (obj.isBuffer !== undefined) {
+            message.is_buffer = obj.isBuffer;
+        }
+        if (obj.tensorId !== undefined) {
+            message.tensor_id = BigInt(obj.tensorId);
+        }
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        return message;
     }
 };
 
@@ -59,7 +112,42 @@ torch.ModuleDef = class ModuleDef {
         this.attributes = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new torch.ModuleDef();
+        if (obj.submodules !== undefined) {
+            message.submodules = obj.submodules.map((obj) => torch.ModuleDef.decodeJson(obj));
+        }
+        if (obj.torchscriptArena !== undefined) {
+            message.torchscript_arena = torch.RecordRef.decodeJson(obj.torchscriptArena);
+        }
+        if (obj.caffe2Nets !== undefined) {
+            message.caffe2_nets = obj.caffe2Nets.map((obj) => caffe2.NetDef.decodeJson(obj));
+        }
+        if (obj.pickleArena !== undefined) {
+            message.pickle_arena = torch.RecordRef.decodeJson(obj.pickleArena);
+        }
+        if (obj.cppArena !== undefined) {
+            message.cpp_arena = torch.RecordRef.decodeJson(obj.cppArena);
+        }
+        if (obj.parameters !== undefined) {
+            message.parameters = obj.parameters.map((obj) => torch.ParameterDef.decodeJson(obj));
+        }
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.optimize !== undefined) {
+            message.optimize = obj.optimize;
+        }
+        if (obj.attributes !== undefined) {
+            message.attributes = obj.attributes.map((obj) => torch.AttributeDef.decodeJson(obj));
+        }
+        if (obj.getStateAttributeId !== undefined) {
+            message.get_state_attribute_id = BigInt(obj.getStateAttributeId);
+        }
+        if (obj.torchscriptDebugArena !== undefined) {
+            message.torchscript_debug_arena = torch.RecordRef.decodeJson(obj.torchscriptDebugArena);
+        }
+        return message;
     }
 };
 
@@ -73,7 +161,12 @@ torch.ModuleDef.prototype.torchscript_debug_arena = null;
 
 torch.LibDef = class LibDef {
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new torch.LibDef();
+        if (obj.torchscriptArena !== undefined) {
+            message.torchscript_arena = torch.RecordRef.decodeJson(obj.torchscriptArena);
+        }
+        return message;
     }
 };
 
@@ -89,7 +182,24 @@ torch.ModelDef = class ModelDef {
         this.tensors = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new torch.ModelDef();
+        if (obj.protoVersion !== undefined) {
+            message.proto_version = BigInt(obj.protoVersion);
+        }
+        if (obj.mainModule !== undefined) {
+            message.main_module = torch.ModuleDef.decodeJson(obj.mainModule);
+        }
+        if (obj.producerName !== undefined) {
+            message.producer_name = obj.producerName;
+        }
+        if (obj.producerVersion !== undefined) {
+            message.producer_version = obj.producerVersion;
+        }
+        if (obj.tensors !== undefined) {
+            message.tensors = obj.tensors.map((obj) => torch.TensorDef.decodeJson(obj));
+        }
+        return message;
     }
 };
 
@@ -109,7 +219,48 @@ caffe2.TensorProto = class TensorProto {
         this.int64_data = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.TensorProto();
+        if (obj.dims !== undefined) {
+            message.dims = obj.dims.map((obj) => BigInt(obj));
+        }
+        if (obj.dataType !== undefined) {
+            message.data_type = caffe2.TensorProto.DataType[obj.dataType];
+        }
+        if (obj.dataFormat !== undefined) {
+            message.data_format = Number(obj.dataFormat);
+        }
+        if (obj.floatData !== undefined) {
+            message.float_data = obj.floatData.map((obj) => Number(obj));
+        }
+        if (obj.int32Data !== undefined) {
+            message.int32_data = obj.int32Data.map((obj) => Number(obj));
+        }
+        if (obj.byteData !== undefined) {
+            message.byte_data = new Uint8Array(atob(obj.byteData));
+        }
+        if (obj.stringData !== undefined) {
+            message.string_data = obj.stringData.map((obj) => new Uint8Array(atob(obj)));
+        }
+        if (obj.doubleData !== undefined) {
+            message.double_data = obj.doubleData.map((obj) => Number(obj));
+        }
+        if (obj.int64Data !== undefined) {
+            message.int64_data = obj.int64Data.map((obj) => BigInt(obj));
+        }
+        if (obj.rawData !== undefined) {
+            message.raw_data = new Uint8Array(atob(obj.rawData));
+        }
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.deviceDetail !== undefined) {
+            message.device_detail = caffe2.DeviceOption.decodeJson(obj.deviceDetail);
+        }
+        if (obj.segment !== undefined) {
+            message.segment = caffe2.TensorProto.Segment.decodeJson(obj.segment);
+        }
+        return message;
     }
 };
 
@@ -146,7 +297,11 @@ caffe2.TensorProto.SerializationFormat = {
 
 caffe2.TensorProto.Segment = class Segment {
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.TensorProto.Segment();
+        message.begin = BigInt(obj.begin);
+        message.end = BigInt(obj.end);
+        return message;
     }
 };
 
@@ -162,7 +317,37 @@ caffe2.QTensorProto = class QTensorProto {
         this.biases = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.QTensorProto();
+        if (obj.dims !== undefined) {
+            message.dims = obj.dims.map((obj) => BigInt(obj));
+        }
+        message.precision = Number(obj.precision);
+        message.scale = Number(obj.scale);
+        message.bias = Number(obj.bias);
+        message.is_signed = obj.isSigned;
+        if (obj.data !== undefined) {
+            message.data = obj.data.map((obj) => Number(obj));
+        }
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.dataType !== undefined) {
+            message.data_type = caffe2.TensorProto.DataType[obj.dataType];
+        }
+        if (obj.scales !== undefined) {
+            message.scales = obj.scales.map((obj) => Number(obj));
+        }
+        if (obj.biases !== undefined) {
+            message.biases = obj.biases.map((obj) => Number(obj));
+        }
+        if (obj.axis !== undefined) {
+            message.axis = Number(obj.axis);
+        }
+        if (obj.isMultiparam !== undefined) {
+            message.is_multiparam = obj.isMultiparam;
+        }
+        return message;
     }
 };
 
@@ -181,7 +366,12 @@ caffe2.TensorProtos = class TensorProtos {
         this.protos = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.TensorProtos();
+        if (obj.protos !== undefined) {
+            message.protos = obj.protos.map((obj) => caffe2.TensorProto.decodeJson(obj));
+        }
+        return message;
     }
 };
 
@@ -192,7 +382,24 @@ caffe2.TensorShape = class TensorShape {
         this.unknown_dims = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.TensorShape();
+        if (obj.dims !== undefined) {
+            message.dims = obj.dims.map((obj) => BigInt(obj));
+        }
+        if (obj.dataType !== undefined) {
+            message.data_type = caffe2.TensorProto.DataType[obj.dataType];
+        }
+        if (obj.unknownDims !== undefined) {
+            message.unknown_dims = obj.unknownDims.map((obj) => Number(obj));
+        }
+        if (obj.unknownShape !== undefined) {
+            message.unknown_shape = obj.unknownShape;
+        }
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        return message;
     }
 };
 
@@ -206,7 +413,12 @@ caffe2.TensorShapes = class TensorShapes {
         this.shapes = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.TensorShapes();
+        if (obj.shapes !== undefined) {
+            message.shapes = obj.shapes.map((obj) => caffe2.TensorShape.decodeJson(obj));
+        }
+        return message;
     }
 };
 
@@ -216,7 +428,21 @@ caffe2.TensorBoundShape = class TensorBoundShape {
         this.dim_type = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.TensorBoundShape();
+        if (obj.shape !== undefined) {
+            message.shape = caffe2.TensorShape.decodeJson(obj.shape);
+        }
+        if (obj.dimType !== undefined) {
+            message.dim_type = obj.dimType.map((key) => caffe2.TensorBoundShape.DimType[key]);
+        }
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.shapeIsFinal !== undefined) {
+            message.shape_is_final = obj.shapeIsFinal;
+        }
+        return message;
     }
 };
 
@@ -240,7 +466,18 @@ caffe2.TensorBoundShapes = class TensorBoundShapes {
         this.shapes = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.TensorBoundShapes();
+        if (obj.shapes !== undefined) {
+            message.shapes = obj.shapes.map((obj) => caffe2.TensorBoundShape.decodeJson(obj));
+        }
+        if (obj.maxBatchSize !== undefined) {
+            message.max_batch_size = BigInt(obj.maxBatchSize);
+        }
+        if (obj.maxFeatureLen !== undefined) {
+            message.max_feature_len = BigInt(obj.maxFeatureLen);
+        }
+        return message;
     }
 };
 
@@ -249,7 +486,18 @@ caffe2.TensorBoundShapes.prototype.max_feature_len = 0n;
 
 caffe2.AOTConfig = class AOTConfig {
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.AOTConfig();
+        message.max_batch_size = BigInt(obj.maxBatchSize);
+        message.max_seq_size = BigInt(obj.maxSeqSize);
+        message.in_batch_broadcast = obj.inBatchBroadcast;
+        if (obj.onnxifiBlacklistOps !== undefined) {
+            message.onnxifi_blacklist_ops = obj.onnxifiBlacklistOps;
+        }
+        if (obj.onnxifiMinOps !== undefined) {
+            message.onnxifi_min_ops = Number(obj.onnxifiMinOps);
+        }
+        return message;
     }
 };
 
@@ -270,7 +518,45 @@ caffe2.Argument = class Argument {
         this.qtensors = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.Argument();
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.f !== undefined) {
+            message.f = Number(obj.f);
+        }
+        if (obj.i !== undefined) {
+            message.i = BigInt(obj.i);
+        }
+        if (obj.s !== undefined) {
+            message.s = new Uint8Array(atob(obj.s));
+        }
+        if (obj.t !== undefined) {
+            message.t = caffe2.TensorProto.decodeJson(obj.t);
+        }
+        if (obj.n !== undefined) {
+            message.n = caffe2.NetDef.decodeJson(obj.n);
+        }
+        if (obj.floats !== undefined) {
+            message.floats = obj.floats.map((obj) => Number(obj));
+        }
+        if (obj.ints !== undefined) {
+            message.ints = obj.ints.map((obj) => BigInt(obj));
+        }
+        if (obj.strings !== undefined) {
+            message.strings = obj.strings.map((obj) => new Uint8Array(atob(obj)));
+        }
+        if (obj.tensors !== undefined) {
+            message.tensors = obj.tensors.map((obj) => caffe2.TensorProto.decodeJson(obj));
+        }
+        if (obj.nets !== undefined) {
+            message.nets = obj.nets.map((obj) => caffe2.NetDef.decodeJson(obj));
+        }
+        if (obj.qtensors !== undefined) {
+            message.qtensors = obj.qtensors.map((obj) => caffe2.QTensorProto.decodeJson(obj));
+        }
+        return message;
     }
 };
 
@@ -302,7 +588,27 @@ caffe2.DeviceOption = class DeviceOption {
         this.extra_info = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.DeviceOption();
+        if (obj.deviceType !== undefined) {
+            message.device_type = Number(obj.deviceType);
+        }
+        if (obj.deviceId !== undefined) {
+            message.device_id = Number(obj.deviceId);
+        }
+        if (obj.randomSeed !== undefined) {
+            message.random_seed = Number(obj.randomSeed);
+        }
+        if (obj.nodeName !== undefined) {
+            message.node_name = obj.nodeName;
+        }
+        if (obj.numaNodeId !== undefined) {
+            message.numa_node_id = Number(obj.numaNodeId);
+        }
+        if (obj.extraInfo !== undefined) {
+            message.extra_info = obj.extraInfo;
+        }
+        return message;
     }
 };
 
@@ -321,7 +627,45 @@ caffe2.OperatorDef = class OperatorDef {
         this.control_input = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.OperatorDef();
+        if (obj.input !== undefined) {
+            message.input = obj.input;
+        }
+        if (obj.output !== undefined) {
+            message.output = obj.output;
+        }
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.type !== undefined) {
+            message.type = obj.type;
+        }
+        if (obj.arg !== undefined) {
+            message.arg = obj.arg.map((obj) => caffe2.Argument.decodeJson(obj));
+        }
+        if (obj.deviceOption !== undefined) {
+            message.device_option = caffe2.DeviceOption.decodeJson(obj.deviceOption);
+        }
+        if (obj.engine !== undefined) {
+            message.engine = obj.engine;
+        }
+        if (obj.controlInput !== undefined) {
+            message.control_input = obj.controlInput;
+        }
+        if (obj.isGradientOp !== undefined) {
+            message.is_gradient_op = obj.isGradientOp;
+        }
+        if (obj.debugInfo !== undefined) {
+            message.debug_info = obj.debugInfo;
+        }
+        if (obj.domain !== undefined) {
+            message.domain = obj.domain;
+        }
+        if (obj.opVersion !== undefined) {
+            message.op_version = BigInt(obj.opVersion);
+        }
+        return message;
     }
 };
 
@@ -336,7 +680,11 @@ caffe2.OperatorDef.prototype.op_version = 0n;
 
 caffe2.MapFieldEntry = class MapFieldEntry {
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.MapFieldEntry();
+        message.key = obj.key;
+        message.val = obj.val;
+        return message;
     }
 };
 
@@ -349,7 +697,13 @@ caffe2.BackendOptions = class BackendOptions {
         this.option = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.BackendOptions();
+        message.backend_name = obj.backendName;
+        if (obj.option !== undefined) {
+            message.option = obj.option.map((obj) => caffe2.MapFieldEntry.decodeJson(obj));
+        }
+        return message;
     }
 };
 
@@ -362,7 +716,19 @@ caffe2.PartitionInfo = class PartitionInfo {
         this.backend_options = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.PartitionInfo();
+        message.name = obj.name;
+        if (obj.deviceId !== undefined) {
+            message.device_id = obj.deviceId.map((obj) => Number(obj));
+        }
+        if (obj.extraInfo !== undefined) {
+            message.extra_info = obj.extraInfo;
+        }
+        if (obj.backendOptions !== undefined) {
+            message.backend_options = obj.backendOptions.map((obj) => caffe2.BackendOptions.decodeJson(obj));
+        }
+        return message;
     }
 };
 
@@ -379,7 +745,36 @@ caffe2.NetDef = class NetDef {
         this.partition_info = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.NetDef();
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.op !== undefined) {
+            message.op = obj.op.map((obj) => caffe2.OperatorDef.decodeJson(obj));
+        }
+        if (obj.type !== undefined) {
+            message.type = obj.type;
+        }
+        if (obj.numWorkers !== undefined) {
+            message.num_workers = Number(obj.numWorkers);
+        }
+        if (obj.deviceOption !== undefined) {
+            message.device_option = caffe2.DeviceOption.decodeJson(obj.deviceOption);
+        }
+        if (obj.arg !== undefined) {
+            message.arg = obj.arg.map((obj) => caffe2.Argument.decodeJson(obj));
+        }
+        if (obj.externalInput !== undefined) {
+            message.external_input = obj.externalInput;
+        }
+        if (obj.externalOutput !== undefined) {
+            message.external_output = obj.externalOutput;
+        }
+        if (obj.partitionInfo !== undefined) {
+            message.partition_info = obj.partitionInfo.map((obj) => caffe2.PartitionInfo.decodeJson(obj));
+        }
+        return message;
     }
 };
 
@@ -395,7 +790,48 @@ caffe2.ExecutionStep = class ExecutionStep {
         this.network = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.ExecutionStep();
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.substep !== undefined) {
+            message.substep = obj.substep.map((obj) => caffe2.ExecutionStep.decodeJson(obj));
+        }
+        if (obj.network !== undefined) {
+            message.network = obj.network;
+        }
+        if (obj.numIter !== undefined) {
+            message.num_iter = BigInt(obj.numIter);
+        }
+        if (obj.criteriaNetwork !== undefined) {
+            message.criteria_network = obj.criteriaNetwork;
+        }
+        if (obj.reportNet !== undefined) {
+            message.report_net = obj.reportNet;
+        }
+        if (obj.reportInterval !== undefined) {
+            message.report_interval = Number(obj.reportInterval);
+        }
+        if (obj.runEveryMs !== undefined) {
+            message.run_every_ms = BigInt(obj.runEveryMs);
+        }
+        if (obj.concurrentSubsteps !== undefined) {
+            message.concurrent_substeps = obj.concurrentSubsteps;
+        }
+        if (obj.shouldStopBlob !== undefined) {
+            message.should_stop_blob = obj.shouldStopBlob;
+        }
+        if (obj.onlyOnce !== undefined) {
+            message.only_once = obj.onlyOnce;
+        }
+        if (obj.createWorkspace !== undefined) {
+            message.create_workspace = obj.createWorkspace;
+        }
+        if (obj.numConcurrentInstances !== undefined) {
+            message.num_concurrent_instances = Number(obj.numConcurrentInstances);
+        }
+        return message;
     }
 };
 
@@ -418,7 +854,18 @@ caffe2.PlanDef = class PlanDef {
         this.execution_step = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.PlanDef();
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.network !== undefined) {
+            message.network = obj.network.map((obj) => caffe2.NetDef.decodeJson(obj));
+        }
+        if (obj.executionStep !== undefined) {
+            message.execution_step = obj.executionStep.map((obj) => caffe2.ExecutionStep.decodeJson(obj));
+        }
+        return message;
     }
 };
 
@@ -426,7 +873,30 @@ caffe2.PlanDef.prototype.name = "";
 
 caffe2.BlobProto = class BlobProto {
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.BlobProto();
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.type !== undefined) {
+            message.type = obj.type;
+        }
+        if (obj.tensor !== undefined) {
+            message.tensor = caffe2.TensorProto.decodeJson(obj.tensor);
+        }
+        if (obj.content !== undefined) {
+            message.content = new Uint8Array(atob(obj.content));
+        }
+        if (obj.qtensor !== undefined) {
+            message.qtensor = caffe2.QTensorProto.decodeJson(obj.qtensor);
+        }
+        if (obj.contentNumChunks !== undefined) {
+            message.content_num_chunks = Number(obj.contentNumChunks);
+        }
+        if (obj.contentChunkId !== undefined) {
+            message.content_chunk_id = Number(obj.contentChunkId);
+        }
+        return message;
     }
 };
 
@@ -440,7 +910,21 @@ caffe2.BlobProto.prototype.content_chunk_id = 0;
 
 caffe2.DBReaderProto = class DBReaderProto {
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.DBReaderProto();
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.source !== undefined) {
+            message.source = obj.source;
+        }
+        if (obj.dbType !== undefined) {
+            message.db_type = obj.dbType;
+        }
+        if (obj.key !== undefined) {
+            message.key = obj.key;
+        }
+        return message;
     }
 };
 
@@ -451,7 +935,18 @@ caffe2.DBReaderProto.prototype.key = "";
 
 caffe2.BlobSerializationOptions = class BlobSerializationOptions {
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.BlobSerializationOptions();
+        if (obj.blobNameRegex !== undefined) {
+            message.blob_name_regex = obj.blobNameRegex;
+        }
+        if (obj.chunkSize !== undefined) {
+            message.chunk_size = BigInt(obj.chunkSize);
+        }
+        if (obj.floatFormat !== undefined) {
+            message.float_format = caffe2.BlobSerializationOptions.FloatFormat[obj.floatFormat];
+        }
+        return message;
     }
 };
 
@@ -471,6 +966,11 @@ caffe2.SerializationOptions = class SerializationOptions {
         this.options = [];
     }
 
-    static decodeJson(/* reader */) {
+    static decodeJson(obj) {
+        const message = new caffe2.SerializationOptions();
+        if (obj.options !== undefined) {
+            message.options = obj.options.map((obj) => caffe2.BlobSerializationOptions.decodeJson(obj));
+        }
+        return message;
     }
 };

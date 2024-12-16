@@ -163,6 +163,65 @@ onnx.AttributeProto = class AttributeProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new onnx.AttributeProto();
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.refAttrName !== undefined) {
+            message.ref_attr_name = obj.refAttrName;
+        }
+        if (obj.docString !== undefined) {
+            message.doc_string = obj.docString;
+        }
+        if (obj.type !== undefined) {
+            message.type = onnx.AttributeProto.AttributeType[obj.type];
+        }
+        if (obj.f !== undefined) {
+            message.f = Number(obj.f);
+        }
+        if (obj.i !== undefined) {
+            message.i = BigInt(obj.i);
+        }
+        if (obj.s !== undefined) {
+            message.s = new Uint8Array(atob(obj.s));
+        }
+        if (obj.t !== undefined) {
+            message.t = onnx.TensorProto.decodeJson(obj.t);
+        }
+        if (obj.g !== undefined) {
+            message.g = onnx.GraphProto.decodeJson(obj.g);
+        }
+        if (obj.sparseTensor !== undefined) {
+            message.sparse_tensor = onnx.SparseTensorProto.decodeJson(obj.sparseTensor);
+        }
+        if (obj.tp !== undefined) {
+            message.tp = onnx.TypeProto.decodeJson(obj.tp);
+        }
+        if (obj.floats !== undefined) {
+            message.floats = obj.floats.map((obj) => Number(obj));
+        }
+        if (obj.ints !== undefined) {
+            message.ints = obj.ints.map((obj) => BigInt(obj));
+        }
+        if (obj.strings !== undefined) {
+            message.strings = obj.strings.map((obj) => new Uint8Array(atob(obj)));
+        }
+        if (obj.tensors !== undefined) {
+            message.tensors = obj.tensors.map((obj) => onnx.TensorProto.decodeJson(obj));
+        }
+        if (obj.graphs !== undefined) {
+            message.graphs = obj.graphs.map((obj) => onnx.GraphProto.decodeJson(obj));
+        }
+        if (obj.sparseTensors !== undefined) {
+            message.sparse_tensors = obj.sparseTensors.map((obj) => onnx.SparseTensorProto.decodeJson(obj));
+        }
+        if (obj.typeProtos !== undefined) {
+            message.type_protos = obj.typeProtos.map((obj) => onnx.TypeProto.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 onnx.AttributeProto.prototype.name = "";
@@ -249,6 +308,23 @@ onnx.ValueInfoProto = class ValueInfoProto {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.ValueInfoProto();
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.type !== undefined) {
+            message.type = onnx.TypeProto.decodeJson(obj.type);
+        }
+        if (obj.docString !== undefined) {
+            message.doc_string = obj.docString;
+        }
+        if (obj.metadataProps !== undefined) {
+            message.metadata_props = obj.metadataProps.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
         return message;
     }
@@ -348,6 +424,38 @@ onnx.NodeProto = class NodeProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new onnx.NodeProto();
+        if (obj.input !== undefined) {
+            message.input = obj.input;
+        }
+        if (obj.output !== undefined) {
+            message.output = obj.output;
+        }
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.opType !== undefined) {
+            message.op_type = obj.opType;
+        }
+        if (obj.domain !== undefined) {
+            message.domain = obj.domain;
+        }
+        if (obj.overload !== undefined) {
+            message.overload = obj.overload;
+        }
+        if (obj.attribute !== undefined) {
+            message.attribute = obj.attribute.map((obj) => onnx.AttributeProto.decodeJson(obj));
+        }
+        if (obj.docString !== undefined) {
+            message.doc_string = obj.docString;
+        }
+        if (obj.metadataProps !== undefined) {
+            message.metadata_props = obj.metadataProps.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 onnx.NodeProto.prototype.name = "";
@@ -411,6 +519,23 @@ onnx.TrainingInfoProto = class TrainingInfoProto {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.TrainingInfoProto();
+        if (obj.initialization !== undefined) {
+            message.initialization = onnx.GraphProto.decodeJson(obj.initialization);
+        }
+        if (obj.algorithm !== undefined) {
+            message.algorithm = onnx.GraphProto.decodeJson(obj.algorithm);
+        }
+        if (obj.initializationBinding !== undefined) {
+            message.initialization_binding = obj.initializationBinding.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
+        }
+        if (obj.updateBinding !== undefined) {
+            message.update_binding = obj.updateBinding.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
         return message;
     }
@@ -521,6 +646,44 @@ onnx.ModelProto = class ModelProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new onnx.ModelProto();
+        if (obj.irVersion !== undefined) {
+            message.ir_version = BigInt(obj.irVersion);
+        }
+        if (obj.opsetImport !== undefined) {
+            message.opset_import = obj.opsetImport.map((obj) => onnx.OperatorSetIdProto.decodeJson(obj));
+        }
+        if (obj.producerName !== undefined) {
+            message.producer_name = obj.producerName;
+        }
+        if (obj.producerVersion !== undefined) {
+            message.producer_version = obj.producerVersion;
+        }
+        if (obj.domain !== undefined) {
+            message.domain = obj.domain;
+        }
+        if (obj.modelVersion !== undefined) {
+            message.model_version = BigInt(obj.modelVersion);
+        }
+        if (obj.docString !== undefined) {
+            message.doc_string = obj.docString;
+        }
+        if (obj.graph !== undefined) {
+            message.graph = onnx.GraphProto.decodeJson(obj.graph);
+        }
+        if (obj.metadataProps !== undefined) {
+            message.metadata_props = obj.metadataProps.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
+        }
+        if (obj.trainingInfo !== undefined) {
+            message.training_info = obj.trainingInfo.map((obj) => onnx.TrainingInfoProto.decodeJson(obj));
+        }
+        if (obj.functions !== undefined) {
+            message.functions = obj.functions.map((obj) => onnx.FunctionProto.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 onnx.ModelProto.prototype.ir_version = 0n;
@@ -572,6 +735,17 @@ onnx.StringStringEntryProto = class StringStringEntryProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new onnx.StringStringEntryProto();
+        if (obj.key !== undefined) {
+            message.key = obj.key;
+        }
+        if (obj.value !== undefined) {
+            message.value = obj.value;
+        }
+        return message;
+    }
 };
 
 onnx.StringStringEntryProto.prototype.key = "";
@@ -619,6 +793,17 @@ onnx.TensorAnnotation = class TensorAnnotation {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.TensorAnnotation();
+        if (obj.tensorName !== undefined) {
+            message.tensor_name = obj.tensorName;
+        }
+        if (obj.quantParameterTensorNames !== undefined) {
+            message.quant_parameter_tensor_names = obj.quantParameterTensorNames.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
         return message;
     }
@@ -723,6 +908,41 @@ onnx.GraphProto = class GraphProto {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.GraphProto();
+        if (obj.node !== undefined) {
+            message.node = obj.node.map((obj) => onnx.NodeProto.decodeJson(obj));
+        }
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.initializer !== undefined) {
+            message.initializer = obj.initializer.map((obj) => onnx.TensorProto.decodeJson(obj));
+        }
+        if (obj.sparseInitializer !== undefined) {
+            message.sparse_initializer = obj.sparseInitializer.map((obj) => onnx.SparseTensorProto.decodeJson(obj));
+        }
+        if (obj.docString !== undefined) {
+            message.doc_string = obj.docString;
+        }
+        if (obj.input !== undefined) {
+            message.input = obj.input.map((obj) => onnx.ValueInfoProto.decodeJson(obj));
+        }
+        if (obj.output !== undefined) {
+            message.output = obj.output.map((obj) => onnx.ValueInfoProto.decodeJson(obj));
+        }
+        if (obj.valueInfo !== undefined) {
+            message.value_info = obj.valueInfo.map((obj) => onnx.ValueInfoProto.decodeJson(obj));
+        }
+        if (obj.quantizationAnnotation !== undefined) {
+            message.quantization_annotation = obj.quantizationAnnotation.map((obj) => onnx.TensorAnnotation.decodeJson(obj));
+        }
+        if (obj.metadataProps !== undefined) {
+            message.metadata_props = obj.metadataProps.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
         return message;
     }
@@ -862,6 +1082,56 @@ onnx.TensorProto = class TensorProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new onnx.TensorProto();
+        if (obj.dims !== undefined) {
+            message.dims = obj.dims.map((obj) => BigInt(obj));
+        }
+        if (obj.dataType !== undefined) {
+            message.data_type = Number(obj.dataType);
+        }
+        if (obj.segment !== undefined) {
+            message.segment = onnx.TensorProto.Segment.decodeJson(obj.segment);
+        }
+        if (obj.floatData !== undefined) {
+            message.float_data = obj.floatData.map((obj) => Number(obj));
+        }
+        if (obj.int32Data !== undefined) {
+            message.int32_data = obj.int32Data.map((obj) => Number(obj));
+        }
+        if (obj.stringData !== undefined) {
+            message.string_data = obj.stringData.map((obj) => new Uint8Array(atob(obj)));
+        }
+        if (obj.int64Data !== undefined) {
+            message.int64_data = obj.int64Data.map((obj) => BigInt(obj));
+        }
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.docString !== undefined) {
+            message.doc_string = obj.docString;
+        }
+        if (obj.rawData !== undefined) {
+            message.raw_data = new Uint8Array(atob(obj.rawData));
+        }
+        if (obj.externalData !== undefined) {
+            message.external_data = obj.externalData.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
+        }
+        if (obj.dataLocation !== undefined) {
+            message.data_location = onnx.TensorProto.DataLocation[obj.dataLocation];
+        }
+        if (obj.doubleData !== undefined) {
+            message.double_data = obj.doubleData.map((obj) => Number(obj));
+        }
+        if (obj.uint64Data !== undefined) {
+            message.uint64_data = obj.uint64Data.map((obj) => BigInt(obj));
+        }
+        if (obj.metadataProps !== undefined) {
+            message.metadata_props = obj.metadataProps.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 onnx.TensorProto.prototype.data_type = 0;
@@ -939,6 +1209,17 @@ onnx.TensorProto.Segment = class Segment {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new onnx.TensorProto.Segment();
+        if (obj.begin !== undefined) {
+            message.begin = BigInt(obj.begin);
+        }
+        if (obj.end !== undefined) {
+            message.end = BigInt(obj.end);
+        }
+        return message;
+    }
 };
 
 onnx.TensorProto.Segment.prototype.begin = 0n;
@@ -1000,6 +1281,20 @@ onnx.SparseTensorProto = class SparseTensorProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new onnx.SparseTensorProto();
+        if (obj.values !== undefined) {
+            message.values = onnx.TensorProto.decodeJson(obj.values);
+        }
+        if (obj.indices !== undefined) {
+            message.indices = onnx.TensorProto.decodeJson(obj.indices);
+        }
+        if (obj.dims !== undefined) {
+            message.dims = obj.dims.map((obj) => BigInt(obj));
+        }
+        return message;
+    }
 };
 
 onnx.SparseTensorProto.prototype.values = null;
@@ -1041,6 +1336,14 @@ onnx.TensorShapeProto = class TensorShapeProto {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.TensorShapeProto();
+        if (obj.dim !== undefined) {
+            message.dim = obj.dim.map((obj) => onnx.TensorShapeProto.Dimension.decodeJson(obj));
         }
         return message;
     }
@@ -1095,6 +1398,20 @@ onnx.TensorShapeProto.Dimension = class Dimension {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.TensorShapeProto.Dimension();
+        if (obj.dimValue !== undefined) {
+            message.dim_value = BigInt(obj.dimValue);
+        }
+        if (obj.dimParam !== undefined) {
+            message.dim_param = obj.dimParam;
+        }
+        if (obj.denotation !== undefined) {
+            message.denotation = obj.denotation;
         }
         return message;
     }
@@ -1178,6 +1495,32 @@ onnx.TypeProto = class TypeProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new onnx.TypeProto();
+        if (obj.tensorType !== undefined) {
+            message.tensor_type = onnx.TypeProto.Tensor.decodeJson(obj.tensorType);
+        }
+        if (obj.sequenceType !== undefined) {
+            message.sequence_type = onnx.TypeProto.Sequence.decodeJson(obj.sequenceType);
+        }
+        if (obj.mapType !== undefined) {
+            message.map_type = onnx.TypeProto.Map.decodeJson(obj.mapType);
+        }
+        if (obj.optionalType !== undefined) {
+            message.optional_type = onnx.TypeProto.Optional.decodeJson(obj.optionalType);
+        }
+        if (obj.sparseTensorType !== undefined) {
+            message.sparse_tensor_type = onnx.TypeProto.SparseTensor.decodeJson(obj.sparseTensorType);
+        }
+        if (obj.opaqueType !== undefined) {
+            message.opaque_type = onnx.TypeProto.Opaque.decodeJson(obj.opaqueType);
+        }
+        if (obj.denotation !== undefined) {
+            message.denotation = obj.denotation;
+        }
+        return message;
+    }
 };
 
 onnx.TypeProto.prototype.denotation = "";
@@ -1223,6 +1566,17 @@ onnx.TypeProto.Tensor = class Tensor {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new onnx.TypeProto.Tensor();
+        if (obj.elemType !== undefined) {
+            message.elem_type = Number(obj.elemType);
+        }
+        if (obj.shape !== undefined) {
+            message.shape = onnx.TensorShapeProto.decodeJson(obj.shape);
+        }
+        return message;
+    }
 };
 
 onnx.TypeProto.Tensor.prototype.elem_type = 0;
@@ -1260,6 +1614,14 @@ onnx.TypeProto.Sequence = class Sequence {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.TypeProto.Sequence();
+        if (obj.elemType !== undefined) {
+            message.elem_type = onnx.TypeProto.decodeJson(obj.elemType);
         }
         return message;
     }
@@ -1308,6 +1670,17 @@ onnx.TypeProto.Map = class Map {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new onnx.TypeProto.Map();
+        if (obj.keyType !== undefined) {
+            message.key_type = Number(obj.keyType);
+        }
+        if (obj.valueType !== undefined) {
+            message.value_type = onnx.TypeProto.decodeJson(obj.valueType);
+        }
+        return message;
+    }
 };
 
 onnx.TypeProto.Map.prototype.key_type = 0;
@@ -1345,6 +1718,14 @@ onnx.TypeProto.Optional = class Optional {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.TypeProto.Optional();
+        if (obj.elemType !== undefined) {
+            message.elem_type = onnx.TypeProto.decodeJson(obj.elemType);
         }
         return message;
     }
@@ -1390,6 +1771,17 @@ onnx.TypeProto.SparseTensor = class SparseTensor {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.TypeProto.SparseTensor();
+        if (obj.elemType !== undefined) {
+            message.elem_type = Number(obj.elemType);
+        }
+        if (obj.shape !== undefined) {
+            message.shape = onnx.TensorShapeProto.decodeJson(obj.shape);
         }
         return message;
     }
@@ -1439,6 +1831,17 @@ onnx.TypeProto.Opaque = class Opaque {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new onnx.TypeProto.Opaque();
+        if (obj.domain !== undefined) {
+            message.domain = obj.domain;
+        }
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        return message;
+    }
 };
 
 onnx.TypeProto.Opaque.prototype.domain = "";
@@ -1482,6 +1885,17 @@ onnx.OperatorSetIdProto = class OperatorSetIdProto {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.OperatorSetIdProto();
+        if (obj.domain !== undefined) {
+            message.domain = obj.domain;
+        }
+        if (obj.version !== undefined) {
+            message.version = BigInt(obj.version);
         }
         return message;
     }
@@ -1607,6 +2021,47 @@ onnx.FunctionProto = class FunctionProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new onnx.FunctionProto();
+        if (obj.name !== undefined) {
+            message.name = obj.name;
+        }
+        if (obj.input !== undefined) {
+            message.input = obj.input;
+        }
+        if (obj.output !== undefined) {
+            message.output = obj.output;
+        }
+        if (obj.attribute !== undefined) {
+            message.attribute = obj.attribute;
+        }
+        if (obj.attributeProto !== undefined) {
+            message.attribute_proto = obj.attributeProto.map((obj) => onnx.AttributeProto.decodeJson(obj));
+        }
+        if (obj.node !== undefined) {
+            message.node = obj.node.map((obj) => onnx.NodeProto.decodeJson(obj));
+        }
+        if (obj.docString !== undefined) {
+            message.doc_string = obj.docString;
+        }
+        if (obj.opsetImport !== undefined) {
+            message.opset_import = obj.opsetImport.map((obj) => onnx.OperatorSetIdProto.decodeJson(obj));
+        }
+        if (obj.domain !== undefined) {
+            message.domain = obj.domain;
+        }
+        if (obj.overload !== undefined) {
+            message.overload = obj.overload;
+        }
+        if (obj.valueInfo !== undefined) {
+            message.value_info = obj.valueInfo.map((obj) => onnx.ValueInfoProto.decodeJson(obj));
+        }
+        if (obj.metadataProps !== undefined) {
+            message.metadata_props = obj.metadataProps.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 onnx.FunctionProto.prototype.name = "";
@@ -1664,6 +2119,23 @@ onnx.OperatorProto = class OperatorProto {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.OperatorProto();
+        if (obj.opType !== undefined) {
+            message.op_type = obj.opType;
+        }
+        if (obj.sinceVersion !== undefined) {
+            message.since_version = BigInt(obj.sinceVersion);
+        }
+        if (obj.status !== undefined) {
+            message.status = onnx.OperatorStatus[obj.status];
+        }
+        if (obj.docString !== undefined) {
+            message.doc_string = obj.docString;
         }
         return message;
     }
@@ -1759,6 +2231,38 @@ onnx.OperatorSetProto = class OperatorSetProto {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.OperatorSetProto();
+        if (obj.magic !== undefined) {
+            message.magic = obj.magic;
+        }
+        if (obj.irVersion !== undefined) {
+            message.ir_version = BigInt(obj.irVersion);
+        }
+        if (obj.irVersionPrerelease !== undefined) {
+            message.ir_version_prerelease = obj.irVersionPrerelease;
+        }
+        if (obj.irBuildMetadata !== undefined) {
+            message.ir_build_metadata = obj.irBuildMetadata;
+        }
+        if (obj.domain !== undefined) {
+            message.domain = obj.domain;
+        }
+        if (obj.opsetVersion !== undefined) {
+            message.opset_version = BigInt(obj.opsetVersion);
+        }
+        if (obj.docString !== undefined) {
+            message.doc_string = obj.docString;
+        }
+        if (obj.operator !== undefined) {
+            message.operator = obj.operator.map((obj) => onnx.OperatorProto.decodeJson(obj));
+        }
+        if (obj.functions !== undefined) {
+            message.functions = obj.functions.map((obj) => onnx.FunctionProto.decodeJson(obj));
         }
         return message;
     }

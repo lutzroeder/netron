@@ -100,7 +100,7 @@ install() {
 schema() {
     echo "onnx schema"
     [[ $(grep -U $'\x0D' ./source/onnx-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --binary --text --root onnx --out ./source/onnx-proto.js --path ./third_party/source/onnx onnx/onnx-ml.proto onnx/onnx-operators-ml.proto
+    node ./tools/protoc.js --binary --text --json --root onnx --out ./source/onnx-proto.js --path ./third_party/source/onnx onnx/onnx-ml.proto onnx/onnx-operators-ml.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/onnx-proto.js ./source/onnx-proto.js
     fi
