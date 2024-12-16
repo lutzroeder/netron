@@ -169,7 +169,7 @@ dot.Graph = class {
         }
         for (const [key, node] of nodes) {
             const keys = new Set(['pos', 'height', 'width', 'shape', 'label']);
-            if (node.metadata.get('shape') === 'octagon' && node.metadata.keys().every((key) => keys.has(key)) &&
+            if (node.metadata.get('shape') === 'octagon' && Array.from(node.metadata.keys()).every((key) => keys.has(key)) &&
                 node.inputs.length === 1 && node.inputs[0].uses.length === 1 && node.inputs[0].from.outputs.length === 1 && node.inputs[0].from.outputs[0].uses.length === 1 &&
                 new Set(node.outputs.map((output) => output.name.id)).size === 1 && node.outputs.every((output) => output.uses.length === 1)) {
                 const [from] = node.inputs[0].from.outputs;
