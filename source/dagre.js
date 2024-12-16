@@ -1402,6 +1402,8 @@ dagre.layout = (nodes, edges, layout, state) => {
                             || n1.in.length !== 1
                             || n0.out.length !== 1
                             || n1.out.length !== 1
+                            || n0.in[0].vNode.in.length == 0
+                            || n1.in[0].vNode.in.length == 0
                         ) {
                             if (dirTotal === 3) {
                                 {
