@@ -1515,6 +1515,27 @@
     "name": "aten::clamp_min_.Tensor(Tensor(a!) self, Tensor min) -> Tensor(a!)"
   },
   {
+    "name": "aten::clear.Tensor(Dict(Tensor, t)(a!) self) -> ()"
+  },
+  {
+    "name": "aten::clear.bool(Dict(bool, t)(a!) self) -> ()"
+  },
+  {
+    "name": "aten::clear.complex(Dict(complex, t)(a!) self) -> ()"
+  },
+  {
+    "name": "aten::clear.float(Dict(float, t)(a!) self) -> ()"
+  },
+  {
+    "name": "aten::clear.int(Dict(int, t)(a!) self) -> ()"
+  },
+  {
+    "name": "aten::clear.str(Dict(str, t)(a!) self) -> ()"
+  },
+  {
+    "name": "aten::clear.t(t[](a!) self) -> ()"
+  },
+  {
     "name": "aten::clip(Tensor self, Scalar? min=None, Scalar? max=None) -> Tensor"
   },
   {
@@ -4090,6 +4111,18 @@
   },
   {
     "name": "aten::new_zeros.out(Tensor self, SymInt[] size, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::nll_loss(Tensor self, Tensor target, Tensor? weight=None, int reduction=1, SymInt ignore_index=-100) -> Tensor"
+  },
+  {
+    "name": "aten::nll_loss.out(Tensor self, Tensor target, Tensor? weight=None, int reduction=1, SymInt ignore_index=-100, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::nll_loss2d(Tensor self, Tensor target, Tensor? weight=None, int reduction=1, SymInt ignore_index=-100) -> Tensor"
+  },
+  {
+    "name": "aten::nll_loss2d.out(Tensor self, Tensor target, Tensor? weight=None, int reduction=1, SymInt ignore_index=-100, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::nll_loss_nd(Tensor self, Tensor target, Tensor? weight=None, int reduction=1, SymInt ignore_index=-100) -> Tensor"

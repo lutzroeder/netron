@@ -5301,6 +5301,7 @@
     "target":   "alexnet_traced.pt.zip",
     "source":   "https://github.com/lutzroeder/netron/files/6096602/alexnet_traced.pt.zip",
     "format":   "TorchScript v1.6",
+    "assert":   "model.graphs[0].nodes.length == 28",
     "link":     "https://github.com/lutzroeder/netron/issues/281"
   },
   {
@@ -5425,6 +5426,7 @@
     "target":   "coco128-yolov8n-seg_output.torchscript.ptl",
     "source":   "https://github.com/user-attachments/files/16091260/coco128-yolov8n-seg_output.torchscript.ptl.zip[coco128-yolov8n-seg_output.torchscript.ptl]",
     "format":   "TorchScript v1.6",
+    "assert":   "model.graphs[0].nodes[0].inputs[1].value.type.name == '__torch__.torch.classes.xnnpack.Conv2dOpContext'",
     "link":     "https://github.com/lutzroeder/netron/issues/1067"
   },
   {
@@ -5492,6 +5494,7 @@
     "target":   "cruise_go_vehicle_model.pt",
     "source":   "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/cruise_go_vehicle_model.pt",
     "format":   "TorchScript v1.0",
+    "assert":   "model.graphs[0].nodes.length == 73",
     "link":     "https://github.com/ApolloAuto/apollo"
   },
   {
@@ -5522,6 +5525,7 @@
     "target":   "deeplabv3_scripted.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5604999/deeplabv3_scripted.pt.zip[deeplabv3_scripted.pt]",
     "format":   "TorchScript v1.6",
+    "assert":   "model.graphs[0].nodes.length == 478",
     "link":     "https://github.com/lutzroeder/netron/issues/630"
   },
   {
@@ -5747,6 +5751,7 @@
     "target":   "lane_scanning_vehicle_model.pt",
     "source":   "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/lane_scanning_vehicle_model.pt",
     "format":   "TorchScript v1.0",
+    "assert":   "model.graphs[0].nodes.length == 121",
     "link":     "https://github.com/ApolloAuto/apollo"
   },
   {
@@ -6243,7 +6248,7 @@
     "target":   "resnet18.ot",
     "source":   "https://github.com/lutzroeder/netron/files/7664092/resnet18.ot.zip[resnet18.ot]",
     "format":   "TorchScript v1.0",
-    "assert":   "model.graphs[0].nodes[1].inputs[0].value[0].name == 'conv1|weight'",
+    "assert":   "model.graphs[0].nodes[0].inputs[0].value[0].name == 'conv1|weight'",
     "link":     "https://github.com/lutzroeder/netron/issues/686"
   },
   {
@@ -6381,7 +6386,7 @@
     "target":   "segmentor.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7663953/segmentor.pt.zip[segmentor.pt]",
     "format":   "PyTorch v1.6",
-    "assert":   "model.graphs[0].nodes[0].inputs[0].value.inputs[0].value.type.name == '__torch__.___torch_mangle_1.Module'",
+    "assert":   "model.graphs[0].nodes[0].inputs[0].value[0].inputs[0].value[0].type.name == '__torch__.___torch_mangle_1.Module'",
     "link":     "https://github.com/lutzroeder/netron/issues/686"
   },
   {
