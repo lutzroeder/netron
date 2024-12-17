@@ -15,7 +15,6 @@ class Req {
   //event listeners for double click are put
   EventDblClick = [];
   constructor() {}
-
   //function for cleaning all the cache (information added from the file) in case an error occurs
   static solve_bugs() {
     var root = document.getElementById("list-modified");

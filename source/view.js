@@ -164,13 +164,13 @@ view.View = class {
                             }
                             if (Req.EventImg.length !== 0) {
                                 for (var i = 0; i < Req.EventImg.length; i++) {
-                                  (Req.EventImg[i]).onmouseover = null;
-                                  (Req.EventImg[i]).onmouseout = null;
+                                    (Req.EventImg[i]).onmouseover = null;
+                                    (Req.EventImg[i]).onmouseout = null;
                                 }
                             }
                             if (Req.EventDblClick.length !== 0) {
                                 for (var i = 0; i < Req.EventDblClick.length; i++) {
-                                  (Req.EventDblClick[i]).ondblclick = null;
+                                    (Req.EventDblClick[i]).ondblclick = null;
                                 }
                             }
                             Req.file_added = 0;
