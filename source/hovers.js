@@ -1,9 +1,9 @@
-// import { stringify } from 'querystring';
+import { stringify } from 'querystring';
 
-// import { NONAME } from 'dns';
+import { NONAME } from 'dns';
 
-// import { execSync } from 'child_process';
-// import { cp } from 'fs';
+import { execSync } from 'child_process';
+import { cp } from 'fs';
 
 class Req {
   //variable which states if a file was added before
@@ -78,6 +78,7 @@ class Req {
         body.removeChild(children[i]);
       }
     }
+    //code which removes event listeners for images and doubleclick
     if (Req.EventImg.length !== 0) {
       for (var i = 0; i < Req.EventImg.length; i++) {
         (Req.EventImg[i]).onmouseover = null;
@@ -93,7 +94,7 @@ class Req {
   }
   
   //function in which file is read, data is processed and buttons, hovers and clicks are added
-  static functie() {
+  static read_file() {
     let input = document.createElement('input');
     input.type = 'file';
     input.onchange = _ => {
@@ -405,10 +406,13 @@ class Req {
             } 
           }
         }
+        //if there is unprocessed information, add it in the list
         if (childmeta !== 0) {
           document.getElementById("list-attributes").appendChild(childmeta);
           document.getElementById("list-modified").appendChild(another);
         }
+        //if there is unprocessed button or image information,
+        //process it
         if (otherstring !== JSON.stringify({})) {
         var objeect = document.getElementById("list-attributes");
           for (var i = 0; i < objeect.children.length; i++) {
@@ -435,6 +439,8 @@ class Req {
             }
           }
         }
+        //block of code which validates the changes : adds the style,
+        //the hovering and the buttons
         if (document.getElementById("list-attributes").children) {
           var lista = document.getElementById("list-attributes");
           var lista_m = document.getElementById("list-modified");
@@ -465,6 +471,7 @@ class Req {
                     parent_t.children[idx + 1].innerHTML = '<title>' + obj["hover"].match(/.{1,20}/g).join("\n") + '</title>';
                   }
                   var keys = Object.keys(obj);
+                  //block of code whick adds image item to be displayed
                   for (var j = 0; j < keys.length; j++) {
                     if (keys[j].startsWith("img_")) {
                       var obje = JSON.parse(obj[keys[j]]);
@@ -553,7 +560,7 @@ class Req {
     };
     input.click();
   };
-
+  //function which manages the doubleclick feature
   static doubleclick() {
     if (document.getElementById("list-attributes").children) {
       var parent_t = document.getElementById("edge-paths");
@@ -643,7 +650,7 @@ class Req {
       }
     }
   }
-
+//function which deals with displaying all the other information
   static metadata() {
     if (document.getElementById("list-attributes").children) {
       var lista = document.getElementById("list-attributes");
@@ -670,7 +677,7 @@ class Req {
               for (var j = 0; j< sidebarobj.children.length; j++) {
                 var childd = sidebarobj.children[j];
                 if (childd.textContent !== "Metadata" && childd.innerText !== "Metadata" && childd.innerHTML !== "Metadata") {
-                    counter += 1;
+                  counter += 1;
                 }
               }
               if (counter == sidebarobj.children.length) {
@@ -772,7 +779,9 @@ class Req {
           }
         }
       }
-    } 
+    }
+    //block of code which adds execution of scripts or commands when
+    //pressing a button
     if (document.getElementById("list-attributes").children) {
       if (document.getElementById("sidebar-content")) {
         if (document.getElementById("sidebar-content").children[0]) {
@@ -807,6 +816,7 @@ class Req {
         }
       }
     }
+    //block of code which displays the images on hover
     if (document.getElementById("graph")) {
       if (document.getElementById("origin")) {
         if (document.getElementById("nodes") && document.getElementById("edge-paths")) {
@@ -851,6 +861,7 @@ class Req {
                     document.getElementById(item).style.display = "none";
                   }
                 }
+                Req.EventImg.push(document.getElementById(elem));
               } else {
                 parent_t.children[elem].onmouseover = function() {
                   for (const item of lista) {
@@ -865,6 +876,7 @@ class Req {
                 Req.EventImg.push(parent_t.children[elem]);
               }
             }
+            
           }
         }
       }

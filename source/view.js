@@ -175,7 +175,7 @@ view.View = class {
                             }
                             Req.file_added = 0;
                         }
-                        Req.functie();
+                        Req.read_file();
                     }
                 });
                 if (this._host.type === 'Electron') {
