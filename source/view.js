@@ -15,6 +15,7 @@ import Req from './hovers.js';
 const view =  {};
 const markdown = {};
 const metrics = {};
+
 view.View = class {
 
     constructor(host) {

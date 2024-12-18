@@ -453,7 +453,6 @@ host.BrowserHost = class {
         this._view.show('welcome spinner');
         const url = `https://api.github.com/gists/${gist}`;
         try {
-            console.log("text");
             const text = await this._request(url, { 'Content-Type': 'application/json' }, 'utf-8');
             const json = JSON.parse(text);
             let message = json.message;
@@ -554,6 +553,7 @@ host.BrowserHost = class {
 
     update() {
     }
+    
     async message(message, alert, action) {
         return new Promise((resolve) => {
             const type = this.document.body.getAttribute('class');
