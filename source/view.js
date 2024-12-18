@@ -98,8 +98,8 @@ view.View = class {
                     label: '&Import metadata',
                     accelerator: 'CmdOrCtrl+T',
                     execute: async () => {
-                        //block of code which cleans all the information added before uploading
-                        //a new file
+                        // Block of code which cleans all the information added before uploading
+                        // a new file.
                         if (Req.file_added == 1) {
                             var root = document.getElementById("list-modified");
                             if (root.length !== 0) {

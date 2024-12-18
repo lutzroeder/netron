@@ -1,21 +1,21 @@
-// import { stringify } from 'querystring';
+import { stringify } from 'querystring';
 
-// import { NONAME } from 'dns';
+import { NONAME } from 'dns';
 
-// import { execSync } from 'child_process';
-// import { cp } from 'fs';
+import { execSync } from 'child_process';
+import { cp } from 'fs';
 
 class Req {
-  //variable which states if a file was added before
+  // Variable which states if a file was added before.
   file_added = 0;
-  //variable which stores the elements on which 
-  //event listeners for images are put
+  // Variable which stores the elements on which 
+  // event listeners for images are put.
   EventImg = [];
-  //variable which stores the elements on which 
-  //event listeners for double click are put
+  // Variable which stores the elements on which 
+  // event listeners for double click are put.
   EventDblClick = [];
   constructor() {}
-  //function for cleaning all the cache (information added from the file) in case an error occurs
+  // Function for cleaning all the cache (information added from the file) in case an error occurs.
   static solve_bugs() {
     var root = document.getElementById("list-modified");
     if (root.length !== 0) {
@@ -77,7 +77,7 @@ class Req {
         body.removeChild(children[i]);
       }
     }
-    //code which removes event listeners for images and doubleclick
+    // Code which removes event listeners for images and doubleclick.
     if (Req.EventImg.length !== 0) {
       for (var i = 0; i < Req.EventImg.length; i++) {
         (Req.EventImg[i]).onmouseover = null;
@@ -92,7 +92,7 @@ class Req {
     Req.file_added = 0;
   }
   
-  //function in which file is read, data is processed and buttons, hovers and clicks are added
+  // Function in which file is read, data is processed and buttons, hovers and clicks are added.
   static read_file() {
     let input = document.createElement('input');
     input.type = 'file';
@@ -105,35 +105,35 @@ class Req {
         Req.EventImg = [];
         Req.EventDblClick = [];
         const content = reader.result;
-        //variable which stocks the lines from the file
+        // Variable which stocks the lines from the file.
         var lines = content.split('\n');
         var id, meta, style, specifier;
-        //variable which encapsulates all the data for a graph element to be inserted into html page 
-        //-> in a list of added attributes
+        // Variable which encapsulates all the data for a graph element to be inserted into html page
+        // -> in a list of added attributes.
         var childmeta = 0;
-        //variable which encapsulates the elements' data which needs to be removed manually, 
-        //by setting attributes differently -> in a list of modified attributes
+        // Variable which encapsulates the elements' data which needs to be removed manually, 
+        // by setting attributes differently -> in a list of modified attributes.
         var another = 0;
-        //variable which stocks the number of buttons added for an element
+        // Variable which stocks the number of buttons added for an element.
         var nofb = 0;
-        //variable which stocks data for a button and resets every time a new button is created
+        // Variable which stocks data for a button and resets every time a new button is created.
         var otherstring = JSON.stringify({});
-        //variable which stocks the list of possible keys from a file
+        // Variable which stocks the list of possible keys from a file
         var optionskeys = ["operator_onmouseover_image_posx", "operator_onmouseover_image_posy", "tensor_onmouseover_image_posx", "tensor_onmouseover_image_posy", "tensor_id", "operator_id", "tensor_style", "operator_style", "tensor_ondblclick_script", "tensor_ondblclick_command", "operator_ondblclick_script", "operator_ondblclick_command", "tensor_onmouseover_text", "operator_onmouseover_text", "tensor_onmouseover_image", "operator_onmouseover_image", "tensor_meta_key", "operator_meta_key", "tensor_meta_val", "operator_meta_val", "tensor_button", "operator_button", "tensor_button_command", "tensor_button_script", "operator_button_command", "operator_button_script", "tensor_onmouseover_image_dimx", "tensor_onmouseover_image_dimy", "operator_onmouseover_image_dimx", "operator_onmouseover_image_dimy"];
-        //variable which checks if the first line of the file contains an id of tensor or operator
+        // Variable which checks if the first line of the file contains an id of tensor or operator.
         var index = -1;
-        //variable which stocks data for a button and resets every time a new hover image is created
+        // Variable which stocks data for a button and resets every time a new hover image is created.
         var img = JSON.stringify({});
-        //variable which stocks the number of hover images created
+        // Variable which stocks the number of hover images created.
         var nofimg = 0
 
         for (var line = 0; line < lines.length; line++) {
-          //if the line is a comment or if it has no text, it is ignored
+          // If the line is a comment or if it has no text, it is ignored.
           if (!lines[line].startsWith("#") && lines[line].trim().length !== 0) {
             var lineread = lines[line].split(/:(.+)/);
-            //gets the key of the line
+            // Gets the key of the line.
             var first = lineread[0] == undefined? '' : lineread[0].trim();
-            //checks if the file begins with an id
+            // Checks if the file begins with an id.
             if (index == -1) {
               if (first.toLowerCase() !== "operator_id" && first.toLowerCase() !== "tensor_id") {
                 Req.solve_bugs();
@@ -141,14 +141,14 @@ class Req {
               }
             }
             index = 0;
-            //checks if the key is not included into the list of valid keys
+            // Checks if the key is not included into the list of valid keys.
             if (!optionskeys.includes(first.toLowerCase())) {
               Req.solve_bugs();
               throw "Invalid model metadata file format! You provided an invalid key: " + first.toLowerCase();
             }
             if (first.toLowerCase() == "tensor_id" || first.toLowerCase() == "operator_id") {
-              //block of code which checks if there is unadded information regarding a new button at the beggining of
-              //processing a new graph element
+              // Block of code which checks if there is unadded information regarding a new button at the beggining of
+              // processing a new graph element.
               if (otherstring !== JSON.stringify({})) {
                 var objeect = document.getElementById("list-attributes");
                 for (var i = 0; i < objeect.children.length; i++) {
@@ -162,8 +162,8 @@ class Req {
                   }
                 }
               }
-              //block of code which checks if there is unadded information regarding a new image at the beggining of
-              //processing a new graph element
+              // Block of code which checks if there is unadded information regarding a new image at the beggining of
+              // processing a new graph element.
               if (img !== JSON.stringify({})) {
                 var objeect = document.getElementById("list-attributes");
                   for (var i = 0; i < objeect.children.length; i++) {
@@ -177,15 +177,15 @@ class Req {
                   }
                 }
               }
-              //block of code which checks if there is unadded processed information in the lists of new elements
-              //at the beginning of processing a new graph element
+              // Block of code which checks if there is unadded processed information in the lists of new elements
+              // at the beginning of processing a new graph element.
               if (childmeta !== 0) {
                 document.getElementById("list-attributes").appendChild(childmeta);
                 document.getElementById("list-modified").appendChild(another);
                 childmeta = 0;
                 another = 0;
               }
-              //creating an element which contains the information needed
+              // Creating an element which contains the information needed.
               childmeta = document.createElement('div');
               another = document.createElement('div');
               specifier = lineread[0] == undefined? '' : lineread[0].trim();
@@ -205,7 +205,7 @@ class Req {
               another.innerHTML = JSON.stringify({"id": id});
               continue;
             }
-            //adding the style info in the element
+            // Adding the style info in the element.
             if (first.toLowerCase() == "tensor_style" || first.toLowerCase() == "operator_style") {
               if ((childmeta.className == "tensor" && first.toLowerCase() == "operator_style") || (childmeta.className == "operator" && first.toLowerCase() == "tensor_style")) {
                 Req.solve_bugs();
@@ -224,7 +224,7 @@ class Req {
               meta = lineread[1] == undefined ? '' : lineread[1].trim();
               var obj = JSON.parse(childmeta.innerHTML);
               var obj2 = JSON.parse(another.innerHTML);
-              //adding the doubleclick information for the element
+              // Adding the doubleclick information for the element.
               if (first.toLowerCase() == "tensor_ondblclick_script" || first.toLowerCase() == "tensor_ondblclick_command" || first.toLowerCase() == "operator_ondblclick_script" || first.toLowerCase() == "operator_ondblclick_command") {
                 if (((first.toLowerCase() == "tensor_ondblclick_script" || first.toLowerCase() == "tensor_ondblclick_command") && childmeta.className == "operator") || ((first.toLowerCase() == "operator_ondblclick_script" || first.toLowerCase() == "operator_ondblclick_command") && childmeta.className == "tensor")) {
                   Req.solve_bugs();
@@ -239,7 +239,7 @@ class Req {
                 obj["hover"] = meta;
                 obj2["hover"] = meta;
               }
-              //adding the imahe hovering information for the element
+              // Adding the imahe hovering information for the element.
               else if (first.toLowerCase() == "tensor_onmouseover_image" || first.toLowerCase() == "operator_onmouseover_image") {
                 if ((first.toLowerCase() == "tensor_onmouseover_image" && childmeta.className == "operator") || (first.toLowerCase() == "operator_onmouseover_image" && childmeta.className == "tensor")) {
                   Req.solve_bugs();
@@ -252,7 +252,7 @@ class Req {
                 img = JSON.stringify({"id": obj["id"], "class": childmeta.className, "img_link": meta});
                 obj2["hover_image"] = meta;
               }
-              //adding the key-value metadata information for the element
+              // Adding the key-value metadata information for the element.
               else if (first.toLowerCase() == "tensor_meta_key" || first.toLowerCase() == "operator_meta_key") {
                 if ((first.toLowerCase() == "tensor_meta_key" && childmeta.className == "operator") || (first.toLowerCase() == "operator_meta_key" && childmeta.className == "tensor")) {
                   Req.solve_bugs();
@@ -296,7 +296,7 @@ class Req {
                 }
               }
               else {
-                //adding the button information for the element
+                // Adding the button information for the element.
                 if (first.toLowerCase() == "tensor_button" || first.toLowerCase() == "operator_button") {
                   if ((childmeta.className == "operator" && first.toLowerCase() == "tensor_button") || (childmeta.className == "tensor" && first.toLowerCase() == "operator_button")) {
                     Req.solve_bugs();
@@ -363,7 +363,7 @@ class Req {
                     otherstring = JSON.stringify(stri);
                   } 
                   else {
-                    //adding the image information for the element
+                    // Adding the image information for the element.
                     if (first.toLowerCase() == "tensor_onmouseover_image_dimx" || first.toLowerCase() == "tensor_onmouseover_image_dimy" || first.toLowerCase() == "operator_onmouseover_image_dimx" || first.toLowerCase() == "operator_onmouseover_image_dimy" || first.toLowerCase() == "tensor_onmouseover_image_posx" || first.toLowerCase() == "tensor_onmouseover_image_posy" || first.toLowerCase() == "operator_onmouseover_image_posx" || first.toLowerCase() == "operator_onmouseover_image_posy") {
                       if ((childmeta.className == "tensor" && first.toLowerCase().startsWith("operator_")) || (childmeta.className == "operator" && first.toLowerCase().startsWith("tensor_"))) {
                         Req.solve_bugs();
@@ -383,8 +383,8 @@ class Req {
                       strin[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim();
                       img = JSON.stringify(strin);
                     } else {
-                      //if there is unadded information for buttons and images,
-                      //this will be added
+                      // If there is unadded information for buttons and images,
+                      // this will be added.
                       if (otherstring !== JSON.stringify({})) {
                         obj["button_" + nofb] = otherstring;
                       }
@@ -405,13 +405,13 @@ class Req {
             } 
           }
         }
-        //if there is unprocessed information, add it in the list
+        // If there is unprocessed information, add it in the list.
         if (childmeta !== 0) {
           document.getElementById("list-attributes").appendChild(childmeta);
           document.getElementById("list-modified").appendChild(another);
         }
-        //if there is unprocessed button or image information,
-        //process it
+        // If there is unprocessed button or image information,
+        // process it.
         if (otherstring !== JSON.stringify({})) {
         var objeect = document.getElementById("list-attributes");
           for (var i = 0; i < objeect.children.length; i++) {
@@ -438,8 +438,8 @@ class Req {
             }
           }
         }
-        //block of code which validates the changes : adds the style,
-        //the hovering and the buttons
+        // Block of code which validates the changes : adds the style,
+        // the hovering and the buttons.
         if (document.getElementById("list-attributes").children) {
           var lista = document.getElementById("list-attributes");
           var lista_m = document.getElementById("list-modified");
@@ -470,7 +470,7 @@ class Req {
                     parent_t.children[idx + 1].innerHTML = '<title>' + obj["hover"].match(/.{1,20}/g).join("\n") + '</title>';
                   }
                   var keys = Object.keys(obj);
-                  //block of code whick adds image item to be displayed
+                  // Block of code whick adds image item to be displayed.
                   for (var j = 0; j < keys.length; j++) {
                     if (keys[j].startsWith("img_")) {
                       var obje = JSON.parse(obj[keys[j]]);
@@ -559,7 +559,7 @@ class Req {
     };
     input.click();
   };
-  //function which manages the doubleclick feature
+  // Function which manages the doubleclick feature.
   static doubleclick() {
     if (document.getElementById("list-attributes").children) {
       var parent_t = document.getElementById("edge-paths");
@@ -649,7 +649,7 @@ class Req {
       }
     }
   }
-//function which deals with displaying all the other information
+// Function which deals with displaying all the other information.
   static metadata() {
     if (document.getElementById("list-attributes").children) {
       var lista = document.getElementById("list-attributes");
@@ -779,8 +779,8 @@ class Req {
         }
       }
     }
-    //block of code which adds execution of scripts or commands when
-    //pressing a button
+    // Block of code which adds execution of scripts or commands when
+    // pressing a button.
     if (document.getElementById("list-attributes").children) {
       if (document.getElementById("sidebar-content")) {
         if (document.getElementById("sidebar-content").children[0]) {
@@ -815,7 +815,7 @@ class Req {
         }
       }
     }
-    //block of code which displays the images on hover
+    // Block of code which displays the images on hover.
     if (document.getElementById("graph")) {
       if (document.getElementById("origin")) {
         if (document.getElementById("nodes") && document.getElementById("edge-paths")) {
