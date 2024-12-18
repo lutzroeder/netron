@@ -15,7 +15,6 @@ import time
 import webbrowser
 import urllib.parse
 
-
 __version__ = '0.0.0'
 
 class _ContentProvider: # pylint: disable=too-few-public-methods

@@ -553,7 +553,7 @@ host.BrowserHost = class {
 
     update() {
     }
-    
+
     async message(message, alert, action) {
         return new Promise((resolve) => {
             const type = this.document.body.getAttribute('class');
