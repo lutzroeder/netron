@@ -134,19 +134,13 @@ view.View = class {
                                             counter = 0;
                                         }
                                         var operator = document.getElementById("node-id-" + counter);
-                                        if (operator) {
-                                            if (operator.children) {
-                                                if (operator.children[0]) {
-                                                    if (operator.children[0].children) {
-                                                        if (operator.children[0].children[0]) {
-                                                            if (child["hover"] && operator.children[0].children[0].innerHTML !== '') {
-                                                                operator.children[0].children[0].innerHTML = '';
-                                                            }
-                                                            if (child["style"] && operator.children[0].children[0].hasAttribute("style")) {
-                                                                operator.children[0].children[0].removeAttribute("style");
-                                                            }
-                                                        }
-                                                    }
+                                        if (operator && operator.children && operator.children[0] && operator.children[0].children && operator.children[0].children[0]) {
+                                            if (operator.children[0].children[0]) {
+                                                if (child["hover"] && operator.children[0].children[0].innerHTML !== '') {
+                                                    operator.children[0].children[0].innerHTML = '';
+                                                }
+                                                if (child["style"] && operator.children[0].children[0].hasAttribute("style")) {
+                                                    operator.children[0].children[0].removeAttribute("style");
                                                 }
                                             }
                                         }
@@ -163,15 +157,15 @@ view.View = class {
                                     body.removeChild(children[i]);
                                 }
                             }
-                            if (Req.EventImg.length !== 0) {
-                                for (var i = 0; i < Req.EventImg.length; i++) {
-                                    (Req.EventImg[i]).onmouseover = null;
-                                    (Req.EventImg[i]).onmouseout = null;
+                            if (Req.event_img.length !== 0) {
+                                for (var i = 0; i < Req.event_img.length; i++) {
+                                    (Req.event_img[i]).onmouseover = null;
+                                    (Req.event_img[i]).onmouseout = null;
                                 }
                             }
-                            if (Req.EventDblClick.length !== 0) {
-                                for (var i = 0; i < Req.EventDblClick.length; i++) {
-                                    (Req.EventDblClick[i]).ondblclick = null;
+                            if (Req.event_dbl_click.length !== 0) {
+                                for (var i = 0; i < Req.event_dbl_click.length; i++) {
+                                    (Req.event_dbl_click[i]).ondblclick = null;
                                 }
                             }
                             Req.file_added = 0;

@@ -1,19 +1,19 @@
-import { stringify } from 'querystring';
+// import { stringify } from 'querystring';
 
-import { NONAME } from 'dns';
+// import { NONAME } from 'dns';
 
-import { execSync } from 'child_process';
-import { cp } from 'fs';
+// import { execSync } from 'child_process';
+// import { cp } from 'fs';
 
 class Req {
   // Variable which states if a file was added before.
   file_added = 0;
   // Variable which stores the elements on which 
   // event listeners for images are put.
-  EventImg = [];
+  event_img = [];
   // Variable which stores the elements on which 
   // event listeners for double click are put.
-  EventDblClick = [];
+  event_dbl_click = [];
   constructor() {}
   // Function for cleaning all the cache (information added from the file) in case an error occurs.
   static solve_bugs() {
@@ -51,17 +51,11 @@ class Req {
           }
           var operator = document.getElementById("node-id-" + counter);
           if (operator) {
-            if (operator.children) {
-              if (operator.children[0]) {
-                if (operator.children[0].children) {
-                  if (operator.children[0].children[0]) {
-                    if (child["hover"] && operator.children[0].children[0].innerHTML !== '') {
-                      operator.children[0].children[0].innerHTML = '';
-                    } if (child["style"] && operator.children[0].children[0].hasAttribute("style")) {
-                      operator.children[0].children[0].removeAttribute("style");
-                    }
-                  }
-                }
+            if (operator.children && operator.children[0] && operator.children[0].children && operator.children[0].children[0]) {
+              if (child["hover"] && operator.children[0].children[0].innerHTML !== '') {
+                operator.children[0].children[0].innerHTML = '';
+              } if (child["style"] && operator.children[0].children[0].hasAttribute("style")) {
+                operator.children[0].children[0].removeAttribute("style");
               }
             }
           }
@@ -78,15 +72,15 @@ class Req {
       }
     }
     // Code which removes event listeners for images and doubleclick.
-    if (Req.EventImg.length !== 0) {
-      for (var i = 0; i < Req.EventImg.length; i++) {
-        (Req.EventImg[i]).onmouseover = null;
-        (Req.EventImg[i]).onmouseout = null;
+    if (Req.event_img.length !== 0) {
+      for (var i = 0; i < Req.event_img.length; i++) {
+        (Req.event_img[i]).onmouseover = null;
+        (Req.event_img[i]).onmouseout = null;
       }
     }
-    if (Req.EventDblClick.length !== 0) {
-      for (var i = 0; i < Req.EventDblClick.length; i++) {
-        Req.EventDblClick[i].ondblclick = null;
+    if (Req.event_dbl_click.length !== 0) {
+      for (var i = 0; i < Req.event_dbl_click.length; i++) {
+        Req.event_dbl_click[i].ondblclick = null;
       }
     }
     Req.file_added = 0;
@@ -102,37 +96,37 @@ class Req {
       reader.onload = function() {
         try {
         Req.file_added = 1;
-        Req.EventImg = [];
-        Req.EventDblClick = [];
+        Req.event_img = [];
+        Req.event_dbl_click = [];
         const content = reader.result;
         // Variable which stocks the lines from the file.
         var lines = content.split('\n');
         var id, meta, style, specifier;
         // Variable which encapsulates all the data for a graph element to be inserted into html page
         // -> in a list of added attributes.
-        var childmeta = 0;
+        var child_meta = 0;
         // Variable which encapsulates the elements' data which needs to be removed manually, 
         // by setting attributes differently -> in a list of modified attributes.
         var another = 0;
         // Variable which stocks the number of buttons added for an element.
-        var nofb = 0;
+        var n_of_buttons = 0;
         // Variable which stocks data for a button and resets every time a new button is created.
-        var otherstring = JSON.stringify({});
+        var other_string = JSON.stringify({});
         // Variable which stocks the list of possible keys from a file
-        var optionskeys = ["operator_onmouseover_image_posx", "operator_onmouseover_image_posy", "tensor_onmouseover_image_posx", "tensor_onmouseover_image_posy", "tensor_id", "operator_id", "tensor_style", "operator_style", "tensor_ondblclick_script", "tensor_ondblclick_command", "operator_ondblclick_script", "operator_ondblclick_command", "tensor_onmouseover_text", "operator_onmouseover_text", "tensor_onmouseover_image", "operator_onmouseover_image", "tensor_meta_key", "operator_meta_key", "tensor_meta_val", "operator_meta_val", "tensor_button", "operator_button", "tensor_button_command", "tensor_button_script", "operator_button_command", "operator_button_script", "tensor_onmouseover_image_dimx", "tensor_onmouseover_image_dimy", "operator_onmouseover_image_dimx", "operator_onmouseover_image_dimy"];
+        var options_keys = ["operator_onmouseover_image_posx", "operator_onmouseover_image_posy", "tensor_onmouseover_image_posx", "tensor_onmouseover_image_posy", "tensor_id", "operator_id", "tensor_style", "operator_style", "tensor_ondblclick_script", "tensor_ondblclick_command", "operator_ondblclick_script", "operator_ondblclick_command", "tensor_onmouseover_text", "operator_onmouseover_text", "tensor_onmouseover_image", "operator_onmouseover_image", "tensor_meta_key", "operator_meta_key", "tensor_meta_val", "operator_meta_val", "tensor_button", "operator_button", "tensor_button_command", "tensor_button_script", "operator_button_command", "operator_button_script", "tensor_onmouseover_image_dimx", "tensor_onmouseover_image_dimy", "operator_onmouseover_image_dimx", "operator_onmouseover_image_dimy"];
         // Variable which checks if the first line of the file contains an id of tensor or operator.
         var index = -1;
         // Variable which stocks data for a button and resets every time a new hover image is created.
         var img = JSON.stringify({});
         // Variable which stocks the number of hover images created.
-        var nofimg = 0
+        var n_of_images = 0
 
         for (var line = 0; line < lines.length; line++) {
           // If the line is a comment or if it has no text, it is ignored.
           if (!lines[line].startsWith("#") && lines[line].trim().length !== 0) {
-            var lineread = lines[line].split(/:(.+)/);
+            var line_read = lines[line].split(/:(.+)/);
             // Gets the key of the line.
-            var first = lineread[0] == undefined? '' : lineread[0].trim();
+            var first = line_read[0] == undefined? '' : line_read[0].trim();
             // Checks if the file begins with an id.
             if (index == -1) {
               if (first.toLowerCase() !== "operator_id" && first.toLowerCase() !== "tensor_id") {
@@ -142,22 +136,22 @@ class Req {
             }
             index = 0;
             // Checks if the key is not included into the list of valid keys.
-            if (!optionskeys.includes(first.toLowerCase())) {
+            if (!options_keys.includes(first.toLowerCase())) {
               Req.solve_bugs();
               throw "Invalid model metadata file format! You provided an invalid key: " + first.toLowerCase();
             }
             if (first.toLowerCase() == "tensor_id" || first.toLowerCase() == "operator_id") {
               // Block of code which checks if there is unadded information regarding a new button at the beggining of
               // processing a new graph element.
-              if (otherstring !== JSON.stringify({})) {
+              if (other_string !== JSON.stringify({})) {
                 var objeect = document.getElementById("list-attributes");
                 for (var i = 0; i < objeect.children.length; i++) {
-                  if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(otherstring)['id']) {
+                  if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(other_string)['id']) {
                     var inner = JSON.parse(objeect.children[i].innerHTML);
-                    inner["button_" + nofb] = otherstring;
+                    inner["button_" + n_of_buttons] = other_string;
                     objeect.children[i].innerHTML = JSON.stringify(inner);
-                    otherstring = JSON.stringify({});
-                    nofb += 1;
+                    other_string = JSON.stringify({});
+                    n_of_buttons += 1;
                     break;
                   }
                 }
@@ -169,70 +163,70 @@ class Req {
                   for (var i = 0; i < objeect.children.length; i++) {
                     if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(img)['id']) {
                       var inner = JSON.parse(objeect.children[i].innerHTML);
-                      inner["img_" + nofimg] = img;
+                      inner["img_" + n_of_images] = img;
                       objeect.children[i].innerHTML = JSON.stringify(inner);
                       img = JSON.stringify({});
-                      nofimg += 1;
+                      n_of_images += 1;
                       break;
                   }
                 }
               }
               // Block of code which checks if there is unadded processed information in the lists of new elements
               // at the beginning of processing a new graph element.
-              if (childmeta !== 0) {
-                document.getElementById("list-attributes").appendChild(childmeta);
+              if (child_meta !== 0) {
+                document.getElementById("list-attributes").appendChild(child_meta);
                 document.getElementById("list-modified").appendChild(another);
-                childmeta = 0;
+                child_meta = 0;
                 another = 0;
               }
               // Creating an element which contains the information needed.
-              childmeta = document.createElement('div');
+              child_meta = document.createElement('div');
               another = document.createElement('div');
-              specifier = lineread[0] == undefined? '' : lineread[0].trim();
+              specifier = line_read[0] == undefined? '' : line_read[0].trim();
               if (specifier.toLowerCase() == "tensor_id") {
-                childmeta.className = "tensor";
+                child_meta.className = "tensor";
                 another.className = "tensor";
               } else {
-                childmeta.className = "operator";
+                child_meta.className = "operator";
                 another.className = "operator";
               }
-              id = lineread[1] == undefined ? '' : lineread[1].trim();
+              id = line_read[1] == undefined ? '' : line_read[1].trim();
               if (!(!isNaN(parseFloat(id)) && isFinite(id))) {
                 Req.solve_bugs();
                 throw "Invalid model metadata file format! Id must be a number";
               }
-              childmeta.innerHTML = JSON.stringify({"id": id});
+              child_meta.innerHTML = JSON.stringify({"id": id});
               another.innerHTML = JSON.stringify({"id": id});
               continue;
             }
             // Adding the style info in the element.
             if (first.toLowerCase() == "tensor_style" || first.toLowerCase() == "operator_style") {
-              if ((childmeta.className == "tensor" && first.toLowerCase() == "operator_style") || (childmeta.className == "operator" && first.toLowerCase() == "tensor_style")) {
+              if ((child_meta.className == "tensor" && first.toLowerCase() == "operator_style") || (child_meta.className == "operator" && first.toLowerCase() == "tensor_style")) {
                 Req.solve_bugs();
                 throw "Invalid model metadata file format! tensor_style must correspond to tensor and operator_style to operator";
               }
-              style = lineread[1] == undefined ? '' : lineread[1].trim();
-              var obj = JSON.parse(childmeta.innerHTML);
+              style = line_read[1] == undefined ? '' : line_read[1].trim();
+              var obj = JSON.parse(child_meta.innerHTML);
               obj["style"] = style;
-              childmeta.innerHTML = JSON.stringify(obj);
+              child_meta.innerHTML = JSON.stringify(obj);
               var obj2 = JSON.parse(another.innerHTML);
               obj2["style"] = style;
               another.innerHTML = JSON.stringify(obj2);
               continue;
             }
             else {
-              meta = lineread[1] == undefined ? '' : lineread[1].trim();
-              var obj = JSON.parse(childmeta.innerHTML);
+              meta = line_read[1] == undefined ? '' : line_read[1].trim();
+              var obj = JSON.parse(child_meta.innerHTML);
               var obj2 = JSON.parse(another.innerHTML);
               // Adding the doubleclick information for the element.
               if (first.toLowerCase() == "tensor_ondblclick_script" || first.toLowerCase() == "tensor_ondblclick_command" || first.toLowerCase() == "operator_ondblclick_script" || first.toLowerCase() == "operator_ondblclick_command") {
-                if (((first.toLowerCase() == "tensor_ondblclick_script" || first.toLowerCase() == "tensor_ondblclick_command") && childmeta.className == "operator") || ((first.toLowerCase() == "operator_ondblclick_script" || first.toLowerCase() == "operator_ondblclick_command") && childmeta.className == "tensor")) {
+                if (((first.toLowerCase() == "tensor_ondblclick_script" || first.toLowerCase() == "tensor_ondblclick_command") && child_meta.className == "operator") || ((first.toLowerCase() == "operator_ondblclick_script" || first.toLowerCase() == "operator_ondblclick_command") && child_meta.className == "tensor")) {
                   Req.solve_bugs();
                   throw "Invalid model metadata file format! tensor_ondblclick.. must correspond to tensor and operator_ondblclick... to operator";
                 }
                 obj[first.toLowerCase()] = meta;
               } else if (first.toLowerCase() == "tensor_onmouseover_text" || first.toLowerCase() == "operator_onmouseover_text") {
-                if ((first.toLowerCase() == "tensor_onmouseover_text" && childmeta.className == "operator") || (first.toLowerCase() == "operator_onmouseover_text" && childmeta.className == "tensor")) {
+                if ((first.toLowerCase() == "tensor_onmouseover_text" && child_meta.className == "operator") || (first.toLowerCase() == "operator_onmouseover_text" && child_meta.className == "tensor")) {
                   Req.solve_bugs();
                   throw "Invalid model metadata file format! tensor_onmouseover_text must correspond to tensor and operator_onmouseover_text to operator";
                 }
@@ -241,20 +235,20 @@ class Req {
               }
               // Adding the imahe hovering information for the element.
               else if (first.toLowerCase() == "tensor_onmouseover_image" || first.toLowerCase() == "operator_onmouseover_image") {
-                if ((first.toLowerCase() == "tensor_onmouseover_image" && childmeta.className == "operator") || (first.toLowerCase() == "operator_onmouseover_image" && childmeta.className == "tensor")) {
+                if ((first.toLowerCase() == "tensor_onmouseover_image" && child_meta.className == "operator") || (first.toLowerCase() == "operator_onmouseover_image" && child_meta.className == "tensor")) {
                   Req.solve_bugs();
                   throw "Invalid model metadata file format! tensor_onmouseover_image must correspond to tensor and operator_onmouseover_image to operator";
                 }            
                 if (img !== JSON.stringify({})) {
-                  obj["img_" + nofimg] = img;
-                  nofimg += 1;
+                  obj["img_" + n_of_images] = img;
+                  n_of_images += 1;
                 }
-                img = JSON.stringify({"id": obj["id"], "class": childmeta.className, "img_link": meta});
+                img = JSON.stringify({"id": obj["id"], "class": child_meta.className, "img_link": meta});
                 obj2["hover_image"] = meta;
               }
               // Adding the key-value metadata information for the element.
               else if (first.toLowerCase() == "tensor_meta_key" || first.toLowerCase() == "operator_meta_key") {
-                if ((first.toLowerCase() == "tensor_meta_key" && childmeta.className == "operator") || (first.toLowerCase() == "operator_meta_key" && childmeta.className == "tensor")) {
+                if ((first.toLowerCase() == "tensor_meta_key" && child_meta.className == "operator") || (first.toLowerCase() == "operator_meta_key" && child_meta.className == "tensor")) {
                   Req.solve_bugs();
                   throw "Invalid model metadata file format! tensor_meta_key must correspond to tensor and operator_meta_key to operator";
                 }
@@ -262,15 +256,15 @@ class Req {
                 while (lines[line + k].startsWith("#") || lines[line + k].trim().length == 0) {
                   k += 1;
                 }
-                var linereadsecond = lines[line + k].split(":");
-                var second = linereadsecond[0] == undefined? '' : linereadsecond[0].trim();
+                var line_read_second = lines[line + k].split(":");
+                var second = line_read_second[0] == undefined? '' : line_read_second[0].trim();
                 if (second.toLowerCase() == "tensor_meta_val" || second.toLowerCase() == "operator_meta_val") {
-                  if ((first.toLowerCase() == "tensor_meta_val" && childmeta.className == "operator") || (first.toLowerCase() == "operator_meta_val" && childmeta.className == "tensor")) {
+                  if ((first.toLowerCase() == "tensor_meta_val" && child_meta.className == "operator") || (first.toLowerCase() == "operator_meta_val" && child_meta.className == "tensor")) {
                     Req.solve_bugs();
                     throw "Invalid model metadata file format! tensor_meta_val must correspond to tensor and operator_meta_val to operator";
                   }
-                  var value = linereadsecond[1].trim();
-                  var key = lineread[1].trim();
+                  var value = line_read_second[1].trim();
+                  var key = line_read[1].trim();
                   obj[key] = value;
                   obj2["metadata"] = "metadata";
                 } else {
@@ -283,8 +277,8 @@ class Req {
                 while (lines[line + k].startsWith("#") || lines[line + k].trim().length == 0) {
                   k -= 1;
                 }
-                var linereadsecond = lines[line + k].split(":");
-                var second = linereadsecond[0] == undefined? '' : linereadsecond[0].trim();
+                var line_read_second = lines[line + k].split(":");
+                var second = line_read_second[0] == undefined? '' : line_read_second[0].trim();
                 if ((second.toLowerCase() == "tensor_meta_key" && first.toLowerCase() == "tensor_meta_val") || (second.toLowerCase() == "operator_meta_key" && first.toLowerCase() == "operator_meta_val")) {
                   continue;
                 } else if ((second.toLowerCase() == "tensor_meta_key" && first.toLowerCase() == "operator_meta_val") || (second.toLowerCase() == "operator_meta_key" && first.toLowerCase() == "tensor_meta_val")) {
@@ -298,7 +292,7 @@ class Req {
               else {
                 // Adding the button information for the element.
                 if (first.toLowerCase() == "tensor_button" || first.toLowerCase() == "operator_button") {
-                  if ((childmeta.className == "operator" && first.toLowerCase() == "tensor_button") || (childmeta.className == "tensor" && first.toLowerCase() == "operator_button")) {
+                  if ((child_meta.className == "operator" && first.toLowerCase() == "tensor_button") || (child_meta.className == "tensor" && first.toLowerCase() == "operator_button")) {
                     Req.solve_bugs();
                     throw "Invalid model metadata file format! tensor_button must correspond to tensor and operator_button to operator";
                   }
@@ -306,21 +300,21 @@ class Req {
                   while (lines[line + k].startsWith("#") || lines[line + k].trim().length == 0) {
                     k += 1;
                   }
-                  var linereadsecond = lines[line + k].split(":");
-                  var second = linereadsecond[0] == undefined? '' : linereadsecond[0].trim();
+                  var line_read_second = lines[line + k].split(":");
+                  var second = line_read_second[0] == undefined? '' : line_read_second[0].trim();
                   if ((first.toLowerCase() == "tensor_button" && second.toLowerCase() == "tensor_button") || (first.toLowerCase() == "operator_button" && second.toLowerCase() == "operator_button")) {
                     Req.solve_bugs();
                     throw "Invalid model metadata file format! You can't have empty buttons";
                   }
-                  if (otherstring !== JSON.stringify({})) {
-                    obj["button_" + nofb] = otherstring;
-                    nofb += 1;
+                  if (other_string !== JSON.stringify({})) {
+                    obj["button_" + n_of_buttons] = other_string;
+                    n_of_buttons += 1;
                   }
-                  otherstring = JSON.stringify({"id": obj["id"], "class": childmeta.className, "button_name": lineread[1] == undefined ? '' : lineread[1].trim()});
+                  other_string = JSON.stringify({"id": obj["id"], "class": child_meta.className, "button_name": line_read[1] == undefined ? '' : line_read[1].trim()});
                   obj2["buttons"] = "buttons";
                 } else {
                   if (first.toLowerCase() == "tensor_button_command" || first.toLowerCase() == "tensor_button_script" || first.toLowerCase() == "operator_button_command" || first.toLowerCase() == "operator_button_script") {
-                    if ((childmeta.className == "tensor" && (first.toLowerCase() == "operator_button_command" || first.toLowerCase() == "operator_button_script")) || (childmeta.className == "operator" && (first.toLowerCase() == "tensor_button_command" || first.toLowerCase() == "tensor_button_script"))) {
+                    if ((child_meta.className == "tensor" && (first.toLowerCase() == "operator_button_command" || first.toLowerCase() == "operator_button_script")) || (child_meta.className == "operator" && (first.toLowerCase() == "tensor_button_command" || first.toLowerCase() == "tensor_button_script"))) {
                       Req.solve_bugs();
                       throw "Invalid model metadata file format! tensor_button.. must correspond to tensor and operator_button.. to operator";
                     }
@@ -328,8 +322,8 @@ class Req {
                     while (lines[line + k].startsWith("#") || lines[line + k].trim().length == 0) {
                       k -= 1;
                     }
-                    var linereadsecond = lines[line + k].split(":");
-                    var second = linereadsecond[0] == undefined? '' : linereadsecond[0].trim();
+                    var line_read_second = lines[line + k].split(":");
+                    var second = line_read_second[0] == undefined? '' : line_read_second[0].trim();
                     if ((first.toLowerCase() == "tensor_button_command" && second.toLowerCase() == "tensor_button_command") || (first.toLowerCase() == "tensor_button_script" && second.toLowerCase() == "tensor_button_script") || (first.toLowerCase() == "operator_button_command" && second.toLowerCase() == "operator_button_command") || (first.toLowerCase() == "operator_button_script" && second.toLowerCase() == "operator_button_script")) {
                       Req.solve_bugs();
                       throw "A button can't execute two scripts or two commands at the same time";
@@ -358,14 +352,14 @@ class Req {
                         throw "The format of the data is wrong: the construction of the button should be operator_button, operator_button_command, operator_button_script or operator_button, operator_button_script, operator_button_command";
                       }
                     }
-                    var stri = JSON.parse(otherstring);
-                    stri[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim();
-                    otherstring = JSON.stringify(stri);
+                    var stri = JSON.parse(other_string);
+                    stri[first.toLowerCase()] = line_read[1] == undefined ? '' : line_read[1].trim();
+                    other_string = JSON.stringify(stri);
                   } 
                   else {
                     // Adding the image information for the element.
                     if (first.toLowerCase() == "tensor_onmouseover_image_dimx" || first.toLowerCase() == "tensor_onmouseover_image_dimy" || first.toLowerCase() == "operator_onmouseover_image_dimx" || first.toLowerCase() == "operator_onmouseover_image_dimy" || first.toLowerCase() == "tensor_onmouseover_image_posx" || first.toLowerCase() == "tensor_onmouseover_image_posy" || first.toLowerCase() == "operator_onmouseover_image_posx" || first.toLowerCase() == "operator_onmouseover_image_posy") {
-                      if ((childmeta.className == "tensor" && first.toLowerCase().startsWith("operator_")) || (childmeta.className == "operator" && first.toLowerCase().startsWith("tensor_"))) {
+                      if ((child_meta.className == "tensor" && first.toLowerCase().startsWith("operator_")) || (child_meta.className == "operator" && first.toLowerCase().startsWith("tensor_"))) {
                         Req.solve_bugs();
                         throw "Invalid model metadata file format! tensor_onmouseover_image.. must correspond to tensor and operator_onmouseover_image.. to operator";
                       }
@@ -373,25 +367,25 @@ class Req {
                       while (lines[line + k].startsWith("#") || lines[line + k].trim().length == 0) {
                         k -= 1;
                       }
-                      var linereadsecond = lines[line + k].split(":");
-                      var second = linereadsecond[0] == undefined? '' : linereadsecond[0].trim();
+                      var line_read_second = lines[line + k].split(":");
+                      var second = line_read_second[0] == undefined? '' : line_read_second[0].trim();
                       if (first.toLowerCase() == second.toLowerCase()) {
                         Req.solve_bugs();
                         throw "A button can't execute two x dimesions or two y dimensions at the same time";
                       }
                       var strin = JSON.parse(img);
-                      strin[first.toLowerCase()] = lineread[1] == undefined ? '' : lineread[1].trim();
+                      strin[first.toLowerCase()] = line_read[1] == undefined ? '' : line_read[1].trim();
                       img = JSON.stringify(strin);
                     } else {
                       // If there is unadded information for buttons and images,
                       // this will be added.
-                      if (otherstring !== JSON.stringify({})) {
-                        obj["button_" + nofb] = otherstring;
+                      if (other_string !== JSON.stringify({})) {
+                        obj["button_" + n_of_buttons] = other_string;
                       }
                       if (img !== JSON.stringify({})) {
-                        obj["img_" + nofimg] = img;
+                        obj["img_" + n_of_images] = img;
                       }
-                      otherstring = JSON.stringify({});
+                      other_string = JSON.stringify({});
                       img = JSON.stringify({});
                       Req.solve_bugs();
                       throw "You provided an invalid key: " + first.toLowerCase();
@@ -399,28 +393,28 @@ class Req {
                   }
                 }
               }
-              childmeta.innerHTML = JSON.stringify(obj);
+              child_meta.innerHTML = JSON.stringify(obj);
               another.innerHTML = JSON.stringify(obj2);
               continue;
             } 
           }
         }
         // If there is unprocessed information, add it in the list.
-        if (childmeta !== 0) {
-          document.getElementById("list-attributes").appendChild(childmeta);
+        if (child_meta !== 0) {
+          document.getElementById("list-attributes").appendChild(child_meta);
           document.getElementById("list-modified").appendChild(another);
         }
         // If there is unprocessed button or image information,
         // process it.
-        if (otherstring !== JSON.stringify({})) {
+        if (other_string !== JSON.stringify({})) {
         var objeect = document.getElementById("list-attributes");
           for (var i = 0; i < objeect.children.length; i++) {
-            if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(otherstring)['id']) {
+            if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(other_string)['id']) {
               var inner = JSON.parse(objeect.children[i].innerHTML);
-              inner["button_" + nofb] = otherstring;
+              inner["button_" + n_of_buttons] = other_string;
               objeect.children[i].innerHTML = JSON.stringify(inner);
-              otherstring = JSON.stringify({});
-              nofb += 1;
+              other_string = JSON.stringify({});
+              n_of_buttons += 1;
               break;
             }
           }
@@ -430,10 +424,10 @@ class Req {
           for (var i = 0; i < objeect.children.length; i++) {
             if ((JSON.parse(objeect.children[i].innerHTML))['id'] == JSON.parse(img)['id']) {
               var inner = JSON.parse(objeect.children[i].innerHTML);
-              inner["img_" + nofimg] = img;
+              inner["img_" + n_of_images] = img;
               objeect.children[i].innerHTML = JSON.stringify(inner);
               img = JSON.stringify({});
-              nofimg += 1;
+              n_of_images += 1;
               break;
             }
           }
@@ -441,12 +435,12 @@ class Req {
         // Block of code which validates the changes : adds the style,
         // the hovering and the buttons.
         if (document.getElementById("list-attributes").children) {
-          var lista = document.getElementById("list-attributes");
-          var lista_m = document.getElementById("list-modified");
+          var list_attr = document.getElementById("list-attributes");
+          var list_modif = document.getElementById("list-modified");
           var parent_t = document.getElementById("edge-paths");
           var parent_n = document.getElementById("nodes");
-          for (var i = 0; i < lista.children.length; i++) {
-            if (lista.children[i].className == "tensor") {
+          for (var i = 0; i < list_attr.children.length; i++) {
+            if (list_attr.children[i].className == "tensor") {
               var results = [];
               var len = parent_t.children.length;
               for (var idx = 0; idx <= len; idx++) {
@@ -454,14 +448,14 @@ class Req {
               }
               var flag = 0;
               for (var idx = 0; idx < len; idx++) {
-                var obj = JSON.parse(lista.children[i].innerHTML);
-                var obj2 = JSON.parse(lista_m.children[i].innerHTML);
+                var obj = JSON.parse(list_attr.children[i].innerHTML);
+                var obj2 = JSON.parse(list_modif.children[i].innerHTML);
                 if (results[idx][1].id.split("\n")[1] == obj['id']) {
                   obj["new_id"] = idx;
                   obj["tensorname"] = results[idx][1].id;
                   obj2["new_id"] = idx;
                   obj2["tensorname"] = results[idx][1].id;
-                  lista.children[i].innerHTML = JSON.stringify(obj);
+                  list_attr.children[i].innerHTML = JSON.stringify(obj);
                   if (obj["style"]) {
                     parent_t.children[idx].style.stroke = obj["style"];
                   }
@@ -474,17 +468,17 @@ class Req {
                   for (var j = 0; j < keys.length; j++) {
                     if (keys[j].startsWith("img_")) {
                       var obje = JSON.parse(obj[keys[j]]);
-                      var oImg = document.createElement('img');
-                      oImg.src = obje["img_link"];
-                      oImg.style.width = obje.hasOwnProperty("tensor_onmouseover_image_dimx") ? obje["tensor_onmouseover_image_dimx"] : "auto";
-                      oImg.style.height = obje.hasOwnProperty("tensor_onmouseover_image_dimy") ? obje["tensor_onmouseover_image_dimy"] : "auto";
-                      oImg.style.display = 'none';
-                      oImg.style.position = 'absolute';
-                      oImg.style.top = obje.hasOwnProperty("tensor_onmouseover_image_posx") ? obje["tensor_onmouseover_image_posx"] : "auto";
-                      oImg.style.left = obje.hasOwnProperty("tensor_onmouseover_image_posy") ? obje["tensor_onmouseover_image_posy"] : "auto";
-                      oImg.id = "tensor-image-" + idx + "_" + keys[j];
-                      oImg.className = "put-image-on-hover";
-                      document.body.appendChild(oImg);
+                      var image = document.createElement('img');
+                      image.src = obje["img_link"];
+                      image.style.width = obje.hasOwnProperty("tensor_onmouseover_image_dimx") ? obje["tensor_onmouseover_image_dimx"] : "auto";
+                      image.style.height = obje.hasOwnProperty("tensor_onmouseover_image_dimy") ? obje["tensor_onmouseover_image_dimy"] : "auto";
+                      image.style.display = 'none';
+                      image.style.position = 'absolute';
+                      image.style.top = obje.hasOwnProperty("tensor_onmouseover_image_posx") ? obje["tensor_onmouseover_image_posx"] : "auto";
+                      image.style.left = obje.hasOwnProperty("tensor_onmouseover_image_posy") ? obje["tensor_onmouseover_image_posy"] : "auto";
+                      image.id = "tensor-image-" + idx + "_" + keys[j];
+                      image.className = "put-image-on-hover";
+                      document.body.appendChild(image);
                     }
                   }
                   break;
@@ -495,9 +489,9 @@ class Req {
                 throw "Index of tensor not found :" + obj['id'];
               }
             }
-            if (lista.children[i].className == "operator") {
-              var obj = JSON.parse(lista.children[i].innerHTML);
-              var obj2 = JSON.parse(lista_m.children[i].innerHTML);
+            if (list_attr.children[i].className == "operator") {
+              var obj = JSON.parse(list_attr.children[i].innerHTML);
+              var obj2 = JSON.parse(list_modif.children[i].innerHTML);
               var id = obj["id"];
               var idx = 1;
               var counter = 0;
@@ -513,11 +507,11 @@ class Req {
               if (id == 0) {
                 counter = 0;
               }
-              var new_obj = JSON.parse(lista.children[i].innerHTML);
+              var new_obj = JSON.parse(list_attr.children[i].innerHTML);
               new_obj["new_id"] = counter;
               obj2["new_id"] = counter;
-              lista.children[i].innerHTML = JSON.stringify(new_obj);
-              lista_m.children[i].innerHTML = JSON.stringify(obj2);
+              list_attr.children[i].innerHTML = JSON.stringify(new_obj);
+              list_modif.children[i].innerHTML = JSON.stringify(obj2);
               var operator = document.getElementById("node-id-" + counter);
               if (!operator) {
                 Req.solve_bugs();
@@ -530,17 +524,17 @@ class Req {
               for (var j = 0; j < keys.length; j++) {
                 if (keys[j].startsWith("img_")) {
                   var obje = JSON.parse(obj[keys[j]]);
-                  var oImg = document.createElement('img');
-                  oImg.src = obje["img_link"];
-                  oImg.style.width = obje.hasOwnProperty("operator_onmouseover_image_dimx") ? obje["operator_onmouseover_image_dimx"] : "auto";
-                  oImg.style.height = obje.hasOwnProperty("operator_onmouseover_image_dimy") ? obje["operator_onmouseover_image_dimy"] : "auto";
-                  oImg.style.display = 'none';
-                  oImg.style.position = 'absolute';
-                  oImg.style.top = obje.hasOwnProperty("operator_onmouseover_image_posx") ? obje["operator_onmouseover_image_posx"] : "auto";
-                  oImg.style.left = obje.hasOwnProperty("operator_onmouseover_image_posy") ? obje["operator_onmouseover_image_posy"] : "auto";
-                  oImg.id = "image-node-id-" + counter + "_" + keys[j];
-                  oImg.className = "put-image-on-hover";
-                  document.body.appendChild(oImg);
+                  var image = document.createElement('img');
+                  image.src = obje["img_link"];
+                  image.style.width = obje.hasOwnProperty("operator_onmouseover_image_dimx") ? obje["operator_onmouseover_image_dimx"] : "auto";
+                  image.style.height = obje.hasOwnProperty("operator_onmouseover_image_dimy") ? obje["operator_onmouseover_image_dimy"] : "auto";
+                  image.style.display = 'none';
+                  image.style.position = 'absolute';
+                  image.style.top = obje.hasOwnProperty("operator_onmouseover_image_posx") ? obje["operator_onmouseover_image_posx"] : "auto";
+                  image.style.left = obje.hasOwnProperty("operator_onmouseover_image_posy") ? obje["operator_onmouseover_image_posy"] : "auto";
+                  image.id = "image-node-id-" + counter + "_" + keys[j];
+                  image.className = "put-image-on-hover";
+                  document.body.appendChild(image);
                 }
               }
               if (obj["style"]) {
@@ -564,21 +558,21 @@ class Req {
     if (document.getElementById("list-attributes").children) {
       var parent_t = document.getElementById("edge-paths");
       var parent_n = document.getElementById("nodes");
-      var lista = document.getElementById("list-attributes").children;
-      for (var i = 0; i < lista.length; i++) {
-        if (lista[i].className === "tensor") {
-          var op = JSON.parse(lista[i].innerHTML);
+      var list_attr = document.getElementById("list-attributes").children;
+      for (var i = 0; i < list_attr.length; i++) {
+        if (list_attr[i].className === "tensor") {
+          var op = JSON.parse(list_attr[i].innerHTML);
           var id = op["tensorname"];
-          lista[i].id = op["new_id"] + 1;
+          list_attr[i].id = op["new_id"] + 1;
         } else {
-          var op = JSON.parse(lista[i].innerHTML);
+          var op = JSON.parse(list_attr[i].innerHTML);
           var id = "node-id-" + op["new_id"];
-          lista[i].id = id;
+          list_attr[i].id = id;
         }
       }
-      for (var i = 0; i < lista.length; i++) {
-        if (lista[i].className == "tensor") {
-          var variable = lista[i].id;
+      for (var i = 0; i < list_attr.length; i++) {
+        if (list_attr[i].className == "tensor") {
+          var variable = list_attr[i].id;
           (parent_t.children[variable]).addEventListener("dblclick", function(e) {
             var idx = 0;
             var op;
@@ -588,9 +582,9 @@ class Req {
                 break;
               }
             }
-            for (var i = 0; i < lista.length; i++) {
-              if (lista[i].id == idx) {
-                op = JSON.parse(lista[i].innerHTML);
+            for (var i = 0; i < list_attr.length; i++) {
+              if (list_attr[i].id == idx) {
+                op = JSON.parse(list_attr[i].innerHTML);
                 break;
               }
             }
@@ -610,9 +604,9 @@ class Req {
               }
             }
           })
-          Req.EventDblClick.push(parent_t.children[variable]);
+          Req.event_dbl_click.push(parent_t.children[variable]);
         } else {
-          var variable = lista[i].id;
+          var variable = list_attr[i].id;
           (document.getElementById(variable)).addEventListener("dblclick", function(g) {
             var idx = 0;
             var op;
@@ -622,9 +616,9 @@ class Req {
                 break;
               }
             }
-            for (var i = 0; i < lista.length; i++) {
-              if (lista[i].id == idx) {
-                op = JSON.parse(lista[i].innerHTML);
+            for (var i = 0; i < list_attr.length; i++) {
+              if (list_attr[i].id == idx) {
+                op = JSON.parse(list_attr[i].innerHTML);
                 break;
               }
             }
@@ -644,7 +638,7 @@ class Req {
               }
             }
           })
-          Req.EventDblClick.push(document.getElementById(variable));
+          Req.event_dbl_click.push(document.getElementById(variable));
         }
       }
     }
@@ -652,11 +646,11 @@ class Req {
 // Function which deals with displaying all the other information.
   static metadata() {
     if (document.getElementById("list-attributes").children) {
-      var lista = document.getElementById("list-attributes");
+      var list_attr = document.getElementById("list-attributes");
       var parent_t = document.getElementById("edge-paths");
       var parent_n = document.getElementById("nodes");
-      for (var i = 0; i < lista.children.length; i++) {
-        var element_searched = lista.children[i];
+      for (var i = 0; i < list_attr.children.length; i++) {
+        var element_searched = list_attr.children[i];
         var inner = JSON.parse(element_searched.innerHTML)
         var where;
         if (element_searched.className == "operator") {
@@ -671,104 +665,104 @@ class Req {
         if (sidebar) {
           if (document.getElementById("sidebar-content").children[0]) {
             if (document.getElementById("sidebar-content").children[0].children) {
-              var sidebarobj = document.getElementById("sidebar-content").children[0];
+              var sidebar_obj = document.getElementById("sidebar-content").children[0];
               var counter = 0;
-              for (var j = 0; j< sidebarobj.children.length; j++) {
-                var childd = sidebarobj.children[j];
+              for (var j = 0; j< sidebar_obj.children.length; j++) {
+                var childd = sidebar_obj.children[j];
                 if (childd.textContent !== "Metadata" && childd.innerText !== "Metadata" && childd.innerHTML !== "Metadata") {
                   counter += 1;
                 }
               }
-              if (counter == sidebarobj.children.length) {
+              if (counter == sidebar_obj.children.length) {
                 if ((element_searched.className == "operator" && where.className['baseVal'] == "node graph-node select") || (element_searched.className == "tensor" && where.className['baseVal'] == "edge-path select")) {
                   var keys = Object.keys(inner);
-                  const childmeta = document.createElement('div');
-                  childmeta.className = "sidebar-header";
-                  childmeta.innerText = "Metadata";
-                  sidebarobj.appendChild(childmeta);
+                  const child_meta = document.createElement('div');
+                  child_meta.className = "sidebar-header";
+                  child_meta.innerText = "Metadata";
+                  sidebar_obj.appendChild(child_meta);
                   for (var i = 0; i < keys.length; i++) {
                     if (keys[i] !== "id" && keys[i] !== "style" && keys[i] !== "new_id" && keys[i] !== "tensorname" && keys[i].slice(0, 7) !== "button_" && keys[i] !== "tensor_ondblclick_script" && keys[i] !== "operator_ondblclick_script" && keys[i] !== "tensor_ondblclick_command" && keys[i] !== "operator_ondblclick_command" && keys[i] !== "hover" && keys[i] !== "hover_image" && keys[i].slice(0, 4) !== "img_") {
-                      var newchild = document.createElement('div');
-                      newchild.className = "sidebar-item";
-                      var newchild_2 = document.createElement('div');
-                      newchild_2.className = "sidebar-item-name";
+                      var new_child = document.createElement('div');
+                      new_child.className = "sidebar-item";
+                      var new_child_2 = document.createElement('div');
+                      new_child_2.className = "sidebar-item-name";
                       var inputc = document.createElement('input');
                       inputc.type="text";
                       inputc.value=keys[i];
                       inputc.title=keys[i];
                       inputc.readonly="true";
 
-                      var newchild_3 = document.createElement('div');
-                      newchild_3.className = "sidebar-item-value-list";
+                      var new_child_3 = document.createElement('div');
+                      new_child_3.className = "sidebar-item-value-list";
 
-                      var newchild_4 = document.createElement('div');
-                      newchild_4.className = "sidebar-item-value";
+                      var new_child_4 = document.createElement('div');
+                      new_child_4.className = "sidebar-item-value";
 
-                      var newchild_5 = document.createElement('div');
-                      newchild_5.className = "sidebar-item-value-expander";
-                      newchild_5.innerText = '+';
+                      var new_child_5 = document.createElement('div');
+                      new_child_5.className = "sidebar-item-value-expander";
+                      new_child_5.innerText = '+';
 
-                      var newchild_6 = document.createElement('div');
-                      newchild_6.className = "sidebar-item-value-line";
-                      newchild_6.style="cursor: pointer;";
+                      var new_child_6 = document.createElement('div');
+                      new_child_6.className = "sidebar-item-value-line";
+                      new_child_6.style="cursor: pointer;";
 
-                      var newchild_7 = document.createElement('span');
-                      newchild_7.className = "sidebar-item-value-line-content";
-                      newchild_7.innerHTML = `<b>` + inner[keys[i]] + `</b>`;
+                      var new_child_7 = document.createElement('span');
+                      new_child_7.className = "sidebar-item-value-line-content";
+                      new_child_7.innerHTML = `<b>` + inner[keys[i]] + `</b>`;
                       
-                      newchild_6.append(newchild_7);
-                      newchild_4.append(newchild_5);
-                      newchild_4.append(newchild_6);
-                      newchild_3.append(newchild_4);
-                      newchild_2.append(inputc);
-                      newchild.appendChild(newchild_2);
-                      newchild.appendChild(newchild_3);
-                      sidebarobj.appendChild(newchild);
+                      new_child_6.append(new_child_7);
+                      new_child_4.append(new_child_5);
+                      new_child_4.append(new_child_6);
+                      new_child_3.append(new_child_4);
+                      new_child_2.append(inputc);
+                      new_child.appendChild(new_child_2);
+                      new_child.appendChild(new_child_3);
+                      sidebar_obj.appendChild(new_child);
                     }
                   }
                   var repeated = 0;
                   for (var i = 0; i < keys.length; i++) {
                     if (keys[i].slice(0, 7) == "button_") {
                       if (repeated == 0) {
-                        const childmeta = document.createElement('div');
-                        childmeta.className = "sidebar-header";
-                        childmeta.innerText = "Actions";
-                        sidebarobj.appendChild(childmeta);
+                        const child_meta = document.createElement('div');
+                        child_meta.className = "sidebar-header";
+                        child_meta.innerText = "Actions";
+                        sidebar_obj.appendChild(child_meta);
                         repeated = 1;
                       }
-                      var stringnew = JSON.parse(inner[keys[i]]);
-                      if (inner["id"] == stringnew["id"]) {
-                        var newchild = document.createElement('button');
-                        newchild.type = "button";
-                        newchild.textContent = stringnew["button_name"];
-                        newchild.style = "display: block; margin: 10px; background-color:#99c2ff; color:black; border-radius: 8px;";
-                        if (stringnew["class"] == "tensor") {
-                          if (stringnew["tensor_button_command"] && stringnew["tensor_button_script"]) {
-                            newchild.value = JSON.stringify({"cmd": stringnew["tensor_button_command"], "script": stringnew["tensor_button_script"]});
+                      var string_new = JSON.parse(inner[keys[i]]);
+                      if (inner["id"] == string_new["id"]) {
+                        var new_child = document.createElement('button');
+                        new_child.type = "button";
+                        new_child.textContent = string_new["button_name"];
+                        new_child.style = "display: block; margin: 10px; background-color:#99c2ff; color:black; border-radius: 8px;";
+                        if (string_new["class"] == "tensor") {
+                          if (string_new["tensor_button_command"] && string_new["tensor_button_script"]) {
+                            new_child.value = JSON.stringify({"cmd": string_new["tensor_button_command"], "script": string_new["tensor_button_script"]});
                           } else {
-                            if (stringnew["tensor_button_command"]) {
-                              newchild.value += JSON.stringify({"cmd": stringnew["tensor_button_command"]});
-                            } else if (stringnew["tensor_button_script"]) {
-                              newchild.value += JSON.stringify({"script": stringnew["tensor_button_script"]});
+                            if (string_new["tensor_button_command"]) {
+                              new_child.value += JSON.stringify({"cmd": string_new["tensor_button_command"]});
+                            } else if (string_new["tensor_button_script"]) {
+                              new_child.value += JSON.stringify({"script": string_new["tensor_button_script"]});
                             } else {
-                              newchild.value += JSON.stringify({});
+                              new_child.value += JSON.stringify({});
                             }
                           }
                         }
-                        if (stringnew["class"] == "operator") {
-                          if (stringnew["operator_button_command"] && stringnew["operator_button_script"]) {
-                            newchild.value = JSON.stringify({"cmd": stringnew["operator_button_command"], "script": stringnew["operator_button_script"]});
+                        if (string_new["class"] == "operator") {
+                          if (string_new["operator_button_command"] && string_new["operator_button_script"]) {
+                            new_child.value = JSON.stringify({"cmd": string_new["operator_button_command"], "script": string_new["operator_button_script"]});
                           } else {
-                            if (stringnew["operator_button_command"]) {
-                              newchild.value += JSON.stringify({"cmd": stringnew["operator_button_command"]});
-                            } else if (stringnew["operator_button_script"]) {
-                              newchild.value += JSON.stringify({"script": stringnew["operator_button_script"]});
+                            if (string_new["operator_button_command"]) {
+                              new_child.value += JSON.stringify({"cmd": string_new["operator_button_command"]});
+                            } else if (string_new["operator_button_script"]) {
+                              new_child.value += JSON.stringify({"script": string_new["operator_button_script"]});
                             } else {
-                              newchild.value += JSON.stringify({});
+                              new_child.value += JSON.stringify({});
                             }
                           }
                         }
-                        sidebarobj.appendChild(newchild);
+                        sidebar_obj.appendChild(new_child);
                       }
                     }
                   }
@@ -781,105 +775,94 @@ class Req {
     }
     // Block of code which adds execution of scripts or commands when
     // pressing a button.
-    if (document.getElementById("list-attributes").children) {
-      if (document.getElementById("sidebar-content")) {
-        if (document.getElementById("sidebar-content").children[0]) {
-          if (document.getElementById("sidebar-content").children[0].children) {
-            var sidebarobj = document.getElementById("sidebar-content").children[0];
-            for (var i = 0; i < sidebarobj.children.length; i++) {
-              if (sidebarobj.children[i].type == "button") {
-                if (sidebarobj.children[i].getAttribute('listener') !== 'true') {
-                  sidebarobj.children[i].setAttribute('listener', 'true');
-                  sidebarobj.children[i].addEventListener('click', function(h) {
-                    var value = JSON.parse(h.target.value);
-                    if (value["cmd"]) {
-                      try {
-                        const execSync = require('child_process').execSync;
-                        const output = execSync(value["cmd"], {shell: true});
-                      } catch(Err) {
-                        alert("Error when running the command " + value["cmd"] + ": " + Err.message);
-                      }
-                    }
-                    if (value["script"]) {
-                      try {
-                        eval(value["script"]);
-                      } catch(Err) {
-                        alert("Error when running the script " + value["script"] + ": " + Err.message);
-                      }
-                    }
-                  });
+    if (document.getElementById("list-attributes").children && document.getElementById("sidebar-content")
+    && document.getElementById("sidebar-content").children[0] && document.getElementById("sidebar-content").children[0].children) {
+      var sidebar_obj = document.getElementById("sidebar-content").children[0];
+      for (var i = 0; i < sidebar_obj.children.length; i++) {
+        if (sidebar_obj.children[i].type == "button") {
+          if (sidebar_obj.children[i].getAttribute('listener') !== 'true') {
+            sidebar_obj.children[i].setAttribute('listener', 'true');
+            sidebar_obj.children[i].addEventListener('click', function(h) {
+              var value = JSON.parse(h.target.value);
+              if (value["cmd"]) {
+                try {
+                  const execSync = require('child_process').execSync;
+                  const output = execSync(value["cmd"], {shell: true});
+                } catch(Err) {
+                  alert("Error when running the command " + value["cmd"] + ": " + Err.message);
                 }
               }
-            }
+              if (value["script"]) {
+                try {
+                  eval(value["script"]);
+                } catch(Err) {
+                  alert("Error when running the script " + value["script"] + ": " + Err.message);
+                }
+              }
+            });
           }
         }
       }
     }
     // Block of code which displays the images on hover.
-    if (document.getElementById("graph")) {
-      if (document.getElementById("origin")) {
-        if (document.getElementById("nodes") && document.getElementById("edge-paths")) {
-          if (document.getElementById("list-attributes").innerHTML.length !== 0) {
-            var parent_n = document.getElementById("nodes");
-            var parent_t = document.getElementById("edge-paths");
-            var lista = document.getElementById("list-attributes");
-            var onmouseoverdict = {};
-            for (var i = 0; i < lista.children.length; i++) {
-              var child = lista.children[i];
-              var inner = JSON.parse(child.innerHTML);
-              var item;
-              var elem;
-              for (const keyy in inner) {
-                if (keyy.startsWith("img_")) {
-                  var getting = JSON.parse(inner[keyy]);
-                  if (getting["class"] == "operator") {
-                    var value = "node-id-" + inner["new_id"];
-                    if (!(onmouseoverdict.hasOwnProperty(value))) {
-                      onmouseoverdict[value] = [];
-                    }
-                    onmouseoverdict[value].push("image-node-id-" + inner["new_id"] + "_" + keyy);
-                  } else {
-                    var value = inner["new_id"] + 1;
-                    if (!(onmouseoverdict.hasOwnProperty(value))) {
-                      onmouseoverdict[value] = [];
-                    }
-                    onmouseoverdict[value].push("tensor-image-" + inner["new_id"] + "_" + keyy);
-                  }
-                }
+    if (document.getElementById("graph") && document.getElementById("origin") && document.getElementById("nodes")
+    && document.getElementById("edge-paths") && document.getElementById("list-attributes").innerHTML.length !== 0) {
+      var parent_n = document.getElementById("nodes");
+      var parent_t = document.getElementById("edge-paths");
+      var list_attr = document.getElementById("list-attributes");
+      var onmouseover_dict = {};
+      for (var i = 0; i < list_attr.children.length; i++) {
+        var child = list_attr.children[i];
+        var inner = JSON.parse(child.innerHTML);
+        var item;
+        var elem;
+        for (const keyy in inner) {
+          if (keyy.startsWith("img_")) {
+            var getting = JSON.parse(inner[keyy]);
+            if (getting["class"] == "operator") {
+              var value = "node-id-" + inner["new_id"];
+              if (!(onmouseover_dict.hasOwnProperty(value))) {
+                onmouseover_dict[value] = [];
               }
-            }
-            for (const [elem, lista] of Object.entries(onmouseoverdict)) {
-              if (elem.startsWith("node")) {
-                document.getElementById(elem).onmouseover = function() {
-                  for (const item of lista) {
-                    document.getElementById(item).style.display = "block";
-                  }
-                }
-                document.getElementById(elem).onmouseout = function() {
-                  for (const item of lista) {
-                    document.getElementById(item).style.display = "none";
-                  }
-                }
-                Req.EventImg.push(document.getElementById(elem));
-              } else {
-                parent_t.children[elem].onmouseover = function() {
-                  for (const item of lista) {
-                    document.getElementById(item).style.display = "block";
-                  }
-                }
-                parent_t.children[elem].onmouseout = function() {
-                  for (const item of lista) {
-                    document.getElementById(item).style.display = "none";
-                  }
-                }
-                Req.EventImg.push(parent_t.children[elem]);
+              onmouseover_dict[value].push("image-node-id-" + inner["new_id"] + "_" + keyy);
+            } else {
+              var value = inner["new_id"] + 1;
+              if (!(onmouseover_dict.hasOwnProperty(value))) {
+                onmouseover_dict[value] = [];
               }
+              onmouseover_dict[value].push("tensor-image-" + inner["new_id"] + "_" + keyy);
             }
-            
           }
         }
       }
-    }   
+      for (const [elem, list_a] of Object.entries(onmouseover_dict)) {
+        if (elem.startsWith("node")) {
+          document.getElementById(elem).onmouseover = function() {
+            for (const item of list_a) {
+              document.getElementById(item).style.display = "block";
+            }
+          }
+          document.getElementById(elem).onmouseout = function() {
+            for (const item of list_a) {
+              document.getElementById(item).style.display = "none";
+            }
+          }
+          Req.event_img.push(document.getElementById(elem));
+        } else {
+          parent_t.children[elem].onmouseover = function() {
+            for (const item of list_a) {
+              document.getElementById(item).style.display = "block";
+            }
+          }
+          parent_t.children[elem].onmouseout = function() {
+            for (const item of list_a) {
+              document.getElementById(item).style.display = "none";
+            }
+          }
+          Req.event_img.push(parent_t.children[elem]);
+        }
+      }
+    }
   }
 }
 
