@@ -9187,6 +9187,10 @@ python.Execution = class {
                             if (t.is_module()) {
                                 module.__setattr__(k, convertModule(v));
                             } else {
+                                if (t instanceof torch.TensorType && v && v.__class__ && v instanceof torch.Tensor === false && v.__class__.__module__ === '__torch__.torch.classes.quantized') {
+                                    const name = `${v.__class__.__module__}.${v.__class__.__name__}`;
+                                    type._attributes[i].type = this._source_importer.resolveType(name);
+                                }
                                 module.__setattr__(k, obj[k]);
                             }
                         }
@@ -12066,6 +12070,7 @@ python.Execution = class {
         this.registerType('fastai.vision.models.unet.DynamicUnet', class {});
         this.registerType('fastai.vision.models.unet.ResizeToOrig', class {});
         this.registerType('fastai.vision.models.unet.UnetBlock', class {});
+        this.registerType('fastai.vision.models.xresnet.XResNet', class {});
         this.registerFunction('fastai.vision.transform._crop_pad');
     }
 

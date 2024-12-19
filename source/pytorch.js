@@ -1740,6 +1740,7 @@ pytorch.Execution = class extends python.Execution {
 
     target(expr, context) {
         const ast = this.ast;
+        const torch = this.torch;
         if (expr instanceof ast.Name) {
             switch (expr.id) {
                 case 'torch':
@@ -1783,7 +1784,13 @@ pytorch.Execution = class extends python.Execution {
             for (let i = path.length - 1; i >= 0; i--) {
                 const name = path[i];
                 if (target) {
-                    target = target.__getattr__ ? target.__getattr__(name) : target[name];
+                    if (target instanceof torch.Value && target.type() instanceof torch.ClassType) {
+                        const node = this._graph.createGetAttr(target, name);
+                        this._graph.insertNode(node);
+                        target = node.output();
+                    } else {
+                        target = target.__getattr__ ? target.__getattr__(name) : target[name];
+                    }
                 } else {
                     target = context.get(name);
                 }
@@ -1799,6 +1806,9 @@ pytorch.Execution = class extends python.Execution {
                     return this.import(name);
                 }
                 return this.resolve(name);
+            }
+            if (target instanceof torch.Value) {
+                return target;
             }
         }
         return super.target(expr, context);
@@ -3063,7 +3073,8 @@ pytorch.Execution = class extends python.Execution {
                 return (Array.isArray(obj) && obj.every((item) => item === null || typeof item === 'string')) ||
                     (obj instanceof torch.Value && obj.type() instanceof torch.ListType && obj.type().getElementType() instanceof torch.StringType);
             case 'str[][]':
-                return Array.isArray(obj) && obj.every((item) => Array.isArray(item) && item.every((item) => typeof item === 'string'));
+                return Array.isArray(obj) && obj.every((item) => Array.isArray(item) && item.every((item) => typeof item === 'string')) ||
+                    (obj instanceof torch.Value && obj.type() instanceof torch.ListType && obj.type().getElementType() instanceof torch.ListType && obj.type().getElementType().getElementType() instanceof torch.StringType);
             case 'Layout':
             case 'ScalarType':
             case 'MemoryFormat':
