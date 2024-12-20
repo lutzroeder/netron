@@ -4993,6 +4993,13 @@
   },
   {
     "type":     "paddle",
+    "target":   "empty_list.json",
+    "source":   "https://github.com/user-attachments/files/18213718/empty_list.json",
+    "format":   "PaddlePaddle IR v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1407"
+  },
+  {
+    "type":     "paddle",
     "target":   "for_net.json",
     "source":   "https://github.com/user-attachments/files/18105174/for_net.json",
     "format":   "PaddlePaddle IR v1",
@@ -5076,7 +5083,6 @@
     "format":   "PaddlePaddle IR v1",
     "link":     "https://github.com/lutzroeder/netron/issues/1407"
   },
-
   {
     "type":     "paddle",
     "target":   "without_tensor_type.zip",
