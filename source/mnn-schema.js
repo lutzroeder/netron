@@ -2600,6 +2600,7 @@ MNN.OpType = {
     Svd: 153,
     Histogram: 154,
     DynamicQuant: 155,
+    Stft: 156,
     Plugin: 256,
     Select: 257,
     ZerosLike: 258,
@@ -2729,6 +2730,25 @@ MNN.FmhcaParam = class FmhcaParam {
     static decodeText(reader, json) {
         const $ = new MNN.FmhcaParam();
         $.heads = reader.value(json.heads, 0);
+        return $;
+    }
+};
+
+MNN.StftParam = class StftParam {
+
+    static decode(reader, position) {
+        const $ = new MNN.StftParam();
+        $.n_fft = reader.int32_(position, 4, 0);
+        $.hop_length = reader.int32_(position, 6, 0);
+        $.abs = reader.bool_(position, 8, true);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new MNN.StftParam();
+        $.n_fft = reader.value(json.n_fft, 0);
+        $.hop_length = reader.value(json.hop_length, 0);
+        $.abs = reader.value(json.abs, true);
         return $;
     }
 };
@@ -2935,6 +2955,7 @@ MNN.OpParameter = class {
             case 96: return MNN.FmhaV2Param.decode(reader, position);
             case 97: return MNN.FmhcaParam.decode(reader, position);
             case 98: return MNN.AttentionParam.decode(reader, position);
+            case 99: return MNN.StftParam.decode(reader, position);
             default: return undefined;
         }
     }
@@ -3039,6 +3060,7 @@ MNN.OpParameter = class {
             case 'FmhaV2Param': return MNN.FmhaV2Param.decodeText(reader, json);
             case 'FmhcaParam': return MNN.FmhcaParam.decodeText(reader, json);
             case 'AttentionParam': return MNN.AttentionParam.decodeText(reader, json);
+            case 'StftParam': return MNN.StftParam.decodeText(reader, json);
             default: return undefined;
         }
     }
