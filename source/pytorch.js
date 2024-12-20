@@ -2914,9 +2914,13 @@ pytorch.Execution = class extends python.Execution {
                     }
                     throw new pytorch.Error();
                 }
-                const value = this.variable(v);
-                value.value = v;
-                node.addInput(value);
+                if (v instanceof torch.Value) {
+                    node.addInput(v);
+                } else {
+                    const value = this.variable(v);
+                    value.value = v;
+                    node.addInput(value);
+                }
             }
         }
         for (const arg of schema.returns) {
