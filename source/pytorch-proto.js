@@ -6,7 +6,7 @@ torch.RecordRef = class RecordRef {
 
     static decodeJson(obj) {
         const message = new torch.RecordRef();
-        if (obj.key !== undefined) {
+        if ('key' in obj) {
             message.key = obj.key;
         }
         return message;
@@ -24,34 +24,34 @@ torch.TensorDef = class TensorDef {
 
     static decodeJson(obj) {
         const message = new torch.TensorDef();
-        if (obj.dims !== undefined) {
+        if ('dims' in obj) {
             message.dims = obj.dims.map((obj) => BigInt(obj));
         }
-        if (obj.offset !== undefined) {
+        if ('offset' in obj) {
             message.offset = BigInt(obj.offset);
         }
-        if (obj.strides !== undefined) {
+        if ('strides' in obj) {
             message.strides = obj.strides.map((obj) => BigInt(obj));
         }
-        if (obj.requiresGrad !== undefined) {
+        if ('requiresGrad' in obj) {
             message.requires_grad = obj.requiresGrad;
         }
-        if (obj.dataType !== undefined) {
+        if ('dataType' in obj) {
             message.data_type = caffe2.TensorProto.DataType[obj.dataType];
         }
-        if (obj.data !== undefined) {
+        if ('data' in obj) {
             message.data = torch.RecordRef.decodeJson(obj.data);
         }
-        if (obj.device !== undefined) {
+        if ('device' in obj) {
             message.device = obj.device;
         }
-        if (obj.isQuantized !== undefined) {
+        if ('isQuantized' in obj) {
             message.is_quantized = obj.isQuantized;
         }
-        if (obj.scale !== undefined) {
+        if ('scale' in obj) {
             message.scale = Number(obj.scale);
         }
-        if (obj.zeroPoint !== undefined) {
+        if ('zeroPoint' in obj) {
             message.zero_point = BigInt(obj.zeroPoint);
         }
         return message;
@@ -86,13 +86,13 @@ torch.ParameterDef = class ParameterDef {
 
     static decodeJson(obj) {
         const message = new torch.ParameterDef();
-        if (obj.isBuffer !== undefined) {
+        if ('isBuffer' in obj) {
             message.is_buffer = obj.isBuffer;
         }
-        if (obj.tensorId !== undefined) {
+        if ('tensorId' in obj) {
             message.tensor_id = BigInt(obj.tensorId);
         }
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
         return message;
@@ -114,37 +114,37 @@ torch.ModuleDef = class ModuleDef {
 
     static decodeJson(obj) {
         const message = new torch.ModuleDef();
-        if (obj.submodules !== undefined) {
+        if ('submodules' in obj) {
             message.submodules = obj.submodules.map((obj) => torch.ModuleDef.decodeJson(obj));
         }
-        if (obj.torchscriptArena !== undefined) {
+        if ('torchscriptArena' in obj) {
             message.torchscript_arena = torch.RecordRef.decodeJson(obj.torchscriptArena);
         }
-        if (obj.caffe2Nets !== undefined) {
+        if ('caffe2Nets' in obj) {
             message.caffe2_nets = obj.caffe2Nets.map((obj) => caffe2.NetDef.decodeJson(obj));
         }
-        if (obj.pickleArena !== undefined) {
+        if ('pickleArena' in obj) {
             message.pickle_arena = torch.RecordRef.decodeJson(obj.pickleArena);
         }
-        if (obj.cppArena !== undefined) {
+        if ('cppArena' in obj) {
             message.cpp_arena = torch.RecordRef.decodeJson(obj.cppArena);
         }
-        if (obj.parameters !== undefined) {
+        if ('parameters' in obj) {
             message.parameters = obj.parameters.map((obj) => torch.ParameterDef.decodeJson(obj));
         }
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.optimize !== undefined) {
+        if ('optimize' in obj) {
             message.optimize = obj.optimize;
         }
-        if (obj.attributes !== undefined) {
+        if ('attributes' in obj) {
             message.attributes = obj.attributes.map((obj) => torch.AttributeDef.decodeJson(obj));
         }
-        if (obj.getStateAttributeId !== undefined) {
+        if ('getStateAttributeId' in obj) {
             message.get_state_attribute_id = BigInt(obj.getStateAttributeId);
         }
-        if (obj.torchscriptDebugArena !== undefined) {
+        if ('torchscriptDebugArena' in obj) {
             message.torchscript_debug_arena = torch.RecordRef.decodeJson(obj.torchscriptDebugArena);
         }
         return message;
@@ -163,7 +163,7 @@ torch.LibDef = class LibDef {
 
     static decodeJson(obj) {
         const message = new torch.LibDef();
-        if (obj.torchscriptArena !== undefined) {
+        if ('torchscriptArena' in obj) {
             message.torchscript_arena = torch.RecordRef.decodeJson(obj.torchscriptArena);
         }
         return message;
@@ -184,19 +184,19 @@ torch.ModelDef = class ModelDef {
 
     static decodeJson(obj) {
         const message = new torch.ModelDef();
-        if (obj.protoVersion !== undefined) {
+        if ('protoVersion' in obj) {
             message.proto_version = BigInt(obj.protoVersion);
         }
-        if (obj.mainModule !== undefined) {
+        if ('mainModule' in obj) {
             message.main_module = torch.ModuleDef.decodeJson(obj.mainModule);
         }
-        if (obj.producerName !== undefined) {
+        if ('producerName' in obj) {
             message.producer_name = obj.producerName;
         }
-        if (obj.producerVersion !== undefined) {
+        if ('producerVersion' in obj) {
             message.producer_version = obj.producerVersion;
         }
-        if (obj.tensors !== undefined) {
+        if ('tensors' in obj) {
             message.tensors = obj.tensors.map((obj) => torch.TensorDef.decodeJson(obj));
         }
         return message;
@@ -221,43 +221,43 @@ caffe2.TensorProto = class TensorProto {
 
     static decodeJson(obj) {
         const message = new caffe2.TensorProto();
-        if (obj.dims !== undefined) {
+        if ('dims' in obj) {
             message.dims = obj.dims.map((obj) => BigInt(obj));
         }
-        if (obj.dataType !== undefined) {
+        if ('dataType' in obj) {
             message.data_type = caffe2.TensorProto.DataType[obj.dataType];
         }
-        if (obj.dataFormat !== undefined) {
+        if ('dataFormat' in obj) {
             message.data_format = Number(obj.dataFormat);
         }
-        if (obj.floatData !== undefined) {
+        if ('floatData' in obj) {
             message.float_data = obj.floatData.map((obj) => Number(obj));
         }
-        if (obj.int32Data !== undefined) {
+        if ('int32Data' in obj) {
             message.int32_data = obj.int32Data.map((obj) => Number(obj));
         }
-        if (obj.byteData !== undefined) {
+        if ('byteData' in obj) {
             message.byte_data = new Uint8Array(atob(obj.byteData));
         }
-        if (obj.stringData !== undefined) {
+        if ('stringData' in obj) {
             message.string_data = obj.stringData.map((obj) => new Uint8Array(atob(obj)));
         }
-        if (obj.doubleData !== undefined) {
+        if ('doubleData' in obj) {
             message.double_data = obj.doubleData.map((obj) => Number(obj));
         }
-        if (obj.int64Data !== undefined) {
+        if ('int64Data' in obj) {
             message.int64_data = obj.int64Data.map((obj) => BigInt(obj));
         }
-        if (obj.rawData !== undefined) {
+        if ('rawData' in obj) {
             message.raw_data = new Uint8Array(atob(obj.rawData));
         }
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.deviceDetail !== undefined) {
+        if ('deviceDetail' in obj) {
             message.device_detail = caffe2.DeviceOption.decodeJson(obj.deviceDetail);
         }
-        if (obj.segment !== undefined) {
+        if ('segment' in obj) {
             message.segment = caffe2.TensorProto.Segment.decodeJson(obj.segment);
         }
         return message;
@@ -319,32 +319,32 @@ caffe2.QTensorProto = class QTensorProto {
 
     static decodeJson(obj) {
         const message = new caffe2.QTensorProto();
-        if (obj.dims !== undefined) {
+        if ('dims' in obj) {
             message.dims = obj.dims.map((obj) => BigInt(obj));
         }
         message.precision = Number(obj.precision);
         message.scale = Number(obj.scale);
         message.bias = Number(obj.bias);
         message.is_signed = obj.isSigned;
-        if (obj.data !== undefined) {
+        if ('data' in obj) {
             message.data = obj.data.map((obj) => Number(obj));
         }
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.dataType !== undefined) {
+        if ('dataType' in obj) {
             message.data_type = caffe2.TensorProto.DataType[obj.dataType];
         }
-        if (obj.scales !== undefined) {
+        if ('scales' in obj) {
             message.scales = obj.scales.map((obj) => Number(obj));
         }
-        if (obj.biases !== undefined) {
+        if ('biases' in obj) {
             message.biases = obj.biases.map((obj) => Number(obj));
         }
-        if (obj.axis !== undefined) {
+        if ('axis' in obj) {
             message.axis = Number(obj.axis);
         }
-        if (obj.isMultiparam !== undefined) {
+        if ('isMultiparam' in obj) {
             message.is_multiparam = obj.isMultiparam;
         }
         return message;
@@ -368,7 +368,7 @@ caffe2.TensorProtos = class TensorProtos {
 
     static decodeJson(obj) {
         const message = new caffe2.TensorProtos();
-        if (obj.protos !== undefined) {
+        if ('protos' in obj) {
             message.protos = obj.protos.map((obj) => caffe2.TensorProto.decodeJson(obj));
         }
         return message;
@@ -384,19 +384,19 @@ caffe2.TensorShape = class TensorShape {
 
     static decodeJson(obj) {
         const message = new caffe2.TensorShape();
-        if (obj.dims !== undefined) {
+        if ('dims' in obj) {
             message.dims = obj.dims.map((obj) => BigInt(obj));
         }
-        if (obj.dataType !== undefined) {
+        if ('dataType' in obj) {
             message.data_type = caffe2.TensorProto.DataType[obj.dataType];
         }
-        if (obj.unknownDims !== undefined) {
+        if ('unknownDims' in obj) {
             message.unknown_dims = obj.unknownDims.map((obj) => Number(obj));
         }
-        if (obj.unknownShape !== undefined) {
+        if ('unknownShape' in obj) {
             message.unknown_shape = obj.unknownShape;
         }
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
         return message;
@@ -415,7 +415,7 @@ caffe2.TensorShapes = class TensorShapes {
 
     static decodeJson(obj) {
         const message = new caffe2.TensorShapes();
-        if (obj.shapes !== undefined) {
+        if ('shapes' in obj) {
             message.shapes = obj.shapes.map((obj) => caffe2.TensorShape.decodeJson(obj));
         }
         return message;
@@ -430,16 +430,16 @@ caffe2.TensorBoundShape = class TensorBoundShape {
 
     static decodeJson(obj) {
         const message = new caffe2.TensorBoundShape();
-        if (obj.shape !== undefined) {
+        if ('shape' in obj) {
             message.shape = caffe2.TensorShape.decodeJson(obj.shape);
         }
-        if (obj.dimType !== undefined) {
+        if ('dimType' in obj) {
             message.dim_type = obj.dimType.map((key) => caffe2.TensorBoundShape.DimType[key]);
         }
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.shapeIsFinal !== undefined) {
+        if ('shapeIsFinal' in obj) {
             message.shape_is_final = obj.shapeIsFinal;
         }
         return message;
@@ -468,13 +468,13 @@ caffe2.TensorBoundShapes = class TensorBoundShapes {
 
     static decodeJson(obj) {
         const message = new caffe2.TensorBoundShapes();
-        if (obj.shapes !== undefined) {
+        if ('shapes' in obj) {
             message.shapes = obj.shapes.map((obj) => caffe2.TensorBoundShape.decodeJson(obj));
         }
-        if (obj.maxBatchSize !== undefined) {
+        if ('maxBatchSize' in obj) {
             message.max_batch_size = BigInt(obj.maxBatchSize);
         }
-        if (obj.maxFeatureLen !== undefined) {
+        if ('maxFeatureLen' in obj) {
             message.max_feature_len = BigInt(obj.maxFeatureLen);
         }
         return message;
@@ -491,10 +491,10 @@ caffe2.AOTConfig = class AOTConfig {
         message.max_batch_size = BigInt(obj.maxBatchSize);
         message.max_seq_size = BigInt(obj.maxSeqSize);
         message.in_batch_broadcast = obj.inBatchBroadcast;
-        if (obj.onnxifiBlacklistOps !== undefined) {
+        if ('onnxifiBlacklistOps' in obj) {
             message.onnxifi_blacklist_ops = obj.onnxifiBlacklistOps;
         }
-        if (obj.onnxifiMinOps !== undefined) {
+        if ('onnxifiMinOps' in obj) {
             message.onnxifi_min_ops = Number(obj.onnxifiMinOps);
         }
         return message;
@@ -520,40 +520,40 @@ caffe2.Argument = class Argument {
 
     static decodeJson(obj) {
         const message = new caffe2.Argument();
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.f !== undefined) {
+        if ('f' in obj) {
             message.f = Number(obj.f);
         }
-        if (obj.i !== undefined) {
+        if ('i' in obj) {
             message.i = BigInt(obj.i);
         }
-        if (obj.s !== undefined) {
+        if ('s' in obj) {
             message.s = new Uint8Array(atob(obj.s));
         }
-        if (obj.t !== undefined) {
+        if ('t' in obj) {
             message.t = caffe2.TensorProto.decodeJson(obj.t);
         }
-        if (obj.n !== undefined) {
+        if ('n' in obj) {
             message.n = caffe2.NetDef.decodeJson(obj.n);
         }
-        if (obj.floats !== undefined) {
+        if ('floats' in obj) {
             message.floats = obj.floats.map((obj) => Number(obj));
         }
-        if (obj.ints !== undefined) {
+        if ('ints' in obj) {
             message.ints = obj.ints.map((obj) => BigInt(obj));
         }
-        if (obj.strings !== undefined) {
+        if ('strings' in obj) {
             message.strings = obj.strings.map((obj) => new Uint8Array(atob(obj)));
         }
-        if (obj.tensors !== undefined) {
+        if ('tensors' in obj) {
             message.tensors = obj.tensors.map((obj) => caffe2.TensorProto.decodeJson(obj));
         }
-        if (obj.nets !== undefined) {
+        if ('nets' in obj) {
             message.nets = obj.nets.map((obj) => caffe2.NetDef.decodeJson(obj));
         }
-        if (obj.qtensors !== undefined) {
+        if ('qtensors' in obj) {
             message.qtensors = obj.qtensors.map((obj) => caffe2.QTensorProto.decodeJson(obj));
         }
         return message;
@@ -590,22 +590,22 @@ caffe2.DeviceOption = class DeviceOption {
 
     static decodeJson(obj) {
         const message = new caffe2.DeviceOption();
-        if (obj.deviceType !== undefined) {
+        if ('deviceType' in obj) {
             message.device_type = Number(obj.deviceType);
         }
-        if (obj.deviceId !== undefined) {
+        if ('deviceId' in obj) {
             message.device_id = Number(obj.deviceId);
         }
-        if (obj.randomSeed !== undefined) {
+        if ('randomSeed' in obj) {
             message.random_seed = Number(obj.randomSeed);
         }
-        if (obj.nodeName !== undefined) {
+        if ('nodeName' in obj) {
             message.node_name = obj.nodeName;
         }
-        if (obj.numaNodeId !== undefined) {
+        if ('numaNodeId' in obj) {
             message.numa_node_id = Number(obj.numaNodeId);
         }
-        if (obj.extraInfo !== undefined) {
+        if ('extraInfo' in obj) {
             message.extra_info = obj.extraInfo;
         }
         return message;
@@ -629,40 +629,40 @@ caffe2.OperatorDef = class OperatorDef {
 
     static decodeJson(obj) {
         const message = new caffe2.OperatorDef();
-        if (obj.input !== undefined) {
+        if ('input' in obj) {
             message.input = obj.input;
         }
-        if (obj.output !== undefined) {
+        if ('output' in obj) {
             message.output = obj.output;
         }
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.type !== undefined) {
+        if ('type' in obj) {
             message.type = obj.type;
         }
-        if (obj.arg !== undefined) {
+        if ('arg' in obj) {
             message.arg = obj.arg.map((obj) => caffe2.Argument.decodeJson(obj));
         }
-        if (obj.deviceOption !== undefined) {
+        if ('deviceOption' in obj) {
             message.device_option = caffe2.DeviceOption.decodeJson(obj.deviceOption);
         }
-        if (obj.engine !== undefined) {
+        if ('engine' in obj) {
             message.engine = obj.engine;
         }
-        if (obj.controlInput !== undefined) {
+        if ('controlInput' in obj) {
             message.control_input = obj.controlInput;
         }
-        if (obj.isGradientOp !== undefined) {
+        if ('isGradientOp' in obj) {
             message.is_gradient_op = obj.isGradientOp;
         }
-        if (obj.debugInfo !== undefined) {
+        if ('debugInfo' in obj) {
             message.debug_info = obj.debugInfo;
         }
-        if (obj.domain !== undefined) {
+        if ('domain' in obj) {
             message.domain = obj.domain;
         }
-        if (obj.opVersion !== undefined) {
+        if ('opVersion' in obj) {
             message.op_version = BigInt(obj.opVersion);
         }
         return message;
@@ -700,7 +700,7 @@ caffe2.BackendOptions = class BackendOptions {
     static decodeJson(obj) {
         const message = new caffe2.BackendOptions();
         message.backend_name = obj.backendName;
-        if (obj.option !== undefined) {
+        if ('option' in obj) {
             message.option = obj.option.map((obj) => caffe2.MapFieldEntry.decodeJson(obj));
         }
         return message;
@@ -719,13 +719,13 @@ caffe2.PartitionInfo = class PartitionInfo {
     static decodeJson(obj) {
         const message = new caffe2.PartitionInfo();
         message.name = obj.name;
-        if (obj.deviceId !== undefined) {
+        if ('deviceId' in obj) {
             message.device_id = obj.deviceId.map((obj) => Number(obj));
         }
-        if (obj.extraInfo !== undefined) {
+        if ('extraInfo' in obj) {
             message.extra_info = obj.extraInfo;
         }
-        if (obj.backendOptions !== undefined) {
+        if ('backendOptions' in obj) {
             message.backend_options = obj.backendOptions.map((obj) => caffe2.BackendOptions.decodeJson(obj));
         }
         return message;
@@ -747,31 +747,31 @@ caffe2.NetDef = class NetDef {
 
     static decodeJson(obj) {
         const message = new caffe2.NetDef();
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.op !== undefined) {
+        if ('op' in obj) {
             message.op = obj.op.map((obj) => caffe2.OperatorDef.decodeJson(obj));
         }
-        if (obj.type !== undefined) {
+        if ('type' in obj) {
             message.type = obj.type;
         }
-        if (obj.numWorkers !== undefined) {
+        if ('numWorkers' in obj) {
             message.num_workers = Number(obj.numWorkers);
         }
-        if (obj.deviceOption !== undefined) {
+        if ('deviceOption' in obj) {
             message.device_option = caffe2.DeviceOption.decodeJson(obj.deviceOption);
         }
-        if (obj.arg !== undefined) {
+        if ('arg' in obj) {
             message.arg = obj.arg.map((obj) => caffe2.Argument.decodeJson(obj));
         }
-        if (obj.externalInput !== undefined) {
+        if ('externalInput' in obj) {
             message.external_input = obj.externalInput;
         }
-        if (obj.externalOutput !== undefined) {
+        if ('externalOutput' in obj) {
             message.external_output = obj.externalOutput;
         }
-        if (obj.partitionInfo !== undefined) {
+        if ('partitionInfo' in obj) {
             message.partition_info = obj.partitionInfo.map((obj) => caffe2.PartitionInfo.decodeJson(obj));
         }
         return message;
@@ -792,43 +792,43 @@ caffe2.ExecutionStep = class ExecutionStep {
 
     static decodeJson(obj) {
         const message = new caffe2.ExecutionStep();
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.substep !== undefined) {
+        if ('substep' in obj) {
             message.substep = obj.substep.map((obj) => caffe2.ExecutionStep.decodeJson(obj));
         }
-        if (obj.network !== undefined) {
+        if ('network' in obj) {
             message.network = obj.network;
         }
-        if (obj.numIter !== undefined) {
+        if ('numIter' in obj) {
             message.num_iter = BigInt(obj.numIter);
         }
-        if (obj.criteriaNetwork !== undefined) {
+        if ('criteriaNetwork' in obj) {
             message.criteria_network = obj.criteriaNetwork;
         }
-        if (obj.reportNet !== undefined) {
+        if ('reportNet' in obj) {
             message.report_net = obj.reportNet;
         }
-        if (obj.reportInterval !== undefined) {
+        if ('reportInterval' in obj) {
             message.report_interval = Number(obj.reportInterval);
         }
-        if (obj.runEveryMs !== undefined) {
+        if ('runEveryMs' in obj) {
             message.run_every_ms = BigInt(obj.runEveryMs);
         }
-        if (obj.concurrentSubsteps !== undefined) {
+        if ('concurrentSubsteps' in obj) {
             message.concurrent_substeps = obj.concurrentSubsteps;
         }
-        if (obj.shouldStopBlob !== undefined) {
+        if ('shouldStopBlob' in obj) {
             message.should_stop_blob = obj.shouldStopBlob;
         }
-        if (obj.onlyOnce !== undefined) {
+        if ('onlyOnce' in obj) {
             message.only_once = obj.onlyOnce;
         }
-        if (obj.createWorkspace !== undefined) {
+        if ('createWorkspace' in obj) {
             message.create_workspace = obj.createWorkspace;
         }
-        if (obj.numConcurrentInstances !== undefined) {
+        if ('numConcurrentInstances' in obj) {
             message.num_concurrent_instances = Number(obj.numConcurrentInstances);
         }
         return message;
@@ -856,13 +856,13 @@ caffe2.PlanDef = class PlanDef {
 
     static decodeJson(obj) {
         const message = new caffe2.PlanDef();
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.network !== undefined) {
+        if ('network' in obj) {
             message.network = obj.network.map((obj) => caffe2.NetDef.decodeJson(obj));
         }
-        if (obj.executionStep !== undefined) {
+        if ('executionStep' in obj) {
             message.execution_step = obj.executionStep.map((obj) => caffe2.ExecutionStep.decodeJson(obj));
         }
         return message;
@@ -875,25 +875,25 @@ caffe2.BlobProto = class BlobProto {
 
     static decodeJson(obj) {
         const message = new caffe2.BlobProto();
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.type !== undefined) {
+        if ('type' in obj) {
             message.type = obj.type;
         }
-        if (obj.tensor !== undefined) {
+        if ('tensor' in obj) {
             message.tensor = caffe2.TensorProto.decodeJson(obj.tensor);
         }
-        if (obj.content !== undefined) {
+        if ('content' in obj) {
             message.content = new Uint8Array(atob(obj.content));
         }
-        if (obj.qtensor !== undefined) {
+        if ('qtensor' in obj) {
             message.qtensor = caffe2.QTensorProto.decodeJson(obj.qtensor);
         }
-        if (obj.contentNumChunks !== undefined) {
+        if ('contentNumChunks' in obj) {
             message.content_num_chunks = Number(obj.contentNumChunks);
         }
-        if (obj.contentChunkId !== undefined) {
+        if ('contentChunkId' in obj) {
             message.content_chunk_id = Number(obj.contentChunkId);
         }
         return message;
@@ -912,16 +912,16 @@ caffe2.DBReaderProto = class DBReaderProto {
 
     static decodeJson(obj) {
         const message = new caffe2.DBReaderProto();
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.source !== undefined) {
+        if ('source' in obj) {
             message.source = obj.source;
         }
-        if (obj.dbType !== undefined) {
+        if ('dbType' in obj) {
             message.db_type = obj.dbType;
         }
-        if (obj.key !== undefined) {
+        if ('key' in obj) {
             message.key = obj.key;
         }
         return message;
@@ -937,13 +937,13 @@ caffe2.BlobSerializationOptions = class BlobSerializationOptions {
 
     static decodeJson(obj) {
         const message = new caffe2.BlobSerializationOptions();
-        if (obj.blobNameRegex !== undefined) {
+        if ('blobNameRegex' in obj) {
             message.blob_name_regex = obj.blobNameRegex;
         }
-        if (obj.chunkSize !== undefined) {
+        if ('chunkSize' in obj) {
             message.chunk_size = BigInt(obj.chunkSize);
         }
-        if (obj.floatFormat !== undefined) {
+        if ('floatFormat' in obj) {
             message.float_format = caffe2.BlobSerializationOptions.FloatFormat[obj.floatFormat];
         }
         return message;
@@ -968,7 +968,7 @@ caffe2.SerializationOptions = class SerializationOptions {
 
     static decodeJson(obj) {
         const message = new caffe2.SerializationOptions();
-        if (obj.options !== undefined) {
+        if ('options' in obj) {
             message.options = obj.options.map((obj) => caffe2.BlobSerializationOptions.decodeJson(obj));
         }
         return message;

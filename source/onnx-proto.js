@@ -166,58 +166,58 @@ onnx.AttributeProto = class AttributeProto {
 
     static decodeJson(obj) {
         const message = new onnx.AttributeProto();
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.refAttrName !== undefined) {
+        if ('refAttrName' in obj) {
             message.ref_attr_name = obj.refAttrName;
         }
-        if (obj.docString !== undefined) {
+        if ('docString' in obj) {
             message.doc_string = obj.docString;
         }
-        if (obj.type !== undefined) {
+        if ('type' in obj) {
             message.type = onnx.AttributeProto.AttributeType[obj.type];
         }
-        if (obj.f !== undefined) {
+        if ('f' in obj) {
             message.f = Number(obj.f);
         }
-        if (obj.i !== undefined) {
+        if ('i' in obj) {
             message.i = BigInt(obj.i);
         }
-        if (obj.s !== undefined) {
+        if ('s' in obj) {
             message.s = new Uint8Array(atob(obj.s));
         }
-        if (obj.t !== undefined) {
+        if ('t' in obj) {
             message.t = onnx.TensorProto.decodeJson(obj.t);
         }
-        if (obj.g !== undefined) {
+        if ('g' in obj) {
             message.g = onnx.GraphProto.decodeJson(obj.g);
         }
-        if (obj.sparseTensor !== undefined) {
+        if ('sparseTensor' in obj) {
             message.sparse_tensor = onnx.SparseTensorProto.decodeJson(obj.sparseTensor);
         }
-        if (obj.tp !== undefined) {
+        if ('tp' in obj) {
             message.tp = onnx.TypeProto.decodeJson(obj.tp);
         }
-        if (obj.floats !== undefined) {
+        if ('floats' in obj) {
             message.floats = obj.floats.map((obj) => Number(obj));
         }
-        if (obj.ints !== undefined) {
+        if ('ints' in obj) {
             message.ints = obj.ints.map((obj) => BigInt(obj));
         }
-        if (obj.strings !== undefined) {
+        if ('strings' in obj) {
             message.strings = obj.strings.map((obj) => new Uint8Array(atob(obj)));
         }
-        if (obj.tensors !== undefined) {
+        if ('tensors' in obj) {
             message.tensors = obj.tensors.map((obj) => onnx.TensorProto.decodeJson(obj));
         }
-        if (obj.graphs !== undefined) {
+        if ('graphs' in obj) {
             message.graphs = obj.graphs.map((obj) => onnx.GraphProto.decodeJson(obj));
         }
-        if (obj.sparseTensors !== undefined) {
+        if ('sparseTensors' in obj) {
             message.sparse_tensors = obj.sparseTensors.map((obj) => onnx.SparseTensorProto.decodeJson(obj));
         }
-        if (obj.typeProtos !== undefined) {
+        if ('typeProtos' in obj) {
             message.type_protos = obj.typeProtos.map((obj) => onnx.TypeProto.decodeJson(obj));
         }
         return message;
@@ -314,16 +314,16 @@ onnx.ValueInfoProto = class ValueInfoProto {
 
     static decodeJson(obj) {
         const message = new onnx.ValueInfoProto();
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.type !== undefined) {
+        if ('type' in obj) {
             message.type = onnx.TypeProto.decodeJson(obj.type);
         }
-        if (obj.docString !== undefined) {
+        if ('docString' in obj) {
             message.doc_string = obj.docString;
         }
-        if (obj.metadataProps !== undefined) {
+        if ('metadataProps' in obj) {
             message.metadata_props = obj.metadataProps.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
         return message;
@@ -427,31 +427,31 @@ onnx.NodeProto = class NodeProto {
 
     static decodeJson(obj) {
         const message = new onnx.NodeProto();
-        if (obj.input !== undefined) {
+        if ('input' in obj) {
             message.input = obj.input;
         }
-        if (obj.output !== undefined) {
+        if ('output' in obj) {
             message.output = obj.output;
         }
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.opType !== undefined) {
+        if ('opType' in obj) {
             message.op_type = obj.opType;
         }
-        if (obj.domain !== undefined) {
+        if ('domain' in obj) {
             message.domain = obj.domain;
         }
-        if (obj.overload !== undefined) {
+        if ('overload' in obj) {
             message.overload = obj.overload;
         }
-        if (obj.attribute !== undefined) {
+        if ('attribute' in obj) {
             message.attribute = obj.attribute.map((obj) => onnx.AttributeProto.decodeJson(obj));
         }
-        if (obj.docString !== undefined) {
+        if ('docString' in obj) {
             message.doc_string = obj.docString;
         }
-        if (obj.metadataProps !== undefined) {
+        if ('metadataProps' in obj) {
             message.metadata_props = obj.metadataProps.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
         return message;
@@ -525,16 +525,16 @@ onnx.TrainingInfoProto = class TrainingInfoProto {
 
     static decodeJson(obj) {
         const message = new onnx.TrainingInfoProto();
-        if (obj.initialization !== undefined) {
+        if ('initialization' in obj) {
             message.initialization = onnx.GraphProto.decodeJson(obj.initialization);
         }
-        if (obj.algorithm !== undefined) {
+        if ('algorithm' in obj) {
             message.algorithm = onnx.GraphProto.decodeJson(obj.algorithm);
         }
-        if (obj.initializationBinding !== undefined) {
+        if ('initializationBinding' in obj) {
             message.initialization_binding = obj.initializationBinding.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
-        if (obj.updateBinding !== undefined) {
+        if ('updateBinding' in obj) {
             message.update_binding = obj.updateBinding.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
         return message;
@@ -649,37 +649,37 @@ onnx.ModelProto = class ModelProto {
 
     static decodeJson(obj) {
         const message = new onnx.ModelProto();
-        if (obj.irVersion !== undefined) {
+        if ('irVersion' in obj) {
             message.ir_version = BigInt(obj.irVersion);
         }
-        if (obj.opsetImport !== undefined) {
+        if ('opsetImport' in obj) {
             message.opset_import = obj.opsetImport.map((obj) => onnx.OperatorSetIdProto.decodeJson(obj));
         }
-        if (obj.producerName !== undefined) {
+        if ('producerName' in obj) {
             message.producer_name = obj.producerName;
         }
-        if (obj.producerVersion !== undefined) {
+        if ('producerVersion' in obj) {
             message.producer_version = obj.producerVersion;
         }
-        if (obj.domain !== undefined) {
+        if ('domain' in obj) {
             message.domain = obj.domain;
         }
-        if (obj.modelVersion !== undefined) {
+        if ('modelVersion' in obj) {
             message.model_version = BigInt(obj.modelVersion);
         }
-        if (obj.docString !== undefined) {
+        if ('docString' in obj) {
             message.doc_string = obj.docString;
         }
-        if (obj.graph !== undefined) {
+        if ('graph' in obj) {
             message.graph = onnx.GraphProto.decodeJson(obj.graph);
         }
-        if (obj.metadataProps !== undefined) {
+        if ('metadataProps' in obj) {
             message.metadata_props = obj.metadataProps.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
-        if (obj.trainingInfo !== undefined) {
+        if ('trainingInfo' in obj) {
             message.training_info = obj.trainingInfo.map((obj) => onnx.TrainingInfoProto.decodeJson(obj));
         }
-        if (obj.functions !== undefined) {
+        if ('functions' in obj) {
             message.functions = obj.functions.map((obj) => onnx.FunctionProto.decodeJson(obj));
         }
         return message;
@@ -738,10 +738,10 @@ onnx.StringStringEntryProto = class StringStringEntryProto {
 
     static decodeJson(obj) {
         const message = new onnx.StringStringEntryProto();
-        if (obj.key !== undefined) {
+        if ('key' in obj) {
             message.key = obj.key;
         }
-        if (obj.value !== undefined) {
+        if ('value' in obj) {
             message.value = obj.value;
         }
         return message;
@@ -799,10 +799,10 @@ onnx.TensorAnnotation = class TensorAnnotation {
 
     static decodeJson(obj) {
         const message = new onnx.TensorAnnotation();
-        if (obj.tensorName !== undefined) {
+        if ('tensorName' in obj) {
             message.tensor_name = obj.tensorName;
         }
-        if (obj.quantParameterTensorNames !== undefined) {
+        if ('quantParameterTensorNames' in obj) {
             message.quant_parameter_tensor_names = obj.quantParameterTensorNames.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
         return message;
@@ -914,34 +914,34 @@ onnx.GraphProto = class GraphProto {
 
     static decodeJson(obj) {
         const message = new onnx.GraphProto();
-        if (obj.node !== undefined) {
+        if ('node' in obj) {
             message.node = obj.node.map((obj) => onnx.NodeProto.decodeJson(obj));
         }
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.initializer !== undefined) {
+        if ('initializer' in obj) {
             message.initializer = obj.initializer.map((obj) => onnx.TensorProto.decodeJson(obj));
         }
-        if (obj.sparseInitializer !== undefined) {
+        if ('sparseInitializer' in obj) {
             message.sparse_initializer = obj.sparseInitializer.map((obj) => onnx.SparseTensorProto.decodeJson(obj));
         }
-        if (obj.docString !== undefined) {
+        if ('docString' in obj) {
             message.doc_string = obj.docString;
         }
-        if (obj.input !== undefined) {
+        if ('input' in obj) {
             message.input = obj.input.map((obj) => onnx.ValueInfoProto.decodeJson(obj));
         }
-        if (obj.output !== undefined) {
+        if ('output' in obj) {
             message.output = obj.output.map((obj) => onnx.ValueInfoProto.decodeJson(obj));
         }
-        if (obj.valueInfo !== undefined) {
+        if ('valueInfo' in obj) {
             message.value_info = obj.valueInfo.map((obj) => onnx.ValueInfoProto.decodeJson(obj));
         }
-        if (obj.quantizationAnnotation !== undefined) {
+        if ('quantizationAnnotation' in obj) {
             message.quantization_annotation = obj.quantizationAnnotation.map((obj) => onnx.TensorAnnotation.decodeJson(obj));
         }
-        if (obj.metadataProps !== undefined) {
+        if ('metadataProps' in obj) {
             message.metadata_props = obj.metadataProps.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
         return message;
@@ -1085,49 +1085,49 @@ onnx.TensorProto = class TensorProto {
 
     static decodeJson(obj) {
         const message = new onnx.TensorProto();
-        if (obj.dims !== undefined) {
+        if ('dims' in obj) {
             message.dims = obj.dims.map((obj) => BigInt(obj));
         }
-        if (obj.dataType !== undefined) {
+        if ('dataType' in obj) {
             message.data_type = Number(obj.dataType);
         }
-        if (obj.segment !== undefined) {
+        if ('segment' in obj) {
             message.segment = onnx.TensorProto.Segment.decodeJson(obj.segment);
         }
-        if (obj.floatData !== undefined) {
+        if ('floatData' in obj) {
             message.float_data = obj.floatData.map((obj) => Number(obj));
         }
-        if (obj.int32Data !== undefined) {
+        if ('int32Data' in obj) {
             message.int32_data = obj.int32Data.map((obj) => Number(obj));
         }
-        if (obj.stringData !== undefined) {
+        if ('stringData' in obj) {
             message.string_data = obj.stringData.map((obj) => new Uint8Array(atob(obj)));
         }
-        if (obj.int64Data !== undefined) {
+        if ('int64Data' in obj) {
             message.int64_data = obj.int64Data.map((obj) => BigInt(obj));
         }
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.docString !== undefined) {
+        if ('docString' in obj) {
             message.doc_string = obj.docString;
         }
-        if (obj.rawData !== undefined) {
+        if ('rawData' in obj) {
             message.raw_data = new Uint8Array(atob(obj.rawData));
         }
-        if (obj.externalData !== undefined) {
+        if ('externalData' in obj) {
             message.external_data = obj.externalData.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
-        if (obj.dataLocation !== undefined) {
+        if ('dataLocation' in obj) {
             message.data_location = onnx.TensorProto.DataLocation[obj.dataLocation];
         }
-        if (obj.doubleData !== undefined) {
+        if ('doubleData' in obj) {
             message.double_data = obj.doubleData.map((obj) => Number(obj));
         }
-        if (obj.uint64Data !== undefined) {
+        if ('uint64Data' in obj) {
             message.uint64_data = obj.uint64Data.map((obj) => BigInt(obj));
         }
-        if (obj.metadataProps !== undefined) {
+        if ('metadataProps' in obj) {
             message.metadata_props = obj.metadataProps.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
         return message;
@@ -1212,10 +1212,10 @@ onnx.TensorProto.Segment = class Segment {
 
     static decodeJson(obj) {
         const message = new onnx.TensorProto.Segment();
-        if (obj.begin !== undefined) {
+        if ('begin' in obj) {
             message.begin = BigInt(obj.begin);
         }
-        if (obj.end !== undefined) {
+        if ('end' in obj) {
             message.end = BigInt(obj.end);
         }
         return message;
@@ -1284,13 +1284,13 @@ onnx.SparseTensorProto = class SparseTensorProto {
 
     static decodeJson(obj) {
         const message = new onnx.SparseTensorProto();
-        if (obj.values !== undefined) {
+        if ('values' in obj) {
             message.values = onnx.TensorProto.decodeJson(obj.values);
         }
-        if (obj.indices !== undefined) {
+        if ('indices' in obj) {
             message.indices = onnx.TensorProto.decodeJson(obj.indices);
         }
-        if (obj.dims !== undefined) {
+        if ('dims' in obj) {
             message.dims = obj.dims.map((obj) => BigInt(obj));
         }
         return message;
@@ -1342,7 +1342,7 @@ onnx.TensorShapeProto = class TensorShapeProto {
 
     static decodeJson(obj) {
         const message = new onnx.TensorShapeProto();
-        if (obj.dim !== undefined) {
+        if ('dim' in obj) {
             message.dim = obj.dim.map((obj) => onnx.TensorShapeProto.Dimension.decodeJson(obj));
         }
         return message;
@@ -1404,13 +1404,13 @@ onnx.TensorShapeProto.Dimension = class Dimension {
 
     static decodeJson(obj) {
         const message = new onnx.TensorShapeProto.Dimension();
-        if (obj.dimValue !== undefined) {
+        if ('dimValue' in obj) {
             message.dim_value = BigInt(obj.dimValue);
         }
-        if (obj.dimParam !== undefined) {
+        if ('dimParam' in obj) {
             message.dim_param = obj.dimParam;
         }
-        if (obj.denotation !== undefined) {
+        if ('denotation' in obj) {
             message.denotation = obj.denotation;
         }
         return message;
@@ -1498,25 +1498,25 @@ onnx.TypeProto = class TypeProto {
 
     static decodeJson(obj) {
         const message = new onnx.TypeProto();
-        if (obj.tensorType !== undefined) {
+        if ('tensorType' in obj) {
             message.tensor_type = onnx.TypeProto.Tensor.decodeJson(obj.tensorType);
         }
-        if (obj.sequenceType !== undefined) {
+        if ('sequenceType' in obj) {
             message.sequence_type = onnx.TypeProto.Sequence.decodeJson(obj.sequenceType);
         }
-        if (obj.mapType !== undefined) {
+        if ('mapType' in obj) {
             message.map_type = onnx.TypeProto.Map.decodeJson(obj.mapType);
         }
-        if (obj.optionalType !== undefined) {
+        if ('optionalType' in obj) {
             message.optional_type = onnx.TypeProto.Optional.decodeJson(obj.optionalType);
         }
-        if (obj.sparseTensorType !== undefined) {
+        if ('sparseTensorType' in obj) {
             message.sparse_tensor_type = onnx.TypeProto.SparseTensor.decodeJson(obj.sparseTensorType);
         }
-        if (obj.opaqueType !== undefined) {
+        if ('opaqueType' in obj) {
             message.opaque_type = onnx.TypeProto.Opaque.decodeJson(obj.opaqueType);
         }
-        if (obj.denotation !== undefined) {
+        if ('denotation' in obj) {
             message.denotation = obj.denotation;
         }
         return message;
@@ -1569,10 +1569,10 @@ onnx.TypeProto.Tensor = class Tensor {
 
     static decodeJson(obj) {
         const message = new onnx.TypeProto.Tensor();
-        if (obj.elemType !== undefined) {
+        if ('elemType' in obj) {
             message.elem_type = Number(obj.elemType);
         }
-        if (obj.shape !== undefined) {
+        if ('shape' in obj) {
             message.shape = onnx.TensorShapeProto.decodeJson(obj.shape);
         }
         return message;
@@ -1620,7 +1620,7 @@ onnx.TypeProto.Sequence = class Sequence {
 
     static decodeJson(obj) {
         const message = new onnx.TypeProto.Sequence();
-        if (obj.elemType !== undefined) {
+        if ('elemType' in obj) {
             message.elem_type = onnx.TypeProto.decodeJson(obj.elemType);
         }
         return message;
@@ -1673,10 +1673,10 @@ onnx.TypeProto.Map = class Map {
 
     static decodeJson(obj) {
         const message = new onnx.TypeProto.Map();
-        if (obj.keyType !== undefined) {
+        if ('keyType' in obj) {
             message.key_type = Number(obj.keyType);
         }
-        if (obj.valueType !== undefined) {
+        if ('valueType' in obj) {
             message.value_type = onnx.TypeProto.decodeJson(obj.valueType);
         }
         return message;
@@ -1724,7 +1724,7 @@ onnx.TypeProto.Optional = class Optional {
 
     static decodeJson(obj) {
         const message = new onnx.TypeProto.Optional();
-        if (obj.elemType !== undefined) {
+        if ('elemType' in obj) {
             message.elem_type = onnx.TypeProto.decodeJson(obj.elemType);
         }
         return message;
@@ -1777,10 +1777,10 @@ onnx.TypeProto.SparseTensor = class SparseTensor {
 
     static decodeJson(obj) {
         const message = new onnx.TypeProto.SparseTensor();
-        if (obj.elemType !== undefined) {
+        if ('elemType' in obj) {
             message.elem_type = Number(obj.elemType);
         }
-        if (obj.shape !== undefined) {
+        if ('shape' in obj) {
             message.shape = onnx.TensorShapeProto.decodeJson(obj.shape);
         }
         return message;
@@ -1834,10 +1834,10 @@ onnx.TypeProto.Opaque = class Opaque {
 
     static decodeJson(obj) {
         const message = new onnx.TypeProto.Opaque();
-        if (obj.domain !== undefined) {
+        if ('domain' in obj) {
             message.domain = obj.domain;
         }
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
         return message;
@@ -1891,10 +1891,10 @@ onnx.OperatorSetIdProto = class OperatorSetIdProto {
 
     static decodeJson(obj) {
         const message = new onnx.OperatorSetIdProto();
-        if (obj.domain !== undefined) {
+        if ('domain' in obj) {
             message.domain = obj.domain;
         }
-        if (obj.version !== undefined) {
+        if ('version' in obj) {
             message.version = BigInt(obj.version);
         }
         return message;
@@ -2024,40 +2024,40 @@ onnx.FunctionProto = class FunctionProto {
 
     static decodeJson(obj) {
         const message = new onnx.FunctionProto();
-        if (obj.name !== undefined) {
+        if ('name' in obj) {
             message.name = obj.name;
         }
-        if (obj.input !== undefined) {
+        if ('input' in obj) {
             message.input = obj.input;
         }
-        if (obj.output !== undefined) {
+        if ('output' in obj) {
             message.output = obj.output;
         }
-        if (obj.attribute !== undefined) {
+        if ('attribute' in obj) {
             message.attribute = obj.attribute;
         }
-        if (obj.attributeProto !== undefined) {
+        if ('attributeProto' in obj) {
             message.attribute_proto = obj.attributeProto.map((obj) => onnx.AttributeProto.decodeJson(obj));
         }
-        if (obj.node !== undefined) {
+        if ('node' in obj) {
             message.node = obj.node.map((obj) => onnx.NodeProto.decodeJson(obj));
         }
-        if (obj.docString !== undefined) {
+        if ('docString' in obj) {
             message.doc_string = obj.docString;
         }
-        if (obj.opsetImport !== undefined) {
+        if ('opsetImport' in obj) {
             message.opset_import = obj.opsetImport.map((obj) => onnx.OperatorSetIdProto.decodeJson(obj));
         }
-        if (obj.domain !== undefined) {
+        if ('domain' in obj) {
             message.domain = obj.domain;
         }
-        if (obj.overload !== undefined) {
+        if ('overload' in obj) {
             message.overload = obj.overload;
         }
-        if (obj.valueInfo !== undefined) {
+        if ('valueInfo' in obj) {
             message.value_info = obj.valueInfo.map((obj) => onnx.ValueInfoProto.decodeJson(obj));
         }
-        if (obj.metadataProps !== undefined) {
+        if ('metadataProps' in obj) {
             message.metadata_props = obj.metadataProps.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
         return message;
@@ -2125,16 +2125,16 @@ onnx.OperatorProto = class OperatorProto {
 
     static decodeJson(obj) {
         const message = new onnx.OperatorProto();
-        if (obj.opType !== undefined) {
+        if ('opType' in obj) {
             message.op_type = obj.opType;
         }
-        if (obj.sinceVersion !== undefined) {
+        if ('sinceVersion' in obj) {
             message.since_version = BigInt(obj.sinceVersion);
         }
-        if (obj.status !== undefined) {
+        if ('status' in obj) {
             message.status = onnx.OperatorStatus[obj.status];
         }
-        if (obj.docString !== undefined) {
+        if ('docString' in obj) {
             message.doc_string = obj.docString;
         }
         return message;
@@ -2237,31 +2237,31 @@ onnx.OperatorSetProto = class OperatorSetProto {
 
     static decodeJson(obj) {
         const message = new onnx.OperatorSetProto();
-        if (obj.magic !== undefined) {
+        if ('magic' in obj) {
             message.magic = obj.magic;
         }
-        if (obj.irVersion !== undefined) {
+        if ('irVersion' in obj) {
             message.ir_version = BigInt(obj.irVersion);
         }
-        if (obj.irVersionPrerelease !== undefined) {
+        if ('irVersionPrerelease' in obj) {
             message.ir_version_prerelease = obj.irVersionPrerelease;
         }
-        if (obj.irBuildMetadata !== undefined) {
+        if ('irBuildMetadata' in obj) {
             message.ir_build_metadata = obj.irBuildMetadata;
         }
-        if (obj.domain !== undefined) {
+        if ('domain' in obj) {
             message.domain = obj.domain;
         }
-        if (obj.opsetVersion !== undefined) {
+        if ('opsetVersion' in obj) {
             message.opset_version = BigInt(obj.opsetVersion);
         }
-        if (obj.docString !== undefined) {
+        if ('docString' in obj) {
             message.doc_string = obj.docString;
         }
-        if (obj.operator !== undefined) {
+        if ('operator' in obj) {
             message.operator = obj.operator.map((obj) => onnx.OperatorProto.decodeJson(obj));
         }
-        if (obj.functions !== undefined) {
+        if ('functions' in obj) {
             message.functions = obj.functions.map((obj) => onnx.FunctionProto.decodeJson(obj));
         }
         return message;

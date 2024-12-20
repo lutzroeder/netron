@@ -1430,7 +1430,7 @@ protoc.Generator = class {
                     const source = `obj.${json}`;
                     const target = `message${protoc.Generator._propertyReference(field.name)}`;
                     if (!field.required) {
-                        this._builder.add(`if (${source} !== undefined) {`);
+                        this._builder.add(`if ('${json}' in obj) {`);
                         this._builder.indent();
                     }
                     if (field instanceof protoc.MapField) {
