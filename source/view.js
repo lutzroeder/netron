@@ -3016,7 +3016,8 @@ view.PrimitiveView = class extends view.Expander {
                     break;
                 }
                 default: {
-                    let content = new view.Formatter(value, type).toString();
+                    const formatter = new view.Formatter(value, type);
+                    let content = formatter.toString();
                     if (content && content.length > 1000) {
                         content = `${content.substring(0, 1000)}\u2026`;
                     }
@@ -4359,7 +4360,6 @@ view.Formatter = class {
     }
 
     _format(value, type, quote) {
-
         if (value && value.__class__ && value.__class__.__module__ === 'builtins' && value.__class__.__name__ === 'type') {
             return `${value.__module__}.${value.__name__}`;
         }
@@ -4451,7 +4451,8 @@ view.Formatter = class {
         }
         this._values.add(value);
         let list = null;
-        const entries = Object.entries(value).filter(([name]) => !name.startsWith('__') && !name.endsWith('__'));
+        const map = value instanceof Map ? Array.from(value) : Object.entries(value);
+        const entries = map.filter(([name]) => typeof name === 'string' && !name.startsWith('__') && !name.endsWith('__'));
         if (entries.length === 1) {
             list = [this._format(entries[0][1], null, true)];
         } else {
