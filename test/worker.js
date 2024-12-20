@@ -603,7 +603,7 @@ export class Target {
                         continue;
                     }
                     const match = /(.*)\[(.*)\]/.exec(property);
-                    if (match.length === 3 && context[match[1]] !== undefined) {
+                    if (match && match.length === 3 && context[match[1]] !== undefined) {
                         const array = context[match[1]];
                         const index = parseInt(match[2], 10);
                         if (array[index] !== undefined) {
