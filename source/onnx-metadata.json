@@ -15331,7 +15331,8 @@
           "tensor(uint64)",
           "tensor(float16)",
           "tensor(float)",
-          "tensor(double)"
+          "tensor(double)",
+          "tensor(bfloat16)"
         ]
       }
     ]
@@ -18819,7 +18820,7 @@
     "name": "Gather",
     "module": "ai.onnx",
     "version": 13,
-    "description": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the axis dimension of `data` (by default outer-most one as axis=0) indexed by `indices`, and concatenates\nthem in an output tensor of rank q + (r - 1).\n\nIf `axis = 0`, let `k = indices[i_{0}, ..., i_{q-1}]`\nthen `output[i_{0}, ..., i_{q-1}, j_{0}, ..., j_{r-2}] = input[k , j_{0}, ..., j_{r-2}]`:\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\nindices = [\n    [0, 1],\n    [1, 2],\n]\noutput = [\n    [\n        [1.0, 1.2],\n        [2.3, 3.4],\n    ],\n    [\n        [2.3, 3.4],\n        [4.5, 5.7],\n    ],\n]\n```\n\nIf `axis = 1`, let `k = indices[i_{0}, ..., i_{q-1}]`\nthen `output[j_{0}, i_{0}, ..., i_{q-1}, j_{1}, ..., j_{r-2}] = input[j_{0}, k, j_{1}, ..., j_{r-2}]`:\n\n```\ndata = [\n    [1.0, 1.2, 1.9],\n    [2.3, 3.4, 3.9],\n    [4.5, 5.7, 5.9],\n]\nindices = [\n    [0, 2],\n]\naxis = 1,\noutput = [\n        [[1.0, 1.9]],\n        [[2.3, 3.9]],\n        [[4.5, 5.9]],\n]\n```\n",
+    "description": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the axis dimension of `data` (by default outer-most one as axis=0) indexed by `indices`, and concatenates\nthem in an output tensor of rank q + (r - 1).\n\nIt is an indexing operation that indexes into the input `data` along a single (specified) axis.\nEach entry in `indices` produces a `r-1` dimensional slice of the input tensor.\nThe entire operation produces, conceptually, a `q`-dimensional tensor of `r-1` dimensional slices,\nwhich is arranged into a `q + (r-1)`-dimensional tensor, with the `q` dimensions taking the\nplace of the original `axis` that is being indexed into.\n\nThe following few examples illustrate how `Gather` works for specific shapes of `data`,\n`indices`, and given value of `axis`:\n| data shape | indices shape | axis | output shape | output equation |\n| --- | --- | --- | --- | --- |\n| (P, Q) | ( )  (a scalar)   | 0 | (Q)       | output[q] = data[indices, q] |\n| (P, Q, R) | ( )  (a scalar)   | 1 | (P, R)       | output[p, r] = data[p, indices, r] |\n| (P, Q) | (R, S) | 0 | (R, S, Q) | output[r, s, q] = data[ [indices[r, s], q] |\n| (P, Q) | (R, S) | 1 | (P, R, S) | output[p, r, s] = data[ p, indices[r, s]] |\n\nMore generally, if `axis = 0`, let `k = indices[i_{0}, ..., i_{q-1}]`\nthen `output[i_{0}, ..., i_{q-1}, j_{0}, ..., j_{r-2}] = input[k , j_{0}, ..., j_{r-2}]`:\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\nindices = [\n    [0, 1],\n    [1, 2],\n]\noutput = [\n    [\n        [1.0, 1.2],\n        [2.3, 3.4],\n    ],\n    [\n        [2.3, 3.4],\n        [4.5, 5.7],\n    ],\n]\n```\n\nIf `axis = 1`, let `k = indices[i_{0}, ..., i_{q-1}]`\nthen `output[j_{0}, i_{0}, ..., i_{q-1}, j_{1}, ..., j_{r-2}] = input[j_{0}, k, j_{1}, ..., j_{r-2}]`:\n\n```\ndata = [\n    [1.0, 1.2, 1.9],\n    [2.3, 3.4, 3.9],\n    [4.5, 5.7, 5.9],\n]\nindices = [\n    [0, 2],\n]\naxis = 1,\noutput = [\n        [[1.0, 1.9]],\n        [[2.3, 3.9]],\n        [[4.5, 5.9]],\n]\n```\n",
     "attributes": [
       {
         "name": "axis",
