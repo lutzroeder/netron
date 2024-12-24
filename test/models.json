@@ -5629,7 +5629,7 @@
     "target":   "fasterrcnn_resnet50_fpn.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7677467/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
     "format":   "TorchScript v1.7",
-    "link":     "https://github.com/lutzroeder/netron/issues/1061"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
@@ -5786,7 +5786,7 @@
     "target":   "m4-sWE-0.1B.script.pt",
     "source":   "https://github.com/user-attachments/files/17967188/m4-sWE-0.1B.script.pt.zip[m4-sWE-0.1B.script.pt]",
     "format":   "TorchScript v1.6",
-    "link":     "https://github.com/lutzroeder/netron/issues/1061"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
@@ -5815,7 +5815,7 @@
     "target":   "mask_rcnn.pt",
     "source":   "https://github.com/user-attachments/files/17966950/mask_rcnn.pt.zip[mask_rcnn.pt]",
     "format":   "TorchScript v1.7",
-    "link":     "https://github.com/lutzroeder/netron/issues/1061"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
@@ -6749,7 +6749,7 @@
     "target":   "v1_lj_8000.jit",
     "source":   "https://github.com/user-attachments/files/16041474/v1_lj_8000.jit.zip[v1_lj_8000.jit]",
     "format":   "TorchScript v1.6",
-    "link":     "https://github.com/lutzroeder/netron/issues/1061"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",

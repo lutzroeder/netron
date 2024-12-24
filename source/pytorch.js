@@ -1231,6 +1231,7 @@ pytorch.Container.Zip = class extends pytorch.Container {
     constructor(entries) {
         super();
         this.type = 'pytorch.zip';
+        // https://github.com/pytorch/pytorch/blob/main/torch/csrc/jit/OVERVIEW.md
         // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
         this._entries = entries;
     }
@@ -1286,9 +1287,7 @@ pytorch.Container.ModelJson = class extends pytorch.Container {
     }
 
     async read(metadata) {
-        if (this._entries.has('model.json')) {
-            pytorch.proto = await this._context.require('./pytorch-proto');
-        }
+        pytorch.proto = await this._context.require('./pytorch-proto');
         const keys = [
             'attributes.pkl',
             'version',

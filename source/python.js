@@ -8753,42 +8753,49 @@ python.Execution = class {
             }
             s_(name, value) {
                 this._values.set(name, [value, 's']);
+                return this;
             }
             s(name) {
                 return this._values.get(name)[0];
             }
             ss_(name, value) {
                 this._values.set(name, [value, 'ss']);
+                return this;
             }
             ss(name) {
                 return this._values.get(name)[0];
             }
             i_(name, value) {
                 this._values.set(name, [value, 'i']);
+                return this;
             }
             i(name) {
                 return this._values.get(name)[0];
             }
             f_(name, value) {
                 this._values.set(name, [value, 'f']);
+                return this;
             }
             f(name) {
                 return this._values.get(name)[0];
             }
             t_(name, value) {
                 this._values.set(name, [value, 't']);
+                return this;
             }
             t(name) {
                 return this._values.get(name)[0];
             }
             tys_(name, value) {
                 this._values.set(name, [value, 'tys']);
+                return this;
             }
             tys(name) {
                 return this._values.get(name)[0];
             }
             ival_(name, value) {
                 this._values.set(name, [value, 'ival']);
+                return this;
             }
             ival(name) {
                 return this._values.get(name)[0];
@@ -9234,6 +9241,7 @@ python.Execution = class {
                 return convertObject(obj);
             }
             LEGACY_deserialize() {
+                // https://github.com/pytorch/pytorch/blob/5e69e11d098a2cfccc8a59377c431e9c71cab9a8/torch/csrc/jit/serialization/import_legacy.cpp#L88
                 const execution = this._compilation_unit.execution;
                 const caffe2 = execution.proto.caffe2;
                 const torch = execution.import('torch');
