@@ -7079,6 +7079,6 @@
     "name": "torchvision::nms(Tensor dets, Tensor scores, float iou_threshold) -> Tensor"
   },
   {
-    "name": "torchvision::roi_align(Tensor input, Tensor rois, float spatial_scale, int pooled_height, int pooled_width, int sampling_ratio, bool aligned) -> Tensor"
+    "name": "torchvision::roi_align(Tensor input, Tensor rois, float spatial_scale, SymInt pooled_height, SymInt pooled_width, int sampling_ratio, bool aligned) -> Tensor"
   }
 ]

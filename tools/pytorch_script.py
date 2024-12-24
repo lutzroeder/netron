@@ -56,13 +56,9 @@ known_legacy_schema_definitions = [
     '_caffe2::RoIAlign(Tensor features, Tensor rois, str order, float spatial_scale, int pooled_h, int pooled_w, int sampling_ratio, bool aligned, Tensor[]? _caffe2_preallocated_outputs=None) -> Tensor',
     'aten::_cat.out(Tensor[] tensors, int dim=0, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::_cat(Tensor[] tensors, int dim=0) -> Tensor',
-    'aten::adaptive_avg_pool1d.out(Tensor self, int[1] output_size, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::arange.start_out_(Scalar start, Scalar end) -> Tensor',
-    'aten::avg_pool1d.out(Tensor self, int[1] kernel_size, int[1] stride=[], int[1] padding=[0], bool ceil_mode=False, bool count_include_pad=True, *, Tensor(a!) out) -> Tensor(a!)',
     'aten::fft(Tensor self, int signal_ndim, bool normalized=False) -> Tensor',
     'aten::grid_sampler.legacy(Tensor input, Tensor grid, int interpolation_mode, int padding_mode) -> Tensor',
-    'aten::upsample_bilinear2d.vec_out(Tensor input, SymInt[]? output_size, bool align_corners, float[]? scale_factors, *, Tensor(a!) out) -> Tensor(a!)',
-    'aten::upsample_nearest2d.vec_out(Tensor input, SymInt[]? output_size, float[]? scale_factors, *, Tensor(a!) out) -> Tensor(a!)',
     'neuron::forward_v2_1(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0)',
     'prim::isinstance(Any to_check) -> bool',
     'prim::shape(Tensor self) -> int[]',
@@ -84,8 +80,6 @@ known_legacy_schema_definitions = [
     'torch_scatter::scatter_mul(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0',
     'torch_scatter::scatter_sum(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0',
     'torch_scatter::cuda_version() -> int _0',
-    'torchvision::nms(Tensor dets, Tensor scores, float iou_threshold) -> Tensor',
-    'torchvision::roi_align(Tensor input, Tensor rois, float spatial_scale, int pooled_height, int pooled_width, int sampling_ratio, bool aligned) -> Tensor',
     # pylint: enable=line-too-long
 ]
 
@@ -94,7 +88,9 @@ def _identifier(schema):
 
 def _parse_schemas():
     schemas = {}
-    import torch # pylint: disable=import-outside-toplevel,import-error
+    torch = __import__('torch')
+    __import__('torchvision')
+    __import__('torchaudio')
     all_schemas = list(torch._C._jit_get_all_schemas()) # pylint: disable=protected-access
     for schema in all_schemas:
         definition = str(schema)
@@ -106,7 +102,7 @@ def _parse_schemas():
         if key not in schemas:
             schemas[key] = schema
         else:
-            pass # raise KeyError(key)
+            print(f'-> {key}')
     return schemas
 
 def _filter_schemas(schemas, types):
