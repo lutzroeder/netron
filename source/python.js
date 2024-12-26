@@ -115,6 +115,7 @@ python.Execution = class {
                 this.__name__ = name;
             }
         });
+        this.registerType('builtins.classmethod', class {});
         this.registerType('builtins.code', class {});
         this.import('builtins');
         this.registerType('builtins.builtin_function_or_method', class {});
