@@ -44,7 +44,7 @@
     "examples": [
       {
         "summary": "abs",
-        "code": "node = onnx.helper.make_node(\n    \"Abs\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = abs(x)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_abs\")"
+        "code": "node = onnx.helper.make_node(\n    \"Abs\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.abs(x)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_abs\")"
       }
     ]
   },
@@ -93,7 +93,7 @@
     "examples": [
       {
         "summary": "abs",
-        "code": "node = onnx.helper.make_node(\n    \"Abs\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = abs(x)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_abs\")"
+        "code": "node = onnx.helper.make_node(\n    \"Abs\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.abs(x)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_abs\")"
       }
     ]
   },
@@ -143,7 +143,7 @@
     "examples": [
       {
         "summary": "abs",
-        "code": "node = onnx.helper.make_node(\n    \"Abs\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = abs(x)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_abs\")"
+        "code": "node = onnx.helper.make_node(\n    \"Abs\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.abs(x)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_abs\")"
       }
     ]
   },
