@@ -1625,10 +1625,10 @@ python.Execution = class {
         this.registerType('ast._Tokenizer', class {
             constructor(text, file) {
                 this._text = text;
-                this._file = file;
+                this.filename = file;
+                this.linepos = 0;
+                this.lineno = 1;
                 this._position = 0;
-                this._lineStart = 0;
-                this._line = 0;
                 this._token = { type: '', value: '' };
                 this._brackets = 0;
                 this._indentation = [];
@@ -1658,8 +1658,8 @@ python.Execution = class {
                 while (this._position < next) {
                     if (ast._Tokenizer._isNewline(this._get(this._position))) {
                         this._position = this._newLine(this._position);
-                        this._lineStart = this._position;
-                        this._line++;
+                        this.linepos = this._position;
+                        this.lineno++;
                     } else {
                         this._position++;
                     }
@@ -1695,14 +1695,8 @@ python.Execution = class {
             location() {
                 return `at ${this.filename}:${this.lineno}:${this.col_offset}.`;
             }
-            get filename() {
-                return this._file;
-            }
-            get lineno() {
-                return this._line + 1;
-            }
             get col_offset() {
-                return this._position - this._lineStart + 1;
+                return this._position - this.linepos + 1;
             }
             static _isSpace(c) {
                 if (c === ' ' || c === '\t' || c === '\v' || c === '\f' || c === '\xA0') {
@@ -1791,16 +1785,16 @@ python.Execution = class {
                         this._position++;
                         if (ast._Tokenizer._isNewline(this._get(this._position))) {
                             this._position = this._newLine(this._position);
-                            this._lineStart = this._position;
-                            this._line++;
+                            this.linepos = this._position;
+                            this.lineno += 1;
                         } else {
                             throw new python.Error(`Unexpected '${this._text[this._position]}' after line continuation ${this.location()}`);
                         }
                     } else if (this._brackets > 0 && ast._Tokenizer._isNewline(c)) {
                         // Implicit Line Continuation
                         this._position = this._newLine(this._position);
-                        this._lineStart = this._position;
-                        this._line++;
+                        this.linepos = this._position;
+                        this.lineno += 1;
                     } else {
                         break;
                     }
@@ -1836,8 +1830,8 @@ python.Execution = class {
                             indent = '';
                             i = this._newLine(i);
                             this._position = i;
-                            this._lineStart = i;
-                            this._line++;
+                            this.linepos = i;
+                            this.lineno += 1;
                         } else if (c === '#') {
                             indent = '';
                             while (i < this._text.length && !ast._Tokenizer._isNewline(this._text[i])) {
