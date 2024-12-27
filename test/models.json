@@ -5302,6 +5302,15 @@
     "error":    "Invalid file content. File contains executorch.Program data.",
     "link":     "https://github.com/lutzroeder/netron/issues/1175"
   },
+  
+  {
+    "type":     "pytorch",
+    "target":   "alexnet_traced.ir",
+    "source":   "https://github.com/user-attachments/files/18259118/alexnet_traced.ir.zip[alexnet_traced.ir]",
+    "format":   "TorchScript IR",
+    "error":    "TorchScript IR parser not implemented.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1415"
+  },
   {
     "type":     "pytorch",
     "target":   "alexnet_traced.pt.zip",

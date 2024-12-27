@@ -959,6 +959,7 @@ pytorch.Container = class {
             pytorch.Container.torch_utils,
             pytorch.Container.Mobile,
             pytorch.Container.ModelJson,
+            pytorch.Container.IR,
             pytorch.Container.Index,
             pytorch.Container.ExportedProgram,
             pytorch.Container.ExecuTorch,
@@ -1326,6 +1327,37 @@ pytorch.Container.ModelJson = class extends pytorch.Container {
         delete this._context;
         delete this._model;
         delete this._entries;
+    }
+};
+
+pytorch.Container.IR = class extends pytorch.Container {
+
+    static open(context) {
+        const reader = context.read('text', 0x100);
+        if (reader && reader.length > 0) {
+            const line = reader.read('\n');
+            if (line.startsWith('graph(')) {
+                return new pytorch.Container.IR(context);
+            }
+        }
+        return null;
+    }
+
+    constructor(context) {
+        super();
+        this.type = 'pytorch.ir';
+        this.context = context;
+    }
+
+    async read(metadata) {
+        this.format = 'TorchScript IR';
+        this.execution = new pytorch.Execution(null, metadata);
+        for (const event of this._events) {
+            this.execution.on(event[0], event[1]);
+        }
+        // this.execution.graph;
+        // context reader = context.read('text', 0x100);
+        throw new pytorch.Error('TorchScript IR parser not implemented.');
     }
 };
 
