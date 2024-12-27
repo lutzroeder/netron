@@ -5573,11 +5573,42 @@ python.Execution = class {
             }
         });
         this.registerType('torch.fx.proxy.TracerBase', class {});
-        this.registerType('torch.fx._symbolic_trace.Tracer', class extends torch.fx.proxy.TracerBase {});
+        this.registerType('torch.fx._symbolic_trace.Tracer', class extends torch.fx.proxy.TracerBase {
+            trace(/* root, concrete_args */) {
+                this.graph = new torch.fx.graph.Graph(/* tracer_cls=tracer_cls */);
+                return this.graph;
+                // throw new python.Error('Not implemented');
+            }
+        });
         this.registerType('torch.fx.experimental.proxy_tensor.PythonKeyTracer', class extends torch.fx._symbolic_trace.Tracer {});
         this.registerType('torch.fx.experimental.proxy_tensor._ModuleStackTracer', class extends torch.fx.experimental.proxy_tensor.PythonKeyTracer {});
-        this.registerFunction('torch.fx.graph_module._deserialize_graph_module', (/* forward, body */) => {
-            return execution.invoke('torch.fx.graph_module.GraphModule', []);
+        this.registerFunction('torch.fx._lazy_graph_module._make_graph_module', (...args) => {
+            const graph_module_cls = args.pop() || torch.fx.graph_module.GraphModule;
+            return new graph_module_cls(...args);
+        });
+        this.registerFunction('torch.fx.graph_module._deserialize_graph_module', (forward, body, graph_module_cls) => {
+            let tracer_cls = body.get('_tracer_cls');
+            if (!tracer_cls) {
+                tracer_cls = torch.fx._symbolic_trace.Tracer;
+            }
+            const graphmodule_cls_name = body.get('_graphmodule_cls_name', 'GraphModule');
+            const cls_tracer = tracer_cls;
+            const KeepModules = class extends cls_tracer {
+                is_leaf_module() {
+                    return true;
+                }
+            };
+            const com = {}; // _CodeOnlyModule(body)
+            const tracer_extras = body.get('_tracer_extras', new builtins.dict());
+            const graph = new KeepModules().trace(com, tracer_extras);
+            graph._tracer_cls = tracer_cls;
+            const gm = torch.fx._lazy_graph_module._make_graph_module(com, graph, graphmodule_cls_name, graph_module_cls);
+            for (const [k, v] of body.items()) {
+                if (!builtins.hasattr(gm, k)) {
+                    builtins.setattr(gm, k, v);
+                }
+            }
+            return gm;
         });
         this.registerFunction('torch.fx.graph_module._forward_from_src', (src, globals /*, co_fields */) => {
             globals = { ...globals };

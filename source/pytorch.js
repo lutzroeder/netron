@@ -290,13 +290,12 @@ pytorch.Graph = class {
                     this.inputs.push(argument);
                 }
             }
-            /*
-            for (const output_spec of exported_program.graph_signature.user_outputs()) {
-                const value = values.map(output_spec);
-                const argument = new pytorch.Argument(output_spec, [value]);
-                this.outputs.push(argument);
+        } else if (torch && module instanceof torch.fx.graph_module.GraphModule) {
+            const graph = module.graph;
+            for (const obj of graph.nodes) {
+                const node = new pytorch.Node(execution, metadata, obj.name, null, obj, null, values);
+                this.nodes.push(node);
             }
-            */
         } else if (pytorch.Utility.isTensor(module)) {
             const node = new pytorch.Node(execution, metadata, null, type, { value: module });
             this.nodes.push(node);
