@@ -10,13 +10,14 @@ dot.ModelFactory = class {
                 for (let i = 0; i < 64; i++) {
                     const line = reader.read('\n');
                     if (line === undefined) {
-                        return;
+                        break;
                     }
                     if (line.trim().startsWith('//') || line.trim().startsWith('#')) {
                         continue;
                     }
                     if (line.trim().match(/^(strict)?\s*digraph/)) {
                         context.type = 'dot';
+                        break;
                     }
                 }
             } catch {
@@ -502,12 +503,6 @@ dot.Tokenizer = class {
         this._char = this._decoder.decode();
     }
 
-    _seek(position) {
-        this._decoder.position = position;
-        this._char = '';
-        this._read();
-    }
-
     _read() {
         if (this._char === undefined) {
             this._unexpected();
@@ -527,51 +522,36 @@ dot.Tokenizer = class {
 
     read() {
         while (this._char) {
-            switch (this._char) {
-                case ' ':
-                case '\t':
-                case '\n':
-                case '\r':
-                case '\f':
-                    this._skipWhitespace();
-                    continue;
-                case '/':
-                case '#':
-                    this._skipComment();
-                    continue;
-                case '{':
-                case '}':
-                case '[':
-                case ']':
-                case '=':
-                case ':':
-                case ';':
-                case ',': {
-                    const value = this._read();
+            if (/\s/.test(this._char)) {
+                this._skipWhitespace();
+                continue;
+            }
+            if (this._char === '/' || this._char === '#') {
+                this._skipComment();
+                continue;
+            }
+            if (/[{}[\]=:;,]/.test(this._char)) {
+                const value = this._read();
+                return { kind: value, value };
+            } else if (this._char === '-') {
+                let value = this._read();
+                if (this._char === '>' || this._char === '-') {
+                    value += this._read();
                     return { kind: value, value };
                 }
-                case '-': {
-                    let value = this._read();
-                    if (this._char === '>' || this._char === '-') {
-                        value += this._read();
-                        return { kind: value, value };
-                    }
-                    throw new dot.Error(`Unexpected character '${value}' ${this.location()}`);
-                }
-                default: {
-                    if (/[a-zA-Z0-9_$"<]/.test(this._char)) {
-                        const value = this._identifier();
-                        return { kind: 'id', value };
-                    }
-                    throw new dot.Error(`Unexpected character '${this._char}' ${this.location()}`);
-                }
+                throw new dot.Error(`Unexpected character '${value}' ${this.location()}`);
+            } else if (/[a-zA-Z0-9_$"<]/.test(this._char)) {
+                const value = this._identifier();
+                return { kind: 'id', value };
+            } else {
+                throw new dot.Error(`Unexpected character '${this._char}' ${this.location()}`);
             }
         }
         return { type: 'eof' };
     }
 
     _skipWhitespace() {
-        while (this._char !== undefined && (this._char === ' ' || this._char === '\t' || this._char === '\n' || this._char === '\r' || this._char === '\f')) {
+        while (this._char !== undefined && /\s/.test(this._char)) {
             this._read();
         }
     }
@@ -581,10 +561,6 @@ dot.Tokenizer = class {
             while (this._char && this._char !== '\n') {
                 this._read();
             }
-            this._skipWhitespace();
-            if (this._char === '/') {
-                this._skipComment();
-            }
             return;
         }
         if (this._char === '/' && this._peek() === '*') {
@@ -593,10 +569,6 @@ dot.Tokenizer = class {
             }
             this._read();
             this._read();
-            this._skipWhitespace();
-            if (this._char === '/') {
-                this._skipComment();
-            }
             return;
         }
         throw new dot.Error('Invalid comment.');
@@ -612,14 +584,14 @@ dot.Tokenizer = class {
             this._read('"');
         } if (this._char === '<') { // HTML String
             value += this._read();
-            let level = 0;
-            while (level > 0 || this._char !== '>') {
+            let depth = 0;
+            while (depth > 0 || this._char !== '>') {
                 const c = this._read();
                 value += c;
                 if (c === '<') {
-                    level += 1;
+                    depth += 1;
                 } else if (c === '>') {
-                    level -= 1;
+                    depth -= 1;
                 }
             }
             value += this._read();
