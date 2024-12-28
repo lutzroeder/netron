@@ -316,6 +316,78 @@
     ]
   },
   {
+    "name": "LayerNormalization",
+    "module": "keras.layers",
+    "category": "Normalization",
+    "description": "Layer normalization layer (Ba et al., 2016).\n\nNormalize the activations of the previous layer for each given example in a\nbatch independently, rather than across a batch like Batch Normalization.\ni.e. applies a transformation that maintains the mean activation within each\nexample close to 0 and the activation standard deviation close to 1.\n\nIf `scale` or `center` are enabled, the layer will scale the normalized\noutputs by broadcasting them with a trainable variable `gamma`, and center\nthe outputs by broadcasting with a trainable variable `beta`. `gamma` will\ndefault to a ones tensor and `beta` will default to a zeros tensor, so that\ncentering and scaling are no-ops before training has begun.\n\nSo, with scaling and centering enabled the normalization equations\nare as follows:\n\nLet the intermediate activations for a mini-batch to be the `inputs`.\n\nFor each sample `x_i` in `inputs` with `k` features, we compute the mean and\nvariance of the sample:\n\n```python\nmean_i = sum(x_i[j] for j in range(k)) / k\nvar_i = sum((x_i[j] - mean_i) ** 2 for j in range(k)) / k\n```\n\nand then compute a normalized `x_i_normalized`, including a small factor\n`epsilon` for numerical stability.\n\n```python\nx_i_normalized = (x_i - mean_i) / sqrt(var_i + epsilon)\n```\n\nAnd finally `x_i_normalized ` is linearly transformed by `gamma` and `beta`,\nwhich are learned parameters:\n\n```python\noutput_i = x_i_normalized * gamma + beta\n```\n\n`gamma` and `beta` will span the axes of `inputs` specified in `axis`, and\nthis part of the inputs' shape must be fully defined.\n\nFor example:\n\n```\n>>> layer = keras.layers.LayerNormalization(axis=[1, 2, 3])\n>>> layer.build([5, 20, 30, 40])\n>>> print(layer.beta.shape)\n(20, 30, 40)\n>>> print(layer.gamma.shape)\n(20, 30, 40)\n```\n\nNote that other implementations of layer normalization may choose to define\n`gamma` and `beta` over a separate set of axes from the axes being\nnormalized across. For example, Group Normalization\n([Wu et al. 2018](https://arxiv.org/abs/1803.08494)) with group size of 1\ncorresponds to a Layer Normalization that normalizes across height, width,\nand channel and has `gamma` and `beta` span only the channel dimension.\nSo, this Layer Normalization implementation will not match a Group\nNormalization layer with group size set to 1.",
+    "attributes": [
+      {
+        "name": "axis",
+        "description": "Integer or List/Tuple. The axis or axes to normalize across.\n        Typically, this is the features axis/axes. The left-out axes are\n        typically the batch axis/axes. `-1` is the last dimension in the\n        input. Defaults to `-1`."
+      },
+      {
+        "name": "epsilon",
+        "description": "Small float added to variance to avoid dividing by zero.\n        Defaults to 1e-3."
+      },
+      {
+        "name": "center",
+        "description": "If True, add offset of `beta` to normalized tensor. If False,\n        `beta` is ignored. Defaults to `True`."
+      },
+      {
+        "name": "scale",
+        "description": "If True, multiply by `gamma`. If False, `gamma` is not used.\n        When the next layer is linear (also e.g. `nn.relu`), this can be\n        disabled since the scaling will be done by the next layer.\n        Defaults to `True`."
+      },
+      {
+        "name": "rms_scaling",
+        "description": "If True, `center` and `scale` are ignored, and the\n        inputs are scaled by `gamma` and the inverse square root\n        of the square of all inputs. This is an approximate and faster\n        approach that avoids ever computing the mean of the input."
+      },
+      {
+        "name": "beta_initializer",
+        "description": "Initializer for the beta weight. Defaults to zeros."
+      },
+      {
+        "name": "gamma_initializer",
+        "description": "Initializer for the gamma weight. Defaults to ones."
+      },
+      {
+        "name": "beta_regularizer",
+        "description": "Optional regularizer for the beta weight.\n        None by default."
+      },
+      {
+        "name": "gamma_regularizer",
+        "description": "Optional regularizer for the gamma weight.\n        None by default."
+      },
+      {
+        "name": "beta_constraint",
+        "description": "Optional constraint for the beta weight.\n        None by default."
+      },
+      {
+        "name": "gamma_constraint",
+        "description": "Optional constraint for the gamma weight.\n        None by default."
+      },
+      {
+        "name": "**kwargs",
+        "description": "Base layer keyword arguments (e.g. `name` and `dtype`).\n\n\nReference:\n\n- [Lei Ba et al., 2016](https://arxiv.org/abs/1607.06450)."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input"
+      },
+      {
+        "name": "gamma"
+      },
+      {
+        "name": "beta"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
+      }
+    ]
+  },
+  {
     "name": "BatchNorm",
     "category": "Normalization",
     "attributes": [
