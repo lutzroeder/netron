@@ -6631,7 +6631,7 @@
     "target":   "torch_fx_sample.pt",
     "source":   "https://github.com/lutzroeder/netron/files/12889841/torch_fx_sample.pt.zip[torch_fx_sample.pt]",
     "format":   "PyTorch v1.6",
-    "link":     "https://github.com/lutzroeder/netron/issues/720"
+    "link":     "https://github.com/lutzroeder/netron/issues/1414"
   },
   {
     "type":     "pytorch",

@@ -290,12 +290,6 @@ pytorch.Graph = class {
                     this.inputs.push(argument);
                 }
             }
-        } else if (torch && module instanceof torch.fx.graph_module.GraphModule) {
-            const graph = module.graph;
-            for (const obj of graph.nodes) {
-                const node = new pytorch.Node(execution, metadata, obj.name, null, obj, null, values);
-                this.nodes.push(node);
-            }
         } else if (pytorch.Utility.isTensor(module)) {
             const node = new pytorch.Node(execution, metadata, null, type, { value: module });
             this.nodes.push(node);
@@ -642,6 +636,8 @@ pytorch.Node = class {
                     const argument = new pytorch.Argument('value', [value]);
                     this.outputs.push(argument);
                 }
+            } else if (obj.op === 'root') {
+                this.type = { name: obj.op };
             } else {
                 throw new pytorch.Error(`Unsupported node operation '${obj.op}'.`);
             }
