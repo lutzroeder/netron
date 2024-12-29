@@ -9570,6 +9570,66 @@ python.Execution = class {
                 return new torch.jit.Source(data.peek(), path);
             }
         });
+        this.registerType('torch.jit.Environment', class {
+            constructor(method, resolver, b, next) {
+                this.method = method;
+                this.resolver = resolver;
+                this.b = b;
+                this.next = next;
+                this.value_table = new Map();
+                this.type_table = new Map();
+            }
+            getSugaredVar(ident, range, required) {
+                required = required || true;
+                let retval = this.findInAnyFrame(ident);
+                if (!retval) {
+                    torch.jit.Environment.globals = torch.jit.Environment.globals || {
+                        range: torch.jit.SpecialFormValue.create('prim::range')
+                    };
+                    if (ident in torch.jit.Environment.globals) {
+                        retval = torch.jit.Environment.globals[ident];
+                    }
+                }
+                if (!retval) {
+                    //
+                }
+                if (!retval && required) {
+                    throw new python.Error(`The name '${ident}' is not defined.`);
+                }
+                return retval;
+            }
+            findInAnyFrame(name) {
+                for (let runner = this; runner; runner = runner.next) {
+                    const r = runner.findInThisFrame(name);
+                    if (r) {
+                        return r;
+                    }
+                }
+                return null;
+            }
+            findInThisFrame(name) {
+                if (this.value_table.has(name)) {
+                    return this.value_table.get(name);
+                }
+                if (this.type_table.has(name)) {
+                    return this.insertLoad(name, this.type_table.get(name));
+                }
+                return null;
+            }
+        });
+        this.registerType('torch.jit.SugaredValue', class {
+        });
+        this.registerType('torch.jit.SimpleValue', class extends torch.jit.SugaredValue {
+        });
+        this.registerType('torch.jit.SpecialFormValue', class extends torch.jit.SugaredValue {
+            constructor(form) {
+                super();
+                this._form = form;
+            }
+            static create(form) {
+                return new torch.jit.SpecialFormValue(form);
+            }
+        });
         this.registerType('torch.package.PackageImporter', class {
             constructor(reader) {
                 this.zip_reader = reader;

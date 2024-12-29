@@ -168,7 +168,9 @@ pytorch.Graph = class {
                 }
             }
             for (const node of graph.nodes()) {
-                if (node.kind() === 'prim::ListConstruct' && node.inputs().every((value) => typeof value.value === 'number' && typeof value.value === 'string' && typeof value.value === 'boolean')) {
+                if (node.kind() === 'prim::ListConstruct' &&
+                    node.inputs().every((value) => typeof value.value === 'number' && typeof value.value === 'string' && typeof value.value === 'boolean') &&
+                    node.outputs().every((value) => value.uses().every((use) => use.user.kind() !== 'prim::CallMethod'))) {
                     node.outputs()[0].value = node.inputs().map((value) => value.value);
                     node.destroy();
                 }
@@ -1632,6 +1634,7 @@ pytorch.Execution = class extends python.Execution {
         this._graph = this.invoke('torch.Graph', []);
         this._constants = new Map();
         this._values = new Map();
+        this.environment_stack = new torch.jit.Environment(/* */);
     }
 
     debug(file) {
@@ -2245,12 +2248,21 @@ pytorch.Execution = class extends python.Execution {
 
     emitSugaredExpr(tree, n_binders, type_hint) {
         const ast = this.ast;
-        if (tree instanceof ast.Var) {
-            //
+        const torch = this.torch;
+        if (tree instanceof ast.Name) { // TK_VAR
+            return this.environment_stack.getSugaredVar(tree.id);
         } else if (tree instanceof ast.Attribute) {
             //
-        } else if (tree instanceof ast.Apply) {
-            //
+        } else if (tree instanceof ast.Call) { // TK_APPLY
+            const apply = tree;
+            const sv = this.emitSugaredExpr(apply.func, 1);
+            const loc = apply.func;
+            if (sv instanceof torch.jit.SpecialFormValue) {
+                // return emitApplySpecialForm(sv.form(), apply, sv, type_hint);
+            }
+            const args = this.getNamedValues(apply.inputs(), true);
+            const kwargs = this.emitAttributes(apply.attributes());
+            return sv.call(loc, this.method, args, kwargs, n_binders);
         } if (tree instanceof ast.Subscript) {
             //
         }
@@ -2439,7 +2451,9 @@ pytorch.Execution = class extends python.Execution {
                     }
                     /*
                     // const sv = this.expression(itrs[0], context);
-                    const sv = this.emitSugaredExpr(itrs[0], 1);
+                    */
+                    // const sv = this.emitSugaredExpr(itrs[0], 1);
+                    /*
                     const iterable = sv.iter(range, method);
                     if (iterable.shouldEmitUnrolled()) {
                         this.emitUnrolledLoop(loc, emit_body, iterable, targets);
