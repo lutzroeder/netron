@@ -2628,6 +2628,7 @@ python.Execution = class {
         this.registerType('gensim.models.keyedvectors.Word2VecKeyedVectors', class {});
         this.registerType('gensim.models.ldamodel.LdaState', class {});
         this.registerType('gensim.models.ldamulticore.LdaMulticore', class {});
+        this.registerType('gensim.models.phrases.Phraser', class {});
         this.registerType('gensim.models.phrases.Phrases', class {});
         this.registerType('gensim.models.tfidfmodel.TfidfModel', class {});
         this.registerType('gensim.models.word2vec.Vocab', class {});
