@@ -37,7 +37,7 @@ install() {
     echo "tf install"
     venv
     ${python} -m pip install --quiet --upgrade wheel
-    ${python} -m pip install --quiet --upgrade tf-nightly
+    ${python} -m pip install --quiet --upgrade tf-nightly > /dev/null 2>&1 || true
     deactivate
 }
 
@@ -76,7 +76,9 @@ metadata() {
     venv
     if [[ $(grep -U $'\x0D' ./source/tf-metadata.json) ]]; then crlf=1; else crlf=; fi
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} ./tools/tf_script.py
+    if pip show "tf-nightly" > /dev/null 2>&1; then
+        ${python} ./tools/tf_script.py
+    fi
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/tf-metadata.json ./source/tf-metadata.json
     fi
