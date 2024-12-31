@@ -367,7 +367,7 @@
       },
       {
         "name": "**kwargs",
-        "description": "Base layer keyword arguments (e.g. `name` and `dtype`).\n\n\nReference:\n\n- [Lei Ba et al., 2016](https://arxiv.org/abs/1607.06450)."
+        "description": "Base layer keyword arguments (e.g. `name` and `dtype`)."
       }
     ],
     "inputs": [
@@ -384,6 +384,11 @@
     "outputs": [
       {
         "name": "output"
+      }
+    ],
+    "references": [
+      {
+        "description": "[Lei Ba et al., 2016](https://arxiv.org/abs/1607.06450)."
       }
     ]
   },
@@ -631,7 +636,13 @@
     ],
     "references": [
       {
-        "description": "[Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift](https://arxiv.org/abs/1502.03167)"
+        "description": "[Ioffe and Szegedy, 2015](https://arxiv.org/abs/1502.03167).  **About setting `layer.trainable = False` on a `BatchNormalization` layer:**  The meaning of setting `layer.trainable = False` is to freeze the layer, i.e. its internal state will not change during training: its trainable weights will not be updated during `fit()` or `train_on_batch()`, and its state updates will not be run.  Usually, this does not necessarily mean that the layer is run in inference mode (which is normally controlled by the `training` argument that can be passed when calling a layer). \"Frozen state\" and \"inference mode\" are two separate concepts.  However, in the case of the `BatchNormalization` layer, **setting `trainable = False` on the layer means that the layer will be subsequently run in inference mode** (meaning that it will use the moving mean and the moving variance to normalize the current batch, rather than using the mean and variance of the current batch).  Note that: "
+      },
+      {
+        "description": "Setting `trainable` on an model containing other layers will recursively set the `trainable` value of all inner layers."
+      },
+      {
+        "description": "If the value of the `trainable` attribute is changed after calling `compile()` on a model, the new value doesn't take effect for this model until `compile()` is called again."
       }
     ]
   },
@@ -1334,9 +1345,6 @@
       }
     ],
     "references": [
-      {
-        "description": " "
-      },
       {
         "description": "[Shi et al., 2015](http://arxiv.org/abs/1506.04214v1) (the current implementation does not include the feedback loop on the cells output)."
       }
@@ -4277,7 +4285,7 @@
     ],
     "inputs": [
       {
-        "description": "3D tensor with shape: `(samples, timesteps, channels)`\n\nOutput shape: Same as input.\n\nReference:\n\n- [Tompson et al., 2014](https://arxiv.org/abs/1411.4280)",
+        "description": "3D tensor with shape: `(samples, timesteps, channels)`\n\nOutput shape: Same as input.",
         "name": "input"
       }
     ],
@@ -4289,7 +4297,7 @@
     ],
     "references": [
       {
-        "description": "[Efficient Object Localization Using Convolutional Networks](https://arxiv.org/abs/1411.4280)"
+        "description": "[Tompson et al., 2014](https://arxiv.org/abs/1411.4280)"
       }
     ]
   },
@@ -4310,7 +4318,7 @@
     ],
     "inputs": [
       {
-        "description": "4D tensor with shape: `(samples, channels, rows, cols)` if\n        data_format='channels_first'\n    or 4D tensor with shape: `(samples, rows, cols, channels)` if\n        data_format='channels_last'.\n\nOutput shape: Same as input.\n\nReference:\n\n- [Tompson et al., 2014](https://arxiv.org/abs/1411.4280)",
+        "description": "4D tensor with shape: `(samples, channels, rows, cols)` if\n        data_format='channels_first'\n    or 4D tensor with shape: `(samples, rows, cols, channels)` if\n        data_format='channels_last'.\n\nOutput shape: Same as input.",
         "name": "input"
       }
     ],
@@ -4322,7 +4330,7 @@
     ],
     "references": [
       {
-        "description": "[Efficient Object Localization Using Convolutional Networks](https://arxiv.org/abs/1411.4280)"
+        "description": "[Tompson et al., 2014](https://arxiv.org/abs/1411.4280)"
       }
     ]
   },
@@ -4343,7 +4351,7 @@
     ],
     "inputs": [
       {
-        "description": "5D tensor with shape: `(samples, channels, dim1, dim2, dim3)` if\n        data_format='channels_first'\n    or 5D tensor with shape: `(samples, dim1, dim2, dim3, channels)` if\n        data_format='channels_last'.\n\nOutput shape: Same as input.\n\nReference:\n\n- [Tompson et al., 2014](https://arxiv.org/abs/1411.4280)",
+        "description": "5D tensor with shape: `(samples, channels, dim1, dim2, dim3)` if\n        data_format='channels_first'\n    or 5D tensor with shape: `(samples, dim1, dim2, dim3, channels)` if\n        data_format='channels_last'.\n\nOutput shape: Same as input.",
         "name": "input"
       }
     ],
@@ -4355,7 +4363,7 @@
     ],
     "references": [
       {
-        "description": "[Efficient Object Localization Using Convolutional Networks](https://arxiv.org/abs/1411.4280)"
+        "description": "[Tompson et al., 2014](https://arxiv.org/abs/1411.4280)"
       }
     ]
   },

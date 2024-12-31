@@ -5,7 +5,7 @@ import os
 import pydoc
 import re
 
-os.environ["KERAS_BACKEND"] = "jax"
+os.environ['KERAS_BACKEND'] = 'jax'
 
 def _read(path):
     with open(path, 'r', encoding='utf-8') as file:
@@ -14,12 +14,14 @@ def _read(path):
 def _parse_docstring(docstring):
     headers = []
     lines = docstring.splitlines()
-    indentation = min(filter(lambda s: s > 0, map(lambda s: len(s) - len(s.lstrip()), lines)))
+    indents = filter(lambda s: len(s) > 0, lines[1:])
+    indentation = min(map(lambda s: len(s) - len(s.lstrip()), indents))
     lines = list((s[indentation:] if len(s) > len(s.lstrip()) else s) for s in lines)
     docstring = '\n'.join(lines)
     labels = [
         'Args', 'Arguments', 'Variables', 'Fields', 'Yields', 'Call arguments', 'Raises',
-        'Examples', 'Example', 'Usage', 'Input shape', 'Output shape', 'Returns', 'References'
+        'Examples', 'Example', 'Usage', 'Input shape', 'Output shape', 'Returns',
+        'Reference', 'References'
     ]
     tag_re = re.compile('(?<=\n)(' + '|'.join(labels) + '):\n', re.MULTILINE)
     parts = tag_re.split(docstring)
@@ -30,7 +32,7 @@ def _parse_docstring(docstring):
 
 def _parse_arguments(arguments):
     result = []
-    item_re = re.compile(r'^   ? ?(\*?\*?\w[\w.]*?\s*):\s', re.MULTILINE)
+    item_re = re.compile(r'^\s{0,4}(\*?\*?\w[\w.]*?\s*):\s', re.MULTILINE)
     content = item_re.split(arguments)
     if content.pop(0) != '':
         raise Exception('') # pylint: disable=broad-exception-raised
@@ -139,13 +141,13 @@ def _update_references(schema, value):
     for reference in references:
         if not 'references' in schema:
             schema['references'] = []
-        schema['references'].append({ 'description': reference })
+        if len(reference.strip()) > 0:
+            schema['references'].append({ 'description': reference })
 
 def _update_headers(schema, docstring):
     headers = _parse_docstring(docstring)
     for header in headers:
-        key = header[0]
-        value = header[1]
+        key, value = header
         if key == '':
             description = _convert_code_blocks(value)
             schema['description'] = _remove_indentation(description)
@@ -159,7 +161,7 @@ def _update_headers(schema, docstring):
             _update_output(schema, value)
         elif key in ('Example', 'Examples', 'Usage'):
             _update_examples(schema, value)
-        elif key == 'References':
+        elif key in ('Reference', 'References'):
             _update_references(schema, value)
         elif key in ('Call arguments', 'Returns', 'Variables', 'Raises'):
             pass
@@ -168,29 +170,26 @@ def _update_headers(schema, docstring):
 
 
 def _metadata():
-
     root = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     json_path = os.path.join(root, 'source', 'keras-metadata.json')
     json_root = json.loads(_read(json_path))
-
     skip_names = set([
         'keras.layers.InputLayer',
         'keras.layers.ThresholdedReLU',
         'keras.layers.LocallyConnected1D',
         'keras.layers.LocallyConnected2D'
     ])
-
     for metadata in json_root:
         if 'module' in metadata:
             name = metadata['module'] + '.' + metadata['name']
             if not name in skip_names:
                 cls = pydoc.locate(name)
                 if not cls:
-                    raise KeyError('\'' + name + '\' not found.')
+                    raise KeyError(f"'{name}' not found.")
                 if not cls.__doc__:
-                    raise AttributeError("'" + name + "' missing __doc__.")
+                    raise AttributeError(f"'{name}' missing __doc__.")
                 if cls.__doc__ == 'DEPRECATED.':
-                    raise DeprecationWarning("'" + name + "' __doc__ string is deprecated.'")
+                    raise DeprecationWarning(f"'{name}.__doc__' is deprecated.'")
                 _update_headers(metadata, cls.__doc__)
 
     with open(json_path, 'w', encoding='utf-8') as file:
