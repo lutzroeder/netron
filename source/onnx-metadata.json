@@ -11407,6 +11407,10 @@
         "code": "node = onnx.helper.make_node(\n    \"CumSum\", inputs=[\"x\", \"axis\"], outputs=[\"y\"], exclusive=1\n)\nx = np.array([1.0, 2.0, 3.0, 4.0, 5.0]).astype(np.float64)\naxis = np.int32(0)\ny = np.array([0.0, 1.0, 3.0, 6.0, 10.0]).astype(np.float64)\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_cumsum_1d_exclusive\")"
       },
       {
+        "summary": "cumsum_1d_int32_exclusive",
+        "code": "node = onnx.helper.make_node(\n    \"CumSum\", inputs=[\"x\", \"axis\"], outputs=[\"y\"], exclusive=1\n)\nx = np.array([1, 2, 3, 4, 5]).astype(np.int32)\naxis = np.int32(0)\ny = np.array([0, 1, 3, 6, 10]).astype(np.int32)\nexpect(\n    node, inputs=[x, axis], outputs=[y], name=\"test_cumsum_1d_int32_exclusive\"\n)"
+      },
+      {
         "summary": "cumsum_1d_reverse",
         "code": "node = onnx.helper.make_node(\n    \"CumSum\", inputs=[\"x\", \"axis\"], outputs=[\"y\"], reverse=1\n)\nx = np.array([1.0, 2.0, 3.0, 4.0, 5.0]).astype(np.float64)\naxis = np.int32(0)\ny = np.array([15.0, 14.0, 12.0, 9.0, 5.0]).astype(np.float64)\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_cumsum_1d_reverse\")"
       },
@@ -11421,6 +11425,10 @@
       {
         "summary": "cumsum_2d_axis_1",
         "code": "node = onnx.helper.make_node(\n    \"CumSum\",\n    inputs=[\"x\", \"axis\"],\n    outputs=[\"y\"],\n)\nx = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float64).reshape((2, 3))\naxis = np.int32(1)\ny = np.array([1.0, 3.0, 6.0, 4.0, 9.0, 15.0]).astype(np.float64).reshape((2, 3))\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_cumsum_2d_axis_1\")"
+      },
+      {
+        "summary": "cumsum_2d_int32",
+        "code": "node = onnx.helper.make_node(\n    \"CumSum\",\n    inputs=[\"x\", \"axis\"],\n    outputs=[\"y\"],\n)\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.int32).reshape((2, 3))\naxis = np.int32(0)\ny = np.array([1, 2, 3, 5, 7, 9]).astype(np.int32).reshape((2, 3))\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_cumsum_2d_int32\")"
       },
       {
         "summary": "cumsum_2d_negative_axis",
@@ -11504,6 +11512,10 @@
         "code": "node = onnx.helper.make_node(\n    \"CumSum\", inputs=[\"x\", \"axis\"], outputs=[\"y\"], exclusive=1\n)\nx = np.array([1.0, 2.0, 3.0, 4.0, 5.0]).astype(np.float64)\naxis = np.int32(0)\ny = np.array([0.0, 1.0, 3.0, 6.0, 10.0]).astype(np.float64)\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_cumsum_1d_exclusive\")"
       },
       {
+        "summary": "cumsum_1d_int32_exclusive",
+        "code": "node = onnx.helper.make_node(\n    \"CumSum\", inputs=[\"x\", \"axis\"], outputs=[\"y\"], exclusive=1\n)\nx = np.array([1, 2, 3, 4, 5]).astype(np.int32)\naxis = np.int32(0)\ny = np.array([0, 1, 3, 6, 10]).astype(np.int32)\nexpect(\n    node, inputs=[x, axis], outputs=[y], name=\"test_cumsum_1d_int32_exclusive\"\n)"
+      },
+      {
         "summary": "cumsum_1d_reverse",
         "code": "node = onnx.helper.make_node(\n    \"CumSum\", inputs=[\"x\", \"axis\"], outputs=[\"y\"], reverse=1\n)\nx = np.array([1.0, 2.0, 3.0, 4.0, 5.0]).astype(np.float64)\naxis = np.int32(0)\ny = np.array([15.0, 14.0, 12.0, 9.0, 5.0]).astype(np.float64)\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_cumsum_1d_reverse\")"
       },
@@ -11518,6 +11530,10 @@
       {
         "summary": "cumsum_2d_axis_1",
         "code": "node = onnx.helper.make_node(\n    \"CumSum\",\n    inputs=[\"x\", \"axis\"],\n    outputs=[\"y\"],\n)\nx = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float64).reshape((2, 3))\naxis = np.int32(1)\ny = np.array([1.0, 3.0, 6.0, 4.0, 9.0, 15.0]).astype(np.float64).reshape((2, 3))\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_cumsum_2d_axis_1\")"
+      },
+      {
+        "summary": "cumsum_2d_int32",
+        "code": "node = onnx.helper.make_node(\n    \"CumSum\",\n    inputs=[\"x\", \"axis\"],\n    outputs=[\"y\"],\n)\nx = np.array([1, 2, 3, 4, 5, 6]).astype(np.int32).reshape((2, 3))\naxis = np.int32(0)\ny = np.array([1, 2, 3, 5, 7, 9]).astype(np.int32).reshape((2, 3))\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_cumsum_2d_int32\")"
       },
       {
         "summary": "cumsum_2d_negative_axis",
@@ -59617,8 +59633,24 @@
         "code": "axis = -1\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [\n        [0, 1, 2, 3],\n        [4, 5, 6, 7],\n        [8, 9, 10, 11],\n    ],\n    dtype=np.float32,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [[ 3.  2.  1.]\n# [ 7.  6.  5.]\n# [11. 10.  9.]]\n# print(indices_ref)\n# [[3 2 1]\n# [3 2 1]\n# [3 2 1]]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_negative_axis\",\n)"
       },
       {
+        "summary": "top_k_same_values",
+        "code": "axis = 0\nlargest = 0\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [0, 0, 0, 0],\n    dtype=np.int64,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# (Pdb) print(values_ref)\n# [0 0 0]\n# (Pdb) print(indices_ref)\n# [0 1 2]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_same_values\",\n)"
+      },
+      {
+        "summary": "top_k_same_values_2d",
+        "code": "axis = 1\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [[0, 0, 0, 0], [1, 1, 1, 1], [2, 2, 1, 1]],\n    dtype=np.int64,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [[0 0 0]\n# [1 1 1]\n# [1 1 2]]\n# print(indices_ref)\n# [[0 1 2]\n# [0 1 2]\n# [2 3 0]]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_same_values_2d\",\n)"
+      },
+      {
+        "summary": "top_k_same_values_largest",
+        "code": "axis = 0\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [0, 0, 0, 0],\n    dtype=np.int64,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [0 0 0]\n# print(indices_ref)\n# [0 1 2]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_same_values_largest\",\n)"
+      },
+      {
         "summary": "top_k_smallest",
         "code": "axis = 1\nlargest = 0\nsorted = 1  # noqa: A001\nk = 3\n\nnode = onnx.helper.make_node(\n    \"TopK\",\n    inputs=[\"x\", \"k\"],\n    outputs=[\"values\", \"indices\"],\n    axis=axis,\n    largest=largest,\n    sorted=sorted,\n)\n\nX = np.array(\n    [\n        [0, 1, 2, 3],\n        [4, 5, 6, 7],\n        [11, 10, 9, 8],\n    ],\n    dtype=np.float32,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [[ 0.  1.  2.]\n# [ 4.  5.  6.]\n# [ 8.  9. 10.]]\n# print(indices_ref)\n# [[0 1 2]\n# [0 1 2]\n# [3 2 1]]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_smallest\",\n)"
+      },
+      {
+        "summary": "top_k_uint64",
+        "code": "axis = 1\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [\n        [0, 1, 2, 3],\n        [4, 5, 6, 7],\n        [8, 9, 10, 11],\n    ],\n    dtype=np.uint64,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [[ 3  2  1]\n# [ 7  6  5]\n# [11 10  9]]\n# print(indices_ref)\n# [[3 2 1]\n# [3 2 1]\n# [3 2 1]]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_uint64\",\n)"
       }
     ]
   },
@@ -59692,8 +59724,24 @@
         "code": "axis = -1\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [\n        [0, 1, 2, 3],\n        [4, 5, 6, 7],\n        [8, 9, 10, 11],\n    ],\n    dtype=np.float32,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [[ 3.  2.  1.]\n# [ 7.  6.  5.]\n# [11. 10.  9.]]\n# print(indices_ref)\n# [[3 2 1]\n# [3 2 1]\n# [3 2 1]]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_negative_axis\",\n)"
       },
       {
+        "summary": "top_k_same_values",
+        "code": "axis = 0\nlargest = 0\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [0, 0, 0, 0],\n    dtype=np.int64,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# (Pdb) print(values_ref)\n# [0 0 0]\n# (Pdb) print(indices_ref)\n# [0 1 2]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_same_values\",\n)"
+      },
+      {
+        "summary": "top_k_same_values_2d",
+        "code": "axis = 1\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [[0, 0, 0, 0], [1, 1, 1, 1], [2, 2, 1, 1]],\n    dtype=np.int64,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [[0 0 0]\n# [1 1 1]\n# [1 1 2]]\n# print(indices_ref)\n# [[0 1 2]\n# [0 1 2]\n# [2 3 0]]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_same_values_2d\",\n)"
+      },
+      {
+        "summary": "top_k_same_values_largest",
+        "code": "axis = 0\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [0, 0, 0, 0],\n    dtype=np.int64,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [0 0 0]\n# print(indices_ref)\n# [0 1 2]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_same_values_largest\",\n)"
+      },
+      {
         "summary": "top_k_smallest",
         "code": "axis = 1\nlargest = 0\nsorted = 1  # noqa: A001\nk = 3\n\nnode = onnx.helper.make_node(\n    \"TopK\",\n    inputs=[\"x\", \"k\"],\n    outputs=[\"values\", \"indices\"],\n    axis=axis,\n    largest=largest,\n    sorted=sorted,\n)\n\nX = np.array(\n    [\n        [0, 1, 2, 3],\n        [4, 5, 6, 7],\n        [11, 10, 9, 8],\n    ],\n    dtype=np.float32,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [[ 0.  1.  2.]\n# [ 4.  5.  6.]\n# [ 8.  9. 10.]]\n# print(indices_ref)\n# [[0 1 2]\n# [0 1 2]\n# [3 2 1]]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_smallest\",\n)"
+      },
+      {
+        "summary": "top_k_uint64",
+        "code": "axis = 1\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [\n        [0, 1, 2, 3],\n        [4, 5, 6, 7],\n        [8, 9, 10, 11],\n    ],\n    dtype=np.uint64,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [[ 3  2  1]\n# [ 7  6  5]\n# [11 10  9]]\n# print(indices_ref)\n# [[3 2 1]\n# [3 2 1]\n# [3 2 1]]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_uint64\",\n)"
       }
     ]
   },
@@ -59789,8 +59837,24 @@
         "code": "axis = -1\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [\n        [0, 1, 2, 3],\n        [4, 5, 6, 7],\n        [8, 9, 10, 11],\n    ],\n    dtype=np.float32,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [[ 3.  2.  1.]\n# [ 7.  6.  5.]\n# [11. 10.  9.]]\n# print(indices_ref)\n# [[3 2 1]\n# [3 2 1]\n# [3 2 1]]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_negative_axis\",\n)"
       },
       {
+        "summary": "top_k_same_values",
+        "code": "axis = 0\nlargest = 0\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [0, 0, 0, 0],\n    dtype=np.int64,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# (Pdb) print(values_ref)\n# [0 0 0]\n# (Pdb) print(indices_ref)\n# [0 1 2]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_same_values\",\n)"
+      },
+      {
+        "summary": "top_k_same_values_2d",
+        "code": "axis = 1\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [[0, 0, 0, 0], [1, 1, 1, 1], [2, 2, 1, 1]],\n    dtype=np.int64,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [[0 0 0]\n# [1 1 1]\n# [1 1 2]]\n# print(indices_ref)\n# [[0 1 2]\n# [0 1 2]\n# [2 3 0]]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_same_values_2d\",\n)"
+      },
+      {
+        "summary": "top_k_same_values_largest",
+        "code": "axis = 0\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [0, 0, 0, 0],\n    dtype=np.int64,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [0 0 0]\n# print(indices_ref)\n# [0 1 2]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_same_values_largest\",\n)"
+      },
+      {
         "summary": "top_k_smallest",
         "code": "axis = 1\nlargest = 0\nsorted = 1  # noqa: A001\nk = 3\n\nnode = onnx.helper.make_node(\n    \"TopK\",\n    inputs=[\"x\", \"k\"],\n    outputs=[\"values\", \"indices\"],\n    axis=axis,\n    largest=largest,\n    sorted=sorted,\n)\n\nX = np.array(\n    [\n        [0, 1, 2, 3],\n        [4, 5, 6, 7],\n        [11, 10, 9, 8],\n    ],\n    dtype=np.float32,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [[ 0.  1.  2.]\n# [ 4.  5.  6.]\n# [ 8.  9. 10.]]\n# print(indices_ref)\n# [[0 1 2]\n# [0 1 2]\n# [3 2 1]]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_smallest\",\n)"
+      },
+      {
+        "summary": "top_k_uint64",
+        "code": "axis = 1\nlargest = 1\n\nk = 3\nnode = onnx.helper.make_node(\n    \"TopK\", inputs=[\"x\", \"k\"], outputs=[\"values\", \"indices\"], axis=axis\n)\nX = np.array(\n    [\n        [0, 1, 2, 3],\n        [4, 5, 6, 7],\n        [8, 9, 10, 11],\n    ],\n    dtype=np.uint64,\n)\nK = np.array([k], dtype=np.int64)\nvalues_ref, indices_ref = topk_sorted_implementation(X, k, axis, largest)\n\n# print(values_ref)\n# [[ 3  2  1]\n# [ 7  6  5]\n# [11 10  9]]\n# print(indices_ref)\n# [[3 2 1]\n# [3 2 1]\n# [3 2 1]]\n\nexpect(\n    node,\n    inputs=[X, K],\n    outputs=[values_ref, indices_ref],\n    name=\"test_top_k_uint64\",\n)"
       }
     ]
   },
@@ -61660,20 +61724,24 @@
     ],
     "examples": [
       {
+        "summary": "length_1",
+        "code": "node_sorted = onnx.helper.make_node(\n    \"Unique\",\n    inputs=[\"X\"],\n    outputs=[\"Y\", \"indices\", \"inverse_indices\", \"counts\"],\n    sorted=1,\n)\n\nx = np.array([0], dtype=np.int64)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True)\nindices, inverse_indices, counts = specify_int64(\n    indices, inverse_indices, counts\n)\n# behavior changed with numpy >= 2.0\ninverse_indices = inverse_indices.reshape(-1)\n# print(y)\n# [0]\n# print(indices)\n# [0]\n# print(inverse_indices)\n# [0]\n# print(counts)\n# [1]\n\nexpect(\n    node_sorted,\n    inputs=[x],\n    outputs=[y, indices, inverse_indices, counts],\n    name=\"test_unique_length_1\",\n)"
+      },
+      {
         "summary": "not_sorted_without_axis",
         "code": "node_not_sorted = onnx.helper.make_node(\n    \"Unique\",\n    inputs=[\"X\"],\n    outputs=[\"Y\", \"indices\", \"inverse_indices\", \"counts\"],\n    sorted=0,\n)\n# numpy unique does not retain original order (it sorts the output unique values)\n# https://github.com/numpy/numpy/issues/8621\n# we need to recover unsorted output and indices\nx = np.array([2.0, 1.0, 1.0, 3.0, 4.0, 3.0], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True)\n\n# prepare index mapping from sorted to unsorted\nargsorted_indices = np.argsort(indices)\ninverse_indices_map = dict(\n    zip(argsorted_indices, np.arange(len(argsorted_indices)))\n)\n\nindices = indices[argsorted_indices]\ny = np.take(x, indices, axis=0)\ninverse_indices = np.asarray(\n    [inverse_indices_map[i] for i in inverse_indices], dtype=np.int64\n)\ncounts = counts[argsorted_indices]\nindices, inverse_indices, counts = specify_int64(\n    indices, inverse_indices, counts\n)\n# print(y)\n# [2.0, 1.0, 3.0, 4.0]\n# print(indices)\n# [0 1 3 4]\n# print(inverse_indices)\n# [0, 1, 1, 2, 3, 2]\n# print(counts)\n# [1, 2, 2, 1]\n\nexpect(\n    node_not_sorted,\n    inputs=[x],\n    outputs=[y, indices, inverse_indices, counts],\n    name=\"test_unique_not_sorted_without_axis\",\n)"
       },
       {
         "summary": "sorted_with_axis",
-        "code": "node_sorted = onnx.helper.make_node(\n    \"Unique\",\n    inputs=[\"X\"],\n    outputs=[\"Y\", \"indices\", \"inverse_indices\", \"counts\"],\n    sorted=1,\n    axis=0,\n)\n\nx = np.array([[1, 0, 0], [1, 0, 0], [2, 3, 4]], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=0)\nindices, inverse_indices, counts = specify_int64(\n    indices, inverse_indices, counts\n)\n# behavior changed with numpy >= 2.0\ninverse_indices = inverse_indices.squeeze()\n# print(y)\n# [[1. 0. 0.]\n#  [2. 3. 4.]]\n# print(indices)\n# [0 2]\n# print(inverse_indices)\n# [0 0 1]\n# print(counts)\n# [2 1]\n\nexpect(\n    node_sorted,\n    inputs=[x],\n    outputs=[y, indices, inverse_indices, counts],\n    name=\"test_unique_sorted_with_axis\",\n)"
+        "code": "node_sorted = onnx.helper.make_node(\n    \"Unique\",\n    inputs=[\"X\"],\n    outputs=[\"Y\", \"indices\", \"inverse_indices\", \"counts\"],\n    sorted=1,\n    axis=0,\n)\n\nx = np.array([[1, 0, 0], [1, 0, 0], [2, 3, 4]], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=0)\nindices, inverse_indices, counts = specify_int64(\n    indices, inverse_indices, counts\n)\n# behavior changed with numpy >= 2.0\ninverse_indices = inverse_indices.reshape(-1)\n# print(y)\n# [[1. 0. 0.]\n#  [2. 3. 4.]]\n# print(indices)\n# [0 2]\n# print(inverse_indices)\n# [0 0 1]\n# print(counts)\n# [2 1]\n\nexpect(\n    node_sorted,\n    inputs=[x],\n    outputs=[y, indices, inverse_indices, counts],\n    name=\"test_unique_sorted_with_axis\",\n)"
       },
       {
         "summary": "sorted_with_axis_3d",
-        "code": "node_sorted = onnx.helper.make_node(\n    \"Unique\",\n    inputs=[\"X\"],\n    outputs=[\"Y\", \"indices\", \"inverse_indices\", \"counts\"],\n    sorted=1,\n    axis=1,\n)\n\nx = np.array(\n    [\n        [[1.0, 1.0], [0.0, 1.0], [2.0, 1.0], [0.0, 1.0]],\n        [[1.0, 1.0], [0.0, 1.0], [2.0, 1.0], [0.0, 1.0]],\n    ],\n    dtype=np.float32,\n)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=1)\nindices, inverse_indices, counts = specify_int64(\n    indices, inverse_indices, counts\n)\n# behavior changed with numpy >= 2.0\ninverse_indices = inverse_indices.squeeze()\n# print(y)\n# [[[0. 1.]\n#  [1. 1.]\n#  [2. 1.]]\n# [[0. 1.]\n#  [1. 1.]\n#  [2. 1.]]]\n# print(indices)\n# [1 0 2]\n# print(inverse_indices)\n# [1 0 2 0]\n# print(counts)\n# [2 1 1]\nexpect(\n    node_sorted,\n    inputs=[x],\n    outputs=[y, indices, inverse_indices, counts],\n    name=\"test_unique_sorted_with_axis_3d\",\n)"
+        "code": "node_sorted = onnx.helper.make_node(\n    \"Unique\",\n    inputs=[\"X\"],\n    outputs=[\"Y\", \"indices\", \"inverse_indices\", \"counts\"],\n    sorted=1,\n    axis=1,\n)\n\nx = np.array(\n    [\n        [[1.0, 1.0], [0.0, 1.0], [2.0, 1.0], [0.0, 1.0]],\n        [[1.0, 1.0], [0.0, 1.0], [2.0, 1.0], [0.0, 1.0]],\n    ],\n    dtype=np.float32,\n)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=1)\nindices, inverse_indices, counts = specify_int64(\n    indices, inverse_indices, counts\n)\n# behavior changed with numpy >= 2.0\ninverse_indices = inverse_indices.reshape(-1)\n# print(y)\n# [[[0. 1.]\n#  [1. 1.]\n#  [2. 1.]]\n# [[0. 1.]\n#  [1. 1.]\n#  [2. 1.]]]\n# print(indices)\n# [1 0 2]\n# print(inverse_indices)\n# [1 0 2 0]\n# print(counts)\n# [2 1 1]\nexpect(\n    node_sorted,\n    inputs=[x],\n    outputs=[y, indices, inverse_indices, counts],\n    name=\"test_unique_sorted_with_axis_3d\",\n)"
       },
       {
         "summary": "sorted_with_negative_axis",
-        "code": "node_sorted = onnx.helper.make_node(\n    \"Unique\",\n    inputs=[\"X\"],\n    outputs=[\"Y\", \"indices\", \"inverse_indices\", \"counts\"],\n    sorted=1,\n    axis=-1,\n)\n\nx = np.array([[1, 0, 0], [1, 0, 0], [2, 3, 3]], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=-1)\nindices, inverse_indices, counts = specify_int64(\n    indices, inverse_indices, counts\n)\n# behavior changed with numpy >= 2.0\ninverse_indices = inverse_indices.squeeze()\n# print(y)\n# [[0. 1.]\n#  [0. 1.]\n#  [3. 2.]]\n# print(indices)\n# [1 0]\n# print(inverse_indices)\n# [1 0 0]\n# print(counts)\n# [2 1]\n\nexpect(\n    node_sorted,\n    inputs=[x],\n    outputs=[y, indices, inverse_indices, counts],\n    name=\"test_unique_sorted_with_negative_axis\",\n)"
+        "code": "node_sorted = onnx.helper.make_node(\n    \"Unique\",\n    inputs=[\"X\"],\n    outputs=[\"Y\", \"indices\", \"inverse_indices\", \"counts\"],\n    sorted=1,\n    axis=-1,\n)\n\nx = np.array([[1, 0, 0], [1, 0, 0], [2, 3, 3]], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=-1)\nindices, inverse_indices, counts = specify_int64(\n    indices, inverse_indices, counts\n)\n# behavior changed with numpy >= 2.0\ninverse_indices = inverse_indices.reshape(-1)\n# print(y)\n# [[0. 1.]\n#  [0. 1.]\n#  [3. 2.]]\n# print(indices)\n# [1 0]\n# print(inverse_indices)\n# [1 0 0]\n# print(counts)\n# [2 1]\n\nexpect(\n    node_sorted,\n    inputs=[x],\n    outputs=[y, indices, inverse_indices, counts],\n    name=\"test_unique_sorted_with_negative_axis\",\n)"
       },
       {
         "summary": "sorted_without_axis",
