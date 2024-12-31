@@ -5103,6 +5103,10 @@ python.Execution = class {
                 super();
                 this._classType = classType;
             }
+            makeSugared(v) {
+                v.setType(this._classType);
+                return new torch.jit.SimpleValue(v);
+            }
             getClassType() {
                 return this._classType;
             }
@@ -7382,6 +7386,7 @@ python.Execution = class {
         this.registerType('torch.TensorType', class extends torch.Type {
             constructor() {
                 super('TensorType');
+                this._is_inferred = false;
             }
             static get() {
                 torch.TensorType.value = torch.TensorType.value || new torch.TensorType();
@@ -7389,6 +7394,9 @@ python.Execution = class {
             }
             equals(rhs) {
                 return this.kind() === rhs.kind();
+            }
+            isInferredType() {
+                return this._is_inferred;
             }
             str() {
                 return 'Tensor';
@@ -7590,6 +7598,11 @@ python.Execution = class {
             }
             __str__() {
                 return 'Generator';
+            }
+        });
+        this.registerType('torch.UnionType', class extends torch.Type {
+            constructor() {
+                super('UnionType');
             }
         });
         this.registerType('torch._C.AliasInfo', class {
@@ -7908,6 +7921,12 @@ python.Execution = class {
             }
             has_default_value() {
                 return this.default_value !== undefined;
+            }
+            is_inferred_type() {
+                if (this.type instanceof torch.TensorType) {
+                    return this.type.isInferredType();
+                }
+                return false;
             }
             static parse(L, is_return, kwarg_only) {
                 const type_parser = new torch.jit.SchemaTypeParser(L);
@@ -8491,6 +8510,17 @@ python.Execution = class {
                 n.output().setDebugName(/^[0-9]+$/.test(field) ? `_${field}` : field);
                 return n;
             }
+            createLoad(name, type) {
+                const n = this.create('prim::Load', [], 1);
+                n.s_('name', name);
+                n.output().setType(type);
+                return n;
+            }
+            createStore(name, v) {
+                const n = this.create('prim::Store', [v], 0);
+                n.s_('name', name);
+                return n;
+            }
             inputs() {
                 return this._block.inputs();
             }
@@ -8648,12 +8678,6 @@ python.Execution = class {
                 this._input._owning_block = this;
                 // input_->topo_position_ = kLowerBound;
             }
-            param_node() {
-                return this._input;
-            }
-            return_node() {
-                return this._output;
-            }
             inputs() {
                 return this._input.outputs();
             }
@@ -8668,6 +8692,15 @@ python.Execution = class {
                     current = current.next;
                 } while (current !== this._input);
                 return nodes;
+            }
+            return_node() {
+                return this._output;
+            }
+            param_node() {
+                return this._input;
+            }
+            owningGraph() {
+                return this._graph;
             }
             addInput(name) {
                 const value = this._input.addOutput();
@@ -9034,6 +9067,16 @@ python.Execution = class {
                 this._version = version;
                 this._loaded_sources = new Set();
                 this._to_be_defined = new Map();
+                this._env = new Map([
+                    ['torch', new torch.jit.BuiltinModule('aten', version)],
+                    // {"ops", std::make_shared<OpsValue>(version)},
+                    // {"CONSTANTS", std::make_shared<ConstantTableValue>(constant_table)},
+                    ['fork', torch.jit.SpecialFormValue.create('prim::fork')],
+                    ['awaitable', torch.jit.SpecialFormValue.create('prim::awaitable')],
+                    ['annotate', torch.jit.SpecialFormValue.create('prim::annotate')],
+                    ['unchecked_cast', torch.jit.SpecialFormValue.create('prim::unchecked_cast')],
+                    ['uninitialized', torch.jit.SpecialFormValue.create('prim::Uninitialized')],
+                ]);
             }
             loadType(name) {
                 const type_parser = new torch.jit.ScriptTypeParser(this);
@@ -9042,6 +9085,20 @@ python.Execution = class {
             resolveType(name) {
                 name = new torch.jit.QualifiedName(name);
                 return this.findNamedType(name);
+            }
+            resolveValue(name, m, loc) {
+                if (this._env.has(name)) {
+                    return this._env.get(name);
+                }
+                const graph = m.graph();
+                switch (name) {
+                    case 'inf': return new torch.jit.SimpleValue(graph.insertConstant('std::numeric_limits<double>::infinity()', loc));
+                    case 'nan': return new torch.jit.SimpleValue(graph.insertConstant('std::numeric_limits<double>::quiet_NaN()', loc));
+                    case 'infj': return new torch.jit.SimpleValue(graph.insertConstant('c10::complex<double>(0, std::numeric_limits<double>::infinity())', loc));
+                    case 'nanj': return new torch.jit.SimpleValue(graph.insertConstant('c10::complex<double>(0, std::numeric_limits<double>::quiet_NaN()', loc));
+                    case '__torch__': return new torch.jit.ClassNamespaceValue(new torch.jit.QualifiedName(name));
+                    default: return null;
+                }
             }
             findNamedType(name) {
                 // if (auto custom_class = getCustomClass(name.qualifiedName())) {
@@ -9571,6 +9628,16 @@ python.Execution = class {
                 return new torch.jit.Source(data.peek(), path);
             }
         });
+        this.registerType('torch.jit.WithInsertPoint', class {
+            constructor(x) {
+                const n = x instanceof torch.Block ? x.return_node() : x;
+                this._prev = n.owningGraph().insertPoint();
+                n.owningGraph().setInsertPoint(n);
+            }
+            dispose() {
+                this._prev.owningGraph().setInsertPoint(this._prev);
+            }
+        });
         this.registerType('torch.jit.Environment', class {
             constructor(method, resolver, b, next) {
                 this.method = method;
@@ -9580,33 +9647,80 @@ python.Execution = class {
                 this.value_table = new Map();
                 this.type_table = new Map();
             }
+            block() {
+                return this.b;
+            }
             getSugaredVar(ident, range, required) {
                 required = required || true;
                 let retval = this.findInAnyFrame(ident);
                 if (!retval) {
                     torch.jit.Environment.globals = torch.jit.Environment.globals || {
-                        range: torch.jit.SpecialFormValue.create('prim::range')
+                        tuple: torch.jit.SpecialFormValue.create('prim::TupleConstruct'),
+                        float: new torch.jit.MagicMethod('__float__', new torch.jit.CastValue(torch.FloatType.get(), 'aten::Float')),
+                        range: torch.jit.SpecialFormValue.create('prim::range'),
                     };
                     if (ident in torch.jit.Environment.globals) {
                         retval = torch.jit.Environment.globals[ident];
                     }
                 }
                 if (!retval) {
-                    //
+                    const type = this.resolver.resolveType(ident, range);
+                    if (type instanceof torch.TupleType) {
+                        retval = new torch.jit.NamedTupleConstructor(type);
+                    }
+                }
+                if (!retval) {
+                    retval = this.resolver.resolveValue(ident, this.method, range);
+                }
+                if (!retval) {
+                    const type = this.resolver.resolveType(ident, range);
+                    if (type instanceof torch.ClassType) {
+                        retval = new torch.jit.ClassValue(type);
+                    }
                 }
                 if (!retval && required) {
                     throw new python.Error(`The name '${ident}' is not defined.`);
                 }
                 return retval;
             }
-            findInAnyFrame(name) {
-                for (let runner = this; runner; runner = runner.next) {
-                    const r = runner.findInThisFrame(name);
-                    if (r) {
-                        return r;
+            setVar(loc, name, value) {
+                this.setSugaredVar(loc, name, new torch.jit.SimpleValue(value), null);
+            }
+            setSugaredVar(loc, name, value, annotated_type) {
+                let as_simple_value = torch.jit.asSimple(value);
+                if (as_simple_value && !as_simple_value.hasDebugName() && torch.jit.meaningfulName(name) && as_simple_value.node().owningBlock() === this.block()) {
+                    as_simple_value.setDebugName(name);
+                }
+                const parent = this.findInParentFrame(name);
+                if (parent) {
+                    if (annotated_type) {
+                        throw new python.Error('Type already defined in an outer block.');
+                    }
+                    if (!as_simple_value) {
+                        throw new python.Error('Only reassignments to first-class values are allowed.');
+                    }
+                    const simple_parent = torch.jit.asSimple(parent);
+                    if (!simple_parent) {
+                        throw new python.Error('Only reassignments to first-class values are allowed.');
+                    }
+                    const parent_type = this.unshapedType(simple_parent.type());
+                    as_simple_value = this.tryConvertToType(loc, this.b.owningGraph(), parent_type, as_simple_value, /*allow_conversions=*/true);
+                    if (!as_simple_value.type().isSubtypeOf(parent_type)) {
+                        throw new python.Error('Incompatible types.');
+                    }
+                    if (simple_parent.type().kind() === 'ListType' && as_simple_value.type().kind() === 'ListType') {
+                        throw new python.Error('Invalid list type.');
                     }
                 }
-                return null;
+                if (as_simple_value) {
+                    if (annotated_type && !as_simple_value.type().isSubtypeOf(annotated_type)) {
+                        throw new python.Error('Invalid type.');
+                    }
+                    const value_store_type = annotated_type ? annotated_type : as_simple_value.type();
+                    this.insertStore(name, loc, as_simple_value, value_store_type);
+                } else {
+                    this.value_table.set(name, value);
+                }
             }
             findInThisFrame(name) {
                 if (this.value_table.has(name)) {
@@ -9617,18 +9731,277 @@ python.Execution = class {
                 }
                 return null;
             }
+            findInAnyFrame(name) {
+                for (let runner = this; runner; runner = runner.next) {
+                    const r = runner.findInThisFrame(name);
+                    if (r) {
+                        return r;
+                    }
+                }
+                return null;
+            }
+            findInParentFrame(name) {
+                return this.next ? this.next.findInAnyFrame(name) : null;
+            }
+            insertLoad(name, type) {
+                const g = this.b.owningGraph();
+                const load = g.insertNode(g.createLoad(name, type));
+                if (torch.jit.meaningfulName(name)) {
+                    load.output().setDebugName(name);
+                }
+                return new torch.jit.SimpleValue(load.output());
+            }
+            insertStore(name, loc, v, type) {
+                const g = this.b.owningGraph();
+                g.insertNode(g.createStore(name, v)).setSourceRange(loc);
+                this.type_table.set(name, type);
+            }
+        });
+        this.registerFunction('torch.jit.asSimple', (value) => {
+            if (value instanceof torch.jit.SimpleValue) {
+                return value.getValue();
+            }
+            return null;
+        });
+        this.registerFunction('torch.jit.meaningfulName', (name) => {
+            if (name.length === 0 && name[0] === '$') {
+                return false;
+            }
+            return name[0] !== '_' && !/[0-9]/.test(name.slice(1));
+        });
+        this.registerFunction('torch.jit.materializeConstant', (val, graph, r, map) => {
+            if (map.has(val)) {
+                return map.get(val);
+            }
+            const guard = new torch.jit.WithInsertPoint(graph.block().nodes()[0]);
+            const new_constant = graph.insertConstant(val, r);
+            map.set(val, new_constant);
+            guard.dispose();
+            return new_constant;
+        });
+        this.registerFunction('torch.jit.emitBuiltinCall', (/* loc, graph, name, args, kwargs, self */) => {
+            // const variants = torch._C._get_registry().getAllOperatorsFor(name);
+            // debugger;
+            throw new python.Error('Not implemented.');
+        });
+        this.registerFunction('torch.jit.unshapedType', (type) => {
+            if (type.isSubtypeOf(torch.TensorType.get())) {
+                return torch.TensorType.get();
+            }
+            const contained = type.containedTypes();
+            if (contained.length === 0) {
+                return type;
+            }
+            return type.withContained(contained.map((t) => torch.jit.unshapedType(t)));
+        });
+        this.registerFunction('torch.jit.unifyTypesImpl', (t1, t2, default_to_union, type_hint) => {
+            default_to_union = default_to_union || false;
+            type_hint = type_hint || null;
+            if (t1.isSubtypeOf(t2)) {
+                return t2;
+            } else if (t2.isSubtypeOf(t1)) {
+                return t1;
+            }
+            if (t1.kind() === 'TensorType' && t2.kind() === 'TensorType') {
+                return t1.merge(t2);
+            }
+            if (t1.isSubtypeOf(torch.NoneType.get()) && !t2.isSubtypeOf(torch.NoneType.get())) {
+                return torch.OptionalType.create(t2);
+            } else if (t2.isSubtypeOf(torch.NoneType.get()) && !t1.isSubtypeOf(torch.NoneType.get())) {
+                return torch.OptionalType.create(t1);
+            }
+            if (t1 instanceof torch.OptionalType) {
+                const elem = torch.jit.unifyTypes(t1.getElementType(), t2);
+                if (elem) {
+                    return torch.OptionalType.create(elem);
+                }
+            } else if (t2 instanceof torch.OptionalType) {
+                const elem = torch.jit.unifyTypes(t2.getElementType(), t1);
+                if (elem) {
+                    return torch.OptionalType.create(elem);
+                }
+            }
+            if (t1 instanceof torch.TupleType && t2 instanceof torch.TupleType) {
+                if (t1.elements().size() !== t2.elements().size()) {
+                    return null;
+                }
+                const elements = [];
+                for (let i = 0; i < t1.elements().length; i++) {
+                    const elem = torch.jit.unifyTypes(t1.elements()[i], t2.elements()[i], default_to_union);
+                    if (elem) {
+                        elements.push(elem);
+                    } else {
+                        return null;
+                    }
+                }
+                return torch.TupleType.create(elements);
+            }
+            if (t1 instanceof torch.FutureType && t2 instanceof torch.FutureType) {
+                const elem = torch.jit.unifyTypes(t1.getElementType(), t2.getElementType());
+                if (elem) {
+                    return torch.FutureType.create(elem);
+                }
+            }
+            const t1_unshaped = torch.jit.unshapedType(t1);
+            const t2_unshaped = torch.jit.unshapedType(t2);
+            if (t1_unshaped.isSubtypeOf(t2_unshaped)) {
+                return t2_unshaped;
+            } else if (t2_unshaped.isSubtypeOf(t1_unshaped)) {
+                return t1_unshaped;
+            }
+            if (type_hint && t1.isSubtypeOf(type_hint) && t2.isSubtypeOf(type_hint)) {
+                return type_hint;
+            }
+            return null;
+        });
+        this.registerFunction('torch.jit.unifyTypes', (t1, t2, default_to_union, type_hint) => {
+            const unified = torch.jit.unifyTypesImpl(t1, t2, default_to_union, type_hint);
+            if (default_to_union && !unified) {
+                return torch.UnionType.create([t1, t2]);
+            }
+            return unified;
+        });
+        this.registerFunction('torch.jit.unifyTypeList', (elements, why_not, default_to_union, type_hint) => {
+            if (elements.length === 0) {
+                return null;
+            }
+            let [ret_type] = elements;
+            for (let i = 1; i < elements.length && ret_type; i++) {
+                const maybe_unified = torch.jit.unifyTypes(ret_type, elements[i], default_to_union, type_hint);
+                if (!maybe_unified) {
+                    return null;
+                }
+                ret_type = maybe_unified;
+            }
+            return ret_type;
+        });
+        this.registerType('torch.jit.NamedValue', class {
+            constructor(...args) {
+                if (args.length === 1 && args[0] instanceof torch.Value) {
+                    [this._value] = args;
+                } else {
+                    throw new python.Error('Invalid argument.');
+                }
+            }
+            name() {
+                return this._name;
+            }
+            value(/* g */) {
+                if (!this._value) {
+                    throw new python.Error('Value not set.');
+                    // insertConstant(g, this._ivalue);
+                }
+                return this._value;
+            }
         });
         this.registerType('torch.jit.SugaredValue', class {
         });
         this.registerType('torch.jit.SimpleValue', class extends torch.jit.SugaredValue {
+            constructor(value) {
+                super();
+                this._value = value;
+            }
+            asValue(/* range, m */) {
+                return this._value;
+            }
+            getValue() {
+                return this._value;
+            }
+            attr(loc, m, field) {
+                if (this._value.type().isSubtypeOf(torch.TensorType.get())) {
+                    throw new python.Error('Not implemented.');
+                } else if (this._value.type() instanceof torch.ClassType) {
+                    const classType = this._value.type();
+                    if (classType.findMethod(field)) {
+                        return new torch.jit.MethodValue(this.getValue(), field);
+                    }
+                    if (classType.hasAttribute(field)) {
+                        const g = m.graph();
+                        const n = g.insertNode(g.createGetAttr(this._value, field));
+                        return new torch.jit.SimpleValue(n.output());
+                    }
+                    const prop = classType.getProperty(field);
+                    if (prop) {
+                        return new torch.jit.MethodValue(this._value, prop.getter.name()).call(loc, m, {}, {}, /*n_binders=*/1);
+                    }
+                }
+                throw new python.Error('Not implemented.');
+            }
         });
         this.registerType('torch.jit.SpecialFormValue', class extends torch.jit.SugaredValue {
             constructor(form) {
                 super();
                 this._form = form;
             }
+            form() {
+                return this._form;
+            }
             static create(form) {
                 return new torch.jit.SpecialFormValue(form);
+            }
+        });
+        this.registerType('torch.jit.BuiltinFunction', class extends torch.jit.SugaredValue {
+            constructor(symbol, self) {
+                super();
+                this.symbol = symbol;
+                this.self = self;
+            }
+            call(loc, m, args, kwargs /*, n_binders */) {
+                return new torch.jit.SimpleValue(torch.jit.emitBuiltinCall(loc, m.graph(), this.symbol, args, kwargs, this.self));
+            }
+        });
+        this.registerType('torch.jit.BuiltinModule', class extends torch.jit.SugaredValue {
+            constructor(name, version) {
+                super();
+                this.name = name;
+                this.version = version || null;
+            }
+            attr(loc, m, field) {
+                if (field === 'autograd') {
+                    return new torch.jit.BuiltinModule('aten', this.version);
+                }
+                const sym = `${this.name}::${field}`;
+                return new torch.jit.BuiltinFunction(sym, null);
+            }
+        });
+        this.registerType('torch.jit.CastValue', class extends torch.jit.SugaredValue {
+            constructor(type, method) {
+                super(method, null);
+                this._type = type;
+            }
+        });
+        this.registerType('torch.jit.MagicMethod', class extends torch.jit.SugaredValue {
+            constructor(desugared_name, base) {
+                super();
+                this._base_value = base;
+                this._desugared_name = desugared_name;
+            }
+        });
+        this.registerType('torch.jit.RangeValue', class extends torch.jit.SugaredValue {
+            constructor(loc, m, inputs, static_len) {
+                super();
+                static_len = static_len || null;
+                if (inputs.length === 0 || inputs.length > 3 || !inputs.every((value) => value.type() instanceof torch.IntType)) {
+                    throw new python.Error('Invalid range inputs.');
+                }
+                const g = m.graph();
+                if (inputs.length === 1) {
+                    [this._end] = inputs;
+                    this._start = g.insertConstant(0, loc);
+                    this._step = g.insertConstant(1, loc);
+                    this._has_only_end = true;
+                } else {
+                    [this._start, this._end] = inputs;
+                    this._step = inputs.length === 3 ? inputs[2] : g.insertConstant(1, loc);
+                    this._has_only_end = false;
+                }
+                this._static_len = static_len;
+            }
+        });
+        this.registerType('torch.jit.ClassNamespaceValue', class extends torch.jit.SugaredValue {
+            constructor(name) {
+                super();
+                this._basename = name;
             }
         });
         this.registerType('torch.package.PackageImporter', class {
@@ -10073,13 +10446,365 @@ python.Execution = class {
                 this.graph = method.graph();
                 this.resolver = _resolver;
                 this._typeParser = new torch.jit.ScriptTypeParser(this.resolver);
-                const schema = this.emitDef(def, self, this.graph.block());
-                method.setSchema(schema);
+                this._def_stack = [];
+                this.exit_blocks = new Set();
+                this.environment_stack = null;
+                this.pushFrame(this.graph.block(), true);
+                if (self && def && def.args.args.length === 0) {
+                    throw new python.Error('Method must have a self argument.');
+                }
+                method.setSchema(this.emitDef(def, self, this.graph.block()));
+                // ReplaceOldOperatorsWithUpgraders(graph);
+                // ConvertToSSA(graph);
+                // CanonicalizeModifiedLoops(graph);
+                // NormalizeOps(graph);
+                // runCleanupPasses(graph);
             }
-            emitDef(def, self /*, block */) {
+            pushFrame(b, starts_def) {
+                starts_def = starts_def || false;
+                if (starts_def) {
+                    this._def_stack.push({});
+                }
+                this.environment_stack = new torch.jit.Environment(this.method, this.resolver, b, this.environment_stack);
+            }
+            popFrame(ends_def) {
+                const old_frame = this.environment_stack;
+                this.environment_stack = this.environment_stack.next;
+                if (ends_def) {
+                    this._def_stack.pop();
+                }
+                return old_frame;
+            }
+            emitDef(def, self, block) {
                 const schema = this._typeParser.parseSchemaFromDef(def, self !== null);
-                // this.resolver._cu.execution
-                return schema;
+                if (schema.returns.length === 1) {
+                    this._def_stack[this._def_stack.length - 1]._declared_return_type = schema.returns[0].type;
+                }
+                const args = this.emitFormalArguments(def, self, schema, block);
+                // this.emitStatements(def.body);
+                // this.handleMaybeNoReturn(def, block);
+                const returns = [this.emitOutput(def, schema, block)];
+                return new torch.FunctionSchema(def.name, '', args, returns);
+            }
+            emitFormalArguments(def, self, schema, block) {
+                const args = [];
+                const params = def.args.args;
+                const expected_annotation_size = self ? def.args.args.length - 1 : def.args.args.length;
+                if (schema.arguments.length !== expected_annotation_size) {
+                    throw new python.Error('Invalid formal arguments.');
+                }
+                let it = 0;
+                if (self) {
+                    const name = params[it].arg;
+                    const new_input = block.addInput().setDebugName(name);
+                    this.environment_stack.setSugaredVar(it, name, self.makeSugared(new_input), null);
+                    args.push(new torch.Argument(name, new_input.type()));
+                    it++;
+                }
+                const shouldDeriveType = this.shouldDeriveSetStateType(def, schema);
+                let arg_annotation_idx = 0;
+                for (; it < params.length; it++) {
+                    const name = params[it].arg;
+                    const new_input = block.addInput();
+                    if (torch.jit.meaningfulName(name)) {
+                        new_input.setDebugName(name);
+                    }
+                    let arg = schema.arguments[arg_annotation_idx++];
+                    if (shouldDeriveType) {
+                        if (schema.arguments.length === 1) {
+                            throw new python.Error('Invalid schema.');
+                        }
+                        const inferredStateType = this.getTypeForSetStateArg(def, self);
+                        arg = arg.cloneWithType(inferredStateType);
+                    }
+                    args.push(arg);
+                    new_input.setType(arg.type);
+                    this.environment_stack.setVar(params[it], name, new_input);
+                }
+                return args;
+            }
+            emitOutput(range, schema, block) {
+                const ret_type = this._def_stack[this._def_stack.length - 1]._merged_return_type;
+                const placeholder_return = this.graph.insertNode(this.graph.createUninitialized(ret_type)).output();
+                block.registerOutput(placeholder_return);
+                return new torch.Argument('', this._def_stack[this._def_stack.length - 1]._merged_return_type);
+            }
+            emitStatements(stmts) {
+                for (let i = 0; i < stmts.length; i++) {
+                    const stmt = stmts[i];
+                    switch (stmt.__class__.__name__) {
+                        case 'Assign': {
+                            this.emitAssignment(stmt);
+                            break;
+                        }
+                        case 'Return': {
+                            this.emitReturn(stmt);
+                            break;
+                        }
+                        default: {
+                            throw new python.Error(`Unrecognized statement kind '${stmt.__class__.__name__}'.`);
+                        }
+                    }
+                    if (this.exit_blocks.has(this.environment_stack.block())) {
+                        return;
+                    }
+                }
+            }
+            emitAssignment(stmt) {
+                const lhs_list = stmt.targets instanceof ast.Tuple ? stmt.targets.elts : [stmt.targets];
+                if (lhs_list.length === 1) {
+                    this.emitSingleAssignment(stmt);
+                }
+                /*
+                    TORCH_INTERNAL_ASSERT(stmt.lhs_list().size() > 1 && !stmt.type().present());
+                    const tmp_name = createTempName("$tmp_assign_");
+                    environment_stack->setSugaredVar(stmt.rhs().range(), tmp_name, this.emitSugaredExpr(stmt.rhs().get(), 1), annotated_type=nullptr);
+                    const ident = Var::create(stmt.rhs().range(), Ident::create(stmt.rhs().range(), tmp_name));
+                    for (auto expr : stmt.lhs_list()) {
+                        this.emitSingleAssignment(Assign::create(stmt.range(), List<Expr>::create(expr.range(), {expr}), Maybe<Expr>::create(stmt.rhs().range(), ident), Maybe<Expr>::create(stmt.range())));
+                    }
+                */
+            }
+            emitSingleAssignment(stmt) {
+                const rhs = stmt.value instanceof ast.Tuple ? stmt.value.elts[0] : stmt.value;
+                const lhs = stmt.targets instanceof ast.Tuple ? stmt.targets.elts[0] : stmt.targets;
+                switch (lhs.__class__.__name__) {
+                    case 'Name': {
+                        const type = null;
+                        const rhs_sugared_val = this.emitSugaredExpr(rhs, 1, type);
+                        // BC HACK
+                        this.environment_stack.setSugaredVar(stmt, lhs.id, rhs_sugared_val, /*annotated_type=*/type);
+                        break;
+                    }
+                    default: {
+                        throw new python.Error('Unexpected expression on left-hand side of assignment.');
+                    }
+
+                }
+
+            }
+            emitReturn(stmt) {
+                let declared_return_type = this._def_stack[this._def_stack.length - 1]._declared_return_type_;
+                let actual_return = this.emitExpr(stmt.value, declared_return_type);
+                if (declared_return_type) {
+                    if (!(actual_return.type().isSubtypeOf(torch.TensorType.get()) && actual_return.type().isSubtypeOf(torch.NoneType.get()))) {
+                        actual_return = this.tryConvertToType(stmt, this.graph, declared_return_type, actual_return, /*allow_conversions=*/true);
+                    }
+                    if (!actual_return.type().isSubtypeOf(declared_return_type)) {
+                        throw new python.Error(`Invalid return type.`);
+                    }
+                } else {
+                    declared_return_type = this._def_stack[this._def_stack.length - 1]._merged_return_type;
+                    if (!declared_return_type) {
+                        declared_return_type = actual_return.type();
+                    }
+                    const merged_return_type = torch.jit.unifyTypes(declared_return_type, actual_return.type());
+                    if (!merged_return_type) {
+                        throw new python.Error(`Invalid return type.`);
+                    }
+                    declared_return_type = merged_return_type.value();
+                }
+                this._def_stack[this._def_stack.length - 1]._merged_return_type = declared_return_type;
+                if (declared_return_type === torch.AnyType.get() && actual_return.type() !== torch.AnyType.get()) {
+                    actual_return = this.graph.insertUncheckedCast(actual_return, declared_return_type);
+                }
+                this.graph.insertNode(this.graph.create('prim::ReturnStmt', [actual_return], 0));
+                this.exit_blocks.insert(this.environment_stack.block());
+            }
+            getNamedValues(trees, maybe_unpack) {
+                const values = [];
+                for (const tree of trees) {
+                    if (maybe_unpack && tree instanceof ast.Starred) {
+                        throw new python.Error('Starred argument not supported.');
+                    } else {
+                        values.push(new torch.jit.NamedValue(this.emitExpr(tree)));
+                    }
+                }
+                return values;
+            }
+            getValues(trees, maybe_unpack) {
+                return this.getNamedValues(trees, maybe_unpack).map((value) => value.value(this.graph));
+            }
+            emitExpr(tree, type_hint) {
+                type_hint = type_hint || null;
+                let out_val = this.emitSugaredExpr(tree, 1, type_hint).asValue(tree, this.method);
+                if (type_hint === torch.AnyType.get() && out_val.type() !== torch.AnyType.get()) {
+                    out_val = this.graph.insertUncheckedCast(out_val, type_hint);
+                }
+                return out_val;
+            }
+            emitSugaredExpr(tree, n_binders, type_hint) {
+                if (tree instanceof ast.Name) { // TK_VAR
+                    return this.environment_stack.getSugaredVar(tree.id);
+                } else if (tree instanceof ast.Attribute) {
+                    const sv = this.emitSugaredExpr(tree.value, 1);
+                    return sv.attr(tree, this.method, tree.attr);
+                } else if (tree instanceof ast.Call) { // TK_APPLY
+                    return this.emitApplyExpr(tree, n_binders, type_hint);
+                } if (tree instanceof ast.Subscript) {
+                    throw new python.Error('Not implemented.');
+                }
+                return new torch.jit.SimpleValue(this.emitSimpleExpr(tree, type_hint));
+            }
+            emitApplyExpr(apply, n_binders, type_hint) {
+                type_hint = type_hint || null;
+                const sv = this.emitSugaredExpr(apply.func, 1);
+                const loc = apply.func;
+                if (sv instanceof torch.jit.SpecialFormValue) {
+                    return this.emitApplySpecialForm(sv.form(), apply, sv, type_hint);
+                }
+                const args = this.getNamedValues(apply.args, true);
+                const kwargs = this.emitAttributes(apply.attributes);
+                return sv.call(loc, this.method, args, kwargs, n_binders);
+            }
+            emitAttributes(/* attributes */) {
+                //
+            }
+            emitApplySpecialForm(form, apply, sv /*, type_hint */) {
+                switch (form) {
+                    case 'prim::fork': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::awaitable': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::annotate': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::unchecked_cast': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::GetAttr': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::Uninitialized': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::TupleConstruct': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::isinstance': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::tolist': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::HasAttr': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::CreateObject': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::range': {
+                        const input_vals = this.getValues(apply.args, true);
+                        return new torch.jit.RangeValue(apply, this.method, input_vals);
+                    }
+                    case 'prim::enumerate': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::zip': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::list': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'prim::dict': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    case 'aten::index': {
+                        throw new python.Error('Not implemented.');
+                    }
+                    default: {
+                        throw new python.Error(`Unsupported special form '${sv.from()}'.`);
+                    }
+                }
+            }
+            emitSimpleExpr(tree, type_hint) {
+                if (tree instanceof ast.Constant) {
+                    if (tree.value === true) {
+                        return this.graph.insertConstant(true, tree);
+                    } else if (tree.value === false) {
+                        return this.graph.insertConstant(false, tree);
+                    }
+                    return this.emitConst(tree);
+                } else if (tree instanceof ast.List) {
+                    return this.emitListLiteral(tree, type_hint);
+                }
+                throw new python.Error(`Simple expression '${tree.__class__.__name__}' not implemented.`);
+            }
+            emitConst(c) {
+                if (Number.isInteger(c.value)) {
+                    torch.jit.integral_constants = torch.jit.integral_constants || new Map();
+                    return torch.jit.materializeConstant(c.value, this.graph, c, torch.jit.integral_constants);
+                } else if (typeof c.value === 'number') {
+                    torch.jit.fp_constants = torch.jit.fp_constants || new Map();
+                    return torch.jit.materializeConstant(c.value, this.graph, c, torch.jit.fp_constants);
+                }
+                throw new python.Error(`Unsupported constant type.`);
+            }
+            emitListLiteral(ll, type_hint) {
+                type_hint = type_hint || null;
+                const values = this.getValues(ll.elts, true);
+                if (values.length === 0 && type_hint === null) {
+                    throw new python.Error('Not implemented.');
+                }
+                let inferred_elem_type = torch.TensorType.get();
+                const refined_type_hint = type_hint;
+                const annotated_union_type = refined_type_hint && refined_type_hint.isUnionType() ? refined_type_hint : null;
+                const all_candidates = [];
+                if (refined_type_hint) {
+                    throw new python.Error('Not implemented.');
+                }
+                if (values.length !== 0) {
+                    const types = values.map((v) => v.type());
+                    const elem_type_hint = refined_type_hint && refined_type_hint.kind() === 'ListType' ? refined_type_hint.getElementType() : null;
+                    const unified_elem_type = torch.jit.unifyTypeList(types, null /*nowhere*/, /*default_to_union=*/true, elem_type_hint);
+                    if (!refined_type_hint && unified_elem_type.kind() === 'UnionType') {
+                        throw new python.Error('Not implemented.');
+                    }
+                    if (all_candidates.length === 0 && refined_type_hint && !unified_elem_type.isSubtypeOf(inferred_elem_type)) {
+                        throw new python.Error('Not implemented.');
+                    }
+                    if (all_candidates.length !== 0) {
+                        this.refineAndSetListTypeHintFromCandidatesVector(all_candidates, type_hint, refined_type_hint, unified_elem_type, ll);
+                        inferred_elem_type = refined_type_hint.expect(torch.ListType).getElementType();
+                    }
+                    if (!refined_type_hint) {
+                        inferred_elem_type = unified_elem_type;
+                    }
+                }
+                let result = this.graph.insertNode(this.graph.createList(inferred_elem_type, values));
+                if (annotated_union_type) {
+                    const n = this.graph.insertNode(this.graph.create('prim::unchecked_cast', [result.output()]));
+                    n.output().setType(annotated_union_type);
+                    result = n;
+                }
+                return result.output();
+            }
+            shouldDeriveSetStateType(def, schema) {
+                const noTypeAnnotations = schema.arguments.every((arg) => arg.is_inferred_type());
+                const shouldInfer = def.name === '__setstate__' && noTypeAnnotations;
+                if (!shouldInfer) {
+                    return false;
+                }
+                if (def.name !== '__setstate__' && def.args.args.length !== 2) {
+                    throw new python.Error(`Invalid '__setstate' method.`);
+                }
+                return true;
+            }
+            handleMaybeNoReturn(def, block) {
+                const decl_ret = this._def_stack[this._def_stack.length - 1]._declared_return_type;
+                if (this.exit_blocks.size === 0) {
+                    if (decl_ret && decl_ret !== torch.NoneType.get()) {
+                        throw new python.Error('Function was not annotated as having type None, but does not return along all paths.');
+                    }
+                    const b = new torch.jit.WithInsertPoint(block.nodes()[-1]);
+                    // this.emitReturn(Return::create(def.range(), Expr(Compound::create(TK_NONE, def.range(), {}))));
+                    b.dispose();
+                    throw new Error();
+                } else if (this._def_stack[this._def_stack.length - 1]._merged_return_type === null) {
+                    this._def_stack[this._def_stack.length - 1]._merged_return_type = decl_ret === null ? torch.NoneType.get() : decl_ret;
+                }
             }
         });
         this.registerType('torch.jit.CompilationUnit', class {

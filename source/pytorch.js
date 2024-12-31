@@ -2246,29 +2246,6 @@ pytorch.Execution = class extends python.Execution {
         }
     }
 
-    emitSugaredExpr(tree, n_binders, type_hint) {
-        const ast = this.ast;
-        const torch = this.torch;
-        if (tree instanceof ast.Name) { // TK_VAR
-            return this.environment_stack.getSugaredVar(tree.id);
-        } else if (tree instanceof ast.Attribute) {
-            //
-        } else if (tree instanceof ast.Call) { // TK_APPLY
-            const apply = tree;
-            const sv = this.emitSugaredExpr(apply.func, 1);
-            const loc = apply.func;
-            if (sv instanceof torch.jit.SpecialFormValue) {
-                // return emitApplySpecialForm(sv.form(), apply, sv, type_hint);
-            }
-            const args = this.getNamedValues(apply.inputs(), true);
-            const kwargs = this.emitAttributes(apply.attributes());
-            return sv.call(loc, this.method, args, kwargs, n_binders);
-        } if (tree instanceof ast.Subscript) {
-            //
-        }
-        return this.emitSimpleExpr(tree, type_hint);
-    }
-
     block(statements, context) {
         const ast = this.ast;
         const torch = this.torch;
