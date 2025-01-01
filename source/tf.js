@@ -932,7 +932,7 @@ tf.Node = class {
                 this.attributes = Object.entries(node.attr).map(([name, obj]) => {
                     const schema = obj && obj.metadata ? obj.metadata : metadata.attribute(node.op, name);
                     let value = null;
-                    let type = schema && schema.type ? schema.type : null;
+                    let type = schema && typeof schema.type === 'string' ? schema.type : null;
                     let visible = metadata.visible(node.op, name);
                     switch (obj.value) {
                         case undefined:

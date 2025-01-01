@@ -1244,6 +1244,7 @@ pytorch.Container.Zip = class extends pytorch.Container {
         let torchscript = reader.has_record('constants.pkl');
         const version = reader.version();
         if (torchscript) {
+            // metadata.register(this.execution);
             this.execution.trace = false;
             this.module = torch.jit.load(reader);
             this.execution.trace = true;
@@ -1634,7 +1635,6 @@ pytorch.Execution = class extends python.Execution {
         this._graph = this.invoke('torch.Graph', []);
         this._constants = new Map();
         this._values = new Map();
-        this.environment_stack = new torch.jit.Environment(/* */);
     }
 
     debug(file) {
@@ -2648,7 +2648,7 @@ pytorch.Execution = class extends python.Execution {
                 for (const value of evalArgs) {
                     inputs.push(value);
                 }
-                const matchedSchema = new torch.jit.MatchedSchema(inputs, return_types, return_field_names, name);
+                const matchedSchema = new torch._C.MatchedSchema(inputs, return_types, return_field_names, name);
                 const node = this._graph.insertMethodCall(name, matchedSchema);
                 return node.output();
             }
@@ -3146,7 +3146,7 @@ pytorch.Execution = class extends python.Execution {
                     schema.returns.push(new torch.Argument('', null, null, null, null, false, null));
                 }
                 const op = new torch._C.Operator(schema);
-                torch._C._get_registry().registerOperator(op);
+                torch._C.getRegistry().registerOperator(op);
                 overloads = [schema];
             }
         }
@@ -3454,6 +3454,7 @@ pytorch.Utility = class {
             ['9', 'v1.11'], // 8757e21c6a4fc00e83539aa7f9c28eb11eff53c1 (#72051)
             ['10', 'v1.12']  // 4f8b986e28736b59bc46cd0873a0f36fdaa6f5b8 (#61439)
         ]);
+        value = value.toString();
         if (!versions.has(value)) {
             throw new pytorch.Error(`Unsupported '${name}' version '${value}'.`);
         }
@@ -4037,7 +4038,7 @@ pytorch.Metadata = class {
 
     register(execution) {
         const torch = execution.register('torch');
-        const registry = torch._C._get_registry();
+        const registry = torch._C.getRegistry();
         const modules = new Set();
         for (const [name, type] of this._types) {
             if (name.indexOf('::') !== -1) {
