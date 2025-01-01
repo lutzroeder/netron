@@ -211,15 +211,17 @@ pickle.Tensor = class {
                 } else if (size.every((v) => v !== 0)) {
                     length = size.reduce((a, v, i) => a + stride[i] * (v - 1), 1);
                 }
-                if (offset !== 0 || length !== storage.size()) {
-                    const itemsize = storage.dtype.itemsize();
-                    const stream = this.values;
-                    const position = stream.position;
-                    stream.seek(itemsize * offset);
-                    this.values = stream.peek(itemsize * length);
-                    stream.seek(position);
-                } else if (this.values) {
-                    this.values = this.values.peek();
+                if (this.values !== undefined) {
+                    if (offset !== 0 || length !== storage.size()) {
+                        const itemsize = storage.dtype.itemsize();
+                        const stream = this.values;
+                        const position = stream.position;
+                        stream.seek(itemsize * offset);
+                        this.values = stream.peek(itemsize * length);
+                        stream.seek(position);
+                    } else if (this.values) {
+                        this.values = this.values.peek();
+                    }
                 }
             } else {
                 throw new pickle.Error(`Unsupported tensor layout '${layout}'.`);
