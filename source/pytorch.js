@@ -1243,12 +1243,22 @@ pytorch.Container.Zip = class extends pytorch.Container {
         const reader = new torch.PyTorchFileReader(this._entries);
         let torchscript = reader.has_record('constants.pkl');
         const version = reader.version();
+        this.execution.to_ir = false;
         if (torchscript) {
-            // metadata.register(this.execution);
+            if (this.execution.to_ir) {
+                metadata.register(this.execution);
+            }
             this.execution.trace = false;
             this.module = torch.jit.load(reader);
             this.execution.trace = true;
-            metadata.register(this.execution);
+            if (this.execution.to_ir) {
+                // console.log(this.module.graph.toString());
+                torch._C._jit_pass_inline(this.module.graph);
+                // console.log(this.module.graph.toString());
+            }
+            if (!this.execution.to_ir) {
+                metadata.register(this.execution);
+            }
             torchscript = this.module.forward;
         } else {
             const records = reader.get_all_records().map((key) => [key, reader.get_record(key)]);
@@ -1515,7 +1525,7 @@ pytorch.Execution = class extends python.Execution {
             const stream = f;
             const reader = flatbuffers.BinaryReader.open(stream);
             const module = torch.mobile.serialization.Module.create(reader);
-            const loader = new torch.jit.FlatBuffersLoader(cu);
+            const loader = new torch._C.FlatBuffersLoader(cu);
             const cpp_module = loader.parseModule(module);
             // parse_and_initialize_jit_module
             //   const mobilem = parse_and_initialize_mobile_module_for_jit(data, jit_files, jit_constants);
@@ -1763,7 +1773,7 @@ pytorch.Execution = class extends python.Execution {
         const torch = this.torch;
         switch (expr.__class__.__name__) {
             case 'Name': {
-                if (this.traceAttr && expr.id === 'self') {
+                if (expr.id === 'self') {
                     return context.get('self');
                 }
                 break;
@@ -1863,7 +1873,7 @@ pytorch.Execution = class extends python.Execution {
                         }
                         const ast = this.ast;
                         const target = new ast.Name('torch');
-                        return this.call(target, name, expr.args.slice(1), context);
+                        return this.call(target, name, expr.args.slice(1), expr.keywords, context);
                     }
                     if (value instanceof torch.Value && !type.equals(value.type())) {
                         throw new pytorch.Error('Invalid annotation type hint.');
@@ -1902,14 +1912,12 @@ pytorch.Execution = class extends python.Execution {
                     const target = this.target(func.value, context);
                     return this._graph.insertToList(target, typehint);
                 }
-                if (this.traceAttr) {
-                    if (func instanceof ast.Name && func.id === 'getattr') {
-                        const obj = this.expression(expr.args[0], context);
-                        const field = this.expression(expr.args[1], context);
-                        const n = this._graph.createGetAttr(obj, field);
-                        this._graph.insertNode(n);
-                        return n.output();
-                    }
+                if (func instanceof ast.Name && func.id === 'getattr') {
+                    const obj = this.expression(expr.args[0], context);
+                    const field = this.expression(expr.args[1], context);
+                    const n = this._graph.createGetAttr(obj, field);
+                    this._graph.insertNode(n);
+                    return n.output();
                 }
                 return super.expression(expr, context);
             }
@@ -2593,9 +2601,9 @@ pytorch.Execution = class extends python.Execution {
         return this._constants.get(constant);
     }
 
-    call(target, name, args, context, location) {
+    call(target, name, args, keywords, context, location) {
         if (!this.trace) {
-            return super.call(target, name, args, context);
+            return super.call(target, name, args, keywords, context);
         }
         const ast = this.ast;
         const torch = this.torch;
@@ -2631,14 +2639,14 @@ pytorch.Execution = class extends python.Execution {
             return value;
         }
         */
-        const overload = this._overload(target, name, args, context);
+        const overload = this._overload(target, name, args, keywords, context);
         if (!overload) {
             const moduleTarget = this.target(target, context);
             if (moduleTarget instanceof torch.Value && moduleTarget.type() instanceof torch.ClassType) {
                 const class_type = moduleTarget.type().expect(torch.ClassType);
                 const method = class_type.getMethod(name);
                 const evalArgs = args.map((expression) => this.expression(expression, context));
-                if (this.traceAttr && method.__ast__) {
+                if (method.__ast__) {
                     return this.apply(method.__ast__, [moduleTarget].concat(evalArgs), context);
                 }
                 const schema = method.getSchema();
@@ -2649,8 +2657,7 @@ pytorch.Execution = class extends python.Execution {
                     inputs.push(value);
                 }
                 const matchedSchema = new torch._C.MatchedSchema(inputs, return_types, return_field_names, name);
-                const node = this._graph.insertMethodCall(name, matchedSchema);
-                return node.output();
+                return this._graph.insertMethodCall(name, matchedSchema);
             }
             const prefix = this.identifier(target);
             if (prefix && prefix !== 'self' && !prefix.startsWith('self.') && prefix.indexOf('.') !== -1) {
@@ -2674,9 +2681,9 @@ pytorch.Execution = class extends python.Execution {
                     return node.output();
                 }
             }
-            return super.call(target, name, args, context);
+            return super.call(target, name, args, keywords, context);
         }
-        const [schema, evalArgs] = overload;
+        const [schema, evalArgs, evalKeywords] = overload;
         const op = schema.overload_name ? `${schema.name}.${schema.overload_name}` : schema.name;
         const node = this.create(op, location, 0);
         this._graph.insertNode(node);
@@ -2810,11 +2817,10 @@ pytorch.Execution = class extends python.Execution {
                 }
             }
         }
-        if (args.every((arg, index) => index < position || (arg instanceof ast.Assign && arg.targets && arg.targets instanceof ast.Name))) {
+        if (evalKeywords.length > 0) {
             const params = new Map(parameters.slice(index).map((a) => [a.name, a]));
-            while (position < args.length) {
-                const arg = params.get(args[position].targets.id);
-                const v = evalArgs[position];
+            for (const [key, v] of evalKeywords) {
+                const arg = params.get(key);
                 position++;
                 if (!arg) {
                     throw new pytorch.Error();
@@ -3098,7 +3104,7 @@ pytorch.Execution = class extends python.Execution {
         throw new pytorch.Error(`Unsupported ops argument type '${text}'.`);
     }
 
-    _overload(target, name, args, context) {
+    _overload(target, name, args, keywords, context) {
         const ast = this.ast;
         const torch = this.torch;
         const prefix = this.identifier(target);
@@ -3125,6 +3131,7 @@ pytorch.Execution = class extends python.Execution {
         }
         let overloads = null;
         let evalArgs = null;
+        let evalKeywords = null;
         overloads = torch._C._jit_get_schemas_for_operator(op_name);
         if ((!overloads || overloads.length === 0) && type.startsWith('ops.') && !type.startsWith('ops.prim')) {
             const module = this.import(prefix);
@@ -3156,12 +3163,8 @@ pytorch.Execution = class extends python.Execution {
             }
             return null;
         }
-        evalArgs = args.map((expr) => {
-            if (expr instanceof ast.Assign && expr.targets instanceof ast.Name) {
-                expr = expr.value;
-            }
-            return this.expression(expr, context);
-        });
+        evalArgs = args.map((expr) => this.expression(expr, context));
+        evalKeywords = keywords.map((keyword) => [keyword.arg, this.expression(keyword.value, context)]);
         const matches = [];
         for (const schema of overloads) {
             const parameters = schema.arguments || [];
@@ -3206,11 +3209,10 @@ pytorch.Execution = class extends python.Execution {
             if (next) {
                 continue;
             }
-            if (args.every((arg, index) => index < position || (arg instanceof ast.Assign && arg.targets instanceof ast.Name))) {
+            if (evalKeywords.length > 0) {
                 const params = new Map(parameters.slice(index).map((a) => [a.name, a]));
-                while (position < args.length) {
-                    const value = evalArgs[position];
-                    const arg = params.get(args[position].targets.id);
+                for (const [key, value] of evalKeywords) {
+                    const arg = params.get(key);
                     position++;
                     if (!arg) {
                         next = true;
@@ -3260,7 +3262,7 @@ pytorch.Execution = class extends python.Execution {
         if (matches.length === 0) {
             throw new pytorch.Error(`Unknown function '${op_name}'.`);
         }
-        return [matches[0], evalArgs];
+        return [matches[0], evalArgs, evalKeywords];
     }
 };
 
