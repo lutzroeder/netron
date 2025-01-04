@@ -1243,7 +1243,6 @@ pytorch.Container.Zip = class extends pytorch.Container {
         const reader = new torch.PyTorchFileReader(this._entries);
         let torchscript = reader.has_record('constants.pkl');
         const version = reader.version();
-        this.execution.to_ir = false;
         if (torchscript) {
             if (this.execution.to_ir) {
                 metadata.register(this.execution);
@@ -1328,10 +1327,20 @@ pytorch.Container.ModelJson = class extends pytorch.Container {
             this.producer = this._model.producerName + (this._model.producerVersion ? ` v${this._model.producerVersion}` : '');
         }
         this.format = reader.has_record('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
+        if (this.execution.to_ir) {
+            metadata.register(this.execution);
+        }
         this.execution.trace = false;
         this.module = torch.jit.load(reader);
         this.execution.trace = true;
-        metadata.register(this.execution);
+        if (this.execution.to_ir) {
+            // console.log(this.module.graph.toString());
+            torch._C._jit_pass_inline(this.module.graph);
+            // console.log(this.module.graph.toString());
+        }
+        if (!this.execution.to_ir) {
+            metadata.register(this.execution);
+        }
         delete this._context;
         delete this._model;
         delete this._entries;
@@ -1516,6 +1525,7 @@ pytorch.Execution = class extends python.Execution {
 
     constructor(sources, metadata) {
         super(sources);
+        this.to_ir = false;
         this._metadata = metadata;
         const execution = this;
         const torch = this.torch;
@@ -1786,7 +1796,7 @@ pytorch.Execution = class extends python.Execution {
                 break;
             }
             case 'Assign': {
-                const target = expr.targets;
+                const [target] = expr.targets;
                 if (target instanceof ast.Name) {
                     let value = this.expression(expr.value, context);
                     if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') {
@@ -2156,7 +2166,9 @@ pytorch.Execution = class extends python.Execution {
         }
         switch (value.__class__.__name__) {
             case 'Assign': {
-                this.variables(value.targets, scope);
+                for (const target of value.targets) {
+                    this.variables(target, scope);
+                }
                 this.variables(value.value, scope);
                 break;
             }
@@ -2279,8 +2291,8 @@ pytorch.Execution = class extends python.Execution {
                 // if _x:
                 //   ...
                 if (assign instanceof ast.Assign && condition instanceof ast.If &&
-                    assign.targets instanceof ast.Name && condition.test instanceof ast.Name &&
-                    assign.targets.id === condition.test.id &&
+                    assign.targets[0] instanceof ast.Name && condition.test instanceof ast.Name &&
+                    assign.targets[0].id === condition.test.id &&
                     !containsVariableReference(statements.slice(i + 2), condition.test.id) &&
                     (!condition.body || !containsVariableReference(condition.body.statements), condition.test.id) &&
                     (!condition.orelse || !containsVariableReference(condition.orelse.statements, condition.test.id))) {
@@ -2334,7 +2346,7 @@ pytorch.Execution = class extends python.Execution {
                             const set = new Set();
                             for (const stmt of statements) {
                                 if (stmt instanceof ast.Assign) {
-                                    const target = stmt.targets;
+                                    const [target] = stmt.targets;
                                     if (target instanceof ast.Name) {
                                         set.add(target.id);
                                     } else if (target instanceof ast.Tuple) {
@@ -2408,9 +2420,9 @@ pytorch.Execution = class extends python.Execution {
                                 } else if (t1.equals(t2)) {
                                     type = t2;
                                 } else if (t1 instanceof torch.NoneType && t2 instanceof torch.NoneType === false) {
-                                    type = t2 instanceof torch.OptionalType ? t2 : torch.OptionalType.get(t2);
+                                    type = t2 instanceof torch.OptionalType ? t2 : torch.OptionalType.create(t2);
                                 } else if (t1 instanceof torch.NoneType === false && t2 instanceof torch.NoneType) {
-                                    type = t1 instanceof torch.OptionalType ? t1 : torch.OptionalType.get(t1);
+                                    type = t1 instanceof torch.OptionalType ? t1 : torch.OptionalType.create(t1);
                                 } else if (t2.isSubtypeOf(t1)) {
                                     type = t1;
                                 } else if (t1.isSubtypeOf(t2)) {
@@ -2456,7 +2468,7 @@ pytorch.Execution = class extends python.Execution {
                         const variable = loop.target;
                         for (const current of range) {
                             const constant = new ast.Constant(current);
-                            const stmt = new ast.Assign(variable, constant);
+                            const stmt = new ast.Assign([variable], constant);
                             this.statement(stmt, context);
                             const value = this.block(loop.body, context);
                             if (value !== undefined) {
@@ -2541,7 +2553,7 @@ pytorch.Execution = class extends python.Execution {
                 }
                 case 'Optional': {
                     const type = this.type(elts[0]);
-                    return torch.OptionalType.get(type);
+                    return torch.OptionalType.create(type);
                 }
                 case 'Tuple': {
                     const types = elts.map((expr) => this.type(expr));
@@ -2754,7 +2766,7 @@ pytorch.Execution = class extends python.Execution {
                     continue;
                 }
                 throw new pytorch.Error('Invalid argument type.');
-            } else if (args[position] instanceof ast.Assign && args[position].targets.id !== arg.name) {
+            } else if (args[position] instanceof ast.Assign && args[position].targets[0].id !== arg.name) {
                 throw new pytorch.Error('Expected named argument.');
             } else {
                 position++;
@@ -3140,8 +3152,8 @@ pytorch.Execution = class extends python.Execution {
                 for (let i = 0; i < args.length; i++) {
                     let argument = args[i];
                     let name = i.toString();
-                    if (argument instanceof ast.Assign && argument.targets instanceof ast.Name) {
-                        name = this.expression(argument.targets, context);
+                    if (argument instanceof ast.Assign && argument.targets[0] instanceof ast.Name) {
+                        name = this.expression(argument.targets[0], context);
                         argument = argument.value;
                     }
                     const obj = this.expression(argument, context);
@@ -3199,7 +3211,7 @@ pytorch.Execution = class extends python.Execution {
                     }
                     next = true;
                     break;
-                } else if (args[position] instanceof ast.Assign && args[position].targets.id !== arg.name) {
+                } else if (args[position] instanceof ast.Assign && args[position].targets[0].id !== arg.name) {
                     next = true;
                     break;
                 } else {
