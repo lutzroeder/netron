@@ -13209,7 +13209,7 @@
     "name": "DequantizeLinear",
     "module": "ai.onnx",
     "version": 23,
-    "description": "The linear dequantization operator. It consumes a quantized tensor, a scale, and a zero point to compute the\nfull-precision tensor. The dequantization formula is `y = (x - x_zero_point) * x_scale`. `x_scale` and `x_zero_point`\nmust have the same shape, determining the quantization's granularity: a scalar for per-tensor/per-layer quantization,\na 1-D tensor for per-axis quantization, or have a rank identical to the input for blocked quantization.\nSee QuantizeLinear for details on quantization granularity.\n\n`x_zero_point` and `x` must have the same type. `x` and `y` must have the same shape. In the case of dequantizing\n`int32`, there's no zero point (zero point is supposed to be 0).\n`zero-point` is usually not used in the case of float8 types quantization, but the dequantization formula remains the same\nfor consistency, and `x_scale` still determines the output type.\n",
+    "description": "The linear dequantization operator. It consumes a quantized tensor, a scale, and a zero point to compute the\nfull-precision tensor. The dequantization formula is `y = (x - x_zero_point) * x_scale`. `x_scale` and `x_zero_point`\nmust have the same shape, determining the quantization's granularity: a scalar for per-tensor/per-layer quantization,\na 1-D tensor for per-axis quantization, or have a rank identical to the input for blocked quantization.\nSee QuantizeLinear for details on quantization granularity.\n\n`x_zero_point` and `x` must have the same type. `x` and `y` must have the same shape. In the case of dequantizing\n`int32`, there's no zero point (zero point is supposed to be 0).\n`zero-point` is usually not used in the case of float8 and 4-bit types quantization, but the dequantization formula remains the same\nfor consistency. The output type is determined by the attribute `output_dtype`. If `output_dtype` is not supplied then the output type\nis the same as `x_scale`. The output type also determines the precision of the multiplication operation.\n\n",
     "attributes": [
       {
         "name": "axis",
@@ -13223,6 +13223,12 @@
         "type": "int64",
         "required": false,
         "description": "(Optional) The size of the quantization block (number of times every scale is replicated). Used only for blocked quantization. The block size is a positive integer. Given `x` shape `(D0, ..., Di, ..., Dn)`, `y_scale` shape `(S0, ... Si, ...Sn)` and `axis=i`, the accepted range is `[ceil(Di/Si), ceil(Di/(Si-1))-1]`"
+      },
+      {
+        "name": "output_dtype",
+        "type": "int64",
+        "required": false,
+        "description": "(Optional) The output data type. If not supplied, the output data type is inferred from `x_scale` data type (`T2`)"
       }
     ],
     "inputs": [
@@ -13248,8 +13254,8 @@
     "outputs": [
       {
         "name": "y",
-        "type": "T2",
-        "description": "N-D full precision output tensor. It has same shape as input `x`."
+        "type": "T3",
+        "description": "N-D full precision output tensor. It has the same shape as input `x`. The data type is specified by the `output_dtype` attribute or, in its absence, the type of `x_scale`."
       }
     ],
     "min_output": 1,
@@ -13275,8 +13281,17 @@
         ]
       },
       {
-        "description": "'x_scale' determines the output type.",
+        "description": "The type of the input 'x_scale'.",
         "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "The type of the output 'y'.",
+        "type_param_str": "T3",
         "allowed_type_strs": [
           "tensor(float)",
           "tensor(float16)",
@@ -42030,7 +42045,7 @@
     "name": "QuantizeLinear",
     "module": "ai.onnx",
     "version": 23,
-    "description": "The linear quantization operator consumes a high-precision tensor, a scale, and a zero point to compute the\nlow-precision/quantized tensor. The scale factor and zero point must have the same shape, determining the quantization\ngranularity. The quantization formula is `y = saturate((x / y_scale) + y_zero_point)`.\n\nSaturation is done according to:\n- uint16: [0, 65535]\n- int16: [-32768, 32767]\n- uint8: [0, 255]\n- int8: [-128, 127]\n- uint4: [0, 15]\n- int4: [-8, 7]\n\nFor `(x / y_scale)`, it rounds to the nearest even. Refer to https://en.wikipedia.org/wiki/Rounding for details.\n\n`y_zero_point` and `y` must have the same type. `y_zero_point` is usually not used for quantization to float8 types, but the quantization\nformula remains the same for consistency, and the type of the attribute `y_zero_point` still determines the quantization type.\n\nThere are three supported quantization granularities, determined by the shape of `y_scale`.\nIn all cases, `y_zero_point` must have the same shape as `y_scale`.\n- Per-tensor (per-layer) quantization: `y_scale` is a scalar.\n- Per-axis quantization: The scale must be a 1-D tensor, with the length of the quantization axis. For an input shape\n `(D0, ..., Di, ..., Dn)` and `axis=i`, `y_scale` is a 1-D tensor of length `Di`.\n- Blocked quantization: The scale's shape is identical to the input's shape, except for one dimension, in which\n  blocking is performed. Given `x` shape `(D0, ..., Di, ..., Dn)`, `axis=i`, and block size `B`: `y_scale` shape is\n  `(D0, ..., ceil(Di/B), ..., Dn)`.\n",
+    "description": "The linear quantization operator consumes a high-precision tensor, a scale, and a zero point to compute the\nlow-precision/quantized tensor. The scale factor and zero point must have the same shape, determining the quantization\ngranularity. The quantization formula is `y = saturate((x / y_scale) + y_zero_point)`.\n\nSaturation is done according to:\n- uint16: [0, 65535]\n- int16: [-32768, 32767]\n- uint8: [0, 255]\n- int8: [-128, 127]\n- uint4: [0, 15]\n- int4: [-8, 7]\n\nFor `(x / y_scale)`, it rounds to the nearest even. Refer to https://en.wikipedia.org/wiki/Rounding for details.\n\n`y_zero_point` and `y` must have the same type. `y_zero_point` is usually not used for quantization to float8 and 4bit types, but the quantization\nformula remains the same for consistency, and the type of the attribute `y_zero_point` still determines the quantization type.\n`x` and `y_scale` are allowed to have different types. The type of `y_scale` determines the precision of the division operation between `x` and\n`y_scale`, unless the `precision` attribute is specified.\n\nThere are three supported quantization granularities, determined by the shape of `y_scale`.\nIn all cases, `y_zero_point` must have the same shape as `y_scale`.\n- Per-tensor (per-layer) quantization: `y_scale` is a scalar.\n- Per-axis quantization: The scale must be a 1-D tensor, with the length of the quantization axis. For an input shape\n `(D0, ..., Di, ..., Dn)` and `axis=i`, `y_scale` is a 1-D tensor of length `Di`.\n- Blocked quantization: The scale's shape is identical to the input's shape, except for one dimension, in which\n  blocking is performed. Given `x` shape `(D0, ..., Di, ..., Dn)`, `axis=i`, and block size `B`: `y_scale` shape is\n  `(D0, ..., ceil(Di/B), ..., Dn)`.\n",
     "attributes": [
       {
         "name": "axis",
@@ -42049,7 +42064,13 @@
         "name": "output_dtype",
         "type": "int64",
         "required": false,
-        "description": "(Optional) The output data type. If not supplied, the output data type is inferred from `y_zero_point` data type (`T2`). If neither `output_dtype` nor `y_zero_point` are supplied, output data type is uint8. If both `output_dtype` and `y_zero_point` are specified, `output_dtype` must be `T2`."
+        "description": "(Optional) The output data type. If not supplied, the output data type is inferred from `y_zero_point` data type (`T3`). If neither `output_dtype` nor `y_zero_point` are supplied, output data type is uint8. If both `output_dtype` and `y_zero_point` are specified, `output_dtype` must be `T3`."
+      },
+      {
+        "name": "precision",
+        "type": "int64",
+        "required": false,
+        "description": "(Optional) The precision of the division operation between `x` and `y_scale`. If not provided, it will be the same as the type of `y_scale`."
       },
       {
         "name": "saturate",
@@ -42067,12 +42088,12 @@
       },
       {
         "name": "y_scale",
-        "type": "T1",
+        "type": "T2",
         "description": "Scale for doing quantization to get `y`. For per-tensor/layer quantization the scale is a scalar, for per-axis quantization it is a 1-D Tensor and for blocked quantization it has the same shape as the input, except for one dimension in which blocking is performed."
       },
       {
         "name": "y_zero_point",
-        "type": "T2",
+        "type": "T3",
         "option": "optional",
         "description": "Zero point for doing quantization to get `y`. Shape must match `y_scale`.Default is uint8 with zero point of 0 if it's not specified."
       }
@@ -42082,7 +42103,7 @@
     "outputs": [
       {
         "name": "y",
-        "type": "T2",
+        "type": "T3",
         "description": "N-D quantized output tensor. It has same shape as input `x`."
       }
     ],
@@ -42101,8 +42122,18 @@
         ]
       },
       {
-        "description": "The type of the input `y_zero_point` and the output `y`.",
+        "description": "The type of the input 'y_scale'.",
         "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)",
+          "tensor(int32)"
+        ]
+      },
+      {
+        "description": "The type of the input `y_zero_point` and the output `y`.",
+        "type_param_str": "T3",
         "allowed_type_strs": [
           "tensor(int8)",
           "tensor(uint8)",
