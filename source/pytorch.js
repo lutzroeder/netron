@@ -2703,7 +2703,7 @@ pytorch.Execution = class extends python.Execution {
         const parameters = schema.arguments;
         const varTypes = new Map();
         varTypes.map = function(type) {
-            if (type.kind() === 'VarType') {
+            if (type instanceof torch._C.VarType) {
                 const key = type.annotation_str;
                 if (!varTypes.has(key)) {
                     throw new pytorch.Error(`Unknown var type '${key}'.`);
@@ -2782,7 +2782,7 @@ pytorch.Execution = class extends python.Execution {
             }
             if (match) {
                 node.addInput(input);
-                if (type.kind() === 'VarType') {
+                if (type instanceof torch._C.VarType) {
                     const key = type.annotation_str;
                     if (input instanceof torch.Value && input.type()) {
                         varTypes.set(key, input.type());
@@ -2791,7 +2791,7 @@ pytorch.Execution = class extends python.Execution {
                     }
                     // throw new pytorch.Error("Unknown value type 't'.");
                 }
-                if (type instanceof torch.ListType && type.getElementType().kind() === 'VarType') {
+                if (type instanceof torch.ListType && type.getElementType() instanceof torch._C.VarType) {
                     const key = type.getElementType().annotation_str;
                     if (input instanceof torch.Value && input.type() instanceof torch.OptionalType && input.type().getElementType() instanceof torch.ListType) {
                         varTypes.set(key, input.type().getElementType().getElementType());
@@ -2808,7 +2808,7 @@ pytorch.Execution = class extends python.Execution {
                         continue;
                     }
                 }
-                if (type instanceof torch.DictType && type.getValueType().kind() === 'VarType') {
+                if (type instanceof torch.DictType && type.getValueType() instanceof torch._C.VarType) {
                     const key = type.getValueType().annotation_str;
                     if (input instanceof torch.Value && input.type() instanceof torch.DictType) {
                         varTypes.set(key, input.type().getValueType());
@@ -2818,7 +2818,7 @@ pytorch.Execution = class extends python.Execution {
                         throw new pytorch.Error("Unknown dict type 't[]'.");
                     }
                 }
-                if (type instanceof torch.ListType && type.getElementType() instanceof torch.TupleType && type.getElementType().elements().length === 2 && type.getElementType().elements()[1].kind() === 'VarType') {
+                if (type instanceof torch.ListType && type.getElementType() instanceof torch.TupleType && type.getElementType().elements().length === 2 && type.getElementType().elements()[1] instanceof torch._C.VarType) {
                     const key = type.getElementType().elements()[1].annotation_str;
                     if (input instanceof torch.Value && input.type() instanceof torch.ListType && input.type().getElementType() instanceof torch.TupleType) {
                         const elements = input.type().getElementType().elements();
@@ -3075,8 +3075,8 @@ pytorch.Execution = class extends python.Execution {
                 }
                 if (type instanceof torch.DictType) {
                     if (obj instanceof torch.Value && obj.type() instanceof torch.DictType) {
-                        if ((type.getKeyType().kind() === 'VarType' || type.getKeyType().str() === obj.type().getKeyType().str()) ||
-                            (type.getValueType().kind() === 'VarType' || type.getValueType().str() === obj.type().getValueType().str())) {
+                        if ((type.getKeyType() instanceof torch._C.VarType || type.getKeyType().str() === obj.type().getKeyType().str()) ||
+                            (type.getValueType() instanceof torch._C.VarType || type.getValueType().str() === obj.type().getValueType().str())) {
                             return true;
                         }
                     }
