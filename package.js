@@ -561,7 +561,7 @@ const pull = async () => {
     await exec('git fetch --prune origin "refs/tags/*:refs/tags/*"');
     const before = await exec('git rev-parse HEAD', 'utf-8');
     try {
-        await exec('git pull --prune --rebase');
+        await exec('git pull --prune --rebase --autostash');
     } catch (error) {
         writeLine(error.message);
     }
