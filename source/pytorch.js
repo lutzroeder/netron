@@ -1932,9 +1932,9 @@ pytorch.Execution = class extends python.Execution {
                 return super.expression(expr, context);
             }
             case 'Subscript': {
-                if (expr.slice instanceof ast.List && expr.slice.elts.length === 1) {
+                if (expr.slice instanceof ast.Tuple === false) {
                     const value = this.expression(expr.value, context);
-                    const [elt] = expr.slice.elts;
+                    const elt = expr.slice;
                     if (value instanceof torch.Value) {
                         let type = value.type();
                         if (type instanceof torch.OptionalType) {
@@ -2215,6 +2215,10 @@ pytorch.Execution = class extends python.Execution {
             case 'Subscript': {
                 this.variables(value.value, scope);
                 this.variables(value.slice, scope);
+                break;
+            }
+            case 'Expr': {
+                this.variables(value.value, scope);
                 break;
             }
             case 'Call': {
@@ -2545,27 +2549,26 @@ pytorch.Execution = class extends python.Execution {
         const ast = this.ast;
         const torch = this.torch;
         if (expr instanceof ast.Subscript && expr.value instanceof ast.Name) {
-            const elts = expr.slice.elts;
             switch (expr.value.id) {
                 case 'List': {
-                    const type = this.type(elts[0]);
+                    const type = this.type(expr.slice);
                     return torch.ListType.create(type);
                 }
                 case 'Optional': {
-                    const type = this.type(elts[0]);
+                    const type = this.type(expr.slice);
                     return torch.OptionalType.create(type);
                 }
                 case 'Tuple': {
-                    const types = elts.map((expr) => this.type(expr));
+                    const types = expr.slice instanceof ast.Tuple ? expr.slice.elts.map((expr) => this.type(expr)) : [this.type(expr.slice)];
                     return torch.TupleType.create(types);
                 }
                 case 'Dict': {
-                    const key = this.type(elts[0]);
-                    const value = this.type(elts[1]);
+                    const key = this.type(expr.slice.elts[0]);
+                    const value = this.type(expr.slice.elts[1]);
                     return torch.DictType.create(key, value);
                 }
                 case 'Final': {
-                    return this.type(elts[0]);
+                    return this.type(expr.slice);
                 }
                 default: {
                     throw new pytorch.Error(`Unsupported type element expression '${expr.value.id}'.`);
