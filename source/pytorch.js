@@ -3262,18 +3262,6 @@ pytorch.Execution = class extends python.Execution {
             }
             matches.push(schema);
         }
-        if (matches.length > 1) {
-            const keys = new Map([['IntType', 1], ['FloatType', 2], ['TensorType', 3], ['NumberType', 4]]);
-            matches.sort((a, b) => {
-                let keyA = keys.get(a.arguments[0].real_type.kind()) || 5;
-                let keyB = keys.get(b.arguments[0].real_type.kind()) || 5;
-                if (keyA === keyB && a.arguments.length > 1 && b.arguments.length > 1) {
-                    keyA = keys.get(a.arguments[1].real_type.kind()) || 5;
-                    keyB = keys.get(b.arguments[1].real_type.kind()) || 5;
-                }
-                return keyA - keyB;
-            });
-        }
         if (matches.length === 0) {
             throw new pytorch.Error(`Unknown function '${op_name}'.`);
         }
