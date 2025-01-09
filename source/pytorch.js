@@ -105,6 +105,7 @@ pytorch.Graph = class {
                     }
                 }
             }
+            const deleted = new Set();
             const param_node = graph.param_node();
             const self = param_node && param_node.outputs().length > 0 && param_node.outputs()[0].type() === module._c._type() ? param_node.outputs()[0] : null;
             if (self) {
@@ -138,6 +139,7 @@ pytorch.Graph = class {
                             for (const output of node.outputs()) {
                                 delattr(output);
                             }
+                            // deleted.add(node);
                             node.destroy();
                         }
                     }
@@ -152,6 +154,7 @@ pytorch.Graph = class {
                         output.identifier = output.debugName();
                         output.value = value;
                     }
+                    // deleted.add(node);
                     node.destroy();
                 }
             }
@@ -163,6 +166,7 @@ pytorch.Graph = class {
                             const output = node.outputs()[i];
                             output.value = value[i];
                         }
+                        // deleted.add(node);
                         node.destroy();
                     }
                 }
@@ -172,6 +176,7 @@ pytorch.Graph = class {
                     node.inputs().every((value) => typeof value.value === 'number' && typeof value.value === 'string' && typeof value.value === 'boolean') &&
                     node.outputs().every((value) => value.uses().every((use) => use.user.kind() !== 'prim::CallMethod'))) {
                     node.outputs()[0].value = node.inputs().map((value) => value.value);
+                    // deleted.add(node);
                     node.destroy();
                 }
             }
@@ -189,6 +194,9 @@ pytorch.Graph = class {
                 this.outputs.push(new pytorch.Argument(identifier, [values.map(identifier)]));
             }
             for (const node of graph.nodes()) {
+                if (deleted.has(node)) {
+                    continue;
+                }
                 if (node === graph.param_node() ||
                     node === graph.return_node()) {
                     continue;
@@ -4051,6 +4059,7 @@ pytorch.Metadata = class {
                 if (type.category) {
                     schema.category = type.category;
                 }
+                schema.setAliasAnalysis('FROM_SCHEMA');
                 const op = new torch._C.Operator(schema);
                 registry.registerOperator(op);
                 modules.add(type.name.split('::')[0]);
