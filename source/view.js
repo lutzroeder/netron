@@ -110,10 +110,12 @@ view.View = class {
                                         var list_t = document.getElementById("edge-paths");
                                         for (var j = 0; j < list_t.children.length; j++) {
                                             if (list_t.children[j].id.split("\n")[1] == id_child) {
-                                                if (child["style"] && list_t.children[j].hasAttribute("style")) {
+                                                if (child["style"] &&
+                                                list_t.children[j].hasAttribute("style")) {
                                                     list_t.children[j].removeAttribute("style");
                                                 }
-                                                if (child["hover"] && list_t.children[j + 1].innerHTML !== '') {
+                                                if (child["hover"] &
+                                                list_t.children[j + 1].innerHTML !== '') {
                                                     list_t.children[j + 1].innerHTML = '';
                                                 }
                                             }
@@ -134,12 +136,16 @@ view.View = class {
                                             counter = 0;
                                         }
                                         var operator = document.getElementById("node-id-" + counter);
-                                        if (operator && operator.children && operator.children[0] && operator.children[0].children && operator.children[0].children[0]) {
+                                        if (operator && operator.children && operator.children[0] &&
+                                        operator.children[0].children &&
+                                        operator.children[0].children[0]) {
                                             if (operator.children[0].children[0]) {
-                                                if (child["hover"] && operator.children[0].children[0].innerHTML !== '') {
+                                                if (child["hover"] &&
+                                                operator.children[0].children[0].innerHTML !== '') {
                                                     operator.children[0].children[0].innerHTML = '';
                                                 }
-                                                if (child["style"] && operator.children[0].children[0].hasAttribute("style")) {
+                                                if (child["style"] &&
+                                                operator.children[0].children[0].hasAttribute("style")) {
                                                     operator.children[0].children[0].removeAttribute("style");
                                                 }
                                             }
