@@ -147,7 +147,7 @@ pytorch.Graph = class {
                 delattr(param_node.outputs()[0], '');
             }
             for (const node of graph.nodes()) {
-                if (node.kind() === 'prim::Constant') {
+                if (node.kind() === 'prim::Constant' && node.hasAttribute('value')) {
                     const kind = node.kindOf('value');
                     const value = node[kind]('value');
                     for (const output of node.outputs()) {
