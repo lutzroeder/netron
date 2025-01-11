@@ -555,7 +555,7 @@ pytorch.Node = class {
             }
             const sourceRange = node.sourceRange();
             if (sourceRange) {
-                this.metadata.push(new pytorch.Argument('source', sourceRange.replace(/^at\s/, '').replace(/\.$/, '')));
+                this.metadata.push(new pytorch.Argument('source', sourceRange.toString().replace(/^at\s/, '').replace(/\.$/, '')));
             }
         } else if (torch && obj instanceof torch.fx.node.Node) {
             if (obj.op === 'call_function') {
@@ -1533,7 +1533,7 @@ pytorch.Execution = class extends python.Execution {
 
     constructor(sources, metadata) {
         super(sources);
-        this.to_ir = false;
+        this.to_ir = true;
         this._metadata = metadata;
         const execution = this;
         const torch = this.torch;
