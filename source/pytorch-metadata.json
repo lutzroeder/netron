@@ -593,6 +593,27 @@
     "name": "aten::clear.Tensor(Dict(Tensor, t)(a!) self) -> ()"
   },
   {
+    "name": "aten::_set_item.t(t[](a!) l, int idx, t(b -> *) el) -> t[](a!)"
+  },
+  {
+    "name": "aten::_set_item.str(Dict(str, t)(a!) l, str(b -> *) idx, t(c -> *) v) -> ()"
+  },
+  {
+    "name": "aten::_set_item.int(Dict(int, t)(a!) l, int(b -> *) idx, t(c -> *) v) -> ()"
+  },
+  {
+    "name": "aten::_set_item.bool(Dict(bool, t)(a!) l, bool(b -> *) idx, t(c -> *) v) -> ()"
+  },
+  {
+    "name": "aten::_set_item.float(Dict(float, t)(a!) l, float(b -> *) idx, t(c -> *) v) -> ()"
+  },
+  {
+    "name": "aten::_set_item.complex(Dict(complex, t)(a!) l, complex(b -> *) idx, t(c -> *) v) -> ()"
+  },
+  {
+    "name": "aten::_set_item.Tensor(Dict(Tensor, t)(a!) l, Tensor(b -> *) idx, t(c -> *) v) -> ()"
+  },
+  {
     "name": "aten::extend.t(t[](a!) self, t[] other) -> ()"
   },
   {
@@ -796,6 +817,12 @@
   },
   {
     "name": "prim::TupleUnpack(Any tup) -> ..."
+  },
+  {
+    "name": "aten::__derive_index(int index, int start, int step) -> int"
+  },
+  {
+    "name": "aten::__range_length(int lo, int hi, int step) -> int"
   },
   {
     "name": "aten::cpu(Tensor(a) self) -> Tensor(a|b)"
@@ -4038,6 +4065,18 @@
   },
   {
     "name": "aten::cumsum.out(Tensor self, int dim, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::cumprod(Tensor self, int dim, *, ScalarType? dtype=None) -> Tensor"
+  },
+  {
+    "name": "aten::cumprod.dimname(Tensor self, str dim, *, ScalarType? dtype=None) -> Tensor"
+  },
+  {
+    "name": "aten::cumprod.dimname_out(Tensor self, str dim, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::cumprod.out(Tensor self, int dim, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::log_softmax.int(Tensor self, int dim, ScalarType? dtype=None) -> Tensor",
