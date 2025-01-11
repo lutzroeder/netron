@@ -1533,7 +1533,7 @@ pytorch.Execution = class extends python.Execution {
 
     constructor(sources, metadata) {
         super(sources);
-        this.to_ir = true;
+        this.to_ir = false;
         this._metadata = metadata;
         const execution = this;
         const torch = this.torch;
