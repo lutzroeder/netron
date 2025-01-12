@@ -6,6 +6,15 @@
     "name": "torchvision::nms(Tensor dets, Tensor scores, float iou_threshold) -> Tensor"
   },
   {
+    "name": "aten::set_grad_enabled(bool val) -> ()"
+  },
+  {
+    "name": "aten::is_grad_enabled() -> bool"
+  },
+  {
+    "name": "aten::is_scripting() -> bool"
+  },
+  {
     "name": "aten::as_tensor.bool(bool t, *, ScalarType? dtype=None, Device? device=None) -> Tensor"
   },
   {
@@ -141,6 +150,9 @@
   },
   {
     "name": "prim::AutogradZero() -> Tensor"
+  },
+  {
+    "name": "aten::cuda(Tensor(a) self) -> Tensor(a|b)"
   },
   {
     "name": "aten::manual_seed(int seed) -> ()"
@@ -572,6 +584,9 @@
     "name": "aten::pop.Dict_default_Tensor(Dict(Tensor, t)(a!) self, Tensor key, t default_value) -> t(*)"
   },
   {
+    "name": "aten::insert.t(t[](a!) self, int idx, t(b -> *) el) -> ()"
+  },
+  {
     "name": "aten::clear.t(t[](a!) self) -> ()"
   },
   {
@@ -837,6 +852,9 @@
     "name": "aten::str(t elem) -> str"
   },
   {
+    "name": "aten::_indices(Tensor(a) self) -> Tensor(a)"
+  },
+  {
     "name": "aten::pad_sequence(Tensor[] sequences, bool batch_first=False, float padding_value=0., str padding_side=\"right\") -> Tensor"
   },
   {
@@ -1029,48 +1047,6 @@
     "name": "aten::to_padded_tensor(Tensor self, float padding, SymInt[]? output_size=None) -> Tensor"
   },
   {
-    "name": "aten::unsqueeze_copy.out(Tensor self, int dim, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::unsqueeze_copy(Tensor self, int dim) -> Tensor"
-  },
-  {
-    "name": "aten::split_copy.Tensor_out(Tensor self, SymInt split_size, int dim=0, *, Tensor(a!)[] out) -> ()"
-  },
-  {
-    "name": "aten::split_copy.Tensor(Tensor self, SymInt split_size, int dim=0) -> Tensor[]"
-  },
-  {
-    "name": "aten::slice_copy.Tensor_out(Tensor self, int dim=0, SymInt? start=None, SymInt? end=None, SymInt step=1, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::slice_copy.Tensor(Tensor self, int dim=0, SymInt? start=None, SymInt? end=None, SymInt step=1) -> Tensor"
-  },
-  {
-    "name": "aten::detach_copy.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::detach_copy(Tensor self) -> Tensor"
-  },
-  {
-    "name": "aten::select_copy.int_out(Tensor self, int dim, SymInt index, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::select_copy.int(Tensor self, int dim, SymInt index) -> Tensor"
-  },
-  {
-    "name": "aten::view_as_complex_copy.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::view_as_complex_copy(Tensor self) -> Tensor"
-  },
-  {
-    "name": "aten::view_as_real_copy.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::view_as_real_copy(Tensor self) -> Tensor"
-  },
-  {
     "name": "aten::masked_scatter(Tensor self, Tensor mask, Tensor source) -> Tensor"
   },
   {
@@ -1087,6 +1063,12 @@
   },
   {
     "name": "aten::mkldnn_reorder_conv2d_weight(Tensor self, SymInt[2] padding=[0, 0], SymInt[2] stride=[1, 1], SymInt[2] dilation=[1, 1], SymInt groups=1, SymInt[]? input_size=None) -> Tensor"
+  },
+  {
+    "name": "aten::col_indices(Tensor(a) self) -> Tensor(a)"
+  },
+  {
+    "name": "aten::crow_indices(Tensor(a) self) -> Tensor(a)"
   },
   {
     "name": "aten::values(Tensor(a) self) -> Tensor(a)"
@@ -1163,13 +1145,46 @@
     "name": "aten::affine_grid_generator.out(Tensor theta, SymInt[] size, bool align_corners, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::_scaled_dot_product_flash_attention_for_cpu(Tensor query, Tensor key, Tensor value, float dropout_p=0., bool is_causal=False, *, Tensor? attn_mask=None, float? scale=None) -> (Tensor output, Tensor logsumexp)"
+    "name": "aten::unsqueeze_copy(Tensor self, int dim) -> Tensor"
   },
   {
-    "name": "aten::_transformer_encoder_layer_fwd(Tensor src, int embed_dim, int num_heads, Tensor qkv_weight, Tensor qkv_bias, Tensor proj_weight, Tensor proj_bias, bool use_gelu, bool norm_first, float eps, Tensor norm_weight_1, Tensor norm_bias_1, Tensor norm_weight_2, Tensor norm_bias_2, Tensor ffn_weight_1, Tensor ffn_bias_1, Tensor ffn_weight_2, Tensor ffn_bias_2, Tensor? mask=None, int? mask_type=None) -> Tensor"
+    "name": "aten::unsqueeze_copy.out(Tensor self, int dim, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::_transformer_encoder_layer_fwd.out(Tensor src, int embed_dim, int num_heads, Tensor qkv_weight, Tensor qkv_bias, Tensor proj_weight, Tensor proj_bias, bool use_gelu, bool norm_first, float eps, Tensor norm_weight_1, Tensor norm_bias_1, Tensor norm_weight_2, Tensor norm_bias_2, Tensor ffn_weight_1, Tensor ffn_bias_1, Tensor ffn_weight_2, Tensor ffn_bias_2, Tensor? mask=None, int? mask_type=None, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::split_copy.Tensor(Tensor self, SymInt split_size, int dim=0) -> Tensor[]"
+  },
+  {
+    "name": "aten::split_copy.Tensor_out(Tensor self, SymInt split_size, int dim=0, *, Tensor(a!)[] out) -> ()"
+  },
+  {
+    "name": "aten::slice_copy.Tensor(Tensor self, int dim=0, SymInt? start=None, SymInt? end=None, SymInt step=1) -> Tensor"
+  },
+  {
+    "name": "aten::slice_copy.Tensor_out(Tensor self, int dim=0, SymInt? start=None, SymInt? end=None, SymInt step=1, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::detach_copy(Tensor self) -> Tensor"
+  },
+  {
+    "name": "aten::detach_copy.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::select_copy.int(Tensor self, int dim, SymInt index) -> Tensor"
+  },
+  {
+    "name": "aten::select_copy.int_out(Tensor self, int dim, SymInt index, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::view_as_complex_copy(Tensor self) -> Tensor"
+  },
+  {
+    "name": "aten::view_as_complex_copy.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::view_as_real_copy(Tensor self) -> Tensor"
+  },
+  {
+    "name": "aten::view_as_real_copy.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::smooth_l1_loss_backward.grad_input(Tensor grad_output, Tensor self, Tensor target, int reduction, float beta, *, Tensor(a!) grad_input) -> Tensor(a!)"
@@ -1184,23 +1199,11 @@
     "name": "aten::mse_loss_backward.grad_input(Tensor grad_output, Tensor self, Tensor target, int reduction, *, Tensor(a!) grad_input) -> Tensor(a!)"
   },
   {
-    "name": "aten::remainder_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::remainder_.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)"
-  },
-  {
     "name": "aten::take(Tensor self, Tensor index) -> Tensor",
     "category": "Activation"
   },
   {
     "name": "aten::take.out(Tensor self, Tensor index, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::triu_(Tensor(a!) self, int diagonal=0) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::tril_(Tensor(a!) self, int diagonal=0) -> Tensor(a!)"
   },
   {
     "name": "aten::scatter_add_(Tensor(a!) self, int dim, Tensor index, Tensor src) -> Tensor(a!)"
@@ -1221,9 +1224,6 @@
     "name": "aten::put_(Tensor(a!) self, Tensor index, Tensor source, bool accumulate=False) -> Tensor(a!)"
   },
   {
-    "name": "aten::masked_scatter_(Tensor(a!) self, Tensor mask, Tensor source) -> Tensor(a!)"
-  },
-  {
     "name": "aten::_fake_quantize_learnable_per_tensor_affine_backward(Tensor grad, Tensor self, Tensor scale, Tensor zero_point, int quant_min, int quant_max, float grad_factor=1.) -> (Tensor, Tensor, Tensor)",
     "category": "Quantization"
   },
@@ -1241,38 +1241,6 @@
   },
   {
     "name": "aten::fake_quantize_per_tensor_affine_cachemask.out(Tensor self, float scale, int zero_point, int quant_min, int quant_max, *, Tensor(a!) out0, Tensor(b!) out1) -> (Tensor(a!), Tensor(b!))",
-    "category": "Quantization"
-  },
-  {
-    "name": "aten::_make_per_tensor_quantized_tensor(Tensor self, float scale, int zero_point) -> Tensor"
-  },
-  {
-    "name": "aten::_make_per_tensor_quantized_tensor.out(Tensor self, float scale, int zero_point, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::dequantize.self(Tensor self) -> Tensor",
-    "category": "Quantization"
-  },
-  {
-    "name": "aten::dequantize.self_out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::dequantize.tensors_out(Tensor[] tensors, *, Tensor(a!)[] out) -> ()"
-  },
-  {
-    "name": "aten::dequantize.tensors(Tensor[] tensors) -> Tensor[]",
-    "category": "Quantization"
-  },
-  {
-    "name": "aten::dequantize.tensor(Tensor qtensor) -> Tensor",
-    "category": "Quantization"
-  },
-  {
-    "name": "aten::dequantize.list(Tensor[] qtensors) -> Tensor[]",
-    "category": "Quantization"
-  },
-  {
-    "name": "aten::dequantize.any(Any tensors) -> Any",
     "category": "Quantization"
   },
   {
@@ -1311,43 +1279,10 @@
     "name": "aten::quantize_per_tensor_dynamic.out(Tensor self, ScalarType dtype, bool reduce_range, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::to_mkldnn(Tensor self, ScalarType? dtype=None) -> Tensor"
-  },
-  {
-    "name": "aten::to_mkldnn.out(Tensor self, ScalarType? dtype=None, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::_weight_norm_interface_backward(Tensor grad_w, Tensor saved_v, Tensor saved_g, Tensor saved_norms, int dim) -> (Tensor, Tensor)"
-  },
-  {
-    "name": "aten::_weight_norm_interface_backward.out(Tensor grad_w, Tensor saved_v, Tensor saved_g, Tensor saved_norms, int dim, *, Tensor(a!) out0, Tensor(b!) out1) -> (Tensor(a!), Tensor(b!))"
-  },
-  {
     "name": "aten::_weight_norm_interface(Tensor v, Tensor g, int dim=0) -> (Tensor, Tensor)"
   },
   {
     "name": "aten::_weight_norm_interface.out(Tensor v, Tensor g, int dim=0, *, Tensor(a!) out0, Tensor(b!) out1) -> (Tensor(a!), Tensor(b!))"
-  },
-  {
-    "name": "aten::_nested_tensor_from_mask(Tensor t, Tensor mask, bool mask_check=True) -> Tensor"
-  },
-  {
-    "name": "aten::_nested_tensor_from_mask.out(Tensor t, Tensor mask, bool mask_check=True, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::_aminmax(Tensor self) -> (Tensor, Tensor)"
-  },
-  {
-    "name": "aten::_aminmax.dim(Tensor self, int dim, bool keepdim=False) -> (Tensor, Tensor)"
-  },
-  {
-    "name": "aten::_aminmax.out(Tensor self, *, Tensor(a!) out0, Tensor(b!) out1) -> (Tensor(a!), Tensor(b!))"
-  },
-  {
-    "name": "aten::_aminmax.dim_out(Tensor self, int dim, bool keepdim=False, *, Tensor(a!) out0, Tensor(b!) out1) -> (Tensor(a!), Tensor(b!))"
-  },
-  {
-    "name": "aten::embedding_renorm_(Tensor(a!) self, Tensor indices, float max_norm, float norm_type) -> Tensor(a!)"
   },
   {
     "name": "aten::_ctc_loss(Tensor log_probs, Tensor targets, int[] input_lengths, int[] target_lengths, int blank=0, bool zero_infinity=False) -> (Tensor, Tensor)"
@@ -1368,10 +1303,99 @@
     "name": "aten::cumsum_.dimname(Tensor(a!) self, str dim, *, ScalarType? dtype=None) -> Tensor(a!)"
   },
   {
+    "name": "aten::_transformer_encoder_layer_fwd(Tensor src, int embed_dim, int num_heads, Tensor qkv_weight, Tensor qkv_bias, Tensor proj_weight, Tensor proj_bias, bool use_gelu, bool norm_first, float eps, Tensor norm_weight_1, Tensor norm_bias_1, Tensor norm_weight_2, Tensor norm_bias_2, Tensor ffn_weight_1, Tensor ffn_bias_1, Tensor ffn_weight_2, Tensor ffn_bias_2, Tensor? mask=None, int? mask_type=None) -> Tensor"
+  },
+  {
+    "name": "aten::_transformer_encoder_layer_fwd.out(Tensor src, int embed_dim, int num_heads, Tensor qkv_weight, Tensor qkv_bias, Tensor proj_weight, Tensor proj_bias, bool use_gelu, bool norm_first, float eps, Tensor norm_weight_1, Tensor norm_bias_1, Tensor norm_weight_2, Tensor norm_bias_2, Tensor ffn_weight_1, Tensor ffn_bias_1, Tensor ffn_weight_2, Tensor ffn_bias_2, Tensor? mask=None, int? mask_type=None, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::_make_per_tensor_quantized_tensor(Tensor self, float scale, int zero_point) -> Tensor"
+  },
+  {
+    "name": "aten::_make_per_tensor_quantized_tensor.out(Tensor self, float scale, int zero_point, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::to_mkldnn(Tensor self, ScalarType? dtype=None) -> Tensor"
+  },
+  {
+    "name": "aten::to_mkldnn.out(Tensor self, ScalarType? dtype=None, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::_weight_norm_interface_backward(Tensor grad_w, Tensor saved_v, Tensor saved_g, Tensor saved_norms, int dim) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "aten::_weight_norm_interface_backward.out(Tensor grad_w, Tensor saved_v, Tensor saved_g, Tensor saved_norms, int dim, *, Tensor(a!) out0, Tensor(b!) out1) -> (Tensor(a!), Tensor(b!))"
+  },
+  {
+    "name": "aten::_aminmax(Tensor self) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "aten::_aminmax.dim(Tensor self, int dim, bool keepdim=False) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "aten::_aminmax.out(Tensor self, *, Tensor(a!) out0, Tensor(b!) out1) -> (Tensor(a!), Tensor(b!))"
+  },
+  {
+    "name": "aten::_aminmax.dim_out(Tensor self, int dim, bool keepdim=False, *, Tensor(a!) out0, Tensor(b!) out1) -> (Tensor(a!), Tensor(b!))"
+  },
+  {
+    "name": "aten::triu_(Tensor(a!) self, int diagonal=0) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::tril_(Tensor(a!) self, int diagonal=0) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::masked_scatter_(Tensor(a!) self, Tensor mask, Tensor source) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::embedding_renorm_(Tensor(a!) self, Tensor indices, float max_norm, float norm_type) -> Tensor(a!)"
+  },
+  {
     "name": "aten::bincount(Tensor self, Tensor? weights=None, int minlength=0) -> Tensor"
   },
   {
     "name": "aten::bincount.out(Tensor self, Tensor? weights=None, int minlength=0, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::_scaled_dot_product_flash_attention_for_cpu(Tensor query, Tensor key, Tensor value, float dropout_p=0., bool is_causal=False, *, Tensor? attn_mask=None, float? scale=None) -> (Tensor output, Tensor logsumexp)"
+  },
+  {
+    "name": "aten::remainder_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::remainder_.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::dequantize.self(Tensor self) -> Tensor",
+    "category": "Quantization"
+  },
+  {
+    "name": "aten::dequantize.self_out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::dequantize.tensors_out(Tensor[] tensors, *, Tensor(a!)[] out) -> ()"
+  },
+  {
+    "name": "aten::dequantize.tensors(Tensor[] tensors) -> Tensor[]",
+    "category": "Quantization"
+  },
+  {
+    "name": "aten::dequantize.tensor(Tensor qtensor) -> Tensor",
+    "category": "Quantization"
+  },
+  {
+    "name": "aten::dequantize.list(Tensor[] qtensors) -> Tensor[]",
+    "category": "Quantization"
+  },
+  {
+    "name": "aten::dequantize.any(Any tensors) -> Any",
+    "category": "Quantization"
+  },
+  {
+    "name": "aten::_nested_tensor_from_mask(Tensor t, Tensor mask, bool mask_check=True) -> Tensor"
+  },
+  {
+    "name": "aten::_nested_tensor_from_mask.out(Tensor t, Tensor mask, bool mask_check=True, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::triu_indices(int row, int col, int offset=0, *, ScalarType? dtype=4, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
@@ -1389,6 +1413,24 @@
   {
     "name": "aten::_sparse_coo_tensor_unsafe(Tensor indices, Tensor values, SymInt[] size, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, bool? is_coalesced=None) -> Tensor",
     "category": "Tensor"
+  },
+  {
+    "name": "aten::sparse_coo_tensor.size(int[] size, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=False) -> Tensor"
+  },
+  {
+    "name": "aten::sparse_coo_tensor.indices(Tensor indices, Tensor values, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, bool? is_coalesced=None) -> Tensor"
+  },
+  {
+    "name": "aten::sparse_coo_tensor.indices_size(Tensor indices, Tensor values, int[] size, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, bool? is_coalesced=None) -> Tensor"
+  },
+  {
+    "name": "aten::sparse_coo_tensor.size_out(int[] size, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::sparse_csr_tensor.crow_col_value_size(Tensor crow_indices, Tensor col_indices, Tensor values, int[] size, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=False) -> Tensor"
+  },
+  {
+    "name": "aten::sparse_csr_tensor.crow_col_value(Tensor crow_indices, Tensor col_indices, Tensor values, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=False) -> Tensor"
   },
   {
     "name": "aten::zeros.names(int[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
@@ -1645,6 +1687,9 @@
     "name": "aten::square_(Tensor(a!) self) -> Tensor(a!)"
   },
   {
+    "name": "aten::is_pinned(Tensor self, Device? device=None) -> bool"
+  },
+  {
     "name": "quantized::linear_dynamic(Tensor X, __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack, bool reduce_range=False) -> Tensor Y",
     "category": "Layer"
   },
@@ -1728,13 +1773,13 @@
     "name": "aten::view_copy(Tensor self, SymInt[] size) -> Tensor"
   },
   {
+    "name": "aten::view_copy.dtype(Tensor self, ScalarType dtype) -> Tensor"
+  },
+  {
     "name": "aten::view_copy.out(Tensor self, SymInt[] size, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::view_copy.dtype_out(Tensor self, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::view_copy.dtype(Tensor self, ScalarType dtype) -> Tensor"
   },
   {
     "name": "aten::roll(Tensor self, SymInt[1] shifts, int[1] dims=[]) -> Tensor",
@@ -2885,10 +2930,22 @@
     "name": "aten::log_sigmoid.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "quantized::linear_unpack_fp16(__torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack) -> (Tensor W_origin, Tensor? B_origin)"
+  },
+  {
+    "name": "quantized::linear_unpack_fp16.legacy(Tensor W_prepack) -> (Tensor W_origin, Tensor? B_origin)"
+  },
+  {
     "name": "aten::linalg_solve_ex(Tensor A, Tensor B, *, bool left=True, bool check_errors=False) -> (Tensor result, Tensor info)"
   },
   {
     "name": "aten::linalg_solve_ex.out(Tensor A, Tensor B, *, bool left=True, bool check_errors=False, Tensor(a!) result, Tensor(b!) info) -> (Tensor(a!) result, Tensor(b!) info)"
+  },
+  {
+    "name": "quantized::linear_unpack(__torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack) -> (Tensor W_origin, Tensor? B_origin)"
+  },
+  {
+    "name": "quantized::linear_unpack.legacy(Tensor W_prepack) -> (Tensor W_origin, Tensor? B_origin)"
   },
   {
     "name": "aten::linalg_norm(Tensor self, Scalar? ord=None, int[1]? dim=None, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor"
@@ -2927,6 +2984,9 @@
   {
     "name": "aten::instance_norm(Tensor input, Tensor? weight, Tensor? bias, Tensor? running_mean, Tensor? running_var, bool use_input_stats, float momentum, float eps, bool cudnn_enabled) -> Tensor",
     "category": "Normalization"
+  },
+  {
+    "name": "quantized::linear_prepack(Tensor W, Tensor? B=None) -> __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack"
   },
   {
     "name": "aten::isfinite(Tensor self) -> Tensor"
@@ -6014,10 +6074,10 @@
     "name": "aten::diagonal_scatter.out(Tensor self, Tensor src, int offset=0, int dim1=0, int dim2=1, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::transpose_copy.int_out(Tensor self, int dim0, int dim1, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::transpose_copy.int(Tensor self, int dim0, int dim1) -> Tensor"
   },
   {
-    "name": "aten::transpose_copy.int(Tensor self, int dim0, int dim1) -> Tensor"
+    "name": "aten::transpose_copy.int_out(Tensor self, int dim0, int dim1, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::detach(Tensor(a) self) -> Tensor(a)"
@@ -6652,7 +6712,7 @@
     "name": "aten::grid_sampler.legacy(Tensor input, Tensor grid, int interpolation_mode, int padding_mode) -> Tensor"
   },
   {
-    "name": "neuron::forward_v2_1(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0)"
+    "name": "neuron::forward_v2_1(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> Tensor _0"
   },
   {
     "name": "prim::isinstance(Any to_check) -> bool"
@@ -6719,6 +6779,516 @@
   },
   {
     "name": "torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)"
+  },
+  {
+    "name": "neuron::_execute_neuron(__torch__.torch.classes.neuron.Model _0, Tensor[] _1) -> Tensor[] _0"
+  },
+  {
+    "name": "neuron::_from_neuron(Tensor _0) -> Tensor _0"
+  },
+  {
+    "name": "neuron::_init_neuron() -> ()"
+  },
+  {
+    "name": "neuron::_load_collectives_neuron(__torch__.torch.classes.neuron.Model _0, int _1, int _2, int _3, int _4) -> ()"
+  },
+  {
+    "name": "neuron::_load_neuron(__torch__.torch.classes.neuron.Model _0) -> ()"
+  },
+  {
+    "name": "neuron::_parallel_executor_run(__torch__.torch.classes.neuron.ParallelExecutor _0, Tensor[] _1, int _2) -> Tensor[] _0"
+  },
+  {
+    "name": "neuron::_parallel_from_neuron(Tensor _0) -> Tensor[] _0"
+  },
+  {
+    "name": "neuron::_parallel_load(Dict(str, Tensor)[] _0) -> Dict(str, Tensor)[] _0"
+  },
+  {
+    "name": "neuron::_parallel_profile_start_neuron(__torch__.torch.classes.neuron.ParallelModel _0, str _1, int _2) -> str[] _0"
+  },
+  {
+    "name": "neuron::_parallel_profile_stop_neuron(str[] _0) -> ()"
+  },
+  {
+    "name": "neuron::_parallel_run_neuron(__torch__.torch.classes.neuron.ParallelModel _0, __torch__.torch.classes.neuron.ParallelTensorSet _1, __torch__.torch.classes.neuron.ParallelTensorSet _2) -> ()"
+  },
+  {
+    "name": "neuron::_parallel_slice_neuron(Tensor _0, int _1, int _2, int _3, int _4) -> Tensor _0"
+  },
+  {
+    "name": "neuron::_parallel_to_neuron(Tensor[] _0) -> Tensor _0"
+  },
+  {
+    "name": "neuron::_parallel_write_neuron(Tensor _0, Tensor[] _1) -> ()"
+  },
+  {
+    "name": "neuron::_profile_start_neuron(__torch__.torch.classes.neuron.Model _0, str _1) -> ()"
+  },
+  {
+    "name": "neuron::_profile_stop_neuron(str _0) -> ()"
+  },
+  {
+    "name": "neuron::_slice_neuron(Tensor _0, int _1, int _2, int _3, int _4) -> Tensor _0"
+  },
+  {
+    "name": "neuron::_to_neuron(Tensor _0, int _1) -> Tensor _0"
+  },
+  {
+    "name": "neuron::create_module_from_graph(str _0, str _1) -> str _0"
+  },
+  {
+    "name": "neuron::forward_1(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> Tensor _0"
+  },
+  {
+    "name": "neuron::forward_10(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9)"
+  },
+  {
+    "name": "neuron::forward_11(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10)"
+  },
+  {
+    "name": "neuron::forward_12(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11)"
+  },
+  {
+    "name": "neuron::forward_13(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12)"
+  },
+  {
+    "name": "neuron::forward_14(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13)"
+  },
+  {
+    "name": "neuron::forward_15(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14)"
+  },
+  {
+    "name": "neuron::forward_16(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15)"
+  },
+  {
+    "name": "neuron::forward_17(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16)"
+  },
+  {
+    "name": "neuron::forward_18(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17)"
+  },
+  {
+    "name": "neuron::forward_19(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18)"
+  },
+  {
+    "name": "neuron::forward_2(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "neuron::forward_20(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19)"
+  },
+  {
+    "name": "neuron::forward_21(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20)"
+  },
+  {
+    "name": "neuron::forward_22(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21)"
+  },
+  {
+    "name": "neuron::forward_23(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22)"
+  },
+  {
+    "name": "neuron::forward_24(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23)"
+  },
+  {
+    "name": "neuron::forward_25(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24)"
+  },
+  {
+    "name": "neuron::forward_26(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25)"
+  },
+  {
+    "name": "neuron::forward_27(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26)"
+  },
+  {
+    "name": "neuron::forward_28(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27)"
+  },
+  {
+    "name": "neuron::forward_29(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28)"
+  },
+  {
+    "name": "neuron::forward_3(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2)"
+  },
+  {
+    "name": "neuron::forward_30(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29)"
+  },
+  {
+    "name": "neuron::forward_31(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30)"
+  },
+  {
+    "name": "neuron::forward_32(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31)"
+  },
+  {
+    "name": "neuron::forward_33(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32)"
+  },
+  {
+    "name": "neuron::forward_34(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33)"
+  },
+  {
+    "name": "neuron::forward_35(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34)"
+  },
+  {
+    "name": "neuron::forward_36(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35)"
+  },
+  {
+    "name": "neuron::forward_37(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36)"
+  },
+  {
+    "name": "neuron::forward_38(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37)"
+  },
+  {
+    "name": "neuron::forward_39(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38)"
+  },
+  {
+    "name": "neuron::forward_4(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3)"
+  },
+  {
+    "name": "neuron::forward_40(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39)"
+  },
+  {
+    "name": "neuron::forward_41(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40)"
+  },
+  {
+    "name": "neuron::forward_42(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41)"
+  },
+  {
+    "name": "neuron::forward_43(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42)"
+  },
+  {
+    "name": "neuron::forward_44(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43)"
+  },
+  {
+    "name": "neuron::forward_45(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44)"
+  },
+  {
+    "name": "neuron::forward_46(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45)"
+  },
+  {
+    "name": "neuron::forward_47(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46)"
+  },
+  {
+    "name": "neuron::forward_48(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47)"
+  },
+  {
+    "name": "neuron::forward_49(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48)"
+  },
+  {
+    "name": "neuron::forward_5(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4)"
+  },
+  {
+    "name": "neuron::forward_50(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49)"
+  },
+  {
+    "name": "neuron::forward_51(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50)"
+  },
+  {
+    "name": "neuron::forward_52(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51)"
+  },
+  {
+    "name": "neuron::forward_53(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52)"
+  },
+  {
+    "name": "neuron::forward_54(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53)"
+  },
+  {
+    "name": "neuron::forward_55(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54)"
+  },
+  {
+    "name": "neuron::forward_56(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55)"
+  },
+  {
+    "name": "neuron::forward_57(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56)"
+  },
+  {
+    "name": "neuron::forward_58(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57)"
+  },
+  {
+    "name": "neuron::forward_59(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57, Tensor _58)"
+  },
+  {
+    "name": "neuron::forward_6(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5)"
+  },
+  {
+    "name": "neuron::forward_60(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57, Tensor _58, Tensor _59)"
+  },
+  {
+    "name": "neuron::forward_61(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57, Tensor _58, Tensor _59, Tensor _60)"
+  },
+  {
+    "name": "neuron::forward_62(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57, Tensor _58, Tensor _59, Tensor _60, Tensor _61)"
+  },
+  {
+    "name": "neuron::forward_63(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57, Tensor _58, Tensor _59, Tensor _60, Tensor _61, Tensor _62)"
+  },
+  {
+    "name": "neuron::forward_64(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57, Tensor _58, Tensor _59, Tensor _60, Tensor _61, Tensor _62, Tensor _63)"
+  },
+  {
+    "name": "neuron::forward_7(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6)"
+  },
+  {
+    "name": "neuron::forward_8(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7)"
+  },
+  {
+    "name": "neuron::forward_9(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8)"
+  },
+  {
+    "name": "neuron::forward_v2(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> Tensor[] _0"
+  },
+  {
+    "name": "neuron::forward_v2_10(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9)"
+  },
+  {
+    "name": "neuron::forward_v2_11(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10)"
+  },
+  {
+    "name": "neuron::forward_v2_12(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11)"
+  },
+  {
+    "name": "neuron::forward_v2_13(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12)"
+  },
+  {
+    "name": "neuron::forward_v2_14(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13)"
+  },
+  {
+    "name": "neuron::forward_v2_15(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14)"
+  },
+  {
+    "name": "neuron::forward_v2_16(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15)"
+  },
+  {
+    "name": "neuron::forward_v2_17(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16)"
+  },
+  {
+    "name": "neuron::forward_v2_18(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17)"
+  },
+  {
+    "name": "neuron::forward_v2_19(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18)"
+  },
+  {
+    "name": "neuron::forward_v2_2(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "neuron::forward_v2_20(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19)"
+  },
+  {
+    "name": "neuron::forward_v2_21(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20)"
+  },
+  {
+    "name": "neuron::forward_v2_22(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21)"
+  },
+  {
+    "name": "neuron::forward_v2_23(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22)"
+  },
+  {
+    "name": "neuron::forward_v2_24(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23)"
+  },
+  {
+    "name": "neuron::forward_v2_25(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24)"
+  },
+  {
+    "name": "neuron::forward_v2_26(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25)"
+  },
+  {
+    "name": "neuron::forward_v2_27(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26)"
+  },
+  {
+    "name": "neuron::forward_v2_28(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27)"
+  },
+  {
+    "name": "neuron::forward_v2_29(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28)"
+  },
+  {
+    "name": "neuron::forward_v2_3(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2)"
+  },
+  {
+    "name": "neuron::forward_v2_30(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29)"
+  },
+  {
+    "name": "neuron::forward_v2_31(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30)"
+  },
+  {
+    "name": "neuron::forward_v2_32(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31)"
+  },
+  {
+    "name": "neuron::forward_v2_33(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32)"
+  },
+  {
+    "name": "neuron::forward_v2_35(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34)"
+  },
+  {
+    "name": "neuron::forward_v2_36(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35)"
+  },
+  {
+    "name": "neuron::forward_v2_37(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36)"
+  },
+  {
+    "name": "neuron::forward_v2_38(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37)"
+  },
+  {
+    "name": "neuron::forward_v2_39(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38)"
+  },
+  {
+    "name": "neuron::forward_v2_4(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3)"
+  },
+  {
+    "name": "neuron::forward_v2_40(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39)"
+  },
+  {
+    "name": "neuron::forward_v2_41(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40)"
+  },
+  {
+    "name": "neuron::forward_v2_42(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41)"
+  },
+  {
+    "name": "neuron::forward_v2_43(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42)"
+  },
+  {
+    "name": "neuron::forward_v2_44(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43)"
+  },
+  {
+    "name": "neuron::forward_v2_45(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44)"
+  },
+  {
+    "name": "neuron::forward_v2_46(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45)"
+  },
+  {
+    "name": "neuron::forward_v2_47(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46)"
+  },
+  {
+    "name": "neuron::forward_v2_48(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47)"
+  },
+  {
+    "name": "neuron::forward_v2_49(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48)"
+  },
+  {
+    "name": "neuron::forward_v2_5(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4)"
+  },
+  {
+    "name": "neuron::forward_v2_50(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49)"
+  },
+  {
+    "name": "neuron::forward_v2_51(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50)"
+  },
+  {
+    "name": "neuron::forward_v2_52(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51)"
+  },
+  {
+    "name": "neuron::forward_v2_53(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52)"
+  },
+  {
+    "name": "neuron::forward_v2_54(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53)"
+  },
+  {
+    "name": "neuron::forward_v2_55(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54)"
+  },
+  {
+    "name": "neuron::forward_v2_56(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55)"
+  },
+  {
+    "name": "neuron::forward_v2_57(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56)"
+  },
+  {
+    "name": "neuron::forward_v2_58(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57)"
+  },
+  {
+    "name": "neuron::forward_v2_59(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57, Tensor _58)"
+  },
+  {
+    "name": "neuron::forward_v2_6(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5)"
+  },
+  {
+    "name": "neuron::forward_v2_60(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57, Tensor _58, Tensor _59)"
+  },
+  {
+    "name": "neuron::forward_v2_61(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57, Tensor _58, Tensor _59, Tensor _60)"
+  },
+  {
+    "name": "neuron::forward_v2_62(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57, Tensor _58, Tensor _59, Tensor _60, Tensor _61)"
+  },
+  {
+    "name": "neuron::forward_v2_63(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57, Tensor _58, Tensor _59, Tensor _60, Tensor _61, Tensor _62)"
+  },
+  {
+    "name": "neuron::forward_v2_64(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10, Tensor _11, Tensor _12, Tensor _13, Tensor _14, Tensor _15, Tensor _16, Tensor _17, Tensor _18, Tensor _19, Tensor _20, Tensor _21, Tensor _22, Tensor _23, Tensor _24, Tensor _25, Tensor _26, Tensor _27, Tensor _28, Tensor _29, Tensor _30, Tensor _31, Tensor _32, Tensor _33, Tensor _34, Tensor _35, Tensor _36, Tensor _37, Tensor _38, Tensor _39, Tensor _40, Tensor _41, Tensor _42, Tensor _43, Tensor _44, Tensor _45, Tensor _46, Tensor _47, Tensor _48, Tensor _49, Tensor _50, Tensor _51, Tensor _52, Tensor _53, Tensor _54, Tensor _55, Tensor _56, Tensor _57, Tensor _58, Tensor _59, Tensor _60, Tensor _61, Tensor _62, Tensor _63)"
+  },
+  {
+    "name": "neuron::forward_v2_7(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6)"
+  },
+  {
+    "name": "neuron::forward_v2_8(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7)"
+  },
+  {
+    "name": "neuron::forward_v2_9(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8)"
+  },
+  {
+    "name": "neuron::rnn(Tensor _0, Tensor[] _1, __torch__.torch.classes.neuron.RnnBinding _2, int _3) -> (Tensor _0, Tensor[] _1)"
+  },
+  {
+    "name": "neuron::rnn_v2(Tensor _0, Tensor _1, Tensor _2, int _3, __torch__.torch.classes.neuron.RnnBinding_v2[] _4) -> (Tensor _0, Tensor _1, Tensor _2)"
+  },
+  {
+    "name": "horizon::scale_quanti(Tensor x, Tensor scale, Tensor zero_point, int d, int min, int max, bool flag1, bool flat2, str str1, str str2) -> Tensor"
+  },
+  {
+    "name": "torch_sparse::ptr2ind(Tensor _0, int _1) -> Tensor _0"
+  },
+  {
+    "name": "torch_sparse::ind2ptr(Tensor _0, int _1) -> Tensor _0"
+  },
+  {
+    "name": "torch_sparse::hgt_sample(Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, int[]) _3, int _4) -> (Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3)"
+  },
+  {
+    "name": "torch_sparse::cuda_version() -> int _0"
+  },
+  {
+    "name": "torch_sparse::random_walk(Tensor _0, Tensor _1, Tensor _2, int _3) -> Tensor _0"
+  },
+  {
+    "name": "torch_sparse::partition2(Tensor _0, Tensor _1, Tensor? _2, Tensor? _3, int _4, bool _5) -> Tensor _0"
+  },
+  {
+    "name": "torch_sparse::ego_k_hop_sample_adj(Tensor _0, Tensor _1, Tensor _2, int _3, int _4, bool _5) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5)"
+  },
+  {
+    "name": "torch_sparse::sample_adj(Tensor _0, Tensor _1, Tensor _2, int _3, bool _4) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3)"
+  },
+  {
+    "name": "torch_sparse::neighbor_sample(Tensor _0, Tensor _1, Tensor _2, int[] _3, bool _4, bool _5) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3)"
+  },
+  {
+    "name": "torch_sparse::hetero_temporal_neighbor_sample(str[] _0, (str, str, str)[] _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3, Dict(str, Tensor) _4, Dict(str, int[]) _5, Dict(str, Tensor) _6, int _7, bool _8, bool _9) -> (Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3)"
+  },
+  {
+    "name": "torch_sparse::partition(Tensor _0, Tensor _1, Tensor? _2, int _3, bool _4) -> Tensor _0"
+  },
+  {
+    "name": "torch_sparse::hetero_neighbor_sample(str[] _0, (str, str, str)[] _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3, Dict(str, Tensor) _4, Dict(str, int[]) _5, int _6, bool _7, bool _8) -> (Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3)"
+  },
+  {
+    "name": "torch_sparse::spmm_mean(Tensor? _0, Tensor _1, Tensor _2, Tensor? _3, Tensor? _4, Tensor? _5, Tensor? _6, Tensor _7) -> Tensor _0"
+  },
+  {
+    "name": "torch_sparse::spmm_max(Tensor _0, Tensor _1, Tensor? _2, Tensor _3) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_sparse::relabel(Tensor _0, Tensor _1) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_sparse::relabel_one_hop(Tensor _0, Tensor _1, Tensor? _2, Tensor _3, bool _4) -> (Tensor _0, Tensor _1, Tensor? _2, Tensor _3)"
+  },
+  {
+    "name": "torch_sparse::spmm_sum(Tensor? _0, Tensor _1, Tensor _2, Tensor? _3, Tensor? _4, Tensor? _5, Tensor _6) -> Tensor _0"
+  },
+  {
+    "name": "torch_sparse::spmm_min(Tensor _0, Tensor _1, Tensor? _2, Tensor _3) -> (Tensor _0, Tensor _1)"
+  },
+  {
+    "name": "torch_sparse::mt_partition(Tensor _0, Tensor _1, Tensor? _2, Tensor? _3, int _4, bool _5, int _6) -> Tensor _0"
+  },
+  {
+    "name": "torch_sparse::saint_subgraph(Tensor _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2)"
+  },
+  {
+    "name": "torch_sparse::non_diag_mask(Tensor _0, Tensor _1, int _2, int _3, int _4) -> Tensor _0"
   },
   {
     "name": "__torch__.torch.classes.rnn.CellParamsBase",

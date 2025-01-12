@@ -89,7 +89,7 @@ pytorch.Graph = class {
             return values.get(name);
         };
         const torch = execution ? execution.torch : null;
-        if (torch && module instanceof torch.jit._script.RecursiveScriptModule && module.graph) {
+        if (torch && module instanceof torch.jit._script.RecursiveScriptModule && module._c._has_method('forward')) {
             const initializers = new Map();
             const graph = module.graph;
             const constants = module.code_with_constants[1].const_mapping;
@@ -1259,9 +1259,11 @@ pytorch.Container.Zip = class extends pytorch.Container {
             this.module = torch.jit.load(reader);
             this.execution.trace = true;
             if (this.execution.to_ir) {
-                // console.log(this.module.graph.toString());
-                torch._C._jit_pass_inline(this.module.graph);
-                // console.log(this.module.graph.toString());
+                if (this.module._c._has_method('forward')) {
+                    // console.log(this.module.graph.toString());
+                    torch._C._jit_pass_inline(this.module.graph);
+                    // console.log(this.module.graph.toString());
+                }
             }
             if (!this.execution.to_ir) {
                 metadata.register(this.execution);
@@ -1342,9 +1344,11 @@ pytorch.Container.ModelJson = class extends pytorch.Container {
         this.module = torch.jit.load(reader);
         this.execution.trace = true;
         if (this.execution.to_ir) {
-            // console.log(this.module.graph.toString());
-            torch._C._jit_pass_inline(this.module.graph);
-            // console.log(this.module.graph.toString());
+            if (this.module._c._has_method('forward')) {
+                // console.log(this.module.graph.toString());
+                torch._C._jit_pass_inline(this.module.graph);
+                // console.log(this.module.graph.toString());
+            }
         }
         if (!this.execution.to_ir) {
             metadata.register(this.execution);
@@ -1826,13 +1830,13 @@ pytorch.Execution = class extends python.Execution {
                             let outputs = null;
                             if (value.type() instanceof torch.TupleType) {
                                 const node = this._graph.createTupleUnpack(value);
-                                node.setSourceRange(expr.location);
+                                node.setSourceRange(expr.range());
                                 this._graph.insertNode(node);
                                 outputs = node.outputs();
                             } else if (value.type() instanceof torch.ListType) {
                                 const size = target.elts.length;
                                 const node = this._graph.createListUnpack(value, size);
-                                node.setSourceRange(expr.location);
+                                node.setSourceRange(expr.range());
                                 this._graph.insertNode(node);
                                 outputs = node.outputs();
                             }
@@ -1891,7 +1895,7 @@ pytorch.Execution = class extends python.Execution {
                         }
                         const ast = this.ast;
                         const target = new ast.Name('torch');
-                        return this.call(target, name, expr.args.slice(1), expr.keywords, context);
+                        return this.call(target, name, expr.args.slice(1), expr.keywords, context, expr.range());
                     }
                     if (value instanceof torch.Value && !type.equals(value.type())) {
                         throw new pytorch.Error('Invalid annotation type hint.');
@@ -1905,7 +1909,7 @@ pytorch.Execution = class extends python.Execution {
                 if (func instanceof ast.Name && func.id === 'uninitialized') {
                     const type = this.type(expr.args[0]);
                     const node = this._graph.createUninitialized(type);
-                    node.setSourceRange(expr.location);
+                    node.setSourceRange(expr.range());
                     this._graph.insertNode(node);
                     return node.output();
                 }
@@ -1963,7 +1967,7 @@ pytorch.Execution = class extends python.Execution {
                             const node = this._graph.create('aten::__getitem__.t', [value]);
                             this._graph.insertNode(node);
                             if (type.getKeyType() instanceof torch.StringType && typeof key === 'string') {
-                                const value = new torch.Value(node);
+                                const value = new torch.Value(node, node.outputs().length);
                                 value.value = key;
                                 key = value;
                             } else if (type.getKeyType() instanceof torch.StringType && key.type() instanceof torch.StringType) {
@@ -2052,7 +2056,7 @@ pytorch.Execution = class extends python.Execution {
                     values.push(value);
                 }
                 const node = this._graph.createTuple(values);
-                node.setSourceRange(expr.location);
+                node.setSourceRange(expr.range());
                 this._graph.insertNode(node);
                 return node.output();
             }
@@ -2309,7 +2313,6 @@ pytorch.Execution = class extends python.Execution {
                     (!condition.body || !containsVariableReference(condition.body.statements), condition.test.id) &&
                     (!condition.orelse || !containsVariableReference(condition.orelse.statements, condition.test.id))) {
                     const node = new ast.If(assign.value, condition.body, condition.orelse);
-                    node.location = condition.location;
                     statements.splice(i, 2, node);
                 }
             }
@@ -2391,7 +2394,7 @@ pytorch.Execution = class extends python.Execution {
                             return value.type();
                         };
                         this.variables(condition, condition);
-                        const node = this.create('prim::If', stmt.location, 0);
+                        const node = this.create('prim::If', stmt.range(), 0);
                         this._graph.insertNode(node);
                         node.addInput(test);
                         const prev = this._graph.insertPoint();
@@ -2451,7 +2454,7 @@ pytorch.Execution = class extends python.Execution {
                     throw new pytorch.Error("Unsupported condition.");
                 }
                 if (stmt instanceof ast.For) {
-                    const range = stmt.location;
+                    const range = stmt.range();
                     const n = this._graph.insertNode(this.create('prim::Loop', range, 0));
                     const itrs = stmt.iter instanceof ast.Tuple ? stmt.iter.elts : [stmt.iter];
                     // const targets = stmt.target instanceof ast.Tuple ? stmt.target.elts : [stmt.target];
@@ -2492,7 +2495,7 @@ pytorch.Execution = class extends python.Execution {
                     }
                 }
                 if (stmt instanceof ast.While) {
-                    const node = this._graph.create('prim::Loop', stmt.location, 0);
+                    const node = this._graph.create('prim::Loop', stmt.range(), 0);
                     this._graph.insertNode(node);
                     const test = this.expression(stmt.test, context);
                     if (test) {
@@ -2624,7 +2627,7 @@ pytorch.Execution = class extends python.Execution {
         return this._constants.get(constant);
     }
 
-    call(target, name, args, keywords, context, location) {
+    call(target, name, args, keywords, context, range) {
         if (!this.trace) {
             return super.call(target, name, args, keywords, context);
         }
@@ -2636,7 +2639,7 @@ pytorch.Execution = class extends python.Execution {
                 const type = this._resolver.resolveType(identifier);
                 if (type) {
                     const node = this._graph.createObject(type);
-                    node.setSourceRange(location);
+                    node.setSourceRange(range);
                     this._graph.insertNode(node);
                     return node.output();
                 }
@@ -2649,7 +2652,7 @@ pytorch.Execution = class extends python.Execution {
                 return obj;
             }
             const node = this._graph.create('prim::CallMethod', 0);
-            node.setSourceRange(location);
+            node.setSourceRange(range);
             this._graph.insertNode(node);
             node.s_('name', name);
             node.addInput(obj);
@@ -2689,7 +2692,7 @@ pytorch.Execution = class extends python.Execution {
                 if (type instanceof torch.TupleType) {
                     const values = args.map((expression) => this.value(expression, context));
                     const node = this._graph.createTuple(values, type);
-                    node.setSourceRange(location);
+                    node.setSourceRange(range);
                     this._graph.insertNode(node);
                     return node.output();
                 }
@@ -2708,7 +2711,7 @@ pytorch.Execution = class extends python.Execution {
         }
         const [schema, evalArgs, evalKeywords] = overload;
         const op = schema.overload_name ? `${schema.name}.${schema.overload_name}` : schema.name;
-        const node = this.create(op, location, 0);
+        const node = this.create(op, range, 0);
         this._graph.insertNode(node);
         const referencedParameters = [];
         const parameters = schema.arguments;
@@ -3320,6 +3323,9 @@ pytorch.Container.Package = class extends pytorch.Container {
                     const buffer = stream.peek();
                     this.execution.add(name, buffer);
                 }
+            }
+            if (this.execution.to_ir) {
+                metadata.register(this.execution);
             }
             const importer = new torch.package.PackageImporter(reader);
             for (const entry of entries) {
@@ -4066,8 +4072,14 @@ pytorch.Metadata = class {
             }
         }
         for (const module of modules) {
+            // const existing = execution.register(`torch.ops.${module}`);
             const namespace = new torch._ops._OpNamespace(module);
-            execution.register(`torch.ops.${module}`, namespace);
+            /* const created = */ execution.register(`torch.ops.${module}`, namespace);
+            /* for (const [name, obj] of Object.entries(existing)) {
+                if (!name.startsWith('__') && !(name in created)) {
+                    created[name] = obj;
+                }
+            } */
         }
     }
 };
