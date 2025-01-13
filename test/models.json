@@ -3914,7 +3914,7 @@
   },
   {
     "type":     "numpy",
-    "target":   "mlp.npz",
+    "target":   "mlp",
     "source":   "https://github.com/lutzroeder/netron/files/6225731/mlp.zip[mlp.npz]",
     "format":   "NumPy Zip",
     "link":     "https://github.com/lutzroeder/netron/issues/711"
