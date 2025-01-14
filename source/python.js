@@ -1216,6 +1216,7 @@ python.Execution = class {
                         const args = [];
                         const keywords = [];
                         this._tokenizer.expect('(');
+                        let tuple = false;
                         while (!this._tokenizer.eat(')')) {
                             if (this._tokenizer.eat('\n')) {
                                 continue;
@@ -1236,14 +1237,16 @@ python.Execution = class {
                             } else {
                                 args.push(expr);
                             }
-                            if (!this._tokenizer.eat(',')) {
+                            if (this._tokenizer.eat(',')) {
+                                tuple = true;
+                            } else {
                                 this._tokenizer.eat('\n');
                                 this._tokenizer.expect(')');
                                 break;
                             }
                         }
                         if (stack.length === 0 && keywords.length === 0) {
-                            if (args.length === 1) {
+                            if (args.length === 1 && !tuple) {
                                 [node] = args;
                             } else {
                                 node = new ast.Tuple(args);
@@ -1262,8 +1265,10 @@ python.Execution = class {
                             stack.push(this._expressions());
                         } else {
                             const value = stack.pop();
+                            const position = this._position();
                             const slice = this._slice();
                             node = new ast.Subscript(value, slice);
+                            this._mark(node, position);
                             stack.push(node);
                         }
                         continue;
@@ -1468,27 +1473,30 @@ python.Execution = class {
                 const elts = [];
                 let slice = [null, null, null];
                 let index = 0;
+                let valid = false;
                 this._tokenizer.expect('[');
-                while (!this._tokenizer.eat(']')) {
+                while (true) {
                     if (this._tokenizer.eat(':')) {
                         index++;
-                    } else if (this._tokenizer.peek().type !== ']') {
+                        valid = true;
+                    } else if (index > 2 || this._tokenizer.match(',') || this._tokenizer.match(']')) {
+                        if (!valid || index > 2) {
+                            throw new python.Error(`Invalid slice at ${this._location()}`);
+                        }
+                        elts.push(index === 0 ? slice[0] : new ast.Slice(slice[0], slice[1], slice[2]));
+                        slice = [null, null, null];
+                        index = 0;
+                        if (this._tokenizer.eat(']')) {
+                            break;
+                        }
+                        this._tokenizer.expect(',');
+                    } else {
                         const expression = this._expression();
                         if (expression === null) {
                             throw new python.Error(`Expected expression ${this._location()}`);
                         }
-                        slice[index++] = expression;
-                    }
-                    if (index > 2 || this._tokenizer.match(',') || this._tokenizer.match(']')) {
-                        if (index === 0) {
-                            throw new python.Error(`Invalid slice.`);
-                        }
-                        elts.push(index === 1 ? slice[0] : new ast.Slice(slice[0], slice[1], slice[2]));
-                        slice = [null, null, null];
-                        index = 0;
-                        if (!this._tokenizer.match(']')) {
-                            this._tokenizer.expect(',');
-                        }
+                        slice[index] = expression;
+                        valid = true;
                     }
                 }
                 if (elts.length > 1) {
@@ -5155,6 +5163,9 @@ python.Execution = class {
         });
         this.registerType('torch._C.Self', class {
         });
+        this.registerFunction('torch._C.toValues', (g, nvs) => {
+            return nvs.map((v) => v.value(g));
+        });
         this.registerType('torch._C.SimpleSelf', class extends torch._C.Self {
             constructor(classType) {
                 super();
@@ -5168,7 +5179,7 @@ python.Execution = class {
                 return this._classType;
             }
         });
-        this.registerType('torch.jit.Function', class {
+        this.registerType('torch._C.Function', class {
             isGraphFunction() {
                 return false;
             }
@@ -5176,7 +5187,7 @@ python.Execution = class {
                 return this.qualname().name();
             }
         });
-        this.registerType('torch.jit.BuiltinOpFunction', class extends torch.jit.Function {
+        this.registerType('torch._C.BuiltinOpFunction', class extends torch._C.Function {
             constructor(qualname, schema) {
                 super();
                 this._name = qualname;
@@ -5554,6 +5565,12 @@ python.Execution = class {
                 this.inlineIfBody(n.blocks()[block_index]);
                 this._made_change = true;
             }
+            replaceAndRemoveIfOutput(n, i, replacement) {
+                n.outputs()[i].replaceAllUsesWith(replacement);
+                n.eraseOutput(i);
+                n.blocks()[0].eraseOutput(i);
+                n.blocks()[1].eraseOutput(i);
+            }
             removeExtraIfOutputs(n) {
                 torch._C.TORCH_CHECK(n.kind() === 'prim::If');
                 const [true_block, false_block] = n.blocks();
@@ -5897,12 +5914,12 @@ python.Execution = class {
             }
             torch._C.ConstantPooling(graph);
         });
-        this.registerType('torch._C.GraphFunction', class extends torch.jit.Function {
+        this.registerType('torch._C.GraphFunction', class extends torch._C.Function {
             constructor(name, graph, function_creator, executor_execution_mode) {
                 super();
                 this._name = name;
                 this._graph = graph;
-                this._executor_execution_mode = executor_execution_mode;
+                this._executor_execution_mode = executor_execution_mode || null;
                 this._function_creator = function_creator;
                 this._force_no_amp = false;
             }
@@ -8684,7 +8701,29 @@ python.Execution = class {
                 this.types = [key, value];
             }
             static create(key, value) {
-                return new torch.DictType(key, value);
+                let kind = key.kind();
+                if (key instanceof torch._C.DynamicType) {
+                    kind = key.dynamicKind();
+                }
+                switch (kind) {
+                    case 'AnyType':
+                    case 'IntType':
+                    case 'BoolType':
+                    case 'FloatType':
+                    case 'ComplexType':
+                    case 'StringType':
+                    case 'TensorType':
+                    case 'DeviceObjType':
+                        return new torch.DictType(key, value);
+                    default:
+                        throw new python.Error(`Invalid dict key type '${kind}'.`);
+                }
+            }
+            createWithContained(contained_types) {
+                if (contained_types.length !== 2) {
+                    throw new python.Error('Expected 2 contained types.');
+                }
+                return torch.DictType.create(contained_types[0], contained_types[1]);
             }
             getKeyType() {
                 return this.types[0];
@@ -8695,14 +8734,14 @@ python.Execution = class {
             hasFreeVariables() {
                 return this.getKeyType().hasFreeVariables() || this.getValueType().hasFreeVariables();
             }
-            createWithContained(contained_types) {
-                if (contained_types.length !== 2) {
-                    throw new python.Error('Expected 2 contained types.');
-                }
-                return torch.DictType.create(contained_types[0], contained_types[1]);
-            }
             containedTypes() {
                 return this.types;
+            }
+            equals(rhs) {
+                if (rhs instanceof torch.DictType) {
+                    return this.getKeyType().equals(rhs.getKeyType()) && this.getValueType().equals(rhs.getValueType());
+                }
+                return false;
             }
             str() {
                 return `Dict(${this.getKeyType().str()}, ${this.getValueType().str()})`;
@@ -9558,6 +9597,8 @@ python.Execution = class {
                 map.set('bool', torch.BoolType.get());
                 map.set('complex', torch.ComplexType.get());
                 map.set('str', torch.StringType.get());
+                map.set('Device', torch.DeviceObjType.get());
+                map.set('number', torch.NumberType.get());
                 map.set('None', torch.NoneType.get());
                 map.set('NoneType', torch.NoneType.get());
                 map.set('Any', torch.AnyType.get());
@@ -9637,7 +9678,7 @@ python.Execution = class {
                         }
                     }
                 }
-                return this._resolver._cu.execution.type(expr);
+                throw new python.Error(`Unknown type name '${name}'.`);
             }
             parseBaseTypeName(expr) {
                 if (expr instanceof ast.Name) {
@@ -9835,9 +9876,9 @@ python.Execution = class {
                 this._next_unique = 1;
                 this._unique_names = new Map();
                 this._name_base_suffix = new Map();
-                this._all_nodes = [];
-                this._all_values = [];
-                this._all_blocks = [];
+                this.all_nodes = new Set();
+                this.all_values = new Set();
+                this.all_blocks = new Set();
                 this._block = new torch.Block(this, null);
                 this._insert_before = this.return_node();
             }
@@ -9933,6 +9974,19 @@ python.Execution = class {
             createTupleIndex(tup, idx, output_type) {
                 const n = this.create('prim::TupleIndex', [tup, idx]);
                 n.output().setType(output_type);
+                return n;
+            }
+            createTupleSlice(tup, beg, step_size, num_values) {
+                const new_vals = [];
+                const tt = tup.type().expect(torch.TupleType);
+                let i = beg;
+                for (let j = 0; j < num_values; j++) {
+                    const idx = this.insertConstant(new torch._C.IValue(i, 'Int'));
+                    const tupleIndex = this.insertNode(this.createTupleIndex(tup, idx, tt.elements()[i]));
+                    new_vals.push(tupleIndex.output());
+                    i += step_size;
+                }
+                const n = this.createTuple(new_vals);
                 return n;
             }
             createDict(key_type, value_type, keys, values) {
@@ -10071,30 +10125,15 @@ python.Execution = class {
                 }
                 this._insert_before = node;
             }
-            all_nodes() {
-                return this._all_nodes;
-            }
-            all_blocks() {
-                return this._all_blocks;
-            }
             freeNode(n) {
-                const index = this._all_nodes.indexOf(n);
-                if (index !== -1) {
-                    this._all_nodes.splice(index, 1);
-                }
+                this.all_nodes.delete(n);
             }
             freeValue(v) {
                 v.setDebugName('');
-                const index = this._all_values.indexOf(v);
-                if (index !== -1) {
-                    this._all_values.splice(index, 1);
-                }
+                this.all_values.delete(v);
             }
             freeBlock(b) {
-                const index = this._all_blocks.indexOf(b);
-                if (index !== -1) {
-                    this._all_blocks.splice(index, 1);
-                }
+                this.all_blocks.delete(b);
             }
             copy() {
                 const new_g = new torch.Graph();
@@ -10149,7 +10188,7 @@ python.Execution = class {
                 this._input.prev = this._output;
                 this._output.next = this._input;
                 this._output.prev = this._input;
-                this._graph.all_blocks().push(this);
+                this._graph.all_blocks.add(this);
                 this._output._owning_block = this;
                 // output_.topo_position_ = kUpperBound;
                 this._input._owning_block = this;
@@ -10245,7 +10284,7 @@ python.Execution = class {
                 this._inputs = [];
                 this._outputs = [];
                 this._blocks = [];
-                this._graph.all_nodes().push(this);
+                this._graph.all_nodes.add(this);
                 this._prev = null;
                 this._next = null;
                 this._source_range = null;
@@ -10261,20 +10300,16 @@ python.Execution = class {
                 return this._kind;
             }
             schema() {
-                if (this._op === null) {
-                    this._op = null;
-                    const index = this._kind.indexOf('.');
-                    const name = index === -1 ? this._kind : this._kind.substring(0, index);
-                    const overload_name = index === -1 ? '' : this._kind.substring(index + 1);
-                    const candidates = torch._C.getAllOperatorsFor(name);
-                    for (const candidate of candidates) {
-                        if (candidate.schema().overload_name === overload_name) {
-                            this._op = candidate;
-                            break;
-                        }
-                    }
+                if (this._op) {
+                    return this._op.schema();
                 }
-                return this._op ? this._op.schema() : null;
+                // Node::schema() throws while torch.Node.schema() does not.
+                const op = this.maybeOperator();
+                if (op) {
+                    return op.schema();
+                }
+                return null;
+                // return this.getOperator().schema();
             }
             hasNamedInput(name) {
                 for (const argument of this.schema().arguments) {
@@ -10345,7 +10380,7 @@ python.Execution = class {
                 if (maybe) {
                     return maybe;
                 }
-                throw new python.Error('Operator not found.');
+                throw new python.Error(`Schema not found for node '${this.kind()}'.`);
             }
             getOperation() {
                 return this.getOperator().getOperation(this);
@@ -10764,6 +10799,7 @@ python.Execution = class {
                 this._offset = offset;
                 this._unique = node._graph._next_unique++;
                 this._uses = [];
+                this._node._graph.all_values.add(this);
             }
             unique() {
                 return this._unique;
@@ -10894,6 +10930,8 @@ python.Execution = class {
                     this.tag = 'Tensor';
                 } else if (value instanceof torch.ScriptObject) {
                     this.tag = 'Object';
+                } else if (Array.isArray(value)) {
+                    this.tag = 'GenericList';
                 } else {
                     throw new python.Error('Unsupported type.');
                 }
@@ -11260,6 +11298,7 @@ python.Execution = class {
                 this._cu.define(qualified_classname, [], [], methods, method_resolvers, self, false, this._version);
             }
             importNamedTuple(qualified_name, named_tuple_def) {
+                const type_parser = new torch._C.ScriptTypeParser(this);
                 const field_names = [];
                 const field_types = [];
                 const field_defaults = [];
@@ -11267,10 +11306,13 @@ python.Execution = class {
                     if (stmt instanceof ast.AnnAssign === false) {
                         throw new python.Error('Unexpected statement in NamedTuple body.');
                     }
+                    const assign = stmt;
                     const target = this._cu.execution.identifier(stmt.target);
-                    const annotation = this._cu.execution.type(stmt.annotation);
+                    // const annotation = this._cu.execution.type(stmt.annotation);
+                    const type = type_parser.parseTypeFromExpr(assign.annotation);
                     field_names.push(target);
-                    field_types.push(annotation);
+                    // field_types.push(annotation);
+                    field_types.push(type);
                 }
                 const tt = torch.TupleType.createNamed(qualified_name.qualifiedName(), field_names, field_types, field_defaults);
                 this._cu.register_type(tt);
@@ -11475,7 +11517,7 @@ python.Execution = class {
                     for (const known_method of known_type.methods || []) {
                         const schema = new torch.FunctionSchema(known_method);
                         const name = new torch._C.QualifiedName(prefix, schema.name);
-                        const fn = new torch.jit.BuiltinOpFunction(name, schema);
+                        const fn = new torch._C.BuiltinOpFunction(name, schema);
                         type.addMethod(fn);
                     }
                     if (known_type.attributes) {
@@ -11831,14 +11873,15 @@ python.Execution = class {
                 let retval = this.findInAnyFrame(ident);
                 if (!retval) {
                     torch._C.Environment.globals = torch._C.Environment.globals || new Map([
+                        ['print', new torch._C.PrintValue()],
                         ['tuple', torch._C.SpecialFormValue.create('prim::TupleConstruct')],
                         ['float', new torch._C.MagicMethod('__float__', new torch._C.CastValue(torch.FloatType.get(), 'aten::Float'))],
                         ['int', new torch._C.MagicMethod('__int__', new torch._C.CastValue(torch.IntType.get(), 'aten::Int'))],
                         ['bool', new torch._C.MagicMethod('__bool__', new torch._C.CastValue(torch.BoolType.get(), 'aten::Bool'))],
                         ['str', new torch._C.MagicMethod('__str__', new torch._C.CastValue(torch.StringType.get(), 'aten::str'))],
-                        ["getattr", torch._C.SpecialFormValue.create('prim::GetAttr')],
-                        ["hasattr", torch._C.SpecialFormValue.create('prim::HasAttr')],
-                        ["isinstance", torch._C.SpecialFormValue.create('prim::isinstance')],
+                        ['getattr', torch._C.SpecialFormValue.create('prim::GetAttr')],
+                        ['hasattr', torch._C.SpecialFormValue.create('prim::HasAttr')],
+                        ['isinstance', torch._C.SpecialFormValue.create('prim::isinstance')],
                         ['range', torch._C.SpecialFormValue.create('prim::range')],
                     ]);
                     if (torch._C.Environment.globals.has(ident)) {
@@ -11997,38 +12040,38 @@ python.Execution = class {
                 /*
                 for (const scalar of ['float', 'int', 'complex']) {
                     const env  = new torch.C.TemplateEnv();
-                    env.s("Scalar", scalar);
-                    this.loadSource(scalar_operators_source.format(env), "aten");
+                    env.s('Scalar', scalar);
+                    this.loadSource(scalar_operators_source.format(env), 'aten');
                 }
-                for (auto scalar : {"float", "int"}) {
+                for (auto scalar : {'float', 'int'}) {
                     const env  = new torch.C.TemplateEnv();
-                    env.s("Scalar", scalar);
-                    loadSource(scalar_operators_no_complex_source.format(env), "aten");
+                    env.s('Scalar', scalar);
+                    loadSource(scalar_operators_no_complex_source.format(env), 'aten');
                 }
                 using str_pair = std::pair<std::string, std::string>;
                 const std::vector<str_pair> name_len = {
-                    str_pair("single", "1"),
-                    str_pair("pair", "2"),
-                    str_pair("triple", "3"),
-                    str_pair("quadruple", "4"),
+                    str_pair('single', '1'),
+                    str_pair('pair', '2'),
+                    str_pair('triple', '3'),
+                    str_pair('quadruple', '4'),
                 };
-                for (const auto scalar : {"float", "int"}) {
+                for (const auto scalar : {'float', 'int'}) {
                     for (const auto& pair : name_len) {
                         const env  = new torch.C.TemplateEnv();
-                        env.s("Scalar", scalar);
-                        env.s("name", pair.first);
-                        env.s("Length", pair.second);
-                        this.loadSource(_ntuple_ops.format(env), "aten");
+                        env.s('Scalar', scalar);
+                        env.s('name', pair.first);
+                        env.s('Length', pair.second);
+                        this.loadSource(_ntuple_ops.format(env), 'aten');
                     }
                 }
-                for (auto rhs : {"number", "Tensor"}) {
+                for (auto rhs : {'number', 'Tensor'}) {
                     at::jit::TemplateEnv env;
-                    env.s("Rhs_Type", rhs);
-                    this.loadSource(floordiv.format(env), "aten");
+                    env.s('Rhs_Type', rhs);
+                    this.loadSource(floordiv.format(env), 'aten');
                 }
-                this.loadSource(aten_ops, "aten");
-                this.loadSource(aten_ops_additional, "aten");
-                this.loadSource(tensor_properties, "prim");
+                this.loadSource(aten_ops, 'aten');
+                this.loadSource(aten_ops_additional, 'aten');
+                this.loadSource(tensor_properties, 'prim');
                 */
             }
             loadSource(/* source, the_namespace */) {
@@ -12493,7 +12536,6 @@ python.Execution = class {
             if (result) {
                 return result;
             }
-            args[0].value().type().isSubtypeOf(schema.arguments[0].type);
             throw new python.Error(`No matching schema '${schema.name}' found.`);
         });
         this.registerFunction('torch._C.matchSchemas', (schemas, loc, graph, args, kwargs, self, render_errors) => {
@@ -12793,6 +12835,9 @@ python.Execution = class {
             } else if (val instanceof torch.ScriptObject) {
                 n.ival_('value', val);
                 type = val.type();
+            } else if (Array.isArray(val) && val.every((item) => Number.isInteger(item))) {
+                n.ival_('value', val);
+                type = torch.ListType.create(torch.IntType.get());
             } else {
                 throw new python.Error(`Unsupported value type '${typeof val}'.`);
             }
@@ -12961,11 +13006,11 @@ python.Execution = class {
                     throw new python.Error('Not implemented.');
                 } /* else if (this._value.type() instanceof torch.EnumType) {
                     const g = m.graph();
-                    if (field == "name") {
+                    if (field == 'name') {
                         const n = g.insertNode(g.createEnumName(value_));
                         return std::make_shared<SimpleValue>(n->output());
                     }
-                    if (field == "value") {
+                    if (field == 'value') {
                         const n = g.insertNode(g.createEnumValue(value_));
                         return std::make_shared<SimpleValue>(n->output());
                     }
@@ -12987,7 +13032,7 @@ python.Execution = class {
                     return torch._C.SpecialFormValue.create('aten::index');
                 }
                 if (this._value.type() instanceof torch._C._GeneratorType && (field === 'manual_seed' || field === 'initial_seed' || field === 'seed')) {
-                    const builtin = torch._C.BuiltinFunction.tryCreate(`aten::${field}`, new torch._C.NamedValue(loc, "self", this._value));
+                    const builtin = torch._C.BuiltinFunction.tryCreate(`aten::${field}`, new torch._C.NamedValue(loc, 'self', this._value));
                     if (builtin) {
                         return builtin;
                     }
@@ -13119,7 +13164,7 @@ python.Execution = class {
         this.registerType('torch._C.FunctionValue', class extends torch._C.SugaredValue {
             constructor(...args) {
                 super();
-                if (args.length === 1 && args[0] instanceof torch.jit.Function) {
+                if (args.length === 1 && args[0] instanceof torch._C.Function) {
                     this._callees = [args[0]];
                 } else {
                     throw new python.Error('Not implemented.');
@@ -13135,6 +13180,19 @@ python.Execution = class {
                 const output = f.graph().insertFunctionCall(this._callees[match[0]], match[1]);
                 output.node().setSourceRange(loc);
                 return new torch._C.SimpleValue(output);
+            }
+        });
+        this.registerType('torch._C.NoneValue', class extends torch._C.SugaredValue {
+        });
+        this.registerType('torch._C.PrintValue', class extends torch._C.SugaredValue {
+            call(loc, m, args, kwargs /*, n_binders */) {
+                const g = m.graph();
+                if (kwargs.length > 0) {
+                    throw new python.Error(`Print doesn't accept any keyword arguments at ${loc}.`);
+                }
+                const lowered_inputs = torch._C.toValues(m.graph(), args);
+                g.insertNode(g.create('prim::Print', lowered_inputs, 0).setSourceRange(loc));
+                return new torch._C.NoneValue();
             }
         });
         this.registerType('torch._C.SpecialFormValue', class extends torch._C.SugaredValue {
@@ -13444,7 +13502,7 @@ python.Execution = class {
                     }
                 }
                 return null;
-            } else if (value instanceof torch.jit.Function) {
+            } else if (value instanceof torch._C.Function) {
                 const fn = value;
                 if (!fn.isGraphFunction()) {
                     return null;
@@ -13458,6 +13516,40 @@ python.Execution = class {
                 this._module_type = module_type;
                 this._instance_name = instance_name;
             }
+        });
+        this.registerFunction('torch._C.slice_indices_adjust', (length, start, stop, step) => {
+            torch._C.TORCH_CHECK(step !== 0);
+            torch._C.TORCH_CHECK(step >= -Number.MAX_SAFE_INTEGER); // INT64_MAX
+            if (start._ === Number.MAX_SAFE_INTEGER) {
+                start._ = (step < 0) ? Number.MAX_SAFE_INTEGER : 0;
+            }
+            if (stop._ === Number.MAX_SAFE_INTEGER) {
+                stop._ = (step < 0) ? Number.MIN_SAFE_INTEGER : Number.MAX_SAFE_INTEGER;
+            }
+            if (start._ < 0) {
+                start._ += length;
+                if (start._ < 0) {
+                    start._ = (step < 0) ? -1 : 0;
+                }
+            } else if (start._ >= length) {
+                start._ = (step < 0) ? length - 1 : length;
+            }
+            if (stop._ < 0) {
+                stop._ += length;
+                if (stop._ < 0) {
+                    stop._ = (step < 0) ? -1 : 0;
+                }
+            } else if (stop._ >= length) {
+                stop._ = (step < 0) ? length - 1 : length;
+            }
+            if (step < 0) {
+                if (stop._ < start._) {
+                    return Math.floor((start._ - stop._ - 1) / (-step) + 1);
+                }
+            } else if (start._ < stop._) {
+                return Math.floor((stop._ - start._ - 1) / step + 1);
+            }
+            return 0;
         });
         this.registerFunction('torch._C.createTupleUnpack', (v) => {
             if (v.node().kind() === 'prim::TupleConstruct') {
@@ -13483,11 +13575,16 @@ python.Execution = class {
             }
             */
         });
-        this.registerFunction('torch._C.inlineCallTo', (to_replace, callee, callee_graph) => {
-            if (callee_graph === undefined || typeof callee_graph === 'boolean') {
-                callee_graph = callee_graph === undefined ? true : callee_graph;
-                callee_graph = callee_graph ? callee.optimized_graph() : callee.graph();
+        this.registerFunction('torch._C.inlineCallTo', (to_replace, callee, arg) => {
+            if (arg === undefined || typeof arg === 'boolean') {
+                const inline_optimized_graph = arg === undefined ? true : arg;
+                const graph = inline_optimized_graph ? callee.optimized_graph() : callee.graph();
+                return torch._C.inlineCallTo(to_replace, callee, graph);
             }
+            if (arg instanceof torch.Graph === false) {
+                throw new python.Error('Invalid argument.');
+            }
+            const callee_graph = arg;
             const guard = new torch._C.WithInsertPoint(to_replace);
             const value_map = new Map();
             const new_outputs = torch._C.insertGraph(to_replace.owningGraph(), callee_graph, to_replace.inputs(), value_map);
@@ -13555,7 +13652,9 @@ python.Execution = class {
                     }
                     case 'prim::CallMethod': {
                         const graphFunction = torch._C.tryToGraphFunction(cur);
-                        torch._C.inlineCallTo(cur, graphFunction);
+                        if (graphFunction) {
+                            torch._C.inlineCallTo(cur, graphFunction);
+                        }
                         break;
                     }
                     default: {
@@ -14016,8 +14115,8 @@ python.Execution = class {
                         throw new python.Error('With item expression must return an object.');
                     }
                     const rhsClass = rhs.type();
-                    const enterMethod = rhsClass.findMethod("__enter__");
-                    const exitMethod = rhsClass.findMethod("__exit__");
+                    const enterMethod = rhsClass.findMethod('__enter__');
+                    const exitMethod = rhsClass.findMethod('__exit__');
                     if (!enterMethod || !exitMethod) {
                         throw new python.Error('Object returned by with item expression does not define __enter__ and __exit__ methods.');
                     }
@@ -14428,7 +14527,7 @@ python.Execution = class {
             }
             emitToBool(loc, v) {
                 let out = null;
-                const bool_cast = this.environment_stack.getSugaredVar("bool", loc);
+                const bool_cast = this.environment_stack.getSugaredVar('bool', loc);
                 out = torch._C.asSimple(bool_cast.call(loc, this.method, [new torch._C.NamedValue(v)], [], 0));
                 if (!out) {
                     throw new python.Error('Could not cast value to bool.');
@@ -14469,7 +14568,7 @@ python.Execution = class {
                 }
                 throw new python.Error('Not implemented.');
                 /*
-                const tmp_name = this.createTempName("$tmp_assign_");
+                const tmp_name = this.createTempName('$tmp_assign_');
                 this.environment_stack.setSugaredVar(stmt.value, tmp_name, this.emitSugaredExpr(stmt.value, 1), annotated_type=null);
                 const ident = new ast.Name(tmp_name);
                 for (const expr of lhs_list) {
@@ -14558,7 +14657,7 @@ python.Execution = class {
                         const var = Starred(assignee).expr();
                         if (var.kind() != TK_VAR) {
                         throw(
-                            ErrorReport(var) << "Cannot pack a tuple into a non-variable");
+                            ErrorReport(var) << 'Cannot pack a tuple into a non-variable');
                         }
                         size_t n_matched = outputs.size() - n_binders;
                         ArrayRef<std::shared_ptr<SugaredValue>> outputs_ref = outputs;
@@ -15010,7 +15109,7 @@ python.Execution = class {
                     adj_index = tuple_len + input_index;
                 }
                 if (!allow_out_of_bounds && (adj_index >= tuple_len || adj_index < 0)) {
-                    throw new python.Error('Tuple index out of range.');
+                    throw new python.Error(`Tuple index out of range at ${loc}.`);
                 }
                 return adj_index;
             }
@@ -15033,6 +15132,13 @@ python.Execution = class {
                 }
                 return this.graph.insertNode(this.graph.createTupleIndex(tuple_val, idx_val, output_type)).output();
             }
+            getSliceInd(idx_val, loc) {
+                const ivalue = torch._C.toIValue(idx_val);
+                if (ivalue && ivalue.isInt()) {
+                    return ivalue.toInt();
+                }
+                throw new python.Error(`Tuple slice indices must be integer constants at '${loc}'.`);
+            }
             emitTupleSlice(loc, tuple_val, tuple_args) {
                 const tuple_type = tuple_val.value(this.graph).type().expect(torch.TupleType);
                 const tuple_len = tuple_type.elements().length;
@@ -15043,16 +15149,16 @@ python.Execution = class {
                     torch._C.TORCH_CHECK(val.isInt());
                     step_size = val.toInt();
                 }
-                let beg = Number.MAX_SAFE_INTEGER; // std::numeric_limits<int64_t>::max();
+                let beg = { _: Number.MAX_SAFE_INTEGER }; // std::numeric_limits<int64_t>::max();
                 if (beg_val) {
-                    beg = this.getAdjTupleIndex(loc, tuple_type, this.getSliceInd(beg_val.value(this.graph), loc), true);
+                    beg = { _: this.getAdjTupleIndex(loc, tuple_type, this.getSliceInd(beg_val.value(this.graph), loc), true) };
                 }
-                let end = Number.MAX_SAFE_INTEGER; // std::numeric_limits<int64_t>::max();
+                let end = { _: Number.MAX_SAFE_INTEGER }; // std::numeric_limits<int64_t>::max();
                 if (end_val) {
-                    end = this.getAdjTupleIndex(loc, tuple_type, this.getSliceInd(end_val.value(this.graph), loc), true);
+                    end = { _: this.getAdjTupleIndex(loc, tuple_type, this.getSliceInd(end_val.value(this.graph), loc), true) };
                 }
                 const num_values = torch._C.slice_indices_adjust(tuple_len, beg, end, step_size);
-                return this.graph.insertNode(this.graph.createTupleSlice(tuple_val.value(this.graph), beg, step_size, num_values)).output();
+                return this.graph.insertNode(this.graph.createTupleSlice(tuple_val.value(this.graph), beg._, step_size, num_values)).output();
             }
             emitSliceOp(loc, sliceable, dim, start, end, step) {
                 const args = [];
@@ -15278,7 +15384,7 @@ python.Execution = class {
             n.addInput(zero);
             const new_iter = loop.bodyBlock().addInput().setType(IntType::get());
             // unset unique name for jitter, its replacement does not have a name
-            loop.currentTripCount().setDebugName("").replaceAllUsesWith(new_iter);
+            loop.currentTripCount().setDebugName('').replaceAllUsesWith(new_iter);
             const inc_iter = g.insert(aten::add, {new_iter, one});
             loop.bodyBlock().registerOutput(inc_iter);
             const less_than_max_trip = g.insert(aten::lt, {inc_iter, max_trip_count});
@@ -15982,7 +16088,7 @@ python.Execution = class {
                 script_module._initializing = false;
             }
             get graph() {
-                // return this._c._get_method("forward").graph;
+                // return this._c._get_method('forward').graph;
                 return this._c.graph;
             }
             get code_with_constants() {
@@ -16841,10 +16947,10 @@ python.Execution = class {
                 }
                 const output_node = this.graph.output(outputs);
                 if (serialized_graph.is_single_tensor_return) {
-                    output_node.meta.set("val", output_node.args[0].meta.get('val'));
+                    output_node.meta.set('val', output_node.args[0].meta.get('val'));
                 } else {
-                    /* output_node.meta["val"] = tuple(
-                        arg.meta["val"] if isinstance(arg, torch.fx.Node) else arg
+                    /* output_node.meta['val'] = tuple(
+                        arg.meta['val'] if isinstance(arg, torch.fx.Node) else arg
                         for arg in output_node.args[0]
                     ) */
                 }
@@ -18285,7 +18391,7 @@ python.Execution = class {
         if (typeof func === 'function') {
             return func.apply(callTarget, callArguments);
         }
-        throw new python.Error("Unsupported call expression.");
+        throw new python.Error('Unsupported call expression.');
     }
 
     apply(method, args, context) {
@@ -18364,19 +18470,19 @@ python.Execution = class {
         } else if (stmt instanceof ast.If) {
             const test = this.expression(stmt.test, context);
             if (test === true || test) {
-                const value = this.block(stmt.body.statements, context);
+                const value = this.block(stmt.body, context);
                 if (value !== undefined) {
                     return value;
                 }
             } else if (test === false) {
                 if (stmt.orelse) {
-                    const value = this.block(stmt.orelse.statements, context);
+                    const value = this.block(stmt.orelse, context);
                     if (value !== undefined) {
                         return value;
                     }
                 }
             } else {
-                throw new python.Error("Unsupported condition.");
+                throw new python.Error('Unsupported condition.');
             }
         } else if (stmt instanceof ast.For) {
             if (stmt.target instanceof ast.Name && stmt.iter instanceof ast.Tuple === false) {
@@ -18889,7 +18995,7 @@ python.BinaryReader = class {
     line() {
         const index = this._buffer.indexOf(0x0A, this._position);
         if (index === -1) {
-            throw new python.Error("Could not find end of line.");
+            throw new python.Error('Could not find end of line.');
         }
         const size = index - this._position;
         const text = this.string(size, 'ascii');
@@ -18992,7 +19098,7 @@ python.StreamReader = class {
             position = this._fill(0);
             index = this._buffer.indexOf(0x0A, position);
             if (index === -1) {
-                throw new python.Error("Could not find end of line.");
+                throw new python.Error('Could not find end of line.');
             }
         }
         const size = index - position;

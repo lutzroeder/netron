@@ -1537,7 +1537,7 @@ pytorch.Execution = class extends python.Execution {
 
     constructor(sources, metadata) {
         super(sources);
-        this.to_ir = false;
+        this.to_ir = true;
         this._metadata = metadata;
         const execution = this;
         const torch = this.torch;
@@ -2173,6 +2173,9 @@ pytorch.Execution = class extends python.Execution {
     }
 
     variables(value, scope) {
+        if (this.to_ir) {
+            throw new pytorch.Error('Not implemented.');
+        }
         if (!scope.refs) {
             scope.refs = new Set();
         }
@@ -2283,6 +2286,9 @@ pytorch.Execution = class extends python.Execution {
     }
 
     block(statements, context) {
+        if (!this.trace) {
+            return super.block(statements, context);
+        }
         const ast = this.ast;
         const torch = this.torch;
         statements = Array.prototype.slice.call(statements);
@@ -2524,11 +2530,12 @@ pytorch.Execution = class extends python.Execution {
                 this._resolver.resolveType(name);
             }
         }
-
         if (!this.trace) {
             return super.statement(stmt, context);
         }
-
+        if (this.to_ir) {
+            throw new pytorch.Error('Not implemented.');
+        }
         switch (stmt.__class__.__name__) {
             case 'ClassDef': {
                 super.statement(stmt, context);
@@ -2557,6 +2564,9 @@ pytorch.Execution = class extends python.Execution {
     }
 
     type(expr) {
+        if (this.to_ir) {
+            throw new pytorch.Error('Not implemented.');
+        }
         const ast = this.ast;
         const torch = this.torch;
         if (expr instanceof ast.Subscript && expr.value instanceof ast.Name) {
@@ -2620,6 +2630,9 @@ pytorch.Execution = class extends python.Execution {
     }
 
     constant(constant) {
+        if (this.to_ir) {
+            throw new pytorch.Error('Not implemented.');
+        }
         if (!this._constants.has(constant)) {
             const value = this._graph.insertConstant(constant);
             this._constants.set(constant, value);
@@ -2630,6 +2643,9 @@ pytorch.Execution = class extends python.Execution {
     call(target, name, args, keywords, context, range) {
         if (!this.trace) {
             return super.call(target, name, args, keywords, context);
+        }
+        if (this.to_ir) {
+            throw new pytorch.Error('Not implemented.');
         }
         const ast = this.ast;
         const torch = this.torch;
@@ -2710,8 +2726,8 @@ pytorch.Execution = class extends python.Execution {
             return super.call(target, name, args, keywords, context);
         }
         const [schema, evalArgs, evalKeywords] = overload;
-        const op = schema.overload_name ? `${schema.name}.${schema.overload_name}` : schema.name;
-        const node = this.create(op, range, 0);
+        // const op = schema.overload_name ? `${schema.name}.${schema.overload_name}` : schema.name;
+        const node = this.create(schema.name, range, 0);
         this._graph.insertNode(node);
         const referencedParameters = [];
         const parameters = schema.arguments;
@@ -2947,6 +2963,9 @@ pytorch.Execution = class extends python.Execution {
     }
 
     isType(obj, type, N) {
+        if (this.to_ir) {
+            throw new pytorch.Error('Not implemented.');
+        }
         const torch = this.torch;
         const builtins = this.builtins;
         switch (type.str()) {
@@ -3106,6 +3125,9 @@ pytorch.Execution = class extends python.Execution {
     }
 
     getType(value) { // rename
+        if (this.to_ir) {
+            throw new pytorch.Error('Not implemented.');
+        }
         const torch = this.torch;
         if (value === null || value === undefined) {
             return undefined;
@@ -3131,6 +3153,9 @@ pytorch.Execution = class extends python.Execution {
     }
 
     _overload(target, name, args, keywords, context) {
+        if (this.to_ir) {
+            throw new pytorch.Error('Not implemented.');
+        }
         const ast = this.ast;
         const torch = this.torch;
         const prefix = this.identifier(target);
@@ -3408,6 +3433,7 @@ pytorch.Utility = class {
             case 'NoneType': return 'None';
             case 'AnyListType': return 'list';
             case 'AnyTupleType': return 'tuple';
+            case 'ClassType': return type.annotation_str;
             default: throw new pytorch.Error(`Unsupported type '${type.kind()}'.`);
         }
     }
@@ -4072,14 +4098,14 @@ pytorch.Metadata = class {
             }
         }
         for (const module of modules) {
-            // const existing = execution.register(`torch.ops.${module}`);
+            const existing = execution.register(`ops.${module}`);
             const namespace = new torch._ops._OpNamespace(module);
-            /* const created = */ execution.register(`torch.ops.${module}`, namespace);
-            /* for (const [name, obj] of Object.entries(existing)) {
+            const created = execution.register(`torch.ops.${module}`, namespace);
+            for (const [name, obj] of Object.entries(existing)) {
                 if (!name.startsWith('__') && !(name in created)) {
                     created[name] = obj;
                 }
-            } */
+            }
         }
     }
 };

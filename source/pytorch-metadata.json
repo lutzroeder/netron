@@ -233,6 +233,24 @@
     "name": "aten::find(str self, str substr, int start=0, int end=-1) -> int"
   },
   {
+    "name": "aten::count(str self, str substr, int start=0, int end=-1) -> int"
+  },
+  {
+    "name": "aten::count.int(int[] self, int el) -> int"
+  },
+  {
+    "name": "aten::count.float(float[] self, float el) -> int"
+  },
+  {
+    "name": "aten::count.bool(bool[] self, bool el) -> int"
+  },
+  {
+    "name": "aten::count.Tensor(Tensor[] self, Tensor el) -> int"
+  },
+  {
+    "name": "aten::count.str(str[] self, str el) -> int"
+  },
+  {
     "name": "aten::splitlines(str self, bool keepends=False) -> str[]"
   },
   {
@@ -414,6 +432,9 @@
   },
   {
     "name": "aten::__contains__.float_list(float[] l, float item) -> bool"
+  },
+  {
+    "name": "aten::lower(str self) -> str"
   },
   {
     "name": "prim::type(Device self) -> str"
@@ -5696,10 +5717,12 @@
     "category": "Tensor"
   },
   {
-    "name": "aten::slice.t(t[] l, int? start=None, int? end=None, int step=1) -> t[]"
+    "name": "aten::slice.t(t[] l, int? start=None, int? end=None, int step=1) -> t[]",
+    "category": "Tensor"
   },
   {
-    "name": "aten::slice.str(str string, int? start=None, int? end=None, int step=1) -> str"
+    "name": "aten::slice.str(str string, int? start=None, int? end=None, int step=1) -> str",
+    "category": "Tensor"
   },
   {
     "name": "aten::reciprocal(Tensor self) -> Tensor"

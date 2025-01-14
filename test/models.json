@@ -6350,7 +6350,7 @@
     "target":   "resnet50_pertensor.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5212006/resnet50_pertensor.zip[resnet50_pertensor.pt]",
     "format":   "TorchScript v1.5",
-    "assert":   "model.graphs[0].nodes[7].inputs[3].value[1] == 3",
+    "assert":   "model.graphs[0].nodes[10].inputs[3].value[1] == 3",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
