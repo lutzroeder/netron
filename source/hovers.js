@@ -408,7 +408,8 @@ class Req {
 												(first.toLowerCase() == "tensor_button_command" ||
 												first.toLowerCase() == "tensor_button_script"))) {
 											Req.solve_bugs();
-											throw "Invalid model metadata file format! tensor_button.. must correspond to tensor and operator_button.. to operator";
+											throw "Invalid model metadata file format! tensor_button.." +
+											" must correspond to tensor and operator_button.. to operator";
 										}
 										var k = -1;
 										while (lines[line + k].startsWith("#") ||
@@ -427,34 +428,49 @@ class Req {
 										(first.toLowerCase() == "operator_button_script" &&
 										second.toLowerCase() == "operator_button_script")) {
 											Req.solve_bugs();
-											throw "A button can't execute two scripts or two commands at the same time";
+											throw "A button can't execute two scripts or " +
+											"two commands at the same time";
 										}
 										if (first.toLowerCase() == "tensor_button_command") {
 											if (second.toLowerCase() !== "tensor_button_script" &&
 											second.toLowerCase() !== "tensor_button") {
 												Req.solve_bugs();
-												throw "The format of the data is wrong: the construction of the button should be tensor_button, tensor_button_command, tensor_button_script or tensor_button, tensor_button_script, tensor_button_command";
+												throw "The format of the data is wrong: the construction" +
+												" of the button should be tensor_button, " +
+												"tensor_button_command, tensor_button_script or " +
+												"tensor_button, tensor_button_script, tensor_button_command";
 											}
 										}
 										if (first.toLowerCase() == "tensor_button_script") {
 											if (second.toLowerCase() !== "tensor_button_command" &&
 											second.toLowerCase() !== "tensor_button") {
 												Req.solve_bugs();
-												throw "The format of the data is wrong: the construction of the button should be tensor_button, tensor_button_command, tensor_button_script or tensor_button, tensor_button_script, tensor_button_command";
+												throw "The format of the data is wrong: the construction" +
+												" of the button should be tensor_button, " +
+												"tensor_button_command, tensor_button_script or " +
+												"tensor_button, tensor_button_script, tensor_button_command";
 											}
 										}
 										if (first.toLowerCase() == "operator_button_command") {
 											if (second.toLowerCase() !== "operator_button_script" &&
 											second.toLowerCase() !== "operator_button") {
 												Req.solve_bugs();
-												throw "The format of the data is wrong: the construction of the button should be operator_button, operator_button_command, operator_button_script or operator_button, operator_button_script, operator_button_command";
+												throw "The format of the data is wrong: the construction" +
+												" of the button should be operator_button, " +
+												"operator_button_command, operator_button_script or " +
+												"operator_button, operator_button_script," +
+												" operator_button_command";
 											}
 										}
 										if (first.toLowerCase() == "operator_button_command") {
 											if (second.toLowerCase() !== "operator_button_script" &&
 											second.toLowerCase() !== "operator_button") {
 												Req.solve_bugs();
-												throw "The format of the data is wrong: the construction of the button should be operator_button, operator_button_command, operator_button_script or operator_button, operator_button_script, operator_button_command";
+												throw "The format of the data is wrong: the construction" +
+												" of the button should be operator_button, " +
+												"operator_button_command, operator_button_script or " +
+												"operator_button, operator_button_script, " +
+												"operator_button_command";
 											}
 										}
 										var stri = JSON.parse(other_string);
@@ -477,7 +493,9 @@ class Req {
 											(child_meta.className == "operator" &&
 												first.toLowerCase().startsWith("tensor_"))) {
 												Req.solve_bugs();
-												throw "Invalid model metadata file format! tensor_onmouseover_image.. must correspond to tensor and operator_onmouseover_image.. to operator";
+												throw "Invalid model metadata file format! "+
+												"tensor_onmouseover_image.. must correspond to tensor and" +
+												" operator_onmouseover_image.. to operator";
 											}
 											var k = -1;
 											while (lines[line + k].startsWith("#") ||
@@ -489,7 +507,8 @@ class Req {
 											undefined? '' : line_read_second[0].trim();
 											if (first.toLowerCase() == second.toLowerCase()) {
 												Req.solve_bugs();
-												throw "A button can't execute two x dimesions or two y dimensions at the same time";
+												throw "A button can't execute two x dimesions or two y " +
+												"dimensions at the same time";
 											}
 											var strin = JSON.parse(img);
 											strin[first.toLowerCase()] =
