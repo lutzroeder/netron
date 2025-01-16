@@ -176,7 +176,13 @@ view.View = class {
                             }
                             Req.file_added = 0;
                         }
-                        Req.read_file();
+                        if (document.getElementById("graph").children && 
+                        document.getElementById("graph").children[0] &&
+                        document.getElementById("graph").children[0].children.length !== 0) {
+                            Req.read_file();
+                        } else {
+                            alert("Please load a model to use this feature!");
+                        }
                     }
                 });
                 if (this._host.type === 'Electron') {

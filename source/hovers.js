@@ -710,6 +710,7 @@ class Req {
 			reader.readAsText(files[0], 'utf-8');
 		};
 		input.click();
+	
 	};
 	// Function which manages the doubleclick feature.
 	static doubleclick() {
