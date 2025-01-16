@@ -114,7 +114,7 @@ export default [
             'no-labels': 'error',
             'no-lone-blocks': 'error',
             'no-lonely-if': 'error',
-            // 'no-loop-func': 'error',
+            'no-loop-func': 'error',
             'no-loss-of-precision': 'error',
             // 'no-magic-numbers': 'error',
             'no-misleading-character-class': 'error',
@@ -212,9 +212,9 @@ export default [
             // 'require-unicode-regexp': 'error',
             'require-yield': 'error',
             'semi': ['error', 'always'],
-            // 'sort-imports': 'error',
+            'sort-imports': 'error',
             // 'sort-keys': 'error',
-            // 'sort-vars': 'error',
+            'sort-vars': 'error',
             'space-before-blocks': 'error',
             'space-in-parens': 'error',
             'space-infix-ops': 'error',
@@ -224,7 +224,7 @@ export default [
             'unicode-bom': 'error',
             'use-isnan': 'error',
             'valid-typeof': 'error',
-            // 'vars-on-top': 'error',
+            'vars-on-top': 'error',
             'yoda': 'error'
         }
     }

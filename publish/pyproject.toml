@@ -1,0 +1,63 @@
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "netron"
+version = "0.0.0"
+description = "Viewer for neural network, deep learning and machine learning models."
+authors = [
+    { name = "Lutz Roeder", email = "lutzroeder@users.noreply.github.com" }
+]
+keywords = [
+    "onnx", "keras", "tensorflow", "tflite", "coreml", "mxnet", "caffe", "caffe2",
+    "torchscript", "pytorch", "ncnn", "mnn", "openvino", "darknet", "paddlepaddle", "chainer",
+    "artificial intelligence", "machine learning", "deep learning", "neural network",
+    "visualizer", "viewer"
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Visualization"
+]
+
+[project.urls]
+homepage = "https://github.com/lutzroeder/netron"
+
+[project.readme]
+text = """
+Netron is a viewer for neural network, deep learning and machine learning models.
+
+Netron supports ONNX, TensorFlow Lite, Core ML, Keras, Caffe, Darknet, PyTorch, TensorFlow.js, Safetensors and NumPy.
+
+Netron has experimental support for TorchScript, TensorFlow, MXNet, OpenVINO, RKNN, ML.NET, ncnn, MNN, PaddlePaddle, GGUF and scikit-learn.
+"""
+content-type = "text/markdown"
+
+[project.license]
+text = "MIT"
+
+[project.scripts]
+netron = "netron:main"
+
+[tool.setuptools]
+package-dir = { "netron" = "netron" }
+
+[tool.setuptools.packages.find]
+namespaces = false
+
+[tool.setuptools.package-data]
+netron = ["*.*"]
+
+[tool.setuptools.exclude-package-data]
+netron = ["app.js", "electron.*"]

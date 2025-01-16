@@ -35,7 +35,7 @@ uff.ModelFactory = class {
                     meta_graph = uff.proto.MetaGraph.decode(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw  new uff.Error(`File format is not uff.MetaGraph (${message.replace(/\.$/, '')}).`);
+                    throw new uff.Error(`File format is not uff.MetaGraph (${message.replace(/\.$/, '')}).`);
                 }
                 break;
             }
@@ -95,7 +95,7 @@ uff.Graph = class {
                 values.set(node.id, new uff.Value(node.id));
             }
         }
-        const value = (name) => {
+        values.map = (name) => {
             return values.get(name);
         };
         for (let i = graph.nodes.length - 1; i >= 0; i--) {
@@ -129,7 +129,7 @@ uff.Graph = class {
                 this.outputs.push(new uff.Argument(node.id, [values.get(node.inputs[0])]));
                 continue;
             }
-            this.nodes.push(new uff.Node(metadata, node, value));
+            this.nodes.push(new uff.Node(metadata, node, values));
         }
     }
 };
@@ -159,7 +159,7 @@ uff.Value = class {
 
 uff.Node = class {
 
-    constructor(metadata, node, value) {
+    constructor(metadata, node, values) {
         this.name = node.id;
         this.type = metadata.type(node.operation) || { name: node.operation };
         this.attributes = [];
@@ -171,21 +171,22 @@ uff.Node = class {
                 for (const metadata of this.type.inputs) {
                     if (index < node.inputs.length || metadata.optional !== true) {
                         const count = metadata.list ? (node.inputs.length - index) : 1;
-                        const values = node.inputs.slice(index, index + count).map((name) => value(name));
-                        index += count;
-                        const argument = new uff.Argument(metadata.name, values);
+                        const inputs = node.inputs.slice(index, index + count);
+                        const argument = new uff.Argument(metadata.name, inputs.map((name) => values.map(name)));
                         this.inputs.push(argument);
+                        index += count;
                     }
                 }
             }
             this.inputs.push(...node.inputs.slice(index).map((identifier, i) => {
                 const name = ((index + i) === 0) ? 'input' : (index + i).toString();
-                return new uff.Argument(name, [value(identifier)]);
+                return new uff.Argument(name, [values.map(identifier)]);
             }));
         }
-        this.outputs.push(new uff.Argument('output', [value(node.id)]));
+        this.outputs.push(new uff.Argument('output', [values.map(node.id)]));
         for (const field of node.fields) {
             let type = null;
+            let value = null;
             switch (field.value.type) {
                 case 's': value = field.value.s; type = 'string'; break;
                 case 's_list': value = field.value.s_list; type = 'string[]'; break;
@@ -252,11 +253,12 @@ uff.TensorShape = class {
         if (shape.type !== 'i_list') {
             throw new uff.Error(`Unsupported shape format '${JSON.stringify(shape.type)}'.`);
         }
-        this.dimensions = shape.i_list.val;
+        const dimensions = shape.i_list.val;
+        this.dimensions = dimensions.map((dim) => typeof dim === 'bigint' ? dim.toNumber() : dim);
     }
 
     toString() {
-        if (this.dimensions && this.dimensions.length > 0) {
+        if (Array.isArray(this.dimensions) && this.dimensions.length > 0) {
             return `[${this.dimensions.join(',')}]`;
         }
         return '';

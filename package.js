@@ -241,6 +241,12 @@ const install = async () => {
     if (!exists) {
         await exec('npm install');
     }
+    try {
+        await exec('python --version', 'utf-8');
+        await exec('python -m pip install --upgrade --quiet setuptools pylint');
+    } catch {
+        // continue regardless of error
+    }
 };
 
 const start = async () => {
@@ -293,7 +299,7 @@ const build = async (target) => {
             writeLine('build python');
             await exec('python package.py build version');
             await exec('python -m pip install --user build wheel --quiet');
-            await exec('python -m build --no-isolation --wheel --outdir dist/pypi dist/pypi');
+            await exec('python -m build --wheel --outdir dist/pypi dist/pypi');
             if (read('install')) {
                 await exec('python -m pip install --force-reinstall dist/pypi/*.whl');
             }
@@ -509,7 +515,6 @@ const lint = async () => {
     writeLine('eslint');
     await exec('npx eslint --config publish/eslint.config.js *.*js source/*.*js test/*.*js publish/*.*js tools/*.js');
     writeLine('pylint');
-    await exec('python -m pip install --upgrade --quiet pylint');
     await exec('python -m pylint -sn --recursive=y source test publish tools *.py');
 };
 
@@ -531,10 +536,10 @@ const update = async () => {
     const targets = process.argv.length > 3 ? process.argv.slice(3) : [
         'armnn',
         'bigdl',
-        'caffe', 'caffe2', 'circle', 'cntk', 'coreml',
+        'caffe', 'circle', 'cntk', 'coreml',
         'dlc', 'dnn',
         'gguf',
-        'keras',
+        'kann', 'keras',
         'mnn', 'mslite', 'megengine',
         'nnabla',
         'onnx', 'om',
@@ -556,7 +561,7 @@ const pull = async () => {
     await exec('git fetch --prune origin "refs/tags/*:refs/tags/*"');
     const before = await exec('git rev-parse HEAD', 'utf-8');
     try {
-        await exec('git pull --prune --rebase');
+        await exec('git pull --prune --rebase --autostash');
     } catch (error) {
         writeLine(error.message);
     }
@@ -584,11 +589,14 @@ const forge = async() => {
     const command = read();
     switch (command) {
         case 'install': {
-            await exec('npm install @electron-forge/cli@7.3.0');
-            await exec('npm install @electron-forge/core@7.3.0');
-            await exec('npm install @electron-forge/maker-snap@7.3.0');
-            await exec('npm install @electron-forge/maker-dmg@7.3.0');
-            await exec('npm install @electron-forge/maker-zip@7.3.0');
+            const packages = [
+                '@electron-forge/cli',
+                '@electron-forge/core',
+                '@electron-forge/maker-snap',
+                '@electron-forge/maker-dmg',
+                '@electron-forge/maker-zip'
+            ];
+            await exec(`npm install ${packages.join(' ')} --no-save`);
             break;
         }
         case 'update': {

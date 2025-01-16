@@ -27,15 +27,7 @@ hdf5.File = class {
             // https://support.hdfgroup.org/HDF5/doc/H5.format.html
             const data = this.data;
             delete this.data;
-            let reader = null;
-            if (data instanceof Uint8Array) {
-                reader = new hdf5.BinaryReader(data);
-            } else if (data.length < 0x10000000) {
-                const buffer = data.peek();
-                reader = new hdf5.BinaryReader(buffer);
-            } else {
-                reader = new hdf5.StreamReader(data);
-            }
+            const reader = hdf5.Reader.open(data);
             reader.skip(8);
             this._globalHeap = new hdf5.GlobalHeap(reader);
             const version = reader.byte();
@@ -216,7 +208,7 @@ hdf5.Variable = class {
     get value() {
         const data = this.data;
         if (data) {
-            const reader = data instanceof hdf5.BinaryReader ? data : new hdf5.BinaryReader(data);
+            const reader = hdf5.Reader.open(data);
             const array = this._dataspace.read(this._datatype, reader);
             return this._dataspace.decode(this._datatype, array, array, this._globalHeap);
         }
@@ -247,13 +239,13 @@ hdf5.Variable = class {
                 }
                 const data = new Uint8Array(data_size * item_size);
                 for (const node of tree.nodes) {
-                    if (node.filterMask !== 0) {
-                        return null;
-                    }
                     let chunk = node.data;
                     if (this._filterPipeline) {
-                        for (const filter of this._filterPipeline.filters) {
-                            chunk = filter.decode(chunk);
+                        for (let i = 0; i < this._filterPipeline.filters.length; i++) {
+                            if ((node.filterMask & (1 << i)) === 0) {
+                                const filter = this._filterPipeline.filters[i];
+                                chunk = filter.decode(chunk);
+                            }
                         }
                     }
                     const chunk_offset = node.fields.map((x) => x.toNumber());
@@ -307,6 +299,18 @@ hdf5.Variable = class {
 
 hdf5.Reader = class {
 
+    static open(data) {
+        if (data instanceof hdf5.BinaryReader || data instanceof hdf5.StreamReader) {
+            return data;
+        } else if (data instanceof Uint8Array) {
+            return new hdf5.BinaryReader(data);
+        } else if (data.length < 0x10000000) {
+            const buffer = data.peek();
+            return new hdf5.BinaryReader(buffer);
+        }
+        return new hdf5.StreamReader(data);
+    }
+
     initialize() {
         this._offsetSize = this.byte();
         this._lengthSize = this.byte();
@@ -357,7 +361,7 @@ hdf5.Reader = class {
             case 0: return this.byte();
             case 1: return this.uint16();
             case 2: return this.uint32();
-            case 3: return Number(this.uint64());
+            case 3: return this.uint64();
             default: throw new hdf5.Error(`Unsupported uint size '${size}'.`);
         }
     }
@@ -395,10 +399,10 @@ hdf5.Reader = class {
                 if (value === 0xffffffffffffffffn) {
                     return -1;
                 }
-                if (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) {
-                    throw new hdf5.Error('Unsigned 64-bit value exceeds safe integer.');
+                if (value >= Number.MAX_SAFE_INTEGER) {
+                    throw new Error(`64-bit value '${value.toString(16)}' exceeds safe integer.`);
                 }
-                return Number(value);
+                return value.toNumber();
             }
             case 4: {
                 const value = this.uint32();
@@ -421,10 +425,10 @@ hdf5.Reader = class {
                 if (value === 0xffffffffffffffffn) {
                     return -1;
                 }
-                if (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) {
-                    throw new hdf5.Error('Unsigned 64-bit value exceeds safe integer.');
+                if (value >= Number.MAX_SAFE_INTEGER) {
+                    throw new Error(`64-bit value '${value.toString(16)}' exceeds safe integer.`);
                 }
-                return Number(value);
+                return value.toNumber();
             }
             case 4: {
                 const value = this.uint32();
@@ -758,7 +762,7 @@ hdf5.DataObjectHeader = class {
                 const order = (flags & 0x04) !== 0;
                 const size = reader.uint(flags & 0x03);
                 let next = true;
-                let end = reader.position + size;
+                let end = reader.position + (typeof size === 'bigint' ? size.toNumber() : size);
                 while (next && reader.position < end) {
                     const type = reader.byte();
                     const size = reader.uint16();
@@ -956,7 +960,7 @@ hdf5.LinkInfo = class {
             case 0: {
                 const flags = reader.byte();
                 if ((flags & 1) !== 0) {
-                    this.maxCreationIndex = reader.uint64().toNumber();
+                    this.maxCreationIndex = reader.uint64();
                 }
                 this.fractalHeapAddress = reader.offset();
                 this.nameIndexTreeAddress = reader.offset();
@@ -1092,7 +1096,7 @@ hdf5.Datatype = class {
                 } else if (this._size === 4) {
                     return this._flags & 0x8 ? reader.int32() : reader.uint32();
                 } else if (this._size === 8) {
-                    return this._flags & 0x8 ? reader.int64().toNumber() : reader.uint64().toNumber();
+                    return this._flags & 0x8 ? reader.int64() : reader.uint64();
                 }
                 throw new hdf5.Error('Unsupported fixed-point datatype.');
             case 1: // floating-point
@@ -1217,7 +1221,8 @@ hdf5.Link = class {
                     this.creationOrder = reader.uint32();
                 }
                 const encoding = ((flags & 0x10) !== 0 && reader.byte() === 1) ? 'utf-8' : 'ascii';
-                this.name = reader.string(reader.uint(flags & 0x03), encoding);
+                const size = reader.uint(flags & 0x03);
+                this.name = reader.string(typeof size === 'bigint' ? size.toNumber() : size, encoding);
                 switch (this.type) {
                     case 0: // hard link
                         this.objectHeaderAddress = reader.offset();
@@ -1359,14 +1364,70 @@ hdf5.Filter = class {
 
     decode(data) {
         switch (this.id) {
-            case 1: { // gzip
-                const archive = zip.Archive.open(data);
-                return archive.entries.get('').peek();
-            }
-            default: {
-                throw new hdf5.Error(`Unsupported filter '${this.name}'.`);
+            case 1: return this._deflate(data);
+            case 32000: return this._lzf(data);
+            default: throw new hdf5.Error(`Unsupported filter '${this.id}:${this.name}'.`);
+        }
+    }
+
+    _deflate(input) {
+        const archive = zip.Archive.open(input);
+        return archive.entries.get('').peek();
+    }
+
+    _lzf(input) {
+        let i = 0;
+        let o = 0;
+        while (i < input.length) {
+            let c = input[i++];
+            if (c < (1 << 5)) {
+                c++;
+                i += c;
+                o += c;
+                if (i > input.length) {
+                    throw new Error('Invalid LZF compressed data.');
+                }
+            } else {
+                let length = c >> 5;
+                if (i >= input.length) {
+                    throw new Error('Invalid LZF compressed data.');
+                }
+                if (length === 7) {
+                    length += input[i++];
+                    if (i >= input.length) {
+                        throw new Error('Invalid LZF compressed data.');
+                    }
+                }
+                const ref =  (o - ((c & 0x1f) << 8) - 1) - input[i++];
+                if (ref < 0) {
+                    throw new Error('Invalid LZF compressed data.');
+                }
+                o += length + 2;
             }
         }
+        const output = new Uint8Array(o);
+        i = 0;
+        o = 0;
+        while (i < input.length) {
+            let c = input[i++];
+            if (c < (1 << 5)) {
+                c++;
+                output.set(input.subarray(i, i + c), o);
+                i += c;
+                o += c;
+            } else {
+                let length = c >> 5;
+                if (length === 7) {
+                    length += input[i++];
+                }
+                length += 2;
+                let ref =  o - ((c & 0x1f) << 8) - 1 - input[i++];
+                do {
+                    output[o++] = output[ref++];
+                } while (--length);
+            }
+        }
+        return output;
     }
 };
 
@@ -1476,7 +1537,7 @@ hdf5.AttributeInfo = class {
             case 0: {
                 const flags = reader.byte();
                 if ((flags & 1) !== 0) {
-                    this.maxCreationIndex = reader.uint64().toNumber();
+                    this.maxCreationIndex = reader.uint64();
                 }
                 this.fractalHeapAddress = reader.offset();
                 this.attributeNameTreeAddress = reader.offset();

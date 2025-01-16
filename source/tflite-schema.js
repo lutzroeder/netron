@@ -43,6 +43,7 @@ tflite.QuantizationDetails = class {
     static decode(reader, position, type) {
         switch (type) {
             case 1: return tflite.CustomQuantization.decode(reader, position);
+            case 2: return tflite.BlockwiseQuantization.decode(reader, position);
             default: return undefined;
         }
     }
@@ -50,8 +51,28 @@ tflite.QuantizationDetails = class {
     static decodeText(reader, json, type) {
         switch (type) {
             case 'CustomQuantization': return tflite.CustomQuantization.decodeText(reader, json);
+            case 'BlockwiseQuantization': return tflite.BlockwiseQuantization.decodeText(reader, json);
             default: return undefined;
         }
+    }
+};
+
+tflite.BlockwiseQuantization = class BlockwiseQuantization {
+
+    static decode(reader, position) {
+        const $ = new tflite.BlockwiseQuantization();
+        $.scales = reader.int32_(position, 4, 0);
+        $.zero_points = reader.int32_(position, 6, 0);
+        $.block_size = reader.int32_(position, 8, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new tflite.BlockwiseQuantization();
+        $.scales = reader.value(json.scales, 0);
+        $.zero_points = reader.value(json.zero_points, 0);
+        $.block_size = reader.value(json.block_size, 0);
+        return $;
     }
 };
 
@@ -450,7 +471,10 @@ tflite.BuiltinOperator = {
     DILATE: 203,
     STABLEHLO_RNG_BIT_GENERATOR: 204,
     REDUCE_WINDOW: 205,
-    STABLEHLO_COMPOSITE: 206
+    STABLEHLO_COMPOSITE: 206,
+    STABLEHLO_SHIFT_LEFT: 207,
+    STABLEHLO_CBRT: 208,
+    STABLEHLO_CASE: 209
 };
 
 tflite.BuiltinOptions = class {
@@ -745,6 +769,8 @@ tflite.BuiltinOptions2 = class {
             case 19: return tflite.StablehloRngBitGeneratorOptions.decode(reader, position);
             case 20: return tflite.ReduceWindowOptions.decode(reader, position);
             case 21: return tflite.StableHLOCompositeOptions.decode(reader, position);
+            case 22: return tflite.StablehloShiftLeftOptions.decode(reader, position);
+            case 23: return tflite.StablehloCaseOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -772,6 +798,8 @@ tflite.BuiltinOptions2 = class {
             case 'StablehloRngBitGeneratorOptions': return tflite.StablehloRngBitGeneratorOptions.decodeText(reader, json);
             case 'ReduceWindowOptions': return tflite.ReduceWindowOptions.decodeText(reader, json);
             case 'StableHLOCompositeOptions': return tflite.StableHLOCompositeOptions.decodeText(reader, json);
+            case 'StablehloShiftLeftOptions': return tflite.StablehloShiftLeftOptions.decodeText(reader, json);
+            case 'StablehloCaseOptions': return tflite.StablehloCaseOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -1151,6 +1179,21 @@ tflite.StablehloScatterOptions = class StablehloScatterOptions {
         $.index_vector_dim = reader.int64(json.index_vector_dim, 0n);
         $.unique_indices = reader.value(json.unique_indices, false);
         $.update_computation_subgraph_index = reader.value(json.update_computation_subgraph_index, 0);
+        return $;
+    }
+};
+
+tflite.StablehloCaseOptions = class StablehloCaseOptions {
+
+    static decode(reader, position) {
+        const $ = new tflite.StablehloCaseOptions();
+        $.branch_subgraph_indices = reader.array(position, 4, Int32Array);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new tflite.StablehloCaseOptions();
+        $.branch_subgraph_indices = reader.array(json.branch_subgraph_indices, Int32Array);
         return $;
     }
 };
@@ -3241,6 +3284,19 @@ tflite.StableHLOCompositeOptions = class StableHLOCompositeOptions {
     }
 };
 
+tflite.StablehloShiftLeftOptions = class StablehloShiftLeftOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new tflite.StablehloShiftLeftOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new tflite.StablehloShiftLeftOptions();
+        return $;
+    }
+};
+
 tflite.Operator = class Operator {
 
     static decode(reader, position) {
@@ -3256,6 +3312,7 @@ tflite.Operator = class Operator {
         $.large_custom_options_offset = reader.uint64_(position, 22, 0n);
         $.large_custom_options_size = reader.uint64_(position, 24, 0n);
         $.builtin_options_2 = reader.union(position, 26, tflite.BuiltinOptions2);
+        $.debug_metadata_index = reader.int32_(position, 30, -1);
         return $;
     }
 
@@ -3272,6 +3329,7 @@ tflite.Operator = class Operator {
         $.large_custom_options_offset = reader.uint64(json.large_custom_options_offset, 0n);
         $.large_custom_options_size = reader.uint64(json.large_custom_options_size, 0n);
         $.builtin_options_2 = tflite.BuiltinOptions2.decodeText(reader, json.builtin_options_2, json.builtin_options_2_type);
+        $.debug_metadata_index = reader.value(json.debug_metadata_index, -1);
         return $;
     }
 };
@@ -3285,6 +3343,7 @@ tflite.SubGraph = class SubGraph {
         $.outputs = reader.array(position, 8, Int32Array);
         $.operators = reader.tables(position, 10, tflite.Operator);
         $.name = reader.string_(position, 12, null);
+        $.debug_metadata_index = reader.int32_(position, 14, -1);
         return $;
     }
 
@@ -3295,6 +3354,7 @@ tflite.SubGraph = class SubGraph {
         $.outputs = reader.array(json.outputs, Int32Array);
         $.operators = reader.objects(json.operators, tflite.Operator);
         $.name = reader.value(json.name, null);
+        $.debug_metadata_index = reader.value(json.debug_metadata_index, -1);
         return $;
     }
 };

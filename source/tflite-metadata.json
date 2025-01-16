@@ -864,6 +864,12 @@
     ]
   },
   {
+    "name": "StablehloCase",
+    "attributes": [
+      { "name": "branch_subgraph_indices", "type": "int32[]", "default": 0 }
+    ]
+  },
+  {
     "name": "StablehloCompare",
     "attributes": [
       { "name": "comparison_direction", "type": "StablehloComparisonDirection", "default": "STABLEHLO_COMPARISON_DIRECTION_EQ" },

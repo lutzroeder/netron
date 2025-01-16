@@ -28,7 +28,7 @@
     ],
     "examples": [
       {
-        "code": ">>> layer = keras.layers.Activation('relu')\n>>> layer([-3.0, -1.0, 0.0, 2.0])\n[0.0, 0.0, 0.0, 2.0]\n>>> layer = keras.layers.Activation(keras.activations.relu)\n>>> layer([-3.0, -1.0, 0.0, 2.0])\n[0.0, 0.0, 0.0, 2.0]"
+        "code": ">>> layer = keras.layers.Activation('relu')\n>>> layer(np.array([-3.0, -1.0, 0.0, 2.0]))\n[0.0, 0.0, 0.0, 2.0]\n>>> layer = keras.layers.Activation(keras.activations.relu)\n>>> layer(np.array([-3.0, -1.0, 0.0, 2.0]))\n[0.0, 0.0, 0.0, 2.0]"
       }
     ]
   },
@@ -120,7 +120,7 @@
       },
       {
         "name": "score_mode",
-        "description": "Function to use to compute attention scores, one of\n        `{\"dot\", \"concat\"}`. `\"dot\"` refers to the dot product between the\n        query and key vectors. `\"concat\"` refers to the hyperbolic tangent\n        of the concatenation of the `query` and `key` vectors.\n\nCall Args:"
+        "description": "Function to use to compute attention scores, one of\n        `{\"dot\", \"concat\"}`. `\"dot\"` refers to the dot product between the\n        query and key vectors. `\"concat\"` refers to the hyperbolic tangent\n        of the concatenation of the `query` and `key` vectors."
       },
       {
         "name": "use_causal_mask",
@@ -128,7 +128,22 @@
       },
       {
         "name": "seed",
-        "description": "A Python integer to use as random seed incase of `dropout`."
+        "description": "A Python integer to use as random seed in case of `dropout`."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "query",
+        "type": "Tensor[]"
+      },
+      {
+        "name": "value",
+        "type": "Tensor[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
       }
     ]
   },
@@ -297,6 +312,83 @@
     "examples": [
       {
         "code": "depth = 30\nheight = 30\nwidth = 30\nchannels = 3\n\ninputs = keras.layers.Input(shape=(depth, height, width, channels))\nlayer = keras.layers.AveragePooling3D(pool_size=3)\noutputs = layer(inputs)  # Shape: (batch_size, 10, 10, 10, 3)"
+      }
+    ]
+  },
+  {
+    "name": "LayerNormalization",
+    "module": "keras.layers",
+    "category": "Normalization",
+    "description": "Layer normalization layer (Ba et al., 2016).\n\nNormalize the activations of the previous layer for each given example in a\nbatch independently, rather than across a batch like Batch Normalization.\ni.e. applies a transformation that maintains the mean activation within each\nexample close to 0 and the activation standard deviation close to 1.\n\nIf `scale` or `center` are enabled, the layer will scale the normalized\noutputs by broadcasting them with a trainable variable `gamma`, and center\nthe outputs by broadcasting with a trainable variable `beta`. `gamma` will\ndefault to a ones tensor and `beta` will default to a zeros tensor, so that\ncentering and scaling are no-ops before training has begun.\n\nSo, with scaling and centering enabled the normalization equations\nare as follows:\n\nLet the intermediate activations for a mini-batch to be the `inputs`.\n\nFor each sample `x_i` in `inputs` with `k` features, we compute the mean and\nvariance of the sample:\n\n```python\nmean_i = sum(x_i[j] for j in range(k)) / k\nvar_i = sum((x_i[j] - mean_i) ** 2 for j in range(k)) / k\n```\n\nand then compute a normalized `x_i_normalized`, including a small factor\n`epsilon` for numerical stability.\n\n```python\nx_i_normalized = (x_i - mean_i) / sqrt(var_i + epsilon)\n```\n\nAnd finally `x_i_normalized ` is linearly transformed by `gamma` and `beta`,\nwhich are learned parameters:\n\n```python\noutput_i = x_i_normalized * gamma + beta\n```\n\n`gamma` and `beta` will span the axes of `inputs` specified in `axis`, and\nthis part of the inputs' shape must be fully defined.\n\nFor example:\n\n```\n>>> layer = keras.layers.LayerNormalization(axis=[1, 2, 3])\n>>> layer.build([5, 20, 30, 40])\n>>> print(layer.beta.shape)\n(20, 30, 40)\n>>> print(layer.gamma.shape)\n(20, 30, 40)\n```\n\nNote that other implementations of layer normalization may choose to define\n`gamma` and `beta` over a separate set of axes from the axes being\nnormalized across. For example, Group Normalization\n([Wu et al. 2018](https://arxiv.org/abs/1803.08494)) with group size of 1\ncorresponds to a Layer Normalization that normalizes across height, width,\nand channel and has `gamma` and `beta` span only the channel dimension.\nSo, this Layer Normalization implementation will not match a Group\nNormalization layer with group size set to 1.",
+    "attributes": [
+      {
+        "name": "axis",
+        "description": "Integer or List/Tuple. The axis or axes to normalize across.\n        Typically, this is the features axis/axes. The left-out axes are\n        typically the batch axis/axes. `-1` is the last dimension in the\n        input. Defaults to `-1`."
+      },
+      {
+        "name": "epsilon",
+        "description": "Small float added to variance to avoid dividing by zero.\n        Defaults to 1e-3."
+      },
+      {
+        "name": "center",
+        "description": "If True, add offset of `beta` to normalized tensor. If False,\n        `beta` is ignored. Defaults to `True`."
+      },
+      {
+        "name": "scale",
+        "description": "If True, multiply by `gamma`. If False, `gamma` is not used.\n        When the next layer is linear (also e.g. `nn.relu`), this can be\n        disabled since the scaling will be done by the next layer.\n        Defaults to `True`."
+      },
+      {
+        "name": "rms_scaling",
+        "description": "If True, `center` and `scale` are ignored, and the\n        inputs are scaled by `gamma` and the inverse square root\n        of the square of all inputs. This is an approximate and faster\n        approach that avoids ever computing the mean of the input."
+      },
+      {
+        "name": "beta_initializer",
+        "description": "Initializer for the beta weight. Defaults to zeros."
+      },
+      {
+        "name": "gamma_initializer",
+        "description": "Initializer for the gamma weight. Defaults to ones."
+      },
+      {
+        "name": "beta_regularizer",
+        "description": "Optional regularizer for the beta weight.\n        None by default."
+      },
+      {
+        "name": "gamma_regularizer",
+        "description": "Optional regularizer for the gamma weight.\n        None by default."
+      },
+      {
+        "name": "beta_constraint",
+        "description": "Optional constraint for the beta weight.\n        None by default."
+      },
+      {
+        "name": "gamma_constraint",
+        "description": "Optional constraint for the gamma weight.\n        None by default."
+      },
+      {
+        "name": "**kwargs",
+        "description": "Base layer keyword arguments (e.g. `name` and `dtype`)."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input"
+      },
+      {
+        "name": "gamma"
+      },
+      {
+        "name": "beta"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
+      }
+    ],
+    "references": [
+      {
+        "description": "[Lei Ba et al., 2016](https://arxiv.org/abs/1607.06450)."
       }
     ]
   },
@@ -544,7 +636,13 @@
     ],
     "references": [
       {
-        "description": "[Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift](https://arxiv.org/abs/1502.03167)"
+        "description": "[Ioffe and Szegedy, 2015](https://arxiv.org/abs/1502.03167).  **About setting `layer.trainable = False` on a `BatchNormalization` layer:**  The meaning of setting `layer.trainable = False` is to freeze the layer, i.e. its internal state will not change during training: its trainable weights will not be updated during `fit()` or `train_on_batch()`, and its state updates will not be run.  Usually, this does not necessarily mean that the layer is run in inference mode (which is normally controlled by the `training` argument that can be passed when calling a layer). \"Frozen state\" and \"inference mode\" are two separate concepts.  However, in the case of the `BatchNormalization` layer, **setting `trainable = False` on the layer means that the layer will be subsequently run in inference mode** (meaning that it will use the moving mean and the moving variance to normalize the current batch, rather than using the mean and variance of the current batch).  Note that: "
+      },
+      {
+        "description": "Setting `trainable` on an model containing other layers will recursively set the `trainable` value of all inner layers."
+      },
+      {
+        "description": "If the value of the `trainable` attribute is changed after calling `compile()` on a model, the new value doesn't take effect for this model until `compile()` is called again."
       }
     ]
   },
@@ -752,7 +850,7 @@
     "name": "Conv2D",
     "module": "keras.layers",
     "category": "Layer",
-    "description": "2D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a single spatial (or temporal) dimension to produce a tensor of\noutputs. If `use_bias` is True, a bias vector is created and added to the\noutputs. Finally, if `activation` is not `None`, it is applied to the\noutputs as well.",
+    "description": "2D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a 2D spatial (or temporal) dimension (height and width) to\nproduce a tensor of outputs. If `use_bias` is True, a bias vector is created\nand added to the outputs. Finally, if `activation` is not `None`, it is\napplied to the outputs as well.",
     "attributes": [
       {
         "default": "linear",
@@ -1005,7 +1103,7 @@
     "name": "Conv3D",
     "module": "keras.layers",
     "category": "Layer",
-    "description": "3D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a single spatial (or temporal) dimension to produce a tensor of\noutputs. If `use_bias` is True, a bias vector is created and added to the\noutputs. Finally, if `activation` is not `None`, it is applied to the\noutputs as well.",
+    "description": "3D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a 3D spatial (or temporal) dimension (width,height and depth) to\nproduce a tensor of outputs. If `use_bias` is True, a bias vector is created\nand added to the outputs. Finally, if `activation` is not `None`, it is\napplied to the outputs as well.",
     "attributes": [
       {
         "description": "int, the dimension of the output space (the number of filters\n        in the convolution).",
@@ -1248,9 +1346,6 @@
     ],
     "references": [
       {
-        "description": " "
-      },
-      {
         "description": "[Shi et al., 2015](http://arxiv.org/abs/1506.04214v1) (the current implementation does not include the feedback loop on the cells output)."
       }
     ]
@@ -1259,7 +1354,7 @@
     "name": "Convolution2D",
     "module": "keras.layers",
     "category": "Layer",
-    "description": "2D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a single spatial (or temporal) dimension to produce a tensor of\noutputs. If `use_bias` is True, a bias vector is created and added to the\noutputs. Finally, if `activation` is not `None`, it is applied to the\noutputs as well.",
+    "description": "2D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a 2D spatial (or temporal) dimension (height and width) to\nproduce a tensor of outputs. If `use_bias` is True, a bias vector is created\nand added to the outputs. Finally, if `activation` is not `None`, it is\napplied to the outputs as well.",
     "attributes": [
       {
         "default": "linear",
@@ -1907,7 +2002,7 @@
     "name": "Embedding",
     "module": "keras.layers",
     "category": "Transform",
-    "description": "Turns positive integers (indexes) into dense vectors of fixed size.\n\ne.g. `[[4], [20]] -> [[0.25, 0.1], [0.6, -0.2]]`\n\nThis layer can only be used on positive integer inputs of a fixed range.",
+    "description": "Turns nonnegative integers (indexes) into dense vectors of fixed size.\n\ne.g. `[[4], [20]] -> [[0.25, 0.1], [0.6, -0.2]]`\n\nThis layer can only be used on nonnegative integer inputs of a fixed range.",
     "attributes": [
       {
         "default": false,
@@ -3076,7 +3171,7 @@
     "examples": [
       {
         "summary": "Consider a NumPy data array `x` of shape `(samples, timesteps, features)`,\nto be fed to an LSTM layer. You want to mask timestep #3 and #5 because you\nlack data for these timesteps. You can:\n- Set `x[:, 3, :] = 0.` and `x[:, 5, :] = 0.`\n- Insert a `Masking` layer with `mask_value=0.` before the LSTM layer:",
-        "code": "samples, timesteps, features = 32, 10, 8\ninputs = np.random.random([samples, timesteps, features]).astype(np.float32)\ninputs[:, 3, :] = 0.\ninputs[:, 5, :] = 0.\n\nmodel = keras.models.Sequential()\nmodel.add(keras.layers.Masking(mask_value=0.)\nmodel.add(keras.layers.LSTM(32))\noutput = model(inputs)\n# The time step 3 and 5 will be skipped from LSTM calculation."
+        "code": "samples, timesteps, features = 32, 10, 8\ninputs = np.random.random([samples, timesteps, features]).astype(np.float32)\ninputs[:, 3, :] = 0.\ninputs[:, 5, :] = 0.\n\nmodel = keras.models.Sequential()\nmodel.add(keras.layers.Masking(mask_value=0.0))\nmodel.add(keras.layers.LSTM(32))\noutput = model(inputs)\n# The time step 3 and 5 will be skipped from LSTM calculation."
       }
     ]
   },
@@ -3333,6 +3428,10 @@
       {
         "name": "seed",
         "description": "Optional integer to seed the dropout layer."
+      },
+      {
+        "name": "flash_attention",
+        "description": "If `None`, the layer attempts to use flash\n        attention for faster and more memory-efficient attention\n        computations when possible. This behavior can be configured using\n        `keras.config.enable_flash_attention()` or\n        `keras.config.disable_flash_attention()`."
       }
     ],
     "examples": [
@@ -3486,7 +3585,7 @@
     ],
     "examples": [
       {
-        "code": "relu_layer = keras.layers.activations.ReLU(\n    max_value=10,\n    negative_slope=0.5,\n    threshold=0,\n)\ninput = np.array([-10, -5, 0.0, 5, 10])\nresult = relu_layer(input)\n# result = [-5. , -2.5,  0. ,  5. , 10.]"
+        "code": "relu_layer = keras.layers.ReLU(\n    max_value=10,\n    negative_slope=0.5,\n    threshold=0,\n)\ninput = np.array([-10, -5, 0.0, 5, 10])\nresult = relu_layer(input)\n# result = [-5. , -2.5,  0. ,  5. , 10.]"
       }
     ]
   },
@@ -3611,13 +3710,13 @@
     ],
     "outputs": [
       {
-        "description": "- If `return_state`: a list of tensors. The first tensor is\nthe output. The remaining tensors are the last states,\neach with shape `(batch_size, state_size)`, where `state_size` could\nbe a high dimension tensor shape.\n- If `return_sequences`: 3D tensor with shape\n`(batch_size, timesteps, output_size)`.\n\nMasking:\n\nThis layer supports masking for input data with a variable number\nof timesteps. To introduce masks to your data,\nuse a `keras.layers.Embedding` layer with the `mask_zero` parameter\nset to `True`.\n\nNote on using statefulness in RNNs:\n\nYou can set RNN layers to be 'stateful', which means that the states\ncomputed for the samples in one batch will be reused as initial states\nfor the samples in the next batch. This assumes a one-to-one mapping\nbetween samples in different successive batches.\n\nTo enable statefulness:\n\n- Specify `stateful=True` in the layer constructor.\n- Specify a fixed batch size for your model, by passing\nIf sequential model:\n    `batch_input_shape=(...)` to the first layer in your model.\nElse for functional model with 1 or more Input layers:\n    `batch_shape=(...)` to all the first layers in your model.\nThis is the expected shape of your inputs\n*including the batch size*.\nIt should be a tuple of integers, e.g. `(32, 10, 100)`.\n- Specify `shuffle=False` when calling `fit()`.\n\nTo reset the states of your model, call `.reset_states()` on either\na specific layer, or on your entire model.\n\nNote on specifying the initial state of RNNs:\n\nYou can specify the initial state of RNN layers symbolically by\ncalling them with the keyword argument `initial_state`. The value of\n`initial_state` should be a tensor or list of tensors representing\nthe initial state of the RNN layer.\n\nYou can specify the initial state of RNN layers numerically by\ncalling `reset_states` with the keyword argument `states`. The value of\n`states` should be a numpy array or list of numpy arrays representing\nthe initial state of the RNN layer.",
+        "description": "- If `return_state`: a list of tensors. The first tensor is\nthe output. The remaining tensors are the last states,\neach with shape `(batch_size, state_size)`, where `state_size` could\nbe a high dimension tensor shape.\n- If `return_sequences`: 3D tensor with shape\n`(batch_size, timesteps, output_size)`.\n\nMasking:\n\nThis layer supports masking for input data with a variable number\nof timesteps. To introduce masks to your data,\nuse a `keras.layers.Embedding` layer with the `mask_zero` parameter\nset to `True`.\n\nNote on using statefulness in RNNs:\n\nYou can set RNN layers to be 'stateful', which means that the states\ncomputed for the samples in one batch will be reused as initial states\nfor the samples in the next batch. This assumes a one-to-one mapping\nbetween samples in different successive batches.\n\nTo enable statefulness:\n\n- Specify `stateful=True` in the layer constructor.\n- Specify a fixed batch size for your model, by passing\n    `batch_size=...` to the `Input` layer(s) of your model.\n    Remember to also specify the same `batch_size=...` when\n    calling `fit()`, or otherwise use a generator-like\n    data source like a `keras.utils.PyDataset` or a\n    `tf.data.Dataset`.\n- Specify `shuffle=False` when calling `fit()`, since your\n    batches are expected to be temporally ordered.\n\nTo reset the states of your model, call `.reset_state()` on either\na specific layer, or on your entire model.\n\nNote on specifying the initial state of RNNs:\n\nYou can specify the initial state of RNN layers symbolically by\ncalling them with the keyword argument `initial_state`. The value of\n`initial_state` should be a tensor or list of tensors representing\nthe initial state of the RNN layer.\n\nYou can specify the initial state of RNN layers numerically by\ncalling `reset_state()` with the keyword argument `states`. The value of\n`states` should be a numpy array or list of numpy arrays representing\nthe initial state of the RNN layer.",
         "name": "output"
       }
     ],
     "examples": [
       {
-        "code": "from keras.src.layers import RNN\nfrom keras.src import ops\n\n# First, let's define a RNN Cell, as a layer subclass.\nclass MinimalRNNCell(keras.layers.Layer):\n\n    def __init__(self, units, **kwargs):\n        super().__init__(**kwargs)\n        self.units = units\n        self.state_size = units\n\n    def build(self, input_shape):\n        self.kernel = self.add_weight(shape=(input_shape[-1], self.units),\n                                      initializer='uniform',\n                                      name='kernel')\n        self.recurrent_kernel = self.add_weight(\n            shape=(self.units, self.units),\n            initializer='uniform',\n            name='recurrent_kernel')\n        self.built = True\n\n    def call(self, inputs, states):\n        prev_output = states[0]\n        h = ops.matmul(inputs, self.kernel)\n        output = h + ops.matmul(prev_output, self.recurrent_kernel)\n        return output, [output]\n\n# Let's use this cell in a RNN layer:\n\ncell = MinimalRNNCell(32)\nx = keras.Input((None, 5))\nlayer = RNN(cell)\ny = layer(x)\n\n# Here's how to use the cell to build a stacked RNN:\n\ncells = [MinimalRNNCell(32), MinimalRNNCell(64)]\nx = keras.Input((None, 5))\nlayer = RNN(cells)\ny = layer(x)"
+        "code": "from keras.layers import RNN\nfrom keras import ops\n\n# First, let's define a RNN Cell, as a layer subclass.\nclass MinimalRNNCell(keras.Layer):\n\n    def __init__(self, units, **kwargs):\n        super().__init__(**kwargs)\n        self.units = units\n        self.state_size = units\n\n    def build(self, input_shape):\n        self.kernel = self.add_weight(shape=(input_shape[-1], self.units),\n                                      initializer='uniform',\n                                      name='kernel')\n        self.recurrent_kernel = self.add_weight(\n            shape=(self.units, self.units),\n            initializer='uniform',\n            name='recurrent_kernel')\n        self.built = True\n\n    def call(self, inputs, states):\n        prev_output = states[0]\n        h = ops.matmul(inputs, self.kernel)\n        output = h + ops.matmul(prev_output, self.recurrent_kernel)\n        return output, [output]\n\n# Let's use this cell in a RNN layer:\n\ncell = MinimalRNNCell(32)\nx = keras.Input((None, 5))\nlayer = RNN(cell)\ny = layer(x)\n\n# Here's how to use the cell to build a stacked RNN:\n\ncells = [MinimalRNNCell(32), MinimalRNNCell(64)]\nx = keras.Input((None, 5))\nlayer = RNN(cells)\ny = layer(x)"
       }
     ]
   },
@@ -3917,12 +4016,12 @@
       },
       {
         "default": false,
-        "description": "Boolean (default: `False`). If `True`, the last state\n        for each sample at index i in a batch will be used as initial\n        state for the sample of index i in the following batch.",
+        "description": "Boolean (default: `False`). If `True`, the last state\n        for each sample at index i in a batch will be used as the\n        initial state for the sample of index i in the following batch.",
         "name": "stateful"
       },
       {
         "default": false,
-        "description": "Boolean (default: `False`).\n        If `True`, the network will be unrolled,\n        else a symbolic loop will be used.\n        Unrolling can speed-up a RNN,\n        although it tends to be more memory-intensive.\n        Unrolling is only suitable for short sequences.",
+        "description": "Boolean (default: `False`).\n        If `True`, the network will be unrolled,\n        else a symbolic loop will be used.\n        Unrolling can speed-up an RNN,\n        although it tends to be more memory-intensive.\n        Unrolling is only suitable for short sequences.",
         "name": "unroll"
       },
       {
@@ -4161,7 +4260,7 @@
     ],
     "examples": [
       {
-        "code": ">>>softmax_layer = keras.layers.activations.Softmax()\n>>>input = np.array([1.0, 2.0, 1.0])\n>>>result = softmax_layer(input)\n[0.21194157, 0.5761169, 0.21194157]"
+        "code": ">>> softmax_layer = keras.layers.Softmax()\n>>> input = np.array([1.0, 2.0, 1.0])\n>>> result = softmax_layer(input)\n>>> result\n[0.21194157, 0.5761169, 0.21194157]"
       }
     ]
   },
@@ -4186,7 +4285,7 @@
     ],
     "inputs": [
       {
-        "description": "3D tensor with shape: `(samples, timesteps, channels)`\n\nOutput shape: Same as input.\n\nReference:\n\n- [Tompson et al., 2014](https://arxiv.org/abs/1411.4280)",
+        "description": "3D tensor with shape: `(samples, timesteps, channels)`\n\nOutput shape: Same as input.",
         "name": "input"
       }
     ],
@@ -4198,7 +4297,7 @@
     ],
     "references": [
       {
-        "description": "[Efficient Object Localization Using Convolutional Networks](https://arxiv.org/abs/1411.4280)"
+        "description": "[Tompson et al., 2014](https://arxiv.org/abs/1411.4280)"
       }
     ]
   },
@@ -4219,7 +4318,7 @@
     ],
     "inputs": [
       {
-        "description": "4D tensor with shape: `(samples, channels, rows, cols)` if\n        data_format='channels_first'\n    or 4D tensor with shape: `(samples, rows, cols, channels)` if\n        data_format='channels_last'.\n\nOutput shape: Same as input.\n\nReference:\n\n- [Tompson et al., 2014](https://arxiv.org/abs/1411.4280)",
+        "description": "4D tensor with shape: `(samples, channels, rows, cols)` if\n        data_format='channels_first'\n    or 4D tensor with shape: `(samples, rows, cols, channels)` if\n        data_format='channels_last'.\n\nOutput shape: Same as input.",
         "name": "input"
       }
     ],
@@ -4231,7 +4330,7 @@
     ],
     "references": [
       {
-        "description": "[Efficient Object Localization Using Convolutional Networks](https://arxiv.org/abs/1411.4280)"
+        "description": "[Tompson et al., 2014](https://arxiv.org/abs/1411.4280)"
       }
     ]
   },
@@ -4252,7 +4351,7 @@
     ],
     "inputs": [
       {
-        "description": "5D tensor with shape: `(samples, channels, dim1, dim2, dim3)` if\n        data_format='channels_first'\n    or 5D tensor with shape: `(samples, dim1, dim2, dim3, channels)` if\n        data_format='channels_last'.\n\nOutput shape: Same as input.\n\nReference:\n\n- [Tompson et al., 2014](https://arxiv.org/abs/1411.4280)",
+        "description": "5D tensor with shape: `(samples, channels, dim1, dim2, dim3)` if\n        data_format='channels_first'\n    or 5D tensor with shape: `(samples, dim1, dim2, dim3, channels)` if\n        data_format='channels_last'.\n\nOutput shape: Same as input.",
         "name": "input"
       }
     ],
@@ -4264,7 +4363,7 @@
     ],
     "references": [
       {
-        "description": "[Efficient Object Localization Using Convolutional Networks](https://arxiv.org/abs/1411.4280)"
+        "description": "[Tompson et al., 2014](https://arxiv.org/abs/1411.4280)"
       }
     ]
   },
@@ -4480,17 +4579,21 @@
       {
         "description": "Int, or tuple of int (length 2), or dictionary.\n        - If int: how many zeros to add at the beginning and end of\n          the padding dimension (axis 1).\n        - If tuple of 2 ints: how many zeros to add at the beginning and the\n          end of the padding dimension (`(left_pad, right_pad)`).",
         "name": "padding"
+      },
+      {
+        "name": "data_format",
+        "description": "A string, one of `\"channels_last\"` (default) or\n        `\"channels_first\"`. The ordering of the dimensions in the inputs.\n        `\"channels_last\"` corresponds to inputs with shape\n        `(batch_size, axis_to_pad, channels)` while `\"channels_first\"`\n        corresponds to inputs with shape\n        `(batch_size, channels, axis_to_pad)`.\n        When unspecified, uses `image_data_format` value found in your Keras\n        config file at `~/.keras/keras.json` (if exists). Defaults to\n        `\"channels_last\"`."
       }
     ],
     "inputs": [
       {
-        "description": "3D tensor with shape `(batch_size, axis_to_pad, features)`",
+        "description": "3D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n  `(batch_size, axis_to_pad, features)`\n- If `data_format` is `\"channels_first\"`:\n  `(batch_size, features, axis_to_pad)`",
         "name": "input"
       }
     ],
     "outputs": [
       {
-        "description": "3D tensor with shape `(batch_size, padded_axis, features)`",
+        "description": "3D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n  `(batch_size, padded_axis, features)`\n- If `data_format` is `\"channels_first\"`:\n  `(batch_size, features, padded_axis)`",
         "name": "output"
       }
     ],
@@ -4563,69 +4666,6 @@
     "examples": [
       {
         "code": ">>> input_shape = (1, 1, 2, 2, 3)\n>>> x = np.arange(np.prod(input_shape)).reshape(input_shape)\n>>> y = keras.layers.ZeroPadding3D(padding=2)(x)\n>>> y.shape\n(1, 5, 6, 6, 3)"
-      }
-    ]
-  },
-  {
-    "name": "Attention",
-    "category": "Attention",
-    "module": "keras.layers",
-    "inputs": [
-      {
-        "name": "query",
-        "type": "Tensor[]"
-      },
-      {
-        "name": "value",
-        "type": "Tensor[]"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "output"
-      }
-    ],
-    "description": "Dot-product attention layer, a.k.a. Luong-style attention.\n\nInputs are a list with 2 or 3 elements:\n1. A `query` tensor of shape `(batch_size, Tq, dim)`.\n2. A `value` tensor of shape `(batch_size, Tv, dim)`.\n3. A optional `key` tensor of shape `(batch_size, Tv, dim)`. If none\n    supplied, `value` will be used as a `key`.\n\nThe calculation follows the steps:\n1. Calculate attention scores using `query` and `key` with shape\n    `(batch_size, Tq, Tv)`.\n2. Use scores to calculate a softmax distribution with shape\n    `(batch_size, Tq, Tv)`.\n3. Use the softmax distribution to create a linear combination of `value`\n    with shape `(batch_size, Tq, dim)`.",
-    "attributes": [
-      {
-        "name": "use_scale",
-        "description": "If `True`, will create a scalar variable to scale the\n        attention scores."
-      },
-      {
-        "name": "causal",
-        "description": "Boolean. Set to `True` for decoder self-attention. Adds a mask\n    such that position `i` cannot attend to positions `j > i`. This prevents\n    the flow of information from the future towards the past.  Defaults to\n    `False`."
-      },
-      {
-        "name": "dropout",
-        "description": "Float between 0 and 1. Fraction of the units to drop for the\n        attention scores. Defaults to `0.0`."
-      },
-      {
-        "name": "inputs",
-        "description": "List of the following tensors:\n        - `query`: Query tensor of shape `(batch_size, Tq, dim)`.\n        - `value`: Value tensor of shape `(batch_size, Tv, dim)`.\n        - `key`: Optional key tensor of shape `(batch_size, Tv, dim)`. If\n            not given, will use `value` for both `key` and `value`, which is\n            the most common case."
-      },
-      {
-        "name": "mask",
-        "description": "List of the following tensors:\n        - `query_mask`: A boolean mask tensor of shape `(batch_size, Tq)`.\n            If given, the output will be zero at the positions where\n            `mask==False`.\n        - `value_mask`: A boolean mask tensor of shape `(batch_size, Tv)`.\n            If given, will apply the mask such that values at positions\n             where `mask==False` do not contribute to the result."
-      },
-      {
-        "name": "return_attention_scores",
-        "description": "bool, it `True`, returns the attention scores\n        (after masking and softmax) as an additional output argument."
-      },
-      {
-        "name": "training",
-        "description": "Python boolean indicating whether the layer should behave in\n        training mode (adding dropout) or in inference mode (no dropout)."
-      },
-      {
-        "name": "score_mode",
-        "description": "Function to use to compute attention scores, one of\n        `{\"dot\", \"concat\"}`. `\"dot\"` refers to the dot product between the\n        query and key vectors. `\"concat\"` refers to the hyperbolic tangent\n        of the concatenation of the `query` and `key` vectors.\n\nCall Args:"
-      },
-      {
-        "name": "use_causal_mask",
-        "description": "Boolean. Set to `True` for decoder self-attention. Adds\n        a mask such that position `i` cannot attend to positions `j > i`.\n        This prevents the flow of information from the future towards the\n        past. Defaults to `False`.\n\nOutput:\n    Attention outputs of shape `(batch_size, Tq, dim)`.\n    (Optional) Attention scores after masking and softmax with shape\n        `(batch_size, Tq, Tv)`."
-      },
-      {
-        "name": "seed",
-        "description": "A Python integer to use as random seed incase of `dropout`."
       }
     ]
   },

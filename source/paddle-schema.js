@@ -70,8 +70,8 @@ paddle.lite.fbs.proto.VarType = class VarType {
         const $ = new paddle.lite.fbs.proto.VarType();
         $.type = reader.int32_(position, 4, 0);
         $.selected_rows = reader.table(position, 6, paddle.lite.fbs.proto.VarType_.TensorDesc);
-        $.lod_tensor = reader.table(position, 8, paddle.lite.fbs.proto.VarType_.LoDTensorDesc);
-        $.tensor_array = reader.table(position, 10, paddle.lite.fbs.proto.VarType_.LoDTensorArrayDesc);
+        $.dense_tensor = reader.table(position, 8, paddle.lite.fbs.proto.VarType_.DenseTensorDesc);
+        $.tensor_array = reader.table(position, 10, paddle.lite.fbs.proto.VarType_.DenseTensorArrayDesc);
         $.reader = reader.table(position, 12, paddle.lite.fbs.proto.VarType_.ReaderDesc);
         $.tuple = reader.table(position, 14, paddle.lite.fbs.proto.VarType_.Tuple);
         return $;
@@ -81,8 +81,8 @@ paddle.lite.fbs.proto.VarType = class VarType {
         const $ = new paddle.lite.fbs.proto.VarType();
         $.type = paddle.lite.fbs.proto.VarType_.Type[json.type];
         $.selected_rows = reader.object(json.selected_rows, paddle.lite.fbs.proto.VarType_.TensorDesc);
-        $.lod_tensor = reader.object(json.lod_tensor, paddle.lite.fbs.proto.VarType_.LoDTensorDesc);
-        $.tensor_array = reader.object(json.tensor_array, paddle.lite.fbs.proto.VarType_.LoDTensorArrayDesc);
+        $.dense_tensor = reader.object(json.dense_tensor, paddle.lite.fbs.proto.VarType_.DenseTensorDesc);
+        $.tensor_array = reader.object(json.tensor_array, paddle.lite.fbs.proto.VarType_.DenseTensorArrayDesc);
         $.reader = reader.object(json.reader, paddle.lite.fbs.proto.VarType_.ReaderDesc);
         $.tuple = reader.object(json.tuple, paddle.lite.fbs.proto.VarType_.Tuple);
         return $;
@@ -248,13 +248,13 @@ paddle.lite.fbs.proto.VarType_.Type = {
     FP16: 4,
     FP32: 5,
     FP64: 6,
-    LOD_TENSOR: 7,
+    DENSE_TENSOR: 7,
     SELECTED_ROWS: 8,
     FEED_MINIBATCH: 9,
     FETCH_LIST: 10,
     STEP_SCOPES: 11,
     LOD_RANK_TABLE: 12,
-    LOD_TENSOR_ARRAY: 13,
+    DENSE_TENSOR_ARRAY: 13,
     PLACE_LIST: 14,
     READER: 15,
     RAW: 17,
@@ -281,34 +281,34 @@ paddle.lite.fbs.proto.VarType_.TensorDesc = class TensorDesc {
     }
 };
 
-paddle.lite.fbs.proto.VarType_.LoDTensorDesc = class LoDTensorDesc {
+paddle.lite.fbs.proto.VarType_.DenseTensorDesc = class DenseTensorDesc {
 
     static decode(reader, position) {
-        const $ = new paddle.lite.fbs.proto.VarType_.LoDTensorDesc();
+        const $ = new paddle.lite.fbs.proto.VarType_.DenseTensorDesc();
         $.tensor = reader.table(position, 4, paddle.lite.fbs.proto.VarType_.TensorDesc);
         $.lod_level = reader.int32_(position, 6, 0);
         return $;
     }
 
     static decodeText(reader, json) {
-        const $ = new paddle.lite.fbs.proto.VarType_.LoDTensorDesc();
+        const $ = new paddle.lite.fbs.proto.VarType_.DenseTensorDesc();
         $.tensor = reader.object(json.tensor, paddle.lite.fbs.proto.VarType_.TensorDesc);
         $.lod_level = reader.value(json.lod_level, 0);
         return $;
     }
 };
 
-paddle.lite.fbs.proto.VarType_.LoDTensorArrayDesc = class LoDTensorArrayDesc {
+paddle.lite.fbs.proto.VarType_.DenseTensorArrayDesc = class DenseTensorArrayDesc {
 
     static decode(reader, position) {
-        const $ = new paddle.lite.fbs.proto.VarType_.LoDTensorArrayDesc();
+        const $ = new paddle.lite.fbs.proto.VarType_.DenseTensorArrayDesc();
         $.tensor = reader.table(position, 4, paddle.lite.fbs.proto.VarType_.TensorDesc);
         $.lod_level = reader.int32_(position, 6, 0);
         return $;
     }
 
     static decodeText(reader, json) {
-        const $ = new paddle.lite.fbs.proto.VarType_.LoDTensorArrayDesc();
+        const $ = new paddle.lite.fbs.proto.VarType_.DenseTensorArrayDesc();
         $.tensor = reader.object(json.tensor, paddle.lite.fbs.proto.VarType_.TensorDesc);
         $.lod_level = reader.value(json.lod_level, 0);
         return $;
@@ -319,13 +319,13 @@ paddle.lite.fbs.proto.VarType_.ReaderDesc = class ReaderDesc {
 
     static decode(reader, position) {
         const $ = new paddle.lite.fbs.proto.VarType_.ReaderDesc();
-        $.lod_tensor = reader.tables(position, 4, paddle.lite.fbs.proto.VarType_.LoDTensorDesc);
+        $.dense_tensor = reader.tables(position, 4, paddle.lite.fbs.proto.VarType_.DenseTensorDesc);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new paddle.lite.fbs.proto.VarType_.ReaderDesc();
-        $.lod_tensor = reader.objects(json.lod_tensor, paddle.lite.fbs.proto.VarType_.LoDTensorDesc);
+        $.dense_tensor = reader.objects(json.dense_tensor, paddle.lite.fbs.proto.VarType_.DenseTensorDesc);
         return $;
     }
 };
@@ -464,10 +464,10 @@ paddle.lite.fbs.proto = paddle.lite.fbs.proto || {};
 
 paddle.lite.fbs.proto.ParamDesc_ = paddle.lite.fbs.proto.ParamDesc_ || {};
 
-paddle.lite.fbs.proto.ParamDesc_.LoDTensorDesc = class LoDTensorDesc {
+paddle.lite.fbs.proto.ParamDesc_.DenseTensorDesc = class DenseTensorDesc {
 
     static decode(reader, position) {
-        const $ = new paddle.lite.fbs.proto.ParamDesc_.LoDTensorDesc();
+        const $ = new paddle.lite.fbs.proto.ParamDesc_.DenseTensorDesc();
         $.lod_level = reader.int32_(position, 4, 0);
         $.lod = reader.int64s_(position, 6);
         $.dim = reader.int64s_(position, 8);
@@ -477,7 +477,7 @@ paddle.lite.fbs.proto.ParamDesc_.LoDTensorDesc = class LoDTensorDesc {
     }
 
     static decodeText(reader, json) {
-        const $ = new paddle.lite.fbs.proto.ParamDesc_.LoDTensorDesc();
+        const $ = new paddle.lite.fbs.proto.ParamDesc_.DenseTensorDesc();
         $.lod_level = reader.value(json.lod_level, 0);
         $.lod = reader.array(json.lod);
         $.dim = reader.array(json.dim);
@@ -508,14 +508,14 @@ paddle.lite.fbs.proto.ParamDesc_.VariableDesc = class {
 
     static decode(reader, position, type) {
         switch (type) {
-            case 1: return paddle.lite.fbs.proto.ParamDesc_.LoDTensorDesc.decode(reader, position);
+            case 1: return paddle.lite.fbs.proto.ParamDesc_.DenseTensorDesc.decode(reader, position);
             default: return undefined;
         }
     }
 
     static decodeText(reader, json, type) {
         switch (type) {
-            case 'LoDTensorDesc': return paddle.lite.fbs.proto.ParamDesc_.LoDTensorDesc.decodeText(reader, json);
+            case 'DenseTensorDesc': return paddle.lite.fbs.proto.ParamDesc_.DenseTensorDesc.decodeText(reader, json);
             default: return undefined;
         }
     }

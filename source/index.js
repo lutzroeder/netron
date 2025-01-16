@@ -4,6 +4,7 @@
 /* eslint-disable prefer-arrow-callback */
 /* eslint-disable prefer-template */
 /* eslint-disable prefer-destructuring */
+/* eslint-disable vars-on-top */
 
 window.exports = {};
 
@@ -52,6 +53,7 @@ window.exports.preload = function(callback) {
             callback();
         } else {
             var ids = modules.pop();
+            /* eslint-disable no-loop-func */
             var resolved = ids.length;
             for (var i = 0; i < ids.length; i++) {
                 window.exports.require(ids[i], function(module, error) {
@@ -65,6 +67,7 @@ window.exports.preload = function(callback) {
                     }
                 }, true);
             }
+            /* eslint-enable no-loop-func */
         }
     };
     next();

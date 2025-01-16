@@ -2,7 +2,6 @@
 export const circle = {};
 
 circle.TensorType = {
-    UINT4: -1,
     FLOAT32: 0,
     FLOAT16: 1,
     INT32: 2,
@@ -20,7 +19,14 @@ circle.TensorType = {
     VARIANT: 14,
     UINT32: 15,
     UINT16: 16,
-    INT4: 17
+    INT4: 17,
+    UINT4: -1,
+    GGML_Q4_0: -2,
+    GGML_Q4_1: -3,
+    GGML_Q8_0: -4,
+    GGML_Q8_1: -5,
+    MXFP4: -6,
+    MXINT8: -7
 };
 
 circle.CustomQuantization = class CustomQuantization {
@@ -210,6 +216,11 @@ circle.VariantSubType = class VariantSubType {
     }
 };
 
+circle.CompressionType = {
+    NONE: 0,
+    HUFFMAN: 1
+};
+
 circle.Tensor = class Tensor {
 
     static decode(reader, position) {
@@ -224,6 +235,7 @@ circle.Tensor = class Tensor {
         $.shape_signature = reader.array(position, 18, Int32Array);
         $.has_rank = reader.bool_(position, 20, false);
         $.variant_tensors = reader.tables(position, 22, circle.VariantSubType);
+        $.compression_type = reader.int8_(position, 24, 0);
         return $;
     }
 
@@ -239,11 +251,14 @@ circle.Tensor = class Tensor {
         $.shape_signature = reader.array(json.shape_signature, Int32Array);
         $.has_rank = reader.value(json.has_rank, false);
         $.variant_tensors = reader.objects(json.variant_tensors, circle.VariantSubType);
+        $.compression_type = circle.CompressionType[json.compression_type];
         return $;
     }
 };
 
 circle.BuiltinOperator = {
+    ROPE: -7,
+    RMS_NORM: -6,
     GRU: -5,
     BCQ_GATHER: -4,
     BCQ_FULLY_CONNECTED: -3,
@@ -586,6 +601,8 @@ circle.BuiltinOptions = class {
             case 124: return circle.BitcastOptions.decode(reader, position);
             case 125: return circle.BitwiseXorOptions.decode(reader, position);
             case 126: return circle.RightShiftOptions.decode(reader, position);
+            case 249: return circle.RoPEOptions.decode(reader, position);
+            case 250: return circle.RmsNormOptions.decode(reader, position);
             case 251: return circle.GRUOptions.decode(reader, position);
             case 252: return circle.BCQGatherOptions.decode(reader, position);
             case 253: return circle.BCQFullyConnectedOptions.decode(reader, position);
@@ -722,6 +739,8 @@ circle.BuiltinOptions = class {
             case 'BitcastOptions': return circle.BitcastOptions.decodeText(reader, json);
             case 'BitwiseXorOptions': return circle.BitwiseXorOptions.decodeText(reader, json);
             case 'RightShiftOptions': return circle.RightShiftOptions.decodeText(reader, json);
+            case 'RoPEOptions': return circle.RoPEOptions.decodeText(reader, json);
+            case 'RmsNormOptions': return circle.RmsNormOptions.decodeText(reader, json);
             case 'GRUOptions': return circle.GRUOptions.decodeText(reader, json);
             case 'BCQGatherOptions': return circle.BCQGatherOptions.decodeText(reader, json);
             case 'BCQFullyConnectedOptions': return circle.BCQFullyConnectedOptions.decodeText(reader, json);
@@ -3269,6 +3288,41 @@ circle.InstanceNormOptions = class InstanceNormOptions {
         const $ = new circle.InstanceNormOptions();
         $.epsilon = reader.value(json.epsilon, 0);
         $.fused_activation_function = circle.ActivationFunctionType[json.fused_activation_function];
+        return $;
+    }
+};
+
+circle.RmsNormOptions = class RmsNormOptions {
+
+    static decode(reader, position) {
+        const $ = new circle.RmsNormOptions();
+        $.epsilon = reader.float32_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new circle.RmsNormOptions();
+        $.epsilon = reader.value(json.epsilon, 0);
+        return $;
+    }
+};
+
+circle.RoPEMode = {
+    GPT_NEOX: 0,
+    GPT_J: 1
+};
+
+circle.RoPEOptions = class RoPEOptions {
+
+    static decode(reader, position) {
+        const $ = new circle.RoPEOptions();
+        $.mode = reader.int32_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new circle.RoPEOptions();
+        $.mode = circle.RoPEMode[json.mode];
         return $;
     }
 };

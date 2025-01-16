@@ -1,5 +1,5 @@
 [
- {
+  {
     "name": "convolution",
     "category": "Layer"
   },
@@ -29,6 +29,10 @@
   },
   {
     "name": "batch_norm",
+    "category": "Normalization"
+  },
+  {
+    "name": "batchnorm",
     "category": "Normalization"
   },
   {
@@ -70,5 +74,13 @@
   {
     "name": "squeeze",
     "category": "Transform"
+  },
+  {
+    "name": "rnn_arch",
+    "category": "Layer"
+  },
+  {
+    "name": "flatten",
+    "category": "Shape"
   }
 ]

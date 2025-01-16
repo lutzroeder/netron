@@ -1,8 +1,8 @@
 
-import * as path from 'path';
-import * as fs from 'fs/promises';
-import * as url from 'url';
 import * as flatc from './flatc.js';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import * as url from 'url';
 
 const main = async () => {
     const dirname = path.dirname(url.fileURLToPath(import.meta.url));

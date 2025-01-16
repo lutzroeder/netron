@@ -810,10 +810,10 @@ paddle.framework.proto.VarType = class VarType {
                     message.selected_rows = paddle.framework.proto.VarType.TensorDesc.decode(reader, reader.uint32());
                     break;
                 case 3:
-                    message.lod_tensor = paddle.framework.proto.VarType.LoDTensorDesc.decode(reader, reader.uint32());
+                    message.dense_tensor = paddle.framework.proto.VarType.DenseTensorDesc.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    message.tensor_array = paddle.framework.proto.VarType.LoDTensorArrayDesc.decode(reader, reader.uint32());
+                    message.tensor_array = paddle.framework.proto.VarType.DenseTensorArrayDesc.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.reader = paddle.framework.proto.VarType.ReaderDesc.decode(reader, reader.uint32());
@@ -859,11 +859,11 @@ paddle.framework.proto.VarType = class VarType {
                 case "selected_rows":
                     message.selected_rows = paddle.framework.proto.VarType.TensorDesc.decodeText(reader);
                     break;
-                case "lod_tensor":
-                    message.lod_tensor = paddle.framework.proto.VarType.LoDTensorDesc.decodeText(reader);
+                case "dense_tensor":
+                    message.dense_tensor = paddle.framework.proto.VarType.DenseTensorDesc.decodeText(reader);
                     break;
                 case "tensor_array":
-                    message.tensor_array = paddle.framework.proto.VarType.LoDTensorArrayDesc.decodeText(reader);
+                    message.tensor_array = paddle.framework.proto.VarType.DenseTensorArrayDesc.decodeText(reader);
                     break;
                 case "reader":
                     message.reader = paddle.framework.proto.VarType.ReaderDesc.decodeText(reader);
@@ -900,7 +900,7 @@ paddle.framework.proto.VarType = class VarType {
 
 paddle.framework.proto.VarType.prototype.type = 0;
 paddle.framework.proto.VarType.prototype.selected_rows = null;
-paddle.framework.proto.VarType.prototype.lod_tensor = null;
+paddle.framework.proto.VarType.prototype.dense_tensor = null;
 paddle.framework.proto.VarType.prototype.tensor_array = null;
 paddle.framework.proto.VarType.prototype.reader = null;
 paddle.framework.proto.VarType.prototype.tuple = null;
@@ -926,13 +926,13 @@ paddle.framework.proto.VarType.Type = {
     "COMPLEX128": 24,
     "FP8_E4M3FN": 32,
     "FP8_E5M2": 33,
-    "LOD_TENSOR": 7,
+    "DENSE_TENSOR": 7,
     "SELECTED_ROWS": 8,
     "FEED_MINIBATCH": 9,
     "FETCH_LIST": 10,
     "STEP_SCOPES": 11,
     "LOD_RANK_TABLE": 12,
-    "LOD_TENSOR_ARRAY": 13,
+    "DENSE_TENSOR_ARRAY": 13,
     "PLACE_LIST": 14,
     "READER": 15,
     "RAW": 17,
@@ -1001,10 +1001,10 @@ paddle.framework.proto.VarType.TensorDesc = class TensorDesc {
 
 paddle.framework.proto.VarType.TensorDesc.prototype.data_type = 0;
 
-paddle.framework.proto.VarType.LoDTensorDesc = class LoDTensorDesc {
+paddle.framework.proto.VarType.DenseTensorDesc = class DenseTensorDesc {
 
     static decode(reader, length) {
-        const message = new paddle.framework.proto.VarType.LoDTensorDesc();
+        const message = new paddle.framework.proto.VarType.DenseTensorDesc();
         const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1013,7 +1013,7 @@ paddle.framework.proto.VarType.LoDTensorDesc = class LoDTensorDesc {
                     message.tensor = paddle.framework.proto.VarType.TensorDesc.decode(reader, reader.uint32());
                     break;
                 case 2:
-                    message.lod_level = reader.int32();
+                    message.legacy_lod_level = reader.int32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1027,7 +1027,7 @@ paddle.framework.proto.VarType.LoDTensorDesc = class LoDTensorDesc {
     }
 
     static decodeText(reader) {
-        const message = new paddle.framework.proto.VarType.LoDTensorDesc();
+        const message = new paddle.framework.proto.VarType.DenseTensorDesc();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1035,8 +1035,8 @@ paddle.framework.proto.VarType.LoDTensorDesc = class LoDTensorDesc {
                 case "tensor":
                     message.tensor = paddle.framework.proto.VarType.TensorDesc.decodeText(reader);
                     break;
-                case "lod_level":
-                    message.lod_level = reader.int32();
+                case "legacy_lod_level":
+                    message.legacy_lod_level = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -1050,13 +1050,13 @@ paddle.framework.proto.VarType.LoDTensorDesc = class LoDTensorDesc {
     }
 };
 
-paddle.framework.proto.VarType.LoDTensorDesc.prototype.tensor = null;
-paddle.framework.proto.VarType.LoDTensorDesc.prototype.lod_level = 0;
+paddle.framework.proto.VarType.DenseTensorDesc.prototype.tensor = null;
+paddle.framework.proto.VarType.DenseTensorDesc.prototype.legacy_lod_level = 0;
 
-paddle.framework.proto.VarType.LoDTensorArrayDesc = class LoDTensorArrayDesc {
+paddle.framework.proto.VarType.DenseTensorArrayDesc = class DenseTensorArrayDesc {
 
     static decode(reader, length) {
-        const message = new paddle.framework.proto.VarType.LoDTensorArrayDesc();
+        const message = new paddle.framework.proto.VarType.DenseTensorArrayDesc();
         const end = length === undefined ? reader.length : reader.position + length;
         while (reader.position < end) {
             const tag = reader.uint32();
@@ -1065,7 +1065,7 @@ paddle.framework.proto.VarType.LoDTensorArrayDesc = class LoDTensorArrayDesc {
                     message.tensor = paddle.framework.proto.VarType.TensorDesc.decode(reader, reader.uint32());
                     break;
                 case 2:
-                    message.lod_level = reader.int32();
+                    message.legacy_lod_level = reader.int32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1079,7 +1079,7 @@ paddle.framework.proto.VarType.LoDTensorArrayDesc = class LoDTensorArrayDesc {
     }
 
     static decodeText(reader) {
-        const message = new paddle.framework.proto.VarType.LoDTensorArrayDesc();
+        const message = new paddle.framework.proto.VarType.DenseTensorArrayDesc();
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -1087,8 +1087,8 @@ paddle.framework.proto.VarType.LoDTensorArrayDesc = class LoDTensorArrayDesc {
                 case "tensor":
                     message.tensor = paddle.framework.proto.VarType.TensorDesc.decodeText(reader);
                     break;
-                case "lod_level":
-                    message.lod_level = reader.int32();
+                case "legacy_lod_level":
+                    message.legacy_lod_level = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -1102,13 +1102,13 @@ paddle.framework.proto.VarType.LoDTensorArrayDesc = class LoDTensorArrayDesc {
     }
 };
 
-paddle.framework.proto.VarType.LoDTensorArrayDesc.prototype.tensor = null;
-paddle.framework.proto.VarType.LoDTensorArrayDesc.prototype.lod_level = 0;
+paddle.framework.proto.VarType.DenseTensorArrayDesc.prototype.tensor = null;
+paddle.framework.proto.VarType.DenseTensorArrayDesc.prototype.legacy_lod_level = 0;
 
 paddle.framework.proto.VarType.ReaderDesc = class ReaderDesc {
 
     constructor() {
-        this.lod_tensor = [];
+        this.dense_tensor = [];
     }
 
     static decode(reader, length) {
@@ -1118,7 +1118,7 @@ paddle.framework.proto.VarType.ReaderDesc = class ReaderDesc {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.lod_tensor.push(paddle.framework.proto.VarType.LoDTensorDesc.decode(reader, reader.uint32()));
+                    message.dense_tensor.push(paddle.framework.proto.VarType.DenseTensorDesc.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1134,8 +1134,8 @@ paddle.framework.proto.VarType.ReaderDesc = class ReaderDesc {
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {
-                case "lod_tensor":
-                    message.lod_tensor.push(paddle.framework.proto.VarType.LoDTensorDesc.decodeText(reader));
+                case "dense_tensor":
+                    message.dense_tensor.push(paddle.framework.proto.VarType.DenseTensorDesc.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);

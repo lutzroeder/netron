@@ -73,11 +73,11 @@ table Graph {
 }
 
 table Node {
-    name: string; // 04 00  94 03 00 00 (152624)
-    type: string; // 08 00  84 03 00 00 
-    inputs: [string]; // 0C 00  34 03 00 00 
-    outputs: [string]; // 10 00  08 03 00 00 
-    attributes: [Attribute]; // 14 00  04 00 00 00   [Foo]
+    name: string;
+    type: string;
+    inputs: [string];
+    outputs: [string];
+    attributes: [Attribute];
 }
 
 table Attribute {

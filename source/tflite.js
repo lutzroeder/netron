@@ -125,7 +125,7 @@ tflite.Model = class {
             if (data) {
                 switch (metadata.name) {
                     case 'min_runtime_version': {
-                        const decoder = new TextDecoder();
+                        const decoder = new TextDecoder('utf-8');
                         this.runtime = decoder.decode(data);
                         break;
                     }

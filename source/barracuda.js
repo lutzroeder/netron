@@ -246,7 +246,7 @@ barracuda.NNModel = class {
         const position = reader.position;
         for (const layer of this.layers) {
             for (const tensor of layer.tensors) {
-                const offset = Number(tensor.offset);
+                const offset = tensor.offset;
                 reader.seek(position + (offset * tensor.itemsize));
                 tensor.data = reader.read(tensor.length * tensor.itemsize);
             }

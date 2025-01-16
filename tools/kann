@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
+
+clean() {
+    echo "kann clean"
+    rm -rf "${third_party_dir}"
+}
+
+sync() {
+    echo "kann sync"
+    mkdir -p "./third_party/source/kann/metadata"
+    curl --silent --location --output "./third_party/source/kann/metadata/kann.fbs" "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/third-party/kann.fbs"
+}
+
+schema() {
+    echo "kann schema"
+    [[ $(grep -U $'\x0D' ./source/kann-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --root kann --out ./source/kann-schema.js ./third_party/source/kann/metadata/kann.fbs
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/kann-schema.js ./source/kann-schema.js
+    fi
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "schema") schema;;
+    esac
+done

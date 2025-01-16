@@ -3,14 +3,15 @@ const grapher = {};
 
 grapher.Graph = class {
 
-    constructor(compound, layout) {
-        this._layout = layout;
+    constructor(compound) {
         this._compound = compound;
         this._nodes = new Map();
         this._edges = new Map();
-        this._children = {};
-        this._children['\x00'] = {};
-        this._parent = {};
+        this._focusable = new Map();
+        this._focused = null;
+        this._children = new Map();
+        this._children.set('\x00', new Map());
+        this._parent = new Map();
     }
 
     setNode(node) {
@@ -21,9 +22,9 @@ grapher.Graph = class {
         } else {
             this._nodes.set(key, { v: key, label: node });
             if (this._compound) {
-                this._parent[key] = '\x00';
-                this._children[key] = {};
-                this._children['\x00'][key] = true;
+                this._parent.set(key, '\x00');
+                this._children.set(key, new Map());
+                this._children.get('\x00').set(key, true);
             }
         }
     }
@@ -51,9 +52,9 @@ grapher.Graph = class {
                 throw new Error(`Setting ${parent} as parent of ${node} would create a cycle`);
             }
         }
-        delete this._children[this._parent[node]][node];
-        this._parent[node] = parent;
-        this._children[parent][node] = true;
+        this._children.get(this._parent.get(node)).delete(node);
+        this._parent.set(node, parent);
+        this._children.get(parent).set(node, true);
         return this;
     }
 
@@ -79,7 +80,7 @@ grapher.Graph = class {
 
     parent(key) {
         if (this._compound) {
-            const parent = this._parent[key];
+            const parent = this._parent.get(key);
             if (parent !== '\x00') {
                 return parent;
             }
@@ -90,9 +91,9 @@ grapher.Graph = class {
     children(key) {
         key = key === undefined ? '\x00' : key;
         if (this._compound) {
-            const children = this._children[key];
+            const children = this._children.get(key);
             if (children) {
-                return Object.keys(children);
+                return Array.from(children.keys());
             }
         } else if (key === '\x00') {
             return this.nodes.keys();
@@ -107,12 +108,12 @@ grapher.Graph = class {
             const element = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             element.setAttribute('id', name);
             element.setAttribute('class', name);
-            origin.appendChild(element);
             return element;
         };
 
         const clusterGroup = createGroup('clusters');
         const edgePathGroup = createGroup('edge-paths');
+        const edgePathHitTestGroup = createGroup('edge-paths-hit-test');
         const edgeLabelGroup = createGroup('edge-labels');
         const nodeGroup = createGroup('nodes');
 
@@ -134,6 +135,32 @@ grapher.Graph = class {
             element.appendChild(markerPath);
             return element;
         };
+        edgePathHitTestGroup.addEventListener('pointerover', (e) => {
+            if (this._focused) {
+                this._focused.blur();
+                this._focused = null;
+            }
+            const edge = this._focusable.get(e.target);
+            if (edge && edge.focus) {
+                edge.focus();
+                this._focused = edge;
+                e.stopPropagation();
+            }
+        });
+        edgePathHitTestGroup.addEventListener('pointerleave', (e) => {
+            if (this._focused) {
+                this._focused.blur();
+                this._focused = null;
+                e.stopPropagation();
+            }
+        });
+        edgePathHitTestGroup.addEventListener('click', (e) => {
+            const edge = this._focusable.get(e.target);
+            if (edge && edge.activate) {
+                edge.activate();
+                e.stopPropagation();
+            }
+        });
         edgePathGroupDefs.appendChild(marker("arrowhead"));
         edgePathGroupDefs.appendChild(marker("arrowhead-select"));
         edgePathGroupDefs.appendChild(marker("arrowhead-hover"));
@@ -158,8 +185,24 @@ grapher.Graph = class {
             }
         }
 
+        this._focusable.clear();
+        this._focused = null;
         for (const edge of this.edges.values()) {
-            edge.label.build(document, edgePathGroup, edgeLabelGroup);
+            edge.label.build(document, edgePathGroup, edgePathHitTestGroup, edgeLabelGroup);
+            this._focusable.set(edge.label.hitTest, edge.label);
+        }
+        origin.appendChild(clusterGroup);
+        origin.appendChild(edgePathGroup);
+        origin.appendChild(edgePathHitTestGroup);
+        origin.appendChild(edgeLabelGroup);
+        origin.appendChild(nodeGroup);
+        for (const edge of this.edges.values()) {
+            if (edge.label.labelElement) {
+                const label = edge.label;
+                const box = label.labelElement.getBBox();
+                label.width = box.width;
+                label.height = box.height;
+            }
         }
     }
 
@@ -195,8 +238,21 @@ grapher.Graph = class {
                 labelpos: edge.label.labelpos || 'r'
             });
         }
+        const layout = {};
+        layout.nodesep = 20;
+        layout.ranksep = 20;
+        const direction = this.options.direction;
+        const rotate = edges.length === 0 ? direction === 'vertical' : direction !== 'vertical';
+        if (rotate) {
+            layout.rankdir = 'LR';
+        }
+        if (edges.length === 0) {
+            nodes = nodes.reverse(); // rankdir workaround
+        }
+        if (nodes.length > 3000) {
+            layout.ranker = 'longest-path';
+        }
         const state = { /* log: true */ };
-        const layout = this._layout;
         if (worker) {
             const message = await worker.request({ type: 'dagre.layout', nodes, edges, layout, state }, 2500, 'This large graph layout might take a very long time to complete.');
             if (message.type === 'cancel') {
@@ -787,7 +843,7 @@ grapher.Edge = class {
         this.to = to;
     }
 
-    build(document, edgePathGroupElement, edgeLabelGroupElement) {
+    build(document, edgePathGroupElement, edgePathHitTestGroupElement, edgeLabelGroupElement) {
         const createElement = (name) => {
             return document.createElementNS('http://www.w3.org/2000/svg', name);
         };
@@ -798,26 +854,7 @@ grapher.Edge = class {
         this.element.setAttribute('class', this.class ? `edge-path ${this.class}` : 'edge-path');
         edgePathGroupElement.appendChild(this.element);
         this.hitTest = createElement('path');
-        this.hitTest.setAttribute('class', 'edge-path-hit-test');
-        if (this.focus) {
-            this.hitTest.addEventListener('pointerover', (e) => {
-                this.focus();
-                e.stopPropagation();
-            });
-        }
-        if (this.blur) {
-            this.hitTest.addEventListener('pointerleave', (e) => {
-                this.blur();
-                e.stopPropagation();
-            });
-        }
-        if (this.activate) {
-            this.hitTest.addEventListener('click', (e) => {
-                this.activate();
-                e.stopPropagation();
-            });
-        }
-        edgePathGroupElement.appendChild(this.hitTest);
+        edgePathHitTestGroupElement.appendChild(this.hitTest);
         if (this.label) {
             const tspan = createElement('tspan');
             tspan.setAttribute('xml:space', 'preserve');
@@ -832,9 +869,6 @@ grapher.Edge = class {
                 this.labelElement.setAttribute('id', `edge-label-${this.id}`);
             }
             edgeLabelGroupElement.appendChild(this.labelElement);
-            const edgeBox = this.labelElement.getBBox();
-            this.width = edgeBox.width;
-            this.height = edgeBox.height;
         }
     }
 

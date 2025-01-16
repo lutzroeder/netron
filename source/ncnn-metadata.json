@@ -31,6 +31,9 @@
       { "name": "op_type", "type": "BinaryOpType", "default": 0 },
       { "name": "with_scalar", "type": "int32", "default": 0 },
       { "name": "b", "type": "float32", "default": 0 }
+    ],
+    "inputs": [
+      { "name": "inputs", "type": "Tensor[]" }
     ]
   },
   {
@@ -48,6 +51,7 @@
   {
     "name": "Clip",
     "identifier": 54,
+    "category": "Activation",
     "attributes": [
       { "name": "min", "type": "float32" },
       { "name": "max", "type": "float32" }
@@ -61,7 +65,7 @@
       { "name": "axis", "type": "int32", "default": 0 }
     ],
     "inputs": [
-      { "name": "input", "option": "variadic" }
+      { "name": "input", "type": "Tensor[]" }
     ],
     "outputs": [
       { "name": "output" }
@@ -119,6 +123,33 @@
       { "name": "" },
       { "name": "pad_value", "type": "float32", "default": 0 },
       { "name": "dynamic_weight", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Deconvolution1D",
+    "category": "Layer",
+    "attributes": [
+      { "name": "num_output", "type": "int32", "default": 0 },
+      { "name": "kernel_w", "type": "int32", "default": 0 },
+      { "name": "dilation_w", "type": "int32", "default": 1 },
+      { "name": "stride_w", "type": "int32", "default": 1 },
+      { "name": "pad_left", "type": "int32", "default": 0 },
+      { "name": "bias_term", "default": 0, "visible": false },
+      { "name": "weight_data_size", "type": "int32", "default": 0, "visible": false },
+      { "name": "" },
+      { "name": "" },
+      { "name": "activation_type", "default": 0 },
+      { "name": "activation_params", "default": [] },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "pad_right", "type": "int32", "default": 0 },
+      { "name": "" },
+      { "name": "" },
+      { "name": "output_pad_right", "type": "int32", "default": 0 },
+      { "name": "" },
+      { "name": "output_w", "type": "int32", "default": 0 }
     ]
   },
   {
@@ -362,7 +393,7 @@
       { "name": "coeffs", "default": [] }
     ],
     "inputs": [
-      { "name": "inputs", "option": "variadic" }
+      { "name": "inputs", "type": "Tensor[]" }
     ]
   },
   {
@@ -651,7 +682,7 @@
   {
     "name": "Padding",
     "identifier": 43,
-    "category": "Layer",
+    "category": "Tensor",
     "attributes": [
       { "name": "top", "default": 0 },
       { "name": "bottom", "default": 0 },
@@ -822,7 +853,7 @@
     "name": "Reduction",
     "identifier": 25,
     "attributes": [
-      { "name": "op_type", "type": "ReductionOpType", "default": 0 },
+      { "name": "operation", "type": "ReductionOpType", "default": 0 },
       { "name": "reduce_all", "type": "int32", "default": 1 },
       { "name": "coeff", "type": "float32", "default": 1.0 },
       { "name": "axes", "default": [] },
@@ -942,7 +973,7 @@
       { "name": "input" }
     ],
     "outputs": [
-      { "name": "output", "option": "variadic" }
+      { "name": "output", "type": "Tensor[]" }
     ]
   },
   {
@@ -967,7 +998,7 @@
       { "name": "input" }
     ],
     "outputs": [
-      { "name": "output", "option": "variadic" }
+      { "name": "output", "type": "Tensor[]" }
     ]
   },
   {
@@ -1027,7 +1058,7 @@
       { "name": "biases" }
     ],
     "inputs": [
-      { "name": "input", "option": "variadic" }
+      { "name": "input", "type": "Tensor[]" }
     ]
   },
   {
@@ -1043,7 +1074,16 @@
       { "name": "anchors_scale", "type": "float32[]" }
     ],
     "inputs": [
-      { "name": "input", "option": "variadic" }
+      { "name": "input", "type": "Tensor[]" }
+    ]
+  },
+  {
+    "name": "Stack",
+    "attributes": [
+      { "name": "axis", "type": "int32" }
+    ],
+    "inputs": [
+      { "name": "input", "type": "Tensor[]" }
     ]
   }
 ]

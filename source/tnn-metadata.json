@@ -67,7 +67,7 @@
       { "name": "axis", "type": "int32", "default": 0 }
     ],
     "inputs": [
-      { "name": "input", "option": "variadic" }
+      { "name": "input", "type": "Tensor[]" }
     ],
     "outputs": [
       { "name": "output" }
@@ -373,6 +373,7 @@
   {
     "name": "Pad",
     "identifier": 43,
+    "category": "Tensor",
     "attributes": [
       { "name": " n1", "default": 0 },
       { "name": " n2", "default": 0 },
@@ -494,7 +495,7 @@
       { "name": "axis", "type": "int32", "default": 0 }
     ],
     "inputs": [
-      { "name": "input", "option": "variadic" }
+      { "name": "input", "type": "Tensor[]" }
     ],
     "outputs": [
       { "name": "output" }
@@ -675,7 +676,7 @@
       { "name": "input" }
     ],
     "outputs": [
-      { "name": "output", "option": "variadic" }
+      { "name": "output", "type": "Tensor[]" }
     ]
   },
   {

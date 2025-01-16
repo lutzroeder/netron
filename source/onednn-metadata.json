@@ -121,8 +121,7 @@
     "category": "Quantization"
   },
   {
-    "name": "TypeCast",
-    "category": "Quantization"
+    "name": "TypeCast"
   },
   {
     "name": "ReLU",
@@ -401,7 +400,6 @@
   },
   {
     "name": "MatMul",
-    "category": "Layer",
     "inputs": [
       { "name": "input" },
       { "name": "weights" },

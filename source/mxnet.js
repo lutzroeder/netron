@@ -8,26 +8,19 @@ mxnet.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        switch (extension) {
-            case 'json': {
-                const obj = context.peek('json');
-                if (obj && obj.nodes && obj.arg_nodes && obj.heads) {
-                    context.type = 'mxnet.json';
-                    context.target = obj;
-                }
-                break;
+        if (extension === 'json') {
+            const obj = context.peek('json');
+            if (obj && Array.isArray(obj.nodes) && Array.isArray(obj.arg_nodes) && Array.isArray(obj.heads) &&
+                !obj.nodes.some((node) => node && node.op === 'tvm_op')) {
+                context.type = 'mxnet.json';
+                context.target = obj;
+                return;
             }
-            case 'params': {
-                const stream = context.stream;
-                const signature = [0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-                if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                    context.type = 'mxnet.params';
-                }
-                break;
-            }
-            default: {
-                break;
-            }
+        }
+        const stream = context.stream;
+        const signature = [0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+        if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+            context.type = 'mxnet.params';
         }
     }
 
@@ -182,7 +175,7 @@ mxnet.ModelFactory = class {
                     manifest.format = `MXNet${version ? ` v${version}` : ''}`;
                 }
                 if (symbol.nodes && symbol.nodes.some((node) => node && node.op === 'tvm_op')) {
-                    manifest.producer  = 'TVM';
+                    manifest.format  = 'TVM';
                 }
             }
             return new mxnet.Model(metadata, manifest, symbol, parameters);
@@ -307,14 +300,14 @@ mxnet.Graph = class {
             return [nodeIndex, outputIndex];
         };
         if (symbol) {
-            let nodes = symbol.nodes;
+            const nodes = symbol.nodes;
             const inputs = {};
+            const outputs = {};
             if (manifest && manifest.signature && manifest.signature.inputs) {
                 for (const input of manifest.signature.inputs) {
                     inputs[input.data_name] = input;
                 }
             }
-            const outputs = {};
             if (manifest && manifest.signature && manifest.signature.outputs) {
                 for (const output of manifest.signature.outputs) {
                     outputs[output.data_name] = output;
@@ -327,26 +320,20 @@ mxnet.Graph = class {
                 node.inputs = node.inputs || [];
                 node.inputs = node.inputs.map((input) => updateOutput(nodes, input));
             }
-            const outputCountMap = {};
-            for (const node of nodes) {
-                for (const output of node.outputs) {
-                    outputCountMap[output] = (outputCountMap[output] || 0) + 1;
-                }
-            }
             const arg_nodes = new Map(symbol.arg_nodes.map((index) => [index, index < nodes.length ? nodes[index] : null]));
             for (let i = 0; i < symbol.heads.length; i++) {
                 const head = symbol.heads[i];
                 const identifier = updateOutput(nodes, head);
-                const name = nodes[identifier[0]] ? nodes[identifier[0]].name : (`output${(i === 0) ? '' : (i + 1)}`);
+                const name = `output${(i === 0) ? '' : (i + 1)}`;
                 const signature = outputs[name];
                 const type = signature && signature.data_shape ? new mxnet.TensorType(-1, new mxnet.TensorShape(signature.data_shape)) : null;
                 const value = values.map(`[${identifier.join(',')}]`, type);
                 const argument = new mxnet.Argument(name, [value]);
                 this.outputs.push(argument);
             }
-            nodes = nodes.filter((node, index) => !arg_nodes.has(index));
+            const filtered = nodes.filter((node, index) => !arg_nodes.has(index));
             const initializers = new Map();
-            for (const node of nodes) {
+            for (const node of filtered) {
                 if (node.op === 'RNN') {
                     node.inputs = node.inputs.filter((input) => {
                         const [index] = input;
@@ -413,7 +400,7 @@ mxnet.Graph = class {
                     this.inputs.push(argument);
                 }
             }
-            for (const node of nodes) {
+            for (const node of filtered) {
                 this.nodes.push(new mxnet.Node(metadata, node, initializers, values));
             }
         } else if (params) {
@@ -571,13 +558,13 @@ mxnet.Node = class {
             let inputIndex = 0;
             if (this.type && this.type.inputs) {
                 for (const inputDef of this.type.inputs) {
-                    if (inputIndex < inputs.length || inputDef.option !== 'optional') {
-                        const count = (inputDef.option === 'variadic') ? (inputs.length - inputIndex) : 1;
+                    if (inputIndex < inputs.length || inputDef.optional !== true) {
+                        const count = (inputDef.type === 'Tensor[]') ? (inputs.length - inputIndex) : 1;
                         const list = [];
                         for (const input of inputs.slice(inputIndex, inputIndex + count)) {
                             const identifier = `[${input.join(',')}]`;
-                            if (identifier !== '' || inputDef.option !== 'optional') {
-                                const value = values.map(identifier, inputDef.type, initializers.get(identifier));
+                            if (identifier !== '' || (inputDef.optional !== true || inputDef.type === 'Tensor[]')) {
+                                const value = values.map(identifier, null, initializers.get(identifier));
                                 list.push(value);
                             }
                         }
@@ -601,9 +588,9 @@ mxnet.Node = class {
             let outputIndex = 0;
             if (this.type && this.type.outputs) {
                 for (const outputDef of this.type.outputs) {
-                    if (outputIndex < outputs.length || outputDef.option !== 'optional') {
+                    if (outputIndex < outputs.length || outputDef.optional !== true) {
                         const list = [];
-                        const count = (outputDef.option === 'variadic') ? (outputs.length - outputIndex) : 1;
+                        const count = (outputDef.type === 'Tensor[]') ? (outputs.length - outputIndex) : 1;
                         for (const output of outputs.slice(outputIndex, outputIndex + count)) {
                             const value = values.map(`[${output.join(',')}]`);
                             list.push(value);
@@ -685,7 +672,7 @@ mxnet.ndarray = class {
 
     static load(reader) {
         // NDArray::Load(dmlc::Stream* fi, std::vector<NDArray>* data, std::vector<std::string>* keys)
-        const map = new Map();
+        const params = new Map();
         reader = new mxnet.BinaryReader(reader);
         if (reader.uint64().toNumber() !== 0x112) { // kMXAPINDArrayListMagic
             throw new mxnet.Error('Invalid signature.');
@@ -693,9 +680,9 @@ mxnet.ndarray = class {
         if (reader.uint64().toNumber() !== 0) {
             throw new mxnet.Error('Invalid reserved block.');
         }
-        const data = new Array(reader.uint64().toNumber());
-        for (let i = 0; i < data.length; i++) {
-            data[i] = new mxnet.ndarray.NDArray(reader);
+        const values = new Array(reader.uint64().toNumber());
+        for (let i = 0; i < values.length; i++) {
+            values[i] = new mxnet.ndarray.NDArray(reader);
         }
         const decoder = new TextDecoder('ascii');
         const names = new Array(reader.uint64().toNumber());
@@ -704,13 +691,13 @@ mxnet.ndarray = class {
             const buffer = reader.read(size);
             names[i] = decoder.decode(buffer);
         }
-        if (names.length !== data.length) {
-            throw new mxnet.Error('Label count mismatch.');
+        if (names.length !== values.length) {
+            throw new mxnet.Error('Invalid parameters.');
         }
         for (let i = 0; i < names.length; i++) {
-            map.set(names[i], data[i]);
+            params.set(names[i], values[i]);
         }
-        return map;
+        return params;
     }
 };
 

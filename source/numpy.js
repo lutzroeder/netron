@@ -17,23 +17,6 @@ numpy.ModelFactory = class {
             if (entries && entries.size > 0) {
                 context.type = 'npz';
                 context.target = entries;
-            } else {
-                const obj = context.peek('pkl');
-                if (obj) {
-                    if (numpy.Utility.isTensor(obj)) {
-                        context.type = 'numpy.ndarray';
-                        context.target = obj;
-                    } else if (Array.isArray(obj) && obj.length > 0 && obj.every((obj) => obj && obj.__class__ && obj.__class__.__name__ === 'Network' && (obj.__class__.__module__ === 'dnnlib.tflib.network' || obj.__class__.__module__ === 'tfutil'))) {
-                        context.type = 'dnnlib.tflib.network';
-                        context.target = obj;
-                    } else {
-                        const weights = numpy.Utility.weights(obj);
-                        if (weights && weights.size > 0) {
-                            context.type = 'numpy.pickle';
-                            context.target = weights;
-                        }
-                    }
-                }
             }
         }
     }
@@ -62,11 +45,13 @@ numpy.ModelFactory = class {
             case 'npz': {
                 format = 'NumPy Zip';
                 const layers = new Map();
-                for (const [key, array] of context.target) {
+                const entries = Array.from(context.target);
+                const separator = entries.every(([name]) => name.endsWith('.weight.npy')) ? '.' : '/';
+                for (const [key, array] of entries) {
                     const name = key.replace(/\.npy$/, '');
-                    const parts = name.split('/');
-                    const parameterName = parts.pop();
-                    const groupName = parts.join('/');
+                    const path = name.split(separator);
+                    const parameterName = path.pop();
+                    const groupName = path.join(separator);
                     if (!layers.has(groupName)) {
                         layers.set(groupName, { name: groupName, parameters: [] });
                     }
@@ -77,74 +62,6 @@ numpy.ModelFactory = class {
                     });
                 }
                 graphs.push({ layers: Array.from(layers.values()) });
-                break;
-            }
-            case 'numpy.pickle': {
-                format = 'NumPy Weights';
-                const layers = new Map();
-                const layer = (name) => {
-                    if (!layers.has(name)) {
-                        layers.set(name, { name, parameters: [] });
-                    }
-                    return layers.get(name);
-                };
-                const weights = context.target;
-                let separator = '';
-                if (Array.from(weights.keys()).every((key) => key.indexOf('.') !== -1)) {
-                    separator = '.';
-                }
-                if (Array.from(weights.keys()).every((key) => key.indexOf('_') > key.indexOf('.'))) {
-                    separator = '_';
-                }
-                for (const [name, value] of weights) {
-                    if (name.endsWith('.__class__')) {
-                        layer(name.substring(0, name.length - 10)).type = value;
-                        continue;
-                    }
-                    const parts = separator ? name.split(separator) : null;
-                    const parameterName = separator ? parts.pop() : name;
-                    const layerName = separator ? parts.join(separator) : '';
-                    if (!layers.has(layerName)) {
-                        layers.set(layerName, { name: layerName, parameters: [] });
-                    }
-                    layer(layerName).parameters.push({
-                        name: parameterName,
-                        tensor: { name, array: value }
-                    });
-                }
-                graphs.push({ layers: Array.from(layers.values()) });
-                break;
-            }
-            case 'numpy.ndarray': {
-                format = 'NumPy NDArray';
-                const layer = {
-                    type: 'numpy.ndarray',
-                    parameters: [{ name: 'value', tensor: { name: '', array: context.target } }]
-                };
-                graphs.push({ layers: [layer] });
-                break;
-            }
-            case 'dnnlib.tflib.network': {
-                format = 'dnnlib';
-                for (const obj of context.target) {
-                    const layers = new Map();
-                    for (const [name, value] of obj.variables) {
-                        if (numpy.Utility.isTensor(value)) {
-                            const parts = name.split('/');
-                            const parameterName = parts.length > 1 ? parts.pop() : '?';
-                            const layerName = parts.join('/');
-                            if (!layers.has(layerName)) {
-                                layers.set(layerName, { name: layerName, parameters: [] });
-                            }
-                            const layer = layers.get(layerName);
-                            layer.parameters.push({
-                                name: parameterName,
-                                tensor: { name, array: value }
-                            });
-                        }
-                    }
-                    graphs.push({ name: obj.name, layers: Array.from(layers.values()) });
-                }
                 break;
             }
             default: {

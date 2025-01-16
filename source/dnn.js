@@ -44,14 +44,13 @@ dnn.Graph = class {
         this.outputs = [];
         this.nodes = [];
         const scope = {};
-        let index = 0;
-        for (const node of model.node) {
+        for (let i = 0; i < model.node.length; i++) {
+            const node = model.node[i];
             node.input = node.input.map((input) => scope[input] ? scope[input] : input);
             node.output = node.output.map((output) => {
-                scope[output] = scope[output] ? `${output}\n${index}` : output; // custom argument id
+                scope[output] = scope[output] ? `${output}\n${i}` : output; // custom argument id
                 return scope[output];
             });
-            index++;
         }
         const values = new Map();
         values.map = (name, type) => {

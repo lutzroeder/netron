@@ -70,11 +70,11 @@ om.Graph = class {
                 } else if (context.weights === null) {
                     data = null;
                 } else if (desc.attr.merged_offset) {
-                    const offset = Number(desc.attr.merged_offset.i);
-                    data = context.weights.slice(offset, offset + Number(desc.weight_size));
+                    const offset = desc.attr.merged_offset.i.toNumber();
+                    data = context.weights.slice(offset, offset + desc.weight_size.toNumber());
                 } else {
-                    const offset = Number(desc.data_offset);
-                    data = context.weights.slice(offset, offset + Number(desc.weight_size));
+                    const offset = desc.data_offset.toNumber();
+                    data = context.weights.slice(offset, offset + desc.weight_size.toNumber());
                 }
                 const type = om.Utility.tensorType(desc);
                 const tensor = new om.Tensor('Constant', type, data);

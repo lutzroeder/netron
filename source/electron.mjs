@@ -1,11 +1,12 @@
 
+import * as base from './base.js';
 import * as electron from 'electron';
 import * as fs from 'fs';
 import * as http from 'http';
 import * as https from 'https';
+import * as os from 'os';
 import * as path from 'path';
 import * as url from 'url';
-import * as base from './base.js';
 import * as view from './view.js';
 
 const host = {};
@@ -36,6 +37,16 @@ host.ElectronHost = class {
         if (!/^\d\.\d\.\d$/.test(this.version)) {
             throw new Error('Invalid version.');
         }
+        const metadata = [];
+        metadata.push(os.arch());
+        if (process.env.APPIMAGE) {
+            metadata.push('appimage');
+        } else if (process.env.SNAP) {
+            metadata.push('snap');
+        } else {
+            metadata.push('');
+        }
+        this._metadata = metadata.join('|');
     }
 
     get window() {
@@ -52,6 +63,10 @@ host.ElectronHost = class {
 
     get type() {
         return 'Electron';
+    }
+
+    get metadata() {
+        return this._metadata;
     }
 
     async view(view) {
@@ -103,11 +118,13 @@ host.ElectronHost = class {
                 this._telemetry.send('page_view', {
                     app_name: this.type,
                     app_version: this.version,
+                    app_metadata: this.metadata
                 });
                 this._telemetry.send('scroll', {
                     percent_scrolled: 90,
                     app_name: this.type,
-                    app_version: this.version
+                    app_version: this.version,
+                    app_metadata: this.metadata
                 });
                 this.set('user', this._telemetry.get('client_id'));
                 this.set('session', this._telemetry.session);
@@ -218,7 +235,8 @@ host.ElectronHost = class {
         });
         this.document.body.addEventListener('drop', (e) => {
             e.preventDefault();
-            const paths = Array.from(e.dataTransfer.files).map(((file) => file.path));
+            const files = Array.from(e.dataTransfer.files);
+            const paths = files.map((file) => electron.webUtils.getPathForFile(file));
             if (paths.length > 0) {
                 electron.ipcRenderer.send('drop-paths', { paths });
             }
@@ -363,6 +381,7 @@ host.ElectronHost = class {
                 this._telemetry.send('exception', {
                     app_name: this.type,
                     app_version: this.version,
+                    app_metadata: this.metadata,
                     error_name: name,
                     error_message: message,
                     error_context: context,
@@ -379,6 +398,7 @@ host.ElectronHost = class {
         if (name && params) {
             params.app_name = this.type;
             params.app_version = this.version;
+            params.app_metadata = this.metadata;
             this._telemetry.send(name, params);
         }
     }
@@ -641,7 +661,7 @@ host.ElectronHost.FileStream = class {
         }
         if (!this._buffer || this._position < this._offset || this._position + length > this._offset + this._buffer.length) {
             this._offset = this._position;
-            const length = Math.min(0x1000000, this._length - this._offset);
+            const length = Math.min(0x10000000, this._length - this._offset);
             if (!this._buffer || length !== this._buffer.length) {
                 this._buffer = new Uint8Array(length);
             }

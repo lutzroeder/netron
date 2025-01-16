@@ -4,6 +4,7 @@ import json
 import os
 import pydoc
 import re
+import sys
 
 def _split_docstring(value):
     headers = {}
@@ -57,6 +58,7 @@ def _find_attribute(schema, name):
     return attribute
 
 def _update_attributes(schema, lines):
+    doc_indent = '    ' if sys.version_info[:2] >= (3, 13) else '        '
     while len(lines) > 0:
         line = lines.pop(0)
         match = re.match(r'\s*(\w*)\s*:\s*(.*)\s*', line)
@@ -83,7 +85,7 @@ def _update_attributes(schema, lines):
         if default_value:
             attribute['default'] = _attribute_value(attribute_type, default_value)
         description = []
-        while len(lines) > 0 and (len(lines[0].strip(' ')) == 0 or lines[0].startswith('        ')):
+        while len(lines) > 0 and (len(lines[0].strip(' ')) == 0 or lines[0].startswith(doc_indent)):
             line = lines.pop(0).lstrip(' ')
             description.append(line)
         attribute['description'] = '\n'.join(description)

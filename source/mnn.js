@@ -123,7 +123,7 @@ mnn.Graph = class {
                 const argument = new mnn.Argument(op.name, args);
                 this.inputs.push(argument);
             } else {
-                const node = new mnn.Node(metadata, op, net, values);
+                const node = new mnn.Node(metadata, op, values);
                 this.nodes.push(node);
             }
         }
@@ -140,7 +140,7 @@ mnn.Graph = class {
 
 mnn.Node = class {
 
-    constructor(metadata, op, net, values) {
+    constructor(metadata, op, values) {
         const type = mnn.Utility.enum('OpType', op.type) || `(${op.type})`;
         this.type = metadata.type(type) || { name: type };
         this.name = op.name || '';
@@ -275,6 +275,7 @@ mnn.Tensor = class {
                 this.encoding = '|';
                 this.values = data ? data.slice(0) : null;
                 break;
+            case 'int8':
             case 'uint8':
             case 'float16':
             case 'bfloat16':

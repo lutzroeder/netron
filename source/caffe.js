@@ -208,15 +208,14 @@ caffe.Graph = class {
             }
         }
         const scopes = new Map();
-        let index = 0;
-        for (const layer of layers) {
+        for (let i = 0; i < layers.length; i++) {
+            const layer = layers[i];
             layer.input = layer.input.map((input) => scopes.has(input) ? scopes.get(input) : input);
             layer.output = layer.output.map((output) => {
-                const value = scopes.has(output) ? `${output}\n${index}` : output;
+                const value = scopes.has(output) ? `${output}\n${i}` : output;
                 scopes.set(output, value);
                 return value;
             });
-            index++;
         }
         // Graph Inputs
         const usedOutputs = new Set();
@@ -460,7 +459,7 @@ caffe.Node = class {
                 type = metadata.type;
             }
             if (value instanceof caffe.proto.BlobShape) {
-                value = new caffe.TensorShape(value.dim.map((dim) => Number(dim)));
+                value = new caffe.TensorShape(value.dim.map((dim) => dim.toNumber()));
                 type = 'shape';
             }
             if (metadata && metadata.visible === false) {

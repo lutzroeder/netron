@@ -61,7 +61,7 @@
             "program": "${workspaceFolder}/test/backend.py",
             "args": [],
             "console": "integratedTerminal",
-            "justMyCode": false,
+            "justMyCode": true,
             "serverReadyAction": {
                 "action": "debugWithChrome",
                 "pattern": "Serving .*at http://localhost:([0-9]+)",
@@ -76,7 +76,7 @@
             "program": "${file}",
             "args": [],
             "console": "integratedTerminal",
-            "justMyCode": false
+            "justMyCode": true
         },
         {
             "name": "Package.js",

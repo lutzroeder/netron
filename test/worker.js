@@ -1,14 +1,14 @@
 
+import * as base from '../source/base.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as process from 'process';
-import * as url from 'url';
-import * as worker_threads from 'worker_threads';
-import * as base from '../source/base.js';
-import * as zip from '../source/zip.js';
-import * as tar from '../source/tar.js';
 import * as python from '../source/python.js';
+import * as tar from '../source/tar.js';
+import * as url from 'url';
 import * as view from '../source/view.js';
+import * as worker_threads from 'worker_threads';
+import * as zip from '../source/zip.js';
 
 const access = async (path) => {
     try {
@@ -587,9 +587,8 @@ export class Target {
         if (this.runtime && this.model.runtime !== this.runtime) {
             throw new Error(`Invalid runtime '${this.model.runtime}'.`);
         }
-        if (this.model.metadata && !Array.isArray(this.model.metadata) &&
-            this.model.metadata.every((argument) => argument.name && argument.value)) {
-            throw new Error("Invalid metadata.'");
+        if (this.model.metadata && !Array.isArray(this.model.metadata) && this.model.metadata.every((argument) => argument.name && argument.value)) {
+            throw new Error("Invalid model metadata.'");
         }
         if (this.assert) {
             for (const assert of this.assert) {
@@ -604,7 +603,7 @@ export class Target {
                         continue;
                     }
                     const match = /(.*)\[(.*)\]/.exec(property);
-                    if (match.length === 3 && context[match[1]] !== undefined) {
+                    if (match && match.length === 3 && context[match[1]] !== undefined) {
                         const array = context[match[1]];
                         const index = parseInt(match[2], 10);
                         if (array[index] !== undefined) {
@@ -623,9 +622,12 @@ export class Target {
             // continue
         }
         /* eslint-disable no-unused-expressions */
-        const validateGraph = (graph) => {
+        const validateGraph = async (graph) => {
             const values = new Map();
-            const validateValue = (value) => {
+            const validateValue = async (value) => {
+                if (value === null) {
+                    return;
+                }
                 value.name.toString();
                 value.name.length;
                 value.description;
@@ -641,6 +643,9 @@ export class Target {
                 }
                 if (value.initializer) {
                     value.initializer.type.toString();
+                    if (value.initializer && value.initializer.peek && !value.initializer.peek()) {
+                        await value.initializer.read();
+                    }
                     const tensor = new base.Tensor(value.initializer);
                     if (!this.tags.has('skip-tensor-value')) {
                         if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
@@ -698,16 +703,23 @@ export class Target {
                     input.name.toString();
                     input.name.length;
                     for (const value of input.value) {
-                        validateValue(value);
+                        /* eslint-disable no-await-in-loop */
+                        await validateValue(value);
+                        /* eslint-enable no-await-in-loop */
                     }
                 }
                 for (const output of signature.outputs) {
                     output.name.toString();
                     output.name.length;
                     for (const value of output.value) {
-                        validateValue(value);
+                        /* eslint-disable no-await-in-loop */
+                        await validateValue(value);
+                        /* eslint-enable no-await-in-loop */
                     }
                 }
+            }
+            if (graph.metadata && !Array.isArray(graph.metadata) && graph.metadata.every((argument) => argument.name && argument.value)) {
+                throw new Error("Invalid graph metadata.'");
             }
             for (const node of graph.nodes) {
                 const type = node.type;
@@ -715,11 +727,16 @@ export class Target {
                     throw new Error(`Invalid node type '${JSON.stringify(node.type)}'.`);
                 }
                 if (Array.isArray(type.nodes)) {
-                    validateGraph(type);
+                    /* eslint-disable no-await-in-loop */
+                    await validateGraph(type);
+                    /* eslint-enable no-await-in-loop */
                 }
                 view.Documentation.open(type);
                 node.name.toString();
                 node.description;
+                if (node.metadata && !Array.isArray(node.metadata) && node.metadata.every((argument) => argument.name && argument.value)) {
+                    throw new Error("Invalid graph metadata.'");
+                }
                 const attributes = node.attributes;
                 if (attributes) {
                     for (const attribute of attributes) {
@@ -728,7 +745,9 @@ export class Target {
                         const type = attribute.type;
                         const value = attribute.value;
                         if ((type === 'graph' || type === 'function') && value && Array.isArray(value.nodes)) {
-                            validateGraph(value);
+                            /* eslint-disable no-await-in-loop */
+                            await validateGraph(value);
+                            /* eslint-enable no-await-in-loop */
                         } else {
                             let text = new view.Formatter(attribute.value, attribute.type).toString();
                             if (text && text.length > 1000) {
@@ -738,21 +757,37 @@ export class Target {
                         }
                     }
                 }
-                for (const input of node.inputs) {
-                    input.name.toString();
-                    input.name.length;
-                    if (!input.type || input.type.endsWith('*')) {
-                        for (const value of input.value) {
-                            validateValue(value);
+                const inputs = node.inputs;
+                if (Array.isArray(inputs)) {
+                    for (const input of inputs) {
+                        input.name.toString();
+                        input.name.length;
+                        if (!input.type || input.type.endsWith('*')) {
+                            for (const value of input.value) {
+                                /* eslint-disable no-await-in-loop */
+                                await validateValue(value);
+                                /* eslint-enable no-await-in-loop */
+                            }
+                            if (this.tags.has('validation')) {
+                                if (input.value.length === 1 && input.value[0].initializer) {
+                                    const sidebar = new view.TensorSidebar(this.view, input);
+                                    sidebar.render();
+                                }
+                            }
                         }
                     }
                 }
-                for (const output of node.outputs) {
-                    output.name.toString();
-                    output.name.length;
-                    if (!output.type || output.type.endsWith('*')) {
-                        for (const value of output.value) {
-                            validateValue(value);
+                const outputs = node.outputs;
+                if (Array.isArray(outputs)) {
+                    for (const output of node.outputs) {
+                        output.name.toString();
+                        output.name.length;
+                        if (!output.type || output.type.endsWith('*')) {
+                            for (const value of output.value) {
+                                /* eslint-disable no-await-in-loop */
+                                await validateValue(value);
+                                /* eslint-enable no-await-in-loop */
+                            }
                         }
                     }
                 }

@@ -16,6 +16,8 @@
         { "ext": "hd5",         "name": "Keras Model"              },
         { "ext": "hdf5",        "name": "Keras Model"              },
         { "ext": "hn",          "name": "Hailo Model"              },
+        { "ext": "kann",        "name": "KaNN Model"               },
+        { "ext": "kgraph",      "name": "KaNN Model"               },
         { "ext": "keras",       "name": "Keras Model"              },
         { "ext": "kmodel",      "name": "Kendryte Model"           },
         { "ext": "lite",        "name": "TensorFlow Lite Model"    },
@@ -24,6 +26,8 @@
         { "ext": "meta",        "name": "TensorFlow Meta Graph"    },
         { "ext": "mge",         "name": "MegEngine Mge Model"      },
         { "ext": "mlmodel",     "name": "Core ML Model"            },
+        { "ext": "mlir",        "name": "MLIR Model"               },
+        { "ext": "mlirbc",      "name": "MLIR Bytecode Model"      },
         { "ext": "mlnet",       "name": "ML.NET Model"             },
         { "ext": "mlpackage",   "name": "Core ML Model Package", "isPackage": true },
         { "ext": "mnn",         "name": "MNN Model"                },
@@ -45,7 +49,8 @@
         { "ext": "pdmodel",     "name": "PaddlePaddle Model"       },
         { "ext": "pdopt",       "name": "PaddlePaddle Model"       },
         { "ext": "pdparams",    "name": "PaddlePaddle Model"       },
-        { "ext": "pkl",         "name": "Pickle Model"             },
+        { "ext": "pickle",      "name": "Python Pickle File"       },
+        { "ext": "pkl",         "name": "Python Pickle File"       },
         { "ext": "prototxt",    "name": "Text Protocol Buffer"     },
         { "ext": "pt",          "name": "PyTorch Model"            },
         { "ext": "pt2",         "name": "PyTorch Model"            },
@@ -98,6 +103,6 @@
     },
     "snap": {
         "plugs": [ "default", "removable-media" ],
-        "publish": [ { "provider": "snapStore", "channels": [ "stable" ] } ]
+        "publish": { "provider": "snapStore", "channels": "stable" }
     }
 }

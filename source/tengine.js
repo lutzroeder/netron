@@ -187,17 +187,16 @@ tengine.TensorShape = class {
 tengine.Metadata = class {
 
     static async open(context) {
-        if (tengine.Metadata._metadata) {
-            return tengine.Metadata._metadata;
-        }
-        try {
-            const data = await context.request('tengine-metadata.json');
+        if (!tengine.Metadata._metadata) {
+            let data = null;
+            try {
+                data = await context.request('tengine-metadata.json');
+            } catch {
+                // continue regardless of error
+            }
             tengine.Metadata._metadata = new tengine.Metadata(data);
-            return tengine.Metadata._metadata;
-        } catch {
-            tengine.Metadata._metadata = new tengine.Metadata(null);
-            return tengine.Metadata._metadata;
         }
+        return tengine.Metadata._metadata;
     }
 
     constructor(data) {
@@ -237,9 +236,9 @@ tengine.Reader = class {
 
     static open(context) {
         const stream = context.stream;
-        if (stream && stream.length > 4) {
-            const buffer = stream.peek(2);
-            if (buffer[0] < 4 && buffer[1] === 0) {
+        if (stream && stream.length > 12) {
+            const buffer = stream.peek(4);
+            if (buffer[0] < 4 && buffer[1] === 0 && buffer[3] === 0) {
                 return new tengine.Reader(context);
             }
         }
@@ -382,10 +381,10 @@ tengine.Reader = class {
         const reader = new tengine.BinaryReader(this.context.read('binary'));
         const major = reader.uint16();
         const minor = reader.uint16();
-        this.version = `${major}.${minor}`;
         if (major !== 2) {
             throw new tengine.Error(`Unsupported format version 'v${this.version}'.`);
         }
+        this.version = `${major}.${minor}`;
         reader.uint16(); // compileVersion
         reader.skip(2); // struct align
         reader.seek(reader.uint32()); // root table

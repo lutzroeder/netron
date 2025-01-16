@@ -3,11 +3,11 @@
 <img width="400px" height="100px" src="https://github.com/lutzroeder/netron/raw/main/.github/logo-dark.svg#gh-dark-mode-only">
 </div>
 
-Netron is a viewer for neural network, deep learning and machine learning models. 
+Netron is a viewer for neural network, deep learning and machine learning models.
 
-Netron supports ONNX, TensorFlow Lite, Core ML, Keras, Caffe, Darknet, MXNet, PaddlePaddle, ncnn, MNN and TensorFlow.js.
+Netron supports ONNX, TensorFlow Lite, Core ML, Keras, Caffe, Darknet, PyTorch, TensorFlow.js, Safetensors and NumPy.
 
-Netron has experimental support for PyTorch, TorchScript, TensorFlow, OpenVINO, RKNN, MediaPipe, ML.NET and scikit-learn.
+Netron has experimental support for TorchScript, TensorFlow, MXNet, OpenVINO, RKNN, ML.NET, ncnn, MNN, PaddlePaddle, GGUF and scikit-learn.
 
 <p align='center'><a href='https://www.lutzroeder.com/ai'><img src='.github/screenshot.png' width='800'></a></p>
 
@@ -21,7 +21,7 @@ Netron has experimental support for PyTorch, TorchScript, TensorFlow, OpenVINO, 
 
 **Browser**: [**Start**](https://netron.app) the browser version.
 
-**Python Server**: Run `pip install netron` and `netron [FILE]` or `netron.start('[FILE]')`.
+**Python**: Run `pip install netron` and `netron [FILE]` or `netron.start('[FILE]')`.
 
 ## Models
 

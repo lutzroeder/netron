@@ -78,8 +78,9 @@ gguf.Model = class {
 
 gguf.Graph = class {
 
-    constructor(graph) {
+    constructor(graph, type) {
         this.name = graph.type;
+        this.type = type || '';
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];
@@ -112,7 +113,7 @@ gguf.Node = class {
 
     constructor(layer) {
         if (Array.isArray(layer.layers) && layer.layers.length > 0) {
-            this.type = new gguf.Graph(layer);
+            this.type = new gguf.Graph(layer, 'weights');
         } else {
             this.type = { name: layer.type };
         }
@@ -202,34 +203,40 @@ gguf.Reader = class {
         this.context = context;
         const QK_K = 256;
         gguf.Reader.GGML_QUANT_SIZES = gguf.Reader.GGML_QUANT_SIZES || new Map([
-            [gguf.QuantizationType.F32,     [1, 4, 'float32']],
-            [gguf.QuantizationType.F16,     [1, 2, 'float16']],
-            [gguf.QuantizationType.Q4_0,    [32, 2 + 16, '']],
-            [gguf.QuantizationType.Q4_1,    [32, 2 + 2 + 16, '']],
-            [gguf.QuantizationType.Q5_0,    [32, 2 + 4 + 16, '']],
-            [gguf.QuantizationType.Q5_1,    [32, 2 + 2 + 4 + 16, '']],
-            [gguf.QuantizationType.Q8_0,    [32, 2 + 32, '']],
-            [gguf.QuantizationType.Q8_1,    [32, 4 + 4 + 32, '']],
-            [gguf.QuantizationType.Q2_K,    [256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4), '']],
-            [gguf.QuantizationType.Q3_K,    [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12, '']],
-            [gguf.QuantizationType.Q4_K,    [256, 2 + 2 + Math.floor(QK_K / 2) + 12, '']],
-            [gguf.QuantizationType.Q5_K,    [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 8) + 12, '']],
-            [gguf.QuantizationType.Q6_K,    [256, 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '']],
-            [gguf.QuantizationType.Q8_K,    [256, 4 + QK_K + Math.floor(QK_K / 8), '']],
-            [gguf.QuantizationType.IQ2_XXS, [256, 2 + Math.floor(QK_K / 4), '']],
-            [gguf.QuantizationType.IQ2_XS,  [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 32), '']],
-            [gguf.QuantizationType.IQ3_XXS, [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8), '']],
-            [gguf.QuantizationType.IQ1_S,   [256, 2 + Math.floor(QK_K / 8) + Math.floor(QK_K / 16), '']],
-            [gguf.QuantizationType.IQ4_NL,  [32, 2 + 16, '']],
-            [gguf.QuantizationType.IQ3_S,   [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + Math.floor(QK_K / 32) + 4, '']],
-            [gguf.QuantizationType.IQ2_S,   [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '']],
-            [gguf.QuantizationType.IQ4_XS,  [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 64), '']],
-            [gguf.QuantizationType.I8,      [1, 1, 'int8']],
-            [gguf.QuantizationType.I16,     [1, 2, 'int16']],
-            [gguf.QuantizationType.I32,     [1, 4, 'int32']],
-            [gguf.QuantizationType.I64,     [1, 8, 'int64']],
-            [gguf.QuantizationType.F64,     [1, 8, 'float64']],
-            [gguf.QuantizationType.IQ1_M,   [256, Math.floor(QK_K / 8) + Math.floor(QK_K / 16)  + Math.floor(QK_K / 32)]]
+            [gguf.QuantizationType.F32,      [1, 4, 'float32']],
+            [gguf.QuantizationType.F16,      [1, 2, 'float16']],
+            [gguf.QuantizationType.Q4_0,     [32, 2 + 16, '']],
+            [gguf.QuantizationType.Q4_1,     [32, 2 + 2 + 16, '']],
+            [gguf.QuantizationType.Q5_0,     [32, 2 + 4 + 16, '']],
+            [gguf.QuantizationType.Q5_1,     [32, 2 + 2 + 4 + 16, '']],
+            [gguf.QuantizationType.Q8_0,     [32, 2 + 32, '']],
+            [gguf.QuantizationType.Q8_1,     [32, 4 + 4 + 32, '']],
+            [gguf.QuantizationType.Q2_K,     [256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4), '']],
+            [gguf.QuantizationType.Q3_K,     [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12, '']],
+            [gguf.QuantizationType.Q4_K,     [256, 2 + 2 + Math.floor(QK_K / 2) + 12, '']],
+            [gguf.QuantizationType.Q5_K,     [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 8) + 12, '']],
+            [gguf.QuantizationType.Q6_K,     [256, 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '']],
+            [gguf.QuantizationType.Q8_K,     [256, 4 + QK_K + Math.floor(QK_K / 8), '']],
+            [gguf.QuantizationType.IQ2_XXS,  [256, 2 + Math.floor(QK_K / 4), '']],
+            [gguf.QuantizationType.IQ2_XS,   [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 32), '']],
+            [gguf.QuantizationType.IQ3_XXS,  [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8), '']],
+            [gguf.QuantizationType.IQ1_S,    [256, 2 + Math.floor(QK_K / 8) + Math.floor(QK_K / 16), '']],
+            [gguf.QuantizationType.IQ4_NL,   [32, 2 + 16, '']],
+            [gguf.QuantizationType.IQ3_S,    [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + Math.floor(QK_K / 32) + 4, '']],
+            [gguf.QuantizationType.IQ2_S,    [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '']],
+            [gguf.QuantizationType.IQ4_XS,   [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 64), '']],
+            [gguf.QuantizationType.I8,       [1, 1, 'int8']],
+            [gguf.QuantizationType.I16,      [1, 2, 'int16']],
+            [gguf.QuantizationType.I32,      [1, 4, 'int32']],
+            [gguf.QuantizationType.I64,      [1, 8, 'int64']],
+            [gguf.QuantizationType.F64,      [1, 8, 'float64']],
+            [gguf.QuantizationType.IQ1_M,    [256, Math.floor(QK_K / 8) + Math.floor(QK_K / 16)  + Math.floor(QK_K / 32)]],
+            [gguf.QuantizationType.BF16,     [1, 2, 'bfloat16']],
+            [gguf.QuantizationType.Q4_0_4_4, [32, 2 + 16, '']],
+            [gguf.QuantizationType.Q4_0_4_8, [32, 2 + 16, '']],
+            [gguf.QuantizationType.Q4_0_8_8, [32, 2 + 16, '']],
+            [gguf.QuantizationType.TQ1_0,    [256, 2 + 4 * 13, '']],
+            [gguf.QuantizationType.TQ2_0,    [256, 2 + 64, '']]
         ]);
     }
 
@@ -332,7 +339,7 @@ gguf.BinaryReader = class {
     }
 
     string() {
-        const size = Number(this.uint64());
+        const size = this.uint64().toNumber();
         const buffer = this.read(size);
         return String.fromCharCode.apply(null, buffer);
     }
@@ -356,7 +363,7 @@ gguf.BinaryReader = class {
             }
             case gguf.Type.ARRAY: {
                 const type = this.uint32();
-                const size = Number(this.uint64());
+                const size = this.uint64().toNumber();
                 const value = new Array(size);
                 for (let i = 0; i < size; i++) {
                     value[i] = this.value(type);
@@ -382,10 +389,10 @@ gguf.BinaryReader = class {
         const n_dims = this.uint32();
         tensor.ne = new Array(n_dims);
         for (let i = 0; i < n_dims; i++) {
-            tensor.ne[i] = Number(this.uint64());
+            tensor.ne[i] = this.uint64().toNumber();
         }
         tensor.type = this.uint32();
-        tensor.offset = Number(this.uint64());
+        tensor.offset = this.uint64().toNumber();
         return tensor;
     }
 };
@@ -434,7 +441,13 @@ gguf.QuantizationType = {
     I32: 26,
     I64: 27,
     F64: 28,
-    IQ1_M: 29
+    IQ1_M: 29,
+    BF16: 30,
+    Q4_0_4_4: 31,
+    Q4_0_4_8: 32,
+    Q4_0_8_8: 33,
+    TQ1_0: 34,
+    TQ2_0: 35
 };
 
 gguf.Utility = class {

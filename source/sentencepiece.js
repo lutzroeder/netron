@@ -6,13 +6,13 @@ sentencepiece.ModelFactory = class {
     match(context) {
         const tags = context.tags('pb');
         if ((tags.size >= 3 && tags.size <= 5 &&
-            tags.get(1) === 2 && tags.get(2) === 2 & tags.get(3) === 2) &&
-            Array.from(tags).every(([key, value]) => key <= 5 && value === 2)) {
+            tags.get(1) === 2 && tags.get(2) === 2 && tags.get(3) === 2) &&
+            Array.from(tags).every(([key, value]) => (key <= 5 && value === 2))) {
             const model = context.tags('pb+');
             if (model &&
                 model['1'] && model['1']['1'] === 2 && model['1']['2'] === 5 && model['1']['3'] === 0 &&
-                model['2'] && model['2']['3'] === 0 && model['2']['4'] === 0 && model['2']['10'] === 5 &&
-                model['2']['40'] === 0 && model['2']['41'] === 0 && model['2']['42'] === 0) {
+                model['2'] && model['2']['3'] === 0 && model['2']['4'] === 0 &&
+                model['3'] && model['3']['1'] === 2) {
                 context.type = 'sentencepiece';
             }
         }

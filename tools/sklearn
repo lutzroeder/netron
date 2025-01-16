@@ -38,7 +38,7 @@ install() {
     echo "sklearn install"
     venv
     ${python} -m pip install --quiet scipy
-    ${python} -m pip install --quiet --pre --extra-index https://pypi.anaconda.org/scipy-wheels-nightly/simple scikit-learn
+    ${python} -m pip install --quiet scikit-learn --pre --extra-index https://pypi.anaconda.org/scipy-wheels-nightly/simple
     deactivate
 }
 

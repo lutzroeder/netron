@@ -106,6 +106,13 @@ if (!DataView.prototype.getBfloat16) {
     DataView.__bfloat16_get_uint16_be = new Uint16Array(DataView.__bfloat16_get_float32_be.buffer, DataView.__bfloat16_get_float32_be.byteOffset, 2);
 }
 
+DataView.__float4e2m1_float32 = new Float32Array([0, 0.5, 1, 1.5, 2, 3, 4, 6, -0, -0.5, -1, -1.5, -2, -3, -4, -6]);
+DataView.prototype.getFloat4e2m1 = function(byteOffset) {
+    let value = this.getUint8(byteOffset >> 1);
+    value = byteOffset & 1 ? value >> 4 : value & 0x0F;
+    return DataView.__float4e2m1_float32[value];
+};
+
 DataView.__float8e4m3_float32 = new Float32Array(1);
 DataView.__float8e4m3_uint32 = new Uint32Array(DataView.__float8e4m3_float32.buffer, DataView.__float8e4m3_float32.byteOffset, 1);
 DataView.prototype.getFloat8e4m3 = function(byteOffset, fn, uz) {
@@ -259,6 +266,15 @@ DataView.prototype.setComplex128 = DataView.prototype.setComplex128 || function(
         this.setFloat64(byteOffset, value.imaginary, littleEndian);
     }
 };
+
+if (typeof Element !== 'undefined' && Element.prototype && !Element.prototype.replaceChildren) {
+    Element.prototype.replaceChildren = function(...args) {
+        while (this.lastChild) {
+            this.removeChild(this.lastChild);
+        }
+        this.append(...args);
+    };
+}
 
 /* eslint-enable no-extend-native */
 
@@ -621,7 +637,7 @@ base.Tensor = class {
         switch (this.layout) {
             case 'sparse':
             case 'sparse.coo': {
-                return !this.values || this.indices || this.values.values === null || this.values.values.length === 0;
+                return !this.values || !this.indices || this.values.values === null || this.values.values.length === 0;
             }
             default: {
                 switch (this.encoding) {
@@ -688,10 +704,12 @@ base.Tensor = class {
         context.dataType = dataType;
         const shape = context.dimensions;
         context.stride = this.stride;
-        if (!Array.isArray(context.stride)) {
-            context.stride = new Array(shape.length);
+        if (!Array.isArray(context.stride) ||
+            (Array.isArray(context.stride) && context.stride.length === 0 && shape.length === 0)) {
+            const length = shape.length === 0 ? 1 : shape.length;
+            context.stride = new Array(length);
             let value = 1;
-            for (let i = shape.length - 1; i >= 0; i--) {
+            for (let i = length - 1; i >= 0; i--) {
                 context.stride[i] = value;
                 value *= shape[i];
             }
@@ -751,6 +769,10 @@ base.Tensor = class {
                         } else if (dataType.startsWith('int') && !isNaN(parseInt(dataType.substring(3), 10))) {
                             context.dataType = 'int';
                             context.bits = parseInt(dataType.substring(3), 10);
+                            context.itemsize = 1;
+                        } else if (dataType === 'float4e2m1') {
+                            context.dataType = 'float4e2m1';
+                            context.bits = 4;
                             context.itemsize = 1;
                         } else {
                             throw new Error(`Tensor data type '${dataType}' is not implemented.`);
@@ -815,7 +837,7 @@ base.Tensor = class {
         if (dimension === shape.length - 1) {
             const ellipsis = (context.count + size) > context.limit;
             const length = ellipsis ? context.limit - context.count : size;
-            const max = offset + (length * context.itemsize);
+            const max = offset + (length * stride);
             switch (dataType) {
                 case 'boolean':
                     for (; offset < max; offset += stride) {
@@ -909,6 +931,11 @@ base.Tensor = class {
                         results.push(view.getComplex128(offset, this._littleEndian));
                     }
                     break;
+                case 'float4e2m1':
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getFloat4e2m1(offset));
+                    }
+                    break;
                 case 'float8e4m3fn':
                     for (; offset < max; offset += stride) {
                         results.push(view.getFloat8e4m3(offset, true, false));
@@ -996,41 +1023,27 @@ base.Tensor = class {
 
     static _stringify(value, indentation, indent) {
         if (Array.isArray(value)) {
-            const result = [];
-            result.push(`${indentation}[`);
             const length = value.length;
             if (length > 0) {
-                const items = new Array(length);
+                const array = new Array(length);
                 const space = indentation + indent;
                 for (let i = 0; i < length; i++) {
-                    items[i] = base.Tensor._stringify(value[i], space, indent);
+                    array[i] = base.Tensor._stringify(value[i], space, indent);
                 }
-                result.push(items.join(',\n'));
+                return `${indentation}[\n${array.join(',\n')}\n${indentation}]`;
             }
-            result.push(`${indentation}]`);
-            return result.join('\n');
+            return `${indentation}[\n${indentation}]`;
         }
         if (value === null) {
             return `${indentation}null`;
         }
         switch (typeof value) {
             case 'boolean':
-                return indentation + value.toString();
+            case 'number':
+            case 'bigint':
+                return `${indentation}${value}`;
             case 'string':
                 return `${indentation}"${value}"`;
-            case 'number':
-                if (value === Infinity) {
-                    return `${indentation}Infinity`;
-                }
-                if (value === -Infinity) {
-                    return `${indentation}-Infinity`;
-                }
-                if (isNaN(value)) {
-                    return `${indentation}NaN`;
-                }
-                return indentation + value.toString();
-            case 'bigint':
-                return indentation + value.toString();
             default:
                 if (value instanceof Uint8Array) {
                     let content = '';
@@ -1038,10 +1051,10 @@ base.Tensor = class {
                         const x = value[i];
                         content += x >= 32 && x <= 126 ? String.fromCharCode(x) : `\\x${x.toString(16).padStart(2, '0')}`;
                     }
-                    return  `${indentation}"${content}"`;
+                    return `${indentation}"${content}"`;
                 }
                 if (value && value.toString) {
-                    return indentation + value.toString();
+                    return `${indentation}${value.toString()}`;
                 }
                 return `${indentation}(undefined)`;
         }
@@ -1070,7 +1083,7 @@ base.Tensor = class {
                     throw new Error(`Unsupported tensor encoding '${this._encoding}'.`);
                 }
             }
-            switch (this._layout) {
+            switch (this.layout) {
                 case 'sparse':
                 case 'sparse.coo': {
                     this._indices = this._tensor.indices;
@@ -1249,9 +1262,9 @@ base.Metadata = class {
             'mlnet', 'mar', 'maxviz', 'meta', 'nn', 'ngf', 'hn',
             'param', 'params',
             'paddle', 'pdiparams', 'pdmodel', 'pdopt', 'pdparams', 'nb',
-            'pkl', 'joblib', 'safetensors',
+            'pkl', 'pickle', 'joblib', 'safetensors',
             'ptl', 't7',
-            'dlc', 'uff', 'armnn',
+            'dlc', 'uff', 'armnn', 'kann', 'kgraph',
             'mnn', 'ms', 'ncnn', 'om', 'tm', 'mge', 'tmfile', 'tnnproto', 'xmodel', 'kmodel', 'rknn',
             'tar', 'zip'
         ];

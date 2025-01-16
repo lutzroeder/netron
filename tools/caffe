@@ -20,7 +20,7 @@ schema() {
     [[ $(grep -U $'\x0D' ./source/caffe-proto.js) ]] && crlf=1
     temp=$(mktemp -d)
     node ./tools/caffe-script.js ./third_party/source/caffe/src/caffe/proto/caffe.proto ${temp}/caffe.proto
-    node ./tools/protoc.js --text --root caffe --out ./source/caffe-proto.js ${temp}/caffe.proto
+    node ./tools/protoc.js --binary --text --root caffe --out ./source/caffe-proto.js ${temp}/caffe.proto
     rm -rf ${temp}
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/caffe-proto.js ./source/caffe-proto.js

@@ -321,6 +321,7 @@ MNN.QuantizedFloatParam = class QuantizedFloatParam {
         $.clampMax = reader.int8_(position, 22, 127);
         $.winogradAttr = reader.array(position, 24, Int32Array);
         $.outputDataType = reader.int32_(position, 26, 6);
+        $.floatzeros = reader.array(position, 28, Float32Array);
         return $;
     }
 
@@ -338,6 +339,7 @@ MNN.QuantizedFloatParam = class QuantizedFloatParam {
         $.clampMax = reader.value(json.clampMax, 127);
         $.winogradAttr = reader.array(json.winogradAttr, Int32Array);
         $.outputDataType = MNN.DataType[json.outputDataType];
+        $.floatzeros = reader.array(json.floatzeros, Float32Array);
         return $;
     }
 };
@@ -1364,7 +1366,8 @@ MNN.UnaryOpOperation = {
     TANH: 30,
     HARDSWISH: 31,
     GELU: 32,
-    GELU_STANDARD: 33
+    GELU_STANDARD: 33,
+    SILU: 34
 };
 
 MNN.UnaryOp = class UnaryOp {
@@ -2538,7 +2541,7 @@ MNN.OpType = {
     Segment: 89,
     Squeeze: 90,
     StridedSlice: 91,
-    StringJoin: 92,
+    CastLike: 92,
     StringSplit: 93,
     StringToNumber: 94,
     TanH: 95,
@@ -2597,6 +2600,7 @@ MNN.OpType = {
     Svd: 153,
     Histogram: 154,
     DynamicQuant: 155,
+    Stft: 156,
     Plugin: 256,
     Select: 257,
     ZerosLike: 258,
@@ -2726,6 +2730,25 @@ MNN.FmhcaParam = class FmhcaParam {
     static decodeText(reader, json) {
         const $ = new MNN.FmhcaParam();
         $.heads = reader.value(json.heads, 0);
+        return $;
+    }
+};
+
+MNN.StftParam = class StftParam {
+
+    static decode(reader, position) {
+        const $ = new MNN.StftParam();
+        $.n_fft = reader.int32_(position, 4, 0);
+        $.hop_length = reader.int32_(position, 6, 0);
+        $.abs = reader.bool_(position, 8, true);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new MNN.StftParam();
+        $.n_fft = reader.value(json.n_fft, 0);
+        $.hop_length = reader.value(json.hop_length, 0);
+        $.abs = reader.value(json.abs, true);
         return $;
     }
 };
@@ -2932,6 +2955,7 @@ MNN.OpParameter = class {
             case 96: return MNN.FmhaV2Param.decode(reader, position);
             case 97: return MNN.FmhcaParam.decode(reader, position);
             case 98: return MNN.AttentionParam.decode(reader, position);
+            case 99: return MNN.StftParam.decode(reader, position);
             default: return undefined;
         }
     }
@@ -3036,6 +3060,7 @@ MNN.OpParameter = class {
             case 'FmhaV2Param': return MNN.FmhaV2Param.decodeText(reader, json);
             case 'FmhcaParam': return MNN.FmhcaParam.decodeText(reader, json);
             case 'AttentionParam': return MNN.AttentionParam.decodeText(reader, json);
+            case 'StftParam': return MNN.StftParam.decodeText(reader, json);
             default: return undefined;
         }
     }

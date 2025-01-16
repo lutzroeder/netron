@@ -162,7 +162,7 @@ host.BrowserHost = class {
                 .replace(/^https:\/\/github\.com\/([\w-]*\/[\w-]*)\/blob\/([\w/\-_.]*)(\?raw=true)?$/, 'https://raw.githubusercontent.com/$1/$2')
                 .replace(/^https:\/\/github\.com\/([\w-]*\/[\w-]*)\/raw\/([\w/\-_.]*)$/, 'https://raw.githubusercontent.com/$1/$2')
                 .replace(/^https:\/\/huggingface.co\/(.*)\/blob\/(.*)$/, 'https://huggingface.co/$1/resolve/$2');
-            if (this._view.accept(identifier || location)) {
+            if (this._view.accept(identifier || location) && location.indexOf('*') === -1) {
                 const status = await this._openModel(location, identifier);
                 if (status === '') {
                     return;
@@ -760,7 +760,10 @@ host.BrowserHost.FileStream = class {
         }
         if (!this._buffer || this._position < this._offset || this._position + length > this._offset + this._buffer.length) {
             this._offset = this._start + this._position;
-            this._buffer = new Uint8Array(Math.min(0x10000000, this._start + this._length - this._offset));
+            const length = Math.min(0x10000000, this._start + this._length - this._offset);
+            if (!this._buffer || length !== this._buffer.length) {
+                this._buffer = new Uint8Array(length);
+            }
             this._read(this._buffer, this._offset);
         }
         const position = this._start + this._position - this._offset;

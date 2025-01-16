@@ -43,7 +43,7 @@ sync() {
 schema() {
     echo "mediapipe schema"
     [[ $(grep -U $'\x0D' ./source/mediapipe-proto.js) ]] && crlf=1
-    node ./tools/protoc.js  --text --root mediapipe --out ./source/mediapipe-proto.js --path ./third_party/source/mediapipe --path ./third_party/source/tensorflow \
+    node ./tools/protoc.js --text --root mediapipe --out ./source/mediapipe-proto.js --path ./third_party/source/mediapipe --path ./third_party/source/tensorflow \
         mediapipe/framework/calculator.proto \
         mediapipe/calculators/core/packet_resampler_calculator.proto \
         mediapipe/calculators/image/image_cropping_calculator.proto \

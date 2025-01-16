@@ -10,11 +10,26 @@ qnn.ModelFactory = class {
         if (obj && obj['model.cpp'] && obj.graph) {
             context.type = 'qnn.json';
             context.target = obj;
+            return;
         }
         const entries = context.peek('tar');
         if (entries && entries.size > 0 && Array.from(entries).every(([name]) => name.endsWith('.raw'))) {
             context.type = 'qnn.weights';
             context.target = entries;
+            return;
+        }
+        const identifier = context.identifier.toLowerCase();
+        if (identifier.endsWith('.bin') || identifier.endsWith('.serialized')) {
+            const stream = context.stream;
+            const signatures = [
+                [0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00],
+                [0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x0C, 0x00, 0x00, 0x00],
+                [0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+                [0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01],
+            ];
+            if (stream.length >= 16 && signatures.some((signature) => stream.peek(signature.length).every((value, index) => value === signature[index]))) {
+                context.type = 'qnn.serialized';
+            }
         }
     }
 
@@ -44,6 +59,9 @@ qnn.ModelFactory = class {
                 const content = await context.fetch(`${base}_net.json`);
                 const obj = content.read('json');
                 return new qnn.Model(metadata, obj, weights);
+            }
+            case 'qnn.serialized': {
+                throw new qnn.Error("File contains undocumented QNN serialized context.");
             }
             default: {
                 throw new qnn.Error(`Unsupported QNN format '${context.type}'.`);
@@ -252,18 +270,23 @@ qnn.Utility = class {
             case 0x0016: return 'int16';
             case 0x0032: return 'int32';
             case 0x0064: return 'int64';
-            case 0x0108: return 'int8';
-            case 0x0132: return 'int32';
+            case 0x0108: return 'uint8';
+            case 0x0116: return 'uint16';
+            case 0x0132: return 'uint32';
+            case 0x0164: return 'uint64';
             case 0x0216: return 'float16';
             case 0x0232: return 'float32';
+            case 0x0304: return 'qint4';
             case 0x0308: return 'qint8';
             case 0x0316: return 'qint16';
             case 0x0332: return 'qint32';
-            case 0x0408: return 'uint8';
-            case 0x0416: return 'uint16';
-            case 0x0432: return 'uint32';
+            case 0x0404: return 'quint4';
+            case 0x0408: return 'quint8';
+            case 0x0416: return 'quint16';
+            case 0x0432: return 'quint32';
             case 0x0508: return 'boolean';
-            case 0x7fffffff: return 'string';
+            case 0x0608: return 'string';
+            case 0x7fffffff: return 'undefined';
             default: throw new qnn.Error(`Unsupported data type '${JSON.stringify(value)}'.`);
         }
     }

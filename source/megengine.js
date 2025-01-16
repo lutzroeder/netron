@@ -70,7 +70,7 @@ megengine.Model = class {
     constructor(metadata, obj, type) {
         this.format = 'MegEngine';
         if (type === 'megengine.tm') {
-            this.format += (obj.dump_info && obj.dump_info.version ? ` v${obj.dump_info.version}` : '');
+            this.format += obj.dump_info && obj.dump_info.has('version') ? ` v${obj.dump_info.get('version')}` : '';
         } else if (type === 'megengine.mge') {
             this.format += ` Mge${obj.model_version ? ` v${obj.model_version}` : ''}`;
         }
@@ -259,7 +259,7 @@ megengine.Graph = class {
                             if (moduleType === 'TracedModule') {
                                 const moduleName = expression.outputs[0]._name.endsWith("_out") ? expression.outputs[0]._name.substring(0, expression.outputs[0]._name.length - 4) : expression.outputs[0]._name;
                                 const prefix = getFullName(namePrefix, moduleName);
-                                const internalGraph = module.argdef_graph_map[expression.arg_def.toString()];
+                                const internalGraph = module.argdef_graph_map.get(expression.arg_def);
                                 for (let i = 0; i < expression.inputs.length; i++) {
                                     const actualName = getFullName(namePrefix, expression.inputs[i]._name);
                                     const internalName = getFullName(prefix, internalGraph._inputs[i]._name);
@@ -309,7 +309,7 @@ megengine.Graph = class {
                         break;
                     }
                     case 'Apply': {
-                        const opdef = expression.opdef_state ? expression.opdef_state.opdef_type : expression.opdef.type;
+                        const opdef = expression.opdef_state ? expression.opdef_state.get('opdef_type') : expression.opdef.type;
                         const item = { 'name': '', 'type': `${opdef.__module__}.${opdef.__name__}` };
                         const node = new megengine.Node(metadata, item, values, null, expression, expression.opdef_state);
                         this.nodes.push(node);
@@ -322,7 +322,7 @@ megengine.Graph = class {
             }
         };
         if (obj.argdef_graph_map) {
-            const [graph] = Object.values(obj.argdef_graph_map);
+            const [graph] = Array.from(obj.argdef_graph_map.values());
             loadGraph(obj, graph, new Map(), '', metadata, true);
             return;
         }
@@ -510,16 +510,16 @@ megengine.Node = class {
                 state.quant_dtype_meta = qparams.dtype_meta;
             }
             if (state !== null) {
-                for (const key in state) {
+                for (const [key, obj] of Array.from(state)) {
                     const isModule = (obj) => {
                         return obj && (obj.state || obj._forward_pre_hooks);
                     };
                     const isTensor = (obj) => {
                         return obj && obj.__class__ && obj.__class__.__module__ === 'megengine.tensor' && (obj.__class__.__name__ === 'Tensor' || obj.__class__.__name__ === 'Parameter');
                     };
-                    if (!key.startsWith('_') && !isModule(state[key])) {
-                        if (isTensor(state[key])) {
-                            const tensor = state[key];
+                    if (!key.startsWith('_') && !isModule(obj)) {
+                        if (isTensor(obj)) {
+                            const tensor = obj;
                             const dtype = tensor.dtype ? tensor.dtype.__name__ : null;
                             const shape = new megengine.TensorShape(tensor.data.shape);
                             const type = new megengine.TensorType(dtype, shape);
@@ -529,7 +529,7 @@ megengine.Node = class {
                             const argument = new megengine.Argument(key, [value]);
                             this.inputs.push(argument);
                         } else {
-                            const value = state[key] === null ? 'None' : state[key];
+                            const value = obj === null ? 'None' : obj;
                             attributes.push([null, key, value]);
                         }
                     }

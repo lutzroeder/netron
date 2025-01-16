@@ -246,10 +246,6 @@
   },
   {
     "name": "mvn",
-    "description": "Fill a constant value in the padded region."
-  },
-  {
-    "name": "mvn",
     "category": "Normalization",
     "description": "A layer that performs mean variance normalization, along axis = -3."
   },
@@ -328,10 +324,6 @@
     "name": "sequenceRepeat",
     "category": "Shape",
     "description": "A layer that repeats a sequence."
-  },
-  {
-    "name": "slice",
-    "description": "A layer that slices the input data along a given axis."
   },
   {
     "name": "slice",
@@ -493,5 +485,9 @@
   {
     "name": "program:layer_norm",
     "category": "Normalization"
+  },
+  {
+    "name": "program:max_pool",
+    "category": "Pool"
   }
 ]

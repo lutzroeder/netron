@@ -42,7 +42,7 @@ keras.ModelFactory = class {
         }
         const container = tfjs.Container.open(context);
         if (container) {
-            context.type = 'tfjs.json';
+            context.type = 'tfjs';
             context.target = container;
             return;
         }
@@ -81,6 +81,9 @@ keras.ModelFactory = class {
             return false;
         }
         if (context.type === 'keras.config.json' && (type === 'keras.model.weights.h5' || type === 'keras.model.weights.npz')) {
+            return false;
+        }
+        if (context.type === 'tfjs' && type === 'tf.tfjs.weights') {
             return false;
         }
         return true;
@@ -460,10 +463,10 @@ keras.ModelFactory = class {
                 walk(weights_group);
                 return open_model(format, '', '', null, weights);
             }
-            case 'tfjs.json': {
-                const container = tfjs.Container.open(context);
-                await container.open();
-                return open_model(container.format, container.producer, container.backend, container.config, container.weights);
+            case 'tfjs': {
+                const target = context.target;
+                await target.read();
+                return open_model(target.format, target.producer, target.backend, target.config, target.weights);
             }
             case 'keras.pickle': {
                 const obj = context.target;
@@ -574,8 +577,23 @@ keras.Graph = class {
                 return null;
             };
             this.name = config.name || (config.config && config.config.name ? config.config.name : '');
-            switch (config.class_name) {
-                case 'AllCNN':
+            this.type = config.class_name;
+            let baseType = config.class_name;
+            switch (baseType) {
+                case 'Sequential':
+                case '__Function__':
+                case 'Functional':
+                case 'Model': {
+                    break;
+                }
+                default: {
+                    const layers = Array.from(config.layers ? config.layers : config);
+                    const sequential = layers.every((layer) => layer.inbound_nodes === undefined);
+                    baseType = sequential ? 'Sequential' : 'Functional';
+                    break;
+                }
+            }
+            switch (baseType) {
                 case 'Sequential': {
                     config = config.config;
                     const outputs = null;
@@ -624,8 +642,6 @@ keras.Graph = class {
                     }
                     break;
                 }
-                case 'YOLOV8Backbone':
-                case 'YOLOV8Detector':
                 case '__Function__':
                 case 'Functional':
                 case 'Model': {
@@ -1319,11 +1335,15 @@ tfjs.Container = class {
                 return new tfjs.Container(context, '');
             }
             if (Array.isArray(json) && json.every((item) => item.weights && item.paths)) {
-                return new tfjs.Container(context, 'weights');
+                return new tfjs.Container(context, 'weights.json');
             }
             if (json.tfjsVersion) {
                 return new tfjs.Container(context, 'metadata');
             }
+        }
+        const identifier = context.identifier;
+        if (/^.*group\d+-shard\d+of\d+(\.bin)?$/.test(identifier)) {
+            return new tfjs.Container(context, 'weights.bin');
         }
         return null;
     }
@@ -1333,13 +1353,13 @@ tfjs.Container = class {
         this.type = type;
     }
 
-    async open() {
+    async read() {
         switch (this.type) {
             case '': {
                 const obj = this.context.peek('json');
                 return this._openModelJson(obj);
             }
-            case 'weights': {
+            case 'weights.json': {
                 this.format = 'TensorFlow.js Weights';
                 this.config = null;
                 const obj = this.context.peek('json');
@@ -1352,6 +1372,11 @@ tfjs.Container = class {
                     }
                 }
                 return this._openManifests(manifests);
+            }
+            case 'weights.bin': {
+                const content = await this.context.fetch('model.json');
+                const obj = content.read('json');
+                return this._openModelJson(obj);
             }
             case 'metadata': {
                 const content = await this.context.fetch('model.json');
@@ -1428,6 +1453,9 @@ tfjs.Container = class {
     }
 
     _openModelJson(obj) {
+        if (!obj || !obj.modelTopology || (obj.format !== 'layers-model' && !obj.modelTopology.model_config && !obj.modelTopology.config)) {
+            throw new tfjs.Error('File format is not TensorFlow.js layers-model.');
+        }
         const modelTopology = obj.modelTopology;
         this.format = `TensorFlow.js ${obj.format ? obj.format : `Keras${modelTopology.keras_version ? (` v${modelTopology.keras_version}`) : ''}`}`;
         this.producer = obj.convertedBy || obj.generatedBy || '';

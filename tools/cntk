@@ -17,7 +17,7 @@ sync() {
 schema() {
     echo "cntk schema"
     [[ $(grep -U $'\x0D' ./source/cntk-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --root cntk --out ./source/cntk-proto.js ./third_party/source/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto
+    node ./tools/protoc.js --binary --root cntk --out ./source/cntk-proto.js ./third_party/source/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/cntk-proto.js ./source/cntk-proto.js
     fi

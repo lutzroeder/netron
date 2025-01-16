@@ -85,7 +85,6 @@ espresso.Graph = class {
     constructor(metadata, reader) {
         this.name = '';
         this.type = reader.type;
-        this.groups = reader.groups;
         for (const value of reader.values.values()) {
             const name = value.name;
             const type = value.type;
@@ -152,9 +151,6 @@ espresso.Node = class {
         if (!obj.type) {
             throw new Error('Undefined node type.');
         }
-        if (obj.group) {
-            this.group = obj.group || null;
-        }
         const type = metadata.type(obj.type);
         this.type = type ? { ...type } : { name: obj.type };
         this.type.name = obj.type.split(':').pop();
@@ -181,7 +177,7 @@ espresso.Node = class {
                         value = value.map((item) => Number(item));
                     }
                     if (typeof value === 'bigint') {
-                        value = Number(value);
+                        value = value.toNumber();
                     }
                     if (JSON.stringify(schema.default) === JSON.stringify(value)) {
                         visible = false;
@@ -320,16 +316,19 @@ espresso.Reader = class {
                 obj.outputs = [{ name: 'outputs', value: top }];
                 obj.chain = [];
                 switch (type) {
-                    case 'convolution': {
+                    case 'convolution':
+                    case 'deconvolution': {
                         this._weights(obj, data, [data.C, data.K, data.Nx, data.Ny]);
                         if (data.has_biases) {
                             obj.inputs.push(this._initializer('biases', data.blob_biases, 'float32', [data.C]));
                         }
                         delete data.has_biases;
                         delete data.blob_biases;
-                        if (obj.inputs.length === 1) {
-                            throw new espresso.Error('Missing weights.');
-                        }
+                        break;
+                    }
+                    case 'batchnorm': {
+                        obj.inputs.push(this._initializer('params', data.blob_batchnorm_params, 'float32', [4, data.C]));
+                        delete data.blob_batchnorm_params;
                         break;
                     }
                     case 'inner_product': {
@@ -402,6 +401,11 @@ espresso.Reader = class {
         if (data.blob_weights !== undefined) {
             obj.inputs.push(this._initializer('weights', data.blob_weights, 'float32', dimensions));
             delete data.blob_weights;
+            return;
+        }
+        if (data.blob_weights_f16 !== undefined) {
+            obj.inputs.push(this._initializer('weights', data.blob_weights_f16, 'float16', dimensions));
+            delete data.blob_weights_f16;
             return;
         }
         const keys = ['wBeta', 'wGamma', 'W_S8', 'W_int8', 'W_t_int8'];

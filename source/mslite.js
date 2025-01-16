@@ -4,10 +4,14 @@ const mslite = {};
 mslite.ModelFactory = class {
 
     match(context) {
+        const extension = context.identifier.split('.').pop().toLowerCase();
         const reader = context.peek('flatbuffers.binary');
-        if (reader && (reader.identifier === '' || reader.identifier === 'MSL1' || reader.identifier === 'MSL2')) {
-            context.type = 'mslite';
-            context.target = reader;
+        if (reader) {
+            const identifier = reader.identifier;
+            if (identifier === 'MSL1' || identifier === 'MSL2' || (identifier === '' && extension === 'ms')) {
+                context.type = 'mslite';
+                context.target = reader;
+            }
         }
     }
 

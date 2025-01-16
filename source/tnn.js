@@ -142,20 +142,19 @@ tnn.Node = class {
         this.name = layer.name;
         this.type = { ...metadata.type(layer.type) };
         delete this.type.identifier;
-        for (let i = 0; i < layer.attributes.length;) {
+        const entries = Array.from(layer.params);
+        for (let i = 0; i < entries.length;) {
             const metadata = this.type && Array.isArray(this.type.attributes) ? this.type.attributes[i] : null;
             let name = '';
             let value = null;
             let type = '';
             let visible = true;
             if (metadata && metadata.type === 'int32[]' && metadata.size) {
-                const size = parseInt(layer.attr[metadata.size], 10);
-                value = layer.attributes.slice(i, i + size).map((attribute) => parseInt(attribute.value, 10));
+                const size = parseInt(layer.params.get(metadata.size), 10);
+                value = entries.slice(i, i + size).map(([, value]) => parseInt(value, 10));
                 i += size;
             } else {
-                const attribute = layer.attributes[i];
-                name = attribute.key.toString();
-                value = attribute.value;
+                [name, value] = entries[i];
                 i += 1;
             }
             if (metadata) {
@@ -181,13 +180,12 @@ tnn.Node = class {
             const argument = new tnn.Argument(name, value, type, visible);
             this.attributes.push(argument);
         }
-
         const inputs = layer.inputs;
         let inputIndex = 0;
         if (this.type && this.type.inputs) {
             for (const inputDef of this.type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option !== 'optional') {
-                    const inputCount = (inputDef.option === 'variadic') ? (inputs.length - inputIndex) : 1;
+                    const inputCount = (inputDef.type === 'Tensor[]') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id !== '' || inputDef.option !== 'optional').map((id) => values.map(id));
                     const argument = new tnn.Argument(inputDef.name, inputArguments);
                     this.inputs.push(argument);
@@ -200,7 +198,6 @@ tnn.Node = class {
                 return new tnn.Argument(inputName, [values.map(input)]);
             }));
         }
-
         const outputs = layer.outputs;
         let outputIndex = 0;
         if (this.type && this.type.outputs) {
@@ -228,6 +225,7 @@ tnn.Node = class {
             const argument = new tnn.Argument(name, [values.map('', null, tensor)]);
             this.inputs.push(argument);
         };
+        const params = layer.params;
         switch (this.type.name) {
             case 'Convolution':
             case 'ConvolutionDepthWise':
@@ -235,9 +233,9 @@ tnn.Node = class {
             case 'DeconvolutionDepthWise': {
                 const resource = resources.get(this.name);
                 if (resource) {
-                    const num_output = parseInt(layer.attr['2'] || 0, 10);
-                    const kernel_w = parseInt(layer.attr['3'] || 0, 10);
-                    const kernel_h = parseInt(layer.attr['4'] || kernel_w, 10);
+                    const num_output = parseInt(params.get('2') || 0, 10);
+                    const kernel_w = parseInt(params.get('3') || 0, 10);
+                    const kernel_h = parseInt(params.get('4') || kernel_w, 10);
                     const weight_data_size = resource.filter.length;
                     weight(resource, 'filter', [num_output, weight_data_size / (num_output * kernel_w * kernel_h), kernel_w, kernel_h]);
                     if (resource.bias) {
@@ -252,10 +250,10 @@ tnn.Node = class {
             case 'Conv3D':{
                 const resource = resources.get(this.name);
                 if (resource) {
-                    const num_output = parseInt(layer.attr['2'] || 0, 10);
-                    const kernel_w = parseInt(layer.attr['3'] || 0, 10);
-                    const kernel_h = parseInt(layer.attr['4'] || kernel_w, 10);
-                    const kernel_d = parseInt(layer.attr['5'] || kernel_w, 10);
+                    const num_output = parseInt(params.get('2') || 0, 10);
+                    const kernel_w = parseInt(params.get('3') || 0, 10);
+                    const kernel_h = parseInt(params.get('4') || kernel_w, 10);
+                    const kernel_d = parseInt(params.get('5') || kernel_w, 10);
                     const weight_data_size = resource.filter.length;
                     weight(resource, 'weight', [num_output, weight_data_size / (num_output * kernel_w * kernel_h  * kernel_d), kernel_w, kernel_h, kernel_d]);
                     if (resource.bias) {
@@ -267,7 +265,7 @@ tnn.Node = class {
             case 'InnerProduct': {
                 const resource = resources.get(this.name);
                 if (resource) {
-                    const num_output = parseInt(layer.attr['0'] || 0, 10);
+                    const num_output = parseInt(params.get('0') || 0, 10);
                     const weight_data_size = resource.weight.length;
                     weight(resource, 'weight', [num_output, weight_data_size / num_output]);
                     weight(resource, 'bias', [num_output]);
@@ -442,17 +440,16 @@ tnn.TextProtoReader = class {
                     const layer = {};
                     layer.type = array.shift();
                     layer.name = array.shift();
-                    const inputCount = parseInt(array.shift(), 10);
-                    const outputCount = parseInt(array.shift(), 10);
-                    layer.inputs = array.splice(0, inputCount);
-                    layer.outputs = array.splice(0, outputCount);
-                    layer.attr = {};
-                    layer.attributes = [];
+                    const inputs = parseInt(array.shift(), 10);
+                    const outputs = parseInt(array.shift(), 10);
+                    layer.inputs = array.splice(0, inputs);
+                    layer.outputs = array.splice(0, outputs);
+                    layer.params = new Map();
                     let count = 0;
                     for (const column of array) {
                         const parts = column.split(' ');
                         if (parts.length === 1) {
-                            let key = count;
+                            let key = count.toString();
                             let value = parts.toString();
                             const keyInt = parseInt(key, 10);
                             if (keyInt < 0) {
@@ -460,8 +457,7 @@ tnn.TextProtoReader = class {
                                 value.shift();
                                 key = (-(keyInt + 23300)).toString();
                             }
-                            layer.attr[key] = value;
-                            layer.attributes.push({ key, value });
+                            layer.params.set(key, value);
                             count++;
                         }
                     }

@@ -70,7 +70,7 @@ nnabla.ModelFactory = class {
     }
 
     filter(context, type) {
-        return context.type !== 'nnabla.pbtxt' || type !== 'hdf5.parameter.h5';
+        return context.type !== 'nnabla.pbtxt' || (type !== 'hdf5.parameter.h5' && type !== 'keras.h5');
     }
 };
 
@@ -276,11 +276,14 @@ nnabla.TensorType = class {
 nnabla.TensorShape = class {
 
     constructor(dimensions) {
-        this.dimensions = dimensions;
+        this.dimensions = dimensions.map((dim) => typeof dim === 'bigint' ? dim.toNumber() : dim);
     }
 
     toString() {
-        return (this.dimensions && this.dimensions.length) ? (`[${this.dimensions.join(',')}]`) : '';
+        if (Array.isArray(this.dimensions) && this.dimensions.length > 0) {
+            return `[${this.dimensions.join(',')}]`;
+        }
+        return '';
     }
 };
 
