@@ -1,9 +1,9 @@
-// import { stringify } from 'querystring';
+import { stringify } from 'querystring';
 
-// import { NONAME } from 'dns';
+import { NONAME } from 'dns';
 
-// import { execSync } from 'child_process';
-// import { cp } from 'fs';
+import { execSync } from 'child_process';
+import { cp } from 'fs';
 
 class Req {
 	// Variable which states if a file was added before.

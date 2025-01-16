@@ -6,7 +6,6 @@ import * as hdf5 from './hdf5.js';
 import * as json from './json.js';
 import * as protobuf from './protobuf.js';
 import * as python from './python.js';
-import * as grapher from './grapher.js';
 import Req from './hovers.js';
 import * as tar from './tar.js';
 import * as text from './text.js';
