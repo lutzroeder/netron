@@ -1633,6 +1633,19 @@ pytorch.Execution = class extends python.Execution {
         });
         this._metadata = metadata;
     }
+
+    call(target, name, args, keywords, context) {
+        const ast = this.ast;
+        const torch = this.torch;
+        if (target instanceof ast.Name && target.id === 'torch') {
+            const fn = torch.ops.aten[name];
+            if (fn) {
+                const evalArgs = args.map((arg) => this.expression(arg, context));
+                return fn(...evalArgs);
+            }
+        }
+        return super.call(target, name, args, keywords, context);
+    }
 };
 
 pytorch.Container.Package = class extends pytorch.Container {
@@ -2430,7 +2443,7 @@ pytorch.Metadata = class {
             const namespace = new torch._ops._OpNamespace(module);
             const created = execution.register(`torch.ops.${module}`, namespace);
             for (const [name, obj] of Object.entries(existing)) {
-                if (!name.startsWith('__') && !(name in created)) {
+                if (name !== '__module__' && name !== '__name__' && !(name in created)) {
                     created[name] = obj;
                 }
             }
