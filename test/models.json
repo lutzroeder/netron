@@ -5772,7 +5772,7 @@
     "target":   "lane_scanning_vehicle_model.pt",
     "source":   "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/lane_scanning_vehicle_model.pt",
     "format":   "TorchScript v1.0",
-    "assert":   "model.graphs[0].nodes[59].inputs[3].value[0].initializer.type.shape.dimensions[1] == 232",
+    "assert":   "model.graphs[0].nodes[58].inputs[3].value[0].initializer.type.shape.dimensions[1] == 232",
     "link":     "https://github.com/ApolloAuto/apollo"
   },
   {
@@ -6615,7 +6615,7 @@
     "target":   "TestSerialization.test_lstm.traced.pt",
     "source":   "https://github.com/user-attachments/files/16121906/TestSerialization.test_lstm.traced.pt.zip[TestSerialization.test_lstm.traced.pt]",
     "format":   "TorchScript v1.6",
-    "assert":   "model.graphs[0].nodes[5].inputs[2].value[0].inputs[0].value == 'quantized_dynamic'",
+    "assert":   "model.graphs[0].nodes[4].inputs[2].value[0].inputs[0].value == 'quantized_dynamic'",
     "link":     "https://github.com/lutzroeder/netron/issues/1067"
   },
   {
@@ -6623,7 +6623,7 @@
     "target":   "TFModel_traced_eager_quant.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10867120/TFModel_traced_eager_quant.pt.zip[TFModel_traced_eager_quant.pt]",
     "format":   "TorchScript v1.6",
-    "assert":   "model.graphs[0].nodes.length == 51",
+    "assert":   "model.graphs[0].nodes.length == 46",
     "link":     "https://github.com/lutzroeder/netron/issues/1067"
   },
   {
