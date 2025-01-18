@@ -1173,6 +1173,24 @@
     "name": "aten::unsqueeze_copy.out(Tensor self, int dim, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::squeeze_copy(Tensor self) -> Tensor"
+  },
+  {
+    "name": "aten::squeeze_copy.dim(Tensor self, int dim) -> Tensor"
+  },
+  {
+    "name": "aten::squeeze_copy.dims(Tensor self, int[] dim) -> Tensor"
+  },
+  {
+    "name": "aten::squeeze_copy.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::squeeze_copy.dim_out(Tensor self, int dim, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::squeeze_copy.dims_out(Tensor self, int[] dim, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::split_copy.Tensor(Tensor self, SymInt split_size, int dim=0) -> Tensor[]"
   },
   {
@@ -1213,6 +1231,33 @@
   },
   {
     "name": "aten::view_as_real_copy.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::copy(Tensor self, Tensor src, bool non_blocking=False) -> Tensor"
+  },
+  {
+    "name": "aten::copy.out(Tensor self, Tensor src, bool non_blocking=False, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::copy.t(t[](a) self) -> t[]"
+  },
+  {
+    "name": "aten::copy.Dict_str(Dict(str, t)(a) self) -> Dict(str, t)"
+  },
+  {
+    "name": "aten::copy.Dict_int(Dict(int, t)(a) self) -> Dict(int, t)"
+  },
+  {
+    "name": "aten::copy.Dict_bool(Dict(bool, t)(a) self) -> Dict(bool, t)"
+  },
+  {
+    "name": "aten::copy.Dict_float(Dict(float, t)(a) self) -> Dict(float, t)"
+  },
+  {
+    "name": "aten::copy.Dict_complex(Dict(complex, t)(a) self) -> Dict(complex, t)"
+  },
+  {
+    "name": "aten::copy.Dict_Tensor(Dict(Tensor, t)(a) self) -> Dict(Tensor, t)"
   },
   {
     "name": "aten::smooth_l1_loss_backward.grad_input(Tensor grad_output, Tensor self, Tensor target, int reduction, float beta, *, Tensor(a!) grad_input) -> Tensor(a!)"
@@ -1796,6 +1841,12 @@
   },
   {
     "name": "aten::diag_embed.out(Tensor self, int offset=0, int dim1=-2, int dim2=-1, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::expand_copy(Tensor self, SymInt[] size, *, bool implicit=False) -> Tensor"
+  },
+  {
+    "name": "aten::expand_copy.out(Tensor self, SymInt[] size, *, bool implicit=False, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::view_copy(Tensor self, SymInt[] size) -> Tensor"
@@ -2652,6 +2703,9 @@
   },
   {
     "name": "aten::masked_fill.Tensor_out(Tensor self, Tensor mask, Tensor value, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::_local_scalar_dense(Tensor self) -> Scalar"
   },
   {
     "name": "aten::_unique2(Tensor self, bool sorted=True, bool return_inverse=False, bool return_counts=False) -> (Tensor, Tensor, Tensor)"
@@ -7351,6 +7405,120 @@
   },
   {
     "name": "executorch_prim::et_view.default(Tensor self, int[] size) -> (Tensor out)"
+  },
+  {
+    "name": "executorch_prim::sub.Scalar(Scalar a, Scalar b) -> Scalar"
+  },
+  {
+    "name": "executorch_prim::mul.Scalar(Scalar a, Scalar b) -> Scalar"
+  },
+  {
+    "name": "executorch_prim::floordiv.Scalar(Scalar a, Scalar b) -> Scalar"
+  },
+  {
+    "name": "executorch_prim::add.Scalar(Scalar a, Scalar b) -> Scalar"
+  },
+  {
+    "name": "llama::sdpa_with_kv_cache.out(Tensor query, Tensor key, Tensor value, Tensor(a!) key_cache, Tensor(b!) value_cache, int start_pos, int seq_len, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None, *, Tensor(c!) out) -> Tensor(c!)"
+  },
+  {
+    "name": "llama::sdpa.out(Tensor query, Tensor key, Tensor value, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized_decomposed::embedding_byte.dtype_out(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized_decomposed::choose_qparams.tensor(Tensor input, int quant_min, int quant_max, float eps, ScalarType dtype) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "quantized_decomposed::embedding_4bit(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::embedding_4bit.dtype(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, ScalarType? dtype=None) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::embedding_4bit.out(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized_decomposed::embedding_4bit.dtype_out(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized_decomposed::dequantize_per_tensor(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::dequantize_per_tensor.tensor(Tensor input, Tensor scale, Tensor zero_point, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::dequantize_per_tensor.tensor2(Tensor input, Tensor scale, Tensor zero_point, Tensor quant_min, Tensor quant_max, ScalarType dtype, *, ScalarType? out_dtype=None) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::add(Tensor a, float a_scale, int a_zero_point, int a_quant_min, int a_quant_max, Tensor b, float b_scale, int b_zero_point, int b_quant_min, int b_quant_max, float out_scale, int out_zero_point, int out_quant_min, int out_quant_max) -> Tensor qc"
+  },
+  {
+    "name": "quantized_decomposed::add.scalar(Tensor qa, float a_scale, int a_zero_point, int a_quant_min, int a_quant_max, ScalarType a_dtype, Scalar b, float out_scale, int out_zero_point, int out_quant_min, int out_quant_max, ScalarType out_dtype) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::add_relu(Tensor a, float a_scale, int a_zero_point, int a_quant_min, int a_quant_max, Tensor b, float b_scale, int b_zero_point, int b_quant_min, int b_quant_max, float out_scale, int out_zero_point, int out_quant_min, int out_quant_max) -> Tensor qc"
+  },
+  {
+    "name": "quantized_decomposed::dequantize_per_channel(Tensor input, Tensor scales, Tensor? zero_points, int axis, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::fake_quant_per_channel(Tensor input, Tensor scales, Tensor zero_points, int axis, int quant_min, int quant_max) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::quantize_per_channel(Tensor input, Tensor scales, Tensor zero_points, int axis, int quant_min, int quant_max, ScalarType dtype) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::choose_qparams_symmetric.tensor(Tensor input, int quant_min, int quant_max, float eps, ScalarType dtype) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "quantized_decomposed::mixed_linear(Tensor input, Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, ScalarType? dtype=None) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::dequantize_per_token(Tensor input, Tensor scales, Tensor zero_points, int quant_min, int quant_max, ScalarType dtype, ScalarType output_dtype) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::quantize_per_tensor(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::quantize_per_tensor.tensor(Tensor input, Tensor scale, Tensor zero_point, int quant_min, int quant_max, ScalarType dtype) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::quantize_per_tensor.tensor2(Tensor input, Tensor scale, Tensor zero_point, Tensor quant_min, Tensor quant_max, ScalarType dtype) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::choose_qparams_per_token_asymmetric(Tensor input, ScalarType dtype) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "quantized_decomposed::choose_qparams_per_token(Tensor input, ScalarType dtype) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "quantized_decomposed::quantize_per_channel_group(Tensor input, Tensor scales, Tensor zero_points, int quant_min, int quant_max, ScalarType dtype, int group_size) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::dequantize_per_channel_group(Tensor input, Tensor scales, Tensor? zero_points, int quant_min, int quant_max, ScalarType dtype, int group_size, ScalarType output_dtype) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::embedding_byte(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::embedding_byte.dtype(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, ScalarType? dtype=None) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::embedding_byte.out(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized_decomposed::mixed_mm(Tensor input, Tensor weight, Tensor weight_scales, Tensor? weight_zero_points) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::_choose_qparams_per_token_asymmetric_impl(Tensor input, ScalarType dtype) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "quantized_decomposed::quantize_per_token(Tensor input, Tensor scales, Tensor zero_points, int quant_min, int quant_max, ScalarType dtype) -> Tensor"
+  },
+  {
+    "name": "llama::fast_hadamard_transform.out(Tensor mat, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "__torch__.torch.classes.rnn.CellParamsBase",
