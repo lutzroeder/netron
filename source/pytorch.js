@@ -966,8 +966,7 @@ pytorch.Container = class {
             pytorch.Container.ModelJson,
             pytorch.Container.IR,
             pytorch.Container.Index,
-            pytorch.Container.ExportedProgram,
-            pytorch.Container.ExecuTorch,
+            pytorch.Container.ExportedProgram
         ];
         for (const type of types) {
             const container = type.open(context);
@@ -1180,31 +1179,6 @@ pytorch.Container.Mobile = class extends pytorch.Container {
         const version = this.module._c._bytecode_version.toString();
         this.format = pytorch.Utility.format('PyTorch Mobile', version);
         delete this.context;
-    }
-};
-
-pytorch.Container.ExecuTorch = class extends pytorch.Container {
-
-    static open(context) {
-        const reader = context.peek('flatbuffers.binary');
-        if (reader && reader.identifier === 'ET12') {
-            return new pytorch.Container.ExecuTorch(context);
-        }
-        return null;
-    }
-
-    constructor(context) {
-        super();
-        this.type = 'pytorch.executorch';
-        this.context = context;
-    }
-
-    async read() {
-        pytorch.executorch = await this.context.require('./pytorch-schema');
-        pytorch.executorch = pytorch.executorch.executorch_flatbuffer;
-        const reader = this.context.read('flatbuffers.binary');
-        /* const program = */ pytorch.executorch.Program.create(reader);
-        throw new pytorch.Error('Invalid file content. File contains executorch.Program data.');
     }
 };
 
@@ -1631,7 +1605,6 @@ pytorch.Execution = class extends python.Execution {
                 [this.weight, this.bias, this.stride, this.padding, this.output_padding, this.dilation, this.groups, this.output_min, this.output_max] = state;
             }
         });
-        this._metadata = metadata;
     }
 
     call(target, name, args, keywords, context) {

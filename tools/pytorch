@@ -60,11 +60,15 @@ schema() {
         unix2dos --quiet --newfile ./source/pytorch-proto.js ./source/pytorch-proto.js
     fi
     [[ $(grep -U $'\x0D' ./source/pytorch-schema.js) ]] && crlf=1
-    node ./tools/flatc.js --root torch --out ./source/pytorch-schema.js ./third_party/source/pytorch/torch/csrc/jit/serialization/mobile_bytecode.fbs ./third_party/source/executorch/schema/program.fbs
+    node ./tools/flatc.js --root torch --out ./source/pytorch-schema.js ./third_party/source/pytorch/torch/csrc/jit/serialization/mobile_bytecode.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/pytorch-schema.js ./source/pytorch-schema.js
     fi
-
+    [[ $(grep -U $'\x0D' ./source/executorch-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --root torch --out ./source/executorch-schema.js ./third_party/source/executorch/schema/program.fbs
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/executorch-schema.js ./source/executorch-schema.js
+    fi
 }
 
 metadata() {

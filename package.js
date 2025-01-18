@@ -538,6 +538,7 @@ const update = async () => {
         'bigdl',
         'caffe', 'circle', 'cntk', 'coreml',
         'dlc', 'dnn',
+        'executorch',
         'gguf',
         'kann', 'keras',
         'mnn', 'mslite', 'megengine',

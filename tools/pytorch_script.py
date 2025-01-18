@@ -58,6 +58,7 @@ known_legacy_schema_definitions = [
     'aten::arange.start_out_(Scalar start, Scalar end) -> Tensor',
     'aten::fft(Tensor self, int signal_ndim, bool normalized=False) -> Tensor',
     'aten::grid_sampler.legacy(Tensor input, Tensor grid, int interpolation_mode, int padding_mode) -> Tensor',
+    'executorch_prim::et_view.default(Tensor self, int[] size) -> (Tensor out)',
     'neuron::_execute_neuron(__torch__.torch.classes.neuron.Model _0, Tensor[] _1) -> Tensor[] _0',
     'neuron::_from_neuron(Tensor _0) -> Tensor _0',
     'neuron::_init_neuron() -> ()',

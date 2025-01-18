@@ -5299,7 +5299,7 @@
     "type":     "pytorch",
     "target":   "add.pte",
     "source":   "https://github.com/lutzroeder/netron/files/13156981/add.pte.zip[add.pte]",
-    "error":    "Invalid file content. File contains executorch.Program data.",
+    "format":   "ExecuTorch v0",
     "link":     "https://github.com/lutzroeder/netron/issues/1175"
   },
   
@@ -5922,6 +5922,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "mobilenet_v2.pte",
+    "source":   "https://github.com/user-attachments/files/18462557/mobilenet_v2.pte.zip[mobilenet_v2.pte]",
+    "format":   "ExecuTorch v0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "pytorch",
     "target":   "mobilenet_v2_traced.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6096623/mobilenet_v2_traced.pt.zip[mobilenet_v2_traced.pt]",
     "format":   "TorchScript v1.6",
@@ -6027,18 +6034,18 @@
   },
   {
     "type":     "pytorch",
+    "target":   "model_scripted.pt",
+    "source":   "https://github.com/user-attachments/files/16401554/model_scripted.pt.zip[model_scripted.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
     "target":   "mtcnn.pt",
     "source":   "https://raw.githubusercontent.com/deepware/dFace/master/models/mtcnn.pt",
     "format":   "PyTorch v0.1.10",
     "assert":   "model.graphs[0].nodes[0].inputs.length == 3",
     "link":     "https://github.com/deepware/dface/tree/master/dface"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "model_scripted.pt",
-    "source":   "https://github.com/user-attachments/files/16401554/model_scripted.pt.zip[model_scripted.pt]",
-    "format":   "PyTorch v1.6",
-    "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
     "type":     "pytorch",
@@ -6053,6 +6060,13 @@
     "source":   "https://github.com/lutzroeder/netron/files/12811973/multi_return.pt.zip[multi_return.pt]",
     "format":   "PyTorch Package v1.9",
     "link":     "https://github.com/lutzroeder/netron/issues/928"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "mv2_xnnpack.pte",
+    "source":   "https://github.com/user-attachments/files/18462560/mv2_xnnpack.pte.zip[mv2_xnnpack.pte]",
+    "format":   "ExecuTorch v0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1175"
   },
   {
     "type":     "pytorch",

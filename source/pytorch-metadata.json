@@ -1197,6 +1197,12 @@
     "name": "aten::select_copy.int_out(Tensor self, int dim, SymInt index, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::permute_copy(Tensor self, int[] dims) -> Tensor"
+  },
+  {
+    "name": "aten::permute_copy.out(Tensor self, int[] dims, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::view_as_complex_copy(Tensor self) -> Tensor"
   },
   {
@@ -7342,6 +7348,9 @@
   },
   {
     "name": "torch_sparse::non_diag_mask(Tensor _0, Tensor _1, int _2, int _3, int _4) -> Tensor _0"
+  },
+  {
+    "name": "executorch_prim::et_view.default(Tensor self, int[] size) -> (Tensor out)"
   },
   {
     "name": "__torch__.torch.classes.rnn.CellParamsBase",
