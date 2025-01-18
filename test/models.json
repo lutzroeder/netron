@@ -5192,14 +5192,6 @@
   },
   {
     "type":     "pickle",
-    "target":   "mobilenet_v2_normal_72820.pkl",
-    "source":   "https://data.megengine.org.cn/models/weights/mobilenet_v2_normal_72820.pkl",
-    "format":   "Pickle",
-    "assert":   "model.graphs[0].nodes.length == 105",
-    "link":     "https://github.com/MegEngine/Models/tree/master/official/quantization"
-  },
-  {
-    "type":     "pickle",
     "target":   "model_final_0d68be.pkl.zip",
     "source":   "https://github.com/user-attachments/files/16759433/model_final_0d68be.pkl.zip",
     "format":   "Pickle",
