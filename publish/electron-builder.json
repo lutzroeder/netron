@@ -54,6 +54,7 @@
         { "ext": "prototxt",    "name": "Text Protocol Buffer"     },
         { "ext": "pt",          "name": "PyTorch Model"            },
         { "ext": "pt2",         "name": "PyTorch Model"            },
+        { "ext": "pte",         "name": "ExecuTorch Model"         },
         { "ext": "pth",         "name": "PyTorch Model"            },
         { "ext": "ptl",         "name": "PyTorch Model"            },
         { "ext": "rknn",        "name": "RKNN Model"               },

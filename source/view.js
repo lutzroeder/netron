@@ -5787,7 +5787,7 @@ view.ModelFactoryService = class {
         this.register('./bigdl', ['.model', '.bigdl']);
         this.register('./darknet', ['.cfg', '.model', '.txt', '.weights']);
         this.register('./mediapipe', ['.pbtxt']);
-        this.register('./executorch', ['.pte']);
+        this.register('./executorch', ['.pte'], [], [/^....ET12/]);
         this.register('./rknn', ['.rknn', '.nb', '.onnx', '.json', '.bin', /^model$/]);
         this.register('./dlc', ['.dlc', /^model$/, '.params']);
         this.register('./armnn', ['.armnn', '.json']);
@@ -6077,6 +6077,7 @@ view.ModelFactoryService = class {
                     const formats = [
                         { name: 'ONNX Runtime model data', identifier: 'ORTM' },
                         { name: 'TensorFlow Lite model data', identifier: 'TFL3' },
+                        { name: 'ExecuTorch model data', identifier: 'ET12' },
                         { name: 'NNC model data', identifier: 'ENNC' },
                         { name: 'KaNN model data', identifier: 'KaNN' },
                         { name: 'Circle model data', identifier: 'CIR0' },
