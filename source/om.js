@@ -35,6 +35,12 @@ om.Model = class {
             weights: target.weights
         };
         this.graphs = target.model.graph.map((graph) => new om.Graph(context, graph));
+        switch (target.signature) {
+            case 'PICO': {
+                this.version = target.model.version;
+                break;
+            }
+        }
     }
 };
 
@@ -535,6 +541,7 @@ svp.ModelDef = class ModelDef {
         this.graph = [];
         this.name = reader.find(0x800D, 'string');
         this.batch_num = reader.find(0x600A);
+        this.version = {};
         while (reader.position < reader.length) {
             const tag = reader.uint16();
             const value = reader.value(tag);
@@ -606,6 +613,7 @@ svp.ModelDef = class ModelDef {
                 this.graph[0].op = this.graph[0].op.concat(this.graph[i].op);
             }
         }
+        this.graph[0].op.length == 0 ? this.version = "release version" : this.version = "debug version";
     }
 };
 
