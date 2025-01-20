@@ -28,7 +28,8 @@ const main = async () => {
     await root.load([], [schema]);
     const namespace = root.find('mindspore.schema', flatc.Namespace);
     const primitiveType = namespace.find('mindspore.schema.PrimitiveType', flatc.Type);
-    for (const table of primitiveType.values.values()) {
+    for (const value of primitiveType.values) {
+        const table = value.type;
         const op_key = table.name;
         if (!operators.has(op_key)) {
             const operator = { name: op_key };
