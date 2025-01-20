@@ -15,9 +15,11 @@ clean() {
 
 sync() {
     echo "executorch sync"
-    mkdir -p "./third_party/source/executorch/schema"
-    curl --silent --location --output "./third_party/source/executorch/schema/scalar_type.fbs" "https://github.com/pytorch/executorch/raw/main/schema/scalar_type.fbs"
-    curl --silent --location --output "./third_party/source/executorch/schema/program.fbs" "https://github.com/pytorch/executorch/raw/main/schema/program.fbs"
+    [ -d "./third_party/source/executorch" ] || git clone --quiet https://github.com/pytorch/executorch.git "./third_party/source/executorch"
+    git -C "./third_party/source/executorch" pull --quiet --prune
+    # mkdir -p "./third_party/source/executorch/schema"
+    # curl --silent --location --output "./third_party/source/executorch/schema/scalar_type.fbs" "https://github.com/pytorch/executorch/raw/main/schema/scalar_type.fbs"
+    # curl --silent --location --output "./third_party/source/executorch/schema/program.fbs" "https://github.com/pytorch/executorch/raw/main/schema/program.fbs"
 }
 
 schema() {

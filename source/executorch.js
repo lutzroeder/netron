@@ -3,16 +3,17 @@
 
 const executorch = {};
 
+import * as flatbuffers from './flatbuffers.js';
 import * as python from './python.js';
 import * as pytorch from './pytorch.js';
 
 executorch.ModelFactory = class {
 
     match(context) {
-        const reader = context.peek('flatbuffers.binary');
-        if (reader && reader.identifier === 'ET12') {
+        const container = executorch.Container.open(context);
+        if (container) {
             context.type = 'executorch';
-            context.target = reader;
+            context.target = container;
         }
     }
 
@@ -22,20 +23,20 @@ executorch.ModelFactory = class {
         const metadata = await pytorch.Metadata.open(context);
         const execution = new python.Execution();
         metadata.register(execution);
-        const reader = context.target;
-        const program = executorch.schema.Program.create(reader);
-        return new executorch.Model(execution, program);
+        const target = context.target;
+        await target.read();
+        return new executorch.Model(execution, target);
     }
 };
 
 executorch.Model = class {
 
-    constructor(execution, program) {
-        this.format = `ExecuTorch v${program.version}`;
+    constructor(execution, context) {
+        this.format = `ExecuTorch v${context.program.version}`;
         this.graphs = [];
-        for (const plan of program.execution_plan) {
+        for (const plan of context.program.execution_plan) {
             for (const chain of plan.chains) {
-                const graph = new executorch.Graph(execution, chain, plan);
+                const graph = new executorch.Graph(execution, context, plan, chain);
                 this.graphs.push(graph);
             }
         }
@@ -44,7 +45,7 @@ executorch.Model = class {
 
 executorch.Graph = class {
 
-    constructor(execution, chain, plan) {
+    constructor(execution, context, plan, chain) {
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];
@@ -52,7 +53,7 @@ executorch.Graph = class {
         values.map = (index, output) => {
             if (!values.has(index)) {
                 const v = plan.values[index].val;
-                const tensor = v instanceof executorch.schema.Tensor || v instanceof executorch.schema.TensorList;
+                const tensor = v instanceof executorch.schema.Tensor || v instanceof executorch.schema.TensorList || v instanceof executorch.schema.OptionalTensorList;
                 if (output && !tensor) {
                     const value = [new executorch.Value(index.toString(), null, null)];
                     values.set(index, { type: null, value });
@@ -64,7 +65,7 @@ executorch.Graph = class {
                         const type = new executorch.TensorType(tensor);
                         let initializer = null;
                         if (v.data_buffer_idx > 0) {
-                            initializer = new executorch.Tensor(tensor);
+                            initializer = new executorch.Tensor(tensor, context);
                         }
                         const identifier = tensors.length > 1 ? `${index}.${i}` : index.toString();
                         const value = new executorch.Value(identifier, type, initializer);
@@ -88,18 +89,22 @@ executorch.Graph = class {
             }
             return values.get(index);
         };
-        for (const input of plan.inputs) {
+        for (let i = 0; i < plan.inputs.length; i++) {
+            const input = plan.inputs[i];
             const value = values.map(input);
-            const argument = new executorch.Argument(input.toString(), value.value, value.type);
+            const name = plan.inputs.length === 1 ? 'input' : `input.${i}`;
+            const argument = new executorch.Argument(name, value.value, value.type);
             this.inputs.push(argument);
         }
-        for (const output of plan.outputs) {
+        for (let i = 0; i < plan.outputs.length; i++) {
+            const output = plan.outputs[i];
             const value = values.map(output);
-            const argument = new executorch.Argument(output.toString(), value.value, value.type);
+            const name = plan.outputs.length === 1 ? 'output' : `output.${i}`;
+            const argument = new executorch.Argument(name, value.value, value.type);
             this.outputs.push(argument);
         }
         for (const instruction of chain.instructions) {
-            const node = new executorch.Node(execution, instruction, plan, values);
+            const node = new executorch.Node(execution, context, plan, chain, instruction, values);
             this.nodes.push(node);
         }
     }
@@ -129,7 +134,7 @@ executorch.Value = class Value {
 
 executorch.Node = class {
 
-    constructor(execution, instruction, plan, values) {
+    constructor(execution, context, plan, chain, instruction, values) {
         this.name = '';
         this.inputs = [];
         this.outputs = [];
@@ -179,12 +184,31 @@ executorch.Node = class {
             const args = instr_args.args;
             const name = delegate.id;
             this.type = { name };
+            let data = null;
+            const DataLocation = executorch.schema.DataLocation;
+            switch (delegate.processed.location) {
+                case DataLocation.INLINE: {
+                    data = context.program.backend_delegate_data[delegate.processed.index].data;
+                    break;
+                }
+                case DataLocation.SEGMENT: {
+                    const segment = context.program.segments[delegate.processed.index];
+                    context.reader.seek(context.extended_file_header.segment_base_offset + segment.offset.toNumber());
+                    data = context.reader.read(segment.size.toNumber());
+                    break;
+                }
+                default: {
+                    throw new executorch.Error(`Delegate data location '${delegate.processed.location}' not implemented.`);
+                }
+            }
             switch (name) {
                 case 'XnnpackBackend': {
                     const input = values.map(args[0]);
                     const output = values.map(args[1], true);
                     this.inputs.push(new executorch.Argument('input', input.value, input.type));
                     this.outputs.push(new executorch.Argument('output', output.value, output.type));
+                    flatbuffers.BinaryReader.open(data);
+                    // executorch/backends/xnnpack/serialization/schema.fbs
                     break;
                 }
                 case 'CoreMLBackend': {
@@ -227,7 +251,7 @@ executorch.TensorType = class {
         if (tensor.scalar_type >= executorch.TensorType._types.length) {
             throw new executorch.Error(`Unknown tensor data type '${tensor.scalar_type}'.`);
         }
-        this.dataType = executorch.TensorType._types.length[tensor.scalar_type];
+        this.dataType = executorch.TensorType._types[tensor.scalar_type];
         this.shape = new executorch.TensorShape(Array.from(tensor.sizes));
     }
 
@@ -252,8 +276,60 @@ executorch.TensorShape = class {
 
 executorch.Tensor = class {
 
-    constructor(tensor) {
+    constructor(tensor, context) {
         this.type = new executorch.TensorType(tensor);
+        const data_buffer_idx = tensor.data_buffer_idx;
+        if (tensor.extra_tensor_info) {
+            throw new executorch.Error('Extra tensor info not implemented.');
+        } else if (context.program.constant_buffers) {
+            throw new executorch.Error('Constant buffers not implemented.');
+        } else if (tensor.allocation_info === null) {
+            const constant_segment = context.program.constant_segment;
+            const data_segment = context.program.segments[constant_segment.segment_index];
+            const offset = constant_segment.offsets[data_buffer_idx].toNumber();
+            const next = data_buffer_idx + 1 < constant_segment.offsets.length ? constant_segment.offsets[data_buffer_idx + 1].toNumber() : data_segment.size.toNumber();
+            const size = next - offset;
+            const reader = context.reader;
+            reader.seek(context.extended_file_header.segment_base_offset + data_segment.offset.toNumber() + offset);
+            this.encoding = '<';
+            this.values = reader.read(size);
+            reader.seek(0);
+        } else {
+            throw new executorch.Error('Tensor allocation info not implemented.');
+        }
+    }
+};
+
+executorch.Container = class {
+
+    static open(context) {
+        const reader = context.peek('flatbuffers.binary');
+        if (reader && reader.identifier === 'ET12') {
+            return new executorch.Container(context, reader);
+        }
+        return null;
+    }
+
+    constructor(context, reader) {
+        this.context = context;
+        this.reader = reader;
+    }
+
+    async read() {
+        this.program = executorch.schema.Program.create(this.reader);
+        this.reader = this.context.read('binary');
+        if (this.reader.length >= 32) {
+            this.reader.seek(8);
+            const magic = String.fromCharCode(...this.reader.read(4));
+            if (magic === 'eh00') {
+                this.extended_file_header = {
+                    length: this.reader.uint32(),
+                    program_size: this.reader.uint64().toNumber(),
+                    segment_base_offset: this.reader.uint64().toNumber(),
+                };
+            }
+            this.reader.seek(0);
+        }
     }
 };
 
