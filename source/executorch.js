@@ -212,6 +212,13 @@ executorch.Node = class {
                     this.outputs.push(new executorch.Argument('output', output.value, output.type));
                     break;
                 }
+                case 'VulkanBackend': {
+                    const input = values.map(args[0]);
+                    const output = values.map(args[1], true);
+                    this.inputs.push(new executorch.Argument('input', input.value, input.type));
+                    this.outputs.push(new executorch.Argument('output', output.value, output.type));
+                    break;
+                }
                 default: {
                     throw new executorch.Error(`ExecuTorch delegate '${name}' not implemented.`);
                 }
