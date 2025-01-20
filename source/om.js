@@ -466,7 +466,7 @@ om.Container = class {
                     break;
                 }
                 case 'PICO': {
-                    this.format = 'DaVinci OM SVP'; // SVP = Smart Vision PICO
+                    this.format = 'DaVinci OM SVP'; // SVP = Smart Vision Platform
                     reader.uint32(); // reserved
                     this.size = reader.uint32();
                     const param_size = reader.uint32();
