@@ -700,11 +700,24 @@ view.View = class {
         return this._modelFactoryService.accept(file, size);
     }
 
-    async open(context) {
+    async open(context, ext_datas = null) {
         this._sidebar.close();
         await this._timeout(2);
         try {
             const model = await this._modelFactoryService.open(context);
+            if (ext_datas) {
+                for (const graph of model.graphs) {
+                    for (const node of graph.nodes) {
+                        const ext_data = ext_datas[node.name];
+                        if (ext_data) {
+                            for (const key in ext_data) {
+                                const attribute = {name: '- ' + key, value: ext_data[key], type: 'float64', description: null, visible: true};
+                                node.attributes.push(attribute);
+                            }
+                        }
+                    }
+                }
+            }
             const format = [];
             if (model.format) {
                 format.push(model.format);
