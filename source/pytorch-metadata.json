@@ -536,6 +536,9 @@
     "name": "prim::Uninitialized() -> Any"
   },
   {
+    "name": "aten::is_autocast_enabled() -> bool"
+  },
+  {
     "name": "aten::len.t(t[] a) -> int"
   },
   {

@@ -2062,35 +2062,6 @@
     "link":     "https://github.com/lutzroeder/netron/issues/581"
   },
   {
-    "type":     "espresso",
-    "target":   "segmentation.mlmodelc.zip",
-    "source":   "https://github.com/user-attachments/files/15315833/segmentation.mlmodelc.zip",
-    "format":   "Espresso v2.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/193"
-  },
-  {
-    "type":     "espresso",
-    "target":   "SqueezeNet.mlmodelc.zip",
-    "source":   "https://github.com/user-attachments/files/15535445/SqueezeNet.mlmodelc.zip",
-    "format":   "Espresso v2.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/193"
-  },
-  {
-    "type":     "flax",
-    "target":   "flax_model.msgpack",
-    "source":   "https://github.com/lutzroeder/netron/files/8567810/flax_model.msgpack.zip[flax_model.msgpack]",
-    "format":   "Flax",
-    "link":     "https://github.com/lutzroeder/netron/issues/850"
-  },
-  {
-    "type":     "flux",
-    "target":   "helloworld.bson",
-    "source":   "https://github.com/lutzroeder/netron/files/3638212/helloworld.zip[helloworld.bson]",
-    "error":    "File contains unsupported Flux data.",
-    "format":   "Flux",
-    "link":     "https://github.com/lutzroeder/netron/issues/334"
-  },
-  {
     "type":     "dot",
     "target":   "chart_fr1.dot",
     "source":   "https://github.com/user-attachments/files/17928647/chart_fr1.dot.zip[chart_fr1.dot]",
@@ -2182,6 +2153,70 @@
     "source":   "https://github.com/user-attachments/files/17928516/squeezenet.dot.zip[squeezenet.dot]",
     "format":   "DOT",
     "link":     "https://github.com/lutzroeder/netron/issues/1368"
+  },
+  {
+    "type":     "espresso",
+    "target":   "segmentation.mlmodelc.zip",
+    "source":   "https://github.com/user-attachments/files/15315833/segmentation.mlmodelc.zip",
+    "format":   "Espresso v2.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
+  },
+  {
+    "type":     "espresso",
+    "target":   "SqueezeNet.mlmodelc.zip",
+    "source":   "https://github.com/user-attachments/files/15535445/SqueezeNet.mlmodelc.zip",
+    "format":   "Espresso v2.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/193"
+  },
+  {
+    "type":     "executorch",
+    "target":   "add.pte",
+    "source":   "https://github.com/lutzroeder/netron/files/13156981/add.pte.zip[add.pte]",
+    "format":   "ExecuTorch v0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1175"
+  },
+  {
+    "type":     "executorch",
+    "target":   "mobilenet_v2.pte",
+    "source":   "https://github.com/user-attachments/files/18462557/mobilenet_v2.pte.zip[mobilenet_v2.pte]",
+    "format":   "ExecuTorch v0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "executorch",
+    "target":   "mv2_xnnpack.pte",
+    "source":   "https://github.com/user-attachments/files/18462560/mv2_xnnpack.pte.zip[mv2_xnnpack.pte]",
+    "format":   "ExecuTorch v0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1175"
+  },
+  {
+    "type":     "executorch",
+    "target":   "style_transfer_candy_coreml.pte",
+    "source":   "https://github.com/user-attachments/files/18469498/style_transfer_candy_coreml.pte.zip[style_transfer_candy_coreml.pte]",
+    "format":   "ExecuTorch v0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1175"
+  },
+  {
+    "type":     "executorch",
+    "target":   "style_transfer_candy_xnnpack.pte",
+    "source":   "https://github.com/user-attachments/files/18469499/style_transfer_candy_xnnpack.pte.zip[style_transfer_candy_xnnpack.pte]",
+    "format":   "ExecuTorch v0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1175"
+  },
+  {
+    "type":     "flax",
+    "target":   "flax_model.msgpack",
+    "source":   "https://github.com/lutzroeder/netron/files/8567810/flax_model.msgpack.zip[flax_model.msgpack]",
+    "format":   "Flax",
+    "link":     "https://github.com/lutzroeder/netron/issues/850"
+  },
+  {
+    "type":     "flux",
+    "target":   "helloworld.bson",
+    "source":   "https://github.com/lutzroeder/netron/files/3638212/helloworld.zip[helloworld.bson]",
+    "error":    "File contains unsupported Flux data.",
+    "format":   "Flux",
+    "link":     "https://github.com/lutzroeder/netron/issues/334"
   },
   {
     "type":     "gguf",
@@ -5289,14 +5324,6 @@
   },
   {
     "type":     "pytorch",
-    "target":   "add.pte",
-    "source":   "https://github.com/lutzroeder/netron/files/13156981/add.pte.zip[add.pte]",
-    "format":   "ExecuTorch v0",
-    "link":     "https://github.com/lutzroeder/netron/issues/1175"
-  },
-  
-  {
-    "type":     "pytorch",
     "target":   "alexnet_traced.ir",
     "source":   "https://github.com/user-attachments/files/18259118/alexnet_traced.ir.zip[alexnet_traced.ir]",
     "format":   "TorchScript IR",
@@ -5914,13 +5941,6 @@
   },
   {
     "type":     "pytorch",
-    "target":   "mobilenet_v2.pte",
-    "source":   "https://github.com/user-attachments/files/18462557/mobilenet_v2.pte.zip[mobilenet_v2.pte]",
-    "format":   "ExecuTorch v0",
-    "link":     "https://github.com/lutzroeder/netron/issues/1211"
-  },
-  {
-    "type":     "pytorch",
     "target":   "mobilenet_v2_traced.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6096623/mobilenet_v2_traced.pt.zip[mobilenet_v2_traced.pt]",
     "format":   "TorchScript v1.6",
@@ -6052,13 +6072,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/12811973/multi_return.pt.zip[multi_return.pt]",
     "format":   "PyTorch Package v1.9",
     "link":     "https://github.com/lutzroeder/netron/issues/928"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "mv2_xnnpack.pte",
-    "source":   "https://github.com/user-attachments/files/18462560/mv2_xnnpack.pte.zip[mv2_xnnpack.pte]",
-    "format":   "ExecuTorch v0",
-    "link":     "https://github.com/lutzroeder/netron/issues/1175"
   },
   {
     "type":     "pytorch",
@@ -6569,20 +6582,6 @@
     "source":   "https://github.com/user-attachments/files/16482907/stitching_retargeting_module.pth.zip[stitching_retargeting_module.pth]",
     "format":   "PyTorch v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "style_transfer_candy_coreml.pte",
-    "source":   "https://github.com/user-attachments/files/18469498/style_transfer_candy_coreml.pte.zip[style_transfer_candy_coreml.pte]",
-    "format":   "ExecuTorch v0",
-    "link":     "https://github.com/lutzroeder/netron/issues/1175"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "style_transfer_candy_xnnpack.pte",
-    "source":   "https://github.com/user-attachments/files/18469499/style_transfer_candy_xnnpack.pte.zip[style_transfer_candy_xnnpack.pte]",
-    "format":   "ExecuTorch v0",
-    "link":     "https://github.com/lutzroeder/netron/issues/1175"
   },
   {
     "type":     "pytorch",
