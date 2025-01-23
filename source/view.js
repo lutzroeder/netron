@@ -5706,7 +5706,7 @@ view.Context = class {
         return this._tags.get(type);
     }
 
-    metadata(name) {
+    async metadata(name) {
         return view.Metadata.open(this, name);
     }
 };

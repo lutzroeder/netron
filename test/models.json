@@ -2191,6 +2191,13 @@
   },
   {
     "type":     "executorch",
+    "target":   "mv2_vulkan.pte",
+    "source":   "https://github.com/user-attachments/files/18514115/mv2_vulkan.pte.zip[mv2_vulkan.pte]",
+    "format":   "ExecuTorch v0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1175"
+  },
+  {
+    "type":     "executorch",
     "target":   "style_transfer_candy_coreml.pte",
     "source":   "https://github.com/user-attachments/files/18469498/style_transfer_candy_coreml.pte.zip[style_transfer_candy_coreml.pte]",
     "format":   "ExecuTorch v0",
