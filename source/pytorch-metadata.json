@@ -1,9 +1,15 @@
 [
   {
+    "name": "torchvision::roi_pool(Tensor input, Tensor rois, float spatial_scale, SymInt pooled_height, SymInt pooled_width) -> (Tensor, Tensor)"
+  },
+  {
     "name": "torchvision::roi_align(Tensor input, Tensor rois, float spatial_scale, SymInt pooled_height, SymInt pooled_width, int sampling_ratio, bool aligned) -> Tensor"
   },
   {
     "name": "torchvision::nms(Tensor dets, Tensor scores, float iou_threshold) -> Tensor"
+  },
+  {
+    "name": "torchvision::deform_conv2d(Tensor input, Tensor weight, Tensor offset, Tensor mask, Tensor bias, SymInt stride_h, SymInt stride_w, SymInt pad_h, SymInt pad_w, SymInt dilation_h, SymInt dilation_w, SymInt groups, SymInt offset_groups, bool use_mask) -> Tensor"
   },
   {
     "name": "aten::set_grad_enabled(bool val) -> ()"
@@ -1468,6 +1474,9 @@
     "category": "Quantization"
   },
   {
+    "name": "aten::_nested_tensor_from_mask_left_aligned(Tensor t, Tensor mask) -> bool"
+  },
+  {
     "name": "aten::_nested_tensor_from_mask(Tensor t, Tensor mask, bool mask_check=True) -> Tensor"
   },
   {
@@ -1590,6 +1599,9 @@
   },
   {
     "name": "quantized::mul_scalar_relu.Tensor(Tensor qa, Tensor b) -> Tensor qc"
+  },
+  {
+    "name": "quantized::linear_dynamic_fp16(Tensor X, __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack) -> Tensor Y"
   },
   {
     "name": "aten::int_repr.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
@@ -2343,6 +2355,9 @@
   },
   {
     "name": "aten::logcumsumexp.out(Tensor self, int dim, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized::matmul(Tensor qa, Tensor qb, float scale, int zero_point) -> Tensor qc"
   },
   {
     "name": "aten::kthvalue(Tensor self, int k, int dim=-1, bool keepdim=False) -> (Tensor values, Tensor indices)"
@@ -7522,6 +7537,9 @@
   },
   {
     "name": "llama::fast_hadamard_transform.out(Tensor mat, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "vai::fix_neuron(Tensor input, int valmin, int valmax, float valamp, int zero_point, int method, int device_id, int inplace) -> Tensor"
   },
   {
     "name": "__torch__.torch.classes.rnn.CellParamsBase",
