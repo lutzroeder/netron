@@ -183,40 +183,25 @@ executorch.Node = class {
         } else if (instr_args instanceof executorch_flatbuffer.DelegateCall) {
             const delegate = plan.delegates[instr_args.delegate_index];
             const args = instr_args.args;
-            switch (delegate.id) {
-                case 'XnnpackBackend': {
-                    this.type = delegate.backend.type || { name: delegate.id };
-                    for (const arg of args.slice(0, this.type.inputs.length)) {
-                        const value = values.map(arg);
-                        const argument = new executorch.Argument('', value.value, value.type);
-                        this.inputs.push(argument);
-                    }
-                    for (const arg of args.slice(this.type.inputs.length, this.type.inputs.length + this.type.outputs.length)) {
-                        const value = values.map(arg);
-                        const argument = new executorch.Argument('', value.value, value.type);
-                        this.outputs.push(argument);
-                    }
-                    break;
-                }
-                case 'CoreMLBackend': {
-                    this.type = delegate.backend.type || { name: delegate.id };
-                    const input = values.map(args[0]);
-                    const output = values.map(args[1], true);
-                    this.inputs.push(new executorch.Argument('input', input.value, input.type));
-                    this.outputs.push(new executorch.Argument('output', output.value, output.type));
-                    break;
-                }
-                case 'VulkanBackend': {
-                    this.type = delegate.backend.type || { name: delegate.id };
-                    const input = values.map(args[0]);
-                    const output = values.map(args[1], true);
-                    this.inputs.push(new executorch.Argument('input', input.value, input.type));
-                    this.outputs.push(new executorch.Argument('output', output.value, output.type));
-                    break;
-                }
-                default: {
-                    throw new executorch.Error(`ExecuTorch delegate '${delegate.id}' not implemented.`);
-                }
+            if (!delegate.backend || !delegate.backend.type) {
+                throw new executorch.Error(`ExecuTorch delegate '${delegate.id}' not implemented.`);
+            }
+            this.type = delegate.backend.type;
+            const inputs = args.slice(0, this.type.inputs.length);
+            for (let i = 0; i < inputs.length; i++) {
+                const input = inputs[i];
+                const value = values.map(input);
+                const name = inputs.length === 1 ? 'input' : `input.${i}`;
+                const argument = new executorch.Argument(name, value.value, value.type);
+                this.inputs.push(argument);
+            }
+            const outputs = args.slice(this.type.inputs.length, this.type.inputs.length + this.type.outputs.length);
+            for (let i = 0; i < outputs.length; i++) {
+                const output = outputs[i];
+                const value = values.map(output);
+                const name = inputs.length === 1 ? 'output' : `output.${i}`;
+                const argument = new executorch.Argument(name, value.value, value.type);
+                this.outputs.push(argument);
             }
             for (const spec of delegate.compile_specs) {
                 const value = spec.value instanceof Uint8Array ? new TextDecoder('utf-8').decode(spec.value) : spec.value;
@@ -453,6 +438,9 @@ xnnpack.Graph = class {
     constructor(metadata, graph, reader) {
         this.name = 'XnnpackBackend';
         this.type = 'graph';
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
         const values = new Map();
         values.map = (id) => {
             if (!values.has(id)) {
@@ -471,9 +459,6 @@ xnnpack.Graph = class {
             }
             return values.get(id);
         };
-        this.inputs = [];
-        this.outputs = [];
-        this.nodes = [];
         for (let i = 0; i < graph.input_ids.length; i++) {
             const id = graph.input_ids[i];
             const value = values.map(id);
@@ -654,17 +639,64 @@ vulkan.Reader = class {
         this.reader.seek(0);
         this.type = new vulkan.Graph(metadata, this.graph, this);
     }
+
+    constant(id) {
+        const constant = this.graph.constants[id];
+        this.reader.seek(this.constants.offset + constant.offset.toNumber());
+        const data = this.reader.read(constant.length.toNumber());
+        this.reader.seek(0);
+        return data;
+    }
 };
 
 vulkan.Graph = class {
 
-    constructor(metadata, graph /*, reader */) {
+    constructor(metadata, graph, reader) {
         this.name = 'VulkanBackend';
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];
+        const values = new Map();
+        values.map = (id) => {
+            if (!values.has(id)) {
+                const vkgraph = executorch.schema.vkgraph;
+                const arg = graph.values[id].value;
+                if (arg instanceof vkgraph.VkTensor) {
+                    const type = new vulkan.TensorType(arg);
+                    const initializer = arg.constant_id === -1 ? null : new vulkan.Tensor(arg, reader);
+                    values.set(id, { type: null, value: [new vulkan.Value(id.toString(), type, initializer)] });
+                } else if (arg instanceof vkgraph.Int) {
+                    values.set(id, { type: 'int64', value: arg.int_val });
+                } else if (arg instanceof vkgraph.IntList) {
+                    values.set(id, { type: 'int64[]', value: Array.from(arg.items) });
+                } else if (arg instanceof vkgraph.Double) {
+                    values.set(id, { type: 'float64', value: arg.double_val });
+                } else if (arg instanceof vkgraph.Bool) {
+                    values.set(id, { type: 'boolean', value: arg.bool_val });
+                } else if (arg instanceof vkgraph.Null) {
+                    values.set(id, { type: 'attribute', value: null });
+                } else {
+                    throw new Error(`Value type '${arg.constructor.name}' not implemented.`);
+                }
+            }
+            return values.get(id);
+        };
+        for (let i = 0; i < graph.input_ids.length; i++) {
+            const id = graph.input_ids[i];
+            const value = values.map(id);
+            const name = graph.input_ids.length === 1 ? 'input' : `input.${i}`;
+            const argument = new vulkan.Argument(name, value.value, value.type);
+            this.inputs.push(argument);
+        }
+        for (let i = 0; i < graph.output_ids.length; i++) {
+            const id = graph.output_ids[i];
+            const value = values.map(id);
+            const name = graph.output_ids.length === 1 ? 'output' : `output.${i}`;
+            const argument = new vulkan.Argument(name, value.value, value.type);
+            this.outputs.push(argument);
+        }
         for (const op of graph.chain) {
-            const node = new vulkan.Node(metadata, op);
+            const node = new vulkan.Node(metadata, op, values);
             this.nodes.push(node);
         }
     }
@@ -672,19 +704,94 @@ vulkan.Graph = class {
 
 vulkan.Node = class {
 
-    constructor(metadata, op) {
+    constructor(metadata, op, values) {
         const schema = metadata.type(op.name);
-        this.type = {
-            name: schema.name,
-            identifier: op.name
-        };
-        if (schema.category) {
-            this.type.category = schema.category;
+        if (!schema) {
+            throw new vulkan.Error(`Operator schema for '${op.name}' not found.`);
         }
-        this.name = '';
+        this.type = {
+            name: op.name.split(/\.([^.]*)$/)[0],
+            identifier: op.name,
+            category: schema.category || ''
+        };
+        this.name = op.node_id.toString();
         this.inputs = [];
         this.outputs = [];
         this.attributes = [];
+        for (let i = 0; i < op.args.length; i++) {
+            const arg = op.args[i];
+            const input = schema && i < schema.arguments.length;
+            const def = input ? schema.arguments[i] : schema.returns[i - schema.arguments.length];
+            const value = values.map(arg);
+            const argument = new vulkan.Argument(def.name || '', value.value, value.type);
+            if (input) {
+                this.inputs.push(argument);
+            } else {
+                this.outputs.push(argument);
+            }
+        }
+
+    }
+};
+
+vulkan.Argument = class {
+
+    constructor(name, value, type, visible) {
+        this.name = name;
+        this.value = value;
+        this.type = type || null;
+        this.visible = visible !== false;
+    }
+};
+
+vulkan.Value = class Value {
+
+    constructor(name, type, initializer) {
+        if (typeof name !== 'string') {
+            throw new executorch.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
+        }
+        this.name = name;
+        this.type = initializer && initializer.type ? initializer.type : type || null;
+        this.initializer = initializer || null;
+    }
+};
+
+vulkan.TensorType = class {
+
+    constructor(tensor) {
+        const types = ['bool', 'uint8', 'int8', 'int32', 'float16', 'float32'];
+        if (tensor.datatype >= types.length) {
+            throw new vulkan.Error(`Unknown tensor data type '${tensor.datatype}'.`);
+        }
+        this.dataType = types[tensor.datatype];
+        this.shape = new vulkan.TensorShape(Array.from(tensor.dims));
+    }
+
+    toString() {
+        return this.dataType + this.shape.toString();
+    }
+};
+
+vulkan.TensorShape = class {
+
+    constructor(dimensions) {
+        this.dimensions = dimensions || [];
+    }
+
+    toString() {
+        if (this.dimensions && this.dimensions.length > 0) {
+            return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
+        }
+        return '';
+    }
+};
+
+vulkan.Tensor = class {
+
+    constructor(tensor, reader) {
+        this.type = new vulkan.TensorType(tensor);
+        this.values = reader.constant(tensor.constant_id);
+        this.encoding = '<';
     }
 };
 
@@ -742,13 +849,13 @@ coreml.Reader = class {
         const factory = await this.factory();
         const protobuf = await import('./protobuf.js');
         for (const [key, value] of entries) {
-            const identifier = key.split('/').pop();
-            this.reader.seek(value.offset);
-            const stream = this.reader.stream(value.size);
-            this.reader.seek(0);
-            const context = new coreml.Context(this.target.context, identifier, stream, entries, protobuf);
+            const path = key.split('/');
+            const identifier = path.pop();
+            const folder = path.length === 0 ? '' : `${path.join('/')}/`;
+            const locals = new Map(Array.from(entries).filter(([key]) => key.startsWith(folder)).map(([key, value]) => [key.substring(folder.length), value]));
+            const context = new coreml.Context(this, identifier, value, locals, protobuf);
             factory.match(context);
-            if (context.type === 'coreml.pb') {
+            if (context.type === 'coreml.manifest') {
                 /* eslint-disable no-await-in-loop */
                 const model = await factory.open(context);
                 /* eslint-enable no-await-in-loop */
@@ -757,6 +864,13 @@ coreml.Reader = class {
                 return;
             }
         }
+    }
+
+    stream(offset, size) {
+        this.reader.seek(offset);
+        const stream = this.reader.stream(size);
+        this.reader.seek(0);
+        return stream;
     }
 
     entries(reader) {
@@ -799,24 +913,29 @@ coreml.Reader = class {
         for (const root of roots.filter((node) => node !== null)) {
             process('', root);
         }
-        if (!Array.from(files.keys()).every((key) => key.startsWith('lowered_module/'))) {
-            throw new executorch.Error('');
-        }
-        const entries = new Map(Array.from(files).map(([key, value]) => {
-            return [key.replace(/^lowered_module\//, ''), value];
-        }));
-        return entries;
+        return files;
     }
 };
 
 coreml.Context = class {
 
-    constructor(context, identifier, stream, entries, protobuf) {
-        this.context = context;
-        this.identifier = identifier;
-        this.stream = stream;
-        this.entries = entries;
-        this.protobuf = protobuf;
+    constructor(reader, identifier, location, entries, protobuf) {
+        this._reader = reader;
+        this._location = location;
+        this._identifier = identifier;
+        this._entries = entries;
+        this._protobuf = protobuf;
+    }
+
+    get identifier() {
+        return this._identifier;
+    }
+
+    get stream() {
+        if (!this._stream) {
+            this._stream = this._reader.stream(this._location.offset, this._location.size);
+        }
+        return this._stream;
     }
 
     tags(type) {
@@ -838,21 +957,26 @@ coreml.Context = class {
 
     read(type) {
         if (type === 'protobuf.binary') {
-            return this.protobuf.BinaryReader.open(this.stream);
+            return this._protobuf.BinaryReader.open(this.stream);
         }
         return null;
     }
 
-    async fetch(/* file */) {
-        return Promise.resolve(null);
+    async fetch(file) {
+        if (this._entries.has(file)) {
+            const location = this._entries.get(file);
+            const identifier = file.split('/').pop();
+            return new coreml.Context(this._reader, identifier, location, this._entries, this._protobuf);
+        }
+        return null;
     }
 
     async require(id) {
-        return this.context.require(id);
+        return this._reader.target.context.require(id);
     }
 
     async metadata(name) {
-        return this.context.metadata(name);
+        return this._reader.target.context.metadata(name);
     }
 };
 

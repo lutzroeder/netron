@@ -185,10 +185,10 @@ coreml.ModelFactory = class {
         };
         switch (context.type) {
             case 'coreml.pb': {
-                return openBinary(context, context, context.identifier);
+                return openBinary(context, context, '');
             }
             case 'coreml.pbtxt': {
-                return openText(context, context, context.identifier);
+                return openText(context, context, '');
             }
             case 'coreml.manifest': {
                 const obj = context.peek('json');
