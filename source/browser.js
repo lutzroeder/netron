@@ -441,12 +441,34 @@ host.BrowserHost = class {
         return await this._openContext(context);
     }
 
+    async _readFileAsText(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsText(file);
+        });
+    }
+
     async _open(file, files) {
         this._view.show('welcome spinner');
         const context = new host.BrowserHost.BrowserFileContext(this, file, files);
         try {
             await context.open();
-            await this._openContext(context);
+
+            let ext_datas = null;
+            const jsonFileName = file.name + '.json';
+            const jsonFile = files.find((file) => file.name === jsonFileName);
+            if (jsonFile) {
+                try {
+                    const fileContent = await this._readFileAsText(jsonFile);
+                    ext_datas = JSON.parse(fileContent);
+                } catch (error) {
+                    console.error('Error parsing JSON:', error);
+                }
+            }
+
+            await this._openContext(context, ext_datas);
         } catch (error) {
             await this._view.error(error);
         }
@@ -483,10 +505,10 @@ host.BrowserHost = class {
         }
     }
 
-    async _openContext(context) {
+    async _openContext(context, ext_datas = null) {
         this._telemetry.set('session_engaged', 1);
         try {
-            const model = await this._view.open(context);
+            const model = await this._view.open(context, ext_datas);
             if (model) {
                 this.document.title = context.name || context.identifier;
                 return '';
