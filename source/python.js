@@ -5203,15 +5203,19 @@ python.Execution = class {
             }
         });
         this.registerType('torch._C.DeadCodeEliminator', class {
-            constructor(graph, sideEffectPolicy) {
-                this._graph = graph;
-                this._sideEffectPolicy = sideEffectPolicy;
-                this._useAliasDb = true;
+            constructor(...args) {
                 this._aliasDb = null;
+                this._useAliasDb = false;
                 this._memo = new Map();
                 this._marked = new Set();
                 this._liveValues = new Set();
                 this._deleteCallback = () => {};
+                if (args.length > 0 && args[0] instanceof torch.Graph) {
+                    [this._graph, this._sideEffectPolicy] = args;
+                    this._useAliasDb = true;
+                } else {
+                    [this._sideEffectPolicy] = args;
+                }
             }
             run(block, recurse) {
                 this.eliminateDeadForkInputs(block, recurse);
@@ -5414,6 +5418,12 @@ python.Execution = class {
                 const sideEffectPolicy = 'DONT_DELETE_NODES_WITH_SIDE_EFFECTS';
                 const worker = new torch._C.DeadCodeEliminator(graph, sideEffectPolicy);
                 worker.run(graph.block(), /*recurse=*/true);
+            } else if (args.length > 0 && args[0] instanceof torch.Block) {
+                const [block] = args;
+                const recurse = false;
+                const sideEffectPolicy = 'DONT_DELETE_NODES_WITH_SIDE_EFFECTS';
+                const worker = new torch._C.DeadCodeEliminator(sideEffectPolicy);
+                worker.run(block, recurse);
             } else {
                 throw new python.Error('Not implemented.');
             }
@@ -5658,7 +5668,7 @@ python.Execution = class {
             }
             switch (n.kind()) {
                 case 'prim::ListUnpack': {
-                    if (stack.back().toList().size() !== n.outputs().size()) {
+                    if (stack.back().toList().size() !== n.outputs().length) {
                         return null;
                     }
                     torch._C.listUnpack(stack, n.outputs().length);
@@ -5775,22 +5785,20 @@ python.Execution = class {
                 const outputs_opt = torch._C.runNodeIfInputsAreConstant(n, this._ignore_custom_classes);
                 if (outputs_opt) {
                     outputs = outputs_opt;
-                } else {
-                    return;
-                }
-                const graph = n.owningGraph();
-                const guard = new torch._C.WithInsertPoint(n);
-                for (let i = 0; i < outputs.length; i++) {
-                    const new_output = torch._C.tryInsertConstant(graph, outputs[i]);
-                    if (new_output) {
-                        this._made_change = true;
-                        if (outputs[i].isNone()) {
-                            new_output.setType(n.outputs()[i].type());
+                    const graph = n.owningGraph();
+                    const guard = new torch._C.WithInsertPoint(n);
+                    for (let i = 0; i < outputs.length; i++) {
+                        const new_output = torch._C.tryInsertConstant(graph, outputs[i]);
+                        if (new_output) {
+                            this._made_change = true;
+                            if (outputs[i].isNone()) {
+                                new_output.setType(n.outputs()[i].type());
+                            }
+                            n.outputs()[i].replaceAllUsesWith(new_output);
                         }
-                        n.outputs()[i].replaceAllUsesWith(new_output);
                     }
+                    guard.dispose();
                 }
-                guard.dispose();
             }
             removeLoopNode(n) {
                 const loop_input_offset = 2;
@@ -6098,6 +6106,139 @@ python.Execution = class {
         this.registerFunction('torch._C.escapesScope', () => {
 
         });
+        this.registerType('torch._C.PeepholeOptimizeImpl', class {
+            constructor(graph, disable_shape_peepholes) {
+                this._graph = graph;
+                this._shape_peepholes = !disable_shape_peepholes;
+            }
+            run() {
+                const changed = this.optimizeBlock(this._graph.block());
+                /* changed |= torch._C.PeepholeOptimizeListIdioms(this._graph);
+                changed |= torch._C.PeepholeOptimizeDictIdioms(this._graph);
+                changed |= torch._C.PeepholeOptimizeAliasSensitive(this._graph, this._shape_peepholes);
+                changed |= torch._C.PeepholeOptimizeNonTensor(this._graph);
+                changed |= torch._C.CombineConcats(this._graph); */
+                return changed;
+            }
+            optimizeBlock(block) {
+                let changed = false;
+                for (const node of block.nodes()) {
+                    for (const sub_block of node.blocks()) {
+                        changed = changed || this.optimizeBlock(sub_block);
+                    }
+                    if (node.kind() !== 'prim::Constant') {
+                        const guard = new torch._C.WithInsertPoint(node);
+                        for (const output of node.outputs()) {
+                            if (output.type() instanceof torch.NoneType) {
+                                output.replaceAllUsesWith(this._graph.insertConstant(new torch._C.IValue()));
+                                changed = true;
+                            }
+                        }
+                        guard.dispose();
+                    }
+                    if (node.kind() === 'prim::If') {
+                        // throw new python.Error('Not implemented.');
+                        /*
+                        const n = new torch._C.IfView(node);
+                        // this handles redundant short circuits like "x and True" or "x or
+                        // False"
+                        for (const auto i : c10::irange(n.outputs().length)) {
+                            if (n.outputs().at(i).type() != torch.BoolType.get()) {
+                                continue;
+                            }
+                            const true_val = constant_as<bool>(n.thenOutputs().at(i)).value_or(false);
+                            const false_val = constant_as<bool>(n.elseOutputs().at(i)).value_or(true);
+                            if (true_val && !false_val) {
+                                n.outputs().at(i).replaceAllUsesWith(n.cond());
+                                changed = true;
+                            }
+                        }
+                        for (let i = 0; i < n.outputs().length; ++i) {
+                            const inputs_non_optional = !n.thenOutputs().at(i).type().cast<OptionalType>() && !n.elseOutputs().at(i).type().cast<OptionalType>();
+                            const output_optional = n.outputs()[i].type();
+                            if (inputs_non_optional && output_optional instanceof torch.OptionalType) {
+                                const unif = torch._c.unifyTypes(n.thenOutputs().at(i).type(), n.elseOutputs().at(i).type())
+                                if (unif) {
+                                    n.outputs()[i].setType(unif);
+                                    changed = true;
+                                }
+                            }
+                        }
+                        */
+                    } else if (node.kind() === 'aten::__is__' || node.kind() === 'aten::__isnot__') {
+                        torch._C.AT_ASSERT(node.inputs().length === 2);
+                        for (const check_none_index of [0, 1]) {
+                            const input_must_be_none = node.inputs()[check_none_index].mustBeNone();
+                            const other_must_not_be_none = node.inputs().at(1 - check_none_index).mustNotBeNone();
+                            if (input_must_be_none && other_must_not_be_none) {
+                                const guard = new torch._C.WithInsertPoint(node);
+                                const output = node.owningGraph().insertConstant(node.kind() === 'aten::__isnot__');
+                                node.output().replaceAllUsesWith(output);
+                                changed = true;
+                                guard.dispose();
+                            }
+                        }
+                    } else if (node.kind() === 'prim::unchecked_unwrap_optional' || node.kind() === 'aten::_unwrap_optional') {
+                        throw new python.Error('Not implemented.');
+                        /*
+                        // we are unwrapping an input that can't be None, remove the unwrap
+                        const input = node.input();
+                        if (input.mustNotBeNone()) {
+                        node.output().replaceAllUsesWith(node.input());
+                        changed = true;
+                        }
+                        */
+                    } else if (node.kind() === 'prim::unchecked_cast') {
+                        const input_type = torch._C.unshapedType(node.input().type());
+                        const output_type = torch._C.unshapedType(node.output().type());
+                        if (input_type.isSubtypeOf(output_type)) {
+                            node.output().replaceAllUsesWith(node.input());
+                            changed = true;
+                        }
+                    } else if ((node.kind() === 'aten::Int' || node.kind() === 'aten::ceil') && node.inputs().length === 1 && node.input().type() instanceof torch.IntType) {
+                        node.output().replaceAllUsesWith(node.input());
+                        changed = true;
+                    } else if (node.kind() === 'aten::ne' || node.kind() === 'aten::eq') {
+                        if (node.inputs().length !== 2 || node.inputs()[0] !== node.inputs()[1]) {
+                            continue;
+                        }
+                        const inp_type = node.inputs()[0].type();
+                        const immut_type = (type) => {
+                            const kind = type.kind();
+                            const handled_immutable_types = new Set('BoolType', 'IntType', 'FloatType', 'NoneType');
+                            return handled_immutable_types.has(kind);
+                        };
+                        let non_throwing_type = false;
+                        if (inp_type instanceof torch.ListType) {
+                            non_throwing_type = immut_type(inp_type.getElementType());
+                        } else if (inp_type instanceof torch.DictType) {
+                            non_throwing_type = immut_type(inp_type.getKeyType()) && immut_type(inp_type.getValueType());
+                        } else {
+                            non_throwing_type = immut_type(inp_type);
+                        }
+                        if (non_throwing_type) {
+                            const guard = new torch._C.WithInsertPoint(node);
+                            node.output().replaceAllUsesWith(this._graph.insertConstant(node.kind() === 'aten::eq'));
+                            changed = true;
+                            guard.dispose();
+                        }
+                    } else if (node.kind() === 'aten::mul' || node.kind() === 'aten::floordiv' || node.kind() === 'aten::div') {
+                        // changed = changed || torch._C.trySimplifyMulOrDiv(node);
+                    } else if (node.kind() === 'aten::add' || node.kind() === 'aten::sub') {
+                        // changed = changed || torch._C.trySimplifyAddOrSub(node);
+                    }
+                }
+                return changed;
+            }
+        });
+        this.registerFunction('torch._C.PeepholeOptimize', (graph, addmm_fusion_enabled) => {
+            const peephole = new torch._C.PeepholeOptimizeImpl(graph, addmm_fusion_enabled);
+            const changed = peephole.run();
+            if (changed) {
+                torch._C.EliminateDeadCode(graph.block());
+            }
+            return changed;
+        });
         this.registerFunction('torch._C.TORCH_INTERNAL_ASSERT', (cond) => {
             if (!cond) {
                 throw new python.Error('Assertion failed.');
@@ -6190,7 +6331,7 @@ python.Execution = class {
         this.registerFunction('torch._C.preoptimizeGraph', (graph, disable_autocast) => {
             disable_autocast = disable_autocast || false;
             torch._C.Inline(graph);
-            // torch._C.PeepholeOptimize(graph, true);
+            torch._C.PeepholeOptimize(graph, true);
             torch._C.ConstantPropagationImmutableTypes(graph);
             if (!disable_autocast) {
                 torch._C.Autocast(graph);
@@ -6250,14 +6391,11 @@ python.Execution = class {
                 if (type.isSubtypeOf(torch.TensorType.get())) {
                     return torch.TensorType.get();
                 }
-                throw new python.Error('Not implemented.');
-                /*
-                at::ArrayRef<TypePtr> contained = type->containedTypes();
-                if (contained.empty()) {
+                const contained = type.containedTypes();
+                if (contained.length === 0) {
                     return type;
                 }
-                return type->withContained(fmap(type->containedTypes(), unshapedType));
-                */
+                return type.withContained(type.containedTypes((type) => this.unshapedType(type)));
             }
             defaultSchemaFor(fn) {
                 const args = [];
@@ -9826,6 +9964,12 @@ python.Execution = class {
                 }
                 return false;
             }
+            is_mutable() {
+                return this.arguments.some((arg) => {
+                    const aliasInfo = arg.alias_info;
+                    return aliasInfo && aliasInfo.is_write;
+                });
+            }
         });
         this.registerType('torch._C.SchemaInfo', class {
             constructor(schema) {
@@ -11160,6 +11304,15 @@ python.Execution = class {
             }
             hasUses() {
                 return this._uses.length > 0;
+            }
+            mustBeNone() {
+                return this.type() instanceof torch.NoneType || this._node.mustBeNone();
+            }
+            mustNotBeNone() {
+                return this._node.kind() !== 'prim::AutogradAdd' &&
+                    this.type() !== torch.NoneType.get() &&
+                    !(this.type() instanceof torch.OptionalType) &&
+                    !(this.type() instanceof torch.UnionType && this.type().expect(torch.UnionType).canHoldType(torch.NoneType.get()));
             }
             hasDebugName() {
                 return this._unique_name;
@@ -15053,7 +15206,7 @@ python.Execution = class {
                         /*
                         // recursively emit tuple assignments on tuple literal input
                         TupleLiteral sub_tl = TupleLiteral(assignee);
-                        size_t sub_n_binders = sub_tl.inputs().size();
+                        size_t sub_n_binders = sub_tl.inputs().length;
                         bool sub_starred_unpack =
                             validateAssignLhsExpr(sub_tl.inputs(), sub_tl.range());
                         if (sub_starred_unpack)
@@ -16223,7 +16376,7 @@ python.Execution = class {
                     body.addInput().setType(typ);
                     body.registerOutput(exit_value);
                 }
-                const exit_vals = node.outputs().slice(node.outputs().size() - exit_pair.exitValues().size());
+                const exit_vals = node.outputs().slice(node.outputs().length - exit_pair.exitValues().size());
                 const result = new torch._C.ExitPair(new_has_exited, exit_vals);
                 insert.dispose();
                 return result;
@@ -16267,11 +16420,11 @@ python.Execution = class {
                     has_exited = this._true_val;
                 } else {
                     this.addIfOutputs(node, [then_pair.hasExited()], [else_pair.hasExited()]);
-                    has_exited = node.outputs().at(node.outputs().size() - 1);
+                    has_exited = node.outputs().at(node.outputs().length - 1);
                 }
                 this.addIfOutputs(node, then_pair.exitValues(), else_pair.exitValues());
                 const num_exit_vals = then_pair.exitValues().size();
-                const exit_vals = node.outputs().slice(node.outputs().size() - num_exit_vals);
+                const exit_vals = node.outputs().slice(node.outputs().length - num_exit_vals);
                 return new torch._C.ExitPair(has_exited, exit_vals);
             }
             transformExits(block) {
