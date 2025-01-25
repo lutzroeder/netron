@@ -7174,6 +7174,7 @@ python.Execution = class {
         this.registerType('torchvision.transforms.transforms.Scale', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.ToPILImage', class {});
         this.registerType('torchvision.transforms.transforms.ToTensor', class {});
+        this.registerType('torchvision.transforms.v2._color.Grayscale', class {});
         this.registerType('torchvision.transforms.v2._container.Compose', class {});
         this.registerType('torchvision.transforms.v2._misc.ConvertImageDtype', class {});
         this.registerType('torchvision.transforms.v2._misc.Normalize', class {});
@@ -7341,6 +7342,7 @@ python.Execution = class {
         builtins.xrange = builtins.range;
         this.registerFunction('torch._C._nn.gelu');
         this.registerFunction('torch._C._nn.avg_pool2d');
+        this.registerFunction('torch._C._nn.avg_pool3d');
         this.registerFunction('torch._C._nn.scaled_dot_product_attention');
         this.registerFunction('torch._C._nn.softplus');
         this.registerFunction('torch._native_multi_head_attention');
@@ -18546,6 +18548,7 @@ python.Execution = class {
         this.registerType('fastai.vision.core.PILMask', class {});
         this.registerType('fastai.vision.core.AddMaskCodes', class {});
         this.registerType('fastai.vision.data.ImageList', class {});
+        this.registerType('fastai.vision.data.ImageItemList', class {});
         this.registerType('fastai.vision.image.Image', class {});
         this.registerType('fastai.vision.image.RandTransform', class {});
         this.registerType('fastai.vision.image.TfmCrop', class {});
