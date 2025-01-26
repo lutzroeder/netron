@@ -4281,12 +4281,6 @@
     "name": "aten::rand_like.out(Tensor self, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::rand_like.generator(Tensor self, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
-  },
-  {
-    "name": "aten::rand_like.generator_out(Tensor self, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
     "name": "aten::_upsample_bicubic2d_aa(Tensor self, SymInt[2] output_size, bool align_corners, float? scales_h=None, float? scales_w=None) -> Tensor"
   },
   {
@@ -4575,12 +4569,6 @@
     "name": "aten::randn_like.out(Tensor self, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::randn_like.generator(Tensor self, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
-  },
-  {
-    "name": "aten::randn_like.generator_out(Tensor self, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
     "name": "aten::_upsample_nearest_exact1d(Tensor self, SymInt[1] output_size, float? scales=None) -> Tensor"
   },
   {
@@ -4730,19 +4718,7 @@
     "name": "aten::randint_like.out(Tensor self, SymInt high, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::randint_like.generator(Tensor self, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
-  },
-  {
-    "name": "aten::randint_like.generator_out(Tensor self, SymInt high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
     "name": "aten::randint_like.low_dtype_out(Tensor self, SymInt low, SymInt high, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::randint_like.generator_with_low_dtype(Tensor self, SymInt low, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
-  },
-  {
-    "name": "aten::randint_like.generator_with_low_dtype_out(Tensor self, SymInt low, SymInt high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::lt.Tensor(Tensor self, Tensor other) -> Tensor"
@@ -6796,6 +6772,30 @@
   },
   {
     "name": "aten::resolve_conj(Tensor(a) self) -> Tensor(a)"
+  },
+  {
+    "name": "aten::rand_like.generator(Tensor self, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
+  },
+  {
+    "name": "aten::rand_like.generator_out(Tensor self, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::randn_like.generator(Tensor self, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
+  },
+  {
+    "name": "aten::randn_like.generator_out(Tensor self, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::randint_like.generator(Tensor self, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
+  },
+  {
+    "name": "aten::randint_like.generator_out(Tensor self, SymInt high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::randint_like.generator_with_low_dtype(Tensor self, SymInt low, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
+  },
+  {
+    "name": "aten::randint_like.generator_with_low_dtype_out(Tensor self, SymInt low, SymInt high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "_caffe2::BBoxTransform(Tensor rois, Tensor deltas, Tensor im_info, float[] weights, bool apply_scale, bool rotated, bool angle_bound_on, int angle_bound_lo, int angle_bound_hi, float clip_angle_thresh, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor output_0, Tensor output_1)"
