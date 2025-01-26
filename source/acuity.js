@@ -1,4 +1,3 @@
-
 const acuity = {};
 
 acuity.ModelFactory = class {
@@ -689,3 +688,21 @@ acuity.Error = class extends Error {
 };
 
 export const ModelFactory = acuity.ModelFactory;
+
+export function estimateFlops(layers) {
+    let totalFlops = 0;
+    for (const layer of layers) {
+        if (layer.type === 'Conv2D') {
+            const { kernelShape, inputShape, outputShape } = layer;
+            const [kH, kW] = kernelShape;
+            const [inC] = inputShape; 
+            const [outC, oH, oW] = outputShape;
+            totalFlops += kH * kW * inC * oH * oW * outC;
+        } else if (layer.type === 'Dense') {
+            const { inputSize, outputSize } = layer;
+            totalFlops += inputSize * outputSize;
+        }
+        // Add other layer types (e.g., pooling, batch norm, etc.) as needed.
+    }
+    return totalFlops;
+}
