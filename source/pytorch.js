@@ -555,7 +555,13 @@ pytorch.Node = class {
             }
             const sourceRange = node.sourceRange();
             if (sourceRange) {
-                this.metadata.push(new pytorch.Argument('source', sourceRange.toString().replace(/^at\s/, '').replace(/\.$/, '')));
+                this.metadata.push(new pytorch.Argument('source', sourceRange.toString().replace(/^at\s/, '').replace(/\.$/, ''), 'attribute'));
+                if (sourceRange.source()) {
+                    const orig = sourceRange.source().findSourceRangeThatGenerated(sourceRange);
+                    if (orig) {
+                        this.metadata.push(new pytorch.Argument('generated', orig.toString(), 'attribute'));
+                    }
+                }
             }
         } else if (torch && obj instanceof torch.fx.node.Node) {
             if (obj.op === 'call_function') {

@@ -2855,7 +2855,7 @@ view.TextView = class extends view.Control {
         super(context);
         this.element = this.createElement('div', 'sidebar-item-value');
         let className = 'sidebar-item-value-line';
-        if (value) {
+        if (value !== null && value !== undefined) {
             const list = Array.isArray(value) ? value : [value];
             for (const item of list) {
                 const line = this.createElement('div', className);
