@@ -3641,6 +3641,13 @@ view.ModelSidebar = class extends view.ObjectSidebar {
                 this.addProperty(argument.name, argument.value);
             }
         }
+        const metrics = model.metrics;
+        if (Array.isArray(metrics) && metrics.length > 0) {
+            this.addHeader('Metrics');
+            for (const argument of metrics) {
+                this.addProperty(argument.name, argument.value);
+            }
+        }
         if (graph) {
             if (graph.version) {
                 this.addProperty('version', graph.version);
@@ -3672,6 +3679,13 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             if (Array.isArray(metadata) && metadata.length > 0) {
                 this.addHeader('Metadata');
                 for (const argument of metadata) {
+                    this.addProperty(argument.name, argument.value);
+                }
+            }
+            const metrics = graph.metrics;
+            if (Array.isArray(metrics) && metrics.length > 0) {
+                this.addHeader('Metrics');
+                for (const argument of metrics) {
                     this.addProperty(argument.name, argument.value);
                 }
             }
