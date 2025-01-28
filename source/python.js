@@ -1246,15 +1246,17 @@ python.Execution = class {
                             }
                         }
                         if (stack.length === 0 && keywords.length === 0) {
-                            if (args.length === 1 && !tuple) {
-                                [node] = args;
-                            } else {
-                                node = new ast.Tuple(args);
-                                this._mark(node, position);
-                            }
+                            node = args.length === 1 && !tuple ? args[0] : new ast.Tuple(args);
+                            this._mark(node, position);
                         } else {
                             const func = stack.pop();
                             node = new ast.Call(func, args, keywords);
+                            let start = func;
+                            while (start instanceof ast.Attribute) {
+                                start = start.value;
+                            }
+                            position.lineno = start.lineno;
+                            position.col_offset = start.col_offset;
                             this._mark(node, position);
                         }
                         stack.push(node);
@@ -11831,8 +11833,8 @@ python.Execution = class {
                 let pos = 0;
                 this._line_starting_offsets = [0];
                 while ((pos = this._text_view.indexOf('\n', pos)) !== -1) {
-                    this._line_starting_offsets.push(pos);
                     pos += 1;
+                    this._line_starting_offsets.push(pos);
                 }
             }
             offset_for_line(line) {
@@ -11862,8 +11864,8 @@ python.Execution = class {
                 } else if (args.length === 2) {
                     let node = null;
                     [this._source_view, node] = args;
-                    this._start = this._source_view.offset_for_line(node.lineno - 1) + node.col_offset;
-                    this._end = this._source_view.offset_for_line(node.end_lineno - 1) + node.end_col_offset;
+                    this._start = this._source_view.offset_for_line(node.lineno - 1) + (node.col_offset - 1);
+                    this._end = this._source_view.offset_for_line(node.end_lineno - 1) + (node.end_col_offset - 1);
                 } else if (args.length === 3) {
                     [this._source_view, this._start, this._end] = args;
                 } else {
@@ -12343,12 +12345,11 @@ python.Execution = class {
                 this.unpickle();
                 const start = range.start();
                 const records = this.unpickled_records;
-                const size = range.source().size();
                 for (let i = 0; i < records.length; i++) {
-                    const [offset, range] = this.unpickled_records[i];
-                    const next = i < records.length - 1 ? records[i + 1][0] : size;
+                    const [offset, target] = records[i];
+                    const next = i < records.length - 1 ? records[i + 1][0] : range.source().size();
                     if (start >= offset && start < next) {
-                        return range;
+                        return target;
                     }
                 }
                 return null;
