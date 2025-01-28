@@ -2312,6 +2312,7 @@
     "target":   "resnet50-v1.5-mlperf-quantized-fp16.kgraph",
     "source":   "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/kann-graph/resnet50-v1.5-mlperf-quantized-fp16.kgraph",
     "format":   "KaNN",
+    "assert":   "model.graphs[0].nodes[88].inputs[1].value[0].quantization.type == 'linear'",
     "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/1408"
   },
