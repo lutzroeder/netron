@@ -583,6 +583,7 @@ fb_xnnpack.XNodeUnion = class {
             case 37: return fb_xnnpack._XNNNode2x1.decode(reader, position);
             case 38: return fb_xnnpack._XNNCat.decode(reader, position);
             case 39: return fb_xnnpack._XNNNodeConv.decode(reader, position);
+            case 40: return fb_xnnpack._XNNNode1x1.decode(reader, position);
             default: return undefined;
         }
     }
