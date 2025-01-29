@@ -4418,6 +4418,18 @@
     "name": "aten::fft_ifft2.out(Tensor self, SymInt[1]? s=None, int[1] dim=[-2, -1], str? norm=None, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::nuclear_norm(Tensor self, bool keepdim=False) -> Tensor"
+  },
+  {
+    "name": "aten::nuclear_norm.dim(Tensor self, int[2] dim, bool keepdim=False) -> Tensor"
+  },
+  {
+    "name": "aten::nuclear_norm.out(Tensor self, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::nuclear_norm.dim_out(Tensor self, int[2] dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::frobenius_norm.dim(Tensor self, int[1] dim, bool keepdim=False) -> Tensor",
     "category": "Normalization"
   },
