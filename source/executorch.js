@@ -52,19 +52,19 @@ executorch.Graph = class {
         values.map = (index, output) => {
             if (!values.has(index)) {
                 const executorch_flatbuffer = executorch.schema.executorch_flatbuffer;
-                const v = plan.values[index].val;
-                const tensor = v instanceof executorch_flatbuffer.Tensor || v instanceof executorch_flatbuffer.TensorList || v instanceof executorch_flatbuffer.OptionalTensorList;
+                const val = plan.values[index].val;
+                const tensor = val instanceof executorch_flatbuffer.Tensor || val instanceof executorch_flatbuffer.TensorList || val instanceof executorch_flatbuffer.OptionalTensorList;
                 if (output && !tensor) {
                     const value = [new executorch.Value(index.toString(), null, null)];
                     values.set(index, { type: null, value });
                 } else if (tensor) {
-                    const tensors = v instanceof executorch_flatbuffer.Tensor ? [v] : Array.from(v.items).map((arg) => plan.values[arg].val);
+                    const tensors = val instanceof executorch_flatbuffer.Tensor ? [val] : Array.from(val.items).map((arg) => plan.values[arg].val);
                     const list = [];
                     for (let i = 0; i < tensors.length; i++) {
                         const tensor = tensors[i];
                         const type = new executorch.TensorType(tensor);
                         let initializer = null;
-                        if (v.data_buffer_idx > 0) {
+                        if (val.data_buffer_idx > 0) {
                             initializer = new executorch.Tensor(tensor, target);
                         }
                         const identifier = tensors.length > 1 ? `${index}.${i}` : index.toString();
@@ -72,19 +72,19 @@ executorch.Graph = class {
                         list.push(value);
                     }
                     values.set(index, { type: null, value: list });
-                } else if (v instanceof executorch_flatbuffer.Bool) {
-                    values.set(index, { type: 'int64', value: v.bool_val });
-                } else if (v instanceof executorch_flatbuffer.Int) {
-                    values.set(index, { type: 'int64', value: v.int_val });
-                } else if (v instanceof executorch_flatbuffer.IntList) {
-                    const list = v.items.map((index) => plan.values[index].val.int_val);
+                } else if (val instanceof executorch_flatbuffer.Bool) {
+                    values.set(index, { type: 'int64', value: val.bool_val });
+                } else if (val instanceof executorch_flatbuffer.Int) {
+                    values.set(index, { type: 'int64', value: val.int_val });
+                } else if (val instanceof executorch_flatbuffer.IntList) {
+                    const list = val.items.map((index) => plan.values[index].val.int_val);
                     values.set(index, { type: 'int64[]', value: list });
-                } else if (v instanceof executorch_flatbuffer.Double) {
-                    values.set(index, { type: 'float64', value: v.double_val });
-                } else if (v instanceof executorch_flatbuffer.Null) {
+                } else if (val instanceof executorch_flatbuffer.Double) {
+                    values.set(index, { type: 'float64', value: val.double_val });
+                } else if (val instanceof executorch_flatbuffer.Null) {
                     values.set(index, { type: 'attribute', value: null });
                 } else {
-                    throw new Error('Value type not implemented.');
+                    throw new Error(`Value type '${val.constructor.name}' not implemented.`);
                 }
             }
             return values.get(index);
@@ -446,15 +446,17 @@ xnnpack.Graph = class {
             if (!values.has(id)) {
                 const fb_xnnpack = executorch.schema.fb_xnnpack;
                 const name = id.toString();
-                const value = graph.xvalues[id].xvalue_union;
-                if (value instanceof fb_xnnpack.XNNTensorValue) {
-                    const type = new xnnpack.TensorType(value);
-                    const initializer = value.constant_buffer_idx === 0 ? null : new xnnpack.Tensor(value, reader);
-                    values.set(id, new xnnpack.Value(name, type, initializer));
-                } else if (value instanceof fb_xnnpack.XNNQuantizedTensorValue) {
-                    values.set(id, new xnnpack.Value(name, null, null));
+                const xvalue = graph.xvalues[id].xvalue_union;
+                if (xvalue instanceof fb_xnnpack.XNNTensorValue) {
+                    const type = new xnnpack.TensorType(xvalue);
+                    const initializer = xvalue.constant_buffer_idx === 0 ? null : new xnnpack.Tensor(xvalue, reader);
+                    const value = new xnnpack.Value(name, type, initializer);
+                    values.set(id, value);
+                } else if (xvalue instanceof fb_xnnpack.XNNQuantizedTensorValue) {
+                    const value = new xnnpack.Value(name, null, null);
+                    values.set(id, value);
                 } else {
-                    throw new xnnpack.Error('XNNPACK value type not implemented.');
+                    throw new xnnpack.Error(`Value type '${xvalue.constructor.name}' not implemented.`);
                 }
             }
             return values.get(id);
@@ -664,7 +666,8 @@ vulkan.Graph = class {
                 if (arg instanceof vkgraph.VkTensor) {
                     const type = new vulkan.TensorType(arg);
                     const initializer = arg.constant_id === -1 ? null : new vulkan.Tensor(arg, reader);
-                    values.set(id, { type: null, value: [new vulkan.Value(id.toString(), type, initializer)] });
+                    const value = new vulkan.Value(id.toString(), type, initializer);
+                    values.set(id, { type: null, value: [value] });
                 } else if (arg instanceof vkgraph.Int) {
                     values.set(id, { type: 'int64', value: arg.int_val });
                 } else if (arg instanceof vkgraph.IntList) {
