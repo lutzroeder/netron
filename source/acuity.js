@@ -1,4 +1,3 @@
-
 const acuity = {};
 
 acuity.ModelFactory = class {
@@ -23,7 +22,9 @@ acuity.Model = class {
         this.name = model.MetaData.Name;
         this.format = `Acuity v${model.MetaData.AcuityVersion}`;
         this.runtime = model.MetaData.Platform;
+        this.totalFlops = 0; // Initialize totalFlops
         this.graphs = [new acuity.Graph(metadata, model, data, quantization)];
+        this.totalFlops = this.graphs[0].totalFlops; // Assign totalFlops from the graphs
     }
 };
 
@@ -78,6 +79,7 @@ acuity.Graph = class {
                 totalFlops += inputSize * outputSize;
             }
         }
+        this.totalFlops = totalFlops; // Assign totalFlops to the graph
         this.metrics.push(new acuity.Argument('flops', totalFlops));
         acuity.Inference.infer(model.Layers);
         for (const [name, obj] of values) {

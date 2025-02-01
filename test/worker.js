@@ -621,6 +621,9 @@ export class Target {
         if (this.model.version || this.model.description || this.model.author || this.model.license) {
             // continue
         }
+        if (this.model.totalFlops && typeof this.model.totalFlops !== 'number') {
+            throw new Error("Invalid model totalFlops.");
+        }
         /* eslint-disable no-unused-expressions */
         const validateGraph = async (graph) => {
             const values = new Map();

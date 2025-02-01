@@ -3612,6 +3612,9 @@ view.ModelSidebar = class extends view.ObjectSidebar {
         if (model.source) {
             this.addProperty('source', model.source);
         }
+        if (model.totalFlops) {
+            this.addProperty('total flops', model.totalFlops);
+        }
         const graphs = Array.isArray(model.graphs) ? model.graphs : [];
         if (graphs.length === 1 && graphs[0].name) {
             this.addProperty('graph', graphs[0].name);
