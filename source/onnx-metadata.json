@@ -16825,6 +16825,7 @@
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(float)",
+          "tensor(double)",
           "tensor(float16)",
           "tensor(bfloat16)"
         ]
