@@ -215,6 +215,9 @@
     "name": "prim::requires_grad(Tensor a) -> bool"
   },
   {
+    "name": "aten::percentFormat(str self, ...) -> str"
+  },
+  {
     "name": "aten::device(str a) -> Device"
   },
   {
@@ -1442,6 +1445,12 @@
     "name": "aten::_scaled_dot_product_flash_attention_for_cpu(Tensor query, Tensor key, Tensor value, float dropout_p=0., bool is_causal=False, *, Tensor? attn_mask=None, float? scale=None) -> (Tensor output, Tensor logsumexp)"
   },
   {
+    "name": "aten::segment_reduce(Tensor data, str reduce, *, Tensor? lengths=None, Tensor? indices=None, Tensor? offsets=None, int axis=0, bool unsafe=False, Scalar? initial=None) -> Tensor"
+  },
+  {
+    "name": "aten::segment_reduce.out(Tensor data, str reduce, *, Tensor? lengths=None, Tensor? indices=None, Tensor? offsets=None, int axis=0, bool unsafe=False, Scalar? initial=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::remainder_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)"
   },
   {
@@ -2094,6 +2103,9 @@
   },
   {
     "name": "aten::log_(Tensor(a!) self) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized::conv1d_unpack(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> (Tensor unpacked_weights, Tensor? B_origin)"
   },
   {
     "name": "quantized::linear_prepack_fp16(Tensor W, Tensor? B=None) -> __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack"
@@ -7552,6 +7564,9 @@
   },
   {
     "name": "vai::fix_neuron(Tensor input, int valmin, int valmax, float valamp, int zero_point, int method, int device_id, int inplace) -> Tensor"
+  },
+  {
+    "name": "detectron2::nms_rotated(Tensor boxes, Tensor scores, float iou_threshold) -> Tensor"
   },
   {
     "name": "__torch__.torch.classes.rnn.CellParamsBase",

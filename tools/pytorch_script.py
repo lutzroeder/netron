@@ -66,6 +66,7 @@ known_legacy_schema_definitions = [
     'aten::randint_like.generator_out(Tensor self, SymInt high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)',
     'aten::randint_like.generator_with_low_dtype(Tensor self, SymInt low, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor',
     'aten::randint_like.generator_with_low_dtype_out(Tensor self, SymInt low, SymInt high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)',
+    'detectron2::nms_rotated(Tensor boxes, Tensor scores, float iou_threshold) -> Tensor',
     'executorch_prim::et_view.default(Tensor self, int[] size) -> (Tensor out)',
     'executorch_prim::add.Scalar(Scalar a, Scalar b) -> Scalar',
     'executorch_prim::sub.Scalar(Scalar a, Scalar b) -> Scalar',
