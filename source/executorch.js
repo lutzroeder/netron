@@ -536,6 +536,7 @@ xnnpack.Metadata = class {
         this.register('XNNStaticTranspose', 'Transform');
         this.register('_XNNNodeConv', 'Layer');
         this.register('XNNFullyConnected', 'Layer');
+        this.register('_XNNCat', 'Tensor');
     }
 
     register(name, category) {
