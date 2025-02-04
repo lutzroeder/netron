@@ -6007,21 +6007,18 @@ python.Execution = class {
                     return [torch._C.AliasTypeSet([type])];
                 }
                 if (type instanceof torch.FutureType) {
-                    throw new python.Error('Not implemented.');
-                    /* if (auto maybe_mut_types = mapTypeToAliasTypeSet(type.castRaw<FutureType>()->getElementType())) {
-                      return {AliasTypeSet{FutureType::create(*toSingleType(*maybe_mut_types))}};
+                    const maybe_mut_types = this.mapTypeToAliasTypeSet(type.getElementType());
+                    if (maybe_mut_types) {
+                        return [torch._C.AliasTypeSet([torch.FutureType.create(torch._C.toSingleType(maybe_mut_types))])];
                     }
-                    return null; */
+                    return null;
                 }
                 if (type instanceof torch.AwaitType) {
-                    throw new python.Error('Not implemented.');
-                    /*
-                    if (auto maybe_mut_types = mapTypeToAliasTypeSet(
-                            type->castRaw<AwaitType>()->getElementType())) {
-                      return {
-                          AliasTypeSet{AwaitType::create(*toSingleType(*maybe_mut_types))}};
+                    const maybe_mut_types = this.mapTypeToAliasTypeSet(type.getElementType());
+                    if (maybe_mut_types) {
+                        return [torch._C.AliasTypeSet([torch.AwaitType.create(torch._C.toSingleType(maybe_mut_types))])];
                     }
-                    return null; */
+                    return null;
                 }
                 if (type instanceof torch.TupleType) {
                     const mutable_types = [];
@@ -8684,7 +8681,8 @@ python.Execution = class {
             addConstant(name, value) {
                 this._constants.set(name, value);
             }
-            hasConstant(/* name */) {
+            hasConstant(name) {
+                return this._constants.has(name);
             }
             getProperty(name) {
                 for (const prop of this._properties) {
@@ -10338,15 +10336,6 @@ python.Execution = class {
             }
             subscriptToType(typeName, subscript) {
                 if (typeName === 'Tuple' || typeName === 'tuple') {
-                    /*
-                    if (subscript.slice.elts.length === 1 && subscript.slice.elts[0].kind() === TK_TUPLE_LITERAL) {
-                        const tup_literal = null; // TupleLiteral(subscript.subscript_exprs()[0]);
-                        if (!tup_literal.inputs().empty()) {
-                            throw new python.Error('Tuple literal in Tuple type annotation must not have any elements.');
-                        }
-                        return torch.TupleType.create({});
-                    }
-                    */
                     const subscript_expr_types = [];
                     const elts = subscript.slice instanceof ast.Tuple ? subscript.slice.elts : [subscript.slice];
                     for (const expr of elts) {
@@ -10464,9 +10453,8 @@ python.Execution = class {
                 this._dir.push(key);
                 return overload;
             }
-            _has_script_object_arg(/* schema */) {
-                return false;
-                // return any(isinstance(arg.type, torch.ClassType) for arg in schema.arguments)
+            _has_script_object_arg(schema) {
+                return schema.arguments.some((arg) => arg.type instanceof torch.ClassType);
             }
         });
         this.registerType('torch._ops._OpNamespace', class extends types.ModuleType {
@@ -12177,7 +12165,6 @@ python.Execution = class {
                 this._sources.set(src.filename(), src);
                 const p = new torch._C.Parser(src);
                 const L = p.parse();
-                // const p = this._cu.execution.parse(src.filename(), src.text_str(), null);
                 this.parsePossibleVersionNumber(p);
                 for (const stmt of L.body) {
                     if (stmt instanceof ast.ClassDef) {
@@ -12601,15 +12588,17 @@ python.Execution = class {
                     const src = new torch._C.Source(data, filename);
                     this._source_importer.LEGACY_import_methods(module, src);
                 }
-                /*
-                if (module_def.has_get_state_attribute_id()) {
-                    LEGACY_moduleSetState(module, LEGACY_pickled_ivalues_.at(module_def.get_state_attribute_id()));
+                if (module_def.get_state_attribute_id) {
+                    throw new python.Error('Not implemented.');
+                    // LEGACY_moduleSetState(module, LEGACY_pickled_ivalues_.at(module_def.get_state_attribute_id()));
                 }
-                const ClassTypePtr& module_type = module._ivalue()->type();
-                for (size_t i = 0, N = module_type->numAttributes(); i < N; ++i) {
-                    const IValue& v = module._ivalue()->getSlot(i);
-                    if (module_type->getAttribute(i)->kind() != TypeKind::OptionalType) {
-                        TORCH_CHECK(!v.isNone(), "The field '", module_type->getAttributeName(i), "' was left unitialized after __setstate__, but expected a ", "value of type '", v.type()->repr_str(), "'");
+                /*
+                const module_type = module._ivalue().type();
+                const N = module_type.numAttributes();
+                for (let i = 0; i < N; ++i) {
+                    const v = module._ivalue().getSlot(i);
+                    if (module_type.getAttribute(i) instanceof torch.OptionalType === false) {
+                        torch._C.TORCH_CHECK(!v.isNone());
                     }
                 }
                 */
@@ -12956,7 +12945,7 @@ python.Execution = class {
                     env.s('Scalar', scalar);
                     this.loadSource(scalar_operators_source.format(env), 'aten');
                 }
-                for (auto scalar : {'float', 'int'}) {
+                for (const scalar of ['float', 'int']) {
                     const env  = new torch.C.TemplateEnv();
                     env.s('Scalar', scalar);
                     loadSource(scalar_operators_no_complex_source.format(env), 'aten');
@@ -14685,7 +14674,6 @@ python.Execution = class {
             find_method(basename) {
                 for (const fn of this.type().methods()) {
                     if (fn.name() === basename) {
-                        // return Method(_ivalue(), fn);
                         return new torch.ScriptMethod(this /* _value() */, fn);
                     }
                 }
