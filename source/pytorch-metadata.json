@@ -242,6 +242,9 @@
     "name": "aten::find(str self, str substr, int start=0, int end=-1) -> int"
   },
   {
+    "name": "aten::startswith(str self, str substr, int start=0, int end=-1) -> bool"
+  },
+  {
     "name": "aten::count(str self, str substr, int start=0, int end=-1) -> int"
   },
   {
@@ -744,6 +747,9 @@
   },
   {
     "name": "prim::EnumName(AnyEnumType enum) -> str"
+  },
+  {
+    "name": "aten::Size(int[] sizes) -> int[]"
   },
   {
     "name": "prim::RaiseException(str msg, str? cls=None) -> ()"
@@ -2718,6 +2724,9 @@
   },
   {
     "name": "aten::ones_like.out(Tensor self, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::allclose(Tensor self, Tensor other, float rtol=1.0000000000000001e-05, float atol=1e-08, bool equal_nan=False) -> bool"
   },
   {
     "name": "aten::item(Tensor self) -> Scalar"
