@@ -5648,6 +5648,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "face_landmarks_detector_Nx3x256x256_onnx.pth",
+    "source":   "https://github.com/user-attachments/files/18682052/face_landmarks_detector_Nx3x256x256_onnx.pth.zip[face_landmarks_detector_Nx3x256x256_onnx.pth]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "fairseq.lightweightconv.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9145928/fairseq.lightweightconv.pt.zip[fairseq.lightweightconv.pt]",
     "format":   "TorchScript v1.6",

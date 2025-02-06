@@ -5038,7 +5038,7 @@ python.Execution = class {
                     }
                     modules.set(prefix, this);
                     for (const [name, module] of this._modules.items()) {
-                        if (module) {
+                        if (module && module.named_modules) {
                             const submodule_prefix = `${prefix}${(prefix ? '.' : '')}${name}`;
                             for (const [k, v] of module.named_modules(memo, submodule_prefix, remove_duplicate)) {
                                 modules.set(k, v);
