@@ -104,7 +104,6 @@
   },
   {
     "name": "DetectionPostProcessLayer",
-    "category": "Custom",
     "attributes": [
       { "name": "maxDetections", "type": "uint32" },
       { "name": "maxClassesPerDetection", "type": "uint32" },

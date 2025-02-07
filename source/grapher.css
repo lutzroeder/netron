@@ -25,8 +25,6 @@
 .node-item-type-control:hover path { fill: #fff; }
 
 .node-item-type-layer path { fill: rgb(51, 85, 136); }
-.node-item-type-wrapper path { fill: rgb(238, 238, 238); }
-.node-item-type-wrapper text { fill: rgb(0, 0, 0) }
 .node-item-type-activation path { fill: rgb(112, 41, 33); }
 .node-item-type-pool path { fill: rgb(51, 85, 51); }
 .node-item-type-normalization path { fill: rgb(51, 85, 68); }
@@ -37,7 +35,6 @@
 .node-item-type-data path { fill: rgb(85, 85, 85); }
 .node-item-type-quantization path { fill: rgb(80, 40, 0); }
 .node-item-type-attention path { fill: rgb(120, 60, 0); }
-.node-item-type-custom path { fill: rgb(128, 128, 128); }
 
 .node-item-input path { fill: #fff; }
 .node-item-input:hover { cursor: pointer; }
