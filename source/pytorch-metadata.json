@@ -969,6 +969,9 @@
     "category": "Layer"
   },
   {
+    "name": "aten::_autocast_to_full_precision(Tensor(a) self, bool cuda_enabled, bool cpu_enabled) -> Tensor(a)"
+  },
+  {
     "name": "aten::_autocast_to_reduced_precision(Tensor(a) self, bool cuda_enabled, bool cpu_enabled, ScalarType cuda_dtype, ScalarType cpu_dtype) -> Tensor(a)"
   },
   {
@@ -1590,33 +1593,39 @@
     "name": "aten::arange.out(Scalar end, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::conv_transpose2d_dilation(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
+    "name": "quantized::conv_transpose2d_output_padding(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
   },
   {
-    "name": "quantized::conv_transpose2d_padding(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
+    "name": "quantized::conv_transpose2d_stride(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
   },
   {
-    "name": "quantized::sigmoid(Tensor qx, float output_scale, int output_zero_point) -> Tensor",
+    "name": "quantized::softmax(Tensor qx, int dim, float output_scale, int output_zero_point) -> Tensor"
+  },
+  {
+    "name": "quantized::prelu(Tensor qx, Tensor weight, float output_scale, int output_zero_point) -> Tensor"
+  },
+  {
+    "name": "quantized::relu6(Tensor qx, bool inplace=False) -> Tensor",
     "category": "Activation"
   },
   {
-    "name": "quantized::leaky_relu(Tensor qx, Scalar negative_slope, bool inplace, float output_scale, int output_zero_point) -> Tensor",
-    "category": "Activation"
+    "name": "quantized::mul_scalar_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
-    "name": "quantized::mul_scalar_relu_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::mul_scalar_out.Tensor(Tensor qa, Tensor b, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
-    "name": "quantized::mul_scalar_relu_out.Tensor(Tensor qa, Tensor b, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::mul_scalar(Tensor qa, Scalar b) -> Tensor qc"
   },
   {
-    "name": "quantized::mul_scalar_relu(Tensor qa, Scalar b) -> Tensor qc"
+    "name": "quantized::mul_scalar.Tensor(Tensor qa, Tensor b) -> Tensor qc"
   },
   {
-    "name": "quantized::mul_scalar_relu.Tensor(Tensor qa, Tensor b) -> Tensor qc"
+    "name": "quantized::linear_prepack(Tensor W, Tensor? B=None) -> __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack"
   },
   {
-    "name": "quantized::linear_dynamic_fp16(Tensor X, __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack) -> Tensor Y"
+    "name": "quantized::linear_relu_dynamic(Tensor X, __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack, bool reduce_range=False) -> Tensor Y",
+    "category": "Layer"
   },
   {
     "name": "aten::int_repr.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
@@ -1625,7 +1634,7 @@
     "name": "aten::int_repr(Tensor self) -> Tensor"
   },
   {
-    "name": "quantized::linear_relu(Tensor X, __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack, float Y_scale_i, int Y_zero_point_i) -> Tensor Y",
+    "name": "quantized::linear(Tensor X, __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack, float Y_scale_i, int Y_zero_point_i) -> Tensor Y",
     "category": "Layer"
   },
   {
@@ -1644,16 +1653,19 @@
     "name": "aten::index_copy_.dimname(Tensor(a!) self, str dim, Tensor index, Tensor source) -> Tensor(a!)"
   },
   {
+    "name": "quantized::embedding_byte(__torch__.torch.classes.quantized.EmbeddingPackedParamsBase weight, Tensor indices, bool pruned_weights=False) -> Tensor"
+  },
+  {
     "name": "aten::huber_loss_backward.out(Tensor grad_output, Tensor self, Tensor target, int reduction, float delta, *, Tensor(a!) grad_input) -> Tensor(a!)"
   },
   {
     "name": "aten::huber_loss_backward(Tensor grad_output, Tensor self, Tensor target, int reduction, float delta) -> Tensor"
   },
   {
-    "name": "quantized::conv_transpose1d_prepack(Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] output_padding, int[] dilation, int groups) -> __torch__.torch.classes.quantized.Conv2dPackedParamsBase"
+    "name": "quantized::conv3d_prepack(Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups) -> __torch__.torch.classes.quantized.Conv3dPackedParamsBase"
   },
   {
-    "name": "quantized::conv1d_prepack(Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups) -> __torch__.torch.classes.quantized.Conv2dPackedParamsBase"
+    "name": "quantized::conv_prepack(Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups) -> __torch__.torch.classes.quantized.Conv2dPackedParamsBase"
   },
   {
     "name": "quantized::conv_transpose2d_dynamic(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weight, bool reduce_range=False) -> Tensor"
@@ -1663,9 +1675,6 @@
   },
   {
     "name": "aten::histc.out(Tensor self, int bins=100, Scalar min=0, Scalar max=0, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "quantized::conv2d_dynamic(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weight, bool reduce_range=False) -> Tensor"
   },
   {
     "name": "aten::hann_window(int window_length, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
@@ -1680,11 +1689,11 @@
     "name": "aten::hann_window.periodic_out(int window_length, bool periodic, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::conv3d_relu.new(Tensor qx, __torch__.torch.classes.quantized.Conv3dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor",
+    "name": "quantized::conv3d.new(Tensor qx, __torch__.torch.classes.quantized.Conv3dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor",
     "category": "Layer"
   },
   {
-    "name": "quantized::conv3d_relu(Tensor qx, __torch__.torch.classes.quantized.Conv3dPackedParamsBase weight, int[] stride, int[] padding, int[] dilation, int groups, float output_scale, int output_zero_point) -> Tensor",
+    "name": "quantized::conv3d(Tensor qx, __torch__.torch.classes.quantized.Conv3dPackedParamsBase weight, int[] stride, int[] padding, int[] dilation, int groups, float output_scale, int output_zero_point) -> Tensor",
     "category": "Layer"
   },
   {
@@ -1712,27 +1721,11 @@
     "name": "aten::hamming_window.periodic_alpha_beta_out(int window_length, bool periodic, float alpha, float beta, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::conv3d.new(Tensor qx, __torch__.torch.classes.quantized.Conv3dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor",
+    "name": "quantized::conv1d_relu(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor",
     "category": "Layer"
   },
   {
-    "name": "quantized::conv3d(Tensor qx, __torch__.torch.classes.quantized.Conv3dPackedParamsBase weight, int[] stride, int[] padding, int[] dilation, int groups, float output_scale, int output_zero_point) -> Tensor",
-    "category": "Layer"
-  },
-  {
-    "name": "quantized::conv2d.new(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor",
-    "category": "Layer"
-  },
-  {
-    "name": "quantized::conv2d(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase weight, int[] stride, int[] padding, int[] dilation, int groups, float output_scale, int output_zero_point) -> Tensor",
-    "category": "Layer"
-  },
-  {
-    "name": "quantized::cat(Tensor[] qx, int dim, float? scale, int? zero_point) -> Tensor",
-    "category": "Tensor"
-  },
-  {
-    "name": "quantized::batch_norm2d_relu(Tensor qx, Tensor? weight, Tensor? bias, Tensor mean, Tensor var, float eps, float output_scale, int output_zero_point) -> Tensor",
+    "name": "quantized::batch_norm3d_relu(Tensor qx, Tensor? weight, Tensor? bias, Tensor mean, Tensor var, float eps, float output_scale, int output_zero_point) -> Tensor",
     "category": "Normalization"
   },
   {
@@ -1740,14 +1733,24 @@
     "category": "Normalization"
   },
   {
+    "name": "quantized::batch_norm1d_relu(Tensor qx, Tensor? weight, Tensor? bias, Tensor mean, Tensor var, float eps, float output_scale, int output_zero_point) -> Tensor",
+    "category": "Normalization"
+  },
+  {
+    "name": "quantized::add_scalar_relu_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
+  },
+  {
+    "name": "quantized::add_scalar_relu_out.Tensor(Tensor qa, Tensor b, Tensor(a!) out) -> Tensor(a!) out"
+  },
+  {
     "name": "aten::gelu_(Tensor(a!) self, *, str approximate=\"none\") -> Tensor(a!)",
     "category": "Activation"
   },
   {
-    "name": "quantized::add_scalar_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::add_scalar_relu(Tensor qa, Scalar b) -> Tensor qc"
   },
   {
-    "name": "quantized::add_scalar_out.Tensor(Tensor qa, Tensor b, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::add_scalar_relu.Tensor(Tensor qa, Tensor b) -> Tensor qc"
   },
   {
     "name": "aten::ge_.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)"
@@ -1756,10 +1759,7 @@
     "name": "aten::ge_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)"
   },
   {
-    "name": "quantized::add_scalar(Tensor qa, Scalar b) -> Tensor qc"
-  },
-  {
-    "name": "quantized::add_scalar.Tensor(Tensor qa, Tensor b) -> Tensor qc"
+    "name": "quantized::add_relu_out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
     "name": "aten::full.names(int[] size, Scalar fill_value, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
@@ -1774,16 +1774,13 @@
     "name": "aten::full.out(SymInt[] size, Scalar fill_value, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::quantized_rnn_tanh_cell_dynamic(Tensor input, Tensor hx, __torch__.torch.classes.quantized.LinearPackedParamsBase w_ih, __torch__.torch.classes.quantized.LinearPackedParamsBase w_hh, Tensor b_ih, Tensor b_hh) -> Tensor"
+    "name": "quantized::quantized_rnn_relu_cell_dynamic(Tensor input, Tensor hx, __torch__.torch.classes.quantized.LinearPackedParamsBase w_ih, __torch__.torch.classes.quantized.LinearPackedParamsBase w_hh, Tensor b_ih, Tensor b_hh) -> Tensor"
   },
   {
-    "name": "quantized::quantized_gru_cell_dynamic(Tensor input, Tensor hx, __torch__.torch.classes.quantized.LinearPackedParamsBase w_ih, __torch__.torch.classes.quantized.LinearPackedParamsBase w_hh, Tensor b_ih, Tensor b_hh) -> Tensor"
+    "name": "quantized::quantized_lstm_cell_dynamic(Tensor input, Tensor[] hx, __torch__.torch.classes.quantized.LinearPackedParamsBase w_ih, __torch__.torch.classes.quantized.LinearPackedParamsBase w_hh, Tensor bias_ih, Tensor bias_hh) -> (Tensor, Tensor)"
   },
   {
-    "name": "quantized::make_quantized_cell_params_dynamic(__torch__.torch.classes.quantized.LinearPackedParamsBase w_ih, __torch__.torch.classes.quantized.LinearPackedParamsBase w_hh, Tensor bias_ih, Tensor bias_hh, bool reduce_range=False) -> __torch__.torch.classes.rnn.CellParamsBase"
-  },
-  {
-    "name": "quantized::linear_relu_dynamic(Tensor X, __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack, bool reduce_range=False) -> Tensor Y",
+    "name": "quantized::linear_dynamic(Tensor X, __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack, bool reduce_range=False) -> Tensor Y",
     "category": "Layer"
   },
   {
@@ -1793,8 +1790,7 @@
     "name": "aten::is_pinned(Tensor self, Device? device=None) -> bool"
   },
   {
-    "name": "quantized::linear_dynamic(Tensor X, __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack, bool reduce_range=False) -> Tensor Y",
-    "category": "Layer"
+    "name": "quantized::conv_transpose2d_prepack(Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] output_padding, int[] dilation, int groups) -> __torch__.torch.classes.quantized.Conv2dPackedParamsBase"
   },
   {
     "name": "aten::equal(Tensor self, Tensor other) -> bool"
@@ -1948,10 +1944,10 @@
     "category": "Activation"
   },
   {
-    "name": "quantized::add_scalar_relu(Tensor qa, Scalar b) -> Tensor qc"
+    "name": "quantized::add_scalar(Tensor qa, Scalar b) -> Tensor qc"
   },
   {
-    "name": "quantized::add_scalar_relu.Tensor(Tensor qa, Tensor b) -> Tensor qc"
+    "name": "quantized::add_scalar.Tensor(Tensor qa, Tensor b) -> Tensor qc"
   },
   {
     "name": "aten::gelu(Tensor self, *, str approximate=\"none\") -> Tensor",
@@ -1975,8 +1971,10 @@
     "category": "Activation"
   },
   {
-    "name": "quantized::layer_norm(Tensor input, int[] normalized_shape, Tensor? weight, Tensor? bias, float eps, float output_scale, int output_zero_point) -> Tensor",
-    "category": "Normalization"
+    "name": "quantized::mul_scalar_relu_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
+  },
+  {
+    "name": "quantized::mul_scalar_relu_out.Tensor(Tensor qa, Tensor b, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
     "name": "aten::leaky_relu(Tensor self, Scalar negative_slope=0.01) -> Tensor",
@@ -1984,6 +1982,10 @@
   },
   {
     "name": "aten::leaky_relu.out(Tensor self, Scalar negative_slope=0.01, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized::layer_norm(Tensor input, int[] normalized_shape, Tensor? weight, Tensor? bias, float eps, float output_scale, int output_zero_point) -> Tensor",
+    "category": "Normalization"
   },
   {
     "name": "aten::leaky_relu_(Tensor(a!) self, Scalar negative_slope=0.01) -> Tensor(a!)",
@@ -2013,6 +2015,9 @@
     "category": "Activation"
   },
   {
+    "name": "quantized::conv_transpose2d(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor"
+  },
+  {
     "name": "aten::hardsigmoid(Tensor self) -> Tensor",
     "category": "Activation"
   },
@@ -2022,6 +2027,14 @@
   {
     "name": "aten::hardsigmoid_(Tensor(a!) self) -> Tensor(a!)",
     "category": "Activation"
+  },
+  {
+    "name": "quantized::conv3d_relu.new(Tensor qx, __torch__.torch.classes.quantized.Conv3dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor",
+    "category": "Layer"
+  },
+  {
+    "name": "quantized::conv3d_relu(Tensor qx, __torch__.torch.classes.quantized.Conv3dPackedParamsBase weight, int[] stride, int[] padding, int[] dilation, int groups, float output_scale, int output_zero_point) -> Tensor",
+    "category": "Layer"
   },
   {
     "name": "aten::hardshrink(Tensor self, Scalar lambd=0.5) -> Tensor"
@@ -2111,10 +2124,7 @@
     "name": "aten::log_(Tensor(a!) self) -> Tensor(a!)"
   },
   {
-    "name": "quantized::conv1d_unpack(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> (Tensor unpacked_weights, Tensor? B_origin)"
-  },
-  {
-    "name": "quantized::linear_prepack_fp16(Tensor W, Tensor? B=None) -> __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack"
+    "name": "quantized::linear_prepack_fp16_legacy(Tensor W, Tensor? B=None) -> Tensor W_prepack"
   },
   {
     "name": "aten::isinf(Tensor self) -> Tensor"
@@ -2129,7 +2139,7 @@
     "name": "aten::isinf.complex(complex a) -> bool"
   },
   {
-    "name": "quantized::linear_prepack_fp16_legacy(Tensor W, Tensor? B=None) -> Tensor W_prepack"
+    "name": "quantized::linear_prepack_fp16(Tensor W, Tensor? B=None) -> __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack"
   },
   {
     "name": "aten::isnan(Tensor self) -> Tensor"
@@ -2217,6 +2227,10 @@
     "category": "Transform"
   },
   {
+    "name": "quantized::celu(Tensor self, float output_scale, int output_zero_point, Scalar alpha=1) -> Tensor",
+    "category": "Activation"
+  },
+  {
     "name": "aten::index_add(Tensor self, int dim, Tensor index, Tensor source, *, Scalar alpha=1) -> Tensor"
   },
   {
@@ -2227,9 +2241,6 @@
   },
   {
     "name": "aten::index_add_(Tensor(a!) self, int dim, Tensor index, Tensor source, *, Scalar alpha=1) -> Tensor(a!)"
-  },
-  {
-    "name": "quantized::embedding_bag_byte_rowwise_offsets(Tensor weight, Tensor indices, Tensor? offsets=None, bool scale_grad_by_freq=False, int mode=0, bool pruned_weights=False, Tensor? per_sample_weights=None, Tensor? compressed_indices_mapping=None, bool include_last_offset=False) -> Tensor"
   },
   {
     "name": "aten::index_fill.int_Tensor(Tensor self, int dim, Tensor index, Tensor value) -> Tensor"
@@ -2250,7 +2261,7 @@
     "name": "aten::index_fill.int_Tensor_out(Tensor self, int dim, Tensor index, Tensor value, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::embedding_bag_4bit_rowwise_offsets(Tensor weight, Tensor indices, Tensor? offsets=None, bool scale_grad_by_freq=False, int mode=0, bool pruned_weights=False, Tensor? per_sample_weights=None, Tensor? compressed_indices_mapping=None, bool include_last_offset=False) -> Tensor"
+    "name": "quantized::embedding_bag_byte_rowwise_offsets(Tensor weight, Tensor indices, Tensor? offsets=None, bool scale_grad_by_freq=False, int mode=0, bool pruned_weights=False, Tensor? per_sample_weights=None, Tensor? compressed_indices_mapping=None, bool include_last_offset=False) -> Tensor"
   },
   {
     "name": "aten::index_fill_.int_Tensor(Tensor(a!) self, int dim, Tensor index, Tensor value) -> Tensor(a!)"
@@ -2287,10 +2298,6 @@
   },
   {
     "name": "aten::index_put_.hacked_twin(Tensor(a!) self, Tensor[] indices, Tensor values, bool accumulate=False) -> Tensor(a!)"
-  },
-  {
-    "name": "quantized::celu(Tensor self, float output_scale, int output_zero_point, Scalar alpha=1) -> Tensor",
-    "category": "Activation"
   },
   {
     "name": "aten::index.Tensor(Tensor self, Tensor?[] indices) -> Tensor"
@@ -2373,9 +2380,6 @@
   },
   {
     "name": "aten::logcumsumexp.out(Tensor self, int dim, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "quantized::matmul(Tensor qa, Tensor qb, float scale, int zero_point) -> Tensor qc"
   },
   {
     "name": "aten::kthvalue(Tensor self, int k, int dim=-1, bool keepdim=False) -> (Tensor values, Tensor indices)"
@@ -2565,13 +2569,7 @@
     "name": "aten::avg_pool2d.out(Tensor self, int[2] kernel_size, int[2] stride=[], int[2] padding=0, bool ceil_mode=False, bool count_include_pad=True, int? divisor_override=None, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::make_quantized_cell_params(Tensor w_ih, Tensor w_hh, Tensor b_ih, Tensor b_hh) -> __torch__.torch.classes.rnn.CellParamsBase"
-  },
-  {
-    "name": "aten::_adaptive_avg_pool2d(Tensor self, SymInt[2] output_size) -> Tensor"
-  },
-  {
-    "name": "aten::_adaptive_avg_pool2d.out(Tensor self, SymInt[2] output_size, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "quantized::make_quantized_cell_params_fp16(__torch__.torch.classes.quantized.LinearPackedParamsBase w_ih, __torch__.torch.classes.quantized.LinearPackedParamsBase w_hh) -> __torch__.torch.classes.rnn.CellParamsBase"
   },
   {
     "name": "aten::one_hot(Tensor self, int num_classes=-1) -> Tensor"
@@ -2617,10 +2615,6 @@
     "name": "aten::pixel_shuffle.out(Tensor self, int upscale_factor, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::conv1d(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor",
-    "category": "Layer"
-  },
-  {
     "name": "aten::im2col(Tensor self, int[2] kernel_size, int[2] dilation, int[2] padding, int[2] stride) -> Tensor"
   },
   {
@@ -2639,13 +2633,16 @@
     "name": "aten::_scaled_dot_product_efficient_attention(Tensor query, Tensor key, Tensor value, Tensor? attn_bias, bool compute_log_sumexp, float dropout_p=0., bool is_causal=False, *, float? scale=None) -> (Tensor output, Tensor log_sumexp, Tensor philox_seed, Tensor philox_offset)"
   },
   {
-    "name": "quantized::conv2d_dilation(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
+    "name": "quantized::conv2d_output_padding(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
   },
   {
     "name": "aten::linalg_cross(Tensor self, Tensor other, *, int dim=-1) -> Tensor"
   },
   {
     "name": "aten::linalg_cross.out(Tensor self, Tensor other, *, int dim=-1, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized::conv_transpose2d_groups(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int"
   },
   {
     "name": "quantized::conv_transpose2d_transpose(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int"
@@ -2657,7 +2654,7 @@
     "name": "aten::linalg_slogdet.out(Tensor A, *, Tensor(a!) sign, Tensor(b!) logabsdet) -> (Tensor(a!) sign, Tensor(b!) logabsdet)"
   },
   {
-    "name": "quantized::conv_transpose2d_stride(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
+    "name": "quantized::conv_transpose2d_unpack(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> (Tensor unpacked_weights, Tensor? B_origin)"
   },
   {
     "name": "aten::logspace.Tensor_Tensor(Tensor start, Tensor end, int steps, float base=10., *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
@@ -2729,6 +2726,9 @@
     "name": "aten::allclose(Tensor self, Tensor other, float rtol=1.0000000000000001e-05, float atol=1e-08, bool equal_nan=False) -> bool"
   },
   {
+    "name": "quantized::linear_dynamic_fp16(Tensor X, __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack) -> Tensor Y"
+  },
+  {
     "name": "aten::item(Tensor self) -> Scalar"
   },
   {
@@ -2770,9 +2770,6 @@
   },
   {
     "name": "aten::logical_not.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "quantized::conv_transpose2d_unpack(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> (Tensor unpacked_weights, Tensor? B_origin)"
   },
   {
     "name": "aten::multiply_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)"
@@ -2830,7 +2827,7 @@
     "category": "Tensor"
   },
   {
-    "name": "quantized::conv2d_transpose(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int"
+    "name": "quantized::conv2d_groups(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int"
   },
   {
     "name": "aten::embedding(Tensor weight, Tensor indices, SymInt padding_idx=-1, bool scale_grad_by_freq=False, bool sparse=False) -> Tensor",
@@ -3052,22 +3049,19 @@
     "name": "aten::log_sigmoid.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::linear_unpack_fp16(__torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack) -> (Tensor W_origin, Tensor? B_origin)"
-  },
-  {
-    "name": "quantized::linear_unpack_fp16.legacy(Tensor W_prepack) -> (Tensor W_origin, Tensor? B_origin)"
-  },
-  {
-    "name": "aten::linalg_solve_ex(Tensor A, Tensor B, *, bool left=True, bool check_errors=False) -> (Tensor result, Tensor info)"
-  },
-  {
-    "name": "aten::linalg_solve_ex.out(Tensor A, Tensor B, *, bool left=True, bool check_errors=False, Tensor(a!) result, Tensor(b!) info) -> (Tensor(a!) result, Tensor(b!) info)"
+    "name": "prepacked::conv2d_clamp_prepack(Tensor W, Tensor? B, int[2] stride, int[2] padding, int[2] dilation, int groups, Scalar? output_min=None, Scalar? output_max=None) -> __torch__.torch.classes.xnnpack.Conv2dOpContext"
   },
   {
     "name": "quantized::linear_unpack(__torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack) -> (Tensor W_origin, Tensor? B_origin)"
   },
   {
     "name": "quantized::linear_unpack.legacy(Tensor W_prepack) -> (Tensor W_origin, Tensor? B_origin)"
+  },
+  {
+    "name": "aten::linalg_solve_ex(Tensor A, Tensor B, *, bool left=True, bool check_errors=False) -> (Tensor result, Tensor info)"
+  },
+  {
+    "name": "aten::linalg_solve_ex.out(Tensor A, Tensor B, *, bool left=True, bool check_errors=False, Tensor(a!) result, Tensor(b!) info) -> (Tensor(a!) result, Tensor(b!) info)"
   },
   {
     "name": "aten::linalg_norm(Tensor self, Scalar? ord=None, int[1]? dim=None, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor"
@@ -3082,33 +3076,29 @@
     "name": "aten::linalg_norm.ord_str_out(Tensor self, str ord, int[1]? dim=None, bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::conv_transpose2d_groups(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int"
+    "name": "quantized::conv_transpose2d_dilation(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
   },
   {
-    "name": "quantized::conv2d_groups(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int"
+    "name": "quantized::conv2d_dilation(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
   },
   {
-    "name": "quantized::prelu(Tensor qx, Tensor weight, float output_scale, int output_zero_point) -> Tensor"
+    "name": "quantized::leaky_relu(Tensor qx, Scalar negative_slope, bool inplace, float output_scale, int output_zero_point) -> Tensor",
+    "category": "Activation"
   },
   {
-    "name": "quantized::softmax(Tensor qx, int dim, float output_scale, int output_zero_point) -> Tensor"
+    "name": "quantized::sigmoid(Tensor qx, float output_scale, int output_zero_point) -> Tensor",
+    "category": "Activation"
   },
   {
-    "name": "quantized::mul_scalar(Tensor qa, Scalar b) -> Tensor qc"
+    "name": "quantized::mul_relu_out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
-    "name": "quantized::mul_scalar.Tensor(Tensor qa, Tensor b) -> Tensor qc"
-  },
-  {
-    "name": "quantized::linear(Tensor X, __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack, float Y_scale_i, int Y_zero_point_i) -> Tensor Y",
-    "category": "Layer"
+    "name": "quantized::hardswish(Tensor input, float output_scale, int output_zero_point) -> Tensor",
+    "category": "Activation"
   },
   {
     "name": "aten::instance_norm(Tensor input, Tensor? weight, Tensor? bias, Tensor? running_mean, Tensor? running_var, bool use_input_stats, float momentum, float eps, bool cudnn_enabled) -> Tensor",
     "category": "Normalization"
-  },
-  {
-    "name": "quantized::linear_prepack(Tensor W, Tensor? B=None) -> __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack"
   },
   {
     "name": "aten::isfinite(Tensor self) -> Tensor"
@@ -3120,14 +3110,10 @@
     "name": "aten::isfinite.complex(complex a) -> bool"
   },
   {
-    "name": "quantized::hardswish(Tensor input, float output_scale, int output_zero_point) -> Tensor",
-    "category": "Activation"
-  },
-  {
     "name": "aten::index_select_backward(Tensor grad, SymInt[] self_sizes, int dim, Tensor index) -> Tensor"
   },
   {
-    "name": "quantized::conv2d_prepack(Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups) -> __torch__.torch.classes.quantized.Conv2dPackedParamsBase"
+    "name": "quantized::conv1d_prepack(Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups) -> __torch__.torch.classes.quantized.Conv2dPackedParamsBase"
   },
   {
     "name": "aten::hstack(Tensor[] tensors) -> Tensor"
@@ -3136,37 +3122,21 @@
     "name": "aten::hstack.out(Tensor[] tensors, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::batch_norm3d_relu(Tensor qx, Tensor? weight, Tensor? bias, Tensor mean, Tensor var, float eps, float output_scale, int output_zero_point) -> Tensor",
-    "category": "Normalization"
-  },
-  {
     "name": "quantized::batch_norm3d(Tensor qx, Tensor? weight, Tensor? bias, Tensor mean, Tensor var, float eps, float output_scale, int output_zero_point) -> Tensor",
     "category": "Normalization"
   },
   {
-    "name": "quantized::batch_norm_relu(Tensor qx, Tensor? weight, Tensor? bias, Tensor mean, Tensor var, float eps, float output_scale, int output_zero_point) -> Tensor",
+    "name": "quantized::batch_norm2d_relu(Tensor qx, Tensor? weight, Tensor? bias, Tensor mean, Tensor var, float eps, float output_scale, int output_zero_point) -> Tensor",
     "category": "Normalization"
+  },
+  {
+    "name": "quantized::batch_norm(Tensor qx, Tensor? weight, Tensor? bias, Tensor mean, Tensor var, float eps, float output_scale, int output_zero_point) -> Tensor"
   },
   {
     "name": "aten::ger(Tensor self, Tensor vec2) -> Tensor"
   },
   {
     "name": "aten::ger.out(Tensor self, Tensor vec2, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "quantized::add(Tensor qa, Tensor qb, float scale, int zero_point) -> Tensor qc"
-  },
-  {
-    "name": "quantized::add.out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
-  },
-  {
-    "name": "quantized::add.Scalar(Tensor qa, Scalar b) -> Tensor qc"
-  },
-  {
-    "name": "quantized::add.Scalar2(Scalar b, Tensor qa) -> Tensor qc"
-  },
-  {
-    "name": "quantized::add.Scalar_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
     "name": "aten::gather_backward(Tensor grad, Tensor self, int dim, Tensor index, bool sparse_grad) -> Tensor"
@@ -3377,10 +3347,22 @@
     "name": "aten::masked_fill_.Tensor(Tensor(a!) self, Tensor mask, Tensor value) -> Tensor(a!)"
   },
   {
-    "name": "quantized::mul_relu_out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::mul_out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
-    "name": "quantized::add_out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::add_relu(Tensor qa, Tensor qb, float scale, int zero_point) -> Tensor qc"
+  },
+  {
+    "name": "quantized::add_relu.out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
+  },
+  {
+    "name": "quantized::add_relu.Scalar(Tensor qa, Scalar b) -> Tensor qc"
+  },
+  {
+    "name": "quantized::add_relu.Scalar2(Scalar b, Tensor qa) -> Tensor qc"
+  },
+  {
+    "name": "quantized::add_relu.Scalar_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
     "name": "aten::gcd_(Tensor(a!) self, Tensor other) -> Tensor(a!)"
@@ -3395,10 +3377,10 @@
     "name": "aten::silu_backward.grad_input(Tensor grad_output, Tensor self, *, Tensor(a!) grad_input) -> Tensor(a!)"
   },
   {
-    "name": "quantized::add_scalar_relu_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::add_scalar_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
-    "name": "quantized::add_scalar_relu_out.Tensor(Tensor qa, Tensor b, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::add_scalar_out.Tensor(Tensor qa, Tensor b, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
     "name": "aten::gelu_backward(Tensor grad_output, Tensor self, *, str approximate=\"none\") -> Tensor"
@@ -3419,16 +3401,10 @@
     "name": "aten::logit_backward.grad_input(Tensor grad_output, Tensor self, float? eps=None, *, Tensor(a!) grad_input) -> Tensor(a!)"
   },
   {
-    "name": "quantized::instance_norm(Tensor input, Tensor? weight, Tensor? bias, float eps, float output_scale, int output_zero_point) -> Tensor"
-  },
-  {
     "name": "aten::hardswish_backward(Tensor grad_output, Tensor self) -> Tensor"
   },
   {
     "name": "aten::hardswish_backward.out(Tensor grad_output, Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "quantized::conv_transpose2d(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor"
   },
   {
     "name": "aten::hardtanh_backward(Tensor grad_output, Tensor self, Scalar min_val, Scalar max_val) -> Tensor"
@@ -3446,7 +3422,19 @@
     "name": "aten::log_sigmoid_forward.output(Tensor self, *, Tensor(a!) output, Tensor(b!) buffer) -> (Tensor(a!), Tensor(b!))"
   },
   {
-    "name": "quantized::mul_out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::mul_relu(Tensor qa, Tensor qb, float scale, int zero_point) -> Tensor qc"
+  },
+  {
+    "name": "quantized::mul_relu.out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
+  },
+  {
+    "name": "quantized::mul_relu.Scalar(Tensor qa, Scalar b) -> Tensor qc"
+  },
+  {
+    "name": "quantized::mul_relu.Scalar2(Scalar b, Tensor qa) -> Tensor qc"
+  },
+  {
+    "name": "quantized::mul_relu.Scalar_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
     "name": "aten::logaddexp(Tensor self, Tensor other) -> Tensor"
@@ -3455,19 +3443,19 @@
     "name": "aten::logaddexp.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::add_relu(Tensor qa, Tensor qb, float scale, int zero_point) -> Tensor qc"
+    "name": "quantized::add(Tensor qa, Tensor qb, float scale, int zero_point) -> Tensor qc"
   },
   {
-    "name": "quantized::add_relu.out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::add.out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
-    "name": "quantized::add_relu.Scalar(Tensor qa, Scalar b) -> Tensor qc"
+    "name": "quantized::add.Scalar(Tensor qa, Scalar b) -> Tensor qc"
   },
   {
-    "name": "quantized::add_relu.Scalar2(Scalar b, Tensor qa) -> Tensor qc"
+    "name": "quantized::add.Scalar2(Scalar b, Tensor qa) -> Tensor qc"
   },
   {
-    "name": "quantized::add_relu.Scalar_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::add.Scalar_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
     "name": "aten::gcd(Tensor self, Tensor other) -> Tensor"
@@ -3479,7 +3467,10 @@
     "name": "aten::gcd.int(int a, int b) -> int"
   },
   {
-    "name": "quantized::conv_transpose2d_prepack(Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] output_padding, int[] dilation, int groups) -> __torch__.torch.classes.quantized.Conv2dPackedParamsBase"
+    "name": "quantized::conv_transpose1d_prepack(Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] output_padding, int[] dilation, int groups) -> __torch__.torch.classes.quantized.Conv2dPackedParamsBase"
+  },
+  {
+    "name": "quantized::quantized_rnn_tanh_cell_dynamic(Tensor input, Tensor hx, __torch__.torch.classes.quantized.LinearPackedParamsBase w_ih, __torch__.torch.classes.quantized.LinearPackedParamsBase w_hh, Tensor b_ih, Tensor b_hh) -> Tensor"
   },
   {
     "name": "aten::__xor__.Tensor(Tensor self, Tensor other) -> Tensor"
@@ -3498,6 +3489,22 @@
   },
   {
     "name": "aten::floor_divide_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::quantized_gru.input(Tensor input, Tensor hx, __torch__.torch.classes.rnn.CellParamsBase[] params, bool has_biases, int num_layers, float dropout, bool train, bool bidirectional, bool batch_first) -> (Tensor, Tensor)",
+    "category": "Layer"
+  },
+  {
+    "name": "aten::quantized_gru.data(Tensor data, Tensor batch_sizes, Tensor hx, __torch__.torch.classes.rnn.CellParamsBase[] params, bool has_biases, int num_layers, float dropout, bool train, bool bidirectional) -> (Tensor, Tensor)",
+    "category": "Layer"
+  },
+  {
+    "name": "aten::quantized_gru.input_legacy(Tensor input, Tensor hx, Tensor[] params, bool has_biases, int num_layers, float dropout, bool train, bool bidirectional, bool batch_first) -> (Tensor, Tensor)",
+    "category": "Layer"
+  },
+  {
+    "name": "aten::quantized_gru.data_legacy(Tensor data, Tensor batch_sizes, Tensor hx, Tensor[] params, bool has_biases, int num_layers, float dropout, bool train, bool bidirectional) -> (Tensor, Tensor)",
+    "category": "Layer"
   },
   {
     "name": "aten::fmod.Tensor(Tensor self, Tensor other) -> Tensor"
@@ -3554,37 +3561,6 @@
     "name": "aten::__rshift__.int(int a, int b) -> int"
   },
   {
-    "name": "aten::quantized_gru.input(Tensor input, Tensor hx, __torch__.torch.classes.rnn.CellParamsBase[] params, bool has_biases, int num_layers, float dropout, bool train, bool bidirectional, bool batch_first) -> (Tensor, Tensor)",
-    "category": "Layer"
-  },
-  {
-    "name": "aten::quantized_gru.data(Tensor data, Tensor batch_sizes, Tensor hx, __torch__.torch.classes.rnn.CellParamsBase[] params, bool has_biases, int num_layers, float dropout, bool train, bool bidirectional) -> (Tensor, Tensor)",
-    "category": "Layer"
-  },
-  {
-    "name": "aten::quantized_gru.input_legacy(Tensor input, Tensor hx, Tensor[] params, bool has_biases, int num_layers, float dropout, bool train, bool bidirectional, bool batch_first) -> (Tensor, Tensor)",
-    "category": "Layer"
-  },
-  {
-    "name": "aten::quantized_gru.data_legacy(Tensor data, Tensor batch_sizes, Tensor hx, Tensor[] params, bool has_biases, int num_layers, float dropout, bool train, bool bidirectional) -> (Tensor, Tensor)",
-    "category": "Layer"
-  },
-  {
-    "name": "aten::__or__.Tensor(Tensor self, Tensor other) -> Tensor"
-  },
-  {
-    "name": "aten::__or__.Scalar(Tensor self, Scalar other) -> Tensor"
-  },
-  {
-    "name": "aten::__or__.bool(bool a, bool b) -> bool"
-  },
-  {
-    "name": "aten::__or__.int(int a, int b) -> int"
-  },
-  {
-    "name": "aten::floor_(Tensor(a!) self) -> Tensor(a!)"
-  },
-  {
     "name": "aten::quantized_lstm.input(Tensor input, Tensor[] hx, __torch__.torch.classes.rnn.CellParamsBase[] params, bool has_biases, int num_layers, float dropout, bool train, bool bidirectional, bool batch_first, *, ScalarType? dtype=None, bool use_dynamic=False) -> (Tensor, Tensor, Tensor)",
     "category": "Layer"
   },
@@ -3599,6 +3575,18 @@
   {
     "name": "aten::quantized_lstm.data_legacy(Tensor data, Tensor batch_sizes, Tensor[] hx, Tensor[] params, bool has_biases, int num_layers, float dropout, bool train, bool bidirectional, *, ScalarType? dtype=None, bool use_dynamic=False) -> (Tensor, Tensor, Tensor)",
     "category": "Layer"
+  },
+  {
+    "name": "aten::__or__.Tensor(Tensor self, Tensor other) -> Tensor"
+  },
+  {
+    "name": "aten::__or__.Scalar(Tensor self, Scalar other) -> Tensor"
+  },
+  {
+    "name": "aten::__or__.bool(bool a, bool b) -> bool"
+  },
+  {
+    "name": "aten::__or__.int(int a, int b) -> int"
   },
   {
     "name": "aten::std(Tensor self, bool unbiased=True) -> Tensor"
@@ -3748,7 +3736,10 @@
     "name": "aten::bitwise_or_.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)"
   },
   {
-    "name": "quantized::conv_transpose2d_output_padding(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
+    "name": "quantized::conv_transpose2d_padding(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
+  },
+  {
+    "name": "quantized::make_quantized_cell_params(Tensor w_ih, Tensor w_hh, Tensor b_ih, Tensor b_hh) -> __torch__.torch.classes.rnn.CellParamsBase"
   },
   {
     "name": "aten::std_mean(Tensor self, bool unbiased=True) -> (Tensor, Tensor)"
@@ -3775,7 +3766,8 @@
     "name": "aten::masked_select.out(Tensor self, Tensor mask, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "prepacked::conv2d_clamp_prepack(Tensor W, Tensor? B, int[2] stride, int[2] padding, int[2] dilation, int groups, Scalar? output_min=None, Scalar? output_max=None) -> __torch__.torch.classes.xnnpack.Conv2dOpContext"
+    "name": "prepacked::linear_clamp_run(Tensor X, __torch__.torch.classes.xnnpack.LinearOpContext W_prepack) -> Tensor Y",
+    "category": "Layer"
   },
   {
     "name": "aten::linalg_tensorsolve(Tensor self, Tensor other, int[]? dims=None) -> Tensor"
@@ -3784,8 +3776,7 @@
     "name": "aten::linalg_tensorsolve.out(Tensor self, Tensor other, int[]? dims=None, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "prepacked::linear_clamp_run(Tensor X, __torch__.torch.classes.xnnpack.LinearOpContext W_prepack) -> Tensor Y",
-    "category": "Layer"
+    "name": "prepacked::linear_clamp_prepack(Tensor W, Tensor? B=None, Scalar? output_min=None, Scalar? output_max=None) -> __torch__.torch.classes.xnnpack.LinearOpContext"
   },
   {
     "name": "aten::linalg_tensorinv(Tensor self, int ind=2) -> Tensor"
@@ -4015,16 +4006,8 @@
     "name": "aten::reflection_pad1d.out(Tensor self, SymInt[2] padding, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::quantile(Tensor self, Tensor q, int? dim=None, bool keepdim=False, *, str interpolation=\"linear\") -> Tensor"
-  },
-  {
-    "name": "aten::quantile.scalar(Tensor self, float q, int? dim=None, bool keepdim=False, *, str interpolation=\"linear\") -> Tensor"
-  },
-  {
-    "name": "aten::quantile.out(Tensor self, Tensor q, int? dim=None, bool keepdim=False, *, str interpolation=\"linear\", Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::quantile.scalar_out(Tensor self, float q, int? dim=None, bool keepdim=False, *, str interpolation=\"linear\", Tensor(a!) out) -> Tensor(a!)"
+    "name": "quantized::cat_relu(Tensor[] qx, int dim, float? scale, int? zero_point) -> Tensor",
+    "category": "Tensor"
   },
   {
     "name": "aten::polar(Tensor abs, Tensor angle) -> Tensor"
@@ -4132,6 +4115,9 @@
     "name": "aten::tensordot.out(Tensor self, Tensor other, int[] dims_self, int[] dims_other, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "quantized::embedding_bag_4bit_rowwise_offsets(Tensor weight, Tensor indices, Tensor? offsets=None, bool scale_grad_by_freq=False, int mode=0, bool pruned_weights=False, Tensor? per_sample_weights=None, Tensor? compressed_indices_mapping=None, bool include_last_offset=False) -> Tensor"
+  },
+  {
     "name": "aten::index_put(Tensor self, Tensor?[] indices, Tensor values, bool accumulate=False) -> Tensor"
   },
   {
@@ -4141,7 +4127,7 @@
     "name": "aten::index_put.hacked_twin(Tensor self, Tensor[] indices, Tensor values, bool accumulate=False) -> Tensor"
   },
   {
-    "name": "quantized::cat_relu(Tensor[] qx, int dim, float? scale, int? zero_point) -> Tensor",
+    "name": "quantized::cat(Tensor[] qx, int dim, float? scale, int? zero_point) -> Tensor",
     "category": "Tensor"
   },
   {
@@ -4227,7 +4213,7 @@
     "name": "aten::norm.names_out(Tensor self, Scalar? p, str[1] dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "prepacked::conv2d_transpose_clamp_run(Tensor X, __torch__.torch.classes.xnnpack.TransposeConv2dOpContext W_prepack) -> Tensor Y",
+    "name": "prepacked::conv2d_clamp_run(Tensor X, __torch__.torch.classes.xnnpack.Conv2dOpContext W_prepack) -> Tensor Y",
     "category": "Layer"
   },
   {
@@ -4366,7 +4352,7 @@
     "name": "aten::upsample_bilinear2d.vec_out(Tensor input, SymInt[]? output_size, bool align_corners, float[]? scale_factors, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::batch_norm1d(Tensor qx, Tensor? weight, Tensor? bias, Tensor mean, Tensor var, float eps, float output_scale, int output_zero_point) -> Tensor",
+    "name": "quantized::batch_norm_relu(Tensor qx, Tensor? weight, Tensor? bias, Tensor mean, Tensor var, float eps, float output_scale, int output_zero_point) -> Tensor",
     "category": "Normalization"
   },
   {
@@ -4415,22 +4401,25 @@
     "name": "aten::pdist(Tensor self, float p=2.) -> Tensor"
   },
   {
+    "name": "quantized::conv2d_transpose(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int"
+  },
+  {
     "name": "aten::binary_cross_entropy_with_logits(Tensor self, Tensor target, Tensor? weight=None, Tensor? pos_weight=None, int reduction=1) -> Tensor"
   },
   {
     "name": "aten::binary_cross_entropy_with_logits.out(Tensor self, Tensor target, Tensor? weight=None, Tensor? pos_weight=None, int reduction=1, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::conv2d_stride(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
-  },
-  {
-    "name": "quantized::conv3d_prepack(Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups) -> __torch__.torch.classes.quantized.Conv3dPackedParamsBase"
+    "name": "quantized::conv2d_prepack(Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups) -> __torch__.torch.classes.quantized.Conv2dPackedParamsBase"
   },
   {
     "name": "aten::huber_loss(Tensor self, Tensor target, int reduction=1, float delta=1.) -> Tensor"
   },
   {
     "name": "aten::huber_loss.out(Tensor self, Tensor target, int reduction=1, float delta=1., *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized::conv2d_dynamic(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weight, bool reduce_range=False) -> Tensor"
   },
   {
     "name": "aten::fft_ifft2(Tensor self, SymInt[1]? s=None, int[1] dim=[-2, -1], str? norm=None) -> Tensor"
@@ -4458,19 +4447,19 @@
     "name": "aten::frobenius_norm.out(Tensor self, int[1] dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::mul_relu(Tensor qa, Tensor qb, float scale, int zero_point) -> Tensor qc"
+    "name": "quantized::mul(Tensor qa, Tensor qb, float scale, int zero_point) -> Tensor qc"
   },
   {
-    "name": "quantized::mul_relu.out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::mul.out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
-    "name": "quantized::mul_relu.Scalar(Tensor qa, Scalar b) -> Tensor qc"
+    "name": "quantized::mul.Scalar(Tensor qa, Scalar b) -> Tensor qc"
   },
   {
-    "name": "quantized::mul_relu.Scalar2(Scalar b, Tensor qa) -> Tensor qc"
+    "name": "quantized::mul.Scalar2(Scalar b, Tensor qa) -> Tensor qc"
   },
   {
-    "name": "quantized::mul_relu.Scalar_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::mul.Scalar_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
     "name": "aten::layer_norm(Tensor input, SymInt[] normalized_shape, Tensor? weight=None, Tensor? bias=None, float eps=1.0000000000000001e-05, bool cudnn_enable=True) -> Tensor",
@@ -4492,6 +4481,10 @@
   },
   {
     "name": "aten::max_unpool3d.out(Tensor self, Tensor indices, SymInt[3] output_size, int[3] stride, int[3] padding, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized::linear_relu(Tensor X, __torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack, float Y_scale_i, int Y_zero_point_i) -> Tensor Y",
+    "category": "Layer"
   },
   {
     "name": "aten::inverse(Tensor self) -> Tensor"
@@ -4538,6 +4531,9 @@
     "name": "aten::rnn_tanh_cell(Tensor input, Tensor hx, Tensor w_ih, Tensor w_hh, Tensor? b_ih=None, Tensor? b_hh=None) -> Tensor"
   },
   {
+    "name": "aten::floor_(Tensor(a!) self) -> Tensor(a!)"
+  },
+  {
     "name": "aten::__irshift__.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)"
   },
   {
@@ -4555,6 +4551,10 @@
   },
   {
     "name": "aten::resolve_neg(Tensor(a) self) -> Tensor(a)"
+  },
+  {
+    "name": "prepacked::conv2d_transpose_clamp_run(Tensor X, __torch__.torch.classes.xnnpack.TransposeConv2dOpContext W_prepack) -> Tensor Y",
+    "category": "Layer"
   },
   {
     "name": "aten::linear(Tensor input, Tensor weight, Tensor? bias=None) -> Tensor",
@@ -4655,9 +4655,6 @@
   {
     "name": "aten::conv_transpose3d.input(Tensor input, Tensor weight, Tensor? bias=None, SymInt[3] stride=[1, 1, 1], SymInt[3] padding=[0, 0, 0], SymInt[3] output_padding=[0, 0, 0], SymInt groups=1, SymInt[3] dilation=[1, 1, 1]) -> Tensor",
     "category": "Layer"
-  },
-  {
-    "name": "quantized::batch_norm(Tensor qx, Tensor? weight, Tensor? bias, Tensor mean, Tensor var, float eps, float output_scale, int output_zero_point) -> Tensor"
   },
   {
     "name": "aten::geqrf(Tensor self) -> (Tensor a, Tensor tau)"
@@ -4792,7 +4789,7 @@
     "category": "Layer"
   },
   {
-    "name": "quantized::batch_norm1d_relu(Tensor qx, Tensor? weight, Tensor? bias, Tensor mean, Tensor var, float eps, float output_scale, int output_zero_point) -> Tensor",
+    "name": "quantized::batch_norm1d(Tensor qx, Tensor? weight, Tensor? bias, Tensor mean, Tensor var, float eps, float output_scale, int output_zero_point) -> Tensor",
     "category": "Normalization"
   },
   {
@@ -4895,6 +4892,14 @@
     "name": "aten::randperm.generator_out(SymInt n, *, Generator? generator, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "quantized::conv2d_relu.new(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor",
+    "category": "Layer"
+  },
+  {
+    "name": "quantized::conv2d_relu(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase weight, int[] stride, int[] padding, int[] dilation, int groups, float output_scale, int output_zero_point) -> Tensor",
+    "category": "Layer"
+  },
+  {
     "name": "aten::gt.Tensor(Tensor self, Tensor other) -> Tensor"
   },
   {
@@ -4925,9 +4930,6 @@
     "name": "aten::gt.str(str a, str b) -> bool"
   },
   {
-    "name": "aten::contiguous(Tensor(a) self, *, MemoryFormat memory_format=0) -> Tensor(a)"
-  },
-  {
     "name": "aten::new_empty(Tensor self, SymInt[] size, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
   },
   {
@@ -4945,6 +4947,12 @@
   },
   {
     "name": "aten::stack.out(Tensor[] tensors, int dim=0, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized::linear_unpack_fp16(__torch__.torch.classes.quantized.LinearPackedParamsBase W_prepack) -> (Tensor W_origin, Tensor? B_origin)"
+  },
+  {
+    "name": "quantized::linear_unpack_fp16.legacy(Tensor W_prepack) -> (Tensor W_origin, Tensor? B_origin)"
   },
   {
     "name": "aten::linalg_qr(Tensor A, str mode=\"reduced\") -> (Tensor Q, Tensor R)"
@@ -5337,9 +5345,6 @@
     "name": "aten::diagonal_backward.out(Tensor grad_output, SymInt[] input_sizes, int offset, int dim1, int dim2, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::embedding_byte(__torch__.torch.classes.quantized.EmbeddingPackedParamsBase weight, Tensor indices, bool pruned_weights=False) -> Tensor"
-  },
-  {
     "name": "aten::index_copy(Tensor self, int dim, Tensor index, Tensor source) -> Tensor"
   },
   {
@@ -5403,11 +5408,11 @@
     "name": "aten::matmul.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::conv2d_relu.new(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor",
+    "name": "quantized::conv2d.new(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor",
     "category": "Layer"
   },
   {
-    "name": "quantized::conv2d_relu(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase weight, int[] stride, int[] padding, int[] dilation, int groups, float output_scale, int output_zero_point) -> Tensor",
+    "name": "quantized::conv2d(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase weight, int[] stride, int[] padding, int[] dilation, int groups, float output_scale, int output_zero_point) -> Tensor",
     "category": "Layer"
   },
   {
@@ -5527,7 +5532,7 @@
     "name": "aten::log2.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::make_quantized_cell_params_fp16(__torch__.torch.classes.quantized.LinearPackedParamsBase w_ih, __torch__.torch.classes.quantized.LinearPackedParamsBase w_hh) -> __torch__.torch.classes.rnn.CellParamsBase"
+    "name": "quantized::make_quantized_cell_params_dynamic(__torch__.torch.classes.quantized.LinearPackedParamsBase w_ih, __torch__.torch.classes.quantized.LinearPackedParamsBase w_hh, Tensor bias_ih, Tensor bias_hh, bool reduce_range=False) -> __torch__.torch.classes.rnn.CellParamsBase"
   },
   {
     "name": "aten::size.int(Tensor self, int dim) -> int"
@@ -5539,10 +5544,10 @@
     "name": "aten::size(Tensor self) -> int[]"
   },
   {
-    "name": "quantized::mul_scalar_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::mul_scalar_relu(Tensor qa, Scalar b) -> Tensor qc"
   },
   {
-    "name": "quantized::mul_scalar_out.Tensor(Tensor qa, Tensor b, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::mul_scalar_relu.Tensor(Tensor qa, Tensor b) -> Tensor qc"
   },
   {
     "name": "aten::le.Tensor(Tensor self, Tensor other) -> Tensor"
@@ -5683,9 +5688,6 @@
   },
   {
     "name": "aten::trace.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "prepacked::linear_clamp_prepack(Tensor W, Tensor? B=None, Scalar? output_min=None, Scalar? output_max=None) -> __torch__.torch.classes.xnnpack.LinearOpContext"
   },
   {
     "name": "aten::ceil(Tensor self) -> Tensor"
@@ -5902,7 +5904,7 @@
     "name": "aten::_to_copy.out(Tensor self, *, bool non_blocking=False, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::conv2d_output_padding(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
+    "name": "quantized::conv2d_padding(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
   },
   {
     "name": "aten::softmax.int(Tensor self, int dim, ScalarType? dtype=None) -> Tensor",
@@ -5920,6 +5922,9 @@
   },
   {
     "name": "aten::bernoulli_.float(Tensor(a!) self, float p=0.5, *, Generator? generator=None) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized::conv2d_unpack_sizes(Any packed_weights) -> Any"
   },
   {
     "name": "aten::lift_fresh_copy(Tensor self) -> Tensor"
@@ -5943,7 +5948,7 @@
     "name": "aten::conj(Tensor(a) self) -> Tensor(a)"
   },
   {
-    "name": "quantized::add_relu_out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
+    "name": "quantized::add_out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
   },
   {
     "name": "aten::ge.Tensor(Tensor self, Tensor other) -> Tensor"
@@ -6111,7 +6116,7 @@
     "name": "aten::real(Tensor(a) self) -> Tensor(a)"
   },
   {
-    "name": "quantized::conv1d_relu(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor",
+    "name": "quantized::conv1d(Tensor qx, __torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weight, float output_scale, int output_zero_point) -> Tensor",
     "category": "Layer"
   },
   {
@@ -6135,35 +6140,6 @@
     "category": "Transform"
   },
   {
-    "name": "quantized::mul(Tensor qa, Tensor qb, float scale, int zero_point) -> Tensor qc"
-  },
-  {
-    "name": "quantized::mul.out(Tensor qa, Tensor qb, Tensor(a!) out) -> Tensor(a!) out"
-  },
-  {
-    "name": "quantized::mul.Scalar(Tensor qa, Scalar b) -> Tensor qc"
-  },
-  {
-    "name": "quantized::mul.Scalar2(Scalar b, Tensor qa) -> Tensor qc"
-  },
-  {
-    "name": "quantized::mul.Scalar_out(Tensor qa, Scalar b, Tensor(a!) out) -> Tensor(a!) out"
-  },
-  {
-    "name": "aten::l1_loss(Tensor self, Tensor target, int reduction=1) -> Tensor"
-  },
-  {
-    "name": "aten::native_layer_norm(Tensor input, SymInt[] normalized_shape, Tensor? weight, Tensor? bias, float eps) -> (Tensor, Tensor, Tensor)",
-    "category": "Normalization"
-  },
-  {
-    "name": "aten::native_layer_norm.out(Tensor input, SymInt[] normalized_shape, Tensor? weight, Tensor? bias, float eps, *, Tensor(a!) out0, Tensor(b!) out1, Tensor(c!) out2) -> (Tensor(a!), Tensor(b!), Tensor(c!))"
-  },
-  {
-    "name": "aten::unsqueeze(Tensor(a) self, int dim) -> Tensor(a)",
-    "category": "Transform"
-  },
-  {
     "name": "aten::unflatten.int(Tensor(a) self, int dim, SymInt[] sizes) -> Tensor(a)",
     "category": "Shape"
   },
@@ -6177,9 +6153,6 @@
   },
   {
     "name": "aten::adaptive_max_pool3d.out(Tensor self, int[3] output_size, *, Tensor(a!) out, Tensor(b!) indices) -> (Tensor(a!), Tensor(b!))"
-  },
-  {
-    "name": "quantized::conv_prepack(Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups) -> __torch__.torch.classes.quantized.Conv2dPackedParamsBase"
   },
   {
     "name": "aten::adaptive_avg_pool2d(Tensor self, SymInt[2] output_size) -> Tensor",
@@ -6299,7 +6272,7 @@
     "name": "aten::cosine_similarity(Tensor x1, Tensor x2, int dim=1, float eps=1e-08) -> Tensor"
   },
   {
-    "name": "quantized::conv2d_padding(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
+    "name": "quantized::conv2d_stride(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> int[]"
   },
   {
     "name": "aten::bernoulli(Tensor self, *, Generator? generator=None) -> Tensor"
@@ -6332,16 +6305,16 @@
     "name": "aten::smooth_l1_loss.out(Tensor self, Tensor target, int reduction=1, float beta=1., *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::conv2d_unpack_sizes(Any packed_weights) -> Any"
+    "name": "quantized::conv2d_unpack(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> (Tensor unpacked_weights, Tensor? B_origin)"
   },
   {
     "name": "aten::lift_fresh(Tensor(a) self) -> Tensor(a)"
   },
   {
-    "name": "aten::stft(Tensor self, int n_fft, int? hop_length=None, int? win_length=None, Tensor? window=None, bool normalized=False, bool? onesided=None, bool? return_complex=None) -> Tensor"
+    "name": "aten::stft(Tensor self, int n_fft, int? hop_length=None, int? win_length=None, Tensor? window=None, bool normalized=False, bool? onesided=None, bool? return_complex=None, bool? align_to_window=None) -> Tensor"
   },
   {
-    "name": "aten::stft.center(Tensor self, int n_fft, int? hop_length=None, int? win_length=None, Tensor? window=None, bool center=True, str pad_mode=\"reflect\", bool normalized=False, bool? onesided=None, bool? return_complex=None) -> Tensor"
+    "name": "aten::stft.center(Tensor self, int n_fft, int? hop_length=None, int? win_length=None, Tensor? window=None, bool center=True, str pad_mode=\"reflect\", bool normalized=False, bool? onesided=None, bool? return_complex=None, bool? align_to_window=None) -> Tensor"
   },
   {
     "name": "aten::sub_.Tensor(Tensor(a!) self, Tensor other, *, Scalar alpha=1) -> Tensor(a!)"
@@ -6383,7 +6356,7 @@
     "category": "Transform"
   },
   {
-    "name": "quantized::conv2d_unpack(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> (Tensor unpacked_weights, Tensor? B_origin)"
+    "name": "quantized::conv1d_unpack(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> (Tensor unpacked_weights, Tensor? B_origin)"
   },
   {
     "name": "aten::remainder.Tensor(Tensor self, Tensor other) -> Tensor"
@@ -6562,8 +6535,7 @@
     "name": "aten::detach_(Tensor(a!) self) -> Tensor(a!)"
   },
   {
-    "name": "quantized::relu6(Tensor qx, bool inplace=False) -> Tensor",
-    "category": "Activation"
+    "name": "quantized::instance_norm(Tensor input, Tensor? weight, Tensor? bias, float eps, float output_scale, int output_zero_point) -> Tensor"
   },
   {
     "name": "aten::lerp.Scalar(Tensor self, Tensor end, Scalar weight) -> Tensor"
@@ -6617,6 +6589,23 @@
     "name": "aten::mm.out(Tensor self, Tensor mat2, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "quantized::matmul(Tensor qa, Tensor qb, float scale, int zero_point) -> Tensor qc"
+  },
+  {
+    "name": "aten::l1_loss(Tensor self, Tensor target, int reduction=1) -> Tensor"
+  },
+  {
+    "name": "aten::unsqueeze(Tensor(a) self, int dim) -> Tensor(a)",
+    "category": "Transform"
+  },
+  {
+    "name": "aten::native_layer_norm(Tensor input, SymInt[] normalized_shape, Tensor? weight, Tensor? bias, float eps) -> (Tensor, Tensor, Tensor)",
+    "category": "Normalization"
+  },
+  {
+    "name": "aten::native_layer_norm.out(Tensor input, SymInt[] normalized_shape, Tensor? weight, Tensor? bias, float eps, *, Tensor(a!) out0, Tensor(b!) out1, Tensor(c!) out2) -> (Tensor(a!), Tensor(b!), Tensor(c!))"
+  },
+  {
     "name": "aten::as_strided_copy(Tensor self, SymInt[] size, SymInt[] stride, SymInt? storage_offset=None) -> Tensor"
   },
   {
@@ -6651,18 +6640,6 @@
     "name": "aten::swapaxes(Tensor(a) self, int axis0, int axis1) -> Tensor(a)"
   },
   {
-    "name": "aten::nll_loss(Tensor self, Tensor target, Tensor? weight=None, int reduction=1, SymInt ignore_index=-100) -> Tensor"
-  },
-  {
-    "name": "aten::nll_loss.out(Tensor self, Tensor target, Tensor? weight=None, int reduction=1, SymInt ignore_index=-100, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::vdot(Tensor self, Tensor other) -> Tensor"
-  },
-  {
-    "name": "aten::vdot.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
     "name": "aten::minimum(Tensor self, Tensor other) -> Tensor"
   },
   {
@@ -6687,7 +6664,16 @@
     "name": "aten::tan.Scalar(Scalar a) -> Scalar"
   },
   {
-    "name": "quantized::quantized_lstm_cell_dynamic(Tensor input, Tensor[] hx, __torch__.torch.classes.quantized.LinearPackedParamsBase w_ih, __torch__.torch.classes.quantized.LinearPackedParamsBase w_hh, Tensor bias_ih, Tensor bias_hh) -> (Tensor, Tensor)"
+    "name": "aten::nll_loss(Tensor self, Tensor target, Tensor? weight=None, int reduction=1, SymInt ignore_index=-100) -> Tensor"
+  },
+  {
+    "name": "aten::nll_loss.out(Tensor self, Tensor target, Tensor? weight=None, int reduction=1, SymInt ignore_index=-100, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::vdot(Tensor self, Tensor other) -> Tensor"
+  },
+  {
+    "name": "aten::vdot.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::log_normal_(Tensor(a!) self, float mean=1., float std=2., *, Generator? generator=None) -> Tensor(a!)"
@@ -6714,26 +6700,7 @@
     "name": "aten::empty_like.out(Tensor self, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized::quantized_rnn_relu_cell_dynamic(Tensor input, Tensor hx, __torch__.torch.classes.quantized.LinearPackedParamsBase w_ih, __torch__.torch.classes.quantized.LinearPackedParamsBase w_hh, Tensor b_ih, Tensor b_hh) -> Tensor"
-  },
-  {
-    "name": "aten::true_divide.Tensor(Tensor self, Tensor other) -> Tensor"
-  },
-  {
-    "name": "aten::true_divide.Scalar(Tensor self, Scalar other) -> Tensor"
-  },
-  {
-    "name": "aten::true_divide.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::einsum(str equation, Tensor[] tensors, *, int[]? path=None) -> Tensor"
-  },
-  {
-    "name": "aten::einsum.sublist(Tensor a, ...) -> Tensor"
-  },
-  {
-    "name": "prepacked::conv2d_clamp_run(Tensor X, __torch__.torch.classes.xnnpack.Conv2dOpContext W_prepack) -> Tensor Y",
-    "category": "Layer"
+    "name": "quantized::quantized_gru_cell_dynamic(Tensor input, Tensor hx, __torch__.torch.classes.quantized.LinearPackedParamsBase w_ih, __torch__.torch.classes.quantized.LinearPackedParamsBase w_hh, Tensor b_ih, Tensor b_hh) -> Tensor"
   },
   {
     "name": "aten::tensor_split.sections(Tensor(a -> *) self, SymInt sections, int dim=0) -> Tensor(a)[]"
@@ -6763,6 +6730,21 @@
   },
   {
     "name": "aten::concat.names_out(Tensor[] tensors, str dim, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::true_divide.Tensor(Tensor self, Tensor other) -> Tensor"
+  },
+  {
+    "name": "aten::true_divide.Scalar(Tensor self, Scalar other) -> Tensor"
+  },
+  {
+    "name": "aten::true_divide.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::einsum(str equation, Tensor[] tensors, *, int[]? path=None) -> Tensor"
+  },
+  {
+    "name": "aten::einsum.sublist(Tensor a, ...) -> Tensor"
   },
   {
     "name": "aten::tanh(Tensor self) -> Tensor",
@@ -6805,6 +6787,27 @@
   },
   {
     "name": "aten::resolve_conj(Tensor(a) self) -> Tensor(a)"
+  },
+  {
+    "name": "aten::contiguous(Tensor(a) self, *, MemoryFormat memory_format=0) -> Tensor(a)"
+  },
+  {
+    "name": "aten::quantile(Tensor self, Tensor q, int? dim=None, bool keepdim=False, *, str interpolation=\"linear\") -> Tensor"
+  },
+  {
+    "name": "aten::quantile.scalar(Tensor self, float q, int? dim=None, bool keepdim=False, *, str interpolation=\"linear\") -> Tensor"
+  },
+  {
+    "name": "aten::quantile.out(Tensor self, Tensor q, int? dim=None, bool keepdim=False, *, str interpolation=\"linear\", Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::quantile.scalar_out(Tensor self, float q, int? dim=None, bool keepdim=False, *, str interpolation=\"linear\", Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::_adaptive_avg_pool2d(Tensor self, SymInt[2] output_size) -> Tensor"
+  },
+  {
+    "name": "aten::_adaptive_avg_pool2d.out(Tensor self, SymInt[2] output_size, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::rand_like.generator(Tensor self, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
