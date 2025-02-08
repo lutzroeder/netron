@@ -81,6 +81,8 @@ executorch.Graph = class {
                     values.set(index, { type: 'int64[]', value: list });
                 } else if (val instanceof executorch_flatbuffer.Double) {
                     values.set(index, { type: 'float64', value: val.double_val });
+                } else if (val instanceof executorch_flatbuffer.String) {
+                    values.set(index, { type: 'string', value: val.string_val });
                 } else if (val instanceof executorch_flatbuffer.Null) {
                     values.set(index, { type: 'attribute', value: null });
                 } else {
