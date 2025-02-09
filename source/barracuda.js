@@ -5,7 +5,7 @@ const barracuda = {};
 
 barracuda.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const stream = context.stream;
         if (stream && stream.length > 12) {
             const buffer = stream.peek(12);
@@ -17,7 +17,7 @@ barracuda.ModelFactory = class {
 
     async open(context) {
         const metadata = barracuda.Metadata.open();
-        const reader = context.read('binary');
+        const reader = await context.read('binary');
         const model = new barracuda.NNModel(reader);
         return new barracuda.Model(metadata, model);
     }

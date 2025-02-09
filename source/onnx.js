@@ -5,7 +5,7 @@ const onnx = {};
 
 onnx.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier;
         const extensions = [
             'saved_model.pb', 'predict_net.pb', 'init_net.pb',
@@ -21,14 +21,15 @@ onnx.ModelFactory = class {
                 onnx.DataReader
             ];
             for (const entry of entries) {
-                const reader = entry.open(context);
+                /* eslint-disable no-await-in-loop */
+                const reader = await entry.open(context);
+                /* eslint-enable no-await-in-loop */
                 if (reader) {
-                    context.type = reader.name;
-                    context.target = reader;
-                    break;
+                    return context.match(reader.name, reader);
                 }
             }
         }
+        return null;
     }
 
     async open(context) {
@@ -1438,7 +1439,7 @@ onnx.Context.Graph = class {
 
 onnx.ProtoReader = class {
 
-    static open(context) {
+    static async open(context) {
         const identifier = context.identifier;
         const stream = context.stream;
         if (stream && stream.length > 5) {
@@ -1467,11 +1468,11 @@ onnx.ProtoReader = class {
                 }
             }
         }
-        const binaryTags = context.tags('pb');
+        const binaryTags = await context.tags('pb');
         if (binaryTags.size > 0) {
             const tags = binaryTags;
             if (tags.size === 1 && tags.get(1) === 2) {
-                const tags = context.tags('pb+');
+                const tags = await context.tags('pb+');
                 const match = (tags, schema) => {
                     for (const [key, inner] of schema) {
                         const value = tags[key];
@@ -1550,7 +1551,7 @@ onnx.ProtoReader = class {
                 }
             }
         }
-        const textTags = context.tags('pbtxt');
+        const textTags = await context.tags('pbtxt');
         if (textTags.size > 0) {
             const tags = textTags;
             if (tags.has('ir_version')) {
@@ -1562,7 +1563,7 @@ onnx.ProtoReader = class {
                 return new onnx.ProtoReader(context, 'text', 'model');
             }
         }
-        const obj = context.peek('json');
+        const obj = await context.peek('json');
         if (obj && (obj.ir_version === undefined && obj.producer_name === undefined && !Array.isArray(obj.opset_import) && !Array.isArray(obj.metadata_props)) &&
             (obj.irVersion !== undefined || obj.producerName !== undefined || Array.isArray(obj.opsetImport) || Array.isArray(obj.metadataProps) || (Array.isArray(obj.graph) && Array.isArray(obj.graph.node)))) {
             return new onnx.ProtoReader(context, 'json', 'model');
@@ -1581,10 +1582,11 @@ onnx.ProtoReader = class {
     async read() {
         onnx.proto = await this.context.require('./onnx-proto');
         onnx.proto = onnx.proto.onnx;
+        const context = this.context;
         switch (this.encoding) {
             case 'text': {
                 try {
-                    const reader = this.context.read('protobuf.text');
+                    const reader = await context.read('protobuf.text');
                     this.model = onnx.proto.ModelProto.decodeText(reader);
                     this.format = `ONNX${this.model.ir_version ? ` v${this.model.ir_version}` : ''}`;
                 } catch (error) {
@@ -1595,7 +1597,7 @@ onnx.ProtoReader = class {
             }
             case 'json': {
                 try {
-                    const obj = this.context.read('json');
+                    const obj = await context.read('json');
                     this.model = onnx.proto.ModelProto.decodeJson(obj);
                     this.format = `ONNX${this.model.ir_version ? ` v${this.model.ir_version}` : ''}`;
                 } catch (error) {
@@ -1610,7 +1612,7 @@ onnx.ProtoReader = class {
                         // TensorProto
                         // input_0.pb, output_0.pb
                         try {
-                            const reader = this.context.read('protobuf.binary');
+                            const reader = await context.read('protobuf.binary');
                             const tensor = onnx.proto.TensorProto.decode(reader);
                             tensor.name = tensor.name || this.context.identifier;
                             const attribute = new onnx.proto.AttributeProto();
@@ -1634,7 +1636,7 @@ onnx.ProtoReader = class {
                     case 'graph': {
                         // GraphProto
                         try {
-                            const reader = this.context.read('protobuf.binary');
+                            const reader = await context.read('protobuf.binary');
                             this.model = new onnx.proto.ModelProto();
                             this.model.graph = onnx.proto.GraphProto.decode(reader);
                             this.format = 'ONNX';
@@ -1647,7 +1649,7 @@ onnx.ProtoReader = class {
                     case 'model': {
                         // ModelProto
                         try {
-                            const reader = this.context.read('protobuf.binary');
+                            const reader = await context.read('protobuf.binary');
                             this.model = onnx.proto.ModelProto.decode(reader);
                             this.format = `ONNX${this.model.ir_version ? ` v${this.model.ir_version}` : ''}`;
                         } catch (error) {
@@ -1733,12 +1735,11 @@ onnx.ProtoReader = class {
 
 onnx.OrtReader = class {
 
-    static open(context) {
+    static async open(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        const reader = context.peek('flatbuffers.binary');
+        const reader = await context.peek('flatbuffers.binary');
         if (reader && reader.identifier === 'ORTM') {
-            context.target = reader;
             return new onnx.OrtReader(context);
         }
         const stream = context.stream;
@@ -1761,7 +1762,7 @@ onnx.OrtReader = class {
         onnx.schema = onnx.schema.onnxruntime.fbs;
         try {
             this.graphs = new Set();
-            const reader = this.context.read('flatbuffers.binary');
+            const reader = await this.context.read('flatbuffers.binary');
             const session = onnx.schema.InferenceSession.create(reader);
             this.model = session.model;
         } catch (error) {
@@ -1891,8 +1892,8 @@ onnx.OrtReader = class {
 
 onnx.JsonReader = class {
 
-    static open(context) {
-        const obj = context.peek('json');
+    static async open(context) {
+        const obj = await context.peek('json');
         if (obj && obj.framework === undefined && obj.graph &&
             (obj.ir_version !== undefined || obj.producer_name !== undefined || Array.isArray(obj.opset_import))) {
             return new onnx.JsonReader(obj);
@@ -2000,7 +2001,7 @@ onnx.JsonReader = class {
 
 onnx.TextReader = class {
 
-    static open(context) {
+    static async open(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
         const extensions = new Set(['onnx', 'bin', 'data', 'onnxmodel', 'pt', 'pth']);
         if (!extensions.has(extension)) {
@@ -2009,7 +2010,7 @@ onnx.TextReader = class {
                 if (stream && stream.length > 2) {
                     const buffer = stream.peek(2);
                     if (buffer[0] < 0x80 || buffer[0] >= 0xFE) {
-                        const reader = context.read('text', 0x10000);
+                        const reader = await context.read('text', 0x10000);
                         const lines = [];
                         for (let i = 0; i < 32; i++) {
                             const line = reader.read('\n');
@@ -2043,7 +2044,7 @@ onnx.TextReader = class {
         onnx.proto = await this._context.require('./onnx-proto');
         onnx.proto = onnx.proto.onnx;
         try {
-            this._decoder = this._context.read('text.decoder');
+            this._decoder = await this._context.read('text.decoder');
             this._position = 0;
             this._char = this._decoder.decode();
             this.model = this._parseModel();
@@ -2734,7 +2735,7 @@ onnx.TextReader = class {
 
 onnx.PickleReader = class {
 
-    static open(context) {
+    static async open(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         const stream = context.stream;
@@ -2758,7 +2759,7 @@ onnx.PickleReader = class {
 
 onnx.DataReader = class {
 
-    static open(context) {
+    static async open(context) {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.onnx_data') || identifier.endsWith('.onnx.data')) {
             return new onnx.DataReader(context, identifier);

@@ -3,16 +3,16 @@ const mslite = {};
 
 mslite.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
-        const reader = context.peek('flatbuffers.binary');
+        const reader = await context.peek('flatbuffers.binary');
         if (reader) {
             const identifier = reader.identifier;
             if (identifier === 'MSL1' || identifier === 'MSL2' || (identifier === '' && extension === 'ms')) {
-                context.type = 'mslite';
-                context.target = reader;
+                return context.match('mslite', reader);
             }
         }
+        return null;
     }
 
     async open(context) {

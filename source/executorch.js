@@ -12,12 +12,12 @@ import * as pytorch from './pytorch.js';
 
 executorch.ModelFactory = class {
 
-    match(context) {
-        const reader = executorch.Reader.open(context);
+    async match(context) {
+        const reader = await executorch.Reader.open(context);
         if (reader) {
-            context.type = 'executorch';
-            context.target = reader;
+            return context.match('executorch', reader);
         }
+        return null;
     }
 
     async open(context) {
@@ -283,8 +283,8 @@ executorch.Tensor = class {
 
 executorch.Reader = class {
 
-    static open(context) {
-        const reader = context.peek('flatbuffers.binary');
+    static async open(context) {
+        const reader = await context.peek('flatbuffers.binary');
         if (reader && reader.identifier === 'ET12') {
             return new executorch.Reader(context, reader);
         }
@@ -297,12 +297,13 @@ executorch.Reader = class {
     }
 
     async read() {
-        this.metadata = await pytorch.Metadata.open(this.context);
+        const context = this.context;
+        this.metadata = await pytorch.Metadata.open(context);
         this.execution = new python.Execution();
         this.metadata.register(this.execution);
         const executorch_flatbuffer = executorch.schema.executorch_flatbuffer;
         this.program = executorch_flatbuffer.Program.create(this.reader);
-        this.reader = this.context.read('binary');
+        this.reader = await context.read('binary');
         if (this.reader.length >= 32) {
             this.reader.seek(8);
             const magic = String.fromCharCode(...this.reader.read(4));
@@ -860,7 +861,9 @@ coreml.Reader = class {
             const folder = path.length === 0 ? '' : `${path.join('/')}/`;
             const locals = new Map(Array.from(entries).filter(([key]) => key.startsWith(folder)).map(([key, value]) => [key.substring(folder.length), value]));
             const context = new coreml.Context(this, identifier, value, locals, protobuf);
-            factory.match(context);
+            /* eslint-disable no-await-in-loop */
+            await factory.match(context);
+            /* eslint-enable no-await-in-loop */
             if (context.type === 'coreml.manifest') {
                 /* eslint-disable no-await-in-loop */
                 const model = await factory.open(context);
@@ -944,14 +947,14 @@ coreml.Context = class {
         return this._stream;
     }
 
-    tags(type) {
+    async tags(type) {
         if (type === 'pb' && this.identifier.endsWith('.mlmodel')) {
             return new Map([[1,0],[2,2]]);
         }
         return new Map();
     }
 
-    peek(type) {
+    async peek(type) {
         if (type === 'json') {
             const data = this.stream.peek();
             const decoder = new TextDecoder('utf-8');
@@ -961,7 +964,7 @@ coreml.Context = class {
         return null;
     }
 
-    read(type) {
+    async read(type) {
         if (type === 'protobuf.binary') {
             return this._protobuf.BinaryReader.open(this.stream);
         }
@@ -983,6 +986,12 @@ coreml.Context = class {
 
     async metadata(name) {
         return this._reader.target.context.metadata(name);
+    }
+
+    match(type, target) {
+        this.type = type;
+        this.target = target;
+        return type;
     }
 };
 

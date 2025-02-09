@@ -3,25 +3,25 @@ const caffe2 = {};
 
 caffe2.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier.toLowerCase();
         const extension = identifier.split('.').pop().toLowerCase();
         switch (extension) {
             case 'pbtxt':
             case 'prototxt': {
-                const tags = context.tags('pbtxt');
+                const tags = await context.tags('pbtxt');
                 if (tags.has('op') && !tags.has('op.attr') && !tags.has('op.graph_op_name') && !tags.has('op.endpoint')) {
-                    context.type = 'caffe2.pbtxt';
+                    return context.match('caffe2.pbtxt');
                 }
                 break;
             }
             case 'pb': {
-                const tags = context.tags('pb');
+                const tags = await context.tags('pb');
                 if (tags.size > 0 &&
                     Array.from(tags.keys()).every((tag) => tag <= 9) &&
                     Array.from(tags.values()).every((type) => type <= 4)) {
                     if (tags.size === 1 && tags.get(2) === 2 && identifier.endsWith('saved_model.pb')) {
-                        return;
+                        return null;
                     }
                     const schema = [[1,2],[2,2],[3,2],[4,0],[5,2],[6,2],[7,2],[8,2],[9,2]];
                     if (schema.every(([key, value]) => !tags.has(key) || tags.get(key) === value)) {
@@ -53,6 +53,7 @@ caffe2.ModelFactory = class {
                 break;
             }
         }
+        return null;
     }
 
     async open(context) {
@@ -65,11 +66,11 @@ caffe2.ModelFactory = class {
         const base = parts.join('.');
         switch (context.type) {
             case 'caffe2.pbtxt': {
-                const openText = (predictContext, initContext, initTextFormat) => {
+                const openText = async (predictContext, initContext, initTextFormat) => {
                     let predict_net = null;
                     let init_net = null;
                     try {
-                        const reader = predictContext.read('protobuf.text');
+                        const reader = await predictContext.read('protobuf.text');
                         reader.field = function(tag, message) {
                             if (message instanceof caffe2.proto.DeviceOption) {
                                 message[tag] = this.read();
@@ -85,10 +86,10 @@ caffe2.ModelFactory = class {
                     try {
                         if (initContext) {
                             if (initTextFormat) {
-                                const reader = initContext.read('protobuf.text');
+                                const reader = await initContext.read('protobuf.text');
                                 init_net = caffe2.proto.NetDef.decodeText(reader);
                             } else {
-                                const reader = initContext.read('protobuf.binary');
+                                const reader = await initContext.read('protobuf.binary');
                                 init_net = caffe2.proto.NetDef.decode(reader);
                             }
                         }
@@ -101,40 +102,40 @@ caffe2.ModelFactory = class {
                     try {
                         const name = identifier.replace('init_net', 'predict_net');
                         const content = await context.fetch(name);
-                        return openText(content, context, true);
+                        return await openText(content, context, true);
                     } catch {
-                        return openText(context, null, true);
+                        return await openText(context, null, true);
                     }
                 }
                 if (base.toLowerCase().endsWith('predict_net') || base.toLowerCase().startsWith('predict_net')) {
                     try {
                         const name = identifier.replace('predict_net', 'init_net').replace(/\.pbtxt/, '.pb');
                         const content = await context.fetch(name);
-                        return openText(context, content, false);
+                        return await openText(context, content, false);
                     } catch {
                         try {
                             const name = identifier.replace('predict_net', 'init_net');
                             const content = await context.fetch(name);
-                            return openText(context, content, true);
+                            return await openText(context, content, true);
                         } catch {
-                            return openText(context, null, true);
+                            return await openText(context, null, true);
                         }
                     }
                 }
                 try {
                     const name = `${base}_init.pb`;
                     const content = await context.fetch(name);
-                    return openText(context, content, false);
+                    return await openText(context, content, false);
                 } catch {
-                    return openText(context, null, false);
+                    return await openText(context, null, false);
                 }
             }
             case 'caffe2.pb': {
-                const openBinary = (predictContext, initContext) => {
+                const openBinary = async (predictContext, initContext) => {
                     let predict_net = null;
                     let init_net = null;
                     try {
-                        const reader = predictContext.read('protobuf.binary');
+                        const reader = await predictContext.read('protobuf.binary');
                         predict_net = caffe2.proto.NetDef.decode(reader);
                     } catch (error) {
                         const message = error && error.message ? error.message : error.toString();
@@ -142,7 +143,7 @@ caffe2.ModelFactory = class {
                     }
                     try {
                         if (initContext) {
-                            const reader = initContext.read('protobuf.binary');
+                            const reader = await initContext.read('protobuf.binary');
                             init_net = caffe2.proto.NetDef.decode(reader);
                         }
                     } catch {
@@ -154,35 +155,35 @@ caffe2.ModelFactory = class {
                     try {
                         const name = `${base.replace(/init_net$/, '')}predict_net.${extension}`;
                         const content = await context.fetch(name);
-                        return openBinary(content, context);
+                        return await openBinary(content, context);
                     } catch {
-                        return openBinary(context, null);
+                        return await openBinary(context, null);
                     }
                 }
                 if (base.toLowerCase().endsWith('_init')) {
                     try {
                         const name = `${base.replace(/_init$/, '')}.${extension}`;
                         const content = await context.fetch(name);
-                        return openBinary(content, context);
+                        return await openBinary(content, context);
                     } catch {
-                        return openBinary(context, null);
+                        return await openBinary(context, null);
                     }
                 }
                 if (base.toLowerCase().endsWith('predict_net') || base.toLowerCase().startsWith('predict_net')) {
                     try {
                         const name = identifier.replace('predict_net', 'init_net');
                         const content = await context.fetch(name);
-                        return openBinary(context, content);
+                        return await openBinary(context, content);
                     } catch {
-                        return openBinary(context, null);
+                        return await openBinary(context, null);
                     }
                 }
                 try {
                     const file = `${base}_init.${extension}`;
                     const content = await context.fetch(file, null);
-                    return openBinary(context, content);
+                    return await openBinary(context, content);
                 } catch {
-                    return openBinary(context, null);
+                    return await openBinary(context, null);
                 }
             }
             default: {

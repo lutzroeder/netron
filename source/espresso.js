@@ -3,28 +3,25 @@ const espresso = {};
 
 espresso.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.espresso.net')) {
-            const obj = context.peek('json');
+            const obj = await context.peek('json');
             if (obj && Array.isArray(obj.layers) && obj.format_version) {
-                context.type = 'espresso.net';
-                context.target = obj;
-                return;
+                return context.match('espresso.net', obj);
             }
         }
         if (identifier.endsWith('.espresso.shape')) {
-            const obj = context.peek('json');
+            const obj = await context.peek('json');
             if (obj && obj.layer_shapes) {
-                context.type = 'espresso.shape';
-                context.target = obj;
-                return;
+                return context.match('espresso.shape', obj);
             }
         }
         if (identifier.endsWith('.espresso.weights')) {
-            context.type = 'espresso.weights';
-            context.target = context.read('binary');
+            const target = await context.read('binary');
+            return context.match('espresso.weights', target);
         }
+        return null;
     }
 
     filter(context, type) {
@@ -254,14 +251,14 @@ espresso.Reader = class {
         if (!net) {
             const name = context.identifier.replace(/\.espresso\.(net|weights|shape)$/i, '.espresso.net');
             const content = await context.fetch(name);
-            net = content.read('json');
+            net = await content.read('json');
         }
         this.shapes = new Map();
         if (!shape) {
             const name = context.identifier.replace(/\.espresso\.(net|weights|shape)$/i, '.espresso.shape');
             try {
                 const content = await context.fetch(name);
-                shape = content.read('json');
+                shape = await content.read('json');
             } catch {
                 // continue regardless of error
             }
@@ -278,7 +275,7 @@ espresso.Reader = class {
             const name = net && net.storage ? net.storage : context.identifier.replace(/\.espresso\.(net|weights|shape)$/i, '.espresso.weights');
             try {
                 const content = await context.fetch(name);
-                weights = content.read('binary');
+                weights = await content.read('binary');
             } catch {
                 // continue regardless of error
             }

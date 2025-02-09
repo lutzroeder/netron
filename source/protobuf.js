@@ -5,15 +5,16 @@ const protobuf = {};
 
 protobuf.BinaryReader = class {
 
-    static open(data) {
+    static open(data, offset) {
+        offset = offset || 0;
         if (data instanceof Uint8Array) {
-            return new protobuf.BufferReader(data);
+            return new protobuf.BufferReader(data, offset);
         }
         if (data.length < 0x20000000) {
             data = data.peek();
-            return new protobuf.BufferReader(data);
+            return new protobuf.BufferReader(data, offset);
         }
-        return new protobuf.StreamReader(data);
+        return new protobuf.StreamReader(data, offset);
     }
 
     constructor() {
@@ -470,11 +471,11 @@ protobuf.BinaryReader = class {
 
 protobuf.BufferReader = class extends protobuf.BinaryReader {
 
-    constructor(buffer) {
+    constructor(buffer, offset) {
         super();
         this._buffer = buffer;
         this._length = buffer.length;
-        this._position = 0;
+        this._position = offset || 0;
         this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
     }
 
@@ -553,11 +554,11 @@ protobuf.BufferReader = class extends protobuf.BinaryReader {
 
 protobuf.StreamReader = class extends protobuf.BinaryReader {
 
-    constructor(stream) {
+    constructor(stream, offset) {
         super(new Uint8Array(0));
         this._stream = stream;
         this._length = stream.length;
-        this._position = 0;
+        this.seek(offset || 0);
     }
 
     skipVarint() {

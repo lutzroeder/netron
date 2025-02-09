@@ -5,7 +5,7 @@ const kmodel = {};
 
 kmodel.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const reader = kmodel.Reader.open(context.stream);
         if (reader) {
             context.type = 'kmodel';

@@ -5,18 +5,14 @@ const qnn = {};
 
 qnn.ModelFactory = class {
 
-    match(context) {
-        const obj = context.peek('json');
+    async match(context) {
+        const obj = await context.peek('json');
         if (obj && obj['model.cpp'] && obj.graph) {
-            context.type = 'qnn.json';
-            context.target = obj;
-            return;
+            return context.match('qnn.json', obj);
         }
-        const entries = context.peek('tar');
+        const entries = await context.peek('tar');
         if (entries && entries.size > 0 && Array.from(entries).every(([name]) => name.endsWith('.raw'))) {
-            context.type = 'qnn.weights';
-            context.target = entries;
-            return;
+            return context.match('qnn.weights', entries);
         }
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.bin') || identifier.endsWith('.serialized')) {
@@ -31,6 +27,7 @@ qnn.ModelFactory = class {
                 context.type = 'qnn.serialized';
             }
         }
+        return null;
     }
 
     async open(context) {
@@ -43,7 +40,7 @@ qnn.ModelFactory = class {
                     if (obj['model.bin']) {
                         const name = obj['model.bin'].split('/').pop();
                         const content = await context.fetch(name);
-                        weights = content.read('tar');
+                        weights = await content.read('tar');
                     }
                 } catch {
                     // continue regardless of error
@@ -57,7 +54,7 @@ qnn.ModelFactory = class {
                 parts.pop();
                 const base = parts.join('.');
                 const content = await context.fetch(`${base}_net.json`);
-                const obj = content.read('json');
+                const obj = await content.read('json');
                 return new qnn.Model(metadata, obj, weights);
             }
             case 'qnn.serialized': {

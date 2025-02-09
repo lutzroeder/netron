@@ -7,7 +7,7 @@ const megengine = {};
 
 megengine.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const stream = context.stream;
         if (stream && stream.length >= 12) {
             let buffer = stream.peek(12);
@@ -19,30 +19,28 @@ megengine.ModelFactory = class {
                 if (position > 0 || size === (stream.length - position - 4)) {
                     const reader = flatbuffers.BinaryReader.open(stream, position + 4);
                     if (reader.identifier === 'mgv2') {
-                        context.type = 'megengine.mge';
-                        context.target = reader;
-                        return;
+                        return context.match('megengine.mge', reader);
                     }
                 }
             }
             for (const value of ['mgb0001', 'mgb0000a', 'MGBS', 'MGBC']) {
                 if (tag.startsWith(value)) {
-                    context.type = `megengine.${value}`;
-                    return;
+                    return context.match(`megengine.${value}`);
                 }
             }
         }
-        const obj = context.peek('pkl');
+        const obj = await context.peek('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ === 'megengine.traced_module.traced_module' && obj.__class__.__name__ === 'TracedModule') {
-            context.type = 'megengine.tm';
+            return context.match('megengine.tm');
         }
+        return null;
     }
 
     async open(context) {
         const metadata = await context.metadata('megengine-metadata.json');
         switch (context.type) {
             case 'megengine.tm': {
-                const obj = context.peek('pkl');
+                const obj = await context.peek('pkl');
                 return new megengine.Model(metadata, obj, context.type);
             }
             case 'megengine.mge': {

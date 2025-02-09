@@ -9,7 +9,7 @@ const svp = {};
 
 om.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const container = om.Container.open(context);
         if (container) {
             context.type = 'om';

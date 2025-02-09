@@ -6,40 +6,40 @@ const mlir = {};
 
 mlir.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const stream = context.stream;
         if (stream && stream.length > 4) {
             const buffer = stream.peek(4);
             const signature = String.fromCharCode.apply(null, buffer);
             if (signature === 'ML\xEFR') {
-                context.type = 'mlir.binary';
-                return;
+                return context.match('mlir.binary');
             }
         }
         try {
-            const reader = context.read('text', 0x10000);
+            const reader = await context.read('text', 0x10000);
             for (let line = reader.read('\n'); line !== undefined; line = reader.read('\n')) {
                 if (/module\s+(\w+\s+)?{/.test(line) || /tensor<\w+>/.test(line) || /func\s*@\w+/.test(line)) {
-                    context.type = 'mlir.text';
-                    return;
+                    return context.match('mlir.text');
                 }
             }
         } catch {
             // continue regardless of error
         }
+        return null;
     }
 
     async open(context) {
         switch (context.type) {
             case 'mlir.text': {
-                const decoder = context.read('text.decoder');
+                const decoder = await context.read('text.decoder');
                 const parser = new mlir.Parser(decoder);
                 const obj = await parser.read();
                 return new mlir.Model(obj);
             }
             case 'mlir.binary': {
-                const reader = new mlir.BytecodeReader(context);
-                reader.read();
+                const reader = await context.read('binary');
+                const parser = new mlir.BytecodeReader(reader);
+                parser.read();
                 throw new mlir.Error('Invalid file content. File contains MLIR bytecode data.');
             }
             default: {
@@ -1523,8 +1523,8 @@ mlir.Parser = class {
 
 mlir.BytecodeReader = class {
 
-    constructor(context) {
-        this._reader = new mlir.BinaryReader(context);
+    constructor(reader) {
+        this._reader = new mlir.BinaryReader(reader);
     }
 
     read() {
@@ -1746,8 +1746,8 @@ mlir.BytecodeReader = class {
 
 mlir.BinaryReader = class {
 
-    constructor(context) {
-        this._reader = context.read('binary');
+    constructor(reader) {
+        this._reader = reader;
     }
 
     get length() {

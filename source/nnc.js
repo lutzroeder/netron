@@ -3,7 +3,7 @@ const nnc = {};
 
 nnc.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const stream = context.stream;
         const signatures = [
             [0xC0, 0x0F, 0x00, 0x00, 0x45, 0x4E, 0x4E, 0x43],

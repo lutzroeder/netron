@@ -6,12 +6,12 @@ const dlc = {};
 
 dlc.ModelFactory = class {
 
-    match(context) {
-        const container = dlc.Container.open(context);
+    async match(context) {
+        const container = await dlc.Container.open(context);
         if (container) {
-            context.type = 'dlc';
-            context.target = container;
+            return context.match('dlc', container);
         }
+        return null;
     }
 
     async open(context) {
@@ -255,8 +255,8 @@ dlc.Tensor = class {
 
 dlc.Container = class {
 
-    static open(context) {
-        const entries = context.peek('zip');
+    static async open(context) {
+        const entries = await context.peek('zip');
         if (entries instanceof Map) {
             const model = entries.get('model');
             const params = entries.get('model.params');

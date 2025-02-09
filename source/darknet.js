@@ -3,33 +3,33 @@ const darknet = {};
 
 darknet.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'weights' && !identifier.toLowerCase().endsWith('.espresso.weights')) {
-            const weights = darknet.Weights.open(context);
+            const weights = await darknet.Weights.open(context);
             if (weights) {
-                context.type = 'darknet.weights';
-                context.target = weights;
+                return context.match('darknet.weights', weights);
             }
-            return;
+            return null;
         }
-        const reader = context.read('text', 65536);
+        const reader = await context.read('text', 65536);
         if (reader) {
             try {
                 for (let line = reader.read('\n'); line !== undefined; line = reader.read('\n')) {
                     const content = line.trim();
                     if (content.length > 0 && !content.startsWith('#')) {
                         if (content.startsWith('[') && content.endsWith(']')) {
-                            context.type = 'darknet.model';
+                            return context.match('darknet.model');
                         }
-                        return;
+                        return null;
                     }
                 }
             } catch {
                 // continue regardless of error
             }
         }
+        return null;
     }
 
     async open(context) {
@@ -43,7 +43,7 @@ darknet.ModelFactory = class {
                 const weights = context.target;
                 const name = `${basename}.cfg`;
                 const content = await context.fetch(name);
-                const reader = content.read('text');
+                const reader = await content.read('text');
                 const configuration = new darknet.Configuration(reader, content.identifier);
                 return new darknet.Model(metadata, configuration, weights);
             }
@@ -52,11 +52,11 @@ darknet.ModelFactory = class {
                     const name = `${basename}.weights`;
                     const content = await context.fetch(name);
                     const weights = darknet.Weights.open(content);
-                    const reader = context.read('text');
+                    const reader = await context.read('text');
                     const configuration = new darknet.Configuration(reader, context.identifier);
                     return new darknet.Model(metadata, configuration, weights);
                 } catch {
-                    const reader = context.read('text');
+                    const reader = await context.read('text');
                     const configuration = new darknet.Configuration(reader, context.identifier);
                     return new darknet.Model(metadata, configuration, null);
                 }
@@ -975,8 +975,8 @@ darknet.Configuration = class {
 
 darknet.Weights = class {
 
-    static open(context) {
-        const reader = context.read('binary');
+    static async open(context) {
+        const reader = await context.read('binary');
         if (reader && reader.length >= 20) {
             const major = reader.int32();
             const minor = reader.int32();

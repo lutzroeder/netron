@@ -7,7 +7,7 @@ const flax = {};
 
 flax.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const stream = context.stream;
         if (stream.length > 4) {
             const buffer = stream.peek(1);

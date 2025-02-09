@@ -7,28 +7,24 @@ const tflite = {};
 
 tflite.ModelFactory = class {
 
-    match(context) {
-        const reader = context.peek('flatbuffers.binary');
+    async match(context) {
+        const reader = await context.peek('flatbuffers.binary');
         if (reader && reader.identifier === 'TFL3') {
-            context.type = 'tflite.flatbuffers';
-            context.target = reader;
-            return;
+            return context.match('tflite.flatbuffers', reader);
         }
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'tflite' && reader && reader.identifier === '') {
             const version = reader.uint32_(reader.root, 4, 0);
             if (version === 3) {
-                context.type = 'tflite.flatbuffers';
-                context.target = reader;
-                return;
+                return context.match('tflite.flatbuffers', reader);
             }
         }
-        const obj = context.peek('json');
+        const obj = await context.peek('json');
         if (obj && obj.subgraphs && obj.operator_codes) {
-            context.type = 'tflite.flatbuffers.json';
-            context.target = obj;
+            return context.match('tflite.flatbuffers.json', obj);
         }
+        return null;
     }
 
     async open(context) {
@@ -39,7 +35,7 @@ tflite.ModelFactory = class {
         switch (context.type) {
             case 'tflite.flatbuffers.json': {
                 try {
-                    const reader = context.read('flatbuffers.text');
+                    const reader = await context.read('flatbuffers.text');
                     model = tflite.schema.Model.createText(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();

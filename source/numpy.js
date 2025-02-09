@@ -7,18 +7,17 @@ const numpy = {};
 
 numpy.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const stream = context.stream;
         const signature = [0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59];
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            context.type = 'npy';
-        } else {
-            const entries = context.peek('npz');
-            if (entries && entries.size > 0) {
-                context.type = 'npz';
-                context.target = entries;
-            }
+            return context.match('npy');
         }
+        const entries = await context.peek('npz');
+        if (entries && entries.size > 0) {
+            return context.match('npz', entries);
+        }
+        return null;
     }
 
     async open(context) {

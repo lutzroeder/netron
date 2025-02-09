@@ -8,50 +8,42 @@ const paddle = {};
 
 paddle.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (identifier === '__model__' || extension === '__model__' || extension === 'paddle' || extension === 'pdmodel') {
-            const tags = context.tags('pb');
+            const tags = await context.tags('pb');
             if (tags.get(1) === 2) {
-                context.type = 'paddle.pb';
-                return;
+                return context.match('paddle.pb');
             }
         }
         if (extension === 'pbtxt' || extension === 'txt') {
-            const tags = context.tags('pbtxt');
+            const tags = await context.tags('pbtxt');
             if (tags.has('blocks')) {
-                context.type = 'paddle.pbtxt';
-                return;
+                return context.match('paddle.pbtxt');
             }
         }
         const stream = context.stream;
         if (stream && stream.length > 16 && stream.peek(16).every((value) => value === 0x00)) {
-            context.type = 'paddle.params';
-            return;
+            return context.match('paddle.params');
         }
-        const pickle = paddle.Pickle.open(context);
+        const pickle = await paddle.Pickle.open(context);
         if (pickle) {
-            context.target = pickle;
-            context.type = context.target.name;
-            return;
+            return context.match(pickle.name, pickle);
         }
-        const entries = paddle.Entries.open(context);
+        const entries = await paddle.Entries.open(context);
         if (entries) {
-            context.target = entries;
-            context.type = context.target.name;
-            return;
+            return context.match(entries.name, entries);
         }
-        const naive = paddle.NaiveBuffer.open(context);
+        const naive = await paddle.NaiveBuffer.open(context);
         if (naive) {
-            context.target = naive;
-            context.type = context.target.name;
+            return context.match(naive.name, naive);
         }
-        const obj = context.peek('json');
+        const obj = await context.peek('json');
         if (obj && obj.base_code && obj.program) {
-            context.target = obj;
-            context.type = 'paddle.ir';
+            return context.match('paddle.ir', obj);
         }
+        return null;
     }
 
     filter(context, type) {
@@ -88,12 +80,12 @@ paddle.ModelFactory = class {
                 const parts = identifier.split('.');
                 const extension = parts.pop().toLowerCase();
                 const base = parts.join('.');
-                const openProgram = (context, type) => {
+                const openProgram = async (context, type) => {
                     const program = {};
                     switch (type) {
                         case 'paddle.pbtxt': {
                             try {
-                                const reader = context.read('protobuf.text');
+                                const reader = await context.read('protobuf.text');
                                 program.desc = paddle.proto.ProgramDesc.decodeText(reader);
                             } catch (error) {
                                 const message = error && error.message ? error.message : error.toString();
@@ -103,7 +95,7 @@ paddle.ModelFactory = class {
                         }
                         case 'paddle.pb': {
                             try {
-                                const reader = context.read('protobuf.binary');
+                                const reader = await context.read('protobuf.binary');
                                 program.desc = paddle.proto.ProgramDesc.decode(reader);
                             } catch (error) {
                                 const message = error && error.message ? error.message : error.toString();
@@ -186,7 +178,7 @@ paddle.ModelFactory = class {
                         const params = loadParams(context.stream);
                         try {
                             const content = await context.fetch(file);
-                            const program = openProgram(content, 'paddle.pb');
+                            const program = await openProgram(content, 'paddle.pb');
                             const weights = mapParams(params, program);
                             return new paddle.Model(metadata, program.format, program.desc, weights);
                         } catch {
@@ -210,7 +202,7 @@ paddle.ModelFactory = class {
                             const container = new paddle.Pickle(obj);
                             return container.weights || new Map();
                         };
-                        const program = openProgram(context, context.type);
+                        const program = await openProgram(context, context.type);
                         if (extension === 'pdmodel') {
                             try {
                                 const name = `${base}.pdiparams`;
@@ -611,9 +603,11 @@ paddle.TensorShape = class {
 
 paddle.Entries = class {
 
-    static open(context) {
-        let entries = context.peek('zip');
-        entries = entries instanceof Map ? entries : context.peek('tar');
+    static async open(context) {
+        let entries = await context.peek('zip');
+        if (entries instanceof Map === false) {
+            entries = await context.peek('tar');
+        }
         if (entries instanceof Map) {
             entries = Array.from(entries);
             entries = new Map(entries.filter(([name]) => !name.endsWith('/') && !name.split('/').pop().startsWith('.')).slice());
@@ -664,8 +658,8 @@ paddle.Entries = class {
 
 paddle.Pickle = class {
 
-    static open(context) {
-        const obj = context.peek('pkl');
+    static async open(context) {
+        const obj = await context.peek('pkl');
         const container = new paddle.Pickle(obj);
         if (container.weights !== null) {
             return container;
@@ -735,7 +729,7 @@ paddle.Pickle = class {
 
 paddle.NaiveBuffer = class {
 
-    static open(context) {
+    static async open(context) {
         const stream = context.stream;
         if (stream && stream.length > 4) {
             const buffer = stream.peek(4);

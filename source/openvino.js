@@ -3,7 +3,7 @@ const openvino = {};
 
 openvino.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier.toLowerCase();
         const extension = identifier.split('.').pop();
         if (/^.*\.ncnn\.bin$/.test(identifier) ||
@@ -11,7 +11,7 @@ openvino.ModelFactory = class {
             /^.*pytorch_model.*\.bin$/.test(identifier) ||
             /^.*group.+-shard.+of.+\.bin$/.test(identifier) ||
             /^.*param\.bin$/.test(identifier)) {
-            return;
+            return null;
         }
         if (extension === 'bin') {
             const stream = context.stream;
@@ -24,7 +24,7 @@ openvino.ModelFactory = class {
                     const signature = view.getUint32(i, true);
                     if (signature === 0xdeadbeef || // Core ML
                         signature === 0x01306b47 || signature === 0x000d4b38 || signature === 0x0002c056) { // ncnn
-                        return;
+                        return null;
                     }
                 }
                 const match = (pattern, identifier, buffer) => {
@@ -42,8 +42,7 @@ openvino.ModelFactory = class {
                     { identifier: 'text-recognition-0012.bin', signature: [0x0B, 0x21, 0xC6, 0xBC, 0xD0, 0xBB, 0xC1, 0x3B] },
                 ];
                 if (include.some((pattern) => match(pattern, identifier, buffer))) {
-                    context.type = 'openvino.bin';
-                    return;
+                    return context.match('openvino.bin');
                 }
                 const exclude = [
                     { identifier: '__model__.bin' },
@@ -56,16 +55,15 @@ openvino.ModelFactory = class {
                     { signature: [0x21, 0xA8, 0xEF, 0xBE, 0xAD, 0xDE] }
                 ];
                 if (exclude.some((pattern) => match(pattern, identifier, buffer))) {
-                    return;
+                    return null;
                 }
                 if (signature === 0x00000001) {
-                    return;
+                    return null;
                 }
                 const size = Math.min(buffer.length & 0xfffffffc, 128);
                 buffer = buffer.subarray(0, size);
                 if (Array.from(buffer).every((value) => value === 0)) {
-                    context.type = 'openvino.bin';
-                    return;
+                    return context.match('openvino.bin');
                 }
                 const f32 = new Array(buffer.length >> 2);
                 for (let i = 0; i < f32.length; i++) {
@@ -85,16 +83,16 @@ openvino.ModelFactory = class {
                 const validateInt = (array) => array.length > 32 &&
                     array.slice(0, 32).every((x) => x === 0 || x === 1 || x === 2 || x === 0x7fffffff);
                 if (validateFloat(f32) || validateFloat(f16) || validateInt(i32)) {
-                    context.type = 'openvino.bin';
-                    return;
+                    return context.match('openvino.bin');
                 }
             }
-            return;
+            return null;
         }
-        const tags = context.tags('xml');
+        const tags = await context.tags('xml');
         if (tags.has('net')) {
-            context.type = 'openvino.xml';
+            return context.match('openvino.xml');
         }
+        return null;
     }
 
     filter(context, type) {
@@ -133,7 +131,7 @@ openvino.ModelFactory = class {
         }
         let document = null;
         try {
-            document = context.read('xml');
+            document = await context.read('xml');
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
             throw new openvino.Error(`File format is not OpenVINO XML (${message.replace(/\.$/, '')}).`);

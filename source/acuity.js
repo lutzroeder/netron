@@ -3,12 +3,12 @@ const acuity = {};
 
 acuity.ModelFactory = class {
 
-    match(context) {
-        const obj = context.peek('json');
+    async match(context) {
+        const obj = await context.peek('json');
         if (obj && obj.MetaData && obj.Layers) {
-            context.type = 'acuity';
-            context.target = obj;
+            return context.match('acuity', obj);
         }
+        return null;
     }
 
     async open(context) {
