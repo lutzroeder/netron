@@ -4708,9 +4708,9 @@
   {
     "type":     "onnx",
     "target":   "super_resolution.onnx",
-    "source":   "https://gist.github.com/zhreshold/bcda4716699ac97ea44f791c24310193/raw/b385b1b242dc89a35dd808235b885ed8a19aedc1/super_resolution.onnx",
+    "source":   "https://github.com/user-attachments/files/18726996/super_resolution.onnx.zip[super_resolution.onnx]",
     "format":   "ONNX",
-    "link":     "https://gist.github.com/zhreshold/bcda4716699ac97ea44f791c24310193"
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
