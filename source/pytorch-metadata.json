@@ -131,6 +131,21 @@
     "name": "aten::bin(int i) -> str"
   },
   {
+    "name": "aten::remove.int(int[](a!) self, int el) -> ()"
+  },
+  {
+    "name": "aten::remove.float(float[](a!) self, float el) -> ()"
+  },
+  {
+    "name": "aten::remove.bool(bool[](a!) self, bool el) -> ()"
+  },
+  {
+    "name": "aten::remove.Tensor(Tensor[](a!) self, Tensor el) -> ()"
+  },
+  {
+    "name": "aten::remove.str(str[](a!) self, str el) -> ()"
+  },
+  {
     "name": "aten::_unwrap_optional(t(a)? optional) -> t(a)"
   },
   {
