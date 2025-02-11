@@ -1,13 +1,6 @@
 [
   {
     "type":     "_",
-    "target":   "boolean.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/8985631/boolean.onnx.zip[boolean.onnx]",
-    "error":    "Unsupported Pickle content.",
-    "link":     "https://github.com/lutzroeder/netron/issues/458"
-  },
-  {
-    "type":     "_",
     "target":   "cnn_classifier.h5",
     "source":   "https://github.com/lutzroeder/netron/files/12706986/cnn_classifier.h5.zip[cnn_classifier.h5]",
     "error":    "Unexpected end of file. Expected 439 more bytes. The file might be corrupted.",
@@ -5423,6 +5416,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "boolean.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/8985631/boolean.onnx.zip[boolean.onnx]",
+    "format":   "PyTorch v0.1.10",
+    "link":     "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":     "pytorch",
     "target":   "blitz_cifar10_tutorial.pt",
     "source":   "https://github.com/lutzroeder/netron/files/3748500/blitz_cifar10_tutorial.zip[blitz_cifar10_tutorial.pt]",
     "format":   "TorchScript v1.3",
@@ -5624,7 +5624,7 @@
   },
   {
     "type":     "pytorch",
-    "target":   "DRNL4x_dual_model.pth",
+    "target":   "DRNL4x_dual_model",
     "source":   "https://github.com/lutzroeder/netron/files/5505677/DRNL4x_dual_model.pth.zip[DRNL4x_dual_model.pth]",
     "format":   "PyTorch v0.1.10",
     "assert":   "model.graphs[0].nodes.length == 2",
