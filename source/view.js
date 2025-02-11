@@ -6135,7 +6135,8 @@ view.ModelFactoryService = class {
                         { name: 'MindSpore Lite model data', identifier: 'MSL1' },
                         { name: 'MindSpore Lite model data', identifier: 'MSL2' },
                         { name: 'MindSpore Lite model data', identifier: 'MSL3' },
-                        { name: 'BSTM model data', identifier: 'BSTM' }
+                        { name: 'BSTM model data', identifier: 'BSTM' },
+                        { name: 'onnu model data', identifier: 'onnu' }
                     ];
                     for (const format of formats) {
                         if (identifier === format.identifier) {
@@ -6408,7 +6409,10 @@ view.ModelFactoryService = class {
                 { name: 'llama2.c checkpoint', value: /^..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00/, identifier: /^stories\d+[KM]\.bin/ },
                 { name: 'Cambricon model', value: /^\x7fMEF/ },
                 { name: 'Cambricon model', value: /^cambricon_offline/ },
-                { name: 'VNN model', value: /^\x2F\x4E\x00\x00.\x00\x00\x00/, identifier: /.vnnmodel$/ }
+                { name: 'VNN model', value: /^\x2F\x4E\x00\x00.\x00\x00\x00/, identifier: /.vnnmodel$/ },
+                { name: 'XGBoost model', value: /^binf/ },
+                { name: 'XGBoost model', value: /^bs64/ },
+                { name: 'SQLite data', value: /^SQLite format/ },
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
