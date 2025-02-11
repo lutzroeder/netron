@@ -6102,10 +6102,58 @@ python.Execution = class {
             }
         });
         this.registerFunction('torch._C.hasWriters', () => {
-
         });
         this.registerFunction('torch._C.escapesScope', () => {
-
+        });
+        this.registerType('torch._C.DepthFirstGraphNodeIterator', class {
+            constructor(graph) {
+                this._current = graph.block().nodes().front();
+            }
+            next() {
+                return null;
+            }
+        });
+        this.registerType('torch._C.ConcatCombiner', class {
+            constructor(graph) {
+                this._graph = graph;
+                this._aliasDb = new torch._C.AliasDb(graph);
+                this._combinable_concats = [];
+            }
+            collectOptimizableConcats() {
+                const graph_it = new torch._C.DepthFirstGraphNodeIterator(this._graph);
+                for (let node = graph_it.next(); node !== null; node = graph_it.next()) {
+                    if (node.kind() === 'aten::cat') {
+                        this.handleConcat(node);
+                    }
+                }
+            }
+            combineConcats() {
+                if (this._combinable_concats.length === 0) {
+                    return false;
+                }
+                const list_construct_inputs = this.getListConstructInputs();
+                for (const node_and_new_list of list_construct_inputs) {
+                    const [node, inputs] = node_and_new_list;
+                    const new_list_construct = this.createListConstruct(inputs);
+                    const old_list_construct = node.input(0).node();
+                    new_list_construct.output().setType(old_list_construct.output().type());
+                    new_list_construct.insertBefore(node);
+                    old_list_construct.replaceAllUsesWith(new_list_construct);
+                }
+                return true;
+            }
+            run() {
+                this.collectOptimizableConcats();
+                const changed = this.combineConcats();
+                if (changed) {
+                    torch._C.EliminateDeadCode(this._graph);
+                }
+                return changed;
+            }
+        });
+        this.registerFunction('torch._C.CombineConcats', (graph) => {
+            const changed = new torch._C.ConcatCombiner(graph).run();
+            return changed;
         });
         this.registerType('torch._C.PeepholeOptimizeImpl', class {
             constructor(graph, disable_shape_peepholes) {
@@ -6113,12 +6161,12 @@ python.Execution = class {
                 this._shape_peepholes = !disable_shape_peepholes;
             }
             run() {
-                const changed = this.optimizeBlock(this._graph.block());
+                let changed = this.optimizeBlock(this._graph.block());
                 /* changed |= torch._C.PeepholeOptimizeListIdioms(this._graph);
                 changed |= torch._C.PeepholeOptimizeDictIdioms(this._graph);
                 changed |= torch._C.PeepholeOptimizeAliasSensitive(this._graph, this._shape_peepholes);
-                changed |= torch._C.PeepholeOptimizeNonTensor(this._graph);
-                changed |= torch._C.CombineConcats(this._graph); */
+                changed |= torch._C.PeepholeOptimizeNonTensor(this._graph); */
+                changed = changed || torch._C.CombineConcats(this._graph);
                 return changed;
             }
             optimizeBlock(block) {
@@ -10677,7 +10725,7 @@ python.Execution = class {
                 const classType = obj.type();
                 const outputType = classType.getAttribute(field);
                 n.output().setType(outputType);
-                n.output().setDebugName(/^[0-9]+$/.test(field) ? `_${field}` : field);
+                n.output().setDebugName(torch._C.normalizeAttrName(field));
                 return n;
             }
             createLoad(name, type) {
@@ -11507,13 +11555,22 @@ python.Execution = class {
                     !(this.type() instanceof torch.OptionalType) &&
                     !(this.type() instanceof torch.UnionType && this.type().expect(torch.UnionType).canHoldType(torch.NoneType.get()));
             }
+            isValidName(name) {
+                if (name.length === 0) {
+                    return true;
+                }
+                if (torch._C.isNumber(name)) {
+                    return false;
+                }
+                return true;
+            }
             hasDebugName() {
-                return this._unique_name;
+                return this._unique_name && this._unique_name.length > 0;
             }
             setDebugName(name) {
-                // if (!isValidName(name)) {
-                //     throw std::runtime_error("Invalid name: '" + name + "'");
-                // }
+                if (!this.isValidName(name)) {
+                    throw new python.Error(`Invalid name '${name}'.`);
+                }
                 const names = this.node().owningGraph()._unique_names;
                 if (this.hasDebugName()) {
                     names.delete(this._unique_name);
@@ -12874,6 +12931,15 @@ python.Execution = class {
                 return value.getValue();
             }
             return null;
+        });
+        this.registerFunction('torch._C.isNumber', (str) => {
+            return /^[0-9]+$/.test(str);
+        });
+        this.registerFunction('torch._C.normalizeAttrName', (field) => {
+            if (torch._C.isNumber(field)) {
+                return `_${field}`;
+            }
+            return field;
         });
         this.registerFunction('torch._C.meaningfulName', (name) => {
             if (name.length === 0 && name[0] === '$') {
