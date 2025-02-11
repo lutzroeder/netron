@@ -104,9 +104,10 @@ xml.TextReader = class {
                                     this._internalSubset(']');
                                 }
                                 if (systemId && !this._standalone) {
-                                    this._pushResource(systemId, '', true);
-                                    this._internalSubset(undefined);
-                                    this._popContext();
+                                    if (this._pushResource(systemId, '', true)) {
+                                        this._internalSubset(undefined);
+                                        this._popContext();
+                                    }
                                 }
                                 this._characterData = true;
                                 this._parameterEntities = false;
@@ -287,18 +288,18 @@ xml.TextReader = class {
                         const elementType = documentType ? documentType.elements.getNamedItem(name) : null;
                         this._characterData = elementType ? elementType.characterData : false;
                         this._seek(this._position);
-                        const data = [];
+                        let data = [];
                         while (this._char !== '<' && this._char !== undefined) {
                             if (this._char === ']' && this._match(']]>')) {
                                 this._unexpected();
                             }
                             data.push(this._content());
-                            if (data.length > 65536) {
-                                this._error('Invalid character data buffer size.');
+                            if (data.length > 4096) {
+                                data = [data.join('')];
                             }
                         }
                         if (data.length > 0) {
-                            const content = data.splice(0, data.length).join('');
+                            const content = data.join('');
                             if (content.trim().length > 0) {
                                 const node = document.createTextNode(content);
                                 this._appendChild(node);
@@ -1023,8 +1024,14 @@ xml.TextReader = class {
     }
 
     _pushResource(identifier, entity, stop) {
-        const content = this._callback(identifier);
-        this._pushBuffer(content, identifier, entity, stop);
+        if (this._callback) {
+            const content = this._callback(identifier);
+            if (content) {
+                this._pushBuffer(content, identifier, entity, stop);
+                return true;
+            }
+        }
+        return false;
     }
 
     _pushBuffer(data, base, entity, stop) {
