@@ -5727,7 +5727,7 @@ view.Context = class {
                                 const xml = await import('./xml.js');
                                 const reader = xml.TextReader.open(stream);
                                 if (reader) {
-                                    const document = reader.peek();
+                                    const document = reader.read(1);
                                     const element = document.documentElement;
                                     const namespaceURI = element.namespaceURI;
                                     const localName = element.localName;
