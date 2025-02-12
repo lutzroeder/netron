@@ -4980,6 +4980,7 @@ python.Execution = class {
         });
         this.registerFunction('sklearn.metrics._ranking.roc_auc_score');
         this.registerFunction('sklearn.metrics._regression.mean_absolute_error');
+        this.registerFunction('sklearn.metrics._regression.mean_absolute_percentage_error');
         this.registerFunction('sklearn.metrics._regression.mean_squared_error');
         this.registerFunction('sklearn.metrics._regression.r2_score');
         sklearn.metrics.regression = sklearn.metrics._regression;
