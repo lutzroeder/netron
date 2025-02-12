@@ -1,17 +1,10 @@
-import { stringify } from 'querystring';
-
-import { NONAME } from 'dns';
-
-import { execSync } from 'child_process';
-import { cp } from 'fs';
-
 class Req {
 	// Variable which states if a file was added before.
-	file_added = 0;
-	// Variable which stores the elements on which 
+    file_added = 0;
+	// Variable which stores the elements on which
 	// event listeners for images are put.
 	event_img = [];
-	// Variable which stores the elements on which 
+	// Variable which stores the elements on which
 	// event listeners for double click are put.
 	event_dbl_click = [];
 	constructor() {}
@@ -87,7 +80,7 @@ class Req {
 		}
 		Req.file_added = 0;
 	}
-	
+
 	// Function in which file is read, data is processed and buttons, hovers and clicks are added.
 	static read_file() {
 		let input = document.createElement('input');
@@ -107,7 +100,7 @@ class Req {
 				// Variable which encapsulates all the data for a graph element to be inserted into html page
 				// -> in a list of added attributes.
 				var child_meta = 0;
-				// Variable which encapsulates the elements' data which needs to be removed manually, 
+				// Variable which encapsulates the elements' data which needs to be removed manually,
 				// by setting attributes differently -> in a list of modified attributes.
 				var another = 0;
 				// Variable which stocks the number of buttons added for an element.
@@ -144,7 +137,7 @@ class Req {
 							if (first.toLowerCase() !== "operator_id" &&
 							 first.toLowerCase() !== "tensor_id") {
 								Req.solve_bugs();
-								var text_error = "Invalid model metadata file format!" + 
+								var text_error = "Invalid model metadata file format!" +
 								" The first line must be operator_id or tensor_id";
 								throw text_error;
 							}
@@ -153,11 +146,11 @@ class Req {
 						// Checks if the key is not included into the list of valid keys.
 						if (!options_keys.includes(first.toLowerCase())) {
 							Req.solve_bugs();
-							throw "Invalid model metadata file format! You provided an invalid key: " + 
+							throw "Invalid model metadata file format! You provided an invalid key: " +
 							first.toLowerCase();
 						}
 						if (first.toLowerCase() == "tensor_id" || first.toLowerCase() == "operator_id") {
-							// Block of code which checks if there is unadded information 
+							// Block of code which checks if there is unadded information
 							// regarding a new button at the beggining of processing a new graph element.
 							if (other_string !== JSON.stringify({})) {
 								var objeect = document.getElementById("list-attributes");
@@ -266,7 +259,7 @@ class Req {
 								(first.toLowerCase() == "operator_onmouseover_text" &&
 								child_meta.className == "tensor")) {
 									Req.solve_bugs();
-									throw "Invalid model metadata file format! tensor_onmouseover_text" + 
+									throw "Invalid model metadata file format! tensor_onmouseover_text" +
 									" must correspond to tensor and operator_onmouseover_text to operator";
 								}
 								obj["hover"] = meta;
@@ -282,7 +275,7 @@ class Req {
 									Req.solve_bugs();
 									throw "Invalid model metadata file format! tensor_onmouseover_image" +
 									" must correspond to tensor and operator_onmouseover_image to operator";
-								}            
+								}
 								if (img !== JSON.stringify({})) {
 									obj["img_" + n_of_images] = img;
 									n_of_images += 1;
@@ -384,7 +377,7 @@ class Req {
 									(first.toLowerCase() == "operator_button" &&
 									second.toLowerCase() == "operator_button")) {
 										Req.solve_bugs();
-										throw "Invalid model metadata file format! " + 
+										throw "Invalid model metadata file format! " +
 										"You can't have empty buttons";
 									}
 									if (other_string !== JSON.stringify({})) {
@@ -477,7 +470,7 @@ class Req {
 										stri[first.toLowerCase()] =
 										line_read[1] == undefined ? '' : line_read[1].trim();
 										other_string = JSON.stringify(stri);
-									} 
+									}
 									else {
 										// Adding the image information for the element.
 										if (first.toLowerCase() == "tensor_onmouseover_image_dimx" ||
@@ -534,7 +527,7 @@ class Req {
 							child_meta.innerHTML = JSON.stringify(obj);
 							another.innerHTML = JSON.stringify(obj2);
 							continue;
-						} 
+						}
 					}
 				}
 				// If there is unprocessed information, add it in the list.
@@ -710,7 +703,7 @@ class Req {
 			reader.readAsText(files[0], 'utf-8');
 		};
 		input.click();
-	
+
 	};
 	// Function which manages the doubleclick feature.
 	static doubleclick() {
@@ -885,7 +878,7 @@ class Req {
 											var new_child_7 = document.createElement('span');
 											new_child_7.className = "sidebar-item-value-line-content";
 											new_child_7.innerHTML = `<b>` + inner[keys[i]] + `</b>`;
-											
+
 											new_child_6.append(new_child_7);
 											new_child_4.append(new_child_5);
 											new_child_4.append(new_child_6);
@@ -911,7 +904,7 @@ class Req {
 												var new_child = document.createElement('button');
 												new_child.type = "button";
 												new_child.textContent = string_new["button_name"];
-												new_child.style = "display: block; margin: 10px;" +  
+												new_child.style = "display: block; margin: 10px;" +
 												"background-color:#99c2ff; color:black; border-radius: 8px;";
 												if (string_new["class"] == "tensor") {
 													var cmd = string_new["tensor_button_command"];
