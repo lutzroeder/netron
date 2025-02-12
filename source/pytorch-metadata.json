@@ -7596,6 +7596,9 @@
     "name": "detectron2::nms_rotated(Tensor boxes, Tensor scores, float iou_threshold) -> Tensor"
   },
   {
+    "name": "detectron2::roi_align_rotated_forward(Tensor input, Tensor rois, float spatial_scale, int pooled_height, int pooled_width, int sampling_ratio) -> Tensor"
+  },
+  {
     "name": "__torch__.torch.classes.rnn.CellParamsBase",
     "inputs": [
       { "name": "type", "type": "string" },
