@@ -30,8 +30,7 @@ numpy.ModelFactory = class {
                 const execution = new python.Execution();
                 execution.on('resolve', (_, name) => unresolved.add(name));
                 const stream = context.stream;
-                const buffer = stream.peek();
-                const bytes = execution.invoke('io.BytesIO', [buffer]);
+                const bytes = execution.invoke('io.BytesIO', [stream]);
                 const array = execution.invoke('numpy.load', [bytes]);
                 if (unresolved.size > 0) {
                     const name = unresolved.values().next().value;

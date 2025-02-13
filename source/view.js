@@ -3289,6 +3289,8 @@ view.TensorView = class extends view.Expander {
                         content.insertBefore(this._saveButton, content.firstChild);
                     }
                 }
+            }).catch((error) => {
+                content.innerHTML = error.message;
             });
         }
         return content;
@@ -5574,8 +5576,7 @@ view.Context = class {
                                     const python = await import('./python.js');
                                     const execution = new python.Execution();
                                     for (const [name, stream] of entries) {
-                                        const buffer = stream.peek();
-                                        const bytes = execution.invoke('io.BytesIO', [buffer]);
+                                        const bytes = execution.invoke('io.BytesIO', [stream]);
                                         const array = execution.invoke('numpy.load', [bytes]);
                                         content.set(name, array);
                                     }

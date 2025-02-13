@@ -626,6 +626,9 @@ base.Tensor = class {
 
     get data() {
         this._read();
+        if (this._data && this._data.peek) {
+            this._data = this._data.peek();
+        }
         return this._data;
     }
 

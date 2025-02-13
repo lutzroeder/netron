@@ -2477,12 +2477,24 @@ python.Execution = class {
                 this._point = 0;
             }
             seek(offset) {
+                if (this._buf.seek) {
+                    this._buf.seek(offset);
+                }
                 this._point = offset;
             }
-            read(size) {
-                const start = this._point;
-                this._point = size === undefined ? this._buf.length : start + size;
-                return this._buf.subarray(start, this._point);
+            read(size, stream) {
+                if (this._buf.stream && stream) {
+                    return this._buf.stream(size);
+                }
+                if (this._buf.peek) {
+                    return this._buf.read(size);
+                }
+                if (this._buf instanceof Uint8Array) {
+                    const start = this._point;
+                    this._point = size === undefined ? this._buf.length : start + size;
+                    return this._buf.subarray(start, this._point);
+                }
+                throw new python.Error('Unsupported buffer type.');
             }
             write(data) {
                 const src = this._buf || new Uint8Array();
@@ -2490,6 +2502,9 @@ python.Execution = class {
                 this._buf = new Uint8Array(this._point);
                 this._buf.set(src, 0);
                 this._buf.set(data, src.length);
+            }
+            getbuffer() {
+                return new builtins.memoryview(this._buf);
             }
         });
         this.registerType('io.StringIO', class {
@@ -4232,6 +4247,14 @@ python.Execution = class {
                 throw new python.Error('Unsupported source.');
             }
         });
+        this.registerType('builtins.memoryview', class {
+            constructor(buf) {
+                this._buf = buf;
+            }
+            get nbytes() {
+                return this._buf.length;
+            }
+        });
         this.registerType('builtins.frozenset', class extends Set {
             constructor(iterable) {
                 super();
@@ -4787,7 +4810,8 @@ python.Execution = class {
                         throw new python.Error(`Unsupported data type '${header.descr}'.`);
                     }
                     const count = shape.length === 0 ? 1 : shape.reduce((a, b) => a * b, 1);
-                    data = file.read(dtype.itemsize * count);
+                    const stream = file.getbuffer().nbytes > 0x1000000;
+                    data = file.read(dtype.itemsize * count, stream);
                     break;
                 }
                 default: {
