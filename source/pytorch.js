@@ -1611,6 +1611,11 @@ pytorch.Execution = class extends python.Execution {
                 [this.weight, this.bias, this.stride, this.padding, this.output_padding, this.dilation, this.groups, this.output_min, this.output_max] = state;
             }
         });
+        this.registerType('__torch__.torch.classes.tensorrt.Engine', class {
+            __setstate__(state) {
+                [this.abi_target, this.name, this.device, this.engine, this.input_binding_names, this.output_binding_names, this.hw_compatible, this.serialized_metadata, this.target_platform] = state;
+            }
+        });
     }
 
     call(target, name, args, keywords, context) {

@@ -12488,6 +12488,7 @@ python.Execution = class {
                     { name: '__torch__.torch.classes.xnnpack.Conv2dOpContext', attributes: 'Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups, int[] output_min, int[] output_max' },
                     { name: '__torch__.torch.classes.xnnpack.LinearOpContext', attributes: 'Tensor weight, Tensor bias, int[] output_min, int[] output_max' },
                     { name: '__torch__.torch.classes.xnnpack.TransposeConv2dOpContext', attributes: 'Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] output_padding, int[] dilation, int groups, int[] output_min, int[] output_max' },
+                    { name: '__torch__.torch.classes.tensorrt.Engine' }
                 ];
                 for (const known_type of known_types) {
                     const prefix = new torch._C.QualifiedName(known_type.name);

@@ -6524,6 +6524,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "squeezenet1_1_trt.pt",
+    "source":   "https://github.com/user-attachments/files/18792413/squeezenet1_1_trt.pt.zip[squeezenet1_1_trt.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
     "target":   "squeezenet1_1-f364aa15.pth",
     "source":   "https://download.pytorch.org/models/squeezenet1_1-f364aa15.pth",
     "format":   "PyTorch v0.1.1"
