@@ -6411,9 +6411,10 @@ view.ModelFactoryService = class {
                 { name: 'Cambricon model', value: /^\x7fMEF/ },
                 { name: 'Cambricon model', value: /^cambricon_offline/ },
                 { name: 'VNN model', value: /^\x2F\x4E\x00\x00.\x00\x00\x00/, identifier: /.vnnmodel$/ },
-                { name: 'XGBoost model', value: /^binf/ },
-                { name: 'XGBoost model', value: /^bs64/ },
+                { name: 'XGBoost model', value: /^binf/ }, // https://github.com/dmlc/xgboost/blob/master/src/learner.cc
+                { name: 'XGBoost model', value: /^bs64/ }, // https://github.com/dmlc/xgboost/blob/master/src/learner.cc
                 { name: 'SQLite data', value: /^SQLite format/ },
+                { name: 'Optimium model', value: /^EZMODEL/ }, // https://github.com/EZ-Optimium/Optimium
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
