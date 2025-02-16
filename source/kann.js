@@ -6,7 +6,7 @@ kann.ModelFactory = class {
     async match(context) {
         const reader = await context.peek('flatbuffers.binary');
         if (reader && reader.identifier === 'KaNN') {
-            return context.match('kann.flatbuffers', reader);
+            return context.set('kann.flatbuffers', reader);
         }
         return null;
     }
@@ -18,7 +18,7 @@ kann.ModelFactory = class {
         switch (context.type) {
             case 'kann.flatbuffers': {
                 try {
-                    const reader = context.target;
+                    const reader = context.value;
                     model = kann.schema.Model.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();

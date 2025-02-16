@@ -6,14 +6,14 @@ onednn.ModelFactory = class {
     async match(context) {
         const obj = await context.peek('json');
         if (obj && obj.version && obj.engine_kind && obj.fpmath_mode && obj.graph) {
-            return context.match('onednn', obj);
+            return context.set('onednn', obj);
         }
         return null;
     }
 
     async open(context) {
         const metadata = await context.metadata('onednn-metadata.json');
-        return new onednn.Model(metadata, context.target);
+        return new onednn.Model(metadata, context.value);
     }
 };
 

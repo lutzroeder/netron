@@ -12,14 +12,14 @@ mlir.ModelFactory = class {
             const buffer = stream.peek(4);
             const signature = String.fromCharCode.apply(null, buffer);
             if (signature === 'ML\xEFR') {
-                return context.match('mlir.binary');
+                return context.set('mlir.binary');
             }
         }
         try {
             const reader = await context.read('text', 0x10000);
             for (let line = reader.read('\n'); line !== undefined; line = reader.read('\n')) {
                 if (/module\s+(\w+\s+)?{/.test(line) || /tensor<\w+>/.test(line) || /func\s*@\w+/.test(line)) {
-                    return context.match('mlir.text');
+                    return context.set('mlir.text');
                 }
             }
         } catch {

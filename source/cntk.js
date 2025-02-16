@@ -8,12 +8,12 @@ cntk.ModelFactory = class {
         // CNTK v1
         const signature = [0x42, 0x00, 0x43, 0x00, 0x4e, 0x00, 0x00, 0x00];
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            return context.match('cntk.v1');
+            return context.set('cntk.v1');
         }
         // CNTK v2
         const tags = await context.tags('pb');
         if (tags.get(1) === 0 && tags.get(2) === 2) {
-            return context.match('cntk.v2');
+            return context.set('cntk.v2');
         }
         return null;
     }

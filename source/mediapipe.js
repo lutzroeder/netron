@@ -8,7 +8,7 @@ mediapipe.ModelFactory = class {
     async match(context) {
         const tags = await context.tags('pbtxt');
         if (tags.has('node') && ['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has(`node.${key}`))) {
-            return context.match('mediapipe.pbtxt');
+            return context.set('mediapipe.pbtxt');
         }
         return null;
     }

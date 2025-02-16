@@ -10,19 +10,19 @@ tflite.ModelFactory = class {
     async match(context) {
         const reader = await context.peek('flatbuffers.binary');
         if (reader && reader.identifier === 'TFL3') {
-            return context.match('tflite.flatbuffers', reader);
+            return context.set('tflite.flatbuffers', reader);
         }
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'tflite' && reader && reader.identifier === '') {
             const version = reader.uint32_(reader.root, 4, 0);
             if (version === 3) {
-                return context.match('tflite.flatbuffers', reader);
+                return context.set('tflite.flatbuffers', reader);
             }
         }
         const obj = await context.peek('json');
         if (obj && obj.subgraphs && obj.operator_codes) {
-            return context.match('tflite.flatbuffers.json', obj);
+            return context.set('tflite.flatbuffers.json', obj);
         }
         return null;
     }
@@ -45,7 +45,7 @@ tflite.ModelFactory = class {
             }
             case 'tflite.flatbuffers': {
                 try {
-                    const reader = context.target;
+                    const reader = context.value;
                     model = tflite.schema.Model.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();

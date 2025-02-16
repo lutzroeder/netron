@@ -5354,9 +5354,9 @@ view.Context = class {
         this._context.error(error, fatal);
     }
 
-    match(type, target) {
+    set(type, value) {
         this.type = type;
-        this.target = target;
+        this.value = value;
         return type;
     }
 
@@ -5866,7 +5866,6 @@ view.ModelFactoryService = class {
         this.register('./mlir', ['.mlir', '.mlir.txt', '.mlirbc']);
         this.register('./sentencepiece', ['.model']);
         this.register('./hailo', ['.hn', '.har', '.metadata.json']);
-        this.register('./nnc', ['.nnc','.tflite']);
         this.register('./safetensors', ['.safetensors', '.safetensors.index.json']);
         this.register('./tvm', ['.json', '.params']);
         this.register('./dot', ['.dot'], [], [/^\s*(\/\*[\s\S]*?\*\/|\/\/.*|#.*)?\s*digraph\s*([A-Za-z][A-Za-z0-9-_]*|".*?")?\s*{/m]);
@@ -5874,7 +5873,7 @@ view.ModelFactoryService = class {
         this.register('./weka', ['.model']);
         this.register('./qnn', ['.json', '.bin', '.serialized']);
         this.register('./kann', ['.kann', '.bin', '.kgraph']);
-        this.register('', ['.cambricon', '.vnnmodel']);
+        this.register('', ['.cambricon', '.vnnmodel', '.nnc']);
         /* eslint-enable no-control-regex */
     }
 
@@ -6219,12 +6218,12 @@ view.ModelFactoryService = class {
         for (const module of modules) {
             /* eslint-disable no-await-in-loop */
             const factory = await this._require(module);
-            await factory.match(context);
+            const type = await factory.match(context);
             /* eslint-enable no-await-in-loop */
             if (context.stream && context.stream.position !== 0) {
                 throw new view.Error('Invalid stream position.');
             }
-            if (context.type) {
+            if (type) {
                 try {
                     /* eslint-disable no-await-in-loop */
                     const model = await factory.open(context);
@@ -6235,7 +6234,7 @@ view.ModelFactoryService = class {
                     return model;
                 } catch (error) {
                     delete context.type;
-                    delete context.target;
+                    delete context.value;
                     const stream = context.stream;
                     if (stream && stream.position !== 0) {
                         stream.seek(0);
@@ -6281,13 +6280,13 @@ view.ModelFactoryService = class {
                     for (const module of modules) {
                         /* eslint-disable no-await-in-loop */
                         const factory = await this._require(module);
-                        await factory.match(context);
+                        const type = await factory.match(context);
                         /* eslint-enable no-await-in-loop */
                         if (context.stream && context.stream.position !== 0) {
                             throw new view.Error('Invalid stream position.');
                         }
-                        delete context.target;
-                        if (context.type) {
+                        delete context.value;
+                        if (type) {
                             matches = matches.filter((match) => !factory.filter || factory.filter(context, match.type));
                             if (matches.every((match) => !match.factory.filter || match.factory.filter(match, context.type))) {
                                 context.factory = factory;
@@ -6414,7 +6413,9 @@ view.ModelFactoryService = class {
                 { name: 'XGBoost model', value: /^binf/ }, // https://github.com/dmlc/xgboost/blob/master/src/learner.cc
                 { name: 'XGBoost model', value: /^bs64/ }, // https://github.com/dmlc/xgboost/blob/master/src/learner.cc
                 { name: 'SQLite data', value: /^SQLite format/ },
-                { name: 'Optimium model', value: /^EZMODEL/ }, // https://github.com/EZ-Optimium/Optimium
+                { name: 'Optimium model', value: /^EZMODEL/ }, // https://github.com/EZ-Optimium/Optimium,
+                { name: 'undocumented NNC data', value: /^\xC0\x0F\x00\x00ENNC/ },
+                { name: 'undocumented NNC data', value: /^\xBC\x0F\x00\x00ENNC/ }
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));

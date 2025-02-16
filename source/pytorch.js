@@ -13,7 +13,7 @@ pytorch.ModelFactory = class {
     async match(context) {
         const container = await pytorch.Container.open(context);
         if (container) {
-            return context.match(container.type, container);
+            return context.set(container.type, container);
         }
         return null;
     }
@@ -36,7 +36,7 @@ pytorch.ModelFactory = class {
 
     async open(context) {
         const metadata = await pytorch.Metadata.open(context);
-        const target = context.target;
+        const target = context.value;
         target.on('resolve', (_, name) => {
             context.error(new pytorch.Error(`Unknown type name '${name}'.`), false);
         });

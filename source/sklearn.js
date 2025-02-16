@@ -23,15 +23,15 @@ sklearn.ModelFactory = class {
         ];
         for (const format of formats) {
             if (validate(obj, format.name)) {
-                return context.match(format.format, obj);
+                return context.set(format.format, obj);
             }
             if (Array.isArray(obj) && obj.length > 0 && obj.every((item) => validate(item, format.name))) {
-                return context.match(`${format.format}.list`, obj);
+                return context.set(`${format.format}.list`, obj);
             }
             if (Object(obj) === obj || obj instanceof Map) {
                 const entries = obj instanceof Map ? Array.from(obj) : Object.entries(obj);
                 if (entries.length > 0 && entries.every(([, value]) => validate(value, format.name))) {
-                    return context.match(`${format.format}.map`, obj);
+                    return context.set(`${format.format}.map`, obj);
                 }
             }
         }
@@ -40,7 +40,7 @@ sklearn.ModelFactory = class {
 
     async open(context) {
         const metadata = await context.metadata('sklearn-metadata.json');
-        return new sklearn.Model(metadata, context.type, context.target);
+        return new sklearn.Model(metadata, context.type, context.value);
     }
 };
 

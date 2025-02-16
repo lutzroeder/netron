@@ -25,7 +25,7 @@ onnx.ModelFactory = class {
                 const reader = await entry.open(context);
                 /* eslint-enable no-await-in-loop */
                 if (reader) {
-                    return context.match(reader.name, reader);
+                    return context.set(reader.name, reader);
                 }
             }
         }
@@ -33,7 +33,7 @@ onnx.ModelFactory = class {
     }
 
     async open(context) {
-        const target = context.target;
+        const target = context.value;
         await target.read();
         const metadata = await onnx.Metadata.open(context);
         return new onnx.Model(metadata, target);

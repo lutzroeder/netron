@@ -11,9 +11,10 @@ catboost.ModelFactory = class {
             const buffer = stream.peek(4);
             const signature = Array.from(buffer).map((c) => String.fromCharCode(c)).join('');
             if (signature === 'CBM1') {
-                context.type = 'catboost';
+                return context.set('catboost');
             }
         }
+        return null;
     }
 
     async open(context) {

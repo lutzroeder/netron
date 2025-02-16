@@ -6,14 +6,14 @@ acuity.ModelFactory = class {
     async match(context) {
         const obj = await context.peek('json');
         if (obj && obj.MetaData && obj.Layers) {
-            return context.match('acuity', obj);
+            return context.set('acuity', obj);
         }
         return null;
     }
 
     async open(context) {
         const metadata = await context.metadata('acuity-metadata.json');
-        return new acuity.Model(metadata, context.target);
+        return new acuity.Model(metadata, context.value);
     }
 };
 

@@ -7,7 +7,7 @@ caffe.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'caffemodel') {
-            return context.match('caffe.pb');
+            return context.set('caffe.pb');
         }
         if (identifier === 'saved_model.pbtxt' || identifier === 'saved_model.prototxt' ||
             identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
@@ -16,9 +16,9 @@ caffe.ModelFactory = class {
         }
         const tags = await context.tags('pbtxt');
         if (tags.has('layer') || tags.has('layers')) {
-            return context.match('caffe.pbtxt');
+            return context.set('caffe.pbtxt');
         } else if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
-            return context.match('caffe.pbtxt.solver');
+            return context.set('caffe.pbtxt.solver');
         }
         return null;
     }

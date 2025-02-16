@@ -10,13 +10,13 @@ tvm.ModelFactory = class {
             const obj = await context.peek('json');
             if (obj && Array.isArray(obj.nodes) && Array.isArray(obj.arg_nodes) && Array.isArray(obj.heads) &&
                 obj.nodes.every((node) => node && (node.op === 'null' || node.op === 'tvm_op'))) {
-                return context.match('tvm.json');
+                return context.set('tvm.json');
             }
         }
         const stream = context.stream;
         const signature = [0xB7, 0x9C, 0x04, 0x05, 0x4F, 0x8D, 0xE5, 0xF7];
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            return context.match('tvm.params');
+            return context.set('tvm.params');
         }
         return null;
     }
@@ -31,7 +31,7 @@ tvm.ModelFactory = class {
         let params = null;
         switch (context.type) {
             case 'tvm.json': {
-                obj = context.target;
+                obj = context.value;
                 const identifier = context.identifier.replace(/\.json$/, '.params');
                 try {
                     const content = await context.fetch(identifier);

@@ -13,15 +13,14 @@ tensorrt.ModelFactory = class {
         for (const entry of entries) {
             const target = entry.open(context);
             if (target) {
-                context.type = target.type;
-                context.target = target;
-                break;
+                return context.set(target.type, target);
             }
         }
+        return null;
     }
 
     async open(context) {
-        const target = context.target;
+        const target = context.value;
         await target.read();
         return new tensorrt.Model(null, target);
     }

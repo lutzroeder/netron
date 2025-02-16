@@ -15,14 +15,14 @@ executorch.ModelFactory = class {
     async match(context) {
         const reader = await executorch.Reader.open(context);
         if (reader) {
-            return context.match('executorch', reader);
+            return context.set('executorch', reader);
         }
         return null;
     }
 
     async open(context) {
         executorch.schema = await context.require('./executorch-schema');
-        const target = context.target;
+        const target = context.value;
         await target.read();
         return new executorch.Model(target);
     }
@@ -862,9 +862,9 @@ coreml.Reader = class {
             const locals = new Map(Array.from(entries).filter(([key]) => key.startsWith(folder)).map(([key, value]) => [key.substring(folder.length), value]));
             const context = new coreml.Context(this, identifier, value, locals, protobuf);
             /* eslint-disable no-await-in-loop */
-            await factory.match(context);
+            const type = await factory.match(context);
             /* eslint-enable no-await-in-loop */
-            if (context.type === 'coreml.manifest') {
+            if (type === 'coreml.manifest') {
                 /* eslint-disable no-await-in-loop */
                 const model = await factory.open(context);
                 /* eslint-enable no-await-in-loop */
@@ -988,9 +988,9 @@ coreml.Context = class {
         return this._reader.target.context.metadata(name);
     }
 
-    match(type, target) {
+    set(type, value) {
         this.type = type;
-        this.target = target;
+        this.value = value;
         return type;
     }
 };

@@ -9,13 +9,13 @@ armnn.ModelFactory = class {
         if (extension === 'armnn') {
             const reader = await context.peek('flatbuffers.binary');
             if (reader) {
-                return context.match('armnn.flatbuffers', reader);
+                return context.set('armnn.flatbuffers', reader);
             }
         }
         if (extension === 'json') {
             const obj = await context.peek('json');
             if (obj && obj.layers && obj.inputIds && obj.outputIds) {
-                return context.match('armnn.flatbuffers.json', obj);
+                return context.set('armnn.flatbuffers.json', obj);
             }
         }
         return null;

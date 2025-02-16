@@ -11,11 +11,11 @@ numpy.ModelFactory = class {
         const stream = context.stream;
         const signature = [0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59];
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            return context.match('npy');
+            return context.set('npy');
         }
         const entries = await context.peek('npz');
         if (entries && entries.size > 0) {
-            return context.match('npz', entries);
+            return context.set('npz', entries);
         }
         return null;
     }
@@ -43,7 +43,7 @@ numpy.ModelFactory = class {
             case 'npz': {
                 format = 'NumPy Zip';
                 const layers = new Map();
-                const entries = Array.from(context.target);
+                const entries = Array.from(context.value);
                 const separator = entries.every(([name]) => name.endsWith('.weight.npy')) ? '.' : '/';
                 for (const [key, array] of entries) {
                     const name = key.replace(/\.npy$/, '');

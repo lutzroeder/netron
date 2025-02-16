@@ -16,7 +16,7 @@ dot.ModelFactory = class {
                         continue;
                     }
                     if (line.trim().match(/^(strict)?\s*digraph/)) {
-                        return context.match('dot');
+                        return context.set('dot');
                     }
                 }
             } catch {

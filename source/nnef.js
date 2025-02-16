@@ -10,7 +10,7 @@ nnef.ModelFactory = class {
             case 'nnef': {
                 const reader = await nnef.TextReader.open(context);
                 if (reader) {
-                    return context.match('nnef.graph', reader);
+                    return context.set('nnef.graph', reader);
                 }
                 break;
             }
@@ -19,7 +19,7 @@ nnef.ModelFactory = class {
                 if (stream && stream.length > 2) {
                     const buffer = stream.peek(2);
                     if (buffer[0] === 0x4E && buffer[1] === 0xEF) {
-                        return context.match('nnef.dat', stream);
+                        return context.set('nnef.dat', stream);
                     }
                 }
                 break;
@@ -37,7 +37,7 @@ nnef.ModelFactory = class {
     async open(context) {
         switch (context.type) {
             case 'nnef.graph': {
-                const reader = context.target;
+                const reader = context.value;
                 throw new nnef.Error(`NNEF v${reader.version} support not implemented.`);
             }
             case 'nnef.dat': {

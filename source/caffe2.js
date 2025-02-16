@@ -11,7 +11,7 @@ caffe2.ModelFactory = class {
             case 'prototxt': {
                 const tags = await context.tags('pbtxt');
                 if (tags.has('op') && !tags.has('op.attr') && !tags.has('op.graph_op_name') && !tags.has('op.endpoint')) {
-                    return context.match('caffe2.pbtxt');
+                    return context.set('caffe2.pbtxt');
                 }
                 break;
             }
@@ -35,12 +35,11 @@ caffe2.ModelFactory = class {
                                         buffer.length > 2 + size + 1 &&
                                         buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) &&
                                         buffer[2 + size] === 0x12) {
-                                        context.type = 'caffe2.pb';
+                                        return context.set('caffe2.pb');
                                     }
                                     break;
                                 case 0x12:
-                                    context.type = 'caffe2.pb';
-                                    break;
+                                    return context.set('caffe2.pb');
                                 default:
                                     break;
                             }

@@ -8,11 +8,11 @@ qnn.ModelFactory = class {
     async match(context) {
         const obj = await context.peek('json');
         if (obj && obj['model.cpp'] && obj.graph) {
-            return context.match('qnn.json', obj);
+            return context.set('qnn.json', obj);
         }
         const entries = await context.peek('tar');
         if (entries && entries.size > 0 && Array.from(entries).every(([name]) => name.endsWith('.raw'))) {
-            return context.match('qnn.weights', entries);
+            return context.set('qnn.weights', entries);
         }
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.bin') || identifier.endsWith('.serialized')) {
@@ -24,7 +24,7 @@ qnn.ModelFactory = class {
                 [0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01],
             ];
             if (stream.length >= 16 && signatures.some((signature) => stream.peek(signature.length).every((value, index) => value === signature[index]))) {
-                context.type = 'qnn.serialized';
+                return context.set('qnn.serialized');
             }
         }
         return null;
@@ -34,7 +34,7 @@ qnn.ModelFactory = class {
         const metadata = await context.metadata('qnn-metadata.json');
         switch (context.type) {
             case 'qnn.json': {
-                const obj = context.target;
+                const obj = context.value;
                 let weights = new Map();
                 try {
                     if (obj['model.bin']) {
@@ -48,7 +48,7 @@ qnn.ModelFactory = class {
                 return new qnn.Model(metadata, obj, weights);
             }
             case 'qnn.weights': {
-                const weights = context.target;
+                const weights = context.value;
                 const identifier = context.identifier;
                 const parts = identifier.split('.');
                 parts.pop();

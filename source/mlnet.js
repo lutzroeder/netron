@@ -12,7 +12,7 @@ mlnet.ModelFactory = class {
         if (entries instanceof Map && entries.size > 0) {
             const root = new Set(['TransformerChain', 'Predictor']);
             if (Array.from(entries.keys()).some((name) => root.has(name.split('\\').shift().split('/').shift()))) {
-                return context.match('mlnet', entries);
+                return context.set('mlnet', entries);
             }
         }
         return null;
@@ -20,7 +20,7 @@ mlnet.ModelFactory = class {
 
     async open(context) {
         const metadata = await context.metadata('mlnet-metadata.json');
-        const reader = new mlnet.ModelReader(context.target);
+        const reader = new mlnet.ModelReader(context.value);
         return new mlnet.Model(metadata, reader);
     }
 };

@@ -182,6 +182,13 @@
   },
   {
     "type":     "_",
+    "target":   "sm_uint8_fence.nnc",
+    "source":   "https://github.com/lutzroeder/netron/files/12446059/sm_uint8_fence.nnc.zip[sm_uint8_fence.nnc]",
+    "error":    "Invalid file content. File contains undocumented NNC data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1144"
+  },
+  {
+    "type":     "_",
     "target":   "SR_face_x3_530x530.cambricon",
     "source":   "https://github.com/lutzroeder/netron/files/8783172/SR_face_x3_530x530.cambricon.zip[SR_face_x3_530x530.cambricon]",
     "error":    "Invalid file content. File contains Cambricon model.",
@@ -3918,13 +3925,6 @@
     "format":   "NNEF v1.0",
     "error":    "NNEF v1.0 support not implemented.",
     "link":     "https://github.com/lutzroeder/netron/issues/1274"
-  },
-  {
-    "type":     "nnc",
-    "target":   "sm_uint8_fence.nnc",
-    "source":   "https://github.com/lutzroeder/netron/files/12446059/sm_uint8_fence.nnc.zip[sm_uint8_fence.nnc]",
-    "error":    "File contains undocumented NNC data.",
-    "link":     "https://github.com/lutzroeder/netron/issues/1144"
   },
   {
     "type":     "numpy",

@@ -6,11 +6,11 @@ mnn.ModelFactory = class {
     async match(context) {
         const reader = await context.peek('flatbuffers.binary');
         if (reader) {
-            return context.match('mnn.flatbuffers', reader);
+            return context.set('mnn.flatbuffers', reader);
         }
         const obj = await context.peek('json');
         if (obj && obj.sourceType && Array.isArray(obj.oplists) && Array.isArray(obj.tensorName)) {
-            return context.match('mnn.flatbuffers.json', obj);
+            return context.set('mnn.flatbuffers.json', obj);
         }
         return null;
     }
@@ -22,7 +22,7 @@ mnn.ModelFactory = class {
         switch (context.type) {
             case 'mnn.flatbuffers': {
                 try {
-                    const reader = context.target;
+                    const reader = context.value;
                     net = mnn.schema.Net.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();

@@ -22,13 +22,13 @@ tf.ModelFactory = class {
                 return null;
             }
             if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
-                return context.match('tf.pbtxt.SavedModel');
+                return context.set('tf.pbtxt.SavedModel');
             }
             if (tags.has('graph_def')) {
-                return context.match('tf.pbtxt.MetaGraphDef');
+                return context.set('tf.pbtxt.MetaGraphDef');
             }
             if (tags.has('node')) {
-                return context.match('tf.pbtxt.GraphDef');
+                return context.set('tf.pbtxt.GraphDef');
             }
         }
         if (extension === 'pb' || extension === 'pbtxt' || extension === 'prototxt' || extension === 'graphdef' || extension === 'meta') {
@@ -111,7 +111,7 @@ tf.ModelFactory = class {
                     if ((!tags.has(1) || tags.get(1) === 0) && tags.get(2) === 2) {
                         const tags = await context.tags('pb+');
                         if (match(tags, signatureSavedModel)) {
-                            return context.match('tf.pb.SavedModel');
+                            return context.set('tf.pb.SavedModel');
                         }
                     }
                     if ((!tags.has(1) || tags.get(1) === 2) &&
@@ -120,20 +120,20 @@ tf.ModelFactory = class {
                         (!tags.has(4) || tags.get(4) === 2)) {
                         const tags = await context.tags('pb+');
                         if (match(tags, signatureMetaGraphDef)) {
-                            return context.match('tf.pb.MetaGraphDef');
+                            return context.set('tf.pb.MetaGraphDef');
                         }
                     }
                     if (tags.get(1) !== 2) {
                         const tags = await context.tags('pb+');
                         if (match(tags, signatureGraphDef)) {
-                            return context.match('tf.pb.GraphDef');
+                            return context.set('tf.pb.GraphDef');
                         }
                     }
                     // tensorflow.FingerprintDef
                     if (identifier === 'fingerprint.pb' &&
                         tags.get(1) === 0 && tags.get(2) === 0 &&
                         tags.get(3) === 0 && tags.get(5) === 0 && tags.get(6) === 2) {
-                        return context.match('tf.pb.FingerprintDef');
+                        return context.set('tf.pb.FingerprintDef');
                     }
                     const decode = (buffer, value) => {
                         try {
@@ -162,7 +162,7 @@ tf.ModelFactory = class {
                             const decoder = new TextDecoder('utf-8');
                             const name = decoder.decode(nameBuffer);
                             if (Array.from(name).filter((c) => c <= ' ').length < 256) {
-                                return context.match('tf.pb.GraphDef');
+                                return context.set('tf.pb.GraphDef');
                             }
                         }
                     }
@@ -173,13 +173,13 @@ tf.ModelFactory = class {
                     return null;
                 }
                 if (tags.has('node')) {
-                    return context.match('tf.pbtxt.GraphDef');
+                    return context.set('tf.pbtxt.GraphDef');
                 }
                 if (tags.has('graph_def')) {
-                    return context.match('tf.pbtxt.MetaGraphDef');
+                    return context.set('tf.pbtxt.MetaGraphDef');
                 }
                 if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
-                    return context.match('tf.pbtxt.SavedModel');
+                    return context.set('tf.pbtxt.SavedModel');
                 }
             }
         }
@@ -189,7 +189,7 @@ tf.ModelFactory = class {
                 const obj = await context.peek(type);
                 /* eslint-enable no-await-in-loop */
                 if (obj && obj.modelTopology && (obj.format === 'graph-model' || Array.isArray(obj.modelTopology.node))) {
-                    return context.match(`tf.${type}`);
+                    return context.set(`tf.${type}`);
                 }
             }
         }
@@ -201,17 +201,17 @@ tf.ModelFactory = class {
                 stream.seek(0);
                 const signature = [0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb];
                 if (buffer.every((value, index) => value === signature[index])) {
-                    return context.match('tf.bundle');
+                    return context.set('tf.bundle');
                 }
             }
         }
         if (/.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier)) {
-            return context.match('tf.data');
+            return context.set('tf.data');
         }
         if (/^events.out.tfevents./.exec(identifier)) {
             const stream = context.stream;
             if (tf.EventFileReader.open(stream)) {
-                return context.match('tf.events');
+                return context.set('tf.events');
             }
         }
         if (extension === 'pbmm') {
@@ -223,12 +223,12 @@ tf.ModelFactory = class {
                 const reader = base.BinaryReader.open(buffer);
                 const offset = reader.uint64().toNumber();
                 if (offset < stream.length) {
-                    return context.match('tf.pb.mmap');
+                    return context.set('tf.pb.mmap');
                 }
             }
         }
         if (/^.*group\d+-shard\d+of\d+(\.bin)?$/.test(identifier)) {
-            return context.match('tf.tfjs.weights');
+            return context.set('tf.tfjs.weights');
         }
         return null;
     }

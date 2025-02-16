@@ -8,14 +8,14 @@ tengine.ModelFactory = class {
     async match(context) {
         const reader = tengine.Reader.open(context);
         if (reader) {
-            context.type = 'tengine';
-            context.target = reader;
+            return context.set('tengine', reader);
         }
+        return null;
     }
 
     async open(context) {
         const metadata = await tengine.Metadata.open(context);
-        const reader = context.target;
+        const reader = context.value;
         await reader.read();
         return new tengine.Model(metadata, reader);
     }

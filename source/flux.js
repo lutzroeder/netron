@@ -10,8 +10,9 @@ flux.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         const stream = context.stream;
         if (stream && extension === 'bson') {
-            context.type = 'flux.bson';
+            return context.set('flux.bson');
         }
+        return null;
     }
 
     async open(context) {

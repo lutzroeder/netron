@@ -10,13 +10,13 @@ dl4j.ModelFactory = class {
         if (identifier === 'configuration.json') {
             const obj = await context.peek('json');
             if (obj && (obj.confs || obj.vertices)) {
-                return context.match('dl4j.configuration', obj);
+                return context.set('dl4j.configuration', obj);
             }
         } else if (identifier === 'coefficients.bin') {
             const signature = [0x00, 0x07, 0x4A, 0x41, 0x56, 0x41, 0x43, 0x50, 0x50]; // JAVACPP
             const stream = context.stream;
             if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                return context.match('dl4j.coefficients');
+                return context.set('dl4j.coefficients');
             }
         }
         return null;
@@ -30,7 +30,7 @@ dl4j.ModelFactory = class {
         const metadata = await context.metadata('dl4j-metadata.json');
         switch (context.type) {
             case 'dl4j.configuration': {
-                const obj = context.target;
+                const obj = context.value;
                 try {
                     const content = await context.fetch('coefficients.bin');
                     const reader = await content.read('binary.big-endian');

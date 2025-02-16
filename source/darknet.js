@@ -9,7 +9,7 @@ darknet.ModelFactory = class {
         if (extension === 'weights' && !identifier.toLowerCase().endsWith('.espresso.weights')) {
             const weights = await darknet.Weights.open(context);
             if (weights) {
-                return context.match('darknet.weights', weights);
+                return context.set('darknet.weights', weights);
             }
             return null;
         }
@@ -20,7 +20,7 @@ darknet.ModelFactory = class {
                     const content = line.trim();
                     if (content.length > 0 && !content.startsWith('#')) {
                         if (content.startsWith('[') && content.endsWith(']')) {
-                            return context.match('darknet.model');
+                            return context.set('darknet.model');
                         }
                         return null;
                     }
@@ -40,7 +40,7 @@ darknet.ModelFactory = class {
         const basename = parts.join('.');
         switch (context.type) {
             case 'darknet.weights': {
-                const weights = context.target;
+                const weights = context.value;
                 const name = `${basename}.cfg`;
                 const content = await context.fetch(name);
                 const reader = await content.read('text');

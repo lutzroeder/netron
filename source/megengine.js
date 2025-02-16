@@ -19,19 +19,19 @@ megengine.ModelFactory = class {
                 if (position > 0 || size === (stream.length - position - 4)) {
                     const reader = flatbuffers.BinaryReader.open(stream, position + 4);
                     if (reader.identifier === 'mgv2') {
-                        return context.match('megengine.mge', reader);
+                        return context.set('megengine.mge', reader);
                     }
                 }
             }
             for (const value of ['mgb0001', 'mgb0000a', 'MGBS', 'MGBC']) {
                 if (tag.startsWith(value)) {
-                    return context.match(`megengine.${value}`);
+                    return context.set(`megengine.${value}`);
                 }
             }
         }
         const obj = await context.peek('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ === 'megengine.traced_module.traced_module' && obj.__class__.__name__ === 'TracedModule') {
-            return context.match('megengine.tm');
+            return context.set('megengine.tm');
         }
         return null;
     }
@@ -48,7 +48,7 @@ megengine.ModelFactory = class {
                 megengine.schema = megengine.schema.mgb.serialization.fbs;
                 let model = null;
                 try {
-                    const reader = context.target;
+                    const reader = context.value;
                     model = megengine.schema.v2.Model.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();

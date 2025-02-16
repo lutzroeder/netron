@@ -15,7 +15,7 @@ tnn.ModelFactory = class {
                     if (line.startsWith('"') && line.endsWith('"')) {
                         const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
                         if (header.length === 3 || (header.length >= 4 && (header[3] === '4206624770' || header[3] === '4206624772'))) {
-                            return context.match('tnn.model');
+                            return context.set('tnn.model');
                         }
                     }
                 }
@@ -26,7 +26,7 @@ tnn.ModelFactory = class {
         if (stream && identifier.endsWith('.tnnmodel')) {
             for (const signature of [[0x02, 0x00, 0xbc, 0xfa], [0x04, 0x00, 0xbc, 0xfa]]) {
                 if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                    return context.match('tnn.params');
+                    return context.set('tnn.params');
                 }
             }
         }

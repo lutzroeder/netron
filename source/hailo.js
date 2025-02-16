@@ -7,7 +7,7 @@ hailo.ModelFactory = class {
     async match(context) {
         const container = await hailo.Container.open(context);
         if (container) {
-            return context.match(container.type, container);
+            return context.set(container.type, container);
         }
         return null;
     }
@@ -24,7 +24,7 @@ hailo.ModelFactory = class {
 
     async open(context) {
         const metadata = await context.metadata('hailo-metadata.json');
-        const target = context.target;
+        const target = context.value;
         await target.read();
         return new hailo.Model(metadata, target);
     }

@@ -9,14 +9,14 @@ mslite.ModelFactory = class {
         if (reader) {
             const identifier = reader.identifier;
             if (identifier === 'MSL1' || identifier === 'MSL2' || (identifier === '' && extension === 'ms')) {
-                return context.match('mslite', reader);
+                return context.set('mslite', reader);
             }
         }
         return null;
     }
 
     async open(context) {
-        const reader = context.target;
+        const reader = context.value;
         switch (reader.identifier) {
             case '': {
                 throw new mslite.Error('MSL0 format is deprecated.');

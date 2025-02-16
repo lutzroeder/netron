@@ -14,34 +14,34 @@ paddle.ModelFactory = class {
         if (identifier === '__model__' || extension === '__model__' || extension === 'paddle' || extension === 'pdmodel') {
             const tags = await context.tags('pb');
             if (tags.get(1) === 2) {
-                return context.match('paddle.pb');
+                return context.set('paddle.pb');
             }
         }
         if (extension === 'pbtxt' || extension === 'txt') {
             const tags = await context.tags('pbtxt');
             if (tags.has('blocks')) {
-                return context.match('paddle.pbtxt');
+                return context.set('paddle.pbtxt');
             }
         }
         const stream = context.stream;
         if (stream && stream.length > 16 && stream.peek(16).every((value) => value === 0x00)) {
-            return context.match('paddle.params');
+            return context.set('paddle.params');
         }
         const pickle = await paddle.Pickle.open(context);
         if (pickle) {
-            return context.match(pickle.name, pickle);
+            return context.set(pickle.name, pickle);
         }
         const entries = await paddle.Entries.open(context);
         if (entries) {
-            return context.match(entries.name, entries);
+            return context.set(entries.name, entries);
         }
         const naive = await paddle.NaiveBuffer.open(context);
         if (naive) {
-            return context.match(naive.name, naive);
+            return context.set(naive.name, naive);
         }
         const obj = await context.peek('json');
         if (obj && obj.base_code && obj.program) {
-            return context.match('paddle.ir', obj);
+            return context.set('paddle.ir', obj);
         }
         return null;
     }
@@ -64,12 +64,12 @@ paddle.ModelFactory = class {
             case 'paddle.naive.param': {
                 paddle.schema = await context.require('./paddle-schema');
                 paddle.schema = paddle.schema.paddle.lite.fbs.proto;
-                const target = context.target;
+                const target = context.value;
                 target.read();
                 return new paddle.Model(metadata, target.format, target.model, target.weights);
             }
             case 'paddle.ir': {
-                const ir = new paddle.IR(context.target);
+                const ir = new paddle.IR(context.value);
                 const format = `PaddlePaddle IR v${ir.version}`;
                 return new paddle.Model(metadata, format, ir.desc, ir.tensors);
             }
@@ -165,11 +165,11 @@ paddle.ModelFactory = class {
                 };
                 switch (context.type) {
                     case 'paddle.pickle': {
-                        const target = context.target;
+                        const target = context.value;
                         return new paddle.Model(metadata, target.format, null, target.weights);
                     }
                     case 'paddle.entries': {
-                        const target = context.target;
+                        const target = context.value;
                         target.read();
                         return new paddle.Model(metadata, target.format, null, target.weights);
                     }

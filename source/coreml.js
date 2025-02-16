@@ -19,12 +19,12 @@ coreml.ModelFactory = class {
             if (extension === 'pb' && Array.from(tags.keys()).every((key) => !match(key))) {
                 return null;
             }
-            return context.match('coreml.pb');
+            return context.set('coreml.pb');
         }
         if (extension === 'pbtxt') {
             const tags = await context.tags('pbtxt');
             if (tags.has('specificationVersion') && tags.has('description')) {
-                return context.match('coreml.pbtxt');
+                return context.set('coreml.pbtxt');
             }
         }
         if (identifier === 'manifest.json') {
@@ -32,7 +32,7 @@ coreml.ModelFactory = class {
             if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
                 const entries = Object.keys(obj.itemInfoEntries).map((key) => obj.itemInfoEntries[key]);
                 if (entries.filter((entry) => entry.path.toLowerCase().endsWith('.mlmodel').length === 1)) {
-                    return context.match('coreml.manifest');
+                    return context.set('coreml.manifest');
                 }
             }
         }
@@ -41,7 +41,7 @@ coreml.ModelFactory = class {
                 const reader = await context.read('text', 2048);
                 const signature = reader.read('\n');
                 if (signature && signature.trim().startsWith('program')) {
-                    return context.match('coreml.mil');
+                    return context.set('coreml.mil');
                 }
             } catch {
                 // continue regardless of error
@@ -50,16 +50,16 @@ coreml.ModelFactory = class {
         if (identifier === 'featuredescriptions.json') {
             const obj = await context.peek('json');
             if (obj && (obj.Inputs || obj.Outputs)) {
-                return context.match('coreml.featuredescriptions');
+                return context.set('coreml.featuredescriptions');
             }
         }
         if (identifier === 'metadata.json') {
             const obj = await context.peek('json');
             if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
-                return context.match('coreml.metadata');
+                return context.set('coreml.metadata');
             }
             if (Array.isArray(obj) && obj.some((item) => item && item.metadataOutputVersion && item.specificationVersion)) {
-                return context.match('coreml.metadata.mlmodelc');
+                return context.set('coreml.metadata.mlmodelc');
             }
         }
         if (extension === 'bin' && stream.length > 16) {
@@ -67,7 +67,7 @@ coreml.ModelFactory = class {
             for (let i = 0; i < buffer.length - 4; i++) {
                 const signature = (buffer[i] | buffer[i + 1] << 8 | buffer[i + 2] << 16 | buffer [i + 3] << 24) >>> 0;
                 if (signature === 0xdeadbeef) {
-                    return context.match('coreml.weights');
+                    return context.set('coreml.weights');
                 }
             }
         }

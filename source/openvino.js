@@ -42,7 +42,7 @@ openvino.ModelFactory = class {
                     { identifier: 'text-recognition-0012.bin', signature: [0x0B, 0x21, 0xC6, 0xBC, 0xD0, 0xBB, 0xC1, 0x3B] },
                 ];
                 if (include.some((pattern) => match(pattern, identifier, buffer))) {
-                    return context.match('openvino.bin');
+                    return context.set('openvino.bin');
                 }
                 const exclude = [
                     { identifier: '__model__.bin' },
@@ -63,7 +63,7 @@ openvino.ModelFactory = class {
                 const size = Math.min(buffer.length & 0xfffffffc, 128);
                 buffer = buffer.subarray(0, size);
                 if (Array.from(buffer).every((value) => value === 0)) {
-                    return context.match('openvino.bin');
+                    return context.set('openvino.bin');
                 }
                 const f32 = new Array(buffer.length >> 2);
                 for (let i = 0; i < f32.length; i++) {
@@ -83,14 +83,14 @@ openvino.ModelFactory = class {
                 const validateInt = (array) => array.length > 32 &&
                     array.slice(0, 32).every((x) => x === 0 || x === 1 || x === 2 || x === 0x7fffffff);
                 if (validateFloat(f32) || validateFloat(f16) || validateInt(i32)) {
-                    return context.match('openvino.bin');
+                    return context.set('openvino.bin');
                 }
             }
             return null;
         }
         const tags = await context.tags('xml');
         if (tags.has('net')) {
-            return context.match('openvino.xml');
+            return context.set('openvino.xml');
         }
         return null;
     }

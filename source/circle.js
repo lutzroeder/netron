@@ -10,11 +10,11 @@ circle.ModelFactory = class {
     async match(context) {
         const reader = await context.peek('flatbuffers.binary');
         if (reader && reader.identifier === 'CIR0') {
-            return context.match('circle.flatbuffers', reader);
+            return context.set('circle.flatbuffers', reader);
         }
         const obj = await context.peek('json');
         if (obj && obj.subgraphs && obj.operator_codes) {
-            return context.match('circle.flatbuffers.json', obj);
+            return context.set('circle.flatbuffers.json', obj);
         }
         return null;
     }
@@ -37,7 +37,7 @@ circle.ModelFactory = class {
             }
             case 'circle.flatbuffers': {
                 try {
-                    const reader = context.target;
+                    const reader = context.value;
                     model = circle.schema.Model.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();

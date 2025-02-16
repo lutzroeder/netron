@@ -6,13 +6,13 @@ hickle.ModelFactory = class {
     async match(context) {
         const group = await context.peek('hdf5');
         if (group && group.attributes && group.attributes.get('CLASS') === 'hickle') {
-            return context.match('hickle', group);
+            return context.set('hickle', group);
         }
         return null;
     }
 
     async open(context) {
-        return new hickle.Model(context.target);
+        return new hickle.Model(context.value);
     }
 };
 

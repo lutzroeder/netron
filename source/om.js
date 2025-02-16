@@ -12,13 +12,13 @@ om.ModelFactory = class {
     async match(context) {
         const container = om.Container.open(context);
         if (container) {
-            context.type = 'om';
-            context.target = container;
+            return context.set('om', container);
         }
+        return null;
     }
 
     async open(context) {
-        const target = context.target;
+        const target = context.value;
         await target.read();
         const metadata = await context.metadata('om-metadata.json');
         return new om.Model(metadata, target);

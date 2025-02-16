@@ -8,7 +8,7 @@ nnabla.ModelFactory = class {
         if (identifier.endsWith('.nntxt')) {
             const tags = await context.tags('pbtxt');
             if (tags.has('network')) {
-                return context.match('nnabla.pbtxt');
+                return context.set('nnabla.pbtxt');
             }
         }
         return null;

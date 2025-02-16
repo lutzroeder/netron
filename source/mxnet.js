@@ -11,13 +11,13 @@ mxnet.ModelFactory = class {
         if (extension === 'json') {
             const obj = await context.peek('json');
             if (obj && Array.isArray(obj.nodes) && Array.isArray(obj.arg_nodes) && Array.isArray(obj.heads) && !obj.nodes.some((node) => node && node.op === 'tvm_op')) {
-                return context.match('mxnet.json', obj);
+                return context.set('mxnet.json', obj);
             }
         }
         const stream = context.stream;
         const signature = [0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
         if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            return context.match('mxnet.params');
+            return context.set('mxnet.params');
         }
         return null;
     }
@@ -183,7 +183,7 @@ mxnet.ModelFactory = class {
             case 'mxnet.json': {
                 let symbol = null;
                 try {
-                    symbol = context.target;
+                    symbol = context.value;
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
                     throw new mxnet.Error(`Failed to load symbol entry (${message.replace(/\.$/, '')}).`);

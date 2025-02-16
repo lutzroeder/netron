@@ -19,7 +19,7 @@ ncnn.ModelFactory = class {
                 const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
                 const signature = view.getUint32(0, true);
                 if (signature === 0x007685dd) {
-                    return context.match('ncnn.model.bin');
+                    return context.set('ncnn.model.bin');
                 }
             }
         } else if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
@@ -56,15 +56,15 @@ ncnn.ModelFactory = class {
                     // continue regardless of error
                 }
                 if (type) {
-                    return context.match(type);
+                    return context.set(type);
                 }
             }
         } else if (identifier.endsWith('.ncnn.bin')) {
-            return context.match('ncnn.weights');
+            return context.set('ncnn.weights');
         } else if (identifier.endsWith('.pnnx.bin')) {
             const entries = await context.peek('zip');
             if (entries) { // can be empty
-                return context.match('pnnx.weights', entries);
+                return context.set('pnnx.weights', entries);
             }
         } else if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
             const stream = context.stream;
@@ -81,7 +81,7 @@ ncnn.ModelFactory = class {
                         f32[i] = view.getFloat32(i << 2, true);
                     }
                     if (f32.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -20.0 && value < 20.0)) {
-                        return context.match('ncnn.weights');
+                        return context.set('ncnn.weights');
                     }
                 } else {
                     for (let i = 0; i < buffer.length - 4; i++) {
@@ -90,7 +90,7 @@ ncnn.ModelFactory = class {
                             return null;
                         }
                         if (signature === 0x01306b47 || signature === 0x000d4b38 || signature === 0x0002c056) { // ncnn
-                            return context.match('ncnn.weights');
+                            return context.set('ncnn.weights');
                         }
                     }
                 }

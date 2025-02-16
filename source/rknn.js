@@ -11,7 +11,7 @@ rknn.ModelFactory = class {
     async match(context) {
         const container = await rknn.Container.open(context);
         if (container) {
-            return context.match('rknn', container);
+            return context.set('rknn', container);
         }
         return null;
     }
@@ -20,7 +20,7 @@ rknn.ModelFactory = class {
         rknn.schema = await context.require('./rknn-schema');
         rknn.schema = rknn.schema.rknn;
         const metadata = await context.metadata('rknn-metadata.json');
-        const target = context.target;
+        const target = context.value;
         target.read();
         if (target.has('json')) {
             const buffer = target.get('json');

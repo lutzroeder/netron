@@ -8,18 +8,18 @@ espresso.ModelFactory = class {
         if (identifier.endsWith('.espresso.net')) {
             const obj = await context.peek('json');
             if (obj && Array.isArray(obj.layers) && obj.format_version) {
-                return context.match('espresso.net', obj);
+                return context.set('espresso.net', obj);
             }
         }
         if (identifier.endsWith('.espresso.shape')) {
             const obj = await context.peek('json');
             if (obj && obj.layer_shapes) {
-                return context.match('espresso.shape', obj);
+                return context.set('espresso.shape', obj);
             }
         }
         if (identifier.endsWith('.espresso.weights')) {
             const target = await context.read('binary');
-            return context.match('espresso.weights', target);
+            return context.set('espresso.weights', target);
         }
         return null;
     }
@@ -38,17 +38,17 @@ espresso.ModelFactory = class {
         const metadata = await context.metadata('espresso-metadata.json');
         switch (context.type) {
             case 'espresso.net': {
-                const reader = new espresso.Reader(context.target, null, null);
+                const reader = new espresso.Reader(context.value, null, null);
                 await reader.read(context);
                 return new espresso.Model(metadata, reader);
             }
             case 'espresso.weights': {
-                const reader = new espresso.Reader(null, context.target, null);
+                const reader = new espresso.Reader(null, context.value, null);
                 await reader.read(context);
                 return new espresso.Model(metadata, reader);
             }
             case 'espresso.shape': {
-                const reader = new espresso.Reader(null, null, context.target);
+                const reader = new espresso.Reader(null, null, context.value);
                 await reader.read(context);
                 return new espresso.Model(metadata, reader);
             }

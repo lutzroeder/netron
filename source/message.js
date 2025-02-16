@@ -14,7 +14,7 @@ message.ModelFactory = class {
             if (match && match[1].startsWith('netron:')) {
                 const obj = await context.peek('json');
                 if (obj && obj.signature && obj.signature.startsWith('netron:')) {
-                    return context.match('message', obj);
+                    return context.set('message', obj);
                 }
             }
         }
@@ -22,7 +22,7 @@ message.ModelFactory = class {
     }
 
     async open(context) {
-        return new message.Model(context.target);
+        return new message.Model(context.value);
     }
 };
 

@@ -6,7 +6,7 @@ xmodel.ModelFactory = class {
     async match(context) {
         const tags = await context.tags('pb');
         if (tags.get(5) === 2) {
-            return context.match('xmodel.pb');
+            return context.set('xmodel.pb');
         }
         return null;
     }

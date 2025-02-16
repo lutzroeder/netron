@@ -8,13 +8,13 @@ kmodel.ModelFactory = class {
     async match(context) {
         const reader = kmodel.Reader.open(context.stream);
         if (reader) {
-            context.type = 'kmodel';
-            context.target = reader;
+            return context.set('kmodel', reader);
         }
+        return null;
     }
 
     async open(context) {
-        const target = context.target;
+        const target = context.value;
         target.read();
         return new kmodel.Model(target);
     }
