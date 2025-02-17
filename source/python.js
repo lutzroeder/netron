@@ -6720,7 +6720,10 @@ python.Execution = class {
         this.registerFunction('torch.ao.quantization.utils.get_qparam_dict');
         this.registerFunction('torch.ao.quantization.utils.has_no_children_ignoring_parametrizations');
         this.registerFunction('torch.amp.grad_scaler._refresh_per_optimizer_state');
-        this.registerType('torch.autograd.variable.Variable', class {});
+        this.registerType('torch._C._LegacyVariableBase', class {});
+        this.registerType('torch.autograd.variable.Variable', class extends torch._C._LegacyVariableBase {});
+        this.registerType('torch.autograd.function._SingleLevelFunction', class {});
+        this.registerType('torch.autograd.function.Function', class extends torch.autograd.function._SingleLevelFunction {});
         this.registerType('torch.backends.cudnn.rnn.Unserializable', class {});
         this.registerFunction('torch.distributed._shard.sharded_tensor.pre_load_state_dict_hook');
         this.registerFunction('torch.distributed._shard.sharded_tensor.state_dict_hook');
@@ -6878,6 +6881,7 @@ python.Execution = class {
         this.registerType('torch.nn.modules.normalization.GroupNorm', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.normalization.LayerNorm', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.normalization.LocalResponseNorm', class {});
+        this.registerType('torch.nn.modules.normalization.RMSNorm', class {});
         this.registerType('torch.nn.modules.padding._ReflectionPadNd', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.padding.ReflectionPad1d', class extends torch.nn.modules.padding._ReflectionPadNd {});
         this.registerType('torch.nn.modules.padding.ReflectionPad2d', class extends torch.nn.modules.padding._ReflectionPadNd {});
