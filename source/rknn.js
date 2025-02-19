@@ -8,19 +8,19 @@ const openvx = {};
 
 rknn.ModelFactory = class {
 
-    match(context) {
-        const container = rknn.Container.open(context);
+    async match(context) {
+        const container = await rknn.Container.open(context);
         if (container) {
-            context.type = 'rknn';
-            context.target = container;
+            return context.set('rknn', container);
         }
+        return null;
     }
 
     async open(context) {
         rknn.schema = await context.require('./rknn-schema');
         rknn.schema = rknn.schema.rknn;
         const metadata = await context.metadata('rknn-metadata.json');
-        const target = context.target;
+        const target = context.value;
         target.read();
         if (target.has('json')) {
             const buffer = target.get('json');
@@ -387,7 +387,7 @@ rknn.TensorShape = class {
 
 rknn.Container = class extends Map {
 
-    static open(context) {
+    static async open(context) {
         const stream = context.stream;
         if (stream) {
             const signature = rknn.Container.signature(stream);
@@ -400,7 +400,7 @@ rknn.Container = class extends Map {
                 default:
                     break;
             }
-            const obj = context.peek('json');
+            const obj = await context.peek('json');
             if (obj && obj.version && Array.isArray(obj.nodes) && obj.network_platform) {
                 const entries = new Map();
                 entries.set('json', stream);

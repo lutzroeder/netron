@@ -5,19 +5,20 @@ const barracuda = {};
 
 barracuda.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const stream = context.stream;
         if (stream && stream.length > 12) {
             const buffer = stream.peek(12);
             if (buffer[0] <= 0x20 && buffer.subarray(1, 8).every((value) => value === 0x00)) {
-                context.type = 'barracuda';
+                return context.set('barracuda');
             }
         }
+        return null;
     }
 
     async open(context) {
         const metadata = barracuda.Metadata.open();
-        const reader = context.read('binary');
+        const reader = await context.read('binary');
         const model = new barracuda.NNModel(reader);
         return new barracuda.Model(metadata, model);
     }

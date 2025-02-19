@@ -3,24 +3,24 @@ const caffe = {};
 
 caffe.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'caffemodel') {
-            context.type = 'caffe.pb';
-            return;
+            return context.set('caffe.pb');
         }
         if (identifier === 'saved_model.pbtxt' || identifier === 'saved_model.prototxt' ||
             identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
             identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
-            return;
+            return null;
         }
-        const tags = context.tags('pbtxt');
+        const tags = await context.tags('pbtxt');
         if (tags.has('layer') || tags.has('layers')) {
-            context.type = 'caffe.pbtxt';
+            return context.set('caffe.pbtxt');
         } else if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
-            context.type = 'caffe.pbtxt.solver';
+            return context.set('caffe.pbtxt.solver');
         }
+        return null;
     }
 
     async open(context) {
@@ -30,10 +30,10 @@ caffe.ModelFactory = class {
             const metadata = await context.metadata('caffe-metadata.json');
             return new caffe.Model(metadata, netParameter);
         };
-        const openNetParameterText = (context, identifier, content) => {
+        const openNetParameterText = async (context, identifier, content) => {
             let netParameter = null;
             try {
-                const reader = content.read('protobuf.text');
+                const reader = await content.read('protobuf.text');
                 reader.field = function(tag, message) {
                     const type = message.constructor.name;
                     if (tag.endsWith('_param') && (type === 'LayerParameter' || type === 'V1LayerParameter' || type === 'V0LayerParameter')) {
@@ -86,7 +86,7 @@ caffe.ModelFactory = class {
         };
         switch (context.type) {
             case 'caffe.pbtxt.solver': {
-                const reader = context.read('protobuf.text');
+                const reader = await context.read('protobuf.text');
                 reader.field = function(tag, message) {
                     if (message instanceof caffe.proto.SolverParameter) {
                         message[tag] = this.read();
@@ -102,25 +102,25 @@ caffe.ModelFactory = class {
                 name = name.split('/').pop();
                 try {
                     const content = await context.fetch(name);
-                    return openNetParameterText(context, name, content);
+                    return await openNetParameterText(context, name, content);
                 } catch (error) {
                     const message = error.message ? error.message : error.toString();
                     throw new caffe.Error(`Failed to load '${name}' (${message.replace(/\.$/, '')}).`);
                 }
             }
             case 'caffe.pbtxt': {
-                return openNetParameterText(context, context.identifier, context);
+                return await openNetParameterText(context, context.identifier, context);
             }
             case 'caffe.pb': {
                 let netParameter = null;
                 try {
-                    const reader = context.read('protobuf.binary');
+                    const reader = await context.read('protobuf.binary');
                     netParameter = caffe.proto.NetParameter.decode(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
                     throw new caffe.Error(`File format is not caffe.NetParameter (${message.replace(/\.$/, '')}).`);
                 }
-                return openModel(context, netParameter);
+                return await openModel(context, netParameter);
             }
             default: {
                 throw new caffe.Error(`Unsupported Caffe format '${context.type}'.`);

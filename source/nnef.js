@@ -3,15 +3,14 @@ const nnef = {};
 
 nnef.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         switch (extension) {
             case 'nnef': {
-                const reader = nnef.TextReader.open(context);
+                const reader = await nnef.TextReader.open(context);
                 if (reader) {
-                    context.type = 'nnef.graph';
-                    context.target = reader;
+                    return context.set('nnef.graph', reader);
                 }
                 break;
             }
@@ -20,8 +19,7 @@ nnef.ModelFactory = class {
                 if (stream && stream.length > 2) {
                     const buffer = stream.peek(2);
                     if (buffer[0] === 0x4E && buffer[1] === 0xEF) {
-                        context.type = 'nnef.dat';
-                        context.target = stream;
+                        return context.set('nnef.dat', stream);
                     }
                 }
                 break;
@@ -29,6 +27,7 @@ nnef.ModelFactory = class {
             default:
                 break;
         }
+        return null;
     }
 
     filter(context, type) {
@@ -38,7 +37,7 @@ nnef.ModelFactory = class {
     async open(context) {
         switch (context.type) {
             case 'nnef.graph': {
-                const reader = context.target;
+                const reader = context.value;
                 throw new nnef.Error(`NNEF v${reader.version} support not implemented.`);
             }
             case 'nnef.dat': {
@@ -53,8 +52,8 @@ nnef.ModelFactory = class {
 
 nnef.TextReader = class {
 
-    static open(context) {
-        const reader = context.read('text', 65536);
+    static async open(context) {
+        const reader = await context.read('text', 65536);
         for (let i = 0; i < 32; i++) {
             const line = reader.read('\n');
             const match = /version\s*(\d+\.\d+);/.exec(line);

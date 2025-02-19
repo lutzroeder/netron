@@ -3,23 +3,22 @@ const tvm = {};
 
 tvm.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'json') {
-            const obj = context.peek('json');
+            const obj = await context.peek('json');
             if (obj && Array.isArray(obj.nodes) && Array.isArray(obj.arg_nodes) && Array.isArray(obj.heads) &&
                 obj.nodes.every((node) => node && (node.op === 'null' || node.op === 'tvm_op'))) {
-                context.type = 'tvm.json';
-                context.target = obj;
-                return;
+                return context.set('tvm.json');
             }
         }
         const stream = context.stream;
         const signature = [0xB7, 0x9C, 0x04, 0x05, 0x4F, 0x8D, 0xE5, 0xF7];
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            context.type = 'tvm.params';
+            return context.set('tvm.params');
         }
+        return null;
     }
 
     filter(context, type) {
@@ -32,11 +31,11 @@ tvm.ModelFactory = class {
         let params = null;
         switch (context.type) {
             case 'tvm.json': {
-                obj = context.target;
+                obj = context.value;
                 const identifier = context.identifier.replace(/\.json$/, '.params');
                 try {
                     const content = await context.fetch(identifier);
-                    const reader = content.read('binary');
+                    const reader = await content.read('binary');
                     params = tvm.NDArray.loadParams(reader);
                 } catch {
                     // continue regardless of error
@@ -47,11 +46,11 @@ tvm.ModelFactory = class {
                 const identifier = context.identifier.replace(/\.params$/, '.json');
                 try {
                     const content = await context.fetch(identifier);
-                    obj = content.read('json');
+                    obj = await content.read('json');
                 } catch {
                     // continue regardless of error
                 }
-                const reader = context.read('binary');
+                const reader = await context.read('binary');
                 params = tvm.NDArray.loadParams(reader);
                 break;
             }

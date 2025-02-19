@@ -3,25 +3,26 @@ const uff = {};
 
 uff.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'uff' || extension === 'pb') {
-            const tags = context.tags('pb');
+            const tags = await context.tags('pb');
             if (tags.size > 0 &&
                 tags.has(1) && tags.get(1) === 0 &&
                 tags.has(2) && tags.get(2) === 0 &&
                 tags.has(3) && tags.get(3) === 2 &&
                 tags.has(4) && tags.get(4) === 2 &&
                 (!tags.has(5) || tags.get(5) === 2)) {
-                context.type = 'uff.pb';
+                return context.set('uff.pb');
             }
         } else if (extension === 'pbtxt' || identifier.toLowerCase().endsWith('.uff.txt')) {
-            const tags = context.tags('pbtxt');
+            const tags = await context.tags('pbtxt');
             if (tags.has('version') && tags.has('descriptors') && tags.has('graphs')) {
-                context.type = 'uff.pbtxt';
+                return context.set('uff.pbtxt');
             }
         }
+        return null;
     }
 
     async open(context) {
@@ -31,7 +32,7 @@ uff.ModelFactory = class {
         switch (context.type) {
             case 'uff.pb': {
                 try {
-                    const reader = context.read('protobuf.binary');
+                    const reader = await context.read('protobuf.binary');
                     meta_graph = uff.proto.MetaGraph.decode(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
@@ -41,7 +42,7 @@ uff.ModelFactory = class {
             }
             case 'uff.pbtxt': {
                 try {
-                    const reader = context.read('protobuf.text');
+                    const reader = await context.read('protobuf.text');
                     meta_graph = uff.proto.MetaGraph.decodeText(reader);
                 } catch (error) {
                     throw new uff.Error(`File text format is not uff.MetaGraph (${error.message}).`);

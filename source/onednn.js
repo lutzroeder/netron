@@ -3,17 +3,17 @@ const onednn = {};
 
 onednn.ModelFactory = class {
 
-    match(context) {
-        const obj = context.peek('json');
+    async match(context) {
+        const obj = await context.peek('json');
         if (obj && obj.version && obj.engine_kind && obj.fpmath_mode && obj.graph) {
-            context.type = 'onednn';
-            context.target = obj;
+            return context.set('onednn', obj);
         }
+        return null;
     }
 
     async open(context) {
         const metadata = await context.metadata('onednn-metadata.json');
-        return new onednn.Model(metadata, context.target);
+        return new onednn.Model(metadata, context.value);
     }
 };
 

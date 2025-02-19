@@ -3,12 +3,12 @@ const kann = {};
 
 kann.ModelFactory = class {
 
-    match(context) {
-        const reader = context.peek('flatbuffers.binary');
+    async match(context) {
+        const reader = await context.peek('flatbuffers.binary');
         if (reader && reader.identifier === 'KaNN') {
-            context.type = 'kann.flatbuffers';
-            context.target = reader;
+            return context.set('kann.flatbuffers', reader);
         }
+        return null;
     }
 
     async open(context) {
@@ -18,7 +18,7 @@ kann.ModelFactory = class {
         switch (context.type) {
             case 'kann.flatbuffers': {
                 try {
-                    const reader = context.target;
+                    const reader = context.value;
                     model = kann.schema.Model.create(reader);
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
@@ -49,7 +49,7 @@ kann.Graph = class {
     constructor(metadata, graph) {
         const arcs = new Map();
         for (const arc of graph.arcs) {
-            arcs.set(arc.name, new kann.Value(arc.name, null, null));
+            arcs.set(arc.name, new kann.Value(arc.name, arc.type, null));
         }
         this.nodes = graph.nodes.map((node) => new kann.Node(metadata, node, arcs));
         this.inputs = graph.inputs.map((input) => new kann.Argument(input, [arcs.get(input)]));
@@ -113,8 +113,12 @@ kann.Node = class {
         if (Array.isArray(node.params) && node.params.length > 0) {
             for (const param of node.params) {
                 const type = new kann.TensorType(param.type, param.shape);
-                const data = null;
-                const quantization = null;
+                const data = param.value ? extractData(param.value) : null;
+                const quantization = param.scale && param.zero_point ? {
+                    type: 'linear',
+                    scale: extractData(param.scale),
+                    offset: extractData(param.zero_point)
+                } : null;
                 const tensor = new kann.Tensor(param.name, type, data, quantization);
                 const value = new kann.Value('', type, tensor);
                 const argument = new kann.Argument(param.name, [value]);

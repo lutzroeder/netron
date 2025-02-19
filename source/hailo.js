@@ -4,12 +4,12 @@ const hailo = {};
 
 hailo.ModelFactory = class {
 
-    match(context) {
-        const container = hailo.Container.open(context);
+    async match(context) {
+        const container = await hailo.Container.open(context);
         if (container) {
-            context.type = container.type;
-            context.target = container;
+            return context.set(container.type, container);
         }
+        return null;
     }
 
     filter(context, type) {
@@ -24,7 +24,7 @@ hailo.ModelFactory = class {
 
     async open(context) {
         const metadata = await context.metadata('hailo-metadata.json');
-        const target = context.target;
+        const target = context.value;
         await target.read();
         return new hailo.Model(metadata, target);
     }
@@ -251,7 +251,7 @@ hailo.TensorShape = class {
 
 hailo.Container = class {
 
-    static open(context) {
+    static async open(context) {
         const identifier = context.identifier;
         const basename = identifier.split('.');
         basename.pop();
@@ -259,13 +259,13 @@ hailo.Container = class {
             if (basename.length > 1 && (basename[basename.length - 1] === 'native' || basename[basename.length - 1] === 'fp')) {
                 basename.pop();
             }
-            const configuration = context.peek('json');
+            const configuration = await context.peek('json');
             if (configuration && configuration.name && configuration.net_params && configuration.layers) {
                 return new hailo.Container(context, 'hailo.configuration', basename.join('.'), configuration, null);
             }
         } else if (identifier.toLowerCase().endsWith('.metadata.json')) {
             basename.pop();
-            const metadata = context.peek('json');
+            const metadata = await context.peek('json');
             if (metadata && metadata.state && metadata.hn) {
                 return new hailo.Container(context, 'hailo.metadata', basename.join('.'), null, metadata);
             }
@@ -285,7 +285,7 @@ hailo.Container = class {
         try {
             const content = await this.context.fetch(name);
             if (content) {
-                return content.read(type);
+                return await content.read(type);
             }
         } catch {
             // continue regardless of error

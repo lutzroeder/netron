@@ -3,17 +3,17 @@ const acuity = {};
 
 acuity.ModelFactory = class {
 
-    match(context) {
-        const obj = context.peek('json');
+    async match(context) {
+        const obj = await context.peek('json');
         if (obj && obj.MetaData && obj.Layers) {
-            context.type = 'acuity';
-            context.target = obj;
+            return context.set('acuity', obj);
         }
+        return null;
     }
 
     async open(context) {
         const metadata = await context.metadata('acuity-metadata.json');
-        return new acuity.Model(metadata, context.target);
+        return new acuity.Model(metadata, context.value);
     }
 };
 
@@ -33,6 +33,7 @@ acuity.Graph = class {
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];
+        this.metrics = [];
         const values = new Map();
         const value = (name) => {
             if (!values.has(name)) {
@@ -40,6 +41,7 @@ acuity.Graph = class {
             }
             return values.get(name);
         };
+        let totalFlops = 0;
         for (const [name, layer] of Object.entries(model.Layers)) {
             layer.inputs = layer.inputs.map((input) => {
                 return value(input);
@@ -64,7 +66,19 @@ acuity.Graph = class {
                 output.shape = shape;
                 return output;
             });
+            // Add other layer types (e.g., pooling, batch norm, etc.) as needed.
+            if (layer.type === 'Conv2D') {
+                const { kernelShape, inputShape, outputShape } = layer;
+                const [kH, kW] = kernelShape;
+                const [inC] = inputShape;
+                const [outC, oH, oW] = outputShape;
+                totalFlops += kH * kW * inC * oH * oW * outC;
+            } else if (layer.type === 'Dense') {
+                const { inputSize, outputSize } = layer;
+                totalFlops += inputSize * outputSize;
+            }
         }
+        this.metrics.push(new acuity.Argument('flops', totalFlops));
         acuity.Inference.infer(model.Layers);
         for (const [name, obj] of values) {
             const type = new acuity.TensorType(null, new acuity.TensorShape(obj.shape));

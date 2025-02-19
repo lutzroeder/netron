@@ -5,7 +5,7 @@ const tensorrt = {};
 
 tensorrt.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const entries = [
             tensorrt.Engine,
             tensorrt.Container
@@ -13,16 +13,15 @@ tensorrt.ModelFactory = class {
         for (const entry of entries) {
             const target = entry.open(context);
             if (target) {
-                context.type = target.type;
-                context.target = target;
-                break;
+                return context.set(target.type, target);
             }
         }
+        return null;
     }
 
     async open(context) {
-        const target = context.target;
-        target.read();
+        const target = context.value;
+        await target.read();
         return new tensorrt.Model(null, target);
     }
 };
@@ -79,8 +78,9 @@ tensorrt.Engine = class {
         this.position = position;
     }
 
-    read() {
-        const reader = this.context.read('binary');
+    async read() {
+        const context = this.context;
+        const reader = await context.read('binary');
         const offset = this.position + 24;
         if (offset <= reader.length) {
             reader.skip(this.position);
@@ -154,7 +154,7 @@ tensorrt.Container = class {
         this.stream = stream;
     }
 
-    read() {
+    async read() {
         delete this.stream;
         // const buffer = this.stream.peek(Math.min(24, this.stream.length));
         // const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');

@@ -5,21 +5,21 @@ const dl4j = {};
 
 dl4j.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier;
         if (identifier === 'configuration.json') {
-            const obj = context.peek('json');
+            const obj = await context.peek('json');
             if (obj && (obj.confs || obj.vertices)) {
-                context.type = 'dl4j.configuration';
-                context.target = obj;
+                return context.set('dl4j.configuration', obj);
             }
         } else if (identifier === 'coefficients.bin') {
             const signature = [0x00, 0x07, 0x4A, 0x41, 0x56, 0x41, 0x43, 0x50, 0x50]; // JAVACPP
             const stream = context.stream;
             if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                context.type = 'dl4j.coefficients';
+                return context.set('dl4j.coefficients');
             }
         }
+        return null;
     }
 
     filter(context, type) {
@@ -30,10 +30,10 @@ dl4j.ModelFactory = class {
         const metadata = await context.metadata('dl4j-metadata.json');
         switch (context.type) {
             case 'dl4j.configuration': {
-                const obj = context.target;
+                const obj = context.value;
                 try {
                     const content = await context.fetch('coefficients.bin');
-                    const reader = content.read('binary.big-endian');
+                    const reader = await content.read('binary.big-endian');
                     return new dl4j.Model(metadata, obj, reader);
                 } catch {
                     return new dl4j.Model(metadata, obj, null);
@@ -41,8 +41,8 @@ dl4j.ModelFactory = class {
             }
             case 'dl4j.coefficients': {
                 const content = await context.fetch('configuration.json');
-                const obj = content.read('json');
-                const reader = context.read('binary.big-endian');
+                const obj = await content.read('json');
+                const reader = await context.read('binary.big-endian');
                 return new dl4j.Model(metadata, obj, reader);
             }
             default: {

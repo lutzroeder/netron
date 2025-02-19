@@ -5,23 +5,21 @@ const mxnet = {};
 
 mxnet.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'json') {
-            const obj = context.peek('json');
-            if (obj && Array.isArray(obj.nodes) && Array.isArray(obj.arg_nodes) && Array.isArray(obj.heads) &&
-                !obj.nodes.some((node) => node && node.op === 'tvm_op')) {
-                context.type = 'mxnet.json';
-                context.target = obj;
-                return;
+            const obj = await context.peek('json');
+            if (obj && Array.isArray(obj.nodes) && Array.isArray(obj.arg_nodes) && Array.isArray(obj.heads) && !obj.nodes.some((node) => node && node.op === 'tvm_op')) {
+                return context.set('mxnet.json', obj);
             }
         }
         const stream = context.stream;
         const signature = [0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
         if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            context.type = 'mxnet.params';
+            return context.set('mxnet.params');
         }
+        return null;
     }
 
     filter(context, type) {
@@ -133,7 +131,7 @@ mxnet.ModelFactory = class {
                         if (obj.Model && obj.Model.Signature) {
                             try {
                                 const content = await context.fetch(obj.Model.Signature);
-                                manifest.signature = content.read('json');
+                                manifest.signature = await content.read('json');
                                 return manifest;
                             } catch {
                                 return manifest;
@@ -185,7 +183,7 @@ mxnet.ModelFactory = class {
             case 'mxnet.json': {
                 let symbol = null;
                 try {
-                    symbol = context.target;
+                    symbol = context.value;
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
                     throw new mxnet.Error(`Failed to load symbol entry (${message.replace(/\.$/, '')}).`);
@@ -195,7 +193,7 @@ mxnet.ModelFactory = class {
                     if (file) {
                         try {
                             const content = await context.fetch(file);
-                            const reader = content.read('binary');
+                            const reader = await content.read('binary');
                             return createModel(metadata, manifest, symbol, reader);
                         } catch {
                             return createModel(metadata, manifest, symbol, null);
@@ -207,13 +205,13 @@ mxnet.ModelFactory = class {
                 return requestParams(manifest);
             }
             case 'mxnet.params': {
-                const params = context.read('binary');
+                const params = await context.read('binary');
                 const requestSymbol = async (manifest) => {
                     const name = basename(manifest.symbol, identifier, '.params', null, '-symbol.json');
                     if (name) {
                         try {
                             const content = await context.fetch(name);
-                            const symbol = content.read('json');
+                            const symbol = await content.read('json');
                             return createModel(metadata, manifest, symbol, params);
                         } catch {
                             return createModel(metadata, manifest, null, params);

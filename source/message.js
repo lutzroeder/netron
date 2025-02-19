@@ -5,17 +5,16 @@ const message = {};
 
 message.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const stream = context.stream;
         if (stream) {
             const buffer = stream.peek(Math.min(64, stream.length));
             const content = String.fromCharCode.apply(null, buffer);
             const match = content.match(/^{\s*"signature":\s*"(.*)"\s*,\s*/);
             if (match && match[1].startsWith('netron:')) {
-                const obj = context.peek('json');
+                const obj = await context.peek('json');
                 if (obj && obj.signature && obj.signature.startsWith('netron:')) {
-                    context.type = 'message';
-                    context.target = obj;
+                    return context.set('message', obj);
                 }
             }
         }
@@ -23,7 +22,7 @@ message.ModelFactory = class {
     }
 
     async open(context) {
-        return new message.Model(context.target);
+        return new message.Model(context.value);
     }
 };
 

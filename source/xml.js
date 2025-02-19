@@ -7,38 +7,31 @@ const xml = {};
 
 xml.TextReader = class {
 
-    static open(data, callback) {
+    static open(data, resolve) {
         const decoder = text.Decoder.open(data);
         for (;;) {
             const c = decoder.decode();
             if (c === '<') {
                 break;
             }
-            if (c === ' ' || c === '\n' || c === '\r' || c === '\t') {
-                continue;
+            if (c !== ' ' && c !== '\n' && c !== '\r' && c !== '\t') {
+                return null;
             }
-            return null;
         }
-        return new xml.TextReader(data, callback);
+        return new xml.TextReader(data, resolve);
     }
 
-    constructor(data, callback) {
+    constructor(data, resolve) {
         this._data = data;
-        this._callback = callback;
+        this._resolve = resolve;
         this._entities = new Map([['quot', '"'], ['amp', '&'], ['apos', "'"], ['lt', '<'],  ['gt', '>']]);
-        this._nameStartCharRegExp = /[:A-Z_a-z\xC0-\xD6\xD8-\xF6\xF8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/;
-        this._nameCharRegExp = new RegExp(`[-.0-9\\xB7${this._nameStartCharRegExp.source.slice(1, -1)}]`);
-        xml.Utility.nameStartCharRegExp = this._nameStartCharRegExp;
+        const nameStartChar = ':A-Z_a-z\xC0-\xD6\xD8-\xF6\xF8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD';
+        xml.TextReader._nameStartCharRegExp = new RegExp(`[${nameStartChar}]`);
+        xml.TextReader._nameCharRegExp = new RegExp(`[-.0-9\\xB7${nameStartChar}]`);
     }
 
-    peek() {
-        this._peek = true;
-        const value = this.read();
-        delete this._peek;
-        return value;
-    }
-
-    read() {
+    read(depth) {
+        this._depth = depth || Number.MAX_SAFE_INTEGER;
         this._stack = [];
         this._context = [];
         this._pushBuffer(this._data, '', '', false);
@@ -48,7 +41,7 @@ xml.TextReader = class {
         /* eslint-enable */
         this._parameterEntities = false;
         this._characterData = true;
-        this._push(new xml.Document());
+        this._stack.push(new xml.Document());
         const document = this._document();
         for (;;) {
             this._start = this._position;
@@ -94,7 +87,7 @@ xml.TextReader = class {
                                 }
                                 const node = document.createDocumentType(name, publicId, systemId);
                                 this._appendChild(node);
-                                this._push(node);
+                                this._stack.push(node);
                                 node.parameterEntities = new xml.NamedNodeMap();
                                 node.elements = new xml.NamedNodeMap();
                                 this._parameterEntities = true;
@@ -104,9 +97,10 @@ xml.TextReader = class {
                                     this._internalSubset(']');
                                 }
                                 if (systemId && !this._standalone) {
-                                    this._pushResource(systemId, '', true);
-                                    this._internalSubset(undefined);
-                                    this._popContext();
+                                    if (this._pushResource(systemId, '', true)) {
+                                        this._internalSubset(undefined);
+                                        this._popContext();
+                                    }
                                 }
                                 this._characterData = true;
                                 this._parameterEntities = false;
@@ -122,7 +116,7 @@ xml.TextReader = class {
                                     this._whitespace(0);
                                 }
                                 this._expect('>');
-                                this._assert(this._pop().nodeType === xml.NodeType.DocumentType);
+                                this._assert(this._stack.pop().nodeType === xml.NodeType.DocumentType);
                             } else {
                                 this._unexpected();
                             }
@@ -134,7 +128,7 @@ xml.TextReader = class {
                             this._assert(name !== null);
                             this._whitespace(0);
                             this._expect('>');
-                            const node = this._pop();
+                            const node = this._stack.pop();
                             const nodeName = node.prefix ? `${node.prefix}:${node.localName}` : node.localName;
                             if (name !== nodeName) {
                                 this._error(`Opening tag <${nodeName}> and ending tag </${name}> mismatch`, this._start);
@@ -183,9 +177,9 @@ xml.TextReader = class {
                                 const name = entry.qualifiedName;
                                 const value = entry.value;
                                 this._assert(name !== 'xmlns:');
-                                const [prefix, localName] = xml.Utility.split(name);
-                                entry.prefix = prefix;
-                                entry.localName = localName;
+                                const qualifiedName = new xml.QualifiedName(name);
+                                entry.prefix = qualifiedName.prefix;
+                                entry.localName = qualifiedName.localName;
                                 if (entry.prefix !== null) {
                                     this._assert(entry.localName !== '');
                                     if (entry.prefix === 'xmlns' && entry.localName) {
@@ -204,14 +198,14 @@ xml.TextReader = class {
                                     namespaces.set('', value);
                                 }
                             }
-                            const pair = xml.Utility.split(name);
-                            const prefix = pair[0] || '';
+                            const qualifiedName = new xml.QualifiedName(name);
+                            const prefix = qualifiedName.prefix || '';
                             const namespaceURI = namespaces.has(prefix) ? namespaces.get(prefix) : this._lookupNamespaceURI(prefix);
                             let element = null;
                             const documentType = document.documentType;
                             const elementType = documentType ? documentType.elements.getNamedItem(name) : null;
                             if (namespaceURI === null) {
-                                this._assert((pair[0] === null && !name.endsWith(':')) || name === ':' || elementType !== null);
+                                this._assert((qualifiedName.prefix === null && !name.endsWith(':')) || name === ':' || elementType !== null);
                                 element = document.createElement(name);
                             } else {
                                 this._assert(name === ':' || (!name.endsWith(':') && !name.startsWith(':')));
@@ -247,11 +241,11 @@ xml.TextReader = class {
                             }
                             const close = this._match('/');
                             this._expect('>');
-                            if (this._peek && this._stack.length === 1 && this._nodeType() === xml.NodeType.Document) {
-                                return this._pop();
+                            if (this._depth <= this._stack.length && this._nodeType() === xml.NodeType.Document) {
+                                return this._stack.pop();
                             }
                             if (!close) {
-                                this._push(element);
+                                this._stack.push(element);
                             }
                             break;
                         }
@@ -270,7 +264,7 @@ xml.TextReader = class {
                                 delete documentType.parameterEntities;
                                 delete documentType.elements;
                             }
-                            const value = this._pop();
+                            const value = this._stack.pop();
                             for (const key of Object.keys(this)) {
                                 if (key !== '_data' && key !== '_callback' && key !== '_entities' && !key.startsWith('_name')) {
                                     delete this[key];
@@ -287,18 +281,18 @@ xml.TextReader = class {
                         const elementType = documentType ? documentType.elements.getNamedItem(name) : null;
                         this._characterData = elementType ? elementType.characterData : false;
                         this._seek(this._position);
-                        const data = [];
+                        let data = [];
                         while (this._char !== '<' && this._char !== undefined) {
                             if (this._char === ']' && this._match(']]>')) {
                                 this._unexpected();
                             }
                             data.push(this._content());
-                            if (data.length > 65536) {
-                                this._error('Invalid character data buffer size.');
+                            if (data.length > 4096) {
+                                data = [data.join('')];
                             }
                         }
                         if (data.length > 0) {
-                            const content = data.splice(0, data.length).join('');
+                            const content = data.join('');
                             if (content.trim().length > 0) {
                                 const node = document.createTextNode(content);
                                 this._appendChild(node);
@@ -504,24 +498,16 @@ xml.TextReader = class {
         }
     }
 
-    _push(value) {
-        this._stack.push(value);
-    }
-
-    _pop() {
-        return this._stack.pop();
-    }
-
     _node() {
         return this._stack[this._stack.length - 1];
     }
 
-    _document() {
-        return this._stack[0];
-    }
-
     _nodeType() {
         return this._node().nodeType;
+    }
+
+    _document() {
+        return this._stack[0];
     }
 
     _appendChild(newChild) {
@@ -536,12 +522,12 @@ xml.TextReader = class {
         const position = this._position;
         const name = [];
         const c = this._char.codePointAt(0);
-        if (this._nameStartCharRegExp.test(this._char) || (c >= 0x10000 && c <= 0xEFFFF)) {
+        if (xml.TextReader._nameStartCharRegExp.test(this._char) || (c >= 0x10000 && c <= 0xEFFFF)) {
             name.push(this._char);
             this._next();
             if (this._char !== undefined) {
                 let c = this._char.codePointAt(0);
-                while (this._nameCharRegExp.test(this._char) || (c >= 0x300 && c <= 0x36f) || (c >= 0x203F && c <= 0x2040)) {
+                while (xml.TextReader._nameCharRegExp.test(this._char) || (c >= 0x300 && c <= 0x36f) || (c >= 0x203F && c <= 0x2040)) {
                     name.push(this._char);
                     this._next();
                     if (this._char === undefined || this._implicitSpace) {
@@ -901,7 +887,6 @@ xml.TextReader = class {
         return undefined;
     }
 
-    /* eslint-disable consistent-return */
     _entityReference() {
         if (this._char === '&') {
             const position = this._position;
@@ -946,8 +931,8 @@ xml.TextReader = class {
             }
         }
         this._unexpected();
+        return null;
     }
-    /* eslint-enable consistent-return */
 
     _comment() {
         const data = this._terminal('--');
@@ -1023,8 +1008,14 @@ xml.TextReader = class {
     }
 
     _pushResource(identifier, entity, stop) {
-        const content = this._callback(identifier);
-        this._pushBuffer(content, identifier, entity, stop);
+        if (this._resolve) {
+            const content = this._resolve(identifier);
+            if (content) {
+                this._pushBuffer(content, identifier, entity, stop);
+                return true;
+            }
+        }
+        return false;
     }
 
     _pushBuffer(data, base, entity, stop) {
@@ -1280,16 +1271,8 @@ xml.Node = class {
         return this._firstChild;
     }
 
-    set firstChild(value) {
-        this._firstChild = value;
-    }
-
     get lastChild() {
         return this._lastChild || null;
-    }
-
-    set lastChild(value) {
-        this._lastChild = value;
     }
 
     get previousSibling() {
@@ -1309,12 +1292,12 @@ xml.Node = class {
     }
 
     appendChild(newChild) {
-        this.firstChild = this.firstChild || newChild;
-        newChild.previousSibling = this.lastChild;
+        this._firstChild = this._firstChild || newChild;
+        newChild.previousSibling = this._lastChild;
         if (newChild.previousSibling) {
             newChild.previousSibling.nextSibling = newChild;
         }
-        this.lastChild = newChild;
+        this._lastChild = newChild;
         this.childNodes[this.childNodes.length] = newChild;
         newChild.parentNode = this;
     }
@@ -1342,9 +1325,9 @@ xml.Element = class extends xml.Node {
             this._prefix = null;
             this._localName = qualifiedName;
         } else {
-            const [prefix, localName] = xml.Utility.split(qualifiedName);
-            this._prefix = prefix;
-            this._localName = localName;
+            const name = new xml.QualifiedName(qualifiedName);
+            this._prefix = name.prefix;
+            this._localName = name.localName;
         }
     }
 
@@ -1632,9 +1615,9 @@ xml.Document = class extends xml.Node {
 
 xml.DocumentType = class extends xml.Node {
 
-    constructor(document, qualifiedName, publicId, systemId) {
+    constructor(document, name, publicId, systemId) {
         super(document, xml.NodeType.DocumentType);
-        this._name = qualifiedName;
+        this._name = name;
         this._publicId = publicId;
         this._systemId = systemId;
         this._entities = new xml.NamedNodeMap();
@@ -1706,6 +1689,23 @@ xml.NamedNodeMap = class extends Array {
     }
 };
 
+xml.QualifiedName = class {
+
+    constructor(name) {
+        this.prefix = null;
+        this.localName = name;
+        const index = name.indexOf(':');
+        if (index >= 0 && index !== name.length - 1) {
+            const localName = name.substring(index + 1);
+            const c = localName.codePointAt(0);
+            if (localName.indexOf(':') === -1 && (xml.TextReader._nameStartCharRegExp.test(String.fromCodePoint(c)) || (c >= 0x10000 && c <= 0xEFFFF))) {
+                this.prefix = name.substring(0, index);
+                this.localName = localName;
+            }
+        }
+    }
+};
+
 xml.NodeType = {
     None: 0,
     Element: 1,
@@ -1722,23 +1722,6 @@ xml.NodeType = {
     Notation: 12
 };
 
-xml.Utility = class {
-
-    static split(name) {
-        const index = name.indexOf(':');
-        if (index < 0 || index === name.length - 1) {
-            return [null, name];
-        }
-        const localName = name.substring(index + 1);
-        const c = localName.codePointAt(0);
-        if (localName.indexOf(':') !== -1 || !xml.Utility.nameStartCharRegExp.test(String.fromCodePoint(c)) && (c < 0x10000 || c > 0xEFFFF)) {
-            return [null, name];
-        }
-        const prefix = name.substring(0, index);
-        return [prefix, localName];
-    }
-};
-
 xml.Error = class extends Error {
 
     constructor(message) {
@@ -1748,4 +1731,3 @@ xml.Error = class extends Error {
 };
 
 export const TextReader = xml.TextReader;
-

@@ -7,20 +7,20 @@ const mlnet = {};
 
 mlnet.ModelFactory = class {
 
-    match(context) {
-        const entries = context.peek('zip');
+    async match(context) {
+        const entries = await context.peek('zip');
         if (entries instanceof Map && entries.size > 0) {
             const root = new Set(['TransformerChain', 'Predictor']);
             if (Array.from(entries.keys()).some((name) => root.has(name.split('\\').shift().split('/').shift()))) {
-                context.type = 'mlnet';
-                context.target = entries;
+                return context.set('mlnet', entries);
             }
         }
+        return null;
     }
 
     async open(context) {
         const metadata = await context.metadata('mlnet-metadata.json');
-        const reader = new mlnet.ModelReader(context.target);
+        const reader = new mlnet.ModelReader(context.value);
         return new mlnet.Model(metadata, reader);
     }
 };

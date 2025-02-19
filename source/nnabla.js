@@ -3,14 +3,15 @@ const nnabla = {};
 
 nnabla.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier;
         if (identifier.endsWith('.nntxt')) {
-            const tags = context.tags('pbtxt');
+            const tags = await context.tags('pbtxt');
             if (tags.has('network')) {
-                context.type = 'nnabla.pbtxt';
+                return context.set('nnabla.pbtxt');
             }
         }
+        return null;
     }
 
     async open(context) {
@@ -18,7 +19,7 @@ nnabla.ModelFactory = class {
         nnabla.proto = nnabla.proto.nnabla;
         switch (context.type) {
             case 'nnabla.pbtxt': {
-                const reader = context.read('protobuf.text');
+                const reader = await context.read('protobuf.text');
                 const model = nnabla.proto.NNablaProtoBuf.decodeText(reader);
                 const files = ['nnp_version.txt', 'parameter.protobuf', 'parameter.h5'];
                 let contexts = await Promise.all(files.map((file) => context.fetch(file).catch(() => null)));
@@ -27,18 +28,18 @@ nnabla.ModelFactory = class {
                 let version = '';
                 if (contexts.has('nnp_version.txt')) {
                     const context = contexts.get('nnp_version.txt');
-                    const reader = context.read('text');
+                    const reader = await context.read('text');
                     const line = reader.read('\n');
                     version = line.split('\r').shift();
                 }
                 if (contexts.has('parameter.protobuf')) {
                     const context = contexts.get('parameter.protobuf');
-                    const reader = context.read('protobuf.binary');
+                    const reader = await context.read('protobuf.binary');
                     const params = nnabla.proto.NNablaProtoBuf.decode(reader);
                     model.parameter = params.parameter;
                 } else if (contexts.has('parameter.h5')) {
                     const context = contexts.get('parameter.h5');
-                    const file = context.read('hdf5');
+                    const file = await context.read('hdf5');
                     const queue = [['',file]];
                     while (queue.length > 0) {
                         const [name, group] = queue.shift();

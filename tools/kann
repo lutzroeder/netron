@@ -5,7 +5,7 @@ pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 clean() {
     echo "kann clean"
-    rm -rf "${third_party_dir}"
+    rm -rf "./third_party/source/kann"
 }
 
 sync() {

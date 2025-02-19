@@ -3,19 +3,20 @@ const sentencepiece = {};
 
 sentencepiece.ModelFactory = class {
 
-    match(context) {
-        const tags = context.tags('pb');
+    async match(context) {
+        const tags = await context.tags('pb');
         if ((tags.size >= 3 && tags.size <= 5 &&
             tags.get(1) === 2 && tags.get(2) === 2 && tags.get(3) === 2) &&
             Array.from(tags).every(([key, value]) => (key <= 5 && value === 2))) {
-            const model = context.tags('pb+');
+            const model = await context.tags('pb+');
             if (model &&
                 model['1'] && model['1']['1'] === 2 && model['1']['2'] === 5 && model['1']['3'] === 0 &&
                 model['2'] && model['2']['3'] === 0 && model['2']['4'] === 0 &&
                 model['3'] && model['3']['1'] === 2) {
-                context.type = 'sentencepiece';
+                return context.set('sentencepiece');
             }
         }
+        return null;
     }
 
     async open(context) {
@@ -23,7 +24,7 @@ sentencepiece.ModelFactory = class {
         sentencepiece.proto = sentencepiece.proto.sentencepiece;
         let model = null;
         try {
-            const reader = context.read('protobuf.binary');
+            const reader = await context.read('protobuf.binary');
             model = sentencepiece.proto.ModelProto.decode(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();

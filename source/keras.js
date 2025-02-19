@@ -7,73 +7,60 @@ const tfjs = {};
 
 keras.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        const group = context.peek('hdf5');
+        const group = await context.peek('hdf5');
         if (group && group.attributes && group.attributes.get('CLASS') !== 'hickle') {
-            context.target = group;
             if (identifier === 'model.weights.h5') {
-                context.type = 'keras.model.weights.h5';
-                return;
+                return context.set('keras.model.weights.h5', group);
             }
             if (identifier === 'parameter.h5') {
-                context.type = 'hdf5.parameter.h5';
-                return;
+                return context.set('hdf5.parameter.h5', group);
             }
-            context.type = 'keras.h5';
-            return;
+            return context.set('keras.h5', group);
         }
-        const json = context.peek('json');
+        const json = await context.peek('json');
         if (json) {
             if (json.mxnet_version || (json.nodes && json.arg_nodes && json.heads)) {
-                return;
+                return null;
             }
             if (json.model_config || (json.class_name && json.config)) {
-                context.type = 'keras.config.json';
-                context.target = json;
-                return;
+                return context.set('keras.config.json', json);
             }
             if (identifier === 'metadata.json' && json.keras_version) {
-                context.type = 'keras.metadata.json';
-                context.target = json;
-                return;
+                return context.set('keras.metadata.json', json);
             }
         }
-        const container = tfjs.Container.open(context);
+        const container = await tfjs.Container.open(context);
         if (container) {
-            context.type = 'tfjs';
-            context.target = container;
-            return;
+            return context.set('tfjs', container);
         }
-        const pickle = context.peek('pkl');
+        const pickle = await context.peek('pkl');
         if (pickle && pickle.__class__ &&
             pickle.__class__.__module__ === 'keras.engine.sequential' &&
             pickle.__class__.__name__ === 'Sequential') {
-            context.type = 'tfjs.pickle';
-            context.target = pickle;
-            return;
+            return context.set('tfjs.pickle', pickle);
         }
         // model.weights.npz
-        const entries = context.peek('npz');
+        const entries = await context.peek('npz');
         const regex = /^(__root__|layers\/.+|_layer_checkpoint_dependencies\/.+)\.npy$/;
         if (entries instanceof Map && entries.size > 0 && Array.from(entries).every(([name]) => regex.test(name))) {
-            context.type = 'keras.model.weights.npz';
-            context.target = entries;
-            return;
+            return context.set('keras.model.weights.npz', entries);
         }
         // keras_metadata.pb
         if (extension === 'pb' && context.stream && context.stream.length > 16) {
-            const tags = context.tags('pb');
+            const tags = await context.tags('pb');
             if (tags.size === 1 && tags.get(1) === 2) {
                 const stream = context.stream;
                 const buffer = stream.peek(Math.min(stream.length, 1024));
                 const content = String.fromCharCode.apply(null, buffer);
                 if (/root"/.test(content) && /\{\s*"class_name"\s*:/.test(content)) {
-                    context.type = 'keras.pb.SavedMetadata';
+                    return context.set('keras.pb.SavedMetadata');
                 }
             }
         }
+        return null;
     }
 
     filter(context, type) {
@@ -96,7 +83,7 @@ keras.ModelFactory = class {
             } catch {
                 return null;
             }
-            return context.read('json');
+            return await context.read('json');
         };
         const _create_config = (weights_store) => {
             const config = {};
@@ -187,8 +174,7 @@ keras.ModelFactory = class {
             for (const [path, array] of entries) {
                 const file = path.split('/').map((name) => name === '_layer_checkpoint_dependencies' ? 'layers' : name).join('/');
                 if (file.endsWith('.npy') && file.startsWith('layers/')) {
-                    if (array.dtype.name === 'object' && array.shape.length === 0 &&
-                        Array.isArray(array.data) && array.data.length === 1) {
+                    if (array.dtype.name === 'object' && array.shape.length === 0 && Array.isArray(array.data) && array.data.length === 1) {
                         const values = Object.values(array.data[0]).map((array) => {
                             const stride = array.strides.map((stride) => stride / array.itemsize);
                             const dataType = array.dtype.__name__;
@@ -220,7 +206,9 @@ keras.ModelFactory = class {
                     // continue regardless of error
                 }
                 if (content) {
-                    const obj = content.peek(type);
+                    /* eslint-disable no-await-in-loop */
+                    const obj = await content.peek(type);
+                    /* eslint-enable no-await-in-loop */
                     if (obj) {
                         return callback(obj);
                     }
@@ -234,7 +222,7 @@ keras.ModelFactory = class {
         };
         switch (context.type) {
             case 'keras.config.json': {
-                const obj = context.target;
+                const obj = context.value;
                 const config = obj.model_config ? obj.model_config : obj;
                 const backend = obj.backend || '';
                 let version = obj.keras_version ? obj.keras_version : null;
@@ -250,7 +238,7 @@ keras.ModelFactory = class {
                 return open_model(format, '', backend, config, null);
             }
             case 'keras.model.weights.h5': {
-                const group = context.target;
+                const group = context.value;
                 const weights_store = read_weights_hdf5(group);
                 const metadata = await request_json(context, 'metadata.json');
                 let config = await request_json(context, 'config.json');
@@ -261,10 +249,10 @@ keras.ModelFactory = class {
                 } else {
                     config = _create_config(weights_store);
                 }
-                return open_model(format, '', '', config, null);
+                return await open_model(format, '', '', config, null);
             }
             case 'keras.model.weights.npz': {
-                const entries = context.target;
+                const entries = context.value;
                 const weights_store = read_weights_numpy(entries);
                 const metadata = await request_json(context, 'metadata.json');
                 let config = await request_json(context, 'config.json');
@@ -275,10 +263,10 @@ keras.ModelFactory = class {
                 } else {
                     config = _create_config(weights_store);
                 }
-                return open_model(format, '', '', config, null);
+                return await open_model(format, '', '', config, null);
             }
             case 'keras.metadata.json': {
-                const metadata = context.target;
+                const metadata = context.value;
                 let config = await request_json(context, 'config.json');
                 const name = config ? 'Keras' : 'Keras Weights';
                 const format = name + (metadata.keras_version ? ` v${metadata.keras_version}` : '');
@@ -291,7 +279,7 @@ keras.ModelFactory = class {
                 } else {
                     config = _create_config(weights_store);
                 }
-                return open_model(format, '', '', config, null);
+                return await open_model(format, '', '', config, null);
             }
             case 'hdf5.parameter.h5':
             case 'keras.h5': {
@@ -329,7 +317,7 @@ keras.ModelFactory = class {
                     return null;
                 };
                 const weights = new keras.Weights();
-                const group = context.target;
+                const group = context.value;
                 const root_group = find_root_group(group);
                 const model_config = read_model_config(root_group);
                 if (model_config) {
@@ -464,12 +452,12 @@ keras.ModelFactory = class {
                 return open_model(format, '', '', null, weights);
             }
             case 'tfjs': {
-                const target = context.target;
+                const target = context.value;
                 await target.read();
                 return open_model(target.format, target.producer, target.backend, target.config, target.weights);
             }
             case 'keras.pickle': {
-                const obj = context.target;
+                const obj = context.value;
                 const execution = new python.Execution();
                 const decoder = new TextDecoder('utf-8');
                 const format = `Keras Pickle${obj.keras_version ? ` v${decoder.decode(obj.keras_version)}` : ''}`;
@@ -501,7 +489,7 @@ keras.ModelFactory = class {
             case 'keras.pb.SavedMetadata': {
                 keras.proto = await context.require('./keras-proto');
                 const format = 'Keras Saved Metadata';
-                const reader = context.read('protobuf.binary');
+                const reader = await context.read('protobuf.binary');
                 const saved_metadata = keras.proto.third_party.tensorflow.python.keras.protobuf.SavedMetadata.decode(reader);
                 if (!saved_metadata || !Array.isArray(saved_metadata.nodes) ||
                     !saved_metadata.nodes.every((node) => node && typeof node.metadata === 'string' && node.metadata.length > 0)) {
@@ -1328,8 +1316,8 @@ keras.Error = class extends Error {
 
 tfjs.Container = class {
 
-    static open(context) {
-        const json = context.peek('json');
+    static async open(context) {
+        const json = await context.peek('json');
         if (json) {
             if (json.modelTopology && (json.format === 'layers-model' || json.modelTopology.class_name || json.modelTopology.model_config)) {
                 return new tfjs.Container(context, '');
@@ -1354,15 +1342,16 @@ tfjs.Container = class {
     }
 
     async read() {
+        const context = this.context;
         switch (this.type) {
             case '': {
-                const obj = this.context.peek('json');
+                const obj = await context.peek('json');
                 return this._openModelJson(obj);
             }
             case 'weights.json': {
                 this.format = 'TensorFlow.js Weights';
                 this.config = null;
-                const obj = this.context.peek('json');
+                const obj = await context.peek('json');
                 const manifests = Array.from(obj);
                 for (const manifest of manifests) {
                     for (const weight of manifest.weights) {
@@ -1375,12 +1364,12 @@ tfjs.Container = class {
             }
             case 'weights.bin': {
                 const content = await this.context.fetch('model.json');
-                const obj = content.read('json');
+                const obj = await content.read('json');
                 return this._openModelJson(obj);
             }
             case 'metadata': {
                 const content = await this.context.fetch('model.json');
-                const obj = content.read('json');
+                const obj = await content.read('json');
                 return this._openModelJson(obj);
             }
             default: {

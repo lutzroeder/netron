@@ -3,8 +3,8 @@ const dot = {};
 
 dot.ModelFactory = class {
 
-    match(context) {
-        const reader = context.read('text', 0x10000);
+    async match(context) {
+        const reader = await context.read('text', 0x10000);
         if (reader) {
             try {
                 for (let i = 0; i < 64; i++) {
@@ -16,18 +16,18 @@ dot.ModelFactory = class {
                         continue;
                     }
                     if (line.trim().match(/^(strict)?\s*digraph/)) {
-                        context.type = 'dot';
-                        break;
+                        return context.set('dot');
                     }
                 }
             } catch {
                 // continue regardless of error
             }
         }
+        return null;
     }
 
     async open(context) {
-        const decoder = context.read('text.decoder');
+        const decoder = await context.read('text.decoder');
         const parser = new dot.Parser(decoder);
         const graph = parser.parse();
         if (graph.kind !== 'digraph') {

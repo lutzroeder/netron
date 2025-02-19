@@ -5,18 +5,18 @@ const tengine = {};
 
 tengine.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const reader = tengine.Reader.open(context);
         if (reader) {
-            context.type = 'tengine';
-            context.target = reader;
+            return context.set('tengine', reader);
         }
+        return null;
     }
 
     async open(context) {
         const metadata = await tengine.Metadata.open(context);
-        const reader = context.target;
-        reader.read();
+        const reader = context.value;
+        await reader.read();
         return new tengine.Model(metadata, reader);
     }
 };
@@ -251,7 +251,7 @@ tengine.Reader = class {
         // https://github.com/OAID/Tengine/blob/tengine-lite/source/serializer/tmfile/tm2_format.h
     }
 
-    read() {
+    async read() {
         const types = new Map();
         const register = (index, version, name, params) => {
             types.set(`${index}:${version}`, { name, params });
@@ -378,7 +378,7 @@ tengine.Reader = class {
         register(101, 0, 'L2Normalization', []);
         register(102, 0, 'PackModel', ['i','i']);
         register(103, 0, 'Num', []);
-        const reader = new tengine.BinaryReader(this.context.read('binary'));
+        const reader = await tengine.BinaryReader.open(this.context);
         const major = reader.uint16();
         const minor = reader.uint16();
         if (major !== 2) {
@@ -541,11 +541,17 @@ tengine.Reader = class {
                 }
             }
         }
+        delete this.context;
         delete this.stream;
     }
 };
 
 tengine.BinaryReader = class {
+
+    static async open(context) {
+        const reader = await context.read('binary');
+        return new tengine.BinaryReader(reader);
+    }
 
     constructor(reader) {
         this._reader = reader;

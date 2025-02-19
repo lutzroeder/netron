@@ -145,24 +145,17 @@ flatc.Union = class extends flatc.Type {
 
     constructor(parent, name) {
         super(parent, name);
-        this.values = new Map();
+        this.values = [];
     }
 
     resolve() {
         if (!this.resolved) {
             let index = 1;
-            for (const key of this.values.keys()) {
-                if (this.values.get(key) === undefined) {
-                    this.values.set(key, index);
-                }
-                index = this.values.get(key) + 1;
+            for (const value of this.values) {
+                value.index = value.index === undefined ? index : value.index;
+                index = value.index + 1;
+                value.type = this.parent.find(value.type, flatc.Type);
             }
-            const values = new Map();
-            for (const [name, value] of this.values) {
-                const type = this.parent.find(name, flatc.Type);
-                values.set(value, type);
-            }
-            this.values = values;
             super.resolve();
         }
     }
@@ -404,9 +397,9 @@ flatc.Parser = class {
                 this._tokenizer.expect('{');
                 while (!this._tokenizer.eat('}')) {
                     const name = this._tokenizer.identifier();
-                    const key = this._tokenizer.eat(':') ? this._tokenizer.identifier() : name;
-                    const value = this._tokenizer.eat('=') ? this._tokenizer.integer() : undefined;
-                    union.values.set(key, value);
+                    const type = this._tokenizer.eat(':') ? this._tokenizer.identifier() : name;
+                    const index = this._tokenizer.eat('=') ? this._tokenizer.integer() : undefined;
+                    union.values.push({ name, type, index });
                     this._parseMetadata(new Map());
                     if (this._tokenizer.eat(',')) {
                         continue;
@@ -1168,13 +1161,13 @@ flatc.Generator = class {
 
         this._builder.indent();
             this._builder.add('');
-            this._builder.add(type.values.size === 0 ? 'static decode(/* reader, position, type */) {' : 'static decode(reader, position, type) {');
+            this._builder.add(type.values.length === 0 ? 'static decode(/* reader, position, type */) {' : 'static decode(reader, position, type) {');
             this._builder.indent();
                 this._builder.add('switch (type) {');
                 this._builder.indent();
-                    for (const [name, value] of type.values) {
-                        const valueType = `${value.parent.name}.${value.name}`;
-                        this._builder.add(`case ${name}: return ${valueType}.decode(reader, position);`);
+                    for (const value of type.values) {
+                        const valueType = `${value.type.parent.name}.${value.type.name}`;
+                        this._builder.add(`case ${value.index}: return ${valueType}.decode(reader, position);`);
                     }
                     this._builder.add('default: return undefined;');
                 this._builder.outdent();
@@ -1184,12 +1177,12 @@ flatc.Generator = class {
 
             if (this._text) {
                 this._builder.add('');
-                this._builder.add(type.values.size === 0 ? 'static decodeText(/* reader, json, type */) {' : 'static decodeText(reader, json, type) {');
+                this._builder.add(type.values.length === 0 ? 'static decodeText(/* reader, json, type */) {' : 'static decodeText(reader, json, type) {');
                 this._builder.indent();
                     this._builder.add('switch (type) {');
                     this._builder.indent();
-                        for (const [, value] of type.values) {
-                            const valueType = `${value.parent.name}.${value.name}`;
+                        for (const value of type.values) {
+                            const valueType = `${value.type.parent.name}.${value.type.name}`;
                             this._builder.add(`case '${value.name}': return ${valueType}.decodeText(reader, json);`);
                         }
                         this._builder.add('default: return undefined;');

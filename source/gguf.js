@@ -3,17 +3,17 @@ const gguf = {};
 
 gguf.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const reader = gguf.Reader.open(context);
         if (reader) {
-            context.type = 'gguf';
-            context.target = reader;
+            return context.set('gguf', reader);
         }
+        return null;
     }
 
     async open(context) {
-        const target = context.target;
-        target.read();
+        const target = context.value;
+        await target.read();
         return new gguf.Model(target);
     }
 };
@@ -240,58 +240,60 @@ gguf.Reader = class {
         ]);
     }
 
-    read() {
-        const reader = new gguf.BinaryReader(this.context);
+    async read() {
+        const context = this.context;
+        const stream = context.stream;
+        let reader = await context.read('binary');
+        reader = new gguf.BinaryReader(reader);
         this.tensors = new Map();
         this.metadata = new Map();
-        const context = {};
-        context.header = {};
-        context.header.magic = String.fromCharCode.apply(null, reader.read(4));
-        context.header.version = reader.uint32();
-        this.format = `GGUF v${context.header.version}`;
-        if (context.header.version >= 2) {
-            context.header.n_tensors = reader.uint64().toNumber();
-            context.header.n_kv = reader.uint64().toNumber();
-            for (let i = 0; i < context.header.n_kv; i++) {
+        this.header = {};
+        this.header.magic = String.fromCharCode.apply(null, reader.read(4));
+        this.header.version = reader.uint32();
+        this.format = `GGUF v${this.header.version}`;
+        if (this.header.version >= 2) {
+            this.header.n_tensors = reader.uint64().toNumber();
+            this.header.n_kv = reader.uint64().toNumber();
+            for (let i = 0; i < this.header.n_kv; i++) {
                 const entry = reader.entry();
                 this.metadata.set(entry.name, entry.value);
             }
-            const tensors = context.header.n_tensors;
+            const tensors = this.header.n_tensors;
             if (tensors > 0) {
                 for (let i = 0; i < tensors; i++) {
                     const tensor = reader.tensor();
                     this.tensors.set(tensor.name, tensor);
                 }
-                context.alignment = this.metadata.get('general.alignment') || 32;
-                const offset_pad = reader.position % context.alignment;
+                this.alignment = this.metadata.get('general.alignment') || 32;
+                const offset_pad = reader.position % this.alignment;
                 if (offset_pad !== 0) {
-                    reader.skip(context.alignment - offset_pad);
+                    reader.skip(this.alignment - offset_pad);
                 }
-                context.offset = reader.position;
+                const offset = reader.position;
                 for (const tensor of this.tensors.values()) {
                     if (!gguf.Reader.GGML_QUANT_SIZES.has(tensor.type)) {
                         throw new gguf.Error(`Unsupported tensor quantization type '${tensor.type}'.`);
                     }
                     const [block_size, type_size, dtype] = gguf.Reader.GGML_QUANT_SIZES.get(tensor.type);
                     tensor.dtype = dtype || '?';
-                    if (context.offset < reader.length) {
+                    if (offset < reader.length) {
                         const n_elems = tensor.ne.reduce((a, b) => a * b, 1);
                         const n_bytes = Math.floor(n_elems * type_size / block_size);
-                        reader.seek(context.offset + tensor.offset);
+                        reader.seek(offset + tensor.offset);
                         tensor.data = reader.stream(n_bytes);
                     }
                 }
             }
         }
-        this.context.stream.seek(0);
+        stream.seek(0);
         delete this.context;
     }
 };
 
 gguf.BinaryReader = class {
 
-    constructor(context) {
-        this._reader = context.read('binary');
+    constructor(reader) {
+        this._reader = reader;
     }
 
     get length() {

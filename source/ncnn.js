@@ -10,7 +10,7 @@ const pnnx = {};
 
 ncnn.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.param.bin') || identifier.endsWith('.ncnnmodel')) {
             const stream = context.stream;
@@ -19,11 +19,11 @@ ncnn.ModelFactory = class {
                 const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
                 const signature = view.getUint32(0, true);
                 if (signature === 0x007685dd) {
-                    context.type = 'ncnn.model.bin';
+                    return context.set('ncnn.model.bin');
                 }
             }
         } else if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
-            const reader = context.read('text', 0x10000);
+            const reader = await context.read('text', 0x10000);
             if (reader) {
                 let type = '';
                 try {
@@ -56,16 +56,15 @@ ncnn.ModelFactory = class {
                     // continue regardless of error
                 }
                 if (type) {
-                    context.type = type;
+                    return context.set(type);
                 }
             }
         } else if (identifier.endsWith('.ncnn.bin')) {
-            context.type = 'ncnn.weights';
+            return context.set('ncnn.weights');
         } else if (identifier.endsWith('.pnnx.bin')) {
-            const entries = context.peek('zip');
+            const entries = await context.peek('zip');
             if (entries) { // can be empty
-                context.type = 'pnnx.weights';
-                context.target = entries;
+                return context.set('pnnx.weights', entries);
             }
         } else if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
             const stream = context.stream;
@@ -82,22 +81,22 @@ ncnn.ModelFactory = class {
                         f32[i] = view.getFloat32(i << 2, true);
                     }
                     if (f32.every((value) => !Number.isNaN(value) && Number.isFinite(value) && value > -20.0 && value < 20.0)) {
-                        context.type = 'ncnn.weights';
+                        return context.set('ncnn.weights');
                     }
                 } else {
                     for (let i = 0; i < buffer.length - 4; i++) {
                         const signature = view.getUint32(i, true);
                         if (signature === 0xdeadbeef) { // Core ML
-                            return;
+                            return null;
                         }
                         if (signature === 0x01306b47 || signature === 0x000d4b38 || signature === 0x0002c056) { // ncnn
-                            context.type = 'ncnn.weights';
-                            return;
+                            return context.set('ncnn.weights');
                         }
                     }
                 }
             }
         }
+        return null;
     }
 
     filter(context, type) {
@@ -129,9 +128,9 @@ ncnn.ModelFactory = class {
                 } catch {
                     // continue regardless of error
                 }
-                const param = context.read('text');
+                const param = await context.read('text');
                 const reader = new ncnn.TextParamReader(param);
-                const blobs = new ncnn.BlobReader(content);
+                const blobs = await ncnn.BlobReader.open(content);
                 return new ncnn.Model(metadata, format, reader, blobs);
             }
             case 'ncnn.model.bin': {
@@ -144,7 +143,7 @@ ncnn.ModelFactory = class {
                 }
                 const param = context.stream.peek();
                 const reader = new ncnn.BinaryParamReader(param);
-                const blobs = new ncnn.BlobReader(content);
+                const blobs = await ncnn.BlobReader.open(content);
                 return new ncnn.Model(metadata, format, reader, blobs);
             }
             case 'pnnx.weights':
@@ -175,10 +174,10 @@ ncnn.ModelFactory = class {
                     const data = content.stream.peek();
                     reader = new ncnn.BinaryParamReader(data);
                 } else {
-                    const text = content.read('text');
+                    const text = await content.read('text');
                     reader = new ncnn.TextParamReader(text);
                 }
-                const blobs = new ncnn.BlobReader(context);
+                const blobs = await ncnn.BlobReader.open(context);
                 return new ncnn.Model(metadata, format, reader, blobs);
             }
             default: {
@@ -935,16 +934,28 @@ ncnn.BinaryParamReader = class {
 
 ncnn.BlobReader = class {
 
-    constructor(context) {
+    static async open(context) {
+        let identifier = null;
+        let entries = new Map();
+        let buffer = null;
+        let position = 0;
         if (context) {
-            this._identifier = context.identifier;
-            if (this._identifier.toLowerCase().endsWith('.pnnx.bin')) {
-                this._entires = context.peek('zip');
+            identifier = context.identifier;
+            if (identifier.toLowerCase().endsWith('.pnnx.bin')) {
+                entries = await context.peek('zip');
             } else {
-                this._buffer = context.stream.peek();
-                this._position = 0;
+                buffer = context.stream.peek();
+                position = 0;
             }
         }
+        return new ncnn.BlobReader(identifier, entries, buffer, position);
+    }
+
+    constructor(identifier, entries, buffer, position) {
+        this._identifier = identifier;
+        this._entires = entries;
+        this._buffer = buffer;
+        this._position = position;
     }
 
     skip(length) {

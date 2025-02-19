@@ -3,20 +3,19 @@ const tnn = {};
 
 tnn.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const identifier = context.identifier.toLowerCase();
         const stream = context.stream;
         if (stream && identifier.endsWith('.tnnproto')) {
             try {
-                const reader = context.read('text', 0x10000);
+                const reader = await context.read('text', 0x10000);
                 const content = reader.read('\n');
                 if (content !== undefined) {
                     const line = content.trim();
                     if (line.startsWith('"') && line.endsWith('"')) {
                         const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
                         if (header.length === 3 || (header.length >= 4 && (header[3] === '4206624770' || header[3] === '4206624772'))) {
-                            context.type = 'tnn.model';
-                            return;
+                            return context.set('tnn.model');
                         }
                     }
                 }
@@ -27,11 +26,11 @@ tnn.ModelFactory = class {
         if (stream && identifier.endsWith('.tnnmodel')) {
             for (const signature of [[0x02, 0x00, 0xbc, 0xfa], [0x04, 0x00, 0xbc, 0xfa]]) {
                 if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                    context.type = 'tnn.params';
-                    return;
+                    return context.set('tnn.params');
                 }
             }
         }
+        return null;
     }
 
     async open(context) {
@@ -39,19 +38,22 @@ tnn.ModelFactory = class {
         switch (context.type) {
             case 'tnn.model': {
                 const name = `${context.identifier.substring(0, context.identifier.length - 9)}.tnnmodel`;
-                const reader = context.read('text');
+                const reader = await context.read('text');
                 try {
                     const content = await context.fetch(name);
-                    return new tnn.Model(metadata, reader, content);
+                    const resources = await tnn.LayerResourceReader.open(content);
+                    return new tnn.Model(metadata, reader, resources);
                 } catch {
-                    return new tnn.Model(metadata, reader, null);
+                    const resources = await tnn.LayerResourceReader.open(null);
+                    return new tnn.Model(metadata, reader, resources);
                 }
             }
             case 'tnn.params': {
                 const name = `${context.identifier.substring(0, context.identifier.length - 9)}.tnnproto`;
                 const content = await context.fetch(name, null);
-                const reader = content.read('text');
-                return new tnn.Model(metadata, reader, context);
+                const reader = await content.read('text');
+                const resources = await tnn.LayerResourceReader.open(context);
+                return new tnn.Model(metadata, reader, resources);
             }
             default: {
                 throw new tnn.Error(`Unsupported TNN format '${context.type}'.`);
@@ -62,24 +64,20 @@ tnn.ModelFactory = class {
 
 tnn.Model = class {
 
-    constructor(metadata, tnnproto, tnnmodel) {
+    constructor(metadata, tnnproto, resources) {
         this.format = 'TNN';
         this.graphs = [
-            new tnn.Graph(metadata, tnnproto, tnnmodel)
+            new tnn.Graph(metadata, tnnproto, resources)
         ];
     }
 };
 
 tnn.Graph = class {
 
-    constructor(metadata, tnnproto, tnnmodel) {
+    constructor(metadata, tnnproto, resources) {
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];
-        const resources = new tnn.LayerResourceReader();
-        if (tnnmodel) {
-            resources.read(tnnmodel);
-        }
         const reader = new tnn.TextProtoReader(tnnproto);
         reader.read('\n');
         const values = new Map();
@@ -471,108 +469,115 @@ tnn.TextProtoReader = class {
 
 tnn.LayerResourceReader = class {
 
-    constructor() {
-        this.resources = new Map();
+    static async open(context) {
+        if (context) {
+            const reader = await context.read('binary');
+            return new tnn.LayerResourceReader(reader);
+        }
+        return new tnn.LayerResourceReader(null);
     }
 
-    read(context) {
-        this.reader = context.read('binary');
-        const magic_number = this.reader.uint32();
-        if (magic_number !== 0xFABC0002 && magic_number !== 0xFABC0004) {
-            throw new tnn.Error(`Invalid blob header signature '${magic_number}'.`);
-        }
-        const size = this.reader.int32() & 0x1FFFFFFF;
-        for (let i = 0; i < size; i++) {
-            const resource = {};
-            resource.operator = this.reader.int32();
-            resource.type = this.reader.string();
-            resource.name = this.reader.string();
-            switch (resource.type) {
-                case 'Convolution':
-                case 'ConvolutionDepthWise':
-                case 'Deconvolution':
-                case 'DeconvolutionDepthWise': {
-                    this._expect(resource.name);
-                    const bias = this.reader.int32();
-                    resource.filter = this._read();
-                    if (bias) {
-                        resource.bias = this._read();
-                    }
-                    if (resource.filter.dataType === 'int8') {
-                        resource.quantized = this._read();
-                    }
-                    break;
-                }
-                case 'Conv3D': {
-                    this._expect(resource.name);
-                    const bias = this.reader.int32();
-                    resource.filter = this._read();
-                    if (bias) {
-                        resource.bias = this._read();
-                    }
-                    break;
-                }
-                case 'InnerProduct': {
-                    this._expect(resource.name);
-                    resource.weight = this._read();
-                    resource.bias = this._read();
-                    if (resource.weight.dataType === 'int8') {
-                        resource.scale = this._read();
-                    }
-                    break;
-                }
-                case 'PReLU': {
-                    this._expect(resource.name);
-                    resource.slope = this._read();
-                    break;
-                }
-                case 'Add':
-                case 'Div':
-                case 'Mul':
-                case 'Sub':
-                case 'MatMul': {
-                    resource.slope = this._read();
-                    break;
-                }
-                case 'BatchNormCxx':
-                case 'InstBatchNormCxx':
-                    resource.scale = this._read();
-                    resource.bias = this._read();
-                    break;
-                case 'HdrGuide':
-                    resource.ccm_weight = this._read();
-                    resource.ccm_bias = this._read();
-                    resource.shifts = this._read();
-                    resource.slopes = this._read();
-                    resource.projection_weight = this._read();
-                    resource.projection_bias = this._read();
-                    break;
-                case 'BlobScale':
-                    resource.scale = this._read();
-                    resource.bias = this._read();
-                    break;
-                case 'Gather': {
-                    // reader.expect(resource.name);
-                    const has_data = this.reader.int32();
-                    if (has_data) {
-                        resource.data = this._read();
-                    }
-                    const has_indices = this.reader.int32();
-                    if (has_indices) {
-                        resource.indices = this._read();
-                    }
-                    break;
-                }
-                default: {
-                    throw new tnn.Error(`Unsupported layer resource type '${resource.type}'.`);
-                }
+    constructor(reader) {
+        this.resources = new Map();
+        if (reader) {
+            this.reader = reader;
+            const magic_number = this.reader.uint32();
+            if (magic_number !== 0xFABC0002 && magic_number !== 0xFABC0004) {
+                throw new tnn.Error(`Invalid blob header signature '${magic_number}'.`);
             }
-            this.resources.set(resource.name, resource);
+            const size = this.reader.int32() & 0x1FFFFFFF;
+            for (let i = 0; i < size; i++) {
+                const resource = {};
+                resource.operator = this.reader.int32();
+                resource.type = this.reader.string();
+                resource.name = this.reader.string();
+                switch (resource.type) {
+                    case 'Convolution':
+                    case 'ConvolutionDepthWise':
+                    case 'Deconvolution':
+                    case 'DeconvolutionDepthWise': {
+                        this._expect(resource.name);
+                        const bias = this.reader.int32();
+                        resource.filter = this._read();
+                        if (bias) {
+                            resource.bias = this._read();
+                        }
+                        if (resource.filter.dataType === 'int8') {
+                            resource.quantized = this._read();
+                        }
+                        break;
+                    }
+                    case 'Conv3D': {
+                        this._expect(resource.name);
+                        const bias = this.reader.int32();
+                        resource.filter = this._read();
+                        if (bias) {
+                            resource.bias = this._read();
+                        }
+                        break;
+                    }
+                    case 'InnerProduct': {
+                        this._expect(resource.name);
+                        resource.weight = this._read();
+                        resource.bias = this._read();
+                        if (resource.weight.dataType === 'int8') {
+                            resource.scale = this._read();
+                        }
+                        break;
+                    }
+                    case 'PReLU': {
+                        this._expect(resource.name);
+                        resource.slope = this._read();
+                        break;
+                    }
+                    case 'Add':
+                    case 'Div':
+                    case 'Mul':
+                    case 'Sub':
+                    case 'MatMul': {
+                        resource.slope = this._read();
+                        break;
+                    }
+                    case 'BatchNormCxx':
+                    case 'InstBatchNormCxx':
+                        resource.scale = this._read();
+                        resource.bias = this._read();
+                        break;
+                    case 'HdrGuide':
+                        resource.ccm_weight = this._read();
+                        resource.ccm_bias = this._read();
+                        resource.shifts = this._read();
+                        resource.slopes = this._read();
+                        resource.projection_weight = this._read();
+                        resource.projection_bias = this._read();
+                        break;
+                    case 'BlobScale':
+                        resource.scale = this._read();
+                        resource.bias = this._read();
+                        break;
+                    case 'Gather': {
+                        // reader.expect(resource.name);
+                        const has_data = this.reader.int32();
+                        if (has_data) {
+                            resource.data = this._read();
+                        }
+                        const has_indices = this.reader.int32();
+                        if (has_indices) {
+                            resource.indices = this._read();
+                        }
+                        break;
+                    }
+                    default: {
+                        throw new tnn.Error(`Unsupported layer resource type '${resource.type}'.`);
+                    }
+                }
+                this.resources.set(resource.name, resource);
+            }
+            if (this.reader.position !== this.reader.length) {
+                throw new tnn.Error("Invalid blob size.");
+            }
+            delete this.reader;
         }
-        if (this.reader.position !== this.reader.length) {
-            throw new tnn.Error("Invalid blob size.");
-        }
-        delete this.reader;
     }
 
     _read() {

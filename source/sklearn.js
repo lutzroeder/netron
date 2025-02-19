@@ -5,8 +5,8 @@ const sklearn = {};
 
 sklearn.ModelFactory = class {
 
-    match(context) {
-        const obj = context.peek('pkl');
+    async match(context) {
+        const obj = await context.peek('pkl');
         const validate = (obj, name) => {
             if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__) {
                 const key = `${obj.__class__.__module__}.${obj.__class__.__name__}`;
@@ -23,29 +23,24 @@ sklearn.ModelFactory = class {
         ];
         for (const format of formats) {
             if (validate(obj, format.name)) {
-                context.type = format.format;
-                context.target = obj;
-                return;
+                return context.set(format.format, obj);
             }
             if (Array.isArray(obj) && obj.length > 0 && obj.every((item) => validate(item, format.name))) {
-                context.type = `${format.format}.list`;
-                context.target = obj;
-                return;
+                return context.set(`${format.format}.list`, obj);
             }
             if (Object(obj) === obj || obj instanceof Map) {
                 const entries = obj instanceof Map ? Array.from(obj) : Object.entries(obj);
                 if (entries.length > 0 && entries.every(([, value]) => validate(value, format.name))) {
-                    context.type = `${format.format}.map`;
-                    context.target = obj;
-                    return;
+                    return context.set(`${format.format}.map`, obj);
                 }
             }
         }
+        return null;
     }
 
     async open(context) {
         const metadata = await context.metadata('sklearn-metadata.json');
-        return new sklearn.Model(metadata, context.type, context.target);
+        return new sklearn.Model(metadata, context.type, context.value);
     }
 };
 

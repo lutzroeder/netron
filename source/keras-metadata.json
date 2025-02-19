@@ -649,7 +649,6 @@
   {
     "name": "Bidirectional",
     "module": "keras.layers",
-    "category": "Wrapper",
     "description": "Bidirectional wrapper for RNNs.",
     "attributes": [
       {
@@ -850,7 +849,7 @@
     "name": "Conv2D",
     "module": "keras.layers",
     "category": "Layer",
-    "description": "2D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a 2D spatial (or temporal) dimension (height and width) to\nproduce a tensor of outputs. If `use_bias` is True, a bias vector is created\nand added to the outputs. Finally, if `activation` is not `None`, it is\napplied to the outputs as well.",
+    "description": "2D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a 2D spatial (or temporal) dimension (height and width) to\nproduce a tensor of outputs. If `use_bias` is True, a bias vector is created\nand added to the outputs. Finally, if `activation` is not `None`, it is\napplied to the outputs as well.\n\nNote on numerical precision: While in general Keras operation execution\nresults are identical across backends up to 1e-7 precision in float32,\n`Conv2D` operations may show larger variations. Due to the large\nnumber of element-wise multiplications and additions in convolution\noperations, especially with large inputs or kernel sizes, accumulated\nfloating-point differences can exceed this 1e-7 threshold. These variations\nare particularly noticeable when using different backends (e.g., TensorFlow\nvs JAX) or different hardware.",
     "attributes": [
       {
         "default": "linear",
@@ -1354,7 +1353,7 @@
     "name": "Convolution2D",
     "module": "keras.layers",
     "category": "Layer",
-    "description": "2D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a 2D spatial (or temporal) dimension (height and width) to\nproduce a tensor of outputs. If `use_bias` is True, a bias vector is created\nand added to the outputs. Finally, if `activation` is not `None`, it is\napplied to the outputs as well.",
+    "description": "2D convolution layer.\n\nThis layer creates a convolution kernel that is convolved with the layer\ninput over a 2D spatial (or temporal) dimension (height and width) to\nproduce a tensor of outputs. If `use_bias` is True, a bias vector is created\nand added to the outputs. Finally, if `activation` is not `None`, it is\napplied to the outputs as well.\n\nNote on numerical precision: While in general Keras operation execution\nresults are identical across backends up to 1e-7 precision in float32,\n`Conv2D` operations may show larger variations. Due to the large\nnumber of element-wise multiplications and additions in convolution\noperations, especially with large inputs or kernel sizes, accumulated\nfloating-point differences can exceed this 1e-7 threshold. These variations\nare particularly noticeable when using different backends (e.g., TensorFlow\nvs JAX) or different hardware.",
     "attributes": [
       {
         "default": "linear",
@@ -4446,7 +4445,6 @@
   {
     "name": "TimeDistributed",
     "module": "keras.layers",
-    "category": "Wrapper",
     "description": "This wrapper allows to apply a layer to every temporal slice of an input.\n\nEvery input should be at least 3D, and the dimension of index one of the\nfirst input will be considered to be the temporal dimension.\n\nConsider a batch of 32 video samples, where each sample is a 128x128 RGB\nimage with `channels_last` data format, across 10 timesteps.\nThe batch input shape is `(32, 10, 128, 128, 3)`.\n\nYou can then use `TimeDistributed` to apply the same `Conv2D` layer to each\nof the 10 timesteps, independently:\n\n```\n>>> inputs = layers.Input(shape=(10, 128, 128, 3), batch_size=32)\n>>> conv_2d_layer = layers.Conv2D(64, (3, 3))\n>>> outputs = layers.TimeDistributed(conv_2d_layer)(inputs)\n>>> outputs.shape\n(32, 10, 126, 126, 64)\n```\n\nBecause `TimeDistributed` applies the same instance of `Conv2D` to each of\nthe timestamps, the same set of weights are used at each timestamp.",
     "attributes": [
       {

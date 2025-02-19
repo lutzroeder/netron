@@ -1,15 +1,6 @@
 
 import * as base from './base.js';
-import * as flatbuffers from './flatbuffers.js';
 import * as grapher from './grapher.js';
-import * as hdf5 from './hdf5.js';
-import * as json from './json.js';
-import * as protobuf from './protobuf.js';
-import * as python from './python.js';
-import * as tar from './tar.js';
-import * as text from './text.js';
-import * as xml from './xml.js';
-import * as zip from './zip.js';
 import Req from './hovers.js';
 
 const view = {};
@@ -40,6 +31,7 @@ view.View = class {
 
     async start() {
         try {
+            const zip = await import('./zip.js');
             await zip.Archive.import();
             await this._host.view(this);
             const options = this._host.get('options') || {};
@@ -2164,8 +2156,10 @@ view.Node = class extends grapher.Node {
         }
         let content = options.names && (node.name || node.identifier) ? (node.name || node.identifier) : node.type.name.split('.').pop();
         const tooltip = options.names && (node.name || node.identifier) ? node.type.name : (node.name || node.identifier);
-        if (content.length > 18) {
-            content = `${content.substring(0, 9)}\u2026${content.substring(content.length - 9, content.length)}`;
+        if (content.length > 21) {
+            const begin = content.substring(0, 10);
+            const end = content.substring(content.length - 10, content.length);
+            content = `${begin}\u2026${end}`;
         }
         const styles = category ? ['node-item-type', `node-item-type-${category.toLowerCase()}`] : ['node-item-type'];
         const title = header.add(null, styles, content, tooltip);
@@ -2946,7 +2940,7 @@ view.TextView = class extends view.Control {
         super(context);
         this.element = this.createElement('div', 'sidebar-item-value');
         let className = 'sidebar-item-value-line';
-        if (value) {
+        if (value !== null && value !== undefined) {
             const list = Array.isArray(value) ? value : [value];
             for (const item of list) {
                 const line = this.createElement('div', className);
@@ -3386,6 +3380,8 @@ view.TensorView = class extends view.Expander {
                         content.insertBefore(this._saveButton, content.firstChild);
                     }
                 }
+            }).catch((error) => {
+                content.innerHTML = error.message;
             });
         }
         return content;
@@ -3415,6 +3411,7 @@ view.TensorView = class extends view.Expander {
                     case 'int4': data_type = 'int8'; break;
                     default: data_type = tensor.type.dataType; break;
                 }
+                const python = await import('./python.js');
                 const execution = new python.Execution();
                 const bytes = execution.invoke('io.BytesIO', []);
                 const dtype = execution.invoke('numpy.dtype', [data_type]);
@@ -3732,6 +3729,13 @@ view.ModelSidebar = class extends view.ObjectSidebar {
                 this.addProperty(argument.name, argument.value);
             }
         }
+        const metrics = model.metrics;
+        if (Array.isArray(metrics) && metrics.length > 0) {
+            this.addHeader('Metrics');
+            for (const argument of metrics) {
+                this.addProperty(argument.name, argument.value);
+            }
+        }
         if (graph) {
             if (graph.version) {
                 this.addProperty('version', graph.version);
@@ -3763,6 +3767,13 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             if (Array.isArray(metadata) && metadata.length > 0) {
                 this.addHeader('Metadata');
                 for (const argument of metadata) {
+                    this.addProperty(argument.name, argument.value);
+                }
+            }
+            const metrics = graph.metrics;
+            if (Array.isArray(metrics) && metrics.length > 0) {
+                this.addHeader('Metrics');
+                for (const argument of metrics) {
                     this.addProperty(argument.name, argument.value);
                 }
             }
@@ -5434,7 +5445,13 @@ view.Context = class {
         this._context.error(error, fatal);
     }
 
-    peek(type) {
+    set(type, value) {
+        this.type = type;
+        this.value = value;
+        return type;
+    }
+
+    async peek(type) {
         if (!this._content.has(type)) {
             this._content.set(type, undefined);
             const stream = this.stream;
@@ -5458,6 +5475,7 @@ view.Context = class {
                                 if (stream.length < 0x7ffff000 &&
                                     (buffer.length < 8 || String.fromCharCode.apply(null, buffer.slice(0, 8)) !== '\x89HDF\r\n\x1A\n') &&
                                     (buffer.some((v) => v === 0x22 || v === 0x5b || v === 0x5d || v === 0x7b || v === 0x7d))) {
+                                    const json = await import('./json.js');
                                     const reader = json.TextReader.open(stream);
                                     if (reader) {
                                         const obj = reader.read();
@@ -5471,9 +5489,10 @@ view.Context = class {
                         }
                         case 'json.gz': {
                             try {
-                                const entries = this.peek('gzip');
+                                const entries = await this.peek('gzip');
                                 if (entries && entries.size === 1) {
                                     const stream = entries.values().next().value;
+                                    const json = await import('./json.js');
                                     const reader = json.TextReader.open(stream);
                                     if (reader) {
                                         const obj = reader.read();
@@ -5487,6 +5506,7 @@ view.Context = class {
                         }
                         case 'xml': {
                             try {
+                                const xml = await import('./xml.js');
                                 const reader = xml.TextReader.open(this._stream);
                                 if (reader) {
                                     const obj = reader.read();
@@ -5501,6 +5521,7 @@ view.Context = class {
                             let unpickler = null;
                             const types = new Set();
                             try {
+                                const zip = await import('./zip.js');
                                 const archive = zip.Archive.open(stream, 'zlib');
                                 const data = archive ? archive.entries.get('') : stream;
                                 let condition = false;
@@ -5521,6 +5542,7 @@ view.Context = class {
                                     }
                                 }
                                 if (condition) {
+                                    const python = await import('./python.js');
                                     const execution = new python.Execution();
                                     execution.on('resolve', (_, name) => types.add(name));
                                     const pickle = execution.__import__('pickle');
@@ -5543,7 +5565,7 @@ view.Context = class {
                                                 return storages.get(key);
                                             }
                                             default: {
-                                                throw new python.Error(`Unsupported persistent load type '${saved_id[0]}'.`);
+                                                throw new view.Error(`Unsupported persistent load type '${saved_id[0]}'.`);
                                             }
                                         }
                                     }
@@ -5566,6 +5588,7 @@ view.Context = class {
                             break;
                         }
                         case 'hdf5': {
+                            const hdf5 = await import('./hdf5.js');
                             const file = hdf5.File.open(stream);
                             if (file) {
                                 try {
@@ -5584,6 +5607,7 @@ view.Context = class {
                             this._content.set('gzip', undefined);
                             let stream = this._stream;
                             try {
+                                const zip = await import('./zip.js');
                                 const archive = zip.Archive.open(this._stream, 'gzip');
                                 if (archive) {
                                     let entries = archive.entries;
@@ -5600,6 +5624,7 @@ view.Context = class {
                             }
                             let skipTar = false;
                             try {
+                                const zip = await import('./zip.js');
                                 const archive = zip.Archive.open(stream, 'zip');
                                 if (archive) {
                                     this._content.set('zip', archive.entries);
@@ -5610,6 +5635,7 @@ view.Context = class {
                             }
                             if (!skipTar) {
                                 try {
+                                    const tar = await import('./tar.js');
                                     const archive = tar.Archive.open(stream);
                                     if (archive) {
                                         this._content.set('tar', archive.entries);
@@ -5622,6 +5648,7 @@ view.Context = class {
                         }
                         case 'flatbuffers.binary': {
                             try {
+                                const flatbuffers = await import('./flatbuffers.js');
                                 const reader = flatbuffers.BinaryReader.open(this._stream);
                                 if (reader) {
                                     this._content.set('flatbuffers.binary', reader);
@@ -5634,13 +5661,13 @@ view.Context = class {
                         case 'npz': {
                             try {
                                 const content = new Map();
-                                const entries = this.peek('zip');
+                                const entries = await this.peek('zip');
                                 if (entries instanceof Map && entries.size > 0 &&
                                     Array.from(entries.keys()).every((name) => name.endsWith('.npy'))) {
+                                    const python = await import('./python.js');
                                     const execution = new python.Execution();
                                     for (const [name, stream] of entries) {
-                                        const buffer = stream.peek();
-                                        const bytes = execution.invoke('io.BytesIO', [buffer]);
+                                        const bytes = execution.invoke('io.BytesIO', [stream]);
                                         const array = execution.invoke('numpy.load', [bytes]);
                                         content.set(name, array);
                                     }
@@ -5664,10 +5691,11 @@ view.Context = class {
         return this._content.get(type);
     }
 
-    read(type, ...args) {
+    async read(type, ...args) {
         if (!this._content.has(type)) {
             switch (type) {
                 case 'json': {
+                    const json = await import('./json.js');
                     const reader = json.TextReader.open(this._stream);
                     if (reader) {
                         const obj = reader.read();
@@ -5677,6 +5705,7 @@ view.Context = class {
                     throw new view.Error('Invalid JSON content.');
                 }
                 case 'bson': {
+                    const json = await import('./json.js');
                     const reader = json.BinaryReader.open(this._stream);
                     if (reader) {
                         return reader.read();
@@ -5684,6 +5713,7 @@ view.Context = class {
                     throw new view.Error('Invalid BSON content.');
                 }
                 case 'xml': {
+                    const xml = await import('./xml.js');
                     const reader = xml.TextReader.open(this._stream);
                     if (reader) {
                         return reader.read();
@@ -5691,6 +5721,7 @@ view.Context = class {
                     throw new view.Error(`Invalid XML content.`);
                 }
                 case 'flatbuffers.binary': {
+                    const flatbuffers = await import('./flatbuffers.js');
                     const reader = flatbuffers.BinaryReader.open(this._stream);
                     if (reader) {
                         this._content.set('flatbuffers.reader', reader);
@@ -5699,13 +5730,16 @@ view.Context = class {
                     throw new view.Error('Invalid FlatBuffers content.');
                 }
                 case 'flatbuffers.text': {
-                    const obj = this.peek('json');
+                    const flatbuffers = await import('./flatbuffers.js');
+                    const obj = await this.peek('json');
                     return flatbuffers.TextReader.open(obj);
                 }
                 case 'protobuf.binary': {
+                    const protobuf = await import('./protobuf.js');
                     return protobuf.BinaryReader.open(this._stream);
                 }
                 case 'protobuf.text': {
+                    const protobuf = await import('./protobuf.js');
                     return protobuf.TextReader.open(this._stream);
                 }
                 case 'binary.big-endian': {
@@ -5715,6 +5749,7 @@ view.Context = class {
                     return base.BinaryReader.open(this._stream);
                 }
                 case 'text': {
+                    const text = await import('./text.js');
                     if (typeof args[0] === 'number') {
                         const length = Math.min(this._stream.length, args[0]);
                         const buffer = this._stream.peek(length);
@@ -5723,6 +5758,7 @@ view.Context = class {
                     return text.Reader.open(this._stream);
                 }
                 case 'text.decoder': {
+                    const text = await import('./text.js');
                     return text.Decoder.open(this._stream);
                 }
                 default: {
@@ -5733,7 +5769,7 @@ view.Context = class {
         return this.peek(type);
     }
 
-    tags(type) {
+    async tags(type) {
         if (!this._tags.has(type)) {
             let tags = new Map();
             const stream = this.stream;
@@ -5745,33 +5781,45 @@ view.Context = class {
                     [0x50, 0x4b], // Zip
                     [0x1f, 0x8b] // Gzip
                 ];
-                const skip =
-                    signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) ||
-                    (Array.from(this._tags).some(([key, value]) => key !== 'flatbuffers' && value.size > 0) && type !== 'pb+') ||
-                    Array.from(this._content.values()).some((obj) => obj !== undefined) ||
-                    (stream.length < 0x7ffff000 && json.TextReader.open(stream));
+                let skip = false;
+                if (signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value))) {
+                    skip = true;
+                } else if (Array.from(this._tags).some(([key, value]) => key !== 'flatbuffers' && value.size > 0) && type !== 'pb+') {
+                    skip = true;
+                } else if (Array.from(this._content.values()).some((obj) => obj !== undefined)) {
+                    skip = true;
+                } else if (stream.length < 0x7ffff000) {
+                    const json = await import('./json.js');
+                    if (json.TextReader.open(stream)) {
+                        skip = true;
+                    }
+                }
                 if (!skip && stream.length < 0x7ffff000) {
                     try {
                         switch (type) {
                             case 'pbtxt': {
+                                const protobuf = await import('./protobuf.js');
                                 const reader = protobuf.TextReader.open(stream);
                                 tags = reader ? reader.signature() : tags;
                                 break;
                             }
                             case 'pb': {
+                                const protobuf = await import('./protobuf.js');
                                 const reader = protobuf.BinaryReader.open(stream);
                                 tags = reader.signature();
                                 break;
                             }
                             case 'pb+': {
+                                const protobuf = await import('./protobuf.js');
                                 const reader = protobuf.BinaryReader.open(stream);
                                 tags = reader.decode();
                                 break;
                             }
                             case 'xml': {
+                                const xml = await import('./xml.js');
                                 const reader = xml.TextReader.open(stream);
                                 if (reader) {
-                                    const document = reader.peek();
+                                    const document = reader.read(1);
                                     const element = document.documentElement;
                                     const namespaceURI = element.namespaceURI;
                                     const localName = element.localName;
@@ -5797,7 +5845,7 @@ view.Context = class {
         return this._tags.get(type);
     }
 
-    metadata(name) {
+    async metadata(name) {
         return view.Metadata.open(this, name);
     }
 };
@@ -5855,7 +5903,7 @@ view.ModelFactoryService = class {
         this._factories = [];
         /* eslint-disable no-control-regex */
         this.register('./message', ['.message', '.netron', '.maxviz']);
-        this.register('./pytorch', ['.pt', '.pth', '.ptl', '.pt1', '.pyt', '.pyth', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel', '.torchscript', '.pytorch', '.ot', '.params', '.trt', '.ff', '.ptmf', '.jit', '.pte', '.bin.index.json', 'model.json', '.ir', 'serialized_exported_program.json', 'serialized_state_dict.json'], ['.model', '.pt2']);
+        this.register('./pytorch', ['.pt', '.pth', '.ptl', '.pt1', '.pt2', '.pyt', '.pyth', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel', '.torchscript', '.pytorch', '.ot', '.params', '.trt', '.ff', '.ptmf', '.jit', '.bin.index.json', 'model.json', '.ir', 'serialized_exported_program.json', 'serialized_state_dict.json'], ['.model', '.pt2'], [/^\x80.\x8a\x0a\x6c\xfc\x9c\x46\xf9\x20\x6a\xa8\x50\x19/]);
         this.register('./onnx', ['.onnx', '.onnx.data', '.onn', '.pb', '.onnxtxt', '.pbtxt', '.prototxt', '.txt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx', '.ngf', '.json', '.bin', 'onnxmodel'], [], [/^....ORTM/]);
         this.register('./tflite', ['.tflite', '.lite', '.tfl', '.bin', '.pb', '.tmfile', '.h5', '.model', '.json', '.txt', '.dat', '.nb', '.ckpt', '.onnx'], [], [/^....TFL3/]);
         this.register('./mxnet', ['.json', '.params'], ['.mar']);
@@ -5878,6 +5926,7 @@ view.ModelFactoryService = class {
         this.register('./bigdl', ['.model', '.bigdl']);
         this.register('./darknet', ['.cfg', '.model', '.txt', '.weights']);
         this.register('./mediapipe', ['.pbtxt']);
+        this.register('./executorch', ['.pte'], [], [/^....ET12/]);
         this.register('./rknn', ['.rknn', '.nb', '.onnx', '.json', '.bin', /^model$/]);
         this.register('./dlc', ['.dlc', /^model$/, '.params']);
         this.register('./armnn', ['.armnn', '.json']);
@@ -5908,15 +5957,14 @@ view.ModelFactoryService = class {
         this.register('./mlir', ['.mlir', '.mlir.txt', '.mlirbc']);
         this.register('./sentencepiece', ['.model']);
         this.register('./hailo', ['.hn', '.har', '.metadata.json']);
-        this.register('./nnc', ['.nnc','.tflite']);
         this.register('./safetensors', ['.safetensors', '.safetensors.index.json']);
-        this.register('./tvm', ['.json', '.dot', '.params']);
-        this.register('./dot', ['.do'], [], [/^\s*(\/\*[\s\S]*?\*\/|\/\/.*|#.*)?\s*digraph\s*([A-Za-z][A-Za-z0-9-_]*|".*?")?\s*{/m]);
+        this.register('./tvm', ['.json', '.params']);
+        this.register('./dot', ['.dot'], [], [/^\s*(\/\*[\s\S]*?\*\/|\/\/.*|#.*)?\s*digraph\s*([A-Za-z][A-Za-z0-9-_]*|".*?")?\s*{/m]);
         this.register('./catboost', ['.cbm']);
         this.register('./weka', ['.model']);
         this.register('./qnn', ['.json', '.bin', '.serialized']);
         this.register('./kann', ['.kann', '.bin', '.kgraph']);
-        this.register('', ['.cambricon', '.vnnmodel']);
+        this.register('', ['.cambricon', '.vnnmodel', '.nnc']);
         /* eslint-enable no-control-regex */
     }
 
@@ -5947,20 +5995,20 @@ view.ModelFactoryService = class {
                 };
                 let entries = context.entries;
                 if (!check(entries)) {
-                    entries = content.peek('zip');
+                    entries = await content.peek('zip');
                     if (!check(entries)) {
-                        entries = content.peek('tar');
+                        entries = await content.peek('tar');
                         if (!check(entries)) {
-                            entries = content.peek('gzip');
+                            entries = await content.peek('gzip');
                         }
                     }
                 }
                 if (!check(entries)) {
-                    this._unsupported(content);
+                    await this._unsupported(content);
                 }
                 const entryContext = await this._openEntries(entries);
                 if (!entryContext) {
-                    this._unsupported(content);
+                    await this._unsupported(content);
                 }
                 return this._openContext(entryContext);
             }
@@ -5971,9 +6019,11 @@ view.ModelFactoryService = class {
         }
     }
 
-    _unsupported(context) {
+    async _unsupported(context) {
         const identifier = context.identifier;
         const stream = context.stream;
+        const zip = await import('./zip.js');
+        const tar = await import('./tar.js');
         const callbacks = [
             (stream) => zip.Archive.open(stream, 'zip'),
             (stream) => tar.Archive.open(stream),
@@ -5990,8 +6040,8 @@ view.ModelFactoryService = class {
                 throw new view.Error("Archive contains no model files.");
             }
         }
-        const json = () => {
-            const obj = context.peek('json');
+        const json = async () => {
+            const obj = await context.peek('json');
             if (obj) {
                 const formats = [
                     { name: 'Netron metadata', tags: ['[].name', '[].schema'] },
@@ -6024,6 +6074,7 @@ view.ModelFactoryService = class {
                     { name: 'Transformers generation configuration', tags: ['transformers_version'] },
                     { name: 'Transformers tokenizer configuration', tags: ['tokenizer_class'] },
                     { name: 'Transformers tokenizer configuration', tags: ['<|im_start|>'] },
+                    { name: 'Transformers tokenizer configuration', tags: ['bos_token', 'eos_token', 'unk_token'] },
                     { name: 'Transformers preprocessor configuration', tags: ['crop_size', 'do_center_crop', 'image_mean', 'image_std', 'do_resize'] },
                     { name: 'Tokenizers data', tags: ['version', 'added_tokens', 'model'] }, // https://github.com/huggingface/tokenizers/blob/main/tokenizers/src/tokenizer/serialization.rs
                     { name: 'Jupyter Notebook data', tags: ['cells', 'nbformat'] },
@@ -6055,7 +6106,7 @@ view.ModelFactoryService = class {
                 throw new view.Error(`Unsupported JSON content '${content.length > 64 ? `${content.substring(0, 100)}...` : content}'.`);
             }
         };
-        const pbtxt = () => {
+        const pbtxt = async () => {
             const formats = [
                 { name: 'ImageNet LabelMap data', tags: ['entry', 'entry.target_class'] },
                 { name: 'StringIntLabelMapProto data', tags: ['item', 'item.id', 'item.name'] },
@@ -6079,7 +6130,7 @@ view.ModelFactoryService = class {
                 { name: 'tidl_meta_arch.TIDLMetaArch data', tags: ['tidl_retinanet'] },
                 { name: 'domi.InsertNewOps data', tags: ['aipp_op'] } // https://github.com/Ascend/parser/blob/development/parser/proto/insert_op.proto
             ];
-            const tags = context.tags('pbtxt');
+            const tags = await context.tags('pbtxt');
             if (tags.size > 0) {
                 for (const format of formats) {
                     if (format.tags.every((tag) => tags.has(tag))) {
@@ -6095,8 +6146,8 @@ view.ModelFactoryService = class {
                 throw new view.Error(`Unsupported Protocol Buffers text content '${content.length > 64 ? `${content.substring(0, 100)}...` : content}'.`);
             }
         };
-        const pb = () => {
-            const tags = context.tags('pb+');
+        const pb = async () => {
+            const tags = await context.tags('pb+');
             if (Object.keys(tags).length > 0) {
                 const formats = [
                     { name: 'sentencepiece.ModelProto data', tags: [[1,[[1,2],[2,5],[3,0]]],[2,[[1,2],[2,2],[3,0],[4,0],[5,2],[6,0],[7,2],[10,5],[16,0],[40,0],[41,0],[42,0],[43,0]]],[3,[]],[4,[]],[5,[]]] },
@@ -6150,11 +6201,11 @@ view.ModelFactoryService = class {
                 throw new view.Error(`Unsupported Protocol Buffers content '${content.length > 64 ? `${content.substring(0, 100)}...` : content}'.`);
             }
         };
-        const flatbuffers = () => {
+        const flatbuffers = async () => {
             const stream = context.stream;
             if (stream && stream.length >= 8) {
                 let identifier = null;
-                const reader = context.peek('flatbuffers.binary');
+                const reader = await context.peek('flatbuffers.binary');
                 if (reader) {
                     identifier = reader.identifier;
                 } else {
@@ -6167,6 +6218,7 @@ view.ModelFactoryService = class {
                     const formats = [
                         { name: 'ONNX Runtime model data', identifier: 'ORTM' },
                         { name: 'TensorFlow Lite model data', identifier: 'TFL3' },
+                        { name: 'ExecuTorch model data', identifier: 'ET12' },
                         { name: 'NNC model data', identifier: 'ENNC' },
                         { name: 'KaNN model data', identifier: 'KaNN' },
                         { name: 'Circle model data', identifier: 'CIR0' },
@@ -6174,7 +6226,8 @@ view.ModelFactoryService = class {
                         { name: 'MindSpore Lite model data', identifier: 'MSL1' },
                         { name: 'MindSpore Lite model data', identifier: 'MSL2' },
                         { name: 'MindSpore Lite model data', identifier: 'MSL3' },
-                        { name: 'BSTM model data', identifier: 'BSTM' }
+                        { name: 'BSTM model data', identifier: 'BSTM' },
+                        { name: 'onnu model data', identifier: 'onnu' }
                     ];
                     for (const format of formats) {
                         if (identifier === format.identifier) {
@@ -6184,8 +6237,8 @@ view.ModelFactoryService = class {
                 }
             }
         };
-        const xml = () => {
-            const document = context.peek('xml');
+        const xml = async () => {
+            const document = await context.peek('xml');
             if (document && document.documentElement) {
                 const tags = new Set();
                 const qualifiedName = (element) => {
@@ -6215,8 +6268,8 @@ view.ModelFactoryService = class {
                 throw new view.Error(`Unsupported XML content '${tags.keys().next().value}'.`);
             }
         };
-        const hdf5 = () => {
-            const obj = context.peek('hdf5');
+        const hdf5 = async () => {
+            const obj = await context.peek('hdf5');
             if (obj instanceof Error) {
                 throw obj;
             }
@@ -6224,7 +6277,7 @@ view.ModelFactoryService = class {
                 throw new view.Error(`Invalid file content. File contains HDF5 content.`);
             }
         };
-        const unknown = () => {
+        const unknown = async () => {
             if (stream) {
                 stream.seek(0);
                 const buffer = stream.peek(Math.min(16, stream.length));
@@ -6233,13 +6286,13 @@ view.ModelFactoryService = class {
             }
             throw new view.Error("Unsupported file directory.");
         };
-        json();
-        pbtxt();
-        pb();
-        flatbuffers();
-        xml();
-        hdf5();
-        unknown();
+        await json();
+        await pbtxt();
+        await pb();
+        await flatbuffers();
+        await xml();
+        await hdf5();
+        await unknown();
     }
 
     async _require(id) {
@@ -6256,12 +6309,12 @@ view.ModelFactoryService = class {
         for (const module of modules) {
             /* eslint-disable no-await-in-loop */
             const factory = await this._require(module);
+            const type = await factory.match(context);
             /* eslint-enable no-await-in-loop */
-            factory.match(context);
             if (context.stream && context.stream.position !== 0) {
                 throw new view.Error('Invalid stream position.');
             }
-            if (context.type) {
+            if (type) {
                 try {
                     /* eslint-disable no-await-in-loop */
                     const model = await factory.open(context);
@@ -6272,9 +6325,10 @@ view.ModelFactoryService = class {
                     return model;
                 } catch (error) {
                     delete context.type;
-                    delete context.target;
-                    if (context.stream && context.stream.position !== 0) {
-                        context.stream.seek(0);
+                    delete context.value;
+                    const stream = context.stream;
+                    if (stream && stream.position !== 0) {
+                        stream.seek(0);
                     }
                     errors.push(error);
                 }
@@ -6317,13 +6371,13 @@ view.ModelFactoryService = class {
                     for (const module of modules) {
                         /* eslint-disable no-await-in-loop */
                         const factory = await this._require(module);
+                        const type = await factory.match(context);
                         /* eslint-enable no-await-in-loop */
-                        factory.match(context);
                         if (context.stream && context.stream.position !== 0) {
                             throw new view.Error('Invalid stream position.');
                         }
-                        delete context.target;
-                        if (context.type) {
+                        delete context.value;
+                        if (type) {
                             matches = matches.filter((match) => !factory.filter || factory.filter(context, match.type));
                             if (matches.every((match) => !match.factory.filter || match.factory.filter(match, context.type))) {
                                 context.factory = factory;
@@ -6446,7 +6500,13 @@ view.ModelFactoryService = class {
                 { name: 'llama2.c checkpoint', value: /^..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00/, identifier: /^stories\d+[KM]\.bin/ },
                 { name: 'Cambricon model', value: /^\x7fMEF/ },
                 { name: 'Cambricon model', value: /^cambricon_offline/ },
-                { name: 'VNN model', value: /^\x2F\x4E\x00\x00.\x00\x00\x00/, identifier: /.vnnmodel$/ }
+                { name: 'VNN model', value: /^\x2F\x4E\x00\x00.\x00\x00\x00/, identifier: /.vnnmodel$/ },
+                { name: 'XGBoost model', value: /^binf/ }, // https://github.com/dmlc/xgboost/blob/master/src/learner.cc
+                { name: 'XGBoost model', value: /^bs64/ }, // https://github.com/dmlc/xgboost/blob/master/src/learner.cc
+                { name: 'SQLite data', value: /^SQLite format/ },
+                { name: 'Optimium model', value: /^EZMODEL/ }, // https://github.com/EZ-Optimium/Optimium,
+                { name: 'undocumented NNC data', value: /^\xC0\x0F\x00\x00ENNC/ },
+                { name: 'undocumented NNC data', value: /^\xBC\x0F\x00\x00ENNC/ }
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));

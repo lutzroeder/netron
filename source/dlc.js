@@ -6,20 +6,20 @@ const dlc = {};
 
 dlc.ModelFactory = class {
 
-    match(context) {
-        const container = dlc.Container.open(context);
+    async match(context) {
+        const container = await dlc.Container.open(context);
         if (container) {
-            context.type = 'dlc';
-            context.target = container;
+            return context.set('dlc', container);
         }
+        return null;
     }
 
     async open(context) {
         dlc.schema = await context.require('./dlc-schema');
         dlc.schema = dlc.schema.dlc;
-        await context.target.read();
+        await context.value.read();
         const metadata = await context.metadata('dlc-metadata.json');
-        return new dlc.Model(metadata, context.target);
+        return new dlc.Model(metadata, context.value);
     }
 };
 
@@ -255,8 +255,8 @@ dlc.Tensor = class {
 
 dlc.Container = class {
 
-    static open(context) {
-        const entries = context.peek('zip');
+    static async open(context) {
+        const entries = await context.peek('zip');
         if (entries instanceof Map) {
             const model = entries.get('model');
             const params = entries.get('model.params');

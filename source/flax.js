@@ -7,14 +7,15 @@ const flax = {};
 
 flax.ModelFactory = class {
 
-    match(context) {
+    async match(context) {
         const stream = context.stream;
         if (stream.length > 4) {
             const buffer = stream.peek(1);
             if (buffer[0] === 0xDE || buffer[0] === 0xDF || ((buffer[0] & 0x80) === 0x80)) {
-                context.type = 'flax.msgpack.map';
+                return context.set('flax.msgpack.map');
             }
         }
+        return null;
     }
 
     async open(context) {

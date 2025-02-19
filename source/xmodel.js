@@ -3,11 +3,12 @@ const xmodel = {};
 
 xmodel.ModelFactory = class {
 
-    match(context) {
-        const tags = context.tags('pb');
+    async match(context) {
+        const tags = await context.tags('pb');
         if (tags.get(5) === 2) {
-            context.type = 'xmodel.pb';
+            return context.set('xmodel.pb');
         }
+        return null;
     }
 
     async open(context) {
@@ -15,7 +16,7 @@ xmodel.ModelFactory = class {
         xmodel.proto = xmodel.proto.serial_v2;
         let graph = null;
         try {
-            const reader = context.read('protobuf.binary');
+            const reader = await context.read('protobuf.binary');
             graph = xmodel.proto.Graph.decode(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();

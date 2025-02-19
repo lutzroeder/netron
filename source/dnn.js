@@ -5,11 +5,12 @@ const dnn = {};
 
 dnn.ModelFactory = class {
 
-    match(context) {
-        const tags = context.tags('pb');
+    async match(context) {
+        const tags = await context.tags('pb');
         if (tags.get(4) === 0 && tags.get(10) === 2) {
-            context.type = 'dnn';
+            return context.set('dnn');
         }
+        return null;
     }
 
     async open(context) {
@@ -17,7 +18,7 @@ dnn.ModelFactory = class {
         dnn.proto = dnn.proto.dnn;
         let model = null;
         try {
-            const reader = context.read('protobuf.binary');
+            const reader = await context.read('protobuf.binary');
             model = dnn.proto.Model.decode(reader);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();

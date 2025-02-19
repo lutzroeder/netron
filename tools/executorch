@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
+
+case "${OSTYPE}" in
+    msys*) python="winpty python";;
+    *) python="python";;
+esac
+
+clean() {
+    echo "executorch clean"
+    rm -rf "./third_party/source/executorch"
+}
+
+sync() {
+    echo "executorch sync"
+    [ -d "./third_party/source/executorch" ] || git clone --quiet https://github.com/pytorch/executorch.git "./third_party/source/executorch"
+    git -C "./third_party/source/executorch" pull --quiet --prune
+    # mkdir -p "./third_party/source/executorch/schema"
+    # curl --silent --location --output "./third_party/source/executorch/schema/scalar_type.fbs" "https://github.com/pytorch/executorch/raw/main/schema/scalar_type.fbs"
+    # curl --silent --location --output "./third_party/source/executorch/schema/program.fbs" "https://github.com/pytorch/executorch/raw/main/schema/program.fbs"
+}
+
+schema() {
+    echo "executorch schema"
+    [[ $(grep -U $'\x0D' ./source/executorch-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --out ./source/executorch-schema.js ./third_party/source/executorch/schema/program.fbs ./third_party/source/executorch/backends/xnnpack/serialization/schema.fbs ./third_party/source/executorch/backends/vulkan/serialization/schema.fbs
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/executorch-schema.js ./source/executorch-schema.js
+    fi
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "schema") schema;;
+    esac
+done
