@@ -22,6 +22,12 @@ host.ElectronHost = class {
             this.exception(error, true);
             this.message(error.message);
         });
+        this._global.eval = () => {
+            throw new Error('eval.eval() not supported.');
+        };
+        this._window.eval = () => {
+            throw new Error('window.eval() not supported.');
+        };
         this._window.addEventListener('unload', () => {
             if (typeof __coverage__ !== 'undefined') {
                 const file = path.join('.nyc_output', path.basename(window.location.pathname, '.html'));

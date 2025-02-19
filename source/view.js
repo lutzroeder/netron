@@ -6,11 +6,11 @@ import * as hdf5 from './hdf5.js';
 import * as json from './json.js';
 import * as protobuf from './protobuf.js';
 import * as python from './python.js';
-import Req from './hovers.js';
 import * as tar from './tar.js';
 import * as text from './text.js';
 import * as xml from './xml.js';
 import * as zip from './zip.js';
+import Req from './hovers.js';
 
 const view = {};
 const markdown = {};
@@ -100,51 +100,50 @@ view.View = class {
                     execute: async () => {
                         // Block of code which cleans all the information added before uploading
                         // a new file.
-                        if (Req.file_added == 1) {
-                            var root = document.getElementById("list-modified");
+                        if (Req.file_added === 1) {
+                            const root = document.getElementById("list-modified");
                             if (root.length !== 0) {
-                                for (var i = 0; i < root.children.length; i++) {
-                                    var child = JSON.parse(root.children[i].innerHTML);
-                                    var id_child = child["id"];
-                                    if (root.children[i].className == "tensor") {
-                                        var list_t = document.getElementById("edge-paths");
-                                        for (var j = 0; j < list_t.children.length; j++) {
-                                            if (list_t.children[j].id.split("\n")[1] == id_child) {
-                                                if (child["style"] &&
+                                for (let i = 0; i < root.children.length; i++) {
+                                    const child = JSON.parse(root.children[i].innerHTML);
+                                    const id_child = child.id;
+                                    if (root.children[i].className === "tensor") {
+                                        const list_t = document.getElementById("edge-paths");
+                                        for (let j = 0; j < list_t.children.length; j++) {
+                                            if (list_t.children[j].id.split("\n")[1] === id_child) {
+                                                if (child.style &&
                                                 list_t.children[j].hasAttribute("style")) {
                                                     list_t.children[j].removeAttribute("style");
                                                 }
-                                                if (child["hover"] &
+                                                if (child.hover &
                                                 list_t.children[j + 1].innerHTML !== '') {
                                                     list_t.children[j + 1].innerHTML = '';
                                                 }
                                             }
                                         }
                                     } else {
-                                        var parent_n = document.getElementById("nodes");
-                                        var idx = 1;
-                                        var counter = 0;
+                                        const parent_n = document.getElementById("nodes");
+                                        let idx = 1;
+                                        let counter = 0;
                                         do {
-                                            var child = parent_n.children[idx];
-                                            if (child.children[3]) {
-                                            counter += 1;
+                                            if (parent_n.children[idx].children[3]) {
+                                                counter += 1;
                                             }
                                             counter += 1;
                                             idx += 1;
                                         } while (idx <= id_child);
-                                        if (id_child == 0) {
+                                        if (id_child === "0") {
                                             counter = 0;
                                         }
-                                        var operator = document.getElementById("node-id-" + counter);
+                                        const operator = document.getElementById(`node-id-${counter}`);
                                         if (operator && operator.children && operator.children[0] &&
                                         operator.children[0].children &&
                                         operator.children[0].children[0]) {
                                             if (operator.children[0].children[0]) {
-                                                if (child["hover"] &&
+                                                if (child.hover &&
                                                 operator.children[0].children[0].innerHTML !== '') {
                                                     operator.children[0].children[0].innerHTML = '';
                                                 }
-                                                if (child["style"] &&
+                                                if (child.style &&
                                                 operator.children[0].children[0].hasAttribute("style")) {
                                                     operator.children[0].children[0].removeAttribute("style");
                                                 }
@@ -155,28 +154,28 @@ view.View = class {
                             }
                             document.getElementById("list-attributes").innerHTML = '';
                             document.getElementById("list-modified").innerHTML = '';
-                            var body = document.body;
-                            var children = body.children;
+                            const body = document.body;
+                            const children = body.children;
                             //block of code which removes all the existing images
-                            for (var i = children.length - 1; i >= 0; i--) {
-                                if (children[i].tagName == 'IMG') {
+                            for (let i = children.length - 1; i >= 0; i--) {
+                                if (children[i].tagName === 'IMG') {
                                     body.removeChild(children[i]);
                                 }
                             }
                             if (Req.event_img.length !== 0) {
-                                for (var i = 0; i < Req.event_img.length; i++) {
+                                for (let i = 0; i < Req.event_img.length; i++) {
                                     (Req.event_img[i]).onmouseover = null;
                                     (Req.event_img[i]).onmouseout = null;
                                 }
                             }
                             if (Req.event_dbl_click.length !== 0) {
-                                for (var i = 0; i < Req.event_dbl_click.length; i++) {
+                                for (let i = 0; i < Req.event_dbl_click.length; i++) {
                                     (Req.event_dbl_click[i]).ondblclick = null;
                                 }
                             }
                             Req.file_added = 0;
                         }
-                        if (document.getElementById("graph").children && 
+                        if (document.getElementById("graph").children &&
                         document.getElementById("graph").children[0] &&
                         document.getElementById("graph").children[0].children.length !== 0) {
                             Req.read_file();

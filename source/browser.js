@@ -10,6 +10,9 @@ host.BrowserHost = class {
         this._navigator = window.navigator;
         this._document = window.document;
         this._telemetry = new base.Telemetry(this._window);
+        this._window.eval = () => {
+            throw new Error('window.eval() not supported.');
+        };
         this._meta = {};
         for (const element of Array.from(this._document.getElementsByTagName('meta'))) {
             if (element.name !== undefined && element.content !== undefined) {
