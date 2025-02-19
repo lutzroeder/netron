@@ -10,7 +10,7 @@ tvm.ModelFactory = class {
             const obj = await context.peek('json');
             if (obj && Array.isArray(obj.nodes) && Array.isArray(obj.arg_nodes) && Array.isArray(obj.heads) &&
                 obj.nodes.every((node) => node && (node.op === 'null' || node.op === 'tvm_op'))) {
-                return context.set('tvm.json');
+                return context.set('tvm.json', obj);
             }
         }
         const stream = context.stream;
