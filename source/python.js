@@ -5624,14 +5624,14 @@ python.Execution = class {
             }
         });
         this.registerFunction('torch._C.isinstance', (stack, types) => {
-            const ty = torch._C.pop(stack).type();
+            const ty = stack.pop().type();
             for (const candidate of types) {
                 if (ty.isSubtypeOf(candidate)) {
-                    torch._C.push(stack, true);
+                    stack.push(true);
                     return;
                 }
             }
-            torch._C.push(stack, false);
+            stack.push(false);
         });
         this.registerType('torch._C.Tuple', class {
             constructor(elements) {
