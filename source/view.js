@@ -5984,6 +5984,7 @@ view.ModelFactoryService = class {
                     { name: 'Transformers tokenizer configuration', tags: ['tokenizer_class'] },
                     { name: 'Transformers tokenizer configuration', tags: ['<|im_start|>'] },
                     { name: 'Transformers tokenizer configuration', tags: ['bos_token', 'eos_token', 'unk_token'] },
+                    { name: 'Transformers tokenizer configuration', tags: ['bos_token', 'eos_token', 'pad_token'] },
                     { name: 'Transformers preprocessor configuration', tags: ['crop_size', 'do_center_crop', 'image_mean', 'image_std', 'do_resize'] },
                     { name: 'Tokenizers data', tags: ['version', 'added_tokens', 'model'] }, // https://github.com/huggingface/tokenizers/blob/main/tokenizers/src/tokenizer/serialization.rs
                     { name: 'Jupyter Notebook data', tags: ['cells', 'nbformat'] },
