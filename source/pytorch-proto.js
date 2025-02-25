@@ -37,7 +37,7 @@ torch.TensorDef = class TensorDef {
             message.requires_grad = obj.requiresGrad;
         }
         if ('dataType' in obj) {
-            message.data_type = caffe2.TensorProto.DataType[obj.dataType];
+            message.data_type = typeof obj.dataType === 'string' ? caffe2.TensorProto.DataType[obj.dataType] : obj.dataType;
         }
         if ('data' in obj) {
             message.data = torch.RecordRef.decodeJson(obj.data);
@@ -225,7 +225,7 @@ caffe2.TensorProto = class TensorProto {
             message.dims = obj.dims.map((obj) => BigInt(obj));
         }
         if ('dataType' in obj) {
-            message.data_type = caffe2.TensorProto.DataType[obj.dataType];
+            message.data_type = typeof obj.dataType === 'string' ? caffe2.TensorProto.DataType[obj.dataType] : obj.dataType;
         }
         if ('dataFormat' in obj) {
             message.data_format = Number(obj.dataFormat);
@@ -237,10 +237,10 @@ caffe2.TensorProto = class TensorProto {
             message.int32_data = obj.int32Data.map((obj) => Number(obj));
         }
         if ('byteData' in obj) {
-            message.byte_data = new Uint8Array(atob(obj.byteData));
+            message.byte_data = typeof source === 'string' ? Uint8Array.from(atob(obj.byteData), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.byteData);
         }
         if ('stringData' in obj) {
-            message.string_data = obj.stringData.map((obj) => new Uint8Array(atob(obj)));
+            message.string_data = obj.stringData.map((obj) => typeof obj === 'string' ? Uint8Array.from(atob(obj), (c) => c.charCodeAt(0)) : Uint8Array.from(obj));
         }
         if ('doubleData' in obj) {
             message.double_data = obj.doubleData.map((obj) => Number(obj));
@@ -249,7 +249,7 @@ caffe2.TensorProto = class TensorProto {
             message.int64_data = obj.int64Data.map((obj) => BigInt(obj));
         }
         if ('rawData' in obj) {
-            message.raw_data = new Uint8Array(atob(obj.rawData));
+            message.raw_data = typeof source === 'string' ? Uint8Array.from(atob(obj.rawData), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.rawData);
         }
         if ('name' in obj) {
             message.name = obj.name;
@@ -333,7 +333,7 @@ caffe2.QTensorProto = class QTensorProto {
             message.name = obj.name;
         }
         if ('dataType' in obj) {
-            message.data_type = caffe2.TensorProto.DataType[obj.dataType];
+            message.data_type = typeof obj.dataType === 'string' ? caffe2.TensorProto.DataType[obj.dataType] : obj.dataType;
         }
         if ('scales' in obj) {
             message.scales = obj.scales.map((obj) => Number(obj));
@@ -388,7 +388,7 @@ caffe2.TensorShape = class TensorShape {
             message.dims = obj.dims.map((obj) => BigInt(obj));
         }
         if ('dataType' in obj) {
-            message.data_type = caffe2.TensorProto.DataType[obj.dataType];
+            message.data_type = typeof obj.dataType === 'string' ? caffe2.TensorProto.DataType[obj.dataType] : obj.dataType;
         }
         if ('unknownDims' in obj) {
             message.unknown_dims = obj.unknownDims.map((obj) => Number(obj));
@@ -434,7 +434,7 @@ caffe2.TensorBoundShape = class TensorBoundShape {
             message.shape = caffe2.TensorShape.decodeJson(obj.shape);
         }
         if ('dimType' in obj) {
-            message.dim_type = obj.dimType.map((key) => caffe2.TensorBoundShape.DimType[key]);
+            message.dim_type = obj.dimType.map((key) => typeof key === 'string' ? caffe2.TensorBoundShape.DimType[key] : key);
         }
         if ('name' in obj) {
             message.name = obj.name;
@@ -530,7 +530,7 @@ caffe2.Argument = class Argument {
             message.i = BigInt(obj.i);
         }
         if ('s' in obj) {
-            message.s = new Uint8Array(atob(obj.s));
+            message.s = typeof source === 'string' ? Uint8Array.from(atob(obj.s), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.s);
         }
         if ('t' in obj) {
             message.t = caffe2.TensorProto.decodeJson(obj.t);
@@ -545,7 +545,7 @@ caffe2.Argument = class Argument {
             message.ints = obj.ints.map((obj) => BigInt(obj));
         }
         if ('strings' in obj) {
-            message.strings = obj.strings.map((obj) => new Uint8Array(atob(obj)));
+            message.strings = obj.strings.map((obj) => typeof obj === 'string' ? Uint8Array.from(atob(obj), (c) => c.charCodeAt(0)) : Uint8Array.from(obj));
         }
         if ('tensors' in obj) {
             message.tensors = obj.tensors.map((obj) => caffe2.TensorProto.decodeJson(obj));
@@ -885,7 +885,7 @@ caffe2.BlobProto = class BlobProto {
             message.tensor = caffe2.TensorProto.decodeJson(obj.tensor);
         }
         if ('content' in obj) {
-            message.content = new Uint8Array(atob(obj.content));
+            message.content = typeof source === 'string' ? Uint8Array.from(atob(obj.content), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.content);
         }
         if ('qtensor' in obj) {
             message.qtensor = caffe2.QTensorProto.decodeJson(obj.qtensor);
@@ -944,7 +944,7 @@ caffe2.BlobSerializationOptions = class BlobSerializationOptions {
             message.chunk_size = BigInt(obj.chunkSize);
         }
         if ('floatFormat' in obj) {
-            message.float_format = caffe2.BlobSerializationOptions.FloatFormat[obj.floatFormat];
+            message.float_format = typeof obj.floatFormat === 'string' ? caffe2.BlobSerializationOptions.FloatFormat[obj.floatFormat] : obj.floatFormat;
         }
         return message;
     }

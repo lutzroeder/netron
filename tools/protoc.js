@@ -1419,10 +1419,10 @@ protoc.Generator = class {
 
     _buildDecodeJsonFunction(type) {
         /* eslint-disable indent */
-        this._builder.add('static decodeJson(obj) {');
+        this._builder.add(`static decodeJson(${type.fullName === 'google.protobuf.Any' || type.fields.size === 0 ? '' : 'obj'}) {`);
         this._builder.indent();
             if (type.fullName === 'google.protobuf.Any') {
-                throw new protoc.Error('Any fields not implemented.');
+                this._builder.add("throw new Error('Any fields not implemented.');");
             } else {
                 this._builder.add(`const message = new ${type.fullName}();`);
                 for (const field of type.fields.values()) {
@@ -1434,39 +1434,44 @@ protoc.Generator = class {
                         this._builder.indent();
                     }
                     if (field instanceof protoc.MapField) {
-                        throw new protoc.Error('Map fields not implemented.');
+                        this._builder.add(`for (const [key, value] of Object.entries(obj.${json})) {`);
+                        this._builder.indent();
+                            const value = field.type instanceof protoc.PrimitiveType ? `value` : `${field.type.fullName}.decodeJson(value)`;
+                            this._builder.add(`${target}[key] = ${value};`);
+                        this._builder.outdent();
+                        this._builder.add(`}`);
                     } else if (field.repeated) {
                         if (field.type instanceof protoc.PrimitiveType) {
                             if (field.type.name === 'float' || field.type.name === 'double' || field.type.name === 'int32' || field.type.name === 'uint32') {
                                 this._builder.add(`${target} = ${source}.map((obj) => Number(obj));`);
-                            } else if (field.type.name === 'int64' || field.type.name === 'uint64') {
+                            } else if (field.type.name === 'int64' || field.type.name === 'uint64' || field.type.name === 'fixed64' || field.type.name === 'sint64') {
                                 this._builder.add(`${target} = ${source}.map((obj) => BigInt(obj));`);
                             } else if (field.type.name === 'bytes') {
-                                this._builder.add(`${target} = ${source}.map((obj) => new Uint8Array(atob(obj)));`);
+                                this._builder.add(`${target} = ${source}.map((obj) => typeof obj === 'string' ? Uint8Array.from(atob(obj), (c) => c.charCodeAt(0)) : Uint8Array.from(obj));`);
                             } else if (field.type.name === 'string' || field.type.name === 'bool') {
                                 this._builder.add(`${target} = ${source};`);
                             } else {
                                 throw new protoc.Error(`Repeated primitive field type '${field.type.name}' not implemented.`);
                             }
                         } else if (field.type instanceof protoc.Enum) {
-                            this._builder.add(`${target} = ${source}.map((key) => ${field.type.fullName}[key]);`);
+                            this._builder.add(`${target} = ${source}.map((key) => typeof key === 'string' ? ${field.type.fullName}[key] : key);`);
                         } else {
                             this._builder.add(`${target} = ${source}.map((obj) => ${field.type.fullName}.decodeJson(obj));`);
                         }
                     } else if (field.type instanceof protoc.PrimitiveType) {
-                        if (field.type.name === 'float' || field.type.name === 'double' || field.type.name === 'int32' || field.type.name === 'uint32') {
+                        if (field.type.name === 'float' || field.type.name === 'double' || field.type.name === 'int32' || field.type.name === 'uint32' || field.type.name === 'fixed32') {
                             this._builder.add(`${target} = Number(${source});`);
-                        } else if (field.type.name === 'int64') {
+                        } else if (field.type.name === 'int64' || field.type.name === 'uint64' || field.type.name === 'fixed64' || field.type.name === 'sint64') {
                             this._builder.add(`${target} = BigInt(${source});`);
                         } else if (field.type.name === 'bytes') {
-                            this._builder.add(`${target} = new Uint8Array(atob(${source}));`);
+                            this._builder.add(`${target} = typeof source === 'string' ? Uint8Array.from(atob(${source}), (c) => c.charCodeAt(0)) : Uint8Array.from(${source});`);
                         } else if (field.type.name === 'string' || field.type.name === 'bool') {
                             this._builder.add(`${target} = ${source};`);
                         } else {
                             throw new protoc.Error(`Primitive field type '${field.type.name}' not implemented.`);
                         }
                     } else if (field.type instanceof protoc.Enum) {
-                        this._builder.add(`${target} = ${field.type.fullName}[${source}];`);
+                        this._builder.add(`${target} = typeof ${source} === 'string' ? ${field.type.fullName}[${source}] : ${source};`);
                     } else {
                         this._builder.add(`${target} = ${field.type.fullName}.decodeJson(${source});`);
                     }

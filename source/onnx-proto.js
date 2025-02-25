@@ -176,7 +176,7 @@ onnx.AttributeProto = class AttributeProto {
             message.doc_string = obj.docString;
         }
         if ('type' in obj) {
-            message.type = onnx.AttributeProto.AttributeType[obj.type];
+            message.type = typeof obj.type === 'string' ? onnx.AttributeProto.AttributeType[obj.type] : obj.type;
         }
         if ('f' in obj) {
             message.f = Number(obj.f);
@@ -185,7 +185,7 @@ onnx.AttributeProto = class AttributeProto {
             message.i = BigInt(obj.i);
         }
         if ('s' in obj) {
-            message.s = new Uint8Array(atob(obj.s));
+            message.s = typeof source === 'string' ? Uint8Array.from(atob(obj.s), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.s);
         }
         if ('t' in obj) {
             message.t = onnx.TensorProto.decodeJson(obj.t);
@@ -206,7 +206,7 @@ onnx.AttributeProto = class AttributeProto {
             message.ints = obj.ints.map((obj) => BigInt(obj));
         }
         if ('strings' in obj) {
-            message.strings = obj.strings.map((obj) => new Uint8Array(atob(obj)));
+            message.strings = obj.strings.map((obj) => typeof obj === 'string' ? Uint8Array.from(atob(obj), (c) => c.charCodeAt(0)) : Uint8Array.from(obj));
         }
         if ('tensors' in obj) {
             message.tensors = obj.tensors.map((obj) => onnx.TensorProto.decodeJson(obj));
@@ -1101,7 +1101,7 @@ onnx.TensorProto = class TensorProto {
             message.int32_data = obj.int32Data.map((obj) => Number(obj));
         }
         if ('stringData' in obj) {
-            message.string_data = obj.stringData.map((obj) => new Uint8Array(atob(obj)));
+            message.string_data = obj.stringData.map((obj) => typeof obj === 'string' ? Uint8Array.from(atob(obj), (c) => c.charCodeAt(0)) : Uint8Array.from(obj));
         }
         if ('int64Data' in obj) {
             message.int64_data = obj.int64Data.map((obj) => BigInt(obj));
@@ -1113,13 +1113,13 @@ onnx.TensorProto = class TensorProto {
             message.doc_string = obj.docString;
         }
         if ('rawData' in obj) {
-            message.raw_data = new Uint8Array(atob(obj.rawData));
+            message.raw_data = typeof source === 'string' ? Uint8Array.from(atob(obj.rawData), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.rawData);
         }
         if ('externalData' in obj) {
             message.external_data = obj.externalData.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
         if ('dataLocation' in obj) {
-            message.data_location = onnx.TensorProto.DataLocation[obj.dataLocation];
+            message.data_location = typeof obj.dataLocation === 'string' ? onnx.TensorProto.DataLocation[obj.dataLocation] : obj.dataLocation;
         }
         if ('doubleData' in obj) {
             message.double_data = obj.doubleData.map((obj) => Number(obj));
@@ -2132,7 +2132,7 @@ onnx.OperatorProto = class OperatorProto {
             message.since_version = BigInt(obj.sinceVersion);
         }
         if ('status' in obj) {
-            message.status = onnx.OperatorStatus[obj.status];
+            message.status = typeof obj.status === 'string' ? onnx.OperatorStatus[obj.status] : obj.status;
         }
         if ('docString' in obj) {
             message.doc_string = obj.docString;

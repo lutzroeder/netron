@@ -47,6 +47,17 @@ tensorflow.SavedModel = class SavedModel {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedModel();
+        if ('savedModelSchemaVersion' in obj) {
+            message.saved_model_schema_version = BigInt(obj.savedModelSchemaVersion);
+        }
+        if ('metaGraphs' in obj) {
+            message.meta_graphs = obj.metaGraphs.map((obj) => tensorflow.MetaGraphDef.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.SavedModel.prototype.saved_model_schema_version = 0n;
@@ -125,6 +136,36 @@ tensorflow.MetaGraphDef = class MetaGraphDef {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.MetaGraphDef();
+        if ('metaInfoDef' in obj) {
+            message.meta_info_def = tensorflow.MetaGraphDef.MetaInfoDef.decodeJson(obj.metaInfoDef);
+        }
+        if ('graphDef' in obj) {
+            message.graph_def = tensorflow.GraphDef.decodeJson(obj.graphDef);
+        }
+        if ('saverDef' in obj) {
+            message.saver_def = tensorflow.SaverDef.decodeJson(obj.saverDef);
+        }
+        if ('collectionDef' in obj) {
+            for (const [key, value] of Object.entries(obj.collectionDef)) {
+                message.collection_def[key] = tensorflow.CollectionDef.decodeJson(value);
+            }
+        }
+        if ('signatureDef' in obj) {
+            for (const [key, value] of Object.entries(obj.signatureDef)) {
+                message.signature_def[key] = tensorflow.SignatureDef.decodeJson(value);
+            }
+        }
+        if ('assetFileDef' in obj) {
+            message.asset_file_def = obj.assetFileDef.map((obj) => tensorflow.AssetFileDef.decodeJson(obj));
+        }
+        if ('objectGraphDef' in obj) {
+            message.object_graph_def = tensorflow.SavedObjectGraph.decodeJson(obj.objectGraphDef);
         }
         return message;
     }
@@ -217,6 +258,37 @@ tensorflow.MetaGraphDef.MetaInfoDef = class MetaInfoDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.MetaGraphDef.MetaInfoDef();
+        if ('metaGraphVersion' in obj) {
+            message.meta_graph_version = obj.metaGraphVersion;
+        }
+        if ('strippedOpList' in obj) {
+            message.stripped_op_list = tensorflow.OpList.decodeJson(obj.strippedOpList);
+        }
+        if ('anyInfo' in obj) {
+            message.any_info = google.protobuf.Any.decodeJson(obj.anyInfo);
+        }
+        if ('tags' in obj) {
+            message.tags = obj.tags;
+        }
+        if ('tensorflowVersion' in obj) {
+            message.tensorflow_version = obj.tensorflowVersion;
+        }
+        if ('tensorflowGitVersion' in obj) {
+            message.tensorflow_git_version = obj.tensorflowGitVersion;
+        }
+        if ('strippedDefaultAttrs' in obj) {
+            message.stripped_default_attrs = obj.strippedDefaultAttrs;
+        }
+        if ('functionAliases' in obj) {
+            for (const [key, value] of Object.entries(obj.functionAliases)) {
+                message.function_aliases[key] = value;
+            }
+        }
+        return message;
+    }
 };
 
 tensorflow.MetaGraphDef.MetaInfoDef.prototype.meta_graph_version = "";
@@ -290,6 +362,26 @@ tensorflow.CollectionDef = class CollectionDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CollectionDef();
+        if ('nodeList' in obj) {
+            message.node_list = tensorflow.CollectionDef.NodeList.decodeJson(obj.nodeList);
+        }
+        if ('bytesList' in obj) {
+            message.bytes_list = tensorflow.CollectionDef.BytesList.decodeJson(obj.bytesList);
+        }
+        if ('int64List' in obj) {
+            message.int64_list = tensorflow.CollectionDef.Int64List.decodeJson(obj.int64List);
+        }
+        if ('floatList' in obj) {
+            message.float_list = tensorflow.CollectionDef.FloatList.decodeJson(obj.floatList);
+        }
+        if ('anyList' in obj) {
+            message.any_list = tensorflow.CollectionDef.AnyList.decodeJson(obj.anyList);
+        }
+        return message;
+    }
 };
 
 tensorflow.CollectionDef.NodeList = class NodeList {
@@ -328,6 +420,14 @@ tensorflow.CollectionDef.NodeList = class NodeList {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CollectionDef.NodeList();
+        if ('value' in obj) {
+            message.value = obj.value;
         }
         return message;
     }
@@ -372,6 +472,14 @@ tensorflow.CollectionDef.BytesList = class BytesList {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CollectionDef.BytesList();
+        if ('value' in obj) {
+            message.value = obj.value.map((obj) => typeof obj === 'string' ? Uint8Array.from(atob(obj), (c) => c.charCodeAt(0)) : Uint8Array.from(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.CollectionDef.Int64List = class Int64List {
@@ -410,6 +518,14 @@ tensorflow.CollectionDef.Int64List = class Int64List {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CollectionDef.Int64List();
+        if ('value' in obj) {
+            message.value = obj.value.map((obj) => BigInt(obj));
         }
         return message;
     }
@@ -454,6 +570,14 @@ tensorflow.CollectionDef.FloatList = class FloatList {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CollectionDef.FloatList();
+        if ('value' in obj) {
+            message.value = obj.value.map((obj) => Number(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.CollectionDef.AnyList = class AnyList {
@@ -492,6 +616,14 @@ tensorflow.CollectionDef.AnyList = class AnyList {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CollectionDef.AnyList();
+        if ('value' in obj) {
+            message.value = obj.value.map((obj) => google.protobuf.Any.decodeJson(obj));
         }
         return message;
     }
@@ -561,6 +693,26 @@ tensorflow.TensorInfo = class TensorInfo {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TensorInfo();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('cooSparse' in obj) {
+            message.coo_sparse = tensorflow.TensorInfo.CooSparse.decodeJson(obj.cooSparse);
+        }
+        if ('compositeTensor' in obj) {
+            message.composite_tensor = tensorflow.TensorInfo.CompositeTensor.decodeJson(obj.compositeTensor);
+        }
+        if ('dtype' in obj) {
+            message.dtype = typeof obj.dtype === 'string' ? tensorflow.DataType[obj.dtype] : obj.dtype;
+        }
+        if ('tensorShape' in obj) {
+            message.tensor_shape = tensorflow.TensorShapeProto.decodeJson(obj.tensorShape);
+        }
+        return message;
+    }
 };
 
 tensorflow.TensorInfo.prototype.dtype = 0;
@@ -613,6 +765,20 @@ tensorflow.TensorInfo.CooSparse = class CooSparse {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TensorInfo.CooSparse();
+        if ('valuesTensorName' in obj) {
+            message.values_tensor_name = obj.valuesTensorName;
+        }
+        if ('indicesTensorName' in obj) {
+            message.indices_tensor_name = obj.indicesTensorName;
+        }
+        if ('denseShapeTensorName' in obj) {
+            message.dense_shape_tensor_name = obj.denseShapeTensorName;
+        }
+        return message;
+    }
 };
 
 tensorflow.TensorInfo.CooSparse.prototype.values_tensor_name = "";
@@ -661,6 +827,17 @@ tensorflow.TensorInfo.CompositeTensor = class CompositeTensor {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TensorInfo.CompositeTensor();
+        if ('typeSpec' in obj) {
+            message.type_spec = tensorflow.TypeSpecProto.decodeJson(obj.typeSpec);
+        }
+        if ('components' in obj) {
+            message.components = obj.components.map((obj) => tensorflow.TensorInfo.decodeJson(obj));
         }
         return message;
     }
@@ -727,6 +904,29 @@ tensorflow.SignatureDef = class SignatureDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SignatureDef();
+        if ('inputs' in obj) {
+            for (const [key, value] of Object.entries(obj.inputs)) {
+                message.inputs[key] = tensorflow.TensorInfo.decodeJson(value);
+            }
+        }
+        if ('outputs' in obj) {
+            for (const [key, value] of Object.entries(obj.outputs)) {
+                message.outputs[key] = tensorflow.TensorInfo.decodeJson(value);
+            }
+        }
+        if ('methodName' in obj) {
+            message.method_name = obj.methodName;
+        }
+        if ('defaults' in obj) {
+            for (const [key, value] of Object.entries(obj.defaults)) {
+                message.defaults[key] = tensorflow.TensorProto.decodeJson(value);
+            }
+        }
+        return message;
+    }
 };
 
 tensorflow.SignatureDef.prototype.method_name = "";
@@ -769,6 +969,17 @@ tensorflow.AssetFileDef = class AssetFileDef {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.AssetFileDef();
+        if ('tensorInfo' in obj) {
+            message.tensor_info = tensorflow.TensorInfo.decodeJson(obj.tensorInfo);
+        }
+        if ('filename' in obj) {
+            message.filename = obj.filename;
         }
         return message;
     }
@@ -840,6 +1051,26 @@ tensorflow.GraphDef = class GraphDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.GraphDef();
+        if ('node' in obj) {
+            message.node = obj.node.map((obj) => tensorflow.NodeDef.decodeJson(obj));
+        }
+        if ('versions' in obj) {
+            message.versions = tensorflow.VersionDef.decodeJson(obj.versions);
+        }
+        if ('version' in obj) {
+            message.version = Number(obj.version);
+        }
+        if ('library' in obj) {
+            message.library = tensorflow.FunctionDefLibrary.decodeJson(obj.library);
+        }
+        if ('debugInfo' in obj) {
+            message.debug_info = tensorflow.GraphDebugInfo.decodeJson(obj.debugInfo);
+        }
+        return message;
+    }
 };
 
 tensorflow.GraphDef.prototype.versions = null;
@@ -897,6 +1128,20 @@ tensorflow.FunctionDefLibrary = class FunctionDefLibrary {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.FunctionDefLibrary();
+        if ('function' in obj) {
+            message.function = obj.function.map((obj) => tensorflow.FunctionDef.decodeJson(obj));
+        }
+        if ('gradient' in obj) {
+            message.gradient = obj.gradient.map((obj) => tensorflow.GradientDef.decodeJson(obj));
+        }
+        if ('registeredGradients' in obj) {
+            message.registered_gradients = obj.registeredGradients.map((obj) => tensorflow.RegisteredGradient.decodeJson(obj));
         }
         return message;
     }
@@ -982,6 +1227,42 @@ tensorflow.FunctionDef = class FunctionDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.FunctionDef();
+        if ('signature' in obj) {
+            message.signature = tensorflow.OpDef.decodeJson(obj.signature);
+        }
+        if ('attr' in obj) {
+            for (const [key, value] of Object.entries(obj.attr)) {
+                message.attr[key] = tensorflow.AttrValue.decodeJson(value);
+            }
+        }
+        if ('argAttr' in obj) {
+            for (const [key, value] of Object.entries(obj.argAttr)) {
+                message.arg_attr[key] = tensorflow.FunctionDef.ArgAttrs.decodeJson(value);
+            }
+        }
+        if ('resourceArgUniqueId' in obj) {
+            for (const [key, value] of Object.entries(obj.resourceArgUniqueId)) {
+                message.resource_arg_unique_id[key] = value;
+            }
+        }
+        if ('nodeDef' in obj) {
+            message.node_def = obj.nodeDef.map((obj) => tensorflow.NodeDef.decodeJson(obj));
+        }
+        if ('ret' in obj) {
+            for (const [key, value] of Object.entries(obj.ret)) {
+                message.ret[key] = value;
+            }
+        }
+        if ('controlRet' in obj) {
+            for (const [key, value] of Object.entries(obj.controlRet)) {
+                message.control_ret[key] = value;
+            }
+        }
+        return message;
+    }
 };
 
 tensorflow.FunctionDef.prototype.signature = null;
@@ -1021,6 +1302,16 @@ tensorflow.FunctionDef.ArgAttrs = class ArgAttrs {
                 default:
                     reader.field(tag, message);
                     break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.FunctionDef.ArgAttrs();
+        if ('attr' in obj) {
+            for (const [key, value] of Object.entries(obj.attr)) {
+                message.attr[key] = tensorflow.AttrValue.decodeJson(value);
             }
         }
         return message;
@@ -1068,6 +1359,17 @@ tensorflow.GradientDef = class GradientDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.GradientDef();
+        if ('functionName' in obj) {
+            message.function_name = obj.functionName;
+        }
+        if ('gradientFunc' in obj) {
+            message.gradient_func = obj.gradientFunc;
+        }
+        return message;
+    }
 };
 
 tensorflow.GradientDef.prototype.function_name = "";
@@ -1111,6 +1413,17 @@ tensorflow.RegisteredGradient = class RegisteredGradient {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.RegisteredGradient();
+        if ('gradientFunc' in obj) {
+            message.gradient_func = obj.gradientFunc;
+        }
+        if ('registeredOpType' in obj) {
+            message.registered_op_type = obj.registeredOpType;
         }
         return message;
     }
@@ -1213,6 +1526,41 @@ tensorflow.AttrValue = class AttrValue {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.AttrValue();
+        if ('s' in obj) {
+            message.s = typeof source === 'string' ? Uint8Array.from(atob(obj.s), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.s);
+        }
+        if ('i' in obj) {
+            message.i = BigInt(obj.i);
+        }
+        if ('f' in obj) {
+            message.f = Number(obj.f);
+        }
+        if ('b' in obj) {
+            message.b = obj.b;
+        }
+        if ('type' in obj) {
+            message.type = typeof obj.type === 'string' ? tensorflow.DataType[obj.type] : obj.type;
+        }
+        if ('shape' in obj) {
+            message.shape = tensorflow.TensorShapeProto.decodeJson(obj.shape);
+        }
+        if ('tensor' in obj) {
+            message.tensor = tensorflow.TensorProto.decodeJson(obj.tensor);
+        }
+        if ('list' in obj) {
+            message.list = tensorflow.AttrValue.ListValue.decodeJson(obj.list);
+        }
+        if ('func' in obj) {
+            message.func = tensorflow.NameAttrList.decodeJson(obj.func);
+        }
+        if ('placeholder' in obj) {
+            message.placeholder = obj.placeholder;
+        }
+        return message;
+    }
 };
 
 tensorflow.AttrValue.ListValue = class ListValue {
@@ -1303,6 +1651,35 @@ tensorflow.AttrValue.ListValue = class ListValue {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.AttrValue.ListValue();
+        if ('s' in obj) {
+            message.s = obj.s.map((obj) => typeof obj === 'string' ? Uint8Array.from(atob(obj), (c) => c.charCodeAt(0)) : Uint8Array.from(obj));
+        }
+        if ('i' in obj) {
+            message.i = obj.i.map((obj) => BigInt(obj));
+        }
+        if ('f' in obj) {
+            message.f = obj.f.map((obj) => Number(obj));
+        }
+        if ('b' in obj) {
+            message.b = obj.b;
+        }
+        if ('type' in obj) {
+            message.type = obj.type.map((key) => typeof key === 'string' ? tensorflow.DataType[key] : key);
+        }
+        if ('shape' in obj) {
+            message.shape = obj.shape.map((obj) => tensorflow.TensorShapeProto.decodeJson(obj));
+        }
+        if ('tensor' in obj) {
+            message.tensor = obj.tensor.map((obj) => tensorflow.TensorProto.decodeJson(obj));
+        }
+        if ('func' in obj) {
+            message.func = obj.func.map((obj) => tensorflow.NameAttrList.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.NameAttrList = class NameAttrList {
@@ -1346,6 +1723,19 @@ tensorflow.NameAttrList = class NameAttrList {
                 default:
                     reader.field(tag, message);
                     break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.NameAttrList();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('attr' in obj) {
+            for (const [key, value] of Object.entries(obj.attr)) {
+                message.attr[key] = tensorflow.AttrValue.decodeJson(value);
             }
         }
         return message;
@@ -1507,6 +1897,65 @@ tensorflow.TensorProto = class TensorProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TensorProto();
+        if ('dtype' in obj) {
+            message.dtype = typeof obj.dtype === 'string' ? tensorflow.DataType[obj.dtype] : obj.dtype;
+        }
+        if ('tensorShape' in obj) {
+            message.tensor_shape = tensorflow.TensorShapeProto.decodeJson(obj.tensorShape);
+        }
+        if ('versionNumber' in obj) {
+            message.version_number = Number(obj.versionNumber);
+        }
+        if ('tensorContent' in obj) {
+            message.tensor_content = typeof source === 'string' ? Uint8Array.from(atob(obj.tensorContent), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.tensorContent);
+        }
+        if ('halfVal' in obj) {
+            message.half_val = obj.halfVal.map((obj) => Number(obj));
+        }
+        if ('floatVal' in obj) {
+            message.float_val = obj.floatVal.map((obj) => Number(obj));
+        }
+        if ('doubleVal' in obj) {
+            message.double_val = obj.doubleVal.map((obj) => Number(obj));
+        }
+        if ('intVal' in obj) {
+            message.int_val = obj.intVal.map((obj) => Number(obj));
+        }
+        if ('stringVal' in obj) {
+            message.string_val = obj.stringVal.map((obj) => typeof obj === 'string' ? Uint8Array.from(atob(obj), (c) => c.charCodeAt(0)) : Uint8Array.from(obj));
+        }
+        if ('scomplexVal' in obj) {
+            message.scomplex_val = obj.scomplexVal.map((obj) => Number(obj));
+        }
+        if ('int64Val' in obj) {
+            message.int64_val = obj.int64Val.map((obj) => BigInt(obj));
+        }
+        if ('boolVal' in obj) {
+            message.bool_val = obj.boolVal;
+        }
+        if ('dcomplexVal' in obj) {
+            message.dcomplex_val = obj.dcomplexVal.map((obj) => Number(obj));
+        }
+        if ('resourceHandleVal' in obj) {
+            message.resource_handle_val = obj.resourceHandleVal.map((obj) => tensorflow.ResourceHandleProto.decodeJson(obj));
+        }
+        if ('variantVal' in obj) {
+            message.variant_val = obj.variantVal.map((obj) => tensorflow.VariantTensorDataProto.decodeJson(obj));
+        }
+        if ('uint32Val' in obj) {
+            message.uint32_val = obj.uint32Val.map((obj) => Number(obj));
+        }
+        if ('uint64Val' in obj) {
+            message.uint64_val = obj.uint64Val.map((obj) => BigInt(obj));
+        }
+        if ('float8Val' in obj) {
+            message.float8_val = typeof source === 'string' ? Uint8Array.from(atob(obj.float8Val), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.float8Val);
+        }
+        return message;
+    }
 };
 
 tensorflow.TensorProto.prototype.dtype = 0;
@@ -1563,6 +2012,20 @@ tensorflow.VariantTensorDataProto = class VariantTensorDataProto {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.VariantTensorDataProto();
+        if ('typeName' in obj) {
+            message.type_name = obj.typeName;
+        }
+        if ('metadata' in obj) {
+            message.metadata = typeof source === 'string' ? Uint8Array.from(atob(obj.metadata), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.metadata);
+        }
+        if ('tensors' in obj) {
+            message.tensors = obj.tensors.map((obj) => tensorflow.TensorProto.decodeJson(obj));
         }
         return message;
     }
@@ -1640,6 +2103,29 @@ tensorflow.ResourceHandleProto = class ResourceHandleProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.ResourceHandleProto();
+        if ('device' in obj) {
+            message.device = obj.device;
+        }
+        if ('container' in obj) {
+            message.container = obj.container;
+        }
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('hashCode' in obj) {
+            message.hash_code = BigInt(obj.hashCode);
+        }
+        if ('maybeTypeName' in obj) {
+            message.maybe_type_name = obj.maybeTypeName;
+        }
+        if ('dtypesAndShapes' in obj) {
+            message.dtypes_and_shapes = obj.dtypesAndShapes.map((obj) => tensorflow.ResourceHandleProto.DtypeAndShape.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.ResourceHandleProto.prototype.device = "";
@@ -1686,6 +2172,17 @@ tensorflow.ResourceHandleProto.DtypeAndShape = class DtypeAndShape {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.ResourceHandleProto.DtypeAndShape();
+        if ('dtype' in obj) {
+            message.dtype = typeof obj.dtype === 'string' ? tensorflow.DataType[obj.dtype] : obj.dtype;
+        }
+        if ('shape' in obj) {
+            message.shape = tensorflow.TensorShapeProto.decodeJson(obj.shape);
         }
         return message;
     }
@@ -1739,6 +2236,17 @@ tensorflow.TensorShapeProto = class TensorShapeProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TensorShapeProto();
+        if ('dim' in obj) {
+            message.dim = obj.dim.map((obj) => tensorflow.TensorShapeProto.Dim.decodeJson(obj));
+        }
+        if ('unknownRank' in obj) {
+            message.unknown_rank = obj.unknownRank;
+        }
+        return message;
+    }
 };
 
 tensorflow.TensorShapeProto.prototype.unknown_rank = false;
@@ -1781,6 +2289,17 @@ tensorflow.TensorShapeProto.Dim = class Dim {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TensorShapeProto.Dim();
+        if ('size' in obj) {
+            message.size = BigInt(obj.size);
+        }
+        if ('name' in obj) {
+            message.name = obj.name;
         }
         return message;
     }
@@ -1888,6 +2407,14 @@ tensorflow.SerializedDType = class SerializedDType {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SerializedDType();
+        if ('datatype' in obj) {
+            message.datatype = typeof obj.datatype === 'string' ? tensorflow.DataType[obj.datatype] : obj.datatype;
+        }
+        return message;
+    }
 };
 
 tensorflow.SerializedDType.prototype.datatype = 0;
@@ -1968,6 +2495,34 @@ tensorflow.NodeDef = class NodeDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.NodeDef();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('op' in obj) {
+            message.op = obj.op;
+        }
+        if ('input' in obj) {
+            message.input = obj.input;
+        }
+        if ('device' in obj) {
+            message.device = obj.device;
+        }
+        if ('attr' in obj) {
+            for (const [key, value] of Object.entries(obj.attr)) {
+                message.attr[key] = tensorflow.AttrValue.decodeJson(value);
+            }
+        }
+        if ('experimentalDebugInfo' in obj) {
+            message.experimental_debug_info = tensorflow.NodeDef.ExperimentalDebugInfo.decodeJson(obj.experimentalDebugInfo);
+        }
+        if ('experimentalType' in obj) {
+            message.experimental_type = tensorflow.FullTypeDef.decodeJson(obj.experimentalType);
+        }
+        return message;
+    }
 };
 
 tensorflow.NodeDef.prototype.name = "";
@@ -2019,6 +2574,17 @@ tensorflow.NodeDef.ExperimentalDebugInfo = class ExperimentalDebugInfo {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.NodeDef.ExperimentalDebugInfo();
+        if ('originalNodeNames' in obj) {
+            message.original_node_names = obj.originalNodeNames;
+        }
+        if ('originalFuncNames' in obj) {
+            message.original_func_names = obj.originalFuncNames;
         }
         return message;
     }
@@ -2120,6 +2686,23 @@ tensorflow.FullTypeDef = class FullTypeDef {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.FullTypeDef();
+        if ('typeId' in obj) {
+            message.type_id = typeof obj.typeId === 'string' ? tensorflow.FullTypeId[obj.typeId] : obj.typeId;
+        }
+        if ('args' in obj) {
+            message.args = obj.args.map((obj) => tensorflow.FullTypeDef.decodeJson(obj));
+        }
+        if ('s' in obj) {
+            message.s = obj.s;
+        }
+        if ('i' in obj) {
+            message.i = BigInt(obj.i);
         }
         return message;
     }
@@ -2241,6 +2824,50 @@ tensorflow.OpDef = class OpDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.OpDef();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('inputArg' in obj) {
+            message.input_arg = obj.inputArg.map((obj) => tensorflow.OpDef.ArgDef.decodeJson(obj));
+        }
+        if ('outputArg' in obj) {
+            message.output_arg = obj.outputArg.map((obj) => tensorflow.OpDef.ArgDef.decodeJson(obj));
+        }
+        if ('controlOutput' in obj) {
+            message.control_output = obj.controlOutput;
+        }
+        if ('attr' in obj) {
+            message.attr = obj.attr.map((obj) => tensorflow.OpDef.AttrDef.decodeJson(obj));
+        }
+        if ('deprecation' in obj) {
+            message.deprecation = tensorflow.OpDeprecation.decodeJson(obj.deprecation);
+        }
+        if ('summary' in obj) {
+            message.summary = obj.summary;
+        }
+        if ('description' in obj) {
+            message.description = obj.description;
+        }
+        if ('isCommutative' in obj) {
+            message.is_commutative = obj.isCommutative;
+        }
+        if ('isAggregate' in obj) {
+            message.is_aggregate = obj.isAggregate;
+        }
+        if ('isStateful' in obj) {
+            message.is_stateful = obj.isStateful;
+        }
+        if ('allowsUninitializedInput' in obj) {
+            message.allows_uninitialized_input = obj.allowsUninitializedInput;
+        }
+        if ('isDistributedCommunication' in obj) {
+            message.is_distributed_communication = obj.isDistributedCommunication;
+        }
+        return message;
+    }
 };
 
 tensorflow.OpDef.prototype.name = "";
@@ -2340,6 +2967,38 @@ tensorflow.OpDef.ArgDef = class ArgDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.OpDef.ArgDef();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('description' in obj) {
+            message.description = obj.description;
+        }
+        if ('type' in obj) {
+            message.type = typeof obj.type === 'string' ? tensorflow.DataType[obj.type] : obj.type;
+        }
+        if ('typeAttr' in obj) {
+            message.type_attr = obj.typeAttr;
+        }
+        if ('numberAttr' in obj) {
+            message.number_attr = obj.numberAttr;
+        }
+        if ('typeListAttr' in obj) {
+            message.type_list_attr = obj.typeListAttr;
+        }
+        if ('handleData' in obj) {
+            message.handle_data = obj.handleData.map((obj) => tensorflow.ResourceHandleProto.DtypeAndShape.decodeJson(obj));
+        }
+        if ('isRef' in obj) {
+            message.is_ref = obj.isRef;
+        }
+        if ('experimentalFullType' in obj) {
+            message.experimental_full_type = tensorflow.FullTypeDef.decodeJson(obj.experimentalFullType);
+        }
+        return message;
+    }
 };
 
 tensorflow.OpDef.ArgDef.prototype.name = "";
@@ -2422,6 +3081,32 @@ tensorflow.OpDef.AttrDef = class AttrDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.OpDef.AttrDef();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('type' in obj) {
+            message.type = obj.type;
+        }
+        if ('defaultValue' in obj) {
+            message.default_value = tensorflow.AttrValue.decodeJson(obj.defaultValue);
+        }
+        if ('description' in obj) {
+            message.description = obj.description;
+        }
+        if ('hasMinimum' in obj) {
+            message.has_minimum = obj.hasMinimum;
+        }
+        if ('minimum' in obj) {
+            message.minimum = BigInt(obj.minimum);
+        }
+        if ('allowedValues' in obj) {
+            message.allowed_values = tensorflow.AttrValue.decodeJson(obj.allowedValues);
+        }
+        return message;
+    }
 };
 
 tensorflow.OpDef.AttrDef.prototype.name = "";
@@ -2473,6 +3158,17 @@ tensorflow.OpDeprecation = class OpDeprecation {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.OpDeprecation();
+        if ('version' in obj) {
+            message.version = Number(obj.version);
+        }
+        if ('explanation' in obj) {
+            message.explanation = obj.explanation;
+        }
+        return message;
+    }
 };
 
 tensorflow.OpDeprecation.prototype.version = 0;
@@ -2514,6 +3210,14 @@ tensorflow.OpList = class OpList {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.OpList();
+        if ('op' in obj) {
+            message.op = obj.op.map((obj) => tensorflow.OpDef.decodeJson(obj));
         }
         return message;
     }
@@ -2586,6 +3290,34 @@ tensorflow.GraphDebugInfo = class GraphDebugInfo {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.GraphDebugInfo();
+        if ('files' in obj) {
+            message.files = obj.files;
+        }
+        if ('framesById' in obj) {
+            for (const [key, value] of Object.entries(obj.framesById)) {
+                message.frames_by_id[key] = tensorflow.GraphDebugInfo.FileLineCol.decodeJson(value);
+            }
+        }
+        if ('tracesById' in obj) {
+            for (const [key, value] of Object.entries(obj.tracesById)) {
+                message.traces_by_id[key] = tensorflow.GraphDebugInfo.StackTrace.decodeJson(value);
+            }
+        }
+        if ('traces' in obj) {
+            for (const [key, value] of Object.entries(obj.traces)) {
+                message.traces[key] = tensorflow.GraphDebugInfo.StackTrace.decodeJson(value);
+            }
+        }
+        if ('nameToTraceId' in obj) {
+            for (const [key, value] of Object.entries(obj.nameToTraceId)) {
+                message.name_to_trace_id[key] = value;
+            }
+        }
+        return message;
+    }
 };
 
 tensorflow.GraphDebugInfo.FileLineCol = class FileLineCol {
@@ -2647,6 +3379,26 @@ tensorflow.GraphDebugInfo.FileLineCol = class FileLineCol {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.GraphDebugInfo.FileLineCol();
+        if ('fileIndex' in obj) {
+            message.file_index = Number(obj.fileIndex);
+        }
+        if ('line' in obj) {
+            message.line = Number(obj.line);
+        }
+        if ('col' in obj) {
+            message.col = Number(obj.col);
+        }
+        if ('func' in obj) {
+            message.func = obj.func;
+        }
+        if ('code' in obj) {
+            message.code = obj.code;
+        }
+        return message;
+    }
 };
 
 tensorflow.GraphDebugInfo.FileLineCol.prototype.file_index = 0;
@@ -2698,6 +3450,17 @@ tensorflow.GraphDebugInfo.StackTrace = class StackTrace {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.GraphDebugInfo.StackTrace();
+        if ('fileLineCols' in obj) {
+            message.file_line_cols = obj.fileLineCols.map((obj) => tensorflow.GraphDebugInfo.FileLineCol.decodeJson(obj));
+        }
+        if ('frameId' in obj) {
+            message.frame_id = obj.frameId.map((obj) => BigInt(obj));
         }
         return message;
     }
@@ -2754,6 +3517,20 @@ tensorflow.VersionDef = class VersionDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.VersionDef();
+        if ('producer' in obj) {
+            message.producer = Number(obj.producer);
+        }
+        if ('minConsumer' in obj) {
+            message.min_consumer = Number(obj.minConsumer);
+        }
+        if ('badConsumers' in obj) {
+            message.bad_consumers = obj.badConsumers.map((obj) => Number(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.VersionDef.prototype.producer = 0;
@@ -2801,6 +3578,19 @@ tensorflow.SavedObjectGraph = class SavedObjectGraph {
                 default:
                     reader.field(tag, message);
                     break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedObjectGraph();
+        if ('nodes' in obj) {
+            message.nodes = obj.nodes.map((obj) => tensorflow.SavedObject.decodeJson(obj));
+        }
+        if ('concreteFunctions' in obj) {
+            for (const [key, value] of Object.entries(obj.concreteFunctions)) {
+                message.concrete_functions[key] = tensorflow.SavedConcreteFunction.decodeJson(value);
             }
         }
         return message;
@@ -2938,6 +3728,58 @@ tensorflow.SavedObject = class SavedObject {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedObject();
+        if ('children' in obj) {
+            message.children = obj.children.map((obj) => tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.decodeJson(obj));
+        }
+        if ('dependencies' in obj) {
+            message.dependencies = obj.dependencies.map((obj) => tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.decodeJson(obj));
+        }
+        if ('slotVariables' in obj) {
+            message.slot_variables = obj.slotVariables.map((obj) => tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.decodeJson(obj));
+        }
+        if ('userObject' in obj) {
+            message.user_object = tensorflow.SavedUserObject.decodeJson(obj.userObject);
+        }
+        if ('asset' in obj) {
+            message.asset = tensorflow.SavedAsset.decodeJson(obj.asset);
+        }
+        if ('function' in obj) {
+            message.function = tensorflow.SavedFunction.decodeJson(obj.function);
+        }
+        if ('variable' in obj) {
+            message.variable = tensorflow.SavedVariable.decodeJson(obj.variable);
+        }
+        if ('bareConcreteFunction' in obj) {
+            message.bare_concrete_function = tensorflow.SavedBareConcreteFunction.decodeJson(obj.bareConcreteFunction);
+        }
+        if ('constant' in obj) {
+            message.constant = tensorflow.SavedConstant.decodeJson(obj.constant);
+        }
+        if ('resource' in obj) {
+            message.resource = tensorflow.SavedResource.decodeJson(obj.resource);
+        }
+        if ('capturedTensor' in obj) {
+            message.captured_tensor = tensorflow.CapturedTensor.decodeJson(obj.capturedTensor);
+        }
+        if ('saveableObjects' in obj) {
+            for (const [key, value] of Object.entries(obj.saveableObjects)) {
+                message.saveable_objects[key] = tensorflow.SaveableObject.decodeJson(value);
+            }
+        }
+        if ('registeredName' in obj) {
+            message.registered_name = obj.registeredName;
+        }
+        if ('serializedUserProto' in obj) {
+            message.serialized_user_proto = google.protobuf.Any.decodeJson(obj.serializedUserProto);
+        }
+        if ('registeredSaver' in obj) {
+            message.registered_saver = obj.registeredSaver;
+        }
+        return message;
+    }
 };
 
 tensorflow.SavedObject.prototype.registered_name = "";
@@ -2991,6 +3833,20 @@ tensorflow.SavedUserObject = class SavedUserObject {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedUserObject();
+        if ('identifier' in obj) {
+            message.identifier = obj.identifier;
+        }
+        if ('version' in obj) {
+            message.version = tensorflow.VersionDef.decodeJson(obj.version);
+        }
+        if ('metadata' in obj) {
+            message.metadata = obj.metadata;
+        }
+        return message;
+    }
 };
 
 tensorflow.SavedUserObject.prototype.identifier = "";
@@ -3029,6 +3885,14 @@ tensorflow.SavedAsset = class SavedAsset {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedAsset();
+        if ('assetFileDefIndex' in obj) {
+            message.asset_file_def_index = Number(obj.assetFileDefIndex);
         }
         return message;
     }
@@ -3081,6 +3945,17 @@ tensorflow.SavedFunction = class SavedFunction {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedFunction();
+        if ('concreteFunctions' in obj) {
+            message.concrete_functions = obj.concreteFunctions;
+        }
+        if ('functionSpec' in obj) {
+            message.function_spec = tensorflow.FunctionSpec.decodeJson(obj.functionSpec);
+        }
+        return message;
+    }
 };
 
 tensorflow.SavedFunction.prototype.function_spec = null;
@@ -3123,6 +3998,17 @@ tensorflow.CapturedTensor = class CapturedTensor {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CapturedTensor();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('concreteFunction' in obj) {
+            message.concrete_function = obj.concreteFunction;
         }
         return message;
     }
@@ -3179,6 +4065,20 @@ tensorflow.SavedConcreteFunction = class SavedConcreteFunction {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedConcreteFunction();
+        if ('boundInputs' in obj) {
+            message.bound_inputs = obj.boundInputs.map((obj) => Number(obj));
+        }
+        if ('canonicalizedInputSignature' in obj) {
+            message.canonicalized_input_signature = tensorflow.StructuredValue.decodeJson(obj.canonicalizedInputSignature);
+        }
+        if ('outputSignature' in obj) {
+            message.output_signature = tensorflow.StructuredValue.decodeJson(obj.outputSignature);
         }
         return message;
     }
@@ -3244,6 +4144,23 @@ tensorflow.SavedBareConcreteFunction = class SavedBareConcreteFunction {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedBareConcreteFunction();
+        if ('concreteFunctionName' in obj) {
+            message.concrete_function_name = obj.concreteFunctionName;
+        }
+        if ('argumentKeywords' in obj) {
+            message.argument_keywords = obj.argumentKeywords;
+        }
+        if ('allowedPositionalArguments' in obj) {
+            message.allowed_positional_arguments = BigInt(obj.allowedPositionalArguments);
+        }
+        if ('functionSpec' in obj) {
+            message.function_spec = tensorflow.FunctionSpec.decodeJson(obj.functionSpec);
+        }
+        return message;
+    }
 };
 
 tensorflow.SavedBareConcreteFunction.prototype.concrete_function_name = "";
@@ -3282,6 +4199,14 @@ tensorflow.SavedConstant = class SavedConstant {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedConstant();
+        if ('operation' in obj) {
+            message.operation = obj.operation;
         }
         return message;
     }
@@ -3370,6 +4295,35 @@ tensorflow.SavedVariable = class SavedVariable {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedVariable();
+        if ('dtype' in obj) {
+            message.dtype = typeof obj.dtype === 'string' ? tensorflow.DataType[obj.dtype] : obj.dtype;
+        }
+        if ('shape' in obj) {
+            message.shape = tensorflow.TensorShapeProto.decodeJson(obj.shape);
+        }
+        if ('trainable' in obj) {
+            message.trainable = obj.trainable;
+        }
+        if ('synchronization' in obj) {
+            message.synchronization = typeof obj.synchronization === 'string' ? tensorflow.VariableSynchronization[obj.synchronization] : obj.synchronization;
+        }
+        if ('aggregation' in obj) {
+            message.aggregation = typeof obj.aggregation === 'string' ? tensorflow.VariableAggregation[obj.aggregation] : obj.aggregation;
+        }
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('device' in obj) {
+            message.device = obj.device;
+        }
+        if ('experimentalDistributedVariableComponents' in obj) {
+            message.experimental_distributed_variable_components = obj.experimentalDistributedVariableComponents.map((obj) => tensorflow.SavedVariable.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.SavedVariable.prototype.dtype = 0;
@@ -3433,6 +4387,23 @@ tensorflow.FunctionSpec = class FunctionSpec {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.FunctionSpec();
+        if ('fullargspec' in obj) {
+            message.fullargspec = tensorflow.StructuredValue.decodeJson(obj.fullargspec);
+        }
+        if ('isMethod' in obj) {
+            message.is_method = obj.isMethod;
+        }
+        if ('inputSignature' in obj) {
+            message.input_signature = tensorflow.StructuredValue.decodeJson(obj.inputSignature);
+        }
+        if ('jitCompile' in obj) {
+            message.jit_compile = typeof obj.jitCompile === 'string' ? tensorflow.FunctionSpec.JitCompile[obj.jitCompile] : obj.jitCompile;
+        }
+        return message;
+    }
 };
 
 tensorflow.FunctionSpec.prototype.fullargspec = null;
@@ -3481,6 +4452,14 @@ tensorflow.SavedResource = class SavedResource {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedResource();
+        if ('device' in obj) {
+            message.device = obj.device;
+        }
+        return message;
+    }
 };
 
 tensorflow.SavedResource.prototype.device = "";
@@ -3523,6 +4502,17 @@ tensorflow.SaveableObject = class SaveableObject {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SaveableObject();
+        if ('saveFunction' in obj) {
+            message.save_function = Number(obj.saveFunction);
+        }
+        if ('restoreFunction' in obj) {
+            message.restore_function = Number(obj.restoreFunction);
         }
         return message;
     }
@@ -3628,6 +4618,38 @@ tensorflow.VariableDef = class VariableDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.VariableDef();
+        if ('variableName' in obj) {
+            message.variable_name = obj.variableName;
+        }
+        if ('initialValueName' in obj) {
+            message.initial_value_name = obj.initialValueName;
+        }
+        if ('initializerName' in obj) {
+            message.initializer_name = obj.initializerName;
+        }
+        if ('snapshotName' in obj) {
+            message.snapshot_name = obj.snapshotName;
+        }
+        if ('saveSliceInfoDef' in obj) {
+            message.save_slice_info_def = tensorflow.SaveSliceInfoDef.decodeJson(obj.saveSliceInfoDef);
+        }
+        if ('isResource' in obj) {
+            message.is_resource = obj.isResource;
+        }
+        if ('trainable' in obj) {
+            message.trainable = obj.trainable;
+        }
+        if ('synchronization' in obj) {
+            message.synchronization = typeof obj.synchronization === 'string' ? tensorflow.VariableSynchronization[obj.synchronization] : obj.synchronization;
+        }
+        if ('aggregation' in obj) {
+            message.aggregation = typeof obj.aggregation === 'string' ? tensorflow.VariableAggregation[obj.aggregation] : obj.aggregation;
+        }
+        return message;
+    }
 };
 
 tensorflow.VariableDef.prototype.variable_name = "";
@@ -3696,6 +4718,23 @@ tensorflow.SaveSliceInfoDef = class SaveSliceInfoDef {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SaveSliceInfoDef();
+        if ('fullName' in obj) {
+            message.full_name = obj.fullName;
+        }
+        if ('fullShape' in obj) {
+            message.full_shape = obj.fullShape.map((obj) => BigInt(obj));
+        }
+        if ('varOffset' in obj) {
+            message.var_offset = obj.varOffset.map((obj) => BigInt(obj));
+        }
+        if ('varShape' in obj) {
+            message.var_shape = obj.varShape.map((obj) => BigInt(obj));
         }
         return message;
     }
@@ -3833,6 +4872,59 @@ tensorflow.StructuredValue = class StructuredValue {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.StructuredValue();
+        if ('noneValue' in obj) {
+            message.none_value = tensorflow.NoneValue.decodeJson(obj.noneValue);
+        }
+        if ('float64Value' in obj) {
+            message.float64_value = Number(obj.float64Value);
+        }
+        if ('int64Value' in obj) {
+            message.int64_value = BigInt(obj.int64Value);
+        }
+        if ('stringValue' in obj) {
+            message.string_value = obj.stringValue;
+        }
+        if ('boolValue' in obj) {
+            message.bool_value = obj.boolValue;
+        }
+        if ('tensorShapeValue' in obj) {
+            message.tensor_shape_value = tensorflow.TensorShapeProto.decodeJson(obj.tensorShapeValue);
+        }
+        if ('tensorDtypeValue' in obj) {
+            message.tensor_dtype_value = typeof obj.tensorDtypeValue === 'string' ? tensorflow.DataType[obj.tensorDtypeValue] : obj.tensorDtypeValue;
+        }
+        if ('tensorSpecValue' in obj) {
+            message.tensor_spec_value = tensorflow.TensorSpecProto.decodeJson(obj.tensorSpecValue);
+        }
+        if ('typeSpecValue' in obj) {
+            message.type_spec_value = tensorflow.TypeSpecProto.decodeJson(obj.typeSpecValue);
+        }
+        if ('boundedTensorSpecValue' in obj) {
+            message.bounded_tensor_spec_value = tensorflow.BoundedTensorSpecProto.decodeJson(obj.boundedTensorSpecValue);
+        }
+        if ('listValue' in obj) {
+            message.list_value = tensorflow.ListValue.decodeJson(obj.listValue);
+        }
+        if ('tupleValue' in obj) {
+            message.tuple_value = tensorflow.TupleValue.decodeJson(obj.tupleValue);
+        }
+        if ('dictValue' in obj) {
+            message.dict_value = tensorflow.DictValue.decodeJson(obj.dictValue);
+        }
+        if ('namedTupleValue' in obj) {
+            message.named_tuple_value = tensorflow.NamedTupleValue.decodeJson(obj.namedTupleValue);
+        }
+        if ('tensorValue' in obj) {
+            message.tensor_value = tensorflow.TensorProto.decodeJson(obj.tensorValue);
+        }
+        if ('numpyValue' in obj) {
+            message.numpy_value = tensorflow.TensorProto.decodeJson(obj.numpyValue);
+        }
+        return message;
+    }
 };
 
 tensorflow.NoneValue = class NoneValue {
@@ -3862,6 +4954,11 @@ tensorflow.NoneValue = class NoneValue {
                     break;
             }
         }
+        return message;
+    }
+
+    static decodeJson() {
+        const message = new tensorflow.NoneValue();
         return message;
     }
 };
@@ -3902,6 +4999,14 @@ tensorflow.ListValue = class ListValue {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.ListValue();
+        if ('values' in obj) {
+            message.values = obj.values.map((obj) => tensorflow.StructuredValue.decodeJson(obj));
         }
         return message;
     }
@@ -3946,6 +5051,14 @@ tensorflow.TupleValue = class TupleValue {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TupleValue();
+        if ('values' in obj) {
+            message.values = obj.values.map((obj) => tensorflow.StructuredValue.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.DictValue = class DictValue {
@@ -3983,6 +5096,16 @@ tensorflow.DictValue = class DictValue {
                 default:
                     reader.field(tag, message);
                     break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.DictValue();
+        if ('fields' in obj) {
+            for (const [key, value] of Object.entries(obj.fields)) {
+                message.fields[key] = tensorflow.StructuredValue.decodeJson(value);
             }
         }
         return message;
@@ -4027,6 +5150,17 @@ tensorflow.PairValue = class PairValue {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.PairValue();
+        if ('key' in obj) {
+            message.key = obj.key;
+        }
+        if ('value' in obj) {
+            message.value = tensorflow.StructuredValue.decodeJson(obj.value);
         }
         return message;
     }
@@ -4080,6 +5214,17 @@ tensorflow.NamedTupleValue = class NamedTupleValue {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.NamedTupleValue();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('values' in obj) {
+            message.values = obj.values.map((obj) => tensorflow.PairValue.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.NamedTupleValue.prototype.name = "";
@@ -4128,6 +5273,20 @@ tensorflow.TensorSpecProto = class TensorSpecProto {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TensorSpecProto();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('shape' in obj) {
+            message.shape = tensorflow.TensorShapeProto.decodeJson(obj.shape);
+        }
+        if ('dtype' in obj) {
+            message.dtype = typeof obj.dtype === 'string' ? tensorflow.DataType[obj.dtype] : obj.dtype;
         }
         return message;
     }
@@ -4196,6 +5355,26 @@ tensorflow.BoundedTensorSpecProto = class BoundedTensorSpecProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.BoundedTensorSpecProto();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('shape' in obj) {
+            message.shape = tensorflow.TensorShapeProto.decodeJson(obj.shape);
+        }
+        if ('dtype' in obj) {
+            message.dtype = typeof obj.dtype === 'string' ? tensorflow.DataType[obj.dtype] : obj.dtype;
+        }
+        if ('minimum' in obj) {
+            message.minimum = tensorflow.TensorProto.decodeJson(obj.minimum);
+        }
+        if ('maximum' in obj) {
+            message.maximum = tensorflow.TensorProto.decodeJson(obj.maximum);
+        }
+        return message;
+    }
 };
 
 tensorflow.BoundedTensorSpecProto.prototype.name = "";
@@ -4254,6 +5433,23 @@ tensorflow.TypeSpecProto = class TypeSpecProto {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TypeSpecProto();
+        if ('typeSpecClass' in obj) {
+            message.type_spec_class = typeof obj.typeSpecClass === 'string' ? tensorflow.TypeSpecProto.TypeSpecClass[obj.typeSpecClass] : obj.typeSpecClass;
+        }
+        if ('typeState' in obj) {
+            message.type_state = tensorflow.StructuredValue.decodeJson(obj.typeState);
+        }
+        if ('typeSpecClassName' in obj) {
+            message.type_spec_class_name = obj.typeSpecClassName;
+        }
+        if ('numFlatComponents' in obj) {
+            message.num_flat_components = Number(obj.numFlatComponents);
         }
         return message;
     }
@@ -4316,6 +5512,14 @@ tensorflow.TrackableObjectGraph = class TrackableObjectGraph {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TrackableObjectGraph();
+        if ('nodes' in obj) {
+            message.nodes = obj.nodes.map((obj) => tensorflow.TrackableObjectGraph.TrackableObject.decodeJson(obj));
         }
         return message;
     }
@@ -4386,6 +5590,26 @@ tensorflow.TrackableObjectGraph.TrackableObject = class TrackableObject {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TrackableObjectGraph.TrackableObject();
+        if ('children' in obj) {
+            message.children = obj.children.map((obj) => tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference.decodeJson(obj));
+        }
+        if ('attributes' in obj) {
+            message.attributes = obj.attributes.map((obj) => tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor.decodeJson(obj));
+        }
+        if ('slotVariables' in obj) {
+            message.slot_variables = obj.slotVariables.map((obj) => tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.decodeJson(obj));
+        }
+        if ('registeredSaver' in obj) {
+            message.registered_saver = tensorflow.RegisteredSaver.decodeJson(obj.registeredSaver);
+        }
+        if ('hasCheckpointValues' in obj) {
+            message.has_checkpoint_values = google.protobuf.BoolValue.decodeJson(obj.hasCheckpointValues);
+        }
+        return message;
+    }
 };
 
 tensorflow.TrackableObjectGraph.TrackableObject.prototype.registered_saver = null;
@@ -4429,6 +5653,17 @@ tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference = class ObjectRe
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference();
+        if ('nodeId' in obj) {
+            message.node_id = Number(obj.nodeId);
+        }
+        if ('localName' in obj) {
+            message.local_name = obj.localName;
         }
         return message;
     }
@@ -4481,6 +5716,20 @@ tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor = class Seriali
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('fullName' in obj) {
+            message.full_name = obj.fullName;
+        }
+        if ('checkpointKey' in obj) {
+            message.checkpoint_key = obj.checkpointKey;
         }
         return message;
     }
@@ -4537,6 +5786,20 @@ tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference = class Sl
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference();
+        if ('originalVariableNodeId' in obj) {
+            message.original_variable_node_id = Number(obj.originalVariableNodeId);
+        }
+        if ('slotName' in obj) {
+            message.slot_name = obj.slotName;
+        }
+        if ('slotVariableNodeId' in obj) {
+            message.slot_variable_node_id = Number(obj.slotVariableNodeId);
+        }
+        return message;
+    }
 };
 
 tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.prototype.original_variable_node_id = 0;
@@ -4581,6 +5844,17 @@ tensorflow.RegisteredSaver = class RegisteredSaver {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.RegisteredSaver();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('objectName' in obj) {
+            message.object_name = obj.objectName;
         }
         return message;
     }
@@ -4660,6 +5934,32 @@ tensorflow.SaverDef = class SaverDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SaverDef();
+        if ('filenameTensorName' in obj) {
+            message.filename_tensor_name = obj.filenameTensorName;
+        }
+        if ('saveTensorName' in obj) {
+            message.save_tensor_name = obj.saveTensorName;
+        }
+        if ('restoreOpName' in obj) {
+            message.restore_op_name = obj.restoreOpName;
+        }
+        if ('maxToKeep' in obj) {
+            message.max_to_keep = Number(obj.maxToKeep);
+        }
+        if ('sharded' in obj) {
+            message.sharded = obj.sharded;
+        }
+        if ('keepCheckpointEveryNHours' in obj) {
+            message.keep_checkpoint_every_n_hours = Number(obj.keepCheckpointEveryNHours);
+        }
+        if ('version' in obj) {
+            message.version = typeof obj.version === 'string' ? tensorflow.SaverDef.CheckpointFormatVersion[obj.version] : obj.version;
+        }
+        return message;
+    }
 };
 
 tensorflow.SaverDef.prototype.filename_tensor_name = "";
@@ -4720,6 +6020,20 @@ tensorflow.BundleHeaderProto = class BundleHeaderProto {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.BundleHeaderProto();
+        if ('numShards' in obj) {
+            message.num_shards = Number(obj.numShards);
+        }
+        if ('endianness' in obj) {
+            message.endianness = typeof obj.endianness === 'string' ? tensorflow.BundleHeaderProto.Endianness[obj.endianness] : obj.endianness;
+        }
+        if ('version' in obj) {
+            message.version = tensorflow.VersionDef.decodeJson(obj.version);
         }
         return message;
     }
@@ -4809,6 +6123,32 @@ tensorflow.BundleEntryProto = class BundleEntryProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.BundleEntryProto();
+        if ('dtype' in obj) {
+            message.dtype = typeof obj.dtype === 'string' ? tensorflow.DataType[obj.dtype] : obj.dtype;
+        }
+        if ('shape' in obj) {
+            message.shape = tensorflow.TensorShapeProto.decodeJson(obj.shape);
+        }
+        if ('shardId' in obj) {
+            message.shard_id = Number(obj.shardId);
+        }
+        if ('offset' in obj) {
+            message.offset = BigInt(obj.offset);
+        }
+        if ('size' in obj) {
+            message.size = BigInt(obj.size);
+        }
+        if ('crc32c' in obj) {
+            message.crc32c = Number(obj.crc32c);
+        }
+        if ('slices' in obj) {
+            message.slices = obj.slices.map((obj) => tensorflow.TensorSliceProto.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.BundleEntryProto.prototype.dtype = 0;
@@ -4857,6 +6197,14 @@ tensorflow.TensorSliceProto = class TensorSliceProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TensorSliceProto();
+        if ('extent' in obj) {
+            message.extent = obj.extent.map((obj) => tensorflow.TensorSliceProto.Extent.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.TensorSliceProto.Extent = class Extent {
@@ -4902,6 +6250,17 @@ tensorflow.TensorSliceProto.Extent = class Extent {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TensorSliceProto.Extent();
+        if ('start' in obj) {
+            message.start = BigInt(obj.start);
+        }
+        if ('length' in obj) {
+            message.length = BigInt(obj.length);
         }
         return message;
     }
@@ -4966,6 +6325,23 @@ tensorflow.SavedSliceMeta = class SavedSliceMeta {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedSliceMeta();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('shape' in obj) {
+            message.shape = tensorflow.TensorShapeProto.decodeJson(obj.shape);
+        }
+        if ('type' in obj) {
+            message.type = typeof obj.type === 'string' ? tensorflow.DataType[obj.type] : obj.type;
+        }
+        if ('slice' in obj) {
+            message.slice = obj.slice.map((obj) => tensorflow.TensorSliceProto.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.SavedSliceMeta.prototype.name = "";
@@ -5014,6 +6390,17 @@ tensorflow.SavedTensorSliceMeta = class SavedTensorSliceMeta {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedTensorSliceMeta();
+        if ('tensor' in obj) {
+            message.tensor = obj.tensor.map((obj) => tensorflow.SavedSliceMeta.decodeJson(obj));
+        }
+        if ('versions' in obj) {
+            message.versions = tensorflow.VersionDef.decodeJson(obj.versions);
         }
         return message;
     }
@@ -5068,6 +6455,20 @@ tensorflow.SavedSlice = class SavedSlice {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedSlice();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('slice' in obj) {
+            message.slice = tensorflow.TensorSliceProto.decodeJson(obj.slice);
+        }
+        if ('data' in obj) {
+            message.data = tensorflow.TensorProto.decodeJson(obj.data);
+        }
+        return message;
+    }
 };
 
 tensorflow.SavedSlice.prototype.name = "";
@@ -5112,6 +6513,17 @@ tensorflow.SavedTensorSlices = class SavedTensorSlices {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SavedTensorSlices();
+        if ('meta' in obj) {
+            message.meta = tensorflow.SavedTensorSliceMeta.decodeJson(obj.meta);
+        }
+        if ('data' in obj) {
+            message.data = tensorflow.SavedSlice.decodeJson(obj.data);
         }
         return message;
     }
@@ -5214,6 +6626,41 @@ tensorflow.Event = class Event {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.Event();
+        if ('wallTime' in obj) {
+            message.wall_time = Number(obj.wallTime);
+        }
+        if ('step' in obj) {
+            message.step = BigInt(obj.step);
+        }
+        if ('fileVersion' in obj) {
+            message.file_version = obj.fileVersion;
+        }
+        if ('graphDef' in obj) {
+            message.graph_def = typeof source === 'string' ? Uint8Array.from(atob(obj.graphDef), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.graphDef);
+        }
+        if ('summary' in obj) {
+            message.summary = tensorflow.Summary.decodeJson(obj.summary);
+        }
+        if ('logMessage' in obj) {
+            message.log_message = tensorflow.LogMessage.decodeJson(obj.logMessage);
+        }
+        if ('sessionLog' in obj) {
+            message.session_log = tensorflow.SessionLog.decodeJson(obj.sessionLog);
+        }
+        if ('taggedRunMetadata' in obj) {
+            message.tagged_run_metadata = tensorflow.TaggedRunMetadata.decodeJson(obj.taggedRunMetadata);
+        }
+        if ('metaGraphDef' in obj) {
+            message.meta_graph_def = typeof source === 'string' ? Uint8Array.from(atob(obj.metaGraphDef), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.metaGraphDef);
+        }
+        if ('sourceMetadata' in obj) {
+            message.source_metadata = tensorflow.SourceMetadata.decodeJson(obj.sourceMetadata);
+        }
+        return message;
+    }
 };
 
 tensorflow.Event.prototype.wall_time = 0;
@@ -5252,6 +6699,14 @@ tensorflow.SourceMetadata = class SourceMetadata {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SourceMetadata();
+        if ('writer' in obj) {
+            message.writer = obj.writer;
         }
         return message;
     }
@@ -5297,6 +6752,17 @@ tensorflow.LogMessage = class LogMessage {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.LogMessage();
+        if ('level' in obj) {
+            message.level = typeof obj.level === 'string' ? tensorflow.LogMessage.Level[obj.level] : obj.level;
+        }
+        if ('message' in obj) {
+            message.message = obj.message;
         }
         return message;
     }
@@ -5361,6 +6827,20 @@ tensorflow.SessionLog = class SessionLog {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SessionLog();
+        if ('status' in obj) {
+            message.status = typeof obj.status === 'string' ? tensorflow.SessionLog.SessionStatus[obj.status] : obj.status;
+        }
+        if ('checkpointPath' in obj) {
+            message.checkpoint_path = obj.checkpointPath;
+        }
+        if ('msg' in obj) {
+            message.msg = obj.msg;
+        }
+        return message;
+    }
 };
 
 tensorflow.SessionLog.prototype.status = 0;
@@ -5412,6 +6892,17 @@ tensorflow.TaggedRunMetadata = class TaggedRunMetadata {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TaggedRunMetadata();
+        if ('tag' in obj) {
+            message.tag = obj.tag;
+        }
+        if ('runMetadata' in obj) {
+            message.run_metadata = typeof source === 'string' ? Uint8Array.from(atob(obj.runMetadata), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.runMetadata);
         }
         return message;
     }
@@ -5469,6 +6960,14 @@ tensorflow.WatchdogConfig = class WatchdogConfig {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.WatchdogConfig();
+        if ('timeoutMs' in obj) {
+            message.timeout_ms = BigInt(obj.timeoutMs);
+        }
+        return message;
+    }
 };
 
 tensorflow.WatchdogConfig.prototype.timeout_ms = 0n;
@@ -5505,6 +7004,14 @@ tensorflow.RequestedExitCode = class RequestedExitCode {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.RequestedExitCode();
+        if ('exitCode' in obj) {
+            message.exit_code = Number(obj.exitCode);
         }
         return message;
     }
@@ -5556,6 +7063,20 @@ tensorflow.WorkerHeartbeatRequest = class WorkerHeartbeatRequest {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.WorkerHeartbeatRequest();
+        if ('shutdownMode' in obj) {
+            message.shutdown_mode = typeof obj.shutdownMode === 'string' ? tensorflow.WorkerShutdownMode[obj.shutdownMode] : obj.shutdownMode;
+        }
+        if ('watchdogConfig' in obj) {
+            message.watchdog_config = tensorflow.WatchdogConfig.decodeJson(obj.watchdogConfig);
+        }
+        if ('exitCode' in obj) {
+            message.exit_code = tensorflow.RequestedExitCode.decodeJson(obj.exitCode);
         }
         return message;
     }
@@ -5616,6 +7137,20 @@ tensorflow.WorkerHeartbeatResponse = class WorkerHeartbeatResponse {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.WorkerHeartbeatResponse();
+        if ('healthStatus' in obj) {
+            message.health_status = typeof obj.healthStatus === 'string' ? tensorflow.WorkerHealth[obj.healthStatus] : obj.healthStatus;
+        }
+        if ('workerLog' in obj) {
+            message.worker_log = obj.workerLog.map((obj) => tensorflow.Event.decodeJson(obj));
+        }
+        if ('hostname' in obj) {
+            message.hostname = obj.hostname;
+        }
+        return message;
+    }
 };
 
 tensorflow.WorkerHeartbeatResponse.prototype.health_status = 0;
@@ -5653,6 +7188,14 @@ tensorflow.SummaryDescription = class SummaryDescription {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SummaryDescription();
+        if ('typeHint' in obj) {
+            message.type_hint = obj.typeHint;
         }
         return message;
     }
@@ -5713,6 +7256,23 @@ tensorflow.SummaryMetadata = class SummaryMetadata {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SummaryMetadata();
+        if ('pluginData' in obj) {
+            message.plugin_data = tensorflow.SummaryMetadata.PluginData.decodeJson(obj.pluginData);
+        }
+        if ('displayName' in obj) {
+            message.display_name = obj.displayName;
+        }
+        if ('summaryDescription' in obj) {
+            message.summary_description = obj.summaryDescription;
+        }
+        if ('dataClass' in obj) {
+            message.data_class = typeof obj.dataClass === 'string' ? tensorflow.DataClass[obj.dataClass] : obj.dataClass;
+        }
+        return message;
+    }
 };
 
 tensorflow.SummaryMetadata.prototype.plugin_data = null;
@@ -5758,6 +7318,17 @@ tensorflow.SummaryMetadata.PluginData = class PluginData {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SummaryMetadata.PluginData();
+        if ('pluginName' in obj) {
+            message.plugin_name = obj.pluginName;
+        }
+        if ('content' in obj) {
+            message.content = typeof source === 'string' ? Uint8Array.from(atob(obj.content), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.content);
         }
         return message;
     }
@@ -5809,6 +7380,14 @@ tensorflow.Summary = class Summary {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.Summary();
+        if ('value' in obj) {
+            message.value = obj.value.map((obj) => tensorflow.Summary.Value.decodeJson(obj));
         }
         return message;
     }
@@ -5864,6 +7443,23 @@ tensorflow.Summary.Image = class Image {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.Summary.Image();
+        if ('height' in obj) {
+            message.height = Number(obj.height);
+        }
+        if ('width' in obj) {
+            message.width = Number(obj.width);
+        }
+        if ('colorspace' in obj) {
+            message.colorspace = Number(obj.colorspace);
+        }
+        if ('encodedImageString' in obj) {
+            message.encoded_image_string = typeof source === 'string' ? Uint8Array.from(atob(obj.encodedImageString), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.encodedImageString);
         }
         return message;
     }
@@ -5930,6 +7526,26 @@ tensorflow.Summary.Audio = class Audio {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.Summary.Audio();
+        if ('sampleRate' in obj) {
+            message.sample_rate = Number(obj.sampleRate);
+        }
+        if ('numChannels' in obj) {
+            message.num_channels = BigInt(obj.numChannels);
+        }
+        if ('lengthFrames' in obj) {
+            message.length_frames = BigInt(obj.lengthFrames);
+        }
+        if ('encodedAudioString' in obj) {
+            message.encoded_audio_string = typeof source === 'string' ? Uint8Array.from(atob(obj.encodedAudioString), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.encodedAudioString);
+        }
+        if ('contentType' in obj) {
+            message.content_type = obj.contentType;
         }
         return message;
     }
@@ -6029,6 +7645,38 @@ tensorflow.Summary.Value = class Value {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.Summary.Value();
+        if ('nodeName' in obj) {
+            message.node_name = obj.nodeName;
+        }
+        if ('tag' in obj) {
+            message.tag = obj.tag;
+        }
+        if ('metadata' in obj) {
+            message.metadata = tensorflow.SummaryMetadata.decodeJson(obj.metadata);
+        }
+        if ('simpleValue' in obj) {
+            message.simple_value = Number(obj.simpleValue);
+        }
+        if ('obsoleteOldStyleHistogram' in obj) {
+            message.obsolete_old_style_histogram = typeof source === 'string' ? Uint8Array.from(atob(obj.obsoleteOldStyleHistogram), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.obsoleteOldStyleHistogram);
+        }
+        if ('image' in obj) {
+            message.image = tensorflow.Summary.Image.decodeJson(obj.image);
+        }
+        if ('histo' in obj) {
+            message.histo = tensorflow.HistogramProto.decodeJson(obj.histo);
+        }
+        if ('audio' in obj) {
+            message.audio = tensorflow.Summary.Audio.decodeJson(obj.audio);
+        }
+        if ('tensor' in obj) {
+            message.tensor = tensorflow.TensorProto.decodeJson(obj.tensor);
+        }
+        return message;
+    }
 };
 
 tensorflow.Summary.Value.prototype.node_name = "";
@@ -6108,6 +7756,32 @@ tensorflow.HistogramProto = class HistogramProto {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.HistogramProto();
+        if ('min' in obj) {
+            message.min = Number(obj.min);
+        }
+        if ('max' in obj) {
+            message.max = Number(obj.max);
+        }
+        if ('num' in obj) {
+            message.num = Number(obj.num);
+        }
+        if ('sum' in obj) {
+            message.sum = Number(obj.sum);
+        }
+        if ('sumSquares' in obj) {
+            message.sum_squares = Number(obj.sumSquares);
+        }
+        if ('bucketLimit' in obj) {
+            message.bucket_limit = obj.bucketLimit.map((obj) => Number(obj));
+        }
+        if ('bucket' in obj) {
+            message.bucket = obj.bucket.map((obj) => Number(obj));
         }
         return message;
     }
@@ -6199,6 +7873,38 @@ tensorflow.GPUOptions = class GPUOptions {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.GPUOptions();
+        if ('perProcessGpuMemoryFraction' in obj) {
+            message.per_process_gpu_memory_fraction = Number(obj.perProcessGpuMemoryFraction);
+        }
+        if ('allowGrowth' in obj) {
+            message.allow_growth = obj.allowGrowth;
+        }
+        if ('allocatorType' in obj) {
+            message.allocator_type = obj.allocatorType;
+        }
+        if ('deferredDeletionBytes' in obj) {
+            message.deferred_deletion_bytes = BigInt(obj.deferredDeletionBytes);
+        }
+        if ('visibleDeviceList' in obj) {
+            message.visible_device_list = obj.visibleDeviceList;
+        }
+        if ('pollingActiveDelayUsecs' in obj) {
+            message.polling_active_delay_usecs = Number(obj.pollingActiveDelayUsecs);
+        }
+        if ('pollingInactiveDelayMsecs' in obj) {
+            message.polling_inactive_delay_msecs = Number(obj.pollingInactiveDelayMsecs);
+        }
+        if ('forceGpuCompatible' in obj) {
+            message.force_gpu_compatible = obj.forceGpuCompatible;
+        }
+        if ('experimental' in obj) {
+            message.experimental = tensorflow.GPUOptions.Experimental.decodeJson(obj.experimental);
         }
         return message;
     }
@@ -6355,6 +8061,65 @@ tensorflow.GPUOptions.Experimental = class Experimental {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.GPUOptions.Experimental();
+        if ('virtualDevices' in obj) {
+            message.virtual_devices = obj.virtualDevices.map((obj) => tensorflow.GPUOptions.Experimental.VirtualDevices.decodeJson(obj));
+        }
+        if ('numVirtualDevicesPerGpu' in obj) {
+            message.num_virtual_devices_per_gpu = Number(obj.numVirtualDevicesPerGpu);
+        }
+        if ('useUnifiedMemory' in obj) {
+            message.use_unified_memory = obj.useUnifiedMemory;
+        }
+        if ('numDevToDevCopyStreams' in obj) {
+            message.num_dev_to_dev_copy_streams = Number(obj.numDevToDevCopyStreams);
+        }
+        if ('collectiveRingOrder' in obj) {
+            message.collective_ring_order = obj.collectiveRingOrder;
+        }
+        if ('timestampedAllocator' in obj) {
+            message.timestamped_allocator = obj.timestampedAllocator;
+        }
+        if ('kernelTrackerMaxInterval' in obj) {
+            message.kernel_tracker_max_interval = Number(obj.kernelTrackerMaxInterval);
+        }
+        if ('kernelTrackerMaxBytes' in obj) {
+            message.kernel_tracker_max_bytes = Number(obj.kernelTrackerMaxBytes);
+        }
+        if ('kernelTrackerMaxPending' in obj) {
+            message.kernel_tracker_max_pending = Number(obj.kernelTrackerMaxPending);
+        }
+        if ('internalFragmentationFraction' in obj) {
+            message.internal_fragmentation_fraction = Number(obj.internalFragmentationFraction);
+        }
+        if ('useCudaMallocAsync' in obj) {
+            message.use_cuda_malloc_async = obj.useCudaMallocAsync;
+        }
+        if ('disallowRetryOnAllocationFailure' in obj) {
+            message.disallow_retry_on_allocation_failure = obj.disallowRetryOnAllocationFailure;
+        }
+        if ('gpuHostMemLimitInMb' in obj) {
+            message.gpu_host_mem_limit_in_mb = Number(obj.gpuHostMemLimitInMb);
+        }
+        if ('gpuHostMemDisallowGrowth' in obj) {
+            message.gpu_host_mem_disallow_growth = obj.gpuHostMemDisallowGrowth;
+        }
+        if ('gpuSystemMemorySizeInMb' in obj) {
+            message.gpu_system_memory_size_in_mb = Number(obj.gpuSystemMemorySizeInMb);
+        }
+        if ('populatePjrtGpuClientCreationInfo' in obj) {
+            message.populate_pjrt_gpu_client_creation_info = obj.populatePjrtGpuClientCreationInfo;
+        }
+        if ('nodeId' in obj) {
+            message.node_id = Number(obj.nodeId);
+        }
+        if ('streamMergeOptions' in obj) {
+            message.stream_merge_options = tensorflow.GPUOptions.Experimental.StreamMergeOptions.decodeJson(obj.streamMergeOptions);
+        }
+        return message;
+    }
 };
 
 tensorflow.GPUOptions.Experimental.prototype.num_virtual_devices_per_gpu = 0;
@@ -6428,6 +8193,20 @@ tensorflow.GPUOptions.Experimental.VirtualDevices = class VirtualDevices {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.GPUOptions.Experimental.VirtualDevices();
+        if ('memoryLimitMb' in obj) {
+            message.memory_limit_mb = obj.memoryLimitMb.map((obj) => Number(obj));
+        }
+        if ('priority' in obj) {
+            message.priority = obj.priority.map((obj) => Number(obj));
+        }
+        if ('deviceOrdinal' in obj) {
+            message.device_ordinal = obj.deviceOrdinal.map((obj) => Number(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.GPUOptions.Experimental.StreamMergeOptions = class StreamMergeOptions {
@@ -6474,6 +8253,20 @@ tensorflow.GPUOptions.Experimental.StreamMergeOptions = class StreamMergeOptions
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.GPUOptions.Experimental.StreamMergeOptions();
+        if ('mergeHostToDeviceStream' in obj) {
+            message.merge_host_to_device_stream = obj.mergeHostToDeviceStream;
+        }
+        if ('mergeDeviceToHostStream' in obj) {
+            message.merge_device_to_host_stream = obj.mergeDeviceToHostStream;
+        }
+        if ('mergeDeviceToDeviceStream' in obj) {
+            message.merge_device_to_device_stream = obj.mergeDeviceToDeviceStream;
         }
         return message;
     }
@@ -6551,6 +8344,32 @@ tensorflow.OptimizerOptions = class OptimizerOptions {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.OptimizerOptions();
+        if ('doCommonSubexpressionElimination' in obj) {
+            message.do_common_subexpression_elimination = obj.doCommonSubexpressionElimination;
+        }
+        if ('doConstantFolding' in obj) {
+            message.do_constant_folding = obj.doConstantFolding;
+        }
+        if ('maxFoldedConstantInBytes' in obj) {
+            message.max_folded_constant_in_bytes = BigInt(obj.maxFoldedConstantInBytes);
+        }
+        if ('doFunctionInlining' in obj) {
+            message.do_function_inlining = obj.doFunctionInlining;
+        }
+        if ('optLevel' in obj) {
+            message.opt_level = typeof obj.optLevel === 'string' ? tensorflow.OptimizerOptions.Level[obj.optLevel] : obj.optLevel;
+        }
+        if ('globalJitLevel' in obj) {
+            message.global_jit_level = typeof obj.globalJitLevel === 'string' ? tensorflow.OptimizerOptions.GlobalJitLevel[obj.globalJitLevel] : obj.globalJitLevel;
+        }
+        if ('cpuGlobalJit' in obj) {
+            message.cpu_global_jit = obj.cpuGlobalJit;
         }
         return message;
     }
@@ -6659,6 +8478,38 @@ tensorflow.GraphOptions = class GraphOptions {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.GraphOptions();
+        if ('enableRecvScheduling' in obj) {
+            message.enable_recv_scheduling = obj.enableRecvScheduling;
+        }
+        if ('optimizerOptions' in obj) {
+            message.optimizer_options = tensorflow.OptimizerOptions.decodeJson(obj.optimizerOptions);
+        }
+        if ('buildCostModel' in obj) {
+            message.build_cost_model = BigInt(obj.buildCostModel);
+        }
+        if ('buildCostModelAfter' in obj) {
+            message.build_cost_model_after = BigInt(obj.buildCostModelAfter);
+        }
+        if ('inferShapes' in obj) {
+            message.infer_shapes = obj.inferShapes;
+        }
+        if ('placePrunedGraph' in obj) {
+            message.place_pruned_graph = obj.placePrunedGraph;
+        }
+        if ('enableBfloat16Sendrecv' in obj) {
+            message.enable_bfloat16_sendrecv = obj.enableBfloat16Sendrecv;
+        }
+        if ('timelineStep' in obj) {
+            message.timeline_step = Number(obj.timelineStep);
+        }
+        if ('rewriteOptions' in obj) {
+            message.rewrite_options = tensorflow.RewriterConfig.decodeJson(obj.rewriteOptions);
+        }
+        return message;
+    }
 };
 
 tensorflow.GraphOptions.prototype.enable_recv_scheduling = false;
@@ -6712,6 +8563,17 @@ tensorflow.ThreadPoolOptionProto = class ThreadPoolOptionProto {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.ThreadPoolOptionProto();
+        if ('numThreads' in obj) {
+            message.num_threads = Number(obj.numThreads);
+        }
+        if ('globalName' in obj) {
+            message.global_name = obj.globalName;
+        }
+        return message;
+    }
 };
 
 tensorflow.ThreadPoolOptionProto.prototype.num_threads = 0;
@@ -6755,6 +8617,17 @@ tensorflow.SessionMetadata = class SessionMetadata {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.SessionMetadata();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('version' in obj) {
+            message.version = BigInt(obj.version);
         }
         return message;
     }
@@ -6903,6 +8776,67 @@ tensorflow.ConfigProto = class ConfigProto {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.ConfigProto();
+        if ('deviceCount' in obj) {
+            for (const [key, value] of Object.entries(obj.deviceCount)) {
+                message.device_count[key] = value;
+            }
+        }
+        if ('intraOpParallelismThreads' in obj) {
+            message.intra_op_parallelism_threads = Number(obj.intraOpParallelismThreads);
+        }
+        if ('interOpParallelismThreads' in obj) {
+            message.inter_op_parallelism_threads = Number(obj.interOpParallelismThreads);
+        }
+        if ('usePerSessionThreads' in obj) {
+            message.use_per_session_threads = obj.usePerSessionThreads;
+        }
+        if ('sessionInterOpThreadPool' in obj) {
+            message.session_inter_op_thread_pool = obj.sessionInterOpThreadPool.map((obj) => tensorflow.ThreadPoolOptionProto.decodeJson(obj));
+        }
+        if ('placementPeriod' in obj) {
+            message.placement_period = Number(obj.placementPeriod);
+        }
+        if ('deviceFilters' in obj) {
+            message.device_filters = obj.deviceFilters;
+        }
+        if ('gpuOptions' in obj) {
+            message.gpu_options = tensorflow.GPUOptions.decodeJson(obj.gpuOptions);
+        }
+        if ('pluggableDeviceOptions' in obj) {
+            message.pluggable_device_options = tensorflow.GPUOptions.decodeJson(obj.pluggableDeviceOptions);
+        }
+        if ('allowSoftPlacement' in obj) {
+            message.allow_soft_placement = obj.allowSoftPlacement;
+        }
+        if ('logDevicePlacement' in obj) {
+            message.log_device_placement = obj.logDevicePlacement;
+        }
+        if ('graphOptions' in obj) {
+            message.graph_options = tensorflow.GraphOptions.decodeJson(obj.graphOptions);
+        }
+        if ('operationTimeoutInMs' in obj) {
+            message.operation_timeout_in_ms = BigInt(obj.operationTimeoutInMs);
+        }
+        if ('rpcOptions' in obj) {
+            message.rpc_options = tensorflow.RPCOptions.decodeJson(obj.rpcOptions);
+        }
+        if ('clusterDef' in obj) {
+            message.cluster_def = tensorflow.ClusterDef.decodeJson(obj.clusterDef);
+        }
+        if ('isolateSessionState' in obj) {
+            message.isolate_session_state = obj.isolateSessionState;
+        }
+        if ('shareClusterDevicesInSession' in obj) {
+            message.share_cluster_devices_in_session = obj.shareClusterDevicesInSession;
+        }
+        if ('experimental' in obj) {
+            message.experimental = tensorflow.ConfigProto.Experimental.decodeJson(obj.experimental);
         }
         return message;
     }
@@ -7121,6 +9055,95 @@ tensorflow.ConfigProto.Experimental = class Experimental {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.ConfigProto.Experimental();
+        if ('collectiveGroupLeader' in obj) {
+            message.collective_group_leader = obj.collectiveGroupLeader;
+        }
+        if ('executorType' in obj) {
+            message.executor_type = obj.executorType;
+        }
+        if ('recvBufMaxChunk' in obj) {
+            message.recv_buf_max_chunk = Number(obj.recvBufMaxChunk);
+        }
+        if ('useNumaAffinity' in obj) {
+            message.use_numa_affinity = obj.useNumaAffinity;
+        }
+        if ('collectiveDeterministicSequentialExecution' in obj) {
+            message.collective_deterministic_sequential_execution = obj.collectiveDeterministicSequentialExecution;
+        }
+        if ('collectiveNccl' in obj) {
+            message.collective_nccl = obj.collectiveNccl;
+        }
+        if ('shareSessionStateInClusterspecPropagation' in obj) {
+            message.share_session_state_in_clusterspec_propagation = obj.shareSessionStateInClusterspecPropagation;
+        }
+        if ('disableThreadSpinning' in obj) {
+            message.disable_thread_spinning = obj.disableThreadSpinning;
+        }
+        if ('shareClusterDevicesInSession' in obj) {
+            message.share_cluster_devices_in_session = obj.shareClusterDevicesInSession;
+        }
+        if ('sessionMetadata' in obj) {
+            message.session_metadata = tensorflow.SessionMetadata.decodeJson(obj.sessionMetadata);
+        }
+        if ('optimizeForStaticGraph' in obj) {
+            message.optimize_for_static_graph = obj.optimizeForStaticGraph;
+        }
+        if ('enableMlirBridge' in obj) {
+            message.enable_mlir_bridge = obj.enableMlirBridge;
+        }
+        if ('mlirBridgeRollout' in obj) {
+            message.mlir_bridge_rollout = typeof obj.mlirBridgeRollout === 'string' ? tensorflow.ConfigProto.Experimental.MlirBridgeRollout[obj.mlirBridgeRollout] : obj.mlirBridgeRollout;
+        }
+        if ('enableMlirGraphOptimization' in obj) {
+            message.enable_mlir_graph_optimization = obj.enableMlirGraphOptimization;
+        }
+        if ('disableOutputPartitionGraphs' in obj) {
+            message.disable_output_partition_graphs = obj.disableOutputPartitionGraphs;
+        }
+        if ('xlaFusionAutotunerThresh' in obj) {
+            message.xla_fusion_autotuner_thresh = BigInt(obj.xlaFusionAutotunerThresh);
+        }
+        if ('useTfrt' in obj) {
+            message.use_tfrt = obj.useTfrt;
+        }
+        if ('enableMultiHost' in obj) {
+            message.enable_multi_host = obj.enableMultiHost;
+        }
+        if ('tfrtUseIfrt' in obj) {
+            message.tfrt_use_ifrt = obj.tfrtUseIfrt;
+        }
+        if ('backendServerPort' in obj) {
+            message.backend_server_port = Number(obj.backendServerPort);
+        }
+        if ('targetTpu' in obj) {
+            message.target_tpu = obj.targetTpu;
+        }
+        if ('targetGpu' in obj) {
+            message.target_gpu = obj.targetGpu;
+        }
+        if ('streamMergeThreshold' in obj) {
+            message.stream_merge_threshold = Number(obj.streamMergeThreshold);
+        }
+        if ('disableFunctionalOpsLowering' in obj) {
+            message.disable_functional_ops_lowering = obj.disableFunctionalOpsLowering;
+        }
+        if ('xlaPreferSingleGraphCluster' in obj) {
+            message.xla_prefer_single_graph_cluster = obj.xlaPreferSingleGraphCluster;
+        }
+        if ('coordinationConfig' in obj) {
+            message.coordination_config = tensorflow.CoordinationServiceConfig.decodeJson(obj.coordinationConfig);
+        }
+        if ('disableOptimizeForStaticGraph' in obj) {
+            message.disable_optimize_for_static_graph = obj.disableOptimizeForStaticGraph;
+        }
+        if ('disableEagerExecutorStreamingEnqueue' in obj) {
+            message.disable_eager_executor_streaming_enqueue = obj.disableEagerExecutorStreamingEnqueue;
+        }
+        return message;
+    }
 };
 
 tensorflow.ConfigProto.Experimental.prototype.collective_group_leader = "";
@@ -7229,6 +9252,32 @@ tensorflow.RunOptions = class RunOptions {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.RunOptions();
+        if ('traceLevel' in obj) {
+            message.trace_level = typeof obj.traceLevel === 'string' ? tensorflow.RunOptions.TraceLevel[obj.traceLevel] : obj.traceLevel;
+        }
+        if ('timeoutInMs' in obj) {
+            message.timeout_in_ms = BigInt(obj.timeoutInMs);
+        }
+        if ('interOpThreadPool' in obj) {
+            message.inter_op_thread_pool = Number(obj.interOpThreadPool);
+        }
+        if ('outputPartitionGraphs' in obj) {
+            message.output_partition_graphs = obj.outputPartitionGraphs;
+        }
+        if ('debugOptions' in obj) {
+            message.debug_options = tensorflow.DebugOptions.decodeJson(obj.debugOptions);
+        }
+        if ('reportTensorAllocationsUponOom' in obj) {
+            message.report_tensor_allocations_upon_oom = obj.reportTensorAllocationsUponOom;
+        }
+        if ('experimental' in obj) {
+            message.experimental = tensorflow.RunOptions.Experimental.decodeJson(obj.experimental);
+        }
+        return message;
+    }
 };
 
 tensorflow.RunOptions.prototype.trace_level = 0;
@@ -7293,6 +9342,20 @@ tensorflow.RunOptions.Experimental = class Experimental {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.RunOptions.Experimental();
+        if ('collectiveGraphKey' in obj) {
+            message.collective_graph_key = BigInt(obj.collectiveGraphKey);
+        }
+        if ('useRunHandlerPool' in obj) {
+            message.use_run_handler_pool = obj.useRunHandlerPool;
+        }
+        if ('runHandlerPoolOptions' in obj) {
+            message.run_handler_pool_options = tensorflow.RunOptions.Experimental.RunHandlerPoolOptions.decodeJson(obj.runHandlerPoolOptions);
+        }
+        return message;
+    }
 };
 
 tensorflow.RunOptions.Experimental.prototype.collective_graph_key = 0n;
@@ -7331,6 +9394,14 @@ tensorflow.RunOptions.Experimental.RunHandlerPoolOptions = class RunHandlerPoolO
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.RunOptions.Experimental.RunHandlerPoolOptions();
+        if ('priority' in obj) {
+            message.priority = BigInt(obj.priority);
         }
         return message;
     }
@@ -7402,6 +9473,26 @@ tensorflow.RunMetadata = class RunMetadata {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.RunMetadata();
+        if ('stepStats' in obj) {
+            message.step_stats = tensorflow.StepStats.decodeJson(obj.stepStats);
+        }
+        if ('costGraph' in obj) {
+            message.cost_graph = tensorflow.CostGraphDef.decodeJson(obj.costGraph);
+        }
+        if ('partitionGraphs' in obj) {
+            message.partition_graphs = obj.partitionGraphs.map((obj) => tensorflow.GraphDef.decodeJson(obj));
+        }
+        if ('functionGraphs' in obj) {
+            message.function_graphs = obj.functionGraphs.map((obj) => tensorflow.RunMetadata.FunctionGraphs.decodeJson(obj));
+        }
+        if ('sessionMetadata' in obj) {
+            message.session_metadata = tensorflow.SessionMetadata.decodeJson(obj.sessionMetadata);
+        }
+        return message;
+    }
 };
 
 tensorflow.RunMetadata.prototype.step_stats = null;
@@ -7459,6 +9550,20 @@ tensorflow.RunMetadata.FunctionGraphs = class FunctionGraphs {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.RunMetadata.FunctionGraphs();
+        if ('partitionGraphs' in obj) {
+            message.partition_graphs = obj.partitionGraphs.map((obj) => tensorflow.GraphDef.decodeJson(obj));
+        }
+        if ('preOptimizationGraph' in obj) {
+            message.pre_optimization_graph = tensorflow.GraphDef.decodeJson(obj.preOptimizationGraph);
+        }
+        if ('postOptimizationGraph' in obj) {
+            message.post_optimization_graph = tensorflow.GraphDef.decodeJson(obj.postOptimizationGraph);
+        }
+        return message;
+    }
 };
 
 tensorflow.RunMetadata.FunctionGraphs.prototype.pre_optimization_graph = null;
@@ -7502,6 +9607,17 @@ tensorflow.TensorConnection = class TensorConnection {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TensorConnection();
+        if ('fromTensor' in obj) {
+            message.from_tensor = obj.fromTensor;
+        }
+        if ('toTensor' in obj) {
+            message.to_tensor = obj.toTensor;
         }
         return message;
     }
@@ -7596,6 +9712,39 @@ tensorflow.CallableOptions = class CallableOptions {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CallableOptions();
+        if ('feed' in obj) {
+            message.feed = obj.feed;
+        }
+        if ('fetch' in obj) {
+            message.fetch = obj.fetch;
+        }
+        if ('target' in obj) {
+            message.target = obj.target;
+        }
+        if ('runOptions' in obj) {
+            message.run_options = tensorflow.RunOptions.decodeJson(obj.runOptions);
+        }
+        if ('tensorConnection' in obj) {
+            message.tensor_connection = obj.tensorConnection.map((obj) => tensorflow.TensorConnection.decodeJson(obj));
+        }
+        if ('feedDevices' in obj) {
+            for (const [key, value] of Object.entries(obj.feedDevices)) {
+                message.feed_devices[key] = value;
+            }
+        }
+        if ('fetchDevices' in obj) {
+            for (const [key, value] of Object.entries(obj.fetchDevices)) {
+                message.fetch_devices[key] = value;
+            }
+        }
+        if ('fetchSkipSync' in obj) {
+            message.fetch_skip_sync = obj.fetchSkipSync;
+        }
+        return message;
+    }
 };
 
 tensorflow.CallableOptions.prototype.run_options = null;
@@ -7664,6 +9813,26 @@ tensorflow.BatchingOptions = class BatchingOptions {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.BatchingOptions();
+        if ('numBatchThreads' in obj) {
+            message.num_batch_threads = Number(obj.numBatchThreads);
+        }
+        if ('maxBatchSize' in obj) {
+            message.max_batch_size = Number(obj.maxBatchSize);
+        }
+        if ('batchTimeoutMicros' in obj) {
+            message.batch_timeout_micros = Number(obj.batchTimeoutMicros);
+        }
+        if ('allowedBatchSizes' in obj) {
+            message.allowed_batch_sizes = obj.allowedBatchSizes.map((obj) => Number(obj));
+        }
+        if ('maxEnqueuedBatches' in obj) {
+            message.max_enqueued_batches = Number(obj.maxEnqueuedBatches);
+        }
+        return message;
+    }
 };
 
 tensorflow.BatchingOptions.prototype.num_batch_threads = 0;
@@ -7709,6 +9878,17 @@ tensorflow.CoordinatedJob = class CoordinatedJob {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CoordinatedJob();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('numTasks' in obj) {
+            message.num_tasks = Number(obj.numTasks);
         }
         return message;
     }
@@ -7829,6 +10009,50 @@ tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CoordinationServiceConfig();
+        if ('serviceType' in obj) {
+            message.service_type = obj.serviceType;
+        }
+        if ('serviceLeader' in obj) {
+            message.service_leader = obj.serviceLeader;
+        }
+        if ('enableHealthCheck' in obj) {
+            message.enable_health_check = obj.enableHealthCheck;
+        }
+        if ('clusterRegisterTimeoutInMs' in obj) {
+            message.cluster_register_timeout_in_ms = BigInt(obj.clusterRegisterTimeoutInMs);
+        }
+        if ('clusterRegisterWithBarrier' in obj) {
+            message.cluster_register_with_barrier = obj.clusterRegisterWithBarrier;
+        }
+        if ('heartbeatTimeoutInMs' in obj) {
+            message.heartbeat_timeout_in_ms = BigInt(obj.heartbeatTimeoutInMs);
+        }
+        if ('coordinatedJobList' in obj) {
+            message.coordinated_job_list = obj.coordinatedJobList.map((obj) => tensorflow.CoordinatedJob.decodeJson(obj));
+        }
+        if ('shutdownBarrierTimeoutInMs' in obj) {
+            message.shutdown_barrier_timeout_in_ms = BigInt(obj.shutdownBarrierTimeoutInMs);
+        }
+        if ('agentDestructionWithoutShutdown' in obj) {
+            message.agent_destruction_without_shutdown = obj.agentDestructionWithoutShutdown;
+        }
+        if ('recoverableJobs' in obj) {
+            message.recoverable_jobs = obj.recoverableJobs;
+        }
+        if ('allowNewIncarnationToReconnect' in obj) {
+            message.allow_new_incarnation_to_reconnect = obj.allowNewIncarnationToReconnect;
+        }
+        if ('forceDisable' in obj) {
+            message.force_disable = obj.forceDisable;
+        }
+        if ('pollForErrorFromServiceAtStartup' in obj) {
+            message.poll_for_error_from_service_at_startup = obj.pollForErrorFromServiceAtStartup;
+        }
+        return message;
+    }
 };
 
 tensorflow.CoordinationServiceConfig.prototype.service_type = "";
@@ -7886,6 +10110,17 @@ tensorflow.CostGraphDef = class CostGraphDef {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CostGraphDef();
+        if ('node' in obj) {
+            message.node = obj.node.map((obj) => tensorflow.CostGraphDef.Node.decodeJson(obj));
+        }
+        if ('cost' in obj) {
+            message.cost = obj.cost.map((obj) => tensorflow.CostGraphDef.AggregatedCost.decodeJson(obj));
         }
         return message;
     }
@@ -8022,6 +10257,59 @@ tensorflow.CostGraphDef.Node = class Node {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CostGraphDef.Node();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('device' in obj) {
+            message.device = obj.device;
+        }
+        if ('id' in obj) {
+            message.id = Number(obj.id);
+        }
+        if ('inputInfo' in obj) {
+            message.input_info = obj.inputInfo.map((obj) => tensorflow.CostGraphDef.Node.InputInfo.decodeJson(obj));
+        }
+        if ('outputInfo' in obj) {
+            message.output_info = obj.outputInfo.map((obj) => tensorflow.CostGraphDef.Node.OutputInfo.decodeJson(obj));
+        }
+        if ('temporaryMemorySize' in obj) {
+            message.temporary_memory_size = BigInt(obj.temporaryMemorySize);
+        }
+        if ('persistentMemorySize' in obj) {
+            message.persistent_memory_size = BigInt(obj.persistentMemorySize);
+        }
+        if ('hostTempMemorySize' in obj) {
+            message.host_temp_memory_size = BigInt(obj.hostTempMemorySize);
+        }
+        if ('deviceTempMemorySize' in obj) {
+            message.device_temp_memory_size = BigInt(obj.deviceTempMemorySize);
+        }
+        if ('devicePersistentMemorySize' in obj) {
+            message.device_persistent_memory_size = BigInt(obj.devicePersistentMemorySize);
+        }
+        if ('computeCost' in obj) {
+            message.compute_cost = BigInt(obj.computeCost);
+        }
+        if ('computeTime' in obj) {
+            message.compute_time = BigInt(obj.computeTime);
+        }
+        if ('memoryTime' in obj) {
+            message.memory_time = BigInt(obj.memoryTime);
+        }
+        if ('isFinal' in obj) {
+            message.is_final = obj.isFinal;
+        }
+        if ('controlInput' in obj) {
+            message.control_input = obj.controlInput.map((obj) => Number(obj));
+        }
+        if ('inaccurate' in obj) {
+            message.inaccurate = obj.inaccurate;
+        }
+        return message;
+    }
 };
 
 tensorflow.CostGraphDef.Node.prototype.name = "";
@@ -8076,6 +10364,17 @@ tensorflow.CostGraphDef.Node.InputInfo = class InputInfo {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CostGraphDef.Node.InputInfo();
+        if ('precedingNode' in obj) {
+            message.preceding_node = Number(obj.precedingNode);
+        }
+        if ('precedingPort' in obj) {
+            message.preceding_port = Number(obj.precedingPort);
         }
         return message;
     }
@@ -8137,6 +10436,23 @@ tensorflow.CostGraphDef.Node.OutputInfo = class OutputInfo {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CostGraphDef.Node.OutputInfo();
+        if ('size' in obj) {
+            message.size = BigInt(obj.size);
+        }
+        if ('aliasInputPort' in obj) {
+            message.alias_input_port = BigInt(obj.aliasInputPort);
+        }
+        if ('shape' in obj) {
+            message.shape = tensorflow.TensorShapeProto.decodeJson(obj.shape);
+        }
+        if ('dtype' in obj) {
+            message.dtype = typeof obj.dtype === 'string' ? tensorflow.DataType[obj.dtype] : obj.dtype;
+        }
+        return message;
+    }
 };
 
 tensorflow.CostGraphDef.Node.OutputInfo.prototype.size = 0n;
@@ -8185,6 +10501,17 @@ tensorflow.CostGraphDef.AggregatedCost = class AggregatedCost {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.CostGraphDef.AggregatedCost();
+        if ('cost' in obj) {
+            message.cost = Number(obj.cost);
+        }
+        if ('dimension' in obj) {
+            message.dimension = obj.dimension;
+        }
+        return message;
+    }
 };
 
 tensorflow.CostGraphDef.AggregatedCost.prototype.cost = 0;
@@ -8228,6 +10555,17 @@ tensorflow.AllocationRecord = class AllocationRecord {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.AllocationRecord();
+        if ('allocMicros' in obj) {
+            message.alloc_micros = BigInt(obj.allocMicros);
+        }
+        if ('allocBytes' in obj) {
+            message.alloc_bytes = BigInt(obj.allocBytes);
         }
         return message;
     }
@@ -8305,6 +10643,29 @@ tensorflow.AllocatorMemoryUsed = class AllocatorMemoryUsed {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.AllocatorMemoryUsed();
+        if ('allocatorName' in obj) {
+            message.allocator_name = obj.allocatorName;
+        }
+        if ('totalBytes' in obj) {
+            message.total_bytes = BigInt(obj.totalBytes);
+        }
+        if ('peakBytes' in obj) {
+            message.peak_bytes = BigInt(obj.peakBytes);
+        }
+        if ('liveBytes' in obj) {
+            message.live_bytes = BigInt(obj.liveBytes);
+        }
+        if ('allocationRecords' in obj) {
+            message.allocation_records = obj.allocationRecords.map((obj) => tensorflow.AllocationRecord.decodeJson(obj));
+        }
+        if ('allocatorBytesInUse' in obj) {
+            message.allocator_bytes_in_use = BigInt(obj.allocatorBytesInUse);
+        }
+        return message;
+    }
 };
 
 tensorflow.AllocatorMemoryUsed.prototype.allocator_name = "";
@@ -8351,6 +10712,17 @@ tensorflow.NodeOutput = class NodeOutput {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.NodeOutput();
+        if ('slot' in obj) {
+            message.slot = Number(obj.slot);
+        }
+        if ('tensorDescription' in obj) {
+            message.tensor_description = tensorflow.TensorDescription.decodeJson(obj.tensorDescription);
         }
         return message;
     }
@@ -8426,6 +10798,29 @@ tensorflow.MemoryStats = class MemoryStats {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.MemoryStats();
+        if ('tempMemorySize' in obj) {
+            message.temp_memory_size = BigInt(obj.tempMemorySize);
+        }
+        if ('persistentMemorySize' in obj) {
+            message.persistent_memory_size = BigInt(obj.persistentMemorySize);
+        }
+        if ('persistentTensorAllocIds' in obj) {
+            message.persistent_tensor_alloc_ids = obj.persistentTensorAllocIds.map((obj) => BigInt(obj));
+        }
+        if ('deviceTempMemorySize' in obj) {
+            message.device_temp_memory_size = BigInt(obj.deviceTempMemorySize);
+        }
+        if ('devicePersistentMemorySize' in obj) {
+            message.device_persistent_memory_size = BigInt(obj.devicePersistentMemorySize);
+        }
+        if ('devicePersistentTensorAllocIds' in obj) {
+            message.device_persistent_tensor_alloc_ids = obj.devicePersistentTensorAllocIds.map((obj) => BigInt(obj));
         }
         return message;
     }
@@ -8573,6 +10968,62 @@ tensorflow.NodeExecStats = class NodeExecStats {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.NodeExecStats();
+        if ('nodeName' in obj) {
+            message.node_name = obj.nodeName;
+        }
+        if ('allStartMicros' in obj) {
+            message.all_start_micros = BigInt(obj.allStartMicros);
+        }
+        if ('opStartRelMicros' in obj) {
+            message.op_start_rel_micros = BigInt(obj.opStartRelMicros);
+        }
+        if ('opEndRelMicros' in obj) {
+            message.op_end_rel_micros = BigInt(obj.opEndRelMicros);
+        }
+        if ('allEndRelMicros' in obj) {
+            message.all_end_rel_micros = BigInt(obj.allEndRelMicros);
+        }
+        if ('memory' in obj) {
+            message.memory = obj.memory.map((obj) => tensorflow.AllocatorMemoryUsed.decodeJson(obj));
+        }
+        if ('output' in obj) {
+            message.output = obj.output.map((obj) => tensorflow.NodeOutput.decodeJson(obj));
+        }
+        if ('timelineLabel' in obj) {
+            message.timeline_label = obj.timelineLabel;
+        }
+        if ('scheduledMicros' in obj) {
+            message.scheduled_micros = BigInt(obj.scheduledMicros);
+        }
+        if ('threadId' in obj) {
+            message.thread_id = Number(obj.threadId);
+        }
+        if ('referencedTensor' in obj) {
+            message.referenced_tensor = obj.referencedTensor.map((obj) => tensorflow.AllocationDescription.decodeJson(obj));
+        }
+        if ('memoryStats' in obj) {
+            message.memory_stats = tensorflow.MemoryStats.decodeJson(obj.memoryStats);
+        }
+        if ('allStartNanos' in obj) {
+            message.all_start_nanos = BigInt(obj.allStartNanos);
+        }
+        if ('opStartRelNanos' in obj) {
+            message.op_start_rel_nanos = BigInt(obj.opStartRelNanos);
+        }
+        if ('opEndRelNanos' in obj) {
+            message.op_end_rel_nanos = BigInt(obj.opEndRelNanos);
+        }
+        if ('allEndRelNanos' in obj) {
+            message.all_end_rel_nanos = BigInt(obj.allEndRelNanos);
+        }
+        if ('scheduledNanos' in obj) {
+            message.scheduled_nanos = BigInt(obj.scheduledNanos);
+        }
+        return message;
+    }
 };
 
 tensorflow.NodeExecStats.prototype.node_name = "";
@@ -8642,6 +11093,22 @@ tensorflow.DeviceStepStats = class DeviceStepStats {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.DeviceStepStats();
+        if ('device' in obj) {
+            message.device = obj.device;
+        }
+        if ('nodeStats' in obj) {
+            message.node_stats = obj.nodeStats.map((obj) => tensorflow.NodeExecStats.decodeJson(obj));
+        }
+        if ('threadNames' in obj) {
+            for (const [key, value] of Object.entries(obj.threadNames)) {
+                message.thread_names[key] = value;
+            }
+        }
+        return message;
+    }
 };
 
 tensorflow.DeviceStepStats.prototype.device = "";
@@ -8682,6 +11149,14 @@ tensorflow.StepStats = class StepStats {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.StepStats();
+        if ('devStats' in obj) {
+            message.dev_stats = obj.devStats.map((obj) => tensorflow.DeviceStepStats.decodeJson(obj));
         }
         return message;
     }
@@ -8752,6 +11227,29 @@ tensorflow.AllocationDescription = class AllocationDescription {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.AllocationDescription();
+        if ('requestedBytes' in obj) {
+            message.requested_bytes = BigInt(obj.requestedBytes);
+        }
+        if ('allocatedBytes' in obj) {
+            message.allocated_bytes = BigInt(obj.allocatedBytes);
+        }
+        if ('allocatorName' in obj) {
+            message.allocator_name = obj.allocatorName;
+        }
+        if ('allocationId' in obj) {
+            message.allocation_id = BigInt(obj.allocationId);
+        }
+        if ('hasSingleReference' in obj) {
+            message.has_single_reference = obj.hasSingleReference;
+        }
+        if ('ptr' in obj) {
+            message.ptr = BigInt(obj.ptr);
+        }
+        return message;
+    }
 };
 
 tensorflow.AllocationDescription.prototype.requested_bytes = 0n;
@@ -8808,6 +11306,20 @@ tensorflow.TensorDescription = class TensorDescription {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.TensorDescription();
+        if ('dtype' in obj) {
+            message.dtype = typeof obj.dtype === 'string' ? tensorflow.DataType[obj.dtype] : obj.dtype;
+        }
+        if ('shape' in obj) {
+            message.shape = tensorflow.TensorShapeProto.decodeJson(obj.shape);
+        }
+        if ('allocationDescription' in obj) {
+            message.allocation_description = tensorflow.AllocationDescription.decodeJson(obj.allocationDescription);
+        }
+        return message;
+    }
 };
 
 tensorflow.TensorDescription.prototype.dtype = 0;
@@ -8859,6 +11371,19 @@ tensorflow.JobDef = class JobDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.JobDef();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('tasks' in obj) {
+            for (const [key, value] of Object.entries(obj.tasks)) {
+                message.tasks[key] = value;
+            }
+        }
+        return message;
+    }
 };
 
 tensorflow.JobDef.prototype.name = "";
@@ -8899,6 +11424,14 @@ tensorflow.ClusterDef = class ClusterDef {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.ClusterDef();
+        if ('job' in obj) {
+            message.job = obj.job.map((obj) => tensorflow.JobDef.decodeJson(obj));
         }
         return message;
     }
@@ -8968,6 +11501,26 @@ tensorflow.DebugTensorWatch = class DebugTensorWatch {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.DebugTensorWatch();
+        if ('nodeName' in obj) {
+            message.node_name = obj.nodeName;
+        }
+        if ('outputSlot' in obj) {
+            message.output_slot = Number(obj.outputSlot);
+        }
+        if ('debugOps' in obj) {
+            message.debug_ops = obj.debugOps;
+        }
+        if ('debugUrls' in obj) {
+            message.debug_urls = obj.debugUrls;
+        }
+        if ('tolerateDebugOpCreationFailures' in obj) {
+            message.tolerate_debug_op_creation_failures = obj.tolerateDebugOpCreationFailures;
+        }
+        return message;
+    }
 };
 
 tensorflow.DebugTensorWatch.prototype.node_name = "";
@@ -9022,6 +11575,20 @@ tensorflow.DebugOptions = class DebugOptions {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.DebugOptions();
+        if ('debugTensorWatchOpts' in obj) {
+            message.debug_tensor_watch_opts = obj.debugTensorWatchOpts.map((obj) => tensorflow.DebugTensorWatch.decodeJson(obj));
+        }
+        if ('globalStep' in obj) {
+            message.global_step = BigInt(obj.globalStep);
+        }
+        if ('resetDiskByteUsage' in obj) {
+            message.reset_disk_byte_usage = obj.resetDiskByteUsage;
         }
         return message;
     }
@@ -9093,6 +11660,26 @@ tensorflow.DebuggedSourceFile = class DebuggedSourceFile {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.DebuggedSourceFile();
+        if ('host' in obj) {
+            message.host = obj.host;
+        }
+        if ('filePath' in obj) {
+            message.file_path = obj.filePath;
+        }
+        if ('lastModified' in obj) {
+            message.last_modified = BigInt(obj.lastModified);
+        }
+        if ('bytes' in obj) {
+            message.bytes = BigInt(obj.bytes);
+        }
+        if ('lines' in obj) {
+            message.lines = obj.lines;
+        }
+        return message;
+    }
 };
 
 tensorflow.DebuggedSourceFile.prototype.host = "";
@@ -9139,6 +11726,14 @@ tensorflow.DebuggedSourceFiles = class DebuggedSourceFiles {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.DebuggedSourceFiles();
+        if ('sourceFiles' in obj) {
+            message.source_files = obj.sourceFiles.map((obj) => tensorflow.DebuggedSourceFile.decodeJson(obj));
+        }
+        return message;
+    }
 };
 
 tensorflow.AutoParallelOptions = class AutoParallelOptions {
@@ -9179,6 +11774,17 @@ tensorflow.AutoParallelOptions = class AutoParallelOptions {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.AutoParallelOptions();
+        if ('enable' in obj) {
+            message.enable = obj.enable;
+        }
+        if ('numReplicas' in obj) {
+            message.num_replicas = Number(obj.numReplicas);
         }
         return message;
     }
@@ -9223,6 +11829,14 @@ tensorflow.ScopedAllocatorOptions = class ScopedAllocatorOptions {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.ScopedAllocatorOptions();
+        if ('enableOp' in obj) {
+            message.enable_op = obj.enableOp;
         }
         return message;
     }
@@ -9484,6 +12098,122 @@ tensorflow.RewriterConfig = class RewriterConfig {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.RewriterConfig();
+        if ('cpuLayoutConversion' in obj) {
+            message.cpu_layout_conversion = typeof obj.cpuLayoutConversion === 'string' ? tensorflow.RewriterConfig.CpuLayout[obj.cpuLayoutConversion] : obj.cpuLayoutConversion;
+        }
+        if ('layoutOptimizer' in obj) {
+            message.layout_optimizer = typeof obj.layoutOptimizer === 'string' ? tensorflow.RewriterConfig.Toggle[obj.layoutOptimizer] : obj.layoutOptimizer;
+        }
+        if ('constantFolding' in obj) {
+            message.constant_folding = typeof obj.constantFolding === 'string' ? tensorflow.RewriterConfig.Toggle[obj.constantFolding] : obj.constantFolding;
+        }
+        if ('shapeOptimization' in obj) {
+            message.shape_optimization = typeof obj.shapeOptimization === 'string' ? tensorflow.RewriterConfig.Toggle[obj.shapeOptimization] : obj.shapeOptimization;
+        }
+        if ('remapping' in obj) {
+            message.remapping = typeof obj.remapping === 'string' ? tensorflow.RewriterConfig.Toggle[obj.remapping] : obj.remapping;
+        }
+        if ('commonSubgraphElimination' in obj) {
+            message.common_subgraph_elimination = typeof obj.commonSubgraphElimination === 'string' ? tensorflow.RewriterConfig.Toggle[obj.commonSubgraphElimination] : obj.commonSubgraphElimination;
+        }
+        if ('arithmeticOptimization' in obj) {
+            message.arithmetic_optimization = typeof obj.arithmeticOptimization === 'string' ? tensorflow.RewriterConfig.Toggle[obj.arithmeticOptimization] : obj.arithmeticOptimization;
+        }
+        if ('dependencyOptimization' in obj) {
+            message.dependency_optimization = typeof obj.dependencyOptimization === 'string' ? tensorflow.RewriterConfig.Toggle[obj.dependencyOptimization] : obj.dependencyOptimization;
+        }
+        if ('loopOptimization' in obj) {
+            message.loop_optimization = typeof obj.loopOptimization === 'string' ? tensorflow.RewriterConfig.Toggle[obj.loopOptimization] : obj.loopOptimization;
+        }
+        if ('functionOptimization' in obj) {
+            message.function_optimization = typeof obj.functionOptimization === 'string' ? tensorflow.RewriterConfig.Toggle[obj.functionOptimization] : obj.functionOptimization;
+        }
+        if ('debugStripper' in obj) {
+            message.debug_stripper = typeof obj.debugStripper === 'string' ? tensorflow.RewriterConfig.Toggle[obj.debugStripper] : obj.debugStripper;
+        }
+        if ('disableModelPruning' in obj) {
+            message.disable_model_pruning = obj.disableModelPruning;
+        }
+        if ('scopedAllocatorOptimization' in obj) {
+            message.scoped_allocator_optimization = typeof obj.scopedAllocatorOptimization === 'string' ? tensorflow.RewriterConfig.Toggle[obj.scopedAllocatorOptimization] : obj.scopedAllocatorOptimization;
+        }
+        if ('pinToHostOptimization' in obj) {
+            message.pin_to_host_optimization = typeof obj.pinToHostOptimization === 'string' ? tensorflow.RewriterConfig.Toggle[obj.pinToHostOptimization] : obj.pinToHostOptimization;
+        }
+        if ('implementationSelector' in obj) {
+            message.implementation_selector = typeof obj.implementationSelector === 'string' ? tensorflow.RewriterConfig.Toggle[obj.implementationSelector] : obj.implementationSelector;
+        }
+        if ('autoMixedPrecision' in obj) {
+            message.auto_mixed_precision = typeof obj.autoMixedPrecision === 'string' ? tensorflow.RewriterConfig.Toggle[obj.autoMixedPrecision] : obj.autoMixedPrecision;
+        }
+        if ('autoMixedPrecisionMkl' in obj) {
+            message.auto_mixed_precision_mkl = typeof obj.autoMixedPrecisionMkl === 'string' ? tensorflow.RewriterConfig.Toggle[obj.autoMixedPrecisionMkl] : obj.autoMixedPrecisionMkl;
+        }
+        if ('autoMixedPrecisionOnednnBfloat16' in obj) {
+            message.auto_mixed_precision_onednn_bfloat16 = typeof obj.autoMixedPrecisionOnednnBfloat16 === 'string' ? tensorflow.RewriterConfig.Toggle[obj.autoMixedPrecisionOnednnBfloat16] : obj.autoMixedPrecisionOnednnBfloat16;
+        }
+        if ('autoMixedPrecisionCpu' in obj) {
+            message.auto_mixed_precision_cpu = typeof obj.autoMixedPrecisionCpu === 'string' ? tensorflow.RewriterConfig.Toggle[obj.autoMixedPrecisionCpu] : obj.autoMixedPrecisionCpu;
+        }
+        if ('disableMetaOptimizer' in obj) {
+            message.disable_meta_optimizer = obj.disableMetaOptimizer;
+        }
+        if ('disableTfgOptimizer' in obj) {
+            message.disable_tfg_optimizer = obj.disableTfgOptimizer;
+        }
+        if ('usePluginOptimizers' in obj) {
+            message.use_plugin_optimizers = typeof obj.usePluginOptimizers === 'string' ? tensorflow.RewriterConfig.Toggle[obj.usePluginOptimizers] : obj.usePluginOptimizers;
+        }
+        if ('experimentalConditionalCodeMotion' in obj) {
+            message.experimental_conditional_code_motion = typeof obj.experimentalConditionalCodeMotion === 'string' ? tensorflow.RewriterConfig.Toggle[obj.experimentalConditionalCodeMotion] : obj.experimentalConditionalCodeMotion;
+        }
+        if ('metaOptimizerIterations' in obj) {
+            message.meta_optimizer_iterations = typeof obj.metaOptimizerIterations === 'string' ? tensorflow.RewriterConfig.NumIterationsType[obj.metaOptimizerIterations] : obj.metaOptimizerIterations;
+        }
+        if ('minGraphNodes' in obj) {
+            message.min_graph_nodes = Number(obj.minGraphNodes);
+        }
+        if ('experimentalDisableCompressedTensorOptimization' in obj) {
+            message.experimental_disable_compressed_tensor_optimization = obj.experimentalDisableCompressedTensorOptimization;
+        }
+        if ('experimentalDisableFoldingQuantizationEmulation' in obj) {
+            message.experimental_disable_folding_quantization_emulation = obj.experimentalDisableFoldingQuantizationEmulation;
+        }
+        if ('memoryOptimization' in obj) {
+            message.memory_optimization = typeof obj.memoryOptimization === 'string' ? tensorflow.RewriterConfig.MemOptType[obj.memoryOptimization] : obj.memoryOptimization;
+        }
+        if ('memoryOptimizerTargetNodeNameScope' in obj) {
+            message.memory_optimizer_target_node_name_scope = obj.memoryOptimizerTargetNodeNameScope;
+        }
+        if ('metaOptimizerTimeoutMs' in obj) {
+            message.meta_optimizer_timeout_ms = BigInt(obj.metaOptimizerTimeoutMs);
+        }
+        if ('autoParallel' in obj) {
+            message.auto_parallel = tensorflow.AutoParallelOptions.decodeJson(obj.autoParallel);
+        }
+        if ('failOnOptimizerErrors' in obj) {
+            message.fail_on_optimizer_errors = obj.failOnOptimizerErrors;
+        }
+        if ('scopedAllocatorOpts' in obj) {
+            message.scoped_allocator_opts = tensorflow.ScopedAllocatorOptions.decodeJson(obj.scopedAllocatorOpts);
+        }
+        if ('optimizers' in obj) {
+            message.optimizers = obj.optimizers;
+        }
+        if ('customOptimizers' in obj) {
+            message.custom_optimizers = obj.customOptimizers.map((obj) => tensorflow.RewriterConfig.CustomGraphOptimizer.decodeJson(obj));
+        }
+        if ('interOptimizerVerifierConfig' in obj) {
+            message.inter_optimizer_verifier_config = tensorflow.VerifierConfig.decodeJson(obj.interOptimizerVerifierConfig);
+        }
+        if ('postOptimizationVerifierConfig' in obj) {
+            message.post_optimization_verifier_config = tensorflow.VerifierConfig.decodeJson(obj.postOptimizationVerifierConfig);
+        }
+        return message;
+    }
 };
 
 tensorflow.RewriterConfig.prototype.cpu_layout_conversion = 0;
@@ -9598,6 +12328,19 @@ tensorflow.RewriterConfig.CustomGraphOptimizer = class CustomGraphOptimizer {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.RewriterConfig.CustomGraphOptimizer();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('parameterMap' in obj) {
+            for (const [key, value] of Object.entries(obj.parameterMap)) {
+                message.parameter_map[key] = tensorflow.AttrValue.decodeJson(value);
+            }
+        }
+        return message;
+    }
 };
 
 tensorflow.RewriterConfig.CustomGraphOptimizer.prototype.name = "";
@@ -9640,6 +12383,17 @@ tensorflow.VerifierConfig = class VerifierConfig {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.VerifierConfig();
+        if ('verificationTimeoutInMs' in obj) {
+            message.verification_timeout_in_ms = BigInt(obj.verificationTimeoutInMs);
+        }
+        if ('structureVerifier' in obj) {
+            message.structure_verifier = typeof obj.structureVerifier === 'string' ? tensorflow.VerifierConfig.Toggle[obj.structureVerifier] : obj.structureVerifier;
         }
         return message;
     }
@@ -9721,6 +12475,29 @@ tensorflow.RPCOptions = class RPCOptions {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.RPCOptions();
+        if ('useRpcForInprocessMaster' in obj) {
+            message.use_rpc_for_inprocess_master = obj.useRpcForInprocessMaster;
+        }
+        if ('compressionAlgorithm' in obj) {
+            message.compression_algorithm = obj.compressionAlgorithm;
+        }
+        if ('compressionLevel' in obj) {
+            message.compression_level = Number(obj.compressionLevel);
+        }
+        if ('cacheRpcResponse' in obj) {
+            message.cache_rpc_response = obj.cacheRpcResponse;
+        }
+        if ('disableSessionConnectionSharing' in obj) {
+            message.disable_session_connection_sharing = obj.disableSessionConnectionSharing;
+        }
+        if ('numChannelsPerTarget' in obj) {
+            message.num_channels_per_target = Number(obj.numChannelsPerTarget);
+        }
+        return message;
+    }
 };
 
 tensorflow.RPCOptions.prototype.use_rpc_for_inprocess_master = false;
@@ -9777,6 +12554,20 @@ tensorflow.MemmappedFileSystemDirectoryElement = class MemmappedFileSystemDirect
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.MemmappedFileSystemDirectoryElement();
+        if ('offset' in obj) {
+            message.offset = BigInt(obj.offset);
+        }
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('length' in obj) {
+            message.length = BigInt(obj.length);
+        }
+        return message;
+    }
 };
 
 tensorflow.MemmappedFileSystemDirectoryElement.prototype.offset = 0n;
@@ -9819,6 +12610,14 @@ tensorflow.MemmappedFileSystemDirectory = class MemmappedFileSystemDirectory {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.MemmappedFileSystemDirectory();
+        if ('element' in obj) {
+            message.element = obj.element.map((obj) => tensorflow.MemmappedFileSystemDirectoryElement.decodeJson(obj));
         }
         return message;
     }
@@ -9895,6 +12694,32 @@ tensorflow.FingerprintDef = class FingerprintDef {
         }
         return message;
     }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.FingerprintDef();
+        if ('savedModelChecksum' in obj) {
+            message.saved_model_checksum = BigInt(obj.savedModelChecksum);
+        }
+        if ('graphDefProgramHash' in obj) {
+            message.graph_def_program_hash = BigInt(obj.graphDefProgramHash);
+        }
+        if ('signatureDefHash' in obj) {
+            message.signature_def_hash = BigInt(obj.signatureDefHash);
+        }
+        if ('savedObjectGraphHash' in obj) {
+            message.saved_object_graph_hash = BigInt(obj.savedObjectGraphHash);
+        }
+        if ('checkpointHash' in obj) {
+            message.checkpoint_hash = BigInt(obj.checkpointHash);
+        }
+        if ('uuid' in obj) {
+            message.uuid = obj.uuid;
+        }
+        if ('version' in obj) {
+            message.version = tensorflow.VersionDef.decodeJson(obj.version);
+        }
+        return message;
+    }
 };
 
 tensorflow.FingerprintDef.prototype.saved_model_checksum = 0n;
@@ -9931,6 +12756,10 @@ google.protobuf.Any = class Any {
 
     static decodeText(reader) {
         return reader.any(() => new google.protobuf.Any());
+    }
+
+    static decodeJson() {
+        throw new Error('Any fields not implemented.');
     }
 };
 
@@ -9969,6 +12798,14 @@ google.protobuf.BoolValue = class BoolValue {
                     reader.field(tag, message);
                     break;
             }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new google.protobuf.BoolValue();
+        if ('value' in obj) {
+            message.value = obj.value;
         }
         return message;
     }
