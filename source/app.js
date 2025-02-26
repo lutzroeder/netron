@@ -659,7 +659,8 @@ app.View = class {
             height: size.height > 768 ? 768 : size.height,
             webPreferences: {
                 preload: path.join(dirname, 'electron.mjs'),
-                nodeIntegration: true
+                nodeIntegration: true,
+                enableDeprecatedPaste: true
             }
         };
         if (owner.application.environment.titlebar) {

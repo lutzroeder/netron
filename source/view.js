@@ -254,22 +254,6 @@ view.View = class {
         }
     }
 
-    cut() {
-        this._host.document.execCommand('cut');
-    }
-
-    copy() {
-        this._host.document.execCommand('copy');
-    }
-
-    paste() {
-        this._host.document.execCommand('paste');
-    }
-
-    selectAll() {
-        this._host.document.execCommand('selectall');
-    }
-
     find() {
         if (this._graph && this._sidebar.identifier !== 'find') {
             this._graph.select(null);

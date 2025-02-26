@@ -166,16 +166,21 @@ host.ElectronHost = class {
             this._view.export(data.file);
         });
         electron.ipcRenderer.on('cut', () => {
-            this._view.cut();
+            this.document.execCommand('cut');
         });
         electron.ipcRenderer.on('copy', () => {
-            this._view.copy();
+            this.document.execCommand('copy');
         });
         electron.ipcRenderer.on('paste', () => {
-            this._view.paste();
+            if (this.document.queryCommandSupported('paste')) {
+                this.document.execCommand('paste');
+            } else if (this.document.queryCommandSupported('insertText')) {
+                const content = electron.clipboard.readText();
+                this.document.execCommand('insertText', false, content);
+            }
         });
         electron.ipcRenderer.on('selectall', () => {
-            this._view.selectAll();
+            this.document.execCommand('selectall');
         });
         electron.ipcRenderer.on('toggle', (sender, name) => {
             this._view.toggle(name);
