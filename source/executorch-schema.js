@@ -415,6 +415,16 @@ executorch_flatbuffer.SubsegmentOffsets = class SubsegmentOffsets {
     }
 };
 
+executorch_flatbuffer.NamedData = class NamedData {
+
+    static decode(reader, position) {
+        const $ = new executorch_flatbuffer.NamedData();
+        $.key = reader.string_(position, 4, null);
+        $.segment_index = reader.uint32_(position, 6, 0);
+        return $;
+    }
+};
+
 executorch_flatbuffer.Program = class Program {
 
     static identifier(reader) {
@@ -434,6 +444,7 @@ executorch_flatbuffer.Program = class Program {
         $.segments = reader.tables(position, 12, executorch_flatbuffer.DataSegment);
         $.constant_segment = reader.table(position, 14, executorch_flatbuffer.SubsegmentOffsets);
         $.mutable_data_segments = reader.tables(position, 16, executorch_flatbuffer.SubsegmentOffsets);
+        $.named_data = reader.tables(position, 18, executorch_flatbuffer.NamedData);
         return $;
     }
 };
