@@ -1,6 +1,7 @@
 
 import * as base from './base.js';
 import * as grapher from './grapher.js';
+import Req from './hovers.js';
 
 const view = {};
 const markdown = {};
@@ -84,6 +85,96 @@ view.View = class {
                     label: '&Open...',
                     accelerator: 'CmdOrCtrl+O',
                     execute: async () => await this._host.execute('open')
+                });
+                file.add({
+                    label: '&Import metadata',
+                    accelerator: 'CmdOrCtrl+T',
+                    execute: async () => {
+                        // Block of code which cleans all the information added before uploading
+                        // a new file.
+                        if (Req.file_added === 1) {
+                            const root = document.getElementById("list-modified");
+                            if (root.length !== 0) {
+                                for (let i = 0; i < root.children.length; i++) {
+                                    const child = JSON.parse(root.children[i].innerHTML);
+                                    const id_child = child.id;
+                                    if (root.children[i].className === "tensor") {
+                                        const list_t = document.getElementById("edge-paths");
+                                        for (let j = 0; j < list_t.children.length; j++) {
+                                            if (list_t.children[j].id.split("\n")[1] === id_child) {
+                                                if (child.style &&
+                                                list_t.children[j].hasAttribute("style")) {
+                                                    list_t.children[j].removeAttribute("style");
+                                                }
+                                                if (child.hover &
+                                                list_t.children[j + 1].innerHTML !== '') {
+                                                    list_t.children[j + 1].innerHTML = '';
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        const parent_n = document.getElementById("nodes");
+                                        let idx = 1;
+                                        let counter = 0;
+                                        do {
+                                            if (parent_n.children[idx].children[3]) {
+                                                counter += 1;
+                                            }
+                                            counter += 1;
+                                            idx += 1;
+                                        } while (idx <= id_child);
+                                        if (id_child === "0") {
+                                            counter = 0;
+                                        }
+                                        const operator = document.getElementById(`node-id-${counter}`);
+                                        if (operator && operator.children && operator.children[0] &&
+                                        operator.children[0].children &&
+                                        operator.children[0].children[0]) {
+                                            if (operator.children[0].children[0]) {
+                                                if (child.hover &&
+                                                operator.children[0].children[0].innerHTML !== '') {
+                                                    operator.children[0].children[0].innerHTML = '';
+                                                }
+                                                if (child.style &&
+                                                operator.children[0].children[0].hasAttribute("style")) {
+                                                    operator.children[0].children[0].removeAttribute("style");
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            document.getElementById("list-attributes").innerHTML = '';
+                            document.getElementById("list-modified").innerHTML = '';
+                            const body = document.body;
+                            const children = body.children;
+                            //block of code which removes all the existing images
+                            for (let i = children.length - 1; i >= 0; i--) {
+                                if (children[i].tagName === 'IMG') {
+                                    body.removeChild(children[i]);
+                                }
+                            }
+                            if (Req.event_img.length !== 0) {
+                                for (let i = 0; i < Req.event_img.length; i++) {
+                                    (Req.event_img[i]).onmouseover = null;
+                                    (Req.event_img[i]).onmouseout = null;
+                                }
+                            }
+                            if (Req.event_dbl_click.length !== 0) {
+                                for (let i = 0; i < Req.event_dbl_click.length; i++) {
+                                    (Req.event_dbl_click[i]).ondblclick = null;
+                                }
+                            }
+                            Req.file_added = 0;
+                        }
+                        if (document.getElementById("graph").children &&
+                        document.getElementById("graph").children[0] &&
+                        document.getElementById("graph").children[0].children.length !== 0) {
+                            Req.read_file();
+                        } else {
+                            alert("Please load a model to use this feature!");
+                        }
+                    }
                 });
                 if (this._host.type === 'Electron') {
                     this._recents = file.group('Open &Recent');
