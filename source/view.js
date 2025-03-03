@@ -2690,7 +2690,12 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             }
         }
         if (node.name) {
-            this.addProperty('name', node.name, 'nowrap');
+            const item = this.addProperty('name', node.name, 'nowrap');
+            const icon = '<svg class="sidebar-find-content-copy-icon"><use href="#sidebar-icon-copy"></use></svg>';
+            const tooltip = 'Copy Name';
+            item.action(icon, tooltip, () => {
+                this._host.window.navigator.clipboard.writeText(node.name);
+            });
         }
         if (node.identifier) {
             this.addProperty('identifier', node.identifier, 'nowrap');
@@ -3065,6 +3070,21 @@ view.ValueView = class extends view.Expander {
             if (type || initializer || quantization || location || source === 'attribute') {
                 this.enable();
             }
+
+            // Add copy button
+            const name = this._value.name ? this._value.name.split('\n').shift() : ''; // custom argument id
+            {
+                const element = this.createElement('div', 'sidebar-item-value-button');
+                element.classList.add('sidebar-item-value-button-tool');
+                element.setAttribute('title', 'Copy Name');
+                element.innerHTML = '<svg class="sidebar-find-content-copy-icon"><use href="#sidebar-icon-copy"></use></svg>';
+                element.addEventListener('click', () => {
+                    this._host.window.navigator.clipboard.writeText(this._value.name);
+                }
+                );
+                this.control(element);
+            }
+
             if (initializer && source !== 'attribute') {
                 const element = this.createElement('div', 'sidebar-item-value-button');
                 element.classList.add('sidebar-item-value-button-tool');
@@ -3076,7 +3096,6 @@ view.ValueView = class extends view.Expander {
                 element.addEventListener('click', () => this.emit('activate', this._value));
                 this.control(element);
             }
-            const name = this._value.name ? this._value.name.split('\n').shift() : ''; // custom argument id
             this._hasId = name && source !== 'attribute' ? true : false;
             this._hasCategory = initializer && initializer.category && source !== 'attribute' ? true : false;
             if (this._hasId || (!this._hasCategory && !type && source !== 'attribute')) {
