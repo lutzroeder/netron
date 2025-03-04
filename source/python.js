@@ -7485,6 +7485,7 @@ python.Execution = class {
         this.registerType('torchvision.models.inception.InceptionC', class {});
         this.registerType('torchvision.models.inception.InceptionD', class {});
         this.registerType('torchvision.models.inception.InceptionE', class {});
+        this.registerFunction('torchvision.models.inception.inception_v3');
         this.registerType('torchvision.models.mnasnet._InvertedResidual', class {});
         this.registerType('torchvision.models.mnasnet.MNASNet', class {});
         this.registerType('torchvision.models.maxvit.MaxVit', class {});
