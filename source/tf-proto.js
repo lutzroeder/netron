@@ -8950,6 +8950,9 @@ tensorflow.ConfigProto.Experimental = class Experimental {
                 case 26:
                     message.disable_eager_executor_streaming_enqueue = reader.bool();
                     break;
+                case 33:
+                    message.finalize_function_library_runtime = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -9048,6 +9051,9 @@ tensorflow.ConfigProto.Experimental = class Experimental {
                 case "disable_eager_executor_streaming_enqueue":
                     message.disable_eager_executor_streaming_enqueue = reader.bool();
                     break;
+                case "finalize_function_library_runtime":
+                    message.finalize_function_library_runtime = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -9142,6 +9148,9 @@ tensorflow.ConfigProto.Experimental = class Experimental {
         if ('disableEagerExecutorStreamingEnqueue' in obj) {
             message.disable_eager_executor_streaming_enqueue = obj.disableEagerExecutorStreamingEnqueue;
         }
+        if ('finalizeFunctionLibraryRuntime' in obj) {
+            message.finalize_function_library_runtime = obj.finalizeFunctionLibraryRuntime;
+        }
         return message;
     }
 };
@@ -9174,6 +9183,7 @@ tensorflow.ConfigProto.Experimental.prototype.xla_prefer_single_graph_cluster = 
 tensorflow.ConfigProto.Experimental.prototype.coordination_config = null;
 tensorflow.ConfigProto.Experimental.prototype.disable_optimize_for_static_graph = false;
 tensorflow.ConfigProto.Experimental.prototype.disable_eager_executor_streaming_enqueue = false;
+tensorflow.ConfigProto.Experimental.prototype.finalize_function_library_runtime = false;
 
 tensorflow.ConfigProto.Experimental.MlirBridgeRollout = {
     "MLIR_BRIDGE_ROLLOUT_UNSPECIFIED": 0,
