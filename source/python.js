@@ -2335,6 +2335,9 @@ python.Execution = class {
             static __new__(cls, ...args) {
                 return execution.invoke(cls, args);
             }
+            static __setattr__(obj, name, value) {
+                builtins.setattr(obj, name, value);
+            }
         });
         this.registerType('builtins.tuple', class extends Array {
             constructor(items) {
@@ -3029,6 +3032,9 @@ python.Execution = class {
                 value.flags = this.flags;
                 return value;
             }
+            reshape(shape, order) {
+                return new numpy.ndarray(shape, this.dtype, this.data, this.offset, this.strides, order);
+            }
             tobytes() {
                 return this.data;
             }
@@ -3223,7 +3229,53 @@ python.Execution = class {
         this.registerType('pandas.core.arrays.categorical.Categorical', class {});
         this.registerType('pandas.core.arrays.datetimes.DatetimeArray', class {});
         this.registerType('pandas.core.arrays.integer.IntegerArray', class {});
-        this.registerType('pandas.core.frame.DataFrame', class {});
+        this.registerType('pandas.core.generic.Flags', class {});
+        this.registerType('pandas.core.generic.NDFrame', class {
+            constructor(data) {
+                this._internal_names = ["_mgr", "_item_cache", "_cache", "_name", "_metadata", "_flags"];
+                this._metadata = [];
+                builtins.object.__setattr__(self, "_mgr", data);
+                builtins.object.__setattr__(self, "_attrs", {});
+                builtins.object.__setattr__(self, "_flags", new pandas.core.generic.Flags(this, true));
+            }
+            __setstate__(state) {
+                if (state instanceof pandas.core.internals.managers.BlockManager) {
+                    this._mgr = state;
+                } else if (state instanceof builtins.dict) {
+                    if (state.__contains__('_data') && !state.__contains__('_mgr')) {
+                        state.__setitem__('_mgr', state.pop('_data'));
+                    }
+                    const typ = state.get('_typ');
+                    if (typ) {
+                        let attrs = state.get('_attrs', new builtins.dict());
+                        if (!attrs) {
+                            attrs = new builtins.dict();
+                        }
+                        builtins.object.__setattr__(this, '_attrs', attrs);
+                        const flags = state.get('_flags', new builtins.dict({ 'allows_duplicate_labels': true }));
+                        builtins.object.__setattr__(this, '_flags', new pandas.core.generic.Flags(this, flags));
+                        const meta = new builtins.set(this._internal_names.concat(this._metadata));
+                        for (const k of meta) {
+                            if (state.__contains__(k) && k !== '_flags') {
+                                const v = state.__getitem__(k);
+                                builtins.object.__setattr__(this, k, v);
+                            }
+                        }
+                        for (const [k, v] of state) {
+                            if (!meta.has(k)) {
+                                builtins.object.__setattr__(this, k, v);
+                            }
+                        }
+                    } else {
+                        throw new python.Error('Pre-0.12 pickles are no longer supported.');
+                    }
+                } else if (state.size === 2) {
+                    throw new python.Error('Pre-0.12 pickles are no longer supported.');
+                }
+            }
+        });
+        this.registerType('pandas.core.frame.DataFrame', class extends pandas.core.generic.NDFrame {
+        });
         this.registerFunction('pandas.core.indexes.base._new_Index', (cls, d) => {
             return new cls(d);
         });
@@ -4303,7 +4355,16 @@ python.Execution = class {
         this.registerFunction('builtins.setattr', (obj, name, value) => {
             obj[name] = value;
         });
-        this.registerType('builtins.set', class extends Set {});
+        this.registerType('builtins.set', class extends Set {
+            __contains__(item) {
+                return this.has(item);
+            }
+            update(iterable) {
+                for (const item of iterable) {
+                    this.add(item);
+                }
+            }
+        });
         this.registerType('builtins.slice', class {
             constructor(start, stop, step) {
                 this.start = start;
@@ -4660,13 +4721,16 @@ python.Execution = class {
         this.registerFunction('nolearn.lasagne.base.objective');
         this.registerFunction('numpy.core._DType_reconstruct');
         this.registerFunction('numpy.core._ufunc_reconstruct');
-        this.registerFunction('numpy.core.numeric._frombuffer', (/* buf, dtype, shape, order */) => {
-            return {};
-        });
         this.registerFunction('numpy.core.multiarray._reconstruct', (subtype, shape, dtype) => {
             return numpy.ndarray.__new__(subtype, shape, dtype);
         });
-        this.registerFunction('numpy._core.numeric._frombuffer');
+        this.registerFunction('numpy.core.multiarray.frombuffer', (buf, dtype) => {
+            const shape = [buf.length / dtype.itemsize];
+            return new numpy.ndarray(shape, dtype, buf);
+        });
+        this.registerFunction('numpy._core.numeric._frombuffer', (buf, dtype, shape, order) => {
+            return numpy._core.multiarray.frombuffer(buf, dtype).reshape(shape, order);
+        });
         this.registerFunction('numpy._core._internal._convert_to_stringdtype_kwargs', () => {
             return new numpy.dtypes.StringDType();
         });
@@ -4766,6 +4830,7 @@ python.Execution = class {
         this.register('numpy._core.multiarray', numpy.core.multiarray);
         this.register('numpy._core._multiarray_umath', numpy.core._multiarray_umath);
         this.register('numpy._core._multiarray_umath', numpy.core._multiarray_umath);
+        this.register('numpy.core.numeric', numpy._core.numeric);
         numpy._core._multiarray_umath._reconstruct = numpy.core.multiarray._reconstruct;
         this.registerFunction('numpy.load', (file) => {
             // https://github.com/numpy/numpy/blob/main/numpy/lib/format.py

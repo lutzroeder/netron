@@ -5159,13 +5159,6 @@
   },
   {
     "type":     "pickle",
-    "target":   "bytearray.pkl",
-    "source":   "https://github.com/user-attachments/files/15448319/bytearray.pkl.zip[bytearray.pkl]",
-    "format":   "Pickle",
-    "link":     "https://github.com/lutzroeder/netron/issues/901"
-  },
-  {
-    "type":     "pickle",
     "target":   "bloom_dataset.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/15046492/bloom_dataset.pkl.zip[bloom_dataset.pkl]",
     "format":   "Pickle",
@@ -5174,9 +5167,24 @@
   },
   {
     "type":     "pickle",
+    "target":   "bytearray.pkl",
+    "source":   "https://github.com/user-attachments/files/15448319/bytearray.pkl.zip[bytearray.pkl]",
+    "format":   "Pickle",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
     "target":   "chlorophyta_module_names_062224.pkl",
     "source":   "https://github.com/user-attachments/files/16482612/chlorophyta_module_names_062224.pkl.zip[chlorophyta_module_names_062224.pkl]",
     "format":   "Pickle",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
+    "target":   "courses_with_embeddings.pkl",
+    "source":   "https://github.com/user-attachments/files/19092794/courses_with_embeddings.pkl.zip[courses_with_embeddings.pkl]",
+    "format":   "Pickle",
+    "error":    "Unsupported Pickle type 'pandas.core.frame.DataFrame'.",
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
