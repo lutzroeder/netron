@@ -8953,6 +8953,9 @@ tensorflow.ConfigProto.Experimental = class Experimental {
                 case 33:
                     message.finalize_function_library_runtime = reader.bool();
                     break;
+                case 34:
+                    message.finalize_resource_manager = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -9054,6 +9057,9 @@ tensorflow.ConfigProto.Experimental = class Experimental {
                 case "finalize_function_library_runtime":
                     message.finalize_function_library_runtime = reader.bool();
                     break;
+                case "finalize_resource_manager":
+                    message.finalize_resource_manager = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -9151,6 +9157,9 @@ tensorflow.ConfigProto.Experimental = class Experimental {
         if ('finalizeFunctionLibraryRuntime' in obj) {
             message.finalize_function_library_runtime = obj.finalizeFunctionLibraryRuntime;
         }
+        if ('finalizeResourceManager' in obj) {
+            message.finalize_resource_manager = obj.finalizeResourceManager;
+        }
         return message;
     }
 };
@@ -9184,6 +9193,7 @@ tensorflow.ConfigProto.Experimental.prototype.coordination_config = null;
 tensorflow.ConfigProto.Experimental.prototype.disable_optimize_for_static_graph = false;
 tensorflow.ConfigProto.Experimental.prototype.disable_eager_executor_streaming_enqueue = false;
 tensorflow.ConfigProto.Experimental.prototype.finalize_function_library_runtime = false;
+tensorflow.ConfigProto.Experimental.prototype.finalize_resource_manager = false;
 
 tensorflow.ConfigProto.Experimental.MlirBridgeRollout = {
     "MLIR_BRIDGE_ROLLOUT_UNSPECIFIED": 0,
