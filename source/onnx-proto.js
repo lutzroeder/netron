@@ -341,6 +341,7 @@ onnx.NodeProto = class NodeProto {
         this.output = [];
         this.attribute = [];
         this.metadata_props = [];
+        this.device_configurations = [];
     }
 
     static decode(reader, length) {
@@ -375,6 +376,9 @@ onnx.NodeProto = class NodeProto {
                     break;
                 case 9:
                     message.metadata_props.push(onnx.StringStringEntryProto.decode(reader, reader.uint32()));
+                    break;
+                case 10:
+                    message.device_configurations.push(onnx.NodeDeviceConfigurationProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -417,6 +421,9 @@ onnx.NodeProto = class NodeProto {
                 case "metadata_props":
                     message.metadata_props.push(onnx.StringStringEntryProto.decodeText(reader));
                     break;
+                case "device_configurations":
+                    message.device_configurations.push(onnx.NodeDeviceConfigurationProto.decodeText(reader));
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -454,6 +461,9 @@ onnx.NodeProto = class NodeProto {
         if ('metadataProps' in obj) {
             message.metadata_props = obj.metadataProps.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));
         }
+        if ('deviceConfigurations' in obj) {
+            message.device_configurations = obj.deviceConfigurations.map((obj) => onnx.NodeDeviceConfigurationProto.decodeJson(obj));
+        }
         return message;
     }
 };
@@ -463,6 +473,346 @@ onnx.NodeProto.prototype.op_type = "";
 onnx.NodeProto.prototype.domain = "";
 onnx.NodeProto.prototype.overload = "";
 onnx.NodeProto.prototype.doc_string = "";
+
+onnx.IntIntListEntryProto = class IntIntListEntryProto {
+
+    constructor() {
+        this.value = [];
+    }
+
+    static decode(reader, length) {
+        const message = new onnx.IntIntListEntryProto();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.key = reader.int64();
+                    break;
+                case 2:
+                    message.value = reader.array(message.value, () => reader.int64(), tag);
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new onnx.IntIntListEntryProto();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "key":
+                    message.key = reader.int64();
+                    break;
+                case "value":
+                    reader.array(message.value, () => reader.int64());
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.IntIntListEntryProto();
+        if ('key' in obj) {
+            message.key = BigInt(obj.key);
+        }
+        if ('value' in obj) {
+            message.value = obj.value.map((obj) => BigInt(obj));
+        }
+        return message;
+    }
+};
+
+onnx.IntIntListEntryProto.prototype.key = 0n;
+
+onnx.NodeDeviceConfigurationProto = class NodeDeviceConfigurationProto {
+
+    constructor() {
+        this.sharding_spec = [];
+    }
+
+    static decode(reader, length) {
+        const message = new onnx.NodeDeviceConfigurationProto();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.configuration_id = reader.string();
+                    break;
+                case 2:
+                    message.sharding_spec.push(onnx.ShardingSpecProto.decode(reader, reader.uint32()));
+                    break;
+                case 3:
+                    message.pipeline_stage = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new onnx.NodeDeviceConfigurationProto();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "configuration_id":
+                    message.configuration_id = reader.string();
+                    break;
+                case "sharding_spec":
+                    message.sharding_spec.push(onnx.ShardingSpecProto.decodeText(reader));
+                    break;
+                case "pipeline_stage":
+                    message.pipeline_stage = reader.int32();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.NodeDeviceConfigurationProto();
+        if ('configurationId' in obj) {
+            message.configuration_id = obj.configurationId;
+        }
+        if ('shardingSpec' in obj) {
+            message.sharding_spec = obj.shardingSpec.map((obj) => onnx.ShardingSpecProto.decodeJson(obj));
+        }
+        if ('pipelineStage' in obj) {
+            message.pipeline_stage = Number(obj.pipelineStage);
+        }
+        return message;
+    }
+};
+
+onnx.NodeDeviceConfigurationProto.prototype.configuration_id = "";
+onnx.NodeDeviceConfigurationProto.prototype.pipeline_stage = 0;
+
+onnx.ShardingSpecProto = class ShardingSpecProto {
+
+    constructor() {
+        this.device = [];
+        this.index_to_device_group_map = [];
+        this.sharded_dim = [];
+    }
+
+    static decode(reader, length) {
+        const message = new onnx.ShardingSpecProto();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.tensor_name = reader.string();
+                    break;
+                case 2:
+                    message.device = reader.array(message.device, () => reader.int64(), tag);
+                    break;
+                case 3:
+                    message.index_to_device_group_map.push(onnx.IntIntListEntryProto.decode(reader, reader.uint32()));
+                    break;
+                case 4:
+                    message.sharded_dim.push(onnx.ShardedDimProto.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new onnx.ShardingSpecProto();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "tensor_name":
+                    message.tensor_name = reader.string();
+                    break;
+                case "device":
+                    reader.array(message.device, () => reader.int64());
+                    break;
+                case "index_to_device_group_map":
+                    message.index_to_device_group_map.push(onnx.IntIntListEntryProto.decodeText(reader));
+                    break;
+                case "sharded_dim":
+                    message.sharded_dim.push(onnx.ShardedDimProto.decodeText(reader));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.ShardingSpecProto();
+        if ('tensorName' in obj) {
+            message.tensor_name = obj.tensorName;
+        }
+        if ('device' in obj) {
+            message.device = obj.device.map((obj) => BigInt(obj));
+        }
+        if ('indexToDeviceGroupMap' in obj) {
+            message.index_to_device_group_map = obj.indexToDeviceGroupMap.map((obj) => onnx.IntIntListEntryProto.decodeJson(obj));
+        }
+        if ('shardedDim' in obj) {
+            message.sharded_dim = obj.shardedDim.map((obj) => onnx.ShardedDimProto.decodeJson(obj));
+        }
+        return message;
+    }
+};
+
+onnx.ShardingSpecProto.prototype.tensor_name = "";
+
+onnx.ShardedDimProto = class ShardedDimProto {
+
+    constructor() {
+        this.simple_sharding = [];
+    }
+
+    static decode(reader, length) {
+        const message = new onnx.ShardedDimProto();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.axis = reader.int64();
+                    break;
+                case 2:
+                    message.simple_sharding.push(onnx.SimpleShardedDimProto.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new onnx.ShardedDimProto();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "axis":
+                    message.axis = reader.int64();
+                    break;
+                case "simple_sharding":
+                    message.simple_sharding.push(onnx.SimpleShardedDimProto.decodeText(reader));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.ShardedDimProto();
+        if ('axis' in obj) {
+            message.axis = BigInt(obj.axis);
+        }
+        if ('simpleSharding' in obj) {
+            message.simple_sharding = obj.simpleSharding.map((obj) => onnx.SimpleShardedDimProto.decodeJson(obj));
+        }
+        return message;
+    }
+};
+
+onnx.ShardedDimProto.prototype.axis = 0n;
+
+onnx.SimpleShardedDimProto = class SimpleShardedDimProto {
+
+    get dim() {
+        onnx.SimpleShardedDimProto.dimSet = onnx.SimpleShardedDimProto.dimSet || new Set(["dim_value", "dim_param"]);
+        return Object.keys(this).find((key) => onnx.SimpleShardedDimProto.dimSet.has(key) && this[key] !== null);
+    }
+
+    static decode(reader, length) {
+        const message = new onnx.SimpleShardedDimProto();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.dim_value = reader.int64();
+                    break;
+                case 2:
+                    message.dim_param = reader.string();
+                    break;
+                case 3:
+                    message.num_shards = reader.int64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new onnx.SimpleShardedDimProto();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "dim_value":
+                    message.dim_value = reader.int64();
+                    break;
+                case "dim_param":
+                    message.dim_param = reader.string();
+                    break;
+                case "num_shards":
+                    message.num_shards = reader.int64();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.SimpleShardedDimProto();
+        if ('dimValue' in obj) {
+            message.dim_value = BigInt(obj.dimValue);
+        }
+        if ('dimParam' in obj) {
+            message.dim_param = obj.dimParam;
+        }
+        if ('numShards' in obj) {
+            message.num_shards = BigInt(obj.numShards);
+        }
+        return message;
+    }
+};
+
+onnx.SimpleShardedDimProto.prototype.num_shards = 0n;
 
 onnx.TrainingInfoProto = class TrainingInfoProto {
 
@@ -551,6 +901,7 @@ onnx.ModelProto = class ModelProto {
         this.metadata_props = [];
         this.training_info = [];
         this.functions = [];
+        this.configuration = [];
     }
 
     static decode(reader, length) {
@@ -591,6 +942,9 @@ onnx.ModelProto = class ModelProto {
                     break;
                 case 25:
                     message.functions.push(onnx.FunctionProto.decode(reader, reader.uint32()));
+                    break;
+                case 26:
+                    message.configuration.push(onnx.DeviceConfigurationProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -639,6 +993,9 @@ onnx.ModelProto = class ModelProto {
                 case "functions":
                     message.functions.push(onnx.FunctionProto.decodeText(reader));
                     break;
+                case "configuration":
+                    message.configuration.push(onnx.DeviceConfigurationProto.decodeText(reader));
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -682,6 +1039,9 @@ onnx.ModelProto = class ModelProto {
         if ('functions' in obj) {
             message.functions = obj.functions.map((obj) => onnx.FunctionProto.decodeJson(obj));
         }
+        if ('configuration' in obj) {
+            message.configuration = obj.configuration.map((obj) => onnx.DeviceConfigurationProto.decodeJson(obj));
+        }
         return message;
     }
 };
@@ -693,6 +1053,76 @@ onnx.ModelProto.prototype.domain = "";
 onnx.ModelProto.prototype.model_version = 0n;
 onnx.ModelProto.prototype.doc_string = "";
 onnx.ModelProto.prototype.graph = null;
+
+onnx.DeviceConfigurationProto = class DeviceConfigurationProto {
+
+    constructor() {
+        this.device = [];
+    }
+
+    static decode(reader, length) {
+        const message = new onnx.DeviceConfigurationProto();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 2:
+                    message.num_devices = reader.int32();
+                    break;
+                case 3:
+                    message.device.push(reader.string());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new onnx.DeviceConfigurationProto();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "name":
+                    message.name = reader.string();
+                    break;
+                case "num_devices":
+                    message.num_devices = reader.int32();
+                    break;
+                case "device":
+                    reader.array(message.device, () => reader.string());
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new onnx.DeviceConfigurationProto();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('numDevices' in obj) {
+            message.num_devices = Number(obj.numDevices);
+        }
+        if ('device' in obj) {
+            message.device = obj.device;
+        }
+        return message;
+    }
+};
+
+onnx.DeviceConfigurationProto.prototype.name = "";
+onnx.DeviceConfigurationProto.prototype.num_devices = 0;
 
 onnx.StringStringEntryProto = class StringStringEntryProto {
 
