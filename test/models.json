@@ -4979,6 +4979,20 @@
     "link":     "https://github.com/lutzroeder/netron/issues/191"
   },
   {
+    "type":     "openvino",
+    "target":   "unspecified.xml",
+    "source":   "https://github.com/user-attachments/files/19128549/unspecified.gz[unspecified.xml]",
+    "format":   "OpenVINO IR",
+    "link":     "https://github.com/lutzroeder/netron/pull/1438"
+  },
+  {
+    "type":     "openvino",
+    "target":   "dynamic.xml",
+    "source":   "https://github.com/user-attachments/files/19128549/dynamic.gz[dynamic.xml]",
+    "format":   "OpenVINO IR",
+    "link":     "https://github.com/lutzroeder/netron/pull/1438"
+  },
+  {
     "type":     "paddle",
     "target":   "adam.pdopt",
     "source":   "https://github.com/lutzroeder/netron/files/8882900/adam.pdopt.zip[adam.pdopt]",
