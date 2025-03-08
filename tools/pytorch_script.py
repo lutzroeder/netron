@@ -361,7 +361,8 @@ def _sort_types(types):
     for schema in _all_schemas():
         definition = str(schema)
         key = _identifier(definition)
-        keys[key] = index
+        split = key.split('.')
+        keys[key] = f'{split[0]}.{index}'
         index += 1
     classes = collections.OrderedDict()
     for item in types:
@@ -370,16 +371,18 @@ def _sort_types(types):
             classes[name] = item
         else:
             key = _identifier(name)
+            split = key.split('.')
             if not key in keys:
-                keys[key] = index
+                keys[key] = f'{split[0]}.{index}'
                 index += 1
     for key, _ in classes.items():
-        keys[key] = index
+        keys[key] = f'{index}'
         index += 1
     def custom_key(x):
         key = _identifier(x['name'])
         return keys[key]
     types = sorted(types, key=custom_key)
+
     return types
 
 
