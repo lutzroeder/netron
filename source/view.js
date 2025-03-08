@@ -2048,8 +2048,9 @@ view.Node = class extends grapher.Node {
             throw error;
         }
         let content = options.names && (node.name || node.identifier) ? (node.name || node.identifier) : node.type.name.split('.').pop();
-        const tooltip = options.names && (node.name || node.identifier) ? node.type.name : (node.name || node.identifier);
+        let tooltip = options.names && (node.name || node.identifier) ? `[${node.type.name}]` : (node.name || node.identifier);
         if (content.length > 21) {
+            tooltip = options.names ? `${content}` : `[${content}]`;
             const begin = content.substring(0, 10);
             const end = content.substring(content.length - 10, content.length);
             content = `${begin}\u2026${end}`;
