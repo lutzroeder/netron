@@ -6892,6 +6892,7 @@ python.Execution = class {
         this.registerType('torch.nn.modules.conv.LazyConv2d', class {});
         this.registerType('torch.nn.modules.conv.LazyConv3d', class {});
         this.registerType('torch.nn.modules.conv.LazyConvTranspose2d', class {});
+        this.registerType('torch.nn.modules.conv.LazyConvTranspose3d', class {});
         this.registerType('torch.nn.modules.distance.CosineSimilarity', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.distance.PairwiseDistance', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.dropout._DropoutNd', class extends torch.nn.modules.module.Module {});
@@ -6909,6 +6910,7 @@ python.Execution = class {
         this.registerType('torch.nn.modules.instancenorm.InstanceNorm2d', class {});
         this.registerType('torch.nn.modules.instancenorm.InstanceNorm3d', class {});
         this.registerType('torch.nn.modules.instancenorm.LazyInstanceNorm2d', class {});
+        this.registerType('torch.nn.modules.instancenorm.LazyInstanceNorm3d', class {});
         this.registerType('torch.nn.modules.linear._LinearWithBias', class {});
         this.registerType('torch.nn.modules.linear.Bilinear', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.linear.Identity', class extends torch.nn.modules.module.Module {});
@@ -6957,9 +6959,11 @@ python.Execution = class {
         this.registerType('torch.nn.modules.padding.ReplicationPad3d', class extends torch.nn.modules.padding._ReplicationPadNd {});
         this.registerType('torch.nn.modules.padding.ZeroPad1d', class {});
         this.registerType('torch.nn.modules.padding.ZeroPad2d', class {});
+        this.registerType('torch.nn.modules.padding.ZeroPad3d', class {});
         this.registerType('torch.nn.modules.padding.ConstantPad1d', class {});
         this.registerType('torch.nn.modules.padding.ConstantPad2d', class {});
         this.registerType('torch.nn.modules.padding.ConstantPad3d', class {});
+        this.registerType('torch.nn.modules.padding.CircularPad3d', class {});
         this.registerType('torch.nn.modules.pixelshuffle.PixelShuffle', class {});
         this.registerType('torch.nn.modules.pixelshuffle.PixelUnshuffle', class {});
         this.registerType('torch.nn.modules.pooling._AdaptiveAvgPoolNd', class extends torch.nn.modules.module.Module {});
@@ -6973,8 +6977,10 @@ python.Execution = class {
         this.registerType('torch.nn.modules.pooling.AvgPool2d', class {});
         this.registerType('torch.nn.modules.pooling.AvgPool3d', class {});
         this.registerType('torch.nn.modules.pooling.FractionalMaxPool2d', class {});
+        this.registerType('torch.nn.modules.pooling.FractionalMaxPool3d', class {});
         this.registerType('torch.nn.modules.pooling.LPPool1d', class {});
         this.registerType('torch.nn.modules.pooling.LPPool2d', class {});
+        this.registerType('torch.nn.modules.pooling.LPPool3d', class {});
         this.registerType('torch.nn.modules.pooling._MaxPoolNd', class extends torch.nn.modules.module.Module {});
         this.registerType('torch.nn.modules.pooling.MaxPool1d', class extends torch.nn.modules.pooling._MaxPoolNd {});
         this.registerType('torch.nn.modules.pooling.MaxPool2d', class extends torch.nn.modules.pooling._MaxPoolNd {});
@@ -19167,6 +19173,7 @@ python.Execution = class {
         this.registerType('fastai.vision.augment.Brightness', class {});
         this.registerType('fastai.vision.augment.flip_mat', class {});
         this.registerType('fastai.vision.augment.Flip', class {});
+        this.registerType('fastai.vision.augment.RandomResizedCrop', class {});
         this.registerType('fastai.vision.augment.RandomResizedCropGPU', class {});
         this.registerType('fastai.vision.augment.Resize', class {});
         this.registerType('fastai.vision.augment.rotate_mat', class {});
