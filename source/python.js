@@ -3394,6 +3394,7 @@ python.Execution = class {
         this.registerType('sklearn.ensemble._hist_gradient_boosting.predictor.TreePredictor', class {});
         this.registerType('sklearn.ensemble._iforest.IsolationForest', class {});
         this.registerType('sklearn.ensemble._stacking.StackingClassifier', class {});
+        this.registerType('sklearn.ensemble._stacking.StackingRegressor', class {});
         this.registerType('sklearn.ensemble._voting.VotingClassifier', class {});
         this.registerType('sklearn.ensemble._voting.VotingRegressor', class {});
         this.registerType('sklearn.ensemble._weight_boosting.AdaBoostClassifier', class {});
