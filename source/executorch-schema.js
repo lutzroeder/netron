@@ -872,6 +872,7 @@ fb_xnnpack.ConstantDataOffset = class ConstantDataOffset {
         const $ = new fb_xnnpack.ConstantDataOffset();
         $.offset = reader.uint64_(position, 4, 0n);
         $.size = reader.uint64_(position, 6, 0n);
+        $.named_key = reader.string_(position, 8, null);
         return $;
     }
 };
