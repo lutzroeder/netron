@@ -5475,8 +5475,6 @@ view.Context = class {
                                     for (const name of types) {
                                         this.error(new view.Error(`Unknown type name '${name}'.`));
                                     }
-                                } else {
-                                    this._content.set(type, new view.Error("PyTorch standalone 'data.pkl' format not supported."));
                                 }
                             }
                             break;

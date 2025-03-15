@@ -1093,36 +1093,14 @@ pytorch.Container.data_pkl = class extends pytorch.Container {
         return null;
     }
 
-    constructor(type, data) {
+    constructor(type, module) {
         super();
         this.type = 'pytorch.data.pkl';
-        this._type = type;
-        this._data = data;
+        this.format = 'PyTorch Pickle';
+        this.module = module;
     }
 
     async read() {
-        this.format = 'PyTorch Pickle';
-        switch (this._type) {
-            case 'module': {
-                if (this._data) {
-                    this.module = this._data;
-                    delete this._data;
-                }
-                return this.module;
-            }
-            case 'tensor':
-            case 'tensor[]':
-            case 'tensor<>': {
-                if (this._data) {
-                    this.module = this._data;
-                    delete this._data;
-                }
-                return this.module;
-            }
-            default: {
-                throw new pytorch.Error("PyTorch standalone 'data.pkl' not supported.");
-            }
-        }
     }
 };
 

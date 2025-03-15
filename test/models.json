@@ -5574,7 +5574,6 @@
     "target":   "data.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/9795497/data.pkl.zip[data.pkl]",
     "format":   "PyTorch Pickle",
-    "error":    "PyTorch standalone 'data.pkl' format not supported.",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
