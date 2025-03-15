@@ -18505,6 +18505,7 @@ python.Execution = class {
         this.registerType('torch._dynamo.eval_frame.OptimizedModule', class extends torch.nn.modules.module.Module {});
         this.registerType('torch._dynamo.eval_frame.OptimizeContext', class extends torch._dynamo.eval_frame._TorchDynamoContext {});
         this.registerType('torch._dynamo.hooks.Hooks', class {});
+        this.registerType('torch._dynamo.output_graph.GraphCompileReason', class {});
         this.registerType('torch._dynamo.repro.after_dynamo.WrapBackendDebug', class {});
         this.registerType('torch._TorchCompileInductorWrapper', class {});
         this.registerFunction('torch._inductor.compile_fx.compile_fx');
