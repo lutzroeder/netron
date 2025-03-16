@@ -2494,6 +2494,13 @@
   },
   {
     "type":     "keras",
+    "target":   "DP_label_tokenizer.json",
+    "source":   "https://github.com/user-attachments/files/19275615/DP_label_tokenizer.json.zip[DP_label_tokenizer.json]",
+    "format":   "Keras",
+    "link":     "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":     "keras",
     "target":   "generating_images_with_vaes.h5",
     "source":   "https://github.com/lutzroeder/netron/files/2592326/generating_images_with_vaes.h5.zip[generating_images_with_vaes.h5]",
     "format":   "Keras v2.1.3",

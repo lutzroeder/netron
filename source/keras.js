@@ -574,6 +574,11 @@ keras.Graph = class {
                 case 'Model': {
                     break;
                 }
+                case 'Tokenizer': {
+                    config = { config: { layers: [config] } };
+                    baseType = 'Functional';
+                    break;
+                }
                 default: {
                     const layers = Array.from(config.layers ? config.layers : config);
                     const sequential = layers.every((layer) => layer.inbound_nodes === undefined);

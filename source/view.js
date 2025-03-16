@@ -4403,7 +4403,13 @@ view.Formatter = class {
                 break;
         }
         if (typeof value === 'string' && (!type || type !== 'string')) {
-            return quote ? `"${value}"` : value;
+            if (quote) {
+                return `"${value}"`;
+            }
+            if (value.trim().length === 0) {
+                return '&nbsp;';
+            }
+            return value;
         }
         if (Array.isArray(value)) {
             if (value.length === 0) {
