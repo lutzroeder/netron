@@ -5965,11 +5965,16 @@ view.ModelFactoryService = class {
                     { name: 'Transformers configuration', tags: ['architectures', 'model_type'] }, // https://huggingface.co/docs/transformers/en/create_a_model
                     { name: 'Transformers generation configuration', tags: ['transformers_version'] },
                     { name: 'Transformers tokenizer configuration', tags: ['tokenizer_class'] },
-                    { name: 'Transformers tokenizer configuration', tags: ['<|im_start|>'] },
                     { name: 'Transformers tokenizer configuration', tags: ['bos_token', 'eos_token', 'unk_token'] },
                     { name: 'Transformers tokenizer configuration', tags: ['bos_token', 'eos_token', 'pad_token'] },
+                    { name: 'Transformers tokenizer configuration', tags: ['additional_special_tokens'] },
+                    { name: 'Transformers tokenizer configuration', tags: ['special_tokens_map_file'] },
+                    { name: 'Transformers tokenizer configuration', tags: ['full_tokenizer_file'] },
+                    { name: 'Transformers vocabulary data', tags: ['<|im_start|>'] },
+                    { name: 'Transformers vocabulary data', tags: ['<|endoftext|>'] },
                     { name: 'Transformers preprocessor configuration', tags: ['crop_size', 'do_center_crop', 'image_mean', 'image_std', 'do_resize'] },
                     { name: 'Tokenizers data', tags: ['version', 'added_tokens', 'model'] }, // https://github.com/huggingface/tokenizers/blob/main/tokenizers/src/tokenizer/serialization.rs
+                    { name: 'Tokenizer data', tags: ['<eos>', '<bos>'] },
                     { name: 'Jupyter Notebook data', tags: ['cells', 'nbformat'] },
                     { name: 'Kaggle credentials', tags: ['username','key'] },
                     { name: '.NET runtime configuration', tags: ['runtimeOptions.configProperties'] },
@@ -6398,6 +6403,7 @@ view.ModelFactoryService = class {
                 { name: 'undocumented NNC data', value: /^(\xC0|\xBC)\x0F\x00\x00ENNC/ },
                 { name: 'Rich Text Format data', value: /^{\\rtf/ },
                 { name: 'Encrypted File data', value: /^ENCRYPTED_FILE/ },
+                { name: 'Keras Tokenizer data', value: /^"{\\"class_name\\":\s*\\"Tokenizer\\"/ }
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
