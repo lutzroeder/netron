@@ -301,8 +301,8 @@ mlir.Argument = class {
             case 'i64': this.type = 'int64'; break;
             case 'si64': this.type = 'int64'; break;
             case 'i32': this.type = 'int32'; break;
-            case 'f32': this.type = 'float32'; break;
-            case 'f64': this.type = 'float64'; break;
+            case 'f32': case 'float32': this.type = 'float32'; break;
+            case 'f64': case 'float64': this.type = 'float64'; break;
             case null:
             case 'attribute':
             case 'boolean':
