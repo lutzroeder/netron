@@ -4211,6 +4211,7 @@ python.Execution = class {
         this.registerType('xgboost.core.Booster', class {});
         this.registerType('xgboost.sklearn.XGBClassifier', class {});
         this.registerType('xgboost.sklearn.XGBRegressor', class {});
+        this.registerType('xgboost.sklearn.XGBRFClassifier', class {});
         this.registerFunction('_codecs.encode', (obj, encoding) => {
             return execution.invoke('builtins.bytearray', [obj, encoding]);
         });
