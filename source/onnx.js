@@ -116,8 +116,9 @@ onnx.Model = class {
             imageFormat = [imageMetadata['Image.BitmapPixelFormat'], imageMetadata['Image.ColorSpaceGamma'], imageMetadata['Image.NominalPixelRange']].filter((item) => item);
         }
         const context = new onnx.Context.Model(metadata, target.locations, imageFormat, imports, model.graph, model.functions);
-        if (context.graph) {
-            this._graphs.push(context.graph);
+        const graph = context.graph(null);
+        if (graph) {
+            this._graphs.push(graph);
         }
     }
 
@@ -351,92 +352,12 @@ onnx.Node = class {
         this.description = node.doc_string || '';
         this.inputs = inputs || [];
         this.outputs = outputs || [];
-        this.attributes = attributes.map((attribute) => {
-            const name = attribute.name;
-            let type = null;
-            let value = null;
-            let visible = true;
-            if (attribute.ref_attr_name) {
-                value = attribute.ref_attr_name;
-                type = 'reference';
-            } else {
-                switch (attribute.type) {
-                    case onnx.AttributeType.UNDEFINED:
-                        break;
-                    case onnx.AttributeType.FLOAT:
-                        value = attribute.f;
-                        type = 'float32';
-                        break;
-                    case onnx.AttributeType.INT:
-                        value = BigInt(attribute.i);
-                        type = 'int64';
-                        break;
-                    case onnx.AttributeType.STRING:
-                        value = op_type === 'Int8GivenTensorFill' ? Array.from(attribute.s) : context.decodeText(attribute.s);
-                        type = 'string';
-                        break;
-                    case onnx.AttributeType.TENSOR:
-                        value = new onnx.Tensor(context, attribute.t);
-                        type = 'tensor';
-                        break;
-                    case onnx.AttributeType.GRAPH:
-                        value = context.graph(attribute.g);
-                        type = 'graph';
-                        break;
-                    case onnx.AttributeType.FLOATS:
-                        value = ArrayBuffer.isView(attribute.floats) ? Array.from(attribute.floats) : attribute.floats;
-                        type = 'float32[]';
-                        break;
-                    case onnx.AttributeType.INTS:
-                        value = ArrayBuffer.isView(attribute.ints) ? Array.from(attribute.ints) : attribute.ints.map((value) => BigInt(value));
-                        type = 'int64[]';
-                        break;
-                    case onnx.AttributeType.STRINGS:
-                        value = attribute.strings.map((s) => context.decodeText(s));
-                        type = 'string[]';
-                        break;
-                    case onnx.AttributeType.TENSORS:
-                        value = attribute.tensors.map((tensor) => new onnx.Tensor(context, tensor));
-                        type = 'tensor[]';
-                        break;
-                    case onnx.AttributeType.GRAPHS:
-                        value = attribute.graphs.map((graph) => context.graph(graph));
-                        type = 'graph[]';
-                        break;
-                    case onnx.AttributeType.SPARSE_TENSOR:
-                        value = new onnx.Tensor(context, attribute.sparse_tensor);
-                        type = 'tensor';
-                        break;
-                    case onnx.AttributeType.SPARSE_TENSORS:
-                        value = attribute.sparse_tensors.map((tensor) => new onnx.Tensor(context, tensor));
-                        type = 'tensor[]';
-                        break;
-                    case onnx.AttributeType.TYPE_PROTO:
-                        value = context.createType(attribute.tp);
-                        type = 'type';
-                        break;
-                    case onnx.AttributeType.TYPE_PROTOS:
-                        value = attribute.type_protos.map((type) => context.createType(type));
-                        type = 'type[]';
-                        break;
-                    default:
-                        throw new onnx.Error(`Unsupported attribute type '${attribute.type}'.`);
-                }
-                const metadata = context.attribute(domain, op_type, overload, attribute.name);
-                if (metadata) {
-                    if (metadata.default !== undefined) {
-                        const defaultValue = type === 'int64' ? BigInt(metadata.default) : metadata.default;
-                        if (value === defaultValue) {
-                            visible = false;
-                        }
-                    }
-                    if (metadata.type === 'DataType') {
-                        type = metadata.type;
-                        value = context.createDataType(value);
-                    }
-                }
+        this.attributes = attributes.map((attr) => {
+            if (op_type === 'Int8GivenTensorFill' && attr.s && attr.s.length > 0) {
+                return new onnx.Argument(attr.name, Array.from(attr.s), 'byte[]');
             }
-            return new onnx.Argument(name, value, type, attribute.doc_string, visible);
+            const metadata = context.attribute(domain, op_type, overload, attr.name);
+            return context.createAttribute(attr, metadata);
         });
         this.chain = [];
         const identifier = domain ? `${domain}.${op_type}` : op_type;
@@ -853,9 +774,15 @@ onnx.Function = class {
         this.description = func.doc_string;
         this.inputs = [];
         this.outputs = [];
-        this.attributes = func.attribute.map((attribtue) => {
-            return { name: attribtue };
-        });
+        this.attributes = [];
+        for (let i = 0; i < func.attribute.length; i++) {
+            const attribute = new onnx.Argument(i.toString(), func.attribute[i]);
+            this.attributes.push(attribute);
+        }
+        for (const attr of func.attribute_proto) {
+            const attribute = context.createAttribute(attr, func.domain, func.name, func.overload);
+            this.attributes.push(attribute);
+        }
         context = new onnx.Context.Graph(context, func);
         func.input = func.input.map((input) => context.tensor(input));
         func.output = func.output.map((output) => context.tensor(output));
@@ -883,11 +810,17 @@ onnx.Context.Model = class {
     constructor(metadata, locations, imageFormat, imports, graph, functions) {
         this._metadata = metadata;
         this._locations = locations;
+        this._dataTypes = new Map(Object.entries(onnx.DataType).map(([name, value]) => [value, name.toLowerCase()]));
+        this._dataTypes.set(onnx.DataType.UNDEFINED, 'undefined');
+        this._dataTypes.set(onnx.DataType.BOOL, 'boolean');
+        this._dataTypes.set(onnx.DataType.FLOAT, 'float32');
+        this._dataTypes.set(onnx.DataType.DOUBLE, 'float64');
         this._imageFormat = imageFormat;
         this._imports = imports;
         this._types = new Map();
         this._attributes = new Map();
         this._graph = null;
+        this._graphs = new Map();
         this._functions = new Map();
         for (const func of functions || []) {
             const key = func.overload ? `${func.domain}:${func.name}:${func.overload}` : `${func.domain}:${func.name}`;
@@ -990,8 +923,14 @@ onnx.Context.Model = class {
         return this._imageFormat;
     }
 
-    get graph() {
-        return this._graph;
+    graph(value) {
+        if (value === null) {
+            return this._graph;
+        }
+        if (!this._graphs.has(value)) {
+            this._graphs.set(value, new onnx.Graph(this, value));
+        }
+        return this._graphs.get(value);
     }
 
     location(name) {
@@ -1038,6 +977,131 @@ onnx.Context.Model = class {
             }
         }
         return this._attributes.get(key);
+    }
+
+    decodeText(value) {
+        if (typeof value === 'string') {
+            return value;
+        }
+        this._decoder = this._decoder || new TextDecoder('utf-8');
+        return this._decoder.decode(value);
+    }
+
+    createAttribute(attribute, metadata) {
+        const name = attribute.name;
+        let type = null;
+        let value = null;
+        let visible = true;
+        if (attribute.ref_attr_name) {
+            value = attribute.ref_attr_name;
+            type = 'reference';
+        } else {
+            switch (attribute.type) {
+                case onnx.AttributeType.UNDEFINED:
+                    break;
+                case onnx.AttributeType.FLOAT:
+                    value = attribute.f;
+                    type = 'float32';
+                    break;
+                case onnx.AttributeType.INT:
+                    value = BigInt(attribute.i);
+                    type = 'int64';
+                    break;
+                case onnx.AttributeType.STRING:
+                    value = this.decodeText(attribute.s);
+                    type = 'string';
+                    break;
+                case onnx.AttributeType.TENSOR:
+                    value = new onnx.Tensor(this, attribute.t);
+                    type = 'tensor';
+                    break;
+                case onnx.AttributeType.GRAPH:
+                    value = this.graph(attribute.g);
+                    type = 'graph';
+                    break;
+                case onnx.AttributeType.FLOATS:
+                    value = ArrayBuffer.isView(attribute.floats) ? Array.from(attribute.floats) : attribute.floats;
+                    type = 'float32[]';
+                    break;
+                case onnx.AttributeType.INTS:
+                    value = ArrayBuffer.isView(attribute.ints) ? Array.from(attribute.ints) : attribute.ints.map((value) => BigInt(value));
+                    type = 'int64[]';
+                    break;
+                case onnx.AttributeType.STRINGS:
+                    value = attribute.strings.map((s) => this.decodeText(s));
+                    type = 'string[]';
+                    break;
+                case onnx.AttributeType.TENSORS:
+                    value = attribute.tensors.map((tensor) => new onnx.Tensor(this, tensor));
+                    type = 'tensor[]';
+                    break;
+                case onnx.AttributeType.GRAPHS:
+                    value = attribute.graphs.map((graph) => this.graph(graph));
+                    type = 'graph[]';
+                    break;
+                case onnx.AttributeType.SPARSE_TENSOR:
+                    value = new onnx.Tensor(this, attribute.sparse_tensor);
+                    type = 'tensor';
+                    break;
+                case onnx.AttributeType.SPARSE_TENSORS:
+                    value = attribute.sparse_tensors.map((tensor) => new onnx.Tensor(this, tensor));
+                    type = 'tensor[]';
+                    break;
+                case onnx.AttributeType.TYPE_PROTO:
+                    value = this.createType(attribute.tp);
+                    type = 'type';
+                    break;
+                case onnx.AttributeType.TYPE_PROTOS:
+                    value = attribute.type_protos.map((type) => this.createType(type));
+                    type = 'type[]';
+                    break;
+                default:
+                    throw new onnx.Error(`Unsupported attribute type '${attribute.type}'.`);
+            }
+            if (metadata) {
+                if (metadata.default !== undefined) {
+                    const defaultValue = type === 'int64' ? BigInt(metadata.default) : metadata.default;
+                    if (value === defaultValue) {
+                        visible = false;
+                    }
+                }
+                if (metadata.type === 'DataType') {
+                    type = metadata.type;
+                    value = this.createDataType(value);
+                }
+            }
+        }
+        return new onnx.Argument(name, value, type, attribute.doc_string, visible);
+    }
+
+    createDataType(value) {
+        if (!Number.isInteger(value)) {
+            if (typeof value === 'bigint') {
+                value = value.toNumber();
+            } else if (value && typeof value === 'string' && onnx.DataType[value.toUpperCase()] !== undefined) {
+                value = onnx.DataType[value.toUpperCase()];
+            } else {
+                throw new onnx.Error(`Unsupported data type '${JSON.stringify(value)}'.`);
+            }
+        }
+        if (this._dataTypes.has(value)) {
+            return this._dataTypes.get(value);
+        }
+        throw new onnx.Error(`Unsupported data type '${JSON.stringify(value)}'.`);
+    }
+
+    createLocation(value) {
+        switch (value) {
+            case undefined:
+            case onnx.DataLocation.DEFAULT: return '';
+            case onnx.DataLocation.EXTERNAL: return 'external';
+            default: return 'undefined';
+        }
+    }
+
+    createTensorType(dataType, shape, layout, denotation) {
+        dataType = this.createDataType(dataType);
+        return new onnx.TensorType(dataType, new onnx.TensorShape(shape), layout, denotation);
     }
 };
 
@@ -1177,12 +1241,6 @@ onnx.Context.Graph = class {
 
     constructor(context, graph) {
         this._context = context;
-        this._dataTypes = new Map(Object.entries(onnx.DataType).map(([name, value]) => [value, name.toLowerCase()]));
-        this._dataTypes.set(onnx.DataType.UNDEFINED, 'undefined');
-        this._dataTypes.set(onnx.DataType.BOOL, 'boolean');
-        this._dataTypes.set(onnx.DataType.FLOAT, 'float32');
-        this._dataTypes.set(onnx.DataType.DOUBLE, 'float64');
-        this._graphs = new Map();
         this._initializers = new Map();
         this._tensors = new Map();
         this._values = new Map();
@@ -1243,13 +1301,6 @@ onnx.Context.Graph = class {
 
     attribute(domain, type, overload, name) {
         return this._context.attribute(domain, type, overload, name);
-    }
-
-    graph(value) {
-        if (!this._graphs.has(value)) {
-            this._graphs.set(value, new onnx.Graph(this, value));
-        }
-        return this._graphs.get(value);
     }
 
     initializer(name) {
@@ -1341,41 +1392,23 @@ onnx.Context.Graph = class {
     }
 
     createTensorType(dataType, shape, layout, denotation) {
-        dataType = this.createDataType(dataType);
-        return new onnx.TensorType(dataType, new onnx.TensorShape(shape), layout, denotation);
+        return this._context.createTensorType(dataType, shape, layout, denotation);
     }
 
     createDataType(value) {
-        if (!Number.isInteger(value)) {
-            if (typeof value === 'bigint') {
-                value = value.toNumber();
-            } else if (value && typeof value === 'string' && onnx.DataType[value.toUpperCase()] !== undefined) {
-                value = onnx.DataType[value.toUpperCase()];
-            } else {
-                throw new onnx.Error(`Unsupported data type '${JSON.stringify(value)}'.`);
-            }
-        }
-        if (this._dataTypes.has(value)) {
-            return this._dataTypes.get(value);
-        }
-        throw new onnx.Error(`Unsupported data type '${JSON.stringify(value)}'.`);
+        return this._context.createDataType(value);
     }
 
     createLocation(value) {
-        switch (value) {
-            case undefined:
-            case onnx.DataLocation.DEFAULT: return '';
-            case onnx.DataLocation.EXTERNAL: return 'external';
-            default: return 'undefined';
-        }
+        return this._context.createLocation(value);
+    }
+
+    createAttribute(attribute, metadata) {
+        return this._context.createAttribute(attribute, metadata);
     }
 
     decodeText(value) {
-        if (typeof value === 'string') {
-            return value;
-        }
-        this._decoder = this._decoder || new TextDecoder('utf-8');
-        return this._decoder.decode(value);
+        return this._context.decodeText(value);
     }
 
     push(nodes, inputs, outputs) {

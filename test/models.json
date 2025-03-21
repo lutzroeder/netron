@@ -4295,6 +4295,14 @@
   },
   {
     "type":     "onnx",
+    "target":   "func_attr.onnx",
+    "source":   "https://github.com/user-attachments/files/19379749/func_attr.onnx.zip[func_attr.onnx]",
+    "format":   "ONNX v8",
+    "assert":   "model.graphs[0].nodes[1].type.attributes[1].value == 'some_value'",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "gather.json",
     "source":   "https://github.com/lutzroeder/netron/files/12306625/gather.json.zip[gather.json]",
     "format":   "ONNX v6",

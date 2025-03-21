@@ -3643,8 +3643,15 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             if (graph.description) {
                 this.addProperty('description', graph.description);
             }
+            const attributes = signature ? signature.attributes : graph.attributes;
             const inputs = signature ? signature.inputs : graph.inputs;
             const outputs = signature ? signature.outputs : graph.outputs;
+            if (Array.isArray(attributes) && attributes.length > 0) {
+                this.addHeader('Attributes');
+                for (const attribute of attributes) {
+                    this.addProperty(attribute.name, attribute.value);
+                }
+            }
             if (Array.isArray(inputs) && inputs.length > 0) {
                 this.addHeader('Inputs');
                 for (const input of inputs) {
@@ -4200,7 +4207,7 @@ view.Documentation = class {
                     if (source.src_type !== undefined) {
                         target.src_type = source.src_type;
                     }
-                    if (source.description !== undefined) {
+                    if (source.description) {
                         target.description = generator.html(source.description);
                     }
                     if (source.default !== undefined) {
