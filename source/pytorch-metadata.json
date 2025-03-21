@@ -4450,10 +4450,10 @@
     "name": "aten::mul_.t(t[](a!) l, int n) -> t[](a!)"
   },
   {
-    "name": "aten::multinomial(Tensor self, int num_samples, bool replacement=False, *, Generator? generator=None) -> Tensor"
+    "name": "aten::multinomial(Tensor self, SymInt num_samples, bool replacement=False, *, Generator? generator=None) -> Tensor"
   },
   {
-    "name": "aten::multinomial.out(Tensor self, int num_samples, bool replacement=False, *, Generator? generator=None, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::multinomial.out(Tensor self, SymInt num_samples, bool replacement=False, *, Generator? generator=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::multiply.Tensor(Tensor self, Tensor other) -> Tensor"
