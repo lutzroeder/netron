@@ -86,6 +86,25 @@ paddle.ModelFactory = class {
                         case 'paddle.pbtxt': {
                             try {
                                 const reader = await context.read('protobuf.text');
+                                reader.enum = function(type) {
+                                    const token = this.token();
+                                    this.next();
+                                    this.semicolon();
+                                    if (type[token] !== undefined) {
+                                        return type[token];
+                                    }
+                                    if (token === 'LOD_TENSOR') {
+                                        return type.DENSE_TENSOR;
+                                    }
+                                    throw new paddle.Error(`Unknown enum value '${token}' ${this.location()}`);
+                                };
+                                reader.field = function(tag, message) {
+                                    if (message instanceof paddle.proto.VarType && tag === 'lod_tensor') {
+                                        message.dense_tensor = paddle.proto.VarType.DenseTensorDesc.decodeText(reader);
+                                    } else {
+                                        throw new Error(`Unknown field '${tag}' ${this.location()}`);
+                                    }
+                                };
                                 program.desc = paddle.proto.ProgramDesc.decodeText(reader);
                             } catch (error) {
                                 const message = error && error.message ? error.message : error.toString();

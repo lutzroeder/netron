@@ -5052,6 +5052,13 @@
   },
   {
     "type":     "paddle",
+    "target":   "fluid.pbtxt",
+    "source":   "https://github.com/user-attachments/files/19405445/fluid.pbtxt.zip[fluid.pbtxt]",
+    "format":   "PaddlePaddle",
+    "link":     "https://github.com/lutzroeder/netron/issues/903"
+  },
+  {
+    "type":     "paddle",
     "target":   "for_net.json",
     "source":   "https://github.com/user-attachments/files/18105174/for_net.json",
     "format":   "PaddlePaddle IR v1",
