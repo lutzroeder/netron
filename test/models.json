@@ -813,13 +813,6 @@
   },
   {
     "type":     "caffe2",
-    "target":   "densenet121/predict_net.pb,densenet121/init_net.pb",
-    "source":   "https://github.com/facebookarchive/models/raw/master/densenet121/predict_net.pb,https://github.com/facebookarchive/models/raw/master/densenet121/init_net.pb",
-    "format":   "Caffe2",
-    "link":     "https://github.com/caffe2/models"
-  },
-  {
-    "type":     "caffe2",
     "target":   "FBNet-A-int8/model.pbtxt,FBNet-A-int8/model_init.pb",
     "source":   "https://dl.fbaipublicfiles.com/fbnet/models/FBNet_caffe2.zip[FBNet/FBNet-A/int8/model.pbtxt,FBNet/FBNet-A/int8/model_init.pb]",
     "format":   "Caffe2",
@@ -878,8 +871,8 @@
   },
   {
     "type":     "caffe2",
-    "target":   "onnx_while/predict_net.pb,onnx_while/init_net.pb",
-    "source":   "https://github.com/lutzroeder/netron/files/2522635/onnxwhile.zip[predict_net.pb,init_net.pb]",
+    "target":   "while_onnx/predict_net.pb,while_onnx/init_net.pb",
+    "source":   "https://github.com/user-attachments/files/19404049/while_onnx.zip[predict_net.pb,init_net.pb]",
     "format":   "Caffe2",
     "link":     "https://github.com/lutzroeder/netron/issues/168"
   },
@@ -1090,13 +1083,6 @@
     "source":   "https://github.com/user-attachments/files/15793987/accumulator_example_state_model.mlpackage.zip",
     "format":   "Core ML Package v9",
     "link":     "https://github.com/lutzroeder/netron/issues/1291"
-  },
-  {
-    "type":     "coreml",
-    "target":   "BERTSQUADFP16.mlmodel",
-    "source":   "https://docs-assets.developer.apple.com/coreml/models/Text/QuestionAnswering/BERT_SQUAD/BERTSQUADFP16.mlmodel",
-    "format":   "Core ML v4",
-    "link":     "https://developer.apple.com/machine-learning/models"
   },
   {
     "type":     "coreml",
@@ -1407,12 +1393,6 @@
     "type":     "coreml",
     "target":   "GoogLeNetPlaces.mlmodel",
     "source":   "https://docs-assets.developer.apple.com/coreml/models/GoogLeNetPlaces.mlmodel"
-  },
-  {
-    "type":     "coreml",
-    "target":   "HED_so.mlmodel",
-    "source":   "https://raw.githubusercontent.com/s1ddok/HED-CoreML/master/HED-CoreML/Models/HED_so.mlmodel",
-    "link":     "https://github.com/s1ddok/HED-CoreML"
   },
   {
     "type":     "coreml",
@@ -2407,13 +2387,6 @@
     "format":   "Keras v2.13.1",
     "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/1151"
-  },
-  {
-    "type":     "keras",
-    "target":   "5_model_fold_0.h5",
-    "source":   "https://github.com/lutzroeder/netron/files/6174822/5_model_fold_0.h5.zip[5_model_fold_0.h5]",
-    "format":   "Keras v2.4.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/540"
   },
   {
     "type":     "keras",
@@ -3537,8 +3510,8 @@
   },
   {
     "type":     "mxnet",
-    "target":   "bvlc_alexnet-symbol.json,bvlc_alexnet-0000.params",
-    "source":   "https://github.com/lutzroeder/netron/files/11931595/bvlc_alexnet-symbol.zip[bvlc_alexnet-symbol.json,bvlc_alexnet-0000.params]",
+    "target":   "bvlc_alexnet-symbol.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/11931595/bvlc_alexnet-symbol.zip",
     "format":   "MXNet v0.10.0",
     "link":     "https://github.com/lutzroeder/netron/issues/723"
   },
@@ -3639,8 +3612,8 @@
   },
   {
     "type":     "mxnet",
-    "target":   "resnet-50-0000.params",
-    "source":   "https://github.com/lutzroeder/netron/files/11931742/resnet-50-0000.params.zip[resnet-50-0000.params]",
+    "target":   "resnet-50-0000.params.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/11931742/resnet-50-0000.params.zip",
     "format":   "MXNet",
     "link":     "https://github.com/lutzroeder/netron/issues/723"
   },
@@ -4338,6 +4311,20 @@
   },
   {
     "type":     "onnx",
+    "target":   "if_k1.onnx",
+    "source":   "https://github.com/user-attachments/files/19404101/if_k1.onnx.zip[if_k1.onnx]",
+    "format":   "ONNX v6",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
+    "target":   "if_test.pbtxt",
+    "source":   "https://github.com/user-attachments/files/19404140/if_test.pbtxt.zip[if_test.pbtxt]",
+    "format":   "ONNX v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "input_0.pb",
     "source":   "https://github.com/lutzroeder/netron/files/11067440/input_0.pb.zip[input_0.pb]",
     "format":   "ONNX Tensor",
@@ -4377,27 +4364,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/10349170/issue_119.onnx.zip[issue_119.onnx]",
     "format":   "ONNX v4",
     "link":     "https://github.com/lutzroeder/netron/issues/119"
-  },
-  {
-    "type":     "onnx",
-    "target":   "issue_168_if.pbtxt",
-    "source":   "https://github.com/lutzroeder/netron/files/10349183/issue_168.zip[issue_168_if.pbtxt]",
-    "format":   "ONNX v3",
-    "link":     "https://github.com/lutzroeder/netron/issues/168"
-  },
-  {
-    "type":     "onnx",
-    "target":   "issue_168_loop.pbtxt",
-    "source":   "https://github.com/lutzroeder/netron/files/10349183/issue_168.zip[issue_168_loop.pbtxt]",
-    "format":   "ONNX v3",
-    "link":     "https://github.com/lutzroeder/netron/issues/168"
-  },
-  {
-    "type":     "onnx",
-    "target":   "issue_168_scan.pbtxt",
-    "source":   "https://github.com/lutzroeder/netron/files/10349183/issue_168.zip[issue_168_scan.pbtxt]",
-    "format":   "ONNX v3",
-    "link":     "https://github.com/lutzroeder/netron/issues/168"
   },
   {
     "type":     "onnx",
@@ -4478,6 +4444,20 @@
     "target":   "longformer.onnx.zip",
     "source":   "https://github.com/user-attachments/files/17266929/longformer.onnx.zip",
     "format":   "ONNX v9",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
+    "target":   "loop_dlrm_s_pytorch.onnx",
+    "source":   "https://github.com/user-attachments/files/19404092/loop_dlrm_s_pytorch.onnx.zip[loop_dlrm_s_pytorch.onnx]",
+    "format":   "ONNX v6",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
+    "target":   "loop_test.pbtxt",
+    "source":   "https://github.com/user-attachments/files/19404142/loop_test.pbtxt.zip[loop_test.pbtxt]",
+    "format":   "ONNX v3",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -4625,6 +4605,13 @@
     "source":   "https://github.com/lutzroeder/netron/files/6191354/s2.onnx.zip[s2.onnx]",
     "format":   "ONNX v6",
     "link":     "https://github.com/lutzroeder/netron/issues/647"
+  },
+  {
+    "type":     "onnx",
+    "target":   "scan_test.pbtxt",
+    "source":   "https://github.com/user-attachments/files/19404143/scan_test.pbtxt.zip[scan_test.pbtxt]",
+    "format":   "ONNX v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
@@ -6396,13 +6383,6 @@
   },
   {
     "type":     "pytorch",
-    "target":   "resnet18-5c106cde.pth",
-    "source":   "https://download.pytorch.org/models/resnet18-5c106cde.pth",
-    "format":   "PyTorch v0.1.1",
-    "link":     "https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py"
-  },
-  {
-    "type":     "pytorch",
     "target":   "resnet34.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9075629/resnet34.pt.zip",
     "format":   "PyTorch Package v1.9",
@@ -7057,13 +7037,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/5621078/resnet_18.rknn.zip[resnet_18.rknn]",
     "format":   "RKNN v1.3.2",
     "link":     "https://github.com/lutzroeder/netron/issues/639"
-  },
-  {
-    "type":     "rknn",
-    "target":   "ssd_inception_v2.rknn",
-    "source":   "https://raw.githubusercontent.com/radxa/rknpu2/00f555433f07936dde0e4442f65bc46354934130/examples/rknn_ssd_demo/model/RK356X/ssd_inception_v2.rknn",
-    "format":   "RKNN v1.0.0",
-    "link":     "https://github.com/radxa/rknpu2/tree/00f555433f07936dde0e4442f65bc46354934130/examples/rknn_ssd_demo/model/RK356X"
   },
   {
     "type":     "rknn",
@@ -8059,15 +8032,6 @@
   },
   {
     "type":     "tflite",
-    "target":   "densenet.tflite",
-    "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.tflite]",
-    "format":   "TensorFlow Lite v3",
-    "assert":   "model.graphs[0].nodes[0].type.name == 'Conv2D'",
-    "tags":     "quantization",
-    "link":     "https://www.tensorflow.org/lite/guide/hosted_models"
-  },
-  {
-    "type":     "tflite",
     "target":   "efficientnet-edgetpu-S_quant_edgetpu.tflite",
     "source":   "https://github.com/google-coral/edgetpu/raw/master/test_data/efficientnet-edgetpu-S_quant_edgetpu.tflite",
     "format":   "TensorFlow Lite v3",
@@ -8437,20 +8401,6 @@
     "source":   "https://raw.githubusercontent.com/pyannote/pyannote-data/master/openface.nn4.small2.v1.t7",
     "format":   "Torch v7",
     "link":     "https://github.com/pyannote/pyannote-data"
-  },
-  {
-    "type":     "torch",
-    "target":   "resnet-18.t7",
-    "source":   "https://d2j0dndfm35trm.cloudfront.net/resnet-18.t7",
-    "format":   "Torch v7",
-    "link":     "https://github.com/facebook/fb.resnet.torch"
-  },
-  {
-    "type":     "torch",
-    "target":   "resnet_photo_14l_scale2.0x_model.t7",
-    "source":   "https://raw.githubusercontent.com/nagadomi/waifu2x/master/models/resnet_14l/photo/scale2.0x_model.t7",
-    "format":   "Torch v7",
-    "link":     "https://github.com/nagadomi/waifu2x"
   },
   {
     "type":     "torch",
