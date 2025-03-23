@@ -3978,6 +3978,12 @@ view.FindSidebar = class extends view.Control {
         }
         const element = this._toggles[type].template.cloneNode(true);
         const text = this._host.document.createTextNode(content);
+        if (type === 'node') {
+            // Add a rectangle with node type before the content
+            const nodeType = this.createElement('span', 'sidebar-find-content-node');
+            nodeType.innerHTML = value.type.name;
+            element.appendChild(nodeType);
+        }
         element.appendChild(text);
         this._table.set(element, value);
         this._content.appendChild(element);
@@ -4093,6 +4099,7 @@ view.FindSidebar = class extends view.Control {
         this._query.focus();
         this._query.value = '';
         this._query.value = this._state.query;
+        this._query.select();
         for (const [name, toggle] of Object.entries(this._toggles)) {
             toggle.checkbox.checked = this._state[name];
             toggle.element.setAttribute('title', this._state[name] ? toggle.hide : toggle.show);
