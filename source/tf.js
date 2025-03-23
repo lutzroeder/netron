@@ -731,6 +731,7 @@ tf.Graph = class {
         this.outputs = [];
         this.signatures = [];
         this.version = null;
+        this.metadata = [];
         this.groups = false;
         if (meta_graph && meta_graph.graph_def) {
             const graph = meta_graph.graph_def;
@@ -741,8 +742,8 @@ tf.Graph = class {
             } else if (meta_graph.meta_info_def && meta_graph.meta_info_def.tensorflow_version) {
                 this.version = meta_graph.meta_info_def.tensorflow_version;
             }
-            if (meta_graph.meta_info_def && meta_graph.meta_info_def.tags) {
-                this.tags = meta_graph.meta_info_def.tags.join(', ');
+            if (meta_graph.meta_info_def && Array.isArray(meta_graph.meta_info_def.tags) && meta_graph.meta_info_def.tags.length > 0) {
+                this.metadata.push(new tf.Argument('tags', meta_graph.meta_info_def.tags.join(', ')));
             }
             const output_arg_map = new Map();
             metadata = new tf.GraphMetadata(metadata, graph.library);

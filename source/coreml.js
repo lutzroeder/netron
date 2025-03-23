@@ -226,7 +226,8 @@ coreml.Graph = class {
 
     constructor(context) {
         this.name = context.name || '';
-        this.type = context.type;
+        this.type = context.type || '';
+        this.description = context.description;
         this.groups = context.groups;
         for (const value of context.values.values()) {
             const name = value.name;
@@ -533,7 +534,7 @@ coreml.Context = class {
         this.graphs = [];
         const description = model.description;
         for (const func of description.functions) {
-            const graph = new coreml.Context.Graph(metadata, func.name, model, func, weights, values);
+            const graph = new coreml.Context.Graph(metadata, func.name, 'function', model, func, weights, values);
             this.graphs.push(graph);
         }
         if (description && description.defaultFunctionName) {
@@ -544,7 +545,7 @@ coreml.Context = class {
             }
         }
         if (model && !model.mlProgram || (model.mlProgram.functions && model.mlProgram.functions.main)) {
-            const graph = new coreml.Context.Graph(metadata, '', model, description, weights, values);
+            const graph = new coreml.Context.Graph(metadata, '', 'graph', model, description, weights, values);
             this.graphs.push(graph);
         }
         if (description && description.metadata) {
@@ -570,9 +571,10 @@ coreml.Context = class {
 
 coreml.Context.Graph = class {
 
-    constructor(metadata, name, model, description, weights, values) {
+    constructor(metadata, name, type, model, description, weights, values) {
         this.metadata = metadata;
         this.name = name;
+        this.type = type;
         this.weights = weights || new Map();
         this.values = values || new Map();
         this.nodes = [];
@@ -591,7 +593,7 @@ coreml.Context.Graph = class {
                 this.update(value, description);
                 this.inputs.push({ name: description.name, visible: true, value: [value] });
             }
-            this.type = this.model(model, '', description);
+            this.description = this.model(model, '', description);
             const outputs = description && Array.isArray(description.output) ? description.output : [];
             for (const description of outputs) {
                 const value = this.input(description.name);
@@ -602,7 +604,7 @@ coreml.Context.Graph = class {
     }
 
     context() {
-        return new coreml.Context.Graph(this.metadata, '', null, null, this.weights, this.values);
+        return new coreml.Context.Graph(this.metadata, '', 'graph', null, null, this.weights, this.values);
     }
 
     network(obj) {
@@ -612,7 +614,7 @@ coreml.Context.Graph = class {
             context.node(context.groups, type, layer.name, '', layer[type], layer.input, layer.output, layer.inputTensor, layer.outputTensor);
         }
         context.updatePreprocessing('', obj.preprocessing, null);
-        context.type = 'Neural Network';
+        context.description = 'Neural Network';
         return context;
     }
 

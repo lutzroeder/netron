@@ -206,8 +206,8 @@ caffe2.Graph = class {
 
     constructor(metadata, netDef, init) {
         this.name = netDef.name || '';
-        this.type = netDef.type || '';
         this.nodes = [];
+        this.description = netDef.type;
         const initializers = new Set();
         const tensors = new Map();
         for (const name of netDef.external_input) {

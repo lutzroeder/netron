@@ -565,11 +565,13 @@ keras.Graph = class {
                 return null;
             };
             this.name = config.name || (config.config && config.config.name ? config.config.name : '');
-            this.type = config.class_name;
+            this.description = config.class_name;
             let baseType = config.class_name;
             switch (baseType) {
-                case 'Sequential':
                 case '__Function__':
+                    this.type = 'function';
+                    break;
+                case 'Sequential':
                 case 'Functional':
                 case 'Model': {
                     break;
@@ -866,6 +868,7 @@ keras.Graph = class {
                 }
             }
         } else if (weights) {
+            this.type = 'weights';
             for (const name of weights.keys()) {
                 if (weights.get('', name).length <= 6) {
                     const layer = { class_name: 'Weights', config: { name } };

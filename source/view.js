@@ -2639,7 +2639,13 @@ view.ObjectSidebar = class extends view.Control {
     }
 
     addHeader(title) {
-        const element = this.createElement('div', 'sidebar-header');
+        const element = this.createElement('h1', 'sidebar-header');
+        element.innerText = title;
+        this.element.appendChild(element);
+    }
+
+    addSection(title) {
+        const element = this.createElement('div', 'sidebar-section');
         element.innerText = title;
         this.element.appendChild(element);
     }
@@ -2704,7 +2710,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         }
         const attributes = node.attributes;
         if (Array.isArray(attributes) && attributes.length > 0) {
-            this.addHeader('Attributes');
+            this.addSection('Attributes');
             attributes.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
             for (const attribute of attributes) {
                 this.addArgument(attribute.name, attribute, 'attribute');
@@ -2712,7 +2718,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         }
         const inputs = node.inputs;
         if (Array.isArray(inputs) && inputs.length > 0) {
-            this.addHeader('Inputs');
+            this.addSection('Inputs');
             for (const input of inputs) {
                 const name = input.name;
                 this.addArgument(name, input);
@@ -2720,7 +2726,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         }
         const outputs = node.outputs;
         if (Array.isArray(outputs) && outputs.length > 0) {
-            this.addHeader('Outputs');
+            this.addSection('Outputs');
             for (const output of outputs) {
                 const name = output.name;
                 this.addArgument(name, output);
@@ -2728,7 +2734,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         }
         const metadata = node.metadata;
         if (Array.isArray(metadata) && metadata.length > 0) {
-            this.addHeader('Metadata');
+            this.addSection('Metadata');
             for (const entry of metadata) {
                 this.addArgument(entry.name, entry, 'attribute');
             }
@@ -3412,15 +3418,15 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
             item.toggle();
         }
         if (from) {
-            this.addHeader('Inputs');
+            this.addSection('Inputs');
             this.addNodeList('from', [from]);
         }
         if (Array.isArray(to) && to.length > 0) {
-            this.addHeader('Outputs');
+            this.addSection('Outputs');
             this.addNodeList('to', to);
         }
         if (Array.isArray(value.metadata) && value.metadata.length > 0) {
-            this.addHeader('Metadata');
+            this.addSection('Metadata');
             for (const metadata of value.metadata) {
                 this.addProperty(metadata.name, metadata.value);
             }
@@ -3513,7 +3519,7 @@ view.TensorSidebar = class extends view.ObjectSidebar {
             this.addEntry('value', value);
             const metadata = tensor.metadata;
             if (Array.isArray(metadata) && metadata.length > 0) {
-                this.addHeader('Metadata');
+                this.addSection('Metadata');
                 for (const argument of tensor.metadata) {
                     this.addProperty(argument.name, argument.value);
                 }
@@ -3530,7 +3536,7 @@ view.TensorSidebar = class extends view.ObjectSidebar {
                         this._metrics = new metrics.Tensor(this._tensor);
                     }
                     if (this._metrics.metrics.length > 0) {
-                        this.addHeader('Metrics');
+                        this.addSection('Metrics');
                         for (const metric of this._metrics.metrics) {
                             const value = metric.type === 'percentage' ? `${(metric.value * 100).toFixed(1)}%` : metric.value;
                             this.addProperty(metric.name, [value]);
@@ -3618,27 +3624,38 @@ view.ModelSidebar = class extends view.ObjectSidebar {
         }
         const metadata = model.metadata;
         if (Array.isArray(metadata) && metadata.length > 0) {
-            this.addHeader('Metadata');
+            this.addSection('Metadata');
             for (const argument of metadata) {
                 this.addProperty(argument.name, argument.value);
             }
         }
         const metrics = model.metrics;
         if (Array.isArray(metrics) && metrics.length > 0) {
-            this.addHeader('Metrics');
+            this.addSection('Metrics');
             for (const argument of metrics) {
                 this.addProperty(argument.name, argument.value);
             }
         }
         if (graph) {
+            const type = graph.type || 'graph';
+            switch (type) {
+                case 'graph':
+                    this.addHeader('Graph Properties');
+                    break;
+                case 'function':
+                    this.addHeader('Function Properties');
+                    break;
+                case 'weights':
+                    this.addHeader('Weights Properties');
+                    break;
+                default:
+                    throw new view.Error(`Unsupported graph type '${type}'.`);
+            }
+            if (graph.name) {
+                this.addProperty('name', graph.name);
+            }
             if (graph.version) {
                 this.addProperty('version', graph.version);
-            }
-            if (graph.type) {
-                this.addProperty('type', graph.type);
-            }
-            if (graph.tags) {
-                this.addProperty('tags', graph.tags);
             }
             if (graph.description) {
                 this.addProperty('description', graph.description);
@@ -3647,33 +3664,33 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             const inputs = signature ? signature.inputs : graph.inputs;
             const outputs = signature ? signature.outputs : graph.outputs;
             if (Array.isArray(attributes) && attributes.length > 0) {
-                this.addHeader('Attributes');
+                this.addSection('Attributes');
                 for (const attribute of attributes) {
                     this.addProperty(attribute.name, attribute.value);
                 }
             }
             if (Array.isArray(inputs) && inputs.length > 0) {
-                this.addHeader('Inputs');
+                this.addSection('Inputs');
                 for (const input of inputs) {
                     this.addArgument(input.name, input);
                 }
             }
             if (Array.isArray(outputs) && outputs.length > 0) {
-                this.addHeader('Outputs');
+                this.addSection('Outputs');
                 for (const output of outputs) {
                     this.addArgument(output.name, output);
                 }
             }
             const metadata = graph.metadata;
             if (Array.isArray(metadata) && metadata.length > 0) {
-                this.addHeader('Metadata');
+                this.addSection('Metadata');
                 for (const argument of metadata) {
                     this.addProperty(argument.name, argument.value);
                 }
             }
             const metrics = graph.metrics;
             if (Array.isArray(metrics) && metrics.length > 0) {
-                this.addHeader('Metrics');
+                this.addSection('Metrics');
                 for (const argument of metrics) {
                     this.addProperty(argument.name, argument.value);
                 }

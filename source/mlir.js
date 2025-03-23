@@ -75,7 +75,8 @@ mlir.Model = class {
         }
         if (obj.definitions) {
             for (const attribute of obj.definitions) {
-                const metadata = new mlir.Argument(attribute.name, attribute.value, attribute.type);
+                const value = typeof attribute.value === 'string' ? attribute.value : JSON.stringify(attribute.value);
+                const metadata = new mlir.Argument(attribute.name, value, 'attribute');
                 this.metadata.push(metadata);
             }
         }
@@ -87,7 +88,8 @@ mlir.Graph = class {
     constructor(func) {
         const attr = Object.fromEntries(func.attributes.map((attr) => [attr.name, attr.value]));
         this.name = attr.sym_name || '';
-        this.type = func.name;
+        this.type = func.name === 'func' || func.name.endsWith('.func') ? 'function' : '';
+        this.description = func.name;
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];

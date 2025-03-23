@@ -43,10 +43,10 @@ bigdl.Model = class {
 bigdl.Graph = class {
 
     constructor(metadata, module) {
-        this.type = module.moduleType;
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];
+        this.description = module.moduleType;
         const tensors = module.attr && module.attr.global_storage && module.attr.global_storage.nameAttrListValue && module.attr.global_storage.nameAttrListValue.attr ? module.attr.global_storage.nameAttrListValue.attr : {};
         const values = new Map();
         values.map = (name) => {

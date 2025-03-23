@@ -32,7 +32,7 @@ kmodel.Graph = class {
 
     constructor(module) {
         this.name = module.name || '';
-        this.type = module.type || '';
+        this.description = module.type || '';
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];
