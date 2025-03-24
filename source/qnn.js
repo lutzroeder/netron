@@ -40,7 +40,10 @@ qnn.ModelFactory = class {
                     if (obj['model.bin']) {
                         const name = obj['model.bin'].split('/').pop();
                         const content = await context.fetch(name);
-                        weights = await content.read('tar');
+                        const entries = await content.read('tar');
+                        if (entries) {
+                            weights = entries;
+                        }
                     }
                 } catch {
                     // continue regardless of error
