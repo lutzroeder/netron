@@ -37,8 +37,11 @@ view.View = class {
             for (const [name, value] of Object.entries(options)) {
                 this._options[name] = value;
             }
-            this._element('sidebar-button').addEventListener('click', () => {
-                this.showModelProperties();
+            this._element('sidebar-document-button').addEventListener('click', () => {
+                this.showDocumentProperties();
+            });
+            this._element('sidebar-target-button').addEventListener('click', () => {
+                this.showTargetProperties();
             });
             this._element('zoom-in-button').addEventListener('click', () => {
                 this.zoomIn();
@@ -91,7 +94,7 @@ view.View = class {
                         label: '&Export...',
                         accelerator: 'CmdOrCtrl+Shift+E',
                         execute: async () => await this._host.execute('export'),
-                        enabled: () => this.activeGraph
+                        enabled: () => this.activeTarget
                     });
                     file.add({
                         label: platform === 'darwin' ? '&Close Window' : '&Close',
@@ -108,13 +111,13 @@ view.View = class {
                         label: 'Export as &PNG',
                         accelerator: 'CmdOrCtrl+Shift+E',
                         execute: async () => await this.export(`${this._host.document.title}.png`),
-                        enabled: () => this.activeGraph
+                        enabled: () => this.activeTarget
                     });
                     file.add({
                         label: 'Export as &SVG',
                         accelerator: 'CmdOrCtrl+Alt+E',
                         execute: async () => await this.export(`${this._host.document.title}.svg`),
-                        enabled: () => this.activeGraph
+                        enabled: () => this.activeTarget
                     });
                 }
                 const edit = this._menu.group('&Edit');
@@ -122,38 +125,38 @@ view.View = class {
                     label: '&Find...',
                     accelerator: 'CmdOrCtrl+F',
                     execute: () => this.find(),
-                    enabled: () => this.activeGraph
+                    enabled: () => this.activeTarget
                 });
                 const view = this._menu.group('&View');
                 view.add({
                     label: () => this.options.attributes ? 'Hide &Attributes' : 'Show &Attributes',
                     accelerator: 'CmdOrCtrl+D',
                     execute: () => this.toggle('attributes'),
-                    enabled: () => this.activeGraph
+                    enabled: () => this.activeTarget
                 });
                 view.add({
                     label: () => this.options.weights ? 'Hide &Weights' : 'Show &Weights',
                     accelerator: 'CmdOrCtrl+I',
                     execute: () => this.toggle('weights'),
-                    enabled: () => this.activeGraph
+                    enabled: () => this.activeTarget
                 });
                 view.add({
                     label: () => this.options.names ? 'Hide &Names' : 'Show &Names',
                     accelerator: 'CmdOrCtrl+U',
                     execute: () => this.toggle('names'),
-                    enabled: () => this.activeGraph
+                    enabled: () => this.activeTarget
                 });
                 view.add({
                     label: () => this.options.direction === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical',
                     accelerator: 'CmdOrCtrl+K',
                     execute: () => this.toggle('direction'),
-                    enabled: () => this.activeGraph
+                    enabled: () => this.activeTarget
                 });
                 view.add({
                     label: () => this.options.mousewheel === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll',
                     accelerator: 'CmdOrCtrl+M',
                     execute: () => this.toggle('mousewheel'),
-                    enabled: () => this.activeGraph
+                    enabled: () => this.activeTarget
                 });
                 view.add({});
                 if (this._host.type === 'Electron') {
@@ -161,7 +164,7 @@ view.View = class {
                         label: '&Reload',
                         accelerator: platform === 'darwin' ? 'CmdOrCtrl+R' : 'F5',
                         execute: async () => await this._host.execute('reload'),
-                        enabled: () => this.activeGraph
+                        enabled: () => this.activeTarget
                     });
                     view.add({});
                 }
@@ -169,26 +172,26 @@ view.View = class {
                     label: 'Zoom &In',
                     accelerator: 'Shift+Up',
                     execute: () => this.zoomIn(),
-                    enabled: () => this.activeGraph
+                    enabled: () => this.activeTarget
                 });
                 view.add({
                     label: 'Zoom &Out',
                     accelerator: 'Shift+Down',
                     execute: () => this.zoomOut(),
-                    enabled: () => this.activeGraph
+                    enabled: () => this.activeTarget
                 });
                 view.add({
                     label: 'Actual &Size',
                     accelerator: 'Shift+Backspace',
                     execute: () => this.resetZoom(),
-                    enabled: () => this.activeGraph
+                    enabled: () => this.activeTarget
                 });
                 view.add({});
                 view.add({
                     label: '&Properties...',
                     accelerator: 'CmdOrCtrl+Enter',
-                    execute: () => this.showModelProperties(),
-                    enabled: () => this.activeGraph
+                    execute: () => this.showTargetProperties(),
+                    enabled: () => this.activeTarget
                 });
                 if (this._host.type === 'Electron' && !this._host.environment('packaged')) {
                     view.add({});
@@ -208,6 +211,9 @@ view.View = class {
                     execute: async () => await this._host.execute('about')
                 });
             }
+
+            this._select = new view.TargetSelector(this, this._element('toolbar-target-selector'));
+            this._select.on('change', (sender, target) => this._updateActive([target]));
             await this._host.start();
         } catch (error) {
             this.error(error, null, null);
@@ -220,7 +226,7 @@ view.View = class {
 
     show(page) {
         if (!page) {
-            page = (!this._model && !this.activeGraph) ? 'welcome' : 'default';
+            page = (!this._model && !this.activeTarget) ? 'welcome' : 'default';
         }
         this._host.event('screen_view', {
             screen_name: page,
@@ -257,7 +263,7 @@ view.View = class {
     find() {
         if (this._graph && this._sidebar.identifier !== 'find') {
             this._graph.select(null);
-            const sidebar = new view.FindSidebar(this, this._find, this.activeGraph, this.activeSignature);
+            const sidebar = new view.FindSidebar(this, this._find, this.activeTarget, this.activeSignature);
             sidebar.on('state-changed', (sender, state) => {
                 this._find = state;
             });
@@ -698,11 +704,10 @@ view.View = class {
             const stack = [];
             if (Array.isArray(model.graphs) && model.graphs.length > 0) {
                 const [graph] = model.graphs;
-                const entry = {
-                    graph,
-                    signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
-                };
-                stack.push(entry);
+                const signature = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null;
+                stack.push({ target: graph, signature });
+            } else if (Array.isArray(model.functions) && model.functions.length > 0) {
+                stack.push({ target: model.functions[0], signature: null });
             }
             return await this._updateGraph(model, stack);
         } catch (error) {
@@ -726,9 +731,9 @@ view.View = class {
         }
     }
 
-    get activeGraph() {
+    get activeTarget() {
         if (Array.isArray(this._stack) && this._stack.length > 0) {
-            return this._stack[0].graph;
+            return this._stack[0].target;
         }
         return null;
     }
@@ -744,11 +749,11 @@ view.View = class {
         const update = async (model, stack) => {
             this._model = model;
             this._stack = stack;
-            const status = await this.renderGraph(this._model, this.activeGraph, this.activeSignature, this._options);
+            const status = await this.renderGraph(this._model, this.activeTarget, this.activeSignature, this._options);
             if (status !== '') {
                 this._model = null;
                 this._stack = [];
-                this._activeGraph = null;
+                this._activeTarget = null;
             }
             this.show(null);
             const path = this._element('toolbar-path');
@@ -770,7 +775,7 @@ view.View = class {
                         path.appendChild(element);
                     }
                     for (let i = count; i >= 0; i--) {
-                        const graph = this._stack[i].graph;
+                        const target = this._stack[i].target;
                         const element = this._host.document.createElement('button');
                         element.setAttribute('class', 'toolbar-path-name-button');
                         element.addEventListener('click', async () => {
@@ -778,14 +783,14 @@ view.View = class {
                                 this._stack = this._stack.slice(i);
                                 await this._updateGraph(this._model, this._stack);
                             } else {
-                                await this.showDefinition(graph);
+                                await this.showTargetProperties(target);
                             }
                         });
                         let name = '';
-                        if (graph && graph.identifier) {
-                            name = graph.identifier;
-                        } else if (graph && graph.name) {
-                            name = graph.name;
+                        if (target && target.identifier) {
+                            name = target.identifier;
+                        } else if (target && target.name) {
+                            name = target.name;
                         }
                         if (name.length > 24) {
                             element.setAttribute('title', name);
@@ -796,6 +801,16 @@ view.View = class {
                         }
                         path.appendChild(element);
                     }
+                }
+                this._select.update(model, stack);
+                const button = this._element('sidebar-target-button');
+                if (stack.length > 0) {
+                    const type = stack[stack.length - 1].type || 'graph';
+                    const name = type.charAt(0).toUpperCase() + type.slice(1);
+                    button.setAttribute('title', `${name} Properties`);
+                    button.style.display = 'block';
+                } else {
+                    button.style.display = 'none';
                 }
             }
         };
@@ -811,14 +826,14 @@ view.View = class {
     }
 
     async pushGraph(graph, context) {
-        if (graph && graph !== this.activeGraph && Array.isArray(graph.nodes)) {
+        if (graph && graph !== this.activeTarget && Array.isArray(graph.nodes)) {
             this._sidebar.close();
             if (context) {
                 this._stack[0].context = context;
                 this._stack[0].zoom = this._zoom;
             }
             const signature = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null;
-            const entry = { graph, signature };
+            const entry = { target: graph, signature };
             const stack = [entry].concat(this._stack);
             await this._updateGraph(this._model, stack);
         }
@@ -949,7 +964,7 @@ view.View = class {
     async export(file) {
         const lastIndex = file.lastIndexOf('.');
         const extension = lastIndex === -1 ? 'png' : file.substring(lastIndex + 1).toLowerCase();
-        if (this.activeGraph && (extension === 'png' || extension === 'svg')) {
+        if (this.activeTarget && (extension === 'png' || extension === 'svg')) {
             const canvas = this._element('canvas');
             const clone = canvas.cloneNode(true);
             this.applyStyleSheet(clone, 'grapher.css');
@@ -1023,43 +1038,61 @@ view.View = class {
         }
     }
 
-    showModelProperties() {
-        if (this._model) {
-            try {
-                const sidebar = new view.ModelSidebar(this, this.model, this.activeGraph, this.activeSignature);
-                sidebar.on('update-active-graph', (sender, graph) => {
-                    const entry = {
-                        graph,
-                        signature: Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null
-                    };
-                    this._updateActive([entry]);
-                });
-                sidebar.on('update-active-graph-signature', (sender, signature) => {
-                    const stack = this._stack.map((entry) => {
-                        return { graph: entry.graph, signature: entry.signature };
-                    });
-                    stack[0].signature = signature;
-                    this._updateActive(stack);
-                });
-                sidebar.on('focus', (sender, value) => {
-                    this._graph.focus([value]);
-                });
-                sidebar.on('blur', (sender, value) => {
-                    this._graph.blur([value]);
-                });
-                sidebar.on('select', (sender, value) => {
-                    this.scrollTo(this._graph.activate(value));
-                });
-                sidebar.on('activate', (sender, value) => {
-                    this.scrollTo(this._graph.select([value]));
-                });
-                sidebar.on('deactivate', () => {
-                    this._graph.select(null);
-                });
-                this._sidebar.open(sidebar, 'Model Properties');
-            } catch (error) {
-                this.error(error, 'Error showing model properties.', null);
+    showDocumentProperties() {
+        if (!this._model) {
+            return;
+        }
+        try {
+            const sidebar = new view.ModelSidebar(this, this.model);
+            this._sidebar.open(sidebar, 'Model Properties');
+        } catch (error) {
+            this.error(error, 'Error showing model properties.', null);
+        }
+    }
+
+    showTargetProperties() {
+        const target = this.activeTarget;
+        if (!target) {
+            return;
+        }
+        try {
+            const sidebar = new view.TargetSidebar(this, target, this.activeSignature);
+            sidebar.on('show-definition', async (/* sender, e */) => {
+                await this.showDefinition(target);
+            });
+            sidebar.on('focus', (sender, value) => {
+                this._graph.focus([value]);
+            });
+            sidebar.on('blur', (sender, value) => {
+                this._graph.blur([value]);
+            });
+            sidebar.on('select', (sender, value) => {
+                this.scrollTo(this._graph.activate(value));
+            });
+            sidebar.on('activate', (sender, value) => {
+                this.scrollTo(this._graph.select([value]));
+            });
+            sidebar.on('deactivate', () => {
+                this._graph.select(null);
+            });
+            let title = null;
+            const type = target.type || 'graph';
+            switch (type) {
+                case 'graph':
+                    title = 'Graph Properties';
+                    break;
+                case 'function':
+                    title = 'Function Properties';
+                    break;
+                case 'weights':
+                    title = 'Weights Properties';
+                    break;
+                default:
+                    throw new view.Error(`Unsupported graph type '${type}'.`);
             }
+            this._sidebar.open(sidebar, title);
+        } catch (error) {
+            this.error(error, 'Error showing target properties.', null);
         }
     }
 
@@ -1157,7 +1190,7 @@ view.View = class {
                 sidebar.on('navigate', (sender, e) => {
                     this._host.openURL(e.link);
                 });
-                const title = type.type === 'function' ? 'Function' : 'Documentation';
+                const title = type.type === 'function' ? 'Function Documentation' : 'Documentation';
                 this._sidebar.push(sidebar, title);
             }
         }
@@ -2223,7 +2256,7 @@ view.Input = class extends grapher.Node {
         }
         const header = this.header();
         const title = header.add(null, ['graph-item-input'], name, types);
-        title.on('click', () => this.context.view.showModelProperties());
+        title.on('click', () => this.context.view.showTargetProperties());
         this.id = `input-${name ? `name-${name}` : `id-${(view.Input.counter++)}`}`;
     }
 
@@ -2240,7 +2273,7 @@ view.Input = class extends grapher.Node {
     }
 
     activate() {
-        this.context.view.showModelProperties();
+        this.context.view.showTargetProperties();
     }
 
     edge(to) {
@@ -2265,7 +2298,7 @@ view.Output = class extends grapher.Node {
         }
         const header = this.header();
         const title = header.add(null, ['graph-item-output'], name, types);
-        title.on('click', () => this.context.view.showModelProperties());
+        title.on('click', () => this.context.view.showTargetProperties());
     }
 
     get inputs() {
@@ -2277,7 +2310,7 @@ view.Output = class extends grapher.Node {
     }
 
     activate() {
-        this.context.view.showModelProperties();
+        this.context.view.showTargetProperties();
     }
 };
 
@@ -2619,6 +2652,72 @@ view.Expander = class extends view.Control {
     }
 };
 
+view.TargetSelector = class extends view.Control {
+
+    constructor(context, element) {
+        super(context);
+        this._element = element;
+        this._element.addEventListener('change', (e) => {
+            const target = this._targets[e.target.selectedIndex];
+            this.emit('change', target);
+        });
+        this._targets = [];
+    }
+
+    update(model, stack) {
+        while (this._element.firstChild) {
+            this._element.removeChild(this._element.firstChild);
+        }
+        this._targets = [];
+        const current = stack.length > 0 ? stack[stack.length - 1] : null;
+        const section = (title, targets) => {
+            if (targets.length > 0) {
+                const group = this.createElement('optgroup');
+                group.setAttribute('label', title);
+                this._element.appendChild(group);
+                for (let i = 0; i < targets.length; i++) {
+                    const target = targets[i];
+                    const option = this.createElement('option');
+                    option.innerText = target.name;
+                    group.appendChild(option);
+                    if (current && current.target === target.target && current.signature === target.signature) {
+                        option.setAttribute('selected', 'true');
+                        this._element.setAttribute('title', target.name);
+                    }
+                    this._targets.push(target);
+                }
+            }
+        };
+        const graphs = [];
+        const signatures = [];
+        const functions = [];
+        for (const graph of model.graphs) {
+            const name = graph.name || '(unnamed)';
+            graphs.push({ name, target: graph, signature: null });
+            if (Array.isArray(graph.functions)) {
+                for (const func of graph.functions) {
+                    functions.push({ name: `${name}.${func.name}`, target: func, signature: null });
+                }
+            }
+            if (Array.isArray(graph.signatures)) {
+                for (const signature of graph.signatures) {
+                    signatures.push({ name: `${name}.${signature.name}`, target: graph, signature });
+                }
+            }
+        }
+        if (Array.isArray(model.functions)) {
+            for (const func of model.functions) {
+                functions.push({ name: func.name, target: func, signature: null });
+            }
+        }
+        section('Graphs', graphs);
+        section('Signatures', signatures);
+        section('Functions', functions);
+        const visible = functions.length > 0 || signatures.length > 0 || graphs.length > 1;
+        this._element.style.display = visible ? 'inline' : 'none';
+    }
+};
+
 view.ObjectSidebar = class extends view.Control {
 
     constructor(context) {
@@ -2805,32 +2904,6 @@ view.NameValueView = class extends view.Control {
 
     toggle() {
         this._value.toggle();
-    }
-};
-
-view.SelectView = class extends view.Control {
-
-    constructor(context, entries, selected) {
-        super(context);
-        this._elements = [];
-        this._entries = Array.from(entries);
-        const selectElement = this.createElement('select', 'sidebar-item-selector');
-        selectElement.addEventListener('change', (e) => {
-            this.emit('change', this._entries[e.target.selectedIndex][1]);
-        });
-        this._elements.push(selectElement);
-        for (const [name, value] of this._entries) {
-            const element = this.createElement('option');
-            element.innerText = name;
-            if (value === selected) {
-                element.setAttribute('selected', 'selected');
-            }
-            selectElement.appendChild(element);
-        }
-    }
-
-    render() {
-        return this._elements;
     }
 };
 
@@ -3558,11 +3631,9 @@ view.TensorSidebar = class extends view.ObjectSidebar {
 
 view.ModelSidebar = class extends view.ObjectSidebar {
 
-    constructor(context, model, graph, signature) {
+    constructor(context, model) {
         super(context);
         this._model = model;
-        this._graph = graph;
-        this._signature = signature;
     }
 
     get identifier() {
@@ -3571,8 +3642,6 @@ view.ModelSidebar = class extends view.ObjectSidebar {
 
     render() {
         const model = this._model;
-        const graph = this._graph;
-        const signature = this._signature;
         if (model.format) {
             this.addProperty('format', model.format);
         }
@@ -3600,28 +3669,6 @@ view.ModelSidebar = class extends view.ObjectSidebar {
         if (model.source) {
             this.addProperty('source', model.source);
         }
-        const graphs = Array.isArray(model.graphs) ? model.graphs : [];
-        if (graphs.length === 1 && graphs[0].name) {
-            this.addProperty('graph', graphs[0].name);
-        } else if (graphs.length > 1) {
-            const entries = new Map();
-            for (const graph of model.graphs) {
-                entries.set(graph.name, graph);
-            }
-            const selector = new view.SelectView(this._view, entries, graph);
-            selector.on('change', (sender, data) => this.emit('update-active-graph', data));
-            this.addEntry('graph', selector);
-        }
-        if (graph && Array.isArray(graph.signatures) && graph.signatures.length > 0) {
-            const entries = new Map();
-            entries.set('', graph);
-            for (const signature of graph.signatures) {
-                entries.set(signature.name, signature);
-            }
-            const selector = new view.SelectView(this._view, entries, signature || graph);
-            selector.on('change', (sender, data) => this.emit('update-active-graph-signature', data));
-            this.addEntry('signature', selector);
-        }
         const metadata = model.metadata;
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
@@ -3636,66 +3683,76 @@ view.ModelSidebar = class extends view.ObjectSidebar {
                 this.addProperty(argument.name, argument.value);
             }
         }
-        if (graph) {
-            const type = graph.type || 'graph';
-            switch (type) {
-                case 'graph':
-                    this.addHeader('Graph Properties');
-                    break;
-                case 'function':
-                    this.addHeader('Function Properties');
-                    break;
-                case 'weights':
-                    this.addHeader('Weights Properties');
-                    break;
-                default:
-                    throw new view.Error(`Unsupported graph type '${type}'.`);
-            }
-            if (graph.name) {
-                this.addProperty('name', graph.name);
-            }
-            if (graph.version) {
-                this.addProperty('version', graph.version);
-            }
-            if (graph.description) {
-                this.addProperty('description', graph.description);
-            }
-            const attributes = signature ? signature.attributes : graph.attributes;
-            const inputs = signature ? signature.inputs : graph.inputs;
-            const outputs = signature ? signature.outputs : graph.outputs;
-            if (Array.isArray(attributes) && attributes.length > 0) {
-                this.addSection('Attributes');
-                for (const attribute of attributes) {
-                    this.addProperty(attribute.name, attribute.value);
-                }
-            }
-            if (Array.isArray(inputs) && inputs.length > 0) {
-                this.addSection('Inputs');
-                for (const input of inputs) {
-                    this.addArgument(input.name, input);
-                }
-            }
-            if (Array.isArray(outputs) && outputs.length > 0) {
-                this.addSection('Outputs');
-                for (const output of outputs) {
-                    this.addArgument(output.name, output);
-                }
-            }
-            const metadata = graph.metadata;
-            if (Array.isArray(metadata) && metadata.length > 0) {
-                this.addSection('Metadata');
-                for (const argument of metadata) {
-                    this.addProperty(argument.name, argument.value);
-                }
-            }
-            const metrics = graph.metrics;
-            if (Array.isArray(metrics) && metrics.length > 0) {
-                this.addSection('Metrics');
-                for (const argument of metrics) {
-                    this.addProperty(argument.name, argument.value);
-                }
+    }
+};
+
+view.TargetSidebar = class extends view.ObjectSidebar {
+
+    constructor(context, target, signature) {
+        super(context);
+        this._target = target;
+        this._signature = signature;
+    }
+
+    render() {
+        const target = this._target;
+        const signature = this._signature;
+        if (target.name) {
+            const item = this.addProperty('name', target.name);
+            if (target.type === 'function') {
+                item.action('\u0192', 'Show Function Documentation', () => {
+                    this.emit('show-definition', null);
+                });
             }
         }
+        if (signature && signature.name) {
+            this.addProperty('signature', signature.name);
+        }
+        if (target.version) {
+            this.addProperty('version', target.version);
+        }
+        if (target.description) {
+            this.addProperty('description', target.description);
+        }
+        const attributes = signature ? signature.attributes : target.attributes;
+        const inputs = signature ? signature.inputs : target.inputs;
+        const outputs = signature ? signature.outputs : target.outputs;
+        if (Array.isArray(attributes) && attributes.length > 0) {
+            this.addSection('Attributes');
+            for (const attribute of attributes) {
+                this.addProperty(attribute.name, attribute.value);
+            }
+        }
+        if (Array.isArray(inputs) && inputs.length > 0) {
+            this.addSection('Inputs');
+            for (const input of inputs) {
+                this.addArgument(input.name, input);
+            }
+        }
+        if (Array.isArray(outputs) && outputs.length > 0) {
+            this.addSection('Outputs');
+            for (const output of outputs) {
+                this.addArgument(output.name, output);
+            }
+        }
+        const metadata = target.metadata;
+        if (Array.isArray(metadata) && metadata.length > 0) {
+            this.addSection('Metadata');
+            for (const argument of metadata) {
+                this.addProperty(argument.name, argument.value);
+            }
+        }
+        const metrics = target.metrics;
+        if (Array.isArray(metrics) && metrics.length > 0) {
+            this.addSection('Metrics');
+            for (const argument of metrics) {
+                this.addProperty(argument.name, argument.value);
+            }
+        }
+    }
+
+    get identifier() {
+        return 'target';
     }
 
     addArgument(name, argument) {

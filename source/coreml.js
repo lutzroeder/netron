@@ -213,6 +213,7 @@ coreml.Model = class {
         this.format = context.format;
         this.metadata = Array.from(context.metadata);
         this.graphs = context.graphs.map((context) => new coreml.Graph(context));
+        this.functions = context.functions.map((context) => new coreml.Graph(context));
         if (context.version) {
             this.version = context.version;
         }
@@ -532,16 +533,17 @@ coreml.Context = class {
         this.format = format;
         this.metadata = [];
         this.graphs = [];
+        this.functions = [];
         const description = model.description;
         for (const func of description.functions) {
             const graph = new coreml.Context.Graph(metadata, func.name, 'function', model, func, weights, values);
-            this.graphs.push(graph);
+            this.functions.push(graph);
         }
         if (description && description.defaultFunctionName) {
             const graph = this.graphs.find((graph) => graph.name === description.defaultFunctionName);
             if (graph) {
-                this.graphs.splice(this.graphs.indexOf(graph), 1);
-                this.graphs.unshift(graph);
+                this.functions.splice(this.graphs.indexOf(graph), 1);
+                this.functions.unshift(graph);
             }
         }
         if (model && !model.mlProgram || (model.mlProgram.functions && model.mlProgram.functions.main)) {

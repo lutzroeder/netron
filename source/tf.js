@@ -729,6 +729,7 @@ tf.Graph = class {
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];
+        this.functions = [];
         this.signatures = [];
         this.version = null;
         this.metadata = [];
@@ -747,6 +748,7 @@ tf.Graph = class {
             }
             const output_arg_map = new Map();
             metadata = new tf.GraphMetadata(metadata, graph.library);
+            this.functions = metadata.functions;
             const context = new tf.Context();
             for (const [key, signature_def] of Object.entries(meta_graph.signature_def)) {
                 const inputs = [];
@@ -1633,8 +1635,7 @@ tf.GraphMetadata = class {
         this._functions = new Map();
         this._attributes = new Map();
         this._visibleCache = new Map();
-
-        if (library && Array.isArray(library.function)) {
+        if (library && Array.isArray(library.function) && library.function.length > 0) {
             for (const func of library.function) {
                 const name = func.signature.name;
                 if (this._functions.has(func.name)) {
@@ -1707,6 +1708,15 @@ tf.GraphMetadata = class {
             this._visibleCache.set(type, set);
         }
         return !this._visibleCache.get(type).has(name);
+    }
+
+    get functions() {
+        for (const [name, func] of this._functions) {
+            if (func instanceof tf.Function === false) {
+                this._functions.set(name, new tf.Function(this, func.signature.name, func));
+            }
+        }
+        return Array.from(this._functions.values());
     }
 };
 

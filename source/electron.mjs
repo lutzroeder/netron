@@ -196,7 +196,7 @@ host.ElectronHost = class {
             this._view.resetZoom();
         });
         electron.ipcRenderer.on('show-properties', () => {
-            this._element('sidebar-button').click();
+            this._element('sidebar-target-button').click();
         });
         electron.ipcRenderer.on('find', () => {
             this._view.find();

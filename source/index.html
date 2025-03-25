@@ -30,11 +30,27 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .default .toolbar { display: table; }
 .toolbar { position: absolute; bottom: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar button:focus { outline: 0; }
-.toolbar-button { float: left; background: None; border-radius: 6px; border: 0; margin: 0; margin-right: 1px; padding: 0; fill: None; stroke: #777; cursor: pointer; width: 24px; height: 24px; user-select: none; }
+.toolbar-button { float: left; background: None; border-radius: 6px; border: 0; margin: 0; margin-right: 1px; padding: 0; fill: None; stroke: #777; cursor: pointer; width: 32px; height: 32px; user-select: none; }
+.toolbar-select { margin-top: 4px; margin-bottom: 4px; padding-top: 5px; padding-bottom: 5px; }
 .toolbar-path { float: left }
-.toolbar-path-back-button { float: left; background: #777; border-top-left-radius: 6px; border-bottom-left-radius: 6px; border: 0px solid; border-color: #777; margin: 2px 0px 2px 8px; padding: 0 8px 0 8px; cursor: pointer; height: 20px; color: #ffffff; font-size: 11px; line-height: 0; transition: 0.1s; }
+.toolbar-select { 
+    appearance: none; -webkit-appearance: none; -moz-appearance: none;
+    font-size: 12px;
+    line-height: 12px;
+    margin: 4px 4px 4px 4px;
+    border: 1px solid;
+    padding: 5px 10px 5px 10px;
+    border-radius: 6px;
+    width: 170px;
+    background: #777;
+    border-color: #777;
+    color: #fff;
+}
+.toolbar-select:hover { background: #000000; border-color: #000000; }
+.toolbar-select:focus { outline: 0; }
+.toolbar-path-back-button { float: left; background: #777; border-top-left-radius: 6px; border-bottom-left-radius: 6px; border: 1px solid; border-color: #777; margin: 4px 0px 4px 4px; padding: 5px 8px 5px 8px; cursor: pointer; color: #ffffff; font-size: 12px; line-height: 12px; transition: 0.1s; }
 .toolbar-path-back-button:hover { background: #000000; border-color: #000000; }
-.toolbar-path-name-button { float: left; background: #777; border: 0px solid; border-color: #777; color: #ffffff; border-left: 1px; border-left-color: #ffffff; margin: 2px 0 2px 1px; padding: 0 8px 0 8px; cursor: pointer; width: auto; height: 20px; font-size: 11px; line-height: 0; transition: 0.1s; }
+.toolbar-path-name-button { float: left; background: #777; border: 0px; border-color: #777; color: #ffffff; border-left: 1px; border-left-color: #ffffff; margin: 4px 0 4px 1px; padding: 6px 8px 6px 8px; cursor: pointer; width: auto; font-size: 12px; line-height: 12px; transition: 0.1s; }
 .toolbar-path-name-button:hover { background: #000000; border-color: #000000; }
 .toolbar-path-name-button:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
 .toolbar-icon .border { stroke: #fff; }
@@ -153,6 +169,8 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .toolbar-path-back-button:hover { background: #dfdfdf; border-color: #dfdfdf; }
 .toolbar-path-name-button { background: #aaaaaa ; border-color: #aaaaaa; color: #404040; }
 .toolbar-path-name-button:hover { background: #dfdfdf; border-color: #dfdfdf; }
+.toolbar-select { background: #aaaaaa; border-color: #aaaaaa; color: #404040; }
+.toolbar-select:hover { background: #dfdfdf; border-color: #dfdfdf; color: #404040; }
 .titlebar { color: #949494; }
 .welcome body { background-color: #1e1e1e; }
 .default body { background-color: #404040; }
@@ -181,11 +199,6 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .about .logo { width: 100%; padding-left: 0; padding-right: 0; }
 .about .logo-message { top: 175px; font-size: 12px; }
 .about .logo-github { top: 370px; }
-}
-@media only screen and (max-device-width: 1024px) {
-.toolbar-button { width: 32px; height: 32px; }
-.toolbar-path-back-button { margin-top: 6px; margin-bottom: 6px; }
-.toolbar-path-name-button { margin-top: 6px; margin-bottom: 6px; }
 }
 .sidebar { display: flex; flex-direction: column; font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif; font-size: 12px; height: 100%; right: -100%; position: fixed; transition: 0.1s; top: 0; background-color: #ececec; color: #242424; overflow: hidden; border-left: 1px solid rgba(255, 255, 255, 0.5); opacity: 0; }
 .sidebar-title { font-weight: bold; font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; height: 20px; margin: 0; padding: 20px; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
@@ -323,24 +336,6 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     </svg>
 </div>
 <div id="toolbar" class="toolbar">
-    <button id="sidebar-button" class="toolbar-button" title="Model Properties">
-        <svg class="toolbar-icon" viewbox="0 0 100 100">
-            <rect class="border" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="8"></rect>
-            <line class="border" x1="28" y1="37" x2="32" y2="37" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
-            <line class="border" x1="28" y1="50" x2="32" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
-            <line class="border" x1="28" y1="63" x2="32" y2="63" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
-            <line class="border" x1="40" y1="37" x2="70" y2="37" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
-            <line class="border" x1="40" y1="50" x2="70" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
-            <line class="border" x1="40" y1="63" x2="70" y2="63" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
-            <rect class="stroke" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="4"></rect>
-            <line class="stroke" x1="28" y1="37" x2="32" y2="37" stroke-width="4" stroke-linecap="round"></line>
-            <line class="stroke" x1="28" y1="50" x2="32" y2="50" stroke-width="4" stroke-linecap="round"></line>
-            <line class="stroke" x1="28" y1="63" x2="32" y2="63" stroke-width="4" stroke-linecap="round"></line>
-            <line class="stroke" x1="40" y1="37" x2="70" y2="37" stroke-width="4" stroke-linecap="round"></line>
-            <line class="stroke" x1="40" y1="50" x2="70" y2="50" stroke-width="4" stroke-linecap="round"></line>
-            <line class="stroke" x1="40" y1="63" x2="70" y2="63" stroke-width="4" stroke-linecap="round"></line>
-        </svg>
-    </button>
     <button id="zoom-in-button" class="toolbar-button" title="Zoom In">
         <svg class="toolbar-icon" viewbox="0 0 100 100">
             <circle class="border" cx="50" cy="50" r="35" stroke-width="8" stroke="#fff"></circle>
@@ -363,6 +358,50 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
             <line class="stroke" x1="78" y1="78" x2="82" y2="82" stroke-width="8" stroke-linecap="square"></line>
         </svg>
     </button>
+    <button id="sidebar-document-button" class="toolbar-button" title="Model Properties">
+        <svg class="toolbar-icon" viewbox="0 0 100 100">
+            <rect class="border" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="8"></rect>
+            <line class="border" x1="28" y1="37" x2="32" y2="37" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="28" y1="50" x2="32" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="28" y1="63" x2="32" y2="63" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="40" y1="37" x2="70" y2="37" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="40" y1="50" x2="70" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="40" y1="63" x2="70" y2="63" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <rect class="stroke" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="4"></rect>
+            <line class="stroke" x1="28" y1="37" x2="32" y2="37" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="28" y1="50" x2="32" y2="50" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="28" y1="63" x2="32" y2="63" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="40" y1="37" x2="70" y2="37" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="40" y1="50" x2="70" y2="50" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="40" y1="63" x2="70" y2="63" stroke-width="4" stroke-linecap="round"></line>
+        </svg>
+    </button>
+    <button id="sidebar-target-button" class="toolbar-button" title="Target Properties">
+        <svg class="toolbar-icon" viewBox="0 0 100 100">
+            <rect class="border" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="8"></rect>
+            <circle class="border" cx="35" cy="50" r="8" stroke-width="8"></circle>
+            <circle class="border" cx="65" cy="35" r="8" stroke-width="8"></circle>
+            <circle class="border" cx="65" cy="65" r="8" stroke-width="8"></circle>
+            <line class="border" x1="41.6" y1="46.8" x2="58.4" y2="38.2" stroke-width="8" />
+            <line class="border" x1="41.6" y1="53.2" x2="58.4" y2="61.8" stroke-width="8" />
+            <rect class="stroke" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="4"></rect>
+            <circle class="stroke" cx="35" cy="50" r="8" stroke-width="4"></circle>
+            <circle class="stroke" cx="65" cy="35" r="8" stroke-width="4"></circle>
+            <circle class="stroke" cx="65" cy="65" r="8" stroke-width="4"></circle>
+            <line class="stroke" x1="41.6" y1="46.8" x2="58.4" y2="38.2" stroke-width="4" />
+            <line class="stroke" x1="41.6" y1="53.2" x2="58.4" y2="61.8" stroke-width="4" />
+        </svg>
+    </button>
+    <div id="toolbar-navigator" class="toolbar-path">
+        <select id="toolbar-target-selector" class="toolbar-select">
+            <option value="Graphs" disabled="true">&#x2014; Graphs &#x2014;&#x2014;</option>
+            <option value="add">add</option>
+            <option value="subtract">subtract</option>
+            <option value="multiply">multiply</option>
+            <option value="Functions" disabled="true">&#x2014; Functions &#x2014;&#x2014;</option>
+            <option value="line">foo_bar.foo</option>
+        </select>
+    </div>
     <div id="toolbar-path" class="toolbar-path">
         <button id="toolbar-path-back-button" class="toolbar-path-back-button" title="Back">
             &#x276E;

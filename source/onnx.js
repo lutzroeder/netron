@@ -120,6 +120,7 @@ onnx.Model = class {
         if (graph) {
             this._graphs.push(graph);
         }
+        this._functions = context.functions;
     }
 
     get format() {
@@ -156,6 +157,10 @@ onnx.Model = class {
 
     get graphs() {
         return this._graphs;
+    }
+
+    get functions() {
+        return this._functions;
     }
 };
 
@@ -931,6 +936,10 @@ onnx.Context.Model = class {
             this._graphs.set(value, new onnx.Graph(this, value));
         }
         return this._graphs.get(value);
+    }
+
+    get functions() {
+        return Array.from(this._functions.values());
     }
 
     location(name) {
