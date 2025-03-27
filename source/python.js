@@ -7654,7 +7654,10 @@ python.Execution = class {
         this.registerType('torchvision.transforms.transforms.RandomAffine', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomApply', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomCrop', class extends torch.nn.modules.module.Module {});
+        this.registerType('torchvision.transforms.transforms.RandomChoice', class {});
         this.registerType('torchvision.transforms.transforms.RandomErasing', class {});
+        this.registerType('torchvision.transforms.transforms.RandomInvert', class {});
+        this.registerType('torchvision.transforms.transforms.RandomPerspective', class {});
         this.registerType('torchvision.transforms.transforms.RandomHorizontalFlip', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomVerticalFlip', class extends torch.nn.modules.module.Module {});
         this.registerType('torchvision.transforms.transforms.RandomResizedCrop', class extends torch.nn.modules.module.Module {});
