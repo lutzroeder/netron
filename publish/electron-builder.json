@@ -86,7 +86,9 @@
     },
     "win": {
         "target": [ "nsis" ],
-        "signingHashAlgorithms": [ "sha256" ],
+        "signtoolOptions": {
+            "signingHashAlgorithms": [ "sha256" ]
+        },
         "verifyUpdateCodeSignature": false
     },
     "dmg": {

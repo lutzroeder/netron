@@ -36,7 +36,7 @@
     "devDependencies": {
         "@electron/notarize": "3.0.1",
         "electron": "35.1.2",
-        "electron-builder": "25.1.8",
+        "electron-builder": "26.0.12",
         "eslint": "9.23.0"
     },
     "build": {
