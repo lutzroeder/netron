@@ -4810,6 +4810,12 @@
     "name": "aten::pixel_unshuffle.out(Tensor self, int downscale_factor, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::poisson(Tensor self, Generator? generator=None) -> Tensor"
+  },
+  {
+    "name": "aten::poisson.out(Tensor self, Generator? generator=None, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::polar(Tensor abs, Tensor angle) -> Tensor"
   },
   {
