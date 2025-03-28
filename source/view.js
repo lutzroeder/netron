@@ -6490,7 +6490,8 @@ view.ModelFactoryService = class {
                 { name: 'undocumented NNC data', value: /^(\xC0|\xBC)\x0F\x00\x00ENNC/ },
                 { name: 'Rich Text Format data', value: /^{\\rtf/ },
                 { name: 'Encrypted File data', value: /^ENCRYPTED_FILE/ },
-                { name: 'Keras Tokenizer data', value: /^"{\\"class_name\\":\s*\\"Tokenizer\\"/ }
+                { name: 'Keras Tokenizer data', value: /^"{\\"class_name\\":\s*\\"Tokenizer\\"/ },
+                { name: 'obfuscated data', value: /^obfs/ },
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
