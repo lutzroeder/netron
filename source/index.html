@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src *;
+      img-src * 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' *;
+      style-src  'self' 'unsafe-inline' *"
+    />
 <meta charset="utf-8">
 <meta name="description" content="Visualizer for neural network, deep learning and machine learning models." />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="script-src 'self'">
 <meta name="version" content="0.0.0">
 <meta name="date" content="">
 <title>Netron</title>
@@ -596,5 +601,8 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 </div>
 <div id="menu" class="menu"></div>
 <div id="menu-button" class="menu-button">&#8801;</div>
+<div id="list-attributes"></div>
+<div id="list-modified"></div>
+</div>
 </body>
 </html>
