@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as process from 'process';
+import * as updater from 'electron-updater';
 import * as url from 'url';
 
 const app = {};
@@ -292,7 +293,6 @@ app.Application = class {
         if (!electron.app.isPackaged) {
             return;
         }
-        const updater = await import('electron-updater');
         const autoUpdater = updater.default.autoUpdater;
         if (autoUpdater.app && autoUpdater.app.appUpdateConfigPath && !fs.existsSync(autoUpdater.app.appUpdateConfigPath)) {
             return;
