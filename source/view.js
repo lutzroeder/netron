@@ -50,7 +50,7 @@ view.View = class {
                 this.zoomOut();
             });
             this._element('toolbar-path-back-button').addEventListener('click', async () => {
-                await this.popGraph();
+                await this.popTarget();
             });
             this._element('sidebar').addEventListener('mousewheel', (e) => {
                 if (e.shiftKey || e.ctrlKey) {
@@ -78,7 +78,7 @@ view.View = class {
             });
             this._menu.add({
                 accelerator: 'Backspace',
-                execute: async () => await this.popGraph()
+                execute: async () => await this.popTarget()
             });
             if (this._host.environment('menu')) {
                 this._menu.attach(this._element('menu'), this._element('menu-button'));
@@ -211,9 +211,8 @@ view.View = class {
                     execute: async () => await this._host.execute('about')
                 });
             }
-
             this._select = new view.TargetSelector(this, this._element('toolbar-target-selector'));
-            this._select.on('change', (sender, target) => this._updateActive([target]));
+            this._select.on('change', (sender, target) => this._updateActiveTarget([target]));
             await this._host.start();
         } catch (error) {
             this.error(error, null, null);
@@ -340,7 +339,7 @@ view.View = class {
     _reload() {
         this.show('welcome spinner');
         if (this._model && this._stack.length > 0) {
-            this._updateGraph(this._model, this._stack).catch((error) => {
+            this._updateTarget(this._model, this._stack).catch((error) => {
                 if (error) {
                     this.error(error, 'Graph update failed.', 'welcome');
                 }
@@ -709,20 +708,19 @@ view.View = class {
             } else if (Array.isArray(model.functions) && model.functions.length > 0) {
                 stack.push({ target: model.functions[0], signature: null });
             }
-            return await this._updateGraph(model, stack);
+            return await this._updateTarget(model, stack);
         } catch (error) {
             error.context = !error.context && context && context.identifier ? context.identifier : error.context || '';
             throw error;
         }
     }
 
-    async _updateActive(stack) {
+    async _updateActiveTarget(stack) {
         this._sidebar.close();
         if (this._model) {
             this.show('welcome spinner');
-            await this._timeout(200);
             try {
-                await this._updateGraph(this._model, stack);
+                await this._updateTarget(this._model, stack);
             } catch (error) {
                 if (error) {
                     this.error(error, 'Graph update failed.', 'welcome');
@@ -745,104 +743,104 @@ view.View = class {
         return null;
     }
 
-    async _updateGraph(model, stack) {
-        const update = async (model, stack) => {
-            this._model = model;
-            this._stack = stack;
-            const status = await this.renderGraph(this._model, this.activeTarget, this.activeSignature, this._options);
-            if (status !== '') {
-                this._model = null;
-                this._stack = [];
-                this._activeTarget = null;
-            }
-            this.show(null);
-            const path = this._element('toolbar-path');
-            const back = this._element('toolbar-path-back-button');
-            while (path.children.length > 1) {
-                path.removeChild(path.lastElementChild);
-            }
-            if (status === '') {
-                if (this._stack.length <= 1) {
-                    back.style.opacity = 0;
-                } else {
-                    back.style.opacity = 1;
-                    const last = this._stack.length - 2;
-                    const count = Math.min(2, last);
-                    if (count < last) {
-                        const element = this._host.document.createElement('button');
-                        element.setAttribute('class', 'toolbar-path-name-button');
-                        element.innerHTML = '&hellip;';
-                        path.appendChild(element);
-                    }
-                    for (let i = count; i >= 0; i--) {
-                        const target = this._stack[i].target;
-                        const element = this._host.document.createElement('button');
-                        element.setAttribute('class', 'toolbar-path-name-button');
-                        element.addEventListener('click', async () => {
-                            if (i > 0) {
-                                this._stack = this._stack.slice(i);
-                                await this._updateGraph(this._model, this._stack);
-                            } else {
-                                await this.showTargetProperties(target);
-                            }
-                        });
-                        let name = '';
-                        if (target && target.identifier) {
-                            name = target.identifier;
-                        } else if (target && target.name) {
-                            name = target.name;
-                        }
-                        if (name.length > 24) {
-                            element.setAttribute('title', name);
-                            element.innerHTML = `&hellip;${name.substring(name.length - 24, name.length)}`;
-                        } else {
-                            element.removeAttribute('title');
-                            element.innerHTML = name;
-                        }
-                        path.appendChild(element);
-                    }
-                }
-                this._select.update(model, stack);
-                const button = this._element('sidebar-target-button');
-                if (stack.length > 0) {
-                    const type = stack[stack.length - 1].type || 'graph';
-                    const name = type.charAt(0).toUpperCase() + type.slice(1);
-                    button.setAttribute('title', `${name} Properties`);
-                    button.style.display = 'block';
-                } else {
-                    button.style.display = 'none';
-                }
-            }
-        };
+    async _updateTarget(model, stack) {
         const lastModel = this._model;
         const lastStack = this._stack;
         try {
-            await update(model, stack);
+            await this._updateStack(model, stack);
             return this._model;
         } catch (error) {
-            await update(lastModel, lastStack);
+            await this._updateStack(lastModel, lastStack);
             throw error;
         }
     }
 
-    async pushGraph(graph, context) {
+    async _updateStack(model, stack) {
+        this._model = model;
+        this._stack = stack;
+        const status = await this.renderGraph(this._model, this.activeTarget, this.activeSignature, this._options);
+        if (status !== '') {
+            this._model = null;
+            this._stack = [];
+            this._activeTarget = null;
+        }
+        this.show(null);
+        const path = this._element('toolbar-path');
+        const back = this._element('toolbar-path-back-button');
+        while (path.children.length > 1) {
+            path.removeChild(path.lastElementChild);
+        }
+        if (status === '') {
+            if (this._stack.length <= 1) {
+                back.style.opacity = 0;
+            } else {
+                back.style.opacity = 1;
+                const last = this._stack.length - 2;
+                const count = Math.min(2, last);
+                if (count < last) {
+                    const element = this._host.document.createElement('button');
+                    element.setAttribute('class', 'toolbar-path-name-button');
+                    element.innerHTML = '&hellip;';
+                    path.appendChild(element);
+                }
+                for (let i = count; i >= 0; i--) {
+                    const target = this._stack[i].target;
+                    const element = this._host.document.createElement('button');
+                    element.setAttribute('class', 'toolbar-path-name-button');
+                    element.addEventListener('click', async () => {
+                        if (i > 0) {
+                            this._stack = this._stack.slice(i);
+                            await this._updateTarget(this._model, this._stack);
+                        } else {
+                            await this.showTargetProperties(target);
+                        }
+                    });
+                    let name = '';
+                    if (target && target.identifier) {
+                        name = target.identifier;
+                    } else if (target && target.name) {
+                        name = target.name;
+                    }
+                    if (name.length > 24) {
+                        element.setAttribute('title', name);
+                        element.innerHTML = `&hellip;${name.substring(name.length - 24, name.length)}`;
+                    } else {
+                        element.removeAttribute('title');
+                        element.innerHTML = name;
+                    }
+                    path.appendChild(element);
+                }
+            }
+            this._select.update(model, stack);
+            const button = this._element('sidebar-target-button');
+            if (stack.length > 0) {
+                const type = stack[stack.length - 1].type || 'graph';
+                const name = type.charAt(0).toUpperCase() + type.slice(1);
+                button.setAttribute('title', `${name} Properties`);
+                button.style.display = 'block';
+            } else {
+                button.style.display = 'none';
+            }
+        }
+    }
+
+    async pushTarget(graph, context) {
         if (graph && graph !== this.activeTarget && Array.isArray(graph.nodes)) {
             this._sidebar.close();
             if (context) {
-                this._stack[0].context = context;
-                this._stack[0].zoom = this._zoom;
+                this._stack[0].state = { context, zoom: this._zoom };
             }
             const signature = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null;
             const entry = { target: graph, signature };
             const stack = [entry].concat(this._stack);
-            await this._updateGraph(this._model, stack);
+            await this._updateTarget(this._model, stack);
         }
     }
 
-    async popGraph() {
+    async popTarget() {
         if (this._stack.length > 1) {
             this._sidebar.close();
-            return await this._updateGraph(this._model, this._stack.slice(1));
+            return await this._updateTarget(this._model, this._stack.slice(1));
         }
         return null;
     }
@@ -902,10 +900,10 @@ view.View = class {
             canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
             canvas.setAttribute('width', width);
             canvas.setAttribute('height', height);
-            this._zoom = this._stack && this._stack.length > 0 && this._stack[0].zoom ? this._stack[0].zoom : 1;
+            this._zoom = this._stack && this._stack.length > 0 && this._stack[0].state ? this._stack[0].state.zoom : 1;
             this._updateZoom(this._zoom);
             const container = this._element('graph');
-            const context = this._stack && this._stack.length > 0 && this._stack[0].context ? viewGraph.select([this._stack[0].context]) : [];
+            const context = this._stack && this._stack.length > 0 && this._stack[0].state ? viewGraph.select([this._stack[0].state.context]) : [];
             if (context.length > 0) {
                 this.scrollTo(context, 'instant');
             } else if (elements && elements.length > 0) {
@@ -1183,7 +1181,7 @@ view.View = class {
     async showDefinition(type) {
         if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
             if (type.nodes && type.nodes.length > 0) {
-                await this.pushGraph(type);
+                await this.pushTarget(type);
             }
             if (type.type !== 'weights') {
                 const sidebar = new view.DocumentationSidebar(this, type);
@@ -2104,7 +2102,7 @@ view.Node = class extends grapher.Node {
                 tooltip = 'Show Weights';
             }
             const definition = header.add(null, styles, icon, tooltip);
-            definition.on('click', async () => await this.context.view.pushGraph(node.type, this.value));
+            definition.on('click', async () => await this.context.view.pushTarget(node.type, this.value));
         }
         if (Array.isArray(node.nodes)) {
             // this._expand = header.add(null, styles, '+', null);
