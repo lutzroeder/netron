@@ -8124,13 +8124,6 @@
   },
   {
     "type":     "tflite",
-    "target":   "mobilenet_v2_0.4_224.tflite",
-    "source":   "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.0_224.tgz[./mobilenet_v2_1.0_224.tflite]",
-    "format":   "TensorFlow Lite v3",
-    "tags":     "quantization"
-  },
-  {
-    "type":     "tflite",
     "target":   "model_pyramid_0_0_63_31.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/6209444/model_pyramid_0_0_63_31.tflite.zip[model_pyramid_0_0_63_31.tflite]",
     "format":   "TensorFlow Lite v3",
