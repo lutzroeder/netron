@@ -7733,28 +7733,6 @@
   },
   {
     "type":     "tf",
-    "target":   "mobilenet_v2_1.4_224_frozen.pb",
-    "source":   "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz[./mobilenet_v2_1.4_224_frozen.pb]",
-    "format":   "TensorFlow Graph",
-    "link":     "https://www.tensorflow.org/lite/models"
-  },
-  {
-    "type":     "tf",
-    "target":   "mobilenet_v2_1.4_224.ckpt.meta",
-    "source":   "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz[./mobilenet_v2_1.4_224.ckpt.meta]",
-    "format":   "TensorFlow MetaGraph",
-    "tags":     "skip-render",
-    "link":     "https://www.tensorflow.org/lite/models"
-  },
-  {
-    "type":     "tf",
-    "target":   "mobilenet_v2_1.4_224_eval.pbtxt",
-    "source":   "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz[./mobilenet_v2_1.4_224_eval.pbtxt]",
-    "format":   "TensorFlow Graph",
-    "link":     "https://www.tensorflow.org/lite/models"
-  },
-  {
-    "type":     "tf",
     "target":   "mnasnet_0.5_224.pb",
     "source":   "http://download.tensorflow.org/models/tflite/mnasnet_0.5_224_09_07_2018.tgz[mnasnet_0.5_224/mnasnet_0.5_224.pb]",
     "format":   "TensorFlow Graph",
