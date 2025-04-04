@@ -17789,7 +17789,7 @@ python.Execution = class {
         });
         this.registerType('torch._export.serde.schema.BufferMutationSpec', class {
             constructor(obj) {
-                this.arg = new torch._export.serde.schema.Argument(obj.arg);
+                this.arg = new torch._export.serde.schema.TensorArgument(obj.arg);
                 this.buffer_name = obj.buffer_name;
             }
         });
