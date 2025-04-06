@@ -5,12 +5,13 @@ import enum
 import json
 import os
 
-class ModelFactory: # pylint: disable=too-few-public-methods
+
+class ModelFactory:
     ''' ONNX backend model factory '''
-    def open(self, model): # pylint: disable=missing-function-docstring
+    def open(self, model):
         return _Model(model)
 
-class _Model: # pylint: disable=too-few-public-methods
+class _Model:
     def __init__(self, model):
         ''' Serialize ONNX model to JSON message '''
         # import onnx.shape_inference
@@ -19,7 +20,7 @@ class _Model: # pylint: disable=too-few-public-methods
         self.metadata = _Metadata()
         self.graph = _Graph(model.graph, self.metadata)
 
-    def to_json(self): # pylint: disable=missing-function-docstring
+    def to_json(self):
         ''' Serialize model to JSON message '''
         model = self.value
         json_model = {}
@@ -39,7 +40,7 @@ class _Model: # pylint: disable=too-few-public-methods
         json_model['graphs'].append(self.graph.to_json())
         return json_model
 
-    def _metadata_props(self, metadata_props): # pylint: disable=missing-function-docstring
+    def _metadata_props(self, metadata_props):
         json_metadata = []
         metadata_props = [ [ entry.key, entry.value ] for entry in metadata_props ]
         metadata = collections.OrderedDict(metadata_props)
@@ -79,11 +80,11 @@ class _Graph:
         self.values_index = {}
         self.values = []
 
-    def _tensor(self, tensor): # pylint: disable=unused-argument
+    def _tensor(self, tensor):
         return {}
 
-    def value(self, name, tensor_type=None, initializer=None): # pylint: disable=missing-function-docstring
-        if not name in self.values_index:
+    def value(self, name, tensor_type=None, initializer=None):
+        if name not in self.values_index:
             argument = _Value(name, tensor_type, initializer)
             self.values_index[name] = len(self.values)
             self.values.append(argument)
@@ -91,7 +92,7 @@ class _Graph:
         # argument.set_initializer(initializer)
         return index
 
-    def attribute(self, _, op_type): # pylint: disable=missing-function-docstring,too-many-branches
+    def attribute(self, _, op_type):
         if _.type == _AttributeType.UNDEFINED:
             attribute_type = None
             value = None
@@ -109,7 +110,7 @@ class _Graph:
             value = self._tensor(_.t)
         elif _.type == _AttributeType.GRAPH:
             attribute_type = 'tensor'
-            raise Exception('Unsupported graph attribute type') # pylint: disable=broad-exception-raised
+            raise Exception('Unsupported graph attribute type')
         elif _.type == _AttributeType.FLOATS:
             attribute_type = 'float32[]'
             value = list(_.floats)
@@ -121,15 +122,15 @@ class _Graph:
             value = [ item.decode('utf-8') for item in _.strings ]
         elif _.type == _AttributeType.TENSORS:
             attribute_type = 'tensor[]'
-            raise Exception('Unsupported tensors attribute type') # pylint: disable=broad-exception-raised
+            raise Exception('Unsupported tensors attribute type')
         elif _.type == _AttributeType.GRAPHS:
             attribute_type = 'graph[]'
-            raise Exception('Unsupported graphs attribute type') # pylint: disable=broad-exception-raised
+            raise Exception('Unsupported graphs attribute type')
         elif _.type == _AttributeType.SPARSE_TENSOR:
             attribute_type = 'tensor'
             value = self._tensor(_.sparse_tensor)
         else:
-            raise Exception("Unsupported attribute type '" + str(_.type) + "'.") # pylint: disable=broad-exception-raised
+            raise Exception("Unsupported attribute type '" + str(_.type) + "'.")
         json_attribute = {}
         json_attribute['name'] = _.name
         if attribute_type:
@@ -137,7 +138,7 @@ class _Graph:
         json_attribute['value'] = value
         return json_attribute
 
-    def to_json(self): # pylint: disable=missing-function-docstring
+    def to_json(self):
         graph = self.graph
         json_graph = {
             'nodes': [],
@@ -181,30 +182,30 @@ class _Graph:
             json_graph['values'].append(_.to_json())
         return json_graph
 
-class _Value: # pylint: disable=too-few-public-methods
+class _Value:
     def __init__(self, name, tensor_type=None, initializer=None):
         self.name = name
         self.type = tensor_type
         self.initializer = initializer
 
-    def to_json(self): # pylint: disable=missing-function-docstring
+    def to_json(self):
         target = {}
         target['name'] = self.name
         # if self.initializer:
         #     target['initializer'] = {}
         return target
 
-class _Metadata: # pylint: disable=too-few-public-methods
+class _Metadata:
     metadata = {}
 
     def __init__(self):
         metadata_file = os.path.join(os.path.dirname(__file__), 'onnx-metadata.json')
-        with open(metadata_file, 'r', encoding='utf-8') as file:
+        with open(metadata_file, encoding='utf-8') as file:
             for item in json.load(file):
                 name = item['name']
                 self.metadata[name] = item
 
-    def type(self, name): # pylint: disable=missing-function-docstring
+    def type(self, name):
         if name in self.metadata:
             return self.metadata[name]
         return {}

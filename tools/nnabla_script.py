@@ -1,17 +1,19 @@
 ''' NNabla metadata script '''
 
 import json
-import sys
 import os
-import yaml # pylint: disable=import-error
-import mako.template # pylint: disable=import-error
+import sys
+
+import mako.template
+import yaml
+
 
 def _write(path, content):
     with open(path, 'w', encoding='utf-8') as file:
         file.write(content)
 
 def _read_yaml(path):
-    with open(path, 'r', encoding='utf-8') as file:
+    with open(path, encoding='utf-8') as file:
         return yaml.safe_load(file)
 
 def _metadata():
@@ -88,7 +90,7 @@ def _schema():
     content = content.replace('\r\n', '\n').replace('\r', '\n')
     _write(path, content)
 
-def _attribute(name, value): # pylint: disable=too-many-branches
+def _attribute(name, value):
     attribute = {}
     attribute['name'] = name
     default = 'default' in value
@@ -136,7 +138,7 @@ def _attribute(name, value): # pylint: disable=too-many-branches
     attribute['description'] = value['doc'].strip()
     return attribute
 
-def main(): # pylint: disable=missing-function-docstring
+def main():
     table = { 'metadata': _metadata, 'schema': _schema }
     for command in sys.argv[1:]:
         table[command]()

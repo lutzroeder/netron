@@ -8,7 +8,7 @@ import re
 os.environ['KERAS_BACKEND'] = 'jax'
 
 def _read(path):
-    with open(path, 'r', encoding='utf-8') as file:
+    with open(path, encoding='utf-8') as file:
         return file.read()
 
 def _parse_docstring(docstring):
@@ -35,7 +35,7 @@ def _parse_arguments(arguments):
     item_re = re.compile(r'^\s{0,4}(\*?\*?\w[\w.]*?\s*):\s', re.MULTILINE)
     content = item_re.split(arguments)
     if content.pop(0) != '':
-        raise Exception('') # pylint: disable=broad-exception-raised
+        raise Exception('')
     while len(content) > 0:
         result.append((content.pop(0), content.pop(0)))
     return result
@@ -64,7 +64,7 @@ def _remove_indentation(value):
     return '\n'.join(lines).strip()
 
 def _update_argument(schema, name, description):
-    if not 'attributes' in schema:
+    if 'attributes' not in schema:
         schema['attributes'] = []
     attribute = next((_ for _ in schema['attributes'] if _['name'] == name), None)
     if not attribute:
@@ -74,23 +74,23 @@ def _update_argument(schema, name, description):
     attribute['description'] = _remove_indentation(description)
 
 def _update_input(schema, description):
-    if not 'inputs' in schema:
+    if 'inputs' not in schema:
         schema['inputs'] = [ { 'name': 'input' } ]
     parameter = next((_ for _ in schema['inputs'] \
         if (_['name'] == 'input' or _['name'] == 'inputs')), None)
     if parameter:
         parameter['description'] = _remove_indentation(description)
     else:
-        raise Exception('') # pylint: disable=broad-exception-raised
+        raise Exception('')
 
 def _update_output(schema, description):
-    if not 'outputs' in schema:
+    if 'outputs' not in schema:
         schema['outputs'] = [ { 'name': 'output' } ]
     parameter = next((param for param in schema['outputs'] if param['name'] == 'output'), None)
     if parameter:
         parameter['description'] = _remove_indentation(description)
     else:
-        raise Exception('') # pylint: disable=broad-exception-raised
+        raise Exception('')
 
 def _update_examples(schema, value):
     if 'examples' in schema:
@@ -115,7 +115,7 @@ def _update_examples(schema, value):
             if len(summary) > 0:
                 example['summary'] = '\n'.join(summary)
             example['code'] = '\n'.join(code)
-            if not 'examples' in schema:
+            if 'examples' not in schema:
                 schema['examples'] = []
             schema['examples'].append(example)
             code = []
@@ -139,7 +139,7 @@ def _update_references(schema, value):
     if len(reference) > 0:
         references.append(reference)
     for reference in references:
-        if not 'references' in schema:
+        if 'references' not in schema:
             schema['references'] = []
         if len(reference.strip()) > 0:
             schema['references'].append({ 'description': reference })
@@ -166,7 +166,7 @@ def _update_headers(schema, docstring):
         elif key in ('Call arguments', 'Returns', 'Variables', 'Raises'):
             pass
         else:
-            raise Exception('') # pylint: disable=broad-exception-raised
+            raise Exception('')
 
 
 def _metadata():
@@ -182,7 +182,7 @@ def _metadata():
     for metadata in json_root:
         if 'module' in metadata:
             name = metadata['module'] + '.' + metadata['name']
-            if not name in skip_names:
+            if name not in skip_names:
                 cls = pydoc.locate(name)
                 if not cls:
                     raise KeyError(f"'{name}' not found.")
@@ -197,7 +197,7 @@ def _metadata():
         for line in content.splitlines():
             file.write(line.rstrip() + '\n')
 
-def main(): # pylint: disable=missing-function-docstring
+def main():
     _metadata()
 
 if __name__ == '__main__':

@@ -4,10 +4,11 @@ import collections
 import json
 import os
 import re
-import onnx.backend.test.case # pylint: disable=import-error
-import onnx.defs # pylint: disable=import-error
-import onnx.onnx_ml_pb2 # pylint: disable=import-error
-import onnxruntime # pylint: disable=import-error
+
+import onnx.backend.test.case
+import onnx.defs
+import onnx.onnx_ml_pb2
+import onnxruntime
 
 attribute_type_table = [
     'undefined',
@@ -40,7 +41,7 @@ def _format_description(description):
 def _format_range(value):
     return '&#8734;' if value == 2147483647 else str(value)
 
-class OnnxSchema: # pylint: disable=too-few-public-methods
+class OnnxSchema:
     ''' ONNX schema '''
 
     def __init__(self, schema, snippets):
@@ -169,7 +170,7 @@ class OnnxSchema: # pylint: disable=too-few-public-methods
             self._update_snippets(value, self.snippets[self.name])
         return value
 
-class OnnxRuntimeSchema: # pylint: disable=too-few-public-methods
+class OnnxRuntimeSchema:
     ''' ONNX Runtime schema '''
 
     def __init__(self, schema):
@@ -201,8 +202,8 @@ class OnnxRuntimeSchema: # pylint: disable=too-few-public-methods
             if attribute_type:
                 value['type'] = attribute_type
             value['required'] = _.required
-            default_value = onnx.onnx_ml_pb2.AttributeProto() # pylint: disable=no-member
-            default_value.ParseFromString(_._default_value) # pylint: disable=protected-access
+            default_value = onnx.onnx_ml_pb2.AttributeProto()
+            default_value.ParseFromString(_._default_value)
             default_value = self._get_attr_default_value(default_value)
             if default_value:
                 value['default'] = default_value
@@ -217,9 +218,9 @@ class OnnxRuntimeSchema: # pylint: disable=too-few-public-methods
             value = {}
             value['name'] = _.name
             value['type'] = _.typeStr
-            if _.option == onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.FormalParameterOption.Optional: # pylint: disable=c-extension-no-member,line-too-long
+            if _.option == onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.FormalParameterOption.Optional:
                 value['option'] = 'optional'
-            elif _.option == onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.FormalParameterOption.Variadic: # pylint: disable=c-extension-no-member,line-too-long
+            elif _.option == onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.FormalParameterOption.Variadic:
                 value['list'] = True
             description = _format_description(_.description)
             if len(description) > 0:
@@ -232,9 +233,9 @@ class OnnxRuntimeSchema: # pylint: disable=too-few-public-methods
             value = {}
             value['name'] = _.name
             value['type'] = _.typeStr
-            if _.option == onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.FormalParameterOption.Optional: # pylint: disable=c-extension-no-member,line-too-long
+            if _.option == onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.FormalParameterOption.Optional:
                 value['option'] = 'optional'
-            elif _.option == onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.FormalParameterOption.Variadic: # pylint: disable=c-extension-no-member,line-too-long
+            elif _.option == onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.FormalParameterOption.Variadic:
                 value['list'] = True
             description = _format_description(_.description)
             if len(description) > 0:
@@ -256,7 +257,7 @@ class OnnxRuntimeSchema: # pylint: disable=too-few-public-methods
         value['name'] = self.name
         value['module'] = self.module
         value['version'] = self.version
-        if self.schema.support_level != onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.SupportType.COMMON: # pylint: disable=c-extension-no-member,line-too-long
+        if self.schema.support_level != onnxruntime.capi.onnxruntime_pybind11_state.schemadef.OpSchema.SupportType.COMMON:
             value['status'] = self.schema.support_level.name.lower()
         if self.schema.doc:
             description = _format_description(self.schema.doc.lstrip())
@@ -285,7 +286,7 @@ class OnnxRuntimeSchema: # pylint: disable=too-few-public-methods
 def _metadata():
     root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     file = os.path.join(root_dir, 'source', 'onnx-metadata.json')
-    with open(file, 'r', encoding='utf-8') as handle:
+    with open(file, encoding='utf-8') as handle:
         content = handle.read()
     categories = {}
     content = json.loads(content)
@@ -299,15 +300,15 @@ def _metadata():
         snippets = onnx.backend.test.case.collect_snippets()
     for schema in onnx.defs.get_all_schemas_with_history():
         schema = OnnxSchema(schema, snippets)
-        if not schema.key in types:
+        if schema.key not in types:
             types[schema.key] = schema.to_dict()
-    for schema in onnxruntime.capi.onnxruntime_pybind11_state.get_all_operator_schema(): # pylint: disable=c-extension-no-member
+    for schema in onnxruntime.capi.onnxruntime_pybind11_state.get_all_operator_schema():
         schema = OnnxRuntimeSchema(schema)
-        if not schema.key in types:
+        if schema.key not in types:
             types[schema.key] = schema.to_dict()
     for schema in content:
         key = schema['name'] + ':' + schema['module'] + ':' + str(schema['version']).zfill(4)
-        if not key in types:
+        if key not in types:
             types[key] = schema
     types = [types[key] for key in sorted(types)]
     for schema in types:
@@ -325,7 +326,7 @@ def _metadata():
     with open(file, 'w', encoding='utf-8') as handle:
         handle.write(content)
 
-def main(): # pylint: disable=missing-function-docstring
+def main():
     _metadata()
 
 if __name__ == '__main__':

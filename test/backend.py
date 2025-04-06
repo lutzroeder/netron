@@ -35,7 +35,7 @@ def _test_onnx_iterate():
 def _test_torchscript(file):
     torch = __import__('torch')
     model = torch.load(os.path.join(test_data_dir, 'pytorch', file))
-    torch._C._jit_pass_inline(model.graph) # pylint: disable=protected-access
+    torch._C._jit_pass_inline(model.graph)
     netron.serve(file, model)
 
 def _test_torchscript_transformer():
@@ -43,7 +43,7 @@ def _test_torchscript_transformer():
     model = torch.nn.Transformer(nhead=16, num_encoder_layers=12)
     module = torch.jit.trace(model, (torch.rand(10, 32, 512), torch.rand(20, 32, 512)))
     # module = torch.jit.script(model)
-    torch._C._jit_pass_inline(module.graph) # pylint: disable=protected-access
+    torch._C._jit_pass_inline(module.graph)
     netron.serve('transformer', module)
 
 def _test_torchscript_resnet34():
@@ -55,7 +55,7 @@ def _test_torchscript_resnet34():
     state_dict = torch.load(os.path.join(test_data_dir, 'pytorch', 'resnet34-333f7ec4.pth'))
     model.load_state_dict(state_dict)
     trace = torch.jit.trace(model, torch.zeros([1, 3, 224, 224]), strict=True)
-    torch._C._jit_pass_inline(trace.graph) # pylint: disable=protected-access
+    torch._C._jit_pass_inline(trace.graph)
     netron.serve('resnet34', trace)
 
 def _test_torchscript_quantized():
@@ -63,7 +63,7 @@ def _test_torchscript_quantized():
     __import__('torchvision')
     torch.backends.quantized.engine = 'qnnpack'
     trace = torch.jit.load(os.path.join(test_data_dir, 'pytorch', 'd2go.pt'))
-    torch._C._jit_pass_inline(trace.graph) # pylint: disable=protected-access
+    torch._C._jit_pass_inline(trace.graph)
     netron.serve('d2go', trace)
 
 # _test_onnx()

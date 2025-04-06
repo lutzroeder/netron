@@ -61,3 +61,8 @@ netron = ["*.*"]
 
 [tool.setuptools.exclude-package-data]
 netron = ["app.js", "electron.*"]
+
+[tool.ruff]
+lint.select = ["E", "F", "I", "UP", "B"]
+lint.ignore = ["E501"]
+cache-dir = "./dist/lint/.ruff_cache"

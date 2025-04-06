@@ -2,7 +2,7 @@
 
 ''' Test Measures Script '''
 
-import pandas  # pylint: disable=import-error
+import pandas
 
 pandas.set_option('display.max_rows', None)
 
@@ -14,7 +14,7 @@ def _summarize(summary_df, measures_df, column, threshold):
     summary_df.loc[len(summary_df)] = [ column, total, top, len(column_df), 100 * (top / total) ]
     return column_df.to_string(index=False) + '\n'
 
-def main(): # pylint: disable=missing-function-docstring
+def main():
     measures_df = pandas.read_csv('dist/test/measures.csv')
     measures_df.fillna(0, inplace=True)
     summary_df = pandas.DataFrame(columns=[ 'Name', 'Total', 'Top', 'Count', 'Ratio' ])

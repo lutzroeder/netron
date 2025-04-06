@@ -3,9 +3,9 @@
 import json
 import os
 import re
-import sys
 import shutil
 import subprocess
+import sys
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
 dist_dir = os.path.join(root_dir, 'dist')
@@ -14,7 +14,7 @@ source_dir = os.path.join(root_dir, 'source')
 publish_dir = os.path.join(root_dir, 'publish')
 
 def _read(path):
-    with open(path, 'r', encoding='utf-8') as file:
+    with open(path, encoding='utf-8') as file:
         return file.read()
 
 def _write(path, content):
@@ -34,7 +34,7 @@ def _build():
     shutil.rmtree(dist_pypi_dir, ignore_errors=True)
     shutil.copytree(source_dir, os.path.join(dist_pypi_dir, 'netron'))
     shutil.copyfile(
-        os.path.join(publish_dir, 'pyproject.toml'),
+        os.path.join(root_dir, 'pyproject.toml'),
         os.path.join(dist_pypi_dir, 'pyproject.toml'))
     os.remove(os.path.join(dist_pypi_dir, 'netron', 'electron.mjs'))
     os.remove(os.path.join(dist_pypi_dir, 'netron', 'app.js'))
@@ -65,17 +65,12 @@ def _version():
 
 def _start():
     ''' Start server '''
-    # args = [ sys.executable, '-c', 'import netron; netron.main();' ] + sys.args
-    # try:
-    #     subprocess.run(args, env={ 'PYTHONPATH': './dist/pypi' }, check=False)
-    # except (KeyboardInterrupt, SystemExit):
-    #     pass
     sys.path.insert(0, os.path.join(root_dir, 'dist', 'pypi'))
     __import__('netron').main()
     sys.args = []
     del sys.argv[1:]
 
-def main(): # pylint: disable=missing-function-docstring
+def main():
     table = { 'build': _build, 'install': _install, 'version': _version, 'start': _start }
     sys.args = sys.argv[1:]
     while len(sys.args) > 0:

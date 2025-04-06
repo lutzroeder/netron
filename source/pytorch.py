@@ -3,9 +3,10 @@
 import json
 import os
 
-class ModelFactory: # pylint: disable=too-few-public-methods
+
+class ModelFactory:
     ''' PyTorch backend model factory '''
-    def open(self, model): # pylint: disable=missing-function-docstring
+    def open(self, model):
         metadata = {}
         metadata_files = [
             ('pytorch-metadata.json', ''),
@@ -14,20 +15,20 @@ class ModelFactory: # pylint: disable=too-few-public-methods
         path = os.path.dirname(__file__)
         for entry in metadata_files:
             file = os.path.join(path, entry[0])
-            with open(file, 'r', encoding='utf-8') as handle:
+            with open(file, encoding='utf-8') as handle:
                 for item in json.load(handle):
                     name = entry[1] + item['name'].split('(', 1)[0]
                     metadata[name] = item
         metadata = Metadata(metadata)
         return _Model(metadata, model)
 
-class _Model: # pylint: disable=too-few-public-methods
+class _Model:
     def __init__(self, metadata, model):
         self.graph = _Graph(metadata, model)
 
     def to_json(self):
         ''' Serialize model to JSON message '''
-        import torch # pylint: disable=import-outside-toplevel,import-error
+        import torch
         json_model = {
             'signature': 'netron:pytorch',
             'format': 'TorchScript v' + torch.__version__,
@@ -35,7 +36,7 @@ class _Model: # pylint: disable=too-few-public-methods
         }
         return json_model
 
-class _Graph: # pylint: disable=too-few-public-methods
+class _Graph:
 
     def __init__(self, metadata, model):
         self.metadata = metadata
@@ -52,8 +53,8 @@ class _Graph: # pylint: disable=too-few-public-methods
             return (getattr(obj, name), parent + '.' + name if len(parent) > 0 else name)
         raise NotImplementedError()
 
-    def to_json(self): # pylint: disable=missing-function-docstring,too-many-locals,too-many-statements,too-many-branches
-        import torch # pylint: disable=import-outside-toplevel,import-error
+    def to_json(self):
+        import torch
         graph = self.value
         json_graph = {
             'values': [],
@@ -62,11 +63,11 @@ class _Graph: # pylint: disable=too-few-public-methods
             'outputs': []
         }
         data_type_map = dict([
-            [ torch.float16, 'float16'], # pylint: disable=no-member
-            [ torch.float32, 'float32'], # pylint: disable=no-member
-            [ torch.float64, 'float64'], # pylint: disable=no-member
-            [ torch.int32, 'int32'], # pylint: disable=no-member
-            [ torch.int64, 'int64'], # pylint: disable=no-member
+            [ torch.float16, 'float16'],
+            [ torch.float32, 'float32'],
+            [ torch.float64, 'float64'],
+            [ torch.int32, 'int32'],
+            [ torch.int64, 'int64'],
         ])
         def constant_value(node):
             if node.hasAttribute('value'):
@@ -75,7 +76,7 @@ class _Graph: # pylint: disable=too-few-public-methods
             return None
         values_index = {}
         def argument(value):
-            if not value in values_index:
+            if value not in values_index:
                 json_value = {}
                 json_value['name'] = str(value.unique())
                 node = value.node()
@@ -236,7 +237,7 @@ class _Graph: # pylint: disable=too-few-public-methods
 
         return json_graph
 
-    def _argument_type(self, value): # pylint: disable=too-many-branches,too-many-return-statements
+    def _argument_type(self, value):
         if value.kind() == 'TensorType':
             return 'Tensor'
         if value.kind() == 'OptionalType':
@@ -281,18 +282,18 @@ class _Graph: # pylint: disable=too-few-public-methods
             return value.annotation_str
         raise NotImplementedError()
 
-class Metadata: # pylint: disable=too-few-public-methods,missing-class-docstring
+class Metadata:
 
     def __init__(self, metadata):
         self.types = metadata
 
-    def type(self, identifier): # pylint: disable=missing-function-docstring
+    def type(self, identifier):
         if identifier == '(no schema)':
             return (None, '')
         key = identifier.split('(', 1)[0]
         value = self.types.get(key)
         category = value['category'] if value and 'category' in value else ''
         name, overload_name = key.split('.', 1) if key.find('.') > 0 else (key, '')
-        import torch # pylint: disable=import-outside-toplevel,import-error
-        schema = torch._C._get_schema(name, overload_name) # pylint: disable=protected-access
+        import torch
+        schema = torch._C._get_schema(name, overload_name)
         return (schema, category)

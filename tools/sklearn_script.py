@@ -6,6 +6,7 @@ import pydoc
 import re
 import sys
 
+
 def _split_docstring(value):
     headers = {}
     current_header = ''
@@ -93,7 +94,7 @@ def _update_attributes(schema, lines):
 def _metadata():
     root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     json_file = os.path.join(root_dir, 'source', 'sklearn-metadata.json')
-    with open(json_file, 'r', encoding='utf-8') as file:
+    with open(json_file, encoding='utf-8') as file:
         json_root = json.loads(file.read())
 
     for schema in json_root:
@@ -112,7 +113,7 @@ def _metadata():
                 raise KeyError('\'' + name + '\' not found.')
             docstring = class_definition.__doc__
             if not docstring:
-                raise Exception('\'' + name + '\' missing __doc__.') # pylint: disable=broad-exception-raised
+                raise Exception('\'' + name + '\' missing __doc__.')
             headers = _split_docstring(docstring)
             if '' in headers:
                 _update_description(schema, headers[''])
@@ -122,7 +123,7 @@ def _metadata():
     with open(json_file, 'w', encoding='utf-8') as file:
         file.write(json.dumps(json_root, sort_keys=False, indent=2))
 
-def main(): # pylint: disable=missing-function-docstring
+def main():
     _metadata()
 
 if __name__ == '__main__':

@@ -243,7 +243,7 @@ const install = async () => {
     }
     try {
         await exec('python --version', 'utf-8');
-        await exec('python -m pip install --upgrade --quiet setuptools pylint');
+        await exec('python -m pip install --upgrade --quiet setuptools ruff');
     } catch {
         // continue regardless of error
     }
@@ -513,15 +513,16 @@ const publish = async (target) => {
 const lint = async () => {
     await install();
     writeLine('eslint');
-    await exec('npx eslint --config publish/eslint.config.js *.*js source/*.*js test/*.*js publish/*.*js tools/*.js');
-    writeLine('pylint');
-    await exec('python -m pylint -sn --recursive=y source test publish tools *.py');
+    await exec('npx eslint --config publish/eslint.config.js *.*js source/*.*js test/*.*js publish/*.*js tools/*.js --cache --cache-location ./dist/lint/.eslintcache');
+    writeLine('ruff');
+    await exec('python -m ruff check . --quiet');
 };
 
 const validate = async() => {
+    writeLine('lint');
+    await lint();
     writeLine('test');
     await exec('node test/models.js tag:validation');
-    await lint();
 };
 
 const update = async () => {

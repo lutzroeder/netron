@@ -12,12 +12,12 @@ import socketserver
 import sys
 import threading
 import time
-import webbrowser
 import urllib.parse
+import webbrowser
 
 __version__ = '0.0.0'
 
-class _ContentProvider: # pylint: disable=too-few-public-methods
+class _ContentProvider:
     data = bytearray()
     base_dir = ''
     base = ''
@@ -61,10 +61,10 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         '.woff2': 'application/font-woff2',
         '.svg': 'image/svg+xml'
     }
-    def do_HEAD(self): # pylint: disable=invalid-name
+    def do_HEAD(self):
         ''' Serve a HEAD request '''
         self.do_GET()
-    def do_GET(self): # pylint: disable=invalid-name
+    def do_GET(self):
         ''' Serve a GET request '''
         path = urllib.parse.urlparse(self.path).path
         path = '/index.html' if path == '/' else path
@@ -108,7 +108,7 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 status_code = 200
         _log(self.verbosity > 1, str(status_code) + ' ' + self.command + ' ' + self.path + '\n')
         self._write(status_code, content_type, content)
-    def log_message(self, format, *args): # pylint: disable=redefined-builtin
+    def log_message(self, format, *args):
         return
     def _write(self, status_code, content_type, content):
         self.send_response(status_code)
@@ -146,7 +146,7 @@ class _HTTPServerThread(threading.Thread):
         try:
             while not self.stop_event.is_set():
                 self.server.handle_request()
-        except: # pylint: disable=bare-except
+        except: # noqa: E722
             pass
         self.terminate_event.set()
         self.stop_event.clear()
@@ -231,7 +231,7 @@ def _make_port(address):
                 sockname = temp_socket.getsockname()
                 address = (address[0], sockname[1])
                 return address
-            except: # pylint: disable=bare-except
+            except: # noqa: E722
                 pass
             finally:
                 temp_socket.close()
@@ -337,5 +337,5 @@ def widget(address, height=800):
     '''
     address = _make_address(address)
     url = f"http://{address[0]}:{address[1]}"
-    IPython = __import__('IPython') # pylint: disable=invalid-name
+    IPython = __import__('IPython')
     return IPython.display.IFrame(url, width="100%", height=height)

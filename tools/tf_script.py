@@ -5,7 +5,8 @@ import logging
 import os
 import re
 import sys
-import google.protobuf # pylint: disable=import-error
+
+import google.protobuf
 
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -15,15 +16,17 @@ null = os.open(os.devnull, os.O_WRONLY)
 os.dup2(null, sys.stderr.fileno())
 os.close(null)
 
-from tensorflow.core.framework import api_def_pb2 # pylint: disable=import-error,no-name-in-module,wrong-import-position
-from tensorflow.core.framework import op_def_pb2 # pylint: disable=import-error,no-name-in-module,wrong-import-position
-from tensorflow.core.framework import types_pb2 # pylint: disable=import-error,no-name-in-module,wrong-import-position
+from tensorflow.core.framework import (  # noqa: E402 # type: ignore
+    api_def_pb2,
+    op_def_pb2,
+    types_pb2,
+)
 
 os.dup2(dup_stderr, sys.stderr.fileno())
 os.close(dup_stderr)
 
 def _read(path):
-    with open(path, 'r', encoding='utf-8') as file:
+    with open(path, encoding='utf-8') as file:
         return file.read()
 
 def _write(path, content):
@@ -95,7 +98,7 @@ def _pbtxt_from_multiline(multiline_pbtxt):
     return pbtxt
 
 def _read_op_list(file):
-    op_list = op_def_pb2.OpList() # pylint: disable=no-member
+    op_list = op_def_pb2.OpList()
     content = _read(file)
     content = re.sub(r'^go/[a-z]+\s*', '', content)
     google.protobuf.text_format.Merge(content, op_list)
@@ -105,9 +108,9 @@ def _read_api_def_map(folder):
     api_def_map = {}
     for filename in sorted(os.listdir(folder)):
         if filename.endswith('.pbtxt'):
-            api_defs = api_def_pb2.ApiDefs() # pylint: disable=no-member
+            api_defs = api_def_pb2.ApiDefs()
             filename = folder + '/' + filename
-            with open(filename, 'r', encoding='utf-8') as file:
+            with open(filename, encoding='utf-8') as file:
                 multiline_pbtxt = file.read()
                 pbtxt = _pbtxt_from_multiline(multiline_pbtxt)
                 google.protobuf.text_format.Merge(pbtxt, api_defs)
@@ -118,10 +121,10 @@ def _read_api_def_map(folder):
 def _convert_type(value):
     return { 'type': 'type', 'value': value }
 
-def _convert_tensor(tensor): # pylint: disable=unused-argument
+def _convert_tensor(tensor):
     return { 'type': 'tensor', 'value': '?' }
 
-def _convert_shape(shape): # pylint: disable=unused-argument
+def _convert_shape(shape):
     return { 'type': 'shape', 'value': '?' }
 
 def _convert_number(number):
@@ -190,7 +193,7 @@ def _convert_attr_value(attr_value):
         raise NotImplementedError()
     return value
 
-DataType = types_pb2.DataType # pylint: disable=no-member
+DataType = types_pb2.DataType
 
 type_to_string_map = {
     DataType.DT_HALF: "float16",
@@ -401,7 +404,7 @@ def _metadata():
         json_schema['name'] = operator.name
         if operator.name in categories:
             json_schema['category'] = categories[operator.name]
-        api_def = api_def_pb2.ApiDef() # pylint: disable=no-member
+        api_def = api_def_pb2.ApiDef()
         if operator.name in api_def_map:
             api_def = api_def_map[operator.name]
         if api_def.summary:
@@ -415,7 +418,7 @@ def _metadata():
     json_file = os.path.join(root_dir, 'source', 'tf-metadata.json')
     _write(json_file, json.dumps(json_root, sort_keys=False, indent=2))
 
-def main(): # pylint: disable=missing-function-docstring
+def main():
     _metadata()
 
 if __name__ == '__main__':

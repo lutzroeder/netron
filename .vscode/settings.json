@@ -9,12 +9,8 @@
         "node_modules": true,
         "third_party": true
     },
-    "pylint.severity": {
-        "convention": "Warning",
-        "refactor": "Warning"
-    },
-    "eslint.experimental.useFlatConfig": true,
+    "eslint.useFlatConfig": true,
     "eslint.options": {
         "overrideConfigFile": "publish/eslint.config.js"
-    }
+    },
 }

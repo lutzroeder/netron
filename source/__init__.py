@@ -1,16 +1,12 @@
 ''' Python Server entry point '''
 
 import argparse
-import sys
 import os
+import sys
 
-from .server import start
-from .server import stop
-from .server import status
-from .server import wait
-from .server import serve
-from .server import widget
-from .server import __version__
+from .server import __version__, serve, start, status, stop, wait, widget
+
+__all__ = ['start', 'stop', 'status', 'wait', 'serve', 'widget', '__version__']
 
 def main():
     ''' main entry point '''

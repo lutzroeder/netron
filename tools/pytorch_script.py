@@ -1,5 +1,4 @@
 ''' TorchScript metadata script '''
-# pylint: disable=too-many-lines
 
 import collections
 import json
@@ -17,7 +16,7 @@ metadata_file = os.path.join(source_dir, 'pytorch-metadata.json')
 pytorch_source_dir = os.path.join(third_party_dir, 'source', 'pytorch')
 
 def _read(path):
-    with open(path, 'r', encoding='utf-8') as file:
+    with open(path, encoding='utf-8') as file:
         return file.read()
 
 def _write(path, content):
@@ -42,7 +41,6 @@ def _write_metadata(metadata):
     _write(metadata_file, content)
 
 known_legacy_schema_definitions = [
-    # pylint: disable=line-too-long
     '_caffe2::BBoxTransform(Tensor rois, Tensor deltas, Tensor im_info, float[] weights, bool apply_scale, bool rotated, bool angle_bound_on, int angle_bound_lo, int angle_bound_hi, float clip_angle_thresh, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor output_0, Tensor output_1)',
     '_caffe2::BatchPermutation(Tensor X, Tensor indices, Tensor[]? _caffe2_preallocated_outputs=None) -> Tensor',
     '_caffe2::BoxWithNMSLimit(Tensor scores, Tensor boxes, Tensor batch_splits, float score_thresh, float nms, int detections_per_im, bool soft_nms_enabled, str soft_nms_method, float soft_nms_sigma, float soft_nms_min_score_thres, bool rotated, bool cls_agnostic_bbox_reg, bool input_boxes_include_bg_cls, bool output_classes_include_bg_cls, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor scores, Tensor boxes, Tensor classes, Tensor batch_splits, Tensor keeps, Tensor keeps_size)',
@@ -309,7 +307,6 @@ known_legacy_schema_definitions = [
     'torch_sparse::non_diag_mask(Tensor _0, Tensor _1, int _2, int _3, int _4) -> Tensor _0',
     'torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)',
     'vai::fix_neuron(Tensor input, int valmin, int valmax, float valamp, int zero_point, int method, int device_id, int inplace) -> Tensor'
-    # pylint: enable=line-too-long
 ]
 
 def _identifier(schema):
@@ -319,7 +316,7 @@ def _all_schemas():
     torch = __import__('torch')
     __import__('torchvision')
     __import__('torchaudio')
-    return list(torch._C._jit_get_all_schemas()) # pylint: disable=protected-access
+    return list(torch._C._jit_get_all_schemas())
 
 def _parse_schemas():
     schemas = {}
@@ -358,7 +355,7 @@ def _check_types(types, schemas):
         if key.startswith('torch.nn') or key.startswith('__torch__.'):
             types.pop(key)
     if len(types) > 0:
-        raise Exception('\n'.join(list(types.keys()))) # pylint: disable=broad-exception-raised
+        raise Exception('\n'.join(list(types.keys())))
 
 def _sort_types(types):
     keys = {}
@@ -377,7 +374,7 @@ def _sort_types(types):
         else:
             key = _identifier(name)
             split = key.split('.')
-            if not key in keys:
+            if key not in keys:
                 keys[key] = f'{split[0]}.{index}'
                 index += 1
     for key, _ in classes.items():
@@ -405,7 +402,7 @@ def _metadata():
     types = _sort_types(list(types.values()))
     _write_metadata(types)
 
-def main(): # pylint: disable=missing-function-docstring
+def main():
     _metadata()
 
 if __name__ == '__main__':
