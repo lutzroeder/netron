@@ -183,13 +183,6 @@ onnx.Graph = class {
                 }
             }
         }
-        if (Array.isArray(graph.value_info)) {
-            for (const value of graph.value_info) {
-                const tensor = context.tensor(value.name);
-                tensor.type = context.createType(value.type);
-                tensor.description = value.doc_string;
-            }
-        }
         graph.input = graph.input.map((value) => {
             const tensor = context.tensor(value.name);
             tensor.type = context.createType(value.type);
@@ -1265,6 +1258,13 @@ onnx.Context.Graph = class {
             for (const sparse_initializer of graph.sparse_initializer) {
                 const tensor = new onnx.Tensor(this, sparse_initializer, 'Initializer');
                 this._initializers.set(sparse_initializer.values.name, tensor);
+            }
+        }
+        if (Array.isArray(graph.value_info)) {
+            for (const value of graph.value_info) {
+                const tensor = this.tensor(value.name);
+                tensor.type = this.createType(value.type);
+                tensor.description = value.doc_string;
             }
         }
         for (const node of graph.node) {
