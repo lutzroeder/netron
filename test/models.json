@@ -3657,7 +3657,6 @@
     "source":   "https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.param,https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.bin",
     "format":   "ncnn",
     "assert":   "model.graphs[0].nodes[0].type.name == 'Convolution'",
-    "tags":     "validation",
     "link":     "https://github.com/MirrorYuChen/ncnn_example"
   },
   {
@@ -3740,7 +3739,6 @@
     "target":   "mobilefacenet.bin,mobilefacenet.param",
     "source":   "https://raw.githubusercontent.com/GRAYKEY/mobilefacenet_ncnn/master/models/mobilefacenet.bin,https://raw.githubusercontent.com/GRAYKEY/mobilefacenet_ncnn/master/models/mobilefacenet.param",
     "format":   "ncnn",
-    "tags":     "validation",
     "link":     "https://github.com/GRAYKEY/mobilefacenet_ncnn"
   },
   {
@@ -3748,6 +3746,7 @@
     "target":   "mobilenetv2_yolov3.param",
     "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/mobilenetv2_yolov3.param",
     "format":   "ncnn",
+    "tags":     "validation",
     "link":     "https://github.com/Tencent/ncnn"
   },
   {
@@ -4092,7 +4091,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/12329067/candy.json.zip",
     "format":   "ONNX v3",
     "assert":   "model.graphs[0].nodes[2].attributes[1].visible == false",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -4640,7 +4638,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/12444489/sparse_initializer_as_output.json.zip[sparse_initializer_as_output.json]",
     "format":   "ONNX v7",
     "assert":   "model.graphs[0].outputs[0].value[0].type.layout == 'sparse'",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/741"
   },
   {
@@ -4728,7 +4725,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/14812772/test_mi_overloaded_function.zip[test_mi_overloaded_function.onnx]",
     "format":   "ONNX v10",
     "assert":   "model.graphs[0].nodes[0].type.identifier == 'cast:to_int32'",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/884"
   },
   {
@@ -4935,7 +4931,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/6273773/int4-model.zip[int4-model.bin,int4-model.xml]",
     "format":   "OpenVINO IR",
     "assert":   "model.graphs[0].nodes.length == 223",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/pull/715"
   },
   {
@@ -4943,6 +4938,7 @@
     "target":   "openvino_i4_matmul_model.xml,openvino_i4_matmul_model.bin",
     "source":   "https://github.com/lutzroeder/netron/files/13059592/openvino_i4_matmul_model.zip[openvino_i4_matmul_model.xml,openvino_i4_matmul_model.bin]",
     "format":   "OpenVINO IR",
+    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/191"
   },
   {
@@ -5997,7 +5993,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/11149538/model.ptl.zip[model.ptl]",
     "format":   "TorchScript v1.6",
     "assert":   "model.graphs[0].nodes[0].inputs[1].type == 'object'",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/1067"
   },
   {
@@ -6571,7 +6566,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/9541426/sparse_coo.pth.zip[sparse_coo.pth]",
     "format":   "PyTorch v1.6",
     "assert":   "model.graphs[0].nodes[0].inputs[0].value[0].type.layout == 'sparse.coo'",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/1320"
   },
   {
@@ -7109,7 +7103,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/13689293/model.safetensors.index.json.zip[model.safetensors.index.json,model.safetensors]",
     "format":   "Safetensors",
     "assert":   "model.graphs[0].nodes[0].inputs[0].name == 'float32'",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/1113"
   },
   {
@@ -7557,7 +7550,6 @@
     "target":   "conv-layers.pb.zip",
     "source":   "https://github.com/lutzroeder/netron/files/2592468/conv-layers.pb.zip",
     "format":   "TensorFlow Graph",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/187"
   },
   {
@@ -7581,7 +7573,6 @@
     "format":   "TensorFlow Event File v2",
     "producer": "PyTorch",
     "assert":   "model.graphs[0].nodes[0].type.name == 'aten::_convolution'",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/638"
   },
   {
@@ -7778,6 +7769,7 @@
     "target":   "pose_estimation_for_mobile.pb",
     "source":   "https://raw.githubusercontent.com/edvardHua/PoseEstimationForMobile/master/release/cpm_model/model.pb",
     "format":   "TensorFlow Graph",
+    "tags":     "validation",
     "link":     "https://github.com/edvardHua/PoseEstimationForMobile"
   },
   {
@@ -7996,7 +7988,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/9507072/complex64.tflite.zip[complex64.tflite]",
     "format":   "TensorFlow Lite v3",
     "assert":   "model.graphs[0].nodes[6].attributes[0].name == 'T'",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/964"
   },
   {
@@ -8103,7 +8094,7 @@
     "target":   "mobilenet_v1_0.75_160_quantized.tflite",
     "source":   "https://github.com/lutzroeder/netron/files/4569400/mobilenet_v1_0.75_160_quantized.zip[mobilenet_v1_0.75_160_quantized.tflite]",
     "format":   "TensorFlow Lite v3",
-    "tags":     "validation,quantization",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/481"
   },
   {
@@ -8175,7 +8166,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/13687443/signature_tflite_samples.zip[signature_concrete_functions.tflite]",
     "format":   "TensorFlow Lite v3",
     "assert":   "model.graphs[0].nodes[0].attributes[0].value[0] == 'StringToNumber'",
-    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/783"
   },
   {
