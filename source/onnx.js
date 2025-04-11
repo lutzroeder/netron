@@ -917,10 +917,6 @@ onnx.Context.Model = class {
         }
     }
 
-    get imageFormat()  {
-        return this._imageFormat;
-    }
-
     graph(value) {
         if (value === null) {
             return this._graph;
@@ -1074,6 +1070,55 @@ onnx.Context.Model = class {
             }
         }
         return new onnx.Argument(name, value, type, attribute.doc_string, visible);
+    }
+
+    createType(type) {
+        if (!type) {
+            return null;
+        }
+        let denotation = '';
+        switch (type.denotation) {
+            case undefined:
+            case null:
+            case '':
+                break;
+            case 'TENSOR':
+                denotation = 'Tensor';
+                break;
+            case 'IMAGE':
+                denotation = `Image${this._imageFormat ? `(${this._imageFormat.join(',')})` : ''}`;
+                break;
+            case 'AUDIO':
+                denotation = 'Audio';
+                break;
+            case 'TEXT':
+                denotation = 'Text';
+                break;
+            default:
+                throw new onnx.Error(`Unsupported tensor type denotation '${type.denotation}'.`);
+        }
+        if (type.tensor_type) {
+            const tensor_type = type.tensor_type;
+            const shape = tensor_type.shape && tensor_type.shape.dim ? tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value || null) : [];
+            return this.createTensorType(tensor_type.elem_type, shape, null, denotation);
+        } else if (type.sparse_tensor_type) {
+            type = type.sparse_tensor_type;
+            const shape = type.shape && type.shape.dim ? type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value || null) : [];
+            return this.createTensorType(type.elem_type, shape, 'sparse', denotation);
+        } else if (type.map_type) {
+            const keyType = this.createDataType(type.map_type.key_type);
+            const valueType = this.createType(type.map_type.value_type);
+            return new onnx.MapType(keyType, valueType, denotation);
+        } else if (type.sequence_type) {
+            return new onnx.SequenceType(this.createType(type.sequence_type.elem_type), denotation);
+        } else if (type.opaque_type) {
+            return new onnx.OpaqueType(type.opaque_type.domain, type.opaque_type.name);
+        } else if (type.optional_type) {
+            return new onnx.OptionalType(this.createType(type.optional_type.elem_type), denotation);
+        } else if (Object.keys(type).length === 0) {
+            return null;
+        }
+        throw new onnx.Error(`Unsupported tensor type '${JSON.stringify(type)}'.`);
     }
 
     createDataType(value) {
@@ -1352,52 +1397,7 @@ onnx.Context.Graph = class {
     }
 
     createType(type) {
-        if (!type) {
-            return null;
-        }
-        let denotation = '';
-        switch (type.denotation) {
-            case undefined:
-            case null:
-            case '':
-                break;
-            case 'TENSOR':
-                denotation = 'Tensor';
-                break;
-            case 'IMAGE':
-                denotation = `Image${this._context.imageFormat ? `(${this._context.imageFormat.join(',')})` : ''}`;
-                break;
-            case 'AUDIO':
-                denotation = 'Audio';
-                break;
-            case 'TEXT':
-                denotation = 'Text';
-                break;
-            default:
-                throw new onnx.Error(`Unsupported tensor type denotation '${type.denotation}'.`);
-        }
-        if (type.tensor_type) {
-            const tensor_type = type.tensor_type;
-            const shape = tensor_type.shape && tensor_type.shape.dim ? tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value || null) : [];
-            return this.createTensorType(tensor_type.elem_type, shape, null, denotation);
-        } else if (type.sparse_tensor_type) {
-            type = type.sparse_tensor_type;
-            const shape = type.shape && type.shape.dim ? type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value || null) : [];
-            return this.createTensorType(type.elem_type, shape, 'sparse', denotation);
-        } else if (type.map_type) {
-            const keyType = this.createDataType(type.map_type.key_type);
-            const valueType = this.createType(type.map_type.value_type);
-            return new onnx.MapType(keyType, valueType, denotation);
-        } else if (type.sequence_type) {
-            return new onnx.SequenceType(this.createType(type.sequence_type.elem_type), denotation);
-        } else if (type.opaque_type) {
-            return new onnx.OpaqueType(type.opaque_type.domain, type.opaque_type.name);
-        } else if (type.optional_type) {
-            return new onnx.OptionalType(this.createType(type.optional_type.elem_type), denotation);
-        } else if (Object.keys(type).length === 0) {
-            return null;
-        }
-        throw new onnx.Error(`Unsupported tensor type '${JSON.stringify(type)}'.`);
+        return this._context.createType(type);
     }
 
     createTensorType(dataType, shape, layout, denotation) {
