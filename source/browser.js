@@ -486,8 +486,14 @@ host.BrowserHost = class {
     async _openContext(context) {
         this._telemetry.set('session_engaged', 1);
         try {
+            const attachment = await this._view.attach(context);
+            if (attachment) {
+                this._view.show(null);
+                return 'context-open-attachment';
+            }
             const model = await this._view.open(context);
             if (model) {
+                this._view.show(null);
                 this.document.title = context.name || context.identifier;
                 return '';
             }

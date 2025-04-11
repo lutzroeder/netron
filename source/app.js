@@ -73,6 +73,10 @@ app.Application = class {
             this._dropPaths(event.sender, paths);
             event.returnValue = null;
         });
+        electron.ipcMain.on('update-recents', (event, data) => {
+            this._updateRecents(data.path);
+            event.returnValue = null;
+        });
         electron.ipcMain.on('show-save-dialog', async (event, options) => {
             const owner = event.sender.getOwnerBrowserWindow();
             const argument = {};
@@ -228,7 +232,6 @@ app.Application = class {
         for (const path of paths) {
             if (view) {
                 view.open(path);
-                this._updateRecents(path);
                 view = null;
             } else {
                 this._openPath(path);
@@ -285,7 +288,6 @@ app.Application = class {
         const view = this._views.activeView;
         if (view && view.path) {
             view.open(view.path);
-            this._updateRecents(view.path);
         }
     }
 

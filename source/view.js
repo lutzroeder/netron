@@ -19,6 +19,7 @@ view.View = class {
         };
         this._options = { ...this._defaultOptions };
         this._model = null;
+        this._metrics = new metrics.Metrics();
         this._stack = [];
         this._selection = [];
         this._sidebar = new view.Sidebar(this._host);
@@ -285,6 +286,10 @@ view.View = class {
 
     get model() {
         return this._model;
+    }
+
+    get metrics() {
+        return this._metrics;
     }
 
     get options() {
@@ -713,6 +718,13 @@ view.View = class {
             error.context = !error.context && context && context.identifier ? context.identifier : error.context || '';
             throw error;
         }
+    }
+
+    async attach(context) {
+        if (this._model && await this._metrics.open(context)) {
+            return true;
+        }
+        return false;
     }
 
     async _updateActiveTarget(stack) {
@@ -2836,6 +2848,13 @@ view.NodeSidebar = class extends view.ObjectSidebar {
                 this.addArgument(entry.name, entry, 'attribute');
             }
         }
+        const metrics = this._view.metrics.node(node);
+        if (Array.isArray(metrics) && metrics.length > 0) {
+            this.addSection('Metrics');
+            for (const metric of metrics) {
+                this.addArgument(metric.name, metric);
+            }
+        }
     }
 
     addArgument(name, argument, source) {
@@ -3502,6 +3521,13 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
                 this.addProperty(metadata.name, metadata.value);
             }
         }
+        const metrics = this._view.metrics.value(value);
+        if (Array.isArray(metrics) && metrics.length > 0) {
+            this.addSection('Metrics');
+            for (const argument of metrics) {
+                this.addProperty(argument.name, argument.value);
+            }
+        }
     }
 
     addNodeList(name, list) {
@@ -3604,11 +3630,12 @@ view.TensorSidebar = class extends view.ObjectSidebar {
                 this._tensor = new base.Tensor(tensor);
                 if (!this._tensor.empty) {
                     if (!this._metrics) {
-                        this._metrics = new metrics.Tensor(this._tensor);
+                        const tensor = new metrics.Tensor(this._tensor);
+                        this._metrics = this._view.metrics.tensor(tensor);
                     }
-                    if (this._metrics.metrics.length > 0) {
+                    if (this._metrics.length > 0) {
                         this.addSection('Metrics');
-                        for (const metric of this._metrics.metrics) {
+                        for (const metric of this._metrics) {
                             const value = metric.type === 'percentage' ? `${(metric.value * 100).toFixed(1)}%` : metric.value;
                             this.addProperty(metric.name, [value]);
                         }
@@ -3674,7 +3701,7 @@ view.ModelSidebar = class extends view.ObjectSidebar {
                 this.addProperty(argument.name, argument.value);
             }
         }
-        const metrics = model.metrics;
+        const metrics = this._view.metrics.model(model);
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
@@ -3740,7 +3767,7 @@ view.TargetSidebar = class extends view.ObjectSidebar {
                 this.addProperty(argument.name, argument.value);
             }
         }
-        const metrics = target.metrics;
+        const metrics = this._view.metrics.graph(target);
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
@@ -5301,6 +5328,67 @@ markdown.Generator = class {
     }
 };
 
+metrics.Metrics = class {
+
+    constructor() {
+        this._metrics = new Map();
+    }
+
+    async open(context) {
+        const content = new view.Context(context);
+        if (content.identifier.toLowerCase().endsWith('.metrics.json')) {
+            const data = await content.peek('json');
+            if (data && data.signature === 'metrics' && Array.isArray(data.metrics)) {
+                this._metrics.clear();
+                for (const metric of data.metrics) {
+                    if (metric.kind && 'target' in metric) {
+                        const key = `${metric.kind}::${metric.target}`;
+                        if (!this._metrics.has(key)) {
+                            this._metrics.set(key, new Map());
+                        }
+                        const entries = this._metrics.get(key);
+                        entries.set(metric.name, { value: metric.value, type: metric.type });
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    metrics(entries, type, name) {
+        const result = new Map(entries.map((metric) => [metric.name, metric]));
+        const key = `${type}::${name}`;
+        if (this._metrics.has(key)) {
+            for (const [name, metric] of this._metrics.get(key)) {
+                result.set(name, new metrics.Argument(name, metric.value, metric.type || 'attribute'));
+            }
+        }
+        return Array.from(result.values());
+    }
+
+    model(value) {
+        return this.metrics(value.metrics || [], 'model', '');
+    }
+
+    graph(value) {
+        return this.metrics(value.metrics || [], 'graph', value.name || '');
+    }
+
+    node(value) {
+        return this.metrics(value.metrics || [], 'node', value.name);
+    }
+
+    value(value) {
+        const name = (value.name || '').split('\n').shift();
+        return this.metrics(value.metrics || [], 'value', name);
+    }
+
+    tensor(value) {
+        return this.metrics(value.metrics || [], 'tensor', value.name);
+    }
+};
+
 metrics.Argument = class {
 
     constructor(name, value, type) {
@@ -5315,6 +5403,10 @@ metrics.Tensor = class {
     constructor(tensor) {
         this._tensor = tensor;
         this._metrics = null;
+    }
+
+    get name() {
+        return this._tensor.name || '';
     }
 
     get metrics() {
@@ -6026,6 +6118,7 @@ view.ModelFactoryService = class {
                     { name: 'Netron metadata', tags: ['[].name', '[].category'] },
                     { name: 'Netron test data', tags: ['[].type', '[].target', '[].source', '[].format', '[].link'] },
                     { name: 'Netron configuration', tags: ['recents', 'consent'] },
+                    { name: 'Netron metrics data', tags: ['signature', 'metrics'] },
                     { name: 'Darkflow metadata', tags: ['net', 'type', 'model'] },
                     { name: 'keras-yolo2 configuration', tags: ['model', 'train', 'valid'] },
                     { name: 'Vulkan SwiftShader ICD manifest', tags: ['file_format_version', 'ICD'] },
@@ -6063,7 +6156,7 @@ view.ModelFactoryService = class {
                     { name: 'Jupyter Notebook data', tags: ['cells', 'nbformat'] },
                     { name: 'Kaggle credentials', tags: ['username','key'] },
                     { name: '.NET runtime configuration', tags: ['runtimeOptions.configProperties'] },
-                    { name: '.NET dependency manifest', tags: ['runtimeTarget', 'targets', 'libraries'] }
+                    { name: '.NET dependency manifest', tags: ['runtimeTarget', 'targets', 'libraries'] },
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {

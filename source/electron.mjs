@@ -462,17 +462,23 @@ host.ElectronHost = class {
                 return;
             }
             try {
-                const model = await this._view.open(context);
-                this._view.show(null);
-                const options = { ...this._view.options };
-                if (model) {
-                    options.path = path;
-                    this._title(location.label);
+                const attachment = await this._view.attach(context);
+                if (attachment) {
+                    this._view.show(null);
                 } else {
-                    options.path = path;
-                    this._title('');
+                    const model = await this._view.open(context);
+                    this._view.show(null);
+                    const options = { ...this._view.options };
+                    if (model) {
+                        options.path = path;
+                        this._title(location.label);
+                    } else {
+                        options.path = path;
+                        this._title('');
+                    }
+                    electron.ipcRenderer.send('update-recents', { path });
+                    this.update(options);
                 }
-                this.update(options);
             } catch (error) {
                 const options = { ...this._view.options };
                 if (error) {
