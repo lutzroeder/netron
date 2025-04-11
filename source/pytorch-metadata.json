@@ -912,6 +912,9 @@
     "name": "aten::_pad_packed_sequence(Tensor data, Tensor batch_sizes, bool batch_first, Scalar padding_value, int total_length) -> (Tensor, Tensor)"
   },
   {
+    "name": "aten::_prelu_kernel(Tensor self, Tensor weight) -> Tensor"
+  },
+  {
     "name": "aten::_scaled_dot_product_efficient_attention(Tensor query, Tensor key, Tensor value, Tensor? attn_bias, bool compute_log_sumexp, float dropout_p=0., bool is_causal=False, *, float? scale=None) -> (Tensor output, Tensor log_sumexp, Tensor philox_seed, Tensor philox_offset)"
   },
   {
@@ -1876,6 +1879,9 @@
   },
   {
     "name": "aten::channel_shuffle.out(Tensor self, SymInt groups, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::chr(int i) -> str"
   },
   {
     "name": "aten::chunk(Tensor(a -> *) self, int chunks, int dim=0) -> Tensor(a)[]"
@@ -3816,7 +3822,8 @@
     "category": "Layer"
   },
   {
-    "name": "aten::linear.out(Tensor input, Tensor weight, Tensor? bias=None, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::linear.out(Tensor input, Tensor weight, Tensor? bias=None, *, Tensor(a!) out) -> Tensor(a!)",
+    "category": "Layer"
   },
   {
     "name": "aten::linear_backward.out(Tensor self, Tensor grad_output, Tensor weight, bool[3] output_mask, *, Tensor(a!) out0, Tensor(b!) out1, Tensor(c!) out2) -> (Tensor(a!), Tensor(b!), Tensor(c!))"
@@ -5560,6 +5567,21 @@
   {
     "name": "aten::selu_(Tensor(a!) self) -> Tensor(a!)",
     "category": "Activation"
+  },
+  {
+    "name": "aten::set_.source_Storage_storage_offset(Tensor(a!) self, Storage source, SymInt storage_offset, SymInt[] size, SymInt[] stride=[]) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::set_.source_Tensor(Tensor(a!) self, Tensor source) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::set_(Tensor(a!) self) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::set_.source_Storage(Tensor(a!) self, Storage source) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::set_.source_Tensor_storage_offset(Tensor(a!) self, Tensor source, SymInt storage_offset, SymInt[] size, SymInt[] stride=[]) -> Tensor(a!)"
   },
   {
     "name": "aten::set_grad_enabled(bool val) -> ()"
