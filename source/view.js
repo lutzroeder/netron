@@ -1965,8 +1965,10 @@ view.Graph = class extends grapher.Graph {
                 if (argument.visible !== false) {
                     const viewOutput = this.createOutput(argument);
                     this.setNode(viewOutput);
-                    for (const value of argument.value) {
-                        this.createValue(value).to.push(viewOutput);
+                    if (Array.isArray(argument.value)) {
+                        for (const value of argument.value) {
+                            this.createValue(value).to.push(viewOutput);
+                        }
                     }
                 }
             }
@@ -2301,14 +2303,16 @@ view.Output = class extends grapher.Node {
         super();
         this.context = context;
         this.value = value;
-        const types = value.value.map((argument) => argument.type || '').join('\n');
-        let name = value.name || '';
-        if (name.length > 16) {
-            name = name.split('/').pop();
+        if (Array.isArray(value.value)) {
+            const types = value.value.map((argument) => argument.type || '').join('\n');
+            let name = value.name || '';
+            if (name.length > 16) {
+                name = name.split('/').pop();
+            }
+            const header = this.header();
+            const title = header.add(null, ['graph-item-output'], name, types);
+            title.on('click', () => this.context.view.showTargetProperties());
         }
-        const header = this.header();
-        const title = header.add(null, ['graph-item-output'], name, types);
-        title.on('click', () => this.context.view.showTargetProperties());
     }
 
     get inputs() {
@@ -3033,19 +3037,8 @@ view.ArgumentView = class extends view.Control {
     }
 
     toggle() {
-        if (this._source === 'attribute') {
-            if (this._expander.innerText === '+') {
-                this._expander.innerText = '-';
-            } else {
-                this._expander.innerText = '+';
-                while (this._element.childElementCount > 2) {
-                    this._element.removeChild(this._element.lastChild);
-                }
-            }
-        } else {
-            for (const item of this._items) {
-                item.toggle();
-            }
+        for (const item of this._items) {
+            item.toggle();
         }
     }
 };

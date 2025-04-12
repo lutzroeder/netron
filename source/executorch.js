@@ -45,6 +45,7 @@ executorch.Model = class {
 executorch.Graph = class {
 
     constructor(target, plan, chain) {
+        this.name = plan.name || '';
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];

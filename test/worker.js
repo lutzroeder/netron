@@ -714,10 +714,12 @@ export class Target {
                 for (const output of signature.outputs) {
                     output.name.toString();
                     output.name.length;
-                    for (const value of output.value) {
-                        /* eslint-disable no-await-in-loop */
-                        await validateValue(value);
-                        /* eslint-enable no-await-in-loop */
+                    if (Array.isArray(output.value)) {
+                        for (const value of output.value) {
+                            /* eslint-disable no-await-in-loop */
+                            await validateValue(value);
+                            /* eslint-enable no-await-in-loop */
+                        }
                     }
                 }
             }
