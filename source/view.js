@@ -2735,6 +2735,12 @@ view.ObjectSidebar = class extends view.Control {
         this.element = this.createElement('div', 'sidebar-object');
     }
 
+    addSection(title) {
+        const element = this.createElement('div', 'sidebar-section');
+        element.innerText = title;
+        this.element.appendChild(element);
+    }
+
     addEntry(name, item) {
         const entry = new view.NameValueView(this._view, name, item);
         const element = entry.render();
@@ -2747,16 +2753,21 @@ view.ObjectSidebar = class extends view.Control {
         return item;
     }
 
-    addHeader(title) {
-        const element = this.createElement('h1', 'sidebar-header');
-        element.innerText = title;
-        this.element.appendChild(element);
-    }
-
-    addSection(title) {
-        const element = this.createElement('div', 'sidebar-section');
-        element.innerText = title;
-        this.element.appendChild(element);
+    addArgument(name, argument, source) {
+        const value = new view.ArgumentView(this._view, argument, source);
+        value.on('focus', (sender, value) => {
+            this.emit('focus', value);
+            this._focused = this._focused || new Set();
+            this._focused.add(value);
+        });
+        value.on('blur', (sender, value) => {
+            this.emit('blur', value);
+            this._focused = this._focused || new Set();
+            this._focused.delete(value);
+        });
+        value.on('select', (sender, value) => this.emit('select', value));
+        value.on('activate', (sender, value) => this.emit('activate', value));
+        this.addEntry(name, value);
     }
 
     error(error, fatal) {
@@ -2844,34 +2855,17 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         const metadata = node.metadata;
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
-            for (const entry of metadata) {
-                this.addArgument(entry.name, entry, 'attribute');
+            for (const argument of metadata) {
+                this.addArgument(argument.name, argument);
             }
         }
         const metrics = this._view.metrics.node(node);
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
-            for (const metric of metrics) {
-                this.addArgument(metric.name, metric);
+            for (const argument of metrics) {
+                this.addArgument(argument.name, argument);
             }
         }
-    }
-
-    addArgument(name, argument, source) {
-        const value = new view.ArgumentView(this._view, argument, source);
-        value.on('focus', (sender, value) => {
-            this.emit('focus', value);
-            this._focused = this._focused || new Set();
-            this._focused.add(value);
-        });
-        value.on('blur', (sender, value) => {
-            this.emit('blur', value);
-            this._focused = this._focused || new Set();
-            this._focused.delete(value);
-        });
-        value.on('select', (sender, value) => this.emit('select', value));
-        value.on('activate', (sender, value) => this.emit('activate', value));
-        this.addEntry(name, value);
     }
 
     activate() {
@@ -3517,15 +3511,15 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
         }
         if (Array.isArray(value.metadata) && value.metadata.length > 0) {
             this.addSection('Metadata');
-            for (const metadata of value.metadata) {
-                this.addProperty(metadata.name, metadata.value);
+            for (const argument of value.metadata) {
+                this.addArgument(argument.name, argument);
             }
         }
         const metrics = this._view.metrics.value(value);
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
-                this.addProperty(argument.name, argument.value);
+                this.addArgument(argument.name, argument);
             }
         }
     }
@@ -3618,7 +3612,7 @@ view.TensorSidebar = class extends view.ObjectSidebar {
             if (Array.isArray(metadata) && metadata.length > 0) {
                 this.addSection('Metadata');
                 for (const argument of tensor.metadata) {
-                    this.addProperty(argument.name, argument.value);
+                    this.addArgument(argument.name, argument);
                 }
             }
         }
@@ -3698,14 +3692,14 @@ view.ModelSidebar = class extends view.ObjectSidebar {
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
             for (const argument of metadata) {
-                this.addProperty(argument.name, argument.value);
+                this.addArgument(argument.name, argument);
             }
         }
         const metrics = this._view.metrics.model(model);
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
-                this.addProperty(argument.name, argument.value);
+                this.addArgument(argument.name, argument);
             }
         }
     }
@@ -3764,14 +3758,14 @@ view.TargetSidebar = class extends view.ObjectSidebar {
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
             for (const argument of metadata) {
-                this.addProperty(argument.name, argument.value);
+                this.addArgument(argument.name, argument);
             }
         }
         const metrics = this._view.metrics.graph(target);
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
-                this.addProperty(argument.name, argument.value);
+                this.addArgument(argument.name, argument);
             }
         }
     }
@@ -5341,8 +5335,8 @@ metrics.Metrics = class {
             if (data && data.signature === 'metrics' && Array.isArray(data.metrics)) {
                 this._metrics.clear();
                 for (const metric of data.metrics) {
-                    if (metric.kind && 'target' in metric) {
-                        const key = `${metric.kind}::${metric.target}`;
+                    if (metric.kind && ('target' in metric || 'identifier' in metric)) {
+                        const key = 'target' in metric ? `${metric.kind}::${metric.target}` : `${metric.kind}[${metric.identifier}]`;
                         if (!this._metrics.has(key)) {
                             this._metrics.set(key, new Map());
                         }
@@ -5356,9 +5350,10 @@ metrics.Metrics = class {
         return false;
     }
 
-    metrics(entries, type, name) {
+    metrics(entries, kind, value) {
         const result = new Map(entries.map((metric) => [metric.name, metric]));
-        const key = `${type}::${name}`;
+        const name = value.identifier === undefined ? `::${(value.name || '').split('\n').shift()}` : `[${value.identifier}]`;
+        const key = `${kind}${name}`;
         if (this._metrics.has(key)) {
             for (const [name, metric] of this._metrics.get(key)) {
                 result.set(name, new metrics.Argument(name, metric.value, metric.type || 'attribute'));
@@ -5372,20 +5367,19 @@ metrics.Metrics = class {
     }
 
     graph(value) {
-        return this.metrics(value.metrics || [], 'graph', value.name || '');
+        return this.metrics(value.metrics || [], 'graph', value);
     }
 
     node(value) {
-        return this.metrics(value.metrics || [], 'node', value.name);
+        return this.metrics(value.metrics || [], 'node', value);
     }
 
     value(value) {
-        const name = (value.name || '').split('\n').shift();
-        return this.metrics(value.metrics || [], 'value', name);
+        return this.metrics(value.metrics || [], 'value', value);
     }
 
     tensor(value) {
-        return this.metrics(value.metrics || [], 'tensor', value.name);
+        return this.metrics(value.metrics || [], 'tensor', value);
     }
 };
 
@@ -6598,7 +6592,7 @@ view.ModelFactoryService = class {
     async import() {
         if (this._host.type === 'Browser' || this._host.type === 'Python') {
             const files = [
-                './server', './onnx', './pytorch', './tflite', './mlnet',
+                './message', './onnx', './pytorch', './tflite', './mlnet',
                 './onnx-proto', './onnx-schema', './tflite-schema',
                 'onnx-metadata.json', 'pytorch-metadata.json', 'tflite-metadata.json'
             ];
