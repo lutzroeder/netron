@@ -24,9 +24,11 @@ def _write(path, content):
 def _update(path, regex, value):
     content = _read(path)
     def repl(match):
-        return match.group(1) + value + match.group(3)
+        return f"{match.group(1)}{value}{match.group(3)}"
     content = re.sub(regex, repl, content)
     _write(path, content)
+    if content.find(value) == -1:
+        raise ValueError(f"Failed to update '{path}' with '{value}'.")
 
 def _build():
     """ Build dist/pypi """
@@ -54,7 +56,7 @@ def _version():
         '(version\\s*=\\s*")(.*)(")',
         package["version"])
     _update("./dist/pypi/netron/server.py",
-        "(__version__ = ')(.*)(')",
+        '(__version__ = ")(.*)(")',
         package["version"])
     _update("./dist/pypi/netron/index.html",
         '(<meta name="version" content=")(.*)(">)',
