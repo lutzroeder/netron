@@ -1,5 +1,6 @@
 
 import * as base from '../source/base.js';
+import * as desktop from '../source/desktop.mjs';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as process from 'process';
@@ -97,11 +98,14 @@ host.TestHost = class {
         if (!exists) {
             throw new Error(`The file '${file}' does not exist.`);
         }
+        const stats = await fs.stat(pathname);
+        if (stats.isDirectory()) {
+            throw new Error(`The path '${file}' is a directory.`);
+        }
         if (encoding) {
             return await fs.readFile(pathname, encoding);
         }
-        const buffer = await fs.readFile(pathname, null);
-        return new base.BinaryStream(buffer);
+        return new desktop.FileStream(pathname, 0, stats.size, stats.mtimeMs);
     }
 
     event(/* name, params */) {
@@ -545,15 +549,14 @@ export class Target {
         const stat = await fs.stat(target);
         let context = null;
         if (stat.isFile()) {
-            const buffer = await fs.readFile(target, null);
-            const reader = new base.BinaryStream(buffer);
+            const stream = new desktop.FileStream(target, 0, stat.size, stat.mtimeMs);
             const dirname = path.dirname(target);
-            context = new host.TestHost.Context(this.host, dirname, identifier, reader, new Map());
+            context = new host.TestHost.Context(this.host, dirname, identifier, stream, new Map());
         } else if (stat.isDirectory()) {
             const entries = new Map();
             const file = async (pathname) => {
-                const buffer = await fs.readFile(pathname, null);
-                const stream = new base.BinaryStream(buffer);
+                const stat = await fs.stat(pathname);
+                const stream = new desktop.FileStream(pathname, 0, stat.size, stat.mtimeMs);
                 const name = pathname.split(path.sep).join(path.posix.sep);
                 entries.set(name, stream);
             };
