@@ -928,6 +928,11 @@ onnx.Context.Model = class {
     }
 
     get functions() {
+        for (const [, func] of this._functions) {
+            if (func instanceof onnx.Function === false) {
+                this.type(func.domain, func.name, func.overload);
+            }
+        }
         return Array.from(this._functions.values());
     }
 
@@ -948,7 +953,7 @@ onnx.Context.Model = class {
             let value = null;
             if (this._functions.has(key)) {
                 value = this._functions.get(key);
-                if (value.domain !== undefined) {
+                if (value && value instanceof onnx.Function === false) {
                     value = new onnx.Function(this, value);
                     this._functions.set(key, value);
                 }

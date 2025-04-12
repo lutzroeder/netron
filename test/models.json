@@ -4778,6 +4778,14 @@
   },
   {
     "type":     "onnx",
+    "target":   "welch_psd.onnx",
+    "source":   "https://github.com/user-attachments/files/19722333/welch_psd.onnx.zip[welch_psd.onnx]",
+    "format":   "ONNX v9",
+    "producer": "pytorch 2.5.1+cu124",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "yolov3.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/8942116/yolov3.onnx.zip",
     "format":   "ONNX v5",

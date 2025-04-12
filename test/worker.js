@@ -625,7 +625,7 @@ export class Target {
             // continue
         }
         /* eslint-disable no-unused-expressions */
-        const validateGraph = async (graph) => {
+        const validateTarget = async (graph) => {
             const values = new Map();
             const validateValue = async (value) => {
                 if (value === null) {
@@ -733,7 +733,7 @@ export class Target {
                 }
                 if (Array.isArray(type.nodes)) {
                     /* eslint-disable no-await-in-loop */
-                    await validateGraph(type);
+                    await validateTarget(type);
                     /* eslint-enable no-await-in-loop */
                 }
                 view.Documentation.open(type);
@@ -751,7 +751,7 @@ export class Target {
                         const value = attribute.value;
                         if ((type === 'graph' || type === 'function') && value && Array.isArray(value.nodes)) {
                             /* eslint-disable no-await-in-loop */
-                            await validateGraph(value);
+                            await validateTarget(value);
                             /* eslint-enable no-await-in-loop */
                         } else {
                             let text = new view.Formatter(attribute.value, attribute.type).toString();
@@ -808,10 +808,15 @@ export class Target {
             const sidebar = new view.ModelSidebar(this.view, this.model, graph);
             sidebar.render();
         };
-        /* eslint-enable no-unused-expressions */
         for (const graph of this.model.graphs) {
             /* eslint-disable no-await-in-loop */
-            await validateGraph(graph);
+            await validateTarget(graph);
+            /* eslint-enable no-await-in-loop */
+        }
+        const functions = this.model.functions || [];
+        for (const func of functions) {
+            /* eslint-disable no-await-in-loop */
+            await validateTarget(func);
             /* eslint-enable no-await-in-loop */
         }
     }
