@@ -3398,6 +3398,7 @@ python.Execution = class {
         this.registerType('sklearn.compose._target.TransformedTargetRegressor', class {});
         this.registerType('sklearn.cross_decomposition._pls.PLSRegression', class {});
         this.registerType('sklearn.decomposition._fastica.FastICA', class {});
+        this.registerType('sklearn.decomposition._incremental_pca.IncrementalPCA', class {});
         this.registerType('sklearn.decomposition._pca.PCA', class {});
         this.registerType('sklearn.decomposition._truncated_svd.TruncatedSVD', class {});
         this.registerType('sklearn.decomposition.pca.PCA', class {});
@@ -3492,6 +3493,7 @@ python.Execution = class {
         this.registerType('sklearn.linear_model._sgd_fast.ModifiedHuber', class {});
         this.registerType('sklearn.linear_model._sgd_fast.SquaredHinge', class {});
         this.registerType('sklearn.linear_model._stochastic_gradient.SGDClassifier', class {});
+        this.registerType('sklearn.linear_model._stochastic_gradient.SGDRegressor', class {});
         this.registerType('sklearn.linear_model.base.LinearRegression', class {});
         this.registerType('sklearn.linear_model.sgd_fast.Hinge', class {});
         this.registerType('sklearn.linear_model.LogisticRegression', class {});
