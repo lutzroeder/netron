@@ -38,7 +38,7 @@ def _build():
     shutil.copyfile(
         os.path.join(root_dir, "pyproject.toml"),
         os.path.join(dist_pypi_dir, "pyproject.toml"))
-    os.remove(os.path.join(dist_pypi_dir, "netron", "electron.mjs"))
+    os.remove(os.path.join(dist_pypi_dir, "netron", "desktop.mjs"))
     os.remove(os.path.join(dist_pypi_dir, "netron", "app.js"))
 
 def _install():

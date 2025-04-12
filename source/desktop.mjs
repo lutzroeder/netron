@@ -9,9 +9,9 @@ import * as path from 'path';
 import * as url from 'url';
 import * as view from './view.js';
 
-const host = {};
+const desktop = {};
 
-host.ElectronHost = class {
+desktop.Host = class {
 
     constructor() {
         this._document = window.document;
@@ -350,7 +350,7 @@ host.ElectronHost = class {
                 } else if (encoding) {
                     reject(new Error(`The file '${file}' size (${stat.size.toString()}) for encoding '${encoding}' is greater than 2 GB.`));
                 } else {
-                    resolve(new host.ElectronHost.FileStream(pathname, 0, stat.size, stat.mtimeMs));
+                    resolve(new desktop.FileStream(pathname, 0, stat.size, stat.mtimeMs));
                 }
             });
         });
@@ -420,7 +420,7 @@ host.ElectronHost = class {
         if (stat.isFile()) {
             const dirname = path.dirname(location);
             const stream = await this.request(basename, null, dirname);
-            return new host.ElectronHost.Context(this, dirname, basename, stream);
+            return new desktop.Context(this, dirname, basename, stream);
         } else if (stat.isDirectory()) {
             const entries = new Map();
             const walk = (dir) => {
@@ -430,14 +430,14 @@ host.ElectronHost = class {
                     if (stat.isDirectory()) {
                         walk(pathname);
                     } else if (stat.isFile()) {
-                        const stream = new host.ElectronHost.FileStream(pathname, 0, stat.size, stat.mtimeMs);
+                        const stream = new desktop.FileStream(pathname, 0, stat.size, stat.mtimeMs);
                         const name = pathname.split(path.sep).join(path.posix.sep);
                         entries.set(name, stream);
                     }
                 }
             };
             walk(location);
-            return new host.ElectronHost.Context(this, location, basename, null, entries);
+            return new desktop.Context(this, location, basename, null, entries);
         }
         throw new Error(`Unsupported path stat '${JSON.stringify(stat)}'.`);
     }
@@ -607,7 +607,7 @@ host.ElectronHost = class {
     }
 };
 
-host.ElectronHost.FileStream = class {
+desktop.FileStream = class {
 
     constructor(file, start, length, mtime) {
         this._file = file;
@@ -626,7 +626,7 @@ host.ElectronHost.FileStream = class {
     }
 
     stream(length) {
-        const file = new host.ElectronHost.FileStream(this._file, this._position, length, this._mtime);
+        const file = new desktop.FileStream(this._file, this._start + this._position, length, this._mtime);
         this.skip(length);
         return file;
     }
@@ -703,7 +703,7 @@ host.ElectronHost.FileStream = class {
     }
 };
 
-host.ElectronHost.Context = class {
+desktop.Context = class {
 
     constructor(host, folder, identifier, stream, entries) {
         this._host = host;
@@ -738,8 +738,12 @@ host.ElectronHost.Context = class {
     }
 };
 
-window.addEventListener('load', () => {
-    const value = new host.ElectronHost();
-    window.__view__ = new view.View(value);
-    window.__view__.start();
-});
+if (typeof window !== 'undefined') {
+    window.addEventListener('load', () => {
+        const value = new desktop.Host();
+        window.__view__ = new view.View(value);
+        window.__view__.start();
+    });
+}
+
+export const FileStream = desktop.FileStream;

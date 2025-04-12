@@ -660,7 +660,7 @@ app.View = class {
             width: size.width > 1024 ? 1024 : size.width,
             height: size.height > 768 ? 768 : size.height,
             webPreferences: {
-                preload: path.join(dirname, 'electron.mjs'),
+                preload: path.join(dirname, 'desktop.mjs'),
                 nodeIntegration: true,
                 enableDeprecatedPaste: true
             }
