@@ -2160,6 +2160,7 @@
     "target":   "mobilenet_v2.pte",
     "source":   "https://github.com/user-attachments/files/18462557/mobilenet_v2.pte.zip[mobilenet_v2.pte]",
     "format":   "ExecuTorch v0",
+    "tags":     "validation",
     "link":     "https://github.com/lutzroeder/netron/issues/1211"
   },
   {
@@ -2173,6 +2174,13 @@
     "type":     "executorch",
     "target":   "mv2_vulkan.pte",
     "source":   "https://github.com/user-attachments/files/18514115/mv2_vulkan.pte.zip[mv2_vulkan.pte]",
+    "format":   "ExecuTorch v0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1175"
+  },
+  {
+    "type":     "executorch",
+    "target":   "nanogpt.pte.zip",
+    "source":   "https://github.com/user-attachments/files/19726086/nanogpt.pte.zip",
     "format":   "ExecuTorch v0",
     "link":     "https://github.com/lutzroeder/netron/issues/1175"
   },

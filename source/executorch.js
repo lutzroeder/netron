@@ -50,6 +50,21 @@ executorch.Graph = class {
         this.outputs = [];
         this.nodes = [];
         const values = new Map();
+        values.tensors = (index, items) => {
+            const list = [];
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const type = item ? new executorch.TensorType(item) : null;
+                let initializer = null;
+                if (item && item.data_buffer_idx > 0) {
+                    initializer = new executorch.Tensor(item, target);
+                }
+                const identifier = items.length > 1 ? `${index}.${i}` : index.toString();
+                const value = new executorch.Value(identifier, type, initializer);
+                list.push(value);
+            }
+            return list;
+        };
         values.map = (index, output) => {
             if (!values.has(index)) {
                 const executorch_flatbuffer = executorch.schema.executorch_flatbuffer;
@@ -58,34 +73,32 @@ executorch.Graph = class {
                 if (output && !tensor) {
                     const value = [new executorch.Value(index.toString(), null, null)];
                     values.set(index, { type: null, value });
-                } else if (tensor) {
-                    const tensors = val instanceof executorch_flatbuffer.Tensor ? [val] : Array.from(val.items).map((arg) => plan.values[arg].val);
-                    const list = [];
-                    for (let i = 0; i < tensors.length; i++) {
-                        const tensor = tensors[i];
-                        const type = new executorch.TensorType(tensor);
-                        let initializer = null;
-                        if (val.data_buffer_idx > 0) {
-                            initializer = new executorch.Tensor(tensor, target);
-                        }
-                        const identifier = tensors.length > 1 ? `${index}.${i}` : index.toString();
-                        const value = new executorch.Value(identifier, type, initializer);
-                        list.push(value);
-                    }
-                    values.set(index, { type: null, value: list });
-                } else if (val instanceof executorch_flatbuffer.Bool) {
-                    values.set(index, { type: 'int64', value: val.bool_val });
+                } else if (val instanceof executorch_flatbuffer.Null) {
+                    values.set(index, { type: 'attribute', value: null });
                 } else if (val instanceof executorch_flatbuffer.Int) {
                     values.set(index, { type: 'int64', value: val.int_val });
+                } else if (val instanceof executorch_flatbuffer.Bool) {
+                    values.set(index, { type: 'int64', value: val.bool_val });
+                } else if (val instanceof executorch_flatbuffer.Double) {
+                    values.set(index, { type: 'float64', value: val.double_val });
+                } else if (val instanceof executorch_flatbuffer.Tensor) {
+                    const items = [val];
+                    values.set(index, { type: null, value: values.tensors(index, items) });
+                } else if (val instanceof executorch_flatbuffer.String) {
+                    values.set(index, { type: 'string', value: val.string_val });
                 } else if (val instanceof executorch_flatbuffer.IntList) {
                     const list = val.items.map((index) => plan.values[index].val.int_val);
                     values.set(index, { type: 'int64[]', value: list });
-                } else if (val instanceof executorch_flatbuffer.Double) {
-                    values.set(index, { type: 'float64', value: val.double_val });
-                } else if (val instanceof executorch_flatbuffer.String) {
-                    values.set(index, { type: 'string', value: val.string_val });
-                } else if (val instanceof executorch_flatbuffer.Null) {
-                    values.set(index, { type: 'attribute', value: null });
+                } else if (val instanceof executorch_flatbuffer.DoubleList) {
+                    throw new executorch.Error('executorch_flatbuffer.DoubleList not implemented.');
+                } else if (val instanceof executorch_flatbuffer.BoolList) {
+                    throw new executorch.Error('executorch_flatbuffer.BoolList not implemented.');
+                } else if (val instanceof executorch_flatbuffer.TensorList) {
+                    const items = Array.from(val.items).map((arg) => arg === -1 ? null : plan.values[arg].val);
+                    values.set(index, { type: null, value: values.tensors(index, items) });
+                } else if (val instanceof executorch_flatbuffer.OptionalTensorList) {
+                    const items = Array.from(val.items).map((arg) => arg === -1 ? null : plan.values[arg].val);
+                    values.set(index, { type: null, value: values.tensors(index, items) });
                 } else {
                     throw new Error(`Value type '${val.constructor.name}' not implemented.`);
                 }
