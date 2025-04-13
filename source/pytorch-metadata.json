@@ -436,6 +436,9 @@
     "name": "_caffe2::RoIAlign(Tensor features, Tensor rois, str order, float spatial_scale, int pooled_h, int pooled_w, int sampling_ratio, bool aligned, Tensor[]? _caffe2_preallocated_outputs=None) -> Tensor"
   },
   {
+    "name": "aqlm::code2x8_lut_matmat.out(Tensor input, Tensor codes, Tensor codebooks, Tensor scales, Tensor? bias, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::Bool.Tensor(Tensor a) -> bool"
   },
   {
@@ -2562,7 +2565,8 @@
     "category": "Transform"
   },
   {
-    "name": "aten::embedding.out(Tensor weight, Tensor indices, SymInt padding_idx=-1, bool scale_grad_by_freq=False, bool sparse=False, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::embedding.out(Tensor weight, Tensor indices, SymInt padding_idx=-1, bool scale_grad_by_freq=False, bool sparse=False, *, Tensor(a!) out) -> Tensor(a!)",
+    "category": "Transform"
   },
   {
     "name": "aten::embedding_bag(Tensor weight, Tensor indices, Tensor offsets, bool scale_grad_by_freq=False, int mode=0, bool sparse=False, Tensor? per_sample_weights=None, bool include_last_offset=False) -> (Tensor, Tensor, Tensor, Tensor)",
@@ -3115,7 +3119,8 @@
     "category": "Activation"
   },
   {
-    "name": "aten::gelu.out(Tensor self, *, str approximate=\"none\", Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::gelu.out(Tensor self, *, str approximate=\"none\", Tensor(a!) out) -> Tensor(a!)",
+    "category": "Activation"
   },
   {
     "name": "aten::gelu_(Tensor(a!) self, *, str approximate=\"none\") -> Tensor(a!)",
@@ -4518,7 +4523,8 @@
     "category": "Normalization"
   },
   {
-    "name": "aten::native_layer_norm.out(Tensor input, SymInt[] normalized_shape, Tensor? weight, Tensor? bias, float eps, *, Tensor(a!) out0, Tensor(b!) out1, Tensor(c!) out2) -> (Tensor(a!), Tensor(b!), Tensor(c!))"
+    "name": "aten::native_layer_norm.out(Tensor input, SymInt[] normalized_shape, Tensor? weight, Tensor? bias, float eps, *, Tensor(a!) out0, Tensor(b!) out1, Tensor(c!) out2) -> (Tensor(a!), Tensor(b!), Tensor(c!))",
+    "category": "Normalization"
   },
   {
     "name": "aten::ne.Tensor(Tensor self, Tensor other) -> Tensor"
@@ -5843,10 +5849,12 @@
     "category": "Tensor"
   },
   {
-    "name": "aten::split_with_sizes_copy(Tensor self, SymInt[] split_sizes, int dim=0) -> Tensor[]"
+    "name": "aten::split_with_sizes_copy(Tensor self, SymInt[] split_sizes, int dim=0) -> Tensor[]",
+    "category": "Tensor"
   },
   {
-    "name": "aten::split_with_sizes_copy.out(Tensor self, SymInt[] split_sizes, int dim=0, *, Tensor(a!)[] out) -> ()"
+    "name": "aten::split_with_sizes_copy.out(Tensor self, SymInt[] split_sizes, int dim=0, *, Tensor(a!)[] out) -> ()",
+    "category": "Tensor"
   },
   {
     "name": "aten::splitlines(str self, bool keepends=False) -> str[]"
