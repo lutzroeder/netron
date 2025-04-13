@@ -7785,7 +7785,6 @@
     "target":   "pose_estimation_for_mobile.pb",
     "source":   "https://raw.githubusercontent.com/edvardHua/PoseEstimationForMobile/master/release/cpm_model/model.pb",
     "format":   "TensorFlow Graph",
-    "tags":     "validation",
     "link":     "https://github.com/edvardHua/PoseEstimationForMobile"
   },
   {
@@ -7827,8 +7826,10 @@
   {
     "type":     "tf",
     "target":   "squeezenet.pb",
-    "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/squeezenet_2018_04_27.tgz[./squeezenet.pb]",
-    "format":   "TensorFlow Graph"
+    "source":   "https://github.com/user-attachments/files/19726108/squeezenet.pb.zip[squeezenet.pb]",
+    "tags":     "validation",
+    "format":   "TensorFlow Graph",
+    "link":     "https://github.com/lutzroeder/netron/issues/187"
   },
   {
     "type":     "tf",
