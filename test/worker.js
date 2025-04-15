@@ -578,6 +578,7 @@ export class Target {
         }
         const modelFactoryService = new view.ModelFactoryService(this.host);
         this.model = await modelFactoryService.open(context);
+        this.view.update(this.model);
     }
 
     async validate() {

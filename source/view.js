@@ -4,7 +4,7 @@ import * as grapher from './grapher.js';
 
 const view = {};
 const markdown = {};
-const metrics = {};
+const metadata = {};
 
 view.View = class {
 
@@ -19,7 +19,6 @@ view.View = class {
         };
         this._options = { ...this._defaultOptions };
         this._model = null;
-        this._metrics = new metrics.Metrics();
         this._stack = [];
         this._selection = [];
         this._sidebar = new view.Sidebar(this._host);
@@ -286,10 +285,6 @@ view.View = class {
 
     get model() {
         return this._model;
-    }
-
-    get metrics() {
-        return this._metrics;
     }
 
     get options() {
@@ -721,8 +716,12 @@ view.View = class {
     }
 
     async attach(context) {
-        if (this._model && await this._metrics.open(context)) {
-            return true;
+        if (this._model) {
+            const attachment = new metadata.Attachment();
+            if (await attachment.open(context)) {
+                this._model.attachment = attachment;
+                return true;
+            }
         }
         return false;
     }
@@ -767,12 +766,16 @@ view.View = class {
         }
     }
 
-    async _updateStack(model, stack) {
+    update(model) {
         this._model = model;
+    }
+
+    async _updateStack(model, stack) {
+        this.update(model);
         this._stack = stack;
         const status = await this.renderGraph(this._model, this.activeTarget, this.activeSignature, this._options);
         if (status !== '') {
-            this._model = null;
+            this.update(null);
             this._stack = [];
             this._activeTarget = null;
         }
@@ -2856,14 +2859,14 @@ view.NodeSidebar = class extends view.ObjectSidebar {
                 this.addArgument(name, output);
             }
         }
-        const metadata = node.metadata;
+        const metadata = this._view.model.attachment.metadata.node(node);
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
             for (const argument of metadata) {
                 this.addArgument(argument.name, argument);
             }
         }
-        const metrics = this._view.metrics.node(node);
+        const metrics = this._view.model.attachment.metrics.node(node);
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
@@ -3502,13 +3505,14 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
             this.addSection('Outputs');
             this.addNodeList('to', to);
         }
-        if (Array.isArray(value.metadata) && value.metadata.length > 0) {
+        const metadata = this._view.model.attachment.metadata.value(value);
+        if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
             for (const argument of value.metadata) {
                 this.addArgument(argument.name, argument);
             }
         }
-        const metrics = this._view.metrics.value(value);
+        const metrics = this._view.model.attachment.metrics.value(value);
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
@@ -3601,7 +3605,7 @@ view.TensorSidebar = class extends view.ObjectSidebar {
             }
             const value = new view.TensorView(this._view, tensor, this._tensor);
             this.addEntry('value', value);
-            const metadata = tensor.metadata;
+            const metadata = this._view.model.attachment.metadata.tensor(tensor);
             if (Array.isArray(metadata) && metadata.length > 0) {
                 this.addSection('Metadata');
                 for (const argument of tensor.metadata) {
@@ -3617,8 +3621,8 @@ view.TensorSidebar = class extends view.ObjectSidebar {
                 this._tensor = new base.Tensor(tensor);
                 if (!this._tensor.empty) {
                     if (!this._metrics) {
-                        const tensor = new metrics.Tensor(this._tensor);
-                        this._metrics = this._view.metrics.tensor(tensor);
+                        const tensor = new metadata.Tensor(this._tensor);
+                        this._metrics = this._view.model.attachment.metrics.tensor(tensor);
                     }
                     if (this._metrics.length > 0) {
                         this.addSection('Metrics');
@@ -3681,14 +3685,14 @@ view.ModelSidebar = class extends view.ObjectSidebar {
         if (model.source) {
             this.addProperty('source', model.source);
         }
-        const metadata = model.metadata;
+        const metadata = this._view.model.attachment.metadata.model(model);
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
             for (const argument of metadata) {
                 this.addArgument(argument.name, argument);
             }
         }
-        const metrics = this._view.metrics.model(model);
+        const metrics = this._view.model.attachment.metrics.model(model);
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
@@ -3747,14 +3751,14 @@ view.TargetSidebar = class extends view.ObjectSidebar {
                 this.addArgument(output.name, output);
             }
         }
-        const metadata = target.metadata;
+        const metadata = this._view.model.attachment.metadata.graph(target);
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
             for (const argument of metadata) {
                 this.addArgument(argument.name, argument);
             }
         }
-        const metrics = this._view.metrics.graph(target);
+        const metrics = this._view.model.attachment.metrics.graph(target);
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
@@ -5315,27 +5319,21 @@ markdown.Generator = class {
     }
 };
 
-metrics.Metrics = class {
+metadata.Attachment = class {
 
     constructor() {
-        this._metrics = new Map();
+        this.metadata = new metadata.Attachment.Container('metadata');
+        this.metrics = new metadata.Attachment.Container('metrics');
     }
 
     async open(context) {
-        const content = new view.Context(context);
-        if (content.identifier.toLowerCase().endsWith('.metrics.json')) {
-            const data = await content.peek('json');
-            if (data && data.signature === 'metrics' && Array.isArray(data.metrics)) {
-                this._metrics.clear();
-                for (const metric of data.metrics) {
-                    if (metric.kind && ('target' in metric || 'identifier' in metric)) {
-                        const key = 'target' in metric ? `${metric.kind}::${metric.target}` : `${metric.kind}[${metric.identifier}]`;
-                        if (!this._metrics.has(key)) {
-                            this._metrics.set(key, new Map());
-                        }
-                        const entries = this._metrics.get(key);
-                        entries.set(metric.name, { value: metric.value, type: metric.type });
-                    }
+        context = new view.Context(context);
+        if (context.identifier.toLowerCase().endsWith('.json')) {
+            const data = await context.peek('json');
+            if (data && data.signature === 'netron:attachment') {
+                const containers = [this.metadata, this.metrics];
+                for (const container of containers) {
+                    container.open(data[container.name]);
                 }
                 return true;
             }
@@ -5343,40 +5341,80 @@ metrics.Metrics = class {
         return false;
     }
 
-    metrics(entries, kind, value) {
-        const result = new Map(entries.map((metric) => [metric.name, metric]));
-        const name = value.identifier === undefined ? `::${(value.name || '').split('\n').shift()}` : `[${value.identifier}]`;
-        const key = `${kind}${name}`;
-        if (this._metrics.has(key)) {
-            for (const [name, metric] of this._metrics.get(key)) {
-                result.set(name, new metrics.Argument(name, metric.value, metric.type || 'attribute'));
+};
+
+metadata.Attachment.Container = class {
+
+    constructor(name) {
+        this._name = name;
+        this._entries = new Map();
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    open(data) {
+        this._entries.clear();
+        if (Array.isArray(data)) {
+            for (const item of data) {
+                if (item.kind && ('target' in item || 'identifier' in item)) {
+                    const key = 'target' in item ? `${item.kind}::${item.target}` : `${item.kind}[${item.identifier}]`;
+                    if (!this._entries.has(key)) {
+                        this._entries.set(key, new Map());
+                    }
+                    const entries = this._entries.get(key);
+                    entries.set(item.name, { value: item.value, type: item.type });
+                }
+            }
+        }
+    }
+
+    model(value) {
+        return this._list(value, 'model');
+    }
+
+    graph(value) {
+        return this._list(value, 'graph');
+    }
+
+    node(value) {
+        return this._list(value, 'node');
+    }
+
+    value(value) {
+        return this._list(value, 'value');
+    }
+
+    tensor(value) {
+        return this._list(value, 'tensor');
+    }
+
+    _list(value, kind) {
+        const category = this._name;
+        const entries = value[category] || [];
+        const result = new Map(entries.map((entry) => [entry.name, entry]));
+        if (value.name || kind === 'model') {
+            const key = `${kind}::${(value.name || '').split('\n').shift()}`;
+            if (this._entries.has(key)) {
+                for (const [name, entry] of this._entries.get(key)) {
+                    result.set(name, { name, value: entry.value, type: entry.type || 'attribute' });
+                }
+            }
+        }
+        if (value.identifier) {
+            const key = `${kind}[${value.identifier}]`;
+            if (this._entries.has(key)) {
+                for (const [name, entry] of this._entries.get(key)) {
+                    result.set(name, { name, value: entry.value, type: entry.type || 'attribute' });
+                }
             }
         }
         return Array.from(result.values());
     }
-
-    model(value) {
-        return this.metrics(value.metrics || [], 'model', '');
-    }
-
-    graph(value) {
-        return this.metrics(value.metrics || [], 'graph', value);
-    }
-
-    node(value) {
-        return this.metrics(value.metrics || [], 'node', value);
-    }
-
-    value(value) {
-        return this.metrics(value.metrics || [], 'value', value);
-    }
-
-    tensor(value) {
-        return this.metrics(value.metrics || [], 'tensor', value);
-    }
 };
 
-metrics.Argument = class {
+metadata.Argument = class {
 
     constructor(name, value, type) {
         this.name = name;
@@ -5385,7 +5423,7 @@ metrics.Argument = class {
     }
 };
 
-metrics.Tensor = class {
+metadata.Tensor = class {
 
     constructor(tensor) {
         this._tensor = tensor;
@@ -5430,13 +5468,13 @@ metrics.Tensor = class {
                 }
                 const mean = sum / count;
                 if (!keys.has('sparsity')) {
-                    this._metrics.push(new metrics.Argument('min', min, type.dataType));
+                    this._metrics.push(new metadata.Argument('min', min, type.dataType));
                 }
                 if (!keys.has('max')) {
-                    this._metrics.push(new metrics.Argument('max', max, type.dataType));
+                    this._metrics.push(new metadata.Argument('max', max, type.dataType));
                 }
                 if (!keys.has('mean')) {
-                    this._metrics.push(new metrics.Argument('mean', mean, type.dataType));
+                    this._metrics.push(new metadata.Argument('mean', mean, type.dataType));
                 }
                 if (!keys.has('std')) {
                     let variance = 0;
@@ -5451,10 +5489,10 @@ metrics.Tensor = class {
                             variance += Math.pow(data - mean, 2);
                         }
                     }
-                    this._metrics.push(new metrics.Argument('std', Math.sqrt(variance / count)));
+                    this._metrics.push(new metadata.Argument('std', Math.sqrt(variance / count)));
                 }
                 if (!keys.has('sparsity')) {
-                    this._metrics.push(new metrics.Argument('sparsity', count > 0 ? zeros / count : 0, 'percentage'));
+                    this._metrics.push(new metadata.Argument('sparsity', count > 0 ? zeros / count : 0, 'percentage'));
                 }
             }
         }
@@ -6386,6 +6424,7 @@ view.ModelFactoryService = class {
                     if (!model.identifier) {
                         model.identifier = context.identifier;
                     }
+                    model.attachment = new metadata.Attachment();
                     return model;
                 } catch (error) {
                     delete context.type;
