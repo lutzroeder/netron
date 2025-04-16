@@ -5,6 +5,7 @@ import * as grapher from './grapher.js';
 const view = {};
 const markdown = {};
 const metadata = {};
+const metrics = {};
 
 view.View = class {
 
@@ -211,7 +212,7 @@ view.View = class {
                     execute: async () => await this._host.execute('about')
                 });
             }
-            this._select = new view.TargetSelector(this, this._element('toolbar-target-selector'));
+            this._select = new view.TargetSelector(this, this._element('toolbar-navigator'));
             this._select.on('change', (sender, target) => this._updateActiveTarget([target]));
             await this._host.start();
         } catch (error) {
@@ -2674,7 +2675,8 @@ view.TargetSelector = class extends view.Control {
     constructor(context, element) {
         super(context);
         this._element = element;
-        this._element.addEventListener('change', (e) => {
+        [this._select] = element.getElementsByTagName('select');
+        this._select.addEventListener('change', (e) => {
             const target = this._targets[e.target.selectedIndex];
             this.emit('change', target);
         });
@@ -2682,8 +2684,8 @@ view.TargetSelector = class extends view.Control {
     }
 
     update(model, stack) {
-        while (this._element.firstChild) {
-            this._element.removeChild(this._element.firstChild);
+        while (this._select.firstChild) {
+            this._select.removeChild(this._select.firstChild);
         }
         this._targets = [];
         const current = stack.length > 0 ? stack[stack.length - 1] : null;
@@ -2691,7 +2693,7 @@ view.TargetSelector = class extends view.Control {
             if (targets.length > 0) {
                 const group = this.createElement('optgroup');
                 group.setAttribute('label', title);
-                this._element.appendChild(group);
+                this._select.appendChild(group);
                 for (let i = 0; i < targets.length; i++) {
                     const target = targets[i];
                     const option = this.createElement('option');
@@ -2699,7 +2701,7 @@ view.TargetSelector = class extends view.Control {
                     group.appendChild(option);
                     if (current && current.target === target.target && current.signature === target.signature) {
                         option.setAttribute('selected', 'true');
-                        this._element.setAttribute('title', target.name);
+                        this._select.setAttribute('title', target.name);
                     }
                     this._targets.push(target);
                 }
@@ -3621,7 +3623,7 @@ view.TensorSidebar = class extends view.ObjectSidebar {
                 this._tensor = new base.Tensor(tensor);
                 if (!this._tensor.empty) {
                     if (!this._metrics) {
-                        const tensor = new metadata.Tensor(this._tensor);
+                        const tensor = new metrics.Tensor(this._tensor);
                         this._metrics = this._view.model.attachment.metrics.tensor(tensor);
                     }
                     if (this._metrics.length > 0) {
@@ -3692,13 +3694,18 @@ view.ModelSidebar = class extends view.ObjectSidebar {
                 this.addArgument(argument.name, argument);
             }
         }
-        const metrics = this._view.model.attachment.metrics.model(model);
+        const metrics = this.metrics;
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
                 this.addArgument(argument.name, argument);
             }
         }
+    }
+
+    get metrics() {
+        const model = new metrics.Model(this._model);
+        return this._view.model.attachment.metrics.model(model);
     }
 };
 
@@ -3758,13 +3765,18 @@ view.TargetSidebar = class extends view.ObjectSidebar {
                 this.addArgument(argument.name, argument);
             }
         }
-        const metrics = this._view.model.attachment.metrics.graph(target);
+        const metrics = this.metrics;
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
                 this.addArgument(argument.name, argument);
             }
         }
+    }
+
+    get metrics() {
+        const target = new metrics.Target(this._target);
+        return this._view.model.attachment.metrics.graph(target);
     }
 
     get identifier() {
@@ -5394,11 +5406,12 @@ metadata.Attachment.Container = class {
         const category = this._name;
         const entries = value[category] || [];
         const result = new Map(entries.map((entry) => [entry.name, entry]));
-        if (value.name || kind === 'model') {
+        if (value.name || kind === 'model' || kind === 'graph') {
             const key = `${kind}::${(value.name || '').split('\n').shift()}`;
             if (this._entries.has(key)) {
                 for (const [name, entry] of this._entries.get(key)) {
-                    result.set(name, { name, value: entry.value, type: entry.type || 'attribute' });
+                    const argument = new metadata.Argument(name, entry.value, entry.type || 'attribute');
+                    result.set(name, argument);
                 }
             }
         }
@@ -5406,7 +5419,8 @@ metadata.Attachment.Container = class {
             const key = `${kind}[${value.identifier}]`;
             if (this._entries.has(key)) {
                 for (const [name, entry] of this._entries.get(key)) {
-                    result.set(name, { name, value: entry.value, type: entry.type || 'attribute' });
+                    const argument = new metadata.Argument(name, entry.value, entry.type || 'attribute');
+                    result.set(name, argument);
                 }
             }
         }
@@ -5423,7 +5437,83 @@ metadata.Argument = class {
     }
 };
 
-metadata.Tensor = class {
+metrics.Model = class {
+
+    constructor(model) {
+        this._model = model;
+        this._metrics = null;
+    }
+
+    get metrics() {
+        if (this._metrics === null) {
+            this._metrics = [];
+            this._metrics = Array.from(this._model.metrics || []);
+            const keys = new Set(this._metrics.map((metric) => metric.name));
+            if (!keys.has('parameters')) {
+                let parameters = 0;
+                for (const graph of this._model.graphs || []) {
+                    const map = new Map((new metrics.Target(graph).metrics || []).map((metric) => [metric.name, metric]));
+                    parameters = map.has('parameters') ? parameters + map.get('parameters').value : NaN;
+                }
+                for (const func of this._model.functions || []) {
+                    const map = new Map((new metrics.Target(func).metrics || []).map((metric) => [metric.name, metric]));
+                    parameters = map.has('parameters') ? parameters + map.get('parameters').value : NaN;
+                }
+                if (!Number.isNaN(parameters) && parameters > 0) {
+                    this._metrics.push(new metadata.Argument('parameters', parameters, 'attribute'));
+                }
+            }
+        }
+        return this._metrics;
+    }
+};
+
+metrics.Target = class {
+
+    constructor(target) {
+        this._target = target;
+        this._metrics = null;
+    }
+
+    get metrics() {
+        if (this._metrics === null) {
+            this._metrics = [];
+            this._metrics = Array.from(this._target.metrics || []);
+            const keys = new Set(this._metrics.map((metrics) => metrics.name));
+            if (!keys.has('parameters')) {
+                let parameters = 0;
+                const initializers = new Set();
+                if (this._target && Array.isArray(this._target.nodes)) {
+                    for (const node of this._target.nodes) {
+                        for (const argument of node.inputs) {
+                            if (argument && Array.isArray(argument.value)) {
+                                for (const value of argument.value) {
+                                    if (value && value.initializer) {
+                                        initializers.add(value.initializer);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                for (const tensor of initializers) {
+                    const shape = tensor && tensor.type && tensor.type.shape && Array.isArray(tensor.type.shape.dimensions) ? tensor.type.shape.dimensions : [];
+                    if (!shape.every((dim) => typeof dim === 'number')) {
+                        parameters = 0;
+                        break;
+                    }
+                    parameters += shape.reduce((a, b) => a * b, 1);
+                }
+                if (parameters > 0) {
+                    this._metrics.push(new metadata.Argument('parameters', parameters, 'attribute'));
+                }
+            }
+        }
+        return this._metrics;
+    }
+};
+
+metrics.Tensor = class {
 
     constructor(tensor) {
         this._tensor = tensor;
