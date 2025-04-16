@@ -104,7 +104,7 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                         meta.append(f'<meta name="identifier" content="{identifier}">')
                     meta = "\n".join(meta)
                     regex = r'<meta name="version" content=".*">'
-                    content = re.sub(regex, meta, content)
+                    content = re.sub(regex, lambda _: meta, content)
                     content = content.encode("utf-8")
                 status_code = 200
         _log(self.verbosity > 1, f"{str(status_code)} {self.command} {self.path}\n")
