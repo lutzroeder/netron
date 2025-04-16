@@ -2865,14 +2865,14 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
             for (const argument of metadata) {
-                this.addArgument(argument.name, argument);
+                this.addArgument(argument.name, argument, 'attribute');
             }
         }
         const metrics = this._view.model.attachment.metrics.node(node);
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
-                this.addArgument(argument.name, argument);
+                this.addArgument(argument.name, argument, 'attribute');
             }
         }
     }
@@ -3511,14 +3511,14 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
             for (const argument of value.metadata) {
-                this.addArgument(argument.name, argument);
+                this.addArgument(argument.name, argument, 'attribute');
             }
         }
         const metrics = this._view.model.attachment.metrics.value(value);
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
-                this.addArgument(argument.name, argument);
+                this.addArgument(argument.name, argument, 'attribute');
             }
         }
     }
@@ -3611,7 +3611,7 @@ view.TensorSidebar = class extends view.ObjectSidebar {
             if (Array.isArray(metadata) && metadata.length > 0) {
                 this.addSection('Metadata');
                 for (const argument of tensor.metadata) {
-                    this.addArgument(argument.name, argument);
+                    this.addArgument(argument.name, argument, 'attribute');
                 }
             }
         }
@@ -3630,7 +3630,8 @@ view.TensorSidebar = class extends view.ObjectSidebar {
                         this.addSection('Metrics');
                         for (const metric of this._metrics) {
                             const value = metric.type === 'percentage' ? `${(metric.value * 100).toFixed(1)}%` : metric.value;
-                            this.addProperty(metric.name, [value]);
+                            const argument = new metadata.Argument(metric.name, value, metric.type);
+                            this.addArgument(metric.name, argument, 'attribute');
                         }
                     }
                 }
@@ -3691,14 +3692,14 @@ view.ModelSidebar = class extends view.ObjectSidebar {
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
             for (const argument of metadata) {
-                this.addArgument(argument.name, argument);
+                this.addArgument(argument.name, argument, 'attribute');
             }
         }
         const metrics = this.metrics;
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
-                this.addArgument(argument.name, argument);
+                this.addArgument(argument.name, argument, 'attribute');
             }
         }
     }
@@ -3762,14 +3763,14 @@ view.TargetSidebar = class extends view.ObjectSidebar {
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
             for (const argument of metadata) {
-                this.addArgument(argument.name, argument);
+                this.addArgument(argument.name, argument, 'attribute');
             }
         }
         const metrics = this.metrics;
         if (Array.isArray(metrics) && metrics.length > 0) {
             this.addSection('Metrics');
             for (const argument of metrics) {
-                this.addArgument(argument.name, argument);
+                this.addArgument(argument.name, argument, 'attribute');
             }
         }
     }
