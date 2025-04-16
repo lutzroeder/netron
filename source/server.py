@@ -96,7 +96,7 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                     base = self.content.base
                     if base:
                         meta.append('<meta name="file" content="/data/' + base + '">')
-                    name = self.content.name
+                    name = self.content.name.replace("\\", "\\\\")
                     if name:
                         meta.append('<meta name="name" content="' + name + '">')
                     identifier = self.content.identifier
