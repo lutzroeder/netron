@@ -64,5 +64,4 @@ netron = ["app.js", "electron.*"]
 
 [tool.ruff]
 lint.select = ["B", "E", "F", "I", "UP", "W", "Q"]
-
 cache-dir = "./dist/lint/.ruff_cache"
