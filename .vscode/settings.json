@@ -8,9 +8,5 @@
         "dist": true,
         "node_modules": true,
         "third_party": true
-    },
-    "eslint.useFlatConfig": true,
-    "eslint.options": {
-        "overrideConfigFile": "publish/eslint.config.js"
-    },
+    }
 }

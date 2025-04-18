@@ -513,7 +513,7 @@ const publish = async (target) => {
 const lint = async () => {
     await install();
     writeLine('eslint');
-    await exec('npx eslint --config publish/eslint.config.js *.*js source/*.*js test/*.*js publish/*.*js tools/*.js --cache --cache-location ./dist/lint/.eslintcache');
+    await exec('npx eslint *.*js source/*.*js test/*.*js publish/*.*js tools/*.js --cache --cache-location ./dist/lint/.eslintcache');
     writeLine('ruff');
     await exec('python -m ruff check . --quiet');
 };
