@@ -1234,6 +1234,12 @@
     "name": "aten::addmm.out(Tensor self, Tensor mat1, Tensor mat2, *, Scalar beta=1, Scalar alpha=1, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::addmm.dtype_out(Tensor self, Tensor mat1, Tensor mat2, ScalarType out_dtype, *, Scalar beta=1, Scalar alpha=1, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::addmm.dtype(Tensor self, Tensor mat1, Tensor mat2, ScalarType out_dtype, *, Scalar beta=1, Scalar alpha=1) -> Tensor"
+  },
+  {
     "name": "aten::addmm_(Tensor(a!) self, Tensor mat1, Tensor mat2, *, Scalar beta=1, Scalar alpha=1) -> Tensor(a!)"
   },
   {
@@ -1599,6 +1605,12 @@
     "name": "aten::baddbmm.out(Tensor self, Tensor batch1, Tensor batch2, *, Scalar beta=1, Scalar alpha=1, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::baddbmm.dtype_out(Tensor self, Tensor batch1, Tensor batch2, ScalarType out_dtype, *, Scalar beta=1, Scalar alpha=1, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::baddbmm.dtype(Tensor self, Tensor batch1, Tensor batch2, ScalarType out_dtype, *, Scalar beta=1, Scalar alpha=1) -> Tensor"
+  },
+  {
     "name": "aten::baddbmm_(Tensor(a!) self, Tensor batch1, Tensor batch2, *, Scalar beta=1, Scalar alpha=1) -> Tensor(a!)"
   },
   {
@@ -1805,6 +1817,12 @@
   },
   {
     "name": "aten::bmm.out(Tensor self, Tensor mat2, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::bmm.dtype_out(Tensor self, Tensor mat2, ScalarType out_dtype, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::bmm.dtype(Tensor self, Tensor mat2, ScalarType out_dtype) -> Tensor"
   },
   {
     "name": "aten::broadcast_tensors(Tensor[] tensors) -> Tensor[]"
@@ -4379,6 +4397,12 @@
   },
   {
     "name": "aten::mm.out(Tensor self, Tensor mat2, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::mm.dtype_out(Tensor self, Tensor mat2, ScalarType out_dtype, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::mm.dtype(Tensor self, Tensor mat2, ScalarType out_dtype) -> Tensor"
   },
   {
     "name": "aten::moveaxis.intlist(Tensor(a) self, int[] source, int[] destination) -> Tensor(a)"
