@@ -51,7 +51,7 @@ darknet.ModelFactory = class {
                 try {
                     const name = `${basename}.weights`;
                     const content = await context.fetch(name);
-                    const weights = darknet.Weights.open(content);
+                    const weights = await darknet.Weights.open(content);
                     const reader = await context.read('text');
                     const configuration = new darknet.Configuration(reader, context.identifier);
                     return new darknet.Model(metadata, configuration, weights);

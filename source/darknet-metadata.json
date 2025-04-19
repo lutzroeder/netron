@@ -60,7 +60,6 @@
   },
   {
     "name": "cost",
-    "category": "Activation",
     "attributes": [
       { "name": "type", "type": "string", "default": "sse" },
       { "name": "scale", "type": "float32", "default": 1 },
