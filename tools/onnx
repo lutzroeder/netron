@@ -43,19 +43,19 @@ install() {
     protobuf_version=$(grep "protobuf" ./third_party/source/onnx/requirements.txt | cut -d'=' -f2)
     protoc_dir="$(pwd)/third_party/bin/protobuf/v${protobuf_version}"
     case "${OSTYPE}" in
-        linux*)
-            [ -x "$(command -v cmake)" ] || sudo apt install -y cmake
-            if [ ! -f "${protoc_dir}/bin/protoc" ]; then
-                rm -rf ${protoc_dir}
-                git clone --quiet -c advice.detachedHead=false --quiet --recursive --depth=1 --branch v${protobuf_version} https://github.com/protocolbuffers/protobuf.git ${protoc_dir}/src
-                pushd "${protoc_dir}/src/cmake" > /dev/null
-                cmake ../cmake -DCMAKE_CXX_FLAGS="-w" -Dprotobuf_BUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="..\.." -DCMAKE_INSTALL_SYSCONFDIR=/etc -DCMAKE_POSITION_INDEPENDENT_CODE=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release > /dev/null
-                make -j$(nproc) > /dev/null
-                make install > /dev/null
-                popd > /dev/null
-            fi
-            export PATH="${protoc_dir}\bin":${PATH}
-            ;;
+        # linux*)
+        #     [ -x "$(command -v cmake)" ] || sudo apt install -y cmake
+        #     if [ ! -f "${protoc_dir}/bin/protoc" ]; then
+        #         rm -rf ${protoc_dir}
+        #         git clone --quiet -c advice.detachedHead=false --quiet --recursive --depth=1 --branch v${protobuf_version} https://github.com/protocolbuffers/protobuf.git ${protoc_dir}/src
+        #         pushd "${protoc_dir}/src/cmake" > /dev/null
+        #         cmake ../cmake -DCMAKE_CXX_FLAGS="-w" -Dprotobuf_BUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="..\.." -DCMAKE_INSTALL_SYSCONFDIR=/etc -DCMAKE_POSITION_INDEPENDENT_CODE=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release > /dev/null
+        #         make -j$(nproc) > /dev/null
+        #         make install > /dev/null
+        #         popd > /dev/null
+        #     fi
+        #     export PATH="${protoc_dir}\bin":${PATH}
+        #     ;;
         # darwin*)
         #     [ -x "$(command -v cmake)" ] || brew install cmake > /dev/null
         #     if [ ! -f "${protoc_dir}/bin/protoc" ]; then
