@@ -7,7 +7,7 @@ import sys
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
-sys.pycache_prefix = os.path.join(root_dir, "dist", "pycache", "test", "backend")
+sys.pycache_prefix = os.path.join(root_dir, "dist", "pycache", "backend")
 netron = __import__("source")
 
 third_party_dir = os.path.join(root_dir, "third_party")
