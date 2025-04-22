@@ -1,7 +1,7 @@
 
 import * as base from '../source/base.js';
-import * as desktop from '../source/desktop.mjs';
 import * as fs from 'fs/promises';
+import * as node from '../source/node.js';
 import * as path from 'path';
 import * as process from 'process';
 import * as python from '../source/python.js';
@@ -105,7 +105,7 @@ host.TestHost = class {
         if (encoding) {
             return await fs.readFile(pathname, encoding);
         }
-        return new desktop.FileStream(pathname, 0, stats.size, stats.mtimeMs);
+        return new node.FileStream(pathname, 0, stats.size, stats.mtimeMs);
     }
 
     event(/* name, params */) {
@@ -549,14 +549,14 @@ export class Target {
         const stat = await fs.stat(target);
         let context = null;
         if (stat.isFile()) {
-            const stream = new desktop.FileStream(target, 0, stat.size, stat.mtimeMs);
+            const stream = new node.FileStream(target, 0, stat.size, stat.mtimeMs);
             const dirname = path.dirname(target);
             context = new host.TestHost.Context(this.host, dirname, identifier, stream, new Map());
         } else if (stat.isDirectory()) {
             const entries = new Map();
             const file = async (pathname) => {
                 const stat = await fs.stat(pathname);
-                const stream = new desktop.FileStream(pathname, 0, stat.size, stat.mtimeMs);
+                const stream = new node.FileStream(pathname, 0, stat.size, stat.mtimeMs);
                 const name = pathname.split(path.sep).join(path.posix.sep);
                 entries.set(name, stream);
             };
