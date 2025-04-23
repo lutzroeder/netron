@@ -12176,8 +12176,8 @@ python.Execution = class {
                 }
                 const graph = m.graph();
                 switch (name) {
-                    case 'inf': return new torch._C.SimpleValue(graph.insertConstant('std::numeric_limits<double>::infinity()', loc));
-                    case 'nan': return new torch._C.SimpleValue(graph.insertConstant('std::numeric_limits<double>::quiet_NaN()', loc));
+                    case 'inf': return new torch._C.SimpleValue(graph.insertConstant(Infinity /* 'std::numeric_limits<double>::infinity()' */, loc));
+                    case 'nan': return new torch._C.SimpleValue(graph.insertConstant(NaN /* 'std::numeric_limits<double>::quiet_NaN()' */, loc));
                     case 'infj': return new torch._C.SimpleValue(graph.insertConstant('c10::complex<double>(0, std::numeric_limits<double>::infinity())', loc));
                     case 'nanj': return new torch._C.SimpleValue(graph.insertConstant('c10::complex<double>(0, std::numeric_limits<double>::quiet_NaN()', loc));
                     case '__torch__': return new torch._C.ClassNamespaceValue(new torch._C.QualifiedName(name), this);

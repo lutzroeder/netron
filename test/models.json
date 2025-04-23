@@ -6719,6 +6719,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "traced_pseudo_quantized_model.pt",
+    "source":   "https://github.com/user-attachments/files/19859244/traced_pseudo_quantized_model.pt.zip[traced_pseudo_quantized_model.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
     "target":   "traced_scale_quant.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9387784/traced_scale_quant.pt.zip[traced_scale_quant.pt]",
     "format":   "TorchScript v1.6",
