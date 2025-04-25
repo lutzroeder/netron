@@ -6697,7 +6697,7 @@ view.ModelFactoryService = class {
                 { name: 'Optimium model', value: /^EZMODEL/ }, // https://github.com/EZ-Optimium/Optimium,
                 { name: 'undocumented NNC data', value: /^(\xC0|\xBC)\x0F\x00\x00ENNC/ },
                 { name: 'Rich Text Format data', value: /^{\\rtf/ },
-                { name: 'Encrypted File data', value: /^ENCRYPTED_FILE/ },
+                { name: 'Encrypted File data', value: /^ENCRYPTED_FILE|EV_ENCRYPTED/ },
                 { name: 'Keras Tokenizer data', value: /^"{\\"class_name\\":\s*\\"Tokenizer\\"/ },
                 { name: 'obfuscated data', value: /^obfs/ },
             ];
