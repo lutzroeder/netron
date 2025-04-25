@@ -992,6 +992,12 @@
     "name": "aten::_unique2.out(Tensor self, bool sorted=True, bool return_inverse=False, bool return_counts=False, *, Tensor(a!) out0, Tensor(b!) out1, Tensor(c!) out2) -> (Tensor(a!), Tensor(b!), Tensor(c!))"
   },
   {
+    "name": "aten::_unsafe_index.Tensor(Tensor self, Tensor?[] indices) -> Tensor"
+  },
+  {
+    "name": "aten::_unsafe_index.Tensor_hacked_twin(Tensor self, Tensor[] indices) -> Tensor"
+  },
+  {
     "name": "aten::_unsafe_view(Tensor self, SymInt[] size) -> Tensor"
   },
   {
