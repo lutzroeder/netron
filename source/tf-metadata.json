@@ -13646,8 +13646,8 @@
   },
   {
     "name": "DecodeImage",
-    "summary": "Function for decode_bmp, decode_gif, decode_jpeg, and decode_png.",
-    "description": "Detects whether an image is a BMP, GIF, JPEG, or PNG, and performs the\nappropriate operation to convert the input bytes string into a Tensor of type\ndtype.\n\n*NOTE*: decode_gif returns a 4-D array [num_frames, height, width, 3], as\nopposed to decode_bmp, decode_jpeg and decode_png, which return 3-D arrays\n[height, width, num_channels]. Make sure to take this into account when\nconstructing your graph if you are intermixing GIF files with BMP, JPEG, and/or\nPNG files. Alternately, set the expand_animations argument of this function to\nFalse, in which case the op will return 3-dimensional tensors and will truncate\nanimated GIF files to the first frame.\n\n*NOTE*: If the first frame of an animated GIF does not occupy the entire\ncanvas (maximum frame width x maximum frame height), then it fills the\nunoccupied areas (in the first frame) with zeros (black). For frames after the\nfirst frame that does not occupy the entire canvas, it uses the previous\nframe to fill the unoccupied areas.",
+    "summary": "Function for decode_bmp, decode_gif, decode_jpeg, decode_webp, and decode_png.",
+    "description": "Detects whether an image is a BMP, GIF, JPEG, WebP, or PNG, and performs the\nappropriate operation to convert the input bytes string into a Tensor of type\ndtype.\n\n*NOTE*: decode_gif and decode_webp return a 4-D\narray [num_frames, height, width, 3], as opposed to decode_bmp,\ndecode_jpeg, and decode_png, which always return 3-D arrays [height,\nwidth, num_channels]. Make sure to take this into account when\nconstructing your graph if you are intermixing animated files with\nBMP, JPEG, and/or PNG files. Alternately, set the expand_animations\nargument of this function to False, in which case the op will return\n3-dimensional tensors and will truncate animations to the first frame.\n\n*NOTE*: If the first frame of an animated GIF does not occupy the entire\ncanvas (maximum frame width x maximum frame height), then it fills the\nunoccupied areas (in the first frame) with zeros (black). For frames after the\nfirst frame that does not occupy the entire canvas, it uses the previous\nframe to fill the unoccupied areas.",
     "attributes": [
       {
         "name": "channels",
@@ -13667,7 +13667,7 @@
       {
         "name": "expand_animations",
         "type": "boolean",
-        "description": "Controls the output shape of the returned op. If True, the returned op will\nproduce a 3-D tensor for PNG, JPEG, and BMP files; and a 4-D tensor for all\nGIFs, whether animated or not. If, False, the returned op will produce a 3-D\ntensor for all file types and will truncate animated GIFs to the first frame.",
+        "description": "Controls the output shape of the returned op. If True, the returned op\nwill produce a 3-D tensor for PNG, JPEG, and BMP files; and a 4-D\ntensor for all GIFs and WebP images, whether animated or not. If,\nFalse, the returned op will produce a 3-D tensor for all file types\nand will truncate animated images to the first frame.",
         "default": true
       }
     ],
@@ -13960,6 +13960,42 @@
         "name": "sample_rate",
         "description": "Scalar holding the sample rate found in the WAV header.",
         "type": 3
+      }
+    ]
+  },
+  {
+    "name": "DecodeWebP",
+    "summary": "Decode a WebP-encoded image to a uint8 tensor.",
+    "description": "The attr `channels` indicates the desired number of color channels for the\ndecoded image.\n\nAccepted values are:\n\n*   0: Use the number of channels in the WebP-encoded image.\n*   3: output an RGB image.\n*   4: output an RGBA image.\n\nThe number of channels must currently match that of the underlying file.\nFor WebP animations, only 4-channel RGBA is supported.",
+    "attributes": [
+      {
+        "name": "channels",
+        "type": "int64",
+        "description": "Number of color channels for the decoded image.",
+        "default": 0
+      },
+      {
+        "name": "dtype",
+        "type": "type",
+        "description": "Must be one of the following: `uint8`.",
+        "default": {
+          "type": "type",
+          "value": 4
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "contents",
+        "description": "0-D.  The WebP-encoded image.",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "image",
+        "description": "4-D with shape `[num_frames, height, width, channels]`.",
+        "typeAttr": "dtype"
       }
     ]
   },
@@ -22517,7 +22553,7 @@
   {
     "name": "Igamma",
     "summary": "Compute the lower regularized incomplete Gamma function `P(a, x)`.",
-    "description": "The lower regularized incomplete Gamma function is defined as:\n\n\n\\\\(P(a, x) = gamma(a, x) / Gamma(a) = 1 - Q(a, x)\\\\)\n\nwhere\n\n\\\\(gamma(a, x) = \\\\int_{0}^{x} t^{a-1} exp(-t) dt\\\\)\n\nis the lower incomplete Gamma function.\n\nNote, above `Q(a, x)` (`Igammac`) is the upper regularized complete\nGamma function.",
+    "description": "The lower regularized incomplete Gamma function is defined as:\n\n\n\\\\(P(a, x) = gamma(a, x) / Gamma(a) = 1 - Q(a, x)\\\\)\n\nwhere\n\n\\\\(gamma(a, x) = \\int_{0}^{x} t^{a-1} exp(-t) dt\\\\)\n\nis the lower incomplete Gamma function.\n\nNote, above `Q(a, x)` (`Igammac`) is the upper regularized complete\nGamma function.",
     "attributes": [
       {
         "name": "T",
@@ -58360,6 +58396,29 @@
     ]
   },
   {
+    "name": "TPUDummyInput",
+    "summary": "Generates a zero-valued tensor for use as a dummy input to a TPU.",
+    "description": "For the internal use of the TF2XLA bridge in the XLA Broadcast pass. This op",
+    "attributes": [
+      {
+        "name": "dtype",
+        "type": "type",
+        "description": "The element type of the produced tensor. Must be one of the following: `float32`, `bfloat16`."
+      },
+      {
+        "name": "shape",
+        "type": "shape",
+        "description": "The shape of the produced tensor."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "typeAttr": "dtype"
+      }
+    ]
+  },
+  {
     "name": "TPUEmbeddingActivations",
     "summary": "An op enabling differentiation of TPU Embeddings.",
     "description": "This op simply returns its first input, which is assumed to have been sliced\nfrom the Tensors returned by TPUEmbeddingDequeueActivations. The presence of\nthis op, and its first argument being a trainable Variable, enables automatic\ndifferentiation of graphs containing embeddings via the TPU Embedding Python\nlibraries.",
@@ -62584,7 +62643,7 @@
       {
         "name": "Tin",
         "type": "type",
-        "description": "The type of input Tensor. A tf.DType from: tf.float32 Must be one of the following: `qint8`, `qint32`."
+        "description": "The type of input Tensor. A tf.DType from: tf.float32 Must be one of the following: `qint8`, `quint8`, `qint32`."
       },
       {
         "name": "Tout",
@@ -62646,7 +62705,7 @@
       {
         "name": "Tout",
         "type": "type",
-        "description": "The type of output Tensor. A tf.DType from: tf.float32 Must be one of the following: `qint8`, `qint32`."
+        "description": "The type of output Tensor. A tf.DType from: tf.float32 Must be one of the following: `qint8`, `quint8`, `qint32`."
       },
       {
         "name": "quantization_axis",
@@ -65505,6 +65564,821 @@
     ]
   },
   {
+    "name": "XlaSparseDenseMatmulCustomCombinerOnTcGradWithAdagradAndCsrInput",
+    "attributes": [
+      {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
+      },
+      {
+        "name": "max_valency",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "num_weights",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "combiner_table_vjp_computation",
+        "type": "function"
+      },
+      {
+        "name": "combiner_weights_vjp_computation",
+        "type": "function"
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_pos_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "weights",
+        "type": 1
+      },
+      {
+        "name": "preserved_valencies",
+        "type": 3
+      },
+      {
+        "name": "preserved_vectors",
+        "type": 1
+      },
+      {
+        "name": "preserved_weights",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "combiner_weights_learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "accumulator",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_accumulator",
+        "type": 1
+      },
+      {
+        "name": "updated_weights",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulCustomCombinerOnTcGradWithAdagradMomentumAndCsrInput",
+    "attributes": [
+      {
+        "name": "use_nesterov",
+        "type": "boolean"
+      },
+      {
+        "name": "exponent",
+        "type": "float32"
+      },
+      {
+        "name": "beta1",
+        "type": "float32"
+      },
+      {
+        "name": "beta2",
+        "type": "float32"
+      },
+      {
+        "name": "epsilon",
+        "type": "float32"
+      },
+      {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
+      },
+      {
+        "name": "max_valency",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "num_weights",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "combiner_table_vjp_computation",
+        "type": "function"
+      },
+      {
+        "name": "combiner_weights_vjp_computation",
+        "type": "function"
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_pos_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "weights",
+        "type": 1
+      },
+      {
+        "name": "preserved_valencies",
+        "type": 3
+      },
+      {
+        "name": "preserved_vectors",
+        "type": 1
+      },
+      {
+        "name": "preserved_weights",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "combiner_weights_learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "accumulator",
+        "type": 1
+      },
+      {
+        "name": "momenta",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_accumulator",
+        "type": 1
+      },
+      {
+        "name": "updated_momenta",
+        "type": 1
+      },
+      {
+        "name": "updated_weights",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulCustomCombinerOnTcGradWithAdamAndCsrInput",
+    "attributes": [
+      {
+        "name": "use_sum_inside_sqrt",
+        "type": "boolean"
+      },
+      {
+        "name": "beta1",
+        "type": "float32"
+      },
+      {
+        "name": "beta2",
+        "type": "float32"
+      },
+      {
+        "name": "epsilon",
+        "type": "float32"
+      },
+      {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
+      },
+      {
+        "name": "max_valency",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "num_weights",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "combiner_table_vjp_computation",
+        "type": "function"
+      },
+      {
+        "name": "combiner_weights_vjp_computation",
+        "type": "function"
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_pos_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "weights",
+        "type": 1
+      },
+      {
+        "name": "preserved_valencies",
+        "type": 3
+      },
+      {
+        "name": "preserved_vectors",
+        "type": 1
+      },
+      {
+        "name": "preserved_weights",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "combiner_weights_learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "momenta",
+        "type": 1
+      },
+      {
+        "name": "velocity",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_momenta",
+        "type": 1
+      },
+      {
+        "name": "updated_velocity",
+        "type": 1
+      },
+      {
+        "name": "updated_weights",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulCustomCombinerOnTcGradWithCsrInput",
+    "attributes": [
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "M",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "max_valency",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "num_weights",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "combiner_table_vjp_computation",
+        "type": "function"
+      },
+      {
+        "name": "combiner_weights_vjp_computation",
+        "type": "function"
+      },
+      {
+        "name": "optimizer_custom_computation",
+        "type": "function"
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_pos_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "weights",
+        "type": 1
+      },
+      {
+        "name": "preserved_valencies",
+        "type": 3
+      },
+      {
+        "name": "preserved_vectors",
+        "type": 1
+      },
+      {
+        "name": "preserved_weights",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "tables",
+        "numberAttr": "N",
+        "type": 1
+      },
+      {
+        "name": "hyperparameters",
+        "numberAttr": "M",
+        "type": 1
+      },
+      {
+        "name": "combiner_weights_learning_rate",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_tables",
+        "numberAttr": "N",
+        "type": 1
+      },
+      {
+        "name": "updated_weights",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulCustomCombinerOnTcGradWithFtrlAndCsrInput",
+    "attributes": [
+      {
+        "name": "multiply_linear_by_learning_rate",
+        "type": "boolean"
+      },
+      {
+        "name": "beta",
+        "type": "float32"
+      },
+      {
+        "name": "learning_rate_power",
+        "type": "float32"
+      },
+      {
+        "name": "l1_regularization_strength",
+        "type": "float32"
+      },
+      {
+        "name": "l2_regularization_strength",
+        "type": "float32"
+      },
+      {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
+      },
+      {
+        "name": "max_valency",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "num_weights",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "combiner_table_vjp_computation",
+        "type": "function"
+      },
+      {
+        "name": "combiner_weights_vjp_computation",
+        "type": "function"
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_pos_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "weights",
+        "type": 1
+      },
+      {
+        "name": "preserved_valencies",
+        "type": 3
+      },
+      {
+        "name": "preserved_vectors",
+        "type": 1
+      },
+      {
+        "name": "preserved_weights",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "combiner_weights_learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "accumulator",
+        "type": 1
+      },
+      {
+        "name": "linear",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_accumulator",
+        "type": 1
+      },
+      {
+        "name": "updated_linear",
+        "type": 1
+      },
+      {
+        "name": "updated_weights",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulCustomCombinerOnTcGradWithSgdAndCsrInput",
+    "attributes": [
+      {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
+      },
+      {
+        "name": "max_valency",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "num_weights",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "combiner_table_vjp_computation",
+        "type": "function"
+      },
+      {
+        "name": "combiner_weights_vjp_computation",
+        "type": "function"
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_pos_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "weights",
+        "type": 1
+      },
+      {
+        "name": "preserved_valencies",
+        "type": 3
+      },
+      {
+        "name": "preserved_vectors",
+        "type": 1
+      },
+      {
+        "name": "preserved_weights",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "combiner_weights_learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_weights",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulCustomCombinerOnTcWithCsrInput",
+    "attributes": [
+      {
+        "name": "input_size",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "max_valency",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "num_weights",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "combiner_computation",
+        "type": "function"
+      },
+      {
+        "name": "quantization_config_low",
+        "type": "float32"
+      },
+      {
+        "name": "quantization_config_high",
+        "type": "float32"
+      },
+      {
+        "name": "quantization_config_num_buckets",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_pos_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "weights",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "activations",
+        "type": 1
+      },
+      {
+        "name": "preserved_valencies",
+        "type": 3
+      },
+      {
+        "name": "preserved_vectors",
+        "type": 1
+      }
+    ]
+  },
+  {
     "name": "XlaSparseDenseMatmulGradWithAdagradAndCsrInput",
     "attributes": [
       {
@@ -65520,6 +66394,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -65597,6 +66476,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -65684,6 +66568,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -65789,6 +66678,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -65880,6 +66774,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -65981,6 +66880,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -66060,6 +66964,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -66142,6 +67051,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -66247,6 +67161,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -66322,6 +67241,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -66391,6 +67315,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -66458,6 +67387,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -66527,6 +67461,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
