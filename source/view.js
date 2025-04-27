@@ -774,7 +774,7 @@ view.View = class {
     async _updateStack(model, stack) {
         this.update(model);
         this._stack = stack;
-        const status = await this.renderGraph(this._model, this.activeTarget, this.activeSignature, this._options);
+        const status = await this.renderGraph(model, this.activeTarget, this.activeSignature, this._options);
         if (status !== '') {
             this.update(null);
             this._stack = [];
@@ -2710,21 +2710,23 @@ view.TargetSelector = class extends view.Control {
         const graphs = [];
         const signatures = [];
         const functions = [];
-        for (const graph of model.graphs) {
-            const name = graph.name || '(unnamed)';
-            graphs.push({ name, target: graph, signature: null });
-            if (Array.isArray(graph.functions)) {
-                for (const func of graph.functions) {
-                    functions.push({ name: `${name}.${func.name}`, target: func, signature: null });
+        if (model && Array.isArray(model.graphs)) {
+            for (const graph of model.graphs) {
+                const name = graph.name || '(unnamed)';
+                graphs.push({ name, target: graph, signature: null });
+                if (Array.isArray(graph.functions)) {
+                    for (const func of graph.functions) {
+                        functions.push({ name: `${name}.${func.name}`, target: func, signature: null });
+                    }
                 }
-            }
-            if (Array.isArray(graph.signatures)) {
-                for (const signature of graph.signatures) {
-                    signatures.push({ name: `${name}.${signature.name}`, target: graph, signature });
+                if (Array.isArray(graph.signatures)) {
+                    for (const signature of graph.signatures) {
+                        signatures.push({ name: `${name}.${signature.name}`, target: graph, signature });
+                    }
                 }
             }
         }
-        if (Array.isArray(model.functions)) {
+        if (model && Array.isArray(model.functions)) {
             for (const func of model.functions) {
                 functions.push({ name: func.name, target: func, signature: null });
             }
