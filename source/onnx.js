@@ -1600,7 +1600,7 @@ onnx.ProtoReader = class {
                 return new onnx.ProtoReader(context, 'text', 'model');
             }
             const identifier = context.identifier;
-            const extension = identifier.split('.').pop().toLowerCase();
+            const extension = identifier.lastIndexOf('.') > 0 ? identifier.split('.').pop().toLowerCase() : '';
             if (tags.has('graph') && extension !== 'model') {
                 return new onnx.ProtoReader(context, 'text', 'model');
             }
@@ -1790,7 +1790,7 @@ onnx.OrtReader = class {
 
     static async open(context) {
         const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
+        const extension = identifier.lastIndexOf('.') > 0 ? identifier.split('.').pop().toLowerCase() : '';
         const reader = await context.peek('flatbuffers.binary');
         if (reader && reader.identifier === 'ORTM') {
             return new onnx.OrtReader(context);
@@ -2790,7 +2790,7 @@ onnx.PickleReader = class {
 
     static async open(context) {
         const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
+        const extension = identifier.lastIndexOf('.') > 0 ? identifier.split('.').pop().toLowerCase() : '';
         const stream = context.stream;
         if (extension === 'onnx' && stream && stream.length > 3) {
             const signature = stream.peek(2);

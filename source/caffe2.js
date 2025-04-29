@@ -5,7 +5,7 @@ caffe2.ModelFactory = class {
 
     async match(context) {
         const identifier = context.identifier.toLowerCase();
-        const extension = identifier.split('.').pop().toLowerCase();
+        const extension = identifier.lastIndexOf('.') > 0 ? identifier.split('.').pop().toLowerCase() : '';
         switch (extension) {
             case 'pbtxt':
             case 'prototxt': {

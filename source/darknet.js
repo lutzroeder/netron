@@ -5,7 +5,7 @@ darknet.ModelFactory = class {
 
     async match(context) {
         const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
+        const extension = identifier.lastIndexOf('.') > 0 ? identifier.split('.').pop().toLowerCase() : '';
         if (extension === 'weights' && !identifier.toLowerCase().endsWith('.espresso.weights')) {
             const weights = await darknet.Weights.open(context);
             if (weights) {

@@ -5,7 +5,7 @@ nnef.ModelFactory = class {
 
     async match(context) {
         const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
+        const extension = identifier.lastIndexOf('.') > 0 ? identifier.split('.').pop().toLowerCase() : '';
         switch (extension) {
             case 'nnef': {
                 const reader = await nnef.TextReader.open(context);

@@ -13,7 +13,7 @@ tflite.ModelFactory = class {
             return context.set('tflite.flatbuffers', reader);
         }
         const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
+        const extension = identifier.lastIndexOf('.') > 0 ? identifier.split('.').pop().toLowerCase() : '';
         if (extension === 'tflite' && reader && reader.identifier === '') {
             const version = reader.uint32_(reader.root, 4, 0);
             if (version === 3) {
