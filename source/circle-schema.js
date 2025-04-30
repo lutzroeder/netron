@@ -44,11 +44,27 @@ circle.CustomQuantization = class CustomQuantization {
     }
 };
 
+circle.MXQuantization = class MXQuantization {
+
+    static decode(reader, position) {
+        const $ = new circle.MXQuantization();
+        $.axis = reader.int32_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new circle.MXQuantization();
+        $.axis = reader.value(json.axis, 0);
+        return $;
+    }
+};
+
 circle.QuantizationDetails = class {
 
     static decode(reader, position, type) {
         switch (type) {
             case 1: return circle.CustomQuantization.decode(reader, position);
+            case 2: return circle.MXQuantization.decode(reader, position);
             default: return undefined;
         }
     }
@@ -56,6 +72,7 @@ circle.QuantizationDetails = class {
     static decodeText(reader, json, type) {
         switch (type) {
             case 'CustomQuantization': return circle.CustomQuantization.decodeText(reader, json);
+            case 'MXQuantization': return circle.MXQuantization.decodeText(reader, json);
             default: return undefined;
         }
     }
