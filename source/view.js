@@ -6135,7 +6135,7 @@ view.ModelFactoryService = class {
         this.register('./imgdnn', ['.dnn', 'params', '.json']);
         this.register('./flax', ['.msgpack']);
         this.register('./om', ['.om', '.onnx', '.pb', '.engine', '.bin'], [], [/^IMOD/, /^PICO/]);
-        this.register('./gguf', ['.gguf', /^[^.]+$/]);
+        this.register('./gguf', ['.gguf', /^[^.]+$/], [], [/^GGUF/]);
         this.register('./nnabla', ['.nntxt'], ['.nnp']);
         this.register('./hickle', ['.h5', '.hkl']);
         this.register('./nnef', ['.nnef', '.dat']);
@@ -6208,7 +6208,6 @@ view.ModelFactoryService = class {
 
     async _unsupported(context) {
         const identifier = context.identifier;
-        const extension = identifier.lastIndexOf('.') > 0 ? identifier.split('.').pop().toLowerCase() : '';
         const stream = context.stream;
         const zip = await import('./zip.js');
         const tar = await import('./tar.js');
