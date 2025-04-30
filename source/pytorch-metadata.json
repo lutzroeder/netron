@@ -3754,6 +3754,18 @@
     "name": "aten::lerp.Tensor_out(Tensor self, Tensor end, Tensor weight, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::less.Tensor(Tensor self, Tensor other) -> Tensor"
+  },
+  {
+    "name": "aten::less.Scalar(Tensor self, Scalar other) -> Tensor"
+  },
+  {
+    "name": "aten::less.Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::less.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::less_equal.Tensor(Tensor self, Tensor other) -> Tensor"
   },
   {
