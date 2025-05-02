@@ -1672,10 +1672,10 @@
     "name": "aten::binary_cross_entropy_with_logits.out(Tensor self, Tensor target, Tensor? weight=None, Tensor? pos_weight=None, int reduction=1, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::bincount(Tensor self, Tensor? weights=None, int minlength=0) -> Tensor"
+    "name": "aten::bincount(Tensor self, Tensor? weights=None, SymInt minlength=0) -> Tensor"
   },
   {
-    "name": "aten::bincount.out(Tensor self, Tensor? weights=None, int minlength=0, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::bincount.out(Tensor self, Tensor? weights=None, SymInt minlength=0, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::binomial(Tensor count, Tensor prob, Generator? generator=None) -> Tensor"
