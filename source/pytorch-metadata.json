@@ -4785,6 +4785,18 @@
     "name": "aten::normal_(Tensor(a!) self, float mean=0., float std=1., *, Generator? generator=None) -> Tensor(a!)"
   },
   {
+    "name": "aten::not_equal.Tensor(Tensor self, Tensor other) -> Tensor"
+  },
+  {
+    "name": "aten::not_equal.Scalar(Tensor self, Scalar other) -> Tensor"
+  },
+  {
+    "name": "aten::not_equal.Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::not_equal.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::nuclear_norm(Tensor self, bool keepdim=False) -> Tensor"
   },
   {
