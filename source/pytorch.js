@@ -237,27 +237,24 @@ pytorch.Graph = class {
                     if (inputs_to_parameters.has(obj.name)) {
                         const key = inputs_to_parameters.get(obj.name);
                         const parameter = exported_program.state_dict.get(key);
-                        if (parameter) {
-                            const tensor = new pytorch.Tensor(key, parameter.data);
-                            const value = new pytorch.Value(key, null, null, tensor);
-                            values.set(obj, value);
-                        }
+                        const tensor = parameter && parameter.data ? parameter.data : obj.meta.get('val');
+                        const initializer = new pytorch.Tensor(key, tensor);
+                        const value = new pytorch.Value(key, null, null, initializer);
+                        values.set(obj, value);
                     } else if (inputs_to_buffers.has(obj.name)) {
                         const key = inputs_to_buffers.get(obj.name);
                         const buffer = exported_program.state_dict.get(key);
-                        if (buffer) {
-                            const tensor = new pytorch.Tensor(key, buffer);
-                            const value = new pytorch.Value(key, null, null, tensor);
-                            values.set(obj, value);
-                        }
+                        const tensor = buffer || obj.meta.get('val');
+                        const initializer = new pytorch.Tensor(key, tensor);
+                        const value = new pytorch.Value(key, null, null, initializer);
+                        values.set(obj, value);
                     } else if (inputs_to_lifted_tensor_constants.has(obj.name)) {
                         const key = inputs_to_lifted_tensor_constants.get(obj.name);
                         const constant = exported_program.constants.get(key);
-                        if (exported_program) {
-                            const tensor = new pytorch.Tensor(key, constant);
-                            const value = new pytorch.Value(key, null, null, tensor);
-                            values.set(obj, value);
-                        }
+                        const tensor = constant && constant.data ? constant.data : obj.meta.get('val');
+                        const initializer = new pytorch.Tensor(key, tensor);
+                        const value = new pytorch.Value(key, null, null, initializer);
+                        values.set(obj, value);
                     }
                     if (obj.users.size > 1 && values.has(obj)) {
                         const node = new pytorch.Node(execution, metadata, obj.name, null, obj, null, values);

@@ -6525,6 +6525,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "squeezenet1_1.serialized_exported_program.json.zip",
+    "source":   "https://github.com/user-attachments/files/20024037/squeezenet1_1.serialized_exported_program.json.zip",
+    "format":   "PyTorch Export v7.3",
+    "link":     "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":     "pytorch",
     "target":   "squeezenet1_1.pkl.pth.zip",
     "source":   "https://github.com/lutzroeder/netron/files/5213456/squeezenet1_1.pkl.pth.zip",
     "format":   "PyTorch v0.1.10",
