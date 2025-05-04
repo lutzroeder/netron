@@ -3312,7 +3312,7 @@
     "target":   "model.mlirbc",
     "source":   "https://github.com/user-attachments/files/17179955/model.mlirbc.zip[model.mlirbc]",
     "format":   "MLIR",
-    "error":    "Invalid file content. File contains MLIR bytecode data.",
+    "error":    "File contains unsupported MLIR bytecode data.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3363,7 +3363,7 @@
     "target":   "versioned-op-2.0.mlirbc",
     "source":   "https://github.com/user-attachments/files/17174958/versioned-op-2.0.mlirbc.zip[versioned-op-2.0.mlirbc]",
     "format":   "MLIR",
-    "error":    "Invalid file content. File contains MLIR bytecode data.",
+    "error":    "File contains unsupported MLIR bytecode data.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -8450,6 +8450,34 @@
     "target":   "j48model.model",
     "source":   "https://raw.githubusercontent.com/PTaati/wekaTree2python/master/j48model.model",
     "error":    "Unsupported type 'weka.classifiers.trees.J48'."
+  },
+  {
+    "type":     "xgboost",
+    "target":   "xgb_classifier.json",
+    "source":   "https://github.com/user-attachments/files/20028544/xgb_classifier.zip[xgb_classifier.json]",
+    "error":    "File contains unsupported XGBoost JSON data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1452"
+  },
+  {
+    "type":     "xgboost",
+    "target":   "xgb_classifier.model",
+    "source":   "https://github.com/user-attachments/files/20028544/xgb_classifier.zip[xgb_classifier.model]",
+    "error":    "File contains unsupported XGBoost data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1452"
+  },
+  {
+    "type":     "xgboost",
+    "target":   "xgb_classifier.pkl",
+    "source":   "https://github.com/user-attachments/files/20028544/xgb_classifier.zip[xgb_classifier.pkl]",
+    "format":   "scikit-learn",
+    "link":     "https://github.com/lutzroeder/netron/issues/1452"
+  },
+  {
+    "type":     "xgboost",
+    "target":   "xgb_classifier.txt",
+    "source":   "https://github.com/user-attachments/files/20028544/xgb_classifier.zip[xgb_classifier.txt]",
+    "error":    "File contains unsupported XGBoost text data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1452"
   },
   {
     "type":     "xmodel",

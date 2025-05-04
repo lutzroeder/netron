@@ -6151,6 +6151,7 @@ view.ModelFactoryService = class {
         this.register('./weka', ['.model']);
         this.register('./qnn', ['.json', '.bin', '.serialized', '.dlc']);
         this.register('./kann', ['.kann', '.bin', '.kgraph'], [], [/^....KaNN/]);
+        this.register('./xgboost', ['.xgb', '.xgboost', '.json', '.model', '.bin', '.txt'], [], [/^{L\x00\x00/, /^binf/, /^bs64/, /^\s*booster\[0\]:/]);
         this.register('', ['.cambricon', '.vnnmodel', '.nnc']);
         /* eslint-enable no-control-regex */
     }
@@ -6695,7 +6696,6 @@ view.ModelFactoryService = class {
                 { name: 'Cambricon model', value: /^\x7fMEF/ },
                 { name: 'Cambricon model', value: /^cambricon_offline/ },
                 { name: 'VNN model', value: /^\x2F\x4E\x00\x00.\x00\x00\x00/, identifier: /.vnnmodel$/ },
-                { name: 'XGBoost model', value: /^(binf|bs64)/ }, // https://github.com/dmlc/xgboost/blob/master/src/learner.cc
                 { name: 'SQLite data', value: /^SQLite format/ },
                 { name: 'Optimium model', value: /^EZMODEL/ }, // https://github.com/EZ-Optimium/Optimium,
                 { name: 'undocumented NNC data', value: /^(\xC0|\xBC)\x0F\x00\x00ENNC/ },

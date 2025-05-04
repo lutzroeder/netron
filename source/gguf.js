@@ -191,7 +191,8 @@ gguf.Reader = class {
     static open(context) {
         const stream = context.stream;
         if (stream && stream.length > 4) {
-            const signature = String.fromCharCode.apply(null, stream.peek(4));
+            const buffer = stream.peek(4);
+            const signature = String.fromCharCode.apply(null, buffer);
             if (signature === 'GGUF') {
                 return new gguf.Reader(context);
             }
