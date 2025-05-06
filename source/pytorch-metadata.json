@@ -2931,6 +2931,18 @@
     "name": "aten::fft_rfftn.out(Tensor self, SymInt[1]? s=None, int[1]? dim=None, str? norm=None, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::fill.Scalar(Tensor self, Scalar value) -> Tensor"
+  },
+  {
+    "name": "aten::fill.Scalar_out(Tensor self, Scalar value, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::fill.Tensor(Tensor self, Tensor value) -> Tensor"
+  },
+  {
+    "name": "aten::fill.Tensor_out(Tensor self, Tensor value, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::fill_.Scalar(Tensor(a!) self, Scalar value) -> Tensor(a!)"
   },
   {
@@ -4571,6 +4583,12 @@
   },
   {
     "name": "aten::narrow_copy.out(Tensor self, int dim, SymInt start, SymInt length, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::native_group_norm(Tensor input, Tensor? weight, Tensor? bias, SymInt N, SymInt C, SymInt HxW, int group, float eps) -> (Tensor, Tensor, Tensor)"
+  },
+  {
+    "name": "aten::native_group_norm.out(Tensor input, Tensor? weight, Tensor? bias, SymInt N, SymInt C, SymInt HxW, int group, float eps, *, Tensor(a!) out0, Tensor(b!) out1, Tensor(c!) out2) -> (Tensor(a!), Tensor(b!), Tensor(c!))"
   },
   {
     "name": "aten::native_layer_norm(Tensor input, SymInt[] normalized_shape, Tensor? weight, Tensor? bias, float eps) -> (Tensor, Tensor, Tensor)",
