@@ -6699,6 +6699,7 @@ view.ModelFactoryService = class {
                 { name: 'SQLite data', value: /^SQLite format/ },
                 { name: 'Optimium model', value: /^EZMODEL/ }, // https://github.com/EZ-Optimium/Optimium,
                 { name: 'undocumented NNC data', value: /^(\xC0|\xBC)\x0F\x00\x00ENNC/ },
+                { name: 'undocumented HALCON model', value: /^HDLMODEL/ },
                 { name: 'Rich Text Format data', value: /^{\\rtf/ },
                 { name: 'Encrypted File data', value: /^ENCRYPTED_FILE|EV_ENCRYPTED/ },
                 { name: 'Keras Tokenizer data', value: /^"{\\"class_name\\":\s*\\"Tokenizer\\"/ },
