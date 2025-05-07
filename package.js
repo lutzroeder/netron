@@ -273,7 +273,8 @@ const build = async (target) => {
             const extensions = new Set(['html', 'css', 'js', 'json', 'ico', 'png']);
             await copy(source_dir, dist_dir, (file) => extensions.has(file.split('.').pop()));
             await rm('dist', 'web', 'app.js');
-            await rm('dist', 'web', 'electron.js');
+            await rm('dist', 'web', 'node.js');
+            await rm('dist', 'web', 'desktop.mjs');
             const contentFile = dirname('dist', 'web', 'index.html');
             let content = await fs.readFile(contentFile, 'utf-8');
             content = content.replace(/(<meta\s*name="version"\s*content=")(.*)(">)/m, (match, p1, p2, p3) => {
