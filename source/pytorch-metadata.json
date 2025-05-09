@@ -959,6 +959,12 @@
     "category": "Tensor"
   },
   {
+    "name": "aten::_sparse_mm(Tensor sparse, Tensor dense) -> Tensor"
+  },
+  {
+    "name": "aten::_sparse_mm.reduce(Tensor sparse, Tensor dense, str reduce) -> Tensor"
+  },
+  {
     "name": "aten::_test_serialization_subcmul(Tensor self, Tensor other, Scalar alpha=1) -> Tensor"
   },
   {
