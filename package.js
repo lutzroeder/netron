@@ -287,13 +287,23 @@ const build = async (target) => {
             break;
         }
         case 'electron': {
-            writeLine('build electron');
+            const key = [read(), read()].filter((x) => x).join(' ');
+            const target = key ? `electron ${key}` : 'electron';
+            writeLine(`build ${target}`);
             await install();
             await exec('npx electron-builder install-app-deps');
-            await exec('npx electron-builder --mac --universal --publish never -c.mac.identity=null');
-            await exec('npx electron-builder --win --x64 --arm64 --publish never');
-            await exec('npx electron-builder --linux appimage --x64 --publish never');
-            await exec('npx electron-builder --linux snap --x64 --publish never');
+            const table = new Map([
+                ['mac',            'npx electron-builder --mac --universal --publish never -c.mac.identity=null'],
+                ['windows',        'npx electron-builder --win --x64 --arm64 --publish never'],
+                ['linux appimage', 'npx electron-builder --linux appimage --x64 --publish never'],
+                ['linux snap',     'npx electron-builder --linux snap --x64 --publish never'],
+            ]);
+            const targets = table.has(key) ? [table.get(key)] : Array.from(table.values());
+            for (const target of targets) {
+                /* eslint-disable no-await-in-loop */
+                await exec(target);
+                /* eslint-enable no-await-in-loop */
+            }
             break;
         }
         case 'python': {
