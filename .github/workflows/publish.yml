@@ -19,8 +19,8 @@ jobs:
 
       - name: Git credentials
         run: |
-          git config --global user.name ${{ secrets.PUBLISH_USER_NAME }}
-          git config --global user.email ${{ secrets.PUBLISH_USER_EMAIL }}
+          git config --global user.name ${{ secrets.PUBLISH_GITHUB_USER_NAME }}
+          git config --global user.email ${{ secrets.PUBLISH_GITHUB_USER_EMAIL }}
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -94,6 +94,7 @@ jobs:
       - if: startsWith(matrix.os, 'windows')
         name: Publish winget
         env:
-          GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
+          WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
         run: npm run publish winget

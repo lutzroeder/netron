@@ -126,7 +126,7 @@ const sleep = (delay) => {
 const request = async (url, init, status) => {
     const response = await fetch(url, init);
     if (status !== false && !response.ok) {
-        throw new Error(response.status.toString());
+        throw new Error(`${response.status.toString()} ${response.statusText}`);
     }
     if (response.body) {
         const reader = response.body.getReader();
@@ -196,12 +196,12 @@ const fork = async (organization, repository) => {
     await exec(`git clone --depth=2 https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_USER}/${repository}.git dist/${repository}`);
 };
 
-const pullrequest = async (organization, repository, body) => {
+const pullrequest = async (organization, repository, token, body) => {
     writeLine(`github push ${repository}`);
     await exec(`git -C dist/${repository} push`);
     writeLine(`github pullrequest ${repository}`);
     const headers = {
-        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
+        Authorization: `Bearer ${token}`
     };
     await request(`https://api.github.com/repos/${organization}/${repository}/pulls`, {
         method: 'POST',
@@ -399,7 +399,7 @@ const publish = async (target) => {
             writeLine('git push homebrew-cask');
             await exec('git -C dist/homebrew-cask add --all');
             await exec(`git -C dist/homebrew-cask commit -m "${configuration.name} ${configuration.version}"`);
-            await pullrequest('Homebrew', 'homebrew-cask', {
+            await pullrequest('Homebrew', 'homebrew-cask', process.env.GITHUB_TOKEN, {
                 title: `${configuration.name} ${configuration.version}`,
                 body: 'Update version and sha256',
                 head: `${process.env.GITHUB_USER}:master`,
@@ -498,7 +498,7 @@ const publish = async (target) => {
             writeLine('git push winget-pkgs');
             await exec('git -C dist/winget-pkgs add --all');
             await exec(`git -C dist/winget-pkgs commit -m "Update ${configuration.name} to ${configuration.version}"`);
-            await pullrequest('microsoft', 'winget-pkgs', {
+            await pullrequest('microsoft', 'winget-pkgs', process.env.WINGET_TOKEN, {
                 title: `Update ${configuration.productName} to ${configuration.version}`,
                 body: '',
                 head: `${process.env.GITHUB_USER}:master`,
