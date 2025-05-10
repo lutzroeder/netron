@@ -4242,7 +4242,22 @@ python.Execution = class {
         types.TypeType = builtins.type;
         types.CodeType = builtins.code;
         this.registerType('xgboost.compat.XGBoostLabelEncoder', class {});
-        this.registerType('xgboost.core.Booster', class {});
+        this.registerType('xgboost.core.Booster', class {
+            load_model(fname) {
+                if (fname instanceof Uint8Array) {
+                    // XGBoosterLoadModel()
+                } else {
+                    // XGBoosterUnserializeFromBuffer(handle) {
+                }
+            }
+            __setstate__(state) {
+                const handle = state.get('handle');
+                if (handle) {
+                    this.handle = handle;
+                    // XGBoosterLoadModelFromBuffer()
+                }
+            }
+        });
         this.registerType('xgboost.sklearn.XGBClassifier', class {});
         this.registerType('xgboost.sklearn.XGBRegressor', class {});
         this.registerType('xgboost.sklearn.XGBRFClassifier', class {});

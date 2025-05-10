@@ -1,6 +1,8 @@
 
 // Experimental
 
+import * as python from './python.js';
+
 const xgboost = {};
 
 xgboost.ModelFactory = class {
@@ -34,6 +36,9 @@ xgboost.ModelFactory = class {
 
     async open(context) {
         if (context.type === 'xgboost.json') {
+            const execution = new python.Execution();
+            const model = execution.invoke('xgboost.core.Booster', []);
+            model.load_model(context.value);
             throw new xgboost.Error('File contains unsupported XGBoost JSON data.');
         }
         if (context.type === 'xgboost.text') {
