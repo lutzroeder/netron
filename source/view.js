@@ -6276,6 +6276,10 @@ view.ModelFactoryService = class {
                     { name: 'Kaggle credentials', tags: ['username','key'] },
                     { name: '.NET runtime configuration', tags: ['runtimeOptions.configProperties'] },
                     { name: '.NET dependency manifest', tags: ['runtimeTarget', 'targets', 'libraries'] },
+                    { name: 'GuitarML NeuralPi model data', tags: ['model_data', 'state_dict'] },
+                    { name: 'GuitarML SmartAmpPro model data', tags: ['conv1d', 'conv1d_stride'] },
+                    { name: 'GuitarML SmartAmp model data', tags: ['activation', 'output_channels', 'input_channels', 'residual_channels'] },
+                    { name: 'Keras configuration data', tags: ['floatx', 'epsilon', 'backend'] },
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
