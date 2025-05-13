@@ -1605,6 +1605,26 @@ pytorch.Execution = class extends python.Execution {
         }
         return super.call(target, name, args, keywords, context);
     }
+
+    invoke(target, args) {
+        if (target && Array.isArray(target.__bases__) && target.__bases__.length > 0 && target.__bases__[0] === this.enum.Enum) {
+            const instance = new target();
+            instance.value = args;
+            return instance;
+        }
+        return super.invoke(target, args);
+    }
+
+    base(expr, context) {
+        const ast = this.ast;
+        if (expr instanceof ast.Name) {
+            switch (expr.id) {
+                case 'Enum': return this.enum.Enum;
+                default: break;
+            }
+        }
+        return this.expression(expr, context);
+    }
 };
 
 pytorch.Container.Package = class extends pytorch.Container {

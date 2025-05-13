@@ -5692,6 +5692,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "fbdeit_scripted.pt",
+    "source":   "https://github.com/user-attachments/files/20181250/fbdeit_scripted.pt.zip[fbdeit_scripted.pt]",
+    "format":   "TorchScript v1.12",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "feature_embedding.pt2",
     "source":   "https://github.com/user-attachments/files/17608076/chai-1.zip[feature_embedding.pt2]",
     "format":   "PyTorch Export v5.1",

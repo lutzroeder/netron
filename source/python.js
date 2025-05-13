@@ -124,7 +124,7 @@ python.Execution = class {
         const operator = this.register('operator');
         this.register('_codecs');
         this.register('argparse');
-        this._enum = this.register('enum');
+        this.enum = this.register('enum');
         this.register('collections');
         const copy = this.register('copy');
         this.register('copy_reg');
@@ -2408,7 +2408,11 @@ python.Execution = class {
         typing.Sequence = Reflect.construct(typing._SpecialGenericAlias, []);
         typing.Tuple = Reflect.construct(typing._TupleType, []);
         typing.Union = Reflect.construct(typing._SpecialForm, []);
-        this.registerType('enum.Enum', class {});
+        this.registerType('enum.Enum', class {
+            // __reduce_ex__(proto) {
+            //    return self.__class__, (self._value_, )
+            // }
+        });
         this.registerFunction('operator.add');
         this.registerFunction('operator.eq');
         this.registerFunction('operator.ge');
@@ -8915,6 +8919,49 @@ python.Execution = class {
                 return this.qualified_name();
             }
         });
+        this.registerType('torch.EnumType', class extends torch.Type {
+            constructor(qualified_class_name, value_type, enum_names_values, cu) {
+                super('EnumType', qualified_class_name);
+                this._name = qualified_class_name;
+                this._value_type = value_type;
+                this._enum_names_values = enum_names_values;
+                this._cu = cu;
+            }
+            static create(qualified_class_name, value, enum_names_values, cu) {
+                if (value instanceof torch.IntType || value instanceof torch.FloatType || value instanceof torch.StringType) {
+                    return new torch.EnumType(qualified_class_name, value, enum_names_values, cu);
+                }
+                torch._C.TORCH_CHECK(false);
+                return null;
+            }
+            name() {
+                return this._name;
+            }
+            get annotation_str() {
+                return this._name.qualifiedName();
+            }
+            enumNamesValues() {
+                return this._enum_names_values;
+            }
+            compilation_unit() {
+                return this._cu;
+            }
+            getValueType() {
+                return this._value_type;
+            }
+            equals(rhs) {
+                if (rhs instanceof torch.EnumType) {
+                    return this.name() && this.name() === rhs.name() && this.getValueType() === rhs.getValueType() && this.compilation_unit() === rhs.compilation_unit();
+                }
+                return false;
+            }
+            isSubtypeOf(rhs) {
+                if (rhs instanceof torch.AnyType || rhs.kind() === 'AnyEnumType' || this === rhs) {
+                    return true;
+                }
+                return super.isSubtypeOf(rhs);
+            }
+        });
         this.registerFunction('torch._C.standardizeVectorForUnion', (...args) => {
             if (args.length === 1) {
                 const [to_flatten] = args;
@@ -11845,6 +11892,8 @@ python.Execution = class {
                     this.tag = 'Int';
                 } else if (typeof value === 'number') {
                     this.tag = 'Double';
+                } else if (value instanceof torch._C.EnumHolder) {
+                    this.tag = 'Enum';
                 } else {
                     throw new python.Error('Unsupported type.');
                 }
@@ -11914,8 +11963,14 @@ python.Execution = class {
             isStream() {
                 return this.tag === 'Stream';
             }
+            isGenericDict() {
+                return this.tag === 'GenericDict';
+            }
             isEnum() {
                 return this.tag === 'Enum';
+            }
+            toEnumHolder() {
+                return this.value;
             }
             isTuple() {
                 return this.tag === 'Tuple';
@@ -11956,6 +12011,7 @@ python.Execution = class {
                 switch (this.tag) {
                     case 'Int': return torch.IntType.get();
                     case 'Tuple': return torch.TupleType.create(this.value.elements().map((ivalue) => ivalue.type()));
+                    case 'Enum': return this.toEnumHolder().type();
                     default: throw new python.Error(`IValue.type('${this.tag}') not implemented.`);
                 }
             }
@@ -12229,7 +12285,7 @@ python.Execution = class {
                 } else if (superclass_name === 'ModuleInterface') {
                     // this._cu.define_interface(qualified_name, class_def, shared_from_this(), is_module=true);
                 } else if (superclass_name === 'Enum') {
-                    // importEnum(qualified_name, class_def);
+                    this.importEnum(qualified_name, class_def);
                 } else {
                     throw new python.Error('TorchScript does not support class inheritance.');
                 }
@@ -12340,6 +12396,56 @@ python.Execution = class {
                 this._cu.register_type(class_type);
                 const self = new torch._C.SimpleSelf(class_type);
                 this._cu.define(qualified_classname, [], [], methods, method_resolvers, self, false, this._version);
+            }
+            importEnum(qualified_name, enum_def) {
+                const names_values = [];
+                let value_type = null;
+                const set_or_check_type = (t) => {
+                    if (!value_type) {
+                        value_type = t;
+                    } else if (value_type !== t) {
+                        throw new python.Error('Enum class with varying value types are not supported.');
+                    }
+                };
+                for (const stmt of enum_def.body) {
+                    if (stmt instanceof ast.Assign === false) {
+                        throw new python.Error('Unexpected statement in Enum class body.');
+                    }
+                    const assign = stmt;
+                    const name = assign.targets[0].id;
+                    let ivalue = null;
+                    const rhs = assign.value;
+                    switch (rhs.type) {
+                        case 'str':
+                            ivalue = new torch._C.IValue(rhs.value);
+                            set_or_check_type(torch.StringType.get());
+                            break;
+                        default:
+                            throw new python.Error(`Unsupported enum value type '${rhs.type}'.`);
+                            /*
+                        case TK_CONST: {
+                            auto numeric_const = Const(rhs);
+                            if (numeric_const.isFloatingPoint()) {
+                            ivalue = IValue(numeric_const.asFloatingPoint());
+                            set_or_check_type(FloatType::get(), statement.range());
+                            } else if (numeric_const.isIntegral()) {
+                            ivalue = IValue(numeric_const.asIntegral());
+                            set_or_check_type(IntType::get(), statement.range());
+                            }
+                            break;
+                        }
+                        default:
+                            throw(ErrorReport(rhs.range()) << "Unsupported enum value type: " << rhs.kind() << ". Only Integers, Floats and Strings are supported.");
+                        }
+                        */
+                    }
+                    names_values.push([name, ivalue]);
+                }
+                if (!value_type) {
+                    throw new python.Error('No enum values defined.');
+                }
+                const enum_type = torch.EnumType.create(qualified_name, value_type, names_values, this._cu);
+                this._cu.register_type(enum_type);
             }
             importNamedTuple(qualified_name, named_tuple_def) {
                 const type_parser = new torch._C.ScriptTypeParser(this);
@@ -14151,7 +14257,9 @@ python.Execution = class {
                     }
                 } else if (this._value.type() instanceof torch.InterfaceType) {
                     throw new python.Error('Not implemented.');
-                } /* else if (this._value.type() instanceof torch.EnumType) {
+                } else if (this._value.type() instanceof torch.EnumType) {
+                    throw new python.Error('Not implemented.');
+                    /*
                     const g = m.graph();
                     if (field == 'name') {
                         const n = g.insertNode(g.createEnumName(value_));
@@ -14161,7 +14269,8 @@ python.Execution = class {
                         const n = g.insertNode(g.createEnumValue(value_));
                         return std::make_shared<SimpleValue>(n->output());
                     }
-                } */
+                    */
+                }
                 if (field === 'type') {
                     const builtin = torch._C.BuiltinFunction.tryCreate('aten::to', new torch._C.NamedValue(loc, 'self', this._value));
                     if (builtin) {
@@ -14306,6 +14415,31 @@ python.Execution = class {
                 const self = g.insertNode(g.createTuple(matched_schema.inputs, this._type).setSourceRange(loc)).output();
                 self.setType(this._type);
                 return new torch._C.SimpleValue(self);
+            }
+        });
+        this.registerType('torch._C.SugaredEnumClass', class extends torch._C.SugaredValue {
+            constructor(enum_type) {
+                super();
+                this._enum_type = enum_type;
+            }
+            attr(loc, m, field) {
+                const names_values = this._enum_type.enumNamesValues();
+                const it = names_values.find((nv) => nv[0] === field);
+                if (it === null) {
+                    throw new python.Error(`Enum '${this._enum_type.name()}' has no attribute '${field}'.`);
+                }
+                const enum_holder = new torch._C.EnumHolder(this._enum_type, it[0], it[1]);
+                return new torch._C.SimpleValue(m.graph().insertConstant(new torch._C.IValue(enum_holder), loc));
+            }
+        });
+        this.registerType('torch._C.EnumHolder', class {
+            constructor(type, name, value) {
+                this._type = type;
+                this._name = name;
+                this._value = value;
+            }
+            type() {
+                return this._type;
             }
         });
         this.registerType('torch._C.FunctionValue', class extends torch._C.SugaredValue {
@@ -19128,7 +19262,7 @@ python.Execution = class {
         this.registerFunction('fastai.torch_core.uniform');
         this.registerType('fastai.callback.core.Callback', class extends fastcore.basics.GetAttr {});
         this.registerType('fastai.callback.core.TrainEvalCallback', class extends fastai.callback.core.Callback {});
-        this.registerType('fastai.callback.fp16.AMPMode', class extends this._enum.Enum {});
+        this.registerType('fastai.callback.fp16.AMPMode', class extends this.enum.Enum {});
         this.registerType('fastai.callback.fp16.MixedPrecision', class {});
         this.registerFunction('fastai.callback.hook._hook_inner');
         this.registerType('fastai.callback.hook.Hook', class extends builtins.object {});
@@ -19544,7 +19678,7 @@ python.Execution = class {
             };
             context.set(stmt.name, func);
         } else if (stmt instanceof ast.ClassDef) {
-            const bases = stmt.bases.map((base) => this.expression(base, context));
+            const bases = stmt.bases.map((base) => this.base(base, context));
             if (bases.length > 1) {
                 throw new python.Error(`Unsupported multiple bases for class '${stmt.name}'.`);
             }
@@ -19809,6 +19943,10 @@ python.Execution = class {
             }
         }
         return undefined;
+    }
+
+    base(expr, context) {
+        return this.expression(expr, context);
     }
 
     identifier(expr) {
