@@ -6280,6 +6280,7 @@ view.ModelFactoryService = class {
                     { name: 'GuitarML SmartAmpPro model data', tags: ['conv1d', 'conv1d_stride'] },
                     { name: 'GuitarML SmartAmp model data', tags: ['activation', 'output_channels', 'input_channels', 'residual_channels'] },
                     { name: 'Keras configuration data', tags: ['floatx', 'epsilon', 'backend'] },
+                    { name: 'PIMCOMP-NN model data', tags: ['node_list', 'reshape_info'] },
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
