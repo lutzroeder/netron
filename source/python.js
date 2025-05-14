@@ -3363,8 +3363,11 @@ python.Execution = class {
         pandas.core.internals.BlockManager = pandas.core.internals.managers.BlockManager;
         pandas._libs.tslib.Timestamp = pandas._libs.tslibs.timestamps.Timestamp;
         this.registerType('pathlib.Path', class {});
-        this.registerType('pathlib.PosixPath', class {});
-        this.registerType('pathlib.WindowsPath', class {});
+        this.registerType('pathlib._local.PosixPath', class {});
+        this.registerType('pathlib._local.WindowsPath', class {});
+        const pathlib = this.register('pathlib');
+        pathlib.PosixPath = pathlib._local.PosixPath;
+        pathlib.WindowsPath = pathlib._local.WindowsPath;
         this.registerType('shap._serializable.Serializable', class {});
         this.registerType('shap.explainers._explainer.Explainer', class extends shap._serializable.Serializable {});
         this.registerType('shap.explainers._linear.LinearExplainer', class extends shap.explainers._explainer.Explainer {});
@@ -10576,7 +10579,7 @@ python.Execution = class {
                     }
                     return torch._C.collectQualname(expr);
                 }
-                throw new python.Error('Unsupported type.');
+                throw new python.Error(`Unsupported type '${expr.__class__.__name__}'.`);
             }
             parseBroadcastList(/* expr */) {
                 return null;
