@@ -39532,7 +39532,7 @@
       {
         "name": "Tidx",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `uint16`, `uint32`.",
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `uint16`, `uint32`, `uint64`.",
         "default": {
           "type": "type",
           "value": 3
