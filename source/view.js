@@ -2778,7 +2778,9 @@ view.ObjectSidebar = class extends view.Control {
         });
         value.on('select', (sender, value) => this.emit('select', value));
         value.on('activate', (sender, value) => this.emit('activate', value));
+        value.on('deactivate', (sender, value) => this.emit('deactivate', value));
         this.addEntry(name, value);
+        return value;
     }
 
     error(error, fatal) {
@@ -3512,7 +3514,7 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
         const metadata = this._view.model.attachment.metadata.value(value);
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
-            for (const argument of value.metadata) {
+            for (const argument of metadata) {
                 this.addArgument(argument.name, argument, 'attribute');
             }
         }
@@ -3612,7 +3614,7 @@ view.TensorSidebar = class extends view.ObjectSidebar {
             const metadata = this._view.model.attachment.metadata.tensor(tensor);
             if (Array.isArray(metadata) && metadata.length > 0) {
                 this.addSection('Metadata');
-                for (const argument of tensor.metadata) {
+                for (const argument of metadata) {
                     this.addArgument(argument.name, argument, 'attribute');
                 }
             }
@@ -3786,15 +3788,10 @@ view.TargetSidebar = class extends view.ObjectSidebar {
         return 'target';
     }
 
-    addArgument(name, argument) {
-        const value = new view.ArgumentView(this._view, argument);
-        value.on('focus', (sender, value) => this.emit('focus', value));
-        value.on('blur', (sender, value) => this.emit('blur', value));
-        value.on('activate', (sender, value) => this.emit('activate', value));
-        value.on('deactivate', (sender, value) => this.emit('deactivate', value));
-        value.on('select', (sender, value) => this.emit('select', value));
+    addArgument(name, argument, source) {
+        const value = super.addArgument(name, argument, source);
         value.toggle();
-        this.addEntry(name, value);
+        return value;
     }
 };
 
