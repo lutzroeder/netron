@@ -493,7 +493,7 @@ coreml.ImageType = class {
     }
 
     toString() {
-        return `image<${this.colorSpace},${this.width. toString()}x${this.height}>`;
+        return `image<${this.colorSpace},${this.width.toString()}x${this.height}>`;
     }
 };
 

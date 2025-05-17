@@ -278,7 +278,7 @@ class HTMLElement {
     }
 
     getBoundingClientRect() {
-        return { left: 0, top: 0, wigth: 0, height: 0 };
+        return { left: 0, top: 0, width: 0, height: 0 };
     }
 
     scrollTo() {
@@ -582,16 +582,17 @@ export class Target {
     }
 
     async validate() {
-        if (!this.model.format || (this.format && this.format !== this.model.format)) {
-            throw new Error(`Invalid model format '${this.model.format}'.`);
+        const model = this.model;
+        if (!model.format || (this.format && this.format !== model.format)) {
+            throw new Error(`Invalid model format '${model.format}'.`);
         }
-        if (this.producer && this.model.producer !== this.producer) {
-            throw new Error(`Invalid producer '${this.model.producer}'.`);
+        if (this.producer && model.producer !== this.producer) {
+            throw new Error(`Invalid producer '${model.producer}'.`);
         }
-        if (this.runtime && this.model.runtime !== this.runtime) {
-            throw new Error(`Invalid runtime '${this.model.runtime}'.`);
+        if (this.runtime && model.runtime !== this.runtime) {
+            throw new Error(`Invalid runtime '${model.runtime}'.`);
         }
-        if (this.model.metadata && !Array.isArray(this.model.metadata) && this.model.metadata.every((argument) => argument.name && argument.value)) {
+        if (model.metadata && (!Array.isArray(model.metadata) || !model.metadata.every((argument) => argument.name && argument.value))) {
             throw new Error("Invalid model metadata.'");
         }
         if (this.assert) {
@@ -599,7 +600,7 @@ export class Target {
                 const parts = assert.split('==').map((item) => item.trim());
                 const properties = parts[0].split('.');
                 const value = JSON.parse(parts[1].replace(/\s*'|'\s*/g, '"'));
-                let context = { model: this.model };
+                let context = { model };
                 while (properties.length) {
                     const property = properties.shift();
                     if (context[property] !== undefined) {
@@ -615,14 +616,14 @@ export class Target {
                             continue;
                         }
                     }
-                    throw new Error(`Invalid property path: '${parts[0]}`);
+                    throw new Error(`Invalid property path '${parts[0]}'.`);
                 }
                 if (context !== value) {
                     throw new Error(`Invalid '${context}' != '${assert}'.`);
                 }
             }
         }
-        if (this.model.version || this.model.description || this.model.author || this.model.license) {
+        if (model.version || model.description || model.author || model.license) {
             // continue
         }
         /* eslint-disable no-unused-expressions */
@@ -724,7 +725,7 @@ export class Target {
                     }
                 }
             }
-            if (graph.metadata && !Array.isArray(graph.metadata) && graph.metadata.every((argument) => argument.name && argument.value)) {
+            if (graph.metadata && (!Array.isArray(graph.metadata) || !graph.metadata.every((argument) => argument.name && argument.value))) {
                 throw new Error("Invalid graph metadata.'");
             }
             for (const node of graph.nodes) {
@@ -806,15 +807,15 @@ export class Target {
                 const sidebar = new view.NodeSidebar(this.view, node);
                 sidebar.render();
             }
-            const sidebar = new view.ModelSidebar(this.view, this.model, graph);
+            const sidebar = new view.ModelSidebar(this.view, model, graph);
             sidebar.render();
         };
-        for (const graph of this.model.graphs) {
+        for (const graph of model.graphs) {
             /* eslint-disable no-await-in-loop */
             await validateTarget(graph);
             /* eslint-enable no-await-in-loop */
         }
-        const functions = this.model.functions || [];
+        const functions = model.functions || [];
         for (const func of functions) {
             /* eslint-disable no-await-in-loop */
             await validateTarget(func);

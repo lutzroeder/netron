@@ -1073,7 +1073,7 @@ python.Execution = class {
                                 }
                                 if (op) {
                                     const left = stack.pop();
-                                    const right = this._parseExpression(precedence, terminal, tuple === true ? true : false);
+                                    const right = this._parseExpression(precedence, terminal, tuple === true);
                                     node = new ast.BinOp(left, op, right);
                                 } else {
                                     switch (token.value) {
@@ -1090,14 +1090,14 @@ python.Execution = class {
                                         default: break;
                                     }
                                     const left = stack.pop();
-                                    const comparator = this._parseExpression(precedence, ['for', 'if'], tuple === true ? true : false);
+                                    const comparator = this._parseExpression(precedence, ['for', 'if'], tuple === true);
                                     node = new ast.Compare(left, [op], [comparator]);
                                 }
                             } else if (token.value === '*') {
-                                const value =  this._parseExpression(precedence, terminal, tuple === true ? true : false);
+                                const value =  this._parseExpression(precedence, terminal, tuple === true);
                                 node = new ast.Starred(value);
                             } else if (token.value === '**') {
-                                const value =  this._parseExpression(precedence, terminal, tuple === true ? true : false);
+                                const value =  this._parseExpression(precedence, terminal, tuple === true);
                                 node = new ast.keyword(null, value);
                             } else {
                                 let op = null;
@@ -1108,7 +1108,7 @@ python.Execution = class {
                                     case 'not': op = new ast.Not(); break;
                                     default: throw new python.Error(`Unsupported unary operator ${token.value} ${this._location()}`);
                                 }
-                                const operand =  this._parseExpression(precedence, terminal, tuple === true ? true : false);
+                                const operand =  this._parseExpression(precedence, terminal, tuple === true);
                                 node = new ast.UnaryOp(op, operand);
                                 node = this._mark(node, position);
                             }
@@ -1118,7 +1118,7 @@ python.Execution = class {
                     }
                     if (this._tokenizer.eat(':=')) {
                         const target = stack.pop();
-                        const value = this._parseExpression(-1, terminal, tuple === false ? false : true);
+                        const value = this._parseExpression(-1, terminal, tuple !== false);
                         const node = new ast.NamedExpr(target, value);
                         this._mark(node, position);
                         stack.push(node);
@@ -1127,7 +1127,7 @@ python.Execution = class {
                     if (this._tokenizer.eat('=')) {
                         const position = this._position();
                         const targets = stack.pop();
-                        const value = this._parseExpression(-1, terminal, tuple === false ? false : true);
+                        const value = this._parseExpression(-1, terminal, tuple !== false);
                         const node = new ast.Assign([targets], value);
                         this._mark(node, position);
                         stack.push(node);
@@ -7482,7 +7482,7 @@ python.Execution = class {
             }
             _target_to_str(target) {
                 if (typeof target === 'string') {
-                    if (target.startsWith('__') && target.endswith('__')) {
+                    if (target.startsWith('__') && target.endsWith('__')) {
                         target = target.substring(2, target.length - 2);
                     }
                 } else {
@@ -15638,7 +15638,7 @@ python.Execution = class {
                     if (save_false.findInAnyFrame(v) || false_exits) {
                         mutated_variables.add(v);
                     } else {
-                        this.environment_stack.setVariableTypeError(v, () => 'Value is is not defined in the false branch.');
+                        this.environment_stack.setVariableTypeError(v, () => 'Value is not defined in the false branch.');
                     }
                     insert.dispose();
                 }
@@ -15647,7 +15647,7 @@ python.Execution = class {
                     if (save_true.findInAnyFrame(v) || true_exits) {
                         mutated_variables.add(v);
                     } else {
-                        this.environment_stack.setVariableTypeError(v, () => 'Value is is not defined in the true branch.');
+                        this.environment_stack.setVariableTypeError(v, () => 'Value is not defined in the true branch.');
                     }
                     insert.dispose();
                 }

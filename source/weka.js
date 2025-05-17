@@ -144,12 +144,11 @@ java.io.InputObjectStream = class {
             superClass = superClass.superClass;
         }
         if (flags & 0x02) { // SC_SERIALIZABLE
-            debugger;
             const customObject = objects[classname];
             const hasReadObjectMethod = customObject && customObject.readObject;
             if (flags & 0x01) { // SC_WRITE_METHOD
                 if (!hasReadObjectMethod) {
-                    throw new Error('Class "'+ classname + '" dose not implement readObject()');
+                    throw new Error(`Class '${classname}' does not implement readObject().`);
                 }
                 customObject.readObject(this, obj);
                 if (this._reader.byte() !== 0x78) { // TC_ENDBLOCKDATA
@@ -204,8 +203,8 @@ java.io.InputObjectStream.BinaryReader = class {
 
     skip(offset) {
         this._position += offset;
-        if (this._position > this._end) {
-            throw new java.io.Error(`Expected ${this._position - this._end} more bytes. The file might be corrupted. Unexpected end of file.`);
+        if (this._position > this._length) {
+            throw new java.io.Error(`Expected ${this._position - this._length} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
     }
 
