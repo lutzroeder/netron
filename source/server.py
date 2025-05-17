@@ -2,20 +2,22 @@
 
 import errno
 import http.server
-import importlib.util
+import importlib
 import json
+import logging
 import os
 import random
 import re
 import socket
 import socketserver
-import sys
 import threading
 import time
 import urllib.parse
 import webbrowser
 
 __version__ = "0.0.0"
+
+logger = logging.getLogger(__name__)
 
 class _ContentProvider:
     data = bytearray()
@@ -43,7 +45,6 @@ class _ContentProvider:
 
 class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
     content = None
-    verbosity = 1
     mime_types = {
         ".html": "text/html",
         ".js":   "text/javascript",
@@ -107,10 +108,9 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                     content = re.sub(regex, lambda _: meta, content)
                     content = content.encode("utf-8")
                 status_code = 200
-        _log(self.verbosity > 1, f"{str(status_code)} {self.command} {self.path}\n")
         self._write(status_code, content_type, content)
     def log_message(self, format, *args):
-        return
+        logger.debug(" ".join(args))
     def _write(self, status_code, content_type, content):
         self.send_response(status_code)
         if content:
@@ -127,16 +127,14 @@ class _ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     pass
 
 class _HTTPServerThread(threading.Thread):
-    def __init__(self, content, address, verbosity):
+    def __init__(self, content, address):
         threading.Thread.__init__(self)
-        self.verbosity = verbosity
         self.address = address
         self.url = "http://" + address[0] + ":" + str(address[1])
         self.server = _ThreadedHTTPServer(address, _HTTPRequestHandler)
         self.server.timeout = 0.25
         self.server.block_on_close = False
         self.server.RequestHandlerClass.content = content
-        self.server.RequestHandlerClass.verbosity = verbosity
         self.terminate_event = threading.Event()
         self.terminate_event.set()
         self.stop_event = threading.Event()
@@ -155,10 +153,10 @@ class _HTTPServerThread(threading.Thread):
     def stop(self):
         """ Stop server """
         if self.alive():
-            _log(self.verbosity > 0, "Stopping " + self.url + "\n")
+            logger.info("Stopping " + self.url)
             self.stop_event.set()
             self.server.server_close()
-            self.terminate_event.wait(1000)
+            self.terminate_event.wait(1)
 
     def alive(self):
         """ Check server status """
@@ -197,11 +195,6 @@ def _threads(address=None):
         if address[1]:
             threads = [ _ for _ in threads if address[1] == _.address[1] ]
     return threads
-
-def _log(condition, message):
-    if condition:
-        sys.stdout.write(message)
-        sys.stdout.flush()
 
 def _make_address(address):
     if address is None or isinstance(address, int):
@@ -253,13 +246,13 @@ def stop(address=None):
     for thread in threads:
         thread.stop()
 
-def status(adrress=None):
+def status(address=None):
     """Is model served at address.
 
     Args:
         address (tuple, optional): A (host, port) tuple, or a port number.
     """
-    threads = _threads(adrress)
+    threads = _threads(address)
     return len(threads) > 0
 
 def wait():
@@ -268,10 +261,10 @@ def wait():
         while len(_threads()) > 0:
             time.sleep(0.1)
     except (KeyboardInterrupt, SystemExit):
-        _log(True, "\n")
+        logger.info("")
         stop()
 
-def serve(file, data=None, address=None, browse=False, verbosity=1):
+def serve(file, data=None, address=None, browse=False):
     """Start serving model from file or data buffer at address and open in web browser.
 
     Args:
@@ -279,13 +272,12 @@ def serve(file, data=None, address=None, browse=False, verbosity=1):
         data (bytes): Model data to serve. None will load data from file.
         address (tuple, optional): A (host, port) tuple, or a port number.
         browse (bool, optional): Launch web browser. Default: True
-        log (bool, optional): Log details to console. Default: False
 
     Returns:
         A (host, port) address tuple.
     """
-    verbosities = { "0": 0, "quiet": 0, "1": 1, "default": 1, "2": 2, "debug": 2 }
-    verbosity = verbosities[str(verbosity)]
+    if not logging.getLogger().hasHandlers():
+        logging.basicConfig(level=logging.INFO, format="%(message)s")
 
     if not data and file and not os.path.exists(file):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file)
@@ -293,7 +285,7 @@ def serve(file, data=None, address=None, browse=False, verbosity=1):
     content = _ContentProvider(data, file, file, file)
 
     if data and not isinstance(data, bytearray) and isinstance(data.__class__, type):
-        _log(verbosity > 1, "Experimental\n")
+        logger.info("Experimental")
         model = _open(data)
         if model:
             text = json.dumps(model.to_json(), indent=2, ensure_ascii=False)
@@ -305,31 +297,29 @@ def serve(file, data=None, address=None, browse=False, verbosity=1):
     else:
         address = _make_port(address)
 
-    thread = _HTTPServerThread(content, address, verbosity)
+    thread = _HTTPServerThread(content, address)
     thread.start()
     while not thread.alive():
         time.sleep(0.01)
     state = ("Serving '" + file + "'") if file else "Serving"
-    message = f"{state} at {thread.url}\n"
-    _log(verbosity > 0, message)
+    logger.info(f"{state} at {thread.url}")
     if browse:
         webbrowser.open(thread.url)
 
     return address
 
-def start(file=None, address=None, browse=True, verbosity=1):
+def start(file=None, address=None, browse=True):
     """Start serving model file at address and open in web browser.
 
     Args:
         file (string): Model file to serve.
-        log (bool, optional): Log details to console. Default: False
         browse (bool, optional): Launch web browser, Default: True
         address (tuple, optional): A (host, port) tuple, or a port number.
 
     Returns:
         A (host, port) address tuple.
     """
-    return serve(file, None, browse=browse, address=address, verbosity=verbosity)
+    return serve(file, None, browse=browse, address=address)
 
 def widget(address, height=800):
     """ Open address as Jupyter Notebook IFrame.

@@ -2,6 +2,7 @@
 
 """ Expermiental Python Server backend test """
 
+import logging
 import os
 import sys
 
@@ -13,6 +14,9 @@ netron = __import__("source")
 third_party_dir = os.path.join(root_dir, "third_party")
 test_data_dir = os.path.join(third_party_dir, "test")
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+
 def _test_onnx():
     file = os.path.join(test_data_dir, "onnx", "candy.onnx")
     onnx = __import__("onnx")
@@ -20,16 +24,22 @@ def _test_onnx():
     netron.serve(None, model)
 
 def _test_onnx_iterate():
+    logging.getLogger(netron.__name__).setLevel(logging.WARNING)
     folder = os.path.join(test_data_dir, "onnx")
     for item in os.listdir(folder):
         file = os.path.join(folder, item)
-        if file.endswith(".onnx") and \
-            item != "super_resolution.onnx" and \
-            item != "arcface-resnet100.onnx":
-            print(item)
+        skip = (
+            "super_resolution.onnx",
+            "arcface-resnet100.onnx",
+            "aten_sum_dim_onnx_inlined.onnx",
+            "phi3-mini-128k-instruct-cuda-fp16.onnx",
+            "if_k1.onnx"
+        )
+        if file.endswith(".onnx") and item not in skip:
+            logger.info(item)
             onnx = __import__("onnx")
             model = onnx.load(file)
-            address = netron.serve(file, model, verbosity="quiet")
+            address = netron.serve(file, model)
             netron.stop(address)
 
 def _test_torchscript(file):

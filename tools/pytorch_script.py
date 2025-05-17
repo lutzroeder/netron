@@ -2,6 +2,7 @@
 
 import collections
 import json
+import logging
 import os
 import re
 import sys
@@ -14,6 +15,10 @@ source_dir = os.path.join(root_dir, "source")
 third_party_dir = os.path.join(root_dir, "third_party")
 metadata_file = os.path.join(source_dir, "pytorch-metadata.json")
 pytorch_source_dir = os.path.join(third_party_dir, "source", "pytorch")
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+
 
 def _read(path):
     with open(path, encoding="utf-8") as file:
@@ -333,7 +338,7 @@ def _parse_schemas():
         if key not in schemas:
             schemas[key] = schema
         else:
-            print(f"-> {key}")
+            logging.warning(f"-> {key}")
     return schemas
 
 def _filter_schemas(schemas, types):

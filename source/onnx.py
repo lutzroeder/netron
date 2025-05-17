@@ -112,7 +112,7 @@ class _Graph:
             attribute_type = "tensor"
             value = self._tensor(_.t)
         elif _.type == _AttributeType.GRAPH:
-            attribute_type = "tensor"
+            attribute_type = "graph"
             raise Exception("Unsupported graph attribute type")
         elif _.type == _AttributeType.FLOATS:
             attribute_type = "float32[]"

@@ -146,10 +146,9 @@ attr_type_table = {
 }
 
 def _convert_attr_type(attr_type):
-    if attr_type in attr_type_table:
-        return attr_type_table[attr_type]
-    print(attr_type)
-    return attr_type
+    if attr_type not in attr_type_table:
+        raise ValueError(f"Unknown attribute type '{attr_type}'")
+    return attr_type_table[attr_type]
 
 def _convert_attr_list(attr_value):
     result = []
