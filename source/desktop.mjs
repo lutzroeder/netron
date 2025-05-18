@@ -506,7 +506,7 @@ desktop.Host = class {
                     response.on('data', (chunk) => {
                         data += chunk;
                     });
-                    response.on('err', (err) => {
+                    response.on('error', (err) => {
                         reject(err);
                     });
                     response.on('end', () => {
