@@ -17712,6 +17712,8 @@ python.Execution = class {
                     this.as_tensor = new torch._export.serde.schema.TensorArgument(this.as_tensor);
                 } else if (this.type === 'as_tensors') {
                     this.as_tensors = this.as_tensors.map((item) => new torch._export.serde.schema.TensorArgument(item));
+                } else if (this.type === 'as_graph') {
+                    this.as_graph = new torch._export.serde.schema.GraphArgument(this.as_graph);
                 } else if (this.type === 'as_sym_int') {
                     this.as_sym_int = new torch._export.serde.schema.SymIntArgument(this.as_sym_int);
                 } else if (this.type === 'as_sym_ints') {
@@ -17722,19 +17724,9 @@ python.Execution = class {
                     throw new python.Error(`Unsupported argument '${this.type}'.`);
                 }
                 /*
-                as_tensors: List[TensorArgument]
-                as_string: str
-                as_strings: List[str]
-                as_sym_int: SymIntArgument
-                as_sym_ints: List[SymIntArgument]
-                as_scalar_type: ScalarType
-                as_memory_format: MemoryFormat
-                as_layout: Layout
-                as_bools: List[bool]
                 as_sym_bool: SymBoolArgument
                 as_sym_bools: List[SymBoolArgument]
                 as_graph: GraphArgument
-                as_optional_tensors: List[OptionalTensorArgument]
                 as_custom_obj: CustomObjArgument
                 */
             }
@@ -18030,6 +18022,12 @@ python.Execution = class {
         this.registerType('torch._export.serde.schema.TokenArgument', class {
             constructor(obj) {
                 this.name = obj.name;
+            }
+        });
+        this.registerType('torch._export.serde.schema.GraphArgument', class {
+            constructor(obj) {
+                this.name = obj.name;
+                this.graph = new torch._export.serde.schema.Graph(obj.graph);
             }
         });
         this.registerType('torch._export.serde.schema.OptionalTensorArgument', class extends torch._export.serde.union._Union {
