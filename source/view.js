@@ -773,7 +773,7 @@ view.View = class {
 
     async _updateStack(model, stack) {
         this.update(model);
-        this._stack = stack;
+        this._stack = Array.isArray(stack) ? [...stack] : stack;
         const status = await this.renderGraph(model, this.activeTarget, this.activeSignature, this._options);
         if (status !== '') {
             this.update(null);
@@ -2553,7 +2553,7 @@ view.Sidebar = class {
             }
         }
         if (stack) {
-            this._stack = stack;
+            this._stack = Array.isArray(stack) ? [...stack] : stack;
         }
         if (this._stack.length > 0) {
             const entry = this._stack[this._stack.length - 1];
