@@ -66969,6 +66969,15 @@
         "name": "num_sparsecores_per_device",
         "type": "int64",
         "default": -1
+      },
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `float32`.",
+        "default": {
+          "type": "type",
+          "value": 1
+        }
       }
     ],
     "inputs": [
@@ -66995,7 +67004,7 @@
       {
         "name": "tables",
         "numberAttr": "N",
-        "type": 1
+        "typeAttr": "T"
       },
       {
         "name": "hyperparameters",
@@ -67011,7 +67020,7 @@
       {
         "name": "updated_tables",
         "numberAttr": "N",
-        "type": 1
+        "typeAttr": "T"
       }
     ]
   },
@@ -67392,6 +67401,15 @@
         "name": "num_sparsecores_per_device",
         "type": "int64",
         "default": -1
+      },
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `float32`.",
+        "default": {
+          "type": "type",
+          "value": 1
+        }
       }
     ],
     "inputs": [
@@ -67413,7 +67431,7 @@
       },
       {
         "name": "embedding_table",
-        "type": 1
+        "typeAttr": "T"
       },
       {
         "name": "num_minibatches_per_physical_sparse_core",
@@ -67423,7 +67441,7 @@
     "outputs": [
       {
         "name": "activations",
-        "type": 1
+        "typeAttr": "T"
       }
     ]
   },
