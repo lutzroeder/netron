@@ -550,10 +550,29 @@ xnnpack.Metadata = class {
 
     constructor() {
         this._types = new Map();
-        this.register('XNNStaticTranspose', 'Transform');
-        this.register('_XNNNodeConv', 'Layer');
-        this.register('XNNFullyConnected', 'Layer');
         this.register('_XNNCat', 'Tensor');
+        this.register('_XNNNodeConv', 'Layer');
+        this.register('XNNArgMaxPooling2d', 'Pool');
+        this.register('XNNAvgPooling2d', 'Pool');
+        this.register('XNNCeiling', 'Activation');
+        this.register('XNNConcatenate2', 'Tensor');
+        this.register('XNNConcatenate3', 'Tensor');
+        this.register('XNNConcatenate4', 'Tensor');
+        this.register('XNNConcatenate5', 'Tensor');
+        this.register('XNNConv2d', 'Layer');
+        this.register('XNNConvTranspose2d', 'Layer');
+        this.register('XNNDepthwiseConv2d', 'Layer');
+        this.register('XNNELU', 'Activation');
+        this.register('XNNFullyConnected', 'Layer');
+        this.register('XNNGlobalAvgPooling2d', 'Pool');
+        this.register('XNNGlobalAvgPooling2d', 'Pool');
+        this.register('XNNHardswish', 'Activation');
+        this.register('XNNLeakyReLU', 'Activation');
+        this.register('XNNMaxPooling2d', 'Pool');
+        this.register('XNNPReLU', 'Activation');
+        this.register('XNNSigmoid', 'Activation');
+        this.register('XNNSoftmax', 'Activation');
+        this.register('XNNStaticTranspose', 'Transform');
     }
 
     register(name, category) {
