@@ -141,6 +141,14 @@ flatc.Enum = class extends flatc.Type {
     }
 };
 
+flatc.Alias = class extends flatc.Type {
+
+    constructor(parent, name, type) {
+        super(parent, name);
+        this.type = type;
+    }
+};
+
 flatc.Union = class extends flatc.Type {
 
     constructor(parent, name) {
@@ -154,7 +162,14 @@ flatc.Union = class extends flatc.Type {
             for (const value of this.values) {
                 value.index = value.index === undefined ? index : value.index;
                 index = value.index + 1;
-                value.type = this.parent.find(value.type, flatc.Type);
+                const name = this.parent.find(value.name, flatc.Type);
+                const type = value.type ? this.parent.find(value.type, flatc.Type) : null;
+                value.type = name;
+                if (!name && type) {
+                    value.type = new flatc.Alias(this.parent, value.name, type);
+                    type.aliases.add(value.type);
+                    this.root.aliases.push(value);
+                }
             }
             super.resolve();
         }
@@ -166,6 +181,7 @@ flatc.Table = class extends flatc.Type {
     constructor(parent, name) {
         super(parent, name);
         this.fields = new Map();
+        this.aliases = new Set();
     }
 
     resolve() {
@@ -397,7 +413,7 @@ flatc.Parser = class {
                 this._tokenizer.expect('{');
                 while (!this._tokenizer.eat('}')) {
                     const name = this._tokenizer.identifier();
-                    const type = this._tokenizer.eat(':') ? this._tokenizer.identifier() : name;
+                    const type = this._tokenizer.eat(':') ? this._tokenizer.identifier() : null;
                     const index = this._tokenizer.eat('=') ? this._tokenizer.integer() : undefined;
                     union.values.push({ name, type, index });
                     this._parseMetadata(new Map());
@@ -792,9 +808,18 @@ flatc.Root = class extends flatc.Object {
 
     resolve() {
         if (!this.resolved) {
+            this.aliases = [];
             for (const namespace of this._namespaces.values()) {
                 namespace.resolve();
             }
+            for (const value of this.aliases) {
+                if (value.type instanceof flatc.Alias && value.type.type.aliases.size <= 1) {
+                    value.type.type.aliases.delete(value.type);
+                    value.type.parent.children.delete(value.type.name);
+                    value.type = value.type.type;
+                }
+            }
+            delete this.aliases;
             super.resolve();
         }
     }
@@ -918,8 +943,12 @@ flatc.Generator = class {
                 this._buildStruct(child);
             } else if (child instanceof flatc.Union) {
                 this._buildUnion(child);
+            } else if (child instanceof flatc.Alias) {
+                this._buildAlias(child);
             } else if (child instanceof flatc.Enum) {
                 this._buildEnum(child);
+            } else {
+                throw new flatc.Error(`Unsupported type '${child.name}'.`);
             }
         }
     }
@@ -964,9 +993,15 @@ flatc.Generator = class {
             }
 
             this._builder.add('');
-            this._builder.add(type.fields.size === 0 ? 'static decode(/* reader, position */) {' : 'static decode(reader, position) {');
+            if (type.aliases.size > 0) {
+                this._builder.add('static decode(reader, position, $) {');
+            } else if (type.fields.size === 0) {
+                this._builder.add('static decode(/* reader, position */) {');
+            } else {
+                this._builder.add('static decode(reader, position) {');
+            }
             this._builder.indent();
-                this._builder.add(`const $ = new ${typeReference}();`);
+                this._builder.add(type.aliases.size > 0 ? `$ = $ || new ${typeReference}();` : `const $ = new ${typeReference}();`);
                 for (const field of type.fields.values()) {
                     const fieldType = field.type instanceof flatc.Enum ? field.type.base : field.type;
                     if (field.repeated) {
@@ -1024,9 +1059,15 @@ flatc.Generator = class {
 
             if (this._text) {
                 this._builder.add('');
-                this._builder.add(type.fields.size === 0 ? 'static decodeText(/* reader, json */) {' : 'static decodeText(reader, json) {');
+                if (type.aliases.size > 0) {
+                    this._builder.add('static decodeText(reader, json, $) {');
+                } else if (type.fields.size === 0) {
+                    this._builder.add('static decodeText(/* reader, json */) {');
+                } else {
+                    this._builder.add('static decodeText(reader, json) {');
+                }
                 this._builder.indent();
-                    this._builder.add(`const $ = new ${typeReference}();`);
+                    this._builder.add(type.aliases.size > 0 ? `$ = $ || new ${typeReference}();` : `const $ = new ${typeReference}();`);
                     for (const field of type.fields.values()) {
                         if (field.repeated) {
                             if (field.type instanceof flatc.PrimitiveType) {
@@ -1143,6 +1184,41 @@ flatc.Generator = class {
                             throw new flatc.Error(`Struct '${typeName}' may contain only scalar or struct fields.`);
                         }
                     }
+                    this._builder.add('return $;');
+                this._builder.outdent();
+                this._builder.add('}');
+            }
+
+        this._builder.outdent();
+        this._builder.add('};');
+        /* eslint-enable indent */
+    }
+
+    _buildAlias(type) {
+
+        const typeName = `${type.parent.name}.${type.name}`;
+        const typeReference = `${typeName}`;
+
+        /* eslint-disable indent */
+        this._builder.add('');
+        this._builder.add(`${typeReference} = class ${type.name} {`);
+        this._builder.indent();
+
+            this._builder.add('');
+            this._builder.add('static decode(reader, position) {');
+            this._builder.indent();
+                this._builder.add(`const $ = new ${typeReference}();`);
+                this._builder.add(`${type.type.parent.name}.${type.type.name}.decode(reader, position, $);`);
+                this._builder.add('return $;');
+            this._builder.outdent();
+            this._builder.add('}');
+
+            if (this._text) {
+                this._builder.add('');
+                this._builder.add('static decodeText(reader, json) {');
+                this._builder.indent();
+                    this._builder.add(`const $ = new ${typeReference}();`);
+                    this._builder.add(`${type.type.parent.name}.${type.type.name}.decode(reader, json, $);`);
                     this._builder.add('return $;');
                 this._builder.outdent();
                 this._builder.add('}');
