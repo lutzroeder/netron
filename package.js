@@ -537,15 +537,18 @@ const validate = async() => {
 };
 
 const update = async () => {
-    const dependencies = { ...configuration.dependencies, ...configuration.devDependencies };
-    for (const name of Object.keys(dependencies)) {
-        writeLine(name);
-        /* eslint-disable no-await-in-loop */
-        await exec(`npm install --quiet --no-progress --silent --save-exact ${name}@latest`);
-        /* eslint-enable no-await-in-loop */
+    const filter = new Set(process.argv.length > 3 ? process.argv.slice(3) : []);
+    if (filter.size === 0) {
+        const dependencies = { ...configuration.dependencies, ...configuration.devDependencies };
+        for (const name of Object.keys(dependencies)) {
+            writeLine(name);
+            /* eslint-disable no-await-in-loop */
+            await exec(`npm install --quiet --no-progress --silent --save-exact ${name}@latest`);
+            /* eslint-enable no-await-in-loop */
+        }
+        await install();
     }
-    await install();
-    const targets = process.argv.length > 3 ? process.argv.slice(3) : [
+    let targets = [
         'armnn',
         'bigdl',
         'caffe', 'circle', 'cntk', 'coreml',
@@ -563,9 +566,22 @@ const update = async () => {
         'uff',
         'xmodel'
     ];
+    let commands = [
+        'sync',
+        'install',
+        'schema',
+        'metadata'
+    ];
+    if (filter.size > 0 && targets.some((target) => filter.has(target))) {
+        targets = targets.filter((target) => filter.has(target));
+    }
+    if (filter.size > 0 && commands.some((target) => filter.has(target))) {
+        commands = commands.filter((command) => filter.has(command));
+    }
+    commands = commands.join(' ');
     for (const target of targets) {
         /* eslint-disable no-await-in-loop */
-        await exec(`tools/${target} sync install schema metadata`);
+        await exec(`tools/${target} ${commands}`);
         /* eslint-enable no-await-in-loop */
     }
 };
