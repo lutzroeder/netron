@@ -1772,20 +1772,23 @@ view.Worker = class {
         this._worker.addEventListener('message', (e) => {
             this._cancel(false);
             const message = e.data;
-            if (this._reject && message.type === 'error') {
-                this._reject(new Error(message.message));
-            } else if (this._resolve) {
-                this._resolve(message);
-            }
+            const resolve = this._resolve;
+            const reject = this._reject;
             delete this._resolve;
             delete this._reject;
+            if (reject && message.type === 'error') {
+                reject(new Error(message.message));
+            } else if (resolve) {
+                resolve(message);
+            }
         });
         this._worker.addEventListener('error', (e) => {
             this._cancel(true);
-            if (this._reject) {
-                this._reject(new Error(`Unknown worker error type '${e.type}'.`));
-                delete this._resolve;
-                delete this._reject;
+            const reject = this._reject;
+            delete this._resolve;
+            delete this._reject;
+            if (reject) {
+                reject(new Error(`Unknown worker error type '${e.type}'.`));
             }
         });
     }
