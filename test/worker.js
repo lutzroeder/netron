@@ -735,7 +735,14 @@ export class Target {
                 }
                 if (Array.isArray(type.nodes)) {
                     /* eslint-disable no-await-in-loop */
+                    // Set skip-sidebar-render tag for recursive validation to prevent stack overflow
+                    const skipSidebarRender = this.tags.has('skip-sidebar-render');
+                    this.tags.add('skip-sidebar-render');
                     await validateTarget(type);
+                    // Restore original tag state
+                    if (!skipSidebarRender) {
+                        this.tags.delete('skip-sidebar-render');
+                    }
                     /* eslint-enable no-await-in-loop */
                 }
                 view.Documentation.open(type);
@@ -753,7 +760,14 @@ export class Target {
                         const value = attribute.value;
                         if ((type === 'graph' || type === 'function') && value && Array.isArray(value.nodes)) {
                             /* eslint-disable no-await-in-loop */
+                            // Set skip-sidebar-render tag for recursive validation to prevent stack overflow
+                            const skipSidebarRender = this.tags.has('skip-sidebar-render');
+                            this.tags.add('skip-sidebar-render');
                             await validateTarget(value);
+                            // Restore original tag state
+                            if (!skipSidebarRender) {
+                                this.tags.delete('skip-sidebar-render');
+                            }
                             /* eslint-enable no-await-in-loop */
                         } else {
                             let text = new view.Formatter(attribute.value, attribute.type).toString();
@@ -776,7 +790,7 @@ export class Target {
                                 /* eslint-enable no-await-in-loop */
                             }
                             if (this.tags.has('validation')) {
-                                if (input.value.length === 1 && input.value[0].initializer) {
+                                if (input.value.length === 1 && input.value[0].initializer && !this.tags.has('skip-sidebar-render')) {
                                     const sidebar = new view.TensorSidebar(this.view, input);
                                     sidebar.render();
                                 }
@@ -804,11 +818,17 @@ export class Target {
                         chain.name.length;
                     }
                 }
-                const sidebar = new view.NodeSidebar(this.view, node);
+                // Only render sidebars if we're not in a deeply nested validation to prevent stack overflow
+                if (!this.tags.has('skip-sidebar-render')) {
+                    const sidebar = new view.NodeSidebar(this.view, node);
+                    sidebar.render();
+                }
+            }
+            // Only render model sidebar if we're not in a deeply nested validation
+            if (!this.tags.has('skip-sidebar-render')) {
+                const sidebar = new view.ModelSidebar(this.view, model, graph);
                 sidebar.render();
             }
-            const sidebar = new view.ModelSidebar(this.view, model, graph);
-            sidebar.render();
         };
         for (const graph of model.graphs) {
             /* eslint-disable no-await-in-loop */
