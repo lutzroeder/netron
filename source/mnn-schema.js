@@ -2489,7 +2489,7 @@ MNN.OpType = {
     LRN: 37,
     LSTM: 38,
     MatMul: 39,
-    MVN: 40,
+    MoE: 40,
     NonMaxSuppression: 41,
     NonMaxSuppressionV2: 42,
     Normalize: 43,
