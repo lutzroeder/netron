@@ -1151,7 +1151,7 @@ pytorch.Container.Mobile = class extends pytorch.Container {
 
     async read(metadata) {
         const execution = new pytorch.Execution(null, metadata);
-        for (const event in this._events) {
+        for (const event of this._events) {
             execution.on(event[0], event[1]);
         }
         const stream = this.context.stream;

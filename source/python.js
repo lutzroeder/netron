@@ -3940,9 +3940,11 @@ python.Execution = class {
                                     obj.set(key, value);
                                 }
                             } else if (obj instanceof Map) {
+                                /* eslint-disable guard-for-in */
                                 for (const key in state) {
                                     obj.set(key, state[key]);
                                 }
+                                /* eslint-enable guard-for-in */
                             } else if (state instanceof Map) {
                                 for (const [key, value] of state) {
                                     obj[key] = value;

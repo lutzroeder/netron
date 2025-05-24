@@ -39,7 +39,7 @@ export default [
             'func-style': 'error',
             'getter-return': 'error',
             'grouped-accessor-pairs': 'error',
-            // 'guard-for-in': 'error',
+            'guard-for-in': 'error',
             'id-denylist': 'error',
             // 'id-length': 'error',
             'id-match': 'error',
