@@ -37,7 +37,7 @@ pytorch.ModelFactory = class {
     async open(context) {
         const metadata = await pytorch.Metadata.open(context);
         const target = context.value;
-        target.on('resolve', (_, name) => {
+        target.on('resolve', (sender, name) => {
             context.error(new pytorch.Error(`Unknown type name '${name}'.`), false);
         });
         await target.read(metadata);

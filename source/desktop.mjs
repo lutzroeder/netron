@@ -78,7 +78,7 @@ desktop.Host = class {
 
     async view(view) {
         this._view = view;
-        electron.ipcRenderer.on('open', (_, data) => {
+        electron.ipcRenderer.on('open', (sender, data) => {
             this._open(data);
         });
         const age = async () => {
@@ -160,10 +160,10 @@ desktop.Host = class {
         if (this._document.hasFocus()) {
             this._document.body.classList.add('active');
         }
-        electron.ipcRenderer.on('recents', (_, data) => {
+        electron.ipcRenderer.on('recents', (sender, data) => {
             this._view.recents(data);
         });
-        electron.ipcRenderer.on('export', (_, data) => {
+        electron.ipcRenderer.on('export', (sender, data) => {
             this._view.export(data.file);
         });
         electron.ipcRenderer.on('cut', () => {
@@ -214,7 +214,7 @@ desktop.Host = class {
         this._element('titlebar-minimize').addEventListener('click', () => {
             electron.ipcRenderer.sendSync('window-minimize', {});
         });
-        electron.ipcRenderer.on('window-state', (_, data) => {
+        electron.ipcRenderer.on('window-state', (sender, data) => {
             if (this._environment.titlebar) {
                 this._element('graph').style.marginTop = '32px';
                 this._element('graph').style.height = 'calc(100% - 32px)';

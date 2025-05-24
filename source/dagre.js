@@ -920,7 +920,7 @@ dagre.layout = (nodes, edges, layout, state) => {
                 }
                 const sourceSet = Array.from(mappedEntries.values()).filter((entry) => !entry.indegree);
                 const results = [];
-                function handleIn(vEntry) {
+                const handleIn = function(vEntry) {
                     return function(uEntry) {
                         if (uEntry.merged) {
                             return;
@@ -943,15 +943,15 @@ dagre.layout = (nodes, edges, layout, state) => {
                             uEntry.merged = true;
                         }
                     };
-                }
-                function handleOut(vEntry) {
+                };
+                const handleOut = (vEntry) => {
                     return function(wEntry) {
                         wEntry.in.push(vEntry);
                         if (--wEntry.indegree === 0) {
                             sourceSet.push(wEntry);
                         }
                     };
-                }
+                };
                 while (sourceSet.length) {
                     const entry = sourceSet.pop();
                     results.push(entry);

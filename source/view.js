@@ -5733,7 +5733,7 @@ view.Context = class {
                                 if (condition) {
                                     const python = await import('./python.js');
                                     const execution = new python.Execution();
-                                    execution.on('resolve', (_, name) => types.add(name));
+                                    execution.on('resolve', (sender, name) => types.add(name));
                                     const pickle = execution.__import__('pickle');
                                     unpickler = new pickle.Unpickler(data);
                                 }

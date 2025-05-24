@@ -843,7 +843,7 @@ if (!worker_threads.isMainThread) {
             const target = new Target(message);
             response.type = 'complete';
             response.target = target.name;
-            target.on('status', (_, message) => {
+            target.on('status', (sender, message) => {
                 message = { type: 'status', ...message };
                 worker_threads.parentPort.postMessage(message);
             });

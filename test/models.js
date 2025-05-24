@@ -306,7 +306,7 @@ const main = async () => {
             for (let item = queue.pop(); item; item = queue.pop()) {
                 const target = new worker.Target(item);
                 target.measures = measures ? new Map() : null;
-                target.on('status', (_, message) => logger.update('', message));
+                target.on('status', (sender, message) => logger.update('', message));
                 /* eslint-disable no-await-in-loop */
                 await target.execute();
                 if (target.measures) {

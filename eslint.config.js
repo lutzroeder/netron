@@ -36,7 +36,7 @@ export default [
             'for-direction': 'error',
             'func-name-matching': 'error',
             // 'func-names': 'error',
-            // 'func-style': 'error',
+            'func-style': 'error',
             'getter-return': 'error',
             'grouped-accessor-pairs': 'error',
             // 'guard-for-in': 'error',
