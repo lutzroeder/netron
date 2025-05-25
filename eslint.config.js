@@ -57,7 +57,7 @@ export default [
             // 'max-statements': 'error',
             // 'multiline-comment-style': 'error',
             // 'new-cap': 'error',
-            // 'no-alert': 'error',
+            'no-alert': 'error',
             'no-array-constructor': 'error',
             'no-async-promise-executor': 'error',
             'no-await-in-loop': 'error',
