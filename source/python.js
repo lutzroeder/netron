@@ -7142,6 +7142,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantized.reference.modules.linear.Linear', class {});
         this.registerType('torch.ao.nn.qat.modules.conv.Conv2d', class {});
         this.registerType('torch.ao.nn.qat.modules.linear.Linear', class {});
+        this.registerType('torch.ao.nn.intrinsic.quantized.modules.conv_relu.ConvReLU1d', class extends torch.ao.nn.quantized.modules.conv.Conv1d {});
         this.registerType('torch.ao.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class extends torch.ao.nn.quantized.modules.conv.Conv2d {});
         this.registerType('torch.ao.nn.intrinsic.quantized.modules.linear_relu.LinearReLU', class extends torch.ao.nn.quantized.modules.linear.Linear {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused._FusedModule', class extends torch.nn.modules.container.Sequential {});
