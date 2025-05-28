@@ -19003,8 +19003,13 @@ python.Execution = class {
                 return this.length;
             }
         });
-        this.registerType('torch.Tensor', class {
+        this.registerType('torch._C.TensorMeta', class {
+        });
+        this.registerType('torch._C.TensorBase', class extends torch._C.TensorMeta {
+        });
+        this.registerType('torch.Tensor', class extends torch._C.TensorBase {
             constructor() {
+                super();
                 this._layout = torch.strided;
             }
             get device() {
