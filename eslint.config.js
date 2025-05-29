@@ -11,6 +11,11 @@ export default [
             },
             sourceType: 'module'
         },
+        ignores: [
+            'dist/**',
+            'node_moduels/**',
+            'third_party/**',
+        ],
         rules: {
             'accessor-pairs': 'error',
             'array-bracket-spacing': 'error',
