@@ -596,6 +596,7 @@ fb_xnnpack.XNodeUnion = class {
             case 39: return fb_xnnpack.XNNConvTranspose2d.decode(reader, position);
             case 40: return fb_xnnpack.XNNReciprocalSquareRoot.decode(reader, position);
             case 41: return fb_xnnpack.XNNLog.decode(reader, position);
+            case 42: return fb_xnnpack.XNNGelu.decode(reader, position);
             default: return undefined;
         }
     }
@@ -1177,6 +1178,15 @@ fb_xnnpack.XNNLog = class XNNLog {
 
     static decode(reader, position) {
         const $ = new fb_xnnpack.XNNLog();
+        fb_xnnpack._XNNNode1x1.decode(reader, position, $);
+        return $;
+    }
+};
+
+fb_xnnpack.XNNGelu = class XNNGelu {
+
+    static decode(reader, position) {
+        const $ = new fb_xnnpack.XNNGelu();
         fb_xnnpack._XNNNode1x1.decode(reader, position, $);
         return $;
     }

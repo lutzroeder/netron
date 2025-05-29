@@ -564,6 +564,7 @@ xnnpack.Metadata = class {
         this.register('XNNDepthwiseConv2d', 'Layer');
         this.register('XNNELU', 'Activation');
         this.register('XNNFullyConnected', 'Layer');
+        this.register('XNNGelu', 'Activation');
         this.register('XNNGlobalAvgPooling2d', 'Pool');
         this.register('XNNGlobalAvgPooling2d', 'Pool');
         this.register('XNNHardswish', 'Activation');
