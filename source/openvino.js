@@ -648,6 +648,7 @@ openvino.Node = class {
             switch (precision) {
                 case 'BOOL': case 'BOOLEAN':          itemSize = 1; break;
                 case 'I1':   case 'U1':               itemSize = 0.125; break;
+                case 'I2':   case 'U2':               itemSize = 0.25; break;
                 case 'I4':   case 'U4':               itemSize = 0.5; break;
                 case 'I8':   case 'U8':               itemSize = 1; break;
                 case 'I16':  case 'U16': case 'FP16': itemSize = 2; break;
@@ -814,6 +815,7 @@ openvino.TensorType = class {
             case 'i32':         this.dataType = 'int32'; break;
             case 'i64':         this.dataType = 'int64'; break;
             case 'u1':          this.dataType = 'boolean'; break;
+            case 'u2':          this.dataType = 'uint2'; break;
             case 'u4':          this.dataType = 'uint4'; break;
             case 'u8':          this.dataType = 'uint8'; break;
             case 'u16':         this.dataType = 'uint16'; break;
