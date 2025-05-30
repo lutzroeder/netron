@@ -916,10 +916,11 @@ view.View = class {
             canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
             canvas.setAttribute('width', width);
             canvas.setAttribute('height', height);
-            this._zoom = this._stack && this._stack.length > 0 && this._stack[0].state ? this._stack[0].state.zoom : 1;
+            const state = this._stack && this._stack.length > 0 && this._stack[0] && this._stack[0].state ? this._stack[0].state : null;
+            this._zoom = state ? state.zoom : 1;
             this._updateZoom(this._zoom);
             const container = this._element('graph');
-            const context = this._stack && this._stack.length > 0 && this._stack[0].state ? viewGraph.select([this._stack[0].state.context]) : [];
+            const context = state ? viewGraph.select([state.context]) : [];
             if (context.length > 0) {
                 this.scrollTo(context, 'instant');
             } else if (elements && elements.length > 0) {
