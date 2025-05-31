@@ -1769,6 +1769,10 @@ view.Worker = class {
     }
 
     _create() {
+        if (this._worker) {
+            this._worker.terminate();
+            this._worker = null;
+        }
         this._worker = this._host.worker('./worker');
         this._worker.addEventListener('message', (e) => {
             this._cancel(false);
