@@ -1778,7 +1778,8 @@ view.Worker = class {
             delete this._resolve;
             delete this._reject;
             if (reject && message.type === 'error') {
-                reject(new Error(message.message));
+                const error = new Error(`Worker: ${message.message}`);
+                reject(error);
             } else if (resolve) {
                 resolve(message);
             }
@@ -5715,8 +5716,8 @@ view.Context = class {
                                 const archive = zip.Archive.open(stream, 'zlib');
                                 const data = archive ? archive.entries.get('') : stream;
                                 let condition = false;
-                                if (data.length > 2) {
-                                    const head = data.peek(2);
+                                if (data.length > 4) {
+                                    const head = data.peek(4);
                                     condition = head[0] === 0x80 && head[1] < 7;
                                     if (!condition) {
                                         data.seek(-1);
@@ -5725,9 +5726,14 @@ view.Context = class {
                                         if (tail[0] === 0x2e) {
                                             const size = Math.min(data.length, 256);
                                             const buffer = data.peek(size);
-                                            const content = String.fromCharCode.apply(null, buffer);
-                                            const list = ['ccopy_reg', 'cnumpy.core.multiarray', '(dp0'];
-                                            condition = list.some((value) => content.indexOf(value) !== -1);
+                                            condition =
+                                                (buffer[0] === 0x28 && buffer[1] === 0x64 && buffer[2] === 0x70) ||
+                                                (buffer[0] === 0x28 && buffer[1] === 0x63 && buffer.indexOf(0x0a) !== -1);
+                                            if (!condition) {
+                                                const content = String.fromCharCode.apply(null, buffer);
+                                                const list = ['ccopy_reg', 'cnumpy.core.multiarray', '(dp0'];
+                                                condition = list.some((value) => content.indexOf(value) !== -1);
+                                            }
                                         }
                                     }
                                 }
