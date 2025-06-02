@@ -6418,8 +6418,7 @@ view.ModelFactoryService = class {
                     identifier = reader.identifier;
                 } else {
                     const data = stream.peek(8);
-                    if (data[0] >= 8 && data[0] <= 0x28 && (data[0] & 3) === 0 &&
-                        data[1] === 0x00 && data[2] === 0x00 && data[2] === 0x00) {
+                    if (data[0] >= 8 && data[0] <= 0x28 && (data[0] & 3) === 0 && data[1] === 0x00 && data[2] === 0x00 && data[3] === 0x00) {
                         identifier = String.fromCharCode.apply(null, data.slice(4, 8));
                     }
                 }
@@ -6437,7 +6436,8 @@ view.ModelFactoryService = class {
                         { name: 'MindSpore Lite model data', identifier: 'MSL3' },
                         { name: 'NVDA model data', identifier: 'NVDA' },
                         { name: 'BSTM model data', identifier: 'BSTM' },
-                        { name: 'onnu model data', identifier: 'onnu' }
+                        { name: 'onnu model data', identifier: 'onnu' },
+                        { name: 'ONNX Runtime On-Device Training Checkpoint', identifier: 'ODTC' }
                     ];
                     for (const format of formats) {
                         if (identifier === format.identifier) {
