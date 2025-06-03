@@ -13,7 +13,6 @@ export default [
         },
         ignores: [
             'dist/**',
-            'node_moduels/**',
             'third_party/**',
         ],
         rules: {
