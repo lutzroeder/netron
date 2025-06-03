@@ -1,7 +1,7 @@
 
 const base = {};
 
-base.Complex64 = class Complex {
+base.Complex64 = class Complex64 {
 
     constructor(real, imaginary) {
         this.real = real;
@@ -13,7 +13,7 @@ base.Complex64 = class Complex {
     }
 };
 
-base.Complex128 = class Complex {
+base.Complex128 = class Complex128 {
 
     constructor(real, imaginary) {
         this.real = real;
@@ -135,12 +135,12 @@ DataView.prototype.getFloat8e4m3 = function(byteOffset, fn, uz) {
     if (expo === 0) {
         if (mant > 0) {
             expo = 0x7F - exponent_bias;
-            if (mant & 0x4 === 0) {
+            if ((mant & 0x4) === 0) {
                 mant &= 0x3;
                 mant <<= 1;
                 expo -= 1;
             }
-            if (mant & 0x4 === 0) {
+            if ((mant & 0x4) === 0) {
                 mant &= 0x3;
                 mant <<= 1;
                 expo -= 1;
@@ -188,7 +188,7 @@ DataView.prototype.getFloat8e5m2 = function(byteOffset, fn, uz) {
     if (expo === 0) {
         if (mant > 0) {
             expo = 0x7F - exponent_bias;
-            if (mant & 0x2 === 0) {
+            if ((mant & 0x2) === 0) {
                 mant &= 0x1;
                 mant <<= 1;
                 expo -= 1;
@@ -739,8 +739,8 @@ base.Tensor = class {
                 for (let i = 0; i < dimensions; i++) {
                     const stride = strides[i];
                     const dimension = data[i];
-                    for (let i = 0; i < indices.length; i++) {
-                        indices[i] += dimension[i].toNumber() * stride;
+                    for (let j = 0; j < indices.length; j++) {
+                        indices[j] += dimension[j].toNumber() * stride;
                     }
                 }
                 context.data = this._decodeSparse(dataType, context.dimensions, indices, values);
@@ -1083,7 +1083,7 @@ base.Tensor = class {
                     break;
                 }
                 default: {
-                    throw new Error(`Unsupported tensor encoding '${this._encoding}'.`);
+                    throw new Error(`Unsupported tensor encoding '${this.encoding}'.`);
                 }
             }
             switch (this.layout) {
