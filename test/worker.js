@@ -436,7 +436,9 @@ export class Target {
             const reader = response.body.getReader();
             const length = response.headers.has('Content-Length') ? parseInt(response.headers.get('Content-Length'), 10) : -1;
             let position = 0;
+            /* eslint-disable consistent-this */
             const target = this;
+            /* eslint-enable consistent-this */
             const stream = new ReadableStream({
                 async start(controller) {
                     const read = async () => {

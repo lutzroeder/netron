@@ -6,7 +6,9 @@ const python = {};
 python.Execution = class {
 
     constructor(sources) {
+        /* eslint-disable consistent-this */
         const self = this;
+        /* eslint-enable consistent-this */
         const execution = self;
         this._sources = sources || new Map();
         this._events = new Map();
@@ -11988,30 +11990,28 @@ python.Execution = class {
                 return torch._C.isCustomClass(this);
             }
             equals(rhs) {
-                const lhs = this;
-                switch (lhs.tag) {
+                switch (this.tag) {
                     case 'None': return rhs.isNone();
-                    case 'Bool': return rhs.isBool() && lhs.toBool() === rhs.toBool();
-                    case 'Int': return rhs.isInt() && lhs.toInt() === rhs.toInt();
-                    case 'Double': return rhs.isDouble() && lhs.toDouble() === rhs.toDouble();
-                    case 'String': return rhs.isString() && lhs.toString() === rhs.toString();
-                    case 'Tensor': return rhs.isTensor() && lhs.toTensor() === rhs.toTensor();
-                    case 'Object': return rhs.isObject() && lhs.toObject() === rhs.toObject();
-                    case 'Device': return rhs.isObject() && lhs.toDevice() === rhs.toDevice();
+                    case 'Bool': return rhs.isBool() && this.toBool() === rhs.toBool();
+                    case 'Int': return rhs.isInt() && this.toInt() === rhs.toInt();
+                    case 'Double': return rhs.isDouble() && this.toDouble() === rhs.toDouble();
+                    case 'String': return rhs.isString() && this.toString() === rhs.toString();
+                    case 'Tensor': return rhs.isTensor() && this.toTensor() === rhs.toTensor();
+                    case 'Object': return rhs.isObject() && this.toObject() === rhs.toObject();
+                    case 'Device': return rhs.isObject() && this.toDevice() === rhs.toDevice();
                     case 'GenericList': {
                         if (rhs.isList()) {
-                            const a = lhs.toList();
+                            const a = this.toList();
                             const b = rhs.toList();
                             return (a.length === b.length) && a.every((v, i) => v === b[i]);
                         }
                         return false;
                     }
-                    default: throw new python.Error(`IValue.equals() not implemented for '${lhs.tag}.`);
+                    default: throw new python.Error(`IValue.equals() not implemented for '${this.tag}.`);
                 }
             }
             is(rhs) {
-                const lhs = this;
-                return lhs.equals(rhs);
+                return this.equals(rhs);
             }
             type() {
                 switch (this.tag) {
@@ -13010,7 +13010,9 @@ python.Execution = class {
                 this.error_messages = new Map();
             }
             setVariableTypeError(name, msg) {
+                /* eslint-disable consistent-this */
                 let runner = this;
+                /* eslint-enable consistent-this */
                 while (runner.next) {
                     runner = runner.next;
                 }
@@ -13045,7 +13047,10 @@ python.Execution = class {
                 this.type_table.set(name, type);
             }
             findInAnyFrame(name) {
-                for (let runner = this; runner; runner = runner.next) {
+                /* eslint-disable consistent-this */
+                const self = this;
+                /* eslint-enable consistent-this */
+                for (let runner = self; runner; runner = runner.next) {
                     const r = runner.findInThisFrame(name);
                     if (r) {
                         return r;
@@ -16635,7 +16640,10 @@ python.Execution = class {
                 return null;
             }
             findInAnyFrame(name) {
-                for (let runner = this; runner; runner = runner.next) {
+                /* eslint-disable consistent-this */
+                const self = this;
+                /* eslint-enable consistent-this */
+                for (let runner = self; runner; runner = runner.next) {
                     const r = runner.findInThisFrame(name);
                     if (r) {
                         return r;
@@ -19672,7 +19680,9 @@ python.Execution = class {
             return this.expression(stmt.value, context);
         } else if (stmt instanceof ast.FunctionDef) {
             const module = context.get('__name__');
+            /* eslint-disable consistent-this */
             const self = this;
+            /* eslint-enable consistent-this */
             const parent = context.get('__class__');
             const type = (parent === builtins.module) ? builtins.function : builtins.method;
             const func = {

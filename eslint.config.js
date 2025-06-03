@@ -29,7 +29,7 @@ export default [
             // 'complexity': 'error',
             'computed-property-spacing': 'error',
             'consistent-return': 'error',
-            // 'consistent-this': 'error',
+            'consistent-this': 'error',
             'constructor-super': 'error',
             'curly': 'error',
             'default-case': 'error',

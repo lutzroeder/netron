@@ -1473,7 +1473,9 @@ pytorch.Execution = class extends python.Execution {
     constructor(sources, metadata) {
         super(sources);
         this._metadata = metadata;
+        /* eslint-disable consistent-this */
         const execution = this;
+        /* eslint-enable consistent-this */
         const torch = this.torch;
         this.registerFunction('torch.jit.jit_module_from_flatbuffer', (f) => {
             const cu = new torch.jit.CompilationUnit();
