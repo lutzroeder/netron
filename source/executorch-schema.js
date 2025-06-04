@@ -493,6 +493,8 @@ fb_xnnpack.PerChannelGroupQuant = class PerChannelGroupQuant {
         $.channel_dim = reader.int32_(position, 6, 0);
         $.group_size = reader.int32_(position, 8, 0);
         $.scale_bf16 = reader.array(position, 10, Uint16Array);
+        $.scale_buffer_idx = reader.uint32_(position, 12, 0);
+        $.num_scales = reader.uint32_(position, 14, 0);
         return $;
     }
 };
@@ -503,6 +505,8 @@ fb_xnnpack.PerChannelQuant = class PerChannelQuant {
         const $ = new fb_xnnpack.PerChannelQuant();
         $.scale = reader.array(position, 4, Float32Array);
         $.channel_dim = reader.int32_(position, 6, 0);
+        $.scale_buffer_idx = reader.uint32_(position, 8, 0);
+        $.num_scales = reader.uint32_(position, 10, 0);
         return $;
     }
 };
