@@ -227,7 +227,7 @@
     "name": "AveragePooling2D",
     "module": "keras.layers",
     "category": "Pool",
-    "description": "Average pooling operation for 2D spatial data.\n\nDownsamples the input along its spatial dimensions (height and width)\nby taking the average value over an input window\n(of size defined by `pool_size`) for each channel of the input.\nThe window is shifted by `strides` along each dimension.\n\nThe resulting output when using the `\"valid\"` padding option has a spatial\nshape (number of rows or columns) of:\n`output_shape = math.floor((input_shape - pool_size) / strides) + 1`\n(when `input_shape >= pool_size`)\n\nThe resulting output shape when using the `\"same\"` padding option is:\n`output_shape = math.floor((input_shape - 1) / strides) + 1`",
+    "description": "Average pooling operation for 2D spatial data.\n\nDownsamples the input along its spatial dimensions (height and width)\nby taking the average value over an input window\n(of size defined by `pool_size`) for each channel of the input.\nThe window is shifted by `strides` along each dimension.\n\nThe resulting output when using the `\"valid\"` padding option has a spatial\nshape (number of rows or columns) of:\n`output_shape = math.floor((input_shape - pool_size) / strides) + 1`\n(when `input_shape >= pool_size`)\n\nThe resulting output shape when using the `\"same\"` padding option is:\n`output_shape = input_shape`",
     "attributes": [
       {
         "default": "channels_last",
