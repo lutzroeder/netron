@@ -592,7 +592,7 @@ view.View = class {
             for (const element of selection) {
                 const rect = element.getBoundingClientRect();
                 const width = Math.min(rect.width, bounds.width);
-                const height = Math.min(rect.width, bounds.height);
+                const height = Math.min(rect.height, bounds.height);
                 x += rect.left + (width / 2);
                 y += rect.top + (height / 2);
                 left = Math.min(left, rect.left);
