@@ -588,19 +588,21 @@ fb_xnnpack.XNodeUnion = class {
             case 27: return fb_xnnpack.XNNNegate.decode(reader, position);
             case 28: return fb_xnnpack.XNNSquare.decode(reader, position);
             case 29: return fb_xnnpack.XNNELU.decode(reader, position);
-            case 30: return fb_xnnpack.XNNAbs.decode(reader, position);
-            case 31: return fb_xnnpack.XNNPReLU.decode(reader, position);
-            case 32: return fb_xnnpack.XNNConcatenate2.decode(reader, position);
-            case 33: return fb_xnnpack.XNNConcatenate3.decode(reader, position);
-            case 34: return fb_xnnpack.XNNConcatenate4.decode(reader, position);
-            case 35: return fb_xnnpack.XNNStaticSlice.decode(reader, position);
-            case 36: return fb_xnnpack.XNNScaledDotProductAttention.decode(reader, position);
-            case 37: return fb_xnnpack.XNNBatchMatrixMultiply.decode(reader, position);
-            case 38: return fb_xnnpack.XNNConcatenate5.decode(reader, position);
-            case 39: return fb_xnnpack.XNNConvTranspose2d.decode(reader, position);
-            case 40: return fb_xnnpack.XNNReciprocalSquareRoot.decode(reader, position);
-            case 41: return fb_xnnpack.XNNLog.decode(reader, position);
-            case 42: return fb_xnnpack.XNNGelu.decode(reader, position);
+            case 30: return fb_xnnpack.XNNExp.decode(reader, position);
+            case 31: return fb_xnnpack.XNNAbs.decode(reader, position);
+            case 32: return fb_xnnpack.XNNPReLU.decode(reader, position);
+            case 33: return fb_xnnpack.XNNConcatenate2.decode(reader, position);
+            case 34: return fb_xnnpack.XNNConcatenate3.decode(reader, position);
+            case 35: return fb_xnnpack.XNNConcatenate4.decode(reader, position);
+            case 36: return fb_xnnpack.XNNStaticSlice.decode(reader, position);
+            case 37: return fb_xnnpack.XNNScaledDotProductAttention.decode(reader, position);
+            case 38: return fb_xnnpack.XNNBatchMatrixMultiply.decode(reader, position);
+            case 39: return fb_xnnpack.XNNConcatenate5.decode(reader, position);
+            case 40: return fb_xnnpack.XNNConvTranspose2d.decode(reader, position);
+            case 41: return fb_xnnpack.XNNReciprocalSquareRoot.decode(reader, position);
+            case 42: return fb_xnnpack.XNNLog.decode(reader, position);
+            case 43: return fb_xnnpack.XNNGelu.decode(reader, position);
+            case 44: return fb_xnnpack.XNNTanh.decode(reader, position);
             default: return undefined;
         }
     }
@@ -1097,6 +1099,15 @@ fb_xnnpack.XNNSquare = class XNNSquare {
     }
 };
 
+fb_xnnpack.XNNExp = class XNNExp {
+
+    static decode(reader, position) {
+        const $ = new fb_xnnpack.XNNExp();
+        fb_xnnpack._XNNNode1x1.decode(reader, position, $);
+        return $;
+    }
+};
+
 fb_xnnpack.XNNAbs = class XNNAbs {
 
     static decode(reader, position) {
@@ -1191,6 +1202,15 @@ fb_xnnpack.XNNGelu = class XNNGelu {
 
     static decode(reader, position) {
         const $ = new fb_xnnpack.XNNGelu();
+        fb_xnnpack._XNNNode1x1.decode(reader, position, $);
+        return $;
+    }
+};
+
+fb_xnnpack.XNNTanh = class XNNTanh {
+
+    static decode(reader, position) {
+        const $ = new fb_xnnpack.XNNTanh();
         fb_xnnpack._XNNNode1x1.decode(reader, position, $);
         return $;
     }
