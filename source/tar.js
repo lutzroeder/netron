@@ -55,7 +55,7 @@ tar.Entry = class {
         reader.string(8); // file mode
         reader.string(8); // owner
         reader.string(8); // group
-        const size = parseInt(reader.string(12).trim(), 8);
+        const size = reader.size();
         reader.string(12); // timestamp
         reader.string(8); // checksum
         this._type = reader.string(1);
@@ -151,6 +151,23 @@ tar.BinaryReader = class {
             content += String.fromCharCode(c);
         }
         return content;
+    }
+
+    size() {
+        const buffer = this.read(12);
+        if (buffer[0] & 0x80) {
+            buffer[0] &= 0x7f;
+            let value = 0n;
+            for (const byte of buffer) {
+                value = (value << 8n) | BigInt(byte);
+                if (value > BigInt(Number.MAX_SAFE_INTEGER)) {
+                    throw new tar.Error('Tar entry size exceeds safe integer.');
+                }
+            }
+            return value.toNumber();
+        }
+        const octal = String.fromCharCode(...buffer);
+        return parseInt(octal.trim() || '0', 8);
     }
 };
 
