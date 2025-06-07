@@ -66,8 +66,6 @@ known_legacy_schema_definitions = [
     "aten::rand_like.generator_out(Tensor self, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "aten::randn_like.generator(Tensor self, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor", # noqa E501
     "aten::randn_like.generator_out(Tensor self, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "aten::randint_like.Tensor(Tensor self, Tensor high, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor", # noqa E501
-    "aten::randint_like.Tensor_out(Tensor self, Tensor high, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "aten::randint_like.generator(Tensor self, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor", # noqa E501
     "aten::randint_like.generator_out(Tensor self, SymInt high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "aten::randint_like.generator_with_low_dtype(Tensor self, SymInt low, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor", # noqa E501
