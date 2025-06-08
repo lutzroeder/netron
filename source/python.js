@@ -12717,40 +12717,6 @@ python.Execution = class {
                 execution.builtins.inf = torch.inf;
                 execution.builtins.CONSTANTS = {};
                 execution._resolver = this._source_importer;
-                const known_types = [
-                    { name: '__torch__.torch.classes._nnapi.Compilation', methods: [
-                        '__init__(__torch__.torch.classes._nnapi.Compilation self) -> NoneType',
-                        'init(__torch__.torch.classes._nnapi.Compilation self, Tensor serialized_model_tensor, Tensor[] parameter_buffers) -> NoneType',
-                        'init2(__torch__.torch.classes._nnapi.Compilation self, Tensor serialized_model_tensor, Tensor[] parameter_buffers, int compilation_preference, bool relax_f32_to_f16) -> NoneType',
-                        'run(__torch__.torch.classes._nnapi.Compilation self, Tensor[] inputs, Tensor[] outputs) -> NoneType'
-                    ] },
-                    { name: '__torch__.torch.classes.quantized.Conv2dPackedParamsBase', attributes: 'Tensor weight, Tensor bias, int[] stride, int[] padding, int[] dilation, int groups', methods: ['unpack(__torch__.torch.classes.quantized.Conv2dPackedParamsBase self) -> ((Tensor, Tensor?))'] },
-                    { name: '__torch__.torch.classes.quantized.Conv3dPackedParamsBase', attributes: 'Tensor weight, Tensor bias, int[] stride, int[] padding, int[] dilation, int groups', methods: ['unpack(__torch__.torch.classes.quantized.Conv3dPackedParamsBase self) -> ((Tensor, Tensor?))'] },
-                    { name: '__torch__.torch.classes.quantized.LinearPackedParamsBase', attributes: 'Tensor weight, Tensor? bias' },
-                    { name: '__torch__.torch.classes.rnn.CellParamsBase', attributes: 'str type, Tensor[] tensors, float[] doubles, int[] longs, __torch__.torch.classes.quantized.LinearPackedParamsBase[] packed_params' },
-                    { name: '__torch__.torch.classes.xnnpack.Conv2dOpContext', attributes: 'Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups, int[] output_min, int[] output_max' },
-                    { name: '__torch__.torch.classes.xnnpack.LinearOpContext', attributes: 'Tensor weight, Tensor bias, int[] output_min, int[] output_max' },
-                    { name: '__torch__.torch.classes.xnnpack.TransposeConv2dOpContext', attributes: 'Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] output_padding, int[] dilation, int groups, int[] output_min, int[] output_max' },
-                    { name: '__torch__.torch.classes.tensorrt.Engine' }
-                ];
-                for (const known_type of known_types) {
-                    const prefix = new torch._C.QualifiedName(known_type.name);
-                    const type = torch.ClassType.create(known_type.name, this._compilation_unit, false);
-                    for (const known_method of known_type.methods || []) {
-                        const schema = new torch.FunctionSchema(known_method);
-                        const name = new torch._C.QualifiedName(prefix, schema.name);
-                        const fn = new torch._C.BuiltinOpFunction(name, schema);
-                        type.addMethod(fn);
-                    }
-                    if (known_type.attributes) {
-                        const schema = new torch.FunctionSchema(`(${known_type.attributes}) -> ()`);
-                        for (const arg of schema.arguments) {
-                            type.addAttribute(arg.name, arg.real_type);
-                        }
-                    }
-                    torch._C.registerCustomClass(type);
-                    // this._compilation_unit.register_type(type);
-                }
                 if (this._reader.has_record('model.json')) {
                     return this.LEGACY_deserialize();
                 }
@@ -15038,6 +15004,17 @@ python.Execution = class {
             }
             _type() {
                 return this._typ; // torch.ClassType
+            }
+            __setstate__(state) {
+                const [attrs, qualname] = state;
+                this._typ = torch._C.getCustomClass(qualname);
+                if (!this._typ) {
+                    throw new python.Error(`Unsupported custom class '${qualname}'.`);
+                }
+                for (let i = 0; i < this._typ.numAttributes(); i++) {
+                    const name = this._typ.getAttributeName(i);
+                    this.__setattr__(name, attrs[i]);
+                }
             }
             find_method(basename) {
                 for (const fn of this.type().methods()) {

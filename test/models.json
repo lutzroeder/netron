@@ -6252,6 +6252,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "quantized_resnet18.pth",
+    "source":   "https://github.com/user-attachments/files/20642664/quantized_resnet18.pth.zip[quantized_resnet18.pth]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "r3d_18_traced.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6096649/r3d_18_traced.pt.zip[r3d_18_traced.pt]",
     "format":   "TorchScript v1.6",
