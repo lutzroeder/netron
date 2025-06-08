@@ -3899,7 +3899,7 @@
     "type":     "numpy",
     "target":   "cifar10-1w-1a.npz",
     "source":   "https://raw.githubusercontent.com/Xilinx/BNN-PYNQ/master/bnn/src/training/cifar10-1w-1a.npz",
-    "format":   "NumPy Zip",
+    "format":   "NumPy Archive",
     "link":     "https://github.com/Xilinx/BNN-PYNQ"
   },
   {
@@ -3913,7 +3913,7 @@
     "type":     "numpy",
     "target":   "mlp",
     "source":   "https://github.com/lutzroeder/netron/files/6225731/mlp.zip[mlp.npz]",
-    "format":   "NumPy Zip",
+    "format":   "NumPy Archive",
     "link":     "https://github.com/lutzroeder/netron/issues/711"
   },
   {

@@ -41,7 +41,7 @@ numpy.ModelFactory = class {
                 break;
             }
             case 'npz': {
-                format = 'NumPy Zip';
+                format = 'NumPy Archive';
                 const layers = new Map();
                 const entries = Array.from(context.value);
                 const separator = entries.every(([name]) => name.endsWith('.weight.npy')) ? '.' : '/';
