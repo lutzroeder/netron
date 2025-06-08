@@ -65223,6 +65223,51 @@
     ]
   },
   {
+    "name": "XlaSparseActivationsUnstack",
+    "attributes": [
+      {
+        "name": "num_tables",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "sample_counts",
+        "type": "int64[]",
+        "minimum": 1
+      },
+      {
+        "name": "features",
+        "type": "int64[]",
+        "minimum": 1
+      },
+      {
+        "name": "interleaved",
+        "type": "boolean"
+      },
+      {
+        "name": "input_dtype",
+        "type": "type"
+      },
+      {
+        "name": "dtype",
+        "type": "type"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "stacked_activations",
+        "typeAttr": "input_dtype"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "unstacked_activations",
+        "numberAttr": "num_tables",
+        "typeAttr": "dtype"
+      }
+    ]
+  },
+  {
     "name": "XlaSparseCoreAdagrad",
     "attributes": [
       {
@@ -67516,6 +67561,41 @@
       {
         "name": "activations",
         "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseGradientsStack",
+    "attributes": [
+      {
+        "name": "num_tables",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "interleaved",
+        "type": "boolean"
+      },
+      {
+        "name": "input_dtype",
+        "type": "type"
+      },
+      {
+        "name": "dtype",
+        "type": "type"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "unstacked_gradients",
+        "numberAttr": "num_tables",
+        "typeAttr": "input_dtype"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "stacked_gradients",
+        "typeAttr": "dtype"
       }
     ]
   },
