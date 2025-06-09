@@ -9,7 +9,9 @@ base.Complex64 = class Complex64 {
     }
 
     toString(/* radix */) {
-        return `${this.real} + ${this.imaginary}i`;
+        const sign = this.imaginary < 0 ? '-' : '+';
+        const imaginary = Math.abs(this.imaginary);
+        return `${this.real} ${sign} ${imaginary}i`;
     }
 };
 
@@ -21,7 +23,9 @@ base.Complex128 = class Complex128 {
     }
 
     toString(/* radix */) {
-        return `${this.real} + ${this.imaginary}i`;
+        const sign = this.imaginary < 0 ? '-' : '+';
+        const imaginary = Math.abs(this.imaginary);
+        return `${this.real} ${sign} ${imaginary}i`;
     }
 };
 
