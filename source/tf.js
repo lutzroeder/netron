@@ -750,11 +750,25 @@ tf.Graph = class {
             metadata = new tf.GraphMetadata(metadata, graph.library);
             this.functions = metadata.functions;
             const context = new tf.Context();
+            const resolveTensorInfoName = (tensor) => {
+                if (tensor) {
+                    if (tensor.name) {
+                        return tensor.name;
+                    }
+                    if (tensor.coo_sparse && tensor.coo_sparse.values_tensor_name) {
+                        return tensor.coo_sparse.values_tensor_name;
+                    }
+                    if (tensor.composite_tensor && Array.isArray(tensor.composite_tensor.components) && tensor.composite_tensor.components.length > 0) {
+                        return resolveTensorInfoName(tensor.composite_tensor.components[0]);
+                    }
+                }
+                return '';
+            };
             for (const [key, signature_def] of Object.entries(meta_graph.signature_def)) {
                 const inputs = [];
                 for (const [key, tensor] of Object.entries(signature_def.inputs)) {
                     const type = new tf.TensorType(tensor.dtype, tensor.tensor_shape);
-                    const name = tensor.name.replace(/:0$/, '');
+                    const name = resolveTensorInfoName(tensor).replace(/:0$/, '');
                     const value = context.value(name, type);
                     const argument = new tf.Argument(key, [value]);
                     inputs.push(argument);
@@ -762,7 +776,7 @@ tf.Graph = class {
                 const outputs = [];
                 for (const [key, tensor] of Object.entries(signature_def.outputs)) {
                     const type = new tf.TensorType(tensor.dtype, tensor.tensor_shape);
-                    const name = tensor.name.replace(/:0$/, '');
+                    const name = resolveTensorInfoName(tensor).replace(/:0$/, '');
                     const value = context.value(name, type);
                     const argument = new tf.Argument(key, [value]);
                     outputs.push(argument);
