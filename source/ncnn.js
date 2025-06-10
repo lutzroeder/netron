@@ -367,7 +367,8 @@ ncnn.Node = class {
                 const weight_data_size = parseInt(params.get('2') || 0, 10);
                 const int8_scale_term = parseInt(params.get('8') || 0, 10);
                 const activation_type = parseInt(params.get('9') || 0, 10);
-                blobs.weight('weight', [num_output, weight_data_size / num_output]);
+                const input_size = num_output > 0 ? Math.floor(weight_data_size / num_output) : 0;
+                blobs.weight('weight', [num_output, input_size]);
                 if (bias_term) {
                     blobs.weight('bias', [num_output], 1);
                 }
