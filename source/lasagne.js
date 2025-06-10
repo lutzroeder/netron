@@ -48,7 +48,7 @@ lasagne.Graph = class {
             const layer = model.layers_[name];
             if (layer.input_layer && layer.input_layer.name) {
                 const input_layer = layer.input_layer;
-                const dataType = input_layer.input_var ? input_layer.input_var.type.dtype : '?';
+                const dataType = input_layer.input_var && input_layer.input_var.type ? input_layer.input_var.type.dtype : '?';
                 const shape = layer.input_shape ? new lasagne.TensorShape(layer.input_shape) : null;
                 const type = shape ? new lasagne.TensorType(dataType, shape) : null;
                 values.map(input_layer.name, type);
