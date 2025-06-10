@@ -178,7 +178,7 @@ mnn.Node = class {
                 delete param.symmetricQuan;
             } else if (param instanceof mnn.schema.InnerProduct) {
                 const outputCount = param.outputCount;
-                const inputCount = param.weightSize / outputCount;
+                const inputCount = outputCount > 0 ? param.weightSize / outputCount : 0;
                 this._buildTensor('weight', mnn.schema.DataType.DT_FLOAT, [outputCount, inputCount], param.weight);
                 this._buildTensor('bias', mnn.schema.DataType.DT_FLOAT, [outputCount], param.bias);
                 delete param.weight;
