@@ -798,7 +798,7 @@ base.Tensor = class {
                         break;
                     }
                     default: {
-                        throw new base.Tensor(`Unsupported tensor encoding '${this.encoding}'.`);
+                        throw new Error(`Unsupported tensor encoding '${this.encoding}'.`);
                     }
                 }
             }
@@ -889,18 +889,18 @@ base.Tensor = class {
                 case 'quint16':
                 case 'uint16':
                     for (; offset < max; offset += stride) {
-                        results.push(view.getUint16(offset, true));
+                        results.push(view.getUint16(offset, this._littleEndian));
                     }
                     break;
                 case 'quint32':
                 case 'uint32':
                     for (; offset < max; offset += stride) {
-                        results.push(view.getUint32(offset, true));
+                        results.push(view.getUint32(offset, this._littleEndian));
                     }
                     break;
                 case 'uint64':
                     for (; offset < max; offset += stride) {
-                        results.push(view.getBigUint64(offset, true));
+                        results.push(view.getBigUint64(offset, this._littleEndian));
                     }
                     break;
                 case 'uint':
