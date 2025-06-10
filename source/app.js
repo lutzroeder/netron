@@ -395,36 +395,38 @@ app.Application = class {
                 });
             }
 
-            menuTemplate.push({
-                label: '&File',
-                submenu: [
-                    {
-                        label: '&Open...',
-                        accelerator: 'CmdOrCtrl+O',
-                        click: () => this._open(null)
-                    },
-                    {
-                        label: 'Open &Recent',
-                        submenu: menuRecentsTemplate
-                    },
-                    { type: 'separator' },
-                    {
-                        id: 'file.export',
-                        label: '&Export...',
-                        accelerator: 'CmdOrCtrl+Shift+E',
-                        click: async () => await this.execute('export', null)
-                    },
-                    { type: 'separator' },
-                    { role: 'close' },
-                ]
-            });
+            const fileSubmenu = [
+                {
+                    label: '&Open...',
+                    accelerator: 'CmdOrCtrl+O',
+                    click: () => this._open(null)
+                },
+                {
+                    label: 'Open &Recent',
+                    submenu: menuRecentsTemplate
+                },
+                { type: 'separator' },
+                {
+                    id: 'file.export',
+                    label: '&Export...',
+                    accelerator: 'CmdOrCtrl+Shift+E',
+                    click: async () => await this.execute('export', null)
+                },
+                { type: 'separator' },
+                { role: 'close' },
+            ];
 
             if (!darwin) {
-                menuTemplate.slice(-1)[0].submenu.push(
+                fileSubmenu.push(
                     { type: 'separator' },
                     { role: 'quit' }
                 );
             }
+
+            menuTemplate.push({
+                label: '&File',
+                submenu: fileSubmenu
+            });
 
             if (darwin) {
                 electron.systemPreferences.setUserDefault('NSDisabledDictationMenuItem', 'boolean', true);
