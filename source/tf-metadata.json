@@ -65642,6 +65642,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -65771,6 +65776,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -65904,6 +65914,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -66025,6 +66040,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -66149,6 +66169,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
@@ -66266,6 +66291,11 @@
       {
         "name": "table_name",
         "type": "string"
+      },
+      {
+        "name": "num_sparsecores_per_device",
+        "type": "int64",
+        "default": -1
       }
     ],
     "inputs": [
