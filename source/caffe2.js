@@ -231,9 +231,7 @@ caffe2.Graph = class {
             ]);
             for (const op of init.op) {
                 if (op.output && op.output.length === 1) {
-                    /* eslint-disable prefer-destructuring */
-                    const name = op.output[0];
-                    /* eslint-enable prefer-destructuring */
+                    const [name] = op.output;
                     const tensor = {};
                     for (const arg of op.arg) {
                         tensor[arg.name] = arg;

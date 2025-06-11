@@ -92,9 +92,7 @@ armnn.Graph = class {
         const layers = graph.layers.filter((layer) => {
             const base = armnn.Node.getBase(layer);
             if (base.layerType === armnn.schema.LayerType.Constant && base.outputSlots.length === 1 && layer.layer.input) {
-                /* eslint-disable prefer-destructuring */
-                const slot = base.outputSlots[0];
-                /* eslint-enable prefer-destructuring */
+                const [slot] = base.outputSlots;
                 const name = `${base.index}:${slot.index}`;
                 if (counts.get(name) === 1) {
                     const tensor = new armnn.Tensor(layer.layer.input, 'Constant');

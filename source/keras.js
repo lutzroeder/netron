@@ -773,9 +773,7 @@ keras.Graph = class {
                                     layer.inputs = [];
                                     layer.outputs = [];
                                     layer.args = {};
-                                    /* eslint-disable prefer-destructuring */
-                                    layer.inbound_node = layer.inbound_nodes[0];
-                                    /* eslint-enable prefer-destructuring */
+                                    [layer.inbound_node] = layer.inbound_nodes;
                                     nodes.set(`${layer.name}[${first_index}]`, layer);
                                 } else {
                                     let config = {};

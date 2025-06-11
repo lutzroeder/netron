@@ -3975,9 +3975,7 @@ python.Execution = class {
                             let number = 0;
                             switch (data.length) {
                                 case 0: number = 0; break;
-                                /* eslint-disable prefer-destructuring */
-                                case 1: number = data[0]; break;
-                                /* eslint-enable prefer-destructuring */
+                                case 1: [number] = data; break;
                                 case 2: number = data[1] << 8 | data[0]; break;
                                 case 3: number = data[2] << 16 | data[1] << 8 | data[0]; break;
                                 case 4: number = data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0]; break;

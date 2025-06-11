@@ -1218,9 +1218,7 @@ coreml.Context.Graph = class {
                 currentOutput = `${preprocessingInput}:${preprocessorIndex}`;
                 const preprocessor = preprocessing.preprocessor;
                 const node = this.node(group, preprocessor, null, '', preprocessing[preprocessor], [input], [currentOutput]);
-                /* eslint-disable prefer-destructuring */
-                preprocessorOutput = node.outputs[0].value[0];
-                /* eslint-enable prefer-destructuring */
+                [preprocessorOutput] = node.outputs[0].value;
                 preprocessorIndex++;
             }
             for (const node of inputNodes) {
@@ -1350,9 +1348,7 @@ coreml.Context.Graph = class {
         for (const op of operations) {
             if (op.type === 'const' && op.inputs.length === 0 &&
                 op.outputs.length === 1 && op.outputs[0].value.length === 1) {
-                /* eslint-disable prefer-destructuring */
-                const value = op.outputs[0].value[0];
-                /* eslint-enable prefer-destructuring */
+                const [value] = op.outputs[0].value;
                 if (op.attributes && op.attributes.val) {
                     const type = value.type;
                     const data = op.attributes.val;

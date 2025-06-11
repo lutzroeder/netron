@@ -1860,9 +1860,7 @@ tf.Context = class {
                 if (node.attr && node.attr.dtype && node.attr._output_shapes && node.attr._output_shapes.list && node.attr._output_shapes.list.shape) {
                     const tensor = new tf.proto.tensorflow.TensorProto();
                     tensor.dtype = node.attr.dtype.type;
-                    /* eslint-disable prefer-destructuring */
-                    tensor.tensor_shape = node.attr._output_shapes.list.shape[0];
-                    /* eslint-enable prefer-destructuring */
+                    [tensor.tensor_shape] = node.attr._output_shapes.list.shape;
                     const name = node.name;
                     const initializer = map_resource(name, node.input[0].from,  new tf.Tensor(tensor, name, 'Resource Variable'));
                     if (initializer) {
