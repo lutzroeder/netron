@@ -34,7 +34,8 @@ mlir.ModelFactory = class {
                 const decoder = await context.read('text.decoder');
                 const parser = new mlir.Parser(decoder);
                 const obj = await parser.read();
-                return new mlir.Model(obj);
+                const metadata = new mlir.Metadata();
+                return new mlir.Model(metadata, obj);
             }
             case 'mlir.binary': {
                 const reader = await context.read('binary');
@@ -51,13 +52,13 @@ mlir.ModelFactory = class {
 
 mlir.Model = class {
 
-    constructor(obj) {
+    constructor(metadata, obj) {
         this.format = 'MLIR';
         this.graphs = [];
         this.metadata = [];
         for (const op of obj.operations) {
             if (op.name.endsWith('.func')) {
-                const graph = new mlir.Graph(op);
+                const graph = new mlir.Graph(metadata, op);
                 this.graphs.push(graph);
             }
             if (op.name.endsWith('.module')) {
@@ -65,7 +66,7 @@ mlir.Model = class {
                     for (const block of region.blocks) {
                         for (const op of block.operations) {
                             if (op.name.endsWith('.func')) {
-                                const graph = new mlir.Graph(op);
+                                const graph = new mlir.Graph(metadata, op);
                                 this.graphs.push(graph);
                             }
                         }
@@ -85,7 +86,7 @@ mlir.Model = class {
 
 mlir.Graph = class {
 
-    constructor(func) {
+    constructor(metadata, func) {
         const attr = Object.fromEntries(func.attributes.map((attr) => [attr.name, attr.value]));
         this.name = attr.sym_name || '';
         this.type = func.name === 'func' || func.name.endsWith('.func') ? 'function' : '';
@@ -287,7 +288,7 @@ mlir.Graph = class {
             //     const map = new Map(metadata.inputs.map((input) => [ input.name, index++ ]));
             //     op.inputs.sort((a, b) => (map.get(a.name) || map.size) - (map.get(b.name) || map.size));
             // }
-            const node = new mlir.Node(op);
+            const node = new mlir.Node(metadata, op);
             this.nodes.push(node);
         }
     }
@@ -333,11 +334,13 @@ mlir.Value = class {
 
 mlir.Node = class {
 
-    constructor(op) {
+    constructor(metadata, op) {
         if (!op.type) {
             throw new mlir.Error('Undefined node type.');
         }
-        this.type = { name: op.type || '', identifier: op.identifier || '' };
+        this.type = { ...metadata.type(op.identifier || '') };
+        this.type.name = op.type || '';
+        this.type.identifier = op.identifier || '';
         this.name = op.name || '';
         this.inputs = op.operands || [];
         this.outputs = op.results || [];
@@ -1871,6 +1874,27 @@ mlir.Utility = class {
             return new mlir.TensorType(dataType, new mlir.TensorShape(shape));
         }
         return type;
+    }
+};
+
+mlir.Metadata = class {
+
+    constructor() {
+        this._types = new Map();
+        this.register('stablehlo.reshape', 'Shape');
+        this.register('asuka.split', 'Tensor');
+        this.register('stablehlo.transpose', 'Transform');
+        this.register('toy.transpose', 'Transform');
+        this.register('asuka.softmax', 'Activation');
+        this.register('stablehlo.slice', 'Tensor');
+    }
+
+    register(name, category) {
+        this._types.set(name, { name, category });
+    }
+
+    type(name) {
+        return this._types.get(name) || { name };
     }
 };
 
