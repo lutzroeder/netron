@@ -236,10 +236,12 @@ browser.Host = class {
     async export(file, blob) {
         const element = this.document.createElement('a');
         element.download = file;
-        element.href = URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob);
+        element.href = url;
         this.document.body.appendChild(element);
         element.click();
         this.document.body.removeChild(element);
+        URL.revokeObjectURL(url);
     }
 
     async execute(name /*, value */) {
