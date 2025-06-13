@@ -1725,7 +1725,7 @@ onnx.ProtoReader = class {
         const location = (tensor) => {
             if (onnx.proto && tensor instanceof onnx.proto.SparseTensorProto) {
                 location(tensor.indices);
-                location(tensor.indices);
+                location(tensor.values);
             } else if (tensor.data_location === onnx.DataLocation.EXTERNAL && Array.isArray(tensor.external_data)) {
                 for (const entry of tensor.external_data) {
                     if (entry.key === 'location') {
