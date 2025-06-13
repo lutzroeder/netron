@@ -592,7 +592,8 @@ xnnpack.TensorType = class {
             'invalid', 'float32', 'float16',
             'qint8', 'quint8', 'qint32',
             'qcint8', 'qcint32', 'qcint4',
-            'qdint8', 'qbint4'
+            'qdint8', 'qbint4', 'qpint8',
+            'int32', 'pfp32', 'bfloat16'
         ];
         if (tensor.datatype >= xnnpack.TensorType._types.length) {
             throw new xnnpack.Error(`Unknown tensor data type '${tensor.datatype}'.`);
