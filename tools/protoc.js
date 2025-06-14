@@ -1340,7 +1340,7 @@ protoc.Generator = class {
             for (const field of Array.from(type.fields.values()).filter((field) => field.required)) {
                 this._builder.add(`if (!Object.prototype.hasOwnProperty.call(message, '${field.name}')) {`);
                 this._builder.indent();
-                    this._builder.add(`throw new Error("Excepted '${field.name}'.");`);
+                    this._builder.add(`throw new Error("Expected '${field.name}'.");`);
                 this._builder.outdent();
                 this._builder.add('}');
             }
