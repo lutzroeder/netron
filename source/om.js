@@ -193,7 +193,7 @@ om.Node = class {
                 case 's': {
                     if (typeof obj.s === 'string') {
                         value = obj.s;
-                    } else if (obj.s.filter((c) => c <= 32 && c >= 128).length === 0) {
+                    } else if (obj.s.every((c) => c >= 32 && c <= 128)) {
                         value = om.Utility.decodeText(obj.s);
                     } else {
                         value = obj.s;
