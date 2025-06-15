@@ -3691,6 +3691,9 @@ python.Execution = class {
                         }
                         case 112 : { // PUT 'p'
                             const index = parseInt(reader.line(), 10);
+                            if (stack.length === 0) {
+                                throw new python.Error(`Empty stack during 'PUT' operation.`);
+                            }
                             memo[index] = stack[stack.length - 1];
                             size++;
                             break;
@@ -3707,6 +3710,9 @@ python.Execution = class {
                             stack = marker.pop();
                             break;
                         case 50: // DUP '2'
+                            if (stack.length === 0) {
+                                throw new python.Error(`Empty stack during 'DUP' operation.`);
+                            }
                             stack.push(stack[stack.length - 1]);
                             break;
                         case 80: // PERSID 'P'
@@ -3757,10 +3763,16 @@ python.Execution = class {
                             stack.push(memo[reader.uint32()]);
                             break;
                         case 113: // BINPUT 'q'
+                            if (stack.length === 0) {
+                                throw new python.Error(`Empty stack during 'BINPUT' operation.`);
+                            }
                             memo[reader.byte()] = stack[stack.length - 1];
                             size++;
                             break;
                         case 114: // LONG_BINPUT 'r'
+                            if (stack.length === 0) {
+                                throw new python.Error(`Empty stack during 'LONG_BINPUT' operation.`);
+                            }
                             memo[reader.uint32()] = stack[stack.length - 1];
                             size++;
                             break;
