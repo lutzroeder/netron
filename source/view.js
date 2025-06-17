@@ -843,7 +843,7 @@ view.View = class {
     async pushTarget(graph, context) {
         if (graph && graph !== this.activeTarget && Array.isArray(graph.nodes)) {
             this._sidebar.close();
-            if (context) {
+            if (context && this._stack.length > 0) {
                 this._stack[0].state = { context, zoom: this._zoom };
             }
             const signature = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null;
