@@ -998,7 +998,7 @@
       },
       {
         "default": "channels_last",
-        "description": "string, either `\"channels_last\"` or `\"channels_first\"`.\n        The ordering of the dimensions in the inputs. `\"channels_last\"`\n        corresponds to inputs with shape\n        `(batch_size, height, width, channels)`\n        while `\"channels_first\"` corresponds to inputs with shape\n        `(batch_size, channels, height, width)`. It defaults to the\n        `image_data_format` value found in your Keras config file at\n        `~/.keras/keras.json`. If you never set it, then it will be\n        `\"channels_last\"`.",
+        "description": "string, either `\"channels_last\"` or `\"channels_first\"`.\n        The ordering of the dimensions in the inputs. `\"channels_last\"`\n        corresponds to inputs with shape\n        `(batch_size, height, width, channels)`\n        while `\"channels_first\"` corresponds to inputs with shape\n        `(batch_size, channels, height, width)`. It defaults to the\n        `image_data_format` value found in your Keras config file at\n        `~/.keras/keras.json`. If you never set it, then it will be\n        `\"channels_last\"`.\n     dilation_rate: An integer or tuple/list of 2 integers,\n        specifying the dilation rate for\n        all spatial dimensions for dilated convolution.\n        Specifying different dilation rates\n        for different dimensions is not supported.\n        Currently, specifying any `dilation_rate` value != 1 is\n        incompatible with specifying any stride value != 1.",
         "name": "data_format"
       },
       {
@@ -1062,7 +1062,7 @@
         "name": "bias_constraint"
       },
       {
-        "description": "An integer or tuple/list of 2 integers,\n    specifying the amount of padding along the height and width\n    of the output tensor.\n    Can be a single integer to specify the same value for all\n    spatial dimensions.\n    The amount of output padding along a given dimension must be\n    lower than the stride along that same dimension.\n    If set to `None` (default), the output shape is inferred.",
+        "description": "An integer or tuple/list of 2 integers,\n        specifying the amount of padding along the height and width\n        of the output tensor.\n        Can be a single integer to specify the same value for all\n        spatial dimensions.\n        The amount of output padding along a given dimension must be\n        lower than the stride along that same dimension.\n        If set to `None` (default), the output shape is inferred.",
         "name": "output_padding"
       }
     ],
