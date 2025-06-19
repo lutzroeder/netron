@@ -3100,6 +3100,9 @@ view.PrimitiveView = class extends view.Expander {
                     if (content && typeof content === 'string') {
                         content = content.split('<').join('&lt;').split('>').join('&gt;');
                     }
+                    if (content.indexOf('\n') >= 0) {
+                        content = content.split('\n').join('<br>');
+                    }
                     const line = this.createElement('div', 'sidebar-item-value-line');
                     line.innerHTML = content ? content : '&nbsp;';
                     this.add(line);
