@@ -495,13 +495,13 @@ export class Target {
             sourceFiles = sourceFiles.split(',').map((file) => file.trim());
             sources = sources && sources.startsWith(',') ? sources.substring(1).trim() : '';
         } else {
-            const commaIndex = sources.indexOf(',');
-            if (commaIndex === -1) {
+            const comma = sources.indexOf(',');
+            if (comma === -1) {
                 source = sources;
                 sources = '';
             } else {
-                source = sources.substring(0, commaIndex);
-                sources = sources.substring(commaIndex + 1);
+                source = sources.substring(0, comma);
+                sources = sources.substring(comma + 1);
             }
         }
         await Promise.all(targets.map((target) => {
