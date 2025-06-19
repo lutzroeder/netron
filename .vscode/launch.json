@@ -9,6 +9,9 @@
             "windows": {
                 "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
             },
+            "osx": {
+                "runtimeExecutable": "${workspaceFolder}/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron"
+            },
             "runtimeArgs": [
                 "${workspaceRoot}",
                 "--enable-logging",
@@ -21,9 +24,9 @@
             "type": "node",
             "request": "launch",
             "program": "${workspaceFolder}/source/app.js",
-            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
-            "windows": {
-                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+            "runtimeExecutable": "electron",
+            "osx": {
+                "runtimeExecutable": "${workspaceFolder}/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron"
             }
         },
         {
