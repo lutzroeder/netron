@@ -1082,10 +1082,10 @@ view.View = class {
                 this._graph.blur([value]);
             });
             sidebar.on('select', (sender, value) => {
-                this.scrollTo(this._graph.activate(value));
+                this.scrollTo(this._graph.select([value]));
             });
             sidebar.on('activate', (sender, value) => {
-                this.scrollTo(this._graph.select([value]));
+                this.scrollTo(this._graph.activate(value));
             });
             sidebar.on('deactivate', () => {
                 this._graph.select(null);

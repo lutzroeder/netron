@@ -187,12 +187,16 @@ onnx.Graph = class {
             const tensor = context.tensor(value.name);
             tensor.type = context.createType(value.type);
             tensor.description = value.doc_string;
+            const metadata_props = value.metadata_props || [];
+            tensor.metadata = metadata_props.map((metadata) => new onnx.Argument(metadata.key, metadata.value));
             return tensor;
         });
         graph.output = graph.output.map((value) => {
             const tensor = context.tensor(value.name);
             tensor.type = context.createType(value.type);
             tensor.description = value.doc_string;
+            const metadata_props = value.metadata_props || [];
+            tensor.metadata = metadata_props.map((metadata) => new onnx.Argument(metadata.key, metadata.value));
             return tensor;
         });
         const inference = new onnx.Inference(graph.node);
@@ -203,20 +207,20 @@ onnx.Graph = class {
         this._nodes = context.pop();
         for (const input of graph.input) {
             const value = context.value(input.name);
+            value.metadata = input.metadata || [];
             if (!value.initializer) {
                 this._inputs.push(new onnx.Argument(input.name, [value]));
             }
         }
         for (const output of graph.output) {
             const value = context.value(output.name);
+            value.metadata = output.metadata || [];
             if (!value.initializer) {
                 this._outputs.push(new onnx.Argument(output.name, [value]));
             }
         }
         const metadata_props = graph.metadata_props || [];
-        this.metadata = metadata_props.map((metadata) => {
-            return new onnx.Argument(metadata.key, metadata.value);
-        });
+        this.metadata = metadata_props.map((metadata) => new onnx.Argument(metadata.key, metadata.value));
     }
 
     get name() {

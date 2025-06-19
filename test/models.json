@@ -4746,6 +4746,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "value_info_metadata.pbtxt",
+    "source":   "https://github.com/user-attachments/files/20822597/value_info_metadata.pbtxt.zip[value_info_metadata.pbtxt]",
+    "format":   "ONNX v10",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "welch_psd.onnx",
     "source":   "https://github.com/user-attachments/files/19722333/welch_psd.onnx.zip[welch_psd.onnx]",
     "format":   "ONNX v9",
