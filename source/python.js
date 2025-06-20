@@ -8701,6 +8701,13 @@ python.Execution = class {
                 }
             }
             static get(kind, annotation_str) {
+                torch.Type.cache = torch.Type.cache || new Map();
+                if (!annotation_str) {
+                    if (!torch.Type.cache.has(kind)) {
+                        torch.Type.cache.set(kind, new torch.Type(kind));
+                    }
+                    return torch.Type.cache.get(kind);
+                }
                 return new torch.Type(kind, annotation_str);
             }
             kind() {
@@ -10849,6 +10856,12 @@ python.Execution = class {
             createUninitialized(typ) {
                 const n = this.create('prim::Uninitialized');
                 n.output().setType(typ);
+                return n;
+            }
+            createEnumValue(e) {
+                const enum_type = e.type().expect(torch.EnumType);
+                const n = this.create('prim::EnumValue', [e]);
+                n.output().setType(enum_type.getValueType());
                 return n;
             }
             createList(contained_type, values) {
@@ -13088,6 +13101,7 @@ python.Execution = class {
                         ['hasattr', torch._C.SpecialFormValue.create('prim::HasAttr')],
                         ['isinstance', torch._C.SpecialFormValue.create('prim::isinstance')],
                         ['range', torch._C.SpecialFormValue.create('prim::range')],
+                        ['sorted', new torch._C.BuiltinFunction('aten::sorted', null)],
                     ]);
                     if (torch._C.Environment.globals.has(ident)) {
                         retval = torch._C.Environment.globals.get(ident);
@@ -14245,18 +14259,15 @@ python.Execution = class {
                 } else if (this._value.type() instanceof torch.InterfaceType) {
                     throw new python.Error('Not implemented.');
                 } else if (this._value.type() instanceof torch.EnumType) {
-                    throw new python.Error('Not implemented.');
-                    /*
                     const g = m.graph();
-                    if (field == 'name') {
-                        const n = g.insertNode(g.createEnumName(value_));
-                        return std::make_shared<SimpleValue>(n->output());
+                    if (field === 'name') {
+                        const n = g.insertNode(g.createEnumName(this._value));
+                        return new torch._C.SimpleValue(n.output());
                     }
-                    if (field == 'value') {
-                        const n = g.insertNode(g.createEnumValue(value_));
-                        return std::make_shared<SimpleValue>(n->output());
+                    if (field === 'value') {
+                        const n = g.insertNode(g.createEnumValue(this._value));
+                        return new torch._C.SimpleValue(n.output());
                     }
-                    */
                 }
                 if (field === 'type') {
                     const builtin = torch._C.BuiltinFunction.tryCreate('aten::to', new torch._C.NamedValue(loc, 'self', this._value));
@@ -15707,18 +15718,25 @@ python.Execution = class {
             }
             refineAndSetUnionTypeHintOrPopulateCandidatesVector(type_hint, refined_type_hint_ptr, all_candidates, match_repr, src, type_match, do_if_match, do_if_anytype, is_dict_constructor) {
                 is_dict_constructor = is_dict_constructor || false;
-                if (refined_type_hint_ptr instanceof torch.UnionType) {
-                    throw new python.Error('Not implemented.');
-                } else if (refined_type_hint_ptr instanceof torch.OptionalType) {
-                    refined_type_hint_ptr = refined_type_hint_ptr.getElementType();
+                if (refined_type_hint_ptr._ instanceof torch.UnionType) {
+                    const candidate_types = refined_type_hint_ptr._.containedTypes().filter((type_ptr) => type_match(type_ptr));
+                    if (!is_dict_constructor && candidate_types.length === 0) {
+                        throw new python.Error("No matching types found in Union type annotation.");
+                    } else if (candidate_types.length === 1) {
+                        [refined_type_hint_ptr._] = candidate_types;
+                    } else {
+                        all_candidates._ = candidate_types;
+                    }
+                } else if (refined_type_hint_ptr._ instanceof torch.OptionalType) {
+                    refined_type_hint_ptr._ = refined_type_hint_ptr._.getElementType();
                 }
                 if (is_dict_constructor) {
                     return;
                 }
-                if (all_candidates.length === 0) {
-                    if (type_match(refined_type_hint_ptr)) {
+                if (all_candidates._.length === 0) {
+                    if (type_match(refined_type_hint_ptr._)) {
                         do_if_match();
-                    } else if (refined_type_hint_ptr.kind() === 'AnyType') {
+                    } else if (refined_type_hint_ptr._.kind() === 'AnyType') {
                         do_if_anytype();
                     } else {
                         throw new python.Error('Invalid annotation type.');
@@ -16129,14 +16147,14 @@ python.Execution = class {
                         rhs_value_type = torch._C.unifyTypes(rhs_value_type, values[i].type(), /*default_to_union=*/true);
                     }
                 }
-                let refined_type_hint = type_hint;
+                const refined_type_hint = { _: type_hint };
                 const annotated_union_type = type_hint && type_hint.isUnionType() ? type_hint : null;
-                const all_candidates = [];
+                const all_candidates = { _: [] };
                 const default_refined_type_hint_setter = () => {
                     if (keys.length === 0) {
-                        refined_type_hint = torch.DictType.create(torch.StringType.get(), torch.TensorType.get());
+                        refined_type_hint._ = torch.DictType.create(torch.StringType.get(), torch.TensorType.get());
                     } else {
-                        refined_type_hint = torch.DictType.create(keys[0].type(), rhs_value_type);
+                        refined_type_hint._ = torch.DictType.create(keys[0].type(), rhs_value_type);
                         if (rhs_value_type instanceof torch.UnionType) {
                             throw new python.Error('Dict values consist of heterogeneous types.');
                         }
@@ -16145,25 +16163,25 @@ python.Execution = class {
                 if (type_hint) {
                     const type_match = (t) => t instanceof torch.DictType;
                     this.refineAndSetUnionTypeHintOrPopulateCandidatesVector(type_hint, refined_type_hint, all_candidates, 'Dict', dl, type_match, () => [], default_refined_type_hint_setter);
-                    if (all_candidates.length > 0 && values.length === 0) {
+                    if (all_candidates._.length > 0 && values.length === 0) {
                         throw new python.Error('Cannot assign an empty dict.');
                     }
                 } else {
                     default_refined_type_hint_setter();
                 }
-                torch._C.TORCH_INTERNAL_ASSERT(all_candidates.length > 0 || refined_type_hint);
+                torch._C.TORCH_INTERNAL_ASSERT(all_candidates._.length > 0 || refined_type_hint._);
                 if (values.length > 0) {
-                    if (all_candidates.length > 0) {
+                    if (all_candidates._.length > 0) {
                         this.refineAndSetDictTypeHintFromCandidatesVector(all_candidates, type_hint, refined_type_hint, keys[0].type(), rhs_value_type, dl);
                     }
-                    if (refined_type_hint.getKeyType() !== keys[0].type()) {
+                    if (refined_type_hint._.getKeyType() !== keys[0].type()) {
                         throw new python.Error('Type annotation does not match key type.');
                     }
-                    if (!rhs_value_type.isSubtypeOf(refined_type_hint.getValueType())) {
+                    if (!rhs_value_type.isSubtypeOf(refined_type_hint._.getValueType())) {
                         throw new python.Error('Type annotation does not match value type.');
                     }
                 }
-                let result = this.graph.insertNode(this.graph.createDict(refined_type_hint.getKeyType(), refined_type_hint.getValueType(), keys, values));
+                let result = this.graph.insertNode(this.graph.createDict(refined_type_hint._.getKeyType(), refined_type_hint._.getValueType(), keys, values));
                 if (annotated_union_type) {
                     const n = this.graph.insertNode(this.graph.create('prim::unchecked_cast', [result.output()]));
                     n.output().setType(annotated_union_type);
@@ -16191,34 +16209,34 @@ python.Execution = class {
                     throw new python.Error('Not implemented.');
                 }
                 let inferred_elem_type = torch.TensorType.get();
-                const refined_type_hint = type_hint;
-                const annotated_union_type = refined_type_hint && refined_type_hint.isUnionType() ? refined_type_hint : null;
-                const all_candidates = [];
-                if (refined_type_hint) {
+                const refined_type_hint = { _: type_hint };
+                const annotated_union_type = refined_type_hint._ && refined_type_hint._.isUnionType() ? refined_type_hint._ : null;
+                const all_candidates = { _: [] };
+                if (refined_type_hint._) {
                     const do_if_type_match = () => {
-                        inferred_elem_type = refined_type_hint.expect(torch.ListType).getElementType();
+                        inferred_elem_type = refined_type_hint._.expect(torch.ListType).getElementType();
                     };
                     const type_match = (t) => t.isSubtypeOf(torch.Type.get('AnyListType'));
                     this.refineAndSetUnionTypeHintOrPopulateCandidatesVector(type_hint, refined_type_hint, all_candidates, 'List', ll, type_match, do_if_type_match, do_if_type_match);
-                    if (all_candidates.length > 0 && values.len === 0) {
+                    if (all_candidates._.length > 0 && values.len === 0) {
                         throw new python.Error('Cannot assign an empty list.');
                     }
                 }
                 if (values.length !== 0) {
                     const types = values.map((v) => v.type());
-                    const elem_type_hint = refined_type_hint && refined_type_hint.kind() === 'ListType' ? refined_type_hint.getElementType() : null;
+                    const elem_type_hint = refined_type_hint._ && refined_type_hint._.kind() === 'ListType' ? refined_type_hint._.getElementType() : null;
                     const unified_elem_type = torch._C.unifyTypeList(types, null /*nowhere*/, /*default_to_union=*/true, elem_type_hint);
-                    if (!refined_type_hint && unified_elem_type.kind() === 'UnionType') {
+                    if (!refined_type_hint._ && unified_elem_type.kind() === 'UnionType') {
                         throw new python.Error('Not implemented.');
                     }
-                    if (all_candidates.length === 0 && refined_type_hint && !unified_elem_type.isSubtypeOf(inferred_elem_type)) {
+                    if (all_candidates._.length === 0 && refined_type_hint._ && !unified_elem_type.isSubtypeOf(inferred_elem_type)) {
                         throw new python.Error('Not implemented.');
                     }
-                    if (all_candidates.length !== 0) {
-                        this.refineAndSetListTypeHintFromCandidatesVector(all_candidates, type_hint, refined_type_hint, unified_elem_type, ll);
-                        inferred_elem_type = refined_type_hint.expect(torch.ListType).getElementType();
+                    if (all_candidates._.length !== 0) {
+                        this.refineAndSetListTypeHintFromCandidatesVector(all_candidates, type_hint, refined_type_hint._, unified_elem_type, ll);
+                        inferred_elem_type = refined_type_hint._.expect(torch.ListType).getElementType();
                     }
-                    if (!refined_type_hint) {
+                    if (!refined_type_hint._) {
                         inferred_elem_type = unified_elem_type;
                     }
                 }

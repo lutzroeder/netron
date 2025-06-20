@@ -502,6 +502,27 @@
     "name": "aten::ComplexImplicit(Tensor a) -> complex"
   },
   {
+    "name": "aten::Delete.t(t[](a!) self, int idx) -> ()"
+  },
+  {
+    "name": "aten::Delete.Dict_str(Dict(str, t)(a!) self, str key) -> ()"
+  },
+  {
+    "name": "aten::Delete.Dict_int(Dict(int, t)(a!) self, int key) -> ()"
+  },
+  {
+    "name": "aten::Delete.Dict_bool(Dict(bool, t)(a!) self, bool key) -> ()"
+  },
+  {
+    "name": "aten::Delete.Dict_float(Dict(float, t)(a!) self, float key) -> ()"
+  },
+  {
+    "name": "aten::Delete.Dict_complex(Dict(complex, t)(a!) self, complex key) -> ()"
+  },
+  {
+    "name": "aten::Delete.Dict_Tensor(Dict(Tensor, t)(a!) self, Tensor key) -> ()"
+  },
+  {
     "name": "aten::Float.Tensor(Tensor a) -> float"
   },
   {
@@ -1915,6 +1936,12 @@
   },
   {
     "name": "aten::channel_shuffle.out(Tensor self, SymInt groups, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::cholesky_solve(Tensor self, Tensor input2, bool upper=False) -> Tensor"
+  },
+  {
+    "name": "aten::cholesky_solve.out(Tensor self, Tensor input2, bool upper=False, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::chr(int i) -> str"
@@ -3810,10 +3837,22 @@
     "name": "aten::lift_fresh_copy.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::linalg_cholesky(Tensor self, *, bool upper=False) -> Tensor"
+  },
+  {
+    "name": "aten::linalg_cholesky.out(Tensor self, *, bool upper=False, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::linalg_cross(Tensor self, Tensor other, *, int dim=-1) -> Tensor"
   },
   {
     "name": "aten::linalg_cross.out(Tensor self, Tensor other, *, int dim=-1, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::linalg_det(Tensor A) -> Tensor"
+  },
+  {
+    "name": "aten::linalg_det.out(Tensor A, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::linalg_inv(Tensor A) -> Tensor"
@@ -3826,6 +3865,24 @@
   },
   {
     "name": "aten::linalg_inv_ex.inverse(Tensor A, *, bool check_errors=False, Tensor(a!) inverse, Tensor(b!) info) -> (Tensor(a!) inverse, Tensor(b!) info)"
+  },
+  {
+    "name": "aten::linalg_lstsq(Tensor self, Tensor b, float? rcond=None, *, str? driver=None) -> (Tensor solution, Tensor residuals, Tensor rank, Tensor singular_values)"
+  },
+  {
+    "name": "aten::linalg_lstsq.out(Tensor self, Tensor b, float? rcond=None, *, str? driver=None, Tensor(a!) solution, Tensor(b!) residuals, Tensor(c!) rank, Tensor(d!) singular_values) -> (Tensor(a!) solution, Tensor(b!) residuals, Tensor(c!) rank, Tensor(d!) singular_values)"
+  },
+  {
+    "name": "aten::linalg_matrix_norm(Tensor self, Scalar ord, int[] dim=[-2, -1], bool keepdim=False, *, ScalarType? dtype=None) -> Tensor"
+  },
+  {
+    "name": "aten::linalg_matrix_norm.str_ord(Tensor self, str ord=\"fro\", int[] dim=[-2, -1], bool keepdim=False, *, ScalarType? dtype=None) -> Tensor"
+  },
+  {
+    "name": "aten::linalg_matrix_norm.out(Tensor self, Scalar ord, int[] dim=[-2, -1], bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::linalg_matrix_norm.str_ord_out(Tensor self, str ord=\"fro\", int[] dim=[-2, -1], bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::linalg_norm(Tensor self, Scalar? ord=None, int[1]? dim=None, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor"
@@ -4229,6 +4286,12 @@
   },
   {
     "name": "aten::lt.str(str a, str b) -> bool"
+  },
+  {
+    "name": "aten::mT(Tensor(a) self) -> Tensor(a)"
+  },
+  {
+    "name": "aten::mT.a(Tensor(a) self) -> Tensor(a)"
   },
   {
     "name": "aten::manual_seed(int seed) -> ()"
@@ -5888,6 +5951,24 @@
   },
   {
     "name": "aten::sort.any(t[](a!) self, bool reverse=False) -> ()"
+  },
+  {
+    "name": "aten::sorted.int(int[](a) input) -> int[]"
+  },
+  {
+    "name": "aten::sorted.float(float[](a) input) -> float[]"
+  },
+  {
+    "name": "aten::sorted.Tensor(Tensor[](a) input) -> Tensor[]"
+  },
+  {
+    "name": "aten::sorted.bool(bool[](a) input) -> bool[]"
+  },
+  {
+    "name": "aten::sorted.str(str[](a) input) -> str[]"
+  },
+  {
+    "name": "aten::sorted.any(t[](a) self) -> t[]"
   },
   {
     "name": "aten::sparse_bsr_tensor.crow_col_value_size(Tensor crow_indices, Tensor col_indices, Tensor values, int[] size, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=False) -> Tensor"

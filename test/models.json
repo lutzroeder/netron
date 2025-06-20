@@ -6189,6 +6189,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "nlf_l_multi.torchscript",
+    "source":   "https://github.com/user-attachments/files/20839705/nlf_l_multi.torchscript.zip[nlf_l_multi.torchscript]",
+    "format":   "PyTorch v1.12",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
     "target":   "norm_inplace.pt",
     "source":   "https://github.com/lutzroeder/netron/files/13404598/norm_inplace.pt.zip[norm_inplace.pt]",
     "format":   "TorchScript v1.3",
