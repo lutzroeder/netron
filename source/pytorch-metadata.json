@@ -4659,6 +4659,12 @@
     "name": "aten::narrow_copy.out(Tensor self, int dim, SymInt start, SymInt length, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::native_dropout(Tensor input, float p, bool? train) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "aten::native_dropout.out(Tensor input, float p, bool? train, *, Tensor(a!) out0, Tensor(b!) out1) -> (Tensor(a!), Tensor(b!))"
+  },
+  {
     "name": "aten::native_group_norm(Tensor input, Tensor? weight, Tensor? bias, SymInt N, SymInt C, SymInt HxW, int group, float eps) -> (Tensor, Tensor, Tensor)"
   },
   {
