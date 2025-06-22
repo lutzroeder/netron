@@ -1003,7 +1003,7 @@ base.Tensor = class {
                 }
                 switch (dataType) {
                     case 'boolean':
-                        results.push(data[position] === 0 ? false : true);
+                        results.push(data[position] === 0 || data[position] === false ? false : true);
                         break;
                     default:
                         results.push(data[position]);
