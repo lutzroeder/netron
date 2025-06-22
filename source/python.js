@@ -15056,6 +15056,9 @@ python.Execution = class {
             _has_method(name) {
                 return this.find_method(name) ? true : false;
             }
+            _method_names() {
+                return this.type().methods().map((fn) => fn.name());
+            }
             __setattr__(name, value) {
                 // if (this._type.hasContant(name))
                 this._ivalue[name] = value;
