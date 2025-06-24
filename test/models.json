@@ -6533,8 +6533,8 @@
   {
     "type":     "pytorch",
     "target":   "squeezenet1_1.pt2",
-    "source":   "https://github.com/user-attachments/files/17415183/squeezenet1_1.pt2.zip[squeezenet1_1.pt2]",
-    "format":   "PyTorch Export v7.3",
+    "source":   "https://github.com/user-attachments/files/20874596/squeezenet1_1.pt2.zip[squeezenet1_1.pt2]",
+    "format":   "PyTorch Export v8.8",
     "link":     "https://github.com/lutzroeder/netron/issues/281"
   },
   {
@@ -6907,6 +6907,14 @@
     "source":   "https://github.com/user-attachments/files/16401710/weigths_0000000.pth.zip[weigths_0000000.pth]",
     "format":   "PyTorch v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "wrap_with_autocast.pt2",
+    "source":   "https://github.com/user-attachments/files/20875084/wrap_with_autocast.pt2.zip[wrap_with_autocast.pt2]",
+    "format":   "PyTorch Export v1.6",
+    "error":    "Unsupported node target type 'torch.ops.higher_order.wrap_with_autocast'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
   },
   {
     "type":     "pytorch",

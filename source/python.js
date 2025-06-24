@@ -18062,10 +18062,10 @@ python.Execution = class {
             }
         });
         this.registerFunction('torch._export.load', (f, expected_opset_version) => {
-            const serialized_exported_program = f.get('serialized_exported_program.json');
-            const serialized_state_dict = f.get('serialized_state_dict.pt');
-            const serialized_constants = f.get('serialized_constants.pt');
-            const serialized_example_inputs = f.get('serialized_example_inputs.pt');
+            const serialized_exported_program = f.get('models/model.json');
+            const serialized_state_dict = f.get('data/weights/model.pt');
+            const serialized_constants = f.get('data/constants/model.pt');
+            const serialized_example_inputs = f.get('data/sample_inputs/model.pt');
             const artifact = new torch._export.serde.serialize.SerializedArtifact(serialized_exported_program, serialized_state_dict, serialized_constants, serialized_example_inputs);
             return torch._export.serde.serialize.deserialize(artifact, expected_opset_version);
         });
