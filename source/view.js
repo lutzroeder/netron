@@ -647,33 +647,32 @@ view.View = class {
             this._sidebar.close();
         }
         this.exception(error, false);
+        const repository = this._host.environment('repository');
         const knowns = [
-            { message: /^Invalid value identifier/, url: 'https://github.com/lutzroeder/netron/issues/540' },
-            { message: /^Cannot read property/, url: 'https://github.com/lutzroeder/netron/issues/647' },
-            { message: /^Duplicate value /, url: 'https://github.com/lutzroeder/netron/issues/1364' },
-            { message: /^EPERM: operation not permitted/, url: 'https://github.com/lutzroeder/netron/issues/551' },
-            { message: /^EACCES: permission denied/, url: 'https://github.com/lutzroeder/netron/issues/504' },
-            { message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
-            { message: /^Invalid string length/, url: 'https://github.com/lutzroeder/netron/issues/648' },
-            { message: /^Unknown function /, url: 'https://github.com/lutzroeder/netron/issues/546' },
-            { message: /^Unsupported file content/, url: 'https://github.com/lutzroeder/netron/issues/550' },
-            { message: /^Unsupported Protocol Buffers content/, url: 'https://github.com/lutzroeder/netron/issues/593' },
-            { message: /^Unsupported Protocol Buffers text content/, url: 'https://github.com/lutzroeder/netron/issues/594' },
-            { message: /^Unsupported JSON content/, url: 'https://github.com/lutzroeder/netron/issues/595' },
-            { message: /^Invalid file content. File contains PaddlePaddle IR data./, url: 'https://github.com/lutzroeder/netron/issues/1384' },
-            { name: 'Error loading PyTorch model.', message: /^Unknown type name/, url: 'https://github.com/lutzroeder/netron/issues/969' },
-            { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto \(Unexpected end of file\)\./, url: 'https://github.com/lutzroeder/netron/issues/1155' },
-            { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto \(Cannot read properties of undefined \(reading 'ModelProto'\)\)\./, url: 'https://github.com/lutzroeder/netron/issues/1156' },
-            { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto/, url: 'https://github.com/lutzroeder/netron/issues/549' }
+            { message: /^Invalid value identifier/, issue: '540' },
+            { message: /^Cannot read property/, issue: '647' },
+            { message: /^Duplicate value /, issue: '1364' },
+            { message: /^EPERM: operation not permitted/, issue: '551' },
+            { message: /^EACCES: permission denied/, issue: '504' },
+            { message: /^Offset is outside the bounds of the DataView/, issue: '563' },
+            { message: /^Invalid string length/, issue: '648' },
+            { message: /^Unknown function /, issue: '546' },
+            { message: /^Unsupported file content/, issue: '550' },
+            { message: /^Unsupported Protocol Buffers content/, issue: '593' },
+            { message: /^Unsupported Protocol Buffers text content/, issue: '594' },
+            { message: /^Unsupported JSON content/, issue: '595' },
+            { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto \(Unexpected end of file\)\./, issue: '1155' },
+            { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto \(Cannot read properties of undefined \(reading 'ModelProto'\)\)\./, issue: '1156' },
+            { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto/, issue: '549' }
         ];
         const known = knowns.find((known) => (!known.name || known.name === error.name) && error.message.match(known.message));
-        const url = known && known.url ? known.url : null;
+        const url = known && known.issue ? `${repository}/issues/${known.issue}` : `${repository}/issues`;
         const message = error.message;
         name = name || error.name;
-        const report = url ? true : false;
+        const report = !message.startsWith('Invalid file content.');
         await this._host.message(message, true, report ? 'Report' : 'OK');
         if (report) {
-            this._host.openURL(url || `${this._host.environment('repository')}/issues`);
+            this._host.openURL(url);
         }
         this.show(screen);
     }
