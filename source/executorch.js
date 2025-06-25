@@ -573,6 +573,7 @@ xnnpack.Metadata = class {
         this.register('XNNPReLU', 'Activation');
         this.register('XNNSigmoid', 'Activation');
         this.register('XNNSoftmax', 'Activation');
+        this.register('XNNTanh', 'Activation');
         this.register('XNNStaticTranspose', 'Transform');
     }
 
