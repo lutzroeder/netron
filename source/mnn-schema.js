@@ -3157,9 +3157,12 @@ MNN.TensorDescribe = class TensorDescribe {
 MNN.ForwardType = {
     CPU: 0,
     METAL: 1,
-    OPENCL: 2,
-    OPENGLES: 3,
-    VULKAN: 4
+    CUDA: 2,
+    OPENCL: 3,
+    AUTO: 4,
+    NNAPI: 5,
+    OPENGLES: 6,
+    VULKAN: 7
 };
 
 MNN.Usage = {
