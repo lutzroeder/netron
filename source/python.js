@@ -18061,13 +18061,22 @@ python.Execution = class {
                 }
             }
         });
-        this.registerFunction('torch._export.load', (f, expected_opset_version) => {
-            const serialized_exported_program = f.get('models/model.json');
-            const serialized_state_dict = f.get('data/weights/model.pt');
-            const serialized_constants = f.get('data/constants/model.pt');
-            const serialized_example_inputs = f.get('data/sample_inputs/model.pt');
-            const artifact = new torch._export.serde.serialize.SerializedArtifact(serialized_exported_program, serialized_state_dict, serialized_constants, serialized_example_inputs);
-            return torch._export.serde.serialize.deserialize(artifact, expected_opset_version);
+        this.registerFunction('torch.export.pt2_archive._package.load_pt2', (f, expected_opset_version) => {
+            const exported_programs = new Map();
+            for (const name of f.keys()) {
+                const match = name.match(/^models\/([^/]+)\.json$/);
+                if (match) {
+                    const [, model_name] = match;
+                    const serialized_exported_program = f.get(`models/${model_name}.json`);
+                    const serialized_state_dict = f.get(`data/weights/${model_name}.pt`);
+                    const serialized_constants = f.get(`data/constants/${model_name}.pt`);
+                    const serialized_example_inputs = f.get(`data/sample_inputs/${model_name}.pt`);
+                    const artifact = new torch._export.serde.serialize.SerializedArtifact(serialized_exported_program, serialized_state_dict, serialized_constants, serialized_example_inputs);
+                    const exported_program = torch._export.serde.serialize.deserialize(artifact, expected_opset_version);
+                    exported_programs.set(model_name, exported_program);
+                }
+            }
+            return { exported_programs };
         });
         this.registerFunction('torch._export.serde.serialize._dict_to_dataclass', (cls, data) => {
             if (data === null) {

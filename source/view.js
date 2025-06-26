@@ -5618,6 +5618,13 @@ view.Context = class {
         return this._stream;
     }
 
+    get container() {
+        if (this._context instanceof view.EntryContext) {
+            return this._context;
+        }
+        return null;
+    }
+
     async request(file) {
         return this._context.request(file, 'utf-8', null);
     }
@@ -6076,6 +6083,10 @@ view.EntryContext = class {
 
     async require(id) {
         return this._host.require(id);
+    }
+
+    get entries() {
+        return this._entries;
     }
 
     error(error, fatal) {

@@ -1405,26 +1405,32 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
         super();
         this.type = 'pytorch.export';
         this.context = context;
-        this.exported_program = exported_program;
         this.archive_format = archive_format;
+        this.exported_program = exported_program;
     }
 
     async read(metadata) {
         this.format = 'PyTorch Export';
         const f = new Map();
+        const exported_programs = new Map();
         if (this.archive_format) {
-            for (const model_name of ['model']) {
-                /* eslint-disable no-await-in-loop */
-                const model = await this.context.fetch(`models/${model_name}.json`);
-                const constants = await this._fetch(`data/constants/${model_name}.pt`);
-                const sample_inputs = await this._fetch(`data/sample_inputs/${model_name}.pt`);
-                const weights = await this._fetch(`data/weights/${model_name}.pt`);
-                this.exported_program = await model.read('json');
-                /* eslint-enable no-await-in-loop */
-                f.set(`models/${model_name}.json`, this.exported_program);
-                f.set(`data/weights/${model_name}.pt`, weights);
-                f.set(`data/constants/${model_name}.pt`, constants);
-                f.set(`data/sample_inputs/${model_name}.pt`, sample_inputs);
+            for (const name of this.context.container.entries.keys()) {
+                const match = name.match(/^models\/([^/]+)\.json$/);
+                if (match) {
+                    const [, model_name] = match;
+                    /* eslint-disable no-await-in-loop */
+                    const model = await this.context.fetch(`models/${model_name}.json`);
+                    const constants = await this._fetch(`data/constants/${model_name}.pt`);
+                    const sample_inputs = await this._fetch(`data/sample_inputs/${model_name}.pt`);
+                    const weights = await this._fetch(`data/weights/${model_name}.pt`);
+                    const exported_program = await model.read('json');
+                    /* eslint-enable no-await-in-loop */
+                    exported_programs.set(model_name, exported_program);
+                    f.set(`models/${model_name}.json`, exported_program);
+                    f.set(`data/weights/${model_name}.pt`, weights);
+                    f.set(`data/constants/${model_name}.pt`, constants);
+                    f.set(`data/sample_inputs/${model_name}.pt`, sample_inputs);
+                }
             }
             const byteorder = await this._text('byteorder') || 'little';
             f.set('byteorder', byteorder);
@@ -1438,11 +1444,18 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
             f.set('data/weights/model.pt', weights);
             f.set('data/constants/model.pt', constants);
             f.set('data/sample_inputs/model.pt', sample_inputs);
+            exported_programs.set('', this.exported_program);
         }
-        if (!this.version && this.exported_program) {
-            const version = this.exported_program.schema_version;
-            if (version && version.major && version.minor) {
-                this.version = `${version.major}.${version.minor}`;
+        if (!this.version) {
+            const versions = new Set();
+            for (const exported_program of exported_programs.values()) {
+                const schema_version = exported_program.schema_version;
+                if (schema_version && schema_version.major && schema_version.minor) {
+                    versions.add(`${schema_version.major}.${schema_version.minor}`);
+                }
+            }
+            if (versions.size === 1) {
+                this.version = versions.values().next().value;
             }
         }
         this.format = this.version ? `${this.format} v${this.version}` : this.format;
@@ -1452,23 +1465,28 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
         }
         metadata.register(this.execution);
         const torch = this.execution.__import__('torch');
-        if (this.exported_program.graph_module.graph.constants) {
-            const zip = await import('./zip.js');
-            const constants = this.exported_program.graph_module.graph.constants;
-            for (const key of Object.keys(constants)) {
-                const value = constants[key];
-                const str = atob(value);
-                const buffer = new Uint8Array(str.length);
-                for (let i = 0; i < str.length; i++) {
-                    buffer[i] = str.charCodeAt(i);
+        for (const exported_program of exported_programs.values()) {
+            if (exported_program.graph_module.graph.constants) {
+                /* eslint-disable no-await-in-loop */
+                const zip = await import('./zip.js');
+                /* eslint-enable no-await-in-loop */
+                const constants = this.exported_program.graph_module.graph.constants;
+                for (const key of Object.keys(constants)) {
+                    const value = constants[key];
+                    const str = atob(value);
+                    const buffer = new Uint8Array(str.length);
+                    for (let i = 0; i < str.length; i++) {
+                        buffer[i] = str.charCodeAt(i);
+                    }
+                    const archive = zip.Archive.open(buffer);
+                    constants[key] = archive.entries;
                 }
-                const archive = zip.Archive.open(buffer);
-                constants[key] = archive.entries;
             }
         }
         delete this.exported_program;
         delete this.context;
-        this.module = torch._export.load(f);
+        const pt2_contents = torch.export.pt2_archive._package.load_pt2(f);
+        this.modules = pt2_contents.exported_programs;
     }
 
     async _fetch(name) {
