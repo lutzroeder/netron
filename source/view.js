@@ -6222,7 +6222,27 @@ view.ModelFactoryService = class {
             }
             return model;
         } catch (error) {
-            error.context = !error.context && context && context.identifier ? context.identifier : error.context || '';
+            if (!error.context && context) {
+                error.context = context.identifier || '';
+                const stream = context.stream;
+                if (stream) {
+                    try {
+                        const hex = (buffer) => Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                        const position = stream.position;
+                        stream.seek(0);
+                        const head = stream.peek(Math.min(16, stream.length));
+                        error.context += `|${hex(head)}`;
+                        if (stream.length > 16) {
+                            stream.seek(stream.length - 16);
+                            const tail = stream.peek(16);
+                            error.context += `|${hex(tail)}`;
+                        }
+                        stream.seek(position);
+                    } catch {
+                        // continue regardless of error
+                    }
+                }
+            }
             throw error;
         }
     }
@@ -6501,10 +6521,7 @@ view.ModelFactoryService = class {
         };
         const unknown = async () => {
             if (stream) {
-                stream.seek(0);
-                const buffer = stream.peek(Math.min(16, stream.length));
-                const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                throw new view.Error(`Unsupported file content '${content}'.`);
+                throw new view.Error(`Unsupported file content.`);
             }
             throw new view.Error("Unsupported file directory.");
         };
