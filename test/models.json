@@ -6845,6 +6845,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "v2_4lang_q.pt",
+    "source":   "https://github.com/user-attachments/files/20969174/v2_4lang_q.pt.zip[v2_4lang_q.pt]",
+    "format":   "PyTorch Package v1.9",
+    "link":     "https://github.com/lutzroeder/netron/issues/928"
+  },
+  {
+    "type":     "pytorch",
     "target":   "v3_1_ru.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9075630/v3_1_ru.pt.zip[v3_1_ru.pt]",
     "format":   "PyTorch Package v1.9",

@@ -1617,6 +1617,11 @@ pytorch.Execution = class extends python.Execution {
                 [this.weight, this.bias] = state;
             }
         });
+        this.registerType('__torch__.torch.classes.quantized.EmbeddingPackedParamsBase', class {
+            __setstate__(state) {
+                [this.version, this.tensors, this.doubles, this.longs] = state;
+            }
+        });
         this.registerType('__torch__.torch.classes.rnn.CellParamsBase', class {
             __setstate__(state) {
                 [this.type, this.tensors, this.doubles, this.longs, this.packed_params] = state;
@@ -1652,6 +1657,7 @@ pytorch.Execution = class extends python.Execution {
             { name: '__torch__.torch.classes.quantized.Conv2dPackedParamsBase', attributes: 'Tensor weight, Tensor bias, int[] stride, int[] padding, int[] dilation, int groups', methods: ['unpack(__torch__.torch.classes.quantized.Conv2dPackedParamsBase self) -> ((Tensor, Tensor?))'] },
             { name: '__torch__.torch.classes.quantized.Conv3dPackedParamsBase', attributes: 'Tensor weight, Tensor bias, int[] stride, int[] padding, int[] dilation, int groups', methods: ['unpack(__torch__.torch.classes.quantized.Conv3dPackedParamsBase self) -> ((Tensor, Tensor?))'] },
             { name: '__torch__.torch.classes.quantized.LinearPackedParamsBase', attributes: 'Tensor weight, Tensor? bias' },
+            { name: '__torch__.torch.classes.quantized.EmbeddingPackedParamsBase', attributes: 'int version, Tensor[] tensors, float[] doubles, int[] longs', methods: [] },
             { name: '__torch__.torch.classes.rnn.CellParamsBase', attributes: 'str type, Tensor[] tensors, float[] doubles, int[] longs, __torch__.torch.classes.quantized.LinearPackedParamsBase[] packed_params' },
             { name: '__torch__.torch.classes.xnnpack.Conv2dOpContext', attributes: 'Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups, int[] output_min, int[] output_max' },
             { name: '__torch__.torch.classes.xnnpack.LinearOpContext', attributes: 'Tensor weight, Tensor bias, int[] output_min, int[] output_max' },
@@ -1869,6 +1875,7 @@ pytorch.Utility = class {
             case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
             case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
             case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':
+            case '__torch__.torch.classes.quantized.EmbeddingPackedParamsBase':
                 return true;
             default:
                 return false;

@@ -3621,6 +3621,9 @@
     "name": "aten::is_scripting() -> bool"
   },
   {
+    "name": "aten::isdigit(str self) -> bool"
+  },
+  {
     "name": "aten::isfinite(Tensor self) -> Tensor"
   },
   {
@@ -4935,6 +4938,9 @@
   },
   {
     "name": "aten::ones_like.out(Tensor self, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::ord(str string) -> int"
   },
   {
     "name": "aten::outer(Tensor self, Tensor vec2) -> Tensor"
@@ -7878,6 +7884,12 @@
   {
     "name": "quantized::embedding_bag_byte_rowwise_offsets(Tensor weight, Tensor indices, Tensor? offsets=None, bool scale_grad_by_freq=False, int mode=0, bool pruned_weights=False, Tensor? per_sample_weights=None, Tensor? compressed_indices_mapping=None, bool include_last_offset=False) -> Tensor",
     "category": "Transform"
+  },
+  {
+    "name": "quantized::embedding_bag_prepack(Tensor weight) -> __torch__.torch.classes.quantized.EmbeddingPackedParamsBase W_prepack"
+  },
+  {
+    "name": "quantized::embedding_bag_unpack(__torch__.torch.classes.quantized.EmbeddingPackedParamsBase W_prepack) -> Tensor W_origin"
   },
   {
     "name": "quantized::embedding_byte(__torch__.torch.classes.quantized.EmbeddingPackedParamsBase weight, Tensor indices, bool pruned_weights=False) -> Tensor",
