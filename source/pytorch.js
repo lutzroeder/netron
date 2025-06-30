@@ -1470,7 +1470,7 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
                 /* eslint-disable no-await-in-loop */
                 const zip = await import('./zip.js');
                 /* eslint-enable no-await-in-loop */
-                const constants = this.exported_program.graph_module.graph.constants;
+                const constants = exported_program.graph_module.graph.constants;
                 for (const key of Object.keys(constants)) {
                     const value = constants[key];
                     const str = atob(value);
