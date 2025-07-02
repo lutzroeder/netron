@@ -976,12 +976,13 @@ app.ConfigurationService = class {
             const data = fs.readFileSync(this._file, 'utf-8');
             if (data) {
                 try {
-                    this._content = JSON.parse(data);
-                    if (Array.isArray(this._content.recents)) {
-                        this._content.recents = this._content.recents.map((recent) => typeof recent !== 'string' && recent && recent.path ? recent.path : recent);
+                    const content = JSON.parse(data);
+                    if (Array.isArray(content.recents)) {
+                        content.recents = content.recents.map((recent) => typeof recent !== 'string' && recent && recent.path ? recent.path : recent);
                     }
+                    this._content = content;
                 } catch {
-                    // continue regardless of error
+                    // Silently ignore parsing errors and use empty config
                 }
             }
         }
