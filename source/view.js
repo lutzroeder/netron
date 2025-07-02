@@ -818,10 +818,13 @@ view.View = class {
                     }
                     if (name.length > 24) {
                         element.setAttribute('title', name);
-                        element.innerHTML = `&hellip;${name.substring(name.length - 24, name.length)}`;
+                        const truncated = name.substring(name.length - 24, name.length);
+                        element.innerHTML = '&hellip;';
+                        const text = document.createTextNode(truncated);
+                        element.appendChild(text);
                     } else {
                         element.removeAttribute('title');
-                        element.innerHTML = name;
+                        element.textContent = name;
                     }
                     path.appendChild(element);
                 }
@@ -2790,7 +2793,11 @@ view.ObjectSidebar = class extends view.Control {
     error(error, fatal) {
         super.error(error, fatal);
         const element = this.createElement('span');
-        element.innerHTML = `<b>ERROR:</b> ${error.message}`;
+        const title = document.createElement('b');
+        title.textContent = 'ERROR: ';
+        element.appendChild(title);
+        const message = document.createTextNode(` ${error.message}`);
+        element.appendChild(message);
         this.element.appendChild(element);
     }
 };
@@ -3070,14 +3077,14 @@ view.PrimitiveView = class extends view.Expander {
             switch (type) {
                 case 'graph': {
                     const line = this.createElement('div', 'sidebar-item-value-line-link');
-                    line.innerHTML = value.name || '&nbsp;';
+                    line.textContent = value.name || '\u00A0';
                     line.addEventListener('click', () => this.emit('activate', value));
                     this.add(line);
                     break;
                 }
                 case 'function': {
                     const line = this.createElement('div', 'sidebar-item-value-line-link');
-                    line.innerHTML = value.type.name;
+                    line.textContent = value.type.name;
                     line.addEventListener('click', () => this.emit('activate', value));
                     this.add(line);
                     break;
@@ -3085,7 +3092,7 @@ view.PrimitiveView = class extends view.Expander {
                 case 'object[]': {
                     for (const obj of argument.value) {
                         const line = this.createElement('div', 'sidebar-item-value-line');
-                        line.innerHTML = obj.type.name;
+                        line.textContent = obj.type ? obj.type.name : '?';
                         this.add(line);
                     }
                     break;
@@ -3383,7 +3390,11 @@ view.TensorView = class extends view.Expander {
     error(error, fatal) {
         super.error(error, fatal);
         const element = this.createElement('div', 'sidebar-item-value-line');
-        element.innerHTML = `<b>ERROR:</b> ${error.message}`;
+        const title = document.createElement('b');
+        title.textContent = 'ERROR: ';
+        element.appendChild(title);
+        const message = document.createTextNode(error.message);
+        element.appendChild(message);
         this.element.appendChild(element);
     }
 
@@ -3897,7 +3908,11 @@ view.DocumentationSidebar = class extends view.Control {
     error(error, fatal) {
         super.error(error, fatal);
         const element = this.createElement('span');
-        element.innerHTML = `<b>ERROR:</b> ${error.message}`;
+        const title = document.createElement('b');
+        title.textContent = 'ERROR: ';
+        element.appendChild(title);
+        const message = document.createTextNode(error.message);
+        element.appendChild(message);
         this.element.appendChild(element);
     }
 };
@@ -4209,7 +4224,11 @@ view.FindSidebar = class extends view.Control {
     error(error, fatal) {
         super.error(error, fatal);
         const element = this.createElement('li');
-        element.innerHTML = `<b>ERROR:</b> ${error.message}`;
+        const title = document.createElement('b');
+        title.textContent = 'ERROR: ';
+        element.appendChild(title);
+        const message = document.createTextNode(` ${error.message}`);
+        element.appendChild(message);
         this._content.appendChild(element);
     }
 };
