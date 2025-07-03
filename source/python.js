@@ -4898,6 +4898,7 @@ python.Execution = class {
                     throw new python.Error(`Unsupported scalar type '${dtype.__name__}'.`);
             }
         });
+        this.registerFunction('numpy.core._multiarray_umath.sin');
         this.registerFunction('numpy.core._multiarray_umath.sqrt');
         this.register('numpy._core.multiarray', numpy.core.multiarray);
         this.register('numpy._core._multiarray_umath', numpy.core._multiarray_umath);
