@@ -727,8 +727,8 @@ export class Target {
                     }
                 }
             }
-            if (graph.metadata && (!Array.isArray(graph.metadata) || !graph.metadata.every((argument) => argument.name && argument.value))) {
-                throw new Error("Invalid graph metadata.'");
+            if (graph.metadata && (!Array.isArray(graph.metadata) || !graph.metadata.every((argument) => argument.name && argument.value !== undefined))) {
+                throw new Error("Invalid graph metadata.");
             }
             for (const node of graph.nodes) {
                 const type = node.type;
@@ -743,8 +743,8 @@ export class Target {
                 view.Documentation.open(type);
                 node.name.toString();
                 node.description;
-                if (node.metadata && !Array.isArray(node.metadata) && node.metadata.every((argument) => argument.name && argument.value)) {
-                    throw new Error("Invalid graph metadata.'");
+                if (node.metadata && (!Array.isArray(node.metadata) || !node.metadata.every((argument) => argument.name && argument.value !== undefined))) {
+                    throw new Error("Invalid node metadata.");
                 }
                 const attributes = node.attributes;
                 if (attributes) {
