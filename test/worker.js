@@ -595,7 +595,7 @@ export class Target {
             throw new Error(`Invalid runtime '${model.runtime}'.`);
         }
         if (model.metadata && (!Array.isArray(model.metadata) || !model.metadata.every((argument) => argument.name && argument.value))) {
-            throw new Error("Invalid model metadata.'");
+            throw new Error("Invalid model metadata.");
         }
         if (this.assert) {
             for (const assert of this.assert) {
@@ -728,7 +728,7 @@ export class Target {
                 }
             }
             if (graph.metadata && (!Array.isArray(graph.metadata) || !graph.metadata.every((argument) => argument.name && argument.value))) {
-                throw new Error("Invalid graph metadata.'");
+                throw new Error("Invalid graph metadata.");
             }
             for (const node of graph.nodes) {
                 const type = node.type;
@@ -743,8 +743,8 @@ export class Target {
                 view.Documentation.open(type);
                 node.name.toString();
                 node.description;
-                if (node.metadata && !Array.isArray(node.metadata) && node.metadata.every((argument) => argument.name && argument.value)) {
-                    throw new Error("Invalid graph metadata.'");
+                if (node.metadata && (!Array.isArray(node.metadata) || !node.metadata.every((argument) => argument.name && argument.value))) {
+                    throw new Error("Invalid node metadata.");
                 }
                 const attributes = node.attributes;
                 if (attributes) {
