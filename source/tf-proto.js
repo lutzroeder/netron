@@ -1530,7 +1530,7 @@ tensorflow.AttrValue = class AttrValue {
     static decodeJson(obj) {
         const message = new tensorflow.AttrValue();
         if ('s' in obj) {
-            message.s = typeof source === 'string' ? Uint8Array.from(atob(obj.s), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.s);
+            message.s = typeof obj.s === 'string' ? Uint8Array.from(atob(obj.s), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.s);
         }
         if ('i' in obj) {
             message.i = BigInt(obj.i);
@@ -1910,7 +1910,7 @@ tensorflow.TensorProto = class TensorProto {
             message.version_number = Number(obj.versionNumber);
         }
         if ('tensorContent' in obj) {
-            message.tensor_content = typeof source === 'string' ? Uint8Array.from(atob(obj.tensorContent), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.tensorContent);
+            message.tensor_content = typeof obj.tensorContent === 'string' ? Uint8Array.from(atob(obj.tensorContent), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.tensorContent);
         }
         if ('halfVal' in obj) {
             message.half_val = obj.halfVal.map((obj) => Number(obj));
@@ -1952,7 +1952,7 @@ tensorflow.TensorProto = class TensorProto {
             message.uint64_val = obj.uint64Val.map((obj) => BigInt(obj));
         }
         if ('float8Val' in obj) {
-            message.float8_val = typeof source === 'string' ? Uint8Array.from(atob(obj.float8Val), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.float8Val);
+            message.float8_val = typeof obj.float8Val === 'string' ? Uint8Array.from(atob(obj.float8Val), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.float8Val);
         }
         return message;
     }
@@ -2022,7 +2022,7 @@ tensorflow.VariantTensorDataProto = class VariantTensorDataProto {
             message.type_name = obj.typeName;
         }
         if ('metadata' in obj) {
-            message.metadata = typeof source === 'string' ? Uint8Array.from(atob(obj.metadata), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.metadata);
+            message.metadata = typeof obj.metadata === 'string' ? Uint8Array.from(atob(obj.metadata), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.metadata);
         }
         if ('tensors' in obj) {
             message.tensors = obj.tensors.map((obj) => tensorflow.TensorProto.decodeJson(obj));
@@ -6643,7 +6643,7 @@ tensorflow.Event = class Event {
             message.file_version = obj.fileVersion;
         }
         if ('graphDef' in obj) {
-            message.graph_def = typeof source === 'string' ? Uint8Array.from(atob(obj.graphDef), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.graphDef);
+            message.graph_def = typeof obj.graphDef === 'string' ? Uint8Array.from(atob(obj.graphDef), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.graphDef);
         }
         if ('summary' in obj) {
             message.summary = tensorflow.Summary.decodeJson(obj.summary);
@@ -6658,7 +6658,7 @@ tensorflow.Event = class Event {
             message.tagged_run_metadata = tensorflow.TaggedRunMetadata.decodeJson(obj.taggedRunMetadata);
         }
         if ('metaGraphDef' in obj) {
-            message.meta_graph_def = typeof source === 'string' ? Uint8Array.from(atob(obj.metaGraphDef), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.metaGraphDef);
+            message.meta_graph_def = typeof obj.metaGraphDef === 'string' ? Uint8Array.from(atob(obj.metaGraphDef), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.metaGraphDef);
         }
         if ('sourceMetadata' in obj) {
             message.source_metadata = tensorflow.SourceMetadata.decodeJson(obj.sourceMetadata);
@@ -6906,7 +6906,7 @@ tensorflow.TaggedRunMetadata = class TaggedRunMetadata {
             message.tag = obj.tag;
         }
         if ('runMetadata' in obj) {
-            message.run_metadata = typeof source === 'string' ? Uint8Array.from(atob(obj.runMetadata), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.runMetadata);
+            message.run_metadata = typeof obj.runMetadata === 'string' ? Uint8Array.from(atob(obj.runMetadata), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.runMetadata);
         }
         return message;
     }
@@ -7332,7 +7332,7 @@ tensorflow.SummaryMetadata.PluginData = class PluginData {
             message.plugin_name = obj.pluginName;
         }
         if ('content' in obj) {
-            message.content = typeof source === 'string' ? Uint8Array.from(atob(obj.content), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.content);
+            message.content = typeof obj.content === 'string' ? Uint8Array.from(atob(obj.content), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.content);
         }
         return message;
     }
@@ -7463,7 +7463,7 @@ tensorflow.Summary.Image = class Image {
             message.colorspace = Number(obj.colorspace);
         }
         if ('encodedImageString' in obj) {
-            message.encoded_image_string = typeof source === 'string' ? Uint8Array.from(atob(obj.encodedImageString), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.encodedImageString);
+            message.encoded_image_string = typeof obj.encodedImageString === 'string' ? Uint8Array.from(atob(obj.encodedImageString), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.encodedImageString);
         }
         return message;
     }
@@ -7546,7 +7546,7 @@ tensorflow.Summary.Audio = class Audio {
             message.length_frames = BigInt(obj.lengthFrames);
         }
         if ('encodedAudioString' in obj) {
-            message.encoded_audio_string = typeof source === 'string' ? Uint8Array.from(atob(obj.encodedAudioString), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.encodedAudioString);
+            message.encoded_audio_string = typeof obj.encodedAudioString === 'string' ? Uint8Array.from(atob(obj.encodedAudioString), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.encodedAudioString);
         }
         if ('contentType' in obj) {
             message.content_type = obj.contentType;
@@ -7665,7 +7665,7 @@ tensorflow.Summary.Value = class Value {
             message.simple_value = Number(obj.simpleValue);
         }
         if ('obsoleteOldStyleHistogram' in obj) {
-            message.obsolete_old_style_histogram = typeof source === 'string' ? Uint8Array.from(atob(obj.obsoleteOldStyleHistogram), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.obsoleteOldStyleHistogram);
+            message.obsolete_old_style_histogram = typeof obj.obsoleteOldStyleHistogram === 'string' ? Uint8Array.from(atob(obj.obsoleteOldStyleHistogram), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.obsoleteOldStyleHistogram);
         }
         if ('image' in obj) {
             message.image = tensorflow.Summary.Image.decodeJson(obj.image);

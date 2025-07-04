@@ -1466,7 +1466,7 @@ protoc.Generator = class {
                         } else if (field.type.name === 'int64' || field.type.name === 'uint64' || field.type.name === 'fixed64' || field.type.name === 'sint64') {
                             this._builder.add(`${target} = BigInt(${source});`);
                         } else if (field.type.name === 'bytes') {
-                            this._builder.add(`${target} = typeof source === 'string' ? Uint8Array.from(atob(${source}), (c) => c.charCodeAt(0)) : Uint8Array.from(${source});`);
+                            this._builder.add(`${target} = typeof ${source} === 'string' ? Uint8Array.from(atob(${source}), (c) => c.charCodeAt(0)) : Uint8Array.from(${source});`);
                         } else if (field.type.name === 'string' || field.type.name === 'bool') {
                             this._builder.add(`${target} = ${source};`);
                         } else {

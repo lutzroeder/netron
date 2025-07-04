@@ -185,7 +185,7 @@ onnx.AttributeProto = class AttributeProto {
             message.i = BigInt(obj.i);
         }
         if ('s' in obj) {
-            message.s = typeof source === 'string' ? Uint8Array.from(atob(obj.s), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.s);
+            message.s = typeof obj.s === 'string' ? Uint8Array.from(atob(obj.s), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.s);
         }
         if ('t' in obj) {
             message.t = onnx.TensorProto.decodeJson(obj.t);
@@ -1543,7 +1543,7 @@ onnx.TensorProto = class TensorProto {
             message.doc_string = obj.docString;
         }
         if ('rawData' in obj) {
-            message.raw_data = typeof source === 'string' ? Uint8Array.from(atob(obj.rawData), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.rawData);
+            message.raw_data = typeof obj.rawData === 'string' ? Uint8Array.from(atob(obj.rawData), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.rawData);
         }
         if ('externalData' in obj) {
             message.external_data = obj.externalData.map((obj) => onnx.StringStringEntryProto.decodeJson(obj));

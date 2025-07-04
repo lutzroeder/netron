@@ -237,7 +237,7 @@ caffe2.TensorProto = class TensorProto {
             message.int32_data = obj.int32Data.map((obj) => Number(obj));
         }
         if ('byteData' in obj) {
-            message.byte_data = typeof source === 'string' ? Uint8Array.from(atob(obj.byteData), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.byteData);
+            message.byte_data = typeof obj.byteData === 'string' ? Uint8Array.from(atob(obj.byteData), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.byteData);
         }
         if ('stringData' in obj) {
             message.string_data = obj.stringData.map((obj) => typeof obj === 'string' ? Uint8Array.from(atob(obj), (c) => c.charCodeAt(0)) : Uint8Array.from(obj));
@@ -249,7 +249,7 @@ caffe2.TensorProto = class TensorProto {
             message.int64_data = obj.int64Data.map((obj) => BigInt(obj));
         }
         if ('rawData' in obj) {
-            message.raw_data = typeof source === 'string' ? Uint8Array.from(atob(obj.rawData), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.rawData);
+            message.raw_data = typeof obj.rawData === 'string' ? Uint8Array.from(atob(obj.rawData), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.rawData);
         }
         if ('name' in obj) {
             message.name = obj.name;
@@ -530,7 +530,7 @@ caffe2.Argument = class Argument {
             message.i = BigInt(obj.i);
         }
         if ('s' in obj) {
-            message.s = typeof source === 'string' ? Uint8Array.from(atob(obj.s), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.s);
+            message.s = typeof obj.s === 'string' ? Uint8Array.from(atob(obj.s), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.s);
         }
         if ('t' in obj) {
             message.t = caffe2.TensorProto.decodeJson(obj.t);
@@ -885,7 +885,7 @@ caffe2.BlobProto = class BlobProto {
             message.tensor = caffe2.TensorProto.decodeJson(obj.tensor);
         }
         if ('content' in obj) {
-            message.content = typeof source === 'string' ? Uint8Array.from(atob(obj.content), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.content);
+            message.content = typeof obj.content === 'string' ? Uint8Array.from(atob(obj.content), (c) => c.charCodeAt(0)) : Uint8Array.from(obj.content);
         }
         if ('qtensor' in obj) {
             message.qtensor = caffe2.QTensorProto.decodeJson(obj.qtensor);
