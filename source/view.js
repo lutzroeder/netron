@@ -669,7 +669,7 @@ view.View = class {
         const url = known && known.issue ? `${repository}/issues/${known.issue}` : `${repository}/issues`;
         const message = error.message;
         name = name || error.name;
-        const report = !message.startsWith('Invalid file content.');
+        const report = !message.startsWith('Invalid file content.') && this.host.environment('packaged');
         await this._host.message(message, true, report ? 'Report' : 'OK');
         if (report) {
             this._host.openURL(url);

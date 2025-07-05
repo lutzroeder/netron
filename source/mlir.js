@@ -1219,7 +1219,7 @@ mlir.Parser = class {
         const open = this._eat('(');
         while (!this._match(')') && !this._match('->') && !this._match('{')) {
             const input = {};
-            if (this._token.kind === 'id' && this._token.value !== 'dense') {
+            if (this._token.kind === 'id' && this._token.value !== 'dense' && this._token.value !== 'dense_resource') {
                 const identifier = this._read('id');
                 if (this._eat('(')) {
                     const args = this._parseArguments();
@@ -1458,6 +1458,16 @@ mlir.Parser = class {
         if (this._match('tensor')) {
             value.value = this._parseType();
             value.type = 'type';
+            return value;
+        }
+        if (this._eat('id', 'dense_resource')) {
+            value.value = null;
+            value.type = 'dense';
+            this._read('<');
+            if (!this._match('>')) {
+                value.value = this._read();
+            }
+            this._read('>');
             return value;
         }
         if (this._eat('id', 'dense')) {

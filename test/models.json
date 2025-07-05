@@ -3238,13 +3238,6 @@
   },
   {
     "type":     "mlir",
-    "target":   "ea.mlir",
-    "source":   "https://github.com/user-attachments/files/20693103/ea.mlir.zip[ea.mlir]",
-    "format":   "MLIR",
-    "link":     "https://github.com/lutzroeder/netron/issues/1044"
-  },
-  {
-    "type":     "mlir",
     "target":   "embedding_bm1684x_f16_tpu.mlir",
     "source":   "https://github.com/user-attachments/files/15525787/embedding_bm1684x_f16_tpu.mlir.txt",
     "format":   "MLIR",
@@ -3321,6 +3314,36 @@
     "target":   "sha256.mlir",
     "source":   "https://github.com/user-attachments/files/17788766/sha256.mlir.zip[sha256.mlir]",
     "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "stablehlo_ea.mlir",
+    "source":   "https://github.com/user-attachments/files/21081168/stablehlo_ea.mlir.zip[stablehlo_ea.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "stablehlo_gpt_125M.mlir",
+    "source":   "https://github.com/user-attachments/files/21081167/stablehlo_gpt_125M.mlir.zip[stablehlo_gpt_125M.mlir]",
+    "format":   "MLIR",
+    "error":    "Expected token of type ')', but got 'id' at 14:40.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "stablehlo_mlp.mlir",
+    "source":   "https://github.com/user-attachments/files/21081165/stablehlo_mlp.mlir.zip[stablehlo_mlp.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "stablehlo_resnet18.mlir",
+    "source":   "https://github.com/user-attachments/files/21081166/stablehlo_resnet18.mlir.zip[stablehlo_resnet18.mlir]",
+    "format":   "MLIR",
+    "error":    "Unexpected value '=' at 52:56.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
