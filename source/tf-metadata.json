@@ -58807,6 +58807,11 @@
         "default": false
       },
       {
+        "name": "use_shardy_partitioner",
+        "type": "boolean",
+        "default": false
+      },
+      {
         "name": "tpu_compile_options_proto",
         "type": "string",
         "default": ""
