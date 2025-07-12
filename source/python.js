@@ -169,6 +169,7 @@ python.Execution = class {
         const torch = this.register('torch');
         this.torch = torch;
         const torchvision = this.register('torchvision');
+        const torchao = this.register('torchao');
         this.register('torch.storage');
         this.register('torch.nn.parameter');
         this.register('torch.ops');
@@ -7916,7 +7917,13 @@ python.Execution = class {
             }
             throw new python.Error(`Unsupported sparse tensor layout '${layout ? layout.__str__() : ''}'.`);
         });
-        this.registerFunction('torch._utils._rebuild_wrapper_subclass');
+        this.registerFunction('torch._utils._get_restore_location', (device) => {
+            return device;
+        });
+        this.registerFunction('torch._utils._rebuild_wrapper_subclass', (cls, dtype, size, stride, storage_offset, layout, device, requires_grad) => {
+            device = torch._utils._get_restore_location(device);
+            return torch.Tensor._make_wrapper_subclass(cls, size, stride, dtype, storage_offset, layout, device, requires_grad);
+        });
         this.registerFunction('torch.from_numpy', (obj) => {
             const dtypes = new Map([
                 ['<f2', torch.float16],
@@ -7951,6 +7958,12 @@ python.Execution = class {
             tensor._shape = size;
             return tensor;
         });
+        this.registerFunction('torch._utils.set_tensor_metadata', (tensor, metadata) => {
+            torch._C._set_tensor_metadata(tensor, metadata);
+        });
+        this.registerFunction('torch._utils._restore_device_fake_mode', (tensor) => {
+            return tensor;
+        });
         this.registerFunction('torch._utils._rebuild_meta_tensor_no_storage', (dtype, size, stride, requires_grad) => {
             return torch.empty_strided(size, stride, dtype, null, 'meta', false, requires_grad);
         });
@@ -7964,13 +7977,24 @@ python.Execution = class {
             tensor.__setstate__([storage, storage_offset, size, stride]);
             return tensor;
         });
-        this.registerFunction('torch._utils._rebuild_tensor_v2', (storage, storage_offset, size, stride, requires_grad, backward_hooks) => {
-            const tensor = execution.invoke('torch._utils._rebuild_tensor', [storage, storage_offset, size, stride]);
+        this.registerFunction('torch._utils._rebuild_tensor_v2', (storage, storage_offset, size, stride, requires_grad, backward_hooks, metadata) => {
+            const tensor = torch._utils._rebuild_tensor(storage, storage_offset, size, stride);
             tensor.requires_grad = requires_grad;
+            if (metadata) {
+                torch._utils.set_tensor_metadata(tensor, metadata);
+            }
             tensor.backward_hooks = backward_hooks;
             return tensor;
         });
-        this.registerFunction('torch._utils._rebuild_tensor_v3');
+        this.registerFunction('torch._utils._rebuild_tensor_v3', (storage, storage_offset, size, stride, requires_grad, backward_hooks, dtype, metadata) => {
+            const t = new torch.Tensor(null, null, dtype);
+            t.set_(storage, storage_offset, size, stride);
+            if (metadata) {
+                torch._utils.set_tensor_metadata(t, metadata);
+            }
+            t._backward_hooks = backward_hooks;
+            return torch._utils._restore_device_fake_mode(t);
+        });
         this.registerFunction('torch._utils._rebuild_parameter', (data, requires_grad, backward_hooks) => {
             const param = new torch.nn.parameter.Parameter(data, requires_grad);
             param.backward_hooks = backward_hooks;
@@ -14951,6 +14975,8 @@ python.Execution = class {
         this.registerFunction('torch._C._jit_pass_inline', (graph) => {
             torch._C.Inline(graph);
         });
+        this.registerFunction('torch._C._set_tensor_metadata', (/* tensor, metadata */) => {
+        });
         this.registerFunction('torch.jit._script.unpackage_script_module', (importer, script_module_id) => {
             const cu = new torch.jit.CompilationUnit();
             cu.execution = execution;
@@ -18848,7 +18874,7 @@ python.Execution = class {
             _set_cdata(data) {
                 const length = this.size() * this.dtype.itemsize();
                 if (length !== data.length) {
-                    throw new python.Error('Storage data size mismatch.');
+                    throw new python.Error('Typed storage data size mismatch.');
                 }
                 this._cdata = data;
             }
@@ -18856,7 +18882,7 @@ python.Execution = class {
                 const buffer = unpickler.read(8);
                 const size = buffer.reverse().reduce((a, b) => (a * 256) + b, 0);
                 if (size !== this.size()) {
-                    throw new python.Error('Storage size mismatch.');
+                    throw new python.Error('Typed storage size mismatch.');
                 }
                 const itemsize = this.dtype.itemsize();
                 const data = unpickler.stream(itemsize * size);
@@ -18872,19 +18898,28 @@ python.Execution = class {
                 return storage;
             }
         });
-        this.registerType('torch.storage.UntypedStorage', class extends torch.storage._StorageBase {
-            constructor() {
-                super();
-                throw new python.Error('UntypedStorage not implemented.');
+        this.registerType('torch.storage.UntypedStorage', class {
+            constructor(size) {
+                this._size = size;
+            }
+            _set_cdata(data) {
+                if (this._size !== data.length) {
+                    throw new python.Error('Untyped storage data size mismatch.');
+                }
+                this._cdata = data;
             }
         });
         this.registerType('torch.storage.TypedStorage', class {
             constructor(...args) {
-                if (args.length >= 2 && Number.isInteger(args[0]) && args[1] instanceof torch.dtype) {
+                if (args.length === 0) {
+                    this._size = 0;
+                } else if (args.length === 1 && Number.isInteger(args[0])) {
+                    [this._size] = args;
+                } else if (args.length >= 2 && Number.isInteger(args[0]) && args[1] instanceof torch.dtype) {
                     if (args[3] instanceof torch.device) {
-                        [this._size, this._dtype, , this._device] = args;
+                        [this._size, this.dtype, , this._device] = args;
                     } else {
-                        [this._size, this._dtype] = args;
+                        [this._size, this.dtype] = args;
                     }
                 } else {
                     throw new python.Error(`Unsupported TypedStorage arguments '${JSON.stringify(args)}'.`);
@@ -18895,6 +18930,9 @@ python.Execution = class {
             }
             get dtype() {
                 return this._dtype;
+            }
+            set dtype(value) {
+                this._dtype = value;
             }
             element_size() {
                 return this._dtype.element_size;
@@ -18933,89 +18971,101 @@ python.Execution = class {
             }
         });
         this.registerType('torch.storage._LegacyStorage', class extends torch.storage.TypedStorage {
-            constructor() {
-                super();
-                throw new python.Error('_LegacyStorage not implemented.');
+        });
+        this.registerType('torch.BoolStorage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.bool;
             }
         });
-        this.registerType('torch.BoolStorage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.bool);
+        this.registerType('torch.ByteStorage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.uint8;
             }
         });
-        this.registerType('torch.ByteStorage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.uint8);
+        this.registerType('torch.CharStorage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.int8;
             }
         });
-        this.registerType('torch.CharStorage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.int8);
+        this.registerType('torch.ShortStorage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.int16;
             }
         });
-        this.registerType('torch.ShortStorage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.int16);
+        this.registerType('torch.IntStorage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.int32;
             }
         });
-        this.registerType('torch.IntStorage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.int32);
+        this.registerType('torch.LongStorage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.int64;
             }
         });
-        this.registerType('torch.LongStorage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.int64);
+        this.registerType('torch.HalfStorage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.float16;
             }
         });
-        this.registerType('torch.HalfStorage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.float16);
+        this.registerType('torch.FloatStorage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.float32;
             }
         });
-        this.registerType('torch.FloatStorage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.float32);
+        this.registerType('torch.DoubleStorage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.float64;
             }
         });
-        this.registerType('torch.DoubleStorage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.float64);
+        this.registerType('torch.ComplexHalfStorage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.complex32;
             }
         });
-        this.registerType('torch.ComplexHalfStorage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.complex32);
+        this.registerType('torch.ComplexFloatStorage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.complex64;
             }
         });
-        this.registerType('torch.ComplexFloatStorage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.complex64);
+        this.registerType('torch.ComplexDoubleStorage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.complex128;
             }
         });
-        this.registerType('torch.ComplexDoubleStorage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.complex128);
+        this.registerType('torch.QInt8Storage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.qint8;
             }
         });
-        this.registerType('torch.QInt8Storage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.qint8);
+        this.registerType('torch.QUInt8Storage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.quint8;
             }
         });
-        this.registerType('torch.QUInt8Storage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.quint8);
+        this.registerType('torch.QInt32Storage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.qint32;
             }
         });
-        this.registerType('torch.QInt32Storage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.qint32);
-            }
-        });
-        this.registerType('torch.BFloat16Storage', class extends torch.storage._StorageBase {
-            constructor(size) {
-                super(size, torch.bfloat16);
+        this.registerType('torch.BFloat16Storage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                super(...args);
+                this.dtype = torch.bfloat16;
             }
         });
         this.registerType('torch.Size', class extends Array {
@@ -19034,16 +19084,37 @@ python.Execution = class {
         this.registerType('torch._C.TensorBase', class extends torch._C.TensorMeta {
         });
         this.registerType('torch.Tensor', class extends torch._C.TensorBase {
-            constructor() {
+            constructor(storage, shape, dtype, layout, device, requires_grad) {
                 super();
-                this._layout = torch.strided;
+                if (storage) {
+                    this._storage = storage;
+                }
+                if (shape !== null && shape !== undefined) {
+                    this._shape = shape;
+                }
+                if (dtype) {
+                    this._dtype = dtype;
+                }
+                this._layout = layout || torch.strided;
+                if (device) {
+                    this._device = device;
+                }
+                if (requires_grad !== undefined) {
+                    this.requires_grad = requires_grad;
+                }
             }
             get device() {
+                if (this._device !== undefined) {
+                    return this._device;
+                }
                 return this.storage().device;
             }
             get dtype() {
+                if (this._dtype !== undefined) {
+                    return this._dtype;
+                }
                 if (this._layout === torch.sparse_coo) {
-                    return this._values.dtype();
+                    return this._values.dtype;
                 }
                 return this.storage().dtype;
             }
@@ -19110,6 +19181,12 @@ python.Execution = class {
                         throw new python.Error(`Unsupported tensor state length '${state.length}'.`);
                 }
             }
+            set_(source, storage_offset, size, stride) {
+                this._storage = source;
+                this._storage_offset = storage_offset;
+                this._shape = size;
+                this._stride = stride;
+            }
             __bool__() {
                 return true;
             }
@@ -19135,6 +19212,11 @@ python.Execution = class {
             }
             __str__() {
                 return 'tensor(...)';
+            }
+            static _make_wrapper_subclass(cls, size, stride, dtype, storage_offset, layout, device, requires_grad) {
+                const t = new torch.Tensor(null, size, dtype, layout, device, requires_grad);
+                t.__setstate__([null, storage_offset, size, stride]);
+                return t;
             }
         });
         this.registerType('torch.nn.parameter.Parameter', class extends torch.Tensor {
@@ -19171,6 +19253,13 @@ python.Execution = class {
         this.registerType('torch.cuda.DoubleStorage', class extends torch.cuda._CudaLegacyStorage {});
         this.registerType('torch.cuda.DoubleTensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.amp.grad_scaler.GradScaler', class {});
+        this.registerType('torchao.utils.TorchAOBaseTensor', class extends torch.Tensor {});
+        this.registerType('torchao.dtypes.affine_quantized_tensor.AffineQuantizedTensor', class extends torchao.utils.TorchAOBaseTensor {});
+        this.registerType('torchao.dtypes.utils.Layout', class {});
+        this.registerType('torchao.dtypes.floatx.float8_layout.Float8Layout', class extends torchao.dtypes.utils.Layout {});
+        this.registerType('torchao.dtypes.utils.AQTTensorImpl', class extends torchao.utils.TorchAOBaseTensor {});
+        this.registerType('torchao.dtypes.floatx.float8_layout.Float8AQTTensorImpl', class extends torchao.dtypes.utils.AQTTensorImpl {});
+        this.registerType('torchao.quantization.quant_primitives.ZeroPointDomain', class extends this.enum.Enum {});
         this.registerFunction('torch.cuda.amp.grad_scaler._refresh_per_optimizer_state');
         this.registerType('torch.SymBool', class {
             constructor(node) {

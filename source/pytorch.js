@@ -848,11 +848,11 @@ pytorch.Tensor = class {
         const storage = tensor.storage();
         const size = tensor.size() || [];
         if (layout && layout.startsWith('torch.sparse_')) {
-            this.type = new pytorch.TensorType(storage.dtype.__reduce__(), new pytorch.TensorShape(size), layout.split('.').pop().replace('_', '.'));
+            this.type = new pytorch.TensorType(tensor.dtype.__reduce__(), new pytorch.TensorShape(size), layout.split('.').pop().replace('_', '.'));
             this.indices = new pytorch.Tensor('', tensor.indices);
             this._values = new pytorch.Tensor('', tensor.values);
         } else if (!layout || layout === 'torch.strided') {
-            this.type = new pytorch.TensorType(storage.dtype.__reduce__(), new pytorch.TensorShape(size));
+            this.type = new pytorch.TensorType(tensor.dtype.__reduce__(), new pytorch.TensorShape(size));
             this._data = storage.data;
             this.encoding = '<';
             this.indices = null;
@@ -883,7 +883,7 @@ pytorch.Tensor = class {
         if (this._data instanceof Uint8Array) {
             return this._data;
         }
-        if (this._offset !== undefined) {
+        if (this._data && this._offset !== undefined) {
             const stream = this._data;
             const position = stream.position;
             stream.seek(this._offset);

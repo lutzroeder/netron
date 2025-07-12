@@ -5480,14 +5480,14 @@
     "target":   "boolean.pkl.pth",
     "source":   "https://github.com/lutzroeder/netron/files/5435851/boolean.zip[boolean.pkl.pth]",
     "format":   "PyTorch v0.1.10",
-    "link":     "https://github.com/lutzroeder/netron/issues/1320"
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
     "type":     "pytorch",
     "target":   "boolean.zip.pth",
     "source":   "https://github.com/lutzroeder/netron/files/5435851/boolean.zip[boolean.pkl.pth]",
     "format":   "PyTorch v0.1.10",
-    "link":     "https://github.com/lutzroeder/netron/issues/1320"
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
     "type":     "pytorch",
@@ -5554,7 +5554,7 @@
     "source":   "https://github.com/lutzroeder/netron/files/9108149/complex_tensor.pt.zip[complex_tensor.pt]",
     "format":   "PyTorch v1.6",
     "assert":   "model.graphs[0].nodes[0].inputs[0].value[0].type.dataType == 'complex64'",
-    "link":     "https://github.com/lutzroeder/netron/issues/1320"
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
     "type":     "pytorch",
@@ -5739,6 +5739,13 @@
     "type":     "pytorch",
     "target":   "fruit_veg_model.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/9265633/fruit_veg_model.pkl.zip[fruit_veg_model.pkl]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "FLUX.1-dev-torchao-fp8-transformer.zip",
+    "source":   "https://github.com/user-attachments/files/21200334/FLUX.1-dev-torchao-fp8-transformer.zip",
     "format":   "PyTorch v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
@@ -6600,14 +6607,14 @@
     "source":   "https://github.com/lutzroeder/netron/files/9541426/sparse_coo.pth.zip[sparse_coo.pth]",
     "format":   "PyTorch v1.6",
     "assert":   "model.graphs[0].nodes[0].inputs[0].value[0].type.layout == 'sparse.coo'",
-    "link":     "https://github.com/lutzroeder/netron/issues/1320"
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
     "type":     "pytorch",
     "target":   "sparsified.pth",
     "source":   "https://github.com/lutzroeder/netron/files/9433521/sparsified.pth.zip[sparsified.pth]",
     "format":   "PyTorch v1.6",
-    "link":     "https://github.com/lutzroeder/netron/issues/1320"
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
     "type":     "pytorch",
@@ -6668,7 +6675,7 @@
     "target":   "tensor.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/14733020/tensor.pkl.zip[tensor.pkl]",
     "format":   "PyTorch Pickle",
-    "link":     "https://github.com/lutzroeder/netron/issues/1320"
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
     "type":     "pytorch",
