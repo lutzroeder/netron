@@ -693,7 +693,7 @@ app.View = class {
         this._window.on('unmaximize', () => this.state());
         this._window.on('enter-full-screen', () => this.state('enter-full-screen'));
         this._window.on('leave-full-screen', () => this.state('leave-full-screen'));
-        this._window.webContents.on('did-finish-load', () => {
+        this._window.webContents.once('did-finish-load', () => {
             this._didFinishLoad = true;
         });
         this._window.webContents.setWindowOpenHandler((detail) => {
@@ -709,7 +709,13 @@ app.View = class {
         if (owner.application.environment.titlebar && process.platform !== 'darwin') {
             this._window.removeMenu();
         }
-        this._loadURL();
+        const pathname = path.join(dirname, 'index.html');
+        let content = fs.readFileSync(pathname, 'utf-8');
+        content = content.replace(/<\s*script[^>]*>[\s\S]*?(<\s*\/script[^>]*>|$)/ig, '');
+        const data = `data:text/html;charset=utf-8,${encodeURIComponent(content)}`;
+        this._window.loadURL(data, {
+            baseURLForDataURL: url.pathToFileURL(pathname).toString()
+        });
     }
 
     get window() {
@@ -720,29 +726,24 @@ app.View = class {
         return this._path;
     }
 
-    open(path) {
+    async open(path) {
         this._openPath = path;
         const location = app.Application.location(path);
-        if (this._didFinishLoad) {
-            this._window.webContents.send('open', location);
-        } else {
-            this._window.webContents.on('did-finish-load', () => {
-                this._window.webContents.send('open', location);
-            });
-            this._loadURL();
-        }
-    }
-
-    _loadURL() {
-        const dirname = path.dirname(url.fileURLToPath(import.meta.url));
-        const pathname = path.join(dirname, 'index.html');
-        let content = fs.readFileSync(pathname, 'utf-8');
-        content = content.replace(/<\s*script[^>]*>[\s\S]*?(<\s*\/script[^>]*>|$)/ig, '');
-        const data = `data:text/html;charset=utf-8,${encodeURIComponent(content)}`;
-        const options = {
-            baseURLForDataURL: url.pathToFileURL(pathname).toString()
-        };
-        this._window.loadURL(data, options);
+        await new Promise((resolve) => {
+            if (this._didFinishLoad) {
+                resolve();
+            } else {
+                this._window.webContents.once('did-finish-load', resolve);
+            }
+        });
+        await new Promise((resolve) => {
+            if (this._window.isVisible()) {
+                resolve();
+            } else {
+                this._window.once('ready-to-show', resolve);
+            }
+        });
+        this._window.webContents.send('open', location);
     }
 
     restore() {
