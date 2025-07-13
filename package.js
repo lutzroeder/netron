@@ -98,23 +98,6 @@ const exec = async (command, encoding, cwd) => {
     }
     child_process.execSync(command, { cwd, stdio: [0,1,2] });
     return '';
-    /*
-    return new Promise((resolve, reject) => {
-        const child = child_process.exec(command, { cwd: dirname() }, (error, stdout, stderr) => {
-            if (error) {
-                stderr = '\n' + stderr ;
-                if (error.message && error.message.endsWith(stderr)) {
-                    error.message = error.message.slice(0, -stderr.length);
-                }
-                reject(error);
-            } else {
-                resolve(stdout);
-            }
-        });
-        child.stdout.pipe(process.stdout);
-        child.stderr.pipe(process.stderr);
-    });
-    */
 };
 
 const sleep = (delay) => {
@@ -529,7 +512,7 @@ const lint = async () => {
     await exec('python -m ruff check . --quiet');
 };
 
-const validate = async() => {
+const validate = async () => {
     writeLine('lint');
     await lint();
     writeLine('test');
