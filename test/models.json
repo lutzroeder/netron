@@ -7469,7 +7469,7 @@
     "target":   "test_multi_input_output.tmfile",
     "source":   "https://github.com/lutzroeder/netron/files/5248932/test_multi_input_output.zip[test_multi_input_output.tmfile]",
     "format":   "Tengine v2.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/440"
+    "link":     "https://github.com/lutzroeder/netron/issues/1477"
   },
   {
     "type":     "tensorrt",
