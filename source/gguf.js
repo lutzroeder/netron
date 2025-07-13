@@ -59,8 +59,11 @@ gguf.Model = class {
             const model = { type: architecture, metadata: new Map(), layers: Array.from(layers.values()) };
             for (const [name, value] of metadata) {
                 if (name.startsWith('tokenizer.')) {
-                    const [, param] = name.match(/^(.*)\.(.*?)$/).slice(1);
-                    tokenizer.metadata.set(param, value);
+                    const match = name.match(/^(.*)\.(.*?)$/);
+                    if (match) {
+                        const [, param] = match.slice(1);
+                        tokenizer.metadata.set(param, value);
+                    }
                 } else if (architecture && name.startsWith(`${architecture}.`)) {
                     model.metadata.set(name, value);
                 } else {
