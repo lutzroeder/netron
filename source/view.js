@@ -1744,25 +1744,21 @@ view.Worker = class {
 
     constructor(host) {
         this._host = host;
-        const type = this._host.type;
-        this._browser = type === 'Browser' || type === 'Python';
-        if (this._browser) {
-            this._create();
-        }
+        this._timeout = -1;
+        this._create();
     }
 
     async request(message, delay, notification) {
-        this._timeout = -1;
+        this._cancel();
         return new Promise((resolve, reject) => {
             this._resolve = resolve;
             this._reject = reject;
-            if (!this._worker) {
-                this._create();
-            }
+            this._create();
             this._worker.postMessage(message);
             this._timeout = setTimeout(async () => {
                 await this._host.message(notification, null, 'Cancel');
-                this._cancel(true);
+                this._terminate();
+                this._cancel();
                 delete this._resolve;
                 delete this._reject;
                 resolve({ type: 'cancel' });
@@ -1771,38 +1767,43 @@ view.Worker = class {
     }
 
     _create() {
-        this._worker = this._host.worker('./worker');
-        this._worker.addEventListener('message', (e) => {
-            this._cancel(false);
-            const message = e.data;
-            const resolve = this._resolve;
-            const reject = this._reject;
-            delete this._resolve;
-            delete this._reject;
-            if (reject && message.type === 'error') {
-                const error = new Error(`Worker: ${message.message}`);
-                reject(error);
-            } else if (resolve) {
-                resolve(message);
-            }
-        });
-        this._worker.addEventListener('error', (e) => {
-            this._cancel(true);
-            const reject = this._reject;
-            delete this._resolve;
-            delete this._reject;
-            if (reject) {
-                reject(new Error(`Unknown worker error type '${e.type}'.`));
-            }
-        });
+        if (!this._worker) {
+            this._worker = this._host.worker('./worker');
+            this._worker.addEventListener('message', (e) => {
+                this._cancel();
+                const message = e.data;
+                const resolve = this._resolve;
+                const reject = this._reject;
+                delete this._resolve;
+                delete this._reject;
+                if (reject && message.type === 'error') {
+                    const error = new Error(`Worker: ${message.message}`);
+                    reject(error);
+                } else if (resolve) {
+                    resolve(message);
+                }
+            });
+            this._worker.addEventListener('error', (e) => {
+                this._terminate();
+                this._cancel();
+                const reject = this._reject;
+                delete this._resolve;
+                delete this._reject;
+                if (reject) {
+                    reject(new Error(`Unknown worker error type '${e.type}'.`));
+                }
+            });
+        }
     }
 
-    _cancel(terminate) {
-        terminate = terminate || !this._browser;
-        if (this._worker && terminate) {
+    _terminate() {
+        if (this._worker) {
             this._worker.terminate();
             this._worker = null;
         }
+    }
+
+    _cancel() {
         if (this._timeout >= 0) {
             clearTimeout(this._timeout);
             this._timeout = -1;
@@ -2953,19 +2954,27 @@ view.TextView = class extends view.Control {
             for (const item of list) {
                 const line = this.createElement('div', className);
                 switch (style) {
-                    case 'code':
-                        line.innerHTML = `<code>${item}<code>`;
+                    case 'code': {
+                        const element = this.createElement('code');
+                        element.textContent = item;
+                        line.appendChild(element);
                         break;
-                    case 'bold':
-                        line.innerHTML = `<b>${item}<b>`;
+                    }
+                    case 'bold': {
+                        const element = this.createElement('b');
+                        element.textContent = item;
+                        line.appendChild(element);
                         break;
-                    case 'nowrap':
+                    }
+                    case 'nowrap': {
                         line.innerText = item;
                         line.style.whiteSpace = style;
                         break;
-                    default:
+                    }
+                    default: {
                         line.innerText = item;
                         break;
+                    }
                 }
                 this.element.appendChild(line);
                 className = 'sidebar-item-value-line-border';
@@ -4407,7 +4416,7 @@ view.Documentation = class {
                         target.typeAttr = source.typeAttr;
                     }
                     if (source.typeListAttr !== undefined) {
-                        target.typeListAttr = source.typeAttr;
+                        target.typeListAttr = source.typeListAttr;
                     }
                     if (source.numberAttr !== undefined) {
                         target.numberAttr = source.numberAttr;
