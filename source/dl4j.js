@@ -133,7 +133,10 @@ dl4j.Graph = class {
                 this.nodes.push(node);
                 inputs = [layer.layerName];
             }
-            this.outputs.push(new dl4j.Argument('output', [values.map(inputs[0])]));
+            if (inputs && inputs.length > 0) {
+                const argument = new dl4j.Argument('output', [values.map(inputs[0])]);
+                this.outputs.push(argument);
+            }
         }
     }
 };
