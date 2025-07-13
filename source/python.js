@@ -17764,6 +17764,10 @@ python.Execution = class {
                     this.as_sym_int = new torch._export.serde.schema.SymIntArgument(this.as_sym_int);
                 } else if (this.type === 'as_sym_ints') {
                     this.as_sym_ints = this.as_sym_ints.map((item) => new torch._export.serde.schema.SymIntArgument(item));
+                } else if (this.type === 'as_sym_bool') {
+                    this.as_sym_bool = new torch._export.serde.schema.SymBoolArgument(this.as_sym_bool);
+                } else if (this.type === 'as_sym_bools') {
+                    this.as_sym_bools = this.as_sym_bools.map((item) => new torch._export.serde.schema.SymBoolArgument(item));
                 } else if (this.type === 'as_optional_tensors') {
                     this.as_optional_tensors = this.as_optional_tensors.map((item) => new torch._export.serde.schema.OptionalTensorArgument(item));
                 } else {
