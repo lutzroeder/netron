@@ -65,7 +65,7 @@ window.exports.preload = function(callback) {
                             next();
                         }
                     }
-                }, true);
+                });
             }
             /* eslint-enable no-loop-func */
         }
