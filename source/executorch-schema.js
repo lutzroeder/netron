@@ -1237,7 +1237,9 @@ vkgraph.VkDataType = {
     INT8: 2,
     INT32: 3,
     FLOAT16: 4,
-    FLOAT32: 5
+    FLOAT32: 5,
+    FLOAT64: 6,
+    INT64: 7
 };
 
 vkgraph.VkStorageType = {

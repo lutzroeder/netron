@@ -802,7 +802,7 @@ vulkan.Value = class Value {
 vulkan.TensorType = class {
 
     constructor(tensor) {
-        const types = ['bool', 'uint8', 'int8', 'int32', 'float16', 'float32'];
+        const types = ['bool', 'uint8', 'int8', 'int32', 'float16', 'float32', 'float64', 'int64'];
         if (tensor.datatype >= types.length) {
             throw new vulkan.Error(`Unknown tensor data type '${tensor.datatype}'.`);
         }
