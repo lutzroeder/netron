@@ -4,13 +4,20 @@ set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 clean() {
-    echo "mslite clean"
+    echo "ggml clean"
     rm -rf "./third_party/source/llama.cpp"
 }
 
 sync() {
     echo "ggml sync"
-    [ -d "./third_party/source/llama.cpp" ] || git clone --quiet https://github.com/ggerganov/llama.cpp.git "./third_party/source/llama.cpp"
+    dir="./third_party/source/llama.cpp"
+    if [ ! -d "${dir}" ]; then
+        git clone --quiet https://github.com/ggerganov/llama.cpp.git "${dir}"
+    else
+        pushd "${dir}" > /dev/null
+        git pull --quiet --prune
+        popd > /dev/null
+    fi
 }
 
 while [ "$#" != 0 ]; do
