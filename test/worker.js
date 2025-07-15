@@ -347,6 +347,10 @@ class Window {
 
     removeEventListener(/* event, callback */) {
     }
+
+    requestAnimationFrame(callback) {
+        callback();
+    }
 }
 
 export class Target {

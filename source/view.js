@@ -865,6 +865,8 @@ view.View = class {
 
     async renderGraph(model, graph, signature, options) {
         this._graph = null;
+        const document = this._host.document;
+        const window = this._host.window;
         const canvas = this._element('canvas');
         while (canvas.lastChild) {
             canvas.removeChild(canvas.lastChild);
@@ -883,15 +885,15 @@ view.View = class {
         viewGraph.add(graph, signature);
         // Workaround for Safari background drag/zoom issue:
         // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-        const background = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         background.setAttribute('id', 'background');
         background.setAttribute('fill', 'none');
         background.setAttribute('pointer-events', 'all');
         canvas.appendChild(background);
-        const origin = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const origin = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         origin.setAttribute('id', 'origin');
         canvas.appendChild(origin);
-        viewGraph.build(this._host.document, origin);
+        viewGraph.build(document, origin);
         await this._timeout(20);
         viewGraph.measure();
         const status = await viewGraph.layout(this._worker);
@@ -904,6 +906,16 @@ view.View = class {
                     elements.push(nodeElements[0]);
                 }
             }
+            if (document.fonts && document.fonts.ready) {
+                try {
+                    await document.fonts.ready;
+                } catch {
+                    // continue regardless of error
+                }
+            }
+            await new Promise((resolve) => {
+                window.requestAnimationFrame(() => window.requestAnimationFrame(resolve));
+            });
             const size = canvas.getBBox();
             const margin = 100;
             const width = Math.ceil(margin + size.width + margin);
