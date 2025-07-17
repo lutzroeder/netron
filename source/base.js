@@ -33,7 +33,7 @@ base.Complex128 = class Complex128 {
 
 BigInt.prototype.toNumber = function() {
     if (this > Number.MAX_SAFE_INTEGER || this < Number.MIN_SAFE_INTEGER) {
-        throw new Error(`64-bit value 0x'${this.toString(16)}' exceeds safe integer.`);
+        throw new Error(`64-bit value 0x${this.toString(16)} exceeds safe integer.`);
     }
     return Number(this);
 };
