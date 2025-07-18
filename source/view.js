@@ -913,10 +913,29 @@ view.View = class {
                     // continue regardless of error
                 }
             }
+            // Ensure UI is fully ready for rendering
             await new Promise((resolve) => {
                 window.requestAnimationFrame(() => window.requestAnimationFrame(resolve));
             });
+            // Additional stabilization delay for startup scenarios
+            // This helps prevent rendering issues when the app is launched with a file
+            await this._timeout(50);
             const size = canvas.getBBox();
+            // Validate that we have a valid canvas size before proceeding
+            if (!size || size.width === 0 || size.height === 0) {
+                // If size is invalid, wait a bit more and retry
+                await this._timeout(100);
+                const retrySize = canvas.getBBox();
+                if (!retrySize || retrySize.width === 0 || retrySize.height === 0) {
+                    // Use fallback dimensions if canvas size is still invalid
+                    size.width = size.width || 800;
+                    size.height = size.height || 600;
+                    size.x = size.x || 0;
+                    size.y = size.y || 0;
+                } else {
+                    Object.assign(size, retrySize);
+                }
+            }
             const margin = 100;
             const width = Math.ceil(margin + size.width + margin);
             const height = Math.ceil(margin + size.height + margin);
