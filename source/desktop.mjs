@@ -39,8 +39,11 @@ desktop.Host = class {
         });
         this._environment = electron.ipcRenderer.sendSync('get-environment', {});
         this._environment.menu = this._environment.titlebar && this._environment.platform !== 'darwin';
-        this._element('menu-button').style.opacity = 0;
         this._files = [];
+        electron.ipcRenderer.on('open', (sender, data) => {
+            this._open(data);
+        });
+        this._element('menu-button').style.opacity = 0;
         if (!/^\d\.\d\.\d$/.test(this.version)) {
             throw new Error('Invalid version.');
         }
@@ -78,9 +81,6 @@ desktop.Host = class {
 
     async view(view) {
         this._view = view;
-        electron.ipcRenderer.on('open', (sender, data) => {
-            this._open(data);
-        });
         const age = async () => {
             const days = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
             if (days > 180) {

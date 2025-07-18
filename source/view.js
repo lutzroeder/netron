@@ -894,7 +894,20 @@ view.View = class {
         origin.setAttribute('id', 'origin');
         canvas.appendChild(origin);
         viewGraph.build(document, origin);
-        await this._timeout(20);
+        if (document.fonts && document.fonts.ready) {
+            try {
+                await document.fonts.ready;
+            } catch {
+                // continue regardless of error
+            }
+        }
+        await new Promise((resolve) => {
+            window.requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => {
+                    window.requestAnimationFrame(resolve);
+                });
+            });
+        });
         viewGraph.measure();
         const status = await viewGraph.layout(this._worker);
         if (status === '') {
@@ -906,16 +919,6 @@ view.View = class {
                     elements.push(nodeElements[0]);
                 }
             }
-            if (document.fonts && document.fonts.ready) {
-                try {
-                    await document.fonts.ready;
-                } catch {
-                    // continue regardless of error
-                }
-            }
-            await new Promise((resolve) => {
-                window.requestAnimationFrame(() => window.requestAnimationFrame(resolve));
-            });
             const size = canvas.getBBox();
             const margin = 100;
             const width = Math.ceil(margin + size.width + margin);
