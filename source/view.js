@@ -661,6 +661,7 @@ view.View = class {
             { message: /^Unsupported Protocol Buffers content/, issue: '593' },
             { message: /^Unsupported Protocol Buffers text content/, issue: '594' },
             { message: /^Unsupported JSON content/, issue: '595' },
+            { message: /^Unknown type name '__torch__\./, issue: '969' },
             { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto \(Unexpected end of file\)\./, issue: '1155' },
             { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto \(Cannot read properties of undefined \(reading 'ModelProto'\)\)\./, issue: '1156' },
             { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto/, issue: '549' }

@@ -5509,7 +5509,7 @@
     "source":   "https://github.com/user-attachments/files/16091260/coco128-yolov8n-seg_output.torchscript.ptl.zip[coco128-yolov8n-seg_output.torchscript.ptl]",
     "format":   "TorchScript v1.6",
     "assert":   "model.graphs[0].nodes[0].inputs[1].value.type.name == '__torch__.torch.classes.xnnpack.Conv2dOpContext'",
-    "link":     "https://github.com/lutzroeder/netron/issues/1067"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
@@ -6013,7 +6013,7 @@
     "source":   "https://github.com/lutzroeder/netron/files/11149538/model.ptl.zip[model.ptl]",
     "format":   "TorchScript v1.6",
     "assert":   "model.graphs[0].nodes[0].inputs[1].type == 'object'",
-    "link":     "https://github.com/lutzroeder/netron/issues/1067"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
@@ -6715,7 +6715,7 @@
     "source":   "https://github.com/user-attachments/files/16121906/TestSerialization.test_lstm.traced.pt.zip[TestSerialization.test_lstm.traced.pt]",
     "format":   "TorchScript v1.6",
     "assert":   "model.graphs[0].nodes[4].inputs[2].value[0].inputs[0].value == 'quantized_dynamic'",
-    "link":     "https://github.com/lutzroeder/netron/issues/1067"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
@@ -6723,7 +6723,7 @@
     "source":   "https://github.com/lutzroeder/netron/files/10867120/TFModel_traced_eager_quant.pt.zip[TFModel_traced_eager_quant.pt]",
     "format":   "TorchScript v1.6",
     "assert":   "model.graphs[0].nodes.length == 46",
-    "link":     "https://github.com/lutzroeder/netron/issues/1067"
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
@@ -6865,6 +6865,14 @@
     "source":   "https://github.com/lutzroeder/netron/files/5611259/UNet.pt.zip[UNet.pt]",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/637"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "unknown_type_name.pt",
+    "source":   "https://github.com/user-attachments/files/21330384/unknown_type_name.pt.zip[unknown_type_name.pt]",
+    "format":   "TorchScript v1.6",
+    "error":    "Unknown type name '__torch__.models.test_model.TestModel'.\nUnknown type name '__torch__.models.test_model.TestModel'.\nUnknown type name '__torch__.models.test_model.CustomLayer'.\nUnknown type name '__torch__.models.test_model.___torch_mangle_2.CustomLayer'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
