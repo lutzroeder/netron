@@ -6884,6 +6884,8 @@ python.Execution = class {
         this.registerType('torch.distributions.beta.Beta', class {});
         this.registerType('torch.distributions.binomial.Binomial', class {});
         this.registerType('torch.distributions.categorical.Categorical', class {});
+        this.registerType('torch.distributions.constraints._GreaterThan', class {});
+        this.registerType('torch.distributions.constraints._Interval', class {});
         this.registerType('torch.distributions.constraints._LowerCholesky', class {});
         this.registerType('torch.distributions.constraints._Real', class {});
         this.registerType('torch.distributions.dirichlet.Dirichlet', class {});
