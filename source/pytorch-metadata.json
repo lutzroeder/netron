@@ -846,6 +846,9 @@
     "name": "aten::_coalesce(Tensor self) -> Tensor"
   },
   {
+    "name": "aten::_coalesced_(Tensor(a!) self, bool coalesced) -> Tensor(a!)"
+  },
+  {
     "name": "aten::_conj(Tensor(a) self) -> Tensor(a)"
   },
   {
@@ -876,6 +879,12 @@
   },
   {
     "name": "aten::_dim_arange(Tensor like, int dim) -> Tensor"
+  },
+  {
+    "name": "aten::_embedding_bag(Tensor weight, Tensor indices, Tensor offsets, bool scale_grad_by_freq=False, int mode=0, bool sparse=False, Tensor? per_sample_weights=None, bool include_last_offset=False, int padding_idx=-1) -> (Tensor, Tensor, Tensor, Tensor)"
+  },
+  {
+    "name": "aten::_embedding_bag.out(Tensor weight, Tensor indices, Tensor offsets, bool scale_grad_by_freq=False, int mode=0, bool sparse=False, Tensor? per_sample_weights=None, bool include_last_offset=False, int padding_idx=-1, *, Tensor(a!) out0, Tensor(b!) out1, Tensor(c!) out2, Tensor(d!) out3) -> (Tensor(a!), Tensor(b!), Tensor(c!), Tensor(d!))"
   },
   {
     "name": "aten::_fake_quantize_learnable_per_tensor_affine(Tensor self, Tensor scale, Tensor zero_point, int quant_min, int quant_max, float grad_factor=1.) -> Tensor",
@@ -7661,6 +7670,9 @@
   },
   {
     "name": "prim::unchecked_unwrap_optional(t(a)? optional) -> t(a)"
+  },
+  {
+    "name": "profiler::_record_function_enter_new(str name, str? args=None) -> __torch__.torch.classes.profiler._RecordFunction"
   },
   {
     "name": "quantized::add(Tensor qa, Tensor qb, float scale, int zero_point) -> Tensor qc"
