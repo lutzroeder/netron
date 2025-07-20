@@ -866,15 +866,15 @@ view.View = class {
 
     async renderGraph(model, graph, signature, options) {
         this._graph = null;
-        const document = this._host.document;
-        const window = this._host.window;
         const canvas = this._element('canvas');
         while (canvas.lastChild) {
             canvas.removeChild(canvas.lastChild);
         }
-        if (!graph) {
+        if (!graph || graph.type === 'tokenizer' || graph.type === 'vocabulary') {
             return '';
         }
+        const document = this._host.document;
+        const window = this._host.window;
         this._zoom = 1;
         const groups = graph.groups || false;
         const nodes = graph.nodes;
@@ -1119,6 +1119,12 @@ view.View = class {
                     break;
                 case 'weights':
                     title = 'Weights Properties';
+                    break;
+                case 'tokenizer':
+                    title = 'Tokenizer Properties';
+                    break;
+                case 'vocabulary':
+                    title = 'Vocabulary Properties';
                     break;
                 default:
                     throw new view.Error(`Unsupported graph type '${type}'.`);
@@ -2731,13 +2737,13 @@ view.TargetSelector = class extends view.Control {
                 }
             }
         };
-        const graphs = [];
+        const modules = [];
         const signatures = [];
         const functions = [];
         if (model && Array.isArray(model.modules)) {
             for (const graph of model.modules) {
                 const name = graph.name || '(unnamed)';
-                graphs.push({ name, target: graph, signature: null });
+                modules.push({ name, target: graph, signature: null });
                 if (Array.isArray(graph.functions)) {
                     for (const func of graph.functions) {
                         functions.push({ name: `${name}.${func.name}`, target: func, signature: null });
@@ -2755,10 +2761,10 @@ view.TargetSelector = class extends view.Control {
                 functions.push({ name: func.name, target: func, signature: null });
             }
         }
-        section('Graphs', graphs);
+        section('Modules', modules);
         section('Signatures', signatures);
         section('Functions', functions);
-        const visible = functions.length > 0 || signatures.length > 0 || graphs.length > 1;
+        const visible = functions.length > 0 || signatures.length > 0 || modules.length > 1;
         this._element.style.display = visible ? 'inline' : 'none';
     }
 };
@@ -6216,6 +6222,7 @@ view.ModelFactoryService = class {
         this.register('./qnn', ['.json', '.bin', '.serialized', '.dlc']);
         this.register('./kann', ['.kann', '.bin', '.kgraph'], [], [/^....KaNN/]);
         this.register('./xgboost', ['.xgb', '.xgboost', '.json', '.model', '.bin', '.txt'], [], [/^{L\x00\x00/, /^binf/, /^bs64/, /^\s*booster\[0\]:/]);
+        this.register('./transformers', ['.json']);
         this.register('', ['.cambricon', '.vnnmodel', '.nnc']);
         /* eslint-enable no-control-regex */
     }
@@ -6343,18 +6350,10 @@ view.ModelFactoryService = class {
                     { name: 'Trace Event data', tags: ['traceEvents'] },
                     { name: 'Trace Event data', tags: ['[].pid', '[].ph'] },
                     { name: 'Diffusers configuration', tags: ['_class_name', '_diffusers_version'] },
-                    { name: 'Transformers configuration', tags: ['architectures', 'model_type'] }, // https://huggingface.co/docs/transformers/en/create_a_model
                     { name: 'Transformers generation configuration', tags: ['transformers_version'] },
-                    { name: 'Transformers tokenizer configuration', tags: ['tokenizer_class'] },
-                    { name: 'Transformers tokenizer configuration', tags: ['bos_token', 'eos_token', 'unk_token'] },
-                    { name: 'Transformers tokenizer configuration', tags: ['bos_token', 'eos_token', 'pad_token'] },
-                    { name: 'Transformers tokenizer configuration', tags: ['additional_special_tokens'] },
-                    { name: 'Transformers tokenizer configuration', tags: ['special_tokens_map_file'] },
-                    { name: 'Transformers tokenizer configuration', tags: ['full_tokenizer_file'] },
                     { name: 'Transformers vocabulary data', tags: ['<|im_start|>'] },
                     { name: 'Transformers vocabulary data', tags: ['<|endoftext|>'] },
                     { name: 'Transformers preprocessor configuration', tags: ['crop_size', 'do_center_crop', 'image_mean', 'image_std', 'do_resize'] },
-                    { name: 'Tokenizers data', tags: ['version', 'added_tokens', 'model'] }, // https://github.com/huggingface/tokenizers/blob/main/tokenizers/src/tokenizer/serialization.rs
                     { name: 'Tokenizer data', tags: ['<eos>', '<bos>'] },
                     { name: 'Jupyter Notebook data', tags: ['cells', 'nbformat'] },
                     { name: 'Kaggle credentials', tags: ['username','key'] },
@@ -6719,7 +6718,7 @@ view.ModelFactoryService = class {
     _filter(context) {
         const identifier = context.identifier.toLowerCase().split('/').pop();
         const stream = context.stream;
-        if (stream) {
+        if (stream && stream.length < 0x7FFFFFFF) {
             const buffer = stream.peek(Math.min(4096, stream.length));
             const content = String.fromCharCode.apply(null, buffer);
             const list = this._factories.filter((entry) =>

@@ -5,7 +5,7 @@ acuity.ModelFactory = class {
 
     async match(context) {
         const obj = await context.peek('json');
-        if (obj && obj.MetaData && obj.Layers) {
+        if (obj && obj.MetaData && obj.Layers && Object.keys(obj).length < 256) {
             return context.set('acuity', obj);
         }
         return null;

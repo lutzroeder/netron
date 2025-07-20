@@ -148,7 +148,6 @@ json.TextReader = class {
                     const key = this._string();
                     switch (key) {
                         case '__proto__':
-                        case 'constructor':
                             throw new json.Error(`Invalid key '${key}' ${this._location()}`);
                         default:
                             break;

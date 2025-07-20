@@ -175,13 +175,6 @@
   },
   {
     "type":     "_",
-    "target":   "tokenizer.json",
-    "source":   "https://github.com/user-attachments/files/16203071/tokenizer.json.zip[tokenizer.json]",
-    "error":    "Invalid file content. File contains Tokenizers data.",
-    "link":     "https://github.com/lutzroeder/netron/issues/458"
-  },
-  {
-    "type":     "_",
     "target":   "sm_uint8_fence.nnc",
     "source":   "https://github.com/lutzroeder/netron/files/12446059/sm_uint8_fence.nnc.zip[sm_uint8_fence.nnc]",
     "error":    "Invalid file content. File contains undocumented NNC data.",
@@ -8462,6 +8455,20 @@
     "source":   "https://raw.githubusercontent.com/cpra/fer-cnn-sota/master/models/vgg.t7",
     "format":   "Torch v7",
     "link":     "https://github.com/cpra/fer-cnn-sota"
+  },
+  {
+    "type":     "transformers",
+    "target":   "Qwen2-7B-Instruct.zip",
+    "source":   "https://github.com/user-attachments/files/21336228/Qwen2-7B-Instruct.zip",
+    "format":   "Transformers",
+    "link":     "https://github.com/lutzroeder/netron/issues/1480"
+  },
+  {
+    "type":     "transformers",
+    "target":   "tokenizer.json",
+    "source":   "https://github.com/user-attachments/files/16203071/tokenizer.json.zip[tokenizer.json]",
+    "format":   "Transformers",
+    "link":     "https://github.com/lutzroeder/netron/issues/1480"
   },
   {
     "type":     "tvm",

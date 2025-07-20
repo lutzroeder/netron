@@ -9,7 +9,7 @@ xgboost.ModelFactory = class {
 
     async match(context) {
         const obj = await context.peek('json');
-        if (obj && obj.learner && obj.version) {
+        if (obj && obj.learner && obj.version && Object.keys(obj).length < 256) {
             return context.set('xgboost.json', obj);
         }
         const stream = context.stream;
