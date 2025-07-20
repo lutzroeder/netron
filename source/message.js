@@ -37,11 +37,12 @@ message.Model = class {
         this.metadata = (data.metadata || []).map((entry) => {
             return { name: entry.name, value: entry.value };
         });
-        this.graphs = (data.graphs || []).map((graph) => new message.Graph(graph));
+        const modules = data.modules || data.graphs || [];
+        this.modules = modules.map((module) => new message.Module(module));
     }
 };
 
-message.Graph = class {
+message.Module = class {
 
     constructor(data) {
         this.inputs = [];

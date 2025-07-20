@@ -38,7 +38,7 @@ sentencepiece.Model = class {
 
     constructor(model) {
         this.format = 'SentencePiece';
-        this.graphs = [new sentencepiece.Graph(model)];
+        this.modules = [new sentencepiece.Graph(model)];
     }
 };
 

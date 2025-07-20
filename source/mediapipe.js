@@ -33,7 +33,7 @@ mediapipe.Model = class {
 
     constructor(config) {
         this.format = 'MediaPipe';
-        this.graphs = [new mediapipe.Graph(config)];
+        this.modules = [new mediapipe.Graph(config)];
     }
 };
 

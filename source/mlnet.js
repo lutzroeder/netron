@@ -32,12 +32,11 @@ mlnet.Model = class {
         if (reader.version && reader.version.length > 0) {
             this.format += ` v${reader.version}`;
         }
-        const graph = new mlnet.Graph(metadata, reader);
-        this.graphs = [graph];
+        this.modules = [new mlnet.Module(metadata, reader)];
     }
 };
 
-mlnet.Graph = class {
+mlnet.Module = class {
 
     constructor(metadata, reader) {
         this.inputs = [];

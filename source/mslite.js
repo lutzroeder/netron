@@ -47,17 +47,17 @@ mslite.Model = class {
 
     constructor(metadata, model) {
         this.name = model.name || '';
-        this.graphs = [];
+        this.modules = [];
         const version = model.version ? model.version.match(/^.*(\d\.\d\.\d)$/) : null;
         this.format = `MindSpore Lite${version ? ` v${version[1]}` : ''}`;
         const subgraphs = model.subGraph;
         if (Array.isArray(subgraphs)) {
             for (const subgraph of subgraphs) {
-                this.graphs.push(new mslite.Graph(metadata, subgraph, model));
+                this.modules.push(new mslite.Graph(metadata, subgraph, model));
             }
         } else {
             const graph = new mslite.Graph(metadata, model, model);
-            this.graphs.push(graph);
+            this.modules.push(graph);
         }
     }
 };

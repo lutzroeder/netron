@@ -259,7 +259,7 @@ mxnet.Model = class {
         if (manifest.license) {
             this.metadata.push(new mxnet.Argument('license', manifest.license));
         }
-        this.graphs = [new mxnet.Graph(metadata, manifest, symbol, params)];
+        this.modules = [new mxnet.Graph(metadata, manifest, symbol, params)];
     }
 };
 

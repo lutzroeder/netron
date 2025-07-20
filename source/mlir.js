@@ -54,12 +54,12 @@ mlir.Model = class {
 
     constructor(metadata, obj) {
         this.format = 'MLIR';
-        this.graphs = [];
+        this.modules = [];
         this.metadata = [];
         for (const op of obj.operations) {
             if (op.name.endsWith('.func')) {
                 const graph = new mlir.Graph(metadata, op);
-                this.graphs.push(graph);
+                this.modules.push(graph);
             }
             if (op.name.endsWith('.module')) {
                 for (const region of op.regions) {
@@ -67,7 +67,7 @@ mlir.Model = class {
                         for (const op of block.operations) {
                             if (op.name.endsWith('.func')) {
                                 const graph = new mlir.Graph(metadata, op);
-                                this.graphs.push(graph);
+                                this.modules.push(graph);
                             }
                         }
                     }

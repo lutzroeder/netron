@@ -32,11 +32,11 @@ executorch.Model = class {
 
     constructor(target) {
         this.format = `ExecuTorch v${target.program.version}`;
-        this.graphs = [];
+        this.modules = [];
         for (const plan of target.program.execution_plan) {
             for (const chain of plan.chains) {
                 const graph = new executorch.Graph(target, plan, chain);
-                this.graphs.push(graph);
+                this.modules.push(graph);
             }
         }
     }
@@ -936,7 +936,7 @@ coreml.Reader = class {
                 /* eslint-disable no-await-in-loop */
                 const model = await factory.open(context);
                 /* eslint-enable no-await-in-loop */
-                [this.type] = model.graphs;
+                [this.type] = model.modules;
                 this.type.name = 'CoreMLBackend';
                 return;
             }

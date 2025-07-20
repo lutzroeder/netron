@@ -702,8 +702,8 @@ view.View = class {
             }
             await this._timeout(20);
             const stack = [];
-            if (Array.isArray(model.graphs) && model.graphs.length > 0) {
-                const [graph] = model.graphs;
+            if (Array.isArray(model.modules) && model.modules.length > 0) {
+                const [graph] = model.modules;
                 const signature = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null;
                 stack.push({ target: graph, signature });
             } else if (Array.isArray(model.functions) && model.functions.length > 0) {
@@ -2734,8 +2734,8 @@ view.TargetSelector = class extends view.Control {
         const graphs = [];
         const signatures = [];
         const functions = [];
-        if (model && Array.isArray(model.graphs)) {
-            for (const graph of model.graphs) {
+        if (model && Array.isArray(model.modules)) {
+            for (const graph of model.modules) {
                 const name = graph.name || '(unnamed)';
                 graphs.push({ name, target: graph, signature: null });
                 if (Array.isArray(graph.functions)) {

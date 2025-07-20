@@ -230,7 +230,7 @@ openvino.Model = class {
 
     constructor(metadata, net, bin) {
         this.name = net.name || '';
-        this.graphs = [new openvino.Graph(metadata, net, bin)];
+        this.modules = [new openvino.Graph(metadata, net, bin)];
         this.format = 'OpenVINO IR';
     }
 };

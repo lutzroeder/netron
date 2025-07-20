@@ -56,7 +56,7 @@ dl4j.Model = class {
 
     constructor(metadata, configuration, coefficients) {
         this.format = 'Deeplearning4j';
-        this.graphs = [new dl4j.Graph(metadata, configuration, coefficients)];
+        this.modules = [new dl4j.Graph(metadata, configuration, coefficients)];
     }
 };
 

@@ -75,7 +75,7 @@ gguf.Model = class {
                 graph.layers.push(tokenizer);
             }
         }
-        this.graphs = [new gguf.Graph(graph)];
+        this.modules = [new gguf.Graph(graph)];
     }
 };
 

@@ -59,7 +59,7 @@ armnn.Model = class {
 
     constructor(metadata, model) {
         this.format = 'Arm NN';
-        this.graphs = [new armnn.Graph(metadata, model)];
+        this.modules = [new armnn.Graph(metadata, model)];
     }
 };
 

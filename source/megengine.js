@@ -72,7 +72,7 @@ megengine.Model = class {
         } else if (type === 'megengine.mge') {
             this.format += ` Mge${obj.model_version ? ` v${obj.model_version}` : ''}`;
         }
-        this.graphs = [new megengine.Graph(metadata, obj)];
+        this.modules = [new megengine.Graph(metadata, obj)];
     }
 };
 

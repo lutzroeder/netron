@@ -53,15 +53,15 @@ pytorch.Model = class {
     constructor(metadata, target) {
         this.format = target.format;
         this.producer = target.producer || '';
-        this.graphs = [];
+        this.modules = [];
         if (target.module) {
             const graph = new pytorch.Graph(target.execution, metadata, null, '', target.module);
-            this.graphs.push(graph);
+            this.modules.push(graph);
             delete target.execution;
         } else if (target.modules) {
             for (const [name, value] of target.modules) {
                 const graph = new pytorch.Graph(target.execution, metadata, null, name, value);
-                this.graphs.push(graph);
+                this.modules.push(graph);
                 delete target.execution;
             }
         }

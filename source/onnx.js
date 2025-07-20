@@ -48,7 +48,7 @@ onnx.Model = class {
 
     constructor(metadata, target) {
         const model = target.model;
-        this._graphs = [];
+        this._modules = [];
         this._format = target.format;
         this._producer = model.producer_name && model.producer_name.length > 0 ? model.producer_name + (model.producer_version && model.producer_version.length > 0 ? ` ${model.producer_version}` : '') : null;
         this._domain = model.domain;
@@ -118,7 +118,7 @@ onnx.Model = class {
         const context = new onnx.Context.Model(metadata, target.locations, imageFormat, imports, model.graph, model.functions);
         const graph = context.graph(null);
         if (graph) {
-            this._graphs.push(graph);
+            this._modules.push(graph);
         }
         this._functions = context.functions;
     }
@@ -155,8 +155,8 @@ onnx.Model = class {
         return this._metadata;
     }
 
-    get graphs() {
-        return this._graphs;
+    get modules() {
+        return this._modules;
     }
 
     get functions() {

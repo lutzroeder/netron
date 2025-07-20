@@ -65,7 +65,7 @@ tvm.Model = class {
 
     constructor(metadata, obj, params) {
         this.format = 'TVM';
-        this.graphs = [new tvm.Graph(metadata, obj, params)];
+        this.modules = [new tvm.Graph(metadata, obj, params)];
     }
 };
 

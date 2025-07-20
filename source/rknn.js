@@ -52,7 +52,7 @@ rknn.Model = class {
                 this.name = model.name || '';
                 this.producer = model.ori_network_platform || model.network_platform || '';
                 this.runtime = model.target_platform ? model.target_platform.join(',') : '';
-                this.graphs = [new rknn.Graph(metadata, type, model.name || '', model, container)];
+                this.modules = [new rknn.Graph(metadata, type, model.name || '', model, container)];
                 break;
             }
             case 'flatbuffers': {
@@ -60,14 +60,14 @@ rknn.Model = class {
                 this.format = `RKNN Lite${version ? ` v${version}` : ''}`;
                 this.runtime = model.runtime;
                 this.name = model.name || '';
-                this.graphs = model.graphs.map((graph) => new rknn.Graph(metadata, type, '', graph, null));
+                this.modules = model.graphs.map((graph) => new rknn.Graph(metadata, type, '', graph, null));
                 this.source = model.source;
                 break;
             }
             case 'openvx': {
                 this.format = 'RKNN OpenVX';
                 this.name = model.name || '';
-                this.graphs = [new rknn.Graph(metadata, type, '', model, container)];
+                this.modules = [new rknn.Graph(metadata, type, '', model, container)];
                 break;
             }
             default: {

@@ -57,7 +57,7 @@ flux.Model = class {
 
     constructor(/* root */) {
         this.format = 'Flux';
-        this.graphs = [];
+        this.modules = [];
     }
 };
 

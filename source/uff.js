@@ -74,7 +74,7 @@ uff.Model = class {
                 }
             }
         }
-        this.graphs = meta_graph.graphs.map((graph) => new uff.Graph(metadata, graph));
+        this.modules = meta_graph.graphs.map((graph) => new uff.Graph(metadata, graph));
     }
 };
 

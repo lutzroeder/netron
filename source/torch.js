@@ -39,7 +39,7 @@ torch.Model = class {
 
     constructor(metadata, graphs) {
         this.format = 'Torch v7';
-        this.graphs = graphs.map((graph, index) => new torch.Graph(metadata, index.toString(), graph));
+        this.modules = graphs.map((graph, index) => new torch.Graph(metadata, index.toString(), graph));
     }
 };
 

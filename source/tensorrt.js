@@ -30,7 +30,7 @@ tensorrt.Model = class {
 
     constructor(metadata, model) {
         this.format = model.format;
-        this.graphs = [new tensorrt.Graph(metadata, model)];
+        this.modules = [new tensorrt.Graph(metadata, model)];
     }
 };
 

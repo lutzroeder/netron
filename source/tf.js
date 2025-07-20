@@ -702,7 +702,7 @@ tf.Model = class {
     constructor(metadata, model, format, producer, bundle) {
         this.format = format;
         this.producer = producer || '';
-        this.graphs = [];
+        this.modules = [];
         if (model) {
             for (let i = 0; i < model.meta_graphs.length; i++) {
                 const meta_graph = model.meta_graphs[i];
@@ -713,11 +713,11 @@ tf.Model = class {
                     name = i.toString();
                 }
                 const graph = new tf.Graph(metadata, meta_graph, name, bundle);
-                this.graphs.push(graph);
+                this.modules.push(graph);
             }
         } else {
             const graph = new tf.Graph(metadata, null, '', bundle);
-            this.graphs.push(graph);
+            this.modules.push(graph);
         }
     }
 };

@@ -66,9 +66,7 @@ tnn.Model = class {
 
     constructor(metadata, tnnproto, resources) {
         this.format = 'TNN';
-        this.graphs = [
-            new tnn.Graph(metadata, tnnproto, resources)
-        ];
+        this.modules = [new tnn.Graph(metadata, tnnproto, resources)];
     }
 };
 

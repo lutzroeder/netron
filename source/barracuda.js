@@ -29,7 +29,7 @@ barracuda.Model = class {
     constructor(metadata, model) {
         const version = model.version.toString();
         this.format = `Barracuda v${version}`;
-        this.graphs = [new barracuda.Graph(metadata, model)];
+        this.modules = [new barracuda.Graph(metadata, model)];
     }
 };
 

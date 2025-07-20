@@ -110,7 +110,7 @@ cntk.Model = class {
             default:
                 throw new cntk.Error(`Unsupported CNTK version '${version}'.`);
         }
-        this.graphs = [new cntk.Graph(metadata, version, obj)];
+        this.modules = [new cntk.Graph(metadata, version, obj)];
     }
 };
 

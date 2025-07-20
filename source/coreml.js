@@ -212,7 +212,7 @@ coreml.Model = class {
     constructor(context) {
         this.format = context.format;
         this.metadata = Array.from(context.metadata);
-        this.graphs = context.graphs.map((context) => new coreml.Graph(context));
+        this.modules = context.graphs.map((context) => new coreml.Graph(context));
         this.functions = context.functions.map((context) => new coreml.Graph(context));
         if (context.version) {
             this.version = context.version;

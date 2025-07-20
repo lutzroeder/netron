@@ -21,7 +21,7 @@ imgdnn.Model = class {
 
     constructor(metadata, model) {
         this.format = 'IMGDNN';
-        this.graphs = [new imgdnn.Graph(metadata, model)];
+        this.modules = [new imgdnn.Graph(metadata, model)];
     }
 };
 

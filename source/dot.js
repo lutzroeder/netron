@@ -41,7 +41,7 @@ dot.Model = class {
 
     constructor(graph) {
         this.format = 'DOT';
-        this.graphs = [new dot.Graph(graph)];
+        this.modules = [new dot.Graph(graph)];
     }
 };
 

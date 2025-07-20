@@ -81,7 +81,7 @@ qnn.Model = class {
         if (obj.copyright_str) {
             this.metadata.push(new qnn.Argument('License', obj.copyright_str));
         }
-        this.graphs = [new qnn.Graph(metadata, obj.graph, weights)];
+        this.modules = [new qnn.Graph(metadata, obj.graph, weights)];
     }
 };
 

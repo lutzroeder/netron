@@ -36,7 +36,7 @@ bigdl.Model = class {
     constructor(metadata, module) {
         const version = module && module.version ? module.version : '';
         this.format = `BigDL${version ? ` v${version}` : ''}`;
-        this.graphs = [new bigdl.Graph(metadata, module)];
+        this.modules = [new bigdl.Graph(metadata, module)];
     }
 };
 

@@ -45,7 +45,7 @@ flax.Model = class {
 
     constructor(obj) {
         this.format = 'Flax';
-        this.graphs = [new flax.Graph(obj)];
+        this.modules = [new flax.Graph(obj)];
     }
 };
 

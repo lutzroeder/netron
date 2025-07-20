@@ -24,7 +24,7 @@ kmodel.Model = class {
 
     constructor(model) {
         this.format = `kmodel v${model.version}`;
-        this.graphs = model.modules.map((module) => new kmodel.Graph(module));
+        this.modules = model.modules.map((module) => new kmodel.Graph(module));
     }
 };
 

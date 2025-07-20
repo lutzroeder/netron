@@ -69,10 +69,10 @@ circle.ModelFactory = class {
 circle.Model = class {
 
     constructor(metadata, model, stream) {
-        this.graphs = [];
         this.format = 'Circle';
         this.format = `${this.format} v${model.version}`;
         this.description = model.description || '';
+        this.modules = [];
         this.metadata = [];
         const builtinOperators = new Map();
         const upperCase = new Set(['2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM']);
@@ -157,7 +157,7 @@ circle.Model = class {
             const subgraphMetadata = subgraphsMetadata && i < subgraphsMetadata.length ? subgraphsMetadata[i] : null;
             const signatures = model.signature_defs.filter((signature) => signature.subgraph_index === i);
             const graph = new circle.Graph(metadata, subgraph, signatures, subgraphMetadata, name, operators, model, stream);
-            this.graphs.push(graph);
+            this.modules.push(graph);
         }
     }
 };

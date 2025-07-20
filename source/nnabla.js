@@ -79,7 +79,7 @@ nnabla.Model = class {
 
     constructor(metadata, model, version) {
         this.format = `NNabla${version ? ` v${version}` : ''}`;
-        this.graphs = [];
+        this.modules = [];
         const tensors = new Map(model.parameter.map((parameter) => {
             const name = parameter.variable_name;
             const shape = new nnabla.TensorShape(parameter.shape.dim);
@@ -90,17 +90,17 @@ nnabla.Model = class {
         for (const executor of model.executor) {
             const network = networks.get(executor.network_name);
             const graph = new nnabla.Graph(metadata, network, executor.data_variable, executor.output_variable, tensors);
-            this.graphs.push(graph);
+            this.modules.push(graph);
         }
         for (const optimizer of model.optimizer) {
             const network = networks.get(optimizer.network_name);
             const graph = new nnabla.Graph(metadata, network, optimizer.data_variable, optimizer.loss_variable, tensors);
-            this.graphs.push(graph);
+            this.modules.push(graph);
         }
         for (const monitor of model.monitor) {
             const network = networks.get(monitor.network_name);
             const graph = new nnabla.Graph(metadata, network, monitor.data_variable, monitor.monitor_variable, tensors);
-            this.graphs.push(graph);
+            this.modules.push(graph);
         }
     }
 };

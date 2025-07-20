@@ -45,7 +45,7 @@ lightgbm.Model = class {
 
     constructor(obj, format) {
         this.format = format + (obj && obj.version ? ` ${obj.version}` : '');
-        this.graphs = [new lightgbm.Graph(obj)];
+        this.modules = [new lightgbm.Graph(obj)];
     }
 };
 

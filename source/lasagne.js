@@ -23,7 +23,7 @@ lasagne.Model = class {
 
     constructor(metadata, model) {
         this.format = 'Lasagne';
-        this.graphs = [new lasagne.Graph(metadata, model)];
+        this.modules = [new lasagne.Graph(metadata, model)];
     }
 };
 

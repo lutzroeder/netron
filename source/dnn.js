@@ -34,7 +34,7 @@ dnn.Model = class {
     constructor(metadata, model) {
         this.name = model.name || '';
         this.format = `SnapML${model.version ? ` v${model.version}` : ''}`;
-        this.graphs = [new dnn.Graph(metadata, model)];
+        this.modules = [new dnn.Graph(metadata, model)];
     }
 };
 

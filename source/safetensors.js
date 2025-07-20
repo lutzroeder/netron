@@ -55,11 +55,11 @@ safetensors.Model = class {
 
     constructor(entries) {
         this.format = 'Safetensors';
-        this.graphs = [new safetensors.Graph(entries)];
+        this.modules = [new safetensors.Module(entries)];
     }
 };
 
-safetensors.Graph = class {
+safetensors.Module = class {
 
     constructor(entries) {
         this.inputs = [];

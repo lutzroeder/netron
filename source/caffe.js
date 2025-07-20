@@ -152,7 +152,7 @@ caffe.Model = class {
     constructor(metadata, net) {
         this.name = net.name;
         this.format = 'Caffe';
-        this.graphs = [];
+        this.modules = [];
         let version = -1;
         if (net.layers && net.layers.length > 0) {
             if (net.layers.every((layer) => Object.prototype.hasOwnProperty.call(layer, 'layer'))) {
@@ -179,7 +179,7 @@ caffe.Model = class {
         }
         for (const phase of phases) {
             const graph = new caffe.Graph(metadata, phase, net, version);
-            this.graphs.push(graph);
+            this.modules.push(graph);
         }
     }
 };

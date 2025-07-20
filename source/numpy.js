@@ -22,7 +22,7 @@ numpy.ModelFactory = class {
 
     async open(context) {
         let format = '';
-        const graphs = [];
+        const modules = [];
         switch (context.type) {
             case 'npy': {
                 format = 'NumPy Array';
@@ -37,7 +37,7 @@ numpy.ModelFactory = class {
                     throw new numpy.Error(`Unknown type name '${name}'.`);
                 }
                 const layer = { type: 'numpy.ndarray', parameters: [{ name: 'value', tensor: { name: '', array } }] };
-                graphs.push({ layers: [layer] });
+                modules.push({ layers: [layer] });
                 break;
             }
             case 'npz': {
@@ -59,26 +59,26 @@ numpy.ModelFactory = class {
                         tensor: { name, array }
                     });
                 }
-                graphs.push({ layers: Array.from(layers.values()) });
+                modules.push({ layers: Array.from(layers.values()) });
                 break;
             }
             default: {
                 throw new numpy.Error(`Unsupported NumPy format '${context.type}'.`);
             }
         }
-        return new numpy.Model(format, graphs);
+        return new numpy.Model(format, modules);
     }
 };
 
 numpy.Model = class {
 
-    constructor(format, graphs) {
+    constructor(format, modules) {
         this.format = format;
-        this.graphs = graphs.map((graph) => new numpy.Graph(graph));
+        this.modules = modules.map((module) => new numpy.Module(module));
     }
 };
 
-numpy.Graph = class {
+numpy.Module = class {
 
     constructor(graph) {
         this.name = graph.name || '';

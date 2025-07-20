@@ -47,7 +47,7 @@ dlc.Model = class {
             }
         }
         for (const graph of target.graphs) {
-            this.graphs = [new dlc.Graph(metadata, target.version, graph)];
+            this.modules = [new dlc.Graph(metadata, target.version, graph)];
         }
     }
 };

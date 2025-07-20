@@ -72,7 +72,7 @@ darknet.Model = class {
 
     constructor(metadata, configuration, weights) {
         this.format = 'Darknet';
-        this.graphs = [new darknet.Graph(metadata, configuration, weights)];
+        this.modules = [new darknet.Graph(metadata, configuration, weights)];
     }
 };
 

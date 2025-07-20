@@ -197,8 +197,7 @@ caffe2.Model = class {
         const net = predict_net || init_net;
         this.format = 'Caffe2';
         this.domain = net.domain || null;
-        const graph = new caffe2.Graph(metadata, predict_net, init_net);
-        this.graphs = [graph];
+        this.modules = [new caffe2.Graph(metadata, predict_net, init_net)];
     }
 };
 

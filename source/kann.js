@@ -40,7 +40,7 @@ kann.Model = class {
     constructor(metadata, model, identifier) {
         this.format = 'KaNN';
         this.name = identifier;
-        this.graphs = model.graph.map((graph) => new kann.Graph(metadata, graph));
+        this.modules = model.graph.map((graph) => new kann.Graph(metadata, graph));
     }
 };
 

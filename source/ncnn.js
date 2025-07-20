@@ -191,7 +191,7 @@ ncnn.Model = class {
 
     constructor(metadata, format, param, blobs) {
         this.format = format === 'pnnx' ? 'PNNX' : 'ncnn';
-        this.graphs = [new ncnn.Graph(metadata, format, param, blobs)];
+        this.modules = [new ncnn.Graph(metadata, format, param, blobs)];
     }
 };
 

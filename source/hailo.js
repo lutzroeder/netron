@@ -34,7 +34,7 @@ hailo.Model = class {
 
     constructor(metadata, container) {
         const configuration = container.configuration;
-        this.graphs = [new hailo.Graph(metadata, configuration, container.weights)];
+        this.modules = [new hailo.Graph(metadata, configuration, container.weights)];
         this.name = configuration && configuration.name || "";
         this.format = container.format + (container.metadata && container.metadata.sdk_version ? ` v${container.metadata.sdk_version}` : '');
         this.metadata = [];

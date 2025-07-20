@@ -54,11 +54,11 @@ pickle.Model = class {
 
     constructor(value, format) {
         this.format = format;
-        this.graphs = [new pickle.Graph(null, value)];
+        this.modules = [new pickle.Module(null, value)];
     }
 };
 
-pickle.Graph = class {
+pickle.Module = class {
 
     constructor(type, obj) {
         this.type = type || '';
@@ -104,7 +104,7 @@ pickle.Node = class {
         const weights = pickle.Utility.weights(obj);
         if (weights) {
             const type = this.type.name;
-            this.type = new pickle.Graph('weights', weights);
+            this.type = new pickle.Module('weights', weights);
             this.type.name = type;
             return;
         }

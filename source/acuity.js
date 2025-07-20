@@ -23,7 +23,7 @@ acuity.Model = class {
         this.name = model.MetaData.Name;
         this.format = `Acuity v${model.MetaData.AcuityVersion}`;
         this.runtime = model.MetaData.Platform;
-        this.graphs = [new acuity.Graph(metadata, model, data, quantization)];
+        this.modules = [new acuity.Graph(metadata, model, data, quantization)];
     }
 };
 

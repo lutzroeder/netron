@@ -32,7 +32,7 @@ xmodel.Model = class {
         this.name = graph.graph_name || '';
         this.format = 'xmodel';
         this.producer = graph && graph.graph_attr && graph.graph_attr.origin && graph.graph_attr.origin.string_value ? graph.graph_attr.origin.string_value : '';
-        this.graphs = [new xmodel.Graph(graph)];
+        this.modules = [new xmodel.Graph(graph)];
     }
 };
 

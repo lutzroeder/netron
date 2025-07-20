@@ -35,7 +35,7 @@ om.Model = class {
             signature: target.signature,
             weights: target.weights
         };
-        this.graphs = target.model.graph.map((graph) => new om.Graph(context, graph));
+        this.modules = target.model.graph.map((graph) => new om.Graph(context, graph));
     }
 };
 

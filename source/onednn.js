@@ -23,7 +23,7 @@ onednn.Model = class {
         const version = symbol.version;
         this.format = `oneDNN${version ? ` v${version}` : ''}`;
         this.runtime = `${symbol.engine_kind} ${symbol.fpmath_mode}`;
-        this.graphs = [new onednn.Graph(metadata, symbol)];
+        this.modules = [new onednn.Graph(metadata, symbol)];
     }
 };
 

@@ -518,7 +518,7 @@ keras.Model = class {
         this.runtime = backend;
         this.producer = producer;
         metadata = new keras.GraphMetadata(metadata);
-        this.graphs = [new keras.Graph(metadata, config, weights)];
+        this.modules = [new keras.Graph(metadata, config, weights)];
     }
 };
 

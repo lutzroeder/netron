@@ -816,9 +816,9 @@ export class Target {
             const sidebar = new view.ModelSidebar(this.view, model, graph);
             sidebar.render();
         };
-        for (const graph of model.graphs) {
+        for (const module of model.modules) {
             /* eslint-disable no-await-in-loop */
-            await validateTarget(graph);
+            await validateTarget(module);
             /* eslint-enable no-await-in-loop */
         }
         const functions = model.functions || [];
@@ -830,7 +830,7 @@ export class Target {
     }
 
     async render() {
-        for (const graph of this.model.graphs) {
+        for (const graph of this.model.modules) {
             const signatures = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures : [graph];
             for (const signature of signatures) {
                 /* eslint-disable no-await-in-loop */

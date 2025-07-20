@@ -64,7 +64,7 @@ espresso.Model = class {
     constructor(metadata, reader) {
         this.format = reader.format;
         this.metadata = [];
-        this.graphs = [new espresso.Graph(metadata, reader)];
+        this.modules = [new espresso.Graph(metadata, reader)];
         if (reader.version) {
             this.version = reader.version;
         }

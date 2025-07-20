@@ -64,7 +64,7 @@ mnn.Model = class {
             throw new mnn.Error(`Unsupported model source '${net.sourceType}'.`);
         }
         this.source = sources.get(net.sourceType);
-        this.graphs = [new mnn.Graph(metadata, net)];
+        this.modules = [new mnn.Graph(metadata, net)];
     }
 };
 

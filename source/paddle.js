@@ -284,7 +284,7 @@ paddle.Model = class {
     constructor(metadata, format, desc, tensors) {
         desc = desc && Array.isArray(desc.blocks) ? desc : { blocks: [null] };
         this.format = format;
-        this.graphs = desc.blocks.map((block) => new paddle.Graph(metadata, block, tensors));
+        this.modules = desc.blocks.map((block) => new paddle.Graph(metadata, block, tensors));
     }
 };
 

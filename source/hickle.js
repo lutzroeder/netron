@@ -20,7 +20,7 @@ hickle.Model = class {
 
     constructor(group) {
         this.format = 'Hickle Weights';
-        this.graphs = [new hickle.Graph(group)];
+        this.modules = [new hickle.Graph(group)];
     }
 };
 
