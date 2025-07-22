@@ -1779,8 +1779,7 @@ view.Worker = class {
             this._worker.postMessage(message);
             this._timeout = setTimeout(async () => {
                 await this._host.message(notification, null, 'Cancel');
-                this._terminate();
-                this._cancel();
+                this._cancel(true);
                 delete this._resolve;
                 delete this._reject;
                 resolve({ type: 'cancel' });
@@ -1792,7 +1791,7 @@ view.Worker = class {
         if (!this._worker) {
             this._worker = this._host.worker('./worker');
             this._worker.addEventListener('message', (e) => {
-                this._cancel();
+                this._cancel(false);
                 const message = e.data;
                 const resolve = this._resolve;
                 const reject = this._reject;
@@ -1806,8 +1805,7 @@ view.Worker = class {
                 }
             });
             this._worker.addEventListener('error', (e) => {
-                this._terminate();
-                this._cancel();
+                this._cancel(true);
                 const reject = this._reject;
                 delete this._resolve;
                 delete this._reject;
@@ -1818,14 +1816,12 @@ view.Worker = class {
         }
     }
 
-    _terminate() {
-        if (this._worker) {
+    _cancel(terminate) {
+        terminate = terminate || this._host.type === 'Test';
+        if (this._worker && terminate) {
             this._worker.terminate();
             this._worker = null;
         }
-    }
-
-    _cancel() {
         if (this._timeout >= 0) {
             clearTimeout(this._timeout);
             this._timeout = -1;

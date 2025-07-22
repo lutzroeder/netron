@@ -71,6 +71,10 @@ host.TestHost = class {
         return this._errors;
     }
 
+    get type() {
+        return 'Test';
+    }
+
     environment(name) {
         return this._environment[name];
     }
