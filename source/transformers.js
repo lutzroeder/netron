@@ -136,13 +136,16 @@ transformers.Tokenizer = class {
 
 transformers.Object = class {
 
-    constructor(obj) {
-        this.type = { name: obj.type };
+    constructor(obj, type) {
+        this.type = { name: type || obj.type };
         this.attributes = [];
         for (const [key, value] of Object.entries(obj)) {
             if (key !== 'type') {
                 let argument = null;
-                if (Array.isArray(value) && value.every((item) => typeof item === 'object')) {
+                if (Array.isArray(value) && value.every((item) => typeof item === 'object' && Object.keys(item).length === 1 && typeof Object.entries(item)[0][1] === 'object')) {
+                    const values = value.map((item) => new transformers.Object(Object.entries(item)[0][1], Object.entries(item)[0][0]));
+                    argument = new transformers.Argument(key, values, 'object[]');
+                } else if (Array.isArray(value) && value.every((item) => typeof item === 'object')) {
                     const values = value.map((item) => new transformers.Object(item));
                     argument = new transformers.Argument(key, values, 'object[]');
                 } else {
