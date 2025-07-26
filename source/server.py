@@ -3,6 +3,7 @@
 import errno
 import http.server
 import importlib
+import importlib.metadata
 import json
 import logging
 import os
@@ -15,7 +16,7 @@ import time
 import urllib.parse
 import webbrowser
 
-__version__ = "0.0.0"
+__version__ = importlib.metadata.version(__package__ or __name__)
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,6 @@ class _ContentProvider:
             self.dir = os.path.dirname(path) if os.path.dirname(path) else "."
             self.base = os.path.basename(path)
     def read(self, path):
-        """ Read content """
         if path == self.base and self.data:
             return self.data
         base_dir = os.path.realpath(self.dir)
@@ -63,10 +63,8 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         ".svg": "image/svg+xml"
     }
     def do_HEAD(self):
-        """ Serve a HEAD request """
         self.do_GET()
     def do_GET(self):
-        """ Serve a GET request """
         path = urllib.parse.urlparse(self.path).path
         path = "/index.html" if path == "/" else path
         status_code = 404
@@ -151,7 +149,6 @@ class _HTTPServerThread(threading.Thread):
         self.stop_event.clear()
 
     def stop(self):
-        """ Stop server """
         if self.alive():
             logger.info("Stopping " + self.url)
             self.stop_event.set()
@@ -159,7 +156,6 @@ class _HTTPServerThread(threading.Thread):
             self.terminate_event.wait(1)
 
     def alive(self):
-        """ Check server status """
         value = not self.terminate_event.is_set()
         return value
 

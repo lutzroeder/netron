@@ -1,37 +1,15 @@
-""" Python Server publish script """
-
-import json
 import os
-import re
-import shutil
-import subprocess
 import sys
+
+argv = sys.argv[1:]
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
 dist_dir = os.path.join(root_dir, "dist")
 dist_pypi_dir = os.path.join(dist_dir, "pypi")
-source_dir = os.path.join(root_dir, "source")
-publish_dir = os.path.join(root_dir, "publish")
-
-def _read(path):
-    with open(path, encoding="utf-8") as file:
-        return file.read()
-
-def _write(path, content):
-    with open(path, "w", encoding="utf-8") as file:
-        file.write(content)
-
-def _update(path, regex, value):
-    content = _read(path)
-    def repl(match):
-        return f"{match.group(1)}{value}{match.group(3)}"
-    content = re.sub(regex, repl, content)
-    _write(path, content)
-    if content.find(value) == -1:
-        raise ValueError(f"Failed to update '{path}' with '{value}'.")
 
 def _build():
-    """ Build dist/pypi """
+    import shutil
+    source_dir = os.path.join(root_dir, "source")
     shutil.rmtree(os.path.join(source_dir, "__pycache__"), ignore_errors=True)
     shutil.rmtree(dist_pypi_dir, ignore_errors=True)
     shutil.copytree(source_dir, os.path.join(dist_pypi_dir, "netron"))
@@ -42,35 +20,37 @@ def _build():
     os.remove(os.path.join(dist_pypi_dir, "netron", "app.js"))
 
 def _install():
-    """ Install dist/pypi """
-    args = [ "python", "-m", "pip", "install", dist_pypi_dir ]
-    try:
-        subprocess.run(args, check=False)
-    except (KeyboardInterrupt, SystemExit):
-        pass
+    import pip._internal.cli.main
+    pip._internal.cli.main.main(["install", dist_pypi_dir])
 
 def _version():
-    """ Update version """
-    package = json.loads(_read("./package.json"))
-    _update("./dist/pypi/pyproject.toml",
-        '(version\\s*=\\s*")(.*)(")',
-        package["version"])
-    _update("./dist/pypi/netron/server.py",
-        '(__version__ = ")(.*)(")',
-        package["version"])
-    _update("./dist/pypi/netron/index.html",
-        '(<meta name="version" content=")(.*)(">)',
-        package["version"])
-    _update("./dist/pypi/netron/index.html",
-        '(<meta name="date" content=")(.*)(">)',
-        package["date"])
+    import json
+    import re
+    path = os.path.join(root_dir, "package.json")
+    with open(path, encoding="utf-8") as file:
+        package = json.load(file)
+    version = package["version"]
+    date = package["date"]
+    entries = [
+        ("pyproject.toml", '(version\\s*=\\s*")(.*)(")', version),
+        ("netron/index.html", '(<meta name="version" content=")(.*)(">)', version),
+        ("netron/index.html", '(<meta name="date" content=")(.*)(">)', date)
+    ]
+    for path, regex, value in entries:
+        path = os.path.join(dist_pypi_dir, path)
+        with open(path, encoding="utf-8") as file:
+            content = file.read()
+        content, count = re.subn(regex, rf"\g<1>{value}\g<3>", content)
+        if count == 0:
+            raise ValueError(f"Failed to update '{path}' with '{value}'.")
+        with open(path, "w", encoding="utf-8") as file:
+            file.write(content)
 
 def _start():
     """ Start server """
     sys.path.insert(0, os.path.join(root_dir, "dist", "pypi"))
     __import__("netron").main()
-    sys.args = []
-    del sys.argv[1:]
+    argv.clear()
 
 def main():
     table = {
@@ -79,9 +59,8 @@ def main():
         "version": _version,
         "start": _start
     }
-    sys.args = sys.argv[1:]
-    while len(sys.args) > 0:
-        command = sys.args.pop(0)
+    while len(argv) > 0:
+        command = argv.pop(0)
         del sys.argv[1]
         table[command]()
 
