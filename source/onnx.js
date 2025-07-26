@@ -18,7 +18,8 @@ onnx.ModelFactory = class {
                 onnx.TextReader,
                 onnx.JsonReader,
                 onnx.PickleReader,
-                onnx.DataReader
+                onnx.DataReader,
+                onnx.MetaReader
             ];
             for (const entry of entries) {
                 /* eslint-disable no-await-in-loop */
@@ -40,7 +41,7 @@ onnx.ModelFactory = class {
     }
 
     filter(context, type) {
-        return context.type !== 'onnx.proto' || (type !== 'onnx.data' && type !== 'dot');
+        return context.type !== 'onnx.proto' || (type !== 'onnx.data' && type !== 'onnx.meta' && type !== 'dot');
     }
 };
 
@@ -2830,6 +2831,39 @@ onnx.DataReader = class {
         this.identifier = identifier;
         this.locations = new Map();
         this.locations.set(identifier, context.stream);
+    }
+
+    async read() {
+        const file = this.identifier.substring(0, this.identifier.length - 5);
+        const context = await this.context.fetch(file);
+        const reader = new onnx.ProtoReader(context, 'binary', 'model');
+        reader.locations = this.locations;
+        await reader.read();
+        this.format = reader.format;
+        this.model = reader.model;
+    }
+};
+
+onnx.MetaReader = class {
+
+    static async open(context) {
+        const identifier = context.identifier.toLowerCase();
+        if (identifier.endsWith('.onnx.meta')) {
+            const stream = context.stream;
+            const buffer = context.stream.peek(Math.min(stream.length, 32));
+            const content = String.fromCharCode.apply(null, buffer);
+            if (content.startsWith('fileFormatVersion:') || content.startsWith('- !<AssetImportMetadata/')) {
+                return new onnx.MetaReader(context, identifier);
+            }
+        }
+        return null;
+    }
+
+    constructor(context, identifier) {
+        this.name = 'onnx.meta';
+        this.context = context;
+        this.identifier = identifier;
+        this.locations = new Map();
     }
 
     async read() {
