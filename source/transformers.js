@@ -21,6 +21,12 @@ transformers.ModelFactory = class {
                 obj.special_tokens_map_file || obj.full_tokenizer_file) {
                 return context.set('transformers.tokenizer.config', obj);
             }
+            if (obj.transformers_version && obj.do_sample !== undefined && obj.temperature !== undefined) {
+                return context.set('transformers.generation_config', obj);
+            }
+            if (obj.crop_size !== undefined && obj.do_center_crop !== undefined && obj.image_mean !== undefined && obj.image_std !== undefined && obj.do_resize !== undefined) {
+                return context.set('transformers.preprocessor_config.json', obj);
+            }
             if (context.identifier === 'vocab.json' && Object.keys(obj).length > 256) {
                 return context.set('transformers.vocab', obj);
             }
@@ -41,39 +47,18 @@ transformers.ModelFactory = class {
             }
             return null;
         };
-        switch (context.type) {
-            case 'transformers.config': {
-                const tokenizer = await fetch('tokenizer.json');
-                const tokenizer_config = await fetch('tokenizer_config.json');
-                const vocab = await fetch('vocab.json');
-                return new transformers.Model(context, tokenizer, tokenizer_config, vocab);
-            }
-            case 'transformers.tokenizer': {
-                const config = await fetch('config.json');
-                const tokenizer_config = await fetch('tokenizer_config.json');
-                const vocab = await fetch('vocab.json');
-                return new transformers.Model(config, context, tokenizer_config, vocab);
-            }
-            case 'transformers.tokenizer.config': {
-                const config = await fetch('config.json');
-                const tokenizer = await fetch('tokenizer.json');
-                const vocab = await fetch('vocab.json');
-                return new transformers.Model(config, tokenizer, context, vocab);
-            }
-            case 'transformers.vocab': {
-                const config = await fetch('config.json');
-                const tokenizer = await fetch('tokenizer.json');
-                const tokenizer_config = await fetch('tokenizer_config.json');
-                return new transformers.Model(config, tokenizer, tokenizer_config, context);
-            }
-            default: {
-                throw new transformers.Error(`Unsupported Transformers format '${context.type}'.`);
-            }
-        }
+        const type = context.type;
+        const config = type === 'transformers.config' ? context : await fetch('config.json');
+        const tokenizer = type === 'transformers.tokenizer' ? context : await fetch('tokenizer.json');
+        const tokenizer_config = type === 'transformers.tokenizer.config' ? context : await fetch('tokenizer_config.json');
+        const vocab = type === 'transformers.vocab' ? context : await fetch('vocab.json');
+        const generation_config = type === 'transformers.generation_config' ? context : await fetch('generation_config.json');
+        const preprocessor_config = type === 'transformers.preprocessor_config.json' ? context : await fetch('preprocessor_config.json');
+        return new transformers.Model(config, tokenizer, tokenizer_config, vocab, generation_config, preprocessor_config);
     }
 
     filter(context, type) {
-        return context.type !== 'transformers.config' || (type !== 'transformers.tokenizer' && type !== 'transformers.tokenizer.config' && type !== 'transformers.vocab' && type !== 'safetensors.json');
+        return context.type !== 'transformers.config' || (type !== 'transformers.tokenizer' && type !== 'transformers.tokenizer.config' && type !== 'transformers.vocab' && type !== 'transformers.generation_config' && type !== 'safetensors.preprocessor_config' && type !== 'safetensors.json');
     }
 };
 
