@@ -3534,6 +3534,7 @@ python.Execution = class {
         this.registerType('sklearn.model_selection._split.RepeatedKFold', class {});
         this.registerType('sklearn.model_selection._split.StratifiedKFold', class {});
         this.registerType('sklearn.model_selection._split.StratifiedShuffleSplit', class {});
+        this.registerType('sklearn.model_selection._split.TimeSeriesSplit', class {});
         this.registerType('sklearn.multiclass.OneVsRestClassifier', class {});
         this.registerType('sklearn.multioutput.ClassifierChain', class {});
         this.registerType('sklearn.multioutput.MultiOutputClassifier', class {});
@@ -7161,6 +7162,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.intrinsic.quantized.modules.conv_relu.ConvReLU1d', class extends torch.ao.nn.quantized.modules.conv.Conv1d {});
         this.registerType('torch.ao.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class extends torch.ao.nn.quantized.modules.conv.Conv2d {});
         this.registerType('torch.ao.nn.intrinsic.quantized.modules.linear_relu.LinearReLU', class extends torch.ao.nn.quantized.modules.linear.Linear {});
+        this.registerType('torch.ao.nn.intrinsic.quantized.modules.bn_relu.BNReLU2d', class extends torch.ao.nn.quantized.modules.batchnorm.BatchNorm2d {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused._FusedModule', class extends torch.nn.modules.container.Sequential {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused.ConvBn2d', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
         this.registerType('torch.ao.nn.intrinsic.modules.fused.ConvReLU1d', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
@@ -12066,6 +12068,7 @@ python.Execution = class {
             type() {
                 switch (this.tag) {
                     case 'Int': return torch.IntType.get();
+                    case 'String': return torch.StringType.get();
                     case 'Tuple': return torch.TupleType.create(this.value.elements().map((ivalue) => ivalue.type()));
                     case 'Enum': return this.toEnumHolder().type();
                     default: throw new python.Error(`IValue.type('${this.tag}') not implemented.`);
