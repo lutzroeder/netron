@@ -2235,7 +2235,7 @@ python.Execution = class {
                         prefix = c;
                     }
                 } else if (this._get(i + 2) === "'" || this._get(i + 2) === '"') {
-                    const c = this._text.substr(this._position, 2);
+                    const c = this._text.substring(this._position, this._position + 2);
                     const cc = c.toLowerCase();
                     if (cc === 'br' || cc === 'fr' || cc === 'rb' || cc === 'rf' || cc === 'ur') {
                         prefix = c;
@@ -3922,7 +3922,7 @@ python.Execution = class {
                         }
                         case 83: { // STRING 'S'
                             const str = reader.line();
-                            stack.push(str.substr(1, str.length - 2));
+                            stack.push(str.substring(1, str.length - 1));
                             break;
                         }
                         case 84: // BINSTRING 'T'
@@ -12067,8 +12067,12 @@ python.Execution = class {
             }
             type() {
                 switch (this.tag) {
+                    case 'None': return torch.NoneType.get();
+                    case 'Bool': return torch.BoolType.get();
                     case 'Int': return torch.IntType.get();
+                    case 'Double': return torch.FloatType.get();
                     case 'String': return torch.StringType.get();
+                    case 'Device': return torch.DeviceObjType.get();
                     case 'Tuple': return torch.TupleType.create(this.value.elements().map((ivalue) => ivalue.type()));
                     case 'Enum': return this.toEnumHolder().type();
                     default: throw new python.Error(`IValue.type('${this.tag}') not implemented.`);
@@ -13381,7 +13385,7 @@ python.Execution = class {
             }
             for (const entry of torch._C.get_operator_version_map()) {
                 const old_symbol_name = entry.first;
-                const base_name = old_symbol_name.substr(0, old_symbol_name.find('.'));
+                const base_name = old_symbol_name.substring(0, old_symbol_name.find('.'));
                 if (base_name === name) {
                     const possibleUpgrader = torch._C.findUpgrader(entry.second, version.value());
                     if (possibleUpgrader.has_value()) {
@@ -19372,7 +19376,7 @@ python.Execution = class {
         this.registerType('fastai.basic_train.Recorder', class {});
         this.registerFunction('fastai.torch_core._fa_rebuild_tensor', (cls, ...args) => {
             const tensor = torch._utils._rebuild_tensor_v2(...args);
-            return self.invoke(cls, tensor);
+            return self.invoke(cls, [tensor]);
         });
         this.registerFunction('fastai.torch_core.trainable_params');
         this.registerFunction('fastai.torch_core._rebuild_from_type', (func, type, args, dict) => {
