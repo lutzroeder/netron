@@ -2299,6 +2299,7 @@ CoreML.Specification.ArrayFeatureType.ArrayDataType = {
     "FLOAT32": 65568,
     "DOUBLE": 65600,
     "INT32": 131104,
+    "INT8": 131080,
     "FLOAT16": 65552
 };
 

@@ -1483,6 +1483,9 @@ coreml.Utility = class {
                         case ArrayDataType.INT32:
                             dataType = 'int32';
                             break;
+                        case ArrayDataType.INT8:
+                            dataType = 'int8';
+                            break;
                         default:
                             throw new coreml.Error(`Unsupported array data type '${arrayType.dataType}'.`);
                     }
