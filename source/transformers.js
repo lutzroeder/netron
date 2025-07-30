@@ -27,8 +27,13 @@ transformers.ModelFactory = class {
             if (obj.crop_size !== undefined && obj.do_center_crop !== undefined && obj.image_mean !== undefined && obj.image_std !== undefined && obj.do_resize !== undefined) {
                 return context.set('transformers.preprocessor_config.json', obj);
             }
-            if (context.identifier === 'vocab.json' && Object.keys(obj).length > 256) {
-                return context.set('transformers.vocab', obj);
+            if (!Array.isArray(obj) && typeof obj === 'object') {
+                const entries = Object.entries(obj);
+                if (entries.every(([key, value]) => typeof key === 'string' && key.length < 256 && Number.isInteger(value) && value < 0x80000)) {
+                    if (obj["<|im_start|>"] || obj["<|endoftext|>"]) {
+                        return context.set('transformers.vocab', obj);
+                    }
+                }
             }
         }
         return null;
