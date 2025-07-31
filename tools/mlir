@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
+
+
+clean() {
+    echo "mlir clean"
+    rm -rf "./third_party/source/stablehlo"
+}
+
+sync() {
+    echo "mlir sync"
+    if [ ! -d "./third_party/source/stablehlo" ]; then
+        git clone --quiet https://github.com/openxla/stablehlo.git "./third_party/source/stablehlo"
+    fi
+    git -C "./third_party/source/stablehlo" pull --quiet --prune
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+    esac
+done

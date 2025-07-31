@@ -539,7 +539,7 @@ const update = async () => {
         'executorch',
         'gguf',
         'kann', 'keras',
-        'mnn', 'mslite', 'megengine',
+        'mlir', 'mnn', 'mslite', 'megengine',
         'nnabla',
         'onnx', 'om',
         'paddle', 'pytorch',
