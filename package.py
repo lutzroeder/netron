@@ -33,6 +33,7 @@ def _version():
     date = package["date"]
     entries = [
         ("pyproject.toml", '(version\\s*=\\s*")(.*)(")', version),
+        ("netron/server.py", '(__version__\\s=\\s")(.*)(")', version),
         ("netron/index.html", '(<meta name="version" content=")(.*)(">)', version),
         ("netron/index.html", '(<meta name="date" content=")(.*)(">)', date)
     ]
