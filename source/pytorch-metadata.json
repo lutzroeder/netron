@@ -899,6 +899,12 @@
     "category": "Quantization"
   },
   {
+    "name": "aten::_fft_r2c(Tensor self, int[] dim, int normalization, bool onesided) -> Tensor"
+  },
+  {
+    "name": "aten::_fft_r2c.out(Tensor self, int[] dim, int normalization, bool onesided, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::_indices(Tensor(a) self) -> Tensor(a)"
   },
   {
