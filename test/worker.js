@@ -588,7 +588,7 @@ export class Target {
         }
         const modelFactoryService = new view.ModelFactoryService(this.host);
         this.model = await modelFactoryService.open(context);
-        this.view.update(this.model);
+        this.view.model = this.model;
     }
 
     async validate() {
@@ -850,7 +850,7 @@ export class Target {
             const signatures = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures : [graph];
             for (const signature of signatures) {
                 /* eslint-disable no-await-in-loop */
-                await this.view.renderGraph(this.model, graph, signature, this.view.options);
+                await this.view.render(graph, signature);
                 /* eslint-enable no-await-in-loop */
             }
         }

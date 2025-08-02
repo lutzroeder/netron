@@ -20,7 +20,7 @@ view.View = class {
         };
         this._options = { ...this._defaultOptions };
         this._model = null;
-        this._stack = [];
+        this._path = [];
         this._selection = [];
         this._sidebar = new view.Sidebar(this._host);
         this._find = null;
@@ -38,8 +38,8 @@ view.View = class {
             for (const [name, value] of Object.entries(options)) {
                 this._options[name] = value;
             }
-            this._element('sidebar-document-button').addEventListener('click', () => {
-                this.showDocumentProperties();
+            this._element('sidebar-model-button').addEventListener('click', () => {
+                this.showModelProperties();
             });
             this._element('sidebar-target-button').addEventListener('click', () => {
                 this.showTargetProperties();
@@ -59,8 +59,8 @@ view.View = class {
                 }
             }, { passive: true });
             this._host.document.addEventListener('keydown', () => {
-                if (this._graph) {
-                    this._graph.select(null);
+                if (this._target) {
+                    this._target.select(null);
                 }
             });
             if (this._host.type === 'Electron') {
@@ -261,24 +261,24 @@ view.View = class {
     }
 
     find() {
-        if (this._graph && this._sidebar.identifier !== 'find') {
-            this._graph.select(null);
+        if (this._target && this._sidebar.identifier !== 'find') {
+            this._target.select(null);
             const sidebar = new view.FindSidebar(this, this._find, this.activeTarget, this.activeSignature);
             sidebar.on('state-changed', (sender, state) => {
                 this._find = state;
             });
             sidebar.on('select', (sender, value) => {
-                this.scrollTo(this._graph.select([value]));
+                this.scrollTo(this._target.select([value]));
             });
             sidebar.on('focus', (sender, value) => {
-                this._graph.focus([value]);
+                this._target.focus([value]);
             });
             sidebar.on('blur', (sender, value) => {
-                this._graph.blur([value]);
+                this._target.blur([value]);
             });
             sidebar.on('activate', (sender, value) => {
                 this._sidebar.close();
-                this.scrollTo(this._graph.activate(value));
+                this.scrollTo(this._target.activate(value));
             });
             this._sidebar.open(sidebar, 'Find');
         }
@@ -286,6 +286,10 @@ view.View = class {
 
     get model() {
         return this._model;
+    }
+
+    set model(value) {
+        this._model = value;
     }
 
     get options() {
@@ -339,8 +343,8 @@ view.View = class {
 
     _reload() {
         this.show('welcome spinner');
-        if (this._model && this._stack.length > 0) {
-            this._updateTarget(this._model, this._stack).catch((error) => {
+        if (this._model && this._path.length > 0) {
+            this._updateTarget(this._model, this._path).catch((error) => {
                 if (error) {
                     this.error(error, 'Graph update failed.', 'welcome');
                 }
@@ -701,15 +705,15 @@ view.View = class {
                 });
             }
             await this._timeout(20);
-            const stack = [];
+            const path = [];
             if (Array.isArray(model.modules) && model.modules.length > 0) {
                 const [graph] = model.modules;
                 const signature = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null;
-                stack.push({ target: graph, signature });
+                path.push({ target: graph, signature });
             } else if (Array.isArray(model.functions) && model.functions.length > 0) {
-                stack.push({ target: model.functions[0], signature: null });
+                path.push({ target: model.functions[0], signature: null });
             }
-            return await this._updateTarget(model, stack);
+            return await this._updateTarget(model, path);
         } catch (error) {
             error.context = !error.context && context && context.identifier ? context.identifier : error.context || '';
             throw error;
@@ -742,42 +746,38 @@ view.View = class {
     }
 
     get activeTarget() {
-        if (Array.isArray(this._stack) && this._stack.length > 0) {
-            return this._stack[0].target;
+        if (Array.isArray(this._path) && this._path.length > 0) {
+            return this._path[0].target;
         }
         return null;
     }
 
     get activeSignature() {
-        if (Array.isArray(this._stack) && this._stack.length > 0) {
-            return this._stack[0].signature;
+        if (Array.isArray(this._path) && this._path.length > 0) {
+            return this._path[0].signature;
         }
         return null;
     }
 
-    async _updateTarget(model, stack) {
+    async _updateTarget(model, path) {
         const lastModel = this._model;
-        const lastStack = this._stack;
+        const lastPath = this._path;
         try {
-            await this._updateStack(model, stack);
+            await this._updatePath(model, path);
             return this._model;
         } catch (error) {
-            await this._updateStack(lastModel, lastStack);
+            await this._updatePath(lastModel, lastPath);
             throw error;
         }
     }
 
-    update(model) {
-        this._model = model;
-    }
-
-    async _updateStack(model, stack) {
-        this.update(model);
-        this._stack = stack;
-        const status = await this.renderGraph(model, this.activeTarget, this.activeSignature, this._options);
+    async _updatePath(model, stack) {
+        this.model = model;
+        this._path = stack;
+        const status = await this.render(this.activeTarget, this.activeSignature);
         if (status !== '') {
             this.update(null);
-            this._stack = [];
+            this._path = [];
             this._activeTarget = null;
         }
         this.show(null);
@@ -787,11 +787,11 @@ view.View = class {
             path.removeChild(path.lastElementChild);
         }
         if (status === '') {
-            if (this._stack.length <= 1) {
+            if (this._path.length <= 1) {
                 back.style.opacity = 0;
             } else {
                 back.style.opacity = 1;
-                const last = this._stack.length - 2;
+                const last = this._path.length - 2;
                 const count = Math.min(2, last);
                 if (count < last) {
                     const element = this._host.document.createElement('button');
@@ -800,13 +800,13 @@ view.View = class {
                     path.appendChild(element);
                 }
                 for (let i = count; i >= 0; i--) {
-                    const target = this._stack[i].target;
+                    const target = this._path[i].target;
                     const element = this._host.document.createElement('button');
                     element.setAttribute('class', 'toolbar-path-name-button');
                     element.addEventListener('click', async () => {
                         if (i > 0) {
-                            this._stack = this._stack.slice(i);
-                            await this._updateTarget(this._model, this._stack);
+                            this._path = this._path.slice(i);
+                            await this._updateTarget(this._model, this._path);
                         } else {
                             await this.showTargetProperties(target);
                         }
@@ -846,43 +846,44 @@ view.View = class {
     async pushTarget(graph, context) {
         if (graph && graph !== this.activeTarget && Array.isArray(graph.nodes)) {
             this._sidebar.close();
-            if (context && this._stack.length > 0) {
-                this._stack[0].state = { context, zoom: this._zoom };
+            if (context && this._path.length > 0) {
+                this._path[0].state = { context, zoom: this._zoom };
             }
             const signature = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null;
             const entry = { target: graph, signature };
-            const stack = [entry].concat(this._stack);
+            const stack = [entry].concat(this._path);
             await this._updateTarget(this._model, stack);
         }
     }
 
     async popTarget() {
-        if (this._stack.length > 1) {
+        if (this._path.length > 1) {
             this._sidebar.close();
-            return await this._updateTarget(this._model, this._stack.slice(1));
+            return await this._updateTarget(this._model, this._path.slice(1));
         }
         return null;
     }
 
-    async renderGraph(model, graph, signature, options) {
-        this._graph = null;
+    async render(target, signature) {
+        this._target = null;
         const canvas = this._element('canvas');
         while (canvas.lastChild) {
             canvas.removeChild(canvas.lastChild);
         }
-        if (!graph || graph.type === 'tokenizer' || graph.type === 'vocabulary') {
+        if (!target || target.type === 'tokenizer' || target.type === 'vocabulary') {
             return '';
         }
         const document = this._host.document;
         const window = this._host.window;
         this._zoom = 1;
+        const graph = target;
         const groups = graph.groups || false;
         const nodes = graph.nodes;
         this._host.event('graph_view', {
             graph_node_count: nodes.length,
             graph_skip: 0
         });
-        const viewGraph = new view.Graph(this, this._host, model, options, groups);
+        const viewGraph = new view.Graph(this, groups);
         viewGraph.add(graph, signature);
         // Workaround for Safari background drag/zoom issue:
         // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
@@ -934,7 +935,7 @@ view.View = class {
             canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
             canvas.setAttribute('width', width);
             canvas.setAttribute('height', height);
-            const state = this._stack && this._stack.length > 0 && this._stack[0] && this._stack[0].state ? this._stack[0].state : null;
+            const state = this._path && this._path.length > 0 && this._path[0] && this._path[0].state ? this._path[0].state : null;
             this._zoom = state ? state.zoom : 1;
             this._updateZoom(this._zoom);
             const container = this._element('graph');
@@ -969,29 +970,9 @@ view.View = class {
                 const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
                 container.scrollTo({ left, top, behavior: 'auto' });
             }
-            this._graph = viewGraph;
+            this._target = viewGraph;
         }
         return status;
-    }
-
-    applyStyleSheet(element, name) {
-        let rules = [];
-        for (const styleSheet of this._host.document.styleSheets) {
-            if (styleSheet && styleSheet.href && styleSheet.href.endsWith(`/${name}`)) {
-                rules = styleSheet.cssRules;
-                break;
-            }
-        }
-        const nodes = element.getElementsByTagName('*');
-        for (const node of nodes) {
-            for (const rule of rules) {
-                if (node.matches(rule.selectorText)) {
-                    for (const item of rule.style) {
-                        node.style[item] = rule.style[item];
-                    }
-                }
-            }
-        }
     }
 
     async export(file) {
@@ -1000,7 +981,27 @@ view.View = class {
         if (this.activeTarget && (extension === 'png' || extension === 'svg')) {
             const canvas = this._element('canvas');
             const clone = canvas.cloneNode(true);
-            this.applyStyleSheet(clone, 'grapher.css');
+            const document = this._host.document;
+            const applyStyleSheet = (element, name) => {
+                let rules = [];
+                for (const styleSheet of document.styleSheets) {
+                    if (styleSheet && styleSheet.href && styleSheet.href.endsWith(`/${name}`)) {
+                        rules = styleSheet.cssRules;
+                        break;
+                    }
+                }
+                const nodes = element.getElementsByTagName('*');
+                for (const node of nodes) {
+                    for (const rule of rules) {
+                        if (node.matches(rule.selectorText)) {
+                            for (const item of rule.style) {
+                                node.style[item] = rule.style[item];
+                            }
+                        }
+                    }
+                }
+            };
+            applyStyleSheet(clone, 'grapher.css');
             clone.setAttribute('id', 'export');
             clone.removeAttribute('viewBox');
             clone.removeAttribute('width');
@@ -1071,7 +1072,7 @@ view.View = class {
         }
     }
 
-    showDocumentProperties() {
+    showModelProperties() {
         if (!this._model) {
             return;
         }
@@ -1084,6 +1085,10 @@ view.View = class {
     }
 
     showTargetProperties() {
+        if (this._sidebar.identifier === 'target') {
+            this.showModelProperties();
+            return;
+        }
         const target = this.activeTarget;
         if (!target) {
             return;
@@ -1094,19 +1099,19 @@ view.View = class {
                 await this.showDefinition(target);
             });
             sidebar.on('focus', (sender, value) => {
-                this._graph.focus([value]);
+                this._target.focus([value]);
             });
             sidebar.on('blur', (sender, value) => {
-                this._graph.blur([value]);
+                this._target.blur([value]);
             });
             sidebar.on('select', (sender, value) => {
-                this.scrollTo(this._graph.select([value]));
+                this.scrollTo(this._target.select([value]));
             });
             sidebar.on('activate', (sender, value) => {
-                this.scrollTo(this._graph.activate(value));
+                this.scrollTo(this._target.activate(value));
             });
             sidebar.on('deactivate', () => {
-                this._graph.select(null);
+                this._target.select(null);
             });
             let title = null;
             const type = target.type || 'graph';
@@ -1146,16 +1151,16 @@ view.View = class {
                     await this.showDefinition(node.type);
                 });
                 sidebar.on('focus', (sender, value) => {
-                    this._graph.focus([value]);
+                    this._target.focus([value]);
                 });
                 sidebar.on('blur', (sender, value) => {
-                    this._graph.blur([value]);
+                    this._target.blur([value]);
                 });
                 sidebar.on('select', (sender, value) => {
-                    this.scrollTo(this._graph.select([value]));
+                    this.scrollTo(this._target.select([value]));
                 });
                 sidebar.on('activate', (sender, value) => {
-                    this.scrollTo(this._graph.activate(value));
+                    this.scrollTo(this._target.activate(value));
                 });
                 this._sidebar.open(sidebar, 'Node Properties');
             } catch (error) {
@@ -1171,16 +1176,16 @@ view.View = class {
             }
             const sidebar = new view.ConnectionSidebar(this, value, from, to);
             sidebar.on('focus', (sender, value) => {
-                this._graph.focus([value]);
+                this._target.focus([value]);
             });
             sidebar.on('blur', (sender, value) => {
-                this._graph.blur([value]);
+                this._target.blur([value]);
             });
             sidebar.on('select', (sender, value) => {
-                this.scrollTo(this._graph.select([value]));
+                this.scrollTo(this._target.select([value]));
             });
             sidebar.on('activate', (sender, value) => {
-                this.scrollTo(this._graph.activate(value));
+                this.scrollTo(this._target.activate(value));
             });
             this._sidebar.push(sidebar, 'Connection Properties');
         } catch (error) {
@@ -1195,16 +1200,16 @@ view.View = class {
             }
             const sidebar = new view.TensorSidebar(this, value);
             sidebar.on('focus', (sender, value) => {
-                this._graph.focus([value]);
+                this._target.focus([value]);
             });
             sidebar.on('blur', () => {
-                this._graph.blur(null);
+                this._target.blur(null);
             });
             sidebar.on('select', (sender, value) => {
-                this.scrollTo(this._graph.select([value]));
+                this.scrollTo(this._target.select([value]));
             });
             sidebar.on('activate', (sender, value) => {
-                this.scrollTo(this._graph.activate(value));
+                this.scrollTo(this._target.activate(value));
             });
             this._sidebar.push(sidebar, 'Tensor Properties');
         } catch (error) {
@@ -1832,12 +1837,12 @@ view.Worker = class {
 
 view.Graph = class extends grapher.Graph {
 
-    constructor(view, host, model, options, compound) {
+    constructor(view, compound) {
         super(compound);
         this.view = view;
-        this.host = host;
-        this.model = model;
-        this.options = options;
+        this.host = view.host;
+        this.model = view.model;
+        this.options = view.options;
         this.counter = 0;
         this._nodeKey = 0;
         this._values = new Map();
@@ -2259,12 +2264,12 @@ view.Node = class extends grapher.Node {
 
     toggle() {
         this._expand.content = '-';
-        this._graph = new view.Graph(this.context.view, this.context.view.host, this.context.model, this.context.options, false, {});
-        this._graph.add(this.value);
+        this._target = new view.Graph(this.context.view, false);
+        this._target.add(this.value);
         // const document = this.element.ownerDocument;
         // const parent = this.element.parentElement;
-        // this._graph.build(document, parent);
-        // this._graph.update();
+        // this._target.build(document, parent);
+        // this._target.update();
         this.canvas.width = 300;
         this.canvas.height = 300;
         this.layout();
@@ -3948,7 +3953,7 @@ view.FindSidebar = class extends view.Control {
 
     constructor(context, state, graph, signature) {
         super(context);
-        this._graph = graph;
+        this._target = graph;
         this._signature = signature;
         this._state = state || {
             query: '',
@@ -4140,7 +4145,7 @@ view.FindSidebar = class extends view.Control {
     _update() {
         try {
             this._reset();
-            const inputs = this._signature ? this._signature.inputs : this._graph.inputs;
+            const inputs = this._signature ? this._signature.inputs : this._target.inputs;
             if (this._state.connection) {
                 for (const input of inputs) {
                     for (const value of input.value) {
@@ -4148,11 +4153,11 @@ view.FindSidebar = class extends view.Control {
                     }
                 }
             }
-            for (const node of this._graph.nodes) {
+            for (const node of this._target.nodes) {
                 this._node(node);
             }
             if (this._state.connection) {
-                const outputs = this._signature ? this._signature.outputs : this._graph.inputs;
+                const outputs = this._signature ? this._signature.outputs : this._target.inputs;
                 for (const output of outputs) {
                     if (!output.type || output.type.endsWith('*')) {
                         for (const value of output.value) {
@@ -5538,7 +5543,7 @@ metrics.Target = class {
                 const initializers = new Set();
                 if (this._target && Array.isArray(this._target.nodes)) {
                     for (const node of this._target.nodes) {
-                        for (const argument of node.inputs) {
+                        for (const argument of node.inputs || []) {
                             if (argument && Array.isArray(argument.value)) {
                                 for (const value of argument.value) {
                                     if (value && value.initializer) {
