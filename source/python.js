@@ -18757,8 +18757,20 @@ python.Execution = class {
         this.registerType('torch._dynamo.convert_frame.CatchErrorsWrapper', class {});
         this.registerType('torch._dynamo.convert_frame.ConvertFrameAssert', class {});
         this.registerType('torch._dynamo.convert_frame.ConvertFrame', class {});
+        this.registerType('torch._dynamo.convert_frame.ConvertFrameBox', class {});
         this.registerType('torch._dynamo.eval_frame._TorchDynamoContext', class {});
-        this.registerType('torch._dynamo.eval_frame.OptimizedModule', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch._dynamo.eval_frame.OptimizedModule', class extends torch.nn.modules.module.Module {
+            constructor(mod, dynamo_ctx) {
+                builtins.object.__setattr__(self, '_orig_mod', mod);
+                // this._super_module_initialized = false;
+                super();
+                // this._super_module_initialized = true;
+                this._orig_mod = mod;
+                this.dynamo_ctx = dynamo_ctx;
+                // this._initialize();
+                this.training = this._orig_mod.training;
+            }
+        });
         this.registerType('torch._dynamo.eval_frame.OptimizeContext', class extends torch._dynamo.eval_frame._TorchDynamoContext {});
         this.registerType('torch._dynamo.hooks.Hooks', class {});
         this.registerType('torch._dynamo.output_graph.GraphCompileReason', class {});

@@ -5916,6 +5916,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "mlp.torch.compile.pt",
+    "source":   "https://github.com/user-attachments/files/21567136/mlp.torch.compile.pt.zip[mlp.torch.compile.pt]",
+    "format":   "PyTorch v1.6",
+    "assert":   "model.modules[0].nodes[0].inputs[0].name == '_orig_mod'",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "mnist_bfloat16.pt",
     "source":   "https://github.com/lutzroeder/netron/files/8556403/mnist_bfloat16.pt.zip[mnist_bfloat16.pt]",
     "format":   "PyTorch v1.6",
