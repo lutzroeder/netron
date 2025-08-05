@@ -103,7 +103,10 @@ grapher.Graph = class {
         return null;
     }
 
-    build(document, origin) {
+    build(document) {
+
+        const origin = document.getElementById('origin');
+
         const createGroup = (name) => {
             const element = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             element.setAttribute('id', name);
@@ -206,7 +209,7 @@ grapher.Graph = class {
         }
     }
 
-    measure() {
+    async measure() {
         for (const key of this.nodes.keys()) {
             const entry = this.node(key);
             if (this.children(key).length === 0) {

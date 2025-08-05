@@ -21,12 +21,12 @@ body { touch-action: none; overflow: hidden; width: 100%; height: 100%; margin: 
 button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; }
 .center { position: absolute; margin: auto; top: 0; right: 0; bottom: 0; left: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .select { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
-.graph { display: flex; height: 100%; width: 100%; overflow: auto; outline: none; touch-action: pan-x pan-y; }
+.target { display: flex; height: 100%; width: 100%; overflow: auto; outline: none; touch-action: pan-x pan-y; }
 .canvas { margin: auto; flex-shrink: 0; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .open-file-dialog { display: none; }
 .default { background-color: #ffffff; }
 .default .logo { display: none; }
-.default .graph { display: flex; opacity: 1; }
+.default .target { display: flex; opacity: 1; }
 .default .toolbar { display: flex; }
 .toolbar { display: flex; align-items: center; position: absolute; bottom: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar button:focus { outline: 0; }
@@ -75,7 +75,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome { background-color: #ececec; color: #242424; }
 .welcome .message-text { display: none; opacity: 0; }
 .welcome .message-button { display: none; opacity: 0; }
-.welcome .graph { display: none; opacity: 0; }
+.welcome .target { display: none; opacity: 0; }
 .welcome .menu { background-color: #ffffff; }
 .welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
 .welcome.spinner .menu-button { display: none; }
@@ -85,7 +85,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .notification .message-text { display: inline; opacity: 1; }
 .notification .message-button { display: inline; opacity: 1; }
 .alert { background-color: #ececec; color: #242424; }
-.alert .graph { display: none; opacity: 0; }
+.alert .target { display: none; opacity: 0; }
 .alert .toolbar { display: none; opacity: 0; }
 .alert .menu { display: none; opacity: 0; }
 .alert .logo { display: none; opacity: 0; }
@@ -134,13 +134,13 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
 .welcome.spinner .logo-name { display: none; }
 .welcome.spinner .open-file-button { display: none; }
-.welcome.spinner .graph { display: flex; opacity: 0; }
+.welcome.spinner .target { display: flex; opacity: 0; }
 .welcome .notification .logo-name { display: none; }
 .welcome .toolbar { display: none; }
 @media (prefers-color-scheme: dark) {
 :root { color-scheme: dark; }
 .default { background-color: #404040; }
-.graph { background-color: #404040; }
+.target { background-color: #404040; }
 .welcome { background-color: #1e1e1e; color: #888888; }
 .alert { background-color: #1e1e1e; color: #888888; }
 .logo-stroke { stroke: #888888; }
@@ -302,7 +302,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 </style>
 </head>
 <body class="welcome spinner">
-<div id="graph" class="graph" tabindex="0">
+<div id="target" class="target" tabindex="0">
     <svg id="canvas" class="canvas" preserveaspectratio="xMidYMid meet" width="100%" height="100%"></svg>
 </div>
 <div id="sidebar" class="sidebar">

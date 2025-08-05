@@ -216,8 +216,8 @@ desktop.Host = class {
         });
         electron.ipcRenderer.on('window-state', (sender, data) => {
             if (this._environment.titlebar) {
-                this._element('graph').style.marginTop = '32px';
-                this._element('graph').style.height = 'calc(100% - 32px)';
+                this._element('target').style.marginTop = '32px';
+                this._element('target').style.height = 'calc(100% - 32px)';
                 this._element('sidebar-title').style.marginTop = '24px';
                 this._element('sidebar-closebutton').style.marginTop = '24px';
                 this._element('titlebar').classList.add('titlebar-visible');
