@@ -110,7 +110,7 @@ barracuda.Node = class {
         } else if (layer.inputs) {
             for (let i = 0; i < layer.inputs.length; i++) {
                 const input = layer.inputs[i];
-                const name = inputs.length > 0 ? inputs.shift().name : i.toString();
+                const name = inputs.length > 0 && inputs[0] ? inputs.shift().name : i.toString();
                 const argument = new barracuda.Argument(name, [values.map(input)]);
                 this.inputs.push(argument);
             }
@@ -119,7 +119,7 @@ barracuda.Node = class {
             for (let i = 0; i < layer.tensors.length; i++) {
                 const tensor = layer.tensors[i];
                 const initializer = new barracuda.Tensor(tensor);
-                const name = inputs.length > 0 ? inputs.shift().name : i.toString();
+                const name = inputs.length > 0 && inputs[0] ? inputs.shift().name : i.toString();
                 const argument = new barracuda.Argument(name, [values.map(tensor.name, initializer.type, initializer)]);
                 this.inputs.push(argument);
             }
