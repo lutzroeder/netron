@@ -823,10 +823,6 @@ export class Target {
         };
         const validateTarget = async (target) => {
             switch (target.type) {
-                case 'tokenizer':
-                case 'vocabulary': {
-                    break;
-                }
                 default: {
                     await validateGraph(target);
                 }

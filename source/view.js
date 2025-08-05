@@ -240,9 +240,9 @@ view.View = class {
         this._host.document.body.classList.remove(...Array.from(this._host.document.body.classList).filter((_) => _ !== 'active'));
         this._host.document.body.classList.add(...page.split(' '));
         if (page === 'default') {
-            this._activate();
-        } else {
-            this._deactivate();
+            this._target.register();
+        } else if (this._target) {
+            this._target.unregister();
         }
         if (page === 'welcome') {
             const element = this._element('open-file-button');
@@ -363,287 +363,15 @@ view.View = class {
     }
 
     zoomIn() {
-        this._updateZoom(this._zoom * 1.1);
+        this._target.zoom *= 1.1;
     }
 
     zoomOut() {
-        this._updateZoom(this._zoom * 0.9);
+        this._target.zoom *= 0.9;
     }
 
     resetZoom() {
-        this._updateZoom(1);
-    }
-
-    _activate() {
-        if (!this._events) {
-            this._events = {};
-            this._events.scroll = (e) => this._scrollHandler(e);
-            this._events.wheel = (e) => this._wheelHandler(e);
-            this._events.gesturestart = (e) => this._gestureStartHandler(e);
-            this._events.pointerdown = (e) => this._pointerDownHandler(e);
-            this._events.touchstart = (e) => this._touchStartHandler(e);
-        }
-        const graph = this._element('graph');
-        graph.focus();
-        graph.addEventListener('scroll', this._events.scroll);
-        graph.addEventListener('wheel', this._events.wheel, { passive: false });
-        graph.addEventListener('pointerdown', this._events.pointerdown);
-        if (this._host.environment('agent') === 'safari') {
-            graph.addEventListener('gesturestart', this._events.gesturestart, false);
-        } else {
-            graph.addEventListener('touchstart', this._events.touchstart, { passive: true });
-        }
-    }
-
-    _deactivate() {
-        if (this._events) {
-            const graph = this._element('graph');
-            graph.removeEventListener('scroll', this._events.scroll);
-            graph.removeEventListener('wheel', this._events.wheel);
-            graph.removeEventListener('pointerdown', this._events.pointerdown);
-            graph.removeEventListener('gesturestart', this._events.gesturestart);
-            graph.removeEventListener('touchstart', this._events.touchstart);
-        }
-    }
-
-    _updateZoom(zoom, e) {
-        const container = this._element('graph');
-        const canvas = this._element('canvas');
-        const limit = this._options.direction === 'vertical' ?
-            container.clientHeight / this._height :
-            container.clientWidth / this._width;
-        const min = Math.min(Math.max(limit, 0.15), 1);
-        zoom = Math.max(min, Math.min(zoom, 1.4));
-        const scrollLeft = this._scrollLeft || container.scrollLeft;
-        const scrollTop = this._scrollTop || container.scrollTop;
-        const x = (e ? e.pageX : (container.clientWidth / 2)) + scrollLeft;
-        const y = (e ? e.pageY : (container.clientHeight / 2)) + scrollTop;
-        const width = zoom * this._width;
-        const height = zoom * this._height;
-        canvas.style.width = `${width}px`;
-        canvas.style.height = `${height}px`;
-        this._scrollLeft = Math.max(0, ((x * zoom) / this._zoom) - (x - scrollLeft));
-        this._scrollTop = Math.max(0, ((y * zoom) / this._zoom) - (y - scrollTop));
-        container.scrollLeft = this._scrollLeft;
-        container.scrollTop = this._scrollTop;
-        this._zoom = zoom;
-    }
-
-    _pointerDownHandler(e) {
-        if (e.pointerType === 'touch' || e.buttons !== 1) {
-            return;
-        }
-        // Workaround for Firefox emitting 'pointerdown' event when scrollbar is pressed
-        if (e.originalTarget) {
-            try {
-                /* eslint-disable no-unused-expressions */
-                e.originalTarget.id;
-                /* eslint-enable no-unused-expressions */
-            } catch {
-                return;
-            }
-        }
-        const container = this._element('graph');
-        e.target.setPointerCapture(e.pointerId);
-        this._mousePosition = {
-            left: container.scrollLeft,
-            top: container.scrollTop,
-            x: e.clientX,
-            y: e.clientY
-        };
-        e.target.style.cursor = 'grabbing';
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        const pointerMoveHandler = (e) => {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            if (this._mousePosition) {
-                const dx = e.clientX - this._mousePosition.x;
-                const dy = e.clientY - this._mousePosition.y;
-                this._mousePosition.moved = dx * dx + dy * dy > 0;
-                if (this._mousePosition.moved) {
-                    const container = this._element('graph');
-                    container.scrollTop = this._mousePosition.top - dy;
-                    container.scrollLeft = this._mousePosition.left - dx;
-                }
-            }
-        };
-        const clickHandler = (e) => {
-            e.stopPropagation();
-            document.removeEventListener('click', clickHandler, true);
-        };
-        const pointerUpHandler = (e) => {
-            e.target.releasePointerCapture(e.pointerId);
-            e.target.style.removeProperty('cursor');
-            container.removeEventListener('pointerup', pointerUpHandler);
-            container.removeEventListener('pointermove', pointerMoveHandler);
-            if (this._mousePosition && this._mousePosition.moved) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                delete this._mousePosition;
-                document.addEventListener('click', clickHandler, true);
-            }
-        };
-        container.addEventListener('pointermove', pointerMoveHandler);
-        container.addEventListener('pointerup', pointerUpHandler);
-    }
-
-    _touchStartHandler(e) {
-        if (e.touches.length === 2) {
-            this._touchPoints = Array.from(e.touches);
-            this._touchZoom = this._zoom;
-        }
-        const touchMoveHandler = (e) => {
-            if (Array.isArray(this._touchPoints) && this._touchPoints.length === 2 && e.touches.length === 2) {
-                const distance = (points) => {
-                    const dx = (points[1].clientX - points[0].clientX);
-                    const dy = (points[1].clientY - points[0].clientY);
-                    return Math.sqrt(dx * dx + dy * dy);
-                };
-                const d1 = distance(Array.from(e.touches));
-                const d2 = distance(this._touchPoints);
-                if (d2 !== 0) {
-                    const points = this._touchPoints;
-                    const e = {
-                        pageX: (points[1].pageX + points[0].pageX) / 2,
-                        pageY: (points[1].pageY + points[0].pageY) / 2
-                    };
-                    const zoom = d2 === 0 ? d1 : d1 / d2;
-                    this._updateZoom(this._touchZoom * zoom, e);
-                }
-            }
-        };
-        const container = this._element('graph');
-        const touchEndHandler = () => {
-            container.removeEventListener('touchmove', touchMoveHandler, { passive: true });
-            container.removeEventListener('touchcancel', touchEndHandler, { passive: true });
-            container.removeEventListener('touchend', touchEndHandler, { passive: true });
-            delete this._touchPoints;
-            delete this._touchZoom;
-        };
-        container.addEventListener('touchmove', touchMoveHandler, { passive: true });
-        container.addEventListener('touchcancel', touchEndHandler, { passive: true });
-        container.addEventListener('touchend', touchEndHandler, { passive: true });
-    }
-
-    _gestureStartHandler(e) {
-        e.preventDefault();
-        this._gestureZoom = this._zoom;
-        const container = this._element('graph');
-        const gestureChangeHandler = (e) => {
-            e.preventDefault();
-            this._updateZoom(this._gestureZoom * e.scale, e);
-        };
-        const gestureEndHandler = (e) => {
-            container.removeEventListener('gesturechange', gestureChangeHandler, false);
-            container.removeEventListener('gestureend', gestureEndHandler, false);
-            e.preventDefault();
-            if (this._gestureZoom) {
-                this._updateZoom(this._gestureZoom * e.scale, e);
-                delete this._gestureZoom;
-            }
-        };
-        container.addEventListener('gesturechange', gestureChangeHandler, false);
-        container.addEventListener('gestureend', gestureEndHandler, false);
-    }
-
-    _scrollHandler(e) {
-        if (this._scrollLeft && e.target.scrollLeft !== Math.floor(this._scrollLeft)) {
-            delete this._scrollLeft;
-        }
-        if (this._scrollTop && e.target.scrollTop !== Math.floor(this._scrollTop)) {
-            delete this._scrollTop;
-        }
-    }
-
-    _wheelHandler(e) {
-        if (e.shiftKey || e.ctrlKey || this._options.mousewheel === 'zoom') {
-            let factor = 1;
-            if (e.deltaMode === 1) {
-                factor = 0.05;
-            } else if (e.deltaMode) {
-                factor = 1;
-            } else {
-                factor = 0.002;
-            }
-            const delta = -e.deltaY * factor * (e.ctrlKey ? 10 : 1);
-            this._updateZoom(this._zoom * Math.pow(2, delta), e);
-            e.preventDefault();
-        }
-    }
-
-    scrollTo(selection, behavior) {
-        if (selection && selection.length > 0) {
-            const container = this._element('graph');
-            const rect = container.getBoundingClientRect();
-            // Exclude scrollbars
-            const cw = container.clientWidth;
-            const ch = container.clientHeight;
-            // Shrink the test rectangle by 10%
-            const bounds = {};
-            bounds.left = (rect.x + cw / 2) - (cw * 0.45);
-            bounds.width = cw * 0.9;
-            bounds.right = bounds.left + bounds.width;
-            bounds.top = (rect.y + ch / 2) - (ch * 0.45);
-            bounds.height = ch * 0.9;
-            bounds.bottom = bounds.top + bounds.height;
-            let x = 0;
-            let y = 0;
-            let left = Number.POSITIVE_INFINITY;
-            let right = Number.NEGATIVE_INFINITY;
-            let top = Number.POSITIVE_INFINITY;
-            let bottom = Number.NEGATIVE_INFINITY;
-            for (const element of selection) {
-                const rect = element.getBoundingClientRect();
-                const width = Math.min(rect.width, bounds.width);
-                const height = Math.min(rect.height, bounds.height);
-                x += rect.left + (width / 2);
-                y += rect.top + (height / 2);
-                left = Math.min(left, rect.left);
-                right = Math.max(right, rect.right);
-                top = Math.min(top, rect.top);
-                bottom = Math.max(bottom, rect.bottom);
-            }
-            // No need to scroll if new selection is in the safe area.
-            if (right <= bounds.right && left >= bounds.left && bottom <= bounds.bottom && top >= bounds.top) {
-                return;
-            }
-            // If new selection is completely out of the bounds, scroll to centerize it.
-            if (bottom - top >= bounds.height || right - left >= bounds.width || right < rect.left || left > rect.right || bottom < rect.top || top > rect.bottom) {
-                x /= selection.length;
-                y /= selection.length;
-                const options = {};
-                options.left = (container.scrollLeft + x - bounds.left) - (bounds.width / 2);
-                options.top = (container.scrollTop + y - bounds.top) - (bounds.height / 2);
-                options.behavior = behavior || 'smooth';
-                container.scrollTo(options);
-                return;
-            }
-            const options = {};
-            options.left = 0;
-            options.top = 0;
-            options.behavior = behavior || 'smooth';
-            // similar to scrollIntoView block: "nearest"
-            const dr = bounds.right - right;
-            const dl = left - bounds.left;
-            const db = bounds.bottom - bottom;
-            const dt = top - bounds.top;
-            if (right - left < bounds.width) {
-                if (dl < 0) {
-                    options.left = dl;
-                } else if (dr < 0) {
-                    options.left = -dr;
-                }
-            }
-            if (bottom - top < bounds.height) {
-                if (dt < 0) {
-                    options.top = dt;
-                } else if (db < 0) {
-                    options.top = -db;
-                }
-            }
-            container.scrollBy(options);
-        }
+        this._target.zoom = 1;
     }
 
     async error(error, name, screen) {
@@ -847,7 +575,7 @@ view.View = class {
         if (graph && graph !== this.activeTarget && Array.isArray(graph.nodes)) {
             this._sidebar.close();
             if (context && this._path.length > 0) {
-                this._path[0].state = { context, zoom: this._zoom };
+                this._path[0].state = { context, zoom: this._target.zoom };
             }
             const signature = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null;
             const entry = { target: graph, signature };
@@ -865,17 +593,18 @@ view.View = class {
     }
 
     async render(target, signature) {
-        this._target = null;
+        if (this._target) {
+            this._target.unregister();
+            this._target = null;
+        }
         const canvas = this._element('canvas');
         while (canvas.lastChild) {
             canvas.removeChild(canvas.lastChild);
         }
-        if (!target || target.type === 'tokenizer' || target.type === 'vocabulary') {
+        if (!target) {
             return '';
         }
         const document = this._host.document;
-        const window = this._host.window;
-        this._zoom = 1;
         const graph = target;
         const groups = graph.groups || false;
         const nodes = graph.nodes;
@@ -896,81 +625,14 @@ view.View = class {
         origin.setAttribute('id', 'origin');
         canvas.appendChild(origin);
         viewGraph.build(document, origin);
-        if (document.fonts && document.fonts.ready) {
-            try {
-                await document.fonts.ready;
-            } catch {
-                // continue regardless of error
-            }
-        }
-        await new Promise((resolve) => {
-            window.requestAnimationFrame(() => {
-                window.requestAnimationFrame(() => {
-                    window.requestAnimationFrame(resolve);
-                });
-            });
-        });
-        viewGraph.measure();
+        await viewGraph.measure();
         const status = await viewGraph.layout(this._worker);
         if (status === '') {
             viewGraph.update();
-            const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
-            if (elements.length === 0) {
-                const nodeElements = Array.from(canvas.getElementsByClassName('graph-node') || []);
-                if (nodeElements.length > 0) {
-                    elements.push(nodeElements[0]);
-                }
-            }
-            const size = canvas.getBBox();
-            const margin = 100;
-            const width = Math.ceil(margin + size.width + margin);
-            const height = Math.ceil(margin + size.height + margin);
-            origin.setAttribute('transform', `translate(${margin - size.x}, ${margin - size.y}) scale(1)`);
-            background.setAttribute('width', width);
-            background.setAttribute('height', height);
-            this._width = width;
-            this._height = height;
-            delete this._scrollLeft;
-            delete this._scrollRight;
-            canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
-            canvas.setAttribute('width', width);
-            canvas.setAttribute('height', height);
             const state = this._path && this._path.length > 0 && this._path[0] && this._path[0].state ? this._path[0].state : null;
-            this._zoom = state ? state.zoom : 1;
-            this._updateZoom(this._zoom);
-            const container = this._element('graph');
-            const context = state ? viewGraph.select([state.context]) : [];
-            if (context.length > 0) {
-                this.scrollTo(context, 'instant');
-            } else if (elements && elements.length > 0) {
-                // Center view based on input elements
-                const bounds = container.getBoundingClientRect();
-                const xs = [];
-                const ys = [];
-                for (let i = 0; i < elements.length; i++) {
-                    const element = elements[i];
-                    const rect = element.getBoundingClientRect();
-                    const width = Math.min(rect.width, bounds.width);
-                    const height = Math.min(rect.width, bounds.width);
-                    xs.push(rect.left + (width / 2));
-                    ys.push(rect.top + (height / 2));
-                }
-                let [x] = xs;
-                const [y] = ys;
-                if (ys.every((y) => y === ys[0])) {
-                    x = xs.reduce((a, b) => a + b, 0) / xs.length;
-                }
-                const left = (container.scrollLeft + x - bounds.left) - (bounds.width / 2);
-                const top = (container.scrollTop + y - bounds.top) - (bounds.height / 2);
-                container.scrollTo({ left, top, behavior: 'auto' });
-            } else {
-                const canvasRect = canvas.getBoundingClientRect();
-                const graphRect = container.getBoundingClientRect();
-                const left = (container.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
-                const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
-                container.scrollTo({ left, top, behavior: 'auto' });
-            }
+            viewGraph.restore(state);
             this._target = viewGraph;
+            this._target.register();
         }
         return status;
     }
@@ -1105,10 +767,10 @@ view.View = class {
                 this._target.blur([value]);
             });
             sidebar.on('select', (sender, value) => {
-                this.scrollTo(this._target.select([value]));
+                this._target.scrollTo(this._target.select([value]));
             });
             sidebar.on('activate', (sender, value) => {
-                this.scrollTo(this._target.activate(value));
+                this._target.scrollTo(this._target.activate(value));
             });
             sidebar.on('deactivate', () => {
                 this._target.select(null);
@@ -1124,12 +786,6 @@ view.View = class {
                     break;
                 case 'weights':
                     title = 'Weights Properties';
-                    break;
-                case 'tokenizer':
-                    title = 'Tokenizer Properties';
-                    break;
-                case 'vocabulary':
-                    title = 'Vocabulary Properties';
                     break;
                 default:
                     throw new view.Error(`Unsupported graph type '${type}'.`);
@@ -1157,10 +813,10 @@ view.View = class {
                     this._target.blur([value]);
                 });
                 sidebar.on('select', (sender, value) => {
-                    this.scrollTo(this._target.select([value]));
+                    this._target.scrollTo(this._target.select([value]));
                 });
                 sidebar.on('activate', (sender, value) => {
-                    this.scrollTo(this._target.activate(value));
+                    this._target.scrollTo(this._target.activate(value));
                 });
                 this._sidebar.open(sidebar, 'Node Properties');
             } catch (error) {
@@ -1182,10 +838,10 @@ view.View = class {
                 this._target.blur([value]);
             });
             sidebar.on('select', (sender, value) => {
-                this.scrollTo(this._target.select([value]));
+                this._target.scrollTo(this._target.select([value]));
             });
             sidebar.on('activate', (sender, value) => {
-                this.scrollTo(this._target.activate(value));
+                this._target.scrollTo(this._target.activate(value));
             });
             this._sidebar.push(sidebar, 'Connection Properties');
         } catch (error) {
@@ -1206,10 +862,10 @@ view.View = class {
                 this._target.blur(null);
             });
             sidebar.on('select', (sender, value) => {
-                this.scrollTo(this._target.select([value]));
+                this._target.scrollTo(this._target.select([value]));
             });
             sidebar.on('activate', (sender, value) => {
-                this.scrollTo(this._target.activate(value));
+                this._target.scrollTo(this._target.activate(value));
             });
             this._sidebar.push(sidebar, 'Tensor Properties');
         } catch (error) {
@@ -1849,6 +1505,7 @@ view.Graph = class extends grapher.Graph {
         this._tensors = new Map();
         this._table = new Map();
         this._selection = new Set();
+        this._zoom = 1;
     }
 
     createNode(node) {
@@ -2017,6 +1674,26 @@ view.Graph = class extends grapher.Graph {
         super.build(document, origin);
     }
 
+    async measure() {
+        const document = this.host.document;
+        const window = this.host.window;
+        if (document.fonts && document.fonts.ready) {
+            try {
+                await document.fonts.ready;
+            } catch {
+                // continue regardless of error
+            }
+        }
+        await new Promise((resolve) => {
+            window.requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => {
+                    window.requestAnimationFrame(resolve);
+                });
+            });
+        });
+        await super.measure();
+    }
+
     select(selection) {
         if (this._selection.size > 0) {
             for (const element of this._selection) {
@@ -2063,6 +1740,354 @@ view.Graph = class extends grapher.Graph {
             if (element && !this._selection.has(element)) {
                 element.deselect();
             }
+        }
+    }
+
+    restore(state) {
+        const document = this.host.document;
+        const canvas = document.getElementById('canvas');
+        const origin = document.getElementById('origin');
+        const background = document.getElementById('background');
+        const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
+        if (elements.length === 0) {
+            const nodeElements = Array.from(canvas.getElementsByClassName('graph-node') || []);
+            if (nodeElements.length > 0) {
+                elements.push(nodeElements[0]);
+            }
+        }
+        const size = canvas.getBBox();
+        const margin = 100;
+        const width = Math.ceil(margin + size.width + margin);
+        const height = Math.ceil(margin + size.height + margin);
+        origin.setAttribute('transform', `translate(${margin - size.x}, ${margin - size.y}) scale(1)`);
+        background.setAttribute('width', width);
+        background.setAttribute('height', height);
+        this._width = width;
+        this._height = height;
+        delete this._scrollLeft;
+        delete this._scrollRight;
+        canvas.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        canvas.setAttribute('width', width);
+        canvas.setAttribute('height', height);
+        this._zoom = state ? state.zoom : 1;
+        this._updateZoom(this._zoom);
+        const container = document.getElementById('graph');
+        const context = state ? this.select([state.context]) : [];
+        if (context.length > 0) {
+            this.scrollTo(context, 'instant');
+        } else if (elements && elements.length > 0) {
+            // Center view based on input elements
+            const bounds = container.getBoundingClientRect();
+            const xs = [];
+            const ys = [];
+            for (let i = 0; i < elements.length; i++) {
+                const element = elements[i];
+                const rect = element.getBoundingClientRect();
+                const width = Math.min(rect.width, bounds.width);
+                const height = Math.min(rect.width, bounds.width);
+                xs.push(rect.left + (width / 2));
+                ys.push(rect.top + (height / 2));
+            }
+            let [x] = xs;
+            const [y] = ys;
+            if (ys.every((y) => y === ys[0])) {
+                x = xs.reduce((a, b) => a + b, 0) / xs.length;
+            }
+            const left = (container.scrollLeft + x - bounds.left) - (bounds.width / 2);
+            const top = (container.scrollTop + y - bounds.top) - (bounds.height / 2);
+            container.scrollTo({ left, top, behavior: 'auto' });
+        } else {
+            const canvasRect = canvas.getBoundingClientRect();
+            const graphRect = container.getBoundingClientRect();
+            const left = (container.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
+            const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
+            container.scrollTo({ left, top, behavior: 'auto' });
+        }
+    }
+
+    register() {
+        if (!this._events) {
+            this._events = {};
+            this._events.scroll = (e) => this._scrollHandler(e);
+            this._events.wheel = (e) => this._wheelHandler(e);
+            this._events.gesturestart = (e) => this._gestureStartHandler(e);
+            this._events.pointerdown = (e) => this._pointerDownHandler(e);
+            this._events.touchstart = (e) => this._touchStartHandler(e);
+        }
+        const document = this.host.document;
+        const graph = document.getElementById('graph');
+        graph.focus();
+        graph.addEventListener('scroll', this._events.scroll);
+        graph.addEventListener('wheel', this._events.wheel, { passive: false });
+        graph.addEventListener('pointerdown', this._events.pointerdown);
+        if (this.host.environment('agent') === 'safari') {
+            graph.addEventListener('gesturestart', this._events.gesturestart, false);
+        } else {
+            graph.addEventListener('touchstart', this._events.touchstart, { passive: true });
+        }
+    }
+
+    unregister() {
+        if (this._events) {
+            const document = this.host.document;
+            const graph = document.getElementById('graph');
+            graph.removeEventListener('scroll', this._events.scroll);
+            graph.removeEventListener('wheel', this._events.wheel);
+            graph.removeEventListener('pointerdown', this._events.pointerdown);
+            graph.removeEventListener('gesturestart', this._events.gesturestart);
+            graph.removeEventListener('touchstart', this._events.touchstart);
+        }
+    }
+
+    get zoom() {
+        return this._zoom;
+    }
+
+    set zoom(value) {
+        this._updateZoom(value);
+    }
+
+    _updateZoom(zoom, e) {
+        const document = this.host.document;
+        const container = document.getElementById('graph');
+        const canvas = document.getElementById('canvas');
+        const limit = this.view.options.direction === 'vertical' ?
+            container.clientHeight / this._height :
+            container.clientWidth / this._width;
+        const min = Math.min(Math.max(limit, 0.15), 1);
+        zoom = Math.max(min, Math.min(zoom, 1.4));
+        const scrollLeft = this._scrollLeft || container.scrollLeft;
+        const scrollTop = this._scrollTop || container.scrollTop;
+        const x = (e ? e.pageX : (container.clientWidth / 2)) + scrollLeft;
+        const y = (e ? e.pageY : (container.clientHeight / 2)) + scrollTop;
+        const width = zoom * this._width;
+        const height = zoom * this._height;
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        this._scrollLeft = Math.max(0, ((x * zoom) / this._zoom) - (x - scrollLeft));
+        this._scrollTop = Math.max(0, ((y * zoom) / this._zoom) - (y - scrollTop));
+        container.scrollLeft = this._scrollLeft;
+        container.scrollTop = this._scrollTop;
+        this._zoom = zoom;
+    }
+
+    _pointerDownHandler(e) {
+        if (e.pointerType === 'touch' || e.buttons !== 1) {
+            return;
+        }
+        // Workaround for Firefox emitting 'pointerdown' event when scrollbar is pressed
+        if (e.originalTarget) {
+            try {
+                /* eslint-disable no-unused-expressions */
+                e.originalTarget.id;
+                /* eslint-enable no-unused-expressions */
+            } catch {
+                return;
+            }
+        }
+        const document = this.host.document;
+        const container = document.getElementById('graph');
+        e.target.setPointerCapture(e.pointerId);
+        this._mousePosition = {
+            left: container.scrollLeft,
+            top: container.scrollTop,
+            x: e.clientX,
+            y: e.clientY
+        };
+        e.target.style.cursor = 'grabbing';
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const pointerMoveHandler = (e) => {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            if (this._mousePosition) {
+                const dx = e.clientX - this._mousePosition.x;
+                const dy = e.clientY - this._mousePosition.y;
+                this._mousePosition.moved = dx * dx + dy * dy > 0;
+                if (this._mousePosition.moved) {
+                    const document = this.host.document;
+                    const container = document.getElementById('graph');
+                    container.scrollTop = this._mousePosition.top - dy;
+                    container.scrollLeft = this._mousePosition.left - dx;
+                }
+            }
+        };
+        const clickHandler = (e) => {
+            e.stopPropagation();
+            document.removeEventListener('click', clickHandler, true);
+        };
+        const pointerUpHandler = (e) => {
+            e.target.releasePointerCapture(e.pointerId);
+            e.target.style.removeProperty('cursor');
+            container.removeEventListener('pointerup', pointerUpHandler);
+            container.removeEventListener('pointermove', pointerMoveHandler);
+            if (this._mousePosition && this._mousePosition.moved) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                delete this._mousePosition;
+                document.addEventListener('click', clickHandler, true);
+            }
+        };
+        container.addEventListener('pointermove', pointerMoveHandler);
+        container.addEventListener('pointerup', pointerUpHandler);
+    }
+
+    _touchStartHandler(e) {
+        if (e.touches.length === 2) {
+            this._touchPoints = Array.from(e.touches);
+            this._touchZoom = this._zoom;
+        }
+        const touchMoveHandler = (e) => {
+            if (Array.isArray(this._touchPoints) && this._touchPoints.length === 2 && e.touches.length === 2) {
+                const distance = (points) => {
+                    const dx = (points[1].clientX - points[0].clientX);
+                    const dy = (points[1].clientY - points[0].clientY);
+                    return Math.sqrt(dx * dx + dy * dy);
+                };
+                const d1 = distance(Array.from(e.touches));
+                const d2 = distance(this._touchPoints);
+                if (d2 !== 0) {
+                    const points = this._touchPoints;
+                    const e = {
+                        pageX: (points[1].pageX + points[0].pageX) / 2,
+                        pageY: (points[1].pageY + points[0].pageY) / 2
+                    };
+                    const zoom = d2 === 0 ? d1 : d1 / d2;
+                    this._updateZoom(this._touchZoom * zoom, e);
+                }
+            }
+        };
+        const container = this._element('graph');
+        const touchEndHandler = () => {
+            container.removeEventListener('touchmove', touchMoveHandler, { passive: true });
+            container.removeEventListener('touchcancel', touchEndHandler, { passive: true });
+            container.removeEventListener('touchend', touchEndHandler, { passive: true });
+            delete this._touchPoints;
+            delete this._touchZoom;
+        };
+        container.addEventListener('touchmove', touchMoveHandler, { passive: true });
+        container.addEventListener('touchcancel', touchEndHandler, { passive: true });
+        container.addEventListener('touchend', touchEndHandler, { passive: true });
+    }
+
+    _gestureStartHandler(e) {
+        e.preventDefault();
+        this._gestureZoom = this._zoom;
+        const container = this._element('graph');
+        const gestureChangeHandler = (e) => {
+            e.preventDefault();
+            this._updateZoom(this._gestureZoom * e.scale, e);
+        };
+        const gestureEndHandler = (e) => {
+            container.removeEventListener('gesturechange', gestureChangeHandler, false);
+            container.removeEventListener('gestureend', gestureEndHandler, false);
+            e.preventDefault();
+            if (this._gestureZoom) {
+                this._updateZoom(this._gestureZoom * e.scale, e);
+                delete this._gestureZoom;
+            }
+        };
+        container.addEventListener('gesturechange', gestureChangeHandler, false);
+        container.addEventListener('gestureend', gestureEndHandler, false);
+    }
+
+    _scrollHandler(e) {
+        if (this._scrollLeft && e.target.scrollLeft !== Math.floor(this._scrollLeft)) {
+            delete this._scrollLeft;
+        }
+        if (this._scrollTop && e.target.scrollTop !== Math.floor(this._scrollTop)) {
+            delete this._scrollTop;
+        }
+    }
+
+    _wheelHandler(e) {
+        if (e.shiftKey || e.ctrlKey || this.view.options.mousewheel === 'zoom') {
+            let factor = 1;
+            if (e.deltaMode === 1) {
+                factor = 0.05;
+            } else if (e.deltaMode) {
+                factor = 1;
+            } else {
+                factor = 0.002;
+            }
+            const delta = -e.deltaY * factor * (e.ctrlKey ? 10 : 1);
+            this._updateZoom(this._zoom * Math.pow(2, delta), e);
+            e.preventDefault();
+        }
+    }
+
+    scrollTo(selection, behavior) {
+        if (selection && selection.length > 0) {
+            const document = this.host.document;
+            const container = document.getElementById('graph');
+            const rect = container.getBoundingClientRect();
+            // Exclude scrollbars
+            const cw = container.clientWidth;
+            const ch = container.clientHeight;
+            // Shrink the test rectangle by 10%
+            const bounds = {};
+            bounds.left = (rect.x + cw / 2) - (cw * 0.45);
+            bounds.width = cw * 0.9;
+            bounds.right = bounds.left + bounds.width;
+            bounds.top = (rect.y + ch / 2) - (ch * 0.45);
+            bounds.height = ch * 0.9;
+            bounds.bottom = bounds.top + bounds.height;
+            let x = 0;
+            let y = 0;
+            let left = Number.POSITIVE_INFINITY;
+            let right = Number.NEGATIVE_INFINITY;
+            let top = Number.POSITIVE_INFINITY;
+            let bottom = Number.NEGATIVE_INFINITY;
+            for (const element of selection) {
+                const rect = element.getBoundingClientRect();
+                const width = Math.min(rect.width, bounds.width);
+                const height = Math.min(rect.height, bounds.height);
+                x += rect.left + (width / 2);
+                y += rect.top + (height / 2);
+                left = Math.min(left, rect.left);
+                right = Math.max(right, rect.right);
+                top = Math.min(top, rect.top);
+                bottom = Math.max(bottom, rect.bottom);
+            }
+            // No need to scroll if new selection is in the safe area.
+            if (right <= bounds.right && left >= bounds.left && bottom <= bounds.bottom && top >= bounds.top) {
+                return;
+            }
+            // If new selection is completely out of the bounds, scroll to centerize it.
+            if (bottom - top >= bounds.height || right - left >= bounds.width || right < rect.left || left > rect.right || bottom < rect.top || top > rect.bottom) {
+                x /= selection.length;
+                y /= selection.length;
+                const options = {};
+                options.left = (container.scrollLeft + x - bounds.left) - (bounds.width / 2);
+                options.top = (container.scrollTop + y - bounds.top) - (bounds.height / 2);
+                options.behavior = behavior || 'smooth';
+                container.scrollTo(options);
+                return;
+            }
+            const options = {};
+            options.left = 0;
+            options.top = 0;
+            options.behavior = behavior || 'smooth';
+            // similar to scrollIntoView block: "nearest"
+            const dr = bounds.right - right;
+            const dl = left - bounds.left;
+            const db = bounds.bottom - bottom;
+            const dt = top - bounds.top;
+            if (right - left < bounds.width) {
+                if (dl < 0) {
+                    options.left = dl;
+                } else if (dr < 0) {
+                    options.left = -dr;
+                }
+            }
+            if (bottom - top < bounds.height) {
+                if (dt < 0) {
+                    options.top = dt;
+                } else if (db < 0) {
+                    options.top = -db;
+                }
+            }
+            container.scrollBy(options);
         }
     }
 };
@@ -2639,10 +2664,14 @@ view.Control = class {
     }
 
     emit(event, data) {
-        if (this._events && this._events[event]) {
-            for (const callback of this._events[event]) {
-                callback(this, data);
+        try {
+            if (this._events && this._events[event]) {
+                for (const callback of this._events[event]) {
+                    callback(this, data);
+                }
             }
+        } catch (error) {
+            this.error(error, false);
         }
     }
 

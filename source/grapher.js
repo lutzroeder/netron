@@ -206,7 +206,7 @@ grapher.Graph = class {
         }
     }
 
-    measure() {
+    async measure() {
         for (const key of this.nodes.keys()) {
             const entry = this.node(key);
             if (this.children(key).length === 0) {
