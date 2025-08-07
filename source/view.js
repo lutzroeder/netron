@@ -599,9 +599,9 @@ view.View = class {
             this._target.unregister();
             this._target = null;
         }
-        const canvas = this._element('canvas');
-        while (canvas.lastChild) {
-            canvas.removeChild(canvas.lastChild);
+        const element = this._element('target');
+        while (element.lastChild) {
+            element.removeChild(element.lastChild);
         }
         let status = '';
         if (target) {
@@ -1660,10 +1660,17 @@ view.Graph = class extends grapher.Graph {
     }
 
     build(document) {
-        const canvas = document.getElementById('canvas');
-        while (canvas.lastChild) {
-            canvas.removeChild(canvas.lastChild);
+        const element = document.getElementById('target');
+        while (element.lastChild) {
+            element.removeChild(element.lastChild);
         }
+        const canvas = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        canvas.setAttribute('id', 'canvas');
+        canvas.setAttribute('class', 'canvas');
+        canvas.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        canvas.setAttribute('width', '100%');
+        canvas.setAttribute('height', '100%');
+        element.appendChild(canvas);
         // Workaround for Safari background drag/zoom issue:
         // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
         const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
