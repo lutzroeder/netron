@@ -749,7 +749,7 @@ browser.FileStream = class {
         length = length === undefined ? this._length - this._position : length;
         if (length < 0x10000000) {
             const position = this._fill(length);
-            return this._buffer.subarray(position, position + length);
+            return this._buffer.slice(position, position + length);
         }
         const position = this._start + this._position;
         this.skip(length);
