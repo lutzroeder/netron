@@ -8960,6 +8960,9 @@ tensorflow.ConfigProto.Experimental = class Experimental {
                 case 34:
                     message.finalize_resource_manager = reader.bool();
                     break;
+                case 35:
+                    message.tf2xla_dump_dir = reader.string();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -9064,6 +9067,9 @@ tensorflow.ConfigProto.Experimental = class Experimental {
                 case "finalize_resource_manager":
                     message.finalize_resource_manager = reader.bool();
                     break;
+                case "tf2xla_dump_dir":
+                    message.tf2xla_dump_dir = reader.string();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -9164,6 +9170,9 @@ tensorflow.ConfigProto.Experimental = class Experimental {
         if ('finalizeResourceManager' in obj) {
             message.finalize_resource_manager = obj.finalizeResourceManager;
         }
+        if ('tf2xlaDumpDir' in obj) {
+            message.tf2xla_dump_dir = obj.tf2xlaDumpDir;
+        }
         return message;
     }
 };
@@ -9198,6 +9207,7 @@ tensorflow.ConfigProto.Experimental.prototype.disable_optimize_for_static_graph 
 tensorflow.ConfigProto.Experimental.prototype.disable_eager_executor_streaming_enqueue = false;
 tensorflow.ConfigProto.Experimental.prototype.finalize_function_library_runtime = false;
 tensorflow.ConfigProto.Experimental.prototype.finalize_resource_manager = false;
+tensorflow.ConfigProto.Experimental.prototype.tf2xla_dump_dir = "";
 
 tensorflow.ConfigProto.Experimental.MlirBridgeRollout = {
     "MLIR_BRIDGE_ROLLOUT_UNSPECIFIED": 0,
