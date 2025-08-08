@@ -65251,11 +65251,21 @@
       },
       {
         "name": "input_dtype",
-        "type": "type"
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `float32`.",
+        "default": {
+          "type": "type",
+          "value": 1
+        }
       },
       {
         "name": "dtype",
-        "type": "type"
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `bfloat16`, `float32`.",
+        "default": {
+          "type": "type",
+          "value": 1
+        }
       }
     ],
     "inputs": [
@@ -67613,11 +67623,21 @@
       },
       {
         "name": "input_dtype",
-        "type": "type"
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `bfloat16`, `float32`.",
+        "default": {
+          "type": "type",
+          "value": 1
+        }
       },
       {
         "name": "dtype",
-        "type": "type"
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `float32`.",
+        "default": {
+          "type": "type",
+          "value": 1
+        }
       }
     ],
     "inputs": [
