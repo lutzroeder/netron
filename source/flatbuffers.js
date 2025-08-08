@@ -157,7 +157,7 @@ flatbuffers.BinaryReader = class {
             offset = this.__vector(position + offset);
             const array = new Array(length);
             for (let i = 0; i < length; i++) {
-                array[i] = this.uint8(offset + i + 4) ? true : false;
+                array[i] = this.uint8(offset + i) ? true : false;
             }
             return array;
         }
