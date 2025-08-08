@@ -190,7 +190,7 @@ xml.TextReader = class {
                                             this._error(`Invalid namespace prefix '${entry.localName}'`, entry.position);
                                         }
                                         if (this._version === 0 && value.length === 0) {
-                                            this._error("Invalid namespace declaration'", entry.position);
+                                            this._error('Invalid namespace declaration', entry.position);
                                         }
                                         namespaces.set(entry.localName, value);
                                     }
@@ -720,7 +720,7 @@ xml.TextReader = class {
             return '';
         }
         const code = c.codePointAt(0);
-        if ((!this._charRegExp.test(c) && (code < 0x10000 || c > 0x10FFFF))) {
+        if ((!this._charRegExp.test(c) && (code < 0x10000 || code > 0x10FFFF))) {
             this._unexpected();
         }
         this._next();
