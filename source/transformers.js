@@ -9,7 +9,7 @@ transformers.ModelFactory = class {
     async match(context) {
         const obj = await context.peek('json');
         if (obj) {
-            if (obj.model_type && obj.architectures) {
+            if (obj.architectures && (obj.model_type || obj.transformers_version)) {
                 return context.set('transformers.config', obj);
             }
             if (obj.version && obj.added_tokens && obj.model) {
