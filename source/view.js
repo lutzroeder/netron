@@ -270,7 +270,7 @@ view.View = class {
                 this._find = state;
             });
             sidebar.on('select', (sender, value) => {
-                this.scrollTo(this._target.select([value]));
+                this._target.scrollTo(this._target.select([value]));
             });
             sidebar.on('focus', (sender, value) => {
                 this._target.focus([value]);
@@ -280,7 +280,7 @@ view.View = class {
             });
             sidebar.on('activate', (sender, value) => {
                 this._sidebar.close();
-                this.scrollTo(this._target.activate(value));
+                this._target.scrollTo(this._target.activate(value));
             });
             this._sidebar.open(sidebar, 'Find');
         }
@@ -4022,10 +4022,14 @@ view.FindSidebar = class extends view.Control {
     }
 
     emit(event, data) {
-        if (this._events && this._events[event]) {
-            for (const callback of this._events[event]) {
-                callback(this, data);
+        try {
+            if (this._events && this._events[event]) {
+                for (const callback of this._events[event]) {
+                    callback(this, data);
+                }
             }
+        } catch (error) {
+            this.error(error, false);
         }
     }
 
