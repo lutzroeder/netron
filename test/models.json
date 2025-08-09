@@ -4328,20 +4328,6 @@
   },
   {
     "type":     "onnx",
-    "target":   "inception_v2_opset_6.onnx.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/6572388/inception_v2_opset_6.onnx.zip",
-    "format":   "ONNX v3",
-    "link":     "https://github.com/lutzroeder/netron/issues/6"
-  },
-  {
-    "type":     "onnx",
-    "target":   "inception_v2_opset_9.onnx.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/6572391/inception_v2_opset_9.onnx.zip",
-    "format":   "ONNX v3",
-    "link":     "https://github.com/lutzroeder/netron/issues/6"
-  },
-  {
-    "type":     "onnx",
     "target":   "int4.int32_data.pb",
     "source":   "https://github.com/lutzroeder/netron/files/13898075/int4.int32_data.pb.zip[int4.int32_data.pb]",
     "format":   "ONNX Tensor",
@@ -4543,14 +4529,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/8191468/ort_github_issue_4031.onnx.ort.zip[ort_github_issue_4031.onnx.ort]",
     "format":   "ONNX Runtime v7",
     "link":     "https://github.com/lutzroeder/netron/issues/767"
-  },
-  {
-    "type":     "onnx",
-    "target":   "Phi-3-medium-128k-instruct-onnx-directml.onnx",
-    "source":   "https://huggingface.co/microsoft/Phi-3-medium-128k-instruct-onnx-directml/resolve/main/directml-int4-awq-block-128/model.onnx?download=true",
-    "format":   "ONNX v8",
-    "tags":     "skip-render",
-    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
