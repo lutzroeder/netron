@@ -965,6 +965,7 @@ app.ViewCollection = class {
 app.ConfigurationService = class {
 
     constructor() {
+        this._content = { 'recents': [] };
         const dir = electron.app.getPath('userData');
         if (dir && dir.length > 0) {
             this._file = path.join(dir, 'configuration.json');
@@ -972,7 +973,6 @@ app.ConfigurationService = class {
     }
 
     open() {
-        this._content = { 'recents': [] };
         if (this._file && fs.existsSync(this._file)) {
             const data = fs.readFileSync(this._file, 'utf-8');
             if (data) {
