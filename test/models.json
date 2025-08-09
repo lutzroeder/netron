@@ -2168,6 +2168,14 @@
   },
   {
     "type":     "gguf",
+    "target":   "gpt-oss-20b-MXFP4.gguf",
+    "source":   "https://github.com/user-attachments/files/21702620/gpt-oss-20b-MXFP4.gguf.zip[gpt-oss-20b-MXFP4.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
     "target":   "mixtral-8x7b-v0.1.Q4_K_M.gguf",
     "source":   "https://github.com/lutzroeder/netron/files/13802180/mixtral-8x7b-v0.1.Q4_K_M.gguf.zip[mixtral-8x7b-v0.1.Q4_K_M.gguf]",
     "format":   "GGUF v3",
