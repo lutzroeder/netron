@@ -4293,6 +4293,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "gpt-oss-20b.onnx",
+    "source":   "https://github.com/user-attachments/files/21698806/gpt-oss-20b.onnx.zip[gpt-oss-20b.onnx]",
+    "format":   "ONNX v10",
+    "link":     "https://github.com/lutzroeder/netron/issues/1208"
+  },
+  {
+    "type":     "onnx",
     "target":   "if_k1.onnx",
     "source":   "https://github.com/user-attachments/files/19404101/if_k1.onnx.zip[if_k1.onnx]",
     "format":   "ONNX v6",
