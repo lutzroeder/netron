@@ -9,7 +9,7 @@ import * as url from 'url';
 const args = process.argv.slice(2);
 
 const read = (match) => {
-    if (args.length > 0 || (!match || args[0] === match)) {
+    if (args.length > 0 && (!match || args[0] === match)) {
         return args.shift();
     }
     return null;
