@@ -37,7 +37,7 @@
         "@electron/notarize": "3.0.1",
         "electron": "37.2.6",
         "electron-builder": "26.0.12",
-        "eslint": "9.32.0"
+        "eslint": "9.33.0"
     },
     "build": {
         "extends": "publish/electron-builder.json"
