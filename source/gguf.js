@@ -213,7 +213,7 @@ gguf.Reader = class {
             [gguf.QuantizationType.Q4_1,     [32, 2 + 2 + 16, '']],
             [gguf.QuantizationType.Q5_0,     [32, 2 + 4 + 16, '']],
             [gguf.QuantizationType.Q5_1,     [32, 2 + 2 + 4 + 16, '']],
-            [gguf.QuantizationType.Q8_0,     [32, 2 + 32, '']],
+            [gguf.QuantizationType.Q8_0,     [32, 2 + 32, 'q8_0']],
             [gguf.QuantizationType.Q8_1,     [32, 4 + 4 + 32, '']],
             [gguf.QuantizationType.Q2_K,     [256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4), '']],
             [gguf.QuantizationType.Q3_K,     [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12, '']],
@@ -240,7 +240,8 @@ gguf.Reader = class {
             [gguf.QuantizationType.Q4_0_4_8, [32, 2 + 16, '']],
             [gguf.QuantizationType.Q4_0_8_8, [32, 2 + 16, '']],
             [gguf.QuantizationType.TQ1_0,    [256, 2 + 4 * 13, '']],
-            [gguf.QuantizationType.TQ2_0,    [256, 2 + 64, '']]
+            [gguf.QuantizationType.TQ2_0,    [256, 2 + 64, '']],
+            [gguf.QuantizationType.MXFP4,    [32, 1 + 16, 'mxfp4']]
         ]);
     }
 
@@ -279,6 +280,8 @@ gguf.Reader = class {
                         throw new gguf.Error(`Unsupported tensor quantization type '${tensor.type}'.`);
                     }
                     const [block_size, type_size, dtype] = gguf.Reader.GGML_QUANT_SIZES.get(tensor.type);
+                    tensor.block_size = block_size;
+                    tensor.type_size = type_size;
                     tensor.dtype = dtype || '?';
                     if (offset < reader.length) {
                         const n_elems = tensor.ne.reduce((a, b) => a * b, 1);
@@ -465,7 +468,8 @@ gguf.QuantizationType = {
     Q4_0_4_8: 32,
     Q4_0_8_8: 33,
     TQ1_0: 34,
-    TQ2_0: 35
+    TQ2_0: 35,
+    MXFP4: 39
 };
 
 gguf.Utility = class {

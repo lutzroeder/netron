@@ -4361,7 +4361,7 @@ view.Quantization = class {
             return this.value.map((value, index) => `${index.toString().padStart(size, ' ')}: ${value}`).join('\n');
         } else if (this.type === 'annotation') {
             return Array.from(this.value).map(([name, value]) => `${name} = ${value}`).join('\n');
-        } else if (/^q\d_[01k]$/.test(this.type) || /^iq\d_[xsnlm]+$/.test(this.type)) {
+        } else if (/^q\d_[01k]$/.test(this.type) || /^iq\d_[xsnlm]+$/.test(this.type) || this.type === 'mxfp4') {
             return '';
         }
         throw new view.Error(`Unknown quantization type '${this.type}'.`);
@@ -5769,7 +5769,7 @@ view.Context = class {
                     switch (type) {
                         case 'json': {
                             try {
-                                const buffer = stream.peek(Math.min(this.stream.length, 0x1000));
+                                const buffer = stream.peek(Math.min(stream.length, 0x1000));
                                 if (stream.length < 0x7ffff000 &&
                                     (buffer.length < 8 || String.fromCharCode.apply(null, buffer.slice(0, 8)) !== '\x89HDF\r\n\x1A\n') &&
                                     (buffer.some((v) => v === 0x22 || v === 0x5b || v === 0x5d || v === 0x7b || v === 0x7d))) {
@@ -5804,11 +5804,15 @@ view.Context = class {
                         }
                         case 'xml': {
                             try {
-                                const xml = await import('./xml.js');
-                                const reader = xml.TextReader.open(this._stream);
-                                if (reader) {
-                                    const obj = reader.read();
-                                    this._content.set(type, obj);
+                                const buffer = stream.peek(Math.min(this.stream.length, 0x1000));
+                                const content = String.fromCharCode.apply(null, buffer);
+                                if (stream.length < 0x7ffff000 && content.indexOf('<') !== -1 && content.indexOf('</') !== -1) {
+                                    const xml = await import('./xml.js');
+                                    const reader = xml.TextReader.open(this._stream);
+                                    if (reader) {
+                                        const obj = reader.read();
+                                        this._content.set(type, obj);
+                                    }
                                 }
                             } catch {
                                 // continue regardless of error
@@ -6762,7 +6766,7 @@ view.ModelFactoryService = class {
     _filter(context) {
         const identifier = context.identifier.toLowerCase().split('/').pop();
         const stream = context.stream;
-        if (stream && stream.length < 0x7FFFFFFF) {
+        if (stream) {
             const buffer = stream.peek(Math.min(4096, stream.length));
             const content = String.fromCharCode.apply(null, buffer);
             const list = this._factories.filter((entry) =>
