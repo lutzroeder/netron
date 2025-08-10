@@ -34,6 +34,10 @@ transformers.ModelFactory = class {
                         return context.set('transformers.vocab', obj);
                     }
                 }
+                const dtypes = new Set(['BF16', 'FP4', 'UE8']);
+                if (entries.every(([key, value]) => typeof key === 'string' && dtypes.has(value))) {
+                    return context.set('transformers.dtypes', obj);
+                }
             }
         }
         return null;
