@@ -214,7 +214,8 @@ view.View = class {
                     execute: async () => await this._host.execute('about')
                 });
             }
-            this._select = new view.TargetSelector(this, this._element('toolbar-navigator'));
+            const navigator = this._element('toolbar-navigator');
+            this._select = new view.TargetSelector(this, navigator);
             this._select.on('change', (sender, target) => this._updateActiveTarget([target]));
             await this._host.start();
         } catch (error) {
@@ -506,7 +507,7 @@ view.View = class {
         this._path = stack;
         const status = await this.render(this.activeTarget, this.activeSignature);
         if (status !== '') {
-            this.update(null);
+            this.model = null;
             this._path = [];
             this._activeTarget = null;
         }
@@ -1970,7 +1971,8 @@ view.Graph = class extends grapher.Graph {
                 }
             }
         };
-        const container = this._element('target');
+        const document = this.host.document;
+        const container = document.getElementById('target');
         const touchEndHandler = () => {
             container.removeEventListener('touchmove', touchMoveHandler, { passive: true });
             container.removeEventListener('touchcancel', touchEndHandler, { passive: true });
