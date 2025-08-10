@@ -4,6 +4,7 @@
 .ruff_cache
 dist/*
 node_modules/*
+test-results/*
 third_party/*
 yarn.lock
 *.pyc

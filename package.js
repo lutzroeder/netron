@@ -512,11 +512,27 @@ const lint = async () => {
     await exec('python -m ruff check . --quiet');
 };
 
+const test = async (target) => {
+    if (target === 'playwright' || read('playwright')) {
+        await exec('npx playwright install --with-deps');
+        const command = "npx playwright test --config=test/playwright.config.js";
+        if (process.platform === 'linux' && (process.env.GITHUB_ACTIONS || process.env.CI)) {
+            await exec(`xvfb-run -a ${command}`);
+        } else {
+            await exec(command);
+        }
+    } else {
+        target = target || args.join(' ');
+        await exec(`node test/models.js ${target}`);
+    }
+};
+
 const validate = async () => {
     writeLine('lint');
     await lint();
     writeLine('test');
-    await exec('node test/models.js tag:validation');
+    await test('tag:validation');
+    await test('playwright');
 };
 
 const update = async () => {
@@ -683,6 +699,7 @@ const main = async () => {
             case 'publish': await publish(); break;
             case 'version': await version(); break;
             case 'lint': await lint(); break;
+            case 'test': await test(); break;
             case 'validate': await validate(); break;
             case 'update': await update(); break;
             case 'pull': await pull(); break;

@@ -16,15 +16,15 @@
     "scripts": {
         "start": "node package.js start",
         "server": "python package.py build start",
-        "test": "node test/models.js",
-        "lint": "node package.js lint",
-        "validate": "node package.js validate",
         "clean": "node package.js clean",
         "purge": "node package.js purge",
         "install": "node package.js install",
+        "lint": "node package.js lint",
         "build": "node package.js build",
         "publish": "node package.js publish",
         "version": "node package.js version",
+        "test": "node package.js test",
+        "validate": "node package.js validate",
         "coverage": "node package.js coverage",
         "analyze": "node package.js analyze",
         "update": "node package.js update",
@@ -35,6 +35,7 @@
     },
     "devDependencies": {
         "@electron/notarize": "3.0.2",
+        "@playwright/test": "1.54.2",
         "electron": "37.2.6",
         "electron-builder": "26.0.12",
         "eslint": "9.33.0"

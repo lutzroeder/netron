@@ -58,6 +58,14 @@
             "console": "integratedTerminal",
         },
         {
+            "name": "Test Playwright",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "test", "playwright"],
+            "console": "integratedTerminal",
+        },
+        {
             "name": "Test Backend",
             "type": "debugpy",
             "request": "launch",
