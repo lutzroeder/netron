@@ -513,15 +513,33 @@ const lint = async () => {
 };
 
 const test = async (target) => {
-    if (target === 'playwright' || read('playwright')) {
-        await exec('npx playwright install --with-deps');
-        const command = "npx playwright test --config=test/playwright.config.js";
-        if (process.platform === 'linux' && (process.env.GITHUB_ACTIONS || process.env.CI)) {
-            await exec(`xvfb-run -a ${command}`);
-        } else {
-            await exec(command);
+    let models = true;
+    for (const name of ['desktop', 'browser']) {
+        /* eslint-disable no-await-in-loop */
+        if (target === name || read(name)) {
+            models = false;
+            switch (name) {
+                case 'desktop': {
+                    await exec('npx playwright install --with-deps');
+                    const host = process.platform === 'linux' && (process.env.GITHUB_ACTIONS || process.env.CI) ? 'xvfb-run -a ' : '';
+                    await exec(`${host}npx playwright test --config=test/playwright.config.js --project=desktop`);
+                    break;
+                }
+                case 'browser': {
+                    if (process.platform !== 'win32') {
+                        await exec('npx playwright install --with-deps');
+                        const headed = process.env.GITHUB_ACTIONS || process.env.CI ? '' :  ' --headed';
+                        await exec(`npx playwright test --config=test/playwright.config.js --project=browser${headed}`);
+                    }
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
         }
-    } else {
+    }
+    if (models) {
         target = target || args.join(' ');
         await exec(`node test/models.js ${target}`);
     }
@@ -532,7 +550,10 @@ const validate = async () => {
     await lint();
     writeLine('test');
     await test('tag:validation');
-    await test('playwright');
+    writeLine('test desktop');
+    await test('desktop');
+    writeLine('test browser');
+    await test('browser');
 };
 
 const update = async () => {
