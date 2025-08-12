@@ -1076,7 +1076,7 @@
       },
       {
         "default": 1.0,
-        "description": "Useful only when the solver 'liblinear' is used\nand self.fit_intercept is set to True. In this case, x becomes\n[x, self.intercept_scaling],\ni.e. a \"synthetic\" feature with constant value equal to\nintercept_scaling is appended to the instance vector.\nThe intercept becomes ``intercept_scaling * synthetic_feature_weight``.\n\nNote! the synthetic feature weight is subject to l1/l2 regularization\nas all other features.\nTo lessen the effect of regularization on synthetic feature weight\n(and therefore on the intercept) intercept_scaling has to be increased.\n",
+        "description": "Useful only when the solver `liblinear` is used\nand `self.fit_intercept` is set to `True`. In this case, `x` becomes\n`[x, self.intercept_scaling]`,\ni.e. a \"synthetic\" feature with constant value equal to\n`intercept_scaling` is appended to the instance vector.\nThe intercept becomes\n``intercept_scaling * synthetic_feature_weight``.\n\n.. note::\nThe synthetic feature weight is subject to L1 or L2\nregularization as all other features.\nTo lessen the effect of regularization on synthetic feature weight\n(and therefore on the intercept) `intercept_scaling` has to be increased.\n",
         "name": "intercept_scaling",
         "type": "float32"
       },
@@ -1300,7 +1300,7 @@
       },
       {
         "default": 1.0,
-        "description": "Useful only when the solver 'liblinear' is used\nand self.fit_intercept is set to True. In this case, x becomes\n[x, self.intercept_scaling],\ni.e. a \"synthetic\" feature with constant value equal to\nintercept_scaling is appended to the instance vector.\nThe intercept becomes ``intercept_scaling * synthetic_feature_weight``.\n\nNote! the synthetic feature weight is subject to l1/l2 regularization\nas all other features.\nTo lessen the effect of regularization on synthetic feature weight\n(and therefore on the intercept) intercept_scaling has to be increased.\n",
+        "description": "Useful only when the solver `liblinear` is used\nand `self.fit_intercept` is set to `True`. In this case, `x` becomes\n`[x, self.intercept_scaling]`,\ni.e. a \"synthetic\" feature with constant value equal to\n`intercept_scaling` is appended to the instance vector.\nThe intercept becomes\n``intercept_scaling * synthetic_feature_weight``.\n\n.. note::\nThe synthetic feature weight is subject to L1 or L2\nregularization as all other features.\nTo lessen the effect of regularization on synthetic feature weight\n(and therefore on the intercept) `intercept_scaling` has to be increased.\n",
         "name": "intercept_scaling",
         "optional": true,
         "type": "float32"
