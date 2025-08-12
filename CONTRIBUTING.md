@@ -11,7 +11,7 @@ npm install
 npm start
 ```
 
-To debug the Electron app, open the folder in [Visual Studio Code](https://code.visualstudio.com) and press <kbd>F5</kbd>. To attach the debugger to the render process select the `Debug` tab and pick `Electron View` before launching.
+To debug the Electron app, open the folder in [Visual Studio Code](https://code.visualstudio.com) and press <kbd>F5</kbd>. To attach the debugger to the render process select the `Debug` tab and pick `Desktop View` before launching.
 
 To build and launch the web app, pick `Browser` in the `Debug` tab or run this command:
 

@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Electron View",
+            "name": "Desktop View",
             "type": "chrome",
             "request": "launch",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
@@ -20,7 +20,7 @@
             "webRoot": "${workspaceRoot}"
         },
         {
-            "name": "Electron App",
+            "name": "Desktop App",
             "type": "node",
             "request": "launch",
             "program": "${workspaceFolder}/source/app.js",
@@ -58,11 +58,11 @@
             "console": "integratedTerminal",
         },
         {
-            "name": "Test Playwright",
+            "name": "Test Desktop",
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
-            "runtimeArgs": ["run", "test", "playwright"],
+            "runtimeArgs": ["run", "test", "desktop"],
             "console": "integratedTerminal",
         },
         {
