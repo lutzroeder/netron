@@ -127,6 +127,7 @@ class _ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
 class _HTTPServerThread(threading.Thread):
     def __init__(self, content, address):
         threading.Thread.__init__(self)
+        self.daemon = True
         self.address = address
         self.url = "http://" + address[0] + ":" + str(address[1])
         self.server = _ThreadedHTTPServer(address, _HTTPRequestHandler)
@@ -153,7 +154,6 @@ class _HTTPServerThread(threading.Thread):
             logger.info("Stopping " + self.url)
             self.stop_event.set()
             self.server.server_close()
-            self.terminate_event.wait(1)
 
     def alive(self):
         value = not self.terminate_event.is_set()
@@ -257,7 +257,6 @@ def wait():
         while len(_threads()) > 0:
             time.sleep(0.1)
     except (KeyboardInterrupt, SystemExit):
-        logger.info("")
         stop()
 
 def serve(file, data=None, address=None, browse=False):
