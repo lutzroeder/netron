@@ -7678,6 +7678,9 @@
     "name": "prim::unchecked_unwrap_optional(t(a)? optional) -> t(a)"
   },
   {
+    "name": "prims::collapse(Tensor a, int start, int end) -> Tensor"
+  },
+  {
     "name": "profiler::_record_function_enter_new(str name, str? args=None) -> __torch__.torch.classes.profiler._RecordFunction"
   },
   {
