@@ -3,6 +3,12 @@ import globals from 'globals';
 
 export default [
     {
+        ignores: [
+            'dist/**',
+            'third_party/**',
+        ]
+    },
+    {
         languageOptions: {
             globals: {
                 ...globals.es2020,
@@ -11,10 +17,6 @@ export default [
             },
             sourceType: 'module'
         },
-        ignores: [
-            'dist/**',
-            'third_party/**',
-        ],
         rules: {
             'accessor-pairs': 'error',
             'array-bracket-spacing': 'error',
