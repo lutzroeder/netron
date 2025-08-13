@@ -59,7 +59,7 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         ".otf": "font/opentype",
         ".eot": "application/vnd.ms-fontobject",
         ".woff": "font/woff",
-        ".woff2": "application/font-woff2",
+        ".woff2": "font/woff2",
         ".svg": "image/svg+xml"
     }
     def do_HEAD(self):
