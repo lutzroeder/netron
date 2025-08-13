@@ -66,6 +66,14 @@
             "console": "integratedTerminal",
         },
         {
+            "name": "Test Browser",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "test", "browser"],
+            "console": "integratedTerminal",
+        },
+        {
             "name": "Test Backend",
             "type": "debugpy",
             "request": "launch",

@@ -6,7 +6,7 @@ import * as url from 'url';
 
 playwright.test.setTimeout(120_000);
 
-playwright.test('electron', async () => {
+playwright.test('desktop', async () => {
 
     const self = url.fileURLToPath(import.meta.url);
     const dir = path.dirname(self);

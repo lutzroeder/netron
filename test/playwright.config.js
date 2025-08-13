@@ -3,6 +3,7 @@ import playwright from '@playwright/test';
 
 export default playwright.defineConfig({
     outputDir: '../dist/test-results',
+    reporter: './playwright.reporter.js',
     webServer: {
         command: 'npm run server',
         port: 8080,
