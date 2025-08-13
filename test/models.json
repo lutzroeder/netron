@@ -2485,6 +2485,20 @@
   },
   {
     "type":     "keras",
+    "target":   "input_data.keras",
+    "source":   "https://github.com/user-attachments/files/21760875/input_data.zip[input_data.keras]",
+    "format":   "Keras v3.11.2",
+    "link":     "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":     "keras",
+    "target":   "MobileNetV2.h5.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/6098152/MobileNetV2.h5.zip",
+    "format":   "Keras v2.4.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":     "keras",
     "target":   "keras_metadata.pb",
     "source":   "https://github.com/lutzroeder/netron/files/6751650/keras_metadata.pb.zip[keras_metadata.pb]",
     "format":   "Keras Saved Metadata",

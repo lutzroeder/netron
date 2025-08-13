@@ -819,6 +819,9 @@ keras.Graph = class {
                                 }
                             }
                             if (Array.isArray(config.input_layers)) {
+                                if (config.input_layers.length === 3 && typeof config.input_layers[0] === 'string' && Number.isInteger(config.input_layers[1]) && Number.isInteger(config.input_layers[2])) {
+                                    config.input_layers = [config.input_layers];
+                                }
                                 for (let i = 0; i < config.input_layers.length; i++) {
                                     const input_data = config.input_layers[i];
                                     const name = read_connection(input_data);
@@ -837,6 +840,9 @@ keras.Graph = class {
                                 }
                             }
                             if (Array.isArray(config.output_layers)) {
+                                if (config.output_layers.length === 3 && typeof config.output_layers[0] === 'string' && Number.isInteger(config.output_layers[1]) && Number.isInteger(config.output_layers[2])) {
+                                    config.output_layers = [config.output_layers];
+                                }
                                 for (let i = 0; i < config.output_layers.length; i++) {
                                     const output_data = config.output_layers[i];
                                     const [name] = output_data;
