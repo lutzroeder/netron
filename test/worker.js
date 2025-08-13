@@ -181,8 +181,8 @@ class DOMTokenList {
 
     add(...tokens) {
         const value = this._element.getAttribute('class') || '';
-        tokens = new Set(value.split(' ').concat(tokens));
-        this._element.setAttribute('class', Array.from(tokens).join(' '));
+        const set = new Set(value.split(' ').concat(...tokens));
+        this._element.setAttribute('class', Array.from(set).filter((s) => s).join(' '));
     }
 
     contains(token) {
