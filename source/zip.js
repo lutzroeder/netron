@@ -264,13 +264,13 @@ zip.Entry = class {
 
 zip.Inflater = class {
 
-    inflateRaw(data, length) {
+    inflateRaw(data, length, size) {
         let buffer = null;
-        if (zip.zlib) {
+        if (zip.zlib && (size === undefined || size > 0x4000)) {
             buffer = zip.zlib.inflateRawSync(data);
         } else {
             const reader = new zip.BitReader(data);
-            const writer = length === undefined ? new zip.BlockWriter() : new zip.BufferWriter(length);
+            const writer = length === undefined || size !== undefined ? new zip.BlockWriter() : new zip.BufferWriter(length);
             if (!zip.Inflater._staticLengthTree) {
                 zip.Inflater._codeLengths = new Uint8Array(19);
                 zip.Inflater._codeOrder = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
@@ -304,13 +304,16 @@ zip.Inflater = class {
                         throw new zip.Error('Unsupported block type.');
                     }
                 }
+                if (size !== undefined && writer.length >= size) {
+                    break;
+                }
             } while ((type & 1) === 0);
-            if (length !== undefined && length !== writer.length) {
+            if (size === undefined && length !== undefined && length !== writer.length) {
                 throw new zip.Error('Invalid uncompressed size.');
             }
             buffer = writer.toBuffer();
         }
-        if (length !== undefined && length !== buffer.length) {
+        if (size === undefined && length !== undefined && length !== buffer.length) {
             throw new zip.Error('Invalid uncompressed size.');
         }
         return buffer;
@@ -605,17 +608,13 @@ zip.InflaterStream = class {
 
     seek(position) {
         if (position !== this._position) {
-            if (this._buffer === undefined) {
-                this._inflate();
-            }
+            this._inflate(position, 0);
             this._position = position >= 0 ? position : this._length + position;
         }
     }
 
     skip(offset) {
-        if (this._buffer === undefined) {
-            this._inflate();
-        }
+        this._inflate(this.position, offset);
         this._position += offset;
     }
 
@@ -646,15 +645,18 @@ zip.InflaterStream = class {
         return new zip.BinaryReader(buffer);
     }
 
-    _inflate() {
-        if (this._buffer === undefined) {
+    _inflate(position, length) {
+        const size = Number.isInteger(position) && Number.isInteger(length) ? position + length : undefined;
+        if (this._buffer === undefined || (size !== undefined && this._buffer.length < size)) {
             const position = this._stream.position;
             this._stream.seek(this._offset);
             const buffer = this._stream.peek();
-            this._buffer = new zip.Inflater().inflateRaw(buffer, this._length);
-            this._length = this._buffer.length;
+            this._buffer = new zip.Inflater().inflateRaw(buffer, this._length, size);
             this._stream.seek(position);
-            delete this._stream;
+            if ((size === undefined || this._buffer.length > size) && (this._length === undefined)) {
+                this._length = this._buffer.length;
+                delete this._stream;
+            }
         }
     }
 };
