@@ -18,13 +18,14 @@ playwright.test('browser', async ({ page }) => {
     playwright.expect(page).toBeDefined();
     await page.waitForLoadState('domcontentloaded');
 
-    const consent = await page.locator('#message-button');
-    if (await consent.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await consent.click();
-    }
-
     // Wait for the welcome screen to be ready
     await page.waitForSelector('body.welcome', { timeout: 5000 });
+    await page.waitForTimeout(1000);
+
+    const consent = await page.locator('#message-button');
+    if (await consent.isVisible({ timeout: 2000 })) {
+        await consent.click();
+    }
 
     // Set up file chooser promise before clicking
     const fileChooserPromise = page.waitForEvent('filechooser');

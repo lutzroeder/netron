@@ -514,30 +514,28 @@ const lint = async () => {
 
 const test = async (target) => {
     let models = true;
-    for (const name of ['desktop', 'browser']) {
+    while (true) {
         /* eslint-disable no-await-in-loop */
-        if (target === name || read(name)) {
+        if (target === 'desktop' || read('desktop')) {
+            target = null;
             models = false;
-            switch (name) {
-                case 'desktop': {
-                    await exec('npx playwright install --with-deps');
-                    const host = process.platform === 'linux' && (process.env.GITHUB_ACTIONS || process.env.CI) ? 'xvfb-run -a ' : '';
-                    await exec(`${host}npx playwright test --config=test/playwright.config.js --project=desktop`);
-                    break;
-                }
-                case 'browser': {
-                    if (process.platform !== 'win32') {
-                        await exec('npx playwright install --with-deps');
-                        const headed = process.env.GITHUB_ACTIONS || process.env.CI ? '' :  ' --headed';
-                        await exec(`npx playwright test --config=test/playwright.config.js --project=browser${headed}`);
-                    }
-                    break;
-                }
-                default: {
-                    break;
-                }
-            }
+            await exec('npx playwright install --with-deps');
+            const host = process.platform === 'linux' && (process.env.GITHUB_ACTIONS || process.env.CI) ? 'xvfb-run -a ' : '';
+            await exec(`${host}npx playwright test --config=test/playwright.config.js --project=desktop`);
+            continue;
         }
+        if (target === 'browser' || read('browser')) {
+            target = null;
+            models = false;
+            if (process.platform !== 'win32') {
+                await exec('npx playwright install --with-deps');
+                const headed = process.env.GITHUB_ACTIONS || process.env.CI ? '' :  ' --headed';
+                await exec(`npx playwright test --config=test/playwright.config.js --project=browser${headed}`);
+            }
+            continue;
+        }
+        break;
+        /* eslint-enable no-await-in-loop */
     }
     if (models) {
         target = target || args.join(' ');
