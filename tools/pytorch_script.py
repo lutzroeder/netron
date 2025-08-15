@@ -80,6 +80,43 @@ known_legacy_schema_definitions = [
     "executorch_prim::sub.Scalar(Scalar a, Scalar b) -> Scalar",
     "executorch_prim::mul.Scalar(Scalar a, Scalar b) -> Scalar",
     "executorch_prim::floordiv.Scalar(Scalar a, Scalar b) -> Scalar",
+    "fbgemm::nccl_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()", # noqa E501
+    "fbgemm::quantize_fp8_per_tensor(Tensor input, Tensor? bs=None, Tensor? scale_ub=None, bool stochastic_rounding=False) -> Tensor[]", # noqa E501
+    "fbgemm::per_tensor_dynamic_quantize_i8(Tensor X) -> (Tensor, Tensor)",
+    "fbgemm::nccl_reducescatter(Tensor dst, Tensor src, int comm_idx=0) -> ()",
+    "fbgemm::nccl_allgather(Tensor dst, Tensor src, int comm_idx=0) -> ()",
+    "fbgemm::nccl_get_unique_id() -> Tensor",
+    "fbgemm::nccl_comm_init_rank(int world_size, int rank, Tensor id_, int comm_idx=0) -> ()", # noqa E501
+    "fbgemm::car_init(int rank, int world_size, Tensor local_barrier, Tensor[] all_barrier_handles, Tensor local_buffer, Tensor[] all_buffer_handles) -> ()", # noqa E501
+    "fbgemm::gqa_attn_splitk(Tensor XQ, Tensor cache_K, Tensor cache_V, Tensor seq_positions, float qk_scale, int num_split_ks, int kv_cache_quant_num_groups=1, bool use_tensor_cores=True, int cache_logical_dtype_int=0) -> (Tensor, Tensor, Tensor)", # noqa E501
+    "fbgemm::i8i8bf16(Tensor XQ, Tensor WQ, float scale, int split_k=1) -> Tensor",
+    "fbgemm::dequantize_fp8_cache(Tensor cache_K, Tensor cache_V, Tensor kv_seqlen, Tensor? qparam_k=None, Tensor? qparam_v=None) -> (Tensor, Tensor)", # noqa E501
+    "fbgemm::car_ipc_handle(Tensor buffer) -> Tensor",
+    "fbgemm::nccl_init(int rank, int world_size, str rendevouz, int comm_idx=0) -> ()",
+    "fbgemm::mqa_attn(Tensor XQ, Tensor cache_K, Tensor cache_V, Tensor seq_positions, float qk_scale, int? num_groups=1, int cache_logical_dtype_int=0) -> Tensor", # noqa E501
+    "fbgemm::car_tensor() -> Tensor",
+    "fbgemm::f8f8bf16(Tensor XQ, Tensor WQ, Tensor scale, bool use_fast_accum=True) -> Tensor", # noqa E501
+    "fbgemm::xpos_qkv_varseq_prefill(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor varseq_batch, Tensor varseq_seqpos, float theta, float gamma, float scale_base, float exponent_offset, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? varseq_cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor", # noqa E501
+    "fbgemm::f8f8bf16_blockwise(Tensor XQ, Tensor WQ, Tensor x_scale, Tensor w_scale, int block_m=128, int block_n=128, int block_k=128) -> Tensor", # noqa E501
+    "fbgemm::f8f8bf16_cublas(Tensor A, Tensor B, Tensor? Ainvs=None, Tensor? Binvs=None, bool use_fast_accum=True, Tensor(a!)? output=None) -> Tensor", # noqa E501
+    "fbgemm::bf16i4bf16_rowwise(Tensor X, Tensor WQ, Tensor w_scale, Tensor w_zp) -> Tensor", # noqa E501
+    "fbgemm::nccl_alltoall(Tensor dst, Tensor src, int world_size, int comm_idx=0) -> ()", # noqa E501
+    "fbgemm::one_shot_car_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()", # noqa E501
+    "fbgemm::rope_qkv_varseq_prefill(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor varseq_batch, Tensor varseq_seqpos, float theta, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? varseq_cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor", # noqa E501
+    "fbgemm::silu_mul_quantize_i8(Tensor X1, Tensor X2, float scale) -> Tensor",
+    "fbgemm::get_fp8_per_tensor_scale(Tensor input, Tensor? bs=None, Tensor? scale_ub=None) -> Tensor", # noqa E501
+    "fbgemm::f8i4bf16_rowwise(Tensor XQ, Tensor WQ, Tensor x_scale, Tensor w_scale, Tensor w_zp) -> Tensor", # noqa E501
+    "fbgemm::f8f8bf16_rowwise(Tensor XQ, Tensor WQ, Tensor x_scale, Tensor w_scale, Tensor? bias=None, bool use_fast_accum=True, Tensor(a!)? output=None) -> Tensor", # noqa E501
+    "fbgemm::per_tensor_quantize_i8(Tensor X, float scale) -> Tensor",
+    "fbgemm::quantize_fp8_per_row(Tensor input, Tensor? bs=None, Tensor? scale_ub=None, ScalarType? output_dtype=None, bool stochastic_rounding=False) -> Tensor[]", # noqa E501
+    "fbgemm::quantize_fp8_per_col(Tensor input, Tensor? bs=None, Tensor? scale_ub=None) -> Tensor[]", # noqa E501
+    "fbgemm::quantize_fp8_per_tensor_fixed_scale(Tensor input, Tensor scale, Tensor? bs=None, bool stochatic_rounding=False) -> Tensor", # noqa E501
+    "fbgemm::f8f8bf16_tensorwise(Tensor XQ, Tensor WQ, float scale, bool use_fast_accum=True) -> Tensor", # noqa E501
+    "fbgemm::xpos_qkv_decoding(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor seqpos, float theta, float gamma, float scale_base, float exponent_offset, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? actual_batch_size=None, Tensor? batch=None, Tensor? cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor", # noqa E501
+    "fbgemm::i8i8bf16_dynamic(Tensor XQ, Tensor WQ, Tensor scale, int split_k=1) -> Tensor", # noqa E501
+    "fbgemm::dequantize_int4_cache(Tensor cache_K, Tensor cache_V, Tensor kv_seqlen, int? num_groups=1) -> (Tensor, Tensor)", # noqa E501
+    "fbgemm::two_shot_car_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()", # noqa E501
+    "fbgemm::rope_qkv_decoding(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor seqpos, float theta, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? actual_batch_size=None, Tensor? batch=None, Tensor? cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor", # noqa E501
     "neuron::_execute_neuron(__torch__.torch.classes.neuron.Model _0, Tensor[] _1) -> Tensor[] _0", # noqa E501
     "neuron::_from_neuron(Tensor _0) -> Tensor _0",
     "neuron::_init_neuron() -> ()",

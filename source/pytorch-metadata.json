@@ -2791,6 +2791,12 @@
     "name": "aten::exp.Scalar(Scalar a) -> Scalar"
   },
   {
+    "name": "aten::exp2(Tensor self) -> Tensor"
+  },
+  {
+    "name": "aten::exp2.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::exp_(Tensor(a!) self) -> Tensor(a!)"
   },
   {
@@ -3284,6 +3290,18 @@
   },
   {
     "name": "aten::glu.out(Tensor self, int dim=-1, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::greater.Tensor(Tensor self, Tensor other) -> Tensor"
+  },
+  {
+    "name": "aten::greater.Scalar(Tensor self, Scalar other) -> Tensor"
+  },
+  {
+    "name": "aten::greater.Scalar_out(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::greater.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::greater_equal.Tensor(Tensor self, Tensor other) -> Tensor"
@@ -4528,6 +4546,12 @@
   },
   {
     "name": "aten::mkldnn_reorder_conv2d_weight(Tensor self, SymInt[2] padding=[0, 0], SymInt[2] stride=[1, 1], SymInt[2] dilation=[1, 1], SymInt groups=1, SymInt[]? input_size=None) -> Tensor"
+  },
+  {
+    "name": "aten::mkldnn_rnn_layer(Tensor input, Tensor weight0, Tensor weight1, Tensor weight2, Tensor weight3, Tensor hx_, Tensor cx_, bool reverse, int[] batch_sizes, int mode, int hidden_size, int num_layers, bool has_biases, bool bidirectional, bool batch_first, bool train) -> (Tensor, Tensor, Tensor, Tensor)"
+  },
+  {
+    "name": "aten::mkldnn_rnn_layer.out(Tensor input, Tensor weight0, Tensor weight1, Tensor weight2, Tensor weight3, Tensor hx_, Tensor cx_, bool reverse, int[] batch_sizes, int mode, int hidden_size, int num_layers, bool has_biases, bool bidirectional, bool batch_first, bool train, *, Tensor(a!) out0, Tensor(b!) out1, Tensor(c!) out2, Tensor(d!) out3) -> (Tensor(a!), Tensor(b!), Tensor(c!), Tensor(d!))"
   },
   {
     "name": "aten::mm(Tensor self, Tensor mat2) -> Tensor"
@@ -6944,6 +6968,117 @@
   },
   {
     "name": "executorch_prim::sub.Scalar(Scalar a, Scalar b) -> Scalar"
+  },
+  {
+    "name": "fbgemm::bf16i4bf16_rowwise(Tensor X, Tensor WQ, Tensor w_scale, Tensor w_zp) -> Tensor"
+  },
+  {
+    "name": "fbgemm::car_init(int rank, int world_size, Tensor local_barrier, Tensor[] all_barrier_handles, Tensor local_buffer, Tensor[] all_buffer_handles) -> ()"
+  },
+  {
+    "name": "fbgemm::car_ipc_handle(Tensor buffer) -> Tensor"
+  },
+  {
+    "name": "fbgemm::car_tensor() -> Tensor"
+  },
+  {
+    "name": "fbgemm::dequantize_fp8_cache(Tensor cache_K, Tensor cache_V, Tensor kv_seqlen, Tensor? qparam_k=None, Tensor? qparam_v=None) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "fbgemm::dequantize_int4_cache(Tensor cache_K, Tensor cache_V, Tensor kv_seqlen, int? num_groups=1) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "fbgemm::f8f8bf16(Tensor XQ, Tensor WQ, Tensor scale, bool use_fast_accum=True) -> Tensor"
+  },
+  {
+    "name": "fbgemm::f8f8bf16_blockwise(Tensor XQ, Tensor WQ, Tensor x_scale, Tensor w_scale, int block_m=128, int block_n=128, int block_k=128) -> Tensor"
+  },
+  {
+    "name": "fbgemm::f8f8bf16_cublas(Tensor A, Tensor B, Tensor? Ainvs=None, Tensor? Binvs=None, bool use_fast_accum=True, Tensor(a!)? output=None) -> Tensor"
+  },
+  {
+    "name": "fbgemm::f8f8bf16_rowwise(Tensor XQ, Tensor WQ, Tensor x_scale, Tensor w_scale, Tensor? bias=None, bool use_fast_accum=True, Tensor(a!)? output=None) -> Tensor"
+  },
+  {
+    "name": "fbgemm::f8f8bf16_tensorwise(Tensor XQ, Tensor WQ, float scale, bool use_fast_accum=True) -> Tensor"
+  },
+  {
+    "name": "fbgemm::f8i4bf16_rowwise(Tensor XQ, Tensor WQ, Tensor x_scale, Tensor w_scale, Tensor w_zp) -> Tensor"
+  },
+  {
+    "name": "fbgemm::get_fp8_per_tensor_scale(Tensor input, Tensor? bs=None, Tensor? scale_ub=None) -> Tensor"
+  },
+  {
+    "name": "fbgemm::gqa_attn_splitk(Tensor XQ, Tensor cache_K, Tensor cache_V, Tensor seq_positions, float qk_scale, int num_split_ks, int kv_cache_quant_num_groups=1, bool use_tensor_cores=True, int cache_logical_dtype_int=0) -> (Tensor, Tensor, Tensor)"
+  },
+  {
+    "name": "fbgemm::i8i8bf16(Tensor XQ, Tensor WQ, float scale, int split_k=1) -> Tensor"
+  },
+  {
+    "name": "fbgemm::i8i8bf16_dynamic(Tensor XQ, Tensor WQ, Tensor scale, int split_k=1) -> Tensor"
+  },
+  {
+    "name": "fbgemm::mqa_attn(Tensor XQ, Tensor cache_K, Tensor cache_V, Tensor seq_positions, float qk_scale, int? num_groups=1, int cache_logical_dtype_int=0) -> Tensor"
+  },
+  {
+    "name": "fbgemm::nccl_allgather(Tensor dst, Tensor src, int comm_idx=0) -> ()"
+  },
+  {
+    "name": "fbgemm::nccl_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()"
+  },
+  {
+    "name": "fbgemm::nccl_alltoall(Tensor dst, Tensor src, int world_size, int comm_idx=0) -> ()"
+  },
+  {
+    "name": "fbgemm::nccl_comm_init_rank(int world_size, int rank, Tensor id_, int comm_idx=0) -> ()"
+  },
+  {
+    "name": "fbgemm::nccl_get_unique_id() -> Tensor"
+  },
+  {
+    "name": "fbgemm::nccl_init(int rank, int world_size, str rendevouz, int comm_idx=0) -> ()"
+  },
+  {
+    "name": "fbgemm::nccl_reducescatter(Tensor dst, Tensor src, int comm_idx=0) -> ()"
+  },
+  {
+    "name": "fbgemm::one_shot_car_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()"
+  },
+  {
+    "name": "fbgemm::per_tensor_dynamic_quantize_i8(Tensor X) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "fbgemm::per_tensor_quantize_i8(Tensor X, float scale) -> Tensor"
+  },
+  {
+    "name": "fbgemm::quantize_fp8_per_col(Tensor input, Tensor? bs=None, Tensor? scale_ub=None) -> Tensor[]"
+  },
+  {
+    "name": "fbgemm::quantize_fp8_per_row(Tensor input, Tensor? bs=None, Tensor? scale_ub=None, ScalarType? output_dtype=None, bool stochastic_rounding=False) -> Tensor[]"
+  },
+  {
+    "name": "fbgemm::quantize_fp8_per_tensor(Tensor input, Tensor? bs=None, Tensor? scale_ub=None, bool stochastic_rounding=False) -> Tensor[]"
+  },
+  {
+    "name": "fbgemm::quantize_fp8_per_tensor_fixed_scale(Tensor input, Tensor scale, Tensor? bs=None, bool stochatic_rounding=False) -> Tensor"
+  },
+  {
+    "name": "fbgemm::rope_qkv_decoding(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor seqpos, float theta, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? actual_batch_size=None, Tensor? batch=None, Tensor? cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor"
+  },
+  {
+    "name": "fbgemm::rope_qkv_varseq_prefill(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor varseq_batch, Tensor varseq_seqpos, float theta, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? varseq_cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor"
+  },
+  {
+    "name": "fbgemm::silu_mul_quantize_i8(Tensor X1, Tensor X2, float scale) -> Tensor"
+  },
+  {
+    "name": "fbgemm::two_shot_car_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()"
+  },
+  {
+    "name": "fbgemm::xpos_qkv_decoding(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor seqpos, float theta, float gamma, float scale_base, float exponent_offset, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? actual_batch_size=None, Tensor? batch=None, Tensor? cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor"
+  },
+  {
+    "name": "fbgemm::xpos_qkv_varseq_prefill(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor varseq_batch, Tensor varseq_seqpos, float theta, float gamma, float scale_base, float exponent_offset, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? varseq_cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor"
   },
   {
     "name": "horizon::scale_quanti(Tensor x, Tensor scale, Tensor zero_point, int d, int min, int max, bool flag1, bool flat2, str str1, str str2) -> Tensor"
