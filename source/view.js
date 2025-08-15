@@ -242,7 +242,7 @@ view.View = class {
         }
         this._host.document.body.classList.remove(...Array.from(this._host.document.body.classList).filter((_) => _ !== 'active'));
         this._host.document.body.classList.add(...page.split(' '));
-        if (page === 'default') {
+        if (this._target && page === 'default') {
             this._target.register();
         } else if (this._target) {
             this._target.unregister();
@@ -1836,17 +1836,17 @@ view.Graph = class extends grapher.Graph {
             this._events.gesturestart = (e) => this._gestureStartHandler(e);
             this._events.pointerdown = (e) => this._pointerDownHandler(e);
             this._events.touchstart = (e) => this._touchStartHandler(e);
-        }
-        const document = this.host.document;
-        const element = document.getElementById('target');
-        element.focus();
-        element.addEventListener('scroll', this._events.scroll);
-        element.addEventListener('wheel', this._events.wheel, { passive: false });
-        element.addEventListener('pointerdown', this._events.pointerdown);
-        if (this.host.environment('agent') === 'safari') {
-            element.addEventListener('gesturestart', this._events.gesturestart, false);
-        } else {
-            element.addEventListener('touchstart', this._events.touchstart, { passive: true });
+            const document = this.host.document;
+            const element = document.getElementById('target');
+            element.focus();
+            element.addEventListener('scroll', this._events.scroll);
+            element.addEventListener('wheel', this._events.wheel, { passive: false });
+            element.addEventListener('pointerdown', this._events.pointerdown);
+            if (this.host.environment('agent') === 'safari') {
+                element.addEventListener('gesturestart', this._events.gesturestart, false);
+            } else {
+                element.addEventListener('touchstart', this._events.touchstart, { passive: true });
+            }
         }
     }
 
@@ -1859,6 +1859,7 @@ view.Graph = class extends grapher.Graph {
             element.removeEventListener('pointerdown', this._events.pointerdown);
             element.removeEventListener('gesturestart', this._events.gesturestart);
             element.removeEventListener('touchstart', this._events.touchstart);
+            delete this._events;
         }
     }
 
