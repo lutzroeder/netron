@@ -24,11 +24,11 @@ espresso.ModelFactory = class {
         return null;
     }
 
-    filter(context, type) {
-        if (context.type === 'espresso.net' && (type === 'espresso.weights' || type === 'espresso.shape' || type === 'coreml.metadata.mlmodelc')) {
+    filter(context, match) {
+        if (context.type === 'espresso.net' && (match.type === 'espresso.weights' || match.type === 'espresso.shape' || match.type === 'coreml.metadata.mlmodelc')) {
             return false;
         }
-        if (context.type === 'espresso.shape' && (type === 'espresso.weights' || type === 'coreml.metadata.mlmodelc')) {
+        if (context.type === 'espresso.shape' && (match.type === 'espresso.weights' || match.type === 'coreml.metadata.mlmodelc')) {
             return false;
         }
         return true;

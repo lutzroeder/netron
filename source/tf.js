@@ -233,11 +233,11 @@ tf.ModelFactory = class {
         return null;
     }
 
-    filter(context, type) {
-        if (context.type === 'tf.bundle' && type === 'tf.data') {
+    filter(context, match) {
+        if (context.type === 'tf.bundle' && match.type === 'tf.data') {
             return false;
         }
-        if ((context.type === 'tf.json' || context.type === 'tf.json.gz') && type === 'tf.tfjs.weights') {
+        if ((context.type === 'tf.json' || context.type === 'tf.json.gz') && match.type === 'tf.tfjs.weights') {
             return false;
         }
         return true;

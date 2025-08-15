@@ -40,8 +40,8 @@ onnx.ModelFactory = class {
         return new onnx.Model(metadata, target);
     }
 
-    filter(context, type) {
-        return context.type !== 'onnx.proto' || (type !== 'onnx.data' && type !== 'onnx.meta' && type !== 'dot');
+    filter(context, match) {
+        return context.type !== 'onnx.proto' || (match.type !== 'onnx.data' && match.type !== 'onnx.meta' && match.type !== 'dot');
     }
 };
 

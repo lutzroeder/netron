@@ -70,8 +70,8 @@ nnabla.ModelFactory = class {
         }
     }
 
-    filter(context, type) {
-        return context.type !== 'nnabla.pbtxt' || (type !== 'hdf5.parameter.h5' && type !== 'keras.h5');
+    filter(context, match) {
+        return context.type !== 'nnabla.pbtxt' || (match.type !== 'hdf5.parameter.h5' && match.type !== 'keras.h5');
     }
 };
 

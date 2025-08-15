@@ -6720,8 +6720,8 @@ view.ModelFactoryService = class {
                         }
                         delete context.value;
                         if (type) {
-                            matches = matches.filter((match) => !factory.filter || factory.filter(context, match.type));
-                            if (matches.every((match) => !match.factory.filter || match.factory.filter(match, context.type))) {
+                            matches = matches.filter((match) => !factory.filter || factory.filter(context, match));
+                            if (matches.every((match) => !match.factory.filter || match.factory.filter(match, context))) {
                                 context.factory = factory;
                                 matches.push(context);
                             }

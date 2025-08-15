@@ -21,8 +21,8 @@ tvm.ModelFactory = class {
         return null;
     }
 
-    filter(context, type) {
-        return context.type !== 'tvm.json' || type !== 'tvm.params';
+    filter(context, match) {
+        return context.type !== 'tvm.json' || match.type !== 'tvm.params';
     }
 
     async open(context) {

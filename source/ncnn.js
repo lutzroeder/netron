@@ -99,8 +99,8 @@ ncnn.ModelFactory = class {
         return null;
     }
 
-    filter(context, type) {
-        return (context.type !== 'ncnn.model' && context.type !== 'ncnn.model.bin') || type !== 'ncnn.weights';
+    filter(context, match) {
+        return (context.type !== 'ncnn.model' && context.type !== 'ncnn.model.bin') || match.type !== 'ncnn.weights';
     }
 
     async open(context) {

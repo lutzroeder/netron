@@ -95,8 +95,8 @@ openvino.ModelFactory = class {
         return null;
     }
 
-    filter(context, type) {
-        return context.type !== 'openvino.xml' || type !== 'openvino.bin';
+    filter(context, match) {
+        return context.type !== 'openvino.xml' || match.type !== 'openvino.bin';
     }
 
     async open(context) {

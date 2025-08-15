@@ -66,7 +66,7 @@ transformers.ModelFactory = class {
         return new transformers.Model(config, tokenizer, tokenizer_config, vocab, generation_config, preprocessor_config);
     }
 
-    filter(context, type) {
+    filter(context, match) {
         const priority = new Map([
             ['transformers.config', 7],
             ['transformers.tokenizer', 6],
@@ -79,7 +79,7 @@ transformers.ModelFactory = class {
             ['safetensors', 0]
         ]);
         const a = priority.has(context.type) ? priority.get(context.type) : -1; // current
-        const b = priority.has(type) ? priority.get(type) : -1;
+        const b = priority.has(match.type) ? priority.get(match.type) : -1;
         if (a !== -1 && b !== -1) {
             return a < b;
         }

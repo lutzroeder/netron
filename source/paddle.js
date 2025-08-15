@@ -46,11 +46,11 @@ paddle.ModelFactory = class {
         return null;
     }
 
-    filter(context, type) {
-        if (context.type === 'paddle.pb' && (type === 'paddle.params' || type === 'paddle.pickle')) {
+    filter(context, match) {
+        if (context.type === 'paddle.pb' && (match.type === 'paddle.params' || match.type === 'paddle.pickle')) {
             return false;
         }
-        if (context.type === 'paddle.naive.model' && type === 'paddle.naive.param') {
+        if (context.type === 'paddle.naive.model' && match.type === 'paddle.naive.param') {
             return false;
         }
         return true;

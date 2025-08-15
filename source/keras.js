@@ -63,14 +63,14 @@ keras.ModelFactory = class {
         return null;
     }
 
-    filter(context, type) {
-        if (context.type === 'keras.metadata.json' && (type === 'keras.config.json' || type === 'keras.model.weights.h5' || type === 'keras.model.weights.npz')) {
+    filter(context, match) {
+        if (context.type === 'keras.metadata.json' && (match.type === 'keras.config.json' || match.type === 'keras.model.weights.h5' || match.type === 'keras.model.weights.npz')) {
             return false;
         }
-        if (context.type === 'keras.config.json' && (type === 'keras.model.weights.h5' || type === 'keras.model.weights.npz')) {
+        if (context.type === 'keras.config.json' && (match.type === 'keras.model.weights.h5' || match.type === 'keras.model.weights.npz')) {
             return false;
         }
-        if (context.type === 'tfjs' && type === 'tf.tfjs.weights') {
+        if (context.type === 'tfjs' && match.type === 'tf.tfjs.weights') {
             return false;
         }
         return true;

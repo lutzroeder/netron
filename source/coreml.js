@@ -74,8 +74,8 @@ coreml.ModelFactory = class {
         return null;
     }
 
-    filter(context, type) {
-        if (context.type === 'coreml.metadata.mlmodelc' && (type === 'coreml.mil')) {
+    filter(context, match) {
+        if (context.type === 'coreml.metadata.mlmodelc' && (match.type === 'coreml.mil')) {
             return false;
         }
         return true;

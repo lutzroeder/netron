@@ -18,17 +18,17 @@ pytorch.ModelFactory = class {
         return null;
     }
 
-    filter(context, type) {
-        if (context.type === 'pytorch.export' && type === 'pytorch.zip') {
+    filter(context, match) {
+        if (context.type === 'pytorch.export' && match.type === 'pytorch.zip') {
             return false;
         }
-        if (context.type === 'pytorch.index' && type === 'pytorch.zip') {
+        if (context.type === 'pytorch.index' && match.type === 'pytorch.zip') {
             return false;
         }
-        if (context.type === 'pytorch.model.json' && type === 'pytorch.data.pkl') {
+        if (context.type === 'pytorch.model.json' && match.type === 'pytorch.data.pkl') {
             return false;
         }
-        if (context.type === 'pytorch.model.json' && type === 'pickle') {
+        if (context.type === 'pytorch.model.json' && match.type === 'pickle') {
             return false;
         }
         return true;
