@@ -1476,7 +1476,7 @@ view.Worker = class {
             this._worker.terminate();
             this._worker = null;
         }
-        if (this._timeout >= 0) {
+        if (this._timeout !== -1) {
             clearTimeout(this._timeout);
             this._timeout = -1;
             this._host.message();
