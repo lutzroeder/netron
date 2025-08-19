@@ -1394,6 +1394,7 @@ vkgraph.VkBytes = class VkBytes {
         const $ = new vkgraph.VkBytes();
         $.offset = reader.uint64_(position, 4, 0n);
         $.length = reader.uint64_(position, 6, 0n);
+        $.named_key = reader.string_(position, 8, null);
         return $;
     }
 };
