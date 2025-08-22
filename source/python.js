@@ -2417,17 +2417,24 @@ python.Execution = class {
             // }
         });
         this.registerFunction('operator.add');
+        this.registerFunction('operator.and_');
+        this.registerFunction('operator.and_');
         this.registerFunction('operator.eq');
+        this.registerFunction('operator.floordiv');
         this.registerFunction('operator.ge');
         this.registerFunction('operator.getitem');
         this.registerFunction('operator.gt');
-        this.registerFunction('operator.mul');
-        this.registerFunction('operator.mod');
         this.registerFunction('operator.le');
         this.registerFunction('operator.lt');
+        this.registerFunction('operator.mod');
+        this.registerFunction('operator.mul');
         this.registerFunction('operator.ne');
-        this.registerFunction('operator.floordiv');
+        this.registerFunction('operator.neg');
+        this.registerFunction('operator.or_');
+        this.registerFunction('operator.pos');
+        this.registerFunction('operator.pow');
         this.registerFunction('operator.sub');
+        this.registerFunction('operator.truediv');
         this.registerFunction('sys.path.append', () => {});
         this.registerFunction('sys.path.insert', () => {});
         this.registerType('argparse.Namespace', class {
@@ -4218,6 +4225,8 @@ python.Execution = class {
         const types = this.register('types');
         this.registerType('types.GenericAlias', class {});
         this.registerType('types.SimpleNamespace', class {});
+        this.registerType('types.BuiltinFunctionType', class {});
+        this.registerType('types.BuiltinMethodType', class {});
         this.registerFunction('types.resolve_bases', (bases) => {
             return bases;
         });
@@ -4425,6 +4434,10 @@ python.Execution = class {
                 return obj[name];
             }
             return defaultValue;
+        });
+
+        this.registerFunction('builtins.len', (obj) => {
+            return obj.length;
         });
         this.registerFunction('builtins.setattr', (obj, name, value) => {
             obj[name] = value;
@@ -7908,6 +7921,7 @@ python.Execution = class {
             }
             throw new python.Error(`Unsupported range(${JSON.stringify(start)}, ${JSON.stringify(stop)}, ${JSON.stringify(step)})`);
         });
+        this.registerFunction('math.trunc');
         builtins.xrange = builtins.range;
         this.registerFunction('torch._C._nn.gelu');
         this.registerFunction('torch._C._nn.avg_pool2d');
@@ -8664,6 +8678,7 @@ python.Execution = class {
             throw new python.Error("Unsupported 'torch.sub' expression type.");
         });
         this.registerFunction('torch.sym_int');
+        this.registerFunction('torch.sym_float');
         this.registerFunction('torch.sym_ite');
         this.registerFunction('torch.sym_max');
         this.registerFunction('torch.sym_min');
@@ -10730,7 +10745,7 @@ python.Execution = class {
                 }
                 this.is_view = is_write !== null && !is_write;
             }
-            get name() {
+            name() {
                 return this._name;
             }
         });
@@ -17712,13 +17727,13 @@ python.Execution = class {
                 this.example_inputs = example_inputs;
             }
         });
-        torch._export.serde.serialize._SYM_INT_OPS = new Set([
-            operator.mul, operator.add, operator.sub, operator.floordiv, operator.mod,
-            torch.sym_sqrt, torch.sym_int, torch.sym_ite, torch.sym_max, torch.sym_min, torch.sym_sqrt
-        ]);
-        torch._export.serde.serialize._SYM_BOOL_OPS = new Set([
+        torch._export.serde.serialize._SYM_OPS = new Set([
             operator.eq, operator.ne, operator.le, operator.ge, operator.lt, operator.gt,
-            torch.sym_not
+            operator.neg, operator.pos, operator.and_, operator.or_,
+            math.trunc, torch.sym_not,
+            operator.mul, operator.add, operator.sub, operator.floordiv, operator.mod, operator.pow,
+            torch.sym_int, torch.sym_float, torch.sym_ite, torch.sym_max, torch.sym_min, torch.sym_sqrt,
+            operator.truediv, operator.and_
         ]);
         this.registerType('torch._export.serde.union._Union', class {
             constructor(obj) {
@@ -18273,7 +18288,7 @@ python.Execution = class {
             }
             deserialize_node(serialized_node, target) {
                 let fx_node = null;
-                if (torch._export.serde.serialize._SYM_BOOL_OPS.has(target) || torch._export.serde.serialize._SYM_INT_OPS.has(target)) {
+                if (torch._export.serde.serialize._SYM_OPS.has(target)) {
                     const name = serialized_node.outputs[0].value.as_name;
                     const args = this.deserialize_sym_op_inputs(serialized_node.inputs);
                     fx_node = this.graph.create_node('call_function', target, args, null, name);

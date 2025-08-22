@@ -347,6 +347,7 @@ pytorch.Node = class {
 
     constructor(execution, metadata, name, type, obj, initializers, values, stack) {
         const torch = execution ? execution.torch : null;
+        const builtins = execution ? execution.builtins : null;
         this.name = name || '';
         this.nodes = [];
         this.attributes = [];
@@ -562,7 +563,15 @@ pytorch.Node = class {
             }
         } else if (torch && obj instanceof torch.fx.node.Node) {
             if (obj.op === 'call_function') {
-                const name = obj.target.name;
+                let name = null;
+                const target = obj.target;
+                if (target instanceof torch._ops.OpOverload) {
+                    name = target.name();
+                } else if (builtins.isinstance(target, builtins.function)) {
+                    name = target.__name__;
+                } else {
+                    throw new pytorch.Error(`Unsupported target '${target}'.`);
+                }
                 this.type = {
                     identifier: name,
                     name: name.indexOf('::') === -1 ? name : name.split('::').pop().split('.')[0]
