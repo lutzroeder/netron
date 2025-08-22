@@ -57,7 +57,7 @@ view.View = class {
                 if (e.shiftKey || e.ctrlKey) {
                     e.preventDefault();
                 }
-            }, { passive: true });
+            }, { passive: false });
             this._host.document.addEventListener('keydown', () => {
                 if (this._target) {
                     this._target.select(null);
