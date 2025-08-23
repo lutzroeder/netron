@@ -905,6 +905,9 @@
     "name": "aten::_fft_r2c.out(Tensor self, int[] dim, int normalization, bool onesided, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::_has_compatible_shallow_copy_type(Tensor self, Tensor from) -> bool"
+  },
+  {
     "name": "aten::_indices(Tensor(a) self) -> Tensor(a)"
   },
   {
@@ -2324,6 +2327,12 @@
     "name": "aten::cuda(Tensor(a) self) -> Tensor(a|b)"
   },
   {
+    "name": "aten::cudnn_batch_norm(Tensor input, Tensor weight, Tensor? bias, Tensor? running_mean, Tensor? running_var, bool training, float exponential_average_factor, float epsilon) -> (Tensor, Tensor, Tensor, Tensor)"
+  },
+  {
+    "name": "aten::cudnn_batch_norm.out(Tensor input, Tensor weight, Tensor? bias, Tensor? running_mean, Tensor? running_var, bool training, float exponential_average_factor, float epsilon, *, Tensor(a!) out0, Tensor(b!) out1, Tensor(c!) out2, Tensor(d!) out3) -> (Tensor(a!), Tensor(b!), Tensor(c!), Tensor(d!))"
+  },
+  {
     "name": "aten::cudnn_convolution_add_relu.out(Tensor self, Tensor weight, Tensor z, Scalar? alpha, Tensor? bias, SymInt[] stride, SymInt[] padding, SymInt[] dilation, SymInt groups, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
@@ -3225,10 +3234,12 @@
     "category": "Activation"
   },
   {
-    "name": "aten::gelu_backward(Tensor grad_output, Tensor self, *, str approximate=\"none\") -> Tensor"
+    "name": "aten::gelu_backward(Tensor grad_output, Tensor self, *, str approximate=\"none\") -> Tensor",
+    "category": "Activation"
   },
   {
-    "name": "aten::gelu_backward.grad_input(Tensor grad_output, Tensor self, *, str approximate=\"none\", Tensor(a!) grad_input) -> Tensor(a!)"
+    "name": "aten::gelu_backward.grad_input(Tensor grad_output, Tensor self, *, str approximate=\"none\", Tensor(a!) grad_input) -> Tensor(a!)",
+    "category": "Activation"
   },
   {
     "name": "aten::geometric_(Tensor(a!) self, float p, *, Generator? generator=None) -> Tensor(a!)"
@@ -5652,7 +5663,12 @@
     "name": "aten::round_.decimals(Tensor(a!) self, *, int decimals) -> Tensor(a!)"
   },
   {
-    "name": "aten::rrelu(Tensor self, Scalar lower=0.125, Scalar upper=0.33333333333333331, bool training=False, Generator? generator=None) -> Tensor"
+    "name": "aten::rrelu(Tensor self, Scalar lower=0.125, Scalar upper=0.33333333333333331, bool training=False, Generator? generator=None) -> Tensor",
+    "category": "Activation"
+  },
+  {
+    "name": "aten::rrelu_(Tensor(a!) self, Scalar lower=0.125, Scalar upper=0.33333333333333331, bool training=False, Generator? generator=None) -> Tensor(a!)",
+    "category": "Activation"
   },
   {
     "name": "aten::rsqrt(Tensor self) -> Tensor"
@@ -7562,6 +7578,9 @@
     "category": "Layer"
   },
   {
+    "name": "prepacked::conv2d_transpose_clamp_prepack(Tensor W, Tensor? B, int[2] stride, int[2] padding, int[2] output_padding, int[2] dilation, int groups, Scalar? output_min=None, Scalar? output_max=None) -> __torch__.torch.classes.xnnpack.TransposeConv2dOpContext"
+  },
+  {
     "name": "prepacked::conv2d_transpose_clamp_run(Tensor X, __torch__.torch.classes.xnnpack.TransposeConv2dOpContext W_prepack) -> Tensor Y",
     "category": "Layer"
   },
@@ -7589,6 +7608,9 @@
   },
   {
     "name": "prim::BroadcastSizes(...) -> int[]"
+  },
+  {
+    "name": "prim::ConstantMKLDNNTensor(Tensor value) -> Tensor"
   },
   {
     "name": "prim::EnumName(AnyEnumType enum) -> str"
