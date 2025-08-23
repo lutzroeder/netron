@@ -5765,9 +5765,16 @@
   },
   {
     "type":     "pytorch",
-    "target":   "gpt2.pt2",
-    "source":   "https://github.com/user-attachments/files/17270120/gpt2.pt2.zip[gpt2.pt2]",
+    "target":   "gpt2_v3.1.pt2",
+    "source":   "https://github.com/user-attachments/files/21956382/gpt2_v3.1.pt2.zip[gpt2_v3.1.pt2]",
     "format":   "PyTorch Export v3.1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "gpt2_v8_10.pt2",
+    "source":   "https://github.com/user-attachments/files/21956381/gpt2_v8_10.pt2.zip[gpt2_v8_10.pt2]",
+    "format":   "PyTorch Export v8.10",
     "link":     "https://github.com/lutzroeder/netron/issues/1211"
   },
   {
