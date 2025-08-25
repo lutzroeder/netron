@@ -753,6 +753,13 @@
     ]
   },
   {
+    "name": "RunModel",
+    "attributes": [
+      { "name": "location", "type": "string", "default": null },
+      { "name": "signature", "type": "string", "default": null }
+    ]
+  },
+  {
     "name": "Shape",
     "attributes": [
       { "name": "out_type", "type": "TensorType", "default": "FLOAT32" }
