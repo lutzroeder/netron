@@ -3632,13 +3632,13 @@
     "description": "Layer that reshapes inputs into the given shape.",
     "attributes": [
       {
-        "description": "Target shape. Tuple of integers, does not include the\n        samples dimension (batch size).",
+        "description": "Target shape. Tuple of integers, does not include the\n        samples dimension (batch size). One element of the `target_shape`\n        can be -1 in which case the missing value is inferred from the\n        size of the array and remaining dimensions.",
         "name": "target_shape"
       }
     ],
     "inputs": [
       {
-        "description": "Arbitrary, although all dimensions in the input shape must be\nknown/fixed. Use the keyword argument `input_shape` (tuple of integers,\ndoes not include the samples/batch size axis) when using this layer as\nthe first layer in a model.",
+        "description": "Arbitrary, but required to be compatible with `target_shape`.",
         "name": "input"
       }
     ],
@@ -3653,7 +3653,7 @@
         "code": ">>> x = keras.Input(shape=(12,))\n>>> y = keras.layers.Reshape((3, 4))(x)\n>>> y.shape\n(None, 3, 4)"
       },
       {
-        "code": ">>> # also supports shape inference using `-1` as dimension\n>>> y = keras.layers.Reshape((-1, 2, 2))(x)\n>>> y.shape\n(None, 3, 2, 2)"
+        "code": ">>> # another example with shape inference using `-1` as dimension\n>>> y = keras.layers.Reshape((-1, 2, 2))(x)\n>>> y.shape\n(None, 3, 2, 2)"
       }
     ]
   },
