@@ -627,7 +627,7 @@ pytorch.Node = class {
                     this.outputs.push(argument);
                 }
                 for (const [name, value] of obj.meta) {
-                    if (name === 'val' || name === 'stack_trace' || name === 'torch_fn' ||
+                    if (name === 'val' || name === 'torch_fn' ||
                         (Array.isArray(value) && value.length === 0) ||
                         (value instanceof Map && value.size === 0)) {
                         continue;

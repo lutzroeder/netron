@@ -3109,7 +3109,11 @@ view.ArgumentView = class extends view.Control {
             });
         }
         this._source = typeof type === 'string' && !type.endsWith('*') ? 'attribute' : this._source;
-        if (this._source === 'attribute' && type !== 'tensor' && type !== 'tensor?' && type !== 'tensor[]' && type !== 'tensor?[]') {
+        const primitive = typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint';
+        if (primitive) {
+            const item = new view.PrimitiveView(context, argument);
+            this._items.push(item);
+        } else if (this._source === 'attribute' && type !== 'tensor' && type !== 'tensor?' && type !== 'tensor[]' && type !== 'tensor?[]') {
             this._source = 'attribute';
             const item = new view.PrimitiveView(context, argument);
             this._items.push(item);
@@ -4591,7 +4595,7 @@ view.Formatter = class {
         if (typeof value === 'function') {
             return value();
         }
-        if (value && typeof value === 'bigint') {
+        if (value !== null && value !== undefined && (typeof value === 'bigint' || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean')) {
             return value.toString();
         }
         if (Number.isNaN(value)) {
