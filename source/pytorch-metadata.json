@@ -2782,6 +2782,12 @@
     "name": "aten::erfc.Scalar(Scalar a) -> Scalar"
   },
   {
+    "name": "aten::erfinv(Tensor self) -> Tensor"
+  },
+  {
+    "name": "aten::erfinv.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::exp(Tensor self) -> Tensor"
   },
   {
@@ -6089,6 +6095,12 @@
     "name": "aten::special_expit.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::special_expm1(Tensor self) -> Tensor"
+  },
+  {
+    "name": "aten::special_expm1.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::split.Tensor(Tensor(a -> *) self, SymInt split_size, int dim=0) -> Tensor(a)[]",
     "category": "Tensor"
   },
@@ -6936,6 +6948,30 @@
   },
   {
     "name": "aten::where.self_out(Tensor condition, Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::xlogy.Tensor(Tensor self, Tensor other) -> Tensor"
+  },
+  {
+    "name": "aten::xlogy.Scalar_Other(Tensor self, Scalar other) -> Tensor"
+  },
+  {
+    "name": "aten::xlogy.Scalar_Self(Scalar self, Tensor other) -> Tensor"
+  },
+  {
+    "name": "aten::xlogy.OutTensor(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::xlogy.OutScalar_Self(Scalar self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::xlogy.OutScalar_Other(Tensor self, Scalar other, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::xlogy_.Tensor(Tensor(a!) self, Tensor other) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::xlogy_.Scalar_Other(Tensor(a!) self, Scalar other) -> Tensor(a!)"
   },
   {
     "name": "aten::zero_(Tensor(a!) self) -> Tensor(a!)"
@@ -8071,6 +8107,9 @@
     "name": "quantized::conv_transpose2d_unpack(__torch__.torch.classes.quantized.Conv2dPackedParamsBase packed_weights) -> (Tensor unpacked_weights, Tensor? B_origin)"
   },
   {
+    "name": "quantized::dropout(Tensor self, float output_scale, int output_zero_point, Scalar p=0.5, bool training=False) -> Tensor"
+  },
+  {
     "name": "quantized::embedding_bag_4bit_rowwise_offsets(Tensor weight, Tensor indices, Tensor? offsets=None, bool scale_grad_by_freq=False, int mode=0, bool pruned_weights=False, Tensor? per_sample_weights=None, Tensor? compressed_indices_mapping=None, bool include_last_offset=False) -> Tensor",
     "category": "Transform"
   },
@@ -8467,6 +8506,9 @@
   },
   {
     "name": "torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)"
+  },
+  {
+    "name": "torchvision::_interpolate_bilinear2d_aa(Tensor input, int[] size, bool align_corners) -> Tensor"
   },
   {
     "name": "torchvision::deform_conv2d(Tensor input, Tensor weight, Tensor offset, Tensor mask, Tensor bias, SymInt stride_h, SymInt stride_w, SymInt pad_h, SymInt pad_w, SymInt dilation_h, SymInt dilation_w, SymInt groups, SymInt offset_groups, bool use_mask) -> Tensor"
