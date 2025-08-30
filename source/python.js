@@ -5112,8 +5112,17 @@ python.Execution = class {
             return {};
         });
         this.registerType('numpy.random.bit_generator.BitGenerator', class {});
-        this.registerType('numpy.random.bit_generator.SeedSequence', class {});
-        this.registerFunction('numpy.random.bit_generator.__pyx_unpickle_SeedSequence');
+        this.registerType('numpy.random.bit_generator.SeedSequence', class extends builtins.object {
+            __setstate__(/* state */) {
+            }
+        });
+        this.registerFunction('numpy.random.bit_generator.__pyx_unpickle_SeedSequence', (cls, checksum, state) => {
+            const obj = new cls();
+            if (state) {
+                obj.__setstate__(state);
+            }
+            return obj;
+        });
         this.registerType('numpy.random._mt19937.MT19937', class extends numpy.random.bit_generator.BitGenerator {});
         this.registerType('numpy.random._pcg64.PCG64', class extends numpy.random.bit_generator.BitGenerator {});
         this.registerType('numpy.random._pcg64.PCG64DXSM', class extends numpy.random.bit_generator.BitGenerator {});
@@ -5131,13 +5140,18 @@ python.Execution = class {
                 this.bit_generator = bit_generator;
             }
         });
-        this.registerFunction('numpy.random._pickle.__bit_generator_ctor', (bit_generator_name) => {
-            bit_generator_name = bit_generator_name || 'MT19937';
-            const bit_generator = numpy.random._pickle.BitGenerators[bit_generator_name];
-            if (bit_generator) {
-                return new bit_generator();
+        this.registerFunction('numpy.random._pickle.__bit_generator_ctor', (bit_generator) => {
+            bit_generator = bit_generator || 'MT19937';
+            let bit_gen_class = null;
+            if (builtins.isinstance(bit_generator, builtins.type)) {
+                bit_gen_class = bit_generator;
+            } else {
+                bit_gen_class = numpy.random._pickle.BitGenerators[bit_generator];
             }
-            throw new python.Error(`Unknown bit generator '${bit_generator_name}'.`);
+            if (bit_gen_class) {
+                return new bit_gen_class();
+            }
+            throw new python.Error(`Unknown bit generator '${bit_generator}'.`);
         });
         this.registerFunction('numpy.random._pickle.__generator_ctor', (bit_generator_name, bit_generator_ctor) => {
             bit_generator_ctor = bit_generator_ctor || numpy.random._pickle.__bit_generator_ctor;
