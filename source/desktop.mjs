@@ -44,7 +44,7 @@ desktop.Host = class {
             this._open(data);
         });
         this._element('menu-button').style.opacity = 0;
-        if (!/^\d\.\d\.\d$/.test(this.version)) {
+        if (!/^\d+\.\d+\.\d+$/.test(this.version)) {
             throw new Error('Invalid version.');
         }
         const metadata = [];
