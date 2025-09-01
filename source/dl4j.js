@@ -375,7 +375,7 @@ dl4j.NDArray = class {
             ['DOUBLE', ['float64', 8]]
         ]);
         if (!dataTypes.has(headerData[2])) {
-            throw new dl4j.Error(`Unsupported header data type '${headerShape[2]}'.`);
+            throw new dl4j.Error(`Unsupported header data type '${headerData[2]}'.`);
         }
         const [dataType, itemSize] = dataTypes.get(headerData[2]);
         this.dataType = dataType;
