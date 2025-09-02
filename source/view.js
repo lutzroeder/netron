@@ -6417,6 +6417,7 @@ view.ModelFactoryService = class {
                     { name: 'NuGet assets', tags: ['version', 'targets', 'packageFolders'] },
                     { name: 'NuGet data', tags: ['format', 'restore', 'projects'] },
                     { name: 'NPM package', tags: ['name', 'version', 'dependencies'] },
+                    { name: 'NPM package lock data', tags: ['name', 'version', 'lockfileVersion'] },
                     { name: 'NetworkX adjacency_data', tags: ['directed', 'graph', 'nodes'] },
                     { name: 'Waifu2x data', tags: ['name', 'arch_name', 'channels'] },
                     { name: 'Waifu2x data', tags: ['[].nInputPlane', '[].nOutputPlane', '[].weight', '[].bias'] },
@@ -6440,6 +6441,7 @@ view.ModelFactoryService = class {
                     { name: 'GuitarML SmartAmp model data', tags: ['activation', 'output_channels', 'input_channels', 'residual_channels'] },
                     { name: 'Keras configuration data', tags: ['floatx', 'epsilon', 'backend'] },
                     { name: 'PIMCOMP-NN model data', tags: ['node_list', 'reshape_info'] },
+                    { name: 'AIMET encodings', tags: ['activation_encodings'] },
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
