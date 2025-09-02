@@ -24,6 +24,9 @@ transformers.ModelFactory = class {
             if (obj.transformers_version && obj.do_sample !== undefined && obj.temperature !== undefined) {
                 return context.set('transformers.generation_config', obj);
             }
+            if (obj.transformers_version && obj._from_model_config !== undefined) {
+                return context.set('transformers.generation_config', obj);
+            }
             if (obj.crop_size !== undefined && obj.do_center_crop !== undefined && obj.image_mean !== undefined && obj.image_std !== undefined && obj.do_resize !== undefined) {
                 return context.set('transformers.preprocessor_config.json', obj);
             }
