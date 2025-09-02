@@ -7358,39 +7358,28 @@ python.Execution = class {
         });
         this.registerType('sympy.printing.defaults.Printable', class {});
         this.registerType('sympy.core.basic.Basic', class extends sympy.printing.defaults.Printable {
-            constructor() {
+            constructor(...args) {
                 super();
-                this._args = [];
+                this._args = args;
             }
             get args() {
                 return this._args;
             }
-            get is_Integer() {
-                return false;
-            }
-            get is_Float() {
-                return false;
-            }
-            get is_Boolean() {
-                return false;
+        });
+        this.registerType('sympy.core.expr.Expr', class extends sympy.core.basic.Basic {
+        });
+        this.registerType('sympy.core.operations.AssocOp', class extends sympy.core.expr.Expr /* sympy.core.basic.Basic */ {});
+        this.registerType('sympy.core.power.Pow', class extends sympy.core.expr.Expr {
+            __str__() {
+                return this._args.map((a) => a.__str__()).join('**');
             }
         });
-        this.registerType('sympy.core.expr.Expr', class extends sympy.core.basic.Basic {});
-        this.registerType('sympy.core.operations.AssocOp', class extends sympy.core.basic.Basic {});
-        this.registerType('sympy.core.power.Pow', class extends sympy.core.expr.Expr {
-            constructor(...args) {
-                super();
-                this._args = args;
-            }
+        this.registerType('sympy.core.add.Add', class extends sympy.core.operations.AssocOp {
             __str__() {
-                return this._args.map((a) => a.__str__()).join('*');
+                return this._args.map((a) => a.__str__()).join(' + ');
             }
         });
         this.registerType('sympy.core.mul.Mul', class extends sympy.core.operations.AssocOp {
-            constructor(...args) {
-                super();
-                this._args = args;
-            }
             __str__() {
                 return this._args.map((a) => a.__str__()).join('*');
             }
@@ -7401,9 +7390,7 @@ python.Execution = class {
             constructor(value) {
                 super();
                 this.value = value;
-            }
-            get is_Integer() {
-                return true;
+                this.is_Integer = true;
             }
             __int__() {
                 return this.value;
