@@ -7,7 +7,7 @@ qnn.ModelFactory = class {
 
     async match(context) {
         const obj = await context.peek('json');
-        if (obj && obj['model.cpp'] && obj.graph) {
+        if (obj && obj['model.cpp'] !== undefined && obj.graph) {
             return context.set('qnn.json', obj);
         }
         const entries = await context.peek('tar');
