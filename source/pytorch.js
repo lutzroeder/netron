@@ -1696,10 +1696,21 @@ pytorch.Execution = class extends python.Execution {
         const ast = this.ast;
         const torch = this.torch;
         if (target instanceof ast.Name && target.id === 'torch') {
-            const fn = torch.ops.aten[name];
+            const fn = torch.ops.aten.__getattr__(name);
             if (fn) {
                 const evalArgs = args.map((arg) => this.expression(arg, context));
-                return fn(...evalArgs);
+                return fn.__call__(...evalArgs);
+            }
+        }
+        if (target instanceof ast.Attribute && target.value instanceof ast.Name && target.value.id === 'ops') {
+            const module = torch.ops[target.attr];
+            if (!module) {
+                throw new pytorch.Error(`Unknown torch.ops module '${target.attr}'.`);
+            }
+            const fn = module.__getattr__(name);
+            if (fn) {
+                const evalArgs = args.map((arg) => this.expression(arg, context));
+                return fn.__call__(...evalArgs);
             }
         }
         return super.call(target, name, args, keywords, context);
@@ -2518,14 +2529,8 @@ pytorch.Metadata = class {
             }
         }
         for (const module of modules) {
-            const existing = execution.register(`ops.${module}`);
             const namespace = new torch._ops._OpNamespace(module);
-            const created = execution.register(`torch.ops.${module}`, namespace);
-            for (const [name, obj] of Object.entries(existing)) {
-                if (name !== '__module__' && name !== '__name__' && !(name in created)) {
-                    created[name] = obj;
-                }
-            }
+            execution.register(`torch.ops.${module}`, namespace);
         }
     }
 };

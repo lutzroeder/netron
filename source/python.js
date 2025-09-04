@@ -14,6 +14,7 @@ python.Execution = class {
         this._events = new Map();
         this._utf8Decoder = new TextDecoder('utf-8');
         this._unresolved = new Map();
+        this._operators = new Map();
         const dict = class extends Map {
             constructor(items) {
                 super();
@@ -5819,44 +5820,9 @@ python.Execution = class {
         });
         this.registerFunction('torch._C.tupleConstruct', (stack, num_inputs) => {
             torch._C.TORCH_CHECK(num_inputs <= stack.length);
-            switch (num_inputs) {
-                case 0: {
-                    stack.push(new torch._C.IValue(torch._C.Tuple.create([])));
-                    break;
-                }
-                case 1: {
-                    const tuple = torch._C.Tuple.create([stack.pop()]);
-                    stack.push(new torch._C.IValue(tuple));
-                    break;
-                }
-                case 2: {
-                    const tuple = torch._C.Tuple.create([stack[stack.length - 2], stack[stack.length - 1]]);
-                    stack.pop();
-                    stack.pop();
-                    stack.push(new torch._C.IValue(tuple));
-                    break;
-                }
-                case 3: {
-                    throw new python.Error('Not implemented.');
-                    /* auto tuple = c10::ivalue::Tuple::create(
-                        std::move(stack[stack.size() - 3]),
-                        std::move(stack[stack.size() - 2]),
-                        std::move(stack[stack.size() - 1]));
-                    stack.pop_back();
-                    stack.pop_back();
-                    stack.back() = std::move(tuple);
-                    break; */
-                }
-                default: {
-                    throw new python.Error('Not implemented.');
-                    /* std::vector<IValue> elems{
-                        std::make_move_iterator(stack.end() - num_inputs),
-                        std::make_move_iterator(stack.end())};
-                    drop(stack, num_inputs - 1);
-                    stack.back() = c10::ivalue::Tuple::create(std::move(elems));
-                    break; */
-                }
-            }
+            const elems = stack.splice(stack.length - num_inputs, num_inputs);
+            const tuple = torch._C.Tuple.create(elems.reverse());
+            stack.push(new torch._C.IValue(tuple));
         });
         this.registerFunction('torch._C.runNodeIfInputsAreConstant', (n, ignore_custom_classes, db) => {
             let stack = [];
@@ -5920,13 +5886,21 @@ python.Execution = class {
                     if (!obj) {
                         throw new python.Error(`Unknown constant module 'torch.ops.${module}'.`);
                     }
-                    const fn = torch.ops[module][name];
-                    if (!fn) {
+                    const fn = torch.ops[module].__getattr__(name);
+                    if (!fn || !fn.__call__) {
                         throw new python.Error(`Unknown constant function 'torch.ops.${module}.${name}'.`);
                     }
                     const args = stack.map((v) => v.value);
-                    const result = fn(...args);
-                    stack = result === undefined ? [] : [new torch._C.IValue(result)];
+                    const result = fn.__call__(...args);
+                    if (result === undefined) {
+                        stack = [];
+                    } else if (result instanceof torch._C.IValue) {
+                        stack = [result];
+                    } else if (Array.isArray(result) && result.every((v) => v instanceof torch._C.IValue)) {
+                        stack = result;
+                    } else {
+                        stack = [new torch._C.IValue(result)];
+                    }
                     // } catch {
                     // stack = [];
                     // return null;
@@ -8000,124 +7974,6 @@ python.Execution = class {
         this.registerFunction('builtins.uninitialized', (/* type */) => {
             return undefined;
         });
-        this.registerFunction('ops.prim.unchecked_cast', (type, value) => {
-            return value;
-        });
-        this.registerFunction('ops.prim.data', (tensor) => {
-            return tensor;
-        });
-        this.registerFunction('ops.prim.device', (tensor) => {
-            return tensor.device;
-        });
-        this.registerFunction('ops.prim.dtype', (tensor) => {
-            return tensor.dtype.scalar_type();
-        });
-        this.registerFunction('ops.prim.is_quantized', (tensor) => {
-            return tensor.is_quantized;
-        });
-        this.registerFunction('ops.prim.is_cuda', (/* tensor */) => {
-            return false;
-        });
-        this.registerFunction('ops.prim.is_nested', (tensor) => {
-            return tensor.is_nested;
-        });
-        this.registerFunction('ops.prim.is_sparse', (tensor) => {
-            return tensor.is_sparse;
-        });
-        this.registerFunction('ops.prim.unchecked_unwrap_optional', (value) => {
-            return value;
-        });
-        this.registerFunction('ops.prim.NumToTensor', (value) => {
-            const tensor = self.invoke('torch.Tensor', []);
-            tensor.value = value;
-            return tensor;
-        });
-        this.registerFunction('ops.prim.min', (...args) => {
-            if (Array.isArray(args[0])) {
-                return Math.min.apply(null, args[0]);
-            }
-            return Math.min.apply(null, args);
-        });
-        this.registerFunction('ops.prim.max', (...args) => {
-            if (Array.isArray(args[0])) {
-                return Math.max.apply(null, args[0]);
-            }
-            return Math.max.apply(null, args);
-        });
-        this.registerFunction('ops.prim.shape', (tensor) => {
-            return tensor && tensor.size ? tensor.size() : undefined;
-        });
-        this.registerFunction('ops.quantized.conv_prepack', (weight, bias, stride, padding, dilation, groups) => {
-            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
-            params.weight = weight;
-            params.bias = bias;
-            params.stride = stride;
-            params.padding = padding;
-            params.dilation = dilation;
-            params.groups = groups;
-            return params;
-        });
-        this.registerFunction('ops.quantized.conv1d_prepack', (weight, bias, stride, padding, dilation, groups) => {
-            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
-            params.weight = weight;
-            params.bias = bias;
-            params.stride = stride;
-            params.padding = padding;
-            params.dilation = dilation;
-            params.groups = groups;
-            return params;
-        });
-        this.registerFunction('ops.quantized.conv2d_prepack', (weight, bias, stride, padding, dilation, groups) => {
-            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
-            params.weight = weight;
-            params.bias = bias;
-            params.stride = stride;
-            params.padding = padding;
-            params.dilation = dilation;
-            params.groups = groups;
-            return params;
-        });
-        this.registerFunction('ops.quantized.conv3d_prepack', (weight, bias, stride, padding, dilation, groups) => {
-            const params = self.invoke('__torch__.torch.classes.quantized.Conv3dPackedParamsBase', []);
-            params.weight = weight;
-            params.bias = bias;
-            params.stride = stride;
-            params.padding = padding;
-            params.dilation = dilation;
-            params.groups = groups;
-            return params;
-        });
-        this.registerFunction('ops.quantized.conv_transpose1d_prepack', (weight, bias, stride, padding, output_padding, dilation, groups) => {
-            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
-            params.weight = weight;
-            params.bias = bias;
-            params.stride = stride;
-            params.padding = padding;
-            params.output_padding = output_padding;
-            params.dilation = dilation;
-            params.groups = groups;
-            return params;
-        });
-        this.registerFunction('ops.quantized.conv_transpose2d_prepack', (weight, bias, stride, padding, output_padding, dilation, groups) => {
-            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
-            params.weight = weight;
-            params.bias = bias;
-            params.stride = stride;
-            params.padding = padding;
-            params.output_padding = output_padding;
-            params.dilation = dilation;
-            params.groups = groups;
-            return params;
-        });
-        this.registerFunction('ops.quantized.linear_prepack', (weight, bias) => {
-            const params = self.invoke('__torch__.torch.classes.quantized.LinearPackedParamsBase', []);
-            params.weight = weight;
-            params.bias = bias;
-            return params;
-        });
-        this.registerFunction('ops.prim.RaiseException', (message) => {
-            throw new python.Error(message);
-        });
         this.registerFunction('builtins.range', (start, stop, step) => {
             if (stop === undefined && step === undefined) {
                 if (Number.isInteger(start)) {
@@ -8293,33 +8149,6 @@ python.Execution = class {
             }
             return ret;
         });
-        this.registerFunction('ops.aten.is_scripting', () => {
-            return true;
-        });
-        this.registerFunction('ops.aten.__and__', (left, right) => {
-            return left && right;
-        });
-        this.registerFunction('ops.aten.__contains__', (dict, key) => {
-            return builtins.hasattr(dict, key);
-        });
-        this.registerFunction('torch.__derive_index', (index, start, step) => {
-            return start + index * step;
-        });
-        this.registerFunction('ops.aten.__is__', (left, right) => {
-            return left === right;
-        });
-        this.registerFunction('ops.aten.__isnot__', (left, right) => {
-            return left !== right;
-        });
-        this.registerFunction('ops.aten.__not__', (value) => {
-            if (Number.isInteger(value)) {
-                value = Boolean(value);
-            }
-            if (typeof value === 'boolean') {
-                return !value;
-            }
-            throw new python.Error("Unsupported 'ops.aten.__not__' expression type.");
-        });
         this.registerFunction('torch.__range_length', (lo, hi, step) => {
             if (step === 0) {
                 throw new python.Error('range() arg 3 must not be zero');
@@ -8332,7 +8161,7 @@ python.Execution = class {
             return 0;
         });
         this.registerFunction('torch._nested_tensor_from_mask_left_aligned');
-        this.registerFunction('ops.aten._unwrap_optional', (value) => {
+        this.registerOperator('aten::_unwrap_optional', (value) => {
             return value;
         });
         this.registerFunction('torch.get_default_dtype', () => {
@@ -8357,18 +8186,6 @@ python.Execution = class {
             tensor.__setstate__([storage, 0, shape, stride]);
             return tensor;
         });
-        this.registerFunction('ops.aten.add', (left, right) => {
-            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
-                return left + right;
-            }
-            if (Array.isArray(left) && Array.isArray(right)) {
-                return left.concat(right);
-            }
-            if (typeof left === 'string' && typeof right === 'string') {
-                return left + right;
-            }
-            throw new python.Error('Unsupported ops.aten.add expression type.');
-        });
         this.registerFunction('torch.all', (input) => {
             if (Array.isArray(input) && input.length === 0) {
                 return true;
@@ -8389,17 +8206,6 @@ python.Execution = class {
                 }
             }
         });
-        this.registerFunction('ops.aten..cosine_similarity');
-        this.registerFunction('ops.aten..extend', (list, value) => {
-            list.push(...value);
-        });
-        this.registerFunction('ops.aten..insert', (list, index, value) => {
-            list.splice(index, 0, value);
-            return value;
-        });
-        this.registerFunction('ops.aten..replace', (value, oldvalue, newvalue /*, max */) => {
-            return value.replace(oldvalue, newvalue);
-        });
         this.registerFunction('torch.dict', (args) => {
             const obj = {};
             if (args) {
@@ -8413,7 +8219,38 @@ python.Execution = class {
             }
             return obj;
         });
-        this.registerFunction('ops.aten..dim', (tensor) => {
+        this.registerOperator('aten::cosine_similarity', () => {
+            throw new python.Error(`'aten::cosine_similarity' not implemented.`);
+        });
+        this.registerOperator('aten::extend', (list, value) => {
+            list.push(...value);
+        });
+        this.registerOperator('aten::insert', (list, index, value) => {
+            list.splice(index, 0, value);
+            return value;
+        });
+        this.registerOperator('aten::replace', (value, oldvalue, newvalue /*, max */) => {
+            return value.replace(oldvalue, newvalue);
+        });
+        this.registerOperator('aten::add', (left, right) => {
+            if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
+                return left + right;
+            }
+            if (Array.isArray(left) && Array.isArray(right)) {
+                return left.concat(right);
+            }
+            if (typeof left === 'string' && typeof right === 'string') {
+                return left + right;
+            }
+            throw new python.Error('Unsupported aten::add expression type.');
+        });
+        this.registerOperator('aten::log', (x) => {
+            if (typeof x === 'number' || x instanceof Number) {
+                return Math.log(x);
+            }
+            throw new python.Error('Unsupported aten::log expression type.');
+        });
+        this.registerOperator('aten::dim', (tensor) => {
             if (tensor && tensor.size) {
                 const size = tensor.size();
                 if (size) {
@@ -8422,7 +8259,7 @@ python.Execution = class {
             }
             return NaN;
         });
-        this.registerFunction('ops.aten..numel', (tensor) => {
+        this.registerOperator('aten::numel', (tensor) => {
             if (tensor && tensor.size) {
                 const size = tensor.size();
                 if (size) {
@@ -8431,7 +8268,7 @@ python.Execution = class {
             }
             return NaN;
         });
-        this.registerFunction('ops.aten.eq', (left, right) => {
+        this.registerOperator('aten::eq', (left, right) => {
             if (typeof left === 'string' && typeof right === 'string') {
                 return left === right;
             }
@@ -8449,16 +8286,16 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported 'torch.eq' expression type.");
         });
-        this.registerFunction('ops.aten.floor', (value) => {
+        this.registerOperator('aten::floor', (value) => {
             return Math.floor(value);
         });
-        this.registerFunction('ops.aten.ceil', (value) => {
+        this.registerOperator('aten::ceil', (value) => {
             return Math.ceil(value);
         });
-        this.registerFunction('ops.aten.floordiv', (left, right) => {
+        this.registerOperator('aten::floordiv', (left, right) => {
             return Math.floor(left / right);
         });
-        this.registerFunction('ops.aten..format', (...args) => {
+        this.registerOperator('aten::format', (...args) => {
             const list = args.shift().split(/({}D?)/);
             return list.map((text) => {
                 if (text === '{}' || text === '{}D') {
@@ -8471,12 +8308,12 @@ python.Execution = class {
                 return text;
             }).join('');
         });
-        this.registerFunction('ops.aten.strip', (self, chars) => {
+        this.registerOperator('aten::strip', (self, chars) => {
             chars = chars || '\\n\\t\\f\\v';
             const regex = new RegExp(`[${chars}]`, 'g');
             return self.replace(regex, '');
         });
-        this.registerFunction('ops.aten.gt', (left, right) => {
+        this.registerOperator('aten::gt', (left, right) => {
             if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 if (!isNaN(left) && !isNaN(right)) {
                     return left > right;
@@ -8487,7 +8324,7 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported 'ops.aten.gt' expression type.");
         });
-        this.registerFunction('ops.aten.ge', (left, right) => {
+        this.registerOperator('aten::ge', (left, right) => {
             if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 if (!isNaN(left) && !isNaN(right)) {
                     return left > right;
@@ -8498,18 +8335,18 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported 'ops.aten.ge' expression type.");
         });
-        this.registerFunction('ops.aten.is_floating_point', (tensor) => {
+        this.registerOperator('aten::is_floating_point', (tensor) => {
             const type = tensor.dtype.scalar_type();
             return (type === 5 || type === 6 || type === 7);
         });
-        this.registerFunction('ops.aten.is_grad_enabled', () => {
+        this.registerOperator('aten::is_grad_enabled', () => {
             return false;
         });
-        this.registerFunction('ops.aten.is_autocast_enabled', () => {
+        this.registerOperator('aten::is_autocast_enabled', () => {
             return false;
         });
-        this.registerFunction('ops.aten.isfinite');
-        this.registerFunction('ops.aten.set_grad_enabled', (/* value */) => {
+        this.registerOperator('aten::isfinite');
+        this.registerOperator('aten::set_grad_enabled', (/* value */) => {
         });
         this.registerFunction('torch.serialization._get_layout', (name) => {
             const value = name.startsWith('torch.') ? torch[name.split('.')[1]] : null;
@@ -8536,10 +8373,10 @@ python.Execution = class {
         this.registerFunction('torch.jit._pickle.restore_type_tag', (value /*, type_str */) => {
             return value;
         });
-        this.registerFunction('ops.aten..keys', (dict) => {
+        this.registerOperator('aten::keys', (dict) => {
             return Object.keys(dict);
         });
-        this.registerFunction('ops.aten..len', (value) => {
+        this.registerOperator('aten::len', (value) => {
             if (Array.isArray(value)) {
                 return value.length;
             }
@@ -8548,7 +8385,7 @@ python.Execution = class {
             }
             return NaN;
         });
-        this.registerFunction('ops.aten..le', (left, right) => {
+        this.registerOperator('aten::le', (left, right) => {
             if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 if (isNaN(left) || isNaN(right)) {
                     return false;
@@ -8560,10 +8397,10 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported 'torch.le' expression type.");
         });
-        this.registerFunction('ops.aten..list', (args) => {
+        this.registerOperator('aten::list', (args) => {
             return args;
         });
-        this.registerFunction('ops.aten..list_with_default', (size /*, defaults */) => {
+        this.registerOperator('aten::list_with_default', (size /*, defaults */) => {
             return size;
         });
         this.registerType('torch.PyTorchFileReader', class {
@@ -8754,19 +8591,170 @@ python.Execution = class {
             }
             return _legacy_load(f);
         });
-        this.registerFunction('ops.aten.log10', (value) => {
+        this.registerOperator('prim::unchecked_cast', (type, value) => {
+            return value;
+        });
+        this.registerOperator('prim::data', (tensor) => {
+            return tensor;
+        });
+        this.registerOperator('prim::device', (tensor) => {
+            return tensor.device;
+        });
+        this.registerOperator('prim::dtype', (tensor) => {
+            return tensor.dtype.scalar_type();
+        });
+        this.registerOperator('prim::is_quantized', (tensor) => {
+            return tensor.is_quantized;
+        });
+        this.registerOperator('prim::is_cuda', (/* tensor */) => {
+            return false;
+        });
+        this.registerOperator('prim::is_nested', (tensor) => {
+            return tensor.is_nested;
+        });
+        this.registerOperator('prim::is_sparse', (tensor) => {
+            return tensor.is_sparse;
+        });
+        this.registerOperator('prim::unchecked_unwrap_optional', (value) => {
+            return value;
+        });
+        this.registerOperator('prim::NumToTensor', (value) => {
+            const tensor = self.invoke('torch.Tensor', []);
+            tensor.value = value;
+            return tensor;
+        });
+        this.registerOperator('prim::min', (...args) => {
+            if (Array.isArray(args[0])) {
+                return Math.min.apply(null, args[0]);
+            }
+            return Math.min.apply(null, args);
+        });
+        this.registerOperator('prim::max', (...args) => {
+            if (Array.isArray(args[0])) {
+                return Math.max.apply(null, args[0]);
+            }
+            return Math.max.apply(null, args);
+        });
+        this.registerOperator('prim::shape', (tensor) => {
+            return tensor && tensor.size ? tensor.size() : undefined;
+        });
+        this.registerOperator('quantized::conv_prepack', (weight, bias, stride, padding, dilation, groups) => {
+            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            params.stride = stride;
+            params.padding = padding;
+            params.dilation = dilation;
+            params.groups = groups;
+            return params;
+        });
+        this.registerOperator('quantized::conv1d_prepack', (weight, bias, stride, padding, dilation, groups) => {
+            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            params.stride = stride;
+            params.padding = padding;
+            params.dilation = dilation;
+            params.groups = groups;
+            return params;
+        });
+        this.registerOperator('quantized::conv2d_prepack', (weight, bias, stride, padding, dilation, groups) => {
+            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            params.stride = stride;
+            params.padding = padding;
+            params.dilation = dilation;
+            params.groups = groups;
+            return params;
+        });
+        this.registerOperator('quantized::conv3d_prepack', (weight, bias, stride, padding, dilation, groups) => {
+            const params = self.invoke('__torch__.torch.classes.quantized.Conv3dPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            params.stride = stride;
+            params.padding = padding;
+            params.dilation = dilation;
+            params.groups = groups;
+            return params;
+        });
+        this.registerOperator('quantized::conv_transpose1d_prepack', (weight, bias, stride, padding, output_padding, dilation, groups) => {
+            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            params.stride = stride;
+            params.padding = padding;
+            params.output_padding = output_padding;
+            params.dilation = dilation;
+            params.groups = groups;
+            return params;
+        });
+        this.registerOperator('quantized::conv_transpose2d_prepack', (weight, bias, stride, padding, output_padding, dilation, groups) => {
+            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            params.stride = stride;
+            params.padding = padding;
+            params.output_padding = output_padding;
+            params.dilation = dilation;
+            params.groups = groups;
+            return params;
+        });
+        this.registerOperator('quantized::linear_prepack', (weight, bias) => {
+            const params = self.invoke('__torch__.torch.classes.quantized.LinearPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            return params;
+        });
+        this.registerOperator('prim::RaiseException', (message) => {
+            throw new python.Error(message);
+        });
+        this.registerOperator('prim::TupleIndex', (t, i) => {
+            return t.elements()[i];
+        });
+        this.registerOperator('prim::TupleUnpack', (t) => {
+            return t.elements();
+        });
+        this.registerOperator('aten::is_scripting', () => {
+            return true;
+        });
+        this.registerOperator('aten::__and__', (left, right) => {
+            return left && right;
+        });
+        this.registerOperator('aten::__contains__', (dict, key) => {
+            return builtins.hasattr(dict, key);
+        });
+        this.registerFunction('torch.__derive_index', (index, start, step) => {
+            return start + index * step;
+        });
+        this.registerOperator('aten::__is__', (left, right) => {
+            return left === right;
+        });
+        this.registerOperator('aten::__isnot__', (left, right) => {
+            return left !== right;
+        });
+        this.registerOperator('aten::__not__', (value) => {
+            if (Number.isInteger(value)) {
+                value = Boolean(value);
+            }
+            if (typeof value === 'boolean') {
+                return !value;
+            }
+            throw new python.Error("Unsupported 'ops.aten.__not__' expression type.");
+        });
+        this.registerOperator('aten::log10', (value) => {
             return Math.log10(value);
         });
-        this.registerFunction('ops.aten.device', (type, index) => {
+        this.registerOperator('aten::device', (type, index) => {
             return new torch.device(type, index);
         });
-        this.registerFunction('ops.aten.lt', (left, right) => {
+        this.registerOperator('aten::lt', (left, right) => {
             if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 return left < right;
             }
             throw new python.Error("Unsupported 'ops.aten.lt' expression type.");
         });
-        this.registerFunction('ops.aten.mul', (left, right) => {
+        this.registerOperator('aten::mul', (left, right) => {
             if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 return left * right;
             }
@@ -8778,7 +8766,7 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported 'ops.aten.mul' expression type.");
         });
-        this.registerFunction('ops.aten.div', (left, right) => {
+        this.registerOperator('aten::div', (left, right) => {
             if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 return left / right;
             }
@@ -8796,7 +8784,7 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported 'torch.round' expression type.");
         });
-        this.registerFunction('ops.aten.remainder', (left, right) => {
+        this.registerOperator('aten::remainder', (left, right) => {
             if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 return left % right;
             }
@@ -8805,7 +8793,7 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported 'ops.aten.remainder' expression type.");
         });
-        this.registerFunction('ops.aten.ne', (left, right) => {
+        this.registerOperator('aten::ne', (left, right) => {
             if (typeof left === 'boolean' && typeof right === 'boolean') {
                 return left !== right;
             }
@@ -8826,13 +8814,13 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported 'ops.aten.ne' expression type.");
         });
-        this.registerFunction('ops.aten.neg', (value) => {
+        this.registerOperator('aten::neg', (value) => {
             if (typeof value === 'number') {
                 return -value;
             }
             throw new python.Error("Unsupported 'ops.aten.neg' expression type.");
         });
-        this.registerFunction('ops.aten.pow', (left, right) => {
+        this.registerOperator('aten::pow', (left, right) => {
             if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 return Math.pow(left, right);
             }
@@ -8844,7 +8832,7 @@ python.Execution = class {
         this.registerFunction('torch.t', (tensor) => {
             return tensor;
         });
-        this.registerFunction('ops.aten.size', (tensor, dim) => {
+        this.registerOperator('aten::size', (tensor, dim) => {
             if (tensor && tensor.size) {
                 const size = tensor.size();
                 if (Array.isArray(size)) {
@@ -8867,10 +8855,10 @@ python.Execution = class {
             }
             return [];
         });
-        this.registerFunction('ops.aten.sqrt', (x) => {
+        this.registerFunction('aten::sqrt', (x) => {
             return Math.sqrt(x);
         });
-        this.registerFunction('ops.aten.slice', (l, start, end, step) => {
+        this.registerOperator('aten::slice', (l, start, end, step) => {
             if (!Array.isArray(l)) {
                 throw new python.Error('Slicing expected array');
             }
@@ -8882,7 +8870,7 @@ python.Execution = class {
             end = Math.min(l.length, end || Number.MAX_SAFE_INTEGER);
             return l.slice(start, end);
         });
-        this.registerFunction('ops.aten.sub', (left, right) => {
+        this.registerOperator('aten::sub', (left, right) => {
             if ((typeof left === 'number' || left instanceof Number) && (typeof right === 'number' || right instanceof Number)) {
                 return left - right;
             }
@@ -10986,6 +10974,13 @@ python.Execution = class {
             }
             _has_script_object_arg(schema) {
                 return schema.arguments.some((arg) => arg.type instanceof torch.ClassType);
+            }
+            __call__(...args) {
+                const fn = execution._operators.get(this._qualified_op_name);
+                if (!fn) {
+                    throw new python.Error(`Operator call '${this._qualified_op_name}' is not registered.`);
+                }
+                return fn(...args);
             }
         });
         this.registerType('torch._ops._OpNamespace', class extends types.ModuleType {
@@ -20519,6 +20514,10 @@ python.Execution = class {
         }
         module[value.__name__] = value;
         return value;
+    }
+
+    registerOperator(name, value) {
+        this._operators.set(name, value);
     }
 
     _createType(name, value) {
