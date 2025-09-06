@@ -1467,6 +1467,12 @@
     "name": "aten::arctan.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::arctan2(Tensor self, Tensor other) -> Tensor"
+  },
+  {
+    "name": "aten::arctan2.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::arctan_(Tensor(a!) self) -> Tensor(a!)"
   },
   {
@@ -7020,6 +7026,9 @@
   },
   {
     "name": "executorch_prim::sub.Scalar(Scalar a, Scalar b) -> Scalar"
+  },
+  {
+    "name": "fbgemm::asynchronous_complete_cumsum(Tensor t_in) -> Tensor"
   },
   {
     "name": "fbgemm::bf16i4bf16_rowwise(Tensor X, Tensor WQ, Tensor w_scale, Tensor w_zp) -> Tensor"

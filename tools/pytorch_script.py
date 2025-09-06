@@ -80,6 +80,7 @@ known_legacy_schema_definitions = [
     "executorch_prim::sub.Scalar(Scalar a, Scalar b) -> Scalar",
     "executorch_prim::mul.Scalar(Scalar a, Scalar b) -> Scalar",
     "executorch_prim::floordiv.Scalar(Scalar a, Scalar b) -> Scalar",
+    "fbgemm::asynchronous_complete_cumsum(Tensor t_in) -> Tensor",
     "fbgemm::nccl_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()", # noqa E501
     "fbgemm::quantize_fp8_per_tensor(Tensor input, Tensor? bs=None, Tensor? scale_ub=None, bool stochastic_rounding=False) -> Tensor[]", # noqa E501
     "fbgemm::per_tensor_dynamic_quantize_i8(Tensor X) -> (Tensor, Tensor)",
