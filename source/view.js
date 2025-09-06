@@ -942,31 +942,23 @@ view.Menu = class {
             }
         };
         this._keyup = (e) => {
-            const code = e.keyCode;
-            if (code === 0x0012 && this._alt) { // Alt
-                switch (this._stack.length) {
-                    case 0: {
-                        if (this.open()) {
-                            e.preventDefault();
-                        }
-                        break;
-                    }
-                    case 1: {
-                        if (this.close()) {
-                            e.preventDefault();
-                        }
-                        break;
-                    }
-                    default: {
-                        this._stack = [this];
-                        if (this._root.length > 1) {
-                            this._root =  [this];
-                            this._rebuild();
-                        }
-                        this._update();
+            if (e.keyCode === 0x0012 && this._alt) { // Alt
+                if (this._stack.length === 0) {
+                    if (this.open()) {
                         e.preventDefault();
-                        break;
                     }
+                } else if (this._stack.length === 1) {
+                    if (this.close()) {
+                        e.preventDefault();
+                    }
+                } else {
+                    this._stack = [this];
+                    if (this._root.length > 1) {
+                        this._root =  [this];
+                        this._rebuild();
+                    }
+                    this._update();
+                    e.preventDefault();
                 }
             }
             this._alt = false;

@@ -39,8 +39,11 @@ playwright.test('browser', async ({ page }) => {
     await page.waitForSelector('body.default', { timeout: 10000 });
 
     // Open find sidebar
-    const isMac = process.platform === 'darwin';
-    await page.keyboard.press(isMac ? 'Meta+F' : 'Control+F');
+    const menuButton = await page.locator('#menu-button');
+    await menuButton.click();
+    await page.waitForTimeout(200);
+    const findMenuItem = await page.locator('button:has-text("Find...")');
+    await findMenuItem.click();
     await page.waitForTimeout(500);
     const search = await page.waitForSelector('#search', { state: 'visible', timeout: 5000 });
     playwright.expect(search).toBeDefined();
