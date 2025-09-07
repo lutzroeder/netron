@@ -663,6 +663,7 @@ app.View = class {
             height: size.height > 768 ? 768 : size.height,
             webPreferences: {
                 preload: path.join(dirname, 'desktop.mjs'),
+                contextIsolation: true,
                 nodeIntegration: true,
                 enableDeprecatedPaste: true
             }
