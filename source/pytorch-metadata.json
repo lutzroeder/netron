@@ -7655,7 +7655,7 @@
     "name": "prim::BroadcastSizes(...) -> int[]"
   },
   {
-    "name": "prim::ConstantMKLDNNTensor(Tensor value) -> Tensor"
+    "name": "prim::ConstantMKLDNNTensor(...) -> ..."
   },
   {
     "name": "prim::EnumName(AnyEnumType enum) -> str"

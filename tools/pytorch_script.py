@@ -268,7 +268,7 @@ known_legacy_schema_definitions = [
     "neuron::rnn(Tensor _0, Tensor[] _1, __torch__.torch.classes.neuron.RnnBinding _2, int _3) -> (Tensor _0, Tensor[] _1)", # noqa E501
     "neuron::rnn_v2(Tensor _0, Tensor _1, Tensor _2, int _3, __torch__.torch.classes.neuron.RnnBinding_v2[] _4) -> (Tensor _0, Tensor _1, Tensor _2)", # noqa E501
     "horizon::scale_quanti(Tensor x, Tensor scale, Tensor zero_point, int d, int min, int max, bool flag1, bool flat2, str str1, str str2) -> Tensor", # noqa E501
-    "prim::ConstantMKLDNNTensor(Tensor value) -> Tensor",
+    "prim::ConstantMKLDNNTensor(...) -> ...",
     "prim::isinstance(Any to_check) -> bool",
     "prim::shape(Tensor self) -> int[]",
     "llama::custom_sdpa.out(Tensor query, Tensor key, Tensor value, SymInt start_pos, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
