@@ -60494,6 +60494,15 @@
       {
         "name": "element_dtype",
         "type": "type"
+      },
+      {
+        "name": "Tshape",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
       }
     ],
     "inputs": [
@@ -60507,7 +60516,7 @@
       },
       {
         "name": "element_shape",
-        "type": 3
+        "typeAttr": "Tshape"
       }
     ],
     "outputs": [
