@@ -278,7 +278,7 @@ const build = async (target) => {
             const table = new Map([
                 ['mac',     'npx electron-builder --mac --universal --publish never -c.mac.identity=null'],
                 ['windows', 'npx electron-builder --win --x64 --arm64 --publish never'],
-                ['linux',   'npx electron-builder --linux appimage --x64 --publish never']
+                ['linux',   'npx electron-builder --linux deb rpm --x64 --arm64 --publish never']
             ]);
             const targets = table.has(key) ? [table.get(key)] : Array.from(table.values());
             for (const target of targets) {
@@ -339,7 +339,7 @@ const publish = async (target) => {
             const table = new Map([
                 ['mac',     'npx electron-builder --mac --universal --publish always'],
                 ['windows', 'npx electron-builder --win --x64 --arm64 --publish always'],
-                ['linux',   'npx electron-builder --linux appimage --x64 --publish always']
+                ['linux',   'npx electron-builder --linux deb rpm --x64 --arm64 --publish always']
             ]);
             const targets = table.has(key) ? [table.get(key)] : Array.from(table.values());
             for (const target of targets) {

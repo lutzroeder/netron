@@ -13,13 +13,13 @@ Netron has experimental support for TorchScript, torch.export, ExecuTorch, Tenso
 
 ## Install
 
-**macOS**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.dmg` file or run `brew install --cask netron`
-
-**Linux**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.AppImage` file or run `snap install netron`
-
-**Windows**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.exe` installer or run `winget install -s winget netron`
-
 **Browser**: [**Start**](https://netron.app) the browser version.
+
+**macOS**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.dmg` file or run `brew install --cask netron`.
+
+**Linux**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.deb` or `.rpm` file.
+
+**Windows**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.exe` installer or run `winget install -s winget netron`.
 
 **Python**: `pip install netron`, then run `netron [FILE]` or `netron.start('[FILE]')`.
 

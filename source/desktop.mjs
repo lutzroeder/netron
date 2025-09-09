@@ -1,5 +1,6 @@
 
 import * as base from './base.js';
+import * as child_process from 'child_process';
 import * as electron from 'electron';
 import * as fs from 'fs';
 import * as http from 'http';
@@ -49,13 +50,31 @@ desktop.Host = class {
         }
         const metadata = [];
         metadata.push(os.arch());
-        if (process.env.APPIMAGE) {
-            metadata.push('appimage');
-        } else if (process.env.SNAP) {
-            metadata.push('snap');
-        } else {
-            metadata.push('');
+        let packager = '';
+        if (process.platform === 'linux') {
+            if (!packager && process.env.APPIMAGE) {
+                packager = 'appimage';
+            } else if (!packager && process.env.SNAP) {
+                packager = 'snap';
+            } else if (!packager) {
+                try {
+                    child_process.execFileSync('dpkg', ['-S', process.execPath]);
+                    packager = 'deb';
+                } catch {
+                    // continue regardless of error
+                }
+            /* eslint-disable no-dupe-else-if */
+            } else if (!packager) {
+            /* eslint-enable no-dupe-else-if */
+                try {
+                    child_process.execFileSync("rpm", ["-qf", process.execPath]);
+                    packager = 'rpm';
+                } catch {
+                    // continue regardless of error
+                }
+            }
         }
+        metadata.push(packager);
         this._metadata = metadata.join('|');
     }
 
@@ -81,6 +100,16 @@ desktop.Host = class {
 
     async view(view) {
         this._view = view;
+        if (process.env.SNAP === 'skip') {
+            this.document.body.classList.remove('spinner');
+            await this.message('Please <a href="https://github.com/lutzroeder/netron/issues/1500" target="_blank">migrate</a> as Snap support will be discontinued.', null, 'OK');
+            this.document.body.classList.add('spinner');
+        }
+        if (process.env.APPIMAGE === 'skip') {
+            this.document.body.classList.remove('spinner');
+            await this.message('Please <a href="https://github.com/lutzroeder/netron/issues/1500" target="_blank">migrate</a> as AppImage support will be discontinued.', null, 'OK');
+            this.document.body.classList.add('spinner');
+        }
         const age = async () => {
             const days = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
             if (days > 180) {
@@ -582,7 +611,7 @@ desktop.Host = class {
     async message(message, alert, action) {
         return new Promise((resolve) => {
             const type = this.document.body.getAttribute('class');
-            this._element('message-text').innerText = message || '';
+            this._element('message-text').innerHTML = message || '';
             const button = this._element('message-button');
             if (action) {
                 button.style.removeProperty('display');

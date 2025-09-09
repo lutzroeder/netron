@@ -73,7 +73,7 @@
         { "provider": "github", "releaseType": "release" }
     ],
     "linux": {
-        "target": [ "AppImage", "snap" ],
+        "target": [ "deb", "rpm", "AppImage", "snap" ],
         "artifactName":"${productName}-${version}-${arch}.${ext}"
     },
     "mac": {
