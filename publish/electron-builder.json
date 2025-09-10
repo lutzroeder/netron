@@ -73,8 +73,12 @@
         { "provider": "github", "releaseType": "release" }
     ],
     "linux": {
-        "target": [ "deb", "rpm", "AppImage", "snap" ],
-        "artifactName":"${productName}-${version}-${arch}.${ext}"
+        "artifactName":"${productName}-${version}-${arch}.${ext}",
+        "target": [ 
+            { "target": "deb", "arch": ["x64", "arm64"] },
+            { "target": "rpm", "arch": ["x64", "arm64"] },
+            { "target": "AppImage", "arch": ["x64"] }
+        ]
     },
     "mac": {
         "artifactName": "${productName}-${version}-mac.${ext}",
