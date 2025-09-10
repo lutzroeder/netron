@@ -60,8 +60,7 @@ jobs:
               ;;
             ubuntu*)
               sudo apt-get install rpm --yes
-              npx electron-builder --linux deb rpm --x64 --arm64 --publish always
-              npx electron-builder --linux appimage --x64 --publish always
+              npx electron-builder --linux deb rpm appimage --x64 --arm64 --publish always
               sudo snap install snapcraft --classic
               npx electron-builder --linux snap --x64 --publish always
               ;;

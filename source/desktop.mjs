@@ -100,12 +100,12 @@ desktop.Host = class {
 
     async view(view) {
         this._view = view;
-        if (process.env.SNAP === 'skip') {
+        if (process.env.SNAP) {
             this.document.body.classList.remove('spinner');
             await this.message('Please <a href="https://github.com/lutzroeder/netron/issues/1500" target="_blank">migrate</a> as Snap support will be discontinued.', null, 'OK');
             this.document.body.classList.add('spinner');
         }
-        if (process.env.APPIMAGE === 'skip') {
+        if (process.env.APPIMAGE) {
             this.document.body.classList.remove('spinner');
             await this.message('Please <a href="https://github.com/lutzroeder/netron/issues/1500" target="_blank">migrate</a> as AppImage support will be discontinued.', null, 'OK');
             this.document.body.classList.add('spinner');

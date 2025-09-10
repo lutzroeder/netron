@@ -50,8 +50,7 @@ jobs:
               ;;
             ubuntu*)
               sudo apt-get install rpm --yes
-              npx electron-builder --linux deb --x64 --arm64 --publish never
-              npx electron-builder --linux appimage --x64 --publish never
+              npx electron-builder --linux deb rpm appimage --x64 --arm64 --publish never
               npx electron-builder --linux snap --x64 --publish never
               ;;
             windows*)
