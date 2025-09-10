@@ -102,12 +102,14 @@ desktop.Host = class {
         this._view = view;
         if (process.env.SNAP) {
             this.document.body.classList.remove('spinner');
-            await this.message('Please <a href="https://github.com/lutzroeder/netron/issues/1500" target="_blank">migrate</a> as Snap support will be discontinued.', null, 'OK');
+            await this.message('Please migrate as Snap support is being discontinued.', null, 'Migrate');
+            this.openURL('https://github.com/lutzroeder/netron/issues/1500');
             this.document.body.classList.add('spinner');
         }
         if (process.env.APPIMAGE) {
             this.document.body.classList.remove('spinner');
-            await this.message('Please <a href="https://github.com/lutzroeder/netron/issues/1500" target="_blank">migrate</a> as AppImage support will be discontinued.', null, 'OK');
+            await this.message('Please migrate as AppImage support is being discontinued.', null, 'Migrate');
+            this.openURL('https://github.com/lutzroeder/netron/issues/1500');
             this.document.body.classList.add('spinner');
         }
         const age = async () => {
