@@ -52,25 +52,21 @@ desktop.Host = class {
         metadata.push(os.arch());
         let packager = '';
         if (process.platform === 'linux') {
-            if (!packager && process.env.APPIMAGE) {
+            if (process.env.APPIMAGE) {
                 packager = 'appimage';
-            } else if (!packager && process.env.SNAP) {
+            } else if (process.env.SNAP) {
                 packager = 'snap';
-            } else if (!packager) {
+            } else {
                 try {
                     child_process.execFileSync('dpkg', ['-S', process.execPath]);
                     packager = 'deb';
                 } catch {
-                    // continue regardless of error
-                }
-            /* eslint-disable no-dupe-else-if */
-            } else if (!packager) {
-            /* eslint-enable no-dupe-else-if */
-                try {
-                    child_process.execFileSync("rpm", ["-qf", process.execPath]);
-                    packager = 'rpm';
-                } catch {
-                    // continue regardless of error
+                    try {
+                        child_process.execFileSync("rpm", ["-qf", process.execPath]);
+                        packager = 'rpm';
+                    } catch {
+                        // continue regardless of error
+                    }
                 }
             }
         }
@@ -613,7 +609,7 @@ desktop.Host = class {
     async message(message, alert, action) {
         return new Promise((resolve) => {
             const type = this.document.body.getAttribute('class');
-            this._element('message-text').innerHTML = message || '';
+            this._element('message-text').innerText = message || '';
             const button = this._element('message-button');
             if (action) {
                 button.style.removeProperty('display');
