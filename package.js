@@ -94,7 +94,7 @@ const unlink = async (dir, filter) => {
 const exec = async (command, encoding, cwd) => {
     cwd = cwd || dirname();
     if (encoding) {
-        return child_process.execSync(command, { cwd, encoding });
+        return child_process.spawnSync(command, { shell: true, cwd, encoding });
     }
     child_process.execSync(command, { cwd, stdio: [0,1,2] });
     return '';
@@ -565,14 +565,39 @@ const validate = async () => {
 const update = async () => {
     const filter = new Set(process.argv.length > 3 ? process.argv.slice(3) : []);
     if (filter.size === 0) {
-        const dependencies = { ...configuration.dependencies, ...configuration.devDependencies };
-        for (const name of Object.keys(dependencies)) {
-            writeLine(name);
-            /* eslint-disable no-await-in-loop */
-            await exec(`npm install --quiet --no-progress --silent --save-exact ${name}@latest`);
-            /* eslint-enable no-await-in-loop */
+        const output = await exec('npm outdated --json', 'utf-8');
+        const entries = JSON.parse(output.stdout);
+        const compare = (a, b) => {
+            const regex = /^\d+\.\d+\.\d+$/;
+            if (!regex.test(a)) {
+                throw new Error(`Invalid version format '${a}'.`);
+            }
+            if (!regex.test(b)) {
+                throw new Error(`Invalid version format '${b}'.`);
+            }
+            a = a.split('.').map((v) => Number(v));
+            b = b.split('.').map((v) => Number(v));
+            if (a.length !== b.length) {
+                throw new Error(`Invalid version a=${a.join('.')} b=${b.join('.')}`);
+            }
+            for (let i = 0; i < 3; i++) {
+                if ((a[i] || 0) > (b[i] || 0)) {
+                    return 1;
+                }
+                if ((a[i] || 0) < (b[i] || 0)) {
+                    return -1;
+                }
+            }
+            return 0;
+        };
+        for (const [name, entry] of Object.entries(entries)) {
+            if (compare(entry.wanted, entry.latest) < 0) {
+                writeLine(name);
+                /* eslint-disable no-await-in-loop */
+                await exec(`npm install --quiet --no-progress --silent --save-exact ${name}@latest`);
+                /* eslint-enable no-await-in-loop */
+            }
         }
-        await install();
     }
     let targets = [
         'armnn',
@@ -615,13 +640,19 @@ const update = async () => {
 const pull = async () => {
     await exec('git fetch --prune origin "refs/tags/*:refs/tags/*"');
     const before = await exec('git rev-parse HEAD', 'utf-8');
+    if (before.status !== 0) {
+        throw new Error(before.stderr.trim());
+    }
     try {
         await exec('git pull --prune --rebase --autostash');
     } catch (error) {
         writeLine(error.message);
     }
     const after = await exec('git rev-parse HEAD', 'utf-8');
-    if (before.trim() !== after.trim()) {
+    if (after.status !== 0) {
+        throw new Error(after.stderr.trim());
+    }
+    if (before.stdout.trim() !== after.stdout.trim()) {
         const output = await exec(`git diff --name-only ${before.trim()} ${after.trim()}`, 'utf-8');
         const files = new Set(output.split('\n'));
         if (files.has('package.json')) {
