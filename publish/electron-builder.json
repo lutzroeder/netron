@@ -74,6 +74,7 @@
     ],
     "linux": {
         "artifactName":"${productName}-${version}-${arch}.${ext}",
+        "executableName": "netron",
         "target": [ 
             { "target": "deb", "arch": ["x64", "arm64"] },
             { "target": "rpm", "arch": ["x64", "arm64"] },
