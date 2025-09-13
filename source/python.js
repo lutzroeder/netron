@@ -6835,6 +6835,47 @@ python.Execution = class {
                 return new torch.FunctionSchema(fn.name(), '', args, returns);
             }
         });
+        this.registerType('torch.utils._contextlib._DecoratorContextManager', class {});
+        this.registerType('torch.utils._contextlib._NoParamDecoratorContextManager', class extends torch.utils._contextlib._DecoratorContextManager {});
+        this.registerType('torch.utils._sympy.symbol.SymT', class extends this.enum.Enum {});
+        this.registerType('torch.utils._sympy.functions.FloorDiv', class {});
+        this.registerType('torch.utils._sympy.functions.ModularIndexing', class {});
+        this.registerType('torch.utils._sympy.functions.Where', class {});
+        this.registerType('torch.utils._sympy.functions.PythonMod', class {});
+        this.registerType('torch.utils._sympy.functions.Mod', class {});
+        this.registerType('torch.utils._sympy.functions.CleanDiv', class {});
+        this.registerType('torch.utils._sympy.functions.CeilToInt', class {});
+        this.registerType('torch.utils._sympy.functions.FloorToInt', class {});
+        this.registerType('torch.utils._sympy.functions.CeilDiv', class {});
+        this.registerType('torch.utils._sympy.functions.LShift', class {});
+        this.registerType('torch.utils._sympy.functions.RShift', class {});
+        this.registerType('torch.utils._sympy.functions.PowByNatural', class {});
+        this.registerType('torch.utils._sympy.functions.FloatPow', class {});
+        this.registerType('torch.utils._sympy.functions.FloatTrueDiv', class {});
+        this.registerType('torch.utils._sympy.functions.IntTrueDiv', class {});
+        this.registerType('torch.utils._sympy.functions.IsNonOverlappingAndDenseIndicator', class {});
+        this.registerType('torch.utils._sympy.functions.TruncToFloat', class {});
+        this.registerType('torch.utils._sympy.functions.TruncToInt', class {});
+        this.registerType('torch.utils._sympy.functions.RoundToInt', class {});
+        this.registerType('torch.utils._sympy.functions.RoundDecimal', class {});
+        this.registerType('torch.utils._sympy.functions.ToFloat', class {});
+        this.registerType('torch.utils._sympy.functions.Identity', class {});
+        this.registerType('torch.utils._traceback.CapturedTraceback', class {
+            static extract() {
+            }
+        });
+        this.registerFunction('torch.utils.checkpoint.checkpoint');
+        this.registerType('torch.utils.data.dataloader._MultiProcessingDataLoaderIter', class {});
+        this.registerType('torch.utils.data.dataloader.DataLoader', class {});
+        this.registerFunction('torch.utils.data._utils.collate.default_collate');
+        torch.utils.data.dataloader.default_collate = torch.utils.data._utils.collate.default_collate;
+        this.registerType('torch.utils.data.dataset.Subset', class {});
+        this.registerType('torch.utils.data.dataset.ConcatDataset', class {});
+        this.registerType('torch.utils.data.dataset.TensorDataset', class {});
+        this.registerType('torch.utils.data.sampler.BatchSampler', class {});
+        this.registerType('torch.utils.data.sampler.RandomSampler', class {});
+        this.registerType('torch.utils.data.sampler.SequentialSampler', class {});
+        this.registerType('torch.utils.data.sampler.SubsetRandomSampler', class {});
         this.registerType('torch.ao.quantization.fake_quantize.FakeQuantize', class {});
         this.registerType('torch.ao.quantization.fake_quantize.FusedMovingAvgObsFakeQuantize', class {});
         this.registerType('torch.ao.quantization.observer._PartialWrapper', class {});
@@ -6868,6 +6909,7 @@ python.Execution = class {
         this.registerFunction('torch.ao.quantization.utils.has_no_children_ignoring_parametrizations');
         this.registerFunction('torch.amp.grad_scaler._refresh_per_optimizer_state');
         this.registerType('torch._C._LegacyVariableBase', class {});
+        this.registerType('torch.autograd.grad_mode.no_grad', class extends torch.utils._contextlib._NoParamDecoratorContextManager {});
         this.registerType('torch.autograd.variable.Variable', class extends torch._C._LegacyVariableBase {});
         this.registerType('torch.autograd.function._SingleLevelFunction', class {});
         this.registerType('torch.autograd.function.Function', class extends torch.autograd.function._SingleLevelFunction {});
@@ -7233,45 +7275,6 @@ python.Execution = class {
             }
         });
         this.registerFunction('torch.utils._pytree.tree_map');
-        this.registerType('torch.utils._sympy.symbol.SymT', class extends this.enum.Enum {});
-        this.registerType('torch.utils._sympy.functions.FloorDiv', class {});
-        this.registerType('torch.utils._sympy.functions.ModularIndexing', class {});
-        this.registerType('torch.utils._sympy.functions.Where', class {});
-        this.registerType('torch.utils._sympy.functions.PythonMod', class {});
-        this.registerType('torch.utils._sympy.functions.Mod', class {});
-        this.registerType('torch.utils._sympy.functions.CleanDiv', class {});
-        this.registerType('torch.utils._sympy.functions.CeilToInt', class {});
-        this.registerType('torch.utils._sympy.functions.FloorToInt', class {});
-        this.registerType('torch.utils._sympy.functions.CeilDiv', class {});
-        this.registerType('torch.utils._sympy.functions.LShift', class {});
-        this.registerType('torch.utils._sympy.functions.RShift', class {});
-        this.registerType('torch.utils._sympy.functions.PowByNatural', class {});
-        this.registerType('torch.utils._sympy.functions.FloatPow', class {});
-        this.registerType('torch.utils._sympy.functions.FloatTrueDiv', class {});
-        this.registerType('torch.utils._sympy.functions.IntTrueDiv', class {});
-        this.registerType('torch.utils._sympy.functions.IsNonOverlappingAndDenseIndicator', class {});
-        this.registerType('torch.utils._sympy.functions.TruncToFloat', class {});
-        this.registerType('torch.utils._sympy.functions.TruncToInt', class {});
-        this.registerType('torch.utils._sympy.functions.RoundToInt', class {});
-        this.registerType('torch.utils._sympy.functions.RoundDecimal', class {});
-        this.registerType('torch.utils._sympy.functions.ToFloat', class {});
-        this.registerType('torch.utils._sympy.functions.Identity', class {});
-        this.registerType('torch.utils._traceback.CapturedTraceback', class {
-            static extract() {
-            }
-        });
-        this.registerFunction('torch.utils.checkpoint.checkpoint');
-        this.registerType('torch.utils.data.dataloader._MultiProcessingDataLoaderIter', class {});
-        this.registerType('torch.utils.data.dataloader.DataLoader', class {});
-        this.registerFunction('torch.utils.data._utils.collate.default_collate');
-        torch.utils.data.dataloader.default_collate = torch.utils.data._utils.collate.default_collate;
-        this.registerType('torch.utils.data.dataset.Subset', class {});
-        this.registerType('torch.utils.data.dataset.ConcatDataset', class {});
-        this.registerType('torch.utils.data.dataset.TensorDataset', class {});
-        this.registerType('torch.utils.data.sampler.BatchSampler', class {});
-        this.registerType('torch.utils.data.sampler.RandomSampler', class {});
-        this.registerType('torch.utils.data.sampler.SequentialSampler', class {});
-        this.registerType('torch.utils.data.sampler.SubsetRandomSampler', class {});
         torch.nn.Sequential = torch.nn.modules.container.Sequential;
         this.registerFunction('torch.fx.experimental.sym_node.SymNode', class {
             constructor(expr, shape_env, pytype, hint, constant, fx_node, optimized_summation) {
@@ -7939,7 +7942,9 @@ python.Execution = class {
         this.registerType('torchvision.transforms.transforms.ToPILImage', class {});
         this.registerType('torchvision.transforms.transforms.ToTensor', class {});
         this.registerType('torchvision.transforms.v2._color.Grayscale', class {});
+        this.registerType('torchvision.transforms.v2._color.RandomGrayscale', class {});
         this.registerType('torchvision.transforms.v2._container.Compose', class {});
+        this.registerType('torchvision.transforms.v2._deprecated.ToTensor', class {});
         this.registerType('torchvision.transforms.v2._misc.ConvertImageDtype', class {});
         this.registerType('torchvision.transforms.v2._misc.Normalize', class {});
         this.registerType('torchvision.transforms.v2._misc.ToDtype', class {});
