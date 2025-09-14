@@ -79,6 +79,9 @@ host.TestHost = class {
         return this._environment[name];
     }
 
+    update() {
+    }
+
     screen(/* name */) {
     }
 

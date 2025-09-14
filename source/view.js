@@ -64,11 +64,11 @@ view.View = class {
                 }
             });
             if (this._host.type === 'Electron') {
-                this._host.update({ 'can-copy': false });
+                this._host.update({ 'copy.enabled': false });
                 this._host.document.addEventListener('selectionchange', () => {
                     const selection = this._host.document.getSelection();
                     const selected = selection.rangeCount === 0 || selection.toString().trim() !== '';
-                    this._host.update({ 'can-copy': selected });
+                    this._host.update({ 'copy.enabled': selected });
                 });
             }
             const platform = this._host.environment('platform');
@@ -175,19 +175,19 @@ view.View = class {
                     label: 'Zoom &In',
                     accelerator: 'Shift+Up',
                     execute: () => this.zoomIn(),
-                    enabled: () => this.activeTarget
+                    enabled: () => this.activeTarget && this.target
                 });
                 view.add({
                     label: 'Zoom &Out',
                     accelerator: 'Shift+Down',
                     execute: () => this.zoomOut(),
-                    enabled: () => this.activeTarget
+                    enabled: () => this.activeTarget && this.target
                 });
                 view.add({
                     label: 'Actual &Size',
                     accelerator: 'Shift+Backspace',
                     execute: () => this.resetZoom(),
-                    enabled: () => this.activeTarget
+                    enabled: () => this.activeTarget && this.target
                 });
                 view.add({});
                 view.add({
@@ -297,6 +297,28 @@ view.View = class {
 
     get options() {
         return this._options;
+    }
+
+    get target() {
+        return this._target;
+    }
+
+    set target(value) {
+        if (this._target !== value) {
+            if (this._target) {
+                this._target.unregister();
+            }
+            const enabled = value ? true : false;
+            this._host.update({
+                'zoom-reset.enabled': enabled,
+                'zoom-in.enabled': enabled,
+                'zoom-out.enabled': enabled
+            });
+            this._target = value;
+            if (this._target) {
+                this._target.register();
+            }
+        }
     }
 
     toggle(name) {
@@ -596,10 +618,7 @@ view.View = class {
     }
 
     async render(target, signature) {
-        if (this._target) {
-            this._target.unregister();
-            this._target = null;
-        }
+        this.target = null;
         const element = this._element('target');
         while (element.lastChild) {
             element.removeChild(element.lastChild);
@@ -623,8 +642,7 @@ view.View = class {
                 viewGraph.update();
                 const state = this._path && this._path.length > 0 && this._path[0] && this._path[0].state ? this._path[0].state : null;
                 viewGraph.restore(state);
-                this._target = viewGraph;
-                this._target.register();
+                this.target = viewGraph;
             }
         }
         return status;
@@ -2307,8 +2325,8 @@ view.Node = class extends grapher.Node {
 
     toggle() {
         this._expand.content = '-';
-        this._target = new view.Graph(this.context.view, false);
-        this._target.add(this.value);
+        this.context.view.target = new view.Graph(this.context.view, false);
+        this.context.view.target.add(this.value);
         // const document = this.element.ownerDocument;
         // const parent = this.element.parentElement;
         // this._target.build(document, parent);

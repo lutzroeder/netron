@@ -220,7 +220,7 @@ desktop.Host = class {
         electron.ipcRenderer.on('zoom-out', () => {
             this._element('zoom-out-button').click();
         });
-        electron.ipcRenderer.on('reset-zoom', () => {
+        electron.ipcRenderer.on('zoom-reset', () => {
             this._view.resetZoom();
         });
         electron.ipcRenderer.on('show-properties', () => {

@@ -276,7 +276,7 @@ app.Application = class {
             case 'about': this._about(); break;
             default: {
                 const view = this._views.get(window) || this._views.activeView;
-                if (view) {
+                if (view && view.get(`${command}.enabled`) !== false) {
                     view.execute(command, value || {});
                 }
                 this._menu.update();
@@ -507,10 +507,10 @@ app.Application = class {
                     },
                     { type: 'separator' },
                     {
-                        id: 'view.reset-zoom',
+                        id: 'view.zoom-reset',
                         label: 'Actual &Size',
                         accelerator: 'Shift+Backspace',
-                        click: async () => await this.execute('reset-zoom', null),
+                        click: async () => await this.execute('zoom-reset', null),
                     },
                     {
                         id: 'view.zoom-in',
@@ -579,7 +579,7 @@ app.Application = class {
                 enabled: (view) => view && view.path ? true : false
             });
             commandTable.set('edit.copy', {
-                enabled: (view) => view && (view.path || view.get('can-copy')) ? true : false
+                enabled: (view) => view && (view.path || view.get('copy.enabled')) ? true : false
             });
             commandTable.set('edit.paste', {
                 enabled: (view) => view && view.path ? true : false
@@ -613,14 +613,14 @@ app.Application = class {
             commandTable.set('view.reload', {
                 enabled: (view) => view && view.path ? true : false
             });
-            commandTable.set('view.reset-zoom', {
-                enabled: (view) => view && view.path ? true : false
+            commandTable.set('view.zoom-reset', {
+                enabled: (view) => view && view.path && view.get('zoom-reset.enabled') ? true : false
             });
             commandTable.set('view.zoom-in', {
-                enabled: (view) => view && view.path ? true : false
+                enabled: (view) => view && view.path && view.get('zoom-in.enabled') ? true : false
             });
             commandTable.set('view.zoom-out', {
-                enabled: (view) => view && view.path ? true : false
+                enabled: (view) => view && view.path && view.get('zoom-out.enabled') ? true : false
             });
             commandTable.set('view.show-properties', {
                 enabled: (view) => view && view.path ? true : false
