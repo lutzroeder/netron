@@ -90,7 +90,7 @@ executorch.Graph = class {
                     const list = val.items.map((index) => plan.values[index].val.int_val);
                     values.set(index, { type: 'int64[]', value: list });
                 } else if (val instanceof executorch_flatbuffer.DoubleList) {
-                    throw new executorch.Error('executorch_flatbuffer.DoubleList not implemented.');
+                    values.set(index, { type: 'float64[]', value: Array.from(val.items) });
                 } else if (val instanceof executorch_flatbuffer.BoolList) {
                     throw new executorch.Error('executorch_flatbuffer.BoolList not implemented.');
                 } else if (val instanceof executorch_flatbuffer.TensorList) {
