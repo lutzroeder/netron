@@ -18320,7 +18320,7 @@
       {
         "name": "uniform_noise",
         "type": "boolean",
-        "description": "indicates if the noise should be generated using a\nuniform distribution or a Gaussian distribution.",
+        "description": "indicates if the noise should be generated using a\nuniform distribution or a Gaussian distribution.\nIt should not be `True` when `noise` is not `uniform`.",
         "default": true
       },
       {
@@ -18375,7 +18375,7 @@
       {
         "name": "uniform_noise",
         "type": "boolean",
-        "description": "indicates if the noise should be generated using a\nuniform distribution or a Gaussian distribution.",
+        "description": "indicates if the noise should be generated using a\nuniform distribution or a Gaussian distribution.\nIt should not be `True` when `noise` is not `uniform`.",
         "default": true
       },
       {
