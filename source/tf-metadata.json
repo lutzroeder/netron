@@ -13575,6 +13575,7 @@
       {
         "name": "select_cols",
         "type": "int64[]",
+        "description": "Optional sorted list of column indices to select. If specified,\nonly this subset of columns will be parsed and returned.\nIt only works on `records` except for `record_defaults`.",
         "default": []
       }
     ],
