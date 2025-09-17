@@ -3514,6 +3514,7 @@ python.Execution = class {
         this.registerType('sklearn.linear_model._stochastic_gradient.SGDClassifier', class {});
         this.registerType('sklearn.linear_model._stochastic_gradient.SGDRegressor', class {});
         this.registerType('sklearn.linear_model.base.LinearRegression', class {});
+        this.registerType('sklearn.linear_model.coordinate_descent.ElasticNet', class {});
         this.registerType('sklearn.linear_model.sgd_fast.Hinge', class {});
         this.registerType('sklearn.linear_model.LogisticRegression', class {});
         this.registerType('sklearn.linear_model.logistic.LogisticRegression', class {});
