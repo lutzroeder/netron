@@ -38,7 +38,7 @@
         "@playwright/test": "1.55.0",
         "electron": "38.1.2",
         "electron-builder": "26.0.20",
-        "eslint": "9.35.0"
+        "eslint": "9.36.0"
     },
     "build": {
         "extends": "publish/electron-builder.json"
