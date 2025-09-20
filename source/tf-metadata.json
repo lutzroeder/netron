@@ -2380,13 +2380,13 @@
       {
         "name": "scientific",
         "type": "boolean",
-        "description": "Use scientific notation for floating point numbers.",
+        "description": "Use scientific notation for floating point numbers.\nCan't be specified to `True` when `shortest` is set to `True`.",
         "default": false
       },
       {
         "name": "shortest",
         "type": "boolean",
-        "description": "Use shortest representation (either scientific or standard) for\nfloating point numbers.",
+        "description": "Use shortest representation (either scientific or standard) for\nfloating point numbers.\nCan't be specified to `True` when `scientific` is set to `True`.",
         "default": false
       },
       {
@@ -18178,11 +18178,12 @@
       {
         "name": "display_name",
         "type": "string",
-        "description": "A human-readable name for the threads that may be visible in some\nvisualizations.\nthreadpool."
+        "description": "A human-readable name for the threads that may be visible in some\nvisualizations."
       },
       {
         "name": "container",
         "type": "string",
+        "description": "The name of `container` should start with `'.'` or `letter` or `digit`,\nwith ['-', '.', '/'] or `letter` or `digit` follows several times.",
         "default": ""
       },
       {
@@ -18194,7 +18195,6 @@
     "outputs": [
       {
         "name": "handle",
-        "description": "A resource that can be consumed by one or more ExperimentalThreadPoolDataset\nops.",
         "type": 20
       }
     ]
