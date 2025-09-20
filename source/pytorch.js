@@ -147,12 +147,14 @@ pytorch.Graph = class {
                 delattr(param_node.outputs()[0], '');
             }
             for (const node of graph.nodes()) {
-                if (node.kind() === 'prim::Constant' && node.hasAttribute('value')) {
-                    const kind = node.kindOf('value');
-                    const value = node[kind]('value');
-                    for (const output of node.outputs()) {
-                        output.identifier = output.debugName();
-                        output.value = value;
+                if (node.kind() === 'prim::Constant' && node.outputs().length === 1) {
+                    const output = node.output();
+                    output.identifier = output.debugName();
+                    if (node.hasAttribute('value')) {
+                        const kind = node.kindOf('value');
+                        output.value = node[kind]('value');
+                    } else if (node.output().type() instanceof torch.NoneType) {
+                        output.value = null;
                     }
                     // deleted.add(node);
                     node.destroy();
@@ -1297,7 +1299,9 @@ pytorch.Container.ModelJson = class extends pytorch.Container {
         metadata.register(this.execution);
         this.module = torch.jit.load(reader);
         if (this.module._c._has_method('forward')) {
+            // console.log(this.module.graph.toString());
             torch._C._jit_pass_inline(this.module.graph);
+            // console.log(this.module.graph.toString());
         }
         delete this._context;
         delete this._model;

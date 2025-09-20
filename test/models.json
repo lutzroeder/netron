@@ -5872,6 +5872,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "load_library.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/12839408/load_library.pt.zip[load_library.pt]",
+    "format":   "PyTorch Package v1.9",
+    "link":     "https://github.com/lutzroeder/netron/issues/928"
+  },
+  {
+    "type":     "pytorch",
     "target":   "LMModel1.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7726055/LMModel1.zip[LMModel1.pt]",
     "format":   "TorchScript v1.6",
@@ -5879,10 +5886,10 @@
   },
   {
     "type":     "pytorch",
-    "target":   "load_library.pt",
-    "source":   "https://github.com/lutzroeder/netron/files/12839408/load_library.pt.zip[load_library.pt]",
-    "format":   "PyTorch Package v1.9",
-    "link":     "https://github.com/lutzroeder/netron/issues/928"
+    "target":   "lnf_latest.pt",
+    "source":   "https://github.com/user-attachments/files/22430697/lnf_latest.pt.zip[lnf_latest.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",

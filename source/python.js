@@ -5802,11 +5802,12 @@ python.Execution = class {
             const ty = stack.pop().type();
             for (const candidate of types) {
                 if (ty.isSubtypeOf(candidate)) {
+                    stack.push(new torch._C.IValue(true, 'Bool'));
                     stack.push(true);
                     return;
                 }
             }
-            stack.push(false);
+            stack.push(new torch._C.IValue(false, 'Bool'));
         });
         this.registerType('torch._C.Tuple', class {
             constructor(elements) {
@@ -10500,51 +10501,7 @@ python.Execution = class {
                 }
                 return new torch.Argument(name, fake_type, real_type, N, default_value, kwarg_only, alias_info);
             }
-            _parse_value() {
-                const L = this.L;
-                /* eslint-disable no-undef-init */
-                let value = undefined;
-                /* eslint-enable no-undef-init */
-                if (L.cur().kind === 'id') {
-                    if (L.cur().text() === 'True' || L.cur().text() === 'False') {
-                        value = L.cur().text() === 'True';
-                    } else if (L.cur().text() === 'None') {
-                        value = null;
-                    } else if (L.cur().text() === 'Mean' || L.cur().text() === 'contiguous_format' || L.cur().text() === 'long') {
-                        value = L.cur().text();
-                    } else if (typeof L.cur().text() === 'string') {
-                        value = L.cur().text();
-                    } else if (typeof L.cur().text() === 'number') {
-                        value = L.cur().text();
-                    } else {
-                        throw new python.Error(`Unsupported default value '${L.cur().text()}'.`);
-                    }
-                } else if (L.cur().kind === '#') {
-                    value = Number(L.cur().text());
-                } else if (L.cur().kind === 'string') {
-                    value = L.cur().text().slice(1, -1);
-                } else if (L.nextIf('[')) {
-                    value = [];
-                    if (!L.nextIf(']')) {
-                        while (true) {
-                            value.push(this._parse_value());
-                            if (!L.nextIf(',')) {
-                                break;
-                            }
-                        }
-                        L.expect(']');
-                    }
-                    return value;
-                } else {
-                    throw new python.Error(`Unsupported default value '${L.kind}'.`);
-                }
-                L.next();
-                return value;
-            }
             parseDefaultValue(arg_type, kind, real_type, arg_N) {
-                if (this._parse_value) {
-                    return this._parse_value();
-                }
                 // auto range = L.cur().range;
                 const L = this.L;
                 const range = null;
@@ -10563,7 +10520,7 @@ python.Execution = class {
                         const real_elem_type = real_type.containedType(0);
                         if (L.cur().kind === 'id') {
                             return this.parseTensorDefault(range);
-                        } else if (arg_N && L.kind !== '[') {
+                        } else if (arg_N && L.cur().kind !== '[') {
                             const v = this.parseSingleConstant(elem_type, elem_type.kind(), real_elem_type);
                             const repeated = Array(arg_N).fill(v);
                             // std::vector<IValue> repeated(arg_N, v);
@@ -10704,13 +10661,13 @@ python.Execution = class {
             convertToList(type, kind, range, vs) {
                 switch (kind) {
                     case torch._C.TypeKind.ComplexType:
-                        return new torch._C.IValue(new torch._C.List(torch.ComplexType.get(), vs.map((v) => v.toComplexDouble())));
+                        return new torch._C.IValue(new torch._C.List(torch.ComplexType.get(), vs.map((v) => v)));
                     case torch._C.TypeKind.FloatType:
-                        return new torch._C.IValue(new torch._C.List(torch.FloatType.get(), vs.map((v) => v.toDouble())));
+                        return new torch._C.IValue(new torch._C.List(torch.FloatType.get(), vs.map((v) => v)));
                     case torch._C.TypeKind.IntType:
-                        return new torch._C.IValue(new torch._C.List(torch.IntType.get(), vs.map((v) => v.toInt())));
+                        return new torch._C.IValue(new torch._C.List(torch.IntType.get(), vs.map((v) => v)));
                     case torch._C.TypeKind.BoolType:
-                        return new torch._C.IValue(new torch._C.List(torch.BoolType.get(), vs.map((v) => v.toBool())));
+                        return new torch._C.IValue(new torch._C.List(torch.BoolType.get(), vs.map((v) => v)));
                     case torch._C.TypeKindDynamicType:
                         return this.convertToList(type.dynamicKind(), range, vs);
                     default:
@@ -12371,7 +12328,7 @@ python.Execution = class {
                     this.tag = tag;
                 } else if (value === undefined) {
                     this.tag = 'None';
-                    this.value = 'None';
+                    this.value = null;
                 } else if (typeof value === 'boolean') {
                     this.tag = 'Bool';
                 } else if (typeof value === 'string') {
@@ -14516,6 +14473,7 @@ python.Execution = class {
                     n.output().setType(torch.StreamObjType.get());
                 } else if (val.isNone()) {
                     n.output().setType(torch.NoneType.get());
+                    // n.ival_('value', null); // remove
                 } else if (val.isTuple()) {
                     if (torch._C.insertableIValue(val)) {
                         n.ival_('value', val);
@@ -15068,7 +15026,7 @@ python.Execution = class {
                 if (args.length === 1 && kwargs.length === 0) {
                     const len_op = new torch._C.BuiltinFunction('aten::len', null);
                     const gt_op = new torch._C.BuiltinFunction('aten::gt', null);
-                    const zero = m.graph().insertConstant(0);
+                    const zero = m.graph().insertConstant(new torch._C.IValue(0, 'Int'));
                     const v = args[0].value(m.graph());
                     if (v.type().isSubtypeOf(this._type)) {
                         return new torch._C.SimpleValue(v);
@@ -16596,11 +16554,11 @@ python.Execution = class {
             emitSimpleExpr(tree, type_hint) {
                 if (tree instanceof ast.Constant) {
                     if (tree.value === true) {
-                        return this.graph.insertConstant(true, tree.range());
+                        return this.graph.insertConstant(new torch._C.IValue(true, 'Bool'), tree.range());
                     } else if (tree.value === false) {
-                        return this.graph.insertConstant(false, tree.range());
+                        return this.graph.insertConstant(new torch._C.IValue(false, 'Bool'), tree.range());
                     } else if (tree.value === null) {
-                        return this.graph.insertConstant(null, tree.range()); // IValue()
+                        return this.graph.insertConstant(new torch._C.IValue(), tree.range());
                     } else if (typeof tree.value === 'string') {
                         return this.emitStringLiteral(tree);
                     }
