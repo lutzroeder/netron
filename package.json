@@ -43,9 +43,6 @@
     "build": {
         "extends": "publish/electron-builder.json"
     },
-    "config": {
-        "forge": "publish/forge.config.js"
-    },
     "nyc": {
         "reporter": "json",
         "report-dir": "dist/nyc/report",

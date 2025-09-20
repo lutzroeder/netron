@@ -671,43 +671,6 @@ const coverage = async () => {
     await exec('nyc --instrument npx electron ./dist/nyc');
 };
 
-const forge = async() => {
-    const command = read();
-    switch (command) {
-        case 'install': {
-            const packages = [
-                '@electron-forge/cli',
-                '@electron-forge/core',
-                '@electron-forge/maker-snap',
-                '@electron-forge/maker-dmg',
-                '@electron-forge/maker-zip'
-            ];
-            await exec(`npm install ${packages.join(' ')} --no-save`);
-            break;
-        }
-        case 'update': {
-            const cwd = path.join(dirname(), '..', 'forge');
-            const node_modules = path.join(cwd, 'node_modules');
-            const links = path.join(cwd, '.links');
-            const exists = await access(node_modules);
-            if (!exists) {
-                await exec('yarn', null, cwd);
-            }
-            await exec('yarn build', null, cwd);
-            await exec('yarn link:prepare', null, cwd);
-            await exec(`yarn link @electron-forge/core --link-folder=${links}`);
-            break;
-        }
-        case 'build': {
-            await exec('npx electron-forge make');
-            break;
-        }
-        default: {
-            throw new Error(`Unsupported forge command ${command}.`);
-        }
-    }
-};
-
 const analyze = async () => {
     const exists = await access('third_party/tools/codeql');
     if (!exists) {
@@ -763,7 +726,6 @@ const main = async () => {
             case 'pull': await pull(); break;
             case 'analyze': await analyze(); break;
             case 'coverage': await coverage(); break;
-            case 'forge': await forge(); break;
             default: throw new Error(`Unsupported task '${task}'.`);
         }
     } catch (error) {
