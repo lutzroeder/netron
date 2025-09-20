@@ -270,6 +270,7 @@ known_legacy_schema_definitions = [
     "horizon::scale_quanti(Tensor x, Tensor scale, Tensor zero_point, int d, int min, int max, bool flag1, bool flat2, str str1, str str2) -> Tensor", # noqa E501
     "prim::ConstantMKLDNNTensor(...) -> ...",
     "prim::isinstance(Any to_check) -> bool",
+    "prim::mkldnn_convolution(Tensor input, Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups) -> Tensor", # noqa E501
     "prim::shape(Tensor self) -> int[]",
     "llama::custom_sdpa.out(Tensor query, Tensor key, Tensor value, SymInt start_pos, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "llama::custom_sdpa(Tensor query, Tensor key, Tensor value, SymInt start_pos, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None) -> Tensor", # noqa E501
