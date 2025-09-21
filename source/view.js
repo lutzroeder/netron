@@ -528,7 +528,7 @@ view.View = class {
         this.model = model;
         this._path = stack;
         const status = await this.render(this.activeTarget, this.activeSignature);
-        if (status !== '') {
+        if (status === 'cancel') {
             this.model = null;
             this._path = [];
             this._activeTarget = null;
@@ -1435,7 +1435,15 @@ view.Worker = class {
     }
 
     async request(message, delay, notification) {
-        this._cancel();
+        if (this._resolve) {
+            const resolve = this._resolve;
+            resolve({ type: 'terminate' });
+            delete this._resolve;
+            delete this._reject;
+            this._cancel(true);
+        } else {
+            this._cancel(false);
+        }
         return new Promise((resolve, reject) => {
             this._resolve = resolve;
             this._reject = reject;

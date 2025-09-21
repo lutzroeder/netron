@@ -258,8 +258,8 @@ grapher.Graph = class {
         const state = { /* log: true */ };
         if (worker) {
             const message = await worker.request({ type: 'dagre.layout', nodes, edges, layout, state }, 2500, 'This large graph layout might take a very long time to complete.');
-            if (message.type === 'cancel') {
-                return 'graph-layout-cancelled';
+            if (message.type === 'cancel' || message.type === 'terminate') {
+                return message.type;
             }
             nodes = message.nodes;
             edges = message.edges;
