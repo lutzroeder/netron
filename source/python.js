@@ -3503,6 +3503,7 @@ python.Execution = class {
         this.registerType('sklearn.linear_model._least_angle.LassoLarsCV', class {});
         this.registerType('sklearn.linear_model._logistic.LogisticRegression', class {});
         this.registerType('sklearn.linear_model._logistic.LogisticRegressionCV', class {});
+        this.registerType('sklearn.linear_model._perceptron.Perceptron', class {});
         this.registerType('sklearn.linear_model._quantile.QuantileRegressor', class {});
         this.registerType('sklearn.linear_model._ridge.Ridge', class {});
         this.registerType('sklearn.linear_model._ridge.RidgeClassifier', class {});
