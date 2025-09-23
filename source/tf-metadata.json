@@ -34387,7 +34387,7 @@
       {
         "name": "round_mode",
         "type": "string",
-        "description": "Must be one of the following: `HALF_AWAY_FROM_ZERO`, `HALF_TO_EVEN`.",
+        "description": "`round_mode='HALF_TO_EVEN'` only supported for mode 'SCALED'. Must be one of the following: `HALF_AWAY_FROM_ZERO`, `HALF_TO_EVEN`.",
         "default": "HALF_AWAY_FROM_ZERO"
       },
       {
