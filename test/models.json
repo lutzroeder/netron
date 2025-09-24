@@ -3224,6 +3224,14 @@
   },
   {
     "type":     "mlir",
+    "target":   "dogs_vs_cats.stablehlo.mlir",
+    "source":   "https://github.com/user-attachments/files/22517931/dogs_vs_cats.stablehlo.mlir.zip[dogs_vs_cats.stablehlo.mlir]",
+    "format":   "MLIR",
+    "error":    "Unexpected value 'array' at 7:20.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "example.mlir",
     "source":   "https://github.com/user-attachments/files/17792104/example.mlir.zip[example.mlir]",
     "format":   "MLIR",
