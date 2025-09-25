@@ -3511,6 +3511,12 @@
     "name": "aten::huber_loss_backward(Tensor grad_output, Tensor self, Tensor target, int reduction, float delta) -> Tensor"
   },
   {
+    "name": "aten::i0(Tensor self) -> Tensor"
+  },
+  {
+    "name": "aten::i0.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::im2col(Tensor self, int[2] kernel_size, int[2] dilation, int[2] padding, int[2] stride) -> Tensor"
   },
   {
@@ -3906,6 +3912,12 @@
   },
   {
     "name": "aten::linalg_cholesky.out(Tensor self, *, bool upper=False, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::linalg_cholesky_ex(Tensor self, *, bool upper=False, bool check_errors=False) -> (Tensor L, Tensor info)"
+  },
+  {
+    "name": "aten::linalg_cholesky_ex.L(Tensor self, *, bool upper=False, bool check_errors=False, Tensor(a!) L, Tensor(b!) info) -> (Tensor(a!) L, Tensor(b!) info)"
   },
   {
     "name": "aten::linalg_cross(Tensor self, Tensor other, *, int dim=-1) -> Tensor"
@@ -6397,6 +6409,9 @@
   },
   {
     "name": "aten::t(Tensor(a) self) -> Tensor(a)"
+  },
+  {
+    "name": "aten::t_(Tensor(a!) self) -> Tensor(a!)"
   },
   {
     "name": "aten::take(Tensor self, Tensor index) -> Tensor",
