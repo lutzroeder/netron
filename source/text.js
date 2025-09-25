@@ -189,13 +189,13 @@ text.Decoder.Utf16LE = class {
     decode() {
         if (this.position + 1 < this.length) {
             const c = this.buffer[this.position++] | (this.buffer[this.position++] << 8);
-            if (c < 0xD800 || c >= 0xDFFF) {
+            if (c < 0xD800 || c > 0xDFFF) {
                 return String.fromCharCode(c);
             }
-            if (c >= 0xD800 && c < 0xDBFF) {
+            if (c >= 0xD800 && c <= 0xDBFF) {
                 if (this.position + 1 < this.length) {
                     const c2 = this.buffer[this.position++] | (this.buffer[this.position++] << 8);
-                    if (c >= 0xDC00 || c < 0xDFFF) {
+                    if (c2 >= 0xDC00 && c2 <= 0xDFFF) {
                         return String.fromCodePoint(0x10000 + ((c & 0x3ff) << 10) + (c2 & 0x3ff));
                     }
                 }
@@ -221,13 +221,13 @@ text.Decoder.Utf16BE = class {
     decode() {
         if (this.position + 1 < this.length) {
             const c = (this.buffer[this.position++] << 8) | this.buffer[this.position++];
-            if (c < 0xD800 || c >= 0xDFFF) {
+            if (c < 0xD800 || c > 0xDFFF) {
                 return String.fromCharCode(c);
             }
-            if (c >= 0xD800 && c < 0xDBFF) {
+            if (c >= 0xD800 && c <= 0xDBFF) {
                 if (this.position + 1 < this.length) {
                     const c2 = (this.buffer[this.position++] << 8) | this.buffer[this.position++];
-                    if (c >= 0xDC00 || c < 0xDFFF) {
+                    if (c2 >= 0xDC00 && c2 <= 0xDFFF) {
                         return String.fromCodePoint(0x10000 + ((c & 0x3ff) << 10) + (c2 & 0x3ff));
                     }
                 }
@@ -252,8 +252,12 @@ text.Decoder.Utf32LE = class {
 
     decode() {
         if (this.position + 3 < this.length) {
-            const c = this.buffer[this.position++] | (this.buffer[this.position++] << 8) || (this.buffer[this.position++] << 16) || (this.buffer[this.position++] << 24);
-            if (c < 0x10FFFF) {
+            const c =
+                (this.buffer[this.position++] << 24) |
+                (this.buffer[this.position++] << 16) |
+                (this.buffer[this.position++] << 8) |
+                (this.buffer[this.position++]);
+            if (c <= 0x10FFFF) {
                 return String.fromCodePoint(c);
             }
             return String.fromCharCode(0xfffd);
@@ -276,8 +280,12 @@ text.Decoder.Utf32BE = class {
 
     decode() {
         if (this.position + 3 < this.length) {
-            const c = (this.buffer[this.position++] << 24) || (this.buffer[this.position++] << 16) || (this.buffer[this.position++] << 8) | this.buffer[this.position++];
-            if (c < 0x10FFFF) {
+            const c =
+                (this.buffer[this.position++] << 24) |
+                (this.buffer[this.position++] << 16) |
+                (this.buffer[this.position++] << 8) |
+                (this.buffer[this.position++]);
+            if (c <= 0x10FFFF) {
                 return String.fromCodePoint(c);
             }
             return String.fromCharCode(0xfffd);
