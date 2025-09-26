@@ -8,3 +8,12 @@ test-results/*
 third_party/*
 yarn.lock
 *.pyc
+
+# MLIR parser artifacts (downloaded via tools/update-mlir-parser.js)
+source/mlir_parser.wasm
+source/mlir_parser.js
+source/bindings.js
+source/mlir-bindings.js
+
+# Built web artifacts that may include wasm
+dist/web/*.wasm
