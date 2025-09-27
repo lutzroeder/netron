@@ -363,5 +363,13 @@
   {
     "name": "Slice",
     "category": "Tensor"
+  },
+  {
+    "name": "Pad",
+    "category": "Tensor"
+  },
+  {
+    "name": "exSoftmax13",
+    "category": "Activation"
   }
 ]
