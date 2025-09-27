@@ -252,7 +252,7 @@ kmodel.Reader = class {
     }
 
     read() {
-        if (this.version < 3 || this.version > 7) {
+        if (this.version < 3 || this.version > 8) {
             throw new kmodel.Error(`Unsupported model version '${this.version}'.`);
         }
         const types = new Map();
