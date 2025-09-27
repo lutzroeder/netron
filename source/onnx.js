@@ -703,8 +703,8 @@ onnx.SequenceType = class {
         return this._elementType;
     }
 
-    get dennotation() {
-        return this._dennotation;
+    get denotation() {
+        return this._denotation;
     }
 
     toString() {
