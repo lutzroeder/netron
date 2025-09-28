@@ -926,6 +926,8 @@ paddle.framework.proto.VarType.Type = {
     "COMPLEX128": 24,
     "FP8_E4M3FN": 32,
     "FP8_E5M2": 33,
+    "UINT32": 37,
+    "UINT64": 38,
     "DENSE_TENSOR": 7,
     "SELECTED_ROWS": 8,
     "FEED_MINIBATCH": 9,

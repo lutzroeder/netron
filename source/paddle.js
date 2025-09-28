@@ -841,12 +841,8 @@ paddle.Utility = class {
             paddle.Utility._dataTypes = new Array(length);
             const types = new Map([
                 ['bool', 'boolean'],
-                ['bf16', 'bfloat16'],
-                ['fp16', 'float16'],
-                ['fp32', 'float32'],
-                ['fp64', 'float64'],
-                ['fp8_e4m3fn', 'float8e4m3fn'],
-                ['fp8_e5m2', 'float8e5m2']
+                ['bf16', 'bfloat16'], ['fp16', 'float16'], ['fp32', 'float32'], ['fp64', 'float64'],
+                ['fp8_e4m3fn', 'float8e4m3fn'], ['fp8_e5m2', 'float8e5m2']
             ]);
             for (const [name, index] of Object.entries(paddle.DataType)) {
                 const key = name.toLowerCase();
