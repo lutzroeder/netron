@@ -12889,27 +12889,19 @@ python.Execution = class {
                     const rhs = assign.value;
                     switch (rhs.type) {
                         case 'str':
-                            ivalue = new torch._C.IValue(rhs.value);
+                            ivalue = new torch._C.IValue(rhs.value, 'String');
                             set_or_check_type(torch.StringType.get());
+                            break;
+                        case 'int':
+                            ivalue = new torch._C.IValue(rhs.value, 'Int');
+                            set_or_check_type(torch.IntType.get());
+                            break;
+                        case 'float':
+                            ivalue = new torch._C.IValue(rhs.value, 'Double');
+                            set_or_check_type(torch.FloatType.get());
                             break;
                         default:
                             throw new python.Error(`Unsupported enum value type '${rhs.type}'.`);
-                            /*
-                        case TK_CONST: {
-                            auto numeric_const = Const(rhs);
-                            if (numeric_const.isFloatingPoint()) {
-                            ivalue = IValue(numeric_const.asFloatingPoint());
-                            set_or_check_type(FloatType::get(), statement.range());
-                            } else if (numeric_const.isIntegral()) {
-                            ivalue = IValue(numeric_const.asIntegral());
-                            set_or_check_type(IntType::get(), statement.range());
-                            }
-                            break;
-                        }
-                        default:
-                            throw(ErrorReport(rhs.range()) << "Unsupported enum value type: " << rhs.kind() << ". Only Integers, Floats and Strings are supported.");
-                        }
-                        */
                     }
                     names_values.push([name, ivalue]);
                 }
@@ -14880,6 +14872,9 @@ python.Execution = class {
                 this._type = type;
                 this._name = name;
                 this._value = value;
+            }
+            name() {
+                return this._name;
             }
             type() {
                 return this._type;

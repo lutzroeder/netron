@@ -451,7 +451,11 @@ pytorch.Node = class {
                             continue;
                         }
                         const type = input.type() ? pytorch.Utility.toType(input.type()) : null;
-                        argument = new pytorch.Argument(name, input.value, type || 'attribute');
+                        let value = input.value;
+                        if (value && value instanceof torch._C.IValue) {
+                            value = pytorch.Utility.toString(value);
+                        }
+                        argument = new pytorch.Argument(name, value, type || 'attribute');
                     } else if (input.type() instanceof torch.ListType) {
                         if (input.node() && input.node().kind() === 'prim::ListConstruct' && input.uses().length === 1 &&
                         input.node().inputs().every((value) => value instanceof torch.Value || value.type() instanceof torch.IntType || value.type() instanceof torch.FloatType || value.type() instanceof torch.StringType || value.type() instanceof torch.ComplexType || value.type() instanceof torch.TensorType)) {
@@ -1868,8 +1872,25 @@ pytorch.Utility = class {
             case 'AnyListType': return 'list';
             case 'AnyTupleType': return 'tuple';
             case 'ClassType': return type.annotation_str;
+            case 'EnumType': return type.annotation_str;
             default: throw new pytorch.Error(`Unsupported type '${type.kind()}'.`);
         }
+    }
+
+    static toString(ivalue) {
+        if (ivalue.isInt()) {
+            return ivalue.toInt();
+        }
+        if (ivalue.isDouble()) {
+            return ivalue.toDouble();
+        }
+        if (ivalue.isEnum()) {
+            return ivalue.toEnumHolder().name();
+        }
+        if (ivalue.isList()) {
+            return ivalue.toList().map((item) => pytorch.Utility.toString(item));
+        }
+        throw new pytorch.Error(`Unsupported IValue '${ivalue.tag}.`);
     }
 
     static constant(node, name) {

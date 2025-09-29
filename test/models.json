@@ -5679,6 +5679,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "enum_int_test.pt",
+    "source":   "https://github.com/user-attachments/files/22600859/enum_int_test.pt.zip[enum_int_test.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
     "target":   "exported_program.pt2",
     "source":   "https://github.com/lutzroeder/netron/files/13855206/exported_program.pt2.zip[exported_program.pt2]",
     "format":   "PyTorch Export v1",
