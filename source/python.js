@@ -5166,6 +5166,7 @@ python.Execution = class {
         this.registerFunction('sklearn.metrics.scorer._passthrough_scorer');
         this.registerFunction('sklearn.metrics._classification.accuracy_score');
         this.registerFunction('sklearn.metrics._classification.balanced_accuracy_score');
+        this.registerFunction('sklearn.metrics._classification.cohen_kappa_score');
         this.registerFunction('sklearn.metrics._classification.f1_score');
         this.registerFunction('sklearn.metrics._classification.log_loss');
         this.registerFunction('sklearn.metrics._classification.precision_score');
