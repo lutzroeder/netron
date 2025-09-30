@@ -42,7 +42,7 @@ python.Execution = class {
                 this.delete(key);
             }
             get(key, defaultValue) {
-                return super.get(key) || defaultValue;
+                return super.has(key) ? super.get(key) : defaultValue;
             }
             setdefault(key, defaultValue) {
                 if (this.has(key)) {
