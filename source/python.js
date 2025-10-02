@@ -7400,23 +7400,12 @@ python.Execution = class {
             const sympify = (node) => {
                 if (node instanceof ast.Call) {
                     switch (node.func.id) {
-                        case 'Symbol': {
-                            const name = node.args[0].value;
-                            return new sympy.core.symbol.Symbol(name);
-                        }
-                        case 'Mul': {
-                            return new sympy.core.mul.Mul(...node.args.map((arg) => sympify(arg)));
-                        }
-                        case 'Pow': {
-                            return new sympy.core.power.Pow(...node.args.map((arg) => sympify(arg)));
-                        }
-                        case 'Integer': {
-                            const value = node.args[0].value;
-                            return new sympy.core.numbers.Integer(value);
-                        }
-                        default: {
-                            throw new python.Error(`Unsupported SymPy function '${node.func.id}'.`);
-                        }
+                        case 'Symbol': return new sympy.core.symbol.Symbol(node.args[0].value);
+                        case 'Mul': return new sympy.core.mul.Mul(...node.args.map((arg) => sympify(arg)));
+                        case 'Add': return new sympy.core.add.Add(...node.args.map((arg) => sympify(arg)));
+                        case 'Pow': return new sympy.core.power.Pow(...node.args.map((arg) => sympify(arg)));
+                        case 'Integer': return new sympy.core.numbers.Integer(node.args[0].value);
+                        default: throw new python.Error(`Unsupported SymPy function '${node.func.id}'.`);
                     }
                 }
                 if (node instanceof ast.Name) {
