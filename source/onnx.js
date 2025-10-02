@@ -1435,10 +1435,10 @@ onnx.Context.Graph = class {
         const outputMap = new Map();
         for (const node of nodes) {
             for (const input of node.input) {
-                inputMap.set(input.name, (inputMap.get(input) || 0) + 1);
+                inputMap.set(input.name, (inputMap.get(input.name) || 0) + 1);
             }
             for (const output of node.output) {
-                outputMap.set(output.name, (outputMap.get(output) || 0) + 1);
+                outputMap.set(output.name, (outputMap.get(output.name) || 0) + 1);
             }
         }
         inputs.every((input) => inputMap.delete(input.name));
