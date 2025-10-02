@@ -27,7 +27,9 @@ clean() {
 
 sync() {
     echo "onnx sync"
-    [ -d "./third_party/source/onnx" ] || git clone --quiet --recursive https://github.com/onnx/onnx.git "./third_party/source/onnx"
+    if [ ! -d "./third_party/source/onnx" ]; then
+        git clone --quiet --recursive https://github.com/onnx/onnx.git "./third_party/source/onnx"
+    fi
     pushd "./third_party/source/onnx" > /dev/null
     git pull --quiet --prune
     git submodule sync --quiet
@@ -92,8 +94,9 @@ install() {
             ;;
     esac
     ${python} -m pip install --quiet "./third_party/source/onnx"
-    ${python} -m pip install --quiet --upgrade packaging flatbuffers protobuf numpy sympy
-    ${python} -m pip install --quiet --upgrade onnxruntime --pre --extra-index https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/
+    ${python} -m pip install --quiet --upgrade flatbuffers numpy packaging protobuf sympy
+    # ${python} -m pip install --quiet --upgrade onnxruntime --pre --extra-index https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/
+    ${python} -m pip install --quiet --upgrade onnxruntime
     deactivate
 }
 
