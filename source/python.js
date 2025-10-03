@@ -9535,7 +9535,7 @@ python.Execution = class {
                 super('FutureType');
                 this._elem = elem;
             }
-            static get(elem) {
+            static create(elem) {
                 return new torch.FutureType(elem);
             }
             getElementType() {
@@ -9556,7 +9556,7 @@ python.Execution = class {
                 super('RRefType');
                 this._elem = elem;
             }
-            get(elem) {
+            static create(elem) {
                 return new torch.RRefType(elem);
             }
             getElementType() {
@@ -10178,7 +10178,7 @@ python.Execution = class {
                     const subtype = p.first;
                     // const subalias = p.second;
                     L.expect(')');
-                    real_value = torch.FutureType.get(subtype);
+                    real_value = torch.FutureType.create(subtype);
                     fake_value = real_value;
                 } else if (L.cur().text() === 'Await') {
                     L.next();
@@ -10196,7 +10196,7 @@ python.Execution = class {
                     const subtype = p.first;
                     // const subalias = p.second;
                     L.expect(')');
-                    real_value = torch.RRefType.get(subtype);
+                    real_value = torch.RRefType.create(subtype);
                     fake_value = real_value;
                 } else if (L.cur().text() === 'Tensor') {
                     L.next();
@@ -11040,34 +11040,39 @@ python.Execution = class {
                     return torch.OptionalType.create(elem_type);
                 } else if (typeName === 'Union') {
                     const subscript_expr_types = [];
-                    for (const expr of subscript.slice.elts) {
+                    const elts = subscript.slice instanceof ast.Tuple ? subscript.slice.elts : [subscript.slice];
+                    for (const expr of elts) {
                         subscript_expr_types.push(this.parseTypeFromExprImpl(expr));
                     }
                     return torch.UnionType.create(subscript_expr_types);
                 } else if (typeName === 'Future' || typeName === 'torch.jit.Future') {
-                    if (subscript.slice.elts.length !== 1) {
+                    const elts = subscript.slice instanceof ast.Tuple ? subscript.slice.elts : [subscript.slice];
+                    if (elts.length !== 1) {
                         throw new python.Error('Future type must have exactly one element type.');
                     }
-                    const elem_type = this.parseTypeFromExprImpl(subscript.slice.elts[0]);
+                    const elem_type = this.parseTypeFromExprImpl(elts[0]);
                     return torch.FutureType.create(elem_type);
                 } else if (typeName === 'Await' || typeName === 'torch.jit._Await') {
-                    if (subscript.slice.elts.length !== 1) {
+                    const elts = subscript.slice instanceof ast.Tuple ? subscript.slice.elts : [subscript.slice];
+                    if (elts.length !== 1) {
                         throw new python.Error('Await type must have exactly one element type.');
                     }
-                    const elem_type = this.parseTypeFromExprImpl(subscript.slice.elts[0]);
+                    const elem_type = this.parseTypeFromExprImpl(elts[0]);
                     return torch.AwaitType.create(elem_type);
                 } else if (typeName === 'RRef') {
-                    if (subscript.slice.elts.length !== 1) {
+                    const elts = subscript.slice instanceof ast.Tuple ? subscript.slice.elts : [subscript.slice];
+                    if (elts.length !== 1) {
                         throw new python.Error('RRef type must have exactly one element type.');
                     }
-                    const elem_type = this.parseTypeFromExprImpl(subscript.slice.elts[0]);
+                    const elem_type = this.parseTypeFromExprImpl(elts[0]);
                     return torch.RRefType.create(elem_type);
                 } else if (typeName === 'Dict' || typeName === 'dict') {
-                    if (subscript.slice.elts.length !== 2) {
+                    const elts = subscript.slice instanceof ast.Tuple ? subscript.slice.elts : [subscript.slice];
+                    if (elts.length !== 2) {
                         throw new python.Error('Dict type must have exactly two element types.');
                     }
-                    const key_type = this.parseTypeFromExprImpl(subscript.slice.elts[0]);
-                    const value_type = this.parseTypeFromExprImpl(subscript.slice.elts[1]);
+                    const key_type = this.parseTypeFromExprImpl(elts[0]);
+                    const value_type = this.parseTypeFromExprImpl(elts[1]);
                     return torch.DictType.create(key_type, value_type);
                 }
                 throw new python.Error(`Unknown type constructor '${typeName}'.`);
