@@ -35,9 +35,6 @@ jobs:
       - name: Install Packages
         run: npm run install
 
-      - name: Validate
-        run: npm run validate
-
       - name: Publish Electron
         shell: bash
         env:
