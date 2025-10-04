@@ -73,6 +73,7 @@ known_legacy_schema_definitions = [
     "aqlm::code2x8_lut_matmat.out(Tensor input, Tensor codes, Tensor codebooks, Tensor scales, Tensor? bias, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "detectron2::nms_rotated(Tensor boxes, Tensor scores, float iou_threshold) -> Tensor", # noqa E501
     "detectron2::roi_align_rotated_forward(Tensor input, Tensor rois, float spatial_scale, int pooled_height, int pooled_width, int sampling_ratio) -> Tensor", # noqa E501
+    "dim_order_ops::_clone_dim_order.out(Tensor self, *, bool non_blocking=False, int[]? dim_order=None, Tensor(a!)", # noqa E501
     "dim_order_ops::_empty_dim_order.out(int[] size, *, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "dim_order_ops::_to_dim_order_copy.out(Tensor self, *, bool non_blocking=False, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "executorch_prim::et_view.default(Tensor self, int[] size) -> (Tensor out)",
@@ -82,6 +83,7 @@ known_legacy_schema_definitions = [
     "executorch_prim::floordiv.Scalar(Scalar a, Scalar b) -> Scalar",
     "fbgemm::asynchronous_complete_cumsum(Tensor t_in) -> Tensor",
     "fbgemm::nccl_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()", # noqa E501
+    "fbgemm::jagged_to_padded_dense(Tensor values, Tensor[] offsets, SymInt[] max_lengths, float padding_value=0.) -> Tensor", # noqa E501
     "fbgemm::quantize_fp8_per_tensor(Tensor input, Tensor? bs=None, Tensor? scale_ub=None, bool stochastic_rounding=False) -> Tensor[]", # noqa E501
     "fbgemm::per_tensor_dynamic_quantize_i8(Tensor X) -> (Tensor, Tensor)",
     "fbgemm::nccl_reducescatter(Tensor dst, Tensor src, int comm_idx=0) -> ()",
