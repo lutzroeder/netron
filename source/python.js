@@ -10715,6 +10715,10 @@ python.Execution = class {
                 this._parse();
                 return this._is_varret;
             }
+            argumentIndexWithName(name) {
+                const index = this.arguments.findIndex((arg) => arg.name === name);
+                return index === -1 ? null : index;
+            }
             _parse() {
                 if (this._buffer) {
                     const parser = new torch._C.SchemaParser(this._buffer, true /* parseSchemaOrName */);
@@ -14167,10 +14171,10 @@ python.Execution = class {
                 const nv = kwargs[i];
                 if (!used_kwarg[i]) {
                     if (failure_messages) {
-                        if (schema.argumentIndexWithName(nv.name())) {
-                            throw new python.Error('Keyword argument specified twice.');
-                        } else {
+                        if (schema.argumentIndexWithName(nv.name()) === null) {
                             throw new python.Error('Keyword argument unknown.');
+                        } else {
+                            throw new python.Error('Keyword argument specified twice.');
                         }
                     }
                     return null;
